@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Get IP Addresses for the current system.
 
@@ -7,14 +7,16 @@ NB: This is Linux specific at the moment.
 See test/mcsrouter/getip.py for some alternatives
 """
 
-import os
-import sys
-import socket
-import fcntl
-import struct
 import array
+import fcntl
+import os
+import socket
+import struct
 import subprocess
+import sys
+
 from .utils.byte2utf8 import to_utf8
+
 
 def get_all_interfaces():
     """

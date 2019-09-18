@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 mcs_router Module
 """
@@ -6,23 +6,20 @@ mcs_router Module
 
 
 
-import gc
-import sys
-import os
+import builtins
+import configparser
 import fcntl
+import gc
 import logging
 import logging.handlers
-
-import configparser
-
+import os
 import signal
+import sys
 import time
-import builtins
 
+from . import sophos_https
 from .utils import path_manager
 from .utils.logger_utcformatter import UTCFormatter
-from . import sophos_https
-
 
 LOGGER = logging.getLogger(__name__ if __name__ !=
                            "__main___" else "mcsrouter")

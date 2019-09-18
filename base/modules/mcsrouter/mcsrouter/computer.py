@@ -1,13 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
 """
 computer Module
 """
 
+import glob
 import logging
 import os
-import glob
 
 from .mcsclient import status_cache
 from .utils import timestamp, path_manager

@@ -3,16 +3,12 @@ mcs_adapter Module
 """
 
 import datetime
-
 import logging
 
 import mcsrouter.adapters.adapter_base
 import mcsrouter.adapters.mcs.mcs_policy_handler
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper
-from mcsrouter.utils.byte2utf8 import to_utf8
-
-
 
 LOGGER = logging.getLogger(__name__)
 

@@ -1,21 +1,21 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 sophos_https Module
 """
 
+import base64
+import http.client
 import os
-import urllib.request
-import urllib.error
-import urllib.parse
 import socket
 import ssl
-import http.client
-import base64
-
+import urllib.error
+import urllib.parse
+import urllib.request
 
 # pylint: disable=relative-import
 from . import proxy_authorization
 from .mcsclient import mcs_exception
+
 LOGGER = None
 
 

@@ -1,10 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 config Module
 """
 
 import os
+
 from . import path_manager
+
 
 class Config(object):
     """

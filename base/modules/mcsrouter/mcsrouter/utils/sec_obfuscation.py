@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright 2017 Sophos Plc. All rights reserved.
 """
 sec_obfuscation Module
@@ -8,10 +8,9 @@ sec_obfuscation Module
 
 import binascii
 
-
 from Crypto.Cipher import DES3
-from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Hash import SHA512, HMAC
+from Crypto.Protocol.KDF import PBKDF2
 
 # Algorithm enumeration:
 ALGO_3DES = 7

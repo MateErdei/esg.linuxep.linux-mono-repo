@@ -1,33 +1,31 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 register_central Module
 """
 
 
 
-import glob
-import os
-import subprocess
-import random
-import sys
-import time
 import argparse
-import errno
 import builtins
-
+import errno
+import glob
 import logging
 import logging.handlers
+import os
+import random
+import subprocess
+import sys
+import time
 
-from .utils import config as utils_config
-from .utils.logger_utcformatter import UTCFormatter
-from .utils.get_ids import get_gid, get_uid
-from .utils.byte2utf8 import to_utf8
-from .mcsclient import mcs_exception
-from .mcsclient import mcs_connection
 from . import mcs as MCS
+from .mcsclient import mcs_connection
+from .mcsclient import mcs_exception
+from .utils import config as utils_config
 from .utils import path_manager
-
 from .utils import sec_obfuscation
+from .utils.byte2utf8 import to_utf8
+from .utils.get_ids import get_gid, get_uid
+from .utils.logger_utcformatter import UTCFormatter
 
 LOGGER = logging.getLogger(__name__)
 

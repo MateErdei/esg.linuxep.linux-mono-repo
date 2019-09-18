@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 events Module
 """
@@ -6,7 +6,9 @@ events Module
 #pylint: disable=line-too-long
 
 import logging
+
 import mcsrouter.utils.xml_helper
+
 LOGGER = logging.getLogger(__name__)
 
 

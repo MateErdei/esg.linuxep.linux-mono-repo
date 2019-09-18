@@ -1,14 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 ip_selection Module
 """
 
-import socket
 import ipaddress
-import threading
 import logging
-from . import ip_address
+import socket
+import threading
 import time
+
+from . import ip_address
+
 LOGGER = logging.getLogger(__name__)
 
 

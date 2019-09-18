@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
@@ -9,9 +9,9 @@ proxy_authorization Module
 
 
 import logging
-import urllib.request
 import urllib.error
 import urllib.parse
+import urllib.request
 
 LOGGER = logging.getLogger(__name__)
 

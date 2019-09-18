@@ -1,19 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 mcs_policy_handler Module
 """
 
+import logging
 import os
-
 import xml.dom.minidom
-
 import xml.parsers.expat  # for xml.parsers.expat.ExpatError
 
-import logging
-
-import mcsrouter.utils.xml_helper
-import mcsrouter.utils.utf8_write
 import mcsrouter.utils.path_manager as path_manager
+import mcsrouter.utils.utf8_write
+import mcsrouter.utils.xml_helper
 
 LOGGER = logging.getLogger(__name__)
 

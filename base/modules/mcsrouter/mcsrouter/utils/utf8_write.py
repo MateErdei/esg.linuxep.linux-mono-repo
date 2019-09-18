@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 utf8_write Module
 """
-import logging
 import codecs
+import logging
 
 
 def utf8_write(path, data):

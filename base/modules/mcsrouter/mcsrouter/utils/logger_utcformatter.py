@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
     UTCFormatter module
 """
 
-from logging import Formatter
 import time
+from logging import Formatter
 
 
 class UTCFormatter(Formatter):

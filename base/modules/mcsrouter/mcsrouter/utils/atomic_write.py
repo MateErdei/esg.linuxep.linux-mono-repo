@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 atomic_write Module
 """
 
-import os
 import logging
+import os
+
 from .utf8_write import utf8_write
 
 

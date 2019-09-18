@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
 """
@@ -7,9 +7,9 @@ status_cache Module
 
 
 
+import logging
 import re
 import time
-import logging
 
 LOGGER = logging.getLogger(__name__)
 

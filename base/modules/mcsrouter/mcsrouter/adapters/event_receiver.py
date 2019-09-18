@@ -1,14 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 event_receiver Module
 """
 
 
 
+import logging
 import os
 import re
 
-import logging
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper as xml_helper
 

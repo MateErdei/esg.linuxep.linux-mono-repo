@@ -1,17 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
 XMLHelper Module
 """
 
+import codecs
+import logging
 import xml.dom
 import xml.dom.expatbuilder
 import xml.dom.xmlbuilder
 import xml.parsers.expat
-import codecs
 
-import logging
 LOGGER = logging.getLogger("mcsrouter")
 
 def get_text_from_element(element):

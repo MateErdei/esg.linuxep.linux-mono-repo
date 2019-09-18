@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
 """
@@ -8,34 +8,35 @@ MCS Module
 
 
 import errno
+import http.client
+import logging
 import os
+import random
+import select
 import socket
 import time
-import http.client
-import select
-import logging
-import random
 
+from . import computer
 from .adapters import agent_adapter
-from .adapters import event_receiver
 from .adapters import app_proxy_adapter
-from .adapters import mcs_adapter
+from .adapters import event_receiver
 from .adapters import generic_adapter
-from .mcsclient import mcs_connection
+from .adapters import mcs_adapter
+from .mcsclient import events as events_module
+from .mcsclient import events_timer as events_timer_module
 from .mcsclient import mcs_commands
+from .mcsclient import mcs_connection
 from .mcsclient import mcs_exception
 from .mcsclient import status_event as status_event_module
 from .mcsclient import status_timer
-from .mcsclient import events as events_module
-from .mcsclient import events_timer as events_timer_module
 from .utils import config as config_module
-from .utils import timestamp
-from .utils import id_manager
-from .utils import signal_handler
 from .utils import directory_watcher as directory_watcher_module
-from .utils import plugin_registry
+from .utils import id_manager
 from .utils import path_manager
-from . import computer
+from .utils import plugin_registry
+from .utils import signal_handler
+from .utils import timestamp
+from .utils.get_ids import get_gid, get_uid
 
 LOGGER = logging.getLogger(__name__)
 
@@ -158,7 +159,12 @@ class MCS:
         self.__m_comms = None
 
         fixed_config = config_module.Config(
-            filename=path_manager.root_config(),parent_config=config)
+            filename=path_manager.root_config(),
+            parent_config=config,
+            mode=0o640,
+            user_id=get_uid("root"),
+            group_id=get_gid("sophos-spl-group")
+        )
 
         fixed_config.set_default(
             "MCSURL",
@@ -166,10 +172,18 @@ class MCS:
 
         self.__m_policy_config = config_module.Config(
             filename=path_manager.mcs_policy_config(),
-            parent_config=fixed_config)
+            parent_config=fixed_config,
+            mode=0o600,
+            user_id=get_uid("sophos-spl-user"),
+            group_id=get_gid("sophos-spl-group")
+        )
         self.__m_config = config_module.Config(
             filename=path_manager.sophosspl_config(),
-            parent_config=self.__m_policy_config)
+            parent_config=self.__m_policy_config,
+            mode=0o600,
+            user_id=get_uid("sophos-spl-user"),
+            group_id=get_gid("sophos-spl-group")
+        )
         config = self.__m_config
 
         status_latency = self.__m_config.get_int("STATUS_LATENCY", 30)

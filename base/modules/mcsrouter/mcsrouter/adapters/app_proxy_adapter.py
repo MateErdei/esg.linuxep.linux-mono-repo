@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 app_proxy_adapter Module
 """
@@ -6,14 +6,14 @@ app_proxy_adapter Module
 
 
 
+import logging
 import xml.dom.minidom
 import xml.parsers.expat
-import logging
 
 import mcsrouter.adapters.adapter_base
+import mcsrouter.mcsclient.mcs_commands
 import mcsrouter.utils.timestamp
 import mcsrouter.utils.xml_helper
-import mcsrouter.mcsclient.mcs_commands
 
 LOGGER = logging.getLogger(__name__)
 

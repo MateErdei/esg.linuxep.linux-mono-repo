@@ -1,14 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 signal_handler Module
 """
 
 import fcntl
+import logging
 import os
 import signal
 import sys
 
-import logging
 LOGGER = logging.getLogger(__name__)
 
 #pylint: disable=invalid-name, global-statement

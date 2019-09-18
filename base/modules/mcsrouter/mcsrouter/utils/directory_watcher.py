@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Wrapper for the 'watcher' module, which writes to a pipe on any change,
@@ -7,11 +7,11 @@ so that we can wait for it in a select.select() call.
 
 
 
-import os
 import logging
+import os
 
-import watchdog.observers
 import watchdog.events
+import watchdog.observers
 
 from . import signal_handler
 
