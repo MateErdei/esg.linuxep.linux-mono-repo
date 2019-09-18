@@ -98,6 +98,21 @@ class TestUtils(unittest.TestCase):
         self.assertEqual( len(elements), 4)
 
 
+    def test_parseString(self):
+        """Parse xml will produce utf-8 strings if the input is an utf-8 string or bytearray"""
+        parsed_string="""<?xml version="1.0" ?><hello/>"""
+        string_input = """<?xml version="1.0" encoding="utf-8" ?><hello/>"""
+        bytes_string_input = b"""<?xml version="1.0" encoding="utf-8" ?><hello/>"""
+        for input_s in (string_input, bytes_string_input):
+            doc = xml_helper.parseString(input_s)
+            self.assertTrue(isinstance(doc, xml.dom.minidom.Document))
+            s = doc.toxml()
+            self.assertTrue(isinstance(s, str))
+            self.assertEqual(s, parsed_string)
+
+
+
+
 alc_status="""<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
     <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />

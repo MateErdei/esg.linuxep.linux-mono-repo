@@ -122,10 +122,9 @@ class AdapterBase:
         self._set_text(status_node, doc, status)
         config_node = doc.getElementsByTagName("configuration")[0]
         conf_xml = self._get_config_xml()
-        assert isinstance(conf_xml, str)
         self._set_text(config_node, doc, conf_xml)
 
-        output = to_utf8(doc.toxml(encoding="utf-8"))
+        output = doc.toxml()
         doc.unlink()
         return output
 
