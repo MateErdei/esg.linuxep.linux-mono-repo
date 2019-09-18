@@ -310,10 +310,9 @@ static int downloadInstaller(std::string location, bool updateCache)
     RETURN_IF_ERROR("setUseHttps", ret);
 
 
-    auto * certsToUse = const_cast<char *>("installer/sdds_https_rootca.crt");
     if (updateCache)
     {
-        certsToUse = const_cast<char *>("installer/uc_certs.crt");
+        auto certsToUse = const_cast<char *>("installer/uc_certs.crt");
         ret = SU_setSslCertificatePath(session, certsToUse);
         RETURN_IF_ERROR("setSslCertificatePath", ret);
     }
