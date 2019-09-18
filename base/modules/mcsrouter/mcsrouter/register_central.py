@@ -69,7 +69,8 @@ def setup_logging():
     root_logger.addHandler(file_handler)
 
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
+    console_formarter = logging.Formatter("%(levelname)7s: %(message)s")
+    stream_handler.setFormatter(console_formarter)
     stream_handler.setLevel(logging.ERROR)
     root_logger.addHandler(stream_handler)
 
@@ -144,8 +145,9 @@ def register(config, inst, logger):
             break
         except mcs_exception.MCSConnectionFailedException as ex:
             url = config.get("MCSURL")
-            logger.warning(
-                "Failed to connect to Sophos Central: Check URL: {}. Error: {}".format(url, str(ex)))
+            logger.warning("Connection failure. Reason: {}".format(str(ex)))
+            logger.error(
+                "Failed to connect to Sophos Central: Check URL: {}.".format(url))
             ret = 4
             break
         except mcs_connection.MCSHttpException as exception:
@@ -267,6 +269,7 @@ def stop_mcs_router():
     output = to_utf8(subprocess.check_output(
         ["systemctl", "show", "-p", "SubState", "sophos-spl"]))
     if "SubState=dead" not in output:
+        LOGGER.info("Stop mcsrouter")
         subprocess.call([path_manager.wdctl_bin_path(), "stop", "mcsrouter"])
 
 
@@ -277,6 +280,7 @@ def start_mcs_router():
     output = to_utf8(subprocess.check_output(
         ["systemctl", "show", "-p", "SubState", "sophos-spl"]))
     if "SubState=dead" not in output:
+        LOGGER.info("Start mcsrouter")
         subprocess.call([path_manager.wdctl_bin_path(), "start", "mcsrouter"])
 
 
@@ -287,6 +291,7 @@ def restart_update_scheduler():
     output = to_utf8(subprocess.check_output(
         ["systemctl", "show", "-p", "SubState", "sophos-spl"]))
     if "SubState=dead" not in output:
+        LOGGER.info("Restart update scheduler")
         update_scheduler = "updatescheduler"
         subprocess.call([path_manager.wdctl_bin_path(),
                          "stop", update_scheduler])
@@ -300,7 +305,7 @@ def inner_main(argv):
     """
     # pylint: disable=too-many-branches, too-many-statements
 
-    #stop_mcs_router()
+    stop_mcs_router()
     ret = 1
     usage = "Usage: register_central <MCS-Token> <MCS-URL> | register_central [options]"
     parser = argparse.ArgumentParser(usage=usage)
