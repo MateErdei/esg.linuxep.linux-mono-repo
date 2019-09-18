@@ -94,10 +94,9 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         else:
             relay_node.removeAttribute("endpointId")
             relay_node.removeAttribute("lastUsed")
-        output = doc.toxml(encoding="utf-8")
+        output = doc.toxml()
         doc.unlink()
-        LOGGER.debug("Status MCS XML: %s", output)
-        output = output if isinstance(output, str) else to_utf8(output)
+        LOGGER.debug("Status MCS XML: {}".format(output))
         return output
 
     def _has_new_status(self):
