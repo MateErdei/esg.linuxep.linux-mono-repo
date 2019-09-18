@@ -266,7 +266,7 @@ def remove_all_update_reports_and_config():
     for file_to_remove in glob.glob(
             "{}/update_report*.json".format(path_manager.update_var_path())):
         safe_delete(file_to_remove)
-    safe_delete(os.join(path_manager.update_var_path(), "update_config.json"))
+    safe_delete(os.path.join(path_manager.update_var_path(), "update_config.json"))
 
 
 def stop_mcs_router():
