@@ -9,6 +9,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "../Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/OSUtilities/IIPUtils.h>
 #include <Common/ObfuscationImpl/Obfuscate.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -107,6 +108,7 @@ namespace UpdateSchedulerImpl
     {
         using namespace Common::XmlUtilities;
         using namespace Common::ApplicationConfiguration;
+        using namespace Common::FileSystem;
 
         SettingsHolder UpdatePolicyTranslator::translatePolicy(const std::string& policyXml)
         {
@@ -142,10 +144,21 @@ namespace UpdateSchedulerImpl
 
             auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
 
-            std::string connectionAddress = primaryLocation.value("ConnectionAddress");
+            std::string connectionAddress("");
+
+            if(fileSystem()->isFile(applicationPathManager().getSophosAliasFilePath()))
+            {
+                connectionAddress = fileSystem()->readFile(applicationPathManager().getSophosAliasFilePath());
+            }
+            else
+            {
+                connectionAddress = primaryLocation.value("ConnectionAddress");
+            }
+
             std::vector<std::string> defaultLocations{
                 SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL
             };
+
             if (!connectionAddress.empty())
             {
                 defaultLocations.insert(begin(defaultLocations), connectionAddress);
@@ -156,17 +169,6 @@ namespace UpdateSchedulerImpl
             std::string pass{ primaryLocation.value("UserPassword") };
             std::string algorithm{ primaryLocation.value("Algorithm") };
             bool requireObfuscation = true;
-
-            // we check that username and password are not empty mainly for fuzzing purposes as in
-            // product we never expect central to send us a policy with empty credentials
-            if (pass.empty())
-            {
-                throw std::invalid_argument("Invalid policy: Password is empty ");
-            }
-            if (user.empty())
-            {
-                throw std::invalid_argument("Invalid policy: Username is empty ");
-            }
 
             if (algorithm == "AES256")
             {

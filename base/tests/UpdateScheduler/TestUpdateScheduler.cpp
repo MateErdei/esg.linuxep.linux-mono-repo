@@ -307,6 +307,7 @@ public:
         auto pointer = filesystemMock;
         // handle the retrieval of machine id from SchedulerProcessor
         EXPECT_CALL(*pointer, isFile("/installroot/base/etc/machine_id.txt")).WillOnce(Return(true));
+        EXPECT_CALL(*pointer, isFile("/installroot/base/update/var/sophos_alias.txt")).WillRepeatedly(Return(false));
         EXPECT_CALL(*pointer, readFile("/installroot/base/etc/machine_id.txt")).Times(1).WillOnce(Return("machineId"));
 
         // required to pass general validation of configuration data

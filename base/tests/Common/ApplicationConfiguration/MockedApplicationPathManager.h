@@ -56,4 +56,5 @@ public:
 
     MOCK_CONST_METHOD0(getTelemetryExeConfigFilePath, std::string(void));
     MOCK_CONST_METHOD0(getTelemetryExecutableFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getSophosAliasFilePath, std::string(void));
 };

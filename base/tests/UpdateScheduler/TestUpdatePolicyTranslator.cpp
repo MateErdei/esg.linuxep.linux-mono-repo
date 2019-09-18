@@ -15,6 +15,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/OSUtilitiesImpl/MockDnsLookup.h>
 #include <tests/Common/OSUtilitiesImpl/MockILocalIP.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 
 static const std::string updatePolicyWithCache{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -400,6 +402,11 @@ class TestUpdatePolicyTranslator : public ::testing::Test
 public:
     TestUpdatePolicyTranslator() : m_loggingSetup() {}
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+    }
 };
 
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
@@ -411,7 +418,13 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     std::unique_ptr<FakeIDnsLookup> fake(new FakeIDnsLookup());
     Common::OSUtilitiesImpl::replaceDnsLookup(std::move(fake));
 
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
@@ -466,7 +479,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithAESCredential);
     auto config = settingsHolder.configurationData;
@@ -477,7 +497,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
@@ -488,7 +515,14 @@ TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithProxy);
     auto config = settingsHolder.configurationData;
@@ -540,7 +574,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithScheduledUpdate);
     auto config = settingsHolder.configurationData;
@@ -572,7 +613,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
 
 TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
     EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error); // NOLINT
 }
 
@@ -592,7 +640,14 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
 
     Common::OSUtilitiesImpl::replaceDnsLookup(std::move(fake));
 
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
@@ -622,7 +677,14 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
 
     Common::OSUtilitiesImpl::replaceDnsLookup(std::move(fake));
 
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
@@ -639,7 +701,14 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
 
     auto settingsHolder = translator.translatePolicy(mdrSSPLBasePolicy);
     auto config = settingsHolder.configurationData;
@@ -689,7 +758,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
     std::string policy = replaceXMLSection(mdrSSPLBasePolicy, "Features");
 
     testing::internal::CaptureStderr();
@@ -718,7 +794,12 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreReportsErrorInLog) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
     std::string extraFeatures{ R"sophos(  <Features>
     <Feature id="APPCNTRL"/>
     <Feature id="AV"/>
@@ -735,6 +816,9 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreRep
     std::string policy = replaceXMLSection(mdrSSPLBasePolicy, "Features", extraFeatures);
 
     testing::internal::CaptureStderr();
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
     auto settingsHolder = translator.translatePolicy(policy);
     auto config = settingsHolder.configurationData;
 
@@ -762,7 +846,13 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreRep
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsErrorInLog) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     auto policy = replaceXMLSection(mdrSSPLBasePolicy, "cloud_subscriptions");
 
@@ -794,6 +884,10 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsErrorInLog) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
     UpdatePolicyTranslator translator;
 
     std::string subscriptionWithoutBase{ R"sophos(    <cloud_subscriptions>
@@ -804,6 +898,9 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
     auto policy = replaceXMLSection(mdrSSPLBasePolicy, "cloud_subscriptions", subscriptionWithoutBase);
 
     testing::internal::CaptureStderr();
+
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+
     auto settingsHolder = translator.translatePolicy(policy);
     auto config = settingsHolder.configurationData;
 
