@@ -314,12 +314,9 @@ static int downloadInstaller(std::string location, bool updateCache)
     if (updateCache)
     {
         certsToUse = const_cast<char *>("installer/uc_certs.crt");
+        ret = SU_setSslCertificatePath(session, certsToUse);
+        RETURN_IF_ERROR("setSslCertificatePath", ret);
     }
-    char * sslCerts = getenv("OVERRIDE_SSL_SOPHOS_CERTS");
-    sslCerts = sslCerts ? sslCerts : certsToUse;
-
-    ret = SU_setSslCertificatePath(session, sslCerts);
-    RETURN_IF_ERROR("setSslCertificatePath", ret);
 
     ret = SU_setUseSophosCertStore(session, true);
     RETURN_IF_ERROR("setUseSophosCertStore", ret);
