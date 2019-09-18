@@ -95,7 +95,7 @@ class Events(object):
         """
         #pylint: disable=too-many-arguments
         if isinstance(ttl, int):
-            ttl = "PT%dS" % ttl
+            ttl = "PT{}S".format(ttl)
         seq = self.__m_seq
         self.__m_seq += 1
         self.__m_events.append(
