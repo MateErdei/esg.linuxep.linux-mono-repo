@@ -1,18 +1,16 @@
-#!/usr/bin/env python
-# Copyright 2017 Sophos Plc. All rights reserved.
+#!/usr/bin/env python3
+# Copyright 2017-2019 Sophos Plc. All rights reserved.
 
 
 
-import unittest
-import sys
-import os
 import base64
 import random
-
-import PathManager
+import sys
+import unittest
 
 import mcsrouter.utils.sec_obfuscation
 import mcsrouter.utils.sec_obfuscation_password
+
 
 class NotRandomGenerator(object):
     def randomBytes(self, size):
