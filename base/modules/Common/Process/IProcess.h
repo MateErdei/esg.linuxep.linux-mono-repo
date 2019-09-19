@@ -110,6 +110,7 @@ namespace Common
              * @param limit
              */
             virtual void setOutputLimit(size_t limit) = 0;
+            virtual void setOutputTrimmedCallback(std::function<void(std::string)>)=0;
 
             /**
              * Set a callback function that will be triggered when the executed process is detected to have finished

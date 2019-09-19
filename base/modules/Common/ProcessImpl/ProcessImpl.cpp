@@ -392,5 +392,10 @@ namespace Common
             }
         }
 
+        void ProcessImpl::setOutputTrimmedCallback(std::function<void(std::string)> outputTrimmedCallback)
+        {
+            m_pipeThread->setOutputTrimmedCallBack(outputTrimmedCallback); 
+        }
+
     } // namespace ProcessImpl
 } // namespace Common

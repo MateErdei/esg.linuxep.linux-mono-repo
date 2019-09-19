@@ -30,13 +30,14 @@ namespace Common
             size_t m_outputLimit;
             size_t m_outputSize;
             std::function<void(void)> m_notifyFinished;
-
+            std::function<void(std::string)> m_outputTrimmed;
         public:
             /**
              *
              * @param fileDescriptor BORROWED fileDescriptor
              */
-            StdPipeThread(int fileDescriptor, std::function<void(void)> notifyFinished);
+            StdPipeThread(int fileDescriptor,
+                    std::function<void(void)> notifyFinished);
             explicit StdPipeThread(int fileDescriptor);
 
             ~StdPipeThread() override;
@@ -49,9 +50,8 @@ namespace Common
                 std::unique_lock<std::mutex> lock(m_mutex);
                 return true;
             }
-
             void setOutputLimit(size_t limit) { m_outputLimit = limit; }
-
+            void setOutputTrimmedCallBack(std::function<void(std::string)> outputTrimmed);
         private:
             void run() override;
 
