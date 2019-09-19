@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright 2019 Sophos Plc, Oxford, England.
+
 # Copyright 2017-2019 Sophos Plc. All rights reserved.
 """
 sec_obfuscation_password Module

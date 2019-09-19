@@ -1,4 +1,6 @@
 """
+# Copyright 2019 Sophos Plc, Oxford, England.
+
 plugin_registry Module
 """
 #pylint: disable=too-few-public-methods
@@ -6,7 +8,7 @@ plugin_registry Module
 import json
 import logging
 import os
-from mcsrouter.utils.byte2utf8 import to_utf8
+
 import mcsrouter.utils.path_manager
 
 LOGGER = logging.getLogger(__name__)

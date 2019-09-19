@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# Copyright 2019 Sophos Plc, Oxford, England.
+
 
 """
 TargetSystem Module

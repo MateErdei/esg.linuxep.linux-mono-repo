@@ -1,11 +1,12 @@
+# Copyright 2019 Sophos Plc, Oxford, England.
 """
 adapter_base Module
 """
 
-import xml.dom.minidom
 import logging
+import xml.dom.minidom
+
 import mcsrouter.utils.xml_helper
-from mcsrouter.utils.byte2utf8 import to_utf8
 
 LOGGER = logging.getLogger(__name__)
 

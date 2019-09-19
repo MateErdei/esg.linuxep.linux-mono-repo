@@ -1,19 +1,19 @@
+# Copyright 2019 Sophos Plc, Oxford, England.
 """
 generic_adapter Module
 """
 
-import xml.dom.minidom
-import os
-import logging
 import datetime
+import logging
+import os
+import xml.dom.minidom
 
 import mcsrouter.adapters.adapter_base
-import mcsrouter.utils.utf8_write
 import mcsrouter.utils.atomic_write
-import mcsrouter.utils.timestamp
 import mcsrouter.utils.path_manager as path_manager
+import mcsrouter.utils.timestamp
+import mcsrouter.utils.utf8_write
 import mcsrouter.utils.xml_helper as xml_helper
-from mcsrouter.utils.byte2utf8 import to_utf8
 
 LOGGER = logging.getLogger(__name__)
 

@@ -1,4 +1,6 @@
 """
+# Copyright 2019 Sophos Plc, Oxford, England.
+
 timestamp Module
 """
 

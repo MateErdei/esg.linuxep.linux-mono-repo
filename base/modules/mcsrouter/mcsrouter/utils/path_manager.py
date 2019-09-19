@@ -1,3 +1,4 @@
+# Copyright 2019 Sophos Plc, Oxford, England.
 """
 path_manager Module
 """

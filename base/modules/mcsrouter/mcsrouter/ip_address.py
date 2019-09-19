@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright 2019 Sophos Plc, Oxford, England.
+
 """
 Get IP Addresses for the current system.
 

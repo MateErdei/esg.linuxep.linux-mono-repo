@@ -1,3 +1,4 @@
+# Copyright 2019 Sophos Plc, Oxford, England.
 """
 id_manager Module
 """

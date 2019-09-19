@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Copyright 2019 Sophos Plc, Oxford, England.
+
 """
 Wrapper for the 'watcher' module, which writes to a pipe on any change,
 so that we can wait for it in a select.select() call.

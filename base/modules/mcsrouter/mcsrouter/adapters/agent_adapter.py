@@ -1,17 +1,16 @@
+# Copyright 2019 Sophos Plc, Oxford, England.
 """
 agent_adapter Module
 """
 
-import os
 import logging
-
-from mcsrouter import ip_address
+import os
 
 import mcsrouter.adapters.adapter_base
-import mcsrouter.utils.timestamp
-import mcsrouter.utils.target_system_manager
 import mcsrouter.utils.path_manager as path_manager
-
+import mcsrouter.utils.target_system_manager
+import mcsrouter.utils.timestamp
+from mcsrouter import ip_address
 
 LOGGER = logging.getLogger(__name__)
 

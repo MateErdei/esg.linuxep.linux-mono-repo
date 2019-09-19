@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright 2019 Sophos Plc, Oxford, England.
+
 """
 Method to convert from bytes to utf8 string
 """
