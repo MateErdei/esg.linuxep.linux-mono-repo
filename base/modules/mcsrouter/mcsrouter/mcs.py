@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2017 Sophos Plc, Oxford, England.
+# Copyright (C) 2017-2019 Sophos Plc, Oxford, England.
 # All rights reserved.
 """
 MCS Module
