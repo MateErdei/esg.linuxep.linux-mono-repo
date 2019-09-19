@@ -9,13 +9,14 @@ import glob
 import json
 import os
 import re
-import sys
 import socket
 import subprocess
-import urllib.request
+import sys
+import time
 import urllib.error
 import urllib.parse
-import time
+import urllib.request
+
 from .utils.byte2utf8 import to_utf8
 
 DISTRIBUTION_NAME_MAP = {
@@ -778,7 +779,6 @@ class TargetSystem:
 
             parts = version_string.split(".")
 
-            #for part in version_string.split("."):
             for part in parts:
                 try:
                     result.append(int(part))
