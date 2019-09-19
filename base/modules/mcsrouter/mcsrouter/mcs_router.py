@@ -64,12 +64,7 @@ class PidFile:
         """
         __safe_make_dirs
         """
-        try:
-            os.makedirs(path)
-        except EnvironmentError as exception:
-            if exception.errno == 17:
-                return
-            raise
+        os.makedirs(path, exist_ok=True)
 
     def exit(self):
         """
