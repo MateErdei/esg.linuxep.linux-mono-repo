@@ -236,4 +236,25 @@ namespace
     }
 
 
+    TEST(ProcessImpl, CanCaptureTrimmedOutput) // NOLINT
+    {
+        std::string captureout;
+        auto process = createProcess();
+        process->setOutputTrimmedCallback([&captureout](std::string out){captureout += out; });
+        process->setOutputLimit(100);
+        std::stringstream input;
+        for( int i=0; i< 1000; i++)
+        {
+            input << i << " ";
+        }
+        std::string echoinput=input.str();
+        process->exec("/bin/echo", { "-n", echoinput });
+        EXPECT_EQ(process->wait(milli(1), 500), ProcessStatus::FINISHED);
+        std::string output = process->output();
+        EXPECT_LE(output.size(), 200);
+        EXPECT_GE(output.size(), 100);
+        EXPECT_EQ(captureout + output, echoinput);
+    }
+
+
 } // namespace

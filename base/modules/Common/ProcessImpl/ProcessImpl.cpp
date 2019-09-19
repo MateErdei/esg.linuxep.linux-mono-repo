@@ -75,7 +75,8 @@ namespace Common
             m_pid(-1),
             m_exitcode(std::numeric_limits<int>::max()),
             m_outputLimit(0),
-            m_callback{ []() {} }
+            m_callback{ []() {} },
+            m_notifyTrimmed{ [](std::string){} }
         {
         }
 
@@ -224,6 +225,7 @@ namespace Common
 
             m_pipeThread.reset(new StdPipeThread(m_pipe->readFd(), [this]() { onExecFinished(); }));
             m_pipeThread->setOutputLimit(m_outputLimit);
+            m_pipeThread->setOutputTrimmedCallBack(m_notifyTrimmed);
             m_pipeThread->start();
         }
 
@@ -394,7 +396,7 @@ namespace Common
 
         void ProcessImpl::setOutputTrimmedCallback(std::function<void(std::string)> outputTrimmedCallback)
         {
-            m_pipeThread->setOutputTrimmedCallBack(outputTrimmedCallback); 
+            m_notifyTrimmed = outputTrimmedCallback;
         }
 
     } // namespace ProcessImpl

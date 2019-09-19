@@ -55,6 +55,7 @@ namespace Common
             int m_exitcode;
             size_t m_outputLimit;
             Process::IProcess::functor m_callback;
+            std::function<void(std::string)> m_notifyTrimmed;
         };
 
         class ProcessFactory
