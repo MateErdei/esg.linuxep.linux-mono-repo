@@ -302,15 +302,6 @@ def restart_update_scheduler():
         subprocess.call([path_manager.wdctl_bin_path(),
                          "start", update_scheduler])
 
-def request_ALC_event_to_be_sent():
-    """
-    Send an action to the updates schedular to resend last event if appropriate
-    """
-    action_name = "ALC_action_{}.xml".format(timestamp())
-    action_path = os.path.join(path_manager.action_dir(), action_name)
-    action_path_tmp = os.path.join(path_manager.temp_dir(), action_name)
-    atomic_write(action_path, action_path_tmp, "ResendLastUpdateEvent")
-
 def inner_main(argv):
     """
     inner_main
