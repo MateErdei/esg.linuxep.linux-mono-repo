@@ -39,12 +39,12 @@ namespace Common
             int exitCode() override;
             std::string output() override;
             bool kill() override;
-            bool kill( int secondsBeforeSIGKILL) override;
+            bool kill(int secondsBeforeSIGKILL) override;
 
             Process::ProcessStatus getStatus() override;
 
             void setOutputLimit(size_t limit) override;
-            void setOutputTrimmedCallback(std::function<void(std::string)>) override ;
+            void setOutputTrimmedCallback(std::function<void(std::string)>) override;
             void setNotifyProcessFinishedCallBack(Process::IProcess::functor) override;
 
         private:

@@ -46,7 +46,7 @@ Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor, std::funct
     m_outputLimit(0),
     m_outputSize(0),
     m_notifyFinished(notifyFinished),
-    m_outputTrimmed([](std::string){})
+    m_outputTrimmed([](std::string) {})
 {
     setNonBlocking(fileDescriptor);
 }
@@ -143,9 +143,9 @@ void Common::ProcessImpl::StdPipeThread::trimStream()
     if (m_outputLimit > 0 && m_outputSize > m_outputLimit * 2)
     {
         std::string currentBuffer = m_stdoutStream.str();
-        int pivotPoint=m_outputSize - m_outputLimit;
+        int pivotPoint = m_outputSize - m_outputLimit;
         m_outputTrimmed(currentBuffer.substr(0, pivotPoint));
-        m_stdoutStream.str( currentBuffer.substr(pivotPoint) );
+        m_stdoutStream.str(currentBuffer.substr(pivotPoint));
         m_outputSize = m_outputLimit;
     }
 }

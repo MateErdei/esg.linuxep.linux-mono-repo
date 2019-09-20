@@ -40,7 +40,7 @@ namespace
         const size_t limit = 5;
         t.setOutputLimit(limit);
         std::string captureOutput;
-        t.setOutputTrimmedCallBack([&captureOutput](std::string out){captureOutput += out;});
+        t.setOutputTrimmedCallBack([&captureOutput](std::string out) { captureOutput += out; });
         t.start();
         std::string expected_output("After Sending Too many Characters 12345");
         ssize_t ret = ::write(pipe.writeFd(), expected_output.c_str(), expected_output.size());
@@ -52,19 +52,19 @@ namespace
         EXPECT_EQ(captureOutput, "After Sending Too many Characters ");
     }
 
-    TEST(TestStdPipeThread, continousWrittingToThePipeWillTrimInDifferentPlacesAsItDepends) // NOLINT
+    TEST(TestStdPipeThread, continousWritingToThePipeWillTrimInDifferentPlacesAsItDepends) // NOLINT
     {
         Common::ProcessImpl::PipeHolder pipe;
         Common::ProcessImpl::StdPipeThread t(pipe.readFd());
         const size_t limit = 5;
         t.setOutputLimit(limit);
         std::string captureOutput;
-        t.setOutputTrimmedCallBack([&captureOutput](std::string out){captureOutput += out;});
+        t.setOutputTrimmedCallBack([&captureOutput](std::string out) { captureOutput += out; });
         t.start();
         std::string input_string("After Sending Too many Characters");
-        for( char entry: input_string)
+        for (char entry : input_string)
         {
-            EXPECT_EQ( ::write(pipe.writeFd(), &entry, 1), 1);
+            EXPECT_EQ(::write(pipe.writeFd(), &entry, 1), 1);
             std::this_thread::sleep_for(std::chrono::microseconds(500));
         }
         pipe.closeWrite();
@@ -75,13 +75,10 @@ namespace
         // the concatenation of captured output + output must return the same string
         // output must always be between limit,2*limit
         std::string concat = captureOutput + actual_output;
-        EXPECT_EQ( input_string, concat);
-        EXPECT_GE( actual_output.size(), limit);
-        EXPECT_LE( actual_output.size(), 2*limit);
+        EXPECT_EQ(input_string, concat);
+        EXPECT_GE(actual_output.size(), limit);
+        EXPECT_LE(actual_output.size(), 2 * limit);
     }
-
-
-
 
     TEST(TestStdPipeThread, TestOutputCanBeExtractedOnTrimming) // NOLINT
     {
@@ -100,7 +97,6 @@ namespace
         EXPECT_EQ(actual_output, expected_output);
     }
 
-
     TEST(TestStdPipeThread, TestOutputIsTrimmedIfMaxLengthSpecifiedCloseToTotalLength) // NOLINT
     {
         Common::ProcessImpl::PipeHolder pipe;
@@ -118,10 +114,6 @@ namespace
         // the whole string will be kept
         EXPECT_EQ(actual_output, expected_output);
     }
-
-
-
-
 
     TEST(TestStdPipeThread, TestOutputNotTrimmedIfSmallerThanOutputLimit) // NOLINT
     {

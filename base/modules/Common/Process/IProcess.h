@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -75,7 +75,7 @@ namespace Common
              *
              */
             virtual bool kill() = 0;
-            virtual bool kill( int secondsBeforeSIGKILL) = 0;
+            virtual bool kill(int secondsBeforeSIGKILL) = 0;
 
             /**
              *
@@ -110,12 +110,19 @@ namespace Common
              * @param limit
              */
             virtual void setOutputLimit(size_t limit) = 0;
-            virtual void setOutputTrimmedCallback(std::function<void(std::string)>)=0;
+            virtual void setOutputTrimmedCallback(std::function<void(std::string)>) = 0;
 
             /**
              * Set a callback function that will be triggered when the executed process is detected to have finished
              */
             virtual void setNotifyProcessFinishedCallBack(functor) = 0;
+
+            /**
+             * Wait for a state change in a child of the calling process.
+             * A state change is considered to be: the child terminated; the child was stopped by a signal; or the child
+             * was resumed by a signal.
+             */
+            virtual void waitUntilProcessEnds() = 0;
         };
         using IProcessPtr = std::unique_ptr<IProcess>;
         extern IProcessPtr createProcess();
