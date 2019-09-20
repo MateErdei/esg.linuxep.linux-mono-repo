@@ -10,7 +10,6 @@ BUILD_DIR=os.environ.get("ABS_BUILDDIR",".")
 INSTALL_DIR=os.path.join(BUILD_DIR,"install")
 import tempfile
 import shutil
-
 import mcsrouter.utils.plugin_registry as plugin_registry
 import mcsrouter.utils.xml_helper as xml_helper
 import mcsrouter.mcsclient.status_event as status_event
