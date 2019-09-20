@@ -89,7 +89,14 @@ void Common::ProcessImpl::StdPipeThread::run()
         int ret = pselect(max_fd + 1, &read_temp, nullptr, nullptr, nullptr, nullptr);
         if (ret < 0)
         {
-            continue;
+            int err = errno;
+            if (err == EINTR)
+            {
+                continue;
+            }
+
+            LOGERROR("Failure in monitor file descriptor: " << UtilityImpl::StrError(err) );
+            return;
         }
         if (ret > 0)
         {
