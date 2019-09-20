@@ -29,13 +29,13 @@
         <package name="boostlinux10" version="1-70-0-9/216639/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
-        <package name="expatlinux11" version="2-2-5-3/213092/output" dest="input">
+        <package name="expatlinux11" version="2-2-7-20/217396/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
         <package name="protobuflinux11" version="3-9-1-10/217398/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
-        <package name="zeromqlinux11" version="4-3-1-2/214225/output" dest="input">
+        <package name="zeromqlinux11" version="4-3-2-22/217397/output" dest="input">
             <include src="zeromq.tar" dest="."/>
         </package>
         <package name="log4cpluslinux11" version="2-0-3-9/214277/output" dest="input">
