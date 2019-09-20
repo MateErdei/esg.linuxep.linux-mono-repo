@@ -9,7 +9,6 @@ register_central Module
 
 import argparse
 import builtins
-import errno
 import glob
 import logging
 import logging.handlers
@@ -39,16 +38,11 @@ def safe_mkdir(directory):
     safe_mkdir
     """
     if not os.path.exists(directory):
-        # Use a try here to catch race condition where directory is created after checking
+        # Use exist_ok option to handle race condition where directory is created after checking
         # it doesn't exist
-        try:
-            old_mask = os.umask(0o002)
-            os.makedirs(directory)
-            os.umask(old_mask)
-        except OSError as exception:
-            if exception.errno != errno.EEXIST:
-                raise
-
+        old_mask = os.umask(0o002)
+        os.makedirs(directory, exist_ok=True)
+        os.umask(old_mask)
 
 def setup_logging():
     """
