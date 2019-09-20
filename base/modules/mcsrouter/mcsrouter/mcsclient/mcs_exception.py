@@ -30,3 +30,8 @@ class MCSPolicyInvalidException(MCSException):
     MCSPolicyInvalidException
     """
     pass
+
+class MCSCACertificateException(ValueError):
+    """
+    MCSCACertificateException : CA certificate file exception
+    """

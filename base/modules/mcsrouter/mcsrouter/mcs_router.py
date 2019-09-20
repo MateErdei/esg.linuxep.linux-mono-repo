@@ -1,39 +1,56 @@
-#!/usr/bin/env python3
-# Copyright 2019 Sophos Plc, Oxford, England.
-
+#!/usr/bin/env python
 """
 mcs_router Module
 """
 #pylint: disable=no-self-use, too-few-public-methods
 
+from __future__ import print_function, division, unicode_literals
 
-
-import builtins
-import configparser
-import fcntl
 import gc
+import sys
+import os
+import fcntl
 import logging
 import logging.handlers
-import os
-import signal
-import sys
-import time
 
-from . import sophos_https
+# ConfigParser has been renamed configparser in Python 3.
+# Therefore using the 'as' to minimise work needed during migration from 2 to 3
+import ConfigParser as configparser
+
+import signal
+import time
+import __builtin__
+
+from .mcsclient import mcs_exception
 from .utils import path_manager
 from .utils.logger_utcformatter import UTCFormatter
+from . import sophos_https
+
 
 LOGGER = logging.getLogger(__name__ if __name__ !=
                            "__main___" else "mcsrouter")
 LOG_LEVEL_DEFAULT = "INFO"
 
-builtins.__dict__['REGISTER_MCS'] = False
+__builtin__.__dict__['REGISTER_MCS'] = False
 
 
-class PidFile:
+class PidFile(object):
     """
     PidFile
     """
+
+    def __safe_make_dirs(self, path):
+        """
+        __safe_make_dirs
+        """
+        try:
+            os.makedirs(path)
+        except EnvironmentError as exception:
+            if exception.errno == 17:
+                return
+            else:
+                raise
+
     def __init__(self, install_dir):
         """
         __init__
@@ -59,12 +76,6 @@ class PidFile:
         self.__m_pid_file.flush()
 
         self.__m_pid = os.getpid()
-
-    def __safe_make_dirs(self, path):
-        """
-        __safe_make_dirs
-        """
-        os.makedirs(path, exist_ok=True)
 
     def exit(self):
         """
@@ -142,20 +153,35 @@ def create_daemon():
     return 0
 
 
-class SophosLogging:
+class SophosLogging(object):
     """
     SophosLogging
     """
-    def __init__(self, install_dir):
+
+    def __init__(self,install_dir):
         """
         __init__
         """
         #pylint: disable=too-many-locals
         path_manager.INST = install_dir
         log_config = path_manager.log_conf_file()
+        log_level_string = LOG_LEVEL_DEFAULT
 
         # Configure log level from config file if present
-        readable, log_level_string = self._extract_log_level(log_config)
+        readable = False
+        if os.path.isfile(log_config):
+            config_parser = configparser.ConfigParser()
+            readable = config_parser.read(log_config)
+            config_sections = config_parser.sections()
+            for section in config_sections:
+                if section == 'mcs_router' and config_parser.has_option(section, 'VERBOSITY'):
+                    log_level_string = config_parser.get('mcs_router', 'VERBOSITY')
+                    break
+                elif section == 'global' and config_parser.has_option(section, 'VERBOSITY'):
+                    log_level_string = config_parser.get('global', 'VERBOSITY')
+            if log_level_string == 'WARN':
+                log_level_string = 'WARNING'
+
         log_level = getattr(logging, log_level_string, logging.INFO)
         log_file = path_manager.mcs_router_log()
 
@@ -198,26 +224,6 @@ class SophosLogging:
         LOGGER.info("Logging to %s", log_file)
         sophos_https.LOGGER = logging.getLogger("sophos_https")
 
-    def _extract_log_level(self, log_config):
-        readable = False
-        log_level_string = LOG_LEVEL_DEFAULT
-        try:
-            if os.path.isfile(log_config):
-                config_parser = configparser.ConfigParser()
-                readable = config_parser.read(log_config)
-                config_sections = config_parser.sections()
-                for section in config_sections:
-                    if section == 'mcs_router' and config_parser.has_option(section, 'VERBOSITY'):
-                        log_level_string = config_parser.get('mcs_router', 'VERBOSITY')
-                        break
-                    elif section == 'global' and config_parser.has_option(section, 'VERBOSITY'):
-                        log_level_string = config_parser.get('global', 'VERBOSITY')
-                if log_level_string == 'WARN':
-                    log_level_string = 'WARNING'
-        except Exception as ex: # pylint: disable=broad-except
-            print("Failed to parse log configuration: {}".format(ex), file=sys.stderr)
-        return readable, log_level_string
-
     def shutdown(self):
         """
         shutdown
@@ -225,7 +231,7 @@ class SophosLogging:
         logging.shutdown()
 
 
-class MCSRouter:
+class MCSRouter(object):
     """
     MCSRouter
     """
@@ -244,6 +250,9 @@ class MCSRouter:
             # Clean exits do exit
             try:
                 return proc.run()
+            except mcs_exception.MCSCACertificateException as exception:
+                LOGGER.fatal(str(exception))
+                break
             except Exception: # pylint: disable=broad-except
                 # Deliberately catch everything, so that we re-run mcs_router on failures
                 # rather than crash
@@ -287,7 +296,7 @@ def clear_tmp_directory():
                 pass
 
 
-def main():
+def main(argv):
     """
     main
     """
@@ -302,7 +311,7 @@ def main():
     os.umask(0o177)
 
     sophos_logging = SophosLogging(install_dir)
-    LOGGER.info("Started with install directory set to {}".format(install_dir))
+    LOGGER.info("Started with install directory set to " + install_dir)
     pid_file = PidFile(install_dir)
     try:
         mgmt = MCSRouter(install_dir)
@@ -318,4 +327,4 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(sys.argv))
