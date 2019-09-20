@@ -14,6 +14,12 @@
 
 <inputs version="2">
   <workingdir>warehouse</workingdir>
+<!--  <package name="hips-rules" version="10-3-257-x" build="213586" dest="inputs">-->
+<!--      <include src="non-spa" dest="HIPS"/>-->
+<!--  </package>-->
+<!--  <package name="hips-config" version="1-0-65-x" build="208922" dest="inputs">-->
+<!--      <include src="non-spa" dest="HIPS"/>-->
+<!--  </package>-->
   <package name="signing_client" version="4-2-7" build="99621" dest="signing">
     <include src="acode" dest="acode"/>
   </package>
@@ -34,9 +40,14 @@
     <workingdir>warehouse\src</workingdir>
   </command>
   <command>
+    <program>python.exe</program>
+    <args>collate.py collate.xml</args>
+    <workingdir>warehouse\src</workingdir>
+  </command>
+  <command>
     <program>cmd.exe</program>
     <!-- WARNING the component name in this command line must match the package name at the top of this file -->
-    <args>/c python GenerateWarehouse.py cloud-warehouse %SOURCE_CODE_BRANCH% %START_DATE_TIME%-%SOURCE_CODE_COMMIT_HASH% dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def.yaml</args>
+    <args>/c python GenerateWarehouse.py sspl-warehouse %SOURCE_CODE_BRANCH% %START_DATE_TIME%-%SOURCE_CODE_COMMIT_HASH% dict-en.xml ..\def\cloud-warehouse-def.yaml</args>
     <workingdir>warehouse\src</workingdir>
   </command>
 </buildcommands>

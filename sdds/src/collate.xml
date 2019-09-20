@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <sdds-ready-packages>
-  <package>
-    <!--<name>HIPS</name>
-    <input>HIPS</input>
-    <sddsimport>
-      <version>
-        <filename>
-          <path>HIPSRules*.bdl</path>
-          <mask>HIPSRules-([0-9]+)-([0-9]+)-([0-9]+)</mask>
-          <format>%d.%d.%d</format>                
-        </filename>
-      </version>
-    </sddsimport>-->
-  </package>
+<!--  <package>-->
+<!--    <name>HIPS</name>-->
+<!--    <input>HIPS</input>-->
+<!--    <sddsimport>-->
+<!--      <version>-->
+<!--        <filename>-->
+<!--          <path>HIPSRules*.bdl</path>-->
+<!--          <mask>HIPSRules-([0-9]+)-([0-9]+)-([0-9]+)</mask>-->
+<!--          <format>%d.%d.%d</format>                -->
+<!--        </filename>-->
+<!--      </version>-->
+<!--    </sddsimport>-->
+<!--  </package>-->
 </sdds-ready-packages>

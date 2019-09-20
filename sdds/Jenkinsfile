@@ -15,7 +15,7 @@ skipDefaultCheckout()
 
 try
 {
-    PreBuild(params, '1.0.0', 'cloud-warehouse', 'warehouse')
+    PreBuild(params, '1.0.0', 'sspl-warehouse', 'warehouse')
 
     parallel cloud:
     {

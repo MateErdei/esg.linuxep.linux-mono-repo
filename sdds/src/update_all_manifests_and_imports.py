@@ -101,7 +101,42 @@ def get_file_size_and_checksum(rootpath, filepath, checksum_type):
 def update_manifest_dat_file(manifest, rootpath):
     if not os.path.isfile(manifest):
         return
-    print "Updating manifest", manifest
+
+    print "Updating sspl manifest", manifest
+
+    manifestdata = StringIO()
+    with open(manifest, "rb") as m:
+        for line in m.readlines():
+            if line == "-----BEGIN SIGNATURE-----\n":
+                break
+            manifestdata.writelines(line)
+
+    manifestdata.pos = 0
+    file_data = manifestdata.read()
+
+    with open(manifest, "wb") as m_file:
+
+        m_file.write(file_data)
+
+        try:
+            m_file.write(server.sign_file(file_data, manifest, None))
+        except socket.error, e:
+            print "ERROR - Signing Failed: %s" % e
+            raise
+        for cert in ("pub", "ca"):
+            try:
+                m_file.write(server.get_cert(cert, None))
+            except socket.error, e:
+                print "ERROR - Failed to get cert %s: %s" % (cert, e)
+                raise
+
+
+def update_manifest_dat_file_orig(manifest, rootpath):
+    if not os.path.isfile(manifest):
+        return
+
+    print "Updating sspl manifest", manifest
+
     manifestdata = StringIO()
     with open(manifest, "rb") as m:
         for line in m.readlines():
@@ -162,6 +197,9 @@ def update_manifest_dat_file(manifest, rootpath):
 
 
 def get_full_subdirs(directory):
+    if not os.path.exists(directory):
+        return []
+
     return [fd for fd in [os.path.join(directory, d)
                           for d in os.listdir(directory)]
             if os.path.isdir(fd)]
@@ -183,6 +221,7 @@ def main(root_path):
     with open("component_suite_version_labels.json") as csl:
         component_suite_lable_updates = json.load(csl)
     collatedirs = get_full_subdirs(os.path.join(root_path, "inputs"))
+
     for collatedir in collatedirs:
         sdds_ready_dir = os.path.join(root_path, collatedir, "SDDS-Ready-Packages")
         print "Searching", sdds_ready_dir
