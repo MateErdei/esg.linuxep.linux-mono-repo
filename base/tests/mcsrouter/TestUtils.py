@@ -1,18 +1,15 @@
+import logging
 import os
 import unittest
-import mock
-import sys
-import json
-import builtins
 
-import logging
+import mock
+
 logger = logging.getLogger("TestUtils")
 
 BUILD_DIR=os.environ.get("ABS_BUILDDIR",".")
 INSTALL_DIR=os.path.join(BUILD_DIR,"install")
 import tempfile
 import shutil
-import PathManager
 
 import mcsrouter.utils.plugin_registry as plugin_registry
 import mcsrouter.utils.xml_helper as xml_helper
@@ -110,7 +107,7 @@ class TestUtils(unittest.TestCase):
             self.assertTrue(isinstance(s, str))
             self.assertEqual(s, parsed_string)
 
-    def test_get_scaped_non_ascii_content(self):
+    def test_get_escaped_non_ascii_content(self):
         fd, filepath = tempfile.mkstemp()
         try:
             os.write(fd, b"""<?xml version="1.0" ?><hello/>""")
