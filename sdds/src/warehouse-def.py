@@ -54,7 +54,7 @@ def update_component_suite_version(path, description, version):
 def resign_component(c):
     sdds_import_file_path = os.path.join(c.path, "SDDS-Import.xml")
     import_spec = ElementTree.parse(sdds_import_file_path)
-    resign.update_ca(import_spec, c.path)
+    #resign.update_ca(import_spec, c.path)
     manifest_file_path = os.path.join(c.path, "manifest.dat")
     resign.update_manifest_dat_file(manifest_file_path, c.path)
     resign.update_manifest_dat_node(import_spec, manifest_file_path)

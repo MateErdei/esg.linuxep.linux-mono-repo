@@ -1,651 +1,188 @@
 %YAML 1.1
 ---
-sspl:
+sspl-base:
     build:
         branch: master
         name: sspl-base
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base
     line-id: ServerProtectionLinux-Base
-ssplmdr:
+ssplmdr-suite:
     build:
         branch: master
         name: sspl-mdr-componentsuite
         output: output\SDDS-SSPL-MDR-COMPONENT-SUITE
-    canonical-name: ServerProtectionLinux-Plugin-MDR
+    canonical-name: ServerProtectionLinuxPlugin-MDR
     line-id: ServerProtectionLinux-Plugin-MDR
-ServerProtectionLinux-MDR-Control-Component:
+ssplmdr-control-component:
     build:
         branch: master
         name: sspl-mdr-componentsuite
         output: output\SDDS-SSPL-MDR-COMPONENT
     canonical-name: ServerProtectionLinux-MDR-Control-Component
     line-id: ServerProtectionLinux-MDR-Control-Component
-ServerProtectionLinux-MDR-DBOS-Component:
+    mountpoint: .
+ssplmdr-dbos-component:
     build:
         branch: master
         name: sspl-mdr-componentsuite
         output: output\SDDS-SSPL-DBOS-COMPONENT
     canonical-name: ServerProtectionLinux-MDR-DBOS-Component
     line-id: ServerProtectionLinux-MDR-DBOS-Component
-ServerProtectionLinux-MDR-osquery-Component:
+    mountpoint: .
+ssplmdr-osquery-component:
     build:
         branch: master
         name: sspl-mdr-componentsuite
         output: output\SDDS-SSPL-OSQUERY-COMPONENT
     canonical-name: ServerProtectionLinux-MDR-osquery-Component
     line-id: ServerProtectionLinux-MDR-osquery-Component
-ssplpluginexample:
-    build:
-        branch: master
-        name: sspl-plugin-example
-        output: output\SDDS-COMPONENT
-    canonical-name: ServerProtectionLinux-Plugin-Example
-    line-id: ServerProtectionLinux-Plugin-Example
-ssplauditplugin:
-    build:
-        branch: master
-        name: sspl-audit-plugin
-        output: output\SDDS-COMPONENT
-    canonical-name: ServerProtectionLinux-Plugin-AuditPlugin
-    line-id: ServerProtectionLinux-Plugin-AuditPlugin
-sspleventprocessor:
-    build:
-        branch: master
-        name: sspl-event-processor
-        output: output\SDDS-COMPONENT
-    canonical-name: ServerProtectionLinux-Plugin-EventProcessor
-    line-id: ServerProtectionLinux-Plugin-EventProcessor
+    mountpoint: .
+#sspl-base-release:
+#    build:
+#        branch: master
+#        name: sspl-base-current-prod
+#        output: output\SDDS-COMPONENT
+#    canonical-name: ServerProtectionLinux-Base
+#    line-id: ServerProtectionLinux-Base
+#ssplmdr-suite-release:
+#    build:
+#        branch: master
+#        name: sspl-mdr-componentsuite-current-prod
+#        output: output\SDDS-SSPL-MDR-COMPONENT-SUITE
+#    canonical-name: ServerProtectionLinux-Plugin-MDR
+#    line-id: ServerProtectionLinux-Plugin-MDR
+#ssplmdr-control-component-release:
+#    build:
+#        branch: master
+#        name: sspl-mdr-componentsuite-current-prod
+#        output: output\SDDS-SSPL-MDR-COMPONENT
+#    canonical-name: ServerProtectionLinux-MDR-Control-Component
+#    line-id: ServerProtectionLinux-MDR-Control-Component
+#    mountpoint: .
+#ssplmdr-dbos-component-release:
+#    build:
+#        branch: master
+#        name: sspl-mdr-componentsuite-current-prod
+#        output: output\SDDS-SSPL-DBOS-COMPONENT
+#    canonical-name: ServerProtectionLinux-MDR-DBOS-Component
+#    line-id: ServerProtectionLinux-MDR-DBOS-Component
+#    mountpoint: .
+#ssplmdr-osquery-component-release:
+#    build:
+#        branch: master
+#        name: sspl-mdr-componentsuite-current-prod
+#        output: output\SDDS-SSPL-OSQUERY-COMPONENT
+#    canonical-name: ServerProtectionLinux-MDR-osquery-Component
+#    line-id: ServerProtectionLinux-MDR-osquery-Component
+#    mountpoint: .
 
 
 
-
-#
-#appfeed:
-#    build:
-#        build_id: '212716'
-#        name: appfeed
-#        output: output\supplement
-#        version: 1-0
-#    canonical-name: APPFEED
-#    line-id: APPFEED
-#appwl:
-#    build:
-#        branch: develop
-#        name: appwl
-#        output: appwlsupp
-#    canonical-name: APPWL
-#    line-id: APPWL
-#av:
-#    build:
-#        branch: winendpoint-latest
-#        name: winep_suites
-#        output: SDDS-Ready-Packages\WindowsCloudAV\data
-#    canonical-name: AV
-#    line-id: WindowsCloudAV
-#behave:
-#    build:
-#        branch: cloud-warehouse-labs-imports
-#        build_id: 20190531183119-000000
-#        name: behave
-#        version: 0.0.23
-#        output: behave
-#    canonical-name: BEHAVE
-#    line-id: BEHAVE
-#cleansuite:
-#    build:
-#        branch: winendpoint-latest
-#        name: winep_suites
-#        output: SDDS-Ready-Packages\WindowsCloudClean\data
-#    canonical-name: CLEAN
-#    line-id: WindowsCloudClean
-#cloud_savxp:
-#    build:
-#        branch: winsav-dev
-#        name: sav
-#        output: savxp
-#    canonical-name: SAVXP
-#    line-id: E17FE03B-0501-4aaa-BC69-0129D965F311
-#crt:
-#    build:
-#        build_id: '207198'
-#        name: icrt
-#        output: sddscrti
-#        version: 2-13-0
-#    canonical-name: CRT
-#    line-id: 97B6A561-5F87-4A2E-A4FE-177F48D8899F
-#dotnet:
-#    build:
-#        branch: CloudEncryption
-#        name: cloud_dotnet
-#        output: sdds
-#    canonical-name: DOTNET
-#    line-id: D4942C57-CC80-4BE7-B4AF-C6EF263B9EC9
-#efw:
-#    build:
-#        branch: winfirewall
-#        name: winfirewall
-#        output: x86\installer
-#    canonical-name: EFW
-#    line-id: 56B9559F-9C78-4F08-B04F-7C3339BEEDB6
-#efw64:
-#    build:
-#        branch: winfirewall
-#        name: winfirewall
-#        output: x64\installer
-#    canonical-name: EFW64
-#    line-id: CD297D6B-58A5-474F-8A0D-0A15803B8B50
-#encryption:
-#    build:
-#        branch: CloudEncryption
-#        name: cloud_encryption
-#        output: installer
-#    canonical-name: ENCRYPTION
-#    line-id: F1DAD925-C973-4e5e-B172-78E97EB60689
-#encryptionsuite:
-#    build:
-#        branch: winendpoint-latest
-#        name: winep_suites
-#        output: SDDS-Ready-Packages\WindowsCloudDeviceEncryption\data
-#    canonical-name: Windows Cloud Encryption
-#    line-id: WindowsCloudEncryption
-#eng:
-#    build:
-#        build_id: '216332'
-#        name: eng
-#        output: release\sdds_SAV9\Win32
-#        version: 3-77-1
-#    canonical-name: ENG
-#    line-id: ENG
-#epips-data:
-#    build:
-#        branch: cloud-warehouse-labs-imports
-#        build_id: 20190531183119-000000
-#        name: epips_data
-#        version: 0.0.0.4
-#        output: data
-#    canonical-name: EPIPSDATA
-#    line-id: EPIPS_data
-#epips-supp:
-#    build:
-#        branch: develop
-#        name: ntp
-#        output: supplements
-#    canonical-name: EPIPSSUPP
-#    line-id: BF9FD694-9BDE-4146-AEE1-48C0E98D11E7
-#esh:
-#    build:
-#        build_id: 213929
-#        name: esh-config
-#        output: esh
-#        version: 2.3
-#    canonical-name: ESH
-#    line-id: 9A0D1FB3-1085-4E3F-AE4D-5DCA4862A373
-#esh64:
-#    build:
-#        build_id: 216285
-#        name: esh-config
-#        output: esh64
-#        version: 2.4
-#    canonical-name: ESH64
-#    line-id: 7F682906-6E49-481B-89C5-2DCA36720F4F
-#esh64sup:
-#    build:
-#        branch: develop
-#        name: esh
-#        output: esh64
-#    canonical-name: ESH64SUPP
-#    line-id: 07A049D2-0CC4-4E42-8EE8-5C31194954ED
-#eshsup:
-#    build:
-#        branch: develop
-#        name: esh
-#        output: esh
-#    canonical-name: ESHSUPP
-#    line-id: E629CAD9-B6A4-47B8-8B2F-16B8FD42067B
-#eshsxp:
-#    build:
-#        branch: winendpoint-latest
-#        name: winep_suites
-#        output: SDDS-Ready-Packages\eshsxp\data
-#    canonical-name: ESHSXP
-#    line-id: cd2a5386-f08c-42b1-8d98-40240059e361
-#fileencryptionsuite:
-#    build:
-#        branch: winendpoint-latest
-#        name: winep_suites
-#        output: SDDS-Ready-Packages\WindowsCloudFileEncryption\data
-#    canonical-name: Windows Cloud File Encryption
-#    line-id: WindowsCloudFileEncryption
-#fim:
-#    build:
-#        branch: develop
-#        name: fim
-#        output: x64\Installer
-#    canonical-name: FIM
-#    line-id: FileIntegrityMonitoring
-#fimfeed:
-#    build:
-#        build_id: '212928'
-#        name: fimfeed
-#        output: output
-#        version: 1.0
-#    canonical-name: FIMFEED
-#    line-id: FIMFEED
-#health:
-#    build:
-#        branch: develop
-#        name: health
-#        output: Win32\Installer
-#    canonical-name: SHS
-#    line-id: 3CE954A1-0F41-4D9B-B2F0-58AA75334DFD
-#hips:
-#    canonical-name: HIPS
-#    fileset: ..\SDDS-Ready-Packages\HIPS
-#    line-id: HIPS
-#hmpa32:
-#    build:
-#        branch: develop
-#        name: xpd
-#        output: installer\Win32
-#    canonical-name: HMPA
-#    line-id: 16D59F7E-6D84-449C-A7F7-7D8DA2268A26
-#hmpa64:
-#    build:
-#        branch: develop
-#        name: xpd
-#        output: installer\x64
-#    canonical-name: HMPA64
-#    line-id: 244E68BF-E1BB-4A6B-AC18-A492DE0134C0
-#hmpadatasup:
-#    build:
-#        branch: winendpoint-latest
-#        name: winep_suites
-#        output: SDDS-Ready-Packages\OPMHMPADataSup\data
-#    canonical-name: HMPADATASUP
-#    line-id: HMPADATASUP
-#hmparules32sup:
-#    build:
-#        branch: feature-WINEP-20694-sed-decode
-#        name: xpd-rules
-#        output: supplement\hmparules32
-#    canonical-name: HMPARULES32
-#    line-id: HMPARULES32
-#hmparules64sup:
-#    build:
-#        branch: feature-WINEP-20694-sed-decode
-#        name: xpd-rules
-#        output: supplement\hmparules64
-#    canonical-name: HMPARULES64
-#    line-id: HMPARULES64
-#hmpasuite:
-#    build:
-#        branch: winendpoint-latest
-#        name: winep_suites
-#        output: SDDS-Ready-Packages\WindowsCloudHitmanProAlert\data
-#    canonical-name: HMPA
-#    line-id: WindowsCloudHitmanProAlert
-#localrepdata-data:
-#    build:
-#        branch: cloud-warehouse-labs-imports
-#        build_id: 20190531183119-000000
-#        name: localrep_data
-#        version: 1.0.0
-#        output: data
-#    canonical-name: LOCALREPDATA
-#    line-id: LOCALREPDATA
-#livequery32:
-#    build:
-#        branch: develop
-#        name: livequery
-#        output: release\Win32
-#    canonical-name: LiveQuery32
-#    line-id: LiveQuery32
-#livequery64:
-#    build:
-#        branch: develop
-#        name: livequery
-#        output: release\x64
-#    canonical-name: LiveQuery64
-#    line-id: LiveQuery64
-#mcs:
-#    build:
-#        branch: develop
-#        name: mcs
-#        output: Installer
-#    canonical-name: MCS
-#    line-id: 3799FB3E-808A-4F7D-AC6A-0C74F931C386
-#mdr32:
-#    build:
-#        branch: develop
-#        name: mdr
-#        output: release\Win32
-#    canonical-name: MDR32
-#    line-id: MDR32
-#mdr64:
-#    build:
-#        branch: develop
-#        name: mdr
-#        output: release\x64
-#    canonical-name: MDR64
-#    line-id: MDR64
-#mdrsuite:
-#    build:
-#        branch: develop
-#        name: mdr
-#        output: suite
-#    canonical-name: WindowsCloudMDR
-#    line-id: WindowsCloudMDR
-#ml-model:
-#    build:
-#        branch: CP-PB-RC-Pvw
-#        name: ml_model_32
-#        output: release
-#    canonical-name: MODEL32
-#    line-id: 995645D3-DA2A-407E-AC5D-7267B8B43975
-#ml-model64:
-#    build:
-#        branch: CP-PB-RC-Pvw
-#        name: ml_model_64
-#        output: release
-#    canonical-name: MODEL64
-#    line-id: C19A85E4-728F-4E92-8528-6B42B30639B2
-#mr:
-#    build:
-#        branch: develop
-#        name: messages-relays
-#        output: output\x64\Release\SDDS
-#    canonical-name: MR
-#    line-id: MessageRelay
-#msp32:
-#    build:
-#        branch: develop
-#        name: amsi
-#        output: x86\installer
-#    canonical-name: MSP32
-#    line-id : 32857FF0-1A05-47E1-B93F-63AAA9807E83
-#msp64:
-#    build:
-#        branch: develop
-#        name: amsi
-#        output: x64\installer
-#    canonical-name: MSP64
-#    line-id : 642A6FD9-A9D6-482D-BD8C-46661F241A0E
-#mspsupp:
-#    build:
-#        branch: develop
-#        name: amsi
-#        output: supplements
-#    canonical-name: MSPSUPP
-#    line-id: A78FA276-9683-11E9-BC42-526AF7764F64
-#nextgen:
-#    build:
-#        branch: winendpoint-latest
-#        name: winep_suites
-#        output: SDDS-Ready-Packages\WindowsCloudNextGen\data
-#    canonical-name: NEXTGEN
-#    line-id: WindowsCloudNextGen
-#ntp32:
-#    build:
-#        branch: develop
-#        name: ntp
-#        output: x86\installer
-#    canonical-name: MTD
-#    line-id: AFB2EB41-7301-4143-90D0-D19ADD7CA53D
-#ntp64:
-#    build:
-#        branch: develop
-#        name: ntp
-#        output: x64\installer
-#    canonical-name: MTD64
-#    line-id: 8087796B-2289-4897-98A5-58FF23DAAFD0
-#repairkit:
-#    build:
-#        branch: develop
-#        name: sau_xg
-#        output: Release-Win32\RepairKit
-#    canonical-name: REPAIRKIT
-#    line-id: REPAIRKIT
-#sau:
-#    build:
-#        branch: windu-latest
-#        name: sau
-#        output: sau
-#    canonical-name: SAU
-#    line-id: 9BF40A4E-23AE-48be-9974-5A1F261DBEE8
-#sau_xg:
-#    build:
-#        branch: develop
-#        name: sau_xg
-#        output: Release-Win32\Installer
-#    canonical-name: SAUXG
-#    line-id: 1FE3E7DF-EFFA-408A-A1B0-89F15BA61F31
-#saucontrolsupplement:
-#    build:
-#        branch: windu-latest
-#        name: saucontrol
-#        output: saucontrol\minimal_update
-#    canonical-name: SAUCONTROL
-#    line-id: SAUCONTROLLINE
-#savcontrolsupplement:
-#    build:
-#        branch: winsav-dev
-#        name: savcontrol
-#        output: savcontrol\cloud
-#    canonical-name: SAVCONTROL
-#    line-id: SAVCONTROLLINE
-#sdu:
-#    build:
-#        branch: wininf-latest
-#        name: diagnose
-#        output: release\Installer
-#    canonical-name: SDU
-#    line-id: SDU
-#sed32:
-#    build:
-#        branch: develop
-#        name: sed
-#        output: sed\Release\Win32
-#    canonical-name: SED
-#    line-id: BD3D3F43-188F-4930-86C4-54343CC78289
-#sed64:
-#    build:
-#        branch: develop
-#        name: sed
-#        output: sed\Release\x64
-#    canonical-name: SED64
-#    line-id: 1129226C-32AB-4B72-85E1-A9CC8DFBC859
-#sfs:
-#    build:
-#        branch: develop
-#        name: winsfs
-#        output: x86\installer
-#    canonical-name: SFS
-#    line-id: 9F48614B-DAE1-4D20-B677-5C3EE9598CA3
-#sfs64:
-#    build:
-#        branch: develop
-#        name: winsfs
-#        output: x64\installer
-#    canonical-name: SFS64
-#    line-id: 591706A7-9603-4255-A65F-EA49BB11E8AC
-#sld:
-#    build:
-#        branch: sld-latest
-#        name: sld
-#        output: winany\SDDS
-#    canonical-name: SLD
-#    line-id: FE92B17F-0632-4AB1-B423-4093D3968454
-#sldfeed:
-#    build:
-#        build_id: '203444'
-#        name: sldfeed
-#        output: output
-#        version: 1.6
-#    canonical-name: SLDFEED
-#    line-id: SLDFEED
-#sme:
-#    build:
-#        branch: CP-Eng-Installer
-#        name: sme_package_32
-#        output: release
-#    canonical-name: SME
-#    line-id: 12D32E6C-4CFF-435B-BC98-5E14CCB54950
-#sme64:
-#    build:
-#        branch: CP-Eng-Installer
-#        name: sme_package_64
-#        output: release
-#    canonical-name: SME64
-#    line-id: 70FDD40E-986A-44E5-9620-2B894A06702A
-#sophosclean32:
-#    build:
-#        branch: develop
-#        name: clean
-#        output: sdds\bin\Release\x86\sdds
-#    canonical-name: SOPHOSCLEANM32
-#    line-id: 2BC1260A-7D16-4B10-B314-6C7B52DFD636
-#sophosclean64:
-#    build:
-#        branch: develop
-#        name: clean
-#        output: sdds\bin\Release\x64\sdds
-#    canonical-name: SOPHOSCLEANM64
-#    line-id: 3D8DC0A9-7F42-4CD5-AA7B-CF29296E7789
-#srv-avsuite:
-#    build:
-#        build_id: 211553
-#        name: collate
-#        output: SDDS-Ready-Packages\WindowsCloudServerAV
-#        version: 1.0
-#    canonical-name: SRVAV
-#    line-id: WindowsCloudServerAV
-#srv-coresuite:
-#    build:
-#        build_id: 212121
-#        name: collate
-#        output: SDDS-Ready-Packages\eshssrv-version
-#        version: 1.0
-#    canonical-name: ESHSSRV
-#    line-id: WindowsCloudServer
-#srv-hmpasuite:
-#    build:
-#        build_id: 211466
-#        name: collate
-#        output: SDDS-Ready-Packages\WindowsCloudServerHitmanProAlert
-#        version: 1.0
-#    canonical-name: HMPASRV
-#    line-id: WindowsCloudServerHitmanProAlert
-#srv-legacysuite:
-#    build:
-#        build_id: 206729
-#        name: collate
-#        output: SDDS-Ready-Packages\WindowsCloudServerLegacy
-#        version: 1.0
-#    canonical-name: WindowsCloudServerLegacy
-#    line-id: WindowsCloudServerLegacy
-#sse:
-#    build:
-#        build_id: '216340'
-#        name: sse_package_32
-#        version: 1-4
-#        output: release
-#    canonical-name: SSE
-#    line-id: E4E3B3AC-9DB6-4AFA-83AF-7658DF4CEA87
-#sse64:
-#    build:
-#        build_id: '216340'
-#        name: sse_package_64
-#        version: 1-4
-#        output: release
-#    canonical-name: SSE64
-#    line-id: 0253775E-970D-4876-959C-21B422420E5A
-#staticdetect-supp:
-#    build:
-#        branch: bpa-win\develop
-#        name: ssp-release
-#        output: release-64\Release\staticdetect
-#    canonical-name: STATICDETECTSUPP
-#    line-id: AE426F79-A04E-46E9-8FAF-ABE5D336E2D8
-#sxlsup:
-#    build:
-#        build_id: '209944'
-#        name: sxl-cfg
-#        output: output\w4
-#        version: 2-0-0
-#    canonical-name: SXLSUP
-#    line-id: SXLSUP
-#telemetrysup:
-#    build:
-#        branch: develop
-#        name: sau_xg
-#        output: Release-Win32\TelemetrySupplement\dev
-#    canonical-name: TELEMSUP
-#    line-id: TELEMSUP
-#uc:
-#    build:
-#        branch: develop
-#        name: uc
-#        output: output\x64\Release\SDDS
-#    canonical-name: UC
-#    line-id: UpdateCache
-#ui:
-#    build:
-#        branch: develop
-#        name: winui
-#        output: Win32\installer
-#    canonical-name: UI
-#    line-id: 66579BF8-C486-46DB-9B46-8B8FA445433D
-#ui64:
-#    build:
-#        branch: develop
-#        name: winui
-#        output: x64\installer
-#    canonical-name: UI64
-#    line-id: 5CD1A7B6-812E-47A1-A986-3A6D5D5C19F5
-#uninstaller32:
-#    build:
-#        branch: windu-latest
-#        name: uninstaller
-#        output: Release\Win32
-#    canonical-name: UNINSTALLER
-#    line-id: 3552C5D7-2B27-4047-957C-92A48281E09D
-#uninstaller64:
-#    build:
-#        branch: windu-latest
-#        name: uninstaller
-#        output: Release\x64
-#    canonical-name: UNINSTALLER64
-#    line-id: 243DECCD-8080-410D-A45F-77F2182715EE
-#userappfeed:
-#    build:
-#        build_id: '212530'
-#        name: user-appfeed
-#        output: output\user_supplement
-#        version: 1-0
-#    canonical-name: USERAPPFEED
-#    line-id: USERAPPFEED
-#vdl:
-#    build:
-#        build_id: '216942'
-#        name: vdl
-#        output: supple\data
-#        version: 5-67
-#    canonical-name: VDL
-#    line-id: VDL
-#vdlappc:
-#    build:
-#        branch: cloud-warehouse-labs-imports
-#        build_id: 20190531183119-000000
-#        name: vdl
-#        version: 5-63
-#        output: dataseta\data
-#    canonical-name: VDLAPPC
-#    line-id: VDLAPPC
-#winepflags:
-#    build:
-#        branch: develop
-#        name: winepflags
-#        output: output\union\LATEST
-#    canonical-name: WINEPFLAGS
-#    line-id: WINEPFLAGS
+#ssplpluginexample:
+#    build:
+#        branch: master
+#        name: ExamplePlugin
+#        output: output\SDDS-COMPONENT
+#    canonical-name: Server Protection Linux Plugin Example
+#    line-id: ServerProtectionLinux-Plugin-Example
+#ssplauditplugin:
+#    build:
+#        branch: master
+#        name: sspl-audit-plugin
+#        output: output\SDDS-COMPONENT
+#    canonical-name: Server Protection Linux Plugin AuditPlugin
+#    line-id: ServerProtectionLinux-Plugin-AuditPlugin
+#sspleventprocessor:
+#    build:
+#        branch: master
+#        name: sspl-event-processor
+#        output: output\SDDS-COMPONENT
+#    canonical-name: Server Protection Linux Plugin EventProcessor
+#    line-id: ServerProtectionLinux-Plugin-EventProcessor
+#sspl-base-release:
+#    build:
+#        build_id: '216976'
+#        name: sspl-base
+#        output: output\SDDS-COMPONENT
+#        version: 1.0.0.74
+#    canonical-name: ServerProtectionLinux-Base
+#    line-id: ServerProtectionLinux-Base
+#ssplmdr-suite-release:
+#    build:
+#        build_id: '217232'
+#        name: sspl-mdr-componentsuite
+#        output: output\SDDS-SSPL-MDR-COMPONENT-SUITE
+#        version: 1-0-0-17
+#    canonical-name: ServerProtectionLinux-Plugin-MDR
+#    line-id: ServerProtectionLinux-Plugin-MDR
+#ssplmdr-control-component-release:
+#    build:
+#        build_id: '217232'
+#        name: sspl-mdr-componentsuite
+#        output: output\SDDS-SSPL-MDR-COMPONENT
+#        version: 1-0-0-17
+#    canonical-name: ServerProtectionLinux-MDR-Control-Component
+#    line-id: ServerProtectionLinux-MDR-Control-Component
+#    mountpoint: .
+#ssplmdr-dbos-component-release:
+#    build:
+#        build_id: '217232'
+#        name: sspl-mdr-componentsuite
+#        output: output\SDDS-SSPL-DBOS-COMPONENT
+#        version: 1-0-0-17
+#    canonical-name: ServerProtectionLinux-MDR-DBOS-Component
+#    line-id: ServerProtectionLinux-MDR-DBOS-Component
+#    mountpoint: .
+#ssplmdr-osquery-component-release:
+#    build:
+#        build_id: '217232'
+#        name: sspl-mdr-componentsuite
+#        output: output\SDDS-SSPL-OSQUERY-COMPONENT
+#        version: 1-0-0-17
+#    canonical-name: ServerProtectionLinux-MDR-osquery-Component
+#    line-id: ServerProtectionLinux-MDR-osquery-Component
+#    mountpoint: .
+#sspl-base-0-6-0-release:
+#    build:
+#        build_id: '217319'
+#        name: sspl-base
+#        output: output\SDDS-COMPONENT
+#        version: 0-6-0-4
+#    canonical-name: Server Protection Linux Base
+#    line-id: ServerProtectionLinux-Base
+#ssplmdr-suite-0-6-0-release:
+#    build:
+#        build_id: '217339'
+#        name: sspl-mdr-componentsuite
+#        output: output\SDDS-SSPL-MDR-COMPONENT-SUITE
+#        version: 0-6-0-1
+#    canonical-name: Server Protection Linux Plugin MDR
+#    line-id: ServerProtectionLinux-Plugin-MDR
+#ssplmdr-control-component-0-6-0-release:
+#    build:
+#        build_id: '217339'
+#        name: sspl-mdr-componentsuite
+#        output: output\SDDS-SSPL-MDR-COMPONENT
+#        version: 0-6-0-1
+#    canonical-name: Server Protection Linux MDR Control Component
+#    line-id: ServerProtectionLinux-MDR-Control-Component
+#    mountpoint: .
+#ssplmdr-dbos-component-0-6-0-release:
+#    build:
+#        build_id: '217339'
+#        name: sspl-mdr-componentsuite
+#        output: output\SDDS-SSPL-DBOS-COMPONENT
+#        version: 0-6-0-1
+#    canonical-name: Server Protection Linux MDR DBOS Component
+#    line-id: ServerProtectionLinux-MDR-DBOS-Component
+#    mountpoint: .
+#ssplmdr-osquery-component-0-6-0-release:
+#    build:
+#        build_id: '217339'
+#        name: sspl-mdr-componentsuite
+#        output: output\SDDS-SSPL-OSQUERY-COMPONENT
+#        version: 0-6-0-1
+#    canonical-name: Server Protection Linux MDR osquery Component
+#    line-id: ServerProtectionLinux-MDR-osquery-Component
+#    mountpoint: .
