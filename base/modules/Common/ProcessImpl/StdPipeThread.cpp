@@ -95,7 +95,7 @@ void Common::ProcessImpl::StdPipeThread::run()
                 continue;
             }
 
-            LOGERROR("Failure in monitor file descriptor: " << UtilityImpl::StrError(err) );
+            LOGFATAL("Failure in monitor file descriptor: " << UtilityImpl::StrError(err) );
             return;
         }
         if (ret > 0)

@@ -14,3 +14,4 @@ log4cplus::Logger& getProcessImplLogger();
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getProcessImplLogger(), x) // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getProcessImplLogger(), x)       // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getProcessImplLogger(), x)     // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getProcessImplLogger(), x)     // NOLINT
