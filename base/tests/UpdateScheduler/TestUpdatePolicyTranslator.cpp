@@ -709,7 +709,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
 
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
-
     auto settingsHolder = translator.translatePolicy(mdrSSPLBasePolicy);
     auto config = settingsHolder.configurationData;
 
@@ -764,8 +763,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
 
     UpdatePolicyTranslator translator;
 
-
-    EXPECT_CALL(*mockFileSystem, isFile("/installroot/base/update/var/sophos_alias.txt")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/sophos_alias.txt")).WillOnce(Return(true));
     std::string customerFileUrl("http://ostia.eng.sophos/customer");
     EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(customerFileUrl));
 
@@ -783,8 +781,10 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
     EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
     auto urls = config.getSophosUpdateUrls();
-    ASSERT_EQ(urls.size(), 1);
+    ASSERT_EQ(urls.size(), 3);
     EXPECT_EQ(urls[0], customerFileUrl);
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
 
     EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
 
