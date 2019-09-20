@@ -391,6 +391,7 @@ namespace Common
                     LOGDEBUG("PID " << m_pid << " continued to run");
                 }
 
+                m_pipeThread->requestStop();
             }
         }
 

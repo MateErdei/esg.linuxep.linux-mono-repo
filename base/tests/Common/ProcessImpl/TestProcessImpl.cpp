@@ -14,6 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <fstream>
 #include <Common/FileSystem/IFileSystem.h>
+#include <tests/Common/Helpers/TempDir.h>
 
 using namespace Common::Process;
 namespace
@@ -82,6 +83,45 @@ namespace
         EXPECT_TRUE(testExecutionSynchronizer.waitfor());
         ASSERT_EQ(process->output(), "");
     }
+
+    TEST(ProcessImpl, ProcessWillNotBlockOnGettingOutputAfterWaitUntillProcessEnds) // NOLINT
+    {
+        std::string bashScript = R"(#!/bin/bash
+echo 'started'
+>&2 echo {1..300}
+echo 'keep running'
+sleep 10000
+)";
+        Tests::TempDir tempdir;
+        tempdir.createFile("script", bashScript);
+        Tests::TestExecutionSynchronizer testExecutionSynchronizer;
+        bool first = true;
+        auto process = createProcess();
+        process->setOutputLimit(100);
+        std::string captureout;
+        process->setOutputTrimmedCallback([&captureout, &testExecutionSynchronizer, &first](std::string out){
+            captureout += out;
+            if (first)
+            {
+                first = false;
+                testExecutionSynchronizer.notify();
+            }
+        });
+        process->exec("/bin/bash", { tempdir.absPath("script") });
+        int pid = process->childPid();
+        auto fut = std::async(std::launch::async, [&pid, &testExecutionSynchronizer](){
+            testExecutionSynchronizer.waitfor(500);
+            ::kill( pid, SIGTERM);
+        });
+        process->waitUntilProcessEnds();
+        std::string out = process->output();
+        EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("started")));
+        // the time to kill and the ammount of bytes written to output are not 'deterministic', hence, only requiring not empty.
+        EXPECT_FALSE( out.empty());
+        EXPECT_THAT(captureout, ::testing::HasSubstr("started"));
+        fut.get();
+    }
+
 
     TEST(ProcessImpl, ProcessNotifyOnClosureShouldAlsoWorkForInvalidProcess) // NOLINT
     {
