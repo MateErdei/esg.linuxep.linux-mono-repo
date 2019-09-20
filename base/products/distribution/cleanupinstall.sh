@@ -50,13 +50,14 @@ function copy_manifests()
     # Function will copy manifest into install location which will be diff'ed on the next update / install execution.
 
     local WORKING_DIST=$1
+    local PRODUCT_RIGID_NAME=$2
 
     for CID_MANIFEST_FILE in $(find $WORKING_DIST -name "*manifest.dat")
     do
         local NEW_MANIFEST=${CID_MANIFEST_FILE}
         local BASE_NAME=$(basename ${CID_MANIFEST_FILE})
         local PRODUCT_FOLDER=$(dirname ${CID_MANIFEST_FILE} | xargs basename)
-        local OLD_MANIFEST_DIR=${SOPHOS_INSTALL}/base/update/$PRODUCT_FOLDER
+        local OLD_MANIFEST_DIR=${SOPHOS_INSTALL}/base/update/${PRODUCT_RIGID_NAME}
         mkdir -p ${OLD_MANIFEST_DIR}
         cp ${NEW_MANIFEST} ${OLD_MANIFEST_DIR}
         chmod 600 ${OLD_MANIFEST_DIR}/${BASE_NAME}

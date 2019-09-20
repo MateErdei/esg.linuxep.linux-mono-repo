@@ -15,6 +15,8 @@ EXIT_FAIL_SERVICE=40
 
 umask 077
 
+PRODUCT_LINE_ID="ServerProtectionLinux-Base"
+
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
 if [[ "$SCRIPTDIR" == "$0" ]]
@@ -324,7 +326,7 @@ chmod u+x "$DIST/files/base/bin"/*
 generate_manifest_diff $DIST
 
 CLEAN_INSTALL=1
-[[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && CLEAN_INSTALL=0
+[[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
 
 for F in $(find "$DIST/files" -type f)
 do
@@ -434,7 +436,7 @@ then
     echo "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 fi
 
-copy_manifests ${DIST}
+copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 
 ## Exit with error code if registration was run and failed
 exit ${EXIT_CODE}

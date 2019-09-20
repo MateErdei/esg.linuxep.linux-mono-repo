@@ -4,7 +4,7 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/install.sh
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
-install(FILES ${CMAKE_SOURCE_DIR}/products/installer/cleanupinstall.sh
+install(FILES ${CMAKE_SOURCE_DIR}/products/distribution/cleanupinstall.sh
         DESTINATION .
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )

@@ -124,6 +124,7 @@ file(GLOB_RECURSE distributionfiles
         LIST_DIRECTORIES false
         ${CMAKE_SOURCE_DIR}/products/distribution/*.py
         ${CMAKE_SOURCE_DIR}/products/distribution/addSymbols.sh
+        ${CMAKE_SOURCE_DIR}/products/distribution/cleanupinstall.sh
         )
 
 add_custom_command(
