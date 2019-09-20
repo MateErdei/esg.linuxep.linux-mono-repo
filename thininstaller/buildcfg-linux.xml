@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <component-build-cfg componentname="linuxthininstaller"
-                     componentversion="1.0.0"
+                     componentversion="1.0.1"
                      componentautoversioning="yes"
                      buildmachinename="reddwarf5"
                      buildmachineos="nonwindows"

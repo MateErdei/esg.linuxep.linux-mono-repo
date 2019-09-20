@@ -2,7 +2,7 @@
 library "standardPipeline"
 
 project = 'sspl-thininstaller'
-version = '1.0.0'
+version = '1.0.1'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/thininstaller.git'
 project_builddir = 'sspl-thininstaller-build'
 project_release_xml = 'release-package.xml'
