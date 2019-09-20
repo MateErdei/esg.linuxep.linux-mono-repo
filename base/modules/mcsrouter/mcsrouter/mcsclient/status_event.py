@@ -10,7 +10,7 @@ status_event Module
 
 
 import mcsrouter.utils.xml_helper
-
+from mcsrouter.utils.xml_helper import toxml_utf8
 from . import events
 
 TEMPLATE_STATUS_EVENT = """<?xml version="1.0" encoding="utf-8" ?>
@@ -59,6 +59,6 @@ class StatusEvent:
             status.appendChild(events.text_node(doc, "body", adapter_status_xml))
             statuses.appendChild(status)
 
-        output = doc.toxml()
+        output = toxml_utf8(doc)
         doc.unlink()
         return output

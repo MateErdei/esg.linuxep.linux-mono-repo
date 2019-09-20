@@ -8,6 +8,8 @@ import random
 import sys
 import unittest
 
+import PathManager
+
 import mcsrouter.utils.sec_obfuscation
 import mcsrouter.utils.sec_obfuscation_password
 

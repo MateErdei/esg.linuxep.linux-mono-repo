@@ -7,6 +7,7 @@ import logging
 import xml.dom.minidom
 
 import mcsrouter.utils.xml_helper
+from mcsrouter.utils.xml_helper import toxml_utf8
 
 LOGGER = logging.getLogger(__name__)
 
@@ -125,7 +126,7 @@ class AdapterBase:
         conf_xml = self._get_config_xml()
         self._set_text(config_node, doc, conf_xml)
 
-        output = doc.toxml()
+        output = toxml_utf8(doc)
         doc.unlink()
         return output
 

@@ -78,6 +78,18 @@ def parseString(contents):
     builder = NoEntityExpatBuilderNS(options)
     return builder.parseString(contents)
 
+def toxml_utf8(doc):
+    """
+    doc.toxml() will not produce the header : <?xml version="1.0" encoding="utf-8"?>
+    setting the encoding, it does. But setting encoding also change the output to be bytes.
+    This method transforms it back to string.
+
+    :param doc: instance of xml.dom.minidom.Document
+    :return: python string
+    """
+    isinstance(doc, xml.dom.minidom.Document)
+    return doc.toxml(encoding='utf-8').decode('utf-8')
+
 def check_xml_has_no_script_tags(xml_string):
     if any(x in xml_string for x in ["<xhtml:script", "<script"]):
         err_msg = "Refusing to parse Script Element"

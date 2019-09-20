@@ -36,7 +36,7 @@ class dummyResponse(object):
         return [ ( "Content-Length", self.__m_rep_length ) ]
 
     def read(self, length):
-        return "a" * min(length, self.__m_length)
+        return b"a" * min(length, self.__m_length)
 
 class dummyConnection(object):
     def __init__(self, **kwargs):

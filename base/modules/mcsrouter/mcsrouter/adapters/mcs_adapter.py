@@ -10,6 +10,7 @@ import mcsrouter.adapters.adapter_base
 import mcsrouter.adapters.mcs.mcs_policy_handler
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper
+from mcsrouter.utils.xml_helper import toxml_utf8
 
 LOGGER = logging.getLogger(__name__)
 
@@ -91,7 +92,7 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         else:
             relay_node.removeAttribute("endpointId")
             relay_node.removeAttribute("lastUsed")
-        output = doc.toxml()
+        output = toxml_utf8(doc)
         doc.unlink()
         LOGGER.debug("Status MCS XML: {}".format(output))
         return output

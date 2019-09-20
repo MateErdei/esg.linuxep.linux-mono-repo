@@ -10,6 +10,7 @@ events Module
 import logging
 
 import mcsrouter.utils.xml_helper
+from mcsrouter.utils.xml_helper import toxml_utf8
 
 LOGGER = logging.getLogger(__name__)
 
@@ -132,7 +133,7 @@ class Events(object):
                 event.m_app_id)
             event.add_xml(events_node, doc)
 
-        output = doc.toxml(encoding="utf-8").decode("utf-8")
+        output = toxml_utf8(doc)
         doc.unlink()
         return output
 
