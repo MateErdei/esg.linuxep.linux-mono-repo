@@ -8,6 +8,7 @@ logger = logging.getLogger("TestUtils")
 
 BUILD_DIR=os.environ.get("ABS_BUILDDIR",".")
 INSTALL_DIR=os.path.join(BUILD_DIR,"install")
+import PathManager
 import tempfile
 import shutil
 import mcsrouter.utils.plugin_registry as plugin_registry
