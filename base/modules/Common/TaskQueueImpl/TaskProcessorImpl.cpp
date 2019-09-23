@@ -40,7 +40,7 @@ namespace
 void Common::TaskQueueImpl::TaskProcessorImpl::stop()
 {
     Common::TaskQueue::ITaskPtr task(new StopTask(m_thread));
-    m_thread.m_taskQueue->queueTask(task);
+    m_thread.m_taskQueue->queueTask(std::move(task));
     m_thread.join();
 }
 

@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using ITaskPtr = Common::TaskQueue::ITaskPtr;
 
-void Common::TaskQueueImpl::TaskQueueImpl::queueTask(ITaskPtr& task)
+void Common::TaskQueueImpl::TaskQueueImpl::queueTask(ITaskPtr task)
 {
     if (task == nullptr)
     {

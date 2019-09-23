@@ -27,7 +27,7 @@ TEST(TestQueueImpl, addTask) // NOLINT
 {
     Common::TaskQueueImpl::TaskQueueImpl queue;
     Common::TaskQueue::ITaskPtr task(new FakeTask());
-    queue.queueTask(task);
+    queue.queueTask(std::move(task));
     EXPECT_EQ(task, nullptr);
 }
 
@@ -36,7 +36,7 @@ TEST(TestQueueImpl, removeTask) // NOLINT
     Common::TaskQueueImpl::TaskQueueImpl queue;
     Common::TaskQueue::ITaskPtr task(new FakeTask());
     Common::TaskQueue::ITask* taskBorrowedPointer = task.get();
-    queue.queueTask(task);
+    queue.queueTask(std::move(task));
     EXPECT_EQ(task, nullptr);
     task = queue.popTask();
     EXPECT_NE(task, nullptr);

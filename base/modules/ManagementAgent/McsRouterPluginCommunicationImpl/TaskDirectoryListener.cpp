@@ -55,7 +55,7 @@ namespace ManagementAgent
             }
 
             assert(task != nullptr);
-            m_taskQueue->queueTask(task);
+            m_taskQueue->queueTask(std::move(task));
         }
 
         void TaskDirectoryListener::watcherActive(bool active) { m_active = active; }

@@ -23,7 +23,7 @@ namespace Common
         class TaskQueueImpl : public virtual Common::TaskQueue::ITaskQueue
         {
         public:
-            void queueTask(ITaskPtr& task) override;
+            void queueTask(ITaskPtr task) override;
             ITaskPtr popTask() override;
 
         protected:

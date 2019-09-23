@@ -171,7 +171,7 @@ namespace ManagementAgent
                         tempDir,
                         statusDir));
 
-                    m_taskQueue->queueTask(task);
+                    m_taskQueue->queueTask(std::move(task));
                 }
             }
         }
@@ -185,7 +185,7 @@ namespace ManagementAgent
             {
                 std::unique_ptr<Common::TaskQueue::ITask> task(
                     new McsRouterPluginCommunicationImpl::PolicyTask(*m_pluginManager, filePath));
-                m_taskQueue->queueTask(task);
+                m_taskQueue->queueTask(std::move(task));
             }
         }
 
@@ -198,7 +198,7 @@ namespace ManagementAgent
             {
                 Common::TaskQueue::ITaskPtr task(
                     new McsRouterPluginCommunicationImpl::ActionTask(*m_pluginManager, filePath));
-                m_taskQueue->queueTask(task);
+                m_taskQueue->queueTask(std::move(task));
             }
         }
 

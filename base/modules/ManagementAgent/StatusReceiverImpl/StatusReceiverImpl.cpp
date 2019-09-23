@@ -28,5 +28,5 @@ void ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::receivedChangeStat
         m_statusCache, appId, statusInfo.statusXml, statusInfo.statusWithoutTimestampsXml, m_tempDir, m_statusDir));
 
     // Add task to queue
-    m_taskQueue->queueTask(task);
+    m_taskQueue->queueTask(std::move(task));
 }

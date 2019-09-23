@@ -21,5 +21,5 @@ void EventReceiverImpl::receivedSendEvent(const std::string& appId, const std::s
     // Write file to directory
     Common::TaskQueue::ITaskPtr task(new EventTask(appId, eventXml));
 
-    m_taskQueue->queueTask(task);
+    m_taskQueue->queueTask(std::move(task));
 }

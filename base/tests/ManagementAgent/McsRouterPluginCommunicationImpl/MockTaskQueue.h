@@ -15,6 +15,6 @@ using ITaskPtr = Common::TaskQueue::ITaskPtr;
 class MockTaskQueue : public virtual Common::TaskQueue::ITaskQueue
 {
 public:
-    MOCK_METHOD1(queueTask, void(ITaskPtr& task));
+    MOCK_METHOD1(queueTask, void(ITaskPtr task));
     MOCK_METHOD0(popTask, ITaskPtr());
 };

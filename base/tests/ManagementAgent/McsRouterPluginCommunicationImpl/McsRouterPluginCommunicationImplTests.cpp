@@ -16,8 +16,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/TempDir.h>
+#include <future>
 
 class McsRouterPluginCommunicationImplTests : public ::testing::Test
 {
@@ -76,6 +78,7 @@ private:
 
 TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesFromMultipleDirectories) // NOLINT
 {
+    using namespace ::testing;
     std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, "appId1-1_policy.xml");
     std::string policyFileTmp1 = Common::FileSystem::join(m_policyFilePath, "policyFileTmp1.xml");
 
@@ -85,8 +88,10 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
     m_tempDir->createFile(policyFileTmp1, "Hello");
     m_tempDir->createFile(actionFileTmp1, "Hello");
 
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", "Hello")).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, queueAction("appId1", "Hello")).WillOnce(Return(1));
+    Tests::TestExecutionSynchronizer sync(2);
+    auto notifySync= [&sync](std::string, std::string){sync.notify(); return 1;};
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", "Hello")).WillOnce(Invoke(notifySync));
+    EXPECT_CALL(m_mockPluginManager, queueAction("appId1", "Hello")).WillOnce(Invoke(notifySync));
 
     std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> listener1(
         new ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener(
@@ -110,8 +115,9 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
         m_tempDir->absPath(actionFileTmp1),
         m_tempDir->absPath(actionFile1))); // NOLINT
 
-    // need to give enough time for the Directory watcher to detect and process files.
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+    // wait up to one second for the sync to be executed via the notifySync
+    sync.waitfor(1000);
 
     directoryWatcher.reset();
 }

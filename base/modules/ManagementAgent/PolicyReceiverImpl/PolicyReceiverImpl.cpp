@@ -54,7 +54,7 @@ namespace ManagementAgent
                     LOGSUPPORT("Queue policy file to be sent to plugins " << policyFile);
                     std::unique_ptr<Common::TaskQueue::ITask> task(new PolicyTask(m_pluginManager, policyFile));
 
-                    m_taskQeue->queueTask(task);
+                    m_taskQeue->queueTask(std::move(task));
 
                     policyTaskAddedToQueue = true;
                 }

@@ -29,7 +29,7 @@ TEST(TestTaskProcessorImpl, QueueNullTask) // NOLINT
     processor.start();
 
     Common::TaskQueue::ITaskPtr task;
-    queue->queueTask(task);
+    queue->queueTask(std::move(task));
 
     processor.stop();
 }
@@ -56,7 +56,7 @@ TEST(TestTaskProcessorImpl, CheckTaskExecuted) // NOLINT
     Common::TaskQueueImpl::TaskProcessorImpl processor(queue);
     processor.start();
 
-    queue->queueTask(task);
+    queue->queueTask(std::move(task));
 
     processor.stop();
 
@@ -73,8 +73,8 @@ TEST(TestTaskProcessorImpl, CheckTaskIsExecutedBeforeStopTaskIsExecuted) // NOLI
     std::shared_ptr<Common::TaskQueue::ITaskQueue> queue(new Common::TaskQueueImpl::TaskQueueImpl());
     Common::TaskQueueImpl::TaskProcessorImpl processor(queue);
 
-    queue->queueTask(task1);
-    queue->queueTask(task2);
+    queue->queueTask(std::move(task1));
+    queue->queueTask(std::move(task2));
 
     processor.start(); // Will wait for thread to be running
     processor.stop();  // Will wait for all tasks to be completed
