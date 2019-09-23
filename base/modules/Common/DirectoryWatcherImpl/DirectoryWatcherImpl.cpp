@@ -160,7 +160,9 @@ namespace Common
                     else
                     {
                         // enforcing the terminate that ensure strings are null terminated.
-                        buf[len] = 0;
+                        // given that event-name should be null terminated anyway, there is no byte lost.
+                        size_t safeDelimiter = len < static_cast<ssize_t>(sizeof(buf)) ? len : sizeof(buf)-1;
+                        buf[safeDelimiter] = 0;
                         for (char* ptr = buf; ptr < buf + len; ptr += sizeof(struct inotify_event) + event->len)
                         {
                             event = (const struct inotify_event*)ptr;

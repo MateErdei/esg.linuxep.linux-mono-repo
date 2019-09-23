@@ -32,6 +32,7 @@ namespace
         const ProductSubscription& subscription,
         SulDownloaderProto::ConfigurationSettings_Subscription* proto_subscription)
     {
+        assert( proto_subscription != nullptr);
         proto_subscription->set_rigidname(subscription.rigidName());
         proto_subscription->set_baseversion(subscription.baseVersion());
         proto_subscription->set_tag(subscription.tag());
