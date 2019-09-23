@@ -137,6 +137,9 @@ def register(config, inst, logger):
             mcs.startup()
             mcs.register()
             break
+        except mcs_exception.MCSCACertificateException as exception:
+            LOGGER.fatal(str(exception))
+            break
         except mcs_exception.MCSConnectionFailedException as ex:
             url = config.get("MCSURL")
             logger.warning("Connection failure. Reason: {}".format(str(ex)))
