@@ -56,7 +56,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getTelemetryExeConfigFilePath() const override;
         std::string getTelemetryExecutableFilePath() const override;
 
-        std::string getSophosAliasFilePath() const override ;
+        std::string getSophosAliasFilePath() const override;
 
     private:
         std::string socketPath(const std::string& relative) const;

@@ -149,6 +149,7 @@ namespace UpdateSchedulerImpl
             if(fileSystem()->isFile(applicationPathManager().getSophosAliasFilePath()))
             {
                 connectionAddress = fileSystem()->readFile(applicationPathManager().getSophosAliasFilePath());
+                LOGINFO("Using connection address provided by sophos_alias.txt file.");
             }
             else
             {

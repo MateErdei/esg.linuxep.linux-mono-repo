@@ -69,6 +69,12 @@ namespace Common::ApplicationConfiguration
         virtual std::string getTelemetryExeConfigFilePath() const = 0;
         virtual std::string getTelemetryExecutableFilePath() const = 0;
 
+        /**
+         * @brief the sophos_alias.txt file is a file containing a url override for connecting to a
+         * different customer file location such as ostia instead of going to sophos.
+         * The file will be only used when wanting to test the product with dev warehouses.
+         * @return the full path for sophos_alias.txt file.
+         */
         virtual std::string getSophosAliasFilePath() const  = 0;
     };
 
