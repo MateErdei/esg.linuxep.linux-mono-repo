@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -x
 EXIT_FAIL_CREATE_DIRECTORY=10
 EXIT_FAIL_FIND_GROUPADD=11
 EXIT_FAIL_ADD_GROUP=12
@@ -326,6 +325,7 @@ chmod u+x "$DIST/files/base/bin"/*
 generate_manifest_diff $DIST
 
 CLEAN_INSTALL=1
+[[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && mkdir -p "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/" && mv "${SOPHOS_INSTALL}/base/update/manifest.dat"  "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat"
 [[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
 
 for F in $(find "$DIST/files" -type f)
