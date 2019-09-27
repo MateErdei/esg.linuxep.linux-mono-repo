@@ -63,11 +63,18 @@
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
     </inputs>
-    <buildcommands>
+    <buildcommands buildtype="prod">
         <command>
           <program>/bin/bash</program>
           <args>./build.sh --clean</args>
           <workingdir>sspl-base-build</workingdir>
+        </command>
+    </buildcommands>
+    <buildcommands buildtype="dev">
+        <command>
+            <program>/bin/bash</program>
+            <args>./build.sh --clean --debug</args>
+            <workingdir>sspl-base-build</workingdir>
         </command>
     </buildcommands>
     <publish>
@@ -77,6 +84,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master</publishbranches>
+        <publishbranches>master,feature/LINUXDAR-695-configure-ci-builds-to-produce-debug-builds</publishbranches>
     </publish>
 </package>
