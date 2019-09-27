@@ -63,15 +63,13 @@
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
     </inputs>
-    <buildcommands buildtype="prod">
-        <command>
+    <buildcommands>
+        <command  buildtype="prod">
           <program>/bin/bash</program>
           <args>./build.sh --clean</args>
           <workingdir>sspl-base-build</workingdir>
         </command>
-    </buildcommands>
-    <buildcommands buildtype="dev">
-        <command>
+        <command buildtype="dev">
             <program>/bin/bash</program>
             <args>./build.sh --clean --debug</args>
             <workingdir>sspl-base-build</workingdir>
