@@ -82,6 +82,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,feature/LINUXDAR-695-configure-ci-builds-to-produce-debug-builds</publishbranches>
+        <publishbranches>master</publishbranches>
     </publish>
 </package>
