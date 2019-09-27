@@ -16,6 +16,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <modules/wdctl/wdctlimpl/wdctl_bootstrap.h>
 #include <gmock/gmock.h>
 #include <thread>
+#include <mutex>
+
 
 namespace
 {
@@ -101,7 +103,7 @@ class TestWatchdogAndWdctl : public ::testing::Test
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
-
+    static std::mutex ensureNotInParallel;
     static std::unique_ptr<Tests::TempDir> tempDir;
     static std::string installDir()
     {
@@ -183,7 +185,7 @@ public:
 
 
 std::unique_ptr<Tests::TempDir> TestWatchdogAndWdctl::tempDir;
-
+std::mutex TestWatchdogAndWdctl::ensureNotInParallel;
 void TestWatchdogAndWdctl::SetUpTestCase()
 {
     tempDir = Tests::TempDir::makeTempDir();
@@ -203,43 +205,49 @@ void TestWatchdogAndWdctl::TearDownTestCase()
 
 TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
 {
-    testing::internal::CaptureStderr();
-    WatchdogRunner watchdogRunner;
-    watchdogRunner.start();
-    waitPluginStarted();
-    int retValue =  wdctl.main_afterLogConfigured(stopArgs, false);
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    if( retValue != 0)
     {
-        // Provide more information if the test fails.
-        // this will display the value returned and well as all the
-        // log messages on failure.
-        EXPECT_EQ(retValue, 0) << logMessage;
-    }
-    else
-    {
-        EXPECT_THAT(logMessage, ::testing::HasSubstr("stop fakeplugin"));
-    }
+        std::unique_lock<std::mutex> lock{ensureNotInParallel};
+        testing::internal::CaptureStderr();
+        WatchdogRunner watchdogRunner;
+        watchdogRunner.start();
+        waitPluginStarted();
+        int retValue = wdctl.main_afterLogConfigured(stopArgs, false);
+        std::string logMessage = testing::internal::GetCapturedStderr();
+        if (retValue != 0)
+        {
+            // Provide more information if the test fails.
+            // this will display the value returned and well as all the
+            // log messages on failure.
+            EXPECT_EQ(retValue, 0) << logMessage;
+        }
+        else
+        {
+            EXPECT_THAT(logMessage, ::testing::HasSubstr("stop fakeplugin"));
+        }
 
-    EXPECT_EQ(watchdogRunner.stop(), 0);
+        EXPECT_EQ(watchdogRunner.stop(), 0);
+    }
 }
 
 TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins) // NOLINT
 {
-    WatchdogRunner watchdogRunner;
-    watchdogRunner.start();
-    waitPluginStarted();
+    {
+        std::unique_lock<std::mutex> lock{ensureNotInParallel};
+        WatchdogRunner watchdogRunner;
+        watchdogRunner.start();
+        waitPluginStarted();
 
-    wdctl::wdctlimpl::wdctl_bootstrap wdctl;
-    EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs, false), 0);
+        wdctl::wdctlimpl::wdctl_bootstrap wdctl;
+        EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs, false), 0);
 
-    EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs, false), 0);
+        EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs, false), 0);
 
-    // stop
-    EXPECT_EQ(wdctl.main_afterLogConfigured(stopArgs, false), 0);
-    EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs, false), 1);
+        // stop
+        EXPECT_EQ(wdctl.main_afterLogConfigured(stopArgs, false), 0);
+        EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs, false), 1);
 
-    EXPECT_EQ(watchdogRunner.stop(), 0);
+        EXPECT_EQ(watchdogRunner.stop(), 0);
+    }
 }
 
 
