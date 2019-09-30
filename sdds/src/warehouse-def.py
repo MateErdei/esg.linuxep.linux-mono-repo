@@ -54,6 +54,8 @@ def update_component_suite_version(path, description, version):
 def resign_component(c):
     sdds_import_file_path = os.path.join(c.path, "SDDS-Import.xml")
     import_spec = ElementTree.parse(sdds_import_file_path)
+    # The below code needs to be fixed if we want to create a more seamless update process.  ie. tests do not
+    # need swap out prod dev certs in automation / manual tests.
     #resign.update_ca(import_spec, c.path)
     manifest_file_path = os.path.join(c.path, "manifest.dat")
     resign.update_manifest_dat_file(manifest_file_path, c.path)
