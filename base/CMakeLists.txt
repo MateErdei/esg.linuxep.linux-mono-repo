@@ -69,14 +69,19 @@ set(FEATURE_LIST "CORE")
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
 
-if(NOT DEFINED REDIST)
-    set( REDIST /redist )
-endif()
-if(NOT DEFINED BINARIES_DIR)
-    set( BINARIES_DIR ${REDIST}/binaries )
-endif()
 if(NOT DEFINED INPUT)
-    set( INPUT ${BINARIES_DIR}/linux11/input )
+    set( INPUT ${CMAKE_SOURCE_DIR}/redist )
+endif()
+
+if(NOT EXISTS ${INPUT})
+    string( APPEND ERRORMESSAGE
+    "To build using CLion you first need to:\n"
+    "1. Fetch inputs in source folder by running:\n"
+    "    python3 -m build_scripts.artisan_fetch build/release-package.xml\n"
+    "2. Run the full build script with no build flag:\n"
+    "    ./build.sh --no-build\n"
+    "After that you will be able to build using CLion")
+    message( FATAL_ERROR ${ERRORMESSAGE})
 endif()
 
 ## Find 3rd party libraries
@@ -84,6 +89,7 @@ set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
+set( ZLIB_INPUT ${INPUT}/zlib )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
@@ -180,6 +186,12 @@ find_library(CURL_LIBRARY
         NO_DEFAULT_PATH
         )
 
+find_library(ZLIB_LIBRARY
+        NAMES z
+        PATHS ${ZLIB_INPUT}/lib64
+        NO_DEFAULT_PATH
+        )
+
 ## Allow this to be redirected for python development
 if(NOT DEFINED PYTHON_INPUT)
     set( PYTHON_INPUT ${INPUT}/python)
@@ -199,8 +211,6 @@ endif()
 if(NOT DEFINED PYCRYPTODOME_INPUT)
     set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
 endif()
-
-set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
 

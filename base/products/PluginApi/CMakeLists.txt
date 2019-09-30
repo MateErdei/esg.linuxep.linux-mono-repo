@@ -43,6 +43,7 @@ FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
 FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
+FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
 
 add_custom_target(
         plugintar ALL
@@ -70,6 +71,7 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${expatfull}    pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${zlibfull}    pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
         DEPENDS testhelpers
 )

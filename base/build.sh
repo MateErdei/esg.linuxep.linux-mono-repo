@@ -234,6 +234,7 @@ function build()
         untar_input SUL
         untar_input boost
         untar_input expat
+        untar_input zlib
         untar_input log4cplus
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
         untar_input zeromq
