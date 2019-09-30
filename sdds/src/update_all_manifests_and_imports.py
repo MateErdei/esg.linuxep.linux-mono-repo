@@ -102,7 +102,7 @@ def update_manifest_dat_file(manifest, rootpath):
     if not os.path.isfile(manifest):
         return
 
-    print "Updating sspl manifest", manifest
+    print("Updating sspl manifest {}".format(manifest))
 
     manifestdata = StringIO()
     with open(manifest, "rb") as m:
@@ -121,13 +121,13 @@ def update_manifest_dat_file(manifest, rootpath):
         try:
             m_file.write(server.sign_file(file_data, manifest, None))
         except socket.error, e:
-            print "ERROR - Signing Failed: %s" % e
+            print("ERROR - Signing Failed: {}".format(e))
             raise
         for cert in ("pub", "ca"):
             try:
                 m_file.write(server.get_cert(cert, None))
             except socket.error, e:
-                print "ERROR - Failed to get cert %s: %s" % (cert, e)
+                print("ERROR - Failed to get cert {}: {}".format(cert, e))
                 raise
 
 
@@ -135,7 +135,7 @@ def update_manifest_dat_file_orig(manifest, rootpath):
     if not os.path.isfile(manifest):
         return
 
-    print "Updating sspl manifest", manifest
+    print("Updating sspl manifest {}".format(manifest))
 
     manifestdata = StringIO()
     with open(manifest, "rb") as m:
