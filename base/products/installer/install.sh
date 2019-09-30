@@ -322,11 +322,11 @@ chmod u+x "$DIST/files/base/bin"/*
 # generate machine id if necessary
 "$DIST/files/base/bin/machineid" "${SOPHOS_INSTALL}"
 
-generate_manifest_diff $DIST
-
 CLEAN_INSTALL=1
 [[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && mkdir -p "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/" && mv "${SOPHOS_INSTALL}/base/update/manifest.dat"  "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat"
 [[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
+
+generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
 for F in $(find "$DIST/files" -type f)
 do
@@ -376,7 +376,7 @@ unset LD_LIBRARY_PATH
 
 for F in "$DIST/installer/plugins"/*
 do
-    if changed_or_added ${F#"$DIST"/}  ${DIST}
+    if changed_or_added ${F#"$DIST"/} ${DIST} ${PRODUCT_LINE_ID}
     then
        "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
     fi
@@ -403,7 +403,7 @@ then
     fi
 fi
 
-if changed_or_added install.sh ${DIST}
+if changed_or_added install.sh ${DIST} ${PRODUCT_LINE_ID}
 then
     createUpdaterSystemdService
     createWatchdogSystemdService
@@ -418,7 +418,7 @@ then
         waitForProcess "python3 -m mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
     fi
 else
-    if software_changed ${DIST}
+    if software_changed ${DIST} ${PRODUCT_LINE_ID}
     then
         stopSsplService
 
