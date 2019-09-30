@@ -71,7 +71,7 @@
         </command>
         <command buildtype="dev">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --debug</args>
+            <args>./build.sh --clean</args>
             <workingdir>sspl-base-build</workingdir>
         </command>
     </buildcommands>
