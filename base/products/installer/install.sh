@@ -138,6 +138,7 @@ function createUpdaterSystemdService()
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/update_config.json ${SOPHOS_INSTALL}/base/update/var/update_report.json
+Group=sophos-spl-group
 Restart=no
 
 [Unit]
@@ -251,7 +252,7 @@ if (action.id == "org.freedesktop.systemd1.manage-units" && subject.isInGroup("s
 }
 });
 EOF
-
+      chmod ${file_path} 0644
       fi
    fi
 
@@ -266,10 +267,11 @@ EOF
 Identity=unix-group:sophos-spl-group
 Action=org.freedesktop.systemd1.manage-units
 ResultActive=yes
-ResultAny=no
+ResultAny=yes
 ResultInactive=no
 EOF
 
+        chmod ${file_path} 0644
         fi
    fi
 }
@@ -336,14 +338,16 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl"
 makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
+makedir 770 "${SOPHOS_INSTALL}/base/update"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
 makedir 770 "${SOPHOS_INSTALL}/base/update/certs"
 makedir 770 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
+chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update"
+chown -R "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var"
+chown -R "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/certs"
 
-chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/certs"
-chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var"
 
 makedir 711 "${SOPHOS_INSTALL}/base/bin"
 makedir 711 "${SOPHOS_INSTALL}/base/lib64"
@@ -422,6 +426,9 @@ chmod 750 "${SOPHOS_INSTALL}/base/bin/telemetry"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/tscheduler"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/tscheduler"*
+
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/UpdateScheduler"*
+chmod 750 "${SOPHOS_INSTALL}/base/bin/UpdateScheduler"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/"*
 chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*

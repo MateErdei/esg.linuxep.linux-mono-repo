@@ -12,21 +12,23 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "suldownloaderdata/Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Logging/FileLoggingSetup.h>
 #include <Common/FileSystem/IPidLockFileUtils.h>
+#include <Common/Logging/FileLoggingSetup.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <SulDownloader/suldownloaderdata/TimeTracker.h>
+#include <sys/stat.h>
 
 #include <algorithm>
 #include <cassert>
-#include <sys/stat.h>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -43,6 +45,33 @@ namespace
         }
         return false;
     }
+
+    void write_atomic_file_with_read_write_to_group(
+        const std::string& outputFilePath,
+        const std::string& content,
+        const std::string& tempDir)
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
+        Common::UtilityImpl::UniformIntDistribution uniformIntDistribution(1000, 9999);
+
+        std::string tempFilePath =
+            Common::FileSystem::join(tempDir, "tempfilename" + std::to_string(uniformIntDistribution.next()) + ".tmp");
+        try
+        {
+            fileSystem->writeFile(tempFilePath, content);
+            Common::FileSystem::filePermissions()->chmod(tempFilePath, 0660);
+            fileSystem->moveFile(tempFilePath, outputFilePath);
+        }
+        catch (Common::FileSystem::IFileSystemException&)
+        {
+            int ret = ::remove(tempFilePath.c_str());
+            // Prefer to throw the original exception rather than anything related to failing to delete the temp
+            // file
+            static_cast<void>(ret);
+            throw;
+        }
+    }
+
 } // namespace
 
 namespace SulDownloader
@@ -290,20 +319,21 @@ namespace SulDownloader
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         LOGINFO("Generating the report file in: " << outputParentPath);
 
-        fileSystem->writeFileAtomically(outputFilePath, jsonReport, tempDir);
+        write_atomic_file_with_read_write_to_group(outputFilePath, jsonReport, tempDir);
 
         return exitCode;
     }
 
     int main_entry(int argc, char* argv[])
     {
-        umask(S_IRWXG | S_IRWXO); // Read and write for the owner
+        umask(S_IRWXG | S_IRWXO);
         // Configure logging
         Common::Logging::FileLoggingSetup loggerSetup("suldownloader");
         std::unique_ptr<Common::FileSystem::ILockFileHolder> pidLock;
         try
         {
-            pidLock = Common::FileSystem::acquireLockFile( Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath());
+            pidLock = Common::FileSystem::acquireLockFile(
+                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath());
         }
         catch (const std::system_error& ex)
         {

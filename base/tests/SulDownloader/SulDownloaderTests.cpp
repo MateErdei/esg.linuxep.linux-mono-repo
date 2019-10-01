@@ -29,9 +29,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/VersigImpl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/FileSystemImpl/MockPidLockFileUtils.h>
+#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
 using namespace SulDownloader::suldownloaderdata;
@@ -217,6 +219,18 @@ public:
         return *pointer;
     }
 
+    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains)
+    {
+        EXPECT_CALL(
+            mockFileSystem, writeFile(::testing::HasSubstr("/installroot/tmp"), ::testing::HasSubstr(contains)));
+        EXPECT_CALL(mockFileSystem, moveFile(_, "/dir/output.json"));
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        EXPECT_CALL(*mockFilePermissions, chmod(_, 0660));
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    }
+
     ::testing::AssertionResult downloadReportSimilar(
         const char* m_expr,
         const char* n_expr,
@@ -353,13 +367,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(emptyFileList));
-    EXPECT_CALL(
+    setupExpectanceWriteAtomically(
         fileSystemMock,
-        writeFileAtomically(
-            "/dir/output.json",
-            ::testing::HasSubstr(
-                SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)),
-            "/installroot/tmp"));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
     std::string baseInstallPath = "/installroot/base/update/cache/primary/everest/install.sh";
     EXPECT_CALL(fileSystemMock, isDirectory(baseInstallPath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(baseInstallPath));
@@ -433,13 +443,9 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
 
-    EXPECT_CALL(
+    setupExpectanceWriteAtomically(
         fileSystemMock,
-        writeFileAtomically(
-            "/dir/output.json",
-            ::testing::HasSubstr(
-                SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)),
-            "/installroot/tmp"));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
 
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -488,13 +494,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
 
-    EXPECT_CALL(
+    setupExpectanceWriteAtomically(
         fileSystemMock,
-        writeFileAtomically(
-            "/dir/output.json",
-            ::testing::HasSubstr(
-                SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)),
-            "/installroot/tmp"));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
 
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -551,13 +553,10 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
 
-    EXPECT_CALL(
+    setupExpectanceWriteAtomically(
         fileSystemMock,
-        writeFileAtomically(
-            "/dir/output.json",
-            ::testing::HasSubstr(
-                SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)),
-            "/installroot/tmp"));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
+
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1" };
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -614,13 +613,10 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
 
-    EXPECT_CALL(
+    setupExpectanceWriteAtomically(
         fileSystemMock,
-        writeFileAtomically(
-            "/dir/output.json",
-            ::testing::HasSubstr(SulDownloader::suldownloaderdata::toString(
-                SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED)),
-            "/installroot/tmp"));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED));
+
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1" };
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
