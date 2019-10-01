@@ -7,20 +7,50 @@ set -o pipefail
 
 STARTINGDIR=$(pwd)
 
+FAILURE_BAD_ARGUMENT=3
+FAILURE_INPUT_NOT_AVAILABLE=4
+
 cd ${0%/*}
 BASE=$(pwd)
 OUTPUT=$BASE/output
+mkdir -p $OUTPUT
 
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
-## These can't be exitFailure since it doesn't exist till the sourcing is done
+## These can't be exitFailure since it doesn't exist until the sourcing is done
 [ -f "$BASE"/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
 source "$BASE"/pathmgr.sh
 [ -f "$BASE"/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/common.sh
 
 export NO_REMOVE_GCC=1
+
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+        --no-build)
+            NO_BUILD=1
+            ;;
+        *)
+            exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
+            ;;
+    esac
+    shift
+done
+
+INPUT=$BASE/input
+if [[ ! -d "$INPUT" ]]
+then
+    if [[ -d "$BASE/versig-build" ]]
+    then
+        INPUT="$BASE/versig-build/input"
+    else
+        MESSAGE_PART1="You need to run the following to setup your input folder: "
+        MESSAGE_PART2="python3 -m build_scripts.artisan_fetch release-package.xml"
+        exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
+    fi
+fi
 
 function build()
 {
@@ -45,15 +75,16 @@ function build()
 #        exitFailure 33 "Failed to get googletest via git"
 #    }
 
-    unpack_scaffold_gcc_make $BASE/input
+    unpack_scaffold_gcc_make $INPUT
 
-    GOOGLETESTTAR=$BASE/input/googletest-release-1.8.1.tar.gz
+    GOOGLE_TEST_TAR=$(ls $INPUT/googletest-release*.tar.gz)
     pushd $BASE/tests
-    tar xzf $GOOGLETESTTAR
+    rm -rf googletest
+    tar xzf $GOOGLE_TEST_TAR
     mv googletest-release-1.8.1 googletest
     popd
 
-    OPENSSL_TAR=$BASE/input/openssl.tar
+    OPENSSL_TAR=$INPUT/openssl.tar
     [[ -f $OPENSSL_TAR ]] || exitFailure 12 "Failed to find openssl"
 
     REDIST=$BASE/redist
@@ -64,7 +95,7 @@ function build()
     ln -snf libssl.so.1 ${REDIST}/openssl/lib${BITS}/libssl.so.10
     ln -snf libcrypto.so.1 ${REDIST}/openssl/lib${BITS}/libcrypto.so.10
 
-    CMAKE_TAR=$(ls $BASE/input/cmake-*.tar.gz)
+    CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
     [[ -f $CMAKE_TAR ]] || exitFailure 13 "Failed to find cmake"
     tar xzf "$CMAKE_TAR" -C "$REDIST"
     addpath "$REDIST/cmake/bin"
@@ -90,11 +121,16 @@ function build()
 
     INSTALL=$BASE/$PRODUCT/${BITS}
 
+    if [[ ${NO_BUILD} == 1 ]]
+    then
+        exit 0
+    fi
+
     rm -rf build${BITS}
     mkdir build${BITS}
     cd build${BITS}
     [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -DREDIST="${REDIST}" -DINPUT="${REDIST}" -DCMAKE_INSTALL_PREFIX=$INSTALL .. || exitFailure 14 "Failed to configure $PRODUCT"
+    cmake -DINPUT="${REDIST}" -DCMAKE_INSTALL_PREFIX=$INSTALL .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
     make test || exitFailure 16 "Unit tests failed for $PRODUCT"
     make install || exitFailure 17 "Failed to install $PRODUCT"
@@ -110,7 +146,6 @@ function build()
     echo "PATH=$PATH" >${PRODUCT}/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >${PRODUCT}/LD_LIBRARY_PATH
 
-    mkdir -p output
     tar cf output/${PRODUCT}.tar ${PRODUCT} || exitFailure 21 "Unable to pack result tarfile: $?"
 
     rm -rf ${PRODUCT}
