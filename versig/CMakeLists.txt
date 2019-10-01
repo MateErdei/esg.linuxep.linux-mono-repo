@@ -9,32 +9,37 @@ include_directories(.)
 
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/bin/gcc-print-file-name.sh libstdc++.so
         OUTPUT_VARIABLE libstdcpp_path)
-string(STRIP "${libstdcpp_path}" libstdcpp_path )
-get_filename_component(libstdcpp_directory "${libstdcpp_path}" DIRECTORY )
+string(STRIP "${libstdcpp_path}" libstdcpp_path)
+get_filename_component(libstdcpp_directory "${libstdcpp_path}" DIRECTORY)
 
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/bin/gcc-print-file-name.sh libgcc_s.so.1
         OUTPUT_VARIABLE libgcc_s_path)
-string(STRIP "${libgcc_s_path}" libgcc_s_path )
-message( "${libgcc_s_path}" )
-
-if (NOT DEFINED REDIST)
-    set( REDIST /redist )
-endif (NOT DEFINED REDIST)
-
-set( BINARIES_DIR ${REDIST}/binaries )
+string(STRIP "${libgcc_s_path}" libgcc_s_path)
+message("${libgcc_s_path}")
 
 if (NOT DEFINED INPUT)
-    set( INPUT ${BINARIES_DIR}/linux10/input )
+    set(INPUT ${CMAKE_SOURCE_DIR}/redist)
 endif (NOT DEFINED INPUT)
 
-set( OPENSSL_DIR ${INPUT}/openssl )
+if(NOT EXISTS ${INPUT})
+    string(APPEND ERRORMESSAGE
+            "To build away from CI you first need to:\n"
+            "1. Fetch inputs in source folder by running:\n"
+            "    python3 -m build_scripts.artisan_fetch release-package.xml\n"
+            "2. Run the full build script with no build flag:\n"
+            "    ./build.sh --no-build\n"
+            "After that you will be able to build using CLion")
+    message(FATAL_ERROR ${ERRORMESSAGE})
+endif()
 
-file( READ ${OPENSSL_DIR}/LIBVERSION OPENSSL_LIBVERSION)
-string(STRIP ${OPENSSL_LIBVERSION} OPENSSL_LIBVERSION )
+set(OPENSSL_DIR ${INPUT}/openssl)
 
-set( OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64 )
+file(READ ${OPENSSL_DIR}/LIBVERSION OPENSSL_LIBVERSION)
+string(STRIP ${OPENSSL_LIBVERSION} OPENSSL_LIBVERSION)
 
-set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${OPENSSL_LIBRARY_DIR} )
+set(OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64)
+
+set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${OPENSSL_LIBRARY_DIR})
 
 include_directories(BEFORE ${OPENSSL_DIR}/64/include)
 
@@ -66,7 +71,7 @@ add_library(versig_lib
 
 add_executable(versig src/versig_main.cpp src/versig.h)
 
-target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} crypto )
+target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} crypto)
 
 install(TARGETS versig
         DESTINATION bin)
