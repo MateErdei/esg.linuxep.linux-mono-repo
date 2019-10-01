@@ -180,7 +180,6 @@ find_library(CURL_LIBRARY
         NO_DEFAULT_PATH
         )
 
-
 ## Allow this to be redirected for python development
 if(NOT DEFINED PYTHON_INPUT)
     set( PYTHON_INPUT ${INPUT}/python)
@@ -200,6 +199,8 @@ endif()
 if(NOT DEFINED PYCRYPTODOME_INPUT)
     set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
 endif()
+
+set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
 

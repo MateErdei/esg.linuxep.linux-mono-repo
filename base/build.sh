@@ -266,6 +266,14 @@ function build()
         else
             exitFailure $FAILURE_INPUT_NOT_AVAILABLE "rootca.crt not available"
         fi
+
+        if [[ -f ${INPUT}/telemetry/telemetry-config.json ]]
+        then
+            mkdir -p ${REDIST}/telemetry
+            cp "${INPUT}/telemetry/telemetry-config.json" "${REDIST}/telemetry/"
+        else
+            exitFailure $FAILURE_INPUT_NOT_AVAILABLE "telemetry-config.json not available"
+        fi
     fi
 
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest

@@ -333,9 +333,11 @@ namespace UpdateSchedulerImpl
             config.setLogLevel(SulDownloader::suldownloaderdata::ConfigurationData::LogLevel::VERBOSE);
 
 
+            // manifest file name which must exist.
             config.setManifestNames({"manifest.dat"});
 
-            config.setOptionalManifestNames({"telem-manifest.dat"});
+            // To add optional manifest file names call
+            // config.setOptionalManifestNames({""}) here
 
             std::string period = attributesMap.lookup("AUConfigurations/AUConfig/schedule").value("Frequency");
             int periodInt = 60;
