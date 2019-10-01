@@ -1,7 +1,7 @@
 library "standardPipeline"
 
 project = 'sspl-base'
-version_key = '1.0.0'
+version_key = '1.0.1'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/everest-base.git'
 project_builddir = 'sspl-base-build'
 project_release_xml = 'build/release-package.xml'
