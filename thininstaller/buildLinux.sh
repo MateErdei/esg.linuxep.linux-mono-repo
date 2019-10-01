@@ -138,7 +138,7 @@ function build()
         prepare_dependencies
     fi
 
-    if (( $NO_BUILD == 1 ))
+    if [[ ${NO_BUILD} == 1 ]]
     then
         exit 0
     fi
