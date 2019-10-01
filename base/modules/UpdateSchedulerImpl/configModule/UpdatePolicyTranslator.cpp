@@ -336,8 +336,8 @@ namespace UpdateSchedulerImpl
             // manifest file name which must exist.
             config.setManifestNames({"manifest.dat"});
 
-            // To add optional manifest file names call
-            // config.setOptionalManifestNames({""}) here
+            // To add optional manifest file names call here
+            // config.setOptionalManifestNames({""})
 
             std::string period = attributesMap.lookup("AUConfigurations/AUConfig/schedule").value("Frequency");
             int periodInt = 60;
