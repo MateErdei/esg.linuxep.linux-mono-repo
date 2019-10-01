@@ -206,6 +206,74 @@ function makeRootDirectory()
     done
 }
 
+function install_telemetry_supplement()
+{
+    local telemetry_supplement_path=${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Base/telemetry-config.json
+    local telemetry_config_file_path=${SOPHOS_INSTALL}/base/etc/telemetry-config.json
+
+    if [[ -f ${telemetry_supplement_path} ]]
+    then
+        cp ${telemetry_supplement_path} ${telemetry_config_file_path}
+        chown -h "root:${GROUP_NAME}" ${telemetry_config_file_path}*
+        chmod 440 ${telemetry_config_file_path}*
+    else
+        echo "Warning ${telemetry_supplement_path} file not found"
+    fi
+}
+
+
+function install_polkit_rule_to_sophos_spl_update()
+{
+
+    dir_path=/etc/polkit-1/rules.d
+   if [[ -d ${dir_path} ]]
+   then
+      # newer versions of polkit.
+      file_path="${dir_path}/58-sspl-update.rules"
+      if [[ ! -f ${file_path} ]]
+      then
+        cat > ${file_path} << EOF
+polkit.addRule(function(action, subject) {
+
+if (action.id == "org.freedesktop.systemd1.manage-units" && subject.isInGroup("sophos-spl-group") )
+{
+
+    var unit = action.lookup("unit");
+    // not available in all supported platforms, but if available, use it.
+    if (unit )
+    {
+      if ( unit == "sophos-spl-update.service"){
+              return polkit.Result.YES;
+      }
+    }else{
+            return polkit.Result.YES;
+    }
+}
+});
+EOF
+
+      fi
+   fi
+
+   dir_path=/etc/polkit-1/localauthority/50-local.d
+   if [[  -d  ${dir_path} ]]
+   then
+        file_path="${dir_path}/58-sspl-update.pkla"
+        if [[ ! -f {file_path} ]]
+        then
+        cat > ${file_path}  << EOF
+[ sophos-spl user to trigger sophos-spl-update]
+Identity=unix-group:sophos-spl-group
+Action=org.freedesktop.systemd1.manage-units
+ResultActive=yes
+ResultAny=no
+ResultInactive=no
+EOF
+
+        fi
+   fi
+}
+
 if [[ $(id -u) != 0 ]]
 then
     failure ${EXIT_FAIL_NOT_ROOT} "Please run this installer as root."
@@ -270,9 +338,12 @@ chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
-makedir 700 "${SOPHOS_INSTALL}/base/update/certs"
-makedir 700 "${SOPHOS_INSTALL}/base/update/var"
+makedir 770 "${SOPHOS_INSTALL}/base/update/certs"
+makedir 770 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
+
+chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/certs"
+chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var"
 
 makedir 711 "${SOPHOS_INSTALL}/base/bin"
 makedir 711 "${SOPHOS_INSTALL}/base/lib64"
@@ -320,8 +391,11 @@ done
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
-chown -h "root:${GROUP_NAME}" ${SOPHOS_INSTALL}/base/etc/telemetry-config.json*
-chmod 440 ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
+# do not set up the telemetry supplement for a clean install as it doesn't exist in the update cache yet
+if (( $CLEAN_INSTALL == 0 ))
+then
+    install_telemetry_supplement
+fi
 
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"
@@ -331,7 +405,6 @@ chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 chown -h root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/lib64"/*
 chmod g+r "${SOPHOS_INSTALL}/base/lib64"/*
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
-chmod 700 "${SOPHOS_INSTALL}/bin/version"*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
@@ -355,9 +428,7 @@ chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
-# Telemetry needs to be able to access the version file.
-chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/VERSION.ini"
-chmod 640 "${SOPHOS_INSTALL}/base/VERSION.ini"
+install_polkit_rule_to_sophos_spl_update
 
 unset LD_LIBRARY_PATH
 
@@ -374,9 +445,6 @@ rm -rf "${INSTALLER_LIB}"
 EXIT_CODE=0
 if (( $CLEAN_INSTALL == 1 ))
 then
-
-    echo "Installation complete, performing post install steps"
-
     if [[ -n "$MCS_CA" ]]
     then
         export MCS_CA
@@ -411,6 +479,9 @@ else
     if software_changed ${DIST} ${PRODUCT_LINE_ID}
     then
         stopSsplService
+
+        # FIXME: LINUXDAR-702 uncomment after fixing ticket.
+        # perform_cleanup ${DIST}
 
         startSsplService
     fi
