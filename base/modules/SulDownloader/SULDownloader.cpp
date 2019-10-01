@@ -59,7 +59,7 @@ namespace
         try
         {
             fileSystem->writeFile(tempFilePath, content);
-            Common::FileSystem::filePermissions()->chmod(tempFilePath, 0660);
+            Common::FileSystem::filePermissions()->chown(tempFilePath, "sophos-spl-user", "sophos-spl-group");
             fileSystem->moveFile(tempFilePath, outputFilePath);
         }
         catch (Common::FileSystem::IFileSystemException&)

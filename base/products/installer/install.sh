@@ -74,14 +74,6 @@ function isServiceInstalled()
     systemctl list-unit-files | grep -q "^${TARGET}\b" >/dev/null
 }
 
-function hasExpectedVersion()
-{
-    local SERVICEPATH="$1"
-    local EXPECTEDVERSION="$2"
-    [[ -f ${SERVICEPATH} ]] && grep "${EXPECTEDVERSION}"  "${SERVICEPATH}" > /dev/null
-}
-
-
 function createWatchdogSystemdService()
 {
     if ! isServiceInstalled sophos-spl.service || $FORCE_INSTALL
@@ -129,26 +121,23 @@ function startSsplService()
 
 function createUpdaterSystemdService()
 {
-    if [[ -d /lib/systemd/system ]]
+    if ! isServiceInstalled sophos-spl-update.service || $FORCE_INSTALL
     then
-        STARTUP_DIR="/lib/systemd/system"
-    elif [[ -d /usr/lib/systemd/system ]]
-    then
-        STARTUP_DIR="/usr/lib/systemd/system"
-    else
-        failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl update service"
-    fi
-    local service_name="sophos-spl-update.service"
-    SPL_SERVICE="${STARTUP_DIR}/${service_name}"
+        if [[ -d /lib/systemd/system ]]
+        then
+            STARTUP_DIR="/lib/systemd/system"
+        elif [[ -d /usr/lib/systemd/system ]]
+        then
+            STARTUP_DIR="/usr/lib/systemd/system"
+        else
+            failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl update service"
+        fi
+        local service_name="sophos-spl-update.service"
 
-    if  ! hasExpectedVersion ${SPL_SERVICE} "Version=1.0.1" ||  ! isServiceInstalled sophos-spl-update.service || $FORCE_INSTALL
-    then
-        cat > ${SPL_SERVICE} << EOF
-# Version=1.0.1
+        cat > ${STARTUP_DIR}/${service_name} << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/update_config.json ${SOPHOS_INSTALL}/base/update/var/update_report.json
-Group=sophos-spl-group
 Restart=no
 
 [Unit]

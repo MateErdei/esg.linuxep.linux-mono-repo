@@ -225,7 +225,7 @@ public:
             mockFileSystem, writeFile(::testing::HasSubstr("/installroot/tmp"), ::testing::HasSubstr(contains)));
         EXPECT_CALL(mockFileSystem, moveFile(_, "/dir/output.json"));
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-        EXPECT_CALL(*mockFilePermissions, chmod(_, 0660));
+        EXPECT_CALL(*mockFilePermissions, chown(_, "sophos-spl-user", "sophos-spl-group"));
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
