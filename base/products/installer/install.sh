@@ -320,6 +320,9 @@ done
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
+chown -h "root:${GROUP_NAME}" ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
+chmod 440 ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
+
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
