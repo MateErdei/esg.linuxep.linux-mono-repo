@@ -91,6 +91,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master</publishbranches>
+        <publishbranches>master, feature/LINUXDAR-140-run-updatescheduler-as-sophos-spl-user</publishbranches>
     </publish>
 </package>

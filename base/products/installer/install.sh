@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x
 EXIT_FAIL_CREATE_DIRECTORY=10
 EXIT_FAIL_FIND_GROUPADD=11
 EXIT_FAIL_ADD_GROUP=12
@@ -251,7 +252,7 @@ if (action.id == "org.freedesktop.systemd1.manage-units" && subject.isInGroup("s
 }
 });
 EOF
-      chmod ${file_path} 0644
+      chmod 0644  ${file_path}
       fi
    fi
 
@@ -270,7 +271,7 @@ ResultAny=yes
 ResultInactive=no
 EOF
 
-        chmod ${file_path} 0644
+        chmod 0644  ${file_path}
         fi
    fi
 }
@@ -341,11 +342,31 @@ makedir 770 "${SOPHOS_INSTALL}/base/update"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
 makedir 770 "${SOPHOS_INSTALL}/base/update/certs"
+# detect Upgrade from EAP
+function ownerAndGroupDirIsRoot()
+{
+        local DirPath="$1"
+        if [[ ! -d ${DirPath} ]]; then
+                return 1
+        fi
+
+        ownergroup=$(ls -ld "${DirPath}")
+        pattern=".*root\s+root.*"
+        if [[ "${ownergroup}" =~ ${pattern} ]]; then
+                return 0
+        else
+                return 1
+        fi
+}
+
+if ownerAndGroupDirIsRoot "${SOPHOS_INSTALL}/base/update/var"
+then
+    touch "${SOPHOS_INSTALL}/base/update/var/upgrade_from_eap.mark"
+fi
+
 makedir 770 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
-chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update"
-chown -R "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var"
-chown -R "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/certs"
+chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update"
 
 
 makedir 711 "${SOPHOS_INSTALL}/base/bin"

@@ -61,6 +61,7 @@ namespace
             fileSystem->writeFile(tempFilePath, content);
             Common::FileSystem::filePermissions()->chown(tempFilePath, "sophos-spl-user", "sophos-spl-group");
             fileSystem->moveFile(tempFilePath, outputFilePath);
+            LOGDEBUG("Set ownership of file: " << outputFilePath << " to sophos-spl-user");
         }
         catch (Common::FileSystem::IFileSystemException&)
         {
@@ -71,6 +72,7 @@ namespace
             throw;
         }
     }
+
 
 } // namespace
 
@@ -348,8 +350,35 @@ namespace SulDownloader
             return -1;
         }
 
+
         std::string inputPath = argv[1];
         std::string outputPath = argv[2];
+
+
+        // handle upgrade from EAP: replace ownership of the report file to allow it to be consumed
+        // by UpdateScheduler
+        // Condition: outputPath exists and its permission is such that can not be read by
+        // sophos-spl-user
+        std::string eapMarkFileForSulDownloader =Common::FileSystem::join(
+                Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
+                "base/update/var/upgrade_from_eap_sd.mark");
+        if ( Common::FileSystem::fileSystem()->exists(eapMarkFileForSulDownloader))
+        {
+            if (Common::FileSystem::fileSystem()->exists(outputPath))
+            {
+                LOGINFO("Detected upgrade from EAP. Replacing ownership of report file");
+                Common::FileSystem::fileSystem()->removeFile(eapMarkFileForSulDownloader);
+                Common::FileSystem::filePermissions()->chown(outputPath, "sophos-spl-user", "sophos-spl-group");
+                std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+                std::string destPath = Common::FileSystem::join(tempDir, Common::FileSystem::basename(outputPath));
+                // the way to detect that Suldownloader has finished is by the file being moved to the directory.
+                Common::FileSystem::fileSystem()->moveFile(outputPath, destPath);
+                Common::FileSystem::fileSystem()->moveFile(destPath, outputPath);
+                return 0;
+            }
+
+        }
+
 
         try
         {
