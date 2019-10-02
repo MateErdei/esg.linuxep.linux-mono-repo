@@ -22,12 +22,12 @@ Copyright 2018-2019 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h>
+#include <UpdateSchedulerImpl/runnerModule/AsyncSulDownloaderRunner.h>
 
 #include <chrono>
 #include <csignal>
 #include <thread>
-#include <UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h>
-#include <UpdateSchedulerImpl/runnerModule/AsyncSulDownloaderRunner.h>
 
 using namespace std::chrono;
 
@@ -71,6 +71,7 @@ namespace UpdateSchedulerImpl
         enforceSulDownloaderFinished(600);
 
         //handle upgrade from EAP
+        // FIXME: LINUXDAR-715 Remove Upgrade from EAP special code after GA
         std::string eapMarkFileFromInstaller =Common::FileSystem::join(
                 Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
                 "base/update/var/upgrade_from_eap.mark");

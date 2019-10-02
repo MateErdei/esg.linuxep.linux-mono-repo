@@ -357,8 +357,7 @@ namespace SulDownloader
 
         // handle upgrade from EAP: replace ownership of the report file to allow it to be consumed
         // by UpdateScheduler
-        // Condition: outputPath exists and its permission is such that can not be read by
-        // sophos-spl-user
+        // FIXME: LINUXDAR-715 Remove Upgrade from EAP special code after GA
         std::string eapMarkFileForSulDownloader =Common::FileSystem::join(
                 Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
                 "base/update/var/upgrade_from_eap_sd.mark");

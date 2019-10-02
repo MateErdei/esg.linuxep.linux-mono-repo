@@ -233,6 +233,7 @@ function install_polkit_rule_to_sophos_spl_update()
       file_path="${dir_path}/58-sspl-update.rules"
       if [[ ! -f ${file_path} ]]
       then
+        echo "Install policy kit at ${file_path}"
         cat > ${file_path} << EOF
 polkit.addRule(function(action, subject) {
 
@@ -262,6 +263,7 @@ EOF
         file_path="${dir_path}/58-sspl-update.pkla"
         if [[ ! -f {file_path} ]]
         then
+        echo "Install policy kit at ${file_path}"
         cat > ${file_path}  << EOF
 [ sophos-spl user to trigger sophos-spl-update]
 Identity=unix-group:sophos-spl-group
@@ -361,6 +363,7 @@ function ownerAndGroupDirIsRoot()
 
 if ownerAndGroupDirIsRoot "${SOPHOS_INSTALL}/base/update/var"
 then
+    echo "Upgrading from EAP"
     touch "${SOPHOS_INSTALL}/base/update/var/upgrade_from_eap.mark"
 fi
 
