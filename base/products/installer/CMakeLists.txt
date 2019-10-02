@@ -18,7 +18,7 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/uninstall.sh
         DESTINATION files/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 
-install(FILES ${CMAKE_SOURCE_DIR}/products/installer/version.sh
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/version
         DESTINATION files/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 

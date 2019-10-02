@@ -331,7 +331,7 @@ chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 chown -h root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/lib64"/*
 chmod g+r "${SOPHOS_INSTALL}/base/lib64"/*
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
-chmod 700 "${SOPHOS_INSTALL}/bin/version.sh."*
+chmod 700 "${SOPHOS_INSTALL}/bin/version"*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
