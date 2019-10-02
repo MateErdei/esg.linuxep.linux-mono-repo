@@ -1,7 +1,19 @@
 #!/bin/bash
 
-base_version_file=../base/VERSION.ini
-sophosmtr_plugin_version=../plugins/mtr/VERSION.ini
+shopt -s nullglob
+
+STARTINGDIR="$(pwd)"
+SCRIPTDIR="${0%/*}"
+if [[ "$SCRIPTDIR" == "$0" ]]
+then
+    SCRIPTDIR="${STARTINGDIR}"
+fi
+
+ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
+SOPHOS_INSTALL="${ABS_SCRIPTDIR%/bin*}"
+
+base_version_file=${SOPHOS_INSTALL}/base/VERSION.ini
+sophosmtr_plugin_version=${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
 
 
 echo ""
