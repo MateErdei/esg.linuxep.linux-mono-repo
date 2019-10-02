@@ -214,6 +214,7 @@ public:
             .WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
+        EXPECT_CALL(*filesystemMock, exists(::testing::HasSubstr("base/update/var/upgrade_from_eap_sd.mark"))).WillRepeatedly(Return(false));
         auto pointer = filesystemMock;
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;

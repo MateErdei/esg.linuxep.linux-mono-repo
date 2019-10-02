@@ -315,7 +315,7 @@ public:
         EXPECT_CALL(*pointer, isDirectory("/installroot/base/update/cache/primarywarehouse"))
             .WillRepeatedly(Return(true));
         EXPECT_CALL(*pointer, isDirectory("/installroot/base/update/cache/primary")).WillRepeatedly(Return(true));
-
+        EXPECT_CALL(*pointer, exists("/installroot/base/update/var/upgrade_from_eap.mark")).WillOnce(Return(false));
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs")).WillRepeatedly(Return(true));
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs/rootca.crt")).WillRepeatedly(Return(true));
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs/ps_rootca.crt")).WillRepeatedly(Return(true));
