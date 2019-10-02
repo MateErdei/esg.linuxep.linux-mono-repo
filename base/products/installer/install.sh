@@ -369,7 +369,9 @@ fi
 
 makedir 770 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
-chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update"
+chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var"
+chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/certs"
+chown -R "root:root"  "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 
 
 makedir 711 "${SOPHOS_INSTALL}/base/bin"
