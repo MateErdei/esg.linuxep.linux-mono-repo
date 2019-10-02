@@ -405,9 +405,6 @@ else
     then
         stopSsplService
 
-        # FIXME: LINUXDAR-702 uncomment after fixing ticket.
-        # perform_cleanup ${DIST}
-
         startSsplService
     fi
 fi
