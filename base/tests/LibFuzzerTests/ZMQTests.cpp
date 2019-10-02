@@ -104,7 +104,7 @@ namespace
 {
     const char* IPCADDRESS = "/tmp/zqmtest.ipc";
 
-    void s_signal_handler(int) { exit(0); };
+    void s_signal_handler(int) { exit(0); }
 
     std::atomic<bool> GL_log{ false };
 

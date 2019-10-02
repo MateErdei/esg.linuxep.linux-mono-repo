@@ -148,7 +148,7 @@ namespace
         return elementPath;
     }
 
-    std::unordered_map<std::string, Attributes> SimpleXmlParser::attributesMap() const { return m_attributesMap; };
+    std::unordered_map<std::string, Attributes> SimpleXmlParser::attributesMap() const { return m_attributesMap; }
 
     /** call backs for lib expat **/
 

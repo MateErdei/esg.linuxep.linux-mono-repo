@@ -102,5 +102,5 @@ namespace Common
             windows_timestamp_t timestamp = 0;
         };
 
-    }; // namespace EventTypes
+    } // namespace EventTypes
 } // namespace Common

@@ -11,4 +11,4 @@ static int machineid_main(int argc, char* argv[])
     return Common::OSUtilitiesImpl::mainEntry(argc, argv);
 }
 
-MAIN(machineid_main(argc, argv));
+MAIN(machineid_main(argc, argv))

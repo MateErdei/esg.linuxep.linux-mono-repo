@@ -45,7 +45,7 @@ namespace Common
             ReaderListener entry{ .reader = readable, .listener = callback };
             // LOGDEBUG("add listeners: " << entry.reader->fd());
             m_callbackListeners.push_back(entry);
-        };
+        }
 
         void ReactorThreadImpl::setShutdownListener(IShutdownListener* shutdownListener)
         {

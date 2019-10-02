@@ -72,4 +72,4 @@ namespace Common
         }
     } // namespace PluginApiImpl
 
-}; // namespace Common
+} // namespace Common

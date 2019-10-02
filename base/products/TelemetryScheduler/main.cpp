@@ -14,4 +14,4 @@ static int telemetry_scheduler_main()
     return TelemetrySchedulerImpl::main_entry();
 }
 
-MAIN(telemetry_scheduler_main());
+MAIN(telemetry_scheduler_main())

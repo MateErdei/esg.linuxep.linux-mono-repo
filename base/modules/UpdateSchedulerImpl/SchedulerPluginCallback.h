@@ -33,4 +33,4 @@ namespace UpdateSchedulerImpl
         std::string getTelemetry() override;
         bool shutdownReceived();
     };
-}; // namespace UpdateSchedulerImpl
+} // namespace UpdateSchedulerImpl
