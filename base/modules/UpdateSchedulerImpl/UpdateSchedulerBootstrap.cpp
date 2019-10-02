@@ -17,9 +17,9 @@
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <sys/stat.h>
 
 #include <iostream>
-#include <sys/stat.h>
 
 namespace UpdateSchedulerImpl
 {
