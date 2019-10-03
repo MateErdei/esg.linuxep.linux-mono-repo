@@ -42,7 +42,7 @@ include_directories(BEFORE ${SUL_INPUT}/include ${CURL_INPUT}/include64)
 
 # Set flags
 set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${SUL_LIBRARY_DIRS})
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -fstack-protector-all")
 
 add_executable(thininstaller installer.cpp)
 
