@@ -17,6 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/LoggerImpl/Logger.h>
 
 #include <thread>
+#include <Common/PluginApiImpl/PluginResourceManagement.h>
 
 namespace ManagementAgent
 {
@@ -200,11 +201,8 @@ namespace ManagementAgent
             const std::string& pluginName,
             std::lock_guard<std::mutex>&)
         {
-            std::string pluginSocketAdd =
-                Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
             auto requester = m_context->getRequester();
-            setTimeouts(*requester);
-            requester->connect(pluginSocketAdd);
+            Common::PluginApiImpl::PluginResourceManagement::setupRequester(*requester, pluginName, m_defaultTimeout, m_defaultConnectTimeout);
             std::unique_ptr<Common::PluginCommunication::IPluginProxy> proxyPlugin =
                 std::unique_ptr<Common::PluginCommunicationImpl::PluginProxy>(
                     new Common::PluginCommunicationImpl::PluginProxy(std::move(requester), pluginName));
