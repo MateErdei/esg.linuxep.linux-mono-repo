@@ -32,13 +32,15 @@ namespace Common
 
     namespace PluginApiImpl
     {
-        void PluginResourceManagement::setupReplier(Common::ZeroMQWrapper::ISocketReplier& replier,
-                                                    const std::string& pluginName,
-                                                    int defaultTimeout, int connectTimeout)
+        void PluginResourceManagement::setupReplier(
+            Common::ZeroMQWrapper::ISocketReplier& replier,
+            const std::string& pluginName,
+            int defaultTimeout,
+            int connectTimeout)
         {
             setTimeouts(replier, defaultTimeout, connectTimeout);
             std::string plugin_address =
-                    Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
+                Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
             replier.listen(plugin_address);
 
             // If root owned, we need to ensure the group of the ipc socket is sophos-spl-group
@@ -47,21 +49,22 @@ namespace Common
             {
                 // plugin_address starts with ipc:// Remove it.
                 std::string plugin_address_file = plugin_address.substr(6);
-                Common::FileSystem::filePermissions()->chmod(plugin_address_file, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
+                Common::FileSystem::filePermissions()->chmod(
+                    plugin_address_file, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
                 Common::FileSystem::filePermissions()->chown(plugin_address_file, "root", "sophos-spl-group");
             }
-
         }
-        void PluginResourceManagement::setupRequester(Common::ZeroMQWrapper::ISocketRequester& requester,
-                                                      const std::string& pluginName, int defaultTimeout,
-                                                      int connectTimeout)
+        void PluginResourceManagement::setupRequester(
+            Common::ZeroMQWrapper::ISocketRequester& requester,
+            const std::string& pluginName,
+            int defaultTimeout,
+            int connectTimeout)
         {
             std::string pluginSocketAdd =
-                    Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
+                Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
             setTimeouts(requester, defaultTimeout, connectTimeout);
             requester.connect(pluginSocketAdd);
         }
-
 
         PluginResourceManagement::PluginResourceManagement() :
             m_contextPtr(Common::ZMQWrapperApi::createContext()),
@@ -182,7 +185,10 @@ namespace Common
 
         void PluginResourceManagement::setDefaultConnectTimeout(int timeoutMs) { m_defaultConnectTimeout = timeoutMs; }
 
-        void PluginResourceManagement::setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket, int defaultTimeout, int connectTimeout)
+        void PluginResourceManagement::setTimeouts(
+            Common::ZeroMQWrapper::ISocketSetup& socket,
+            int defaultTimeout,
+            int connectTimeout)
         {
             socket.setTimeout(defaultTimeout);
             socket.setConnectionTimeout(connectTimeout);
@@ -193,8 +199,6 @@ namespace Common
         }
 
         Common::ZMQWrapperApi::IContextSharedPtr PluginResourceManagement::getSocketContext() { return m_contextPtr; }
-
-
 
     } // namespace PluginApiImpl
 } // namespace Common

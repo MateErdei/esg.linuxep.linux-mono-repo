@@ -11,56 +11,57 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <modules/Common/ProcessImpl/ProcessImpl.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/ProcessImpl/MockProcess.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 #include <watchdog/watchdogimpl/WatchdogServiceLine.h>
-#include <modules/Common/ProcessImpl/ProcessImpl.h>
-#include <tests/Common/ProcessImpl/MockProcess.h>
 
 namespace
 {
     class ProcessReplacement
     {
     public:
-        ProcessReplacement( std::function<std::unique_ptr<Common::Process::IProcess>()> functor)
+        ProcessReplacement(std::function<std::unique_ptr<Common::Process::IProcess>()> functor)
         {
             Common::ProcessImpl::ProcessFactory::instance().replaceCreator(functor);
         }
-        ~ProcessReplacement()
-        {
-            Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
-        }
+        ~ProcessReplacement() { Common::ProcessImpl::ProcessFactory::instance().restoreCreator(); }
     };
 
     class TestWatchdogServiceLine : public ::testing::Test
     {
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+
     public:
         Common::ZMQWrapperApi::IContextSharedPtr m_context;
-        TestWatchdogServiceLine(): m_context(Common::ZMQWrapperApi::createContext())
+        TestWatchdogServiceLine() : m_context(Common::ZMQWrapperApi::createContext())
         {
-            std::string pluginname = "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName + ".ipc";
-            Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname, "inproc://watchdogservice.ipc");
+            std::string pluginname =
+                "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName + ".ipc";
+            Common::ApplicationConfiguration::applicationConfiguration().setData(
+                pluginname, "inproc://watchdogservice.ipc");
 
-//            auto mockFileSystem = new StrictMock<MockFileSystem>();
-//            std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-//            Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
-//
-//            auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-//            std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-//                    std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-//            Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-//
-//            EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
-//            EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
+            //            auto mockFileSystem = new StrictMock<MockFileSystem>();
+            //            std::unique_ptr<MockFileSystem> mockIFileSystemPtr =
+            //            std::unique_ptr<MockFileSystem>(mockFileSystem);
+            //            Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+            //
+            //            auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+            //            std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            //                    std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+            //            Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+            //
+            //            EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+            //            EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
         }
         ~TestWatchdogServiceLine()
         {
-//            Tests::restoreFilePermissions();
-//            Tests::restoreFileSystem();
+            //            Tests::restoreFilePermissions();
+            //            Tests::restoreFileSystem();
         }
     };
 
@@ -68,22 +69,21 @@ namespace
 
 TEST_F(TestWatchdogServiceLine, Construction) // NOLINT
 {
-
     EXPECT_NO_THROW(watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context)); // NOLINT
 }
 
 TEST_F(TestWatchdogServiceLine, requestUpdateServiceThrowsExceptionIfNotWatchdogServiceIsAvailable) // NOLINT
 {
-    EXPECT_THROW(watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService(*m_context), watchdog::watchdogimpl::WatchdogServiceException);
+    EXPECT_THROW(
+        watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService(*m_context),
+        watchdog::watchdogimpl::WatchdogServiceException);
 }
-
 
 TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosSplUpdate) // NOLINT
 {
-
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{"start", "sophos-spl-update"};
+        std::vector<std::string> args{ "start", "sophos-spl-update" };
         EXPECT_CALL(*mockProcess, exec(HasSubstr("systemctl"), args, _)).Times(1);
         EXPECT_CALL(*mockProcess, waitUntilProcessEnds());
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
@@ -97,10 +97,9 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosS
 
 TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillThrowExceptionIfSophosUpdateFails) // NOLINT
 {
-
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{"start", "sophos-spl-update"};
+        std::vector<std::string> args{ "start", "sophos-spl-update" };
         EXPECT_CALL(*mockProcess, exec(HasSubstr("systemctl"), args, _)).Times(1);
         EXPECT_CALL(*mockProcess, waitUntilProcessEnds());
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
@@ -109,5 +108,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillThrowExceptionIfSophosUp
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context);
-    EXPECT_THROW(watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService(*m_context), watchdog::watchdogimpl::UpdateServiceReportError);
+    EXPECT_THROW(
+        watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService(*m_context),
+        watchdog::watchdogimpl::UpdateServiceReportError);
 }

@@ -7,6 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "PluginProxy.h"
+#include "WatchdogServiceLine.h"
 
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/ProcessMonitoringImpl/ProcessMonitor.h>
@@ -14,7 +15,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#include "WatchdogServiceLine.h"
 
 #include <list>
 
@@ -25,8 +25,8 @@ namespace watchdog
         using PluginInfoVector = Common::PluginRegistryImpl::PluginInfoVector;
         using ProxyList = std::list<watchdog::watchdogimpl::PluginProxy>;
 
-        static const std::string watchdogReturnsOk = "OK"; // NOLINT
-        static const std::string watdhdogReturnsNotRunning =  "Not Running"; //NOLINT
+        static const std::string watchdogReturnsOk = "OK";                  // NOLINT
+        static const std::string watdhdogReturnsNotRunning = "Not Running"; // NOLINT
 
         class Watchdog : public Common::ProcessMonitoringImpl::ProcessMonitor
         {
@@ -45,7 +45,7 @@ namespace watchdog
 
             std::string disablePlugin(const std::string& pluginName);
             std::string enablePlugin(const std::string& pluginName);
-            std::string checkPluginIsRunning( const std::string& pluginName);
+            std::string checkPluginIsRunning(const std::string& pluginName);
             /**
              * Stop the plugin if it is running, and remove it from m_pluginProxies.
              * @param pluginName

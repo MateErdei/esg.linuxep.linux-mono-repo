@@ -10,6 +10,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/ZMQWrapperApi/IContext.h>
@@ -17,7 +18,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/LoggerImpl/Logger.h>
 
 #include <thread>
-#include <Common/PluginApiImpl/PluginResourceManagement.h>
 
 namespace ManagementAgent
 {
@@ -202,7 +202,8 @@ namespace ManagementAgent
             std::lock_guard<std::mutex>&)
         {
             auto requester = m_context->getRequester();
-            Common::PluginApiImpl::PluginResourceManagement::setupRequester(*requester, pluginName, m_defaultTimeout, m_defaultConnectTimeout);
+            Common::PluginApiImpl::PluginResourceManagement::setupRequester(
+                *requester, pluginName, m_defaultTimeout, m_defaultConnectTimeout);
             std::unique_ptr<Common::PluginCommunication::IPluginProxy> proxyPlugin =
                 std::unique_ptr<Common::PluginCommunicationImpl::PluginProxy>(
                     new Common::PluginCommunicationImpl::PluginProxy(std::move(requester), pluginName));

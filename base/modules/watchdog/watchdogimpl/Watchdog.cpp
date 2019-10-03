@@ -28,7 +28,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    const char * PLUGINNOTFOUND = "Error: Plugin not found";
+    const char* PLUGINNOTFOUND = "Error: Plugin not found";
 }
 
 using namespace watchdog::watchdogimpl;
@@ -86,7 +86,7 @@ void Watchdog::setupSocket()
     std::string ipcFilesPath = getIPCPath().substr(6);
     try
     {
-        Common::FileSystem::filePermissions()->chmod(ipcFilesPath,  S_IRUSR | S_IWUSR);
+        Common::FileSystem::filePermissions()->chmod(ipcFilesPath, S_IRUSR | S_IWUSR);
         Common::FileSystem::filePermissions()->chown(ipcFilesPath, "root", "root");
     }
     catch (Common::FileSystem::IFileSystemException& error)
@@ -203,7 +203,7 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
     {
         return removePlugin(argument);
     }
-    else if ( command == "ISRUNNING")
+    else if (command == "ISRUNNING")
     {
         return checkPluginIsRunning(argument);
     }
@@ -231,11 +231,9 @@ std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
     {
         return PLUGINNOTFOUND;
     }
-    if ( plugin->isRunning())
+    if (plugin->isRunning())
     {
         return watchdogReturnsOk;
     }
     return watdhdogReturnsNotRunning;
 }
-
-
