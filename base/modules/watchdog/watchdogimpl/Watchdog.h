@@ -14,6 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
+#include "WatchdogServiceLine.h"
 
 #include <list>
 
@@ -60,6 +61,7 @@ namespace watchdog
             PluginProxy* findPlugin(const std::string& pluginName);
 
         private:
+            WatchdogServiceLine m_watchdogservice;
             Common::ZeroMQWrapper::ISocketReplierPtr m_socket;
         };
     } // namespace watchdogimpl

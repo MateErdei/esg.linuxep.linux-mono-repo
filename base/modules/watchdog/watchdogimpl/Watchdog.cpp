@@ -34,7 +34,8 @@ namespace
 using namespace watchdog::watchdogimpl;
 
 Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) :
-    Common::ProcessMonitoringImpl::ProcessMonitor(std::move(context))
+    Common::ProcessMonitoringImpl::ProcessMonitor(context),
+    m_watchdogservice(context)
 {
 }
 

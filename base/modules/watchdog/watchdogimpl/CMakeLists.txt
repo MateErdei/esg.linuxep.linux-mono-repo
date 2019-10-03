@@ -7,12 +7,15 @@ add_library(watchdogimpl STATIC
         Watchdog.h
         Logger.h
         Logger.cpp
-        )
+        WatchdogServiceLine.cpp
+        WatchdogServiceLine.h)
 
 target_link_libraries(watchdogimpl PUBLIC
         pluginregistryimpl
         logging
         processmonitoringimpl
+        pluginapiimpl
+        plugincommunicationimplcommon
         ${LOG4CPLUS_LIBRARY}
         )
 
