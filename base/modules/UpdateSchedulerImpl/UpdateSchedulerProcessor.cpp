@@ -366,7 +366,7 @@ namespace UpdateSchedulerImpl
             copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime);
         m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
-        LOGSUPPORT("Send status to Central");
+        LOGINFO("Sending status to Central");
 
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {

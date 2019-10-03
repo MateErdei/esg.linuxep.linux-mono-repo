@@ -391,11 +391,15 @@ def inner_main(argv):
             token = policy_config.get("MCSToken")
             url = policy_config.get("MCSURL")
         except KeyError:
-            print("Reregister requested, but not already registered", file=sys.stderr)
+            message = "Reregister requested, but not already registered"
+            LOGGER.info(message)
+            print(message, file=sys.stderr)
             return 2
 
     elif options.deregister:
-        print("Deregistering from Sophos Central")
+        message = "Deregistering from Sophos Central"
+        LOGGER.info(message)
+        print(message)
         client_config = utils_config.Config(
             path_manager.sophosspl_config(),
             mode=0o600,
@@ -420,7 +424,9 @@ def inner_main(argv):
             cleanup()
         else:
             # Successfully registered to Sophos Central
-            print("Saving Sophos Central credentials")
+            message = "Saving Sophos Central credentials"
+            LOGGER.info(message)
+            print(message)
             config.save()
 
             # cleanup RMS files
@@ -437,7 +443,9 @@ def inner_main(argv):
             remove_all_update_reports()
             start_mcs_router()
             restart_update_scheduler()
-            print("Now managed by Sophos Central")
+            message = "Now managed by Sophos Central"
+            LOGGER.info(message)
+            print(message)
 
     return ret
 
