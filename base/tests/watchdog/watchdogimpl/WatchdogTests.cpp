@@ -14,6 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 #include <watchdog/watchdogimpl/watchdog_main.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
 
 namespace
 {
@@ -48,6 +49,7 @@ namespace
         }
 
         void TearDown() override { Common::ApplicationConfiguration::restoreApplicationPathManager(); }
+        IgnoreFilePermissions ignoreFilePermissions;
     };
 
     std::string createJsonString(const std::string& oldPartString, const std::string& newPartString)

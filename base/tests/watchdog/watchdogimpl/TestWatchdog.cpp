@@ -22,6 +22,7 @@ namespace
     class TestWatchdog : public ::testing::Test
     {
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+        IgnoreFilePermissions ignoreFilePermissions;
 
     public:
         TestWatchdog()
@@ -30,17 +31,11 @@ namespace
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
             Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
-            auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-            std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-                std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-            Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-
-            EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
-            EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
-
             std::string pluginname =
                     "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() + ".ipc";
-            Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname, "inproc://watchdogservice.ipc");
+            Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname, "inproc://watchdogservice.ipc"
+
+            );
 
         }
         ~TestWatchdog()

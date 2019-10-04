@@ -40,7 +40,7 @@ namespace
     class TestWatchdogServiceLine : public ::testing::Test
     {
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
-
+        IgnoreFilePermissions ignoreFilePermissions;
     public:
         Common::ZMQWrapperApi::IContextSharedPtr m_context;
         TestWatchdogServiceLine() : m_context(Common::ZMQWrapperApi::createContext())

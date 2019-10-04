@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFilePermissions.h>
 #include <gmock/gmock.h>
+#include "FilePermissionsReplaceAndRestore.h"
 
 using namespace ::testing;
 using namespace Common::FileSystem;
@@ -21,4 +22,23 @@ public:
     MOCK_CONST_METHOD1(getGroupName, std::string(const gid_t& groupId));
     MOCK_CONST_METHOD1(getUserId, uid_t(const std::string& userString));
     MOCK_CONST_METHOD1(getUserName, std::string(const uid_t& userId));
+};
+
+class IgnoreFilePermissions
+{
+public:
+    IgnoreFilePermissions()
+    {
+        auto mockFilePermissions = new NiceMock<MockFilePermissions>();
+        ON_CALL(*mockFilePermissions, chmod(_, _)).WillByDefault(Return());
+        ON_CALL(*mockFilePermissions, chown(_, _, _)).WillByDefault(Return());
+
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+                std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    }
+    ~IgnoreFilePermissions()
+    {
+        Tests::restoreFilePermissions();
+    }
 };

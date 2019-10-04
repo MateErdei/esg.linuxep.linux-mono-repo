@@ -12,6 +12,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <watchdog/watchdogimpl/PluginProxy.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
 
 namespace
 {
@@ -22,6 +23,7 @@ namespace
 
     private:
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+        IgnoreFilePermissions ignoreFilePermissions;
     };
 
     class PluginProxyExposePluginInfo : public watchdog::watchdogimpl::PluginProxy
