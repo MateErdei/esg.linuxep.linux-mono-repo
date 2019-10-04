@@ -948,6 +948,7 @@ class TargetSystem:
         get_glibc_version
         :return:
         """
+        ldd_version = None
         try:
             ldd = subprocess.Popen(
                 ("ldd", "--version"), stdout=subprocess.PIPE)
