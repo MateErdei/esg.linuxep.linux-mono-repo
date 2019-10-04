@@ -22,6 +22,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 #include <unistd.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 
 namespace Common
 {
@@ -51,7 +52,7 @@ namespace Common
                 std::string plugin_address_file = plugin_address.substr(6);
                 Common::FileSystem::filePermissions()->chmod(
                     plugin_address_file, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
-                Common::FileSystem::filePermissions()->chown(plugin_address_file, "root", "sophos-spl-group");
+                Common::FileSystem::filePermissions()->chown(plugin_address_file, "root", sophos::group());
             }
         }
         void PluginResourceManagement::setupRequester(

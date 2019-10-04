@@ -12,7 +12,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/sslimpl/Md5Calc.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 #include <sys/stat.h>
 
 #include <iostream>
@@ -44,7 +44,7 @@ namespace Common
             std::string re_hash = Common::sslimpl::md5(md5hash);
             Common::FileSystem::fileSystem()->writeFile(machineIDPath(), re_hash);
             Common::FileSystem::filePermissions()->chmod(machineIDPath(), S_IRUSR | S_IWUSR | S_IRGRP); // NOLINT
-            Common::FileSystem::filePermissions()->chown(machineIDPath(), "root", "sophos-spl-group");
+            Common::FileSystem::filePermissions()->chown(machineIDPath(), "root", sophos::group());
         }
 
         std::string SXLMachineID::machineIDPath() const
@@ -69,29 +69,19 @@ namespace Common
         {
             if (argc != 2)
             {
-                std::cerr << "Invalid argument. Usage: ./machineid /opt/sophos-spl OR ./machineid --dump-mac-addresses" << std::endl;
+                std::cerr << "Invalid argument. Usage: ./machineid /opt/sophos-spl" << std::endl;
                 return 1;
             }
 
-            std::string argument = UtilityImpl::StringUtils::checkAndConstruct(argv[1]);
-            if (argument == "--dump-mac-addresses")
-            {
-                std::stringstream output;
-                for (const std::string& mac : sortedSystemMACs())
-                {
-                    output << mac << "\n";
-                }
-                std::cout << output.str();
-                return 0;
-            }
-            else if (!Common::FileSystem::fileSystem()->isDirectory(argument))
+            std::string sophosRootPath = argv[1];
+            if (!Common::FileSystem::fileSystem()->isDirectory(sophosRootPath))
             {
                 std::cerr << "Invalid argument. Argument does not point to a directory" << std::endl;
                 return 2;
             }
 
             Common::ApplicationConfiguration::applicationConfiguration().setData(
-                Common::ApplicationConfiguration::SOPHOS_INSTALL, argument);
+                Common::ApplicationConfiguration::SOPHOS_INSTALL, sophosRootPath);
 
             SXLMachineID sxlMachineID;
             try

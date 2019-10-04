@@ -4,6 +4,8 @@ project(everest_base CXX)
 option(test "Build all tests." ON) # Makes boolean 'test' available.
 option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
 set(CMAKE_CXX_STANDARD 17)
+set (SOPHOS_SPL_USER "sophos-spl-user")
+set (SOPHOS_SPL_GROUP "sophos-spl-group")
 
 if (BUILD_FUZZ_TESTS )
     set(SANITISE_FLAGS   "")

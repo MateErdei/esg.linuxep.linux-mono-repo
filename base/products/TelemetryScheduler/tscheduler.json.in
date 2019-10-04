@@ -3,5 +3,5 @@
   "statusAppIds": [],
   "pluginName": "tscheduler",
   "executableFullPath": "base/bin/tscheduler",
-  "executableUserAndGroup": "sophos-spl-user:sophos-spl-group"
+  "executableUserAndGroup": "@SOPHOS_SPL_USER@:@SOPHOS_SPL_GROUP@"
 }

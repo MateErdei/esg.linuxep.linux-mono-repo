@@ -21,6 +21,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ProcessImpl/ArgcAndEnv.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 #include <SulDownloader/SulDownloader.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
@@ -229,7 +230,7 @@ public:
             mockFileSystem, writeFile(::testing::HasSubstr("/installroot/tmp"), ::testing::HasSubstr(contains)));
         EXPECT_CALL(mockFileSystem, moveFile(_, "/dir/output.json"));
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-        EXPECT_CALL(*mockFilePermissions, chown(_, "sophos-spl-user", "sophos-spl-group"));
+        EXPECT_CALL(*mockFilePermissions, chown(_, sophos::user(), sophos::group()));
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));

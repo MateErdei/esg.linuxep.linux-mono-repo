@@ -3,7 +3,8 @@ target_include_directories(tscheduler PUBLIC ${PROJECT_SOURCE_DIR}/modules/Telem
 
 target_link_libraries(tscheduler telemetryschedulerimpl)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/tscheduler.json
+configure_file(tscheduler.json.in  tscheduler.json @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tscheduler.json
         DESTINATION installer/plugins
         PERMISSIONS OWNER_READ)
 

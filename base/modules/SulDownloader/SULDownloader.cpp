@@ -29,6 +29,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <cassert>
+#include <Common/UtilityImpl/ProjectNames.h>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -59,9 +60,9 @@ namespace
         try
         {
             fileSystem->writeFile(tempFilePath, content);
-            Common::FileSystem::filePermissions()->chown(tempFilePath, "sophos-spl-user", "sophos-spl-group");
+            Common::FileSystem::filePermissions()->chown(tempFilePath, sophos::user(), sophos::group());
             fileSystem->moveFile(tempFilePath, outputFilePath);
-            LOGDEBUG("Set ownership of file: " << outputFilePath << " to sophos-spl-user");
+            LOGDEBUG("Set ownership of file: " << outputFilePath << " to " << sophos::user());
         }
         catch (Common::FileSystem::IFileSystemException&)
         {
@@ -364,7 +365,7 @@ namespace SulDownloader
             {
                 LOGINFO("Detected upgrade from EAP. Replacing ownership of report file");
                 Common::FileSystem::fileSystem()->removeFile(eapMarkFileForSulDownloader);
-                Common::FileSystem::filePermissions()->chown(outputPath, "sophos-spl-user", "sophos-spl-group");
+                Common::FileSystem::filePermissions()->chown(outputPath, sophos::user(), sophos::group());
                 std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
                 std::string destPath = Common::FileSystem::join(tempDir, Common::FileSystem::basename(outputPath));
                 // the way to detect that Suldownloader has finished is by the file being moved to the directory.

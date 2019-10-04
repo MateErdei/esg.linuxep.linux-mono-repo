@@ -1,5 +1,7 @@
+configure_file(install.sh.in  install.sh @ONLY)
+configure_file(uninstall.sh.in  uninstall.sh @ONLY)
 
-install(FILES ${CMAKE_SOURCE_DIR}/products/installer/install.sh
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/install.sh
         DESTINATION .
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
@@ -14,7 +16,7 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/filestodelete.dat
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
-install(FILES ${CMAKE_SOURCE_DIR}/products/installer/uninstall.sh
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/uninstall.sh
         DESTINATION files/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 

@@ -7,5 +7,5 @@
   ],
   "pluginName": "updatescheduler",
   "executableFullPath": "base/bin/UpdateScheduler",
-  "executableUserAndGroup": "sophos-spl-user:sophos-spl-group"
+  "executableUserAndGroup": "@SOPHOS_SPL_USER@:@SOPHOS_SPL_GROUP@"
 }

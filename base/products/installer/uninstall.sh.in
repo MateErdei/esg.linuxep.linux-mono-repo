@@ -92,8 +92,8 @@ rm -rf "$SOPHOS_INSTALL"
 
 PATH=$PATH:/usr/sbin:/sbin
 
-USERNAME=sophos-spl-user
-GROUPNAME="sophos-spl-group"
+USERNAME="@SOPHOS_SPL_USER@"
+GROUPNAME="@SOPHOS_SPL_GROUP@"
 if [[ -z $NO_REMOVE_USER ]]
 then
     DELUSER=$(which deluser 2>/dev/null)

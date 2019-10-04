@@ -1,0 +1,4 @@
+{
+  "executableFullPath": "base/bin/mcsrouter",
+  "executableUserAndGroup": "@SOPHOS_SPL_USER@:@SOPHOS_SPL_GROUP@"
+}

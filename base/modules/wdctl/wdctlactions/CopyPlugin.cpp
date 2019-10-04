@@ -17,6 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <grp.h>
 #include <unistd.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 
 using namespace wdctl::wdctlactions;
 
@@ -50,7 +51,7 @@ int CopyPlugin::run()
     try
     {
         Common::FileSystem::filePermissions()->chmod(destination, S_IRUSR | S_IWUSR | S_IRGRP);
-        Common::FileSystem::filePermissions()->chown(destination, "root", "sophos-spl-group");
+        Common::FileSystem::filePermissions()->chown(destination, "root", sophos::group());
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {
