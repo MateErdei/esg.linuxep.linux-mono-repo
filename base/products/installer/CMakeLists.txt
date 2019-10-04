@@ -1,5 +1,5 @@
-configure_file(install.sh.in  install.sh @ONLY)
-configure_file(uninstall.sh.in  uninstall.sh @ONLY)
+configure_file(install.in.sh install.sh @ONLY)
+configure_file(uninstall.in.sh uninstall.sh @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/install.sh
         DESTINATION .
