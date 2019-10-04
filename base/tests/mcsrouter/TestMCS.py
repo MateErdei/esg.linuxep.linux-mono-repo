@@ -123,6 +123,7 @@ class TestMCS(unittest.TestCase):
     @mock.patch('mcsrouter.utils.directory_watcher.DirectoryWatcher.add_watch', side_effect=pass_function)
     @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
     @mock.patch('os.listdir', return_value=[])
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
     def testReregistration(self, *mockargs):
         builtins.__dict__['REGISTER_MCS'] = True
         config = mcsrouter.utils.config.Config()
@@ -140,6 +141,7 @@ class TestMCS(unittest.TestCase):
     @mock.patch('mcsrouter.utils.directory_watcher.DirectoryWatcher.add_watch', side_effect=pass_function)
     @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
     @mock.patch('os.listdir', return_value="dummyplugin.json")
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
     def test401Handling(self, *mockargs):
         FakeMCSConnection.send401 = True
         config = mcsrouter.utils.config.Config()

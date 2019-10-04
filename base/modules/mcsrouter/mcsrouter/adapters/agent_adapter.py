@@ -5,6 +5,7 @@ agent_adapter Module
 
 import logging
 import os
+import subprocess
 
 import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.path_manager as path_manager
@@ -68,6 +69,7 @@ class ComputerCommonStatus:
         self.ipv4s = list(ip_address.get_non_local_ipv4())
         self.ipv6s = list(ip_address.get_non_local_ipv6())
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
+        self.mac_addresses = self.get_mac_addresses()
 
     def __eq__(self, other):
         """
@@ -81,6 +83,16 @@ class ComputerCommonStatus:
         __ne__
         """
         return not self == other
+
+    def get_mac_addresses(self):
+        path_to_machineid_executable = os.path.join(path_manager.install_dir(), "base", "bin", "machineid")
+
+        command = [path_to_machineid_executable, "--dump-mac-addresses"]
+        process = subprocess.Popen(command, stdout=subprocess.PIPE)
+
+        stdout, stderr = process.communicate()
+        mac_addresses = stdout.decode().split()
+        return mac_addresses
 
     def to_status_xml(self):
         """
@@ -108,6 +120,11 @@ class ComputerCommonStatus:
             for ip_addr in self.ipv6s:
                 result.append("<ipv6>%s</ipv6>" % ip_addr)
             result.append("</ipAddresses>")
+        if self.mac_addresses:
+            result.append("<macAddresses>")
+            for mac_address in self.mac_addresses:
+                result.append("<macAddress>{}</macAddress>".format(mac_address))
+            result.append("</macAddresses>")
 
         result.append("</commonComputerStatus>")
         return "".join(result)

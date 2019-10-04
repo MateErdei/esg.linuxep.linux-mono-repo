@@ -92,7 +92,8 @@ class TestGenericAdapter(unittest.TestCase):
         with mock.patch("builtins.open", mocked_open_function):
             self.assertEqual(agent.get_policy_status(), """<policy-status latest="1970-01-01T00:00:00.0Z"><policy app="ALC" latest="2019-09-05T10:02:14.499865Z" /></policy-status>""")
 
-    def testComputerStatus(self):
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
+    def testComputerStatus(self, *mockargs):
         target_system = mcsrouter.utils.target_system_manager.get_target_system('/tmp/sophos-spl')
         status_xml = agent_adapter.ComputerCommonStatus(target_system).to_status_xml()
         self.assertNotIn("b'", status_xml)

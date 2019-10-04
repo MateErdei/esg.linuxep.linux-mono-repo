@@ -17,6 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <sstream>
 #include <string>
+//#include <stdio.h>
 
 namespace Common
 {
@@ -68,19 +69,29 @@ namespace Common
         {
             if (argc != 2)
             {
-                std::cerr << "Invalid argument. Usage: ./machineid /opt/sophos-spl" << std::endl;
+                std::cerr << "Invalid argument. Usage: ./machineid /opt/sophos-spl OR ./machineid --dump-mac-addresses" << std::endl;
                 return 1;
             }
 
-            std::string sophosRootPath = argv[1];
-            if (!Common::FileSystem::fileSystem()->isDirectory(sophosRootPath))
+            std::string argument = argv[1];
+            if (argument == "--dump-mac-addresses")
+            {
+                std::stringstream output;
+                for (const std::string& mac : sortedSystemMACs())
+                {
+                    output << mac << "\n";
+                }
+                std::cout << output.str();
+                return 0;
+            }
+            else if (!Common::FileSystem::fileSystem()->isDirectory(argument))
             {
                 std::cerr << "Invalid argument. Argument does not point to a directory" << std::endl;
                 return 2;
             }
 
             Common::ApplicationConfiguration::applicationConfiguration().setData(
-                Common::ApplicationConfiguration::SOPHOS_INSTALL, sophosRootPath);
+                Common::ApplicationConfiguration::SOPHOS_INSTALL, argument);
 
             SXLMachineID sxlMachineID;
             try

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 
-
 import unittest
 import xml.dom.minidom
+import mock
 
 import logging
 logger = logging.getLogger("TestComputer")
@@ -18,7 +18,8 @@ def getTargetSystem():
     return mcsrouter.targetsystem.TargetSystem()
 
 class TestcomputerCommonStatus(unittest.TestCase):
-    def testCommonStatusXml(self):
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
+    def testCommonStatusXml(self, *mockarg):
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         status_xml = adapter.get_common_status_xml()
 
@@ -27,7 +28,8 @@ class TestcomputerCommonStatus(unittest.TestCase):
         doc.unlink()
 
 class TestComputer(unittest.TestCase):
-    def testStatusXml(self):
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
+    def testStatusXml(self, *mockarg):
         # ts = getTargetSystem()
         # if not ts.is_linux:
         #     return
