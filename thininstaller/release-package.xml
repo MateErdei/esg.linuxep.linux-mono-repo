@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="sspl-thininstaller" version="1.0.1">
+    <versioning>
+        <workingdir>sspl-thininstaller-build/AutoVersioningHeaders</workingdir>
+    </versioning>
     <inputs>
         <workingdir>sspl-thininstaller-build</workingdir>
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">

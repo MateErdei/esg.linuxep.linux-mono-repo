@@ -5,14 +5,25 @@ umask 077
 echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited."
 
 args="$*"
-VERSION="VERSION_REPLACEMENT_STRING"
-if [ "x$args" = "x--version" ] || [ "x$args" = "x-v" ]
+
+# Display help
+if [ "x$args" = "x--help" ] || [ "x$args" = "x-h" ]
 then
-    echo "Linux Server Installer, version: $VERSION"
+    echo "Sophos Server Protection for Linux Installer, help:"
+    echo "Usage: [options]"
+    echo "Valid options are:"
+    echo -e "--help [-h]\t\tDisplay this summary."
+    echo -e "--version [-v]\t\tDisplay version of installer."
+    echo -e "--force\t\t\tForce re-install."
     exit 0
 fi
 
-echo "Installing Sophos Server Protection for Linux with arguments: [$args]"
+VERSION="VERSION_REPLACEMENT_STRING"
+if [ "x$args" = "x--version" ] || [ "x$args" = "x-v" ]
+then
+    echo "Sophos Server Protection for Linux Installer, version: $VERSION"
+    exit 0
+fi
 
 EXITCODE_SUCCESS=0
 EXITCODE_NOT_LINUX=1
@@ -357,15 +368,23 @@ fi
 MESSAGE_RELAYS=$(grep 'MESSAGE_RELAYS=' credentials.txt | sed 's/MESSAGE_RELAYS=//')
 if [ -n "$MESSAGE_RELAYS" ]
 then
-    echo "Message Relays: $MESSAGE_RELAYS"
+    if [ -n "$DEBUG_THIN_INSTALLER" ]
+    then
+        echo "Message Relays: $MESSAGE_RELAYS"
+    fi
+
     MESSAGE_RELAYS="--messagerelay $MESSAGE_RELAYS"
 fi
 
 # Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
+
 if [ -n "$UPDATE_CACHES" ]
 then
-    echo "Update Caches: $UPDATE_CACHES"
+    if [ -n "$DEBUG_THIN_INSTALLER" ]
+    then
+        echo "List of update caches to install from: $UPDATE_CACHES"
+    fi
 fi
 
 REGISTER_CENTRAL="${SOPHOS_INSTALL}/base/bin/registerCentral"
@@ -454,9 +473,14 @@ mkdir cache
 mkdir warehouse
 mkdir warehouse/catalogue
 
-echo "Downloading base installer"
+echo "Installation process for Server Protection For Linux started."
 ${BIN}/installer credentials.txt
 handle_installer_errorcodes $?
+
+if [ -n "$DEBUG_THIN_INSTALLER" ]
+then
+    echo "Validating downloaded installer"
+fi
 
 # Verify manifest.dat
 CERT=installer/rootca.crt
