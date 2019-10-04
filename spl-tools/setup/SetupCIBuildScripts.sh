@@ -21,7 +21,7 @@ rm -rf ~/.config/pip/
 #Update the hardcoded paths to filer 5 and filer 6 in the build scripts to work on dev machines
 BUILD_SCRIPT_INSTALL_DIR="$(python3 -m pip show build_scripts | grep "Location" | cut -d" " -f2)/build_scripts"
 
-sed -i 's/\/mnt\/filer6/\/mnt\/filer6\/bfr/g' ${BUILD_SCRIPT_INSTALL_DIR}/build_common.py
+sed -i 's/\"\/mnt\/filer6\/\"/\"\/mnt\/filer6\/bfr\/\"/g' ${BUILD_SCRIPT_INSTALL_DIR}/build_common.py
 sed -i 's/\/mnt\/filer\/bir/\/uk-filer5\/prodro\/bir/g' ${BUILD_SCRIPT_INSTALL_DIR}/build_common.py
 
 #Create temporary location used by scripts
