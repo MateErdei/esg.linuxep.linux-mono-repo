@@ -25,15 +25,13 @@ namespace Telemetry
 
         std::string getName() override { return "base-telemetry"; }
         std::string getTelemetry() override;
-        static std::optional<std::string> extractCustomerId(const std::string& policyXml);
+
+    private:
         static std::optional<std::string> getCustomerId();
-        static std::optional<std::string> extractEndpointId(const Path mcsConfigFilePath);
         static std::optional<std::string> getEndpointId();
         static std::optional<std::string> getMachineId();
         static std::optional<std::string> getVersion();
-
-    private:
         static std::optional<std::string> extractValueFromInifile(const Path& filePath, const std::string& key);
-
+        static std::optional<std::string> extractCustomerId(const std::string& policyXml);
     };
 } // namespace Telemetry

@@ -106,7 +106,7 @@ namespace Telemetry
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                LOGDEBUG("Failed to get " << key <<"." << ex.what());
+                LOGDEBUG("Failed to get " << key <<". " << ex.what());
             }
         }
 
