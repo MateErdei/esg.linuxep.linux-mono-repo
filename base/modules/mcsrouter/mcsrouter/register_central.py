@@ -65,7 +65,7 @@ def setup_logging():
     stream_handler = logging.StreamHandler()
     console_formarter = logging.Formatter("%(levelname)7s: %(message)s")
     stream_handler.setFormatter(console_formarter)
-    stream_handler.setLevel(logging.ERROR)
+    stream_handler.setLevel(logging.WARN)
     root_logger.addHandler(stream_handler)
 
 
@@ -391,15 +391,11 @@ def inner_main(argv):
             token = policy_config.get("MCSToken")
             url = policy_config.get("MCSURL")
         except KeyError:
-            message = "Reregister requested, but not already registered"
-            LOGGER.info(message)
-            print(message, file=sys.stderr)
+            LOGGER.warning("Reregister requested, but not already registered")
             return 2
 
     elif options.deregister:
-        message = "Deregistering from Sophos Central"
-        LOGGER.info(message)
-        print(message)
+        LOGGER.warning("Deregistering from Sophos Central")
         client_config = utils_config.Config(
             path_manager.sophosspl_config(),
             mode=0o600,
@@ -424,9 +420,7 @@ def inner_main(argv):
             cleanup()
         else:
             # Successfully registered to Sophos Central
-            message = "Saving Sophos Central credentials"
-            LOGGER.info(message)
-            print(message)
+            LOGGER.info("Saving Sophos Central credentials")
             config.save()
 
             # cleanup RMS files
