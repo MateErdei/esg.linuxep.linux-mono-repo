@@ -94,9 +94,9 @@ namespace UpdateSchedulerImpl
 
             // wait either for SulDownloader to finish or 5 seconds (which ever is first)
             std::promise<void> promise;
-            auto fut_promised = promise.get_future();
-            auto syncWait = std::async(std::launch::async, [&fut_promised, &runner]() {
-                if (fut_promised.wait_for(std::chrono::seconds(5)) == std::future_status::timeout)
+            auto futurePromised = promise.get_future();
+            auto syncWait = std::async(std::launch::async, [&futurePromised, &runner]() {
+                if (futurePromised.wait_for(std::chrono::seconds(5)) == std::future_status::timeout)
                 {
                     runner->triggerAbort();
                 }
