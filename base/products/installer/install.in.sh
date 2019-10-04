@@ -208,62 +208,6 @@ function makeRootDirectory()
 }
 
 
-
-function install_polkit_rule_to_sophos_spl_update()
-{
-
-    dir_path=/etc/polkit-1/rules.d
-   if [[ -d ${dir_path} ]]
-   then
-      # newer versions of polkit.
-      file_path="${dir_path}/58-sspl-update.rules"
-      if [[ ! -f ${file_path} ]]
-      then
-        echo "Install policy kit at ${file_path}"
-        cat > ${file_path} << EOF
-polkit.addRule(function(action, subject) {
-
-if (action.id == "org.freedesktop.systemd1.manage-units" && subject.isInGroup("sophos-spl-group") )
-{
-
-    var unit = action.lookup("unit");
-    // not available in all supported platforms, but if available, use it.
-    if (unit )
-    {
-      if ( unit == "sophos-spl-update.service"){
-              return polkit.Result.YES;
-      }
-    }else{
-            return polkit.Result.YES;
-    }
-}
-});
-EOF
-      chmod 0644  ${file_path}
-      fi
-   fi
-
-   dir_path=/etc/polkit-1/localauthority/50-local.d
-   if [[  -d  ${dir_path} ]]
-   then
-        file_path="${dir_path}/58-sspl-update.pkla"
-        if [[ ! -f {file_path} ]]
-        then
-        echo "Install policy kit at ${file_path}"
-        cat > ${file_path}  << EOF
-[ sophos-spl user to trigger sophos-spl-update]
-Identity=unix-group:sophos-spl-group
-Action=org.freedesktop.systemd1.manage-units
-ResultActive=yes
-ResultAny=yes
-ResultInactive=no
-EOF
-
-        chmod 0644  ${file_path}
-        fi
-   fi
-}
-
 if [[ $(id -u) != 0 ]]
 then
     failure ${EXIT_FAIL_NOT_ROOT} "Please run this installer as root."
@@ -444,8 +388,6 @@ chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/"*
 chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
-
-install_polkit_rule_to_sophos_spl_update
 
 unset LD_LIBRARY_PATH
 
