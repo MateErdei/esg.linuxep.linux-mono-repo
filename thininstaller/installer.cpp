@@ -65,13 +65,16 @@ static size_t function_pt(char *ptr, size_t size, size_t nmemb, void *)
 
 static bool canConnectToCloud(const std::string& proxy = "")
 {
-    if (proxy.empty())
+    if (g_DebugMode)
     {
-        printf("Checking we can connect to Sophos Central (at %s)...\n", g_mcs_url.c_str());
-    }
-    else
-    {
-        printf("Checking we can connect to Sophos Central (at %s via %s)...\n", g_mcs_url.c_str(), proxy.c_str());
+        if (proxy.empty())
+        {
+            printf("Checking we can connect to Sophos Central (at %s)...\n", g_mcs_url.c_str());
+        }
+        else
+        {
+            printf("Checking we can connect to Sophos Central (at %s via %s)...\n", g_mcs_url.c_str(), proxy.c_str());
+        }
     }
 
     CURLcode res;
@@ -104,14 +107,18 @@ static bool canConnectToCloud(const std::string& proxy = "")
         res = curl_easy_perform(curl);
 
         /* Check for errors */
-        if(res != CURLE_OK) {
+        if(res != CURLE_OK)
+        {
             fprintf(stderr, "Failed to connect to Sophos Central at %s (cURL error is [%s]). Please check your firewall rules.\n",
                 g_mcs_url.c_str(), curl_easy_strerror(res));
-        } else {
+        }
+        else
+        {
             if (g_DebugMode)
             {
                 printf("Successfully got [%s] from Sophos Central\n", curl_easy_strerror(res));
             }
+
             ret = true;
         }
 
@@ -358,7 +365,13 @@ static int downloadInstaller(std::string location, bool updateCache)
 
     if (isSULError(ret))
     {
-        fprintf(stderr, "Failed to connect to warehouse at %s (SUL error is [%d-%s]). Please check your firewall rules and proxy configuration.\n", location.c_str(), ret, SU_getErrorDetails(session));
+        if (g_DebugMode)
+        {
+            fprintf(stderr,
+                    "Failed to connect to warehouse at %s (SUL error is [%d-%s]). Please check your firewall rules and proxy configuration.\n",
+                    location.c_str(), ret, SU_getErrorDetails(session));
+        }
+
         return 46;
     }
 
@@ -436,6 +449,8 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
 {
     int ret = 0;
 
+    printf("Downloading base installer ...\n");
+
     // Try override if set
     const char * sophosLocation = getenv("OVERRIDE_SOPHOS_LOCATION");
 
@@ -446,15 +461,46 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
         // Use update caches
         for (auto & cache : caches)
         {
+            if (g_DebugMode)
+            {
+                printf("Attempting to download installer from update cache address [%s]\n", cache.getAddress().c_str());
+            }
+
             ret = downloadInstaller(cache.getAddress(), true);
+
             if (ret == 0)
             {
+                if (g_DebugMode)
+                {
+                    printf("Successfully download installer from update cache address [%s]\n", cache.getAddress().c_str());
+                }
+
                 return ret;
             }
         }
     }
 
-    return downloadInstaller(sophosLocation, false);
+    if (g_DebugMode)
+    {
+        printf("Attempting to download installer from Sophos\n");
+    }
+
+    ret = downloadInstaller(sophosLocation, false);
+
+    if(ret == 0)
+    {
+        if (g_DebugMode)
+        {
+            fprintf(stderr, "Successfully downloaded installer from Sophos\n");
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Failed to download installer.\n");
+    }
+
+    return ret;
+
 }
 
 int main(int argc, char ** argv)
