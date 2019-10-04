@@ -55,46 +55,6 @@ namespace Telemetry
         return TelemetrySerialiser::serialise(root);
     }
 
-
-    std::optional<std::string> BaseTelemetryReporter::extractCustomerId(const std::string& policyXml)
-    {
-        std::string NOTPRESENT{"NOTPRESENTID"};
-        try
-        {
-            Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(policyXml);
-            auto paths = attributesMap.entitiesThatContainPath("AUConfigurations/customer");
-            if( paths.empty())
-            {
-                return std::optional<std::string>{};
-            }
-
-            Common::XmlUtilities::Attributes attributes;
-            for(auto path : paths)
-            {
-                attributes = attributesMap.lookup(path);
-                if(!attributes.empty())
-                {
-                    break;
-                }
-            }
-            if (!attributes.empty())
-            {
-                std::string customerId = attributes.value("id", NOTPRESENT);
-                if( customerId != NOTPRESENT)
-                {
-                    return customerId;
-                }
-            }
-            LOGWARN("policy customerID not present in the xml");
-        }catch (Common::XmlUtilities::XmlUtilitiesException & ex)
-        {
-            LOGWARN("Invalid policy received. Error: " << ex.what());
-        }
-        return std::nullopt;
-    }
-
-
-
     std::optional<std::string> BaseTelemetryReporter::getMachineId()
     {
         auto fs = Common::FileSystem::fileSystem();
@@ -123,7 +83,6 @@ namespace Telemetry
     std::optional<std::string> BaseTelemetryReporter::getVersion()
     {
         Path versionIniFilepath = Common::ApplicationConfiguration::applicationPathManager().getVersionFilePath();
-        //Path versionIniFilepath = Common::ApplicationConfiguration::applicationPathManager().getMachineIdFilePath();
         return extractValueFromInifile(versionIniFilepath, "PRODUCT_VERSION");
     }
 
@@ -143,22 +102,52 @@ namespace Telemetry
             {
                 boost::property_tree::ptree ptree;
                 boost::property_tree::read_ini(filePath, ptree);
-                //return ptree.get<std::string>(key);
-                LOGINFO("before");
-                auto blah =  ptree.get<std::string>(key);
-                LOGINFO(blah);
-                return blah;
+                return ptree.get<std::string>(key);
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                // TODO change this
-                LOGINFO("bad" << ex.what());
+                LOGDEBUG("Failed to get " << key <<"." << ex.what());
             }
         }
 
-        // TODO change this
-        LOGINFO("Could not find ini file to extract data from: " << filePath);
+        LOGDEBUG("Could not find ini file to extract data from: " << filePath);
         return std::nullopt;
     }
 
+    std::optional<std::string> BaseTelemetryReporter::extractCustomerId(const std::string& policyXml)
+    {
+        std::string NOTPRESENT{"NOTPRESENTID"};
+        try
+        {
+            Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(policyXml);
+            auto matching_paths = attributesMap.entitiesThatContainPath("AUConfigurations/customer");
+            if( matching_paths.empty())
+            {
+                return std::optional<std::string>{};
+            }
+
+            Common::XmlUtilities::Attributes attributes;
+            for(auto& path : matching_paths)
+            {
+                attributes = attributesMap.lookup(path);
+                if(!attributes.empty())
+                {
+                    break;
+                }
+            }
+            if (!attributes.empty())
+            {
+                std::string customerId = attributes.value("id", NOTPRESENT);
+                if( customerId != NOTPRESENT)
+                {
+                    return customerId;
+                }
+            }
+            LOGWARN("policy customerID not present in the xml");
+        }catch (Common::XmlUtilities::XmlUtilitiesException & ex)
+        {
+            LOGWARN("Invalid policy received. Error: " << ex.what());
+        }
+        return std::nullopt;
+    }
 }
