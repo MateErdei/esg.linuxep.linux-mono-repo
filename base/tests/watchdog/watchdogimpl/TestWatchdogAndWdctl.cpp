@@ -194,7 +194,7 @@ void TestWatchdogAndWdctl::SetUpTestCase()
     Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", "ipc://" + installDir()+"/watchdog.ipc");
     tempDir->createFile("base/etc/logger.conf", "VERBOSITY=DEBUG\n");
     tempDir->createFile("base/pluginRegistry/fakeplugin.json", templateFakePlugin(installDir()));
-    std::vector<std::string> relativePaths{ {"var/ipc"}};
+    std::vector<std::string> relativePaths{ {"var/ipc/plugins"}};
     tempDir->makeDirs(relativePaths);
 }
 

@@ -49,6 +49,7 @@ namespace
         }
         ~TestWatchdogServiceLine() {}
 
+
         void replacePluginIpc(std::string ipc)
         {
             std::string pluginname =

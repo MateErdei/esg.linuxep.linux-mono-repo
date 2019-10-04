@@ -42,6 +42,7 @@ namespace
             MockedApplicationPathManager& mock(*mockAppManager);
             ON_CALL(mock, sophosInstall()).WillByDefault(Return("/tmp/sophos"));
             ON_CALL(mock, getPluginRegistryPath()).WillByDefault(Return("/tmp/plugins"));
+            ON_CALL(mock, getPluginSocketAddress(_)).WillByDefault(Return("inproc://watchdogservice.ipc"));
             Common::ApplicationConfiguration::replaceApplicationPathManager(
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
         }

@@ -61,8 +61,8 @@ namespace watchdog
             PluginProxy* findPlugin(const std::string& pluginName);
 
         private:
-            WatchdogServiceLine m_watchdogservice;
             Common::ZeroMQWrapper::ISocketReplierPtr m_socket;
+            WatchdogServiceLine m_watchdogservice;
         };
     } // namespace watchdogimpl
 } // namespace watchdog

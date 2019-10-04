@@ -37,6 +37,11 @@ namespace
 
             EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
             EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
+
+            std::string pluginname =
+                    "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() + ".ipc";
+            Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname, "inproc://watchdogservice.ipc");
+
         }
         ~TestWatchdog()
         {

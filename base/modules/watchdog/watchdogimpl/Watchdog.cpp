@@ -42,8 +42,6 @@ Watchdog::Watchdog() : Watchdog(Common::ZMQWrapperApi::createContext()) {}
 
 Watchdog::~Watchdog()
 {
-    m_socket.reset();
-    m_context.reset();
 }
 
 int Watchdog::initialiseAndRun()
