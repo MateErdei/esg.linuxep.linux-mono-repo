@@ -7,7 +7,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApiImpl/PluginCallBackHandler.h>
+#include <Common/UtilityImpl/Factory.h>
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
+
+#include <functional>
 
 namespace watchdog
 {
@@ -22,14 +25,24 @@ namespace watchdog
         class UpdateServiceReportError : public WatchdogServiceException
         {
         public:
-            static std::string ErrorReported;
-            UpdateServiceReportError() : WatchdogServiceException(ErrorReported) {}
+            static std::string ErrorReported() { return "Update service reported error"; }
+
+            UpdateServiceReportError() : WatchdogServiceException(ErrorReported()) {}
         };
+
+        class IWatchdogRequest
+        {
+        public:
+            virtual ~IWatchdogRequest() = default;
+            virtual void requestUpdateService() = 0;
+        };
+
+        Common::UtilityImpl::Factory<IWatchdogRequest>& factory();
 
         class WatchdogServiceLine
         {
         public:
-            static std::string WatchdogServiceLineName;
+            static std::string WatchdogServiceLineName() { return "watchdogservice"; }
             static void requestUpdateService(Common::ZMQWrapperApi::IContext&);
             static void requestUpdateService();
             WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr);

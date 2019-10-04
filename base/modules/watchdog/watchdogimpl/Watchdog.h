@@ -31,7 +31,7 @@ namespace watchdog
         class Watchdog : public Common::ProcessMonitoringImpl::ProcessMonitor
         {
         public:
-            explicit Watchdog() = default;
+            explicit Watchdog();
             explicit Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context);
             ~Watchdog();
             int initialiseAndRun();

@@ -11,76 +11,42 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
+#include <tests/watchdog/watchdogimpl/MockIWatchdogRequest.h>
 
 #include <future>
 
 using namespace UpdateSchedulerImpl;
 using namespace UpdateScheduler;
 using SulDownloaderRunner = UpdateSchedulerImpl::runnerModule::SulDownloaderRunner;
+
 class TestSulDownloaderRunner : public ::testing::Test
 {
 public:
     void TearDown() override { Common::ProcessImpl::ProcessFactory::instance().restoreCreator(); }
 
-    MockProcess* setupMockProcess()
+    void setupMockForCheckServiceSuccess()
     {
-        auto mockProcess = new MockProcess();
-        Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
-            [mockProcess]() { return std::unique_ptr<Common::Process::IProcess>(mockProcess); });
-        return mockProcess;
-    }
+        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
+            auto mockProcess1 = new StrictMock<MockProcess>();
+            std::vector<std::string> args{ "is-failed", "sophos-spl-update.service" };
+            EXPECT_CALL(*mockProcess1, exec("/bin/systemctl", args)).Times(1);
+            EXPECT_CALL(*mockProcess1, output()).WillOnce(Return(""));
+            EXPECT_CALL(*mockProcess1, exitCode()).WillOnce(Return(1));
 
-    void setupMockProcessesSucess()
-    {
-        auto mockProcess1 = new StrictMock<MockProcess>();
-        auto mockProcess2 = new StrictMock<MockProcess>();
-
-        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([mockProcess1, mockProcess2]() {
-            static int currentMockIndex = 1;
-            if (currentMockIndex == 1)
-            {
-                currentMockIndex++;
-                EXPECT_CALL(*mockProcess1, exec(_, _)).Times(1).RetiresOnSaturation();
-                EXPECT_CALL(*mockProcess1, output()).WillOnce(Return("")).RetiresOnSaturation();
-                EXPECT_CALL(*mockProcess1, exitCode()).WillOnce(Return(0)).RetiresOnSaturation();
-
-                return std::unique_ptr<Common::Process::IProcess>(mockProcess1);
-            }
-
-            EXPECT_CALL(*mockProcess2, exec(_, _)).Times(1);
-            EXPECT_CALL(*mockProcess2, output()).WillOnce(Return(""));
-            EXPECT_CALL(*mockProcess2, exitCode()).WillOnce(Return(1));
-
-            currentMockIndex = 1; // Reset
-
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess2);
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess1);
         });
     }
 
-    void setupMockProcessesFail()
+    void setupMockForCheckServiceFailure()
     {
-        auto mockProcess1 = new StrictMock<MockProcess>();
-        auto mockProcess2 = new StrictMock<MockProcess>();
+        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
+            auto mockProcess1 = new StrictMock<MockProcess>();
+            std::vector<std::string> args{ "is-failed", "sophos-spl-update.service" };
+            EXPECT_CALL(*mockProcess1, exec("/bin/systemctl", args)).Times(1);
+            EXPECT_CALL(*mockProcess1, output()).WillOnce(Return(""));
+            EXPECT_CALL(*mockProcess1, exitCode()).WillOnce(Return(0));
 
-        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([mockProcess1, mockProcess2]() {
-            static int currentMockIndex = 1;
-            if (currentMockIndex == 1)
-            {
-                currentMockIndex++;
-                EXPECT_CALL(*mockProcess1, exec(_, _)).Times(1).RetiresOnSaturation();
-                EXPECT_CALL(*mockProcess1, output()).WillOnce(Return("")).RetiresOnSaturation();
-                EXPECT_CALL(*mockProcess1, exitCode()).WillOnce(Return(0)).RetiresOnSaturation();
-
-                return std::unique_ptr<Common::Process::IProcess>(mockProcess1);
-            }
-
-            EXPECT_CALL(*mockProcess2, exec(_, _)).Times(1);
-            EXPECT_CALL(*mockProcess2, output()).WillOnce(Return(""));
-            EXPECT_CALL(*mockProcess2, exitCode()).WillOnce(Return(0));
-
-            currentMockIndex = 1; // Reset
-
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess2);
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess1);
         });
     }
 
@@ -93,7 +59,9 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
 
     // Mock systemctl call.
-    setupMockProcessesSucess();
+    setupMockForCheckServiceSuccess();
+
+    IWatchdogRequestReplacement replacement;
 
     // Create task queue.
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
@@ -118,7 +86,8 @@ TEST_F(TestSulDownloaderRunner, SulDownloaderRunsThenFails) // NOLINT
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
 
     // Mock systemctl call.
-    setupMockProcessesFail();
+    setupMockForCheckServiceFailure();
+    IWatchdogRequestReplacement replacement;
 
     testing::internal::CaptureStderr();
 
@@ -147,7 +116,8 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
     // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
 
-    setupMockProcessesSucess();
+    setupMockForCheckServiceSuccess();
+    IWatchdogRequestReplacement replacement;
 
     // Create task queue.
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
@@ -170,12 +140,7 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
 
 TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
 {
-    // Mock systemctl call.
-    MockProcess* mockProcess = setupMockProcess();
-    EXPECT_CALL(*mockProcess, exec(_, _)).Times(1);
-    EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
-    EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-
+    IWatchdogRequestReplacement replacement;
     // Create task queue
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
@@ -191,11 +156,7 @@ TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
 
 TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
 {
-    // Mock systemctl call
-    MockProcess* mockProcess = setupMockProcess();
-    EXPECT_CALL(*mockProcess, exec(_, _)).Times(1);
-    EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
-    EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+    IWatchdogRequestReplacement replacement;
 
     // Create task queue
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
@@ -213,12 +174,7 @@ TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
 TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT
 {
     std::string errorMessage = "bad thing happened";
-
-    // Mock systemctl call
-    MockProcess* mockProcess = setupMockProcess();
-    EXPECT_CALL(*mockProcess, exec(_, _)).Times(1);
-    EXPECT_CALL(*mockProcess, output()).WillOnce(Return(errorMessage));
-    EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
+    IWatchdogRequestReplacement replacement(errorMessage);
 
     // Create task queue
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());

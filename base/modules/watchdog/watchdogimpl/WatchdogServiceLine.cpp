@@ -12,6 +12,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/Process/IProcess.h>
+#include <Common/UtilityImpl/Factory.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 namespace
 {
@@ -19,7 +20,7 @@ namespace
     {
         auto process = Common::Process::createProcess();
         process->setOutputLimit(1000);
-        process->exec("/bin/systemctl", { "start", "sophos-spl-update" }, {});
+        process->exec("/bin/systemctl", { "start", "sophos-spl-update.service" });
         process->waitUntilProcessEnds();
         std::string output = process->output();
         if (process->exitCode() != 0)
@@ -77,15 +78,20 @@ namespace
         }
     };
 
+    class WatchdogRequestImpl : public watchdog::watchdogimpl::IWatchdogRequest
+    {
+    public:
+        void requestUpdateService() override
+        {
+            return watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService();
+        }
+    };
+
 } // namespace
 namespace watchdog
 {
     namespace watchdogimpl
     {
-        std::string UpdateServiceReportError::ErrorReported{ "Update service reported error" };
-
-        std::string WatchdogServiceLine::WatchdogServiceLineName{ "watchdogservice" };
-
         void WatchdogServiceLine::requestUpdateService(Common::ZMQWrapperApi::IContext& context)
         {
             LOGINFO("Request Watchdog to trigger Update service.");
@@ -93,13 +99,15 @@ namespace watchdog
             {
                 auto requester = context.getRequester();
                 Common::PluginApiImpl::PluginResourceManagement::setupRequester(
-                    *requester, WatchdogServiceLineName, 5, 5);
-                Common::PluginCommunicationImpl::PluginProxy pluginProxy(std::move(requester), WatchdogServiceLineName);
+                    *requester, WatchdogServiceLineName(), 5, 5);
+                Common::PluginCommunicationImpl::PluginProxy pluginProxy(
+                    std::move(requester), WatchdogServiceLineName());
                 pluginProxy.queueAction("", WDServiceCallBack::TriggerUpdate());
+                LOGINFO("Update Acknowledged.");
             }
             catch (Common::PluginCommunication::IPluginCommunicationException& ex)
             {
-                if (ex.what() == UpdateServiceReportError::ErrorReported)
+                if (ex.what() == UpdateServiceReportError::ErrorReported())
                 {
                     throw UpdateServiceReportError();
                 }
@@ -112,6 +120,7 @@ namespace watchdog
             }
             catch (std::exception& ex)
             {
+                LOGERROR("Unexpected exception thrown while requesting update: " << ex.what());
                 assert(false); // not expecting other type of exception.
                 throw WatchdogServiceException(ex.what());
             }
@@ -126,11 +135,14 @@ namespace watchdog
         WatchdogServiceLine::WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr context) : m_context(context)
         {
             auto replier = m_context->getReplier();
-            Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, WatchdogServiceLineName, 5, 5);
+            Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, WatchdogServiceLineName(), 5, 5);
             std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack };
 
             m_pluginHandler.reset(new Common::PluginApiImpl::PluginCallBackHandler(
-                WatchdogServiceLineName, std::move(replier), std::move(pluginCallback)));
+                WatchdogServiceLineName(),
+                std::move(replier),
+                std::move(pluginCallback),
+                Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM));
             m_pluginHandler->start();
         }
 
@@ -140,6 +152,14 @@ namespace watchdog
             {
                 m_pluginHandler->stop();
             }
+        }
+
+        Common::UtilityImpl::Factory<IWatchdogRequest>& factory()
+        {
+            static Common::UtilityImpl::Factory<IWatchdogRequest> theFactory{ []() {
+                return std::unique_ptr<IWatchdogRequest>(new WatchdogRequestImpl());
+            } };
+            return theFactory;
         }
     } // namespace watchdogimpl
 } // namespace watchdog

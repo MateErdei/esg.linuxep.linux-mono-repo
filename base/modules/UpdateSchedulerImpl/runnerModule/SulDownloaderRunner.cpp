@@ -8,6 +8,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "../Logger.h"
 
+#include <watchdog/watchdogimpl/WatchdogServiceLine.h>
+
 namespace UpdateSchedulerImpl
 {
     namespace runnerModule
@@ -89,9 +91,16 @@ namespace UpdateSchedulerImpl
 
         std::tuple<int, std::string> SulDownloaderRunner::startUpdateService()
         {
-            auto process = Common::Process::createProcess();
-            process->exec("/bin/systemctl", { "start", "sophos-spl-update.service" });
-            return std::make_tuple(process->exitCode(), process->output());
+            try
+            {
+                auto request = watchdog::watchdogimpl::factory().create();
+                request->requestUpdateService();
+            }
+            catch (std::exception& ex)
+            {
+                return std::make_tuple(1, ex.what());
+            }
+            return std::make_tuple(0, std::string());
         }
 
         void SulDownloaderRunner::abortWaitingForReport() { m_listener.abort(); }

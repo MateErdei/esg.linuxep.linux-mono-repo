@@ -38,6 +38,7 @@ Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) :
     m_watchdogservice(context)
 {
 }
+Watchdog::Watchdog() : Watchdog(Common::ZMQWrapperApi::createContext()) {}
 
 Watchdog::~Watchdog()
 {

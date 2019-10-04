@@ -1,3 +1,10 @@
+add_library(watchdogservice  SHARED
+        WatchdogServiceLine.cpp
+        WatchdogServiceLine.h
+        Logger.h
+        Logger.cpp
+)
+
 add_library(watchdogimpl STATIC
         watchdog_main.cpp
         watchdog_main.h
@@ -5,18 +12,19 @@ add_library(watchdogimpl STATIC
         PluginProxy.h
         Watchdog.cpp
         Watchdog.h
-        Logger.h
-        Logger.cpp
         WatchdogServiceLine.cpp
         WatchdogServiceLine.h)
 
 target_link_libraries(watchdogimpl PUBLIC
         pluginregistryimpl
+        watchdogservice
+        ${LOG4CPLUS_LIBRARY}
+        )
+target_include_directories(watchdogservice SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
+
+target_link_libraries(watchdogservice PUBLIC
         logging
         processmonitoringimpl
         pluginapiimpl
         plugincommunicationimplcommon
-        ${LOG4CPLUS_LIBRARY}
         )
-
-target_include_directories(watchdogimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})

@@ -51,6 +51,7 @@ target_link_libraries(updateschedulerimpl PUBLIC
         pluginapiimpl
         osutilitiesimpl
         telemetryhelperimpl
+        watchdogservice
         ${LOG4CPLUS_LIBRARY} )
 
 SET_TARGET_PROPERTIES( updateschedulerimpl

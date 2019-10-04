@@ -22,7 +22,9 @@ namespace Common
             PluginCallBackHandler(
                 const std::string& pluginName,
                 std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-                std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback);
+                std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback,
+                Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY policy =
+                    Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::HANDLESHUTDOWN);
 
         private:
             Common::PluginProtocol::DataMessage process(

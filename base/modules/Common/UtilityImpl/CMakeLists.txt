@@ -13,7 +13,7 @@ add_library(utilityimplobject OBJECT
         OrderedSet.h
         StrError.cpp
         StrError.h
-        )
+        Factory.h)
 
 add_library(utilityimpl SHARED $<TARGET_OBJECTS:utilityimplobject> )
 target_include_directories(utilityimpl PUBLIC ../../Common )
