@@ -42,12 +42,14 @@ namespace Common
             setTimeouts(replier, defaultTimeout, connectTimeout);
             std::string plugin_address =
                 Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
+            LOGSUPPORT("Setup ipc replier to connect to " << plugin_address);
             replier.listen(plugin_address);
 
             // If root owned, we need to ensure the group of the ipc socket is sophos-spl-group
             // so that Management Agent can communicate with the plugin.
             if (::getuid() == 0)
             {
+                LOGSUPPORT("Setup ipc replier permissions");
                 // plugin_address starts with ipc:// Remove it.
                 std::string plugin_address_file = plugin_address.substr(6);
                 Common::FileSystem::filePermissions()->chmod(
@@ -63,6 +65,7 @@ namespace Common
         {
             std::string pluginSocketAdd =
                 Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
+            LOGSUPPORT("Setup ipc requester to connect to " << pluginSocketAdd);
             setTimeouts(requester, defaultTimeout, connectTimeout);
             requester.connect(pluginSocketAdd);
         }

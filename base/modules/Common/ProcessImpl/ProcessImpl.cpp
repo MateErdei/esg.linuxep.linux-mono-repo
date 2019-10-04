@@ -101,7 +101,7 @@ namespace Common
 
                 int status;
                 pid_t ret = waitpid(m_pid, &status, WNOHANG);
-
+                LOGDEBUG("Wait pid inside wait return status: " << status);
                 if (ret != 0)
                 {
                     m_pid = -1;
@@ -110,11 +110,13 @@ namespace Common
                     if (WIFEXITED(status)) // NOLINT
                     {
                         m_exitcode = WEXITSTATUS(status); // NOLINT
+                        LOGDEBUG("Exit code defined from status: "<<status << " to be "<< m_exitcode);
                     }
                     else
                     {
                         // this happens when child was either killed, coredump.
                         // meaning that it is finished, but WIFEXITED does not return true.
+                        LOGDEBUG("Exit code defined to be Canceled");
                         m_exitcode = ECANCELED;
                     }
 
@@ -368,7 +370,7 @@ namespace Common
         {
             int status;
             pid_t ret = waitpid(m_pid, &status, 0);
-
+            LOGDEBUG("Process finished and reported status: " << status);
             if (ret == -1)
             {
                 LOGERROR("The PID " << m_pid << " does not exist or is not a child of the calling process.");
@@ -393,6 +395,7 @@ namespace Common
 
                 m_pipeThread->requestStop();
             }
+            m_exitcode = WEXITSTATUS(status);
         }
 
         void ProcessImpl::setOutputTrimmedCallback(std::function<void(std::string)> outputTrimmedCallback)

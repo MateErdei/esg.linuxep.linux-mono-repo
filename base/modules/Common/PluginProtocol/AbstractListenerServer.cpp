@@ -8,7 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Common/PluginApi/ApiException.h"
 #include "Common/ReactorImpl/ReactorImpl.h"
-
+#include "Logger.h"
 namespace Common
 {
     namespace PluginProtocol
@@ -31,6 +31,7 @@ namespace Common
             Protocol protocol;
             try
             {
+                LOGDEBUG("Received request");
                 DataMessage message = protocol.deserialize(data);
                 DataMessage replyMessage = process(message);
                 auto replyData = protocol.serialize(replyMessage);
@@ -38,6 +39,7 @@ namespace Common
             }
             catch (const Common::PluginApi::ApiException& apiException)
             {
+                LOGDEBUG("Failed, Send invalid as answer" << apiException.what());
                 // Send a reply when de/serialisation fails to stop blocking on socket.
                 m_ireadWrite->write(data_t{ "INVALID" });
                 throw;

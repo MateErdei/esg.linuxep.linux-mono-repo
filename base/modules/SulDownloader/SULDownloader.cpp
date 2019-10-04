@@ -58,6 +58,7 @@ namespace
             Common::FileSystem::join(tempDir, "tempfilename" + std::to_string(uniformIntDistribution.next()) + ".tmp");
         try
         {
+            LOGSUPPORT("Write report file to " << outputFilePath << " using temp file: " << tempDir);
             auto fileSystem = Common::FileSystem::fileSystem();
             fileSystem->writeFile(tempFilePath, content);
             Common::FileSystem::filePermissions()->chown(tempFilePath, sophos::user(), sophos::group());
@@ -380,7 +381,7 @@ namespace SulDownloader
         } // failed or unable to either read or to write files
         catch (std::exception& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Main exception: " << ex.what());
             return -2;
         }
         catch (...)

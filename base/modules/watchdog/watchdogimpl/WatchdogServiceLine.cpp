@@ -23,9 +23,10 @@ namespace
         process->exec("/bin/systemctl", { "start", "sophos-spl-update.service" });
         process->waitUntilProcessEnds();
         std::string output = process->output();
-        if (process->exitCode() != 0)
+        int exitCode = process->exitCode();
+        if (exitCode != 0)
         {
-            LOGWARN("Trigger reported failure. Output: " << output);
+            LOGWARN("Trigger reported failure. ExitCode(" << exitCode << ") Output: " << output);
             throw watchdog::watchdogimpl::UpdateServiceReportError();
         }
         else
@@ -57,7 +58,9 @@ namespace
             if (action == TriggerUpdate())
             {
                 LOGINFO("Trigger sophos-spl-update service");
+
                 runTriggerUpdate();
+                LOGINFO("Trigger sophos-spl-update service done");
                 return;
             }
             LOGWARN("Action not supported: " << action);
@@ -99,7 +102,7 @@ namespace watchdog
             {
                 auto requester = context.getRequester();
                 Common::PluginApiImpl::PluginResourceManagement::setupRequester(
-                    *requester, WatchdogServiceLineName(), 5, 5);
+                    *requester, WatchdogServiceLineName(), 5000, 5000);
                 Common::PluginCommunicationImpl::PluginProxy pluginProxy(
                     std::move(requester), WatchdogServiceLineName());
                 pluginProxy.queueAction("", WDServiceCallBack::TriggerUpdate());
@@ -135,7 +138,7 @@ namespace watchdog
         WatchdogServiceLine::WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr context) : m_context(context)
         {
             auto replier = m_context->getReplier();
-            Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, WatchdogServiceLineName(), 5, 5);
+            Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, WatchdogServiceLineName(), 5000, 5000);
             std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack };
 
             m_pluginHandler.reset(new Common::PluginApiImpl::PluginCallBackHandler(
