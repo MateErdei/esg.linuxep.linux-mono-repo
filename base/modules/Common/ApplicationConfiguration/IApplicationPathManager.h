@@ -40,6 +40,8 @@ namespace Common::ApplicationConfiguration
         virtual std::string getMcsStatusFilePath() const = 0;
         virtual std::string getMcsEventFilePath() const = 0;
         virtual std::string getMcsConfigFolderPath() const = 0;
+        virtual std::string getAlcStatusFilePath() const = 0;
+        virtual std::string getAlcPolicyFilePath() const = 0;
 
         virtual std::string getManagementAgentStatusCacheFilePath() const = 0;
 
@@ -68,6 +70,10 @@ namespace Common::ApplicationConfiguration
         virtual std::string getTelemetrySupplementaryFilePath() const = 0;
         virtual std::string getTelemetryExeConfigFilePath() const = 0;
         virtual std::string getTelemetryExecutableFilePath() const = 0;
+
+        virtual std::string getMachineIdFilePath() const = 0;
+        virtual std::string getVersionFilePath() const = 0;
+        virtual std::string getMcsConfigFilePath() const = 0;
 
         /**
          * @brief the sophos_alias.txt file is a file containing a url override for connecting to a

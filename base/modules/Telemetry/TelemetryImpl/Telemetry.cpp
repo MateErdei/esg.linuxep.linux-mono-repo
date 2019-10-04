@@ -11,6 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "SystemTelemetryCollectorImpl.h"
 #include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
+#include "BaseTelemetryReporter.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSenderImpl/HttpSender.h>
@@ -81,6 +82,7 @@ namespace Telemetry
 
         std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
 
+        // System telemetry provider
         auto systemTelemetryReporter =
             std::make_shared<SystemTelemetryReporter>(std::make_unique<SystemTelemetryCollectorImpl>(
                 GL_systemTelemetryObjectsConfig,
@@ -89,6 +91,12 @@ namespace Telemetry
                 telemetryConfig->getExternalProcessWaitRetries()));
 
         telemetryProviders.emplace_back(systemTelemetryReporter);
+
+        // Base telemetry provider
+        auto baseTelemetryReporter =  std::make_shared<BaseTelemetryReporter>();
+        telemetryProviders.emplace_back(baseTelemetryReporter);
+
+        // Plugins telemetry providers
         appendTelemetryProvidersForPlugins(telemetryProviders, telemetryConfig);
 
         std::unique_ptr<TelemetryProcessor> telemetryProcessor = std::make_unique<TelemetryProcessor>(

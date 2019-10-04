@@ -58,6 +58,12 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getSophosAliasFilePath() const override;
 
+        std::string getAlcStatusFilePath() const override;
+        std::string getAlcPolicyFilePath() const override;
+        std::string getMachineIdFilePath() const override;
+        std::string getVersionFilePath() const override;
+        std::string getMcsConfigFilePath() const override;
+
     private:
         std::string socketPath(const std::string& relative) const;
     };

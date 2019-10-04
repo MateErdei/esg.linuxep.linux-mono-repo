@@ -212,6 +212,28 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/var/sophos_alias.txt");
         }
 
+        std::string ApplicationPathManager::getAlcStatusFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/mcs/status/ALC_status.xml");
+        }
+
+        std::string ApplicationPathManager::getAlcPolicyFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/mcs/policy/ALC-1_policy.xml");
+        }
+
+        std::string ApplicationPathManager::getMachineIdFilePath() const {
+            return Common::FileSystem::join(sophosInstall(), "base/etc/machine_id.txt");
+        }
+
+        std::string ApplicationPathManager::getVersionFilePath() const {
+            return Common::FileSystem::join(sophosInstall(), "base/VERSION.ini");
+        }
+
+        std::string ApplicationPathManager::getMcsConfigFilePath() const {
+            return Common::FileSystem::join(sophosInstall(), "base/etc/sophosspl/mcs.config");
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

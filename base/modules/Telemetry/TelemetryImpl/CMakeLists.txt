@@ -11,9 +11,12 @@ add_library(telemetryimpl SHARED
         TelemetryProcessor.cpp
         TelemetryProcessor.h
         ITelemetryProvider.h
-        PluginTelemetryReporter.cpp PluginTelemetryReporter.h)
+        PluginTelemetryReporter.cpp
+        PluginTelemetryReporter.h
+        BaseTelemetryReporter.cpp
+        BaseTelemetryReporter.h)
 
-include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json ../../ManagementAgent)
+include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json ../../ManagementAgent ${BOOST_INCLUDE_DIR})
 
 target_link_libraries(telemetryimpl PUBLIC
         telemetryloggerimpl
@@ -23,6 +26,7 @@ target_link_libraries(telemetryimpl PUBLIC
         processimpl
         threads
         plugincommunicationimpl
+        xmlutilities
         )
 
 SET_TARGET_PROPERTIES(telemetryimpl

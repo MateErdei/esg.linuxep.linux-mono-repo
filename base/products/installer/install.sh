@@ -355,6 +355,10 @@ chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
+# Telemetry needs to be able to access the version file.
+chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/VERSION.ini"
+chmod 640 "${SOPHOS_INSTALL}/base/VERSION.ini"
+
 unset LD_LIBRARY_PATH
 
 for F in "$DIST/installer/plugins"/*

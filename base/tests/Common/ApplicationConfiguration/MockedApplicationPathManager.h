@@ -57,4 +57,11 @@ public:
     MOCK_CONST_METHOD0(getTelemetryExeConfigFilePath, std::string(void));
     MOCK_CONST_METHOD0(getTelemetryExecutableFilePath, std::string(void));
     MOCK_CONST_METHOD0(getSophosAliasFilePath, std::string(void));
+
+    MOCK_CONST_METHOD0(getAlcPolicyFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getAlcStatusFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getMachineIdFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getVersionFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getMcsConfigFilePath, std::string(void));
+
 };
