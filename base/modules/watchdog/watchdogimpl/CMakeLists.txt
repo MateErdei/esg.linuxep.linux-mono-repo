@@ -28,3 +28,9 @@ target_link_libraries(watchdogservice PUBLIC
         pluginapiimpl
         plugincommunicationimplcommon
         )
+
+SET_TARGET_PROPERTIES( watchdogservice
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
+
+install(TARGETS watchdogservice
+        LIBRARY DESTINATION files/base/lib64)
