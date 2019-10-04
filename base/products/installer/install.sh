@@ -370,6 +370,9 @@ rm -rf "${INSTALLER_LIB}"
 EXIT_CODE=0
 if (( $CLEAN_INSTALL == 1 ))
 then
+
+    echo "Installation complete, performing post install steps"
+
     if [[ -n "$MCS_CA" ]]
     then
         export MCS_CA
