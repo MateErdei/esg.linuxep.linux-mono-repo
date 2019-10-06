@@ -104,7 +104,7 @@ namespace Telemetry
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                LOGWARN("Failed to find key: " << key << " in ini file. Error:" << ex.what());
+                LOGWARN("Failed to find key: " << key << " in ini file. Error: " << ex.what());
                 return std::nullopt;
             }
         }
