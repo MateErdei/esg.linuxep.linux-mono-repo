@@ -17,8 +17,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Telemetry
 {
 
-    std::string BaseTelemetryReporter::getTelemetry()
-    {
+    std::string BaseTelemetryReporter::getTelemetry() {
         TelemetryObject root;
 
         TelemetryValue customerIdValue;
@@ -64,8 +63,10 @@ namespace Telemetry
         {
             return fs->readFile(machineIdFilePath);
         }
+
         return std::nullopt;
     }
+
 
     std::optional<std::string> BaseTelemetryReporter::getCustomerId()
     {
@@ -75,7 +76,7 @@ namespace Telemetry
         {
             return extractCustomerId(fs->readFile(alcPolicyFilepath));
         }
-        LOGWARN("Could not find the ALC policy file at: " << alcPolicyFilepath);
+        LOGDEBUG("Could not find the ALC policy file at: " << alcPolicyFilepath);
         return std::nullopt;
     }
 
@@ -104,15 +105,12 @@ namespace Telemetry
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                LOGWARN("Failed to find key: " << key << " in ini file " << filePath <<". Error: " << ex.what());
+                LOGDEBUG("Failed to get " << key <<". " << ex.what());
                 return std::nullopt;
             }
         }
-        else
-        {
-            LOGDEBUG("Could not find ini file to extract data from: " << filePath);
-        }
 
+        LOGDEBUG("Could not find ini file to extract data from: " << filePath);
         return std::nullopt;
     }
 
