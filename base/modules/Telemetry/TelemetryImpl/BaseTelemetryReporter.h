@@ -31,7 +31,7 @@ namespace Telemetry
         static std::optional<std::string> getEndpointId();
         static std::optional<std::string> getMachineId();
         static std::optional<std::string> getVersion();
-        static std::optional<std::string> extractValueFromIniFile(const Path &filePath, const std::string &key);
+        static std::optional<std::string> extractValueFromIniFile(const Path& filePath, const std::string& key);
         static std::optional<std::string> extractCustomerId(const std::string& policyXml);
     };
 } // namespace Telemetry
