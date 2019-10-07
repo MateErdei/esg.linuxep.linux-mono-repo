@@ -47,7 +47,7 @@ namespace
         return false;
     }
 
-    void write_atomic_file_with_read_write_to_group(
+    void WriteAtomicFileWithReadAndWriteToGroup(
         const std::string& outputFilePath,
         const std::string& content,
         const std::string& tempDir)
@@ -321,7 +321,7 @@ namespace SulDownloader
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         LOGINFO("Generating the report file in: " << outputParentPath);
 
-        write_atomic_file_with_read_write_to_group(outputFilePath, jsonReport, tempDir);
+        WriteAtomicFileWithReadAndWriteToGroup(outputFilePath, jsonReport, tempDir);
 
         return exitCode;
     }
