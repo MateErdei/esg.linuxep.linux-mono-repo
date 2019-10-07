@@ -146,6 +146,23 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         return mcsrouter.utils.timestamp.timestamp()
 
+    def get_version(self):
+        """
+        get_version
+        """
+        version_location = os.path.join(path_manager.base_path(), "VERSION.ini")
+        if os.path.isfile(version_location):
+            with open(version_location) as version_file:
+                for line in version_file.readlines():
+                    line = line.strip()
+                    if "PRODUCT_VERSION" in line:
+                        version = line.split("=")[-1].strip()
+                        return version
+            LOGGER.error("PRODUCT_VERSION is not in VERSION.ini: Reporting softwareVersion=0 to Central")
+        else:
+            LOGGER.error("VERSION.ini file does not exist: Reporting softwareVersion=0 to Central")
+        return 0
+
     def get_status_xml(self):
         """
         get_status_xml
@@ -176,7 +193,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         return """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns:computerStatus xmlns:ns="http://www.sophos.com/xml/mcs/computerstatus">
-<meta protocolVersion="1.0" timestamp="%s"/>""" % (self.get_timestamp())
+<meta protocolVersion="1.0" timestamp="{}" softwareVersion="{}" />""".format(self.get_timestamp(), self.get_version())
 
     def get_status_footer(self):
         """
