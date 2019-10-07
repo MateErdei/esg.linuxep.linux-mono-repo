@@ -35,6 +35,40 @@ namespace
         process->exec("/bin/echo", { "hello" });
         EXPECT_EQ(process->wait(milli(1), 500), ProcessStatus::FINISHED);
         ASSERT_EQ(process->output(), "hello\n");
+        EXPECT_EQ( process->exitCode(), 0);
+    }
+
+    TEST(ProcessImpl, waitUntilProcessEndsShouldReturnTheCorrectCode) // NOLINT
+    {
+        auto process = createProcess();
+        process->exec("/bin/sleep", { "0.1" });
+        process->waitUntilProcessEnds();
+        ASSERT_EQ(process->output(), "");
+        EXPECT_EQ( process->exitCode(), 0);
+    }
+
+    int asyncSleep()
+    {
+        auto process = createProcess();
+        process->exec("/bin/sleep", { "0.1" });
+        process->waitUntilProcessEnds();
+        if ( process->output() !=  "")
+        {
+            return 1;
+        }
+        if ( process->exitCode(), 0)
+        {
+            return 2;
+        }
+        return 0;
+    }
+    //FIXME: LINUXDAR-733
+    TEST(ProcessImpl, DISABLED_BugTwoProcessesShouldNotDeadlock) // NOLINT
+    {
+        auto job1 = std::async(std::launch::async, asyncSleep);
+        auto job2 = std::async(std::launch::async, asyncSleep);
+        EXPECT_EQ(job1.get(),0);
+        EXPECT_EQ(job2.get(),0);
     }
 
     TEST(ProcessImpl, SupportMultiplesArgs) // NOLINT
@@ -298,3 +332,5 @@ sleep 10000
 
 
 } // namespace
+
+

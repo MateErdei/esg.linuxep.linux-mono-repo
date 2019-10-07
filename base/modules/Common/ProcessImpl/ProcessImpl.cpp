@@ -366,6 +366,11 @@ namespace Common
             };
         }
 
+        /**
+         * WARNING: calling this test when another process has called it, will deadlock.
+         * SEE: BugTwoProcessesShouldNotDeadlock
+         * FIXME: LINUXDAR-733
+         */
         void ProcessImpl::waitUntilProcessEnds()
         {
             int status;
