@@ -42,10 +42,10 @@ namespace Telemetry
     std::string BaseTelemetryReporter::getTelemetry()
     {
         TelemetryObject root;
-        updateTelemetryRoot(root, "customerId", getCustomerId );
-        updateTelemetryRoot(root, "endpointId", getEndpointId );
-        updateTelemetryRoot(root, "machineId", getMachineId );
-        updateTelemetryRoot(root, "version", getVersion );
+        updateTelemetryRoot(root, "customerId", getCustomerId);
+        updateTelemetryRoot(root, "endpointId", getEndpointId);
+        updateTelemetryRoot(root, "machineId", getMachineId);
+        updateTelemetryRoot(root, "version", getVersion);
 
         return TelemetrySerialiser::serialise(root);
     }
@@ -85,7 +85,7 @@ namespace Telemetry
         return extractValueFromIniFile(configFilePath, "MCSID");
     }
 
-    std::optional<std::string> BaseTelemetryReporter::extractValueFromIniFile(const Path& filePath, const std::string& key)
+    std::optional<std::string> extractValueFromIniFile(const Path& filePath, const std::string& key)
     {
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(filePath))
@@ -103,34 +103,33 @@ namespace Telemetry
             }
         }
 
-        LOGWARN("Could not find ini file to extract data from: " << filePath);
+        LOGWARN("Could not find ini file to extract data from, file path: " << filePath);
         return std::nullopt;
     }
 
-    std::optional<std::string> BaseTelemetryReporter::extractCustomerId(const std::string& policyXml)
+    std::optional<std::string> extractCustomerId(const std::string& policyXml)
     {
         try
         {
+            //TODO - LINUXDAR-735
+            // Current implementation has to get around the limitations of AttributesMap::entitiesThatContainPath implementation -
             Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(policyXml);
-            auto matchingPaths = attributesMap.entitiesThatContainPath("AUConfigurations/customer");
+            std::string customerElementPath = "AUConfigurations/customer";
+            auto matchingPaths = attributesMap.entitiesThatContainPath(customerElementPath);
             if (matchingPaths.empty())
             {
                 return std::nullopt;
             }
 
-            Common::XmlUtilities::Attributes attributes;
-            for (auto& path : matchingPaths)
+            for( auto &matchingPath: matchingPaths)
             {
-                attributes = attributesMap.lookup(path);
-                if (!attributes.empty())
-                {
-                    break;
-                }
-            }
-            if (!attributes.empty())
-            {
+                Common::XmlUtilities::Attributes attributes = attributesMap.lookup(matchingPath);
                 std::string customerId = attributes.value("id");
-                if (!customerId.empty())
+                std::string expectedCustomerIdPath;
+                expectedCustomerIdPath += customerElementPath;
+                expectedCustomerIdPath += "#";
+                expectedCustomerIdPath += customerId;
+                if( matchingPath == (expectedCustomerIdPath) )
                 {
                     return customerId;
                 }
