@@ -264,6 +264,12 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         vendor = target_system.vendor()
         kernel = target_system.kernel
         os_name = target_system.os_name
+
+        # should always be able to obtain first and second values from os_version
+        os_version = target_system.os_version()
+        major_version = os_version[0]
+        minor_version = os_version[1]
+
         return "".join((
             "<posixPlatformDetails>",
             "<productType>sspl</productType>",
@@ -272,6 +278,8 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             "<isServer>1</isServer>",
             "<osName>%s</osName>" % os_name,
             "<kernelVersion>%s</kernelVersion>" % kernel,
+            "<osMajorVersion>%s</osMajorVersion>" % major_version,
+            "<osMinorVersion>%s</osMinorVersion>" % minor_version,
             "</posixPlatformDetails>"))
 
     def get_aws_status(self):

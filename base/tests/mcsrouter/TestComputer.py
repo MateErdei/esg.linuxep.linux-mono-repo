@@ -55,6 +55,31 @@ class TestComputer(unittest.TestCase):
         ## Header isn't valid XML on its own
         logger.debug(adapter.get_status_header())
 
+
+    def testPlatformStatusContainsOSVersionInformation(self):
+        # ts = getTargetSystem()
+        # if not ts.is_linux:
+        #     return
+        #
+        c = mcsrouter.computer.Computer()
+        #
+        # computerStatus = c.getCommonStatusXml()
+
+        adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
+
+        platformStatus = adapter.get_platform_status()
+        logger.debug(platformStatus)
+        doc = xml.dom.minidom.parseString(platformStatus)
+
+        major_version_element = doc.getElementsByTagName("osMajorVersion")[0].firstChild.data
+        minor_version_element = doc.getElementsByTagName("osMinorVersion")[0].firstChild.data
+
+        #check the values being sent are valid numbers for a major and minor versions
+        self.assertTrue(int(major_version_element) > 0)
+        self.assertTrue(int(minor_version_element) > 0)
+        doc.unlink()
+
+
     def testFormatIPv6(self):
         self.assertEqual(mcsrouter.adapters.agent_adapter.format_ipv6("00010000000000000000000000000000"),"1::")
         self.assertEqual(mcsrouter.adapters.agent_adapter.format_ipv6("11110000000000000000000000000000"),"1111::")
