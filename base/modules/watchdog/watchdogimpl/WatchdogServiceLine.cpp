@@ -110,14 +110,14 @@ namespace watchdog
             }
             catch (Common::PluginCommunication::IPluginCommunicationException& ex)
             {
-                if (ex.what() == UpdateServiceReportError::ErrorReported())
+                std::string exceptionInfo = ex.what();
+                if (exceptionInfo == UpdateServiceReportError::ErrorReported())
                 {
                     throw UpdateServiceReportError();
                 }
                 else
                 {
-                    std::string s = ex.what();
-                    LOGERROR(s);
+                    LOGERROR(exceptionInfo);
                 }
                 throw WatchdogServiceException("Service Unavailable");
             }
