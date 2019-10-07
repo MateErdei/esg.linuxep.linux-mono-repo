@@ -29,9 +29,9 @@ namespace Telemetry
         std::string getTelemetry() override;
 
     private:
-        static std::optional<std::string> getCustomerId();
-        static std::optional<std::string> getEndpointId();
-        static std::optional<std::string> getMachineId();
-        static std::optional<std::string> getVersion();
+        std::optional<std::string> getCustomerId();
+        std::optional<std::string> getEndpointId();
+        std::optional<std::string> getMachineId();
+        std::optional<std::string> getVersion();
     };
 } // namespace Telemetry
