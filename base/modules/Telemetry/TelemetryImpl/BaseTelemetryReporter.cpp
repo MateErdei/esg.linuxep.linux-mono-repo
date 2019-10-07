@@ -17,7 +17,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Telemetry
 {
 
-    std::string BaseTelemetryReporter::getTelemetry() {
+    std::string BaseTelemetryReporter::getTelemetry()
+    {
         TelemetryObject root;
 
         TelemetryValue customerIdValue;
@@ -63,10 +64,8 @@ namespace Telemetry
         {
             return fs->readFile(machineIdFilePath);
         }
-
         return std::nullopt;
     }
-
 
     std::optional<std::string> BaseTelemetryReporter::getCustomerId()
     {
@@ -76,26 +75,25 @@ namespace Telemetry
         {
             return extractCustomerId(fs->readFile(alcPolicyFilepath));
         }
-        LOGDEBUG("Could not find the ALC policy file at: " << alcPolicyFilepath);
+        LOGWARN("Could not find the ALC policy file at: " << alcPolicyFilepath);
         return std::nullopt;
     }
 
     std::optional<std::string> BaseTelemetryReporter::getVersion()
     {
         Path versionIniFilepath = Common::ApplicationConfiguration::applicationPathManager().getVersionFilePath();
-        return extractValueFromInifile(versionIniFilepath, "PRODUCT_VERSION");
+        return extractValueFromIniFile(versionIniFilepath, "PRODUCT_VERSION");
     }
 
     std::optional<std::string> BaseTelemetryReporter::getEndpointId()
     {
         Path configFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFilePath();
-        return extractValueFromInifile(configFilePath, "MCSID");
+        return extractValueFromIniFile(configFilePath, "MCSID");
     }
 
-    std::optional<std::string> BaseTelemetryReporter::extractValueFromInifile(const Path& filePath, const std::string& key)
+    std::optional<std::string> BaseTelemetryReporter::extractValueFromIniFile(const Path& filePath, const std::string& key)
     {
         auto fs = Common::FileSystem::fileSystem();
-
         if (fs->isFile(filePath))
         {
             try
@@ -106,7 +104,8 @@ namespace Telemetry
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                LOGDEBUG("Failed to get " << key <<" from file " << filePath << ": " << ex.what());
+                LOGWARN("Failed to find key: " << key << " in ini file " << filePath <<". Error: " << ex.what());
+                return std::nullopt;
             }
         }
         else
@@ -119,36 +118,35 @@ namespace Telemetry
 
     std::optional<std::string> BaseTelemetryReporter::extractCustomerId(const std::string& policyXml)
     {
-        std::string NOTPRESENT{"NOTPRESENTID"};
         try
         {
             Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(policyXml);
-            auto matching_paths = attributesMap.entitiesThatContainPath("AUConfigurations/customer");
-            if( matching_paths.empty())
+            auto matchingPaths = attributesMap.entitiesThatContainPath("AUConfigurations/customer");
+            if (matchingPaths.empty())
             {
-                return std::optional<std::string>{};
+                return std::nullopt;
             }
 
             Common::XmlUtilities::Attributes attributes;
-            for(auto& path : matching_paths)
+            for (auto& path : matchingPaths)
             {
                 attributes = attributesMap.lookup(path);
-                if(!attributes.empty())
+                if (!attributes.empty())
                 {
                     break;
                 }
             }
             if (!attributes.empty())
             {
-                std::string customerId = attributes.value("id", NOTPRESENT);
-                if( customerId != NOTPRESENT)
+                std::string customerId = attributes.value("id");
+                if (!customerId.empty())
                 {
                     return customerId;
                 }
             }
-            LOGWARN("policy customerID not present in the xml");
+            LOGWARN("CustomerID not present in the policy XML");
         }
-        catch (Common::XmlUtilities::XmlUtilitiesException & ex)
+        catch (Common::XmlUtilities::XmlUtilitiesException& ex)
         {
             LOGWARN("Invalid policy received. Error: " << ex.what());
         }
