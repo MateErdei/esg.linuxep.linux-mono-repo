@@ -76,7 +76,7 @@ namespace Common
             m_exitcode(std::numeric_limits<int>::max()),
             m_outputLimit(0),
             m_callback{ []() {} },
-            m_notifyTrimmed{ [](std::string){} }
+            m_notifyTrimmed{ [](std::string) {} }
         {
         }
 
@@ -110,7 +110,7 @@ namespace Common
                     if (WIFEXITED(status)) // NOLINT
                     {
                         m_exitcode = WEXITSTATUS(status); // NOLINT
-                        LOGDEBUG("Exit code defined from status: "<<status << " to be "<< m_exitcode);
+                        LOGDEBUG("Exit code defined from status: " << status << " to be " << m_exitcode);
                     }
                     else
                     {
@@ -274,10 +274,7 @@ namespace Common
             throw Process::IProcessException("Output can be called only after exec.");
         }
 
-        bool ProcessImpl::kill()
-        {
-            return kill(2);
-        }
+        bool ProcessImpl::kill() { return kill(2); }
 
         bool ProcessImpl::kill(int secondsBeforeSIGKILL)
         {
@@ -300,9 +297,7 @@ namespace Common
                 m_pipeThread->requestStop();
             }
             return requiredKill;
-
         }
-
 
         Process::ProcessStatus ProcessImpl::getStatus()
         {
@@ -390,11 +385,14 @@ namespace Common
                 {
                     LOGDEBUG("PID " << m_pid << " killed by signal, status=" << WTERMSIG(status));
                 }
-                // WIFSTOPPED can only occur if the call is done using WUNTRACED or if the child is being traced by ptrace
-                else if (WIFSTOPPED(status)) {
+                // WIFSTOPPED can only occur if the call is done using WUNTRACED or if the child is being traced by
+                // ptrace
+                else if (WIFSTOPPED(status))
+                {
                     LOGDEBUG("PID " << m_pid << " stopped by signal, status=" << WSTOPSIG(status));
                 }
-                else if (WIFCONTINUED(status)) {
+                else if (WIFCONTINUED(status))
+                {
                     LOGDEBUG("PID " << m_pid << " continued to run");
                 }
 
