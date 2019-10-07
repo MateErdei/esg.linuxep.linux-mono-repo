@@ -1,9 +1,10 @@
 add_library(watchdogservice  SHARED
         WatchdogServiceLine.cpp
         WatchdogServiceLine.h
+        IWatchdogRequest.h
         Logger.h
         Logger.cpp
-)
+        WatchdogServiceException.h)
 
 add_library(watchdogimpl STATIC
         watchdog_main.cpp
@@ -12,8 +13,7 @@ add_library(watchdogimpl STATIC
         PluginProxy.h
         Watchdog.cpp
         Watchdog.h
-        WatchdogServiceLine.cpp
-        WatchdogServiceLine.h)
+)
 
 target_link_libraries(watchdogimpl PUBLIC
         pluginregistryimpl

@@ -9,36 +9,14 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginApiImpl/PluginCallBackHandler.h>
 #include <Common/UtilityImpl/Factory.h>
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
-
+#include "IWatchdogRequest.h"
+#include "WatchdogServiceException.h"
 #include <functional>
 
 namespace watchdog
 {
     namespace watchdogimpl
     {
-        class WatchdogServiceException : public Common::PluginApi::ApiException
-        {
-        public:
-            using ApiException::ApiException;
-        };
-
-        class UpdateServiceReportError : public WatchdogServiceException
-        {
-        public:
-            static std::string ErrorReported() { return "Update service reported error"; }
-
-            UpdateServiceReportError() : WatchdogServiceException(ErrorReported()) {}
-        };
-
-        class IWatchdogRequest
-        {
-        public:
-            virtual ~IWatchdogRequest() = default;
-            virtual void requestUpdateService() = 0;
-        };
-
-        Common::UtilityImpl::Factory<IWatchdogRequest>& factory();
-
         class WatchdogServiceLine
         {
         public:

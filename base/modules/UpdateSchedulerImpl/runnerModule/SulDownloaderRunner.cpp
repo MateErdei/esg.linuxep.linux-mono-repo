@@ -8,7 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "../Logger.h"
 
-#include <watchdog/watchdogimpl/WatchdogServiceLine.h>
+#include <watchdog/watchdogimpl/IWatchdogRequest.h>
 
 namespace UpdateSchedulerImpl
 {

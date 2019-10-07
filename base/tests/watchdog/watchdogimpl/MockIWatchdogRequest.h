@@ -7,7 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "gmock/gmock.h"
 
-#include <watchdog/watchdogimpl/WatchdogServiceLine.h>
+#include <watchdog/watchdogimpl/IWatchdogRequest.h>
+#include <watchdog/watchdogimpl/WatchdogServiceException.h>
 
 #include <string>
 
