@@ -62,12 +62,6 @@ function removeWatchdogSystemdService()
     systemctl daemon-reload
 }
 
-function  removepolkitPolicy()
-{
-  rm -f "/etc/polkit-1/localauthority/50-local.d/58-sspl-update.pkla"
-  rm -f "/etc/polkit-1/rules.d/58-sspl-update.rules"
-}
-
 
 removeUpdaterSystemdService
 
@@ -86,7 +80,6 @@ else
 fi
 
 removeWatchdogSystemdService
-removepolkitPolicy
 
 rm -rf "$SOPHOS_INSTALL"
 
