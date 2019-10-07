@@ -12,6 +12,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/sslimpl/Md5Calc.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <sys/stat.h>
 
 #include <iostream>
@@ -72,7 +73,7 @@ namespace Common
                 return 1;
             }
 
-            std::string argument = argv[1];
+            std::string argument = UtilityImpl::StringUtils::checkAndConstruct(argv[1]);
             if (argument == "--dump-mac-addresses")
             {
                 std::stringstream output;
