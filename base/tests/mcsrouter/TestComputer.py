@@ -57,13 +57,7 @@ class TestComputer(unittest.TestCase):
 
 
     def testPlatformStatusContainsOSVersionInformation(self):
-        # ts = getTargetSystem()
-        # if not ts.is_linux:
-        #     return
-        #
         c = mcsrouter.computer.Computer()
-        #
-        # computerStatus = c.getCommonStatusXml()
 
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
 
