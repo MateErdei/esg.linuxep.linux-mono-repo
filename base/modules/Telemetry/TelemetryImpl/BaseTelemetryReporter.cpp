@@ -14,44 +14,38 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 
+namespace
+{
+    using telemetryGetFuctor = std::function< std::optional<std::string>(void)>;
+    void updateTelemetryRoot( TelemetryObject& root, const std::string& telemetryKey, const telemetryGetFuctor& functor)
+    {
+        try
+        {
+            auto telemetry = functor();
+            if (telemetry)
+            {
+                TelemetryValue telemetryValue;
+                telemetryValue.set(telemetry.value());
+                root.set(telemetryKey, telemetryValue);
+            }
+        }
+        catch (std::exception& ex)
+        {
+            LOGWARN("Could not get telemetry for " << telemetryKey << ". Exception: " << ex.what());
+        }
+    }
+}
+
 namespace Telemetry
 {
 
     std::string BaseTelemetryReporter::getTelemetry()
     {
         TelemetryObject root;
-
-        TelemetryValue customerIdValue;
-        auto customerId = getCustomerId();
-        if (customerId)
-        {
-            customerIdValue.set(customerId.value());
-            root.set("customerId", customerIdValue);
-        }
-
-        TelemetryValue endpointIdValue;
-        auto endpointId = getEndpointId();
-        if (endpointId)
-        {
-            endpointIdValue.set(endpointId.value());
-            root.set("endpointId", endpointIdValue);
-        }
-
-        TelemetryValue machineIdValue;
-        auto machineId = getMachineId();
-        if (machineId)
-        {
-            machineIdValue.set(machineId.value());
-            root.set("machineId", machineIdValue);
-        }
-
-        TelemetryValue versionValue;
-        auto version = getVersion();
-        if (version)
-        {
-            versionValue.set(version.value());
-            root.set("version", versionValue);
-        }
+        updateTelemetryRoot(root, "customerId", getCustomerId );
+        updateTelemetryRoot(root, "endpointId", getEndpointId );
+        updateTelemetryRoot(root, "machineId", getMachineId );
+        updateTelemetryRoot(root, "version", getVersion );
 
         return TelemetrySerialiser::serialise(root);
     }
