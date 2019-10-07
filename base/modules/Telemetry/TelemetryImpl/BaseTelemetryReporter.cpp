@@ -106,11 +106,14 @@ namespace Telemetry
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                LOGDEBUG("Failed to get " << key <<". " << ex.what());
+                LOGDEBUG("Failed to get " << key <<" from file " << filePath << ": " << ex.what());
             }
         }
+        else
+        {
+            LOGDEBUG("Could not find ini file to extract data from: " << filePath);
+        }
 
-        LOGDEBUG("Could not find ini file to extract data from: " << filePath);
         return std::nullopt;
     }
 
@@ -144,7 +147,8 @@ namespace Telemetry
                 }
             }
             LOGWARN("policy customerID not present in the xml");
-        }catch (Common::XmlUtilities::XmlUtilitiesException & ex)
+        }
+        catch (Common::XmlUtilities::XmlUtilitiesException & ex)
         {
             LOGWARN("Invalid policy received. Error: " << ex.what());
         }
