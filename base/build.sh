@@ -30,6 +30,7 @@ source "$BASE"/build/common.sh
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
+PythonCoverage="OFF"
 CLEAN=0
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
@@ -123,6 +124,9 @@ do
         --bullseye-system-test-branch)
             shift
             BULLSEYE_SYSTEM_TEST_BRANCH=$1
+            ;;
+        --python-coverage)
+            PythonCoverage="ON"
             ;;
         -j|--parallel)
             shift
@@ -332,6 +336,7 @@ function build()
         -DINPUT="${REDIST}" \
         -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
         -DNO_GCOV="true" \
+        -DPythonCoverage="${PythonCoverage}"
         .. \
         || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} copy_libs || exitFailure 15 "Failed to build $PRODUCT"
