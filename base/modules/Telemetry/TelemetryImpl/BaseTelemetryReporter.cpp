@@ -17,7 +17,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace
 {
     using telemetryGetFuctor = std::function< std::optional<std::string>(void)>;
-    void updateTelemetryRoot(TelemetryObject& root, const std::string& telemetryKey, telemetryGetFuctor functor)
+    void updateTelemetryRoot(TelemetryObject& root, const std::string& telemetryKey, const telemetryGetFuctor& functor)
     {
         try
         {
@@ -42,10 +42,10 @@ namespace Telemetry
     std::string BaseTelemetryReporter::getTelemetry()
     {
         TelemetryObject root;
-        updateTelemetryRoot(root, "customerId", std::bind(&BaseTelemetryReporter::getCustomerId, this));
-        updateTelemetryRoot(root, "endpointId", std::bind(&BaseTelemetryReporter::getEndpointId, this));
-        updateTelemetryRoot(root, "machineId", std::bind(&BaseTelemetryReporter::getMachineId, this));
-        updateTelemetryRoot(root, "version", std::bind(&BaseTelemetryReporter::getVersion, this));
+        updateTelemetryRoot(root, "customerId", getCustomerId);
+        updateTelemetryRoot(root, "endpointId", getEndpointId);
+        updateTelemetryRoot(root, "machineId", getMachineId);
+        updateTelemetryRoot(root, "version", getVersion);
 
         return TelemetrySerialiser::serialise(root);
     }
