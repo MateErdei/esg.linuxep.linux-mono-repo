@@ -9,7 +9,7 @@
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
-        <package name="openssllinux11" version="1-1-1c-16/216598/output" dest="input">
+        <package name="openssllinux11" version="1-1-1d-10/217518/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="cmakelinux"
@@ -17,19 +17,19 @@
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
         <package name="versig"
-                 version="2-0-0-50/216751/output" dest="input">
+                 version="2-0-0-60/217550/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux11" version="7-65-1-6/216745/output" dest="input">
+        <package name="curllinux11" version="7-66-0-15/217541/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-3/216748/output" dest="input">
+        <package name="sullinux11" version="1-0-0-10/217548/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
         <package name="boostlinux10" version="1-70-0-9/216639/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
-        <package name="expatlinux11" version="2-2-7-20/217396/output" dest="input">
+        <package name="expatlinux11" version="2-2-9-1/217514/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
         <package name="protobuflinux11" version="3-9-1-10/217398/output" dest="input">
@@ -50,7 +50,7 @@
         <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
-        <package name="pythonlinux11" version="3-7-4-12/217401/output" dest="input">
+        <package name="pythonlinux11" version="3-7-4-16/217537/output" dest="input">
             <include src="python.tar" dest="." />
         </package>
         <package name="python-watchdog" version="0-9-0-7/216280/watchdog" dest="input">
@@ -59,7 +59,7 @@
         <package name="python-pathtools" version="0-1-1-9/216281/pathtools" dest="input">
             <include src="python-pathtools.tar" dest="." />
         </package>
-        <package name="pycryptodome" version="3-8-2-11/216580/pycryptodome" dest="input">
+        <package name="pycryptodome" version="3-9-0-11/217515/pycryptodome" dest="input">
             <include src="pycryptodome.tar" dest="." />
         </package>
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
