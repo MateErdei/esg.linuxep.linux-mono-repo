@@ -17,7 +17,7 @@ done
 echo "build Run Tests and Produce Coverge Report.sh with systemtests: ${SYSTEM_TEST}"
 python3 -m build_scripts.artisan_fetch build/release-package.xml
 ./build.sh --python-coverage
-SDDS_COMPONENT="${BASE}/output/SDDS_COMPONENT"
+SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
 cp modules/.coverage  unit_tests_coverage
 pushd ${SYSTEM_TEST}

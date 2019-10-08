@@ -228,7 +228,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if ( PythonCoverage )
     message(With python coverage)
-    SET(PYTHONPATH \$pythonzip:\$BASE_DIR/lib64/:/usr/local/lib/python3.6/dist-packages/ )
+    SET(PYTHONPATH \$pythonzip:\$BASE_DIR/lib64/:/usr/local/lib/python3.6/dist-packages/:/usr/local/lib64/python3.6/site-packages)
     SET(REGISTERFILE  cov_register_central)
     SET(MCSROUTERRFILE  cov_mcs_router)
     SET(PYTHON_COMMAND ${PYTHON_EXECUTABLE} -m coverage run -a )
