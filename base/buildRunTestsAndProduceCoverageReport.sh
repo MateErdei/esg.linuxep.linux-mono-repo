@@ -42,3 +42,4 @@ popd
 echo 'combine coverage results and publish it '
 ${SDDS_COMPONENT}/pyCoverage combine unit_tests_coverage system_tests_coverage
 ${SDDS_COMPONENT}/pyCoverage xml -i
+mv coverage.xml "${SYSTEM_TEST}/"
