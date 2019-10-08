@@ -4,6 +4,8 @@ add_library(loggingobject OBJECT
         LoggingSetup.h
         ConsoleLoggingSetup.cpp
         ConsoleLoggingSetup.h
+        ConsoleFileLoggingSetup.h
+        ConsoleFileLoggingSetup.cpp
         FileLoggingSetup.cpp
         FileLoggingSetup.h
         PluginLoggingSetup.cpp

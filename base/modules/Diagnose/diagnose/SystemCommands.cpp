@@ -6,11 +6,14 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "SystemCommands.h"
 
+#include "Logger.h"
 #include "Strings.h"
+#include "SystemCommandException.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
+#include <Common/UtilityImpl/StrError.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 
 #include <algorithm>
@@ -20,61 +23,83 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace diagnose
 {
+    constexpr int GL_10mbSize = 10 * 1024 * 1024;
+    const int GL_ProcTimeoutMilliSecs = 500;
+    const int GL_ProcMaxRetries = 20;
+
     using namespace Common::FileSystem;
 
     SystemCommands::SystemCommands(const std::string& destination) : m_destination(destination) {}
 
-    // output limit is set to 10MB
-    const int outputLimit = 10485760;
-
-    int SystemCommands::runCommand(const std::string& commandInput, const std::string& filename)
+    int SystemCommands::runCommand(
+        const std::string& command,
+        std::vector<std::string> arguments,
+        const std::string& filename) const
     {
-        auto process = Common::Process::createProcess();
-        process->setOutputLimit(outputLimit);
-
-        std::istringstream command(commandInput);
-
-        std::vector<std::string> arguments{ std::istream_iterator<std::string>{ command },
-                                            std::istream_iterator<std::string>{} };
-
-        std::cout << "Running: " << commandInput << ", output to: " << filename << std::endl;
         Path filePath = Common::FileSystem::join(m_destination, filename);
-
-        std::string base = arguments.at(0);
-        arguments.erase(arguments.begin());
+        LOGINFO("Output file path: " << filePath);
 
         try
         {
-            std::string exePath = getExecutablePath(base);
-            process->exec(exePath, arguments);
+            std::string exePath = getExecutablePath(command);
+            auto output = runCommandOutputToString(exePath, arguments);
+            fileSystem()->writeFile(filePath, output);
+            return EXIT_SUCCESS;
         }
         catch (std::invalid_argument& e)
         {
-            std::cout << commandInput << " executable not found." << std::endl;
+            LOGINFO(command << " executable not found.");
             fileSystem()->writeFile(filePath, e.what());
-            return 1;
         }
-        catch (Common::Process::IProcessException& e)
+        catch (SystemCommandsException& e)
         {
-            std::cout << "exec failed with error: " << e.what() << std::endl;
-            fileSystem()->writeFile(filePath, e.what());
-            return 1;
+            LOGINFO("Running command: '" << command << "' failed  to complete with: " << e.what());
+
+            std::stringstream message;
+            message << e.output() << "***End Of Command Output***" << std::endl
+                    << "Running command failed to complete with error: " << e.what();
+            fileSystem()->writeFile(filePath, message.str());
         }
 
-        if (process->wait(Common::Process::milli(500), 10) != Common::Process::ProcessStatus::FINISHED)
-        {
-            process->kill();
-            std::cout << "Process execution timed out running: '" << commandInput << std::endl;
-            fileSystem()->writeFile(filePath, "Process execution timed out after 5s running: '" + commandInput);
-            return 1;
-        }
-
-        fileSystem()->writeFile(filePath, process->output());
-
-        return process->exitCode();
+        return EXIT_FAILURE;
     }
 
-    std::string SystemCommands::getExecutablePath(std::string executableName)
+    std::string SystemCommands::runCommandOutputToString(const std::string& command, std::vector<std::string> args)
+        const
+    {
+        std::string commandAndArgs(command);
+        std::for_each(
+            args.begin(), args.end(), [&commandAndArgs](const std::string& arg) { commandAndArgs.append(" " + arg); });
+        LOGINFO("Running: " << commandAndArgs);
+
+        auto processPtr = Common::Process::createProcess();
+        processPtr->setOutputLimit(GL_10mbSize);
+
+        processPtr->exec(command, args);
+        auto period = Common::Process::milli(GL_ProcTimeoutMilliSecs);
+        if (processPtr->wait(period, GL_ProcMaxRetries) !=
+            Common::Process::ProcessStatus::FINISHED)
+        {
+            processPtr->kill();
+            auto output = processPtr->output();
+            std::stringstream ssTimeoutMessage;
+            ssTimeoutMessage << "Timed out after " << std::chrono::duration_cast<std::chrono::seconds>(period * GL_ProcMaxRetries).count()
+                             << "s while running: '" << commandAndArgs << "'";
+            throw SystemCommandsException(ssTimeoutMessage.str(), output);
+        }
+
+        auto output = processPtr->output();
+        int exitCode = processPtr->exitCode();
+        if (exitCode != 0)
+        {
+            throw SystemCommandsException(
+                "Process execution returned non-zero exit code, 'Exit Code: " + Common::UtilityImpl::StrError(exitCode),
+                output);
+        }
+        return output;
+    }
+
+    std::string SystemCommands::getExecutablePath(const std::string& executableName) const
     {
         std::vector<std::string> folderLocations = { "/usr/bin", "/bin", "/usr/local/bin", "/sbin", "/usr/sbin" };
         for (const auto& folder : folderLocations)
@@ -82,14 +107,13 @@ namespace diagnose
             Path path = Common::FileSystem::join(folder, executableName);
             if (fileSystem()->isExecutable(path))
             {
-                std::cout << "executable path: " << path << std::endl;
                 return path;
             }
         }
         throw std::invalid_argument("Executable " + executableName + " is not installed.");
     }
 
-    void SystemCommands::tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath)
+    void SystemCommands::tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const
     {
         Common::UtilityImpl::FormattedTime m_formattedTime;
 

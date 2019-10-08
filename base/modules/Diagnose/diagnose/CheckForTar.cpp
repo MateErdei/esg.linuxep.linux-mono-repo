@@ -5,6 +5,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "CheckForTar.h"
 
+#include "Logger.h"
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
@@ -58,7 +60,7 @@ bool diagnose::CheckForTar::isTarAvailable()
     char* PATH = ::getenv("PATH");
     if (PATH == nullptr)
     {
-        std::cerr << "No PATH specified in environment" << std::endl;
+        LOGERROR("No PATH specified in environment");
         return false;
     }
     return isTarAvailable(Common::UtilityImpl::StringUtils::checkAndConstruct(PATH));

@@ -6,7 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "GatherFiles.h"
 
+#include "Logger.h"
 #include "Strings.h"
+
 
 #include <Common/FileSystemImpl/TempDir.h>
 
@@ -67,7 +69,7 @@ namespace diagnose
         {
             if (dirName == DIAGNOSE_FOLDER)
             {
-                std::cout << "Diagnose folder already exists" << std::endl;
+                LOGINFO("Diagnose folder already exists");
             }
             else
             {
@@ -94,7 +96,7 @@ namespace diagnose
 
         std::string filename = Common::FileSystem::basename(filePath);
         m_fileSystem.copyFile(filePath, Common::FileSystem::join(dirPath, filename));
-        std::cout << "Copied " << filePath << " to " << dirPath << std::endl;
+        LOGINFO("Copied " << filePath << " to " << dirPath);
     }
 
     void GatherFiles::copyFile(const Path& filePath, const Path& destination)
@@ -105,7 +107,7 @@ namespace diagnose
         }
 
         m_fileSystem.copyFile(filePath, destination);
-        std::cout << "Copied " << filePath << " to " << destination << std::endl;
+        LOGINFO("Copied " << filePath << " to " << destination);
     }
 
     void GatherFiles::copyAllOfInterestFromDir(const Path& dirPath, const Path& destination)
@@ -123,7 +125,7 @@ namespace diagnose
         }
         else
         {
-            std::cout << "Directory does not exist or cannot be accessed: " << dirPath << std::endl;
+            LOGINFO("Directory does not exist or cannot be accessed: " << dirPath);
         }
     }
 
@@ -150,7 +152,7 @@ namespace diagnose
             }
             else
             {
-                std::cout << "Skipping " << filePath << " is neither a file nor directory." << std::endl;
+                LOGINFO("Skipping " << filePath << " is neither a file nor directory.");
             }
         }
     }
@@ -169,7 +171,7 @@ namespace diagnose
         Path configFilePath = Common::FileSystem::join(m_installDirectory, "base/etc", configFileName);
         if (m_fileSystem.isFile(configFilePath))
         {
-            std::cout << "Location of config file: " << configFilePath << std::endl;
+            LOGINFO("Location of config file: " << configFilePath);
             return configFilePath;
         }
 
@@ -188,7 +190,7 @@ namespace diagnose
         {
             std::string absolutePath = Common::FileSystem::join(pluginsDir, pluginName, possibleSubDirectory);
 
-            std::cout << absolutePath.c_str() << std::endl;
+            LOGINFO(absolutePath.c_str());
 
             if (m_fileSystem.isDirectory(absolutePath))
             {
@@ -233,4 +235,26 @@ namespace diagnose
             copyPluginSubDirectoryLogFiles(pluginsDir, pluginName, destination);
         }
     }
+
+    void GatherFiles::copyDiagnoseLogFile(const Path& destination)
+    {
+        // do not use copy file here because the logger will not be available.
+        Path diagnoseLogPath = Common::FileSystem::join(m_installDirectory, "logs/base/diagnose.log");
+
+        if (!m_fileSystem.isFile(diagnoseLogPath))
+        {
+            return;
+        }
+
+        Path fullDest = Common::FileSystem::join(destination, "BaseFiles/diagnose.log");
+
+        if (!m_fileSystem.isFile(fullDest))
+        {
+            m_fileSystem.removeFile(fullDest);
+        }
+
+        m_fileSystem.copyFile(diagnoseLogPath, fullDest);
+        std::cout << "Copied " << diagnoseLogPath << " to " << fullDest << std::endl;
+    }
+
 } // namespace diagnose

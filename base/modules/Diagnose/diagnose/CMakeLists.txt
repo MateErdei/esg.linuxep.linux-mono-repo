@@ -8,6 +8,8 @@ add_library(diagnoseimpl STATIC
             SystemCommands.cpp
             SystemCommands.h
             Strings.h
+            Logger.h
+            Logger.cpp
         SystemCommandException.h
             $<TARGET_OBJECTS:filesystemimplobject>
             $<TARGET_OBJECTS:utilityimplobject>
@@ -18,5 +20,7 @@ add_library(diagnoseimpl STATIC
             ../../Common/UtilityImpl/TimeUtils.h
             ../../Common/UtilityImpl/StringUtils.h
         )
+
+target_include_directories(diagnoseimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} )
 
 target_link_libraries(diagnoseimpl PUBLIC logging)
