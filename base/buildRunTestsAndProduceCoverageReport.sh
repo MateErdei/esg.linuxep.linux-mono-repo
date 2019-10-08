@@ -17,6 +17,8 @@ done
 echo 'remove previous coverage results'
 sudo rm -rf modules/.coverage unit_tests_coverage system_tests_coverage /tmp/register_central* /tmp/mcs_router*
 echo "build Run Tests and Produce Coverge Report.sh with systemtests: ${SYSTEM_TEST}"
+# FIXME: Jenkins fails to find the dev package in filer6. 
+sed  -i 's#package buildtype="dev" name="sspl-telemetry-config-dev" version="1.0"#package buildtype="dev" name="sspl-telemetry-config-dev" version="1.0/EES-9377"#' build/release-package.xml
 DEPLOYMENT_TYPE="dev" python3 -m build_scripts.artisan_fetch build/release-package.xml
 ./build.sh --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
