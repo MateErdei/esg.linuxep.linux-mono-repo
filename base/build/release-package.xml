@@ -65,7 +65,7 @@
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
-        <package buildtype="dev" name="sspl-telemetry-config" version="1.0" dest="input/telemetry">
+        <package buildtype="dev" name="sspl-telemetry-config-dev" version="1.0" dest="input/telemetry">
             <include src="telemetry-config.json" dest="." />
         </package>
         <package buildtype="prod" name="sspl-telemetry-config" version="1.0/EES-9377" dest="input/telemetry">
