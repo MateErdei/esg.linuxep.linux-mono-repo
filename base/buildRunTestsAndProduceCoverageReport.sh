@@ -31,7 +31,8 @@ RERUNFAILED=true BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenki
 echo 'combine system tests results'
 USER=$(whoami)
 sudo chown ${USER} /tmp/register_central* /tmp/mcs_router*
-${SDDS_COMPONENT}/pyCoverage combine /tmp/register_central* /tmp/mcs_router*
+entries=$(ls /tmp/register_central* /tmp/mcs_router* 2>/dev/null)
+${SDDS_COMPONENT}/pyCoverage combine ${entries}
 echo 'replace name to the original source'
 sed -i "s#/opt/sophos-spl/base/lib64#${BASE}/modules/mcsrouter#g" .coverage
 sed -i "s/py.0/py/g" .coverage
