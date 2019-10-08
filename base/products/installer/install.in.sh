@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-#!/usr/bin/env bash
 EXIT_FAIL_CREATE_DIRECTORY=10
 EXIT_FAIL_FIND_GROUPADD=11
 EXIT_FAIL_ADD_GROUP=12
@@ -207,7 +206,6 @@ function makeRootDirectory()
     done
 }
 
-
 if [[ $(id -u) != 0 ]]
 then
     failure ${EXIT_FAIL_NOT_ROOT} "Please run this installer as root."
@@ -217,7 +215,7 @@ export DIST
 export SOPHOS_INSTALL
 
 ## Add a low-privilege group
-GROUP_NAME=@SOPHOS_SPL_GROUP@
+GROUP_NAME=sophos-spl-group
 
 GETENT=/usr/bin/getent
 [[ -x "${GETENT}" ]] || GETENT=$(which getent)
@@ -234,7 +232,7 @@ chown root:${GROUP_NAME} "${SOPHOS_INSTALL}"
 # Adds a hidden file to mark the install directory which is used by the uninstaller.
 touch "${SOPHOS_INSTALL}/.sophos" || failure ${EXIT_FAIL_DIR_MARKER} "Failed to create install directory marker file"
 
-USER_NAME=@SOPHOS_SPL_USER@
+USER_NAME=sophos-spl-user
 USERADD="$(which useradd)"
 [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
 [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
@@ -270,40 +268,11 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl"
 makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
-makedir 770 "${SOPHOS_INSTALL}/base/update"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
-makedir 770 "${SOPHOS_INSTALL}/base/update/certs"
-# detect Upgrade from EAP
-function ownerAndGroupDirIsRoot()
-{
-        local DirPath="$1"
-        if [[ ! -d ${DirPath} ]]; then
-                return 1
-        fi
-
-        ownergroup=$(ls -ld "${DirPath}")
-        pattern=".*root\s+root.*"
-        if [[ "${ownergroup}" =~ ${pattern} ]]; then
-                return 0
-        else
-                return 1
-        fi
-}
-
-if ownerAndGroupDirIsRoot "${SOPHOS_INSTALL}/base/update/var"
-then
-    echo "Upgrading from EAP"
-    touch "${SOPHOS_INSTALL}/base/update/var/upgrade_from_eap.mark"
-fi
-
-makedir 770 "${SOPHOS_INSTALL}/base/update/var"
+makedir 700 "${SOPHOS_INSTALL}/base/update/certs"
+makedir 700 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
-chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update"
-chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var"
-chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/certs"
-chown -R "root:root"  "${SOPHOS_INSTALL}/base/update/var/installedproducts"
-
 
 makedir 711 "${SOPHOS_INSTALL}/base/bin"
 makedir 711 "${SOPHOS_INSTALL}/base/lib64"
@@ -381,8 +350,8 @@ chmod 750 "${SOPHOS_INSTALL}/base/bin/telemetry"*
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/tscheduler"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/tscheduler"*
 
-chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/UpdateScheduler"*
-chmod 750 "${SOPHOS_INSTALL}/base/bin/UpdateScheduler"*
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/machineid"*
+chmod 710 "${SOPHOS_INSTALL}/base/bin/machineid"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/"*
 chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
@@ -404,6 +373,9 @@ rm -rf "${INSTALLER_LIB}"
 EXIT_CODE=0
 if (( $CLEAN_INSTALL == 1 ))
 then
+
+    echo "Installation complete, performing post install steps"
+
     if [[ -n "$MCS_CA" ]]
     then
         export MCS_CA
@@ -438,9 +410,6 @@ else
     if software_changed ${DIST} ${PRODUCT_LINE_ID}
     then
         stopSsplService
-
-        # FIXME: LINUXDAR-702 uncomment after fixing ticket.
-        # perform_cleanup ${DIST}
 
         startSsplService
     fi
