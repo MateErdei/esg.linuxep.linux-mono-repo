@@ -72,8 +72,15 @@ add_custom_command(OUTPUT python3
         COMMAND cp ${PYTHON_INPUT}/install64/bin/python3 ${CMAKE_BINARY_DIR}
         )
 
-install(FILES ${CMAKE_BINARY_DIR}/mcsrouter.zip
-        DESTINATION files/base/lib64)
+if ( PythonCoverage )
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
+            DESTINATION files/base/lib64)
+else()
+    install(FILES ${CMAKE_BINARY_DIR}/mcsrouter.zip
+            DESTINATION files/base/lib64)
+endif()
+
+
 
 install(FILES ${CMAKE_BINARY_DIR}/python37.zip
         DESTINATION files/base/lib64)
