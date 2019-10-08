@@ -27,7 +27,7 @@ echo "Keep the coverage for unit tests"
 cp modules/.coverage  unit_tests_coverage
 pushd ${SYSTEM_TEST}
 echo 'run system tests'
-RERUNFAILED=true BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh -i SMOKE -t 'MCSStatusSentWhenMessageRelayChanged'
+RERUNFAILED=true BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh 
 echo 'combine system tests results'
 USER=$(whoami)
 sudo chown ${USER} /tmp/register_central* /tmp/mcs_router*
