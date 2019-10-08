@@ -118,11 +118,12 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK) // NOLINT
 
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue) // NOLINT
 {
+    Telemetry::SystemTelemetryTuple cpuCores = Telemetry::GL_systemTelemetryObjectsConfig.at("cpu-cores");
     Telemetry::SystemTelemetryConfig lscpuTelemetryConfig = {
-        { "cpu-cores",
-          { "/usr/bin/will-fail", {}, "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
+            {
+                    "cpu-cores", cpuCores
+            }
     };
-
     setupMockProcesses(lscpuTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
 
@@ -399,4 +400,51 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges) //
     auto fstype = std::get<std::string>((diskItemArray[0])[0].second);
     ASSERT_EQ(fstype, std::string("devtmpfs"));
     ASSERT_EQ(std::get<int>((diskItemArray[0])[1].second), 4041952);
+}
+
+
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsSystemCommandExeNotFound) // NOLINT
+{
+    Telemetry::SystemTelemetryConfig unavailableSysCommandConfig = {
+            { "cpu-cores",
+              { "non_existant_system_command", {}, "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
+    };
+
+    setupMockProcesses(unavailableSysCommandConfig.size());
+    auto& mockProcess_ = mockProcesses_[0];
+
+    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(unavailableSysCommandConfig, {});
+
+    EXPECT_CALL(*mockProcess_, setOutputLimit(_));
+
+    auto telemetryValues = systemTelemetryCollectorImpl.collectObjects();
+
+    ASSERT_TRUE(telemetryValues.empty());
+}
+
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsAuditdOk) // NOLINT
+{
+    Telemetry::SystemTelemetryConfig auditdStatusTelemetryConfig = {
+            {
+                    "auditd", Telemetry::GL_systemTelemetryObjectsConfig.at("auditd")
+            }
+    };
+
+    std::string isEnabled( "enabled" );
+    setupMockProcesses(auditdStatusTelemetryConfig.size());
+    auto& mockProcess_ = mockProcesses_[0];
+
+    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(auditdStatusTelemetryConfig, {});
+
+    EXPECT_CALL(*mockProcess_, exec(_, _));
+    EXPECT_CALL(*mockProcess_, setOutputLimit(_));
+    EXPECT_CALL(*mockProcess_, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+    EXPECT_CALL(*mockProcess_, output()).WillOnce(Return(isEnabled));
+    EXPECT_CALL(*mockProcess_, exitCode()).WillOnce(Return(EXIT_SUCCESS));
+
+    auto stringValue = systemTelemetryCollectorImpl.collectObjects();
+
+    auto selinuxStatus = stringValue.find("auditd");
+    ASSERT_NE(selinuxStatus, stringValue.cend());
+    ASSERT_EQ(std::get<std::string>(selinuxStatus->second[0].second), isEnabled);
 }

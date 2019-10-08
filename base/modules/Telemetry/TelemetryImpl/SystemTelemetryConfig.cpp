@@ -10,50 +10,63 @@ namespace Telemetry
 {
     const SystemTelemetryConfig GL_systemTelemetryObjectsConfig = {
         { "kernel",
-          SystemTelemetryTuple{ "/usr/bin/hostnamectl",
+          SystemTelemetryTuple{ "hostnamectl",
                                 {},
-                                "^\\s*Kernel:\\s*(.*)$",
+                                R"(^\s*Kernel:\s*(.*)$)",
                                 { { "", TelemetryValueType::STRING } } } },
         { "os-name",
-          SystemTelemetryTuple{ "/usr/bin/head",
+          SystemTelemetryTuple{ "head",
                                 { "-100", "/etc/os-release" }, // only first dozen or so lines needed or expected
-                                "^NAME=\"([^\"]*).*$",
+                                R"(^NAME="([^"]*).*$)",
                                 { { "", TelemetryValueType::STRING } } } },
         { "os-version",
-          SystemTelemetryTuple{ "/usr/bin/head",
+          SystemTelemetryTuple{ "head",
                                 { "-100", "/etc/os-release" }, // only first dozen or so lines needed or expected
-                                "^VERSION_ID=\"([^\"]*).*$",
+                                R"(^VERSION_ID="([^"]*).*$)",
                                 { { "", TelemetryValueType::STRING } } } },
         { "cpu-cores",
-          SystemTelemetryTuple{ "/usr/bin/lscpu",
+          SystemTelemetryTuple{ "lscpu",
                                 {},
-                                "^CPU\\(s\\):\\s*(\\d+)$",
+                                R"(^CPU\(s\):\s*(\d+)$)",
                                 { { "", TelemetryValueType::INTEGER } } } },
         { "memory-total",
-          SystemTelemetryTuple{ "/usr/bin/free",
+          SystemTelemetryTuple{ "free",
                                 { "-t" },
-                                "^Total:\\s*(\\d+).*$",
+                                R"(^Total:\s*(\d+).*$)",
                                 { { "", TelemetryValueType::INTEGER } } } },
         { "locale",
-          SystemTelemetryTuple{ "/usr/bin/localectl",
+          SystemTelemetryTuple{ "localectl",
                                 {},
-                                "\\s*System Locale:\\s*LANG=\\s*(.*)$",
+                                R"(\s*System Locale:\\s*LANG=\\s*(.*)$)",
                                 { { "", TelemetryValueType::STRING } } } },
         { "uptime",
-          SystemTelemetryTuple{ "/usr/bin/head",
+          SystemTelemetryTuple{ "head",
                                 { "-100", "/proc/uptime" },
-                                "^(\\d+)\\.\\d*\\s+.*$",
+                                R"(^(\d+)\.\d*\s+.*$)",
                                 { { "", TelemetryValueType::INTEGER } } } },
         { "timezone",
-          SystemTelemetryTuple{ "/bin/date",
+          SystemTelemetryTuple{ "date",
                                 { "+%Z" },
-                                "^([A-Z]{2,5})$",
+                                R"(^([A-Z]{2,5})$)",
                                 { { "", TelemetryValueType::STRING } } } },
         { "selinux",
-            SystemTelemetryTuple{ "/usr/sbin/getenforce",
+            SystemTelemetryTuple{ "getenforce",
                                   {},
-                                  "^(?:(Enforcing|Permissive|Disabled))$",
-                                  { { "", TelemetryValueType::STRING } } } }
+                                  R"(^(\w+)$)",
+                                  { { "", TelemetryValueType::STRING } } } },
+
+        { "auditd",
+                SystemTelemetryTuple{ "systemctl",
+                                      {"is-enabled", "auditd"},
+                                      R"(^(\w+)$)",
+                                      { { "", TelemetryValueType::STRING } } } },
+
+        { "apparmor",
+                SystemTelemetryTuple{ "systemctl",
+                                      {"is-enabled", "apparmor"},
+                                      R"(^(\w+)$)",
+                                      { { "", TelemetryValueType::STRING } } } }
+
     };
 
     const SystemTelemetryConfig GL_systemTelemetryArraysConfig = {
@@ -61,7 +74,7 @@ namespace Telemetry
           SystemTelemetryTuple{
               "/bin/df",
               { "-T", "--local" },
-              "^\\s*\\S+\\s+(\\S+)\\s+\\S+\\s+\\S+\\s+(\\d+)\\s*.*$",
+              R"(^\s*\S+\s+(\S+)\s+\S+\s+\S+\s+(\d+)\s*.*$)",
               { { "fstype", TelemetryValueType::STRING }, { "free", TelemetryValueType::INTEGER } } } }
     };
 } // namespace Telemetry

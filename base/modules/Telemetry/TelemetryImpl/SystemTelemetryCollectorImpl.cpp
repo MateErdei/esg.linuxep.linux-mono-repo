@@ -13,6 +13,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <map>
 #include <string>
 #include <variant>
+#include <Common/FileSystem/IFileSystem.h>
 
 namespace Telemetry
 {
@@ -51,6 +52,12 @@ namespace Telemetry
                     "Failed to get telemetry item: " << name << ", from command: " << command
                                                      << ", exception: " << processException.what());
                 continue;
+            }
+            catch(const std::invalid_argument& invalidArg)
+            {
+                LOGERROR(
+                        "Failed to get telemetry item: " << name << ", could not find executable for command: " << command
+                                                         << ", exception: " << invalidArg.what());
             }
 
             T values;
@@ -94,8 +101,10 @@ namespace Telemetry
         auto processPtr = Common::Process::createProcess();
         processPtr->setOutputLimit(GL_mbSize);
 
+        auto commandExecutablePath = getSystemCommandExecutablePath(command);
+
         // gather raw telemetry, ignoring failures
-        processPtr->exec(command, args);
+        processPtr->exec(commandExecutablePath, args);
         if (processPtr->wait(Common::Process::milli(m_waitTimeMilliSeconds), m_waitMaxRetries) !=
             Common::Process::ProcessStatus::FINISHED)
         {
@@ -216,5 +225,19 @@ namespace Telemetry
         }
 
         return !values.empty();
+    }
+
+    std::string SystemTelemetryCollectorImpl::getSystemCommandExecutablePath(const std::string& executableName) const
+    {
+        std::vector<std::string> folderLocations = { "/usr/bin", "/bin", "/usr/local/bin", "/sbin", "/usr/sbin" };
+        for (const auto& folder : folderLocations)
+        {
+            Path path = Common::FileSystem::join(folder, executableName);
+            if (Common::FileSystem::fileSystem()->isExecutable(path))
+            {
+                return path;
+            }
+        }
+        throw std::invalid_argument("Executable " + executableName + " is not installed.");
     }
 } // namespace Telemetry
