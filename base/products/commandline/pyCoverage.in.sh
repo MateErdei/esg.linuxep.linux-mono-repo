@@ -8,7 +8,7 @@ then
     SCRIPTDIR=${STARTINGDIR}
 fi
 
-ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
+ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)/files/base/bin
 
 BASE_DIR=${ABS_SCRIPTDIR%/*}
 export BASE_DIR
@@ -26,5 +26,5 @@ export PYTHONPATH=@PYTHONPATH@
 export PYTHONHOME=$INST_DIR/base/
 
 export LD_LIBRARY_PATH=$INST_DIR/base/lib:$INST_DIR/base/lib64
-
+chmod +x $pythonExecutable
 exec $pythonExecutable -m coverage $@
