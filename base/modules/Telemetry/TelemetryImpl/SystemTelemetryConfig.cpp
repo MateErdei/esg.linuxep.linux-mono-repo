@@ -54,19 +54,16 @@ namespace Telemetry
                                   {},
                                   R"(^(\w+)$)",
                                   { { "", TelemetryValueType::STRING } } } },
-
-        { "auditd",
-                SystemTelemetryTuple{ "systemctl",
-                                      {"is-enabled", "auditd"},
-                                      R"(^(\w+)$)",
-                                      { { "", TelemetryValueType::STRING } } } },
-
         { "apparmor",
                 SystemTelemetryTuple{ "systemctl",
                                       {"is-enabled", "apparmor"},
                                       R"(^(\w+)$)",
+                                      { { "", TelemetryValueType::STRING } } } },
+        { "auditd",
+                SystemTelemetryTuple{ "systemctl",
+                                      {"is-enabled", "auditd"},
+                                      R"(^(\w+)$)",
                                       { { "", TelemetryValueType::STRING } } } }
-
     };
 
     const SystemTelemetryConfig GL_systemTelemetryArraysConfig = {
