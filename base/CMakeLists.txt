@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(everest_base CXX)
 
 option(test "Build all tests." ON) # Makes boolean 'test' available.
-option(BUILD_FUZZ_TESTSBUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
+option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
 option(PythonCoverage "Turn of the instrumentation for producing python coverage results" OFF)
 set(CMAKE_CXX_STANDARD 17)
 set (SOPHOS_SPL_USER "sophos-spl-user")
