@@ -12,6 +12,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/Process/IProcess.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/Factory.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 namespace
@@ -43,7 +44,11 @@ namespace
             static const std::string trigger{ "TriggerUpdate" };
             return trigger;
         }
-        WDServiceCallBack() = default;
+        WDServiceCallBack(const std::function<std::vector<std::string>(void)> & getPluginListFunc) :
+                m_getListOfPluginsFunc(getPluginListFunc)
+        {};
+
+
         ~WDServiceCallBack() = default;
 
         void applyNewPolicy(const std::string&) override { LOGWARN("NotSupported: Received apply new policy"); }
@@ -76,9 +81,23 @@ namespace
 
         std::string getTelemetry() override
         {
-            LOGWARN("NotSupported: Received getTelemetry");
+            LOGWARN("Received get telemetry request");
+
+
+            for (auto pluginName: m_getListOfPluginsFunc())
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().increment(
+                        watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(pluginName),
+                        0UL
+                        );
+            }
+
+            return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+
             return "";
         }
+
+        const std::function<std::vector<std::string>(void)> & m_getListOfPluginsFunc;
     };
 
     class WatchdogRequestImpl : public watchdog::watchdogimpl::IWatchdogRequest
@@ -135,11 +154,11 @@ namespace watchdog
             requestUpdateService(*context);
         }
 
-        WatchdogServiceLine::WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr context) : m_context(context)
+        WatchdogServiceLine::WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr context, const std::function<std::vector<std::string>(void)> & getPluginListFunc) : m_context(context)
         {
             auto replier = m_context->getReplier();
             Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, WatchdogServiceLineName(), 5000, 5000);
-            std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack };
+            std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack(getPluginListFunc) };
 
             m_pluginHandler.reset(new Common::PluginApiImpl::PluginCallBackHandler(
                 WatchdogServiceLineName(),
@@ -164,5 +183,13 @@ namespace watchdog
             } };
             return theFactory;
         }
+
+        std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string & pluginName)
+        {
+            std::stringstream telemetryMessage;
+            telemetryMessage << pluginName << "-unexpected-restarts";
+            return telemetryMessage.str();
+        }
+
     } // namespace watchdogimpl
 } // namespace watchdog

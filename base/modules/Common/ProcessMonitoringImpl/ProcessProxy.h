@@ -68,17 +68,21 @@ namespace Common
              */
             Common::Process::IProcessInfoPtr m_processInfo;
 
+            /**
+             * Get the current status of the process.
+             * @return
+             */
+            Common::Process::ProcessStatus status();
+
+            bool m_enabled;
+
         private:
             /**
              * Starts the process.
              */
             void start();
 
-            /**
-             * Get the current status of the process.
-             * @return
-             */
-            Common::Process::ProcessStatus status();
+
 
             /**
              * Wait for the exit code from the process.
@@ -106,9 +110,6 @@ namespace Common
              */
             time_t m_deathTime;
 
-            time_t m_killIssuedTime;
-
-            bool m_enabled;
         };
     } // namespace ProcessMonitoringImpl
 } // namespace Common

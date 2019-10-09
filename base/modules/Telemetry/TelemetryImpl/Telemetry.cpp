@@ -25,6 +25,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Telemetry/LoggerImpl/Logger.h>
+#include <watchdog/watchdogimpl/WatchdogServiceLine.h>
 
 #include <sstream>
 #include <string>
@@ -40,11 +41,16 @@ namespace Telemetry
         std::vector<Common::PluginRegistryImpl::PluginInfo> pluginInfos =
             Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
 
+        //Add watchdog to the pluginInfo list as not in plugin registry
+        Common::PluginRegistryImpl::PluginInfo watchDogPluginInfo = Common::PluginRegistryImpl::PluginInfo();
+        watchDogPluginInfo.setPluginName(watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName());
+        pluginInfos.insert(pluginInfos.begin(), std::move(watchDogPluginInfo));
+
         Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();
 
         const size_t ipcSize = std::string("ipc://").size();
         for (auto& pluginInfo : pluginInfos)
-        {
+            {
             std::string pluginName = pluginInfo.getPluginName();
             std::string pluginSocketAddress =
                 Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);

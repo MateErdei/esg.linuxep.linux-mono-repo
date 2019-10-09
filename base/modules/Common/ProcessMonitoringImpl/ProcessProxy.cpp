@@ -22,10 +22,10 @@ namespace Common
     {
         ProcessProxy::ProcessProxy(Common::Process::IProcessInfoPtr processInfo) :
             m_processInfo(std::move(processInfo)),
+            m_enabled(true),
             m_process(Common::Process::createProcess()),
             m_running(false),
-            m_deathTime(0),
-            m_enabled(true)
+            m_deathTime(0)
         {
             m_exe = m_processInfo->getExecutableFullPath();
             if ((!m_exe.empty()) && m_exe[0] != '/')

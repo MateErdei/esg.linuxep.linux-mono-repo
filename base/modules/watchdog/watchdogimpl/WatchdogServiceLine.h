@@ -20,15 +20,19 @@ namespace watchdog
         class WatchdogServiceLine
         {
         public:
+            WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr, const std::function<std::vector<std::string>(void)> & getPluginListFunc);
+            ~WatchdogServiceLine();
+
             static std::string WatchdogServiceLineName() { return "watchdogservice"; }
             static void requestUpdateService(Common::ZMQWrapperApi::IContext&);
             static void requestUpdateService();
-            WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr);
-            ~WatchdogServiceLine();
 
         private:
             Common::ZMQWrapperApi::IContextSharedPtr m_context;
             std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler;
         };
+
+        std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string & pluginName);
+
     } // namespace watchdogimpl
 } // namespace watchdog

@@ -36,6 +36,7 @@ namespace watchdog
             ~Watchdog();
             int initialiseAndRun();
             PluginInfoVector readPluginConfigs();
+            const std::vector<std::string> getListOfPluginNames();
 
         protected:
             std::string getIPCPath();

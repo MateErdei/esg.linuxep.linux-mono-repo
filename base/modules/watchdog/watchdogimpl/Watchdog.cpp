@@ -33,9 +33,11 @@ namespace
 
 using namespace watchdog::watchdogimpl;
 
+std::vector<std::string> func() {return {};}
+
 Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) :
     Common::ProcessMonitoringImpl::ProcessMonitor(context),
-    m_watchdogservice(context)
+    m_watchdogservice(context, std::bind(&Watchdog::getListOfPluginNames, this))
 {
 }
 Watchdog::Watchdog() : Watchdog(Common::ZMQWrapperApi::createContext()) {}
@@ -69,6 +71,18 @@ int Watchdog::initialiseAndRun()
 PluginInfoVector Watchdog::readPluginConfigs()
 {
     return Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
+}
+
+const std::vector<std::string> Watchdog::getListOfPluginNames()
+{
+    std::vector<std::string> pluginNames;
+    for (auto & processProxy: m_processProxies)
+    {
+        auto pluginProxy = dynamic_cast<PluginProxy*>(processProxy.get());
+        assert(pluginProxy != nullptr);
+        pluginNames.emplace_back(pluginProxy->name());
+    }
+    return pluginNames;
 }
 
 std::string Watchdog::getIPCPath()
