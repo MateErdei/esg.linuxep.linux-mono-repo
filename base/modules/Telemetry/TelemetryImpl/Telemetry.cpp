@@ -31,6 +31,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
+    const unsigned long GL_maximumMbSize = 1000000UL;
+
     void appendTelemetryProvidersForPlugins(
         std::vector<std::shared_ptr<ITelemetryProvider>>& telemetryProviders,
         std::shared_ptr<Common::TelemetryConfigImpl::Config> telemetryConfig)
@@ -85,8 +87,8 @@ namespace Telemetry
         // System telemetry provider
         auto systemTelemetryReporter =
             std::make_shared<SystemTelemetryReporter>(std::make_unique<SystemTelemetryCollectorImpl>(
-                GL_systemTelemetryObjectsConfig,
-                GL_systemTelemetryArraysConfig,
+                    systemTelemetryObjectsConfig(),
+                    systemTelemetryArraysConfig(),
                 telemetryConfig->getExternalProcessWaitTime(),
                 telemetryConfig->getExternalProcessWaitRetries()));
 
@@ -127,7 +129,7 @@ namespace Telemetry
                 throw std::runtime_error(msg.str());
             }
 
-            std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(configFilePath, 1000000UL);
+            std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(configFilePath, GL_maximumMbSize);
             auto telemetryConfig = std::make_shared<Common::TelemetryConfigImpl::Config>(
                 Common::TelemetryConfigImpl::Serialiser::deserialise(telemetryConfigJson));
             LOGDEBUG("Using configuration: " << Common::TelemetryConfigImpl::Serialiser::serialise(*telemetryConfig));
