@@ -15,7 +15,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    std::optional<std::string> extractValueFromIniFile(const Path& filePath, const std::string& key);
     std::optional<std::string> extractCustomerId(const std::string& policyXml);
     /**
      * Class for reporting system telemetry as JSON for base
