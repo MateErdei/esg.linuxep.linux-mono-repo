@@ -55,7 +55,7 @@ namespace Telemetry
             }
             catch(const std::invalid_argument& invalidArg)
             {
-                LOGERROR(
+                LOGWARN(
                         "Failed to get telemetry item: " << name << ", could not find executable for command: " << command
                                                          << ", exception: " << invalidArg.what());
             }

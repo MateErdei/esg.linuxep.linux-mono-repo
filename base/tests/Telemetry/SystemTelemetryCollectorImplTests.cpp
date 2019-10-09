@@ -424,27 +424,24 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsSystemCommandExeNotFound
 
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsAuditdOk) // NOLINT
 {
-    Telemetry::SystemTelemetryConfig auditdStatusTelemetryConfig = {
+    Telemetry::SystemTelemetryConfig selinuxStatusTelemetryConfig = {
             {
-                    "auditd", Telemetry::GL_systemTelemetryObjectsConfig.at("auditd")
+                    "selinux", Telemetry::GL_systemTelemetryObjectsConfig.at("selinux")
             }
     };
-
-    std::string isEnabled( "enabled" );
-    setupMockProcesses(auditdStatusTelemetryConfig.size());
+    std::string enforcementLevel("Disabled" );
+    setupMockProcesses(selinuxStatusTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
-
-    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(auditdStatusTelemetryConfig, {});
+    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(selinuxStatusTelemetryConfig, {});
 
     EXPECT_CALL(*mockProcess_, exec(_, _));
     EXPECT_CALL(*mockProcess_, setOutputLimit(_));
     EXPECT_CALL(*mockProcess_, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-    EXPECT_CALL(*mockProcess_, output()).WillOnce(Return(isEnabled));
+    EXPECT_CALL(*mockProcess_, output()).WillOnce(Return(enforcementLevel));
     EXPECT_CALL(*mockProcess_, exitCode()).WillOnce(Return(EXIT_SUCCESS));
 
     auto stringValue = systemTelemetryCollectorImpl.collectObjects();
-
-    auto selinuxStatus = stringValue.find("auditd");
+    auto selinuxStatus = stringValue.find("selinux");
     ASSERT_NE(selinuxStatus, stringValue.cend());
-    ASSERT_EQ(std::get<std::string>(selinuxStatus->second[0].second), isEnabled);
+    ASSERT_EQ(std::get<std::string>(selinuxStatus->second[0].second), enforcementLevel);
 }

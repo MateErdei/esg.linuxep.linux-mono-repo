@@ -37,7 +37,7 @@ namespace Telemetry
         { "locale",
           SystemTelemetryTuple{ "localectl",
                                 {},
-                                R"(\s*System Locale:\\s*LANG=\\s*(.*)$)",
+                                R"(\s*System Locale:\s*LANG=\s*(.*)$)",
                                 { { "", TelemetryValueType::STRING } } } },
         { "uptime",
           SystemTelemetryTuple{ "head",
