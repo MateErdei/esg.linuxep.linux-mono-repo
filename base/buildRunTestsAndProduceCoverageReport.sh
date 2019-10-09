@@ -27,7 +27,7 @@ echo "Keep the coverage for unit tests"
 cp modules/.coverage  unit_tests_coverage
 pushd ${SYSTEM_TEST}
 echo 'run system tests'
-RERUNFAILED=true BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh 
+RERUNFAILED=true BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE
 echo 'combine system tests results'
 USER=$(whoami)
 sudo chown ${USER} /tmp/register_central* /tmp/mcs_router*
@@ -42,4 +42,6 @@ popd
 echo 'combine coverage results and publish it '
 ${SDDS_COMPONENT}/pyCoverage combine unit_tests_coverage system_tests_coverage
 ${SDDS_COMPONENT}/pyCoverage xml -i
+mkdir -p  /mnt/filer6/linux/SSPL/testautomation/pythoncoverage/
+cp .coverage /mnt/filer6/linux/SSPL/testautomation/pythoncoverage/latest_python_coverage
 mv coverage.xml "${SYSTEM_TEST}/"
