@@ -449,7 +449,7 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
 {
     int ret = 0;
 
-    printf("Downloading base installer ...\n");
+    printf("Downloading base installer (this may take some time)\n");
 
     // Try override if set
     const char * sophosLocation = getenv("OVERRIDE_SOPHOS_LOCATION");
