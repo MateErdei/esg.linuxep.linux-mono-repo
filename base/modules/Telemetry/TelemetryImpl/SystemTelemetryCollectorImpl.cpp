@@ -101,8 +101,8 @@ namespace Telemetry
         auto processPtr = Common::Process::createProcess();
         processPtr->setOutputLimit(GL_mbSize);
 
+        //search for command executable full path
         auto commandExecutablePath = getSystemCommandExecutablePath(command);
-
         // gather raw telemetry, ignoring failures
         processPtr->exec(commandExecutablePath, args);
         if (processPtr->wait(Common::Process::milli(m_waitTimeMilliSeconds), m_waitMaxRetries) !=
@@ -115,19 +115,9 @@ namespace Telemetry
         int exitCode = processPtr->exitCode();
         if (exitCode != 0)
         {
-            if (exitCode == 2)
-            {
-                LOGWARN("Process execution was unsuccessful, command not found: '" + commandAndArgs + "'");
-                return m_commandOutputCache[commandAndArgs];
-            }
-            else
-            {
-                throw Common::Process::IProcessException(
-                        "Process execution returned non-zero exit code, 'Exit Code: [" +
-                        std::to_string(exitCode) +
-                        "] " +
-                        Common::UtilityImpl::StrError(exitCode) + "'");
-            }
+            throw Common::Process::IProcessException(
+                    "Process execution returned non-zero exit code, 'Exit Code: [" + std::to_string(exitCode) + "] " +
+                    Common::UtilityImpl::StrError(exitCode) + "'");
         }
 
         auto output = processPtr->output();

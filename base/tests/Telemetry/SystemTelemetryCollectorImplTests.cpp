@@ -409,16 +409,13 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsSystemCommandExeNotFound
             { "cpu-cores",
               { "non_existant_system_command", {}, "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
     };
-
     setupMockProcesses(unavailableSysCommandConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
-
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(unavailableSysCommandConfig, {});
 
     EXPECT_CALL(*mockProcess_, setOutputLimit(_));
 
     auto telemetryValues = systemTelemetryCollectorImpl.collectObjects();
-
     ASSERT_TRUE(telemetryValues.empty());
 }
 
