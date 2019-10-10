@@ -30,7 +30,7 @@ echo 'run system tests'
 RERUNFAILED=true BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE -s testnovaproxy || echo "Test failure does not prevent the coverage report. "
 echo 'combine system tests results'
 USER=$(whoami)
-sudo chown ${USER} /tmp/register_central* /tmp/mcs_router*
+sudo chown ${USER} /tmp/register_central* /tmp/mcs_router*  || echo 'ignore error'
 entries=$(ls /tmp/register_central* /tmp/mcs_router* 2>/dev/null)
 ${SDDS_COMPONENT}/pyCoverage combine ${entries}
 echo 'replace name to the original source'
