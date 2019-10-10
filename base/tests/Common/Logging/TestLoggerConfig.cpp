@@ -251,7 +251,7 @@ VERBOSITY=SUPPORT
 
     // swap the comment lines below to run in this proc and not in another one.
     // runTest(testInput, false);
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    ASSERT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
 }
 
 TEST_F(TestLoggerConfig, GlobalInfoLogWrittenToFile) // NOLINT
