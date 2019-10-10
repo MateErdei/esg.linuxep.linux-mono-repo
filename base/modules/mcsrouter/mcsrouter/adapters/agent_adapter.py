@@ -267,8 +267,19 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
         # should always be able to obtain first and second values from os_version
         os_version = target_system.os_version()
-        major_version = os_version[0]
-        minor_version = os_version[1]
+        version_length = len(os_version)
+
+        if version_length < 1:
+            major_version = ""
+            minor_version = ""
+            logging.warn("OS Version not found")
+        elif version_length < 2:
+            # this is expected on amazon Linux
+            major_version = os_version[0]
+            minor_version = ""
+        else:
+            major_version = os_version[0]
+            minor_version = os_version[1]
 
         return "".join((
             "<posixPlatformDetails>",
