@@ -73,7 +73,7 @@ PluginInfoVector Watchdog::readPluginConfigs()
     return Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
 }
 
-const std::vector<std::string> Watchdog::getListOfPluginNames()
+std::vector<std::string> Watchdog::getListOfPluginNames()
 {
     std::vector<std::string> pluginNames;
     for (auto & processProxy: m_processProxies)

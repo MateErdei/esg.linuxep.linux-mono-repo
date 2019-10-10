@@ -38,15 +38,16 @@ namespace
 
     class WDServiceCallBack : public Common::PluginApi::IPluginCallbackApi
     {
+
     public:
         static const std::string& TriggerUpdate()
         {
             static const std::string trigger{ "TriggerUpdate" };
             return trigger;
         }
-        WDServiceCallBack(const std::function<std::vector<std::string>(void)> & getPluginListFunc) :
-                m_getListOfPluginsFunc(getPluginListFunc)
-        {};
+        WDServiceCallBack(std::function<std::vector<std::string>(void)> getPluginListFunc) :
+                m_getListOfPluginsFunc(std::move(getPluginListFunc))
+        {}
 
 
         ~WDServiceCallBack() = default;
@@ -83,7 +84,6 @@ namespace
         {
             LOGWARN("Received get telemetry request");
 
-
             for (auto pluginName: m_getListOfPluginsFunc())
             {
                 Common::Telemetry::TelemetryHelper::getInstance().increment(
@@ -93,11 +93,9 @@ namespace
             }
 
             return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-
-            return "";
         }
 
-        const std::function<std::vector<std::string>(void)> & m_getListOfPluginsFunc;
+        std::function<std::vector<std::string>(void)> m_getListOfPluginsFunc;
     };
 
     class WatchdogRequestImpl : public watchdog::watchdogimpl::IWatchdogRequest
@@ -154,12 +152,11 @@ namespace watchdog
             requestUpdateService(*context);
         }
 
-        WatchdogServiceLine::WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr context, const std::function<std::vector<std::string>(void)> & getPluginListFunc) : m_context(context)
+        WatchdogServiceLine::WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr context, std::function<std::vector<std::string>(void)> getPluginListFunc) : m_context(context)
         {
             auto replier = m_context->getReplier();
             Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, WatchdogServiceLineName(), 5000, 5000);
             std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack(getPluginListFunc) };
-
             m_pluginHandler.reset(new Common::PluginApiImpl::PluginCallBackHandler(
                 WatchdogServiceLineName(),
                 std::move(replier),

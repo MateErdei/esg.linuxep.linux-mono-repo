@@ -20,7 +20,7 @@ namespace watchdog
         class WatchdogServiceLine
         {
         public:
-            WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr, const std::function<std::vector<std::string>(void)> & getPluginListFunc);
+            WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr, std::function<std::vector<std::string>(void)> getPluginListFunc);
             ~WatchdogServiceLine();
 
             static std::string WatchdogServiceLineName() { return "watchdogservice"; }

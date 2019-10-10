@@ -68,7 +68,7 @@ namespace
 
     std::vector<std::string> dummyFunc()
     {
-        return{};
+        return {};
     }
 } // namespace
 
@@ -128,7 +128,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogServiceWillShouldIgnoreInvalidRequests) 
     ASSERT_EQ(returnedStatus.size(), 1);
     EXPECT_EQ(returnedStatus.at(0).statusWithoutTimestampsXml, "");
     EXPECT_EQ(returnedStatus.at(0).statusXml, "");
-    EXPECT_EQ(pluginProxy.getTelemetry(), "");
+    EXPECT_EQ(pluginProxy.getTelemetry(), "{}");
 }
 
 TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosSplUpdateWorksWithTheFactory) // NOLINT
