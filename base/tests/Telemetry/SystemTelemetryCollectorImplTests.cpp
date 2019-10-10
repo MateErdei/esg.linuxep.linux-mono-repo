@@ -11,6 +11,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 
 #include <regex>
 
@@ -420,7 +422,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsSystemCommandExeNotFound
     ASSERT_TRUE(telemetryValues.empty());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsAuditdOk) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsSelinuxOk) // NOLINT
 {
     Telemetry::SystemTelemetryConfig selinuxStatusTelemetryConfig = {
             {
@@ -430,8 +432,15 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsAuditdOk) // NOLINT
     std::string enforcementLevel("Disabled" );
     setupMockProcesses(selinuxStatusTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
+
+    MockFileSystem* mockFileSystem = nullptr;
+    std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
+    mockFileSystem = mockfileSystem.get();
+    Tests::replaceFileSystem(std::move(mockfileSystem));
+
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(selinuxStatusTelemetryConfig, {});
 
+    EXPECT_CALL(*mockFileSystem, isExecutable(_)).WillOnce(Return(true));
     EXPECT_CALL(*mockProcess_, exec(_, _));
     EXPECT_CALL(*mockProcess_, setOutputLimit(_));
     EXPECT_CALL(*mockProcess_, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
