@@ -76,6 +76,11 @@ namespace Common
 
             bool m_enabled;
 
+            /**
+            * True if the process is currently running.
+            */
+            bool m_running;
+
         private:
             /**
              * Starts the process.
@@ -100,10 +105,6 @@ namespace Common
              * Full path to the executable
              */
             std::string m_exe;
-            /**
-             * True if the process is currently running.
-             */
-            bool m_running;
 
             /**
              * When the process process last died.

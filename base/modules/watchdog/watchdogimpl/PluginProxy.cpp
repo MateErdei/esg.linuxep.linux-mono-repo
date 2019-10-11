@@ -25,11 +25,11 @@ PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info) :
 std::chrono::seconds PluginProxy::checkForExit()
 {
     auto statusCode = status();
-    if (statusCode == Common::Process::ProcessStatus::FINISHED  && m_enabled)
+    if (statusCode == Common::Process::ProcessStatus::FINISHED  && m_enabled && m_running)
     {
         Common::Telemetry::TelemetryHelper::getInstance().increment(
                 watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(name()),
-                0UL
+                1UL
         );
     }
     return ProcessProxy::checkForExit();

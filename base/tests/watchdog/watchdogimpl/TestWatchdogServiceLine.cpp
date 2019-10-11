@@ -66,15 +66,15 @@ namespace
         }
     };
 
-    std::vector<std::string> dummyFunc()
+    std::vector<std::string> getDummyPluginNames()
     {
-        return {};
+        return {"DummyPlugin1", "DummyPlugin2"};
     }
 } // namespace
 
 TEST_F(TestWatchdogServiceLine, Construction) // NOLINT
 {
-    EXPECT_NO_THROW(watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, dummyFunc)); // NOLINT
+    EXPECT_NO_THROW(watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames)); // NOLINT
 }
 
 TEST_F(TestWatchdogServiceLine, requestUpdateServiceThrowsExceptionIfNotWatchdogServiceIsAvailable) // NOLINT
@@ -96,7 +96,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosS
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
-    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, dummyFunc);
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService(*m_context);
 }
 
@@ -112,7 +112,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillThrowExceptionIfSophosUp
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
-    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, dummyFunc);
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     EXPECT_THROW(
         watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService(*m_context),
         watchdog::watchdogimpl::UpdateServiceReportError);
@@ -120,7 +120,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillThrowExceptionIfSophosUp
 
 TEST_F(TestWatchdogServiceLine, WatchdogServiceWillShouldIgnoreInvalidRequests) // NOLINT
 {
-    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, dummyFunc);
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
     pluginProxy.queueAction("", "NotValidAction");
     pluginProxy.applyNewPolicy("", "anypolicy");
@@ -128,7 +128,14 @@ TEST_F(TestWatchdogServiceLine, WatchdogServiceWillShouldIgnoreInvalidRequests) 
     ASSERT_EQ(returnedStatus.size(), 1);
     EXPECT_EQ(returnedStatus.at(0).statusWithoutTimestampsXml, "");
     EXPECT_EQ(returnedStatus.at(0).statusXml, "");
-    EXPECT_EQ(pluginProxy.getTelemetry(), "{}");
+}
+
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedData) // NOLINT
+{
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
+    auto pluginProxy = getPluginProxyToTest();
+    EXPECT_EQ(pluginProxy.getTelemetry(),
+              "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0}");
 }
 
 TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosSplUpdateWorksWithTheFactory) // NOLINT
@@ -145,7 +152,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosS
     });
     Tests::TempDir tempdir("/tmp");
     replacePluginIpc("ipc://" + tempdir.absPath("wdsl_checkfactory.ipc"));
-    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, dummyFunc);
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto requester = watchdog::watchdogimpl::factory().create();
     requester->requestUpdateService();
 }
@@ -155,7 +162,7 @@ TEST_F(TestWatchdogServiceLine, mockTriggerUpdateUsingFactory) // NOLINT
     IWatchdogRequestReplacement replacement;
     Tests::TempDir tempdir("/tmp");
     replacePluginIpc("ipc://" + tempdir.absPath("wdsl_checkmock.ipc"));
-    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, dummyFunc);
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto requester = watchdog::watchdogimpl::factory().create();
     requester->requestUpdateService();
 }
@@ -165,7 +172,7 @@ TEST_F(TestWatchdogServiceLine, mockTriggerUpdateUsingFactoryCanControlException
     IWatchdogRequestReplacement replacement(std::string{ "this was not expected" });
     Tests::TempDir tempdir("/tmp");
     replacePluginIpc("ipc://" + tempdir.absPath("wdsl_checkmock.ipc"));
-    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, dummyFunc);
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto requester = watchdog::watchdogimpl::factory().create();
     EXPECT_THROW(requester->requestUpdateService(), watchdog::watchdogimpl::WatchdogServiceException);
 }
