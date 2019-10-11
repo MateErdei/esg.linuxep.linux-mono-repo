@@ -35,7 +35,7 @@ popd
 
 pushd ${SYSTEM_TEST}
 echo 'run system tests'
-TESTS2RUN="-i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE -s testnovaproxy -s testinstallation ."
+TESTS2RUN="-i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE ."
 USER=$(whoami)
 if [[ ${USER} == "jenkins" ]]; then
   BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
