@@ -1,3 +1,8 @@
+execute_process(
+        COMMAND bash "-c" "ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev"
+        OUTPUT_VARIABLE BUILD_SYSTEM_LIBC_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 configure_file(install.in.sh install.sh @ONLY)
 configure_file(uninstall.in.sh uninstall.sh @ONLY)
 
