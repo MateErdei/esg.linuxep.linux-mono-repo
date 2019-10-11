@@ -17,6 +17,7 @@ umask 077
 
 PRODUCT_LINE_ID="ServerProtectionLinux-Base"
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
+system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -215,13 +216,12 @@ fi
 
 function build_version_less_than_system_version()
 {
-    system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
     test "$(printf '%s\n' "${BUILD_LIBC_VERSION} ${system_libc_version}" | sort -V | head -n 1)" != "$1"
 }
 
 if build_version_less_than_system_version
 then
-    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system"
+    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${BUILD_LIBC_VERSION} < required ${system_libc_version}"
 fi
 
 

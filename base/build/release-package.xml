@@ -91,6 +91,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master, feature</publishbranches>
+        <publishbranches>master, bugfix</publishbranches>
     </publish>
 </package>
