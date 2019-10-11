@@ -48,7 +48,9 @@ sed -i "s_/opt/sophos-spl/base/lib_${SDDS_COMPONENT}/files/base/lib_g" .coverage
 # create the xml report that is used by jenkins
 python3 -m coverage xml -i  --omit="*python3.7*,*site-packages*"
 # publish the report to filer 6
-TARGET_PATH=/mnt/filer6/linux/SSPL/testautomation/pythoncoverage/
-[[ -d ${TARGET_PATH} ]] || mkdir -p ${TARGET_PATH}
-cp .coverage ${TARGET_PATH}/latest_python_coverage
+
+if [[ ${USER} == "jenkins" ]]; then
+  TARGET_PATH=/mnt/filer6/linux/SSPL/testautomation/pythoncoverage/
+  sudo cp .coverage ${TARGET_PATH}/latest_python_coverage
+fi
 popd
