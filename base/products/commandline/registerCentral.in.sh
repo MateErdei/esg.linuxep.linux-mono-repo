@@ -27,4 +27,4 @@ export PYTHONHOME=$INST_DIR/base/
 
 export LD_LIBRARY_PATH=$INST_DIR/base/lib:$INST_DIR/base/lib64
 
-exec $pythonExecutable -m mcsrouter.@REGISTERFILE@ "$@"
+exec $pythonExecutable  @PYTHON_ARGS_FOR_PROD@  -m mcsrouter.register_central  "$@"

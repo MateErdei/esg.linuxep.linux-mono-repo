@@ -15,7 +15,7 @@ do
     shift
 done
 echo 'remove previous coverage results'
-sudo rm -rf modules/.coverage unit_tests_coverage system_tests_coverage /tmp/register_central* /tmp/mcs_router*
+rm -rf modules/.coverage
 echo "build Run Tests and Produce Coverge Report.sh with systemtests: ${SYSTEM_TEST}"
 git checkout build/release-package.xml
 # FIXME: Jenkins fails to find the dev package in filer6.
@@ -24,25 +24,26 @@ DEPLOYMENT_TYPE="dev" python3 -m build_scripts.artisan_fetch build/release-packa
 ./build.sh --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
-cp modules/.coverage  unit_tests_coverage
+[[ -f modules/.coverage ]] && mv modules/.coverage  ${SYSTEM_TEST}/.coverage
 pushd ${SYSTEM_TEST}
 echo 'run system tests'
-RERUNFAILED=true BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE -s testnovaproxy -s testinstallation || echo "Test failure does not prevent the coverage report. "
-echo 'combine system tests results'
+TESTS2RUN="-i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE -s testnovaproxy -s testinstallation ."
 USER=$(whoami)
-sudo chown ${USER} /tmp/register_central* /tmp/mcs_router*  || echo 'ignore error'
-entries=$(ls /tmp/register_central* /tmp/mcs_router* 2>/dev/null)
-${SDDS_COMPONENT}/pyCoverage combine ${entries}
-echo 'replace name to the original source'
+if [[ ${USER} == "jenkins" ]]; then
+  RERUNFAILED=true BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
+else
+  ./robot ${TESTS2RUN}
+fi
+echo 'replace path to the original source'
 sed -i "s#/opt/sophos-spl/base/lib64#${BASE}/modules/mcsrouter#g" .coverage
 sed -i "s/py.0/py/g" .coverage
 sed -i "s_/opt/sophos-spl/base/lib_${SDDS_COMPONENT}/files/base/lib_g" .coverage
-cp .coverage ${BASE}/system_tests_coverage
-popd
-echo 'combine coverage results and publish it '
-${SDDS_COMPONENT}/pyCoverage combine unit_tests_coverage system_tests_coverage
-${SDDS_COMPONENT}/pyCoverage xml -i
+
+# create the xml report that is used by jenkins
+python3 -m coverage xml -i
+# publish the report to filer 6
 TARGET_PATH=/mnt/filer6/linux/SSPL/testautomation/pythoncoverage/
 [[ -d ${TARGET_PATH} ]] || mkdir -p ${TARGET_PATH}
 cp .coverage ${TARGET_PATH}/latest_python_coverage
-mv coverage.xml "${SYSTEM_TEST}/"
+
+popd
