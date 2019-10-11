@@ -269,11 +269,11 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         os_version = target_system.os_version()
         version_length = len(os_version)
 
-        if version_length < 1:
+        if version_length == 0:
             major_version = ""
             minor_version = ""
             logging.warn("OS Version not found")
-        elif version_length < 2:
+        elif version_length == 1:
             # this is expected on amazon Linux
             major_version = os_version[0]
             minor_version = ""
