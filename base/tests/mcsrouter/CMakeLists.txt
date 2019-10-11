@@ -1,11 +1,3 @@
-if ( PythonCoverage )
-    SET(PYTHON_COMMAND ${PYTHON_EXECUTABLE} -m coverage run )
-else()
-    message( "without python coverage")
-    SET(PYTHON_COMMAND ${PYTHON_EXECUTABLE})
-endif()
-
-
 add_test (NAME PythonTestAppProxyAdapter
         COMMAND ${PYTHON_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/TestAppProxyAdapter.py
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/modules

@@ -28,7 +28,11 @@ DEPLOYMENT_TYPE="dev" python3 -m build_scripts.artisan_fetch build/release-packa
 ./build.sh --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
-[[ -f modules/.coverage ]] && mv modules/.coverage  ${SYSTEM_TEST}/.coverage
+pushd modules
+python3 -m coverage combine || echo 'ignore error'
+[[ -f .coverage ]] && mv .coverage  ${SYSTEM_TEST}/.coverage
+popd
+
 pushd ${SYSTEM_TEST}
 echo 'run system tests'
 TESTS2RUN="-i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE -s testnovaproxy -s testinstallation ."
