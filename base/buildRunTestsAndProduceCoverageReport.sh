@@ -1,6 +1,9 @@
 #!/bin/bash
 set -ex
-
+function failure() {
+    echo >&2 $1
+    exit 1
+}
 # assumes this is executed from everest-base/
 BASE=$(pwd)
 SYSTEM_TEST=""
@@ -14,6 +17,7 @@ do
     esac
     shift
 done
+[[ -d ${SYSTEM_TEST} ]] || failure "Invalid path for system tests. "
 echo 'remove previous coverage results'
 rm -rf modules/.coverage
 echo "build Run Tests and Produce Coverge Report.sh with systemtests: ${SYSTEM_TEST}"
@@ -30,11 +34,13 @@ echo 'run system tests'
 TESTS2RUN="-i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE -s testnovaproxy -s testinstallation ."
 USER=$(whoami)
 if [[ ${USER} == "jenkins" ]]; then
-  RERUNFAILED=true BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
+  BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
+  sudo chown ${USER} .coverage
 else
   ./robot ${TESTS2RUN}
 fi
 echo 'replace path to the original source'
+
 sed -i "s#/opt/sophos-spl/base/lib64#${BASE}/modules/mcsrouter#g" .coverage
 sed -i "s/py.0/py/g" .coverage
 sed -i "s_/opt/sophos-spl/base/lib_${SDDS_COMPONENT}/files/base/lib_g" .coverage
