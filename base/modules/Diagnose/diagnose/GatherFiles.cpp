@@ -257,4 +257,43 @@ namespace diagnose
         std::cout << "Copied " << diagnoseLogPath << " to " << fullDest << std::endl;
     }
 
+    void GatherFiles::copyFilesInComponentDirectories(const Path& destination)
+    {
+
+        std::vector<std::string> componentSubPaths =
+                {"tmp/ServerProtectionLinux-Base", "tmp/ServerProtectionLinux-Plugin-MDR"};
+
+        for(auto& componentSubPath : componentSubPaths)
+        {
+            Path sourcePath = Common::FileSystem::join(m_installDirectory, componentSubPath);
+
+            if(!m_fileSystem.isDirectory(sourcePath))
+            {
+                continue;
+            }
+
+            std::vector<Path> files = m_fileSystem.listFiles(sourcePath);
+
+            if(files.size() == 0)
+            {
+                continue;
+            }
+
+            std::string componentFolderName = Common::FileSystem::basename(sourcePath);
+
+            Path destinationPath =  Common::FileSystem::join(destination, "BaseFiles", componentFolderName);
+
+            if(!m_fileSystem.isDirectory(destinationPath))
+            {
+                m_fileSystem.makedirs(destinationPath);
+            }
+
+            for(auto& sourceFilePath : files)
+            {
+                Path destinationFilePath = Common::FileSystem::join(destinationPath, Common::FileSystem::basename(sourceFilePath));
+                m_fileSystem.copyFile(sourceFilePath, destinationFilePath);
+            }
+        }
+    }
+
 } // namespace diagnose

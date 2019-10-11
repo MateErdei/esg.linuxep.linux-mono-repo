@@ -71,6 +71,11 @@ namespace diagnose
         void copyFileIntoDirectory(const Path& filePath, const Path& dirPath);
 
         /*
+         * Copies component specific directories to destination directory
+         */
+        void copyFilesInComponentDirectories(const Path& destination);
+
+        /*
          * Copies the diagnose log file to the destination directory.
          */
         void copyDiagnoseLogFile(const Path& destination);

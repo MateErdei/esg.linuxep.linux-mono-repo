@@ -84,6 +84,9 @@ namespace diagnose
             // Copy all files of interest from base.
             gatherFiles.copyBaseFiles(baseFilesDir);
 
+            // Copy additional component generated files
+            gatherFiles.copyFilesInComponentDirectories(destination);
+
             // Copy all files of interest from all the plugins.
             gatherFiles.copyPluginFiles(pluginFilesDir);
 
