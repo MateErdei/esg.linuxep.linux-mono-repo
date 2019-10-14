@@ -216,12 +216,12 @@ fi
 
 function build_version_less_than_system_version()
 {
-    test "$(printf '%s\n' "${BUILD_LIBC_VERSION} ${system_libc_version}" | sort -V | head -n 1)" != "$1"
+    test "$(printf '%s\n' ${BUILD_LIBC_VERSION} ${system_libc_version} | sort -V | head -n 1)" != ${BUILD_LIBC_VERSION}
 }
 
 if build_version_less_than_system_version
 then
-    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${BUILD_LIBC_VERSION} < required ${system_libc_version}"
+    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
 fi
 
 
