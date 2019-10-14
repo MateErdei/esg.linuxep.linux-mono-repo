@@ -106,6 +106,8 @@ namespace Common
              */
             time_t m_deathTime;
 
+            time_t m_killIssuedTime;
+
             bool m_enabled;
         };
     } // namespace ProcessMonitoringImpl

@@ -12,6 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/Exceptions/Print.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 
 #include <cassert>
 
@@ -62,7 +63,7 @@ namespace Common
 
             LOGINFO("Starting " << m_exe);
             assert(m_process != nullptr);
-
+            m_killIssuedTime = 0;
             // Add in the installation directory to the environment variables used when starting all plugins
             Common::Process::EnvPairs envVariables = m_processInfo->getExecutableEnvironmentVariables();
             envVariables.emplace_back(
@@ -81,6 +82,7 @@ namespace Common
             }
             if (m_running)
             {
+                m_killIssuedTime = Common::UtilityImpl::TimeUtils::getCurrTime();
                 LOGINFO("Stopping " << m_exe);
                 assert(m_process != nullptr);
                 m_process->kill(m_processInfo->getSecondsToShutDown());
@@ -125,8 +127,25 @@ namespace Common
                 int code = exitCode();
                 if (code != 0)
                 {
-                    // Always log if the process exited with a non-zero code
-                    LOGERROR(m_exe << " died with " << code);
+                    if (code == ECANCELED)
+                    {
+                        if (m_killIssuedTime != 0)
+                        {
+                            time_t secondsElapsed = Common::UtilityImpl::TimeUtils::getCurrTime() - m_killIssuedTime;
+                            LOGWARN(
+                                m_exe << " killed after waiting for " << secondsElapsed
+                                      << " seconds for it to stop cleanly");
+                        }
+                        else
+                        {
+                            LOGERROR(m_exe << " was forcefully stopped. Code=ECANCELED.");
+                        }
+                    }
+                    else
+                    {
+                        // Always log if the process exited with a non-zero code
+                        LOGERROR(m_exe << " died with " << code);
+                    }
                 }
                 else if (m_enabled)
                 {
