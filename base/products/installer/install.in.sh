@@ -362,6 +362,9 @@ chmod u+x "${SOPHOS_INSTALL}/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 chown -h root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/lib64"/*
 chmod g+r "${SOPHOS_INSTALL}/base/lib64"/*
+
+@INSTALL_ADJUST@
+
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
 chmod 700 "${SOPHOS_INSTALL}/bin/version"*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
@@ -443,7 +446,7 @@ then
 
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != ""  && "$EXIT_CODE" == "0" ]]
     then
-        waitForProcess "python3 -m mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
+        waitForProcess "mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
     fi
 else
     if software_changed ${DIST} ${PRODUCT_LINE_ID}
