@@ -36,7 +36,6 @@ popd
 pushd ${SYSTEM_TEST}
 echo 'run system tests'
 TESTS2RUN="-e AMAZON_LINUX -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE ."
-TESTS2RUN="-t 'MCSRouterStopsIfMCSCertificateCannotBeReadBySophos-spl-user' -t 'MalformedMCSPolicyWithoutClosingTagIsRejectedByTheEndPoint' -t 'DeregisterCommandStopsMCSRouter' -t  'MCSRecievesUpdateNowActionFromCentralCorrectly'"
 USER=$(whoami)
 if [[ ${USER} == "jenkins" ]]; then
   BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
