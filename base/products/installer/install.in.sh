@@ -11,13 +11,10 @@ EXIT_FAIL_DIR_MARKER=18
 EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_REGISTER=30
 EXIT_FAIL_SERVICE=40
-EXIT_FAIL_WRONG_LIBC_VERSION=50
 
 umask 077
 
 PRODUCT_LINE_ID="ServerProtectionLinux-Base"
-BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
-system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -173,6 +170,8 @@ function makedir()
     if [[ ! -d $2 ]]
     then
         mkdir -p "$2" && chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2 with permissions: $1"
+    else
+        chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to apply correct permissions: $1 to pre-existing directory: $2"
     fi
 }
 
@@ -209,27 +208,17 @@ function makeRootDirectory()
     done
 }
 
+
 if [[ $(id -u) != 0 ]]
 then
     failure ${EXIT_FAIL_NOT_ROOT} "Please run this installer as root."
 fi
 
-function build_version_less_than_system_version()
-{
-    test "$(printf '%s\n' ${BUILD_LIBC_VERSION} ${system_libc_version} | sort -V | head -n 1)" != ${BUILD_LIBC_VERSION}
-}
-
-if build_version_less_than_system_version
-then
-    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
-fi
-
-
 export DIST
 export SOPHOS_INSTALL
 
 ## Add a low-privilege group
-GROUP_NAME=sophos-spl-group
+GROUP_NAME=@SOPHOS_SPL_GROUP@
 
 GETENT=/usr/bin/getent
 [[ -x "${GETENT}" ]] || GETENT=$(which getent)
@@ -246,7 +235,7 @@ chown root:${GROUP_NAME} "${SOPHOS_INSTALL}"
 # Adds a hidden file to mark the install directory which is used by the uninstaller.
 touch "${SOPHOS_INSTALL}/.sophos" || failure ${EXIT_FAIL_DIR_MARKER} "Failed to create install directory marker file"
 
-USER_NAME=sophos-spl-user
+USER_NAME=@SOPHOS_SPL_USER@
 USERADD="$(which useradd)"
 [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
 [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
@@ -282,11 +271,40 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl"
 makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
+makedir 770 "${SOPHOS_INSTALL}/base/update"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
-makedir 700 "${SOPHOS_INSTALL}/base/update/certs"
-makedir 700 "${SOPHOS_INSTALL}/base/update/var"
+makedir 770 "${SOPHOS_INSTALL}/base/update/certs"
+# detect Upgrade from EAP
+function ownerAndGroupDirIsRoot()
+{
+        local DirPath="$1"
+        if [[ ! -d ${DirPath} ]]; then
+                return 1
+        fi
+
+        ownergroup=$(ls -ld "${DirPath}")
+        pattern=".*root\s+root.*"
+        if [[ "${ownergroup}" =~ ${pattern} ]]; then
+                return 0
+        else
+                return 1
+        fi
+}
+
+if ownerAndGroupDirIsRoot "${SOPHOS_INSTALL}/base/update/var"
+then
+    echo "Upgrading from EAP"
+    touch "${SOPHOS_INSTALL}/base/update/var/l.mark"
+fi
+
+makedir 770 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
+chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update"
+chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var"
+chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/certs"
+chown -R "root:root"  "${SOPHOS_INSTALL}/base/update/var/installedproducts"
+
 
 makedir 711 "${SOPHOS_INSTALL}/base/bin"
 makedir 711 "${SOPHOS_INSTALL}/base/lib64"
@@ -364,6 +382,9 @@ chmod 750 "${SOPHOS_INSTALL}/base/bin/telemetry"*
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/tscheduler"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/tscheduler"*
 
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/UpdateScheduler"*
+chmod 750 "${SOPHOS_INSTALL}/base/bin/UpdateScheduler"*
+
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/machineid"*
 chmod 710 "${SOPHOS_INSTALL}/base/bin/machineid"*
 
@@ -371,6 +392,10 @@ chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/"*
 chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
+
+# Telemetry needs to be able to access the version file.
+chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/VERSION.ini"
+chmod 640 "${SOPHOS_INSTALL}/base/VERSION.ini"
 
 unset LD_LIBRARY_PATH
 
