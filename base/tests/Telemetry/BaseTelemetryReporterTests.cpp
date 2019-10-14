@@ -5,7 +5,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/UtilityImpl/IniFileUtilities.h>
 #include <Telemetry/TelemetryImpl/BaseTelemetryReporter.h>
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
@@ -94,7 +93,6 @@ TEST_F(BaseTelemetryReporterTests, extractCustomerIdInvalidXml) // NOLINT
     EXPECT_FALSE( customerId.has_value());
 }
 
-//TODO extend the tests for extractValueFromIniFile maybe in seperate file
 TEST_F(BaseTelemetryReporterTests, extractValueFromIniFileMissingIniFile) // NOLINT
 {
     MockFileSystem* mockFileSystem = nullptr;
@@ -104,6 +102,6 @@ TEST_F(BaseTelemetryReporterTests, extractValueFromIniFileMissingIniFile) // NOL
 
     std::string testFilePath("testfilepath");
     EXPECT_CALL(*mockFileSystem, isFile(testFilePath)).WillOnce(Return(false));
-    auto endPointId = Common::UtilityImpl::extractValueFromIniFile(testFilePath, "endpointId");
+    auto endPointId = Telemetry::extractValueFromIniFile(testFilePath, "endpointId");
     EXPECT_FALSE( endPointId.has_value());
 }

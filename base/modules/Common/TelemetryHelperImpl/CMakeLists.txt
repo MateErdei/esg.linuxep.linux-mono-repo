@@ -8,7 +8,9 @@ add_library(telemetryhelperimplobject OBJECT
         TelemetryObject.h
         TelemetryObject.cpp
         Logger.h
-        Logger.cpp)
+        Logger.cpp
+        TelemetryJsonToMap.cpp
+        TelemetryJsonToMap.h)
 
 target_include_directories(telemetryhelperimplobject PUBLIC ../../Common ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 

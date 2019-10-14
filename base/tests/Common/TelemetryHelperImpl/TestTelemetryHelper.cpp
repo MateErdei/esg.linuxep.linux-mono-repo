@@ -8,6 +8,7 @@
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <include/gtest/gtest.h>
+#include <json.hpp>
 
 #include <thread>
 
@@ -436,7 +437,7 @@ TEST(TestTelemetryHelper, mergeInvalidJsonIn) // NOLINT
     ASSERT_THROW(helper.mergeJsonIn("merged", json), nlohmann::detail::parse_error); // NOLINT
 }
 
-void appendLots(const std::string arrayName, int numberToAdd)
+void appendLots(const std::string& arrayName, int numberToAdd)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     for (long i = 0; i < numberToAdd; ++i)

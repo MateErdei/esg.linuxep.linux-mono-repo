@@ -6,6 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "TelemetrySerialiser.h"
 
+#include <json.hpp>
 #include <sstream>
 #include <stdexcept>
 
