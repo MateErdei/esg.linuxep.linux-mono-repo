@@ -17,7 +17,7 @@ function update_apt()
 function update_yum()
 {
     echo "=> Updating existing packages with yum..."
-    if grep 'Red Hat Enterprise Linux release 8' /etc/redhat-release; then
+    if grep 'Linux release 8' /etc/redhat-release; then
         yum -y --nobest update || return 1
         ln -sf /usr/bin/python2.7 /usr/bin/python
     else
