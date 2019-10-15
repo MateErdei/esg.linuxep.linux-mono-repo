@@ -91,6 +91,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master, bugfix/directory-permissions-not-being-set-on-upgrade</publishbranches>
+        <publishbranches>master</publishbranches>
     </publish>
 </package>
