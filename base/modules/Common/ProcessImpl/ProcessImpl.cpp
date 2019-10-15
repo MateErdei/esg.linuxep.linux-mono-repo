@@ -380,25 +380,26 @@ namespace Common
                 if (WIFEXITED(status))
                 {
                     LOGDEBUG("PID " << m_pid << " exited, status=" << WEXITSTATUS(status));
+                    m_exitcode = WEXITSTATUS(status);
                 }
                 else if (WIFSIGNALED(status))
                 {
                     LOGDEBUG("PID " << m_pid << " killed by signal, status=" << WTERMSIG(status));
+                    m_exitcode = WTERMSIG(status);
                 }
                 // WIFSTOPPED can only occur if the call is done using WUNTRACED or if the child is being traced by
                 // ptrace
                 else if (WIFSTOPPED(status))
                 {
                     LOGDEBUG("PID " << m_pid << " stopped by signal, status=" << WSTOPSIG(status));
+                    m_exitcode = WSTOPSIG(status);
                 }
                 else if (WIFCONTINUED(status))
                 {
                     LOGDEBUG("PID " << m_pid << " continued to run");
                 }
-
                 m_pipeThread->requestStop();
             }
-            m_exitcode = WEXITSTATUS(status);
         }
 
         void ProcessImpl::setOutputTrimmedCallback(std::function<void(std::string)> outputTrimmedCallback)

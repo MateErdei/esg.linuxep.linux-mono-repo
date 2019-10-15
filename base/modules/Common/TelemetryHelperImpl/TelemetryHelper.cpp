@@ -8,6 +8,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "TelemetrySerialiser.h"
 
+#include <Common/UtilityImpl/StringUtils.h>
+
 #include <functional>
 
 namespace Common::Telemetry
