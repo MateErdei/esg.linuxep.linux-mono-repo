@@ -11,9 +11,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Common::Telemetry
 {
-    std::map<std::string, TelemetryValue> flatJsonToMap(const std::string& jsonString)
+    std::unordered_map<std::string, TelemetryValue> flatJsonToMap(const std::string& jsonString)
     {
-        std::map<std::string, TelemetryValue> map;
+        std::unordered_map<std::string, TelemetryValue> map;
         try
         {
             nlohmann::json jsonObj = nlohmann::json::parse(jsonString);
