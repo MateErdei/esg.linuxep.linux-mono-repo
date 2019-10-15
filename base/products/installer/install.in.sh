@@ -167,12 +167,12 @@ function waitForProcess()
 
 function makedir()
 {
+    # Creates directory and enforces it's permissions
     if [[ ! -d $2 ]]
     then
-        mkdir -p "$2" && chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2 with permissions: $1"
-    else
-        chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to apply correct permissions: $1 to pre-existing directory: $2"
+        mkdir -p "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2"
     fi
+    chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to apply correct permissions: $1 to directory: $2"
 }
 
 function makeRootDirectory()
