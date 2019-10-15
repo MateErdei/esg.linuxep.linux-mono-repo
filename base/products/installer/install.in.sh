@@ -295,8 +295,7 @@ function ownerAndGroupDirIsRoot()
 if ownerAndGroupDirIsRoot "${SOPHOS_INSTALL}/base/update/var"
 then
     echo "Upgrading from EAP"
-    touch "${SOPHOS_INSTALL}/base/update/var/l.mark"
-    chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/update/var/update_report*.json"
+    touch "${SOPHOS_INSTALL}/base/update/var/upgrade_from_eap.mark"
 fi
 
 makedir 770 "${SOPHOS_INSTALL}/base/update/var"
