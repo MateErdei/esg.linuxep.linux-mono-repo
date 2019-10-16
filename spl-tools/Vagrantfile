@@ -21,6 +21,7 @@ Vagrant.configure("2") do |config|
         config.vm.provision "file", source: __dir__+"/everest-systemproducttests/SupportFiles/jenkins/auditdConfig.txt", destination: "/home/vagrant/auditdConfig.txt"
         ubuntu.vm.provision :shell, path: "bootstrap_ubuntu.sh"
         ubuntu.vm.provision :shell, path: "bootstrap_common.sh"
+        config.vm.hostname = "vagrant#{hostname}"
     end
 
     config.vm.define "centos" do |centos|

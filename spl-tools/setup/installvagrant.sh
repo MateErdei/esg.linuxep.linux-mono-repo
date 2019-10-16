@@ -4,7 +4,7 @@
 vagrant --version &> /dev/null
 if [ "x$?" != "x0" ]; then
   echo 'Installing vagrant'
-  VAGRANTDEB=/mnt/filer6/linux/users/Gesner/vagrant_2.2.0_x86_64.deb
+  VAGRANTDEB=/mnt/filer6/linux/SSPL/tools/setup_sspl/vagrant/vagrant_2.2.0_x86_64.deb
   sudo dpkg -i "$VAGRANTDEB"
   sleep 10
 else
