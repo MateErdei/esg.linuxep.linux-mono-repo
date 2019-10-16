@@ -36,7 +36,7 @@ namespace UpdateSchedulerImpl
             std::unique_ptr<SulDownloaderRunner> m_sulDownloaderRunner;
             std::future<void> m_sulDownloaderExecHandle;
 
-            // used to check timeout so that we sulDownloader can be force to restart.
+            // used to check the timeout so that the sulDownloader can be forced to restart
             std::chrono::system_clock::time_point m_sulDownloaderRunnerStartTime;
         };
     } // namespace runnerModule
