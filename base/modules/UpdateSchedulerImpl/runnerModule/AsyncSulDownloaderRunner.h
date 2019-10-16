@@ -28,11 +28,16 @@ namespace UpdateSchedulerImpl
 
             void triggerAbort() override;
 
+            bool hasTimedOut() override;
+
         private:
             std::string m_dirPath;
             std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_taskQueue;
             std::unique_ptr<SulDownloaderRunner> m_sulDownloaderRunner;
             std::future<void> m_sulDownloaderExecHandle;
+
+            // used to check timeout so that we sulDownloader can be force to restart.
+            std::chrono::system_clock::time_point m_sulDownloaderRunnerStartTime;
         };
     } // namespace runnerModule
 } // namespace UpdateSchedulerImpl

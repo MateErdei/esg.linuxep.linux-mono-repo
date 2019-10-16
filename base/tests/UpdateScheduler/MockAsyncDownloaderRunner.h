@@ -21,4 +21,6 @@ public:
     MOCK_METHOD0(isRunning, bool());
 
     MOCK_METHOD0(triggerAbort, void());
+
+    MOCK_METHOD0(hasTimedOut, bool());
 };

@@ -17,7 +17,8 @@ namespace UpdateSchedulerImpl
             m_dirPath(dirPath),
             m_taskQueue(taskQueue),
             m_sulDownloaderRunner(),
-            m_sulDownloaderExecHandle()
+            m_sulDownloaderExecHandle(),
+            m_sulDownloaderRunnerStartTime(std::chrono::system_clock::now() - std::chrono::hours(24))
         {
         }
 
@@ -33,6 +34,8 @@ namespace UpdateSchedulerImpl
                 // clear the current sulDownloader
                 m_sulDownloaderRunner.reset();
             }
+
+            m_sulDownloaderRunnerStartTime = std::chrono::system_clock::now();
 
             m_sulDownloaderRunner.reset(
                 new SulDownloaderRunner(m_taskQueue, m_dirPath, "update_report.json", std::chrono::minutes(10)));
@@ -56,6 +59,20 @@ namespace UpdateSchedulerImpl
             {
                 m_sulDownloaderRunner->abortWaitingForReport();
             }
+        }
+
+        bool AsyncSulDownloaderRunner::hasTimedOut()
+        {
+            std::chrono::system_clock::time_point currentTime = std::chrono::system_clock::now();
+
+            std::chrono::duration<double> elapsed_seconds = m_sulDownloaderRunnerStartTime-currentTime;
+
+            if(elapsed_seconds < std::chrono::seconds(600))
+            {
+                return false;
+            }
+
+            return true;
         }
     } // namespace runnerModule
 

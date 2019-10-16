@@ -68,7 +68,7 @@ namespace UpdateSchedulerImpl
     {
         LOGINFO("Update Scheduler Starting");
 
-        enforceSulDownloaderFinished(600);
+        waitForSulDownloaderToFinish(600);
 
         // handle upgrade from EAP
         // FIXME: LINUXDAR-715 Remove Upgrade from EAP special code after GA
@@ -224,6 +224,8 @@ namespace UpdateSchedulerImpl
 
             if (!m_policyReceived)
             {
+                m_policyReceived = true;
+
                 // ensure that recent results 'if available' are processed.
                 // When base is updated, it may stop this plugin. Hence, on start-up, it needs to double-check
                 // there is no new results to be processed.
@@ -243,8 +245,6 @@ namespace UpdateSchedulerImpl
                     }
                 }
             }
-
-            m_policyReceived = true;
 
             if (m_pendingUpdate)
             {
@@ -311,12 +311,12 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::processScheduleUpdate()
     {
-        if (m_sulDownloaderRunner->isRunning())
+        if(m_sulDownloaderRunner->isRunning() && !m_sulDownloaderRunner->hasTimedOut())
         {
-            LOGWARN("An active instance of SulDownloader was found. Aborting it.");
-            m_sulDownloaderRunner->triggerAbort();
-            ensureSulDownloaderNotRunning();
+            LOGINFO("An active instance of SulDownloader is already running, continuing with current instance.");
+            return;
         }
+
         std::string configPath =
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
         if (!Common::FileSystem::fileSystem()->isFile(configPath))
@@ -432,7 +432,7 @@ namespace UpdateSchedulerImpl
         LOGERROR("SulDownloader failed to complete its job in 10 minutes");
         Common::Telemetry::TelemetryHelper::getInstance().increment("failed-downloader-count", 1UL);
 
-        ensureSulDownloaderNotRunning();
+        waitForSulDownloaderToFinish();
     }
 
     void UpdateSchedulerProcessor::processSulDownloaderMonitorDetached()
@@ -440,7 +440,7 @@ namespace UpdateSchedulerImpl
         LOGWARN("Monitoring SulDownloader aborted");
         if (!m_callback->shutdownReceived())
         {
-            ensureSulDownloaderNotRunning();
+            waitForSulDownloaderToFinish();
         }
     }
 
@@ -487,11 +487,11 @@ namespace UpdateSchedulerImpl
         iFileSystem->moveFile(originalJsonFilePath, targetPathName);
     }
 
-    void UpdateSchedulerProcessor::ensureSulDownloaderNotRunning() { enforceSulDownloaderFinished(1); }
+    void UpdateSchedulerProcessor::waitForSulDownloaderToFinish() { waitForSulDownloaderToFinish(1); }
 
     std::string UpdateSchedulerProcessor::getAppId() { return ALC_API; }
 
-    void UpdateSchedulerProcessor::enforceSulDownloaderFinished(int numberOfSeconds2Wait)
+    void UpdateSchedulerProcessor::waitForSulDownloaderToFinish(int numberOfSeconds2Wait)
     {
         std::string pathOfSulDownloader = Common::FileSystem::join(
             Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), "base/bin/SulDownloader");
@@ -565,8 +565,7 @@ namespace UpdateSchedulerImpl
             if (i >= numberOfSeconds2Wait)
             {
                 assert(pidOfSulDownloader > 0);
-                LOGWARN("Forcing SulDownloader (PID=" << pidOfSulDownloader << ") to stop");
-                ::kill(pidOfSulDownloader, SIGTERM);
+                LOGWARN("SulDownloader (PID=" << pidOfSulDownloader << ") still running after wait period");
                 return;
             }
 

@@ -84,7 +84,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosS
 {
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{ "start", "sophos-spl-update.service" };
+        std::vector<std::string> args{ "restart", "sophos-spl-update.service" };
         EXPECT_CALL(*mockProcess, exec(HasSubstr("systemctl"), args)).Times(1);
         EXPECT_CALL(*mockProcess, waitUntilProcessEnds());
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
@@ -100,7 +100,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillThrowExceptionIfSophosUp
 {
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{ "start", "sophos-spl-update.service" };
+        std::vector<std::string> args{ "restart", "sophos-spl-update.service" };
         EXPECT_CALL(*mockProcess, exec(HasSubstr("systemctl"), args)).Times(1);
         EXPECT_CALL(*mockProcess, waitUntilProcessEnds());
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
@@ -131,7 +131,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosS
 {
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{ "start", "sophos-spl-update.service" };
+        std::vector<std::string> args{ "restart", "sophos-spl-update.service" };
         EXPECT_CALL(*mockProcess, exec(HasSubstr("systemctl"), args)).Times(1);
         EXPECT_CALL(*mockProcess, waitUntilProcessEnds());
         EXPECT_CALL(*mockProcess, setOutputLimit(_));

@@ -33,7 +33,7 @@ namespace UpdateSchedulerImpl
         static std::string getAppId();
 
     private:
-        void enforceSulDownloaderFinished(int numberOfSeconds2Wait);
+        void waitForSulDownloaderToFinish(int numberOfSeconds2Wait);
         void processPolicy(const std::string& policyXml);
 
         void processUpdateNow(const std::string& actionXml);
@@ -50,7 +50,7 @@ namespace UpdateSchedulerImpl
 
         void safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const;
 
-        void ensureSulDownloaderNotRunning();
+        void waitForSulDownloaderToFinish();
 
         std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_queueTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
@@ -65,5 +65,7 @@ namespace UpdateSchedulerImpl
         Common::UtilityImpl::FormattedTime m_formattedTime;
         bool m_policyReceived;
         bool m_pendingUpdate;
+
+
     };
 } // namespace UpdateSchedulerImpl

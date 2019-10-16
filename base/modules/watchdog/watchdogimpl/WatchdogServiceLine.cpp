@@ -20,7 +20,7 @@ namespace
     {
         auto process = Common::Process::createProcess();
         process->setOutputLimit(1000);
-        process->exec("/bin/systemctl", { "start", "sophos-spl-update.service" });
+        process->exec("/bin/systemctl", { "restart", "sophos-spl-update.service" });
         process->waitUntilProcessEnds();
         std::string output = process->output();
         int exitCode = process->exitCode();

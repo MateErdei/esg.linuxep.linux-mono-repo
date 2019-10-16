@@ -19,6 +19,8 @@ namespace UpdateScheduler
         virtual bool isRunning() = 0;
 
         virtual void triggerAbort() = 0;
+
+        virtual bool hasTimedOut() = 0;
     };
 
     std::unique_ptr<IAsyncSulDownloaderRunner> createSulDownloaderRunner(
