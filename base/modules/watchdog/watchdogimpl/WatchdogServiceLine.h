@@ -32,7 +32,7 @@ namespace watchdog
             std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler;
         };
 
-        std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string & pluginName);
+        std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string& pluginName);
 
     } // namespace watchdogimpl
 } // namespace watchdog

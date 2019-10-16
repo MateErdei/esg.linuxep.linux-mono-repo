@@ -181,7 +181,7 @@ namespace watchdog
             return theFactory;
         }
 
-        std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string & pluginName)
+        std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string& pluginName)
         {
             std::stringstream telemetryMessage;
             telemetryMessage << pluginName << "-unexpected-restarts";

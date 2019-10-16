@@ -26,7 +26,7 @@ namespace watchdog
         using ProxyList = std::list<watchdog::watchdogimpl::PluginProxy>;
 
         static const std::string watchdogReturnsOk = "OK";                  // NOLINT
-        static const std::string watdhdogReturnsNotRunning = "Not Running"; // NOLINT
+        static const std::string watchdogReturnsNotRunning = "Not Running"; // NOLINT
 
         class Watchdog : public Common::ProcessMonitoringImpl::ProcessMonitor
         {
@@ -53,13 +53,6 @@ namespace watchdog
              * @return "OK" or an error
              */
             std::string removePlugin(const std::string& pluginName);
-
-            /**
-             * Find a plugin by name from m_pluginProxies, returning nullptr if no plugin found,
-             * @param pluginName
-             * @return BORROWED pointer to plugin, or nullptr.
-             */
-            PluginProxy* findPlugin(const std::string& pluginName);
 
         private:
             Common::ZeroMQWrapper::ISocketReplierPtr m_socket;

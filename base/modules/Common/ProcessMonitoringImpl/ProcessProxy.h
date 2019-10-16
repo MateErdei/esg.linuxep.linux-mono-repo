@@ -43,7 +43,7 @@ namespace Common
              * If stop requested and process still running check again in 5 seconds
              * @return number of seconds to wait before checking processes again.
              */
-            std::chrono::seconds checkForExit() override;
+            std::pair<std::chrono::seconds, Process::ProcessStatus> checkForExit() override;
 
             /**
              * If process is enabled, and is not running, and enough time has passed, start process.
@@ -61,6 +61,8 @@ namespace Common
             void setEnabled(bool enabled) override;
 
             bool isRunning() override ;
+
+            std::string name() const override;
 
         protected:
             /**

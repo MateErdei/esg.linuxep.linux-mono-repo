@@ -16,6 +16,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
 
 #include <list>
+#include <mutex>
 
 namespace Common
 {
@@ -39,13 +40,20 @@ namespace Common
 
             int run() override;
 
-        protected:
-
+        private:
+            std::mutex m_processProxiesMutex;
             ProxyList m_processProxies;
+            SocketHandleFunctionList m_socketHandleFunctionList;
+
+        protected:
+            std::vector<std::string> getListOfPluginNames();
+
+            bool removePluginByName( const std::string & pluginName );
+
+            void applyToProcessProxy(const std::string & processProxyName, std::function<void(Common::ProcessMonitoring::IProcessProxy&)> functorToApply);
+
             Common::ZMQWrapperApi::IContextSharedPtr m_context;
 
-        private:
-            SocketHandleFunctionList m_socketHandleFunctionList;
         };
     } // namespace ProcessMonitoringImpl
 } // namespace Common

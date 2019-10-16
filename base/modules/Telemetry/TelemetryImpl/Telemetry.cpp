@@ -50,7 +50,7 @@ namespace Telemetry
 
         const size_t ipcSize = std::string("ipc://").size();
         for (auto& pluginInfo : pluginInfos)
-            {
+        {
             std::string pluginName = pluginInfo.getPluginName();
             std::string pluginSocketAddress =
                 Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);

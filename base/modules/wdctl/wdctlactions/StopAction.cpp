@@ -66,7 +66,7 @@ StopAction::IsRunningStatus StopAction::checkIsRunning()
     {
         return StopAction::IsRunningStatus::Undefined;
     }
-    if (response.at(0) == watchdog::watchdogimpl::watdhdogReturnsNotRunning)
+    if (response.at(0) == watchdog::watchdogimpl::watchdogReturnsNotRunning)
     {
         return StopAction::IsRunningStatus::IsNotRunning;
     }

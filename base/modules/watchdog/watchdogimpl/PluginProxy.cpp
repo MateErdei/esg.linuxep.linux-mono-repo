@@ -22,9 +22,10 @@ PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info) :
 {
 }
 
-std::chrono::seconds PluginProxy::checkForExit()
+std::pair<std::chrono::seconds, Common::Process::ProcessStatus> PluginProxy::checkForExit()
 {
-    auto statusCode = status();
+    std::pair<std::chrono::seconds, Common::Process::ProcessStatus> processProxyPair = ProcessProxy::checkForExit();
+    auto statusCode = processProxyPair.second;
     if (statusCode == Common::Process::ProcessStatus::FINISHED  && m_enabled && m_running)
     {
         Common::Telemetry::TelemetryHelper::getInstance().increment(
@@ -32,7 +33,9 @@ std::chrono::seconds PluginProxy::checkForExit()
                 1UL
         );
     }
-    return ProcessProxy::checkForExit();
+    return processProxyPair;
+
+
 
 }
 

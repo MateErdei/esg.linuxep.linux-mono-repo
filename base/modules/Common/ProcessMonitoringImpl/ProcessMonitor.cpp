@@ -42,15 +42,16 @@ namespace Common
         {
             Common::ProcessMonitoringImpl::SignalHandler signalHandler;
 
-            if (m_processProxies.empty())
             {
-                LOGERROR("No processes to monitor!");
-                return 1;
-            }
+                std::lock_guard<std::mutex> lock(m_processProxiesMutex);
+                if (m_processProxies.empty()) {
+                    LOGERROR("No processes to monitor!");
+                    return 1;
+                }
 
-            for (auto& proxy : m_processProxies)
-            {
-                proxy->ensureStateMatchesOptions();
+                for (auto &proxy : m_processProxies) {
+                    proxy->ensureStateMatchesOptions();
+                }
             }
 
             bool keepRunning = true;
@@ -114,20 +115,23 @@ namespace Common
 
                 // Child may have exited, or socket request may have altered state.
                 timeout = std::chrono::seconds(10);
-                for (auto& proxy : m_processProxies)
                 {
-                    auto waitPeriod = proxy->checkForExit();
-                    waitPeriod = std::min(proxy->ensureStateMatchesOptions(), waitPeriod);
-                    timeout = std::min(waitPeriod, timeout);
+                    std::lock_guard<std::mutex> lock(m_processProxiesMutex);
+                    for (auto &proxy : m_processProxies) {
+                        auto waitPeriod = proxy->checkForExit().first;
+                        waitPeriod = std::min(proxy->ensureStateMatchesOptions(), waitPeriod);
+                        timeout = std::min(waitPeriod, timeout);
+                    }
                 }
-
                 timeout = std::max(timeout, std::chrono::seconds(1)); // Ensure we wait at least 1 second
                 LOGDEBUG("timeout = " << timeout.count());
             }
 
             LOGINFO("Stopping processes");
-            m_processProxies.clear(); // stop is called on proxies as they are destroyed
-
+            {
+                std::lock_guard<std::mutex> lock(m_processProxiesMutex);
+                m_processProxies.clear(); // stop is called on proxies as they are destroyed
+            }
             // Normal shutdown
             m_socketHandleFunctionList.clear();
             m_context.reset();
@@ -135,8 +139,10 @@ namespace Common
             return 0;
         }
 
+
         void ProcessMonitor::addProcessToMonitor(Common::ProcessMonitoring::IProcessProxyPtr processProxyPtr)
         {
+            std::lock_guard<std::mutex> lock(m_processProxiesMutex);
             m_processProxies.push_back(std::move(processProxyPtr));
         }
 
@@ -146,6 +152,68 @@ namespace Common
         {
             m_socketHandleFunctionList.push_back(SocketHandleFunctionPair(socketReplier, socketHandleFunction));
         }
+
+        std::vector<std::string> ProcessMonitor::getListOfPluginNames() {
+
+                std::lock_guard<std::mutex> lock(m_processProxiesMutex);
+                std::vector<std::string> pluginNames;
+                for (auto & processProxy: m_processProxies)
+                {
+                    std::string name = processProxy->name();
+                    assert( processProxy.get() != nullptr);
+                    if ( !name.empty())
+                    {
+                        pluginNames.emplace_back(name);
+                    }
+
+                }
+                return pluginNames;
+        }
+
+        bool ProcessMonitor::removePluginByName(const std::string &pluginName)
+        {
+            if (pluginName.empty())
+            {
+                return false;
+            }
+            bool found = false;
+            std::lock_guard<std::mutex> lock(m_processProxiesMutex);
+            for (auto it = m_processProxies.begin(); it != m_processProxies.end();) {
+                Common::ProcessMonitoring::IProcessProxy * pluginProxy = it->get();
+                if (pluginProxy == nullptr) // necessary for release build.
+                {
+                    break;
+                }
+                if (pluginName == pluginProxy->name()) {
+                    pluginProxy->stop();
+                    it = m_processProxies.erase(it);
+                    found = true;
+                } else {
+                    ++it;
+                }
+            }
+
+            return found;
+        }
+
+        void
+        ProcessMonitor::applyToProcessProxy(const std::string &processProxyName, std::function<void( Common::ProcessMonitoring::IProcessProxy&)> functorToApply)
+        {
+            std::lock_guard<std::mutex> lock(m_processProxiesMutex);
+            for (auto& proxy : m_processProxies)
+            {
+                assert(proxy.get() != nullptr);
+                if( proxy.get() == nullptr)
+                {
+                    continue;
+                }
+                if( proxy->name() == processProxyName)
+                {
+                    functorToApply(*proxy);
+                }
+            }
+        }
+
 
     } // namespace ProcessMonitoringImpl
 } // namespace Common

@@ -114,14 +114,14 @@ namespace Common
             return code;
         }
 
-        std::chrono::seconds ProcessProxy::checkForExit()
+        std::pair<std::chrono::seconds, Process::ProcessStatus> ProcessProxy::checkForExit()
         {
+            auto statusCode = status();
             if (!m_running)
             {
                 // Don't print out multiple times
-                return std::chrono::hours(1);
+                return std::pair<std::chrono::seconds, Process::ProcessStatus>(std::chrono::hours(1), statusCode);
             }
-            auto statusCode = status();
             if (statusCode == Common::Process::ProcessStatus::FINISHED)
             {
                 int code = exitCode();
@@ -160,9 +160,9 @@ namespace Common
             else if (!m_enabled)
             {
                 LOGWARN(m_exe << " still running, despite being disabled: " << (int)statusCode);
-                return std::chrono::seconds(5);
+                return std::pair<std::chrono::seconds, Process::ProcessStatus>(std::chrono::seconds(5), statusCode);
             }
-            return std::chrono::hours(1);
+            return std::pair<std::chrono::seconds, Process::ProcessStatus>(std::chrono::hours(1), statusCode);
         }
 
         std::chrono::seconds ProcessProxy::ensureStateMatchesOptions()
@@ -251,6 +251,11 @@ namespace Common
         {
             checkForExit();
             return m_running;
+        }
+
+        std::string ProcessProxy::name() const
+        {
+            return "";
         }
 
     } // namespace ProcessMonitoringImpl

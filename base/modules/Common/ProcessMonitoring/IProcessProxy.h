@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <Common/Process/IProcessInfo.h>
+#include <Common/Process/IProcess.h>
 
 #include <chrono>
 
@@ -24,7 +25,7 @@ namespace Common
              */
             virtual void stop() = 0;
 
-            virtual std::chrono::seconds checkForExit() = 0;
+            virtual std::pair<std::chrono::seconds, Process::ProcessStatus> checkForExit() = 0;
 
             /**
              * If process is enabled, and is not running, and enough time has passed, start process.
@@ -37,6 +38,9 @@ namespace Common
 
             virtual void setEnabled(bool enabled) = 0;
             virtual bool isRunning() = 0;
+
+            virtual std::string name() const = 0;
+
         };
         using IProcessProxyPtr = std::unique_ptr<IProcessProxy>;
         extern IProcessProxyPtr createProcessProxy(Common::Process::IProcessInfoPtr processInfoPtr);

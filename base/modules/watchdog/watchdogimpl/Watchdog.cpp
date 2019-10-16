@@ -29,11 +29,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 namespace
 {
     const char* PLUGINNOTFOUND = "Error: Plugin not found";
+    enum class PluginStatus{NotFound, NotRunning, Running, Disabled };
 }
 
 using namespace watchdog::watchdogimpl;
-
-std::vector<std::string> func() {return {};}
 
 Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) :
     Common::ProcessMonitoringImpl::ProcessMonitor(context),
@@ -75,14 +74,7 @@ PluginInfoVector Watchdog::readPluginConfigs()
 
 std::vector<std::string> Watchdog::getListOfPluginNames()
 {
-    std::vector<std::string> pluginNames;
-    for (auto & processProxy: m_processProxies)
-    {
-        auto pluginProxy = dynamic_cast<PluginProxy*>(processProxy.get());
-        assert(pluginProxy != nullptr);
-        pluginNames.emplace_back(pluginProxy->name());
-    }
-    return pluginNames;
+    return ProcessMonitor::getListOfPluginNames();
 }
 
 std::string Watchdog::getIPCPath()
@@ -121,10 +113,19 @@ void Watchdog::handleSocketRequest()
 std::string Watchdog::disablePlugin(const std::string& pluginName)
 {
     LOGINFO("Requesting stop of " << pluginName);
-    PluginProxy* proxy = findPlugin(pluginName);
-    if (proxy != nullptr)
+    PluginStatus status{PluginStatus::NotFound};
+    auto functor = [&status]( Common::ProcessMonitoring::IProcessProxy& processProxy)
     {
-        proxy->setEnabled(false);
+
+        processProxy.setEnabled(false);
+        status = PluginStatus::Disabled;
+
+    };
+
+    ProcessMonitor::applyToProcessProxy(pluginName, functor);
+
+    if (status == PluginStatus::Disabled)
+    {
         return watchdogReturnsOk;
     }
     return PLUGINNOTFOUND;
@@ -133,30 +134,52 @@ std::string Watchdog::disablePlugin(const std::string& pluginName)
 std::string Watchdog::enablePlugin(const std::string& pluginName)
 {
     LOGINFO("Starting " << pluginName);
+    bool pluginIsManaged = false;
+    auto detectPluginIsManaged = [&pluginIsManaged]( Common::ProcessMonitoring::IProcessProxy& )
+    {
+        pluginIsManaged = true;
 
-    PluginProxy* proxy = findPlugin(pluginName); // BORROWED pointer
+    };
+
+    auto enablePlugin = []( Common::ProcessMonitoring::IProcessProxy& processProxy)
+    {
+        processProxy.setEnabled(true);
+    };
+
+    ProcessMonitor::applyToProcessProxy(pluginName, detectPluginIsManaged);
 
     std::pair<Common::PluginRegistryImpl::PluginInfo, bool> loadResult =
-        Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
+            Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
 
-    if (proxy == nullptr && !loadResult.second)
+    if (!pluginIsManaged && !loadResult.second)
     {
         // No plugin loaded and none on disk
         return PLUGINNOTFOUND;
     }
-    if (proxy == nullptr)
+    if (!pluginIsManaged)
     {
         // Not previously loaded, but now available
         assert(loadResult.second);
         addProcessToMonitor(std::unique_ptr<PluginProxy>(new PluginProxy(std::move(loadResult.first))));
-        proxy = findPlugin(pluginName); // BORROWED pointer
     }
     else if (loadResult.second)
     {
         // update info from disk
-        proxy->updatePluginInfo(loadResult.first);
+
+        auto infoUpdater = [&loadResult](Common::ProcessMonitoring::IProcessProxy& processProxy )
+        {
+            PluginProxy * proxy = dynamic_cast<PluginProxy*>(&processProxy);
+            if( proxy != nullptr)
+            {
+                proxy->updatePluginInfo(loadResult.first);
+            }
+            processProxy.setEnabled(true);
+        };
+        applyToProcessProxy(pluginName, infoUpdater);
+        return watchdogReturnsOk;
     }
-    proxy->setEnabled(true);
+
+    ProcessMonitor::applyToProcessProxy(pluginName, enablePlugin);
     return watchdogReturnsOk;
 }
 
@@ -164,26 +187,7 @@ std::string Watchdog::removePlugin(const std::string& pluginName)
 {
     LOGINFO("Removing " << pluginName);
 
-    bool found = false;
-    for (auto it = m_processProxies.begin(); it != m_processProxies.end();)
-    {
-        auto pluginProxy = dynamic_cast<PluginProxy*>(it->get());
-        assert(pluginProxy != nullptr);
-        if (pluginProxy == nullptr) // necessary for release build.
-        {
-            break;
-        }
-        if (pluginName == pluginProxy->name())
-        {
-            pluginProxy->stop();
-            it = m_processProxies.erase(it);
-            found = true;
-        }
-        else
-        {
-            ++it;
-        }
-    }
+    bool found = ProcessMonitor::removePluginByName(pluginName);
 
     if (!found)
     {
@@ -224,29 +228,30 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
     return "Error: Unknown command";
 }
 
-PluginProxy* Watchdog::findPlugin(const std::string& pluginName)
-{
-    for (auto& proxy : m_processProxies)
-    {
-        auto pluginProxy = dynamic_cast<PluginProxy*>(proxy.get());
-        if (pluginProxy->name() == pluginName)
-        {
-            return pluginProxy;
-        }
-    }
-    return nullptr;
-}
-
 std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
 {
-    auto plugin = findPlugin(pluginName);
-    if (!plugin)
+    PluginStatus status{PluginStatus::NotFound};
+    auto functor = [&status]( Common::ProcessMonitoring::IProcessProxy& processProxy)
     {
-        return PLUGINNOTFOUND;
-    }
-    if (plugin->isRunning())
+        if ( processProxy.isRunning())
+        {
+            status = PluginStatus::Running;
+        } else
+        {
+            status = PluginStatus::NotRunning;
+        }
+    };
+
+    ProcessMonitor::applyToProcessProxy(pluginName, functor);
+
+    switch (status)
     {
-        return watchdogReturnsOk;
+        case PluginStatus::NotRunning:
+            return watchdogReturnsNotRunning;
+        case PluginStatus::Running:
+            return watchdogReturnsOk;
+        case PluginStatus::NotFound:
+        default:
+            return PLUGINNOTFOUND;
     }
-    return watdhdogReturnsNotRunning;
 }

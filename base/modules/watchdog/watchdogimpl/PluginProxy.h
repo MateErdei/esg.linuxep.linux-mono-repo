@@ -21,14 +21,14 @@ namespace watchdog
         public:
             explicit PluginProxy(Common::PluginRegistryImpl::PluginInfo info);
 
-            std::chrono::seconds checkForExit() override;
+            std::pair<std::chrono::seconds, Common::Process::ProcessStatus> checkForExit() override;
 
             /**
              * Get the name of the plugin.
              *
              * @return plugin name (either from the JSON, or from the filename if not specified in the JSON info)
              */
-            std::string name() const;
+            std::string name() const override ;
 
             /**
              * Info has been reloaded, so update the information
