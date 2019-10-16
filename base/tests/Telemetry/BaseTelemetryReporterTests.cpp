@@ -95,13 +95,12 @@ TEST_F(BaseTelemetryReporterTests, extractCustomerIdInvalidXml) // NOLINT
 
 TEST_F(BaseTelemetryReporterTests, extractValueFromIniFileMissingIniFile) // NOLINT
 {
-    MockFileSystem* mockFileSystem = nullptr;
-    std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
-    mockFileSystem = mockfileSystem.get();
-    Tests::replaceFileSystem(std::move(mockfileSystem));
+    std::unique_ptr<MockFileSystem> mockfileSystemUniquePtr(new StrictMock<MockFileSystem>());
+    MockFileSystem* mockFileSystemRawptr = mockfileSystemUniquePtr.get();
+    Tests::replaceFileSystem(std::move(mockfileSystemUniquePtr));
 
     std::string testFilePath("testfilepath");
-    EXPECT_CALL(*mockFileSystem, isFile(testFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystemRawptr, isFile(testFilePath)).WillOnce(Return(false));
     auto endPointId = Telemetry::extractValueFromIniFile(testFilePath, "endpointId");
     EXPECT_FALSE( endPointId.has_value());
 }
