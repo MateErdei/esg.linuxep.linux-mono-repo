@@ -72,11 +72,4 @@ void Common::Logging::ConsoleFileLoggingSetup::setupConsoleFileLoggingWithPath(c
     Common::Logging::LoggingSetup::applyPattern(consoleAppender, "%m%n");
 
     log4cplus::Logger::getRoot().addAppender(consoleAppender);
-
-
-    // Log error messages to stderr
-    log4cplus::SharedAppenderPtr stderr_appender(new log4cplus::ConsoleAppender(true));
-    stderr_appender->setThreshold(log4cplus::ERROR_LOG_LEVEL);
-    Common::Logging::LoggingSetup::applyPattern(stderr_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
-    log4cplus::Logger::getRoot().addAppender(stderr_appender);
 }
