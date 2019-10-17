@@ -48,7 +48,7 @@ namespace Telemetry
             }
             catch (const Common::Process::IProcessException& processException)
             {
-                LOGERROR(
+                LOGWARN(
                     "Failed to get telemetry item: " << name << ", from command: " << command
                                                      << ", exception: " << processException.what());
                 continue;
