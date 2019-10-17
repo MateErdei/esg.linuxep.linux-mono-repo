@@ -182,9 +182,7 @@ namespace Common
                                     catch (std::invalid_argument &e)
                                     {
                                         LOGERROR("entry is not valid utf8: " << event->name);
-                                        break;
                                     }
-
                                 }
                             }
                         }
