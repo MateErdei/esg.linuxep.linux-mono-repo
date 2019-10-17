@@ -12,6 +12,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Common::Telemetry
 {
+    //These forward declarations are here such that the implicit conversions that are used by the nlohmann json library
+    //can be tested in this file.
+    //Note: These are not in a header file for the TelemetryHelperImpl such that it can be included in the pluginapi
+    //without exporting the nlohmann json third party code.
     void to_json(nlohmann::json& j, const TelemetryValue& node);
     void from_json(const nlohmann::json& j, TelemetryValue& node);
 

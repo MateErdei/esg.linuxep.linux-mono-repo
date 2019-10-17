@@ -19,7 +19,6 @@ namespace Common::Telemetry
             nlohmann::json jsonObj = nlohmann::json::parse(jsonString);
             for( auto & item : jsonObj.items() )
             {
-                item.key();
                 // Only interpret the top level of the json string passed ignore arrays and objects
                 if (item.value().is_primitive() && !item.value().is_null())
                 {

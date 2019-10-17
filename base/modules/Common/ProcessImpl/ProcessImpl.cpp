@@ -392,7 +392,6 @@ namespace Common
                 else if (WIFSTOPPED(status))
                 {
                     LOGDEBUG("PID " << m_pid << " stopped by signal, status=" << WSTOPSIG(status));
-                    m_exitcode = WSTOPSIG(status);
                 }
                 else if (WIFCONTINUED(status))
                 {
