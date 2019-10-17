@@ -5,6 +5,7 @@ umask 077
 echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited"
 
 args="$*"
+VERSION=@PRODUCT_VERSION_REPLACEMENT_STRING@
 
 # Display help
 if [ "x$args" = "x--help" ] || [ "x$args" = "x-h" ]
@@ -18,7 +19,6 @@ then
     exit 0
 fi
 
-VERSION="VERSION_REPLACEMENT_STRING"
 if [ "x$args" = "x--version" ] || [ "x$args" = "x-v" ]
 then
     echo "Sophos Server Protection for Linux Installer, version: $VERSION"
@@ -46,9 +46,23 @@ EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED=17
 EXITCODE_BASE_INSTALL_FAILED=18
 EXITCODE_BAD_INSTALL_PATH=19
 EXITCODE_INSTALLED_BUT_NO_PATH=20
+EXIT_FAIL_WRONG_LIBC_VERSION=21
 
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
+
+BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
+system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
+
+function build_version_less_than_system_version()
+{
+    test "$(printf '%s\n' ${BUILD_LIBC_VERSION} ${system_libc_version} | sort -V | head -n 1)" != ${BUILD_LIBC_VERSION}
+}
+
+if build_version_less_than_system_version
+then
+    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
+fi
 
 function cleanup_and_exit()
 {
@@ -370,7 +384,7 @@ if [ -n "$MESSAGE_RELAYS" ]
 then
     if [ -n "$DEBUG_THIN_INSTALLER" ]
     then
-        echo "Message Relays: $MESSAGE_RELAYS"
+    echo "Message Relays: $MESSAGE_RELAYS"
     fi
 
     MESSAGE_RELAYS="--messagerelay $MESSAGE_RELAYS"
@@ -378,7 +392,6 @@ fi
 
 # Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
-
 if [ -n "$UPDATE_CACHES" ]
 then
     if [ -n "$DEBUG_THIN_INSTALLER" ]

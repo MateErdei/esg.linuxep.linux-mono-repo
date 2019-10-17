@@ -5,6 +5,24 @@ set(CMAKE_CXX_STANDARD 11)
 
 # This is called by the buildLinux.sh script which should have setup all dependencies in ./redist
 
+execute_process(
+        COMMAND bash "-c" "ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev"
+        OUTPUT_VARIABLE BUILD_SYSTEM_LIBC_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(
+        COMMAND bash "-c" "grep 'package name=\"sspl-thininstaller\"' release-package.xml | sed -e s/.*version=\\\"// -e s/\\\"\\>//"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE VERSION_REPLACEMENT_STRING
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/build-scripts/computeAutoVersion.py "${VERSION_REPLACEMENT_STRING}"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE PRODUCT_VERSION_REPLACEMENT_STRING
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+configure_file(${CMAKE_SOURCE_DIR}/installer_header.in.sh ${CMAKE_SOURCE_DIR}/installer_header.sh @ONLY)
 
 if(NOT DEFINED REDIST)
     set( REDIST ${CMAKE_SOURCE_DIR}/redist )
