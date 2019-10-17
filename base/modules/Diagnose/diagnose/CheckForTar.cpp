@@ -63,5 +63,15 @@ bool diagnose::CheckForTar::isTarAvailable()
         LOGERROR("No PATH specified in environment");
         return false;
     }
-    return isTarAvailable(Common::UtilityImpl::StringUtils::checkAndConstruct(PATH));
+    try
+    {
+        Common::UtilityImpl::StringUtils::checkAndConstruct(PATH);
+    }
+    catch (std::invalid_argument &e)
+    {
+        LOGERROR("Path is not valid utf8: " << PATH);
+        return false;
+    }
+
+    return isTarAvailable(PATH);
 }

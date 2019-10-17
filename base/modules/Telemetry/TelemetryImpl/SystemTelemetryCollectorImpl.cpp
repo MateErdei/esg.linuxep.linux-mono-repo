@@ -122,6 +122,7 @@ namespace Telemetry
 
         auto output = processPtr->output();
         m_commandOutputCache[commandAndArgs] = output;
+
         return output;
     }
 

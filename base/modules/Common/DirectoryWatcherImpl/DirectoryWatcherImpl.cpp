@@ -174,8 +174,17 @@ namespace Common
                                 auto listenerMapIter = m_listenerMap.find(event->wd);
                                 if (listenerMapIter != m_listenerMap.end())
                                 {
-                                    listenerMapIter->second->fileMoved(
-                                        Common::UtilityImpl::StringUtils::checkAndConstruct(event->name));
+                                    try
+                                    {
+                                        listenerMapIter->second->fileMoved(
+                                                Common::UtilityImpl::StringUtils::checkAndConstruct(event->name));
+                                    }
+                                    catch (std::invalid_argument &e)
+                                    {
+                                        LOGERROR("entry is not valid utf8: " << event->name);
+                                        break;
+                                    }
+
                                 }
                             }
                         }

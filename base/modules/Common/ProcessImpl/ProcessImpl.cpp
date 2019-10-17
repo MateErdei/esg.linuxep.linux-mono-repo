@@ -12,6 +12,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "PipeHolder.h"
 #include "StdPipeThread.h"
 
+#include <Common/UtilityImpl/StringUtils.h>
+
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -269,7 +271,9 @@ namespace Common
         {
             if (m_pipeThread)
             {
-                return m_pipeThread->output(); // waits for thread to exit
+                std::string output = m_pipeThread->output();
+                Common::UtilityImpl::StringUtils::enforceUTF8(output);
+                return output; // waits for thread to exit
             }
             throw Process::IProcessException("Output can be called only after exec.");
         }
