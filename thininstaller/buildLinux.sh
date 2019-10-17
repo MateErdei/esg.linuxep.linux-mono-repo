@@ -60,18 +60,6 @@ source "$BASE"/build-scripts/pathmgr.sh
 source "$BASE"/build-scripts/common.sh
 
 
-function create_versioned_installer_header()
-{
-    local VERSION=$(grep "package name=\"sspl-thininstaller\"" release-package.xml | sed -e s/.*version=\"// -e s/\"\>//)
-
-    # get product version
-    local PRODUCT_VERSION=$(python $BASE/build-scripts/computeAutoVersion.py "${VERSION}")
-    [[ -n ${PRODUCT_VERSION} ]] || failure 7 "Failed to create PRODUCT_VERSION"
-
-    sed s/VERSION_REPLACEMENT_STRING/${PRODUCT_VERSION}/g ./installer_header.sh > installer_header_versioned.sh
-    INSTALLER_HEADER=installer_header_versioned.sh
-}
-
 function untar_input()
 {
     local input=$1
@@ -168,7 +156,6 @@ function build()
     gzip partial_installer.tar
 
     output_install_script="SophosSetup.sh"
-    create_versioned_installer_header
     cat $INSTALLER_HEADER partial_installer.tar.gz > output/${output_install_script}
     rm -f partial_installer.tar.gz
 
