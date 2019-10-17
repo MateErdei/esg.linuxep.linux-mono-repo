@@ -69,11 +69,11 @@ static bool canConnectToCloud(const std::string& proxy = "")
     {
         if (proxy.empty())
         {
-            printf("Checking we can connect to Sophos Central (at %s)...\n", g_mcs_url.c_str());
+            printf("Checking we can connect to Sophos Central (at %s)\n", g_mcs_url.c_str());
         }
         else
         {
-            printf("Checking we can connect to Sophos Central (at %s via %s)...\n", g_mcs_url.c_str(), proxy.c_str());
+            printf("Checking we can connect to Sophos Central (at %s via %s)\n", g_mcs_url.c_str(), proxy.c_str());
         }
     }
 
@@ -109,8 +109,12 @@ static bool canConnectToCloud(const std::string& proxy = "")
         /* Check for errors */
         if(res != CURLE_OK)
         {
-            fprintf(stderr, "Failed to connect to Sophos Central at %s (cURL error is [%s]). Please check your firewall rules.\n",
-                g_mcs_url.c_str(), curl_easy_strerror(res));
+            if (g_DebugMode)
+            {
+                fprintf(stderr,
+                        "Failed to connect to Sophos Central at %s (cURL error is [%s]). Please check your firewall rules\n",
+                        g_mcs_url.c_str(), curl_easy_strerror(res));
+            }
         }
         else
         {
@@ -133,14 +137,32 @@ static bool canConnectToCloud(const std::string& proxy = "")
 
 static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& proxies)
 {
+    printf("Attempting to connect to Sophos Central\n");
+
+    bool connected = false;
+
     for (auto & proxy : proxies)
     {
         if (canConnectToCloud(proxy.getAddress()))
         {
-            return true;
+            connected = true;
+            break;
         }
     }
-    return canConnectToCloud();
+
+    if(!connected)
+    {
+        connected = canConnectToCloud();
+    }
+
+    // only log success here, failure message will be handled by the bash script.
+    if (connected)
+    {
+        printf("Successfully verified connection to sophos central\n");
+    }
+
+    return connected;
+
 }
 
 static void queryProductMetadata(SU_PHandle product, const char *attribute)
@@ -368,7 +390,7 @@ static int downloadInstaller(std::string location, bool updateCache)
         if (g_DebugMode)
         {
             fprintf(stderr,
-                    "Failed to connect to warehouse at %s (SUL error is [%d-%s]). Please check your firewall rules and proxy configuration.\n",
+                    "Failed to connect to warehouse at %s (SUL error is [%d-%s]). Please check your firewall rules and proxy configuration\n",
                     location.c_str(), ret, SU_getErrorDetails(session));
         }
 
@@ -428,7 +450,7 @@ static int downloadInstaller(std::string location, bool updateCache)
     {
         fprintf(stderr,
             "Failed to synchronise warehouse at %s (SUL error is [%d-%s]). "
-            "Please check your firewall rules and proxy configuration.\n",
+            "Please check your firewall rules and proxy configuration\n",
             location.c_str(),
             ret,
             SU_getErrorDetails(session));
@@ -496,7 +518,7 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
     }
     else
     {
-        fprintf(stderr, "Failed to download installer.\n");
+        fprintf(stderr, "Failed to download installer\n");
     }
 
     return ret;

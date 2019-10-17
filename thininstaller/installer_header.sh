@@ -2,7 +2,7 @@
 
 umask 077
 
-echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited."
+echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited"
 
 args="$*"
 
@@ -12,9 +12,9 @@ then
     echo "Sophos Server Protection for Linux Installer, help:"
     echo "Usage: [options]"
     echo "Valid options are:"
-    echo -e "--help [-h]\t\tDisplay this summary."
-    echo -e "--version [-v]\t\tDisplay version of installer."
-    echo -e "--force\t\t\tForce re-install."
+    echo -e "--help [-h]\t\tDisplay this summary"
+    echo -e "--version [-v]\t\tDisplay version of installer"
+    echo -e "--force\t\t\tForce re-install"
     exit 0
 fi
 
@@ -69,11 +69,11 @@ function handle_installer_errorcodes()
     errcode=$1
     if [ ${errcode} -eq 44 ]
     then
-        echo "Cannot connect to Sophos Central." >&2
+        echo "Cannot connect to Sophos Central" >&2
         cleanup_and_exit ${EXITCODE_NO_CENTRAL}
     elif [ ${errcode} -eq 0 ]
     then
-        echo "Finished downloading base installer."
+        echo "Finished downloading base installer"
     else
         echo "Failed to download the base installer! (Error code = $errcode)" >&2
         cleanup_and_exit ${EXITCODE_DOWNLOAD_FAILED}
@@ -121,7 +121,7 @@ function check_free_storage()
     then
         return 0
     fi
-    echo "Not enough space in $mountpoint to install Sophos Server Protection for Linux. You can install elsewhere by re-running this installer with the --instdir argument."
+    echo "Not enough space in $mountpoint to install Sophos Server Protection for Linux. You can install elsewhere by re-running this installer with the --instdir argument"
     cleanup_and_exit ${EXITCODE_NOT_ENOUGH_SPACE}
 }
 
@@ -176,7 +176,7 @@ function check_total_mem()
     then
         return 0
     fi
-    echo "This machine does not meet product requirements. The product requires at least 1GB of RAM."
+    echo "This machine does not meet product requirements. The product requires at least 1GB of RAM"
     cleanup_and_exit ${EXITCODE_NOT_ENOUGH_MEM}
 }
 
@@ -241,13 +241,13 @@ function force_argument()
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
 if [ $? -eq 1 ] ; then
-    echo "This installer only runs on Linux." >&2
+    echo "This installer only runs on Linux" >&2
     cleanup_and_exit ${EXITCODE_NOT_LINUX}
 fi
 
 # Check running as root
 if [ $(id -u) -ne 0 ]; then
-    echo "Please run this installer as root." >&2
+    echo "Please run this installer as root" >&2
     cleanup_and_exit ${EXITCODE_NOT_ROOT}
 fi
 
@@ -256,7 +256,7 @@ MACHINE_TYPE=`uname -m`
 if [ ${MACHINE_TYPE} = "x86_64" ]; then
     BIN="installer/bin"
 else
-    echo "This product can only be installed on a 64bit system."
+    echo "This product can only be installed on a 64bit system"
     cleanup_and_exit ${EXITCODE_NOT_64_BIT}
 fi
 
@@ -280,12 +280,12 @@ do
             SOPHOS_INSTALL="${i#*=}"
             if ((${#SOPHOS_INSTALL} > 50))
             then
-                echo "The --instdir path provided is too long and needs to be 50 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long."
+                echo "The --instdir path provided is too long and needs to be 50 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long"
                 cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
             fi
             if [[ ${SOPHOS_INSTALL} == /tmp* ]]
             then
-                echo "The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent."
+                echo "The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent"
                 cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
             fi
             export SOPHOS_INSTALL="${SOPHOS_INSTALL}/sophos-spl"
@@ -300,7 +300,7 @@ done
 # Verify that instdir does not contain special characters that may cause problems.
 if ! echo "$SOPHOS_INSTALL" | grep -q '^[-a-zA-Z0-9\/\_\.]*$'
 then
-    echo "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted."
+    echo "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted"
     cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
 fi
 
@@ -418,7 +418,7 @@ then
     # Check we have found the path for the existing installation.
     if [ ! -d "$EXISTING_SSPL_PATH" ]
     then
-        echo "An existing installation of Sophos Server Protection for Linux was found but could not find the installed path. You could try 'SophosSetup.sh --force' to force the install."
+        echo "An existing installation of Sophos Server Protection for Linux was found but could not find the installed path. You could try 'SophosSetup.sh --force' to force the install"
         cleanup_and_exit ${EXITCODE_INSTALLED_BUT_NO_PATH}
     fi
 
@@ -443,13 +443,13 @@ then
             fi
             cleanup_and_exit ${EXITCODE_SUCCESS}
         else
-            echo "Existing installation failed validation and will be reinstalled."
+            echo "Existing installation failed validation and will be reinstalled"
         fi
     fi
 else  # sspl not installed
     if [ -d ${SOPHOS_INSTALL} ]
     then
-        echo "The intended destination for Sophos Server Protection for Linux: ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location." >&2
+        echo "The intended destination for Sophos Server Protection for Linux: ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location" >&2
         cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
     fi
 fi
@@ -473,7 +473,7 @@ mkdir cache
 mkdir warehouse
 mkdir warehouse/catalogue
 
-echo "Installation process for Server Protection For Linux started."
+echo "Installation process for Server Protection For Linux started"
 ${BIN}/installer credentials.txt
 handle_installer_errorcodes $?
 
