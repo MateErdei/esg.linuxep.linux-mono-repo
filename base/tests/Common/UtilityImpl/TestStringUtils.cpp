@@ -84,3 +84,9 @@ TEST(TestStringUtils, orderedStringReplace) // NOLINT
     // empty always produces empty
     EXPECT_EQ(StringUtils::orderedStringReplace("", { { "@a@", "first" }, { "@a@", "other" } }), "");
 }
+
+TEST(TestStringUtils, enforceUTF8) // NOLINT
+{
+    EXPECT_THROW(StringUtils::enforceUTF8("\257"),std::invalid_argument);
+    EXPECT_NO_THROW(StringUtils::enforceUTF8("FOOBAR"));
+}
