@@ -37,7 +37,7 @@ namespace Common
         {
             std::stringstream content;
             content << "sspl-machineid";
-            for (auto mac : sortedSystemMACs())
+            for (const auto& mac : sortedSystemMACs())
             {
                 content << mac;
             }

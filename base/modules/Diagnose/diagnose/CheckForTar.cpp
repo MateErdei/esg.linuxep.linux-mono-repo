@@ -13,7 +13,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <vector>
 
 namespace

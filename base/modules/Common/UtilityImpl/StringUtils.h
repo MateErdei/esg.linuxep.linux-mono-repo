@@ -6,14 +6,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <sstream>
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <vector>
 
 #include <locale>
 #include <codecvt>
 
-namespace Common::UtilityImpl
+namespace Common
 {
     namespace UtilityImpl
     {
