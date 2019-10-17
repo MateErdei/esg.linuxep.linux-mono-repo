@@ -168,7 +168,7 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
 
         auto infoUpdater = [&loadResult](Common::ProcessMonitoring::IProcessProxy& processProxy )
         {
-            PluginProxy * proxy = dynamic_cast<PluginProxy*>(&processProxy);
+            PluginProxy* proxy = dynamic_cast<PluginProxy*>(&processProxy);
             if( proxy != nullptr)
             {
                 proxy->updatePluginInfo(loadResult.first);

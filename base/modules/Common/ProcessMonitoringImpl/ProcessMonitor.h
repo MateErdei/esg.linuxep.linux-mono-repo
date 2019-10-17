@@ -48,9 +48,9 @@ namespace Common
         protected:
             std::vector<std::string> getListOfPluginNames();
 
-            bool removePluginByName( const std::string & pluginName );
+            bool removePluginByName( const std::string& pluginName );
 
-            void applyToProcessProxy(const std::string & processProxyName, std::function<void(Common::ProcessMonitoring::IProcessProxy&)> functorToApply);
+            void applyToProcessProxy(const std::string& processProxyName, std::function<void(Common::ProcessMonitoring::IProcessProxy&)> functorToApply);
 
             Common::ZMQWrapperApi::IContextSharedPtr m_context;
 

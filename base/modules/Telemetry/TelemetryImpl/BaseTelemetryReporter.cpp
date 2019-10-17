@@ -121,7 +121,7 @@ namespace Telemetry
                 return std::nullopt;
             }
 
-            for( auto &matchingPath: matchingPaths)
+            for( auto& matchingPath: matchingPaths)
             {
                 Common::XmlUtilities::Attributes attributes = attributesMap.lookup(matchingPath);
                 std::string customerId = attributes.value("id");

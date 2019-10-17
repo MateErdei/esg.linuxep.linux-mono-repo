@@ -34,9 +34,6 @@ std::pair<std::chrono::seconds, Common::Process::ProcessStatus> PluginProxy::che
         );
     }
     return processProxyPair;
-
-
-
 }
 
 std::string PluginProxy::name() const

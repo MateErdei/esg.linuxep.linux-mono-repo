@@ -49,7 +49,7 @@ namespace Common
                     return 1;
                 }
 
-                for (auto &proxy : m_processProxies) {
+                for (auto& proxy : m_processProxies) {
                     proxy->ensureStateMatchesOptions();
                 }
             }
@@ -117,7 +117,7 @@ namespace Common
                 timeout = std::chrono::seconds(10);
                 {
                     std::lock_guard<std::mutex> lock(m_processProxiesMutex);
-                    for (auto &proxy : m_processProxies) {
+                    for (auto& proxy : m_processProxies) {
                         auto waitPeriod = proxy->checkForExit().first;
                         waitPeriod = std::min(proxy->ensureStateMatchesOptions(), waitPeriod);
                         timeout = std::min(waitPeriod, timeout);
@@ -155,19 +155,18 @@ namespace Common
 
         std::vector<std::string> ProcessMonitor::getListOfPluginNames() {
 
-                std::lock_guard<std::mutex> lock(m_processProxiesMutex);
-                std::vector<std::string> pluginNames;
-                for (auto & processProxy: m_processProxies)
+            std::lock_guard<std::mutex> lock(m_processProxiesMutex);
+            std::vector<std::string> pluginNames;
+            for (auto& processProxy: m_processProxies)
+            {
+                std::string name = processProxy->name();
+                assert( processProxy.get() != nullptr);
+                if ( !name.empty())
                 {
-                    std::string name = processProxy->name();
-                    assert( processProxy.get() != nullptr);
-                    if ( !name.empty())
-                    {
-                        pluginNames.emplace_back(name);
-                    }
-
+                    pluginNames.emplace_back(name);
                 }
-                return pluginNames;
+            }
+            return pluginNames;
         }
 
         bool ProcessMonitor::removePluginByName(const std::string &pluginName)
@@ -179,7 +178,7 @@ namespace Common
             bool found = false;
             std::lock_guard<std::mutex> lock(m_processProxiesMutex);
             for (auto it = m_processProxies.begin(); it != m_processProxies.end();) {
-                Common::ProcessMonitoring::IProcessProxy * pluginProxy = it->get();
+                Common::ProcessMonitoring::IProcessProxy* pluginProxy = it->get();
                 if (pluginProxy == nullptr) // necessary for release build.
                 {
                     break;
@@ -196,8 +195,7 @@ namespace Common
             return found;
         }
 
-        void
-        ProcessMonitor::applyToProcessProxy(const std::string &processProxyName, std::function<void( Common::ProcessMonitoring::IProcessProxy&)> functorToApply)
+        void ProcessMonitor::applyToProcessProxy(const std::string &processProxyName, std::function<void(Common::ProcessMonitoring::IProcessProxy&)> functorToApply)
         {
             std::lock_guard<std::mutex> lock(m_processProxiesMutex);
             for (auto& proxy : m_processProxies)

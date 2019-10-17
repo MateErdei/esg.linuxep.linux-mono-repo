@@ -70,7 +70,7 @@ namespace Tests
 
         /**
          * Helper function that is equivalent to:
-         * for ( auto & relativePath: relativePaths)
+         * for ( auto& relativePath: relativePaths)
          *   makeDirs(relativePath);
          *
          * @param relativePaths
