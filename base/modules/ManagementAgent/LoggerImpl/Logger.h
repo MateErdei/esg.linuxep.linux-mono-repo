@@ -15,3 +15,4 @@ log4cplus::Logger& getManagementAgentLogger();
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getManagementAgentLogger(), x) // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getManagementAgentLogger(), x)       // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getManagementAgentLogger(), x)     // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getManagementAgentLogger(), x)     // NOLINT

@@ -14,6 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <unistd.h>
 #include <sys/stat.h>
+#include <Common/UtilityImpl/ConfigException.h>
 
 #ifndef PATH_MAX
 #    define PATH_MAX 2048
@@ -63,7 +64,15 @@ int watchdog_main::main(int argc, char** argv)
         LOGERROR("Error, invalid command line arguments. Usage: watchdog");
         return 2;
     }
+    try
+    {
+        Watchdog m;
+        return m.initialiseAndRun();
+    }
+    catch ( Common::UtilityImpl::ConfigException & ex)
+    {
+        LOGFATAL( ex.what());
+        return 1;
+    }
 
-    Watchdog m;
-    return m.initialiseAndRun();
 }

@@ -9,6 +9,7 @@ import json
 import logging
 import os
 
+import mcsrouter.mcsclient.config_exception as config_exception
 import mcsrouter.utils.path_manager
 
 LOGGER = logging.getLogger(__name__)
@@ -75,7 +76,12 @@ class PluginRegistry(object):
         """
         # fixme improve efficiency. It is parsing the files every time.
         # It should do only when new files are added.
-        app_ids, file_names_app_ids = get_app_ids_from_directory(self._plugin_registry_path)
+        try:
+            app_ids, file_names_app_ids = get_app_ids_from_directory(self._plugin_registry_path)
+        except Exception as ex:
+            raise config_exception.ConfigException(
+                config_exception.composeMessage("Load APP ids from plugin Registry", str(ex))
+            )
 
         file_names = set(file_names_app_ids.keys())
         added_plugins = file_names.difference(self._plugin_file_names)

@@ -14,3 +14,4 @@ log4cplus::Logger& getWatchdogImplLogger();
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getWatchdogImplLogger(), x) // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getWatchdogImplLogger(), x)       // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getWatchdogImplLogger(), x)     // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getWatchdogImplLogger(), x)     // NOLINT

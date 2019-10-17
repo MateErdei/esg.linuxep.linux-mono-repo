@@ -20,7 +20,7 @@ import sys
 import time
 
 from . import sophos_https
-from .mcsclient import mcs_exception
+from .mcsclient import mcs_exception, config_exception
 from .utils import path_manager
 from .utils.logger_utcformatter import UTCFormatter
 
@@ -277,6 +277,20 @@ class MCSRouter:
         LOGGER.warning("Exiting mcsrouter")
         return ret
 
+
+def clear_tmp_directory():
+    """
+    clear_tmp_directory
+    """
+    temp_dir = path_manager.temp_dir()
+    if os.path.exists(temp_dir):
+        for files in os.listdir(temp_dir):
+            try:
+                os.unlink(files)
+            except (OSError, IOError):
+                pass
+
+
 def main():
     """
     main
@@ -288,6 +302,7 @@ def main():
         script_dir = os.path.dirname(os.path.realpath(arg0))
         install_dir = os.path.abspath(os.path.join(script_dir, ".."))
     path_manager.INST = install_dir
+    clear_tmp_directory()
     os.umask(0o177)
 
     sophos_logging = SophosLogging(install_dir)
@@ -296,6 +311,9 @@ def main():
     try:
         mgmt = MCSRouter(install_dir)
         return mgmt.run()
+    except config_exception.ConfigException as exception:
+        LOGGER.fatal( str(exception))
+        return 1
     except Exception:
         LOGGER.critical(
             "Caught exception at top-level; exiting.",

@@ -25,6 +25,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <cstdlib>
 #include <unistd.h>
+#include <Common/UtilityImpl/ConfigException.h>
 
 namespace
 {
@@ -47,18 +48,25 @@ Watchdog::~Watchdog()
 
 int Watchdog::initialiseAndRun()
 {
-    PluginInfoVector pluginConfigs = readPluginConfigs();
-
-    for (auto& info : pluginConfigs)
+    try
     {
-        addProcessToMonitor(std::unique_ptr<PluginProxy>(new PluginProxy(std::move(info))));
+        PluginInfoVector pluginConfigs = readPluginConfigs();
+
+        for (auto& info : pluginConfigs)
+        {
+            addProcessToMonitor(std::unique_ptr<PluginProxy>(new PluginProxy(std::move(info))));
+        }
+
+        pluginConfigs.clear();
+
+        setupSocket();
+
+        addReplierSocketAndHandleToPoll(m_socket.get(), [this]() { this->handleSocketRequest(); });
     }
-
-    pluginConfigs.clear();
-
-    setupSocket();
-
-    addReplierSocketAndHandleToPoll(m_socket.get(), [this]() { this->handleSocketRequest(); });
+    catch (std::exception & ex)
+    {
+        throw Common::UtilityImpl::ConfigException( "Watchdog", ex.what());
+    }
 
     run();
 

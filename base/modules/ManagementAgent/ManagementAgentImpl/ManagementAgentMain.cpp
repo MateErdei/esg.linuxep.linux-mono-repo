@@ -14,6 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
+#include <Common/UtilityImpl/ConfigException.h>
 #include <Common/ZeroMQWrapper/IHasFD.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
@@ -53,7 +54,7 @@ namespace ManagementAgent
         int ManagementAgentMain::main(int argc, char** argv)
         {
             umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
-            static_cast<void>(argv);  // unused
+            static_cast<void>(argv);            // unused
             Common::Logging::FileLoggingSetup loggerSetup("sophos_managementagent", true);
             if (argc > 1)
             {
@@ -61,13 +62,21 @@ namespace ManagementAgent
                 return -1;
             }
 
-            std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
-                std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
-                    new ManagementAgent::PluginCommunicationImpl::PluginManager());
+            try
+            {
+                std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
+                    std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
+                        new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
-            ManagementAgentMain managementAgent;
-            managementAgent.initialise(*pluginManager);
-            return managementAgent.run();
+                ManagementAgentMain managementAgent;
+                managementAgent.initialise(*pluginManager);
+                return managementAgent.run();
+            }
+            catch (Common::UtilityImpl::ConfigException& ex)
+            {
+                LOGFATAL(ex.what());
+                return 1;
+            }
         }
 
         void ManagementAgentMain::initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager)
@@ -91,17 +100,24 @@ namespace ManagementAgent
 
         void ManagementAgentMain::loadPlugins()
         {
-            // Load known plugins.  New plugins will be loaded via PluginServerCallback
-            std::vector<Common::PluginRegistryImpl::PluginInfo> plugins =
-                Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
-
-            for (auto& plugin : plugins)
+            try
             {
-                m_pluginManager->registerAndSetAppIds(
-                    plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getStatusAppIds());
-                LOGINFO(
-                    "Registered plugin " << plugin.getPluginName() << ", executable path "
-                                         << plugin.getExecutableFullPath());
+                // Load known plugins.  New plugins will be loaded via PluginServerCallback
+                std::vector<Common::PluginRegistryImpl::PluginInfo> plugins =
+                    Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
+
+                for (auto& plugin : plugins)
+                {
+                    m_pluginManager->registerAndSetAppIds(
+                        plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getStatusAppIds());
+                    LOGINFO(
+                        "Registered plugin " << plugin.getPluginName() << ", executable path "
+                                             << plugin.getExecutableFullPath());
+                }
+            }
+            catch (std::exception& ex)
+            {
+                throw Common::UtilityImpl::ConfigException( "Load Plugins in Management Agent", ex.what());
             }
         }
 
