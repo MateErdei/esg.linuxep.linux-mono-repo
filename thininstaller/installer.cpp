@@ -158,7 +158,7 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
     // only log success here, failure message will be handled by the bash script.
     if (connected)
     {
-        printf("Successfully verified connection to sophos central\n");
+        printf("Successfully verified connection to Sophos Central\n");
     }
 
     return connected;
