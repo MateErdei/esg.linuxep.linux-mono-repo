@@ -1,9 +1,10 @@
 
-set(PROTO_INPUT_FILE message.proto zmqparts.proto  )
+set(PROTO_INPUT_FILE message.proto zmqparts.proto simplefunction.proto )
 
 protobuf_generate_cpp(LIB_FUZZER_EXAMPLE_PROTO_SRCS
         LIB_FUZZER_EXAMPLE_PROTO_HDRS
-        ${PROTO_INPUT_FILE} ${CMAKE_SOURCE_DIR}/modules/Common/PluginProtocol/proto/PluginAPIMessage.proto)
+        ${PROTO_INPUT_FILE}
+        ${CMAKE_SOURCE_DIR}/modules/Common/PluginProtocol/proto/PluginAPIMessage.proto)
 
 SET( MutatorPath ${CMAKE_SOURCE_DIR}/thirdparty/output )
 SET( MutatorInclude ${MutatorPath}/include )
@@ -40,6 +41,7 @@ if (BUILD_FUZZ_TESTS )
     target_include_directories(fuzzer-proto PUBLIC ${MutatorInclude} ${MutatorInclude}/libprotobuf-mutator)
 else()
     target_compile_options(fuzzer-proto PUBLIC  -Wno-unused-value -Wno-unused-parameter)
+    target_link_libraries(fuzzer-proto PUBLIC  filesystemimpl)
 endif()
 
 
@@ -64,3 +66,10 @@ target_link_libraries(ZMQTests
         zmqwrapperapiimpl
         )
 
+add_executable(SimpleFunctionTests
+        SimpleFunctionTests.cpp
+        )
+target_link_libraries(SimpleFunctionTests
+        fuzzer-proto
+        utilityimpl
+        )

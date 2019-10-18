@@ -1,0 +1,11 @@
+syntax = "proto2";
+package SimpleFunctionProto;
+
+message TestCase {
+    optional string payload = 1;
+    enum FunctionTarget
+    {
+        enforceUTF8 = 1;
+    }
+    optional FunctionTarget functionTarget = 2;
+}

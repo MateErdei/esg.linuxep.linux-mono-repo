@@ -16,8 +16,7 @@ add_library(utilityimplobject OBJECT
         StrError.h
         Factory.h
         ProjectNames.h
-        ConfigException.h
-        ConfigException.cpp
+        StringUtils.cpp
         ${CMAKE_CURRENT_BINARY_DIR}/ProjectNames.cpp)
 target_include_directories(utilityimplobject PUBLIC ../../Common ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(utilityimpl SHARED $<TARGET_OBJECTS:utilityimplobject> )

@@ -10,9 +10,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-#include <locale>
-#include <codecvt>
-
 namespace Common
 {
     namespace UtilityImpl
@@ -120,25 +117,14 @@ namespace Common
                 {
                     throw std::invalid_argument{ "Input c-string exceeds a reasonable limit " };
                 }
-                std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> ucs2conv;
-
                 enforceUTF8(untaintedCString);
 
                 return std::string{ untaintedCString };
             }
 
-            static void enforceUTF8(const std::string& input)
-            {
-                std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> ucs2conv;
-                try
-                {
-                    std::u32string ucs2 = ucs2conv.from_bytes(input);
-                }
-                catch (const std::range_error& e)
-                {
-                    throw std::invalid_argument{ "Not a valid utf-a string" };
-                }
-            }
+            static void enforceUTF8(const std::string& input);
+
+
             using KeyValueCollection = std::vector<std::pair<std::string, std::string>>;
 
             /**
