@@ -7,5 +7,5 @@ message TestCase {
     {
         enforceUTF8 = 1;
     }
-    FunctionTarget functionTarget = 2;
+    required FunctionTarget functionTarget = 2;
 }
