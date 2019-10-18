@@ -85,39 +85,40 @@ namespace ManagementAgent
 
             m_pluginManager = &pluginManager;
             m_statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
-            m_statusCache->loadCacheFromDisk();
-            // order is important.
-            loadPlugins();
-            initialiseTaskQueue();
-            initialiseDirectoryWatcher();
-            initialisePluginReceivers();
-            std::vector<std::string> registeredPlugins = m_pluginManager->getRegisteredPluginNames();
-            sendCurrentPluginPolicies();
-            sendCurrentPluginsStatus(registeredPlugins);
-            sendCurrentActions();
+            try
+            {
+                m_statusCache->loadCacheFromDisk();
+                // order is important.
+                loadPlugins();
+                initialiseTaskQueue();
+                initialiseDirectoryWatcher();
+                initialisePluginReceivers();
+                std::vector<std::string> registeredPlugins = m_pluginManager->getRegisteredPluginNames();
+                sendCurrentPluginPolicies();
+                sendCurrentPluginsStatus(registeredPlugins);
+                sendCurrentActions();
+
+                m_ppid = ::getppid();
+            }catch ( std::exception & ex)
+            {
+                throw Common::UtilityImpl::ConfigException( "Configure Management Agent", ex.what());
+            }
 
         }
 
         void ManagementAgentMain::loadPlugins()
         {
-            try
-            {
-                // Load known plugins.  New plugins will be loaded via PluginServerCallback
-                std::vector<Common::PluginRegistryImpl::PluginInfo> plugins =
-                    Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
+            // Load known plugins.  New plugins will be loaded via PluginServerCallback
+            std::vector<Common::PluginRegistryImpl::PluginInfo> plugins =
+                Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
 
-                for (auto& plugin : plugins)
-                {
-                    m_pluginManager->registerAndSetAppIds(
-                        plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getStatusAppIds());
-                    LOGINFO(
-                        "Registered plugin " << plugin.getPluginName() << ", executable path "
-                                             << plugin.getExecutableFullPath());
-                }
-            }
-            catch (std::exception& ex)
+            for (auto& plugin : plugins)
             {
-                throw Common::UtilityImpl::ConfigException( "Load Plugins in Management Agent", ex.what());
+                m_pluginManager->registerAndSetAppIds(
+                    plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getStatusAppIds());
+                LOGINFO(
+                    "Registered plugin " << plugin.getPluginName() << ", executable path "
+                                         << plugin.getExecutableFullPath());
             }
         }
 
@@ -245,9 +246,15 @@ namespace ManagementAgent
             bool running = true;
             while (running)
             {
-                if(GL_signalPipe && GL_signalPipe->notified())
+                poller->poll(std::chrono::seconds(30));
+                if (GL_signalPipe->notified())
                 {
                     LOGDEBUG("Management Agent stopping");
+                    running = false;
+                }
+                if (::getppid() != m_ppid)
+                {
+                    LOGWARN("Management Agent stopping because parent process has changed");
                     running = false;
                 }
             }

@@ -248,6 +248,9 @@ class MCSRouter:
             except mcs_exception.MCSCACertificateException as exception:
                 LOGGER.fatal(str(exception))
                 break
+            except config_exception.ConfigException:
+                # it is handled in main
+                raise
             except Exception: # pylint: disable=broad-except
                 # Deliberately catch everything, so that we re-run mcs_router on failures
                 # rather than crash

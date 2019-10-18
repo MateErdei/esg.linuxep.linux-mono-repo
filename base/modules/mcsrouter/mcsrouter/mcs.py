@@ -22,6 +22,7 @@ from .adapters import app_proxy_adapter
 from .adapters import event_receiver
 from .adapters import generic_adapter
 from .adapters import mcs_adapter
+from .mcsclient import config_exception
 from .mcsclient import events as events_module
 from .mcsclient import events_timer as events_timer_module
 from .mcsclient import mcs_commands
@@ -296,6 +297,24 @@ class MCS:
         config.set("MCS_saved_token", token)
         config.save()
 
+    def _get_directory_watcher(self):
+        try:
+            directory_watcher = directory_watcher_module.DirectoryWatcher()
+
+            directory_watcher.add_watch(
+                path_manager.event_dir(),
+                patterns=["*.xml"],
+                ignore_delete=True)
+            directory_watcher.add_watch(
+                path_manager.status_dir(),
+                patterns=["*.xml"])
+
+            return directory_watcher
+        except Exception as ex:
+            raise config_exception.ConfigException(
+                config_exception.composeMessage("Managing Communication Paths", str(ex))
+            )
+
     def run(self):
         """
         run
@@ -350,15 +369,7 @@ class MCS:
         signal_handler.setup_signal_handler()
 
         # setup a directory watcher for events and statuses
-        directory_watcher = directory_watcher_module.DirectoryWatcher()
-
-        directory_watcher.add_watch(
-            path_manager.event_dir(),
-            patterns=["*.xml"],
-            ignore_delete=True)
-        directory_watcher.add_watch(
-            path_manager.status_dir(),
-            patterns=["*.xml"])
+        directory_watcher = self._get_directory_watcher()
         notify_pipe_file_descriptor = directory_watcher.notify_pipe_file_descriptor
 
         last_commands = 0
