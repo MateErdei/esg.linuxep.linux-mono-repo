@@ -47,6 +47,7 @@ EXITCODE_BASE_INSTALL_FAILED=18
 EXITCODE_BAD_INSTALL_PATH=19
 EXITCODE_INSTALLED_BUT_NO_PATH=20
 EXIT_FAIL_WRONG_LIBC_VERSION=21
+EXIT_FAIL_COULD_NOT_FIND_LIBC_VERSION=22
 
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
@@ -54,15 +55,6 @@ PROXY_CREDENTIALS=
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
 system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
 
-function build_version_less_than_system_version()
-{
-    test "$(printf '%s\n' ${BUILD_LIBC_VERSION} ${system_libc_version} | sort -V | head -n 1)" != ${BUILD_LIBC_VERSION}
-}
-
-if build_version_less_than_system_version
-then
-    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
-fi
 
 function cleanup_and_exit()
 {
@@ -78,7 +70,19 @@ function failure()
     cleanup_and_exit ${code}
 }
 
+function build_version_less_than_system_version()
+{
+    lowest_version=$(printf '%s\n' ${BUILD_LIBC_VERSION} ${system_libc_version} | sort -V | head -n 1) || failure ${EXIT_FAIL_COULD_NOT_FIND_LIBC_VERSION}  "Couldn't determine libc version"
+    test "${lowest_version}" != ${BUILD_LIBC_VERSION}
+}
+
+if build_version_less_than_system_version
+then
+    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
+fi
+
 function handle_installer_errorcodes()
+
 {
     errcode=$1
     if [ ${errcode} -eq 44 ]
