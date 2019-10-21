@@ -86,7 +86,7 @@ function handle_installer_errorcodes()
     errcode=$1
     if [ ${errcode} -eq 44 ]
     then
-        echo "Cannot connect to Sophos Central" >&2
+        echo "Cannot connect to Sophos Central - please check your network connections" >&2
         cleanup_and_exit ${EXITCODE_NO_CENTRAL}
     elif [ ${errcode} -eq 0 ]
     then
