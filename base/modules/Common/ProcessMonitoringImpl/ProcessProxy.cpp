@@ -129,7 +129,6 @@ namespace Common
 
         std::pair<std::chrono::seconds, Process::ProcessStatus> ProcessProxy::checkForExit()
         {
-            //
             std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
             auto statusCode = status();
             if (!m_sharedState.m_running)
