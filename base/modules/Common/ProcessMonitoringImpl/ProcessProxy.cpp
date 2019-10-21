@@ -25,7 +25,8 @@ namespace Common
             m_enabled(true),
             m_running(false),
             m_process(Common::Process::createProcess()),
-            m_deathTime(0)
+            m_deathTime(0),
+            m_killIssuedTime(0)
         {
             m_exe = m_processInfo->getExecutableFullPath();
             if ((!m_exe.empty()) && m_exe[0] != '/')
@@ -243,6 +244,7 @@ namespace Common
             std::swap(m_deathTime, other.m_deathTime);
             std::swap(m_enabled, other.m_enabled);
             std::swap(m_process, other.m_process);
+            std::swap(m_killIssuedTime, other.m_killIssuedTime);
         }
 
         ProcessProxy::ProcessProxy(ProcessProxy&& other) noexcept { swap(other); }
