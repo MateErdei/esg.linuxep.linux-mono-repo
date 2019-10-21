@@ -307,7 +307,8 @@ namespace Common
         {
             if (!m_pipeThread)
             {
-                throw Process::IProcessException("getStatus can be called only after exec.");
+                LOGSUPPORT("getStatus can be called only after exec");
+                return Process::ProcessStatus::NOTSTARTED;
             }
             if (m_pid == -1)
             {

@@ -11,11 +11,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ProcessMonitoring/IProcessProxy.h>
 
 #include <chrono>
+#include <mutex>
 
 namespace Common
 {
     namespace ProcessMonitoringImpl
     {
+
         class ProcessProxy : public Common::ProcessMonitoring::IProcessProxy
         {
         public:
@@ -23,16 +25,10 @@ namespace Common
             ~ProcessProxy() noexcept override;
             ProcessProxy(ProcessProxy&&) noexcept;
 
-            /**
-             * Move-assignment operator.
-             * Need to provide our own implementation, since we need to swap m_running, not copy it.
-             * @return
-             */
-            ProcessProxy& operator=(ProcessProxy&&) noexcept;
-
             // Don't allow copying
             ProcessProxy(const ProcessProxy&) = delete;
             ProcessProxy& operator=(const ProcessProxy&) = delete;
+            ProcessProxy(const ProcessProxy&&) = delete;
 
             /**
              * Stops the process if it is running.
@@ -64,26 +60,53 @@ namespace Common
 
             std::string name() const override;
 
+
+
         protected:
+
+            bool runningFlag();
+            bool enabledFlag();
+
+
             /**
              * Information object for the process
              */
             Common::Process::IProcessInfoPtr m_processInfo;
-
+        private:
             /**
              * Get the current status of the process.
              * @return
              */
             Common::Process::ProcessStatus status();
 
-            bool m_enabled;
+            void lock_acquired_stop();
 
-            /**
-            * True if the process is currently running.
-            */
-            bool m_running;
+            struct ProcessSharedState
+            {
+                ProcessSharedState();
 
-        private:
+                std::mutex m_mutex;
+                bool m_enabled;
+
+                /**
+                * True if the process is currently running.
+                */
+                bool m_running;
+
+                /**
+                 * Execution object for the process
+                 */
+                Common::Process::IProcessPtr m_process;
+
+                /**
+                 * When the process process last died.
+                 */
+                time_t m_deathTime;
+
+                time_t m_killIssuedTime;
+
+            };
+
             /**
              * Starts the process.
              */
@@ -97,21 +120,12 @@ namespace Common
              */
             int exitCode();
 
-            void swap(ProcessProxy& other);
-
-            /**
-             * Execution object for the process
-             */
-            Common::Process::IProcessPtr m_process;
+            ProcessSharedState m_sharedState;
             /**
              * Full path to the executable
              */
             std::string m_exe;
 
-            /**
-             * When the process process last died.
-             */
-            time_t m_deathTime;
 
         };
     } // namespace ProcessMonitoringImpl

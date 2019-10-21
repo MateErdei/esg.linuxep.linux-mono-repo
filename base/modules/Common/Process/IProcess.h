@@ -20,6 +20,7 @@ namespace Common
         using Milliseconds = std::chrono::milliseconds;
         enum class ProcessStatus
         {
+            NOTSTARTED,
             FINISHED,
             TIMEOUT,
             RUNNING
