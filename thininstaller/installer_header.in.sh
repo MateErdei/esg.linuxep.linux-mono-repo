@@ -82,7 +82,6 @@ then
 fi
 
 function handle_installer_errorcodes()
-
 {
     errcode=$1
     if [ ${errcode} -eq 44 ]
