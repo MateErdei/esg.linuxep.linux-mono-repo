@@ -24,10 +24,12 @@ PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info) :
 
 std::pair<std::chrono::seconds, Common::Process::ProcessStatus> PluginProxy::checkForExit()
 {
+    bool previousRunning = m_running;
     std::pair<std::chrono::seconds, Common::Process::ProcessStatus> processProxyPair = ProcessProxy::checkForExit();
     auto statusCode = processProxyPair.second;
-    if (statusCode == Common::Process::ProcessStatus::FINISHED  && m_enabled && m_running)
+    if (statusCode == Common::Process::ProcessStatus::FINISHED  && m_enabled && previousRunning)
     {
+        LOGSUPPORT("Update Telemetry Unexpected restart: " << name());
         Common::Telemetry::TelemetryHelper::getInstance().increment(
                 watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(name()),
                 1UL
