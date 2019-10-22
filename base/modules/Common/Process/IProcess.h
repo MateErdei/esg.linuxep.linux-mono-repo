@@ -34,7 +34,8 @@ namespace Common
             virtual ~IProcess() = default;
             /**
              *
-             * execute process based on input parameters.
+             * Execute process based on input parameters.
+             * Note: can return before process has actually started.
              * @param path, location of application to execute, will also be used as the first argument.
              * @param arguments, zero or more arguments that will be passed to the executable
              * @param extraEnvironment, zero or more environment variables required by the executable
