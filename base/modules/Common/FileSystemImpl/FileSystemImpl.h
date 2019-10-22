@@ -58,6 +58,8 @@ namespace Common
 
             std::vector<std::string> readLines(const Path& path) const override;
 
+            std::vector<std::string> readLines(const Path& path, unsigned long maxSize) const override;
+
             void removeFile(const Path& path) const override;
 
             void removeFileOrDirectory(const Path& path) const override;

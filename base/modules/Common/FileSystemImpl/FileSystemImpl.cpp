@@ -251,8 +251,9 @@ namespace Common
             }
         }
 
-        std::vector<std::string> FileSystemImpl::readLines(const Path& path) const
-        {
+        std::vector<std::string> FileSystemImpl::readLines(const Path& path) const { return readLines(path, GL_MAX_SIZE); }
+
+        std::vector<std::string> FileSystemImpl::readLines(const Path& path, unsigned long maxSize) const {
             std::vector<std::string> list;
             if (isDirectory(path))
             {
@@ -275,7 +276,7 @@ namespace Common
                 {
                     throw IFileSystemException("Error, Failed to read file: '" + path + "', failed to get file size");
                 }
-                else if (static_cast<unsigned long>(size) > GL_MAX_SIZE)
+                else if (static_cast<unsigned long>(size) > maxSize)
                 {
                     throw IFileTooLargeException("Error, Failed to read file: '" + path + "', file too large");
                 }
@@ -288,7 +289,12 @@ namespace Common
                 }
                 return list;
             }
-            catch (std::system_error& ex)
+            catch (const std::bad_alloc & ex)
+            {
+                LOGSUPPORT( ex.what());
+                throw IFileSystemException("Error, Failed to read from file '" + path + "' caused by memory allocation issue.");
+            }
+            catch (const std::system_error& ex)
             {
                 LOGSUPPORT(ex.what());
                 throw IFileSystemException("Error, Failed to read from file '" + path + "'");

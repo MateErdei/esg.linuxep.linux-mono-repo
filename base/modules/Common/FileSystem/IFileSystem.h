@@ -121,10 +121,21 @@ namespace Common
 
             /**
              * Reads the contents of a given file line by line and returns the strings in a vector.
+             *
+             * Limits the file read to 10 MiB
+             *
              * @param path, location of the file to read.
              * @return the content of the read file split by new lines.
              */
             virtual std::vector<std::string> readLines(const Path& path) const = 0;
+
+            /**
+             * Reads the contents of a given file line by line and returns the strings in a vector.
+             * @param path, location of the file to read.
+             * @param maxSize The maximum file size to read, throws exception if the file is larger than that
+             * @return the content of the read file split by new lines.
+             */
+            virtual std::vector<std::string> readLines(const Path& path, unsigned long maxSize) const = 0;
 
             /**
              * Writes the given string content into a new file.
