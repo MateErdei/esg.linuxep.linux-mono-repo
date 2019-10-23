@@ -13,6 +13,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <fstream>
 #include <vector>
+#include <future>
 
 /**
  * This executable induces various "bad things" when given the corresponding argument
@@ -76,6 +77,7 @@ int printUsageAndExit() {
                  "\t--deadlock      - induce a deadlock\n"
                  "\t--gobble        - continuously append items to a vector to use up progressively more memory\n"
                  "\t--wget          - induce an \"incident\"\n"
+                 "\t--run           - just run without induced errors\n"
                  "\t--hello-world\n"
                  "\t--help          - show this dialogue\n"
             ;
@@ -134,10 +136,17 @@ void crash()
 
 void deadlock()
 {
-    std::cout << "Entering deadlock" << std::endl;
+
+    auto t1 = std::async( std::launch::async, [](){
+        std::cout << "Entering deadlock" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cout << "Now in deadlock" << std::endl;
+        std::lock_guard<std::mutex> lock1(deadlockMutex);
+    });
+
     std::lock_guard<std::mutex> lock1(deadlockMutex);
-    std::cout << "Now in deadlock" << std::endl;
-    std::lock_guard<std::mutex> lock2(deadlockMutex);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    t1.get();
     std::cout << "Out of deadlock" << std::endl;
 }
 
@@ -177,6 +186,12 @@ void gobbleMemory()
 void wget()
 {
     std::cout << "nice try" << std::endl;
+}
+
+void justRun()
+{
+    std::cout << "Executable will keep Running" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(300));
 }
 
 void helloWorld()
@@ -230,6 +245,10 @@ int main(int argc, char *argv[]) {
     else if (argument == "--wget")
     {
         wget();
+    }
+    else if (argument == "--run")
+    {
+        justRun();
     }
     else if (argument == "--help")
     {
