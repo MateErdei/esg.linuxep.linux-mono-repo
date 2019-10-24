@@ -202,16 +202,17 @@ void helloWorld()
 int main(int argc, char *argv[]) {
     std::cout << "Starting PickYourPoison Fault Injection Executable" << std::endl;
     std::string argument;
-    if (argc == 2)
-    {
-        argument = argv[1];
-        std::cout << "using argument: " << argument << " from command line" << std::endl;
-    }
-    else if (arg_file_exists() and argc == 1)
+
+    if (arg_file_exists())
     {
         argument = readFile(argumentFile);
         argument.erase(std::remove(argument.begin(), argument.end(), '\n'), argument.end());
         std::cout << "using argument: " << argument << " from " << argumentFile << std::endl;
+    }
+    else if (argc == 2)
+    {
+        argument = argv[1];
+        std::cout << "using argument: " << argument << " from command line" << std::endl;
     }
     else
     {
