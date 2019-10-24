@@ -64,7 +64,7 @@ namespace Telemetry
                                               { { "", TelemetryValueType::STRING } } } },
                 { "auditd",
                         SystemTelemetryTuple{ "systemctl",
-                                              {"is-enabled", "auditd"},
+                                              {"is-active", "auditd"},
                                               R"(^(\w+)$)",
                                               { { "", TelemetryValueType::STRING } } } }
         };
