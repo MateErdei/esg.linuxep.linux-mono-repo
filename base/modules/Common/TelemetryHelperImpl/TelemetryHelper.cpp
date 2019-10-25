@@ -107,7 +107,7 @@ namespace Common::Telemetry
         return TelemetrySerialiser::serialise(m_root);
     }
 
-    void TelemetryHelper::registerResetCallback(std::string cookie, std::function<void()> function)
+    void TelemetryHelper::registerResetCallback(std::string cookie, std::function<void(TelemetryHelper&)> function)
     {
         std::lock_guard<std::mutex> lock(m_callbackLock);
         if (m_callbacks.find(cookie) != m_callbacks.end())
@@ -125,15 +125,21 @@ namespace Common::Telemetry
 
     void TelemetryHelper::reset()
     {
-        clearData();
-        std::lock_guard<std::mutex> callbackLock(m_callbackLock);
+        std::scoped_lock scopedLock( m_callbackLock, m_dataLock);
+        locked_reset();
+    }
+    void TelemetryHelper::locked_reset()
+    {
+        TelemetryHelper another;
         for (const auto& callback_entry : m_callbacks)
         {
             if (callback_entry.second)
             {
-                callback_entry.second();
+                callback_entry.second(another);
             }
         }
+        m_root = another.m_root;
+
     }
 
     void TelemetryHelper::clearData()
@@ -151,21 +157,20 @@ namespace Common::Telemetry
 
     std::string TelemetryHelper::serialiseAndReset()
     {
-        std::scoped_lock lock(m_dataLock, m_callbackLock);
+        std::scoped_lock scopedLock( m_callbackLock, m_dataLock);
 
         // Serialise
         std::string serialised = TelemetrySerialiser::serialise(m_root);
-
-        // Reset
-        for (const auto& callback_entry : m_callbacks)
-        {
-            if (callback_entry.second)
-            {
-                callback_entry.second();
-            }
-        }
-        m_root = TelemetryObject();
-
+        locked_reset();
         return serialised;
     }
+
+    void TelemetryHelper::set(const std::string& key, const TelemetryObject& object)
+    {
+        std::lock_guard<std::mutex> lock(m_dataLock);
+        TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
+        telemetryObject = object;
+    }
+
+
 } // namespace Common::Telemetry

@@ -32,6 +32,7 @@ namespace Common::Telemetry
         void set(const std::string& key, const std::string& value);
         void set(const std::string& key, const char* value);
         void set(const std::string& key, bool value);
+        void set(const std::string& key, const TelemetryObject & object);
 
         void increment(const std::string& key, long value);
         void increment(const std::string& key, unsigned long value);
@@ -50,8 +51,7 @@ namespace Common::Telemetry
         void appendObject(const std::string& arrayKey, const std::string& key, bool value);
 
         void mergeJsonIn(const std::string& key, const std::string& json);
-
-        void registerResetCallback(std::string cookie, std::function<void()> function);
+        void registerResetCallback(std::string cookie, std::function<void(TelemetryHelper&)> function);
         void unregisterResetCallback(std::string cookie);
         void reset();
         std::string serialise();
@@ -66,7 +66,9 @@ namespace Common::Telemetry
         TelemetryObject m_root;
         std::mutex m_dataLock;
         std::mutex m_callbackLock;
-        std::map<std::string, std::function<void()>> m_callbacks;
+        std::map<std::string, std::function<void(TelemetryHelper&)>> m_callbacks;
+
+        void locked_reset();
 
         template<class T>
         void setInternal(const std::string& key, T value)
