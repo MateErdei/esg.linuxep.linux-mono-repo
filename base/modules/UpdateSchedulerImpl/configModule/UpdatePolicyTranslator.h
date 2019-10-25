@@ -22,18 +22,15 @@ namespace UpdateSchedulerImpl
         void clearSubscriptions();
         void addSubscription(const std::string & rigidname, const std::string & fixedVersion);
         void setSDDSid(const std::string & );
-        void commitChanges();
         void resetTelemetry(Common::Telemetry::TelemetryHelper& );
     private:
-        std::mutex  m_mutex;
-        struct SharedState
+        struct WarehouseTelemetry
         {
             std::vector<std::pair<std::string, std::string>> m_subscriptions;
             std::string m_sddsid;
 
         };
-        SharedState sharedState;
-        SharedState telemetryCopy;
+        WarehouseTelemetry warehouseTelemetry;
     };
 
 
@@ -76,8 +73,7 @@ namespace UpdateSchedulerImpl
             std::vector<Cache> sortUpdateCaches(const std::vector<Cache>& caches);
             std::vector<Cache> m_Caches;
             std::string m_revID;
-            std::string m_telemetryCookie;
-            std::shared_ptr<UpdatePolicyTelemetry> m_updatePolicy;
+            UpdatePolicyTelemetry m_updatePolicy;
         };
     } // namespace configModule
 } // namespace UpdateSchedulerImpl

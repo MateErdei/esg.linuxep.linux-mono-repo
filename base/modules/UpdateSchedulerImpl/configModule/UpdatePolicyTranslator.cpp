@@ -190,7 +190,7 @@ namespace UpdateSchedulerImpl
             {
                 config.setCredentials(SulDownloader::suldownloaderdata::Credentials{ user, pass });
             }
-            m_updatePolicy->setSDDSid(user);
+            m_updatePolicy.setSDDSid(user);
 
             auto updateCacheEntities =
                 attributesMap.entitiesThatContainPath("AUConfigurations/update_cache/locations/location");
@@ -279,13 +279,13 @@ namespace UpdateSchedulerImpl
             std::vector<SulDownloader::suldownloaderdata::ProductSubscription> productsSubscription;
 
             bool ssplBaseIncluded = false;
-            m_updatePolicy->clearSubscriptions();
+            m_updatePolicy.clearSubscriptions();
             for (const auto& cloudSubscription : cloudSubscriptions)
             {
                 auto subscriptionDetails = attributesMap.lookup(cloudSubscription);
                 std::string rigidName = subscriptionDetails.value("RigidName");
                 std::string fixedVersion = subscriptionDetails.value(FixedVersion);
-                m_updatePolicy->addSubscription(rigidName, fixedVersion);
+                m_updatePolicy.addSubscription(rigidName, fixedVersion);
                 if (rigidName != SulDownloader::suldownloaderdata::SSPLBaseName)
                 {
                     productsSubscription.emplace_back(SulDownloader::suldownloaderdata::ProductSubscription(
@@ -349,8 +349,7 @@ namespace UpdateSchedulerImpl
             {
                 periodInt = std::stoi(period);
             }
-            m_updatePolicy->commitChanges();
-            m_updatePolicy->resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
+            m_updatePolicy.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
             return SettingsHolder{ config, certificateFileContent, std::chrono::minutes(periodInt), scheduledUpdate };
         }
 
@@ -410,63 +409,47 @@ namespace UpdateSchedulerImpl
         UpdatePolicyTranslator::UpdatePolicyTranslator() :
             m_Caches{},
             m_revID{},
-            m_telemetryCookie{ "updatePolicyTelemetryCookie" },
-            m_updatePolicy{ std::make_shared<UpdatePolicyTelemetry>() }
+            m_updatePolicy{ }
         {
-            std::shared_ptr<UpdatePolicyTelemetry> copyUpdate = m_updatePolicy;
-            // the lifetime of Update PolicyTelemetry is determined by both:
-            // the functor and the UpdatePolicyTranslator. That is why a shared pointer is being used.
-            // in order to pass copy of the shared pointer to the lambda, a named variable (not linked to this* ) is
-            // needed.
-            Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback(m_telemetryCookie, [copyUpdate]( Common::Telemetry::TelemetryHelper& helper) {
-                copyUpdate->resetTelemetry(helper);
-            });
         }
 
         UpdatePolicyTranslator::~UpdatePolicyTranslator()
         {
-            Common::Telemetry::TelemetryHelper::getInstance().unregisterResetCallback(m_telemetryCookie);
         }
     } // namespace configModule
 
     void UpdatePolicyTelemetry::setSDDSid(const std::string& sdds)
     {
-        sharedState.m_sddsid = sdds;
+        warehouseTelemetry.m_sddsid = sdds;
     }
 
     void UpdatePolicyTelemetry::resetTelemetry(Common::Telemetry::TelemetryHelper& telemetryToSet)
     {
         Common::Telemetry::TelemetryObject updateTelemetry;
         std::list<Common::Telemetry::TelemetryObject> listSubscriptions;
-        for (auto& subscription : telemetryCopy.m_subscriptions)
+        for (auto& subscription : warehouseTelemetry.m_subscriptions)
         {
             auto telemetryObject = Common::Telemetry::TelemetryObject::fromVectorOfKeyValues(
                 { { "rigidname", subscription.first }, { "fixedversion", subscription.second } });
             listSubscriptions.push_back(telemetryObject);
 
         }
-        assert(telemetryCopy.m_subscriptions.size() == 2);
         Common::Telemetry::TelemetryValue ssd;
-        ssd.set(telemetryCopy.m_sddsid);
+        ssd.set(warehouseTelemetry.m_sddsid);
         updateTelemetry.set("sddsid", ssd);
         updateTelemetry.set("subscriptions", listSubscriptions);
-        telemetryToSet.set("warehouse", updateTelemetry);
+        telemetryToSet.set("warehouse", updateTelemetry, true);
     }
 
     void UpdatePolicyTelemetry::clearSubscriptions()
     {
-        sharedState.m_subscriptions.clear();
+        warehouseTelemetry.m_subscriptions.clear();
     }
 
     void UpdatePolicyTelemetry::addSubscription(const std::string& rigidname, const std::string& fixedVersion)
     {
-        sharedState.m_subscriptions.emplace_back(rigidname, fixedVersion);
+        warehouseTelemetry.m_subscriptions.emplace_back(rigidname, fixedVersion);
     }
 
-    void UpdatePolicyTelemetry::commitChanges()
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        telemetryCopy = sharedState;
-    }
 
 } // namespace UpdateSchedulerImpl

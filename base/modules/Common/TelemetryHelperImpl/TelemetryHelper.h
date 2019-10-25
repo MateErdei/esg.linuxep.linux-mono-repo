@@ -32,7 +32,7 @@ namespace Common::Telemetry
         void set(const std::string& key, const std::string& value);
         void set(const std::string& key, const char* value);
         void set(const std::string& key, bool value);
-        void set(const std::string& key, const TelemetryObject & object);
+        void set(const std::string& key, const TelemetryObject & object, bool stick);
 
         void increment(const std::string& key, long value);
         void increment(const std::string& key, unsigned long value);
@@ -64,6 +64,7 @@ namespace Common::Telemetry
 
     private:
         TelemetryObject m_root;
+        TelemetryObject m_resetToThis;
         std::mutex m_dataLock;
         std::mutex m_callbackLock;
         std::map<std::string, std::function<void(TelemetryHelper&)>> m_callbacks;
@@ -71,11 +72,15 @@ namespace Common::Telemetry
         void locked_reset();
 
         template<class T>
-        void setInternal(const std::string& key, T value)
+        void setInternal(const std::string& key, T value, bool stick)
         {
             std::lock_guard<std::mutex> lock(m_dataLock);
             TelemetryValue telemetryValue(value);
             getTelemetryObjectByKey(key).set(telemetryValue);
+            if ( stick )
+            {
+                getTelemetryObjectByKey(key,m_resetToThis).set(telemetryValue);
+            }
         }
 
         template<class T>
@@ -144,6 +149,7 @@ namespace Common::Telemetry
         }
 
         TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
+        TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath, TelemetryObject & root);
         void clearData();
     };
 } // namespace Common::Telemetry

@@ -14,15 +14,14 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Common::Telemetry
 {
-    void TelemetryHelper::set(const std::string& key, long value) { setInternal(key, value); }
+    void TelemetryHelper::set(const std::string& key, long value) { setInternal(key, value, false); }
 
-    void TelemetryHelper::set(const std::string& key, unsigned long value) { setInternal(key, value); }
+    void TelemetryHelper::set(const std::string& key, unsigned long value) { setInternal(key, value, false); }
+    void TelemetryHelper::set(const std::string& key, const std::string& value) { setInternal(key, value, false); }
 
-    void TelemetryHelper::set(const std::string& key, const std::string& value) { setInternal(key, value); }
+    void TelemetryHelper::set(const std::string& key, const char* value) { setInternal(key, value, false); }
 
-    void TelemetryHelper::set(const std::string& key, const char* value) { setInternal(key, value); }
-
-    void TelemetryHelper::set(const std::string& key, bool value) { setInternal(key, value); }
+    void TelemetryHelper::set(const std::string& key, bool value) { setInternal(key, value, false); }
 
     void TelemetryHelper::increment(const std::string& key, long value) { incrementInternal(key, value); }
 
@@ -89,7 +88,12 @@ namespace Common::Telemetry
 
     TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath)
     {
-        std::reference_wrapper<TelemetryObject> currentTelemObj = m_root;
+        return getTelemetryObjectByKey(keyPath, m_root);
+    }
+
+    TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath, TelemetryObject& root)
+    {
+        std::reference_wrapper<TelemetryObject> currentTelemObj = root;
         for (const auto& key : Common::UtilityImpl::StringUtils::splitString(keyPath, "."))
         {
             if (!currentTelemObj.get().keyExists(key))
@@ -100,6 +104,7 @@ namespace Common::Telemetry
         }
         return currentTelemObj;
     }
+
 
     std::string TelemetryHelper::serialise()
     {
@@ -131,6 +136,7 @@ namespace Common::Telemetry
     void TelemetryHelper::locked_reset()
     {
         TelemetryHelper another;
+        another.m_root = m_resetToThis;
         for (const auto& callback_entry : m_callbacks)
         {
             if (callback_entry.second)
@@ -145,7 +151,7 @@ namespace Common::Telemetry
     void TelemetryHelper::clearData()
     {
         std::lock_guard<std::mutex> dataLock(m_dataLock);
-        m_root = TelemetryObject();
+        m_root = m_resetToThis;
     }
 
     void TelemetryHelper::mergeJsonIn(const std::string& key, const std::string& json)
@@ -165,12 +171,19 @@ namespace Common::Telemetry
         return serialised;
     }
 
-    void TelemetryHelper::set(const std::string& key, const TelemetryObject& object)
+
+    void TelemetryHelper::set(const std::string& key, const TelemetryObject& object, bool stick)
     {
         std::lock_guard<std::mutex> lock(m_dataLock);
         TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
         telemetryObject = object;
+        if ( stick)
+        {
+            TelemetryObject& telemetryObjectStick = getTelemetryObjectByKey(key, m_resetToThis);
+            telemetryObjectStick = object;
+        }
     }
+
 
 
 } // namespace Common::Telemetry
