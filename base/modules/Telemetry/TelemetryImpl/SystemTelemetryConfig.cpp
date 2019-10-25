@@ -59,7 +59,7 @@ namespace Telemetry
                                               { { "", TelemetryValueType::STRING } } } },
                 { "apparmor",
                         SystemTelemetryTuple{ "systemctl",
-                                              {"is-enabled", "apparmor"},
+                                              {"is-active", "apparmor"},
                                               R"(^(\w+)$)",
                                               { { "", TelemetryValueType::STRING } } } },
                 { "auditd",
