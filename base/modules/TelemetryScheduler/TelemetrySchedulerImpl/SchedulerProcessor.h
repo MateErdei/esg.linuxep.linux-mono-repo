@@ -41,7 +41,6 @@ namespace TelemetrySchedulerImpl
         virtual void run();
 
     protected:
-        virtual bool checkConfigAndStatusAndRescheduleIfNeeded(bool statusFileValid, const SchedulerStatus & schedulerStatus, bool configFileValid, const Common::TelemetryConfigImpl::Config & telemetryConfig);
         virtual void waitToRunTelemetry(bool runScheduledInPastNow);
         virtual void runTelemetry();
         virtual void checkExecutableFinished();
@@ -68,7 +67,7 @@ namespace TelemetrySchedulerImpl
 
         system_clock::time_point getNextScheduledTime(
             system_clock::time_point previousScheduledTime,
-            unsigned int intervalSeconds) const;
+            size_t intervalSeconds) const;
 
         void delayBeforeQueueingTask(
             std::chrono::system_clock::time_point delayUntil,
@@ -78,7 +77,7 @@ namespace TelemetrySchedulerImpl
         bool isTelemetryDisabled(
             const system_clock::time_point& previousScheduledTime,
             bool statusFileValid,
-            unsigned int interval,
+            size_t interval,
             bool configFileValid);
 
     private:
