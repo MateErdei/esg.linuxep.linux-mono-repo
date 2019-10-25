@@ -53,7 +53,7 @@ class IpLookupThread(threading.Thread):
                         raise
         except Exception as ex:  # pylint: disable=broad-except
             msg = "Extracting ip from server {} resulted in exception {}"
-            LOGGER.warning(msg.format(self.server['hostname'], ex))
+            LOGGER.debug(msg.format(self.server['hostname'], ex))
 
 
 def order_servers_by_key(server_location_list, key_string):
