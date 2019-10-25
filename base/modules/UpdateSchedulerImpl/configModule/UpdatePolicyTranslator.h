@@ -10,10 +10,33 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <UpdateScheduler/IMapHostCacheId.h>
 #include <UpdateScheduler/ScheduledUpdate.h>
 
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <chrono>
+#include <memory>
 
 namespace UpdateSchedulerImpl
 {
+    class UpdatePolicyTelemetry
+    {
+    public:
+        void clearSubscriptions();
+        void addSubscription(const std::string & rigidname, const std::string & fixedVersion);
+        void setSDDSid(const std::string & );
+        void commitChanges();
+        void resetTelemetry(Common::Telemetry::TelemetryHelper& );
+    private:
+        std::mutex  m_mutex;
+        struct SharedState
+        {
+            std::vector<std::pair<std::string, std::string>> m_subscriptions;
+            std::string m_sddsid;
+
+        };
+        SharedState sharedState;
+        SharedState telemetryCopy;
+    };
+
+
     namespace configModule
     {
         struct SettingsHolder
@@ -40,7 +63,8 @@ namespace UpdateSchedulerImpl
             std::string cacheID(const std::string& hostname) const override;
 
             std::string revID() const;
-
+            UpdatePolicyTranslator();
+            ~UpdatePolicyTranslator();
         private:
             SettingsHolder _translatePolicy(const std::string& policyXml);
             struct Cache
@@ -52,6 +76,8 @@ namespace UpdateSchedulerImpl
             std::vector<Cache> sortUpdateCaches(const std::vector<Cache>& caches);
             std::vector<Cache> m_Caches;
             std::string m_revID;
+            std::string m_telemetryCookie;
+            std::shared_ptr<UpdatePolicyTelemetry> m_updatePolicy;
         };
     } // namespace configModule
 } // namespace UpdateSchedulerImpl
