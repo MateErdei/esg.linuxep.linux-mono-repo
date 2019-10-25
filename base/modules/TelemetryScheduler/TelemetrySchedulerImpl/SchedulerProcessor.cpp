@@ -19,6 +19,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
+namespace
+{
+    constexpr unsigned int dayInSeconds(86400);
+}
+
 namespace TelemetrySchedulerImpl
 {
     using namespace Common::TelemetryConfigImpl;
@@ -162,7 +167,7 @@ namespace TelemetrySchedulerImpl
 
     system_clock::time_point SchedulerProcessor::getNextScheduledTime(
         system_clock::time_point previousScheduledTime,
-        size_t intervalSeconds) const
+        unsigned int intervalSeconds) const
     {
         const system_clock::time_point epoch;
         system_clock::time_point scheduledTime = epoch;
@@ -194,7 +199,7 @@ namespace TelemetrySchedulerImpl
     bool SchedulerProcessor::isTelemetryDisabled(
         const system_clock::time_point& previousScheduledTime,
         bool statusFileValid,
-        size_t interval,
+        unsigned int interval,
         bool configFileValid)
     {
         // Telemetry can be disabled remotely by setting the interval to zero. Telemetry can be disabled locally be
@@ -205,6 +210,32 @@ namespace TelemetrySchedulerImpl
         return (statusFileValid && previousScheduledTime == epoch) || !configFileValid || interval == 0;
     }
 
+    bool SchedulerProcessor::checkConfigAndStatusAndRescheduleIfNeeded(bool statusFileValid, const SchedulerStatus & schedulerStatus, bool configFileValid, const Config & telemetryConfig)
+    {
+        if (!configFileValid || telemetryConfig.isValid())
+        {
+            LOGINFO("Telemetry schedular config file: " << m_pathManager.getTelemetrySupplementaryFilePath() << " is invalid");
+            auto scheduledTime = getNextScheduledTime(system_clock::now(), dayInSeconds);
+            std::string formattedScheduledTime =
+                    Common::UtilityImpl::TimeUtils::fromTime(system_clock::to_time_t(scheduledTime));
+            LOGINFO("Telemetry reporting is rescheduled to run at " << formattedScheduledTime);
+            delayBeforeQueueingTask(scheduledTime, m_delayBeforeRunningTelemetry, SchedulerTask::RunTelemetry);
+            return false;
+        }
+        if (!statusFileValid || schedulerStatus.isValid())
+        {
+            LOGINFO("Telemetry schedular status file: " << m_pathManager.getTelemetrySupplementaryFilePath() << " is invalid.");
+            auto interval = telemetryConfig.getInterval();
+            auto scheduledTime = getNextScheduledTime(system_clock::now(), interval);
+            std::string formattedScheduledTime =
+                    Common::UtilityImpl::TimeUtils::fromTime(system_clock::to_time_t(scheduledTime));
+            LOGINFO("Telemetry reporting is rescheduled to run at " << formattedScheduledTime);
+            delayBeforeQueueingTask(scheduledTime, m_delayBeforeRunningTelemetry, SchedulerTask::RunTelemetry);
+            return false;
+        }
+        return true;
+    }
+
     void SchedulerProcessor::waitToRunTelemetry(bool runScheduledInPastNow)
     {
         // Always re-read values from the telemetry configuration (supplementary) and status files in case they've been
@@ -212,6 +243,10 @@ namespace TelemetrySchedulerImpl
 
         auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
         auto const& [telemetryConfig, configFileValid] = getConfigFromFile();
+        if (checkConfigAndStatusAndRescheduleIfNeeded(statusFileValid, schedulerStatus, configFileValid, telemetryConfig))
+        {
+            return;
+        }
         auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
         auto interval = telemetryConfig.getInterval();
 
@@ -259,6 +294,10 @@ namespace TelemetrySchedulerImpl
 
         auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
         auto const& [telemetryConfig, configFileValid] = getConfigFromFile();
+        if (checkConfigAndStatusAndRescheduleIfNeeded(statusFileValid, schedulerStatus, configFileValid, telemetryConfig))
+        {
+            return;
+        }
         auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
         auto interval = telemetryConfig.getInterval();
 
