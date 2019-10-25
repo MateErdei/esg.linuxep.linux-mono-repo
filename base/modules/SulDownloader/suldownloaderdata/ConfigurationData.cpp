@@ -36,7 +36,7 @@ namespace
         proto_subscription->set_rigidname(subscription.rigidName());
         proto_subscription->set_baseversion(subscription.baseVersion());
         proto_subscription->set_tag(subscription.tag());
-        proto_subscription->set_fixversion(subscription.fixVersion());
+        proto_subscription->set_fixedversion(subscription.fixedVersion());
     }
 
     ProductSubscription getSubscription(
@@ -46,7 +46,7 @@ namespace
             proto_subscription.rigidname(),
             proto_subscription.baseversion(),
             proto_subscription.tag(),
-            proto_subscription.fixversion());
+            proto_subscription.fixedversion());
     }
 
     bool isProductSubscriptionValid(const ProductSubscription& productSubscription)
@@ -56,9 +56,9 @@ namespace
             LOGWARN("Invalid Settings: Empty RigidName.");
             return false;
         }
-        if (productSubscription.fixVersion().empty() && productSubscription.tag().empty())
+        if (productSubscription.fixedVersion().empty() && productSubscription.tag().empty())
         {
-            LOGWARN("Invalid Settings: Product can not have both FixVersion and Tag empty.");
+            LOGWARN("Invalid Settings: Product can not have both FixedVersion and Tag empty.");
             return false;
         }
         return true;
@@ -626,6 +626,6 @@ const std::string ProductSubscription::toString() const
 {
     std::stringstream s;
     s << "name = " << m_rigidName << " baseversion = " << m_baseVersion << " tag = " << m_tag
-      << " fixversion = " << m_fixVersion;
+      << " fixedversion = " << m_fixedVersion;
     return s.str();
 }

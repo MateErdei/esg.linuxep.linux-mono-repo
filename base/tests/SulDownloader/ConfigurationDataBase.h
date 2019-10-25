@@ -58,14 +58,14 @@ public:
                                 "rigidName" : "BaseProduct-RigidName",
                                 "baseVersion" : "9",
                                 "tag" : "RECOMMENDED",
-                                "fixVersion" : ""
+                                "fixedVersion" : ""
                                 },
                                 "products": [
                                 {
                                 "rigidName" : "PrefixOfProduct-SimulateProductA",
                                 "baseVersion" : "9",
                                 "tag" : "RECOMMENDED",
-                                "fixVersion" : ""
+                                "fixedVersion" : ""
                                 },
                                 ],
                                 "features": ["CORE", "MDR"],

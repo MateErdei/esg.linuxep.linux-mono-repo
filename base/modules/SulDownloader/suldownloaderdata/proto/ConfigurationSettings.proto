@@ -50,7 +50,7 @@ message ConfigurationSettings
         optional string rigidName = 1;
         optional string baseVersion = 2;
         optional string tag = 3;
-        optional string fixVersion = 4;
+        optional string fixedVersion = 4;
     }
 
     optional Subscription primarySubscription = 14;

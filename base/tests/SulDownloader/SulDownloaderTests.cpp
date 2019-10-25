@@ -112,7 +112,7 @@ public:
         proto_subscription->set_rigidname("Everest-Base");
         proto_subscription->set_baseversion("10");
         proto_subscription->set_tag("RECOMMMENDED");
-        proto_subscription->set_fixversion("");
+        proto_subscription->set_fixedversion("");
         settings.add_features("CORE");
         settings.set_certificatepath("/installroot/base/update/certificates");
         settings.set_installationrootpath("/installroot");

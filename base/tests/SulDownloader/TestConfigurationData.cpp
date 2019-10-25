@@ -591,7 +591,7 @@ TEST_F(
                                 "rigidName" : "BaseProduct-RigidName",
                                 "baseVersion" : "9",
                                 "tag" : "RECOMMENDED",
-                                "fixVersion" : ""
+                                "fixedVersion" : ""
                                 },)";
     std::string newString; //  = "";
 
@@ -617,20 +617,20 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissing
 
 TEST_F(
     ConfigurationDataTest,
-    fromJsonSettingsValidJsonStringProductsWithMissingTagAndFixVersionShouldFailValidation) // NOLINT
+    fromJsonSettingsValidJsonStringProductsWithMissingTagAndFixedVersionShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"({
                                 "rigidName" : "PrefixOfProduct-SimulateProductA",
                                 "baseVersion" : "9",
                                 "tag" : "RECOMMENDED",
-                                "fixVersion" : ""
+                                "fixedVersion" : ""
                                 },)";
     std::string newString = R"({
                                 "rigidName" : "PrefixOfProduct-SimulateProductA",
                                 "baseVersion" : "9",
                                 "tag" : "",
-                                "fixVersion" : ""
+                                "fixedVersion" : ""
                                 },)";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
@@ -764,13 +764,13 @@ TEST_F( // NOLINT
     primaryWithoutBaseVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "" });
     all_valid_cases.emplace_back(primaryWithoutBaseVersion);
 
-    ConfigurationData primaryWithTagAndFixVersion(configurationData);
-    primaryWithTagAndFixVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "9.1" });
-    all_valid_cases.emplace_back(primaryWithTagAndFixVersion);
+    ConfigurationData primaryWithTagAndFixedVersion(configurationData);
+    primaryWithTagAndFixedVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "9.1" });
+    all_valid_cases.emplace_back(primaryWithTagAndFixedVersion);
 
-    ConfigurationData primaryWithOnlyFixVersion(configurationData);
-    primaryWithOnlyFixVersion.setPrimarySubscription({ "rigidname", "", "", "9.1" });
-    all_valid_cases.emplace_back(primaryWithOnlyFixVersion);
+    ConfigurationData primaryWithOnlyFixedVersion(configurationData);
+    primaryWithOnlyFixedVersion.setPrimarySubscription({ "rigidname", "", "", "9.1" });
+    all_valid_cases.emplace_back(primaryWithOnlyFixedVersion);
 
     ConfigurationData featuresContainCORE(configurationData);
     featuresContainCORE.setFeatures({ { "CORE" }, { "MDR" } });

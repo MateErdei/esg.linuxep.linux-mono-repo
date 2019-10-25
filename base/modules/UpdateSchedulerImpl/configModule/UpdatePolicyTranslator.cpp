@@ -287,14 +287,14 @@ namespace UpdateSchedulerImpl
                         rigidName,
                         subscriptionDetails.value("BaseVersion"),
                         subscriptionDetails.value("Tag"),
-                        subscriptionDetails.value("FixVersion")));
+                        subscriptionDetails.value("FixedVersion")));
                 }
                 else
                 {
                     config.setPrimarySubscription({ rigidName,
                                                     subscriptionDetails.value("BaseVersion"),
                                                     subscriptionDetails.value("Tag"),
-                                                    subscriptionDetails.value("FixVersion") });
+                                                    subscriptionDetails.value("FixedVersion") });
 
                     ssplBaseIncluded = true;
                 }

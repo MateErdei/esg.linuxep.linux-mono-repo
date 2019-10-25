@@ -37,8 +37,8 @@ static const std::string updatePolicyWithCache{ R"sophos(<?xml version="1.0"?>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
     <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
     <cloud_subscriptions>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixVersion="11"/>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixVersion="8"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixedVersion="11"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixedVersion="8"/>
     </cloud_subscriptions>
     <delay_supplements enabled="false"/>
   </AUConfig>
@@ -455,14 +455,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(primarySubscription.baseVersion(), "10");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixVersion(), "11");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "11");
 
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "8");
+    EXPECT_EQ(productsSubscription[0].fixedVersion(), "8");
 
     const auto& features = config.getFeatures();
     std::vector<std::string> expectedFeatures = { "APPCNTRL", "AV",  "CORE", "DLP", "DVCCNTRL", "EFW",
@@ -548,14 +548,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(primarySubscription.baseVersion(), "10");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixVersion(), "");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "");
 
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
 
     const auto& features = config.getFeatures();
     std::vector<std::string> expectedFeatures = { "APPCNTRL", "AV",  "CORE", "DLP", "DVCCNTRL", "EFW",
@@ -590,14 +590,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
     EXPECT_EQ(primarySubscription.baseVersion(), "10");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixVersion(), "");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "");
 
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
 
     const auto& features = config.getFeatures();
     std::vector<std::string> expectedFeatures = { "APPCNTRL", "AV",  "CORE", "DLP", "DVCCNTRL", "EFW",
@@ -733,14 +733,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
     EXPECT_EQ(primarySubscription.baseVersion(), "");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixVersion(), "");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "");
 
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Plugin-MDR");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
 
     const auto& features = config.getFeatures();
     std::vector<std::string> expectedFeatures = { "CORE", "SDU", "MDR" };
@@ -792,14 +792,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
     EXPECT_EQ(primarySubscription.baseVersion(), "");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixVersion(), "");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "");
 
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Plugin-MDR");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
 
     const auto& features = config.getFeatures();
     std::vector<std::string> expectedFeatures = { "CORE", "SDU", "MDR" };
@@ -835,14 +835,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog
     EXPECT_EQ(primarySubscription.baseVersion(), "");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixVersion(), "");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "");
 
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Plugin-MDR");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
 
     const auto& features = config.getFeatures();
     ASSERT_EQ(features.size(), 0);
@@ -885,14 +885,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreRep
     EXPECT_EQ(primarySubscription.baseVersion(), "");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixVersion(), "");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "");
 
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Plugin-MDR");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
 
     const auto& features = config.getFeatures();
     std::vector<std::string> expectedFeatures = { "APPCNTRL", "AV",  "DLP", "DVCCNTRL", "EFW",     "HBT",
@@ -925,7 +925,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
     EXPECT_EQ(primarySubscription.baseVersion(), "");
     EXPECT_EQ(primarySubscription.rigidName(), "");
     EXPECT_EQ(primarySubscription.tag(), "");
-    EXPECT_EQ(primarySubscription.fixVersion(), "");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "");
 
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 0);
@@ -967,19 +967,19 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
     EXPECT_EQ(primarySubscription.baseVersion(), "");
     EXPECT_EQ(primarySubscription.rigidName(), "");
     EXPECT_EQ(primarySubscription.tag(), "");
-    EXPECT_EQ(primarySubscription.fixVersion(), "");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "");
 
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 2);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-NotBase");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
 
     EXPECT_EQ(productsSubscription[1].baseVersion(), "");
     EXPECT_EQ(productsSubscription[1].rigidName(), "ServerProtectionLinux-Plugin-MDR");
     EXPECT_EQ(productsSubscription[1].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[1].fixVersion(), "");
+    EXPECT_EQ(productsSubscription[1].fixedVersion(), "");
 
     const auto& features = config.getFeatures();
     std::vector<std::string> expectedFeatures = { "CORE", "SDU", "MDR" };

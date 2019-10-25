@@ -23,32 +23,32 @@ namespace SulDownloader
             std::string m_rigidName;
             std::string m_baseVersion;
             std::string m_tag;
-            std::string m_fixVersion;
+            std::string m_fixedVersion;
 
         public:
             ProductSubscription(
                 const std::string& rigidName,
                 const std::string& baseVersion,
                 const std::string& tag,
-                const std::string& fixVersion) :
+                const std::string& fixedVersion) :
                 m_rigidName(rigidName),
                 m_baseVersion(baseVersion),
                 m_tag(tag),
-                m_fixVersion(fixVersion)
+                m_fixedVersion(fixedVersion)
             {
             }
             ProductSubscription() {}
             const std::string& rigidName() const { return m_rigidName; }
             const std::string& baseVersion() const { return m_baseVersion; }
             const std::string& tag() const { return m_tag; }
-            const std::string& fixVersion() const { return m_fixVersion; }
+            const std::string& fixedVersion() const { return m_fixedVersion; }
             const std::string toString() const;
 
             bool operator==(const ProductSubscription& rhs) const
             {
                 return (
                     (m_rigidName == rhs.m_rigidName) && (m_baseVersion == rhs.m_baseVersion) && (m_tag == rhs.m_tag) &&
-                    (m_fixVersion == rhs.m_fixVersion));
+                    (m_fixedVersion == rhs.m_fixedVersion));
             }
 
             bool operator!=(const ProductSubscription& rhs) const { return !operator==(rhs); }

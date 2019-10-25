@@ -71,7 +71,7 @@ namespace SulDownloader
         // the selection is based on the following algorith.
 
         // It has to match rigid name.
-        // If the subscription has fixed version, it has precedence to tags and the fixversion must match.
+        // If the subscription has fixed version, it has precedence to tags and the fixedversion must match.
         // It the subscription has empty fix version, the tag system is used.
         // The tag selection is the following:
         //   the product must have the tag in the subscription.
@@ -82,9 +82,9 @@ namespace SulDownloader
             return false;
         }
 
-        if (!m_productSubscription.fixVersion().empty())
+        if (!m_productSubscription.fixedVersion().empty())
         {
-            return productInformation.getVersion() == m_productSubscription.fixVersion();
+            return productInformation.getVersion() == m_productSubscription.fixedVersion();
         }
 
         if (!productInformation.hasTag(m_productSubscription.tag()))
