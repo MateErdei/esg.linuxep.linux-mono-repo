@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <json.hpp>
 #include <sstream>
+#include <climits>
 
 namespace TelemetrySchedulerImpl
 {
@@ -23,7 +24,12 @@ namespace TelemetrySchedulerImpl
 
     void from_json(const nlohmann::json& j, SchedulerStatus& config)
     {
-        config.setTelemetryScheduledTimeInSecondsSinceEpoch(j.at(TELEMETRY_SCHEDULED_TIME_KEY));
+        auto value = j.at(TELEMETRY_SCHEDULED_TIME_KEY);
+        if (!value.is_number_unsigned() || value.get<unsigned long>() > (unsigned long)(INT_MAX))
+        {
+            throw nlohmann::detail::other_error::create(100 ,"Value for scheduled time is negative or too large");
+        }
+        config.setTelemetryScheduledTimeInSecondsSinceEpoch(value);
     }
 
     std::string SchedulerStatusSerialiser::serialise(const SchedulerStatus& config)

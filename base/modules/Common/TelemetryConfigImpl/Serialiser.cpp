@@ -10,6 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <iostream>
 #include <json.hpp>
+#include <climits>
 
 namespace Common::TelemetryConfigImpl
 {
@@ -145,7 +146,12 @@ namespace Common::TelemetryConfigImpl
 
         if (j.contains(INTERVAL_CONFIG_KEY))
         {
-            config.setInterval(j.at(INTERVAL_CONFIG_KEY));
+            auto value = j.at(INTERVAL_CONFIG_KEY);
+            if (!value.is_number_unsigned() || value.get<unsigned long>() > (unsigned long)(UINT_MAX))
+            {
+                throw nlohmann::detail::other_error::create(100 ,"Value for interval is negative or too large");
+            }
+            config.setInterval(value);
         }
 
         if (j.contains(PROXIES_CONFIG_KEY))
