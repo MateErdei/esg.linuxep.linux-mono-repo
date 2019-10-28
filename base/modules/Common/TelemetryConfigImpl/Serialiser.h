@@ -12,6 +12,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Common::TelemetryConfigImpl
 {
+    constexpr int invalidNumberConversion(510);
+
     class Serialiser
     {
     public:

@@ -41,7 +41,6 @@ namespace TelemetrySchedulerImpl
         virtual void run();
 
     protected:
-        virtual bool checkConfigAndStatusAndRescheduleIfNeeded(bool statusFileValid, const SchedulerStatus & schedulerStatus, bool configFileValid, const Common::TelemetryConfigImpl::Config & telemetryConfig);
         virtual void waitToRunTelemetry(bool runScheduledInPastNow);
         virtual void runTelemetry();
         virtual void checkExecutableFinished();
