@@ -120,6 +120,8 @@ SRC_TEST_DIR=${SRC_DIR}/tests
 exclude \!../..${SRC_DIR}/thirdparty/
 exclude \!../..${SRC_DIR}/build/
 exclude \!../..${SRC_DIR}/build64/
+exclude \!../..${SRC_DIR}/redist/
+exclude \!../..${SRC_DIR}/sspl-base-build/
 exclude \!../..${SRC_TEST_DIR}/
 
 echo "Exclusions:"
