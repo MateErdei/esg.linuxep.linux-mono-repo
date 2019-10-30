@@ -390,6 +390,7 @@ function build()
     cp -a build${BITS}/distribution/ output/SDDS-COMPONENT || exitFailure 21 "Failed to copy SDDS package: $?"
     cp -a build${BITS}/products/PluginApi/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
     pushd build${BITS}
+    cp tests/manualTools/LoggerLimit SystemProductTestOutput/ || exitFailure 24 "Failed to copy LoggerLimit: $?"
     tar -zcvf ../output/SystemProductTestOutput.tar.gz SystemProductTestOutput/ || exitFailure 23 "Failed to tar SystemProductTestOutput package: $?"
     popd
 
