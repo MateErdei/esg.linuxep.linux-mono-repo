@@ -282,11 +282,7 @@ function build()
     fi
 
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
-    ZIP=$(which zip 2>/dev/null || true)
-    [[ -x "$ZIP" ]] || {
-        echo "Installing zip"
-        sudo yum install -y zip unzip </dev/null
-    }
+
 
     if [[ ${BULLSEYE} == 1 ]]
     then
@@ -306,10 +302,13 @@ function build()
 
 #   Required for build scripts to run on dev machines
     export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
+    export CPLUS_INCLUDE_PATH=/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
+    export CPATH=/usr/include/x86_64-linux-gnu/:${CPATH}
 
     echo "After setup: PATH=$PATH"
     echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
     echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
+    echo "After setup: CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH}"
     COMMON_LDFLAGS="${LINK_OPTIONS:-}"
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
 

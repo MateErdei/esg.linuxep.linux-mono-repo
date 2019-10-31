@@ -8,3 +8,5 @@ add_executable(PickYourPoison
 
 target_include_directories(LoggerLimit PUBLIC ${LOG4CPLUS_INCLUDE_DIR} )
 target_link_libraries(LoggerLimit logging)
+
+target_link_libraries(PickYourPoison pthread)
