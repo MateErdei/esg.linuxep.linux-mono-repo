@@ -69,9 +69,9 @@ namespace
         }
     }
 
-    void erase_last(std::string& s, char valueToErase)
+    void erase_from_end(std::string& s, char valueToErase)
     {
-        if (s.back() == valueToErase)
+        while (s.back() == valueToErase)
         {
             s.erase(s.begin() + s.size() - 1, s.end());
         }
@@ -96,7 +96,7 @@ namespace Common
 
             erase_all(s, "\r\n");
 
-            erase_last(s, '=');
+            erase_from_end(s, '=');
 
             // If the encoded string is empty, the decoded string is also empty.
 
