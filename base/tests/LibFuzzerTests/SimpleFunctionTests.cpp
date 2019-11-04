@@ -15,6 +15,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "google/protobuf/text_format.h"
 #include <modules/Common/UtilityImpl/StringUtils.h>
+#include <modules/Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
 #include <simplefunction.pb.h>
 #include <thread>
 #ifdef HasLibFuzzer
@@ -26,6 +27,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <stddef.h>
 #include <stdint.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/RegexUtilities.h>
 
 /** Verify EnforceUtf8 must either do nothing (input was a valid utf8) or throw a std:invalid_argument
  *  Anything else is outside the contract.
@@ -37,6 +39,64 @@ void verifyEnforceUtf8(const std::string & input )
         Common::UtilityImpl::StringUtils::enforceUTF8(input);
     }catch ( std::invalid_argument& )
     {
+    }
+
+}
+
+/**
+ * telemetryJsonToMap converts a json string into a flat map key-> value or it throw std::runtime_error if it is an invalid
+ * json. This test ensure that nothing different can occurr.
+ * @param input
+ */
+void verifyTelemetryJsonToMap(const std::string & input)
+{
+    try
+    {
+        auto map = Common::Telemetry::flatJsonToMap(input);
+        for( const auto & entry: map)
+        {
+            if (input.find(entry.first) == std::string::npos)
+            {
+                throw std::logic_error( "Each key must be present in the original json file");
+            }
+        }
+    }catch ( std::runtime_error& ex)
+    {
+        std::string reason{ex.what()};
+        if ( reason.find("JSON conversion to map failed") == std::string::npos)
+        {
+            // not the expected exception
+            throw;
+        }
+    }
+}
+
+/**
+ * It must always return a string never to throw.
+ * @param input
+ */
+void verifyRegexUtility(const std::string & input)
+{
+    auto pos = input.find_first_of(';');
+    std::string pattern;
+    std::string content;
+    if ( pos != std::string::npos)
+    {
+        pattern = input.substr(0, pos);
+        content = input.substr(pos);
+    }
+    else
+    {
+        pattern = input;
+        content = input;
+    }
+    std::string response = Common::UtilityImpl::returnFirstMatch(pattern, content);
+    if( !response.empty())
+    {
+        if( response.size() > content.size())
+        {
+            throw  std::logic_error( "Captured bigger than content");
+        }
     }
 
 }
@@ -54,7 +114,13 @@ void mainTest(const SimpleFunctionProto::TestCase& testCase)
     {
         case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_enforceUTF8:
             verifyEnforceUtf8(testCase.payload());
-        break;
+            break;
+        case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_jsonToMap:
+            verifyTelemetryJsonToMap(testCase.payload());
+            break;
+        case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_regexUtility:
+            verifyRegexUtility(testCase.payload());
+            break;
     }
 }
 

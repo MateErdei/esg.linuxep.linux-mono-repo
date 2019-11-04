@@ -6,6 +6,8 @@ message TestCase {
     enum FunctionTarget
     {
         enforceUTF8 = 1;
+        jsonToMap = 2;
+        regexUtility = 3;
     }
     required FunctionTarget functionTarget = 2;
 }
