@@ -76,7 +76,6 @@ int printUsageAndExit() {
                  "\t--spam          - send lots of text to stdout and stderr\n"
                  "\t--deadlock      - induce a deadlock\n"
                  "\t--gobble        - continuously append items to a vector to use up progressively more memory\n"
-                 "\t--wget          - induce an \"incident\"\n"
                  "\t--run           - just run without induced errors\n"
                  "\t--hello-world\n"
                  "\t--help          - show this dialogue\n"
@@ -185,11 +184,6 @@ void gobbleMemory()
     }
 }
 
-void wget()
-{
-    std::cout << "nice try" << std::endl;
-}
-
 void justRun()
 {
     std::cout << "Executable will keep Running" << std::endl;
@@ -244,10 +238,6 @@ int main(int argc, char *argv[]) {
     else if (argument == "--hello-world")
     {
         helloWorld();
-    }
-    else if (argument == "--wget")
-    {
-        wget();
     }
     else if (argument == "--run")
     {
