@@ -175,6 +175,8 @@ void gobbleMemory()
     std::string aString = "this is a string";
     std::vector<std::string> bigVector;
 
+    std::cout << "Gobbling Memory" << std::endl;
+
     while (true)
     {
         bigVector.emplace_back(loremIpsum);
