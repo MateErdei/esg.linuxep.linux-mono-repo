@@ -17,7 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    const int GL_mbSize = 1024 * 1024;
+    const int GL_mbSize = 1024 * 28;
 
     SystemTelemetryCollectorImpl::SystemTelemetryCollectorImpl(
         Telemetry::SystemTelemetryConfig objectsConfig,
