@@ -1,3 +1,4 @@
+add_subdirectory(ZMQChecker)
 set( PLUGIN_PROTOCOL_OUTPUT_FOLDER  ${CMAKE_BINARY_DIR}/modules/Common/PluginProtocol/ )
 
 install(FILES
