@@ -6,11 +6,12 @@ echo "This software is governed by the terms and conditions of a licence agreeme
 
 args="$*"
 VERSION=@PRODUCT_VERSION_REPLACEMENT_STRING@
+PRODUCT_NAME="Sophos Managed Threat Response for Linux"
 
 # Display help
 if [ "x$args" = "x--help" ] || [ "x$args" = "x-h" ]
 then
-    echo "Sophos Server Protection for Linux Installer, help:"
+    echo "${PRODUCT_NAME} Installer, help:"
     echo "Usage: [options]"
     echo "Valid options are:"
     echo -e "--help [-h]\t\tDisplay this summary"
@@ -21,7 +22,7 @@ fi
 
 if [ "x$args" = "x--version" ] || [ "x$args" = "x-v" ]
 then
-    echo "Sophos Server Protection for Linux Installer, version: $VERSION"
+    echo "${PRODUCT_NAME} Installer, version: $VERSION"
     exit 0
 fi
 
@@ -138,7 +139,7 @@ function check_free_storage()
     then
         return 0
     fi
-    echo "Not enough space in $mountpoint to install Sophos Server Protection for Linux. You can install elsewhere by re-running this installer with the --instdir argument"
+    echo "Not enough space in $mountpoint to install ${PRODUCT_NAME}. You can install elsewhere by re-running this installer with the --instdir argument"
     cleanup_and_exit ${EXITCODE_NOT_ENOUGH_SPACE}
 }
 
@@ -434,14 +435,14 @@ then
     # Check we have found the path for the existing installation.
     if [ ! -d "$EXISTING_SSPL_PATH" ]
     then
-        echo "An existing installation of Sophos Server Protection for Linux was found but could not find the installed path. You could try 'SophosSetup.sh --force' to force the install"
+        echo "An existing installation of ${PRODUCT_NAME} was found but could not find the installed path. You could try 'SophosSetup.sh --force' to force the install"
         cleanup_and_exit ${EXITCODE_INSTALLED_BUT_NO_PATH}
     fi
 
     # If the user specified a different install dir to the existing one then they must remove the old install first.
     if [[ ${SOPHOS_INSTALL} != ${EXISTING_SSPL_PATH} ]]
     then
-        echo "Please uninstall Sophos Server Protection for Linux before using this installer. You can run ${EXISTING_SSPL_PATH}/bin/uninstall.sh" >&2
+        echo "Please uninstall ${PRODUCT_NAME} before using this installer. You can run ${EXISTING_SSPL_PATH}/bin/uninstall.sh" >&2
         cleanup_and_exit ${EXITCODE_ALREADY_INSTALLED}
     fi
 
@@ -465,7 +466,7 @@ then
 else  # sspl not installed
     if [ -d ${SOPHOS_INSTALL} ]
     then
-        echo "The intended destination for Sophos Server Protection for Linux: ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location" >&2
+        echo "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location" >&2
         cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
     fi
 fi
@@ -489,7 +490,7 @@ mkdir cache
 mkdir warehouse
 mkdir warehouse/catalogue
 
-echo "Installation process for Server Protection For Linux started"
+echo "Installation process for ${PRODUCT_NAME}"
 ${BIN}/installer credentials.txt
 handle_installer_errorcodes $?
 
