@@ -81,5 +81,4 @@ add_executable(PluginApiTest
 target_link_libraries(PluginApiTest
         fuzzer-proto
         pluginapiimpl
-        testhelpers
         )
