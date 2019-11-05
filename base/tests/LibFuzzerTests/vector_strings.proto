@@ -1,0 +1,6 @@
+syntax = "proto2";
+package VectorStringsProto;
+message Query {
+  repeated string parts = 1;
+}
+
