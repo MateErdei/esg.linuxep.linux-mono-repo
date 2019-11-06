@@ -17,7 +17,7 @@ sophosmtr_plugin_version=${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
 
 
 echo ""
-echo "Version information for Sophos Server Protection For Linux"
+echo "Version information for Sophos Managed Threat Response for Linux"
 echo ""
 if [[ -f ${base_version_file} ]]
 then

@@ -99,7 +99,7 @@ Restart=always
 WantedBy=multi-user.target
 
 [Unit]
-Description=Sophos Server Protection for Linux
+Description=Sophos Managed Threat Response for Linux
 RequiresMountsFor=${SOPHOS_INSTALL}
 EOF
         chmod 644 ${STARTUP_DIR}/sophos-spl.service
