@@ -490,7 +490,7 @@ mkdir cache
 mkdir warehouse
 mkdir warehouse/catalogue
 
-echo "Installation process for ${PRODUCT_NAME}"
+echo "Installation process for ${PRODUCT_NAME} started"
 ${BIN}/installer credentials.txt
 handle_installer_errorcodes $?
 
