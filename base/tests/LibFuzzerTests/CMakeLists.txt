@@ -1,5 +1,5 @@
 
-set(PROTO_INPUT_FILE message.proto zmqparts.proto simplefunction.proto )
+set(PROTO_INPUT_FILE message.proto zmqparts.proto simplefunction.proto watchdogmessage.proto)
 
 protobuf_generate_cpp(LIB_FUZZER_EXAMPLE_PROTO_SRCS
         LIB_FUZZER_EXAMPLE_PROTO_HDRS
@@ -72,4 +72,14 @@ add_executable(SimpleFunctionTests
 target_link_libraries(SimpleFunctionTests
         fuzzer-proto
         utilityimpl
+        )
+
+add_executable(WatchdogApiTest
+        WatchdogApiTest.cpp
+        )
+
+target_link_libraries(WatchdogApiTest
+        fuzzer-proto
+        watchdogimpl
+        testhelpers
         )
