@@ -10,7 +10,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "google/protobuf/text_format.h"
 
-//#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <modules/Common/FileSystem/IFileSystem.h>
 #include <modules/Common/PluginApiImpl/PluginResourceManagement.h>
@@ -48,28 +48,39 @@ class DummyPlugin: public  Common::PluginApi::IPluginCallbackApi
 public:
     void applyNewPolicy(const std::string& ) override
     {
-
+        std::cout << "Apply policy";
     }
 
     void queueAction(const std::string& ) override
     {
-
+        std::cout << "queue action";
     }
 
     void onShutdown() override
     {
-
+        std::cout << "shutdown";
     }
     Common::PluginApi::StatusInfo getStatus(const std::string& ) override
     {
+        std::cout << "get status";
         return Common::PluginApi::StatusInfo{};
     }
     std::string getTelemetry() override
     {
+        std::cout << "send telemetry";
         return std::string{};
     }
 
 };
+
+void setup()
+{
+    auto fileS = Common::FileSystem::fileSystem();
+
+    std::string fullPath = Common::FileSystem::join(Common::ApplicationConfiguration::SOPHOS_INSTALL, "");
+    fileS->makedirs("/tmp/fuzz/var/ipc/plugins/");
+
+}
 
 class ManagementRunner : public Runner
 {
@@ -84,6 +95,11 @@ public:
     }
     ManagementRunner() : Runner()
     {
+        setup();
+        Common::ApplicationConfiguration::applicationConfiguration().setData(
+                Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp/fuzz");
+
+        Common::ApplicationConfiguration::applicationConfiguration().setData("Test", "inproc://test.ipc");
         m_contextPtr = Common::ZMQWrapperApi::createContext();
         Common::ZMQWrapperApi::IContextSharedPtr copyContext = m_contextPtr;
         setMainLoop([copyContext, this]() {
@@ -107,7 +123,7 @@ public:
     {
         try
         {
-            m_requester->write(content );
+            m_requester->write(content);
             auto reply = m_requester->read();
             Common::PluginProtocol::Protocol protocol;
             return protocol.deserialize(reply);

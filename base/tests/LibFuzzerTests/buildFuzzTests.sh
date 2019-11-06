@@ -85,7 +85,7 @@ popd # libprotobuf-mutator
 
 popd # thirdparty
 
-TARGETS="ManagementAgentApiTest ZMQTests SimpleFunctionTests WatchdogApiTest"
+TARGETS="ManagementAgentApiTest ZMQTests SimpleFunctionTests PluginApiTest"
 
 # build the executables to fuzz
 mkdir -p ${CMAKE_BUILD_FULL_PATH} || exitFailure ${FAILURE_BUILD_FUZZ} "Setup build directory"
