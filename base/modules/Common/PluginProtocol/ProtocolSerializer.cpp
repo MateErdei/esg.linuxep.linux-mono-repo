@@ -183,14 +183,10 @@ namespace Common
             {
                 message.m_acknowledge = true;
             }
-            else
+            for (auto& payload_content : deserializedData.payload())
             {
-                for (auto& payload_content : deserializedData.payload())
-                {
-                    message.m_payload.push_back(payload_content);
-                }
+                message.m_payload.push_back(payload_content);
             }
-
             return message;
         }
     } // namespace PluginProtocol
