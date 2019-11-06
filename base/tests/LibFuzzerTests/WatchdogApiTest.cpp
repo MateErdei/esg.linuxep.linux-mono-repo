@@ -58,8 +58,12 @@ messages {
 
 namespace
 {
-
+#ifdef HasLibFuzzer
+    #define TESTLOG(x)
+#else
     #define TESTLOG(x) std::cout << x
+#endif
+
 }
 
 /** this class is just to allow the tests to be executed without requiring root*/
