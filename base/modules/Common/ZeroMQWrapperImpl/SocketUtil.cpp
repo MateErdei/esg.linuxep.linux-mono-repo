@@ -58,6 +58,10 @@ void Common::ZeroMQWrapperImpl::SocketUtil::write(
     Common::ZeroMQWrapperImpl::SocketHolder& socketHolder,
     const std::vector<std::string>& data)
 {
+    if (data.empty())
+    {
+        return;
+    }
     void* socket = socketHolder.skt();
     int rc;
     // Need to iterate through everything other than the last element

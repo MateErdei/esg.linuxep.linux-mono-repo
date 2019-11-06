@@ -122,7 +122,7 @@ namespace Common
             {
                 pluginAPIMessage.set_acknowledge(dataMessage.m_acknowledge);
             }
-            else if (!dataMessage.m_payload.empty())
+            if (!dataMessage.m_payload.empty())
             {
                 for (auto& message : dataMessage.m_payload)
                 {
