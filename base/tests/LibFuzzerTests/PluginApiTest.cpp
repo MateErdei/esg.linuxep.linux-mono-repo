@@ -29,8 +29,38 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #endif
 
 #include <future>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
+#include <Common/FileSystem/IFilePermissions.h>
 
+/** this class is just to allow the tests to be executed without requiring root*/
+class NullFilePermission : public Common::FileSystem::FilePermissionsImpl
+{
+public:
+    void chown(const Path& , const std::string& , const std::string& ) const override
+    {
+    }
+    void chmod(const Path& , __mode_t ) const override
+    {
+    }
+    gid_t getGroupId(const std::string& groupString) const override
+    {
+        return 1;
+    }
+};
 
+class ScopedFilePermission
+{
+public:
+    ScopedFilePermission()
+    {
+        Tests::replaceFilePermissions( std::unique_ptr<Common::FileSystem::IFilePermissions>( new NullFilePermission()) );
+    }
+    ~ScopedFilePermission()
+    {
+        Tests::restoreFilePermissions();
+    }
+};
 
 ///**
 // * This class holds the Dummy PLugin instance running on its own thread and the zmq socket to communicate with
@@ -47,26 +77,21 @@ class DummyPlugin: public  Common::PluginApi::IPluginCallbackApi
 public:
     void applyNewPolicy(const std::string& ) override
     {
-        std::cout << "Apply policy";
     }
 
     void queueAction(const std::string& ) override
     {
-        std::cout << "queue action";
     }
 
     void onShutdown() override
     {
-        std::cout << "shutdown";
     }
     Common::PluginApi::StatusInfo getStatus(const std::string& ) override
     {
-        std::cout << "get status";
         return Common::PluginApi::StatusInfo{};
     }
     std::string getTelemetry() override
     {
-        std::cout << "send telemetry";
         return std::string{};
     }
 
@@ -97,7 +122,7 @@ public:
         setup();
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp/fuzz");
-
+        ScopedFilePermission scopedFilePermission;
         Common::ApplicationConfiguration::applicationConfiguration().setData("Test", "inproc://test.ipc");
         m_contextPtr = Common::ZMQWrapperApi::createContext();
         Common::ZMQWrapperApi::IContextSharedPtr copyContext = m_contextPtr;
