@@ -20,23 +20,22 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <modules/Common/ZeroMQWrapper/IIPCException.h>
 #include <modules/Common/ZeroMQWrapper/ISocketRequester.h>
-//#include <modules/ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
+
 #include <vector_strings.pb.h>
 #include <thread>
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
 #    include <libprotobuf-mutator/src/mutator.h>
 #endif
-#include <fcntl.h>
+
 #include <future>
-#include <stddef.h>
-#include <stdint.h>
+
 
 
 ///**
-// * This class holds the ManagementAgent instance running on its own thread and the zmq socket to communicate with
-// * the management agent.
-// * It is constructed as static object from the fuzzer test to allow the management agent to be running for the whole
+// * This class holds the Dummy PLugin instance running on its own thread and the zmq socket to communicate with
+// * the plugin.
+// * It is constructed as static object from the fuzzer test to allow the dummy plugin to be running for the whole
 // * test phase.
 //example of file:
 //parts: "hello"
@@ -82,10 +81,10 @@ void setup()
 
 }
 
-class ManagementRunner : public Runner
+class DummyPluginRunner : public Runner
 {
 public:
-    ~ManagementRunner()
+    ~DummyPluginRunner()
     {
         try
         {
@@ -93,7 +92,7 @@ public:
         }catch (std::exception&)
         {}
     }
-    ManagementRunner() : Runner()
+    DummyPluginRunner() : Runner()
     {
         setup();
         Common::ApplicationConfiguration::applicationConfiguration().setData(
@@ -112,13 +111,13 @@ public:
         std::this_thread::sleep_for(std::chrono::seconds(2));
 
         m_requester = m_contextPtr->getRequester();
-        std::string mng_address =
+        std::string dummy_address =
                 Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress("Test");
         m_requester->setTimeout(1000);
-        m_requester->connect(mng_address);
+        m_requester->connect(dummy_address);
     }
 
-    /** Helper method to allow sending requests to Management Agent*/
+    /** Helper method to allow sending requests to Dummy Plugin*/
     Common::PluginProtocol::DataMessage getReply(const std::vector<std::string>& content)
     {
         try
@@ -147,7 +146,7 @@ public:
         }
     }
 
-    bool managemementAgentRunning() { return threadRunning(); }
+    bool dummyPluginRunning() { return threadRunning(); }
 
 private:
     std::promise<void> m_promise;
@@ -163,23 +162,23 @@ DEFINE_PROTO_FUZZER(const VectorStringsProto::Query & query)
 void mainTest(const VectorStringsProto::Query & query)
 {
 #endif
-//    // It is static to ensure that only one ManagementRunner will exist while the full fuzz test runs.
+//    // It is static to ensure that only one DummyPluginRunner will exist while the full fuzz test runs.
 //    // this also means that the 'state' is not dependent only on the input message which may become a problem
-//    // but allows for a very robust verification of the ManagementAgent as it will be test througout the whole
+//    // but allows for a very robust verification of the DummyPlugin as it will be test throughout the whole
 //    // fuzz test.
-    static ManagementRunner managementRunner;
+    static DummyPluginRunner dummyRunner;
     std::vector<std::string> data;
     for( auto & part: query.parts())
     {
         data.push_back(part);
     }
-    if( !managementRunner.managemementAgentRunning())
+    if( !dummyRunner.dummyPluginRunning())
     {
-            std::cout << "Management agent may have crashed"<< std::endl;
+            std::cout << "Dummy Plugin may have crashed"<< std::endl;
 
             abort();
     }
-    managementRunner.getReply(data);
+    dummyRunner.getReply(data);
 }
 
 /**
