@@ -91,6 +91,15 @@ namespace Common
             static std::vector<std::string> splitString(const std::string& originalstring, const std::string& separator)
             {
                 std::vector<std::string> result;
+                if( originalstring.empty())
+                {
+                    return result;
+                }
+                if( separator.empty())
+                {
+                    result.emplace_back(originalstring);
+                    return result;
+                }
                 size_t beginPos = 0;
 
                 while (true)
