@@ -76,6 +76,8 @@ target_link_libraries(SimpleFunctionTests
         processimpl
         obfuscationimpl
         testhelpers
+        sslimpl
+        telemetryconfigimpl
         )
 
 add_executable(PluginApiTest

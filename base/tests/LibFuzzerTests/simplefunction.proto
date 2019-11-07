@@ -10,6 +10,9 @@ message TestCase {
         regexUtility = 3;
         base64 = 4;
         deobfuscate = 5;
+        md5 = 6;
+        splitString = 7;
+        telemetryConfig = 8;
     }
     required FunctionTarget functionTarget = 2;
 }

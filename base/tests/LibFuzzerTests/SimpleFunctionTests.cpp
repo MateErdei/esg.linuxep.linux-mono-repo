@@ -33,6 +33,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ObfuscationImpl/Base64.h>
 #include <Common/ObfuscationImpl/Obfuscate.h>
 #include <tests/Common/Helpers/TempDir.h>
+#include <Common/sslimpl/Md5Calc.h>
+#include <Common/TelemetryConfigImpl/Serialiser.h>
 
 class FileWriterForBase64
 {
@@ -172,6 +174,67 @@ void verifyDeobfuscate(const std::string & input)
 
 }
 
+void verifyMD5(const std::string & input)
+{
+    (void)Common::sslimpl::md5(input);
+}
+
+void verifySplitString(const std::string & input)
+{
+    auto pos = input.find_first_of(';');
+    std::string delimiter;
+    std::string content;
+    if ( pos != std::string::npos)
+    {
+        delimiter = input.substr(0, pos);
+        content = input.substr(pos);
+    }
+    else
+    {
+        delimiter = "=";
+        content = input;
+    }
+    std::vector<std::string> response = Common::UtilityImpl::StringUtils::splitString(content, delimiter);
+    if(!content.empty())
+    {
+        if (response.empty())
+        {
+            std::cerr << "splited vector can not be empty for a non empty content" << std::endl;
+
+            ::abort();
+        }
+    }
+    size_t count=0;
+    for( auto & element: response)
+    {
+        count += element.size();
+    }
+    count += response.size() -1;
+    if( count != content.size())
+    {
+        std::cerr << "The sum of the parts should be equal the content" << std::endl;
+        ::abort();
+    }
+}
+
+void verifyTelemetryConfig(const std::string & input)
+{
+    try
+    {
+        auto config = Common::TelemetryConfigImpl::Serialiser::deserialise(input);
+        (void) config.isValid();
+
+    }catch (std::exception& ex)
+    {
+        std::string reason = ex.what();
+        if( reason.find("Configuration JSON is invalid") != std::string::npos)
+        {
+            return ;
+        }
+        std::cerr << "Non expected error " << ex.what() << std::endl;
+        throw;
+    }
+}
 
 
 #ifdef HasLibFuzzer
@@ -199,6 +262,16 @@ void mainTest(const SimpleFunctionProto::TestCase& testCase)
         case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_deobfuscate:
             verifyDeobfuscate(testCase.payload());
             break;
+        case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_md5:
+            verifyMD5(testCase.payload());
+            break;
+        case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_splitString:
+            verifySplitString(testCase.payload());
+            break;
+        case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_telemetryConfig:
+            verifyTelemetryConfig(testCase.payload());
+            break;
+
     }
 }
 
