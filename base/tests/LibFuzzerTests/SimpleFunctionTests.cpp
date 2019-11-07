@@ -78,7 +78,16 @@ void verifyTelemetryJsonToMap(const std::string & input)
         {
             if (input.find(entry.first) == std::string::npos)
             {
-                throw std::logic_error( "Each key must be present in the original json file");
+                // the only case this is not true is for inputs that are vector.
+                // in which case all the entries 0,1,...,map(size)-1 should be keys of the map
+                for( size_t i =0; i++;i<map.size())
+                {
+                    std::string key{std::to_string(i)};
+                    if( map.find(key) == map.end())
+                    {
+                        throw std::logic_error( "Each key must be present in the original json file");
+                    }
+                }
             }
         }
     }catch ( std::runtime_error& ex)
@@ -202,6 +211,18 @@ void verifySplitString(const std::string & input)
             std::cerr << "splited vector can not be empty for a non empty content" << std::endl;
 
             ::abort();
+        }
+    }
+    else
+    {
+        if ( !response.empty())
+        {
+            std::cerr << "for no data, there should be an empty vector as output" << std::endl;
+            ::abort();
+        }
+        else
+        {
+            return;
         }
     }
     size_t count=0;
