@@ -15,7 +15,7 @@ target_include_directories(processimplobject PUBLIC ../Process ../../Common ${LO
 add_library(processimpl SHARED $<TARGET_OBJECTS:processimplobject> )
 
 target_include_directories(processimpl PUBLIC ../Process ../../Common ${LOG4CPLUS_INCLUDE_DIR})
-target_link_libraries(processimpl PUBLIC ${LOG4CPLUS_LIBRARY} logging)
+target_link_libraries(processimpl PUBLIC ${LOG4CPLUS_LIBRARY} logging threads)
 
 SET_TARGET_PROPERTIES( processimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

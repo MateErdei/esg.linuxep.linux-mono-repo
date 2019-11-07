@@ -73,6 +73,9 @@ target_link_libraries(SimpleFunctionTests
         fuzzer-proto
         utilityimpl
         telemetryhelperimpl
+        processimpl
+        obfuscationimpl
+        testhelpers
         )
 
 add_executable(PluginApiTest

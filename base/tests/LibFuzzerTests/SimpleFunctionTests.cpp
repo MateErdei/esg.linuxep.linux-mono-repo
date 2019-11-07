@@ -18,6 +18,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <modules/Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
 #include <simplefunction.pb.h>
 #include <thread>
+#include <unistd.h>
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
 #    include <libprotobuf-mutator/src/mutator.h>
@@ -28,6 +29,24 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <stdint.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/RegexUtilities.h>
+#include <Common/Process/IProcess.h>
+#include <Common/ObfuscationImpl/Base64.h>
+#include <Common/ObfuscationImpl/Obfuscate.h>
+#include <tests/Common/Helpers/TempDir.h>
+
+class FileWriterForBase64
+{
+    Tests::TempDir m_tempdir;
+public:
+    FileWriterForBase64() : m_tempdir("/tmp"){}
+    std::string writeContent(const std::string & content)
+    {
+        std::string filename{"testcase_base64.txt"};
+        m_tempdir.createFile(filename, content);
+        return m_tempdir.absPath(filename);
+    }
+
+};
 
 /** Verify EnforceUtf8 must either do nothing (input was a valid utf8) or throw a std:invalid_argument
  *  Anything else is outside the contract.
@@ -90,16 +109,69 @@ void verifyRegexUtility(const std::string & input)
         pattern = input;
         content = input;
     }
-    std::string response = Common::UtilityImpl::returnFirstMatch(pattern, content);
-    if( !response.empty())
+    try
     {
-        if( response.size() > content.size())
+        std::string response = Common::UtilityImpl::returnFirstMatch(pattern, content);
+        if( !response.empty())
         {
-            throw  std::logic_error( "Captured bigger than content");
+            if( response.size() > content.size())
+            {
+                throw  std::logic_error( "Captured bigger than content");
+            }
         }
+
+    }catch (std::regex_error& )
+    {
+        // this is ignored.
+    }
+
+
+}
+
+void verifyBase64(const std::string & input)
+{
+    static FileWriterForBase64 fileWriterForBase64;
+    std::string encoded;
+    try
+    {
+        std::string fullPath = fileWriterForBase64.writeContent(input);
+
+        auto proc= Common::Process::createProcess();
+        proc->exec("/usr/bin/base64", {fullPath});
+        encoded = proc->output();
+        (void) proc->exitCode();
+
+    }catch(std::exception& ex)
+    {
+        std::cerr << "Ignoring error in preparation of the test: " << ex.what();
+        return;
+    }
+
+    std::string decoded = Common::ObfuscationImpl::Base64::Decode(encoded);
+    if( decoded != input)
+    {
+        std::cerr << "Failed decode message. Input:" << input << " encoded: "<< encoded << " decoded: " << decoded << std::endl;
+        abort();
+    }
+}
+void verifyDeobfuscate(const std::string & input)
+{
+    try
+    {
+        Common::ObfuscationImpl::SECDeobfuscate(input);
+    }catch (std::exception & ex)
+    {
+        std::string reason = ex.what();
+        if ( reason.find("SECDeobfuscation Failed") != std::string::npos)
+        {
+            return;
+        }
+        std::cerr << "Failed for the invalid reason: " << reason << std::endl;
+        abort();
     }
 
 }
+
 
 
 #ifdef HasLibFuzzer
@@ -120,6 +192,12 @@ void mainTest(const SimpleFunctionProto::TestCase& testCase)
             break;
         case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_regexUtility:
             verifyRegexUtility(testCase.payload());
+            break;
+        case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_base64:
+            verifyBase64(testCase.payload());
+            break;
+        case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_deobfuscate:
+            verifyDeobfuscate(testCase.payload());
             break;
     }
 }
