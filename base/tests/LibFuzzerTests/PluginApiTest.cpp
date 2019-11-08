@@ -9,7 +9,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "FuzzerUtils.h"
 
 #include "google/protobuf/text_format.h"
-
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <modules/Common/FileSystem/IFileSystem.h>
@@ -77,21 +77,26 @@ class DummyPlugin: public  Common::PluginApi::IPluginCallbackApi
 public:
     void applyNewPolicy(const std::string& ) override
     {
+        std::cout << "Apply policy" << std::endl;
     }
 
     void queueAction(const std::string& ) override
     {
+        std::cout << "queue action" << std::endl;
     }
 
     void onShutdown() override
     {
+        std::cout << "shutdown" << std::endl;
     }
     Common::PluginApi::StatusInfo getStatus(const std::string& ) override
     {
+        std::cout << "get status" << std::endl;
         return Common::PluginApi::StatusInfo{};
     }
     std::string getTelemetry() override
     {
+        std::cout << "send telemetry" << std::endl;
         return std::string{};
     }
 
@@ -120,6 +125,7 @@ public:
     DummyPluginRunner() : Runner()
     {
         setup();
+        Common::Logging::ConsoleLoggingSetup setup;
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp/fuzz");
         ScopedFilePermission scopedFilePermission;
