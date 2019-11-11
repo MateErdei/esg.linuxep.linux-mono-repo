@@ -453,6 +453,8 @@ else
     then
         stopSsplService
 
+        perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
+
         startSsplService
     fi
 fi
