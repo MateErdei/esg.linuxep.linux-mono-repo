@@ -134,7 +134,11 @@ public:
         Common::ZMQWrapperApi::IContextSharedPtr copyContext = m_contextPtr;
         setMainLoop([copyContext, this]() {
             Common::PluginApiImpl::PluginResourceManagement resourceManagement(copyContext);
-            auto plugin = resourceManagement.createPluginAPI("Test", std::make_shared<DummyPlugin>());
+            try
+            {
+                auto plugin = resourceManagement.createPluginAPI("Test", std::make_shared<DummyPlugin>());
+            }
+            catch (Common::PluginApi::ApiException& ex){}
             auto future = m_promise.get_future();
             future.wait();
         });
