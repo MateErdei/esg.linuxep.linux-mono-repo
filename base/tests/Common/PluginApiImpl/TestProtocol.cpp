@@ -122,9 +122,8 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadIs
     EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
     EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
     EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
-    // On sent error both the acknowledgement and payload are ignored
+    // On sent error both the acknowledgement is ignored
     EXPECT_EQ(receivedMessage.m_acknowledge, false);
-    EXPECT_EQ(receivedMessage.m_payload.size(), 0);
 }
 
 TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsOneItems) // NOLINT
@@ -243,8 +242,6 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenComma
     EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNKNOWN);
     EXPECT_EQ(receivedMessage.m_error, "Invalid request");
     EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
-    // On error payload is ignored
-    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
 TEST_F(TestProtocol, SerialiseAndDeserialise_ReceivedMessageContainsAcknowledgeWhenSent) // NOLINT
@@ -261,8 +258,6 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReceivedMessageContainsAcknowledgeW
     EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
     EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
     EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
-    // On acknowledgement the payload is ignored
-    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
 TEST_F(TestProtocol, SerialiseAndDeserialise_NoPayloadReceivedWhenNoneSent) // NOLINT
