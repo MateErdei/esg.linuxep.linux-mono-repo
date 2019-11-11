@@ -93,6 +93,7 @@ namespace Common
                 std::vector<std::string> result;
                 if( originalstring.empty())
                 {
+                    result.push_back(std::string{});
                     return result;
                 }
                 if( separator.empty())
