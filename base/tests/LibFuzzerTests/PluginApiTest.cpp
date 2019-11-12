@@ -124,14 +124,7 @@ class DummyPluginRunner : public Runner
 {
 public:
     ~DummyPluginRunner()
-    {
-        try
-        {
-            m_promise.set_value();
-            std::cout << "Plugin destroyed" << std::endl;
-        }catch (std::exception&)
-        {}
-    }
+    {}
     DummyPluginRunner() : Runner()
     {
         setup();
@@ -215,7 +208,6 @@ public:
     bool dummyPluginRunning() { return threadRunning(); }
 
 private:
-    std::promise<void> m_promise;
     Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr;
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
 };
