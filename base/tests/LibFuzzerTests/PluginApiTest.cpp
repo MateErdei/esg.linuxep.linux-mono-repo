@@ -32,6 +32,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/PluginApiImpl/BaseServiceAPI.h>
 
 /** this class is just to allow the tests to be executed without requiring root*/
 class NullFilePermission : public Common::FileSystem::FilePermissionsImpl
@@ -119,13 +120,13 @@ public:
         try
         {
             m_promise.set_value();
+            std::cout << "Plugin destroyed" << std::endl;
         }catch (std::exception&)
         {}
     }
     DummyPluginRunner() : Runner()
     {
         setup();
-        Common::Logging::ConsoleLoggingSetup setup;
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp/fuzz");
         ScopedFilePermission scopedFilePermission;
@@ -136,11 +137,36 @@ public:
             Common::PluginApiImpl::PluginResourceManagement resourceManagement(copyContext);
             try
             {
-                auto plugin = resourceManagement.createPluginAPI("Test", std::make_shared<DummyPlugin>());
+                std::string pluginName = "Test";
+                auto requester = m_contextPtr->getRequester();
+
+                requester->setTimeout(10000);
+                requester->setConnectionTimeout(10000);
+
+                std::string mng_address =
+                        Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
+
+                requester->connect(mng_address);
+
+                std::unique_ptr<Common::PluginApiImpl::BaseServiceAPI> pluginSetup(
+                        new Common::PluginApiImpl::BaseServiceAPI(pluginName, std::move(requester)));
+
+                auto replier = m_contextPtr->getReplier();
+                Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, pluginName, 10000, 10000);
+
+                pluginSetup->setPluginCallback(pluginName, std::make_shared<DummyPlugin>(), std::move(replier));
+
+                auto plugin = std::unique_ptr<Common::PluginApi::IBaseServiceApi>(pluginSetup.release());
+                std::cout << "Plugin constructed" << std::endl;
+                auto future = m_promise.get_future();
+                future.wait();
+                std::cout << "Plugin stopped" << std::endl;
             }
-            catch (Common::PluginApi::ApiException& ex){}
-            auto future = m_promise.get_future();
-            future.wait();
+            catch (Common::PluginApi::ApiException& ex)
+            {
+                std::string a = ex.what();
+                std::cout << "main loop finished: " << a << std::endl;
+            }
         });
 
         std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -226,6 +252,8 @@ void mainTest(const VectorStringsProto::Query & query)
 #ifndef HasLibFuzzer
 int main(int argc, char* argv[])
 {
+
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
     VectorStringsProto::Query query;
     if (argc < 2)
     {
