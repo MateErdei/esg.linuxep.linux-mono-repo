@@ -7,26 +7,26 @@ import sys
 import json
 
 
-# a > b returns 1, a < b returns -1, a = b returns 0
-def compare_version(a, b):
-    delim = "-"
-    a_split = a.split(delim)
-    b_split = b.split(delim)
-
-    # cannot compare
-    if len(a) != len(b):
-        return None
-
-    index = 0
-    while index < len(a):
-        if a_split[index] == b_split[index]:
-            index += 1
-            continue
-        if int(a_split[index]) > int(b_split[index]):
-            return 1
-        else:
-            return -1
-    return 0
+# # a > b returns 1, a < b returns -1, a = b returns 0
+# def compare_version(a, b):
+#     delim = "-"
+#     a_split = a.split(delim)
+#     b_split = b.split(delim)
+#
+#     # cannot compare
+#     if len(a) != len(b):
+#         return None
+#
+#     index = 0
+#     while index < len(a):
+#         if a_split[index] == b_split[index]:
+#             index += 1
+#             continue
+#         if int(a_split[index]) > int(b_split[index]):
+#             return 1
+#         else:
+#             return -1
+#     return 0
 
 
 def get_component_using_input_version(root_dictionary, input_name, input_version):
