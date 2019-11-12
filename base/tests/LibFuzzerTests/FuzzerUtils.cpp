@@ -27,8 +27,7 @@ Runner::~Runner()
     {
         std::cout << "Force thread to stop" << std::endl;
         auto m_thread_id = m_thread.native_handle();
-        pthread_kill(m_thread_id, SIGHUP);
+        pthread_kill(m_thread_id, SIGINT);
         m_thread.join();
-        //std::cout << "runner finished" << std::endl;
     }
 }

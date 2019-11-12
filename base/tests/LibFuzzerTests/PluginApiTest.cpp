@@ -75,6 +75,8 @@ public:
 //
 class DummyPlugin: public  Common::PluginApi::IPluginCallbackApi
 {
+   std::promise<void> m_promise;
+
 public:
     void applyNewPolicy(const std::string& ) override
     {
@@ -89,7 +91,13 @@ public:
     void onShutdown() override
     {
         std::cout << "shutdown" << std::endl;
+        m_promise.set_value();
     }
+    void join()
+    {
+        m_promise.get_future().get();
+    }
+
     Common::PluginApi::StatusInfo getStatus(const std::string& ) override
     {
         std::cout << "get status" << std::endl;
@@ -153,14 +161,12 @@ public:
 
                 auto replier = m_contextPtr->getReplier();
                 Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, pluginName, 10000, 10000);
-
-                pluginSetup->setPluginCallback(pluginName, std::make_shared<DummyPlugin>(), std::move(replier));
+                auto dummy = std::make_shared<DummyPlugin>();
+                pluginSetup->setPluginCallback(pluginName, dummy, std::move(replier));
 
                 auto plugin = std::unique_ptr<Common::PluginApi::IBaseServiceApi>(pluginSetup.release());
                 std::cout << "Plugin constructed" << std::endl;
-                auto future = m_promise.get_future();
-                future.wait();
-                std::cout << "Plugin stopped" << std::endl;
+                dummy->join();
             }
             catch (Common::PluginApi::ApiException& ex)
             {
@@ -169,12 +175,11 @@ public:
             }
         });
 
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::seconds(20));
 
         m_requester = m_contextPtr->getRequester();
         std::string dummy_address =
                 Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress("Test");
-        m_requester->setTimeout(1000);
         m_requester->connect(dummy_address);
     }
 
@@ -228,18 +233,19 @@ void mainTest(const VectorStringsProto::Query & query)
 //    // but allows for a very robust verification of the DummyPlugin as it will be test throughout the whole
 //    // fuzz test.
     static DummyPluginRunner dummyRunner;
-    std::vector<std::string> data;
+
     for( auto & part: query.parts())
     {
+        std::vector<std::string> data;
         data.push_back(part);
+        dummyRunner.getReply(data);
     }
+
     if( !dummyRunner.dummyPluginRunning())
     {
             std::cout << "Dummy Plugin may have crashed"<< std::endl;
-
             abort();
     }
-    dummyRunner.getReply(data);
 }
 
 /**
@@ -260,7 +266,6 @@ int main(int argc, char* argv[])
         std::cerr << " Invalid argument. Usage: " << argv[0] << " <input_file>" << std::endl;
         return 1;
     }
-
 
 
     std::string content = Common::FileSystem::fileSystem()->readFile(argv[1]);
