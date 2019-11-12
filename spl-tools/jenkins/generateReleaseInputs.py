@@ -23,15 +23,16 @@ def process_release_files(release_files):
             as_dictionary = xmltodict.parse(content, dict_constructor=dict)
             name = as_dictionary['package']['@name']
             version = as_dictionary['package']['@version']
-            all_dict[name] = {}
-            this_entry = all_dict[name]
-            this_entry["version"] = version
-            inputs = []
 
             # Check the component has inputs
             if "package" not in as_dictionary or "inputs" not in as_dictionary['package'] or "package" not in as_dictionary['package']['inputs']:
                 print("Skipping: {} as it has no inputs".format(name))
                 continue
+
+            all_dict[name] = {}
+            this_entry = all_dict[name]
+            this_entry["version"] = version
+            inputs = []
 
             for input_pkg in as_dictionary['package']['inputs']['package']:
                 input_dict = {}
