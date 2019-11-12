@@ -43,7 +43,7 @@ def process_release_files(release_files):
                 input_dict = {}
                 input_dict["name"] = input_pkg["@name"]
                 input_dict["version_string"] = input_pkg["@version"]
-                input_dict["version"] = input_pkg['@version'].split("/")[0]
+                input_dict["version"] = input_pkg['@version'].split("/")[0].replace("-", ".")
                 if "LASTGOODCOMPONENTBUILD" in input_dict["version_string"]:
                     print("Skipping input: {} in: {}, as it is dev only".format(input_dict["name"], release_file_path))
                     continue
