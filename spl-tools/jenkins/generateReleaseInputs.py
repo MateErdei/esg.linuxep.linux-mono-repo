@@ -29,7 +29,7 @@ def process_release_files(release_files):
             inputs = []
 
             # Check the component has inputs
-            if "package" not in as_dictionary or "inputs" not in as_dictionary['package']:
+            if "package" not in as_dictionary or "inputs" not in as_dictionary['package'] or "package" not in as_dictionary['package']['inputs']:
                 print("Skipping: {} as it has no inputs".format(name))
                 continue
 
