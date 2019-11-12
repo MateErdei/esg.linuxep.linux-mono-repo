@@ -37,4 +37,4 @@ dot.render("dependencies", view=False)
 
 # Save as pdf
 dot.attr('graph', format='pdf')
-dot.render("dependencies", view=False)
+dot.render("dependencies.pdf", view=False)
