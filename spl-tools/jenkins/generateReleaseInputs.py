@@ -22,7 +22,7 @@ def process_release_files(release_files):
             content = release_file.read()
             as_dictionary = xmltodict.parse(content, dict_constructor=dict)
             name = as_dictionary['package']['@name']
-            version = as_dictionary['package']['@version']
+            version = as_dictionary['package']['@version'].replace("-", ".")
 
             # Check the component has inputs
             if "package" not in as_dictionary or "inputs" not in as_dictionary['package'] or "package" not in as_dictionary['package']['inputs']:
