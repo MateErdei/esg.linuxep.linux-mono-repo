@@ -13,18 +13,23 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-class Server
+namespace zmqchecker
 {
-public:
-    Server(const std::string& socketAddress, bool captureSignals);
-    void run();
-    void join();
+    class Server
+            {
+    public:
+        Server(const std::string &socketAddress, bool captureSignals);
 
-private:
-    std::string m_socketAddress;
-    std::unique_ptr<Common::Reactor::IReactor> m_reactor;
-    std::unique_ptr<ZmqCheckerMessageHandler> m_testListener;
-    std::unique_ptr<Common::Reactor::IShutdownListener> m_shutdownListener;
-    bool m_captureSignals;
-    Common::ZMQWrapperApi::IContextSharedPtr m_ContextSharedPtr;
-};
+        void run();
+
+        void join();
+
+    private:
+        std::string m_socketAddress;
+        std::unique_ptr<Common::Reactor::IReactor> m_reactor;
+        std::unique_ptr<ZmqCheckerMessageHandler> m_eventHandlerPtr;
+        std::unique_ptr<Common::Reactor::IShutdownListener> m_shutdownListener;
+        bool m_captureSignals;
+        Common::ZMQWrapperApi::IContextSharedPtr m_ContextSharedPtr;
+    };
+}

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -10,36 +10,38 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Common/ReactorImpl/ReactorImpl.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 
+#include <iostream>
 
-Server::Server(const std::string& socketAddress, bool captureSignals) :
-        m_socketAddress(socketAddress),
-        m_reactor(Common::Reactor::createReactor()),
-        m_captureSignals(captureSignals),
-        m_ContextSharedPtr(Common::ZMQWrapperApi::createContext())
+namespace zmqchecker
 {
-}
-
-void Server::run()
-{
-
-    auto replier = m_ContextSharedPtr->getReplier();
-    replier->listen(m_socketAddress);
-    Common::ZeroMQWrapper::IReadable* readable = replier.get();
-    m_testListener = std::unique_ptr<ZmqCheckerMessageHandler>(new ZmqCheckerMessageHandler(std::move(replier), std::bind(&Common::ReactorImpl::ReactorImpl::stop, (dynamic_cast<Common::ReactorImpl::ReactorImpl*>(m_reactor.get())))));
-
-    m_reactor->addListener(readable, m_testListener.get());
-
-    if (m_captureSignals)
-    {
-        m_shutdownListener = std::unique_ptr<Common::Reactor::IShutdownListener>(
-                new Common::ReactorImpl::GenericShutdownListener([]() {}));
-        m_reactor->armShutdownListener(m_shutdownListener.get());
+    Server::Server(const std::string &socketAddress, bool captureSignals) :
+            m_socketAddress(socketAddress),
+            m_reactor(Common::Reactor::createReactor()),
+            m_captureSignals(captureSignals),
+            m_ContextSharedPtr(Common::ZMQWrapperApi::createContext()) {
+        std::cout << "server created at: " << socketAddress << std::endl;
     }
 
-    m_reactor->start();
-}
+    void Server::run() {
+        std::cout << "getting replier" << std::endl;
+        auto replier = m_ContextSharedPtr->getReplier();
 
-void Server::join()
-{
-    m_reactor->join();
+        replier->listen(m_socketAddress);
+        Common::ZeroMQWrapper::IReadable *readable = replier.get();
+        m_eventHandlerPtr = std::make_unique<ZmqCheckerMessageHandler>(std::move(replier));
+        std::cout << "listening at socket address" << std::endl;
+        m_reactor->addListener(readable, m_eventHandlerPtr.get());
+
+        if (m_captureSignals) {
+            m_shutdownListener = std::unique_ptr<Common::Reactor::IShutdownListener>(
+                    new Common::ReactorImpl::GenericShutdownListener([]() {}));
+            m_reactor->armShutdownListener(m_shutdownListener.get());
+        }
+        std::cout << "starting server" << std::endl;
+        m_reactor->start();
+    }
+
+    void Server::join() {
+        m_reactor->join();
+    }
 }

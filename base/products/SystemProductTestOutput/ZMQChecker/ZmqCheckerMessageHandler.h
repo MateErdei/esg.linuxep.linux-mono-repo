@@ -10,14 +10,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include <functional>
 
-class ZmqCheckerMessageHandler : public Common::Reactor::ICallbackListener
+namespace zmqchecker
 {
-public:
-    ZmqCheckerMessageHandler(std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier, std::function<void(void)> function);
+    class ZmqCheckerMessageHandler : public Common::Reactor::ICallbackListener
+    {
+    public:
+        explicit ZmqCheckerMessageHandler(
+                std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier);
 
-    void messageHandler(Common::ZeroMQWrapper::IReadable::data_t) override;
+        void messageHandler(Common::ZeroMQWrapper::IReadable::data_t) override;
 
-private:
-    std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> m_socketReplier;
-    std::function<void()> m_stopFunction;
-};
+    private:
+        std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> m_socketReplier;
+    };
+}

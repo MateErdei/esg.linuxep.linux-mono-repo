@@ -12,14 +12,17 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-class Client
+namespace zmqchecker
 {
-public:
-    Client(const std::string& address, int timeout);
-    ~Client();
-    Common::ZeroMQWrapper::IReadable::data_t requestReply(const Common::ZeroMQWrapper::IReadable::data_t& request);
+    class Client
+    {
+    public:
+        Client(const std::string& address, int timeout);
+        ~Client();
+        Common::ZeroMQWrapper::IReadable::data_t requestReply(const Common::ZeroMQWrapper::IReadable::data_t& request);
 
-private:
-    std::unique_ptr<Common::ZeroMQWrapper::ISocketRequester> m_socketRequester;
-    Common::ZMQWrapperApi::IContextSharedPtr m_iContextSharedPtr;
-};
+    private:
+        std::unique_ptr<Common::ZeroMQWrapper::ISocketRequester> m_socketRequester;
+        Common::ZMQWrapperApi::IContextSharedPtr m_iContextSharedPtr;
+    };
+}

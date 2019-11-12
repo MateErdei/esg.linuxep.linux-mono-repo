@@ -1,18 +1,35 @@
-//
-// Created by pair on 01/11/19.
-//
+/******************************************************************************************************
+
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "ZmqCheckerMessageHandler.h"
 #include <iostream>
+#include <thread>
 
-ZmqCheckerMessageHandler::ZmqCheckerMessageHandler(
-        std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier, std::function<void(void)> function) : m_socketReplier(std::move(socketReplier)), m_stopFunction(std::move(function)) {}
-
-void ZmqCheckerMessageHandler::messageHandler(Common::ZeroMQWrapper::IReadable::data_t processData)
+namespace zmqchecker
 {
-    std::cout << "Received : " << processData[0] << std::endl;
-    Common::ZeroMQWrapper::data_t data{"world"};
-    m_socketReplier->write(data);
-    //Stop the reactor after the first reply
-    m_stopFunction();
+    const int connectionTimeout = 5000;
+    ZmqCheckerMessageHandler::ZmqCheckerMessageHandler(
+            std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier) : m_socketReplier(std::move(socketReplier)) {}
+
+    void ZmqCheckerMessageHandler::messageHandler(Common::ZeroMQWrapper::IReadable::data_t processData)
+    {
+        for(auto& datum : processData)
+        {
+            std::cout << "Received : " << datum << std::endl;
+            if (datum == "ignore")
+            {
+                std::cout << "ignoring requests for : " << connectionTimeout*3 << " milliseconds" << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(connectionTimeout*3));
+            }
+            else
+            {
+                Common::ZeroMQWrapper::data_t data{"world"};
+                m_socketReplier->write(data);
+            }
+        }
+
+    }
 }

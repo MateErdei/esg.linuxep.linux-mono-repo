@@ -22,7 +22,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace
 {
     //void SetTimeouts()
-    constexpr int defaultTimeout = 1000;
     constexpr int connectTimeout = 5000;
     constexpr  char REQUESTER_SOCKET[] = "req";
     constexpr  char REPLIER_SOCKET[] = "rep";
@@ -31,6 +30,7 @@ namespace
 
 }
 
+using namespace zmqchecker;
 static int zmqchecker_main(int argc, char* argv[])
 {
     if (argc < 3)
@@ -46,8 +46,12 @@ static int zmqchecker_main(int argc, char* argv[])
     {
         Client client(ipc_path, connectTimeout);
 
-        Common::ZeroMQWrapper::data_t data{"hello"};
-
+        std::string command("hello");
+        if ( argc > 3)
+        {
+            command = argv[3];
+        }
+        Common::ZeroMQWrapper::data_t data{command};
         try
         {
             auto output = client.requestReply(data);
@@ -59,22 +63,37 @@ static int zmqchecker_main(int argc, char* argv[])
         catch (const Common::ZeroMQWrapper::IIPCTimeoutException &e)
         {
             std::cout << "Error during requester write to ipc " << e.what() << std::endl;
+            return 1;
         }
+        catch (const Common::ZeroMQWrapperImpl::ZeroMQWrapperException& zre)
+        {
+            std::cout << "Requester ZMQ exception " << zre.what() << std::endl;
+            return 2;
+        }
+
     }
+
 
 
     if( connectionType == REPLIER_SOCKET)
     {
+
         Server server(ipc_path, true);
 
         try
         {
             server.run();
+            std::cout << "reactor started and now listening" << std::endl;
             server.join();
         }
         catch (const Common::ZeroMQWrapper::IIPCTimeoutException& e)
         {
             std::cout << "Error during replier read from ipc socket " << e.what() << std::endl;
+        }
+        catch (const Common::ZeroMQWrapperImpl::ZeroMQWrapperException& zre)
+        {
+            std::cout << "Replier ZMQ error :" << zre.what() << std::endl;
+            return 2;
         }
 
     }

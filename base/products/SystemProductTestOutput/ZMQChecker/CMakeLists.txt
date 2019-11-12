@@ -5,11 +5,47 @@ add_executable(zmqchecker
         Server.h
         Server.cpp
         ZmqCheckerMessageHandler.cpp
-        ZmqCheckerMessageHandler.h)
-add_dependencies(zmqchecker zmqwrapperapiimpl)
-target_link_libraries(zmqchecker zmqwrapperapiimpl)
+        ZmqCheckerMessageHandler.h
+        $<TARGET_OBJECTS:zeromqwrapperimplobject>
+        $<TARGET_OBJECTS:zmqwrapperapiimplobject>
+        $<TARGET_OBJECTS:reactorimplobject>
+        $<TARGET_OBJECTS:loggingobject>
+        $<TARGET_OBJECTS:threadsobject>
+        $<TARGET_OBJECTS:applicationconfigurationimplobject>
+        $<TARGET_OBJECTS:filesystemimplobject>
+        $<TARGET_OBJECTS:utilityimplobject>
+        )
+
+target_link_libraries(zmqchecker ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY} pthread)
+
+add_dependencies(zmqchecker copy_libs_zmqchecker)
+
+set(outputzmqcheckerpath "${CMAKE_BINARY_DIR}/SystemProductTestOutput/zmqchecker")
 
 
-install(TARGETS zmqchecker
-        DESTINATION  ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
+add_custom_target(
+        zmqcheckerdir ALL
+        COMMAND rm -rf ${outputzmqcheckerpath}
+        COMMAND mkdir -p ${outputzmqcheckerpath}
+        )
 
+INCLUDE(FindLibraryFullPath)
+FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
+FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
+
+
+add_custom_target(
+        copy_libs_zmqchecker
+        DEPENDS zmqcheckerdir
+        COMMAND cp ${zmqfull} ${outputzmqcheckerpath}
+        COMMAND cp ${log4cplusfull} ${outputzmqcheckerpath}
+)
+
+install(
+        TARGETS zmqchecker
+        DESTINATION  ${outputzmqcheckerpath}
+)
+
+SET_TARGET_PROPERTIES( zmqchecker
+        PROPERTIES INSTALL_RPATH "$ORIGIN"
+        )

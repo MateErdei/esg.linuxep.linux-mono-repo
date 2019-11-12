@@ -8,22 +8,28 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 
-Client::~Client() = default;
-
-Client::Client(const std::string& address, int timeout) : m_iContextSharedPtr(Common::ZMQWrapperApi::createContext())
+#include <iostream>
+namespace zmqchecker
 {
-    m_socketRequester = m_iContextSharedPtr->getRequester();
-    if (timeout != -1)
+    Client::~Client() = default;
+
+    Client::Client(const std::string& address, int timeout) : m_iContextSharedPtr(Common::ZMQWrapperApi::createContext())
     {
-        m_socketRequester->setConnectionTimeout(timeout);
+        m_socketRequester = m_iContextSharedPtr->getRequester();
+        if (timeout != -1)
+        {
+            m_socketRequester->setConnectionTimeout(timeout);
+        }
+        std::cout << "Connecting to address: " << address << std::endl;
+        m_socketRequester->connect(address);
     }
 
-    m_socketRequester->connect(address);
-}
-
-Common::ZeroMQWrapper::IReadable::data_t Client::requestReply(
-        const Common::ZeroMQWrapper::IReadable::data_t& request)
-{
-    m_socketRequester->write(request);
-    return m_socketRequester->read();
+    Common::ZeroMQWrapper::IReadable::data_t Client::requestReply(
+            const Common::ZeroMQWrapper::IReadable::data_t& request)
+    {
+        std::cout << "Writting request " << std::endl;
+        m_socketRequester->write(request);
+        std::cout << "awaiting response " << std::endl;
+        return m_socketRequester->read();
+    }
 }
