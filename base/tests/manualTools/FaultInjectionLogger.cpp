@@ -22,8 +22,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 int printUsageAndExit()
 {
-    std::cerr << "Usage: LoggerLimit <numLines> <pauseAfterN>\n"
-                 "WIP \n";
+    std::cerr << "Usage: LoggerLimit <numLines> <logpath>\n";
     return 1;
 }
 
