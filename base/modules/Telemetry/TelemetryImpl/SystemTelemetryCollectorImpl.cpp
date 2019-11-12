@@ -17,7 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    const int GL_mbSize = 1024 * 28;
+    const int GL_outputSize = 1024 * 28;
 
     SystemTelemetryCollectorImpl::SystemTelemetryCollectorImpl(
         Telemetry::SystemTelemetryConfig objectsConfig,
@@ -99,7 +99,7 @@ namespace Telemetry
         }
 
         auto processPtr = Common::Process::createProcess();
-        processPtr->setOutputLimit(GL_mbSize);
+        processPtr->setOutputLimit(GL_outputSize);
 
         //search for command executable full path
         auto commandExecutablePath = getSystemCommandExecutablePath(command);
