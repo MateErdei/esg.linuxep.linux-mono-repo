@@ -23,10 +23,40 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 int printUsageAndExit()
 {
     std::cerr << "Usage: LoggerLimit <numLines> <pauseAfterN>\n"
-                 "numLines: number of lines to write to log file. \n"
-                 "pauseAfterN: it will write the numLines in batches of pauseAfterN givin half second between batches.\n";
+                 "WIP \n";
     return 1;
 }
+
+void faultInjectionLoggingSetup(const std::string& logfilePath)
+{
+    Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(logfilePath);
+    Common::Logging::applyGeneralConfig("watchdog");
+}
+
+void logToLimit(log4cplus::Logger logger, unsigned int limit)
+{
+    for(unsigned long i =0; i < limit; i++)
+    {
+        std::stringstream st;
+        st << "Write this boring line";
+        st << i;
+        LOG4CPLUS_INFO(logger, st.str());
+    }
+}
+
+void logForever(log4cplus::Logger logger)
+{
+    LOG4CPLUS_INFO(logger, "Logging forever");
+    unsigned int i = 0;
+    while(true)
+    {
+        std::stringstream st;
+        st << "Write this boring line";
+        st << i++;
+        LOG4CPLUS_INFO(logger, st.str());
+    }  // NOLINT
+}
+
 
 
 int main(int argc, char * argv[])
@@ -36,32 +66,25 @@ int main(int argc, char * argv[])
         return printUsageAndExit();
     }
     unsigned long numLines = 1;
-    unsigned long pauseAfter = 1;
+    std::string logPath;
+
     std::stringstream num;
     num.str(argv[1]);
     num >> numLines;
-    std::stringstream num2;
-    num2.str(argv[2]);
-    num2 >> pauseAfter;
+    logPath = argv[2];
     std::cout << "Options: numLines: " << numLines << std::endl;
-    std::cout << "Options: pauseAfter: " << pauseAfter << std::endl;
+    std::cout << "Options: logPath: " << logPath << std::endl;
 
-    Common::ApplicationConfiguration::applicationConfiguration().setData(
-            Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp");
+    faultInjectionLoggingSetup(logPath);
 
-    Common::Logging::FileLoggingSetup setup("testlogging");
-
-    auto logger = Common::Logging::getInstance("mytest");
-    for(unsigned long i =0; i < numLines; i++  )
+    auto logger = Common::Logging::getInstance("watchdog");
+    if (numLines == 0)
     {
-        if( (i > pauseAfter) && ((i % pauseAfter)==0) )
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        }
-        std::stringstream st;
-        st << "my product info. line: ";
-        st << i;
-        LOG4CPLUS_INFO(logger, st.str());
+        logForever(logger);
+    }
+    else
+    {
+        logToLimit(logger, numLines);
     }
 
     return 0;

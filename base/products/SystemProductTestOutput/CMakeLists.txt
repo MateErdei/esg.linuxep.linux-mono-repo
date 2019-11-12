@@ -1,4 +1,3 @@
-add_subdirectory(ZMQChecker)
 set( PLUGIN_PROTOCOL_OUTPUT_FOLDER  ${CMAKE_BINARY_DIR}/modules/Common/PluginProtocol/ )
 
 install(FILES
@@ -10,6 +9,7 @@ install(FILES
         ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/extra_mcs_rootca.crt
         ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/nova_mcs_rootca.crt
         ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/qa_mcs_rootca.crt
-        ${CMAKE_BINARY_DIR}/tests/manualTools/PickYourPoison
+        ${CMAKE_BINARY_DIR}/tests/manualTools/LoggerLimit
+        ${CMAKE_BINARY_DIR}/tests/manualTools/FaultInjectionLogger
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput
         PERMISSIONS OWNER_READ OWNER_EXECUTE)

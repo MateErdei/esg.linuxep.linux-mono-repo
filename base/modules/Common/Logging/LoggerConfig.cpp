@@ -84,7 +84,7 @@ const std::string LOGFORTEST{ "LOGFORTEST" };
 
 void Common::Logging::applyGeneralConfig(const std::string& logbase)
 {
-    log4cplus::LogLevel logLevel{ SophosLogLevel::DEBUG }; // default value
+    log4cplus::LogLevel logLevel{ SophosLogLevel::INFO }; // default value
     if (logbase == LOGFORTEST)
     {
         LoggerSophosSettings::InTestMode = true;
