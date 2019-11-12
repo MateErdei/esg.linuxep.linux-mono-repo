@@ -64,10 +64,10 @@ namespace
         {
             if (action == TriggerUpdate())
             {
-                LOGINFO("Trigger sophos-spl-update service");
+                LOGSUPPORT("Trigger sophos-spl-update service");
 
                 runTriggerUpdate();
-                LOGINFO("Trigger sophos-spl-update service done");
+                LOGSUPPORT("Trigger sophos-spl-update service done");
                 return;
             }
             LOGWARN("Action not supported: " << action);
