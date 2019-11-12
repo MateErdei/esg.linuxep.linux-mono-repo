@@ -34,10 +34,15 @@ def process_release_files(release_files):
             this_entry["version"] = version
             inputs = []
 
-            for input_pkg in as_dictionary['package']['inputs']['package']:
+            # Ensure that this is a list in all circumstances (it defaults to a single dictionary if only one input)
+            pkg_inputs_list = as_dictionary["package"]["inputs"]["package"]
+            if not isinstance(pkg_inputs_list, list):
+                pkg_inputs_list = [pkg_inputs_list]
+
+            for input_pkg in pkg_inputs_list:
                 input_dict = {}
-                input_dict["name"] = input_pkg['@name']
-                input_dict["version_string"] = input_pkg['@version']
+                input_dict["name"] = input_pkg["@name"]
+                input_dict["version_string"] = input_pkg["@version"]
                 input_dict["version"] = input_pkg['@version'].split("/")[0]
                 if "LASTGOODCOMPONENTBUILD" in input_dict["version_string"]:
                     print("Skipping input: {} in: {}, as it is dev only".format(input_dict["name"], release_file_path))
