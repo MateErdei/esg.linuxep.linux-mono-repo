@@ -30,5 +30,11 @@ for component_name, info_dict in root_dictionary.items():
 
 dot.attr('graph', overlap='false')
 
+# Save as png image
+dot.attr('graph', format='png')
 # If you run this lcoally you can change view to be true for it to open.
+dot.render("dependencies", view=False)
+
+# Save as pdf
+dot.attr('graph', format='pdf')
 dot.render("dependencies", view=False)
