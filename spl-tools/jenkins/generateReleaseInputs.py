@@ -22,7 +22,8 @@ def process_release_files(release_files):
             content = release_file.read()
             as_dictionary = xmltodict.parse(content, dict_constructor=dict)
             name = as_dictionary['package']['@name']
-            version = as_dictionary['package']['@version'].replace("-", ".")
+            version_parts = as_dictionary['package']['@version'].replace("-", ".").split(".")
+            version = "{}.{}.{}".format(version_parts[0], version_parts[1], version_parts[2])
 
             # Check the component has inputs
             if "package" not in as_dictionary or "inputs" not in as_dictionary['package'] or "package" not in as_dictionary['package']['inputs']:
@@ -43,10 +44,20 @@ def process_release_files(release_files):
                 input_dict = {}
                 input_dict["name"] = input_pkg["@name"]
                 input_dict["version_string"] = input_pkg["@version"]
-                input_dict["version"] = input_pkg['@version'].split("/")[0].replace("-", ".")
+
                 if "LASTGOODCOMPONENTBUILD" in input_dict["version_string"]:
                     print("Skipping input: {} in: {}, as it is dev only".format(input_dict["name"], release_file_path))
                     continue
+
+                version_parts = input_pkg['@version'].split("/")[0].replace("-", ".").split(".")
+                if len(version_parts) < 3:
+                    print("Skipping input: {} in: {}, as the version is not formatted correctly".format(input_dict["name"], release_file_path))
+                    continue
+
+                print(input_dict["name"])
+                print(version_parts)
+                input_dict["version"] = "{}.{}.{}".format(version_parts[0], version_parts[1], version_parts[2])
+
                 inputs.append(input_dict)
             this_entry["inputs"] = inputs
     return all_dict
