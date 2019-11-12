@@ -6,3 +6,5 @@ addedFiles
 changedFiles
 removedFiles
 base/update/manifest.dat
+base/lib/python2.7
+python27.zip*

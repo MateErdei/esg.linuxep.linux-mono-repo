@@ -104,6 +104,50 @@ function software_changed()
     return 1
 }
 
+function can_delete()
+{
+   # function to check if a file can be deleted based on the realm allowed file list.
+   # ensures the file clean up only occurs within the allowed directory structure.
+   # Returns 1 if can delete, any other value should be treated as false.
+
+   local FILE_PATH="$1"
+
+   INCLUDED_PATH=0
+   EXCLUDED_PATH=0
+
+   # The cleanup realm file will contain a list of folder paths from the install directory onwards.
+   # a + sign in front of the path indecates that the path is in the included list of paths in which files can be
+   # deleted from.
+   # a - sign in front of the path indecates explicitly that files in that path cannot be deleted.  This is for excluding
+   # some subpaths is the update/cache folder.
+
+   if [[ -f ${WORKING_DIST}/filestodelete.dat ]]
+   then
+       for REALM_PATH in $(cat cleanuprealm.dat)
+       do
+         if [[ ${REALM_PATH} == +* ]]
+         then
+            if [[ ${FILE_PATH} == ${SOPHOS_INSTALL}${REALM_PATH:1}* ]]
+            then
+              INCLUDED_PATH=1
+            fi
+         elif [[ ${REALM_PATH} == -* ]]
+         then
+            if [[ ${FILE_PATH} == ${SOPHOS_INSTALL}${REALM_PATH:1}* ]]
+            then
+              EXCLUDED_PATH=2
+            fi
+         else
+            #default to prevent deletions for mis-configuration
+            EXCLUDED_PATH=2
+         fi
+       done
+   fi
+
+   echo $(( ${INCLUDED_PATH} + ${EXCLUDED_PATH} ))
+}
+
+
 function perform_cleanup()
 {
     # function used to clean up / remove known files no longer used after upgrade.
@@ -122,21 +166,22 @@ function perform_cleanup()
 
     for FILES_TO_REMOVE_DATA_FILE in $(find ${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME} -name "removedFiles*")
     do
-        for FILES_TO_DELETE in $(cat ${FILES_TO_REMOVE_DATA_FILE} | xargs -ri expr {} : '[^/]*/\(.*\)' | xargs -ri echo ${SOPHOS_INSTALL}/{})
+        for FILE_TO_DELETE in $(cat ${FILES_TO_REMOVE_DATA_FILE} | xargs -ri expr {} : '[^/]*/\(.*\)' | xargs -ri echo ${SOPHOS_INSTALL}/{})
         do
-                rm -f ${FILES_TO_DELETE}*
+            if [[ $(can_delete ${FILE_TO_DELETE}) == 1 ]]
+            then
+                rm -f ${FILE_TO_DELETE}*
+            fi
         done
 
     done
-
-    # clean up all broken symlinks created by deleting installed files
-    find ${SOPHOS_INSTALL} -xtype l -delete
 
     # delete files created by the product after install that are no longer required which are defined in the
     # component filestodelete.dat file.
     # this can include files which we want to force regeneration after upgrade.
 
     # Note files my no longer exist, so sending output to dev null.
+    # if entry contains a path seporator and the path is to a directory the directory will be removed.
 
     if [[ -f ${WORKING_DIST}/filestodelete.dat ]]
     then
@@ -144,11 +189,22 @@ function perform_cleanup()
         do
             if [[ ${SPECIFIC_FILE_TO_DELETE} != */* ]]
             then
-                find ${SOPHOS_INSTALL} -name ${SPECIFIC_FILE_TO_DELETE} | xargs -r rm -f >/dev/null
+                for FILE_FOUND in $(find ${SOPHOS_INSTALL} -name ${SPECIFIC_FILE_TO_DELETE})
+                do
+                    if [[ $(can_delete ${FILE_FOUND}) == 1 ]]
+                    then
+                        rm -f ${FILE_FOUND} >/dev/null
+                    fi
+                done
             else
-                rm -f ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} >/dev/null
+                if [[ $(can_delete ${SPECIFIC_FILE_TO_DELETE}) == 1 ]]
+                then
+                    rm -rf ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} >/dev/null
+                fi
             fi
         done
     fi
 
+    # clean up all broken symlinks created by deleting installed files
+    find ${SOPHOS_INSTALL} -xtype l -delete
 }
