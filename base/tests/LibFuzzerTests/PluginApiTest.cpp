@@ -19,7 +19,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <modules/Common/ZMQWrapperApi/IContext.h>
 #include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <modules/Common/ZeroMQWrapper/IIPCException.h>
-#include <modules/Common/ZeroMQWrapper/ISocketRequester.h>
 
 #include <vector_strings.pb.h>
 #include <thread>
@@ -69,8 +68,8 @@ public:
 // * It is constructed as static object from the fuzzer test to allow the dummy plugin to be running for the whole
 // * test phase.
 //example of file:
-//parts: "hello"
-//parts: "world"
+//parts: "\n\004test\020\a\032\004Test\"\bEventXml"
+//parts: "\n\004test\020\006\032\004Test\"\bEventXml"
 // */
 //
 class DummyPlugin: public  Common::PluginApi::IPluginCallbackApi
@@ -117,14 +116,15 @@ void setup()
 
     std::string fullPath = Common::FileSystem::join(Common::ApplicationConfiguration::SOPHOS_INSTALL, "");
     fileS->makedirs("/tmp/fuzz/var/ipc/plugins/");
-
 }
 
 class DummyPluginRunner : public Runner
 {
+
 public:
     ~DummyPluginRunner()
     {}
+
     DummyPluginRunner() : Runner()
     {
         setup();
@@ -132,21 +132,24 @@ public:
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp/fuzz");
         ScopedFilePermission scopedFilePermission;
         Common::ApplicationConfiguration::applicationConfiguration().setData("Test", "inproc://test.ipc");
+
         m_contextPtr = Common::ZMQWrapperApi::createContext();
         Common::ZMQWrapperApi::IContextSharedPtr copyContext = m_contextPtr;
-        setMainLoop([copyContext, this]() {
+
+        setMainLoop([copyContext, this]()
+        {
             Common::PluginApiImpl::PluginResourceManagement resourceManagement(copyContext);
+            std::string pluginName = "Test";
+            auto dummy = std::make_shared<DummyPlugin>();
+
             try
             {
-                std::string pluginName = "Test";
                 auto requester = m_contextPtr->getRequester();
-
                 requester->setTimeout(10000);
                 requester->setConnectionTimeout(10000);
 
                 std::string mng_address =
                         Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
-
                 requester->connect(mng_address);
 
                 std::unique_ptr<Common::PluginApiImpl::BaseServiceAPI> pluginSetup(
@@ -154,21 +157,20 @@ public:
 
                 auto replier = m_contextPtr->getReplier();
                 Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, pluginName, 10000, 10000);
-                auto dummy = std::make_shared<DummyPlugin>();
+
                 pluginSetup->setPluginCallback(pluginName, dummy, std::move(replier));
 
                 auto plugin = std::unique_ptr<Common::PluginApi::IBaseServiceApi>(pluginSetup.release());
-                std::cout << "Plugin constructed" << std::endl;
+
                 dummy->join();
             }
             catch (Common::PluginApi::ApiException& ex)
             {
-                std::string a = ex.what();
-                std::cout << "main loop finished: " << a << std::endl;
+                std::cout << "main loop threw exception: " << ex.what() << std::endl;
             }
         });
 
-        std::this_thread::sleep_for(std::chrono::seconds(20));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
 
         m_requester = m_contextPtr->getRequester();
         std::string dummy_address =
@@ -226,14 +228,14 @@ void mainTest(const VectorStringsProto::Query & query)
 //    // fuzz test.
     static DummyPluginRunner dummyRunner;
 
-    for( auto & part: query.parts())
+    for (auto & part: query.parts())
     {
         std::vector<std::string> data;
         data.push_back(part);
         dummyRunner.getReply(data);
     }
 
-    if( !dummyRunner.dummyPluginRunning())
+    if (!dummyRunner.dummyPluginRunning())
     {
             std::cout << "Dummy Plugin may have crashed"<< std::endl;
             abort();
