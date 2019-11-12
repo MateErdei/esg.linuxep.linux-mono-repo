@@ -83,6 +83,10 @@ def main(argv):
         r = requests.get(url=url_to_json, verify=False)
         json_string = r.text
 
+    if json_string == "":
+        print("ERROR: No JSON input specified.")
+        exit(1)
+
     verify_json(json_string)
 
 
