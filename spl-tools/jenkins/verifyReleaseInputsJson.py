@@ -49,7 +49,7 @@ def verify_json(json_string):
                 all_inputs[i["name"]] = set()
             all_inputs[i["name"]].add(i["version"])
     found_inconsistencies = False
-    print(all_inputs)
+    #print(all_inputs)
     for input_name, input_versions in all_inputs.items():
         if (len(input_versions)) > 1:
             found_inconsistencies = True

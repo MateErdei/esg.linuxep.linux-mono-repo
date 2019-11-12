@@ -27,6 +27,12 @@ def process_release_files(release_files):
             this_entry = all_dict[name]
             this_entry["version"] = version
             inputs = []
+
+            # Check the component has inputs
+            if "package" not in as_dictionary or "inputs" not in as_dictionary['package']:
+                print("Skipping: {} as it has no inputs".format(name))
+                continue
+
             for input_pkg in as_dictionary['package']['inputs']['package']:
                 input_dict = {}
                 input_dict["name"] = input_pkg['@name']
