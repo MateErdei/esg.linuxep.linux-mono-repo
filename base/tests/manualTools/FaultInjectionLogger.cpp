@@ -29,7 +29,7 @@ int printUsageAndExit()
 void faultInjectionLoggingSetup(const std::string& logfilePath)
 {
     Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(logfilePath);
-    Common::Logging::applyGeneralConfig("watchdog");
+    Common::Logging::applyGeneralConfig("testlogger");
 }
 
 void logToLimit(log4cplus::Logger logger, unsigned int limit)
@@ -76,7 +76,7 @@ int main(int argc, char * argv[])
 
     faultInjectionLoggingSetup(logPath);
 
-    auto logger = Common::Logging::getInstance("watchdog");
+    auto logger = Common::Logging::getInstance("testlogger");
     if (numLines == 0)
     {
         logForever(logger);
