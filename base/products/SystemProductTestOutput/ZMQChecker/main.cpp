@@ -36,7 +36,9 @@ static int zmqchecker_main(int argc, char* argv[])
 {
     if (argc < 3)
     {
-        std::cout << "Requires at least 2 arguments, connection type ['req' | 'rep' | 'req-noreply' ] and ipc path (e.g. '/tmp/test.ipc') " << std::endl;
+        std::cout << "Requires 2 arguments, connection type ['" << REQUESTER_SOCKET <<"', '" << REPLIER_SOCKET << "', '"
+                                                                         << REPLIER_NOREPLY_SOCKET <<"', '"<< REQUEST_NO_READ_SOCKET <<"']. And ipc path (e.g. '/tmp/test.ipc') " << std::endl;
+        return 1;
     }
 
     std::string connectionType = argv[SOCKET_TYPE_INTEX];
