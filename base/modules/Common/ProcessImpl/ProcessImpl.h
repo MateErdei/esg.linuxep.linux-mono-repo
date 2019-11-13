@@ -10,6 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 
 #include <functional>
+#include <mutex>
+#include <atomic>
 
 namespace Common
 {
@@ -17,6 +19,20 @@ namespace Common
     {
         class PipeHolder;
         class StdPipeThread;
+        class IProcessImpl
+        {
+        public:
+            virtual ~IProcessImpl(){} ;
+            virtual int pid() = 0;
+            virtual void wait() = 0;
+            virtual Process::ProcessStatus wait( std::chrono::milliseconds timeToWait) = 0;
+            virtual int exitCode() = 0;
+            virtual std::string output() = 0;
+            virtual bool hasFinished() = 0;
+            virtual void sendTerminateSignal()= 0;
+            virtual void kill() = 0;
+        };
+
 
         class ProcessImpl : public virtual Process::IProcess
         {
@@ -48,11 +64,12 @@ namespace Common
             void setNotifyProcessFinishedCallBack(Process::IProcess::functor) override;
 
         private:
-            void onExecFinished();
-            pid_t m_pid;
-            std::unique_ptr<PipeHolder> m_pipe;
-            std::unique_ptr<StdPipeThread> m_pipeThread;
-            int m_exitcode;
+            // in order to protect for data race, this pointer will
+            // need to be shared pointer
+            std::shared_ptr<IProcessImpl> m_d;
+            std::shared_ptr<IProcessImpl> safeAccess();
+            std::mutex m_protectImplOnBoost;
+            std::atomic<int> m_pid;
             size_t m_outputLimit;
             Process::IProcess::functor m_callback;
             std::function<void(std::string)> m_notifyTrimmed;

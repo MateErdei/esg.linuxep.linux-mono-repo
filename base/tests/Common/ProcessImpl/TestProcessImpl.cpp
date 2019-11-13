@@ -4,17 +4,20 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessInfo.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <sys/types.h>
+#include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+#include <boost/process/child.hpp>
+#include <boost/process/args.hpp>
 
 #include <fstream>
-#include <Common/FileSystem/IFileSystem.h>
-#include <tests/Common/Helpers/TempDir.h>
 
 using namespace Common::Process;
 namespace
@@ -35,7 +38,7 @@ namespace
         process->exec("/bin/echo", { "hello" });
         EXPECT_EQ(process->wait(milli(1), 500), ProcessStatus::FINISHED);
         ASSERT_EQ(process->output(), "hello\n");
-        EXPECT_EQ( process->exitCode(), 0);
+        EXPECT_EQ(process->exitCode(), 0);
     }
 
     TEST(ProcessImpl, waitUntilProcessEndsShouldReturnTheCorrectCode) // NOLINT
@@ -44,7 +47,7 @@ namespace
         process->exec("/bin/sleep", { "0.1" });
         process->waitUntilProcessEnds();
         ASSERT_EQ(process->output(), "");
-        EXPECT_EQ( process->exitCode(), 0);
+        EXPECT_EQ(process->exitCode(), 0);
     }
 
     int asyncSleep()
@@ -52,23 +55,96 @@ namespace
         auto process = createProcess();
         process->exec("/bin/sleep", { "0.1" });
         process->waitUntilProcessEnds();
-        if ( process->output() !=  "")
+        if (process->output() != "")
         {
             return 1;
         }
-        if ( process->exitCode(), 0)
+        if (process->exitCode(), 0)
         {
             return 2;
         }
         return 0;
     }
-    //FIXME: LINUXDAR-733
-    TEST(ProcessImpl, DISABLED_BugTwoProcessesShouldNotDeadlock) // NOLINT
+
+    void myTest()
     {
+        auto process = createProcess();
+        auto currPid = ::getpid();
+        std::cout << "Test started for tid: " << std::this_thread::get_id() << std::endl;
+        for (int i = 0; i < 3; i++)
+        {
+            std::cout << "sleep: " << std::this_thread::get_id() << " " <<  i  << std::endl;
+            process->exec("/bin/sleep", { "0.1" });
+            ASSERT_NE(currPid, process->childPid());
+            auto v1 = ::time(nullptr);
+
+            while (process->wait(std::chrono::milliseconds{ 1 }, 0) != ProcessStatus::FINISHED);
+
+
+            auto v2 = ::time(nullptr);
+
+            EXPECT_EQ(process->output(), "");
+            EXPECT_EQ(process->exitCode(), 0);
+
+            EXPECT_TRUE(v2 - v1 <= 1) << "time elapsed: " << v2 - v1;
+            std::cout << "Test: " << i << " finished: " << std::endl;
+        }
+    }
+
+    void myTestWithBoost()
+    {
+        auto currPid = ::getpid();
+        std::cout << "Test started for tid: " << std::this_thread::get_id() << std::endl;
+        for (int i = 0; i < 3; i++)
+        {
+            boost::process::child child( "/bin/sleep", boost::process::args={"0.1"});
+
+            ASSERT_NE(currPid, child.id());
+            auto v1 = ::time(nullptr);
+            child.wait();
+            auto v2 = ::time(nullptr);
+            EXPECT_TRUE(v2 - v1 <= 1) << "time elapsed: " << v2 - v1;
+            std::cout << "Test: " << i << " finished: " << std::endl;
+        }
+    }
+
+    TEST(ProcessImpl, TestDataRaceForProcessImpl)
+    {
+        Common::Logging::ConsoleLoggingSetup loggingSetup;
+        auto f1 = std::async(std::launch::async, myTest);
+        auto f2 = std::async(std::launch::async, myTest);
+        f1.get();
+        f2.get();
+    }
+
+
+    TEST(ProcessImpl, TestDataRaceForProcessImplWithBoost)
+    {
+        auto f1 = std::async(std::launch::async, myTestWithBoost);
+        auto f2 = std::async(std::launch::async, myTestWithBoost);
+        f1.get();
+        f2.get();
+    }
+
+    TEST(ProcessImpl, BugTwoProcessesShouldNotDeadlock) // NOLINT
+    {
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
         auto job1 = std::async(std::launch::async, asyncSleep);
         auto job2 = std::async(std::launch::async, asyncSleep);
-        EXPECT_EQ(job1.get(),0);
-        EXPECT_EQ(job2.get(),0);
+        EXPECT_EQ(job2.get(), 0);
+        EXPECT_EQ(job1.get(), 0);
+    }
+
+    TEST(ProcessImpl, TwoProcessesWaitingInDifferentlyShouldNotDeadlock) // NOLINT
+    {
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+        auto job1 = std::async(std::launch::async, asyncSleep);
+        auto process = createProcess();
+        process->exec("/bin/sleep", { "2" });
+        process->wait(std::chrono::milliseconds{ 1 }, 10000);
+        process->output();
+        process->exitCode();
+        EXPECT_EQ(job1.get(), 0);
     }
 
     TEST(ProcessImpl, SupportMultiplesArgs) // NOLINT
@@ -133,7 +209,7 @@ sleep 10000
         auto process = createProcess();
         process->setOutputLimit(100);
         std::string captureout;
-        process->setOutputTrimmedCallback([&captureout, &testExecutionSynchronizer, &first](std::string out){
+        process->setOutputTrimmedCallback([&captureout, &testExecutionSynchronizer, &first](std::string out) {
             captureout += out;
             if (first)
             {
@@ -143,19 +219,21 @@ sleep 10000
         });
         process->exec("/bin/bash", { tempdir.absPath("script") });
         int pid = process->childPid();
-        auto fut = std::async(std::launch::async, [&pid, &testExecutionSynchronizer](){
+        auto fut = std::async(std::launch::async, [&pid, &testExecutionSynchronizer]() {
             testExecutionSynchronizer.waitfor(500);
-            ::kill( pid, SIGTERM);
+            std::cout << "send sigterm " << std::endl;
+            ::kill(pid, SIGTERM);
         });
+        std::cout << "wait untill process ends " << std::endl;
         process->waitUntilProcessEnds();
         std::string out = process->output();
         EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("started")));
-        // the time to kill and the ammount of bytes written to output are not 'deterministic', hence, only requiring not empty.
-        EXPECT_FALSE( out.empty());
+        // the time to kill and the ammount of bytes written to output are not 'deterministic', hence, only requiring
+        // not empty.
+        EXPECT_FALSE(out.empty());
         EXPECT_THAT(captureout, ::testing::HasSubstr("started"));
         fut.get();
     }
-
 
     TEST(ProcessImpl, ProcessNotifyOnClosureShouldAlsoWorkForInvalidProcess) // NOLINT
     {
@@ -309,19 +387,18 @@ sleep 10000
         ASSERT_EQ(userPair.second, -1);
     }
 
-
     TEST(ProcessImpl, CanCaptureTrimmedOutput) // NOLINT
     {
         std::string captureout;
         auto process = createProcess();
-        process->setOutputTrimmedCallback([&captureout](std::string out){captureout += out; });
+        process->setOutputTrimmedCallback([&captureout](std::string out) { captureout += out; });
         process->setOutputLimit(100);
         std::stringstream input;
-        for( int i=0; i< 1000; i++)
+        for (int i = 0; i < 1000; i++)
         {
             input << i << " ";
         }
-        std::string echoinput=input.str();
+        std::string echoinput = input.str();
         process->exec("/bin/echo", { "-n", echoinput });
         EXPECT_EQ(process->wait(milli(1), 500), ProcessStatus::FINISHED);
         std::string output = process->output();
@@ -330,7 +407,44 @@ sleep 10000
         EXPECT_EQ(captureout + output, echoinput);
     }
 
+    TEST(ProcessImpl, SimulationOfDataRace) // NOLINT
+    {
+        Common::Logging::ConsoleLoggingSetup loggingSetup;
+        std::string bashScript = R"(#!/bin/bash
+echo 'started'
+echo {1..300}
+echo 'keep running'
+sleep 1
+)";
+        Tests::TempDir tempdir;
+        tempdir.createFile("script", bashScript);
+        auto process = createProcess();
+        process->setOutputLimit(100);
+
+        auto startScript = std::async(std::launch::async, [&process, &tempdir](){
+            for( int i=0; i<2; i++)
+            {
+                process->exec("/bin/bash", { tempdir.absPath("script") });
+                process->waitUntilProcessEnds();
+            }
+        });
+
+        auto getStatus = std::async(std::launch::async, [&process](){
+            for( int i =0; i<5000; i++)
+            {
+                process->getStatus();
+            }
+        });
+
+        auto fastWait = std::async(std::launch::async, [&process](){
+            for( int i =0; i<5000; i++)
+            {
+                process->wait(std::chrono::milliseconds(1), 0);
+            }
+        });
+        startScript.get();
+        getStatus.get();
+        fastWait.get();
+    }
 
 } // namespace
-
-
