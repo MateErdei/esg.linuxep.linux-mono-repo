@@ -16,11 +16,12 @@ namespace zmqchecker
     {
     public:
         explicit ZmqCheckerMessageHandler(
-                std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier);
+                std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier, bool ignoreRequests=false);
 
         void messageHandler(Common::ZeroMQWrapper::IReadable::data_t) override;
 
     private:
         std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> m_socketReplier;
+        bool m_ignoreRequests;
     };
 }

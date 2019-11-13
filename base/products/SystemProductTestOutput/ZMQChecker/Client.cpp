@@ -25,11 +25,19 @@ namespace zmqchecker
     }
 
     Common::ZeroMQWrapper::IReadable::data_t Client::requestReply(
-            const Common::ZeroMQWrapper::IReadable::data_t& request)
+            const Common::ZeroMQWrapper::IReadable::data_t& request, bool ignoreReply)
     {
         std::cout << "Writing request " << std::endl;
         m_socketRequester->write(request);
-        std::cout << "awaiting response " << std::endl;
-        return m_socketRequester->read();
+        if( !ignoreReply )
+        {
+            std::cout << "awaiting response " << std::endl;
+            return m_socketRequester->read();
+        }
+        else
+        {
+            std::cout << "ignoring response from replier" << std::endl;
+            return {};
+        }
     }
 }

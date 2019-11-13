@@ -18,7 +18,7 @@ namespace zmqchecker
     class Server
    {
     public:
-        Server(const std::string &socketAddress, bool captureSignals);
+        Server(const std::string &socketAddress, bool captureSignals, bool ignoreRequests = true);
 
         void run();
 
@@ -31,5 +31,6 @@ namespace zmqchecker
         std::unique_ptr<Common::Reactor::IShutdownListener> m_shutdownListener;
         bool m_captureSignals;
         Common::ZMQWrapperApi::IContextSharedPtr m_ContextSharedPtr;
+        bool m_ignoreRequests;
     };
 }

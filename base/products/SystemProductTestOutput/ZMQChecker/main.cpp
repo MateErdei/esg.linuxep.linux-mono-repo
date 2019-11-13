@@ -24,7 +24,8 @@ namespace
     constexpr int connectTimeout = 5000;
     constexpr  char REQUESTER_SOCKET[] = "req";
     constexpr  char REPLIER_SOCKET[] = "rep";
-    constexpr  char REQUESTER_NOREPLY_SOCKET[] = "req-noreply";
+    constexpr  char REPLIER_NOREPLY_SOCKET[] = "rep-noreply";
+    constexpr  char REQUEST_NO_READ_SOCKET[] = "req-noread";
     constexpr int SOCKET_TYPE_INTEX = 1;
     constexpr int IPC_PATH_INDEX = 2;
 
@@ -42,19 +43,23 @@ static int zmqchecker_main(int argc, char* argv[])
     std::string ipc_path("ipc://");
     ipc_path = ipc_path + argv[IPC_PATH_INDEX];
 
-    if( connectionType == REQUESTER_SOCKET || connectionType == REQUESTER_NOREPLY_SOCKET)
+    if( connectionType == REQUESTER_SOCKET || connectionType == REQUEST_NO_READ_SOCKET)
     {
         Client client(ipc_path, connectTimeout);
 
         std::string command("hello");
-        if (connectionType == REQUESTER_NOREPLY_SOCKET)
-        {
-            command = "ignore";
-        }
         Common::ZeroMQWrapper::data_t data{command};
         try
         {
-            auto output = client.requestReply(data);
+            Common::ZeroMQWrapper::IReadable::data_t output;
+            if(connectionType == REQUEST_NO_READ_SOCKET)
+            {
+                output  = client.requestReply(data, true);
+            }
+            else
+            {
+                output = client.requestReply(data);
+            }
             for (auto &datum : output)
             {
                 std::cout << "Requester data received: " << datum << std::endl;
@@ -72,11 +77,11 @@ static int zmqchecker_main(int argc, char* argv[])
         }
 
     }
-    else if( connectionType == REPLIER_SOCKET)
+    else if( connectionType == REPLIER_SOCKET || connectionType == REPLIER_NOREPLY_SOCKET)
     {
 
-        Server server(ipc_path, true);
-
+        bool ignoreRequests = (connectionType == REPLIER_NOREPLY_SOCKET);
+        Server server(ipc_path, true, ignoreRequests);
         try
         {
             server.run();
@@ -96,7 +101,8 @@ static int zmqchecker_main(int argc, char* argv[])
     }
     else
     {
-        std::cout << "Unknown Connection Type Requested" << std::endl;
+        std::cout << "Unknown Connection Type Requested" << "must be one of [ '" << REQUESTER_SOCKET <<"', '" << REPLIER_SOCKET << "', '"
+                << REPLIER_NOREPLY_SOCKET <<"', '"<< REQUEST_NO_READ_SOCKET <<"'] "<< std::endl;
     }
     return 0;
 }

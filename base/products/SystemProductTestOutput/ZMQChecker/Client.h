@@ -19,7 +19,7 @@ namespace zmqchecker
     public:
         Client(const std::string& address, int timeout);
         ~Client();
-        Common::ZeroMQWrapper::IReadable::data_t requestReply(const Common::ZeroMQWrapper::IReadable::data_t& request);
+        Common::ZeroMQWrapper::IReadable::data_t requestReply(const Common::ZeroMQWrapper::IReadable::data_t& request, bool ignoreReply = false);
 
     private:
         std::unique_ptr<Common::ZeroMQWrapper::ISocketRequester> m_socketRequester;
