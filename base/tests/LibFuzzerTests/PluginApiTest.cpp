@@ -32,6 +32,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/PluginApiImpl/BaseServiceAPI.h>
+#include <tests/Common/Helpers/TempDir.h>
 
 /** this class is just to allow the tests to be executed without requiring root*/
 class NullFilePermission : public Common::FileSystem::FilePermissionsImpl
@@ -110,14 +111,6 @@ public:
 
 };
 
-void setup()
-{
-    auto fileS = Common::FileSystem::fileSystem();
-
-    std::string fullPath = Common::FileSystem::join(Common::ApplicationConfiguration::SOPHOS_INSTALL, "");
-    fileS->makedirs("/tmp/fuzz/var/ipc/plugins/");
-}
-
 class DummyPluginRunner : public Runner
 {
 
@@ -127,10 +120,13 @@ public:
 
     DummyPluginRunner() : Runner()
     {
-        setup();
-        Common::ApplicationConfiguration::applicationConfiguration().setData(
-                Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp/fuzz");
         ScopedFilePermission scopedFilePermission;
+
+        Tests::TempDir tempdir("/tmp");
+        tempdir.makeDirs("var/ipc/plugins/");
+
+        Common::ApplicationConfiguration::applicationConfiguration().setData(
+                Common::ApplicationConfiguration::SOPHOS_INSTALL, tempdir.dirPath());
         Common::ApplicationConfiguration::applicationConfiguration().setData("Test", "inproc://test.ipc");
 
         m_contextPtr = Common::ZMQWrapperApi::createContext();
@@ -141,12 +137,12 @@ public:
             Common::PluginApiImpl::PluginResourceManagement resourceManagement(copyContext);
             std::string pluginName = "Test";
             auto dummy = std::make_shared<DummyPlugin>();
-
+            // the code inside the try catch is copied from createPluginAPI but with registerWithManagementagent removed
             try
             {
                 auto requester = m_contextPtr->getRequester();
-                requester->setTimeout(10000);
-                requester->setConnectionTimeout(10000);
+                requester->setTimeout(1000);
+                requester->setConnectionTimeout(1000);
 
                 std::string mng_address =
                         Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
@@ -156,7 +152,7 @@ public:
                         new Common::PluginApiImpl::BaseServiceAPI(pluginName, std::move(requester)));
 
                 auto replier = m_contextPtr->getReplier();
-                Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, pluginName, 10000, 10000);
+                Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, pluginName, 1000, 1000);
 
                 pluginSetup->setPluginCallback(pluginName, dummy, std::move(replier));
 
