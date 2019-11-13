@@ -80,7 +80,7 @@ void verifyTelemetryJsonToMap(const std::string & input)
             {
                 // the only case this is not true is for inputs that are vector.
                 // in which case all the entries 0,1,...,map(size)-1 should be keys of the map
-                for( size_t i =0; i++;i<map.size())
+                for( size_t i =0; i<map.size(); i++)
                 {
                     std::string key{std::to_string(i)};
                     if( map.find(key) == map.end())
