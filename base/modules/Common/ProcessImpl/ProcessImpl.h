@@ -7,8 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <Common/Process/IProcess.h>
+#include "IProcessHolder.h"
 #include <sys/types.h>
-
 #include <functional>
 #include <mutex>
 #include <atomic>
@@ -19,20 +19,6 @@ namespace Common
     {
         class PipeHolder;
         class StdPipeThread;
-        class IProcessImpl
-        {
-        public:
-            virtual ~IProcessImpl(){} ;
-            virtual int pid() = 0;
-            virtual void wait() = 0;
-            virtual Process::ProcessStatus wait( std::chrono::milliseconds timeToWait) = 0;
-            virtual int exitCode() = 0;
-            virtual std::string output() = 0;
-            virtual bool hasFinished() = 0;
-            virtual void sendTerminateSignal()= 0;
-            virtual void kill() = 0;
-        };
-
 
         class ProcessImpl : public virtual Process::IProcess
         {
@@ -66,8 +52,8 @@ namespace Common
         private:
             // in order to protect for data race, this pointer will
             // need to be shared pointer
-            std::shared_ptr<IProcessImpl> m_d;
-            std::shared_ptr<IProcessImpl> safeAccess();
+            std::shared_ptr<IProcessHolder> m_d;
+            std::shared_ptr<IProcessHolder> safeAccess();
             std::mutex m_protectImplOnBoost;
             std::atomic<int> m_pid;
             size_t m_outputLimit;

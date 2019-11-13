@@ -10,7 +10,10 @@ add_library(processimplobject OBJECT
         Logger.h
         Logger.cpp
         ProcessInfo.cpp
-        ProcessInfo.h)
+        ProcessInfo.h
+        IProcessHolder.h
+        BoostProcessHolder.cpp
+        BoostProcessHolder.h)
 target_include_directories(processimplobject PUBLIC ../Process ../../Common ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 add_library(processimpl SHARED $<TARGET_OBJECTS:processimplobject> )
 
