@@ -11,5 +11,5 @@ target_link_libraries(LoggerLimit logging)
 
 target_link_libraries(PickYourPoison pthread)
 
-SET_TARGET_PROPERTIES( PickYourPoison
+SET_TARGET_PROPERTIES(PickYourPoison
         PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
