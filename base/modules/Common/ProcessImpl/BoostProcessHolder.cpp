@@ -106,7 +106,7 @@ namespace Common
                             }
                             catch (std::exception& ex)
                             {
-                                LOGWARN("Exception on notify output trimed: " << ex.what());
+                                LOGWARN("Exception on notify output trimmed: " << ex.what());
                             }
                         }
                         // notice the absence of += the output has been assigned the latest value in the
@@ -129,7 +129,7 @@ namespace Common
             // for this case, the io run in its thread, and after the recognition of the service stop
             // the pipe is explicitly closed.
             auto ioservice = std::async(std::launch::async, [this]() { asioIOService.run(); });
-            LOGDEBUG("Process main loop: Wait process to finish");
+            LOGDEBUG("Process main loop: Waiting for process to finish");
             std::error_code ec;
             m_child->wait(ec);
             LOGDEBUG("Process main loop: Wait finished");
