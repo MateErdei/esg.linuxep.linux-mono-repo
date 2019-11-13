@@ -24,7 +24,7 @@ namespace
     constexpr int connectTimeout = 5000;
     constexpr  char REQUESTER_SOCKET[] = "req";
     constexpr  char REPLIER_SOCKET[] = "rep";
-    constexpr  char REPLIER_NORESPONSIVE_SOCKET[] = "rep-noresponse";
+    constexpr  char REQUESTER_NOREPLY_SOCKET[] = "req-noreply";
     constexpr int SOCKET_TYPE_INTEX = 1;
     constexpr int IPC_PATH_INDEX = 2;
 
@@ -35,19 +35,19 @@ static int zmqchecker_main(int argc, char* argv[])
 {
     if (argc < 3)
     {
-        std::cout << "Requires at least 2 arguments, connection type ['req' | 'rep' | 'rep-noresponse' ] and ipc path (e.g. '/tmp/test.ipc') " << std::endl;
+        std::cout << "Requires at least 2 arguments, connection type ['req' | 'rep' | 'req-noreply' ] and ipc path (e.g. '/tmp/test.ipc') " << std::endl;
     }
 
     std::string connectionType = argv[SOCKET_TYPE_INTEX];
     std::string ipc_path("ipc://");
     ipc_path = ipc_path + argv[IPC_PATH_INDEX];
 
-    if( connectionType == REQUESTER_SOCKET || connectionType == REPLIER_NORESPONSIVE_SOCKET)
+    if( connectionType == REQUESTER_SOCKET || connectionType == REQUESTER_NOREPLY_SOCKET)
     {
         Client client(ipc_path, connectTimeout);
 
         std::string command("hello");
-        if (connectionType == REPLIER_NORESPONSIVE_SOCKET)
+        if (connectionType == REQUESTER_NOREPLY_SOCKET)
         {
             command = "ignore";
         }
