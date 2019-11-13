@@ -1,42 +1,16 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import os
-import xmltodict
 import sys
 import json
 
 
-# # a > b returns 1, a < b returns -1, a = b returns 0
-# def compare_version(a, b):
-#     delim = "-"
-#     a_split = a.split(delim)
-#     b_split = b.split(delim)
-#
-#     # cannot compare
-#     if len(a) != len(b):
-#         return None
-#
-#     index = 0
-#     while index < len(a):
-#         if a_split[index] == b_split[index]:
-#             index += 1
-#             continue
-#         if int(a_split[index]) > int(b_split[index]):
-#             return 1
-#         else:
-#             return -1
-#     return 0
-
-
 def get_component_using_input_version(root_dictionary, input_name, input_version):
     components_using_input_version = set()
-    #print(root_dictionary)
     for component_name, component_info in root_dictionary.items():
         for i in component_info["inputs"]:
             if i["name"] == input_name and i["version"] == input_version:
                 components_using_input_version.add(component_name)
-    #print(components_using_input_version)
     return components_using_input_version
 
 
@@ -49,7 +23,6 @@ def verify_json(json_string):
                 all_inputs[i["name"]] = set()
             all_inputs[i["name"]].add(i["version"])
     found_inconsistencies = False
-    #print(all_inputs)
     for input_name, input_versions in all_inputs.items():
         if (len(input_versions)) > 1:
             found_inconsistencies = True
