@@ -21,6 +21,11 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/filestodelete.dat
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/cleanuprealm.dat
+        DESTINATION .
+        PERMISSIONS OWNER_READ OWNER_EXECUTE
+        )
+
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/uninstall.sh
         DESTINATION files/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
