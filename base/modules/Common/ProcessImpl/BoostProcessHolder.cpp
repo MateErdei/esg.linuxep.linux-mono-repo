@@ -5,7 +5,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "BoostProcessHolder.h"
 #include "IProcessException.h"
-
+#include "Logger.h"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-result"
 #include <boost/asio/read.hpp>
 #include <boost/process/args.hpp>
 #include <boost/process/env.hpp>
@@ -13,7 +15,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <boost/process/io.hpp>
 #include <boost/process/pipe.hpp>
 #include <boost/system/error_code.hpp>
-#include "Logger.h"
+
+#pragma GCC diagnostic pop
 
 namespace Common
 {

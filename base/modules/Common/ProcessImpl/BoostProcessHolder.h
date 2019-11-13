@@ -6,9 +6,15 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IProcessHolder.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-result"
 #include <boost/process/child.hpp>
 #include <boost/process/async_pipe.hpp>
 #include <boost/asio/io_service.hpp>
+
+#pragma GCC diagnostic pop
+
 #include <future>
 
 namespace Common
