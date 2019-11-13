@@ -18,11 +18,13 @@ namespace zmqchecker
             m_socketAddress(socketAddress),
             m_reactor(Common::Reactor::createReactor()),
             m_captureSignals(captureSignals),
-            m_ContextSharedPtr(Common::ZMQWrapperApi::createContext()) {
+            m_ContextSharedPtr(Common::ZMQWrapperApi::createContext())
+    {
         std::cout << "server created at: " << socketAddress << std::endl;
     }
 
-    void Server::run() {
+    void Server::run()
+    {
         std::cout << "getting replier" << std::endl;
         auto replier = m_ContextSharedPtr->getReplier();
 

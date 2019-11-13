@@ -16,7 +16,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace zmqchecker
 {
     class Server
-            {
+   {
     public:
         Server(const std::string &socketAddress, bool captureSignals);
 

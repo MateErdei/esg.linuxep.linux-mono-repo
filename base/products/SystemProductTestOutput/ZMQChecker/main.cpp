@@ -21,10 +21,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    //void SetTimeouts()
     constexpr int connectTimeout = 5000;
     constexpr  char REQUESTER_SOCKET[] = "req";
     constexpr  char REPLIER_SOCKET[] = "rep";
+    constexpr  char REPLIER_NORESPONSIVE_SOCKET[] = "rep-noresponse";
     constexpr int SOCKET_TYPE_INTEX = 1;
     constexpr int IPC_PATH_INDEX = 2;
 
@@ -35,21 +35,21 @@ static int zmqchecker_main(int argc, char* argv[])
 {
     if (argc < 3)
     {
-        std::cout << "Expected 2 arguments, connection type ['req' | 'rep' ] and ipc path (e.g. '/tmp/test.ipc') " << std::endl;
+        std::cout << "Requires at least 2 arguments, connection type ['req' | 'rep' | 'rep-noresponse' ] and ipc path (e.g. '/tmp/test.ipc') " << std::endl;
     }
 
     std::string connectionType = argv[SOCKET_TYPE_INTEX];
     std::string ipc_path("ipc://");
     ipc_path = ipc_path + argv[IPC_PATH_INDEX];
 
-    if( connectionType == REQUESTER_SOCKET)
+    if( connectionType == REQUESTER_SOCKET || connectionType == REPLIER_NORESPONSIVE_SOCKET)
     {
         Client client(ipc_path, connectTimeout);
 
         std::string command("hello");
-        if ( argc > 3)
+        if (connectionType == REPLIER_NORESPONSIVE_SOCKET)
         {
-            command = argv[3];
+            command = "ignore";
         }
         Common::ZeroMQWrapper::data_t data{command};
         try
@@ -72,10 +72,7 @@ static int zmqchecker_main(int argc, char* argv[])
         }
 
     }
-
-
-
-    if( connectionType == REPLIER_SOCKET)
+    else if( connectionType == REPLIER_SOCKET)
     {
 
         Server server(ipc_path, true);
@@ -96,6 +93,10 @@ static int zmqchecker_main(int argc, char* argv[])
             return 2;
         }
 
+    }
+    else
+    {
+        std::cout << "Unknown Connection Type Requested" << std::endl;
     }
     return 0;
 }

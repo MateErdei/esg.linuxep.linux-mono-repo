@@ -27,7 +27,7 @@ namespace zmqchecker
     Common::ZeroMQWrapper::IReadable::data_t Client::requestReply(
             const Common::ZeroMQWrapper::IReadable::data_t& request)
     {
-        std::cout << "Writting request " << std::endl;
+        std::cout << "Writing request " << std::endl;
         m_socketRequester->write(request);
         std::cout << "awaiting response " << std::endl;
         return m_socketRequester->read();
