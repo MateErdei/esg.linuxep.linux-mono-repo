@@ -10,7 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace zmqchecker
 {
-    const int connectionTimeout = 1;
+    const int connectionTimeout = 3000;
     ZmqCheckerMessageHandler::ZmqCheckerMessageHandler(
             std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier, bool ignoreRequests) : m_socketReplier(std::move(socketReplier)), m_ignoreRequests(ignoreRequests){}
 

@@ -32,7 +32,6 @@ std::vector<std::string> Common::ZeroMQWrapperImpl::SocketUtil::read(
         }
         /* Block until a message is available to be received from socket */
         rc = zmq_msg_recv(&part, socket, 0);
-
         if (rc < 0)
         {
             throw ZeroMQWrapperException("Failed to receive message component");
