@@ -7,6 +7,7 @@ add_custom_target(echogTest
         COMMAND echo gtest_SOURCE_DIR=${gtest_SOURCE_DIR}
         COMMAND ls -l ${gtest_SOURCE_DIR}/include/gtest/gtest.h
         )
+add_subdirectory(manualTools)
 add_subdirectory(Common)
 add_subdirectory(diagnose)
 add_subdirectory(SulDownloader)
@@ -19,7 +20,6 @@ add_subdirectory(TelemetryScheduler)
 add_subdirectory(UpdateScheduler)
 add_subdirectory(watchdog)
 add_subdirectory(wdctl)
-add_subdirectory(manualTools)
 
 if (BUILD_FUZZ_TESTS)
     message("Building fuzz tests ${BUILD_FUZZ_TESTS}")
