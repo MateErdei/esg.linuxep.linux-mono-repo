@@ -3,8 +3,8 @@
 Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 
- WatchdogApiTest enables to Fuzz the two Watchdog Inputs Socket as defined by the PluginApiMessage.proto and the wdctl protocol
- By adding files like:
+ WatchdogApiTest enables to Fuzz the two Watchdog Inputs Socket as defined by the PluginApiMessage.proto and the wdctl
+protocol By adding files like:
 
 messages {
   wdservice {
@@ -25,31 +25,34 @@ messages {
 ******************************************************************************************************/
 
 #include "FuzzerUtils.h"
+
 #include "google/protobuf/text_format.h"
+
+#include <Common/DirectoryWatcherImpl/Logger.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/Logging/LoggerConfig.h>
+#include <Common/ProcessImpl/ProcessImpl.h>
+#include <Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <modules/Common/FileSystem/IFileSystem.h>
 #include <modules/Common/PluginApi/ApiException.h>
+#include <modules/Common/UtilityImpl/StringUtils.h>
 #include <modules/Common/ZMQWrapperApi/IContext.h>
 #include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <modules/Common/ZeroMQWrapper/IIPCException.h>
 #include <modules/Common/ZeroMQWrapper/ISocketRequester.h>
 #include <modules/ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <modules/Common/UtilityImpl/StringUtils.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
-#include <Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
-#include <watchdogmessage.pb.h>
-#include <thread>
+
 #include <future>
 #include <stddef.h>
 #include <stdint.h>
-#include <Common/DirectoryWatcherImpl/Logger.h>
-#include <Common/Logging/LoggerConfig.h>
+#include <thread>
+#include <watchdogmessage.pb.h>
 
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
@@ -59,23 +62,19 @@ messages {
 namespace
 {
 #ifdef HasLibFuzzer
-    #define TESTLOG(x)
+#    define TESTLOG(x)
 #else
-    #define TESTLOG(x) std::cout << x
+#    define TESTLOG(x) std::cout << x
 #endif
 
-}
+} // namespace
 
 /** this class is just to allow the tests to be executed without requiring root*/
 class NullFilePermission : public Common::FileSystem::FilePermissionsImpl
 {
 public:
-    void chown(const Path& , const std::string& , const std::string& ) const override
-    {
-    }
-    void chmod(const Path& , __mode_t ) const override
-    {
-    }
+    void chown(const Path&, const std::string&, const std::string&) const override {}
+    void chmod(const Path&, __mode_t) const override {}
 };
 
 class ScopedFilePermission
@@ -83,86 +82,84 @@ class ScopedFilePermission
 public:
     ScopedFilePermission()
     {
-        Tests::replaceFilePermissions( std::unique_ptr<Common::FileSystem::IFilePermissions>( new NullFilePermission()) );
+        Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>(new NullFilePermission()));
     }
-    ~ScopedFilePermission()
-    {
-        Tests::restoreFilePermissions();
-    }
+    ~ScopedFilePermission() { Tests::restoreFilePermissions(); }
 };
 
-/** FakeProcess is here to avoid requiring to really start/stop plugins. This FakeProcess simulates the execution of the plugins.
- * It has some special provision for the systemctl as it is used to trigger update and usually does not take long time, it is not a service.
+/** FakeProcess is here to avoid requiring to really start/stop plugins. This FakeProcess simulates the execution of the
+ * plugins. It has some special provision for the systemctl as it is used to trigger update and usually does not take
+ * long time, it is not a service.
  */
 class FakeProcess : public Common::Process::IProcess
 {
     Common::Process::ProcessStatus m_status;
     std::string m_path;
+
 public:
-    FakeProcess():m_status{Common::Process::ProcessStatus::NOTSTARTED}{}
-    ~FakeProcess(){
-        m_status=Common::Process::ProcessStatus::FINISHED;
-    }
+    FakeProcess() : m_status{ Common::Process::ProcessStatus::NOTSTARTED } {}
+    ~FakeProcess() { m_status = Common::Process::ProcessStatus::FINISHED; }
     void exec(
-            const std::string& path,
-            const std::vector<std::string>& arguments,
-            const Common::Process::EnvPairVector & extraEnvironment,
-            uid_t uid,
-            gid_t gid) override
+        const std::string& path,
+        const std::vector<std::string>& arguments,
+        const Common::Process::EnvPairVector& extraEnvironment,
+        uid_t uid,
+        gid_t gid) override
     {
         exec(path, arguments);
     }
     void exec(
-            const std::string& path,
-            const std::vector<std::string>& arguments,
-            const std::vector<Common::Process::EnvironmentPair>& extraEnvironment) override {
+        const std::string& path,
+        const std::vector<std::string>& arguments,
+        const std::vector<Common::Process::EnvironmentPair>& extraEnvironment) override
+    {
         exec(path, arguments);
     };
-    void exec(const std::string& path, const std::vector<std::string>& arguments) override {
+    void exec(const std::string& path, const std::vector<std::string>& arguments) override
+    {
         m_status = Common::Process::ProcessStatus::RUNNING;
         m_path = path;
-        if( m_path.find("systemctl") != std::string::npos)
+        if (m_path.find("systemctl") != std::string::npos)
         {
             m_status = Common::Process::ProcessStatus::FINISHED;
         }
     };
     Common::Process::ProcessStatus wait(Common::Process::Milliseconds period, int attempts) override
     {
-        if( m_status == Common::Process::ProcessStatus::NOTSTARTED)
+        if (m_status == Common::Process::ProcessStatus::NOTSTARTED)
         {
             return Common::Process::ProcessStatus::NOTSTARTED;
         }
-        for( int i=0; i<attempts;i++)
+        for (int i = 0; i < attempts; i++)
         {
             std::this_thread::sleep_for(period);
-            if( m_status==Common::Process::ProcessStatus::FINISHED)
+            if (m_status == Common::Process::ProcessStatus::FINISHED)
             {
-                return  Common::Process::ProcessStatus::FINISHED;
+                return Common::Process::ProcessStatus::FINISHED;
             }
         }
         return Common::Process::ProcessStatus::TIMEOUT;
     };
-    int childPid() const override {return 12;}
-    bool kill() override {m_status= Common::Process::ProcessStatus::FINISHED;
-    return true; }
-    bool kill(int secondsBeforeSIGKILL) override { return kill();}
-    int exitCode() override {return 0;};
+    int childPid() const override { return 12; }
+    bool kill() override
+    {
+        m_status = Common::Process::ProcessStatus::FINISHED;
+        return true;
+    }
+    bool kill(int secondsBeforeSIGKILL) override { return kill(); }
+    int exitCode() override { return 0; };
     std::string output() override
     {
-        while( wait(Common::Process::Milliseconds{5}, 50) != Common::Process::ProcessStatus::FINISHED)
+        while (wait(Common::Process::Milliseconds{ 5 }, 50) != Common::Process::ProcessStatus::FINISHED)
         {
-
         }
         return std::string();
     };
-    Common::Process::ProcessStatus getStatus() override
-    {
-        return m_status;
-    };
-    void setOutputLimit(size_t limit) override {};
-    void setOutputTrimmedCallback(std::function<void(std::string)>) override {};
-    void setNotifyProcessFinishedCallBack(functor) override {};
-    void waitUntilProcessEnds() override {};
+    Common::Process::ProcessStatus getStatus() override { return m_status; };
+    void setOutputLimit(size_t limit) override{};
+    void setOutputTrimmedCallback(std::function<void(std::string)>) override{};
+    void setNotifyProcessFinishedCallBack(functor) override{};
+    void waitUntilProcessEnds() override{};
 };
 
 class ScopedProcess
@@ -170,21 +167,18 @@ class ScopedProcess
 public:
     ScopedProcess()
     {
-        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([](){
-            std::unique_ptr<Common::Process::IProcess>proc{new FakeProcess};
+        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
+            std::unique_ptr<Common::Process::IProcess> proc{ new FakeProcess };
             return proc;
         });
     }
-    ~ScopedProcess()
-    {
-        Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
-    }
+    ~ScopedProcess() { Common::ProcessImpl::ProcessFactory::instance().restoreCreator(); }
 };
 
 /** Helper function to create the json entry for the plugin*/
-std::string templatePlugin(const std::string&  installdir, const std::string & pluginname)
+std::string templatePlugin(const std::string& installdir, const std::string& pluginname)
 {
-    std::string templ{R"({
+    std::string templ{ R"({
   "policyAppIds": [
     "MDR"
   ],
@@ -201,30 +195,30 @@ std::string templatePlugin(const std::string&  installdir, const std::string & p
     }
   ],
   "executableUserAndGroup": "@@user@@:@@group@@"
-})"};
+})" };
     NullFilePermission nullFilePermission;
 
     std::string user = nullFilePermission.getUserName(::getuid());
     std::string group = nullFilePermission.getGroupName(::getgid());
-    return Common::UtilityImpl::StringUtils::orderedStringReplace(templ,{
-            {"@plugin@", pluginname}, {"@path@", pluginname}, {"@@SOPHOS_INSTALL@@", installdir}, {"@@user@@",user}, {"@@group@@", group}
-    } );
+    return Common::UtilityImpl::StringUtils::orderedStringReplace(
+        templ,
+        { { "@plugin@", pluginname },
+          { "@path@", pluginname },
+          { "@@SOPHOS_INSTALL@@", installdir },
+          { "@@user@@", user },
+          { "@@group@@", group } });
 }
 
 /**
  * Setup of files and directories as expected by Watchdog to be present.
  * As well as simple plugin registry for watchdog to use.
  */
-void setupTestFiles(Tests::TempDir & tempdir)
+void setupTestFiles(Tests::TempDir& tempdir)
 {
     std::string installRoot = tempdir.dirPath();
     auto fileS = Common::FileSystem::fileSystem();
 
-    for (std::string dir : { "base",
-                             "base/etc",
-                             "base/pluginRegistry",
-                             "var/ipc/plugins",
-                             "logs" })
+    for (std::string dir : { "base", "base/etc", "base/pluginRegistry", "var/ipc/plugins", "logs" })
     {
         std::string fullPath = Common::FileSystem::join(installRoot, dir);
         if (!fileS->isDirectory(fullPath))
@@ -256,22 +250,22 @@ void setupTestFiles(Tests::TempDir & tempdir)
 class WatchdogRunner : public Runner
 {
 public:
-    WatchdogRunner() : Runner(), m_tempdir{"/tmp"}
+    WatchdogRunner() : Runner(), m_tempdir{ "/tmp" }
     {
         m_contextPtr = Common::ZMQWrapperApi::createContext();
         setupTestFiles(m_tempdir);
         Common::ApplicationConfiguration::applicationConfiguration().setData(
-                Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempdir.dirPath());
-        Common::ApplicationConfiguration::applicationConfiguration().setData("plugins/watchdogservice.ipc", "inproc://service.ipc");
+            Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempdir.dirPath());
+        Common::ApplicationConfiguration::applicationConfiguration().setData(
+            "plugins/watchdogservice.ipc", "inproc://service.ipc");
         Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", "inproc://watchdog.ipc");
-
 
         setMainLoop([this]() {
             ScopedFilePermission scopedFilePermission;
             ScopedProcess scopedProcess;
             try
             {
-                watchdog::watchdogimpl::Watchdog m{m_contextPtr};
+                watchdog::watchdogimpl::Watchdog m{ m_contextPtr };
                 m.initialiseAndRun();
                 TESTLOG("watchdog finished");
             }
@@ -294,8 +288,7 @@ public:
         m_requester->connect(mng_address);
 
         m_wdctlRequester = m_contextPtr->getRequester();
-        mng_address =
-                Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress();
+        mng_address = Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress();
         m_wdctlRequester->setTimeout(1000);
         m_wdctlRequester->connect(mng_address);
     }
@@ -306,10 +299,10 @@ public:
         {
             m_wdctlRequester->write(command);
             auto answ = m_wdctlRequester->read();
-            if( answ.size() != 1)
+            if (answ.size() != 1)
             {
                 std::cerr << "Wdctl replies are expected to be of size 1, it was " << answ.size() << std::endl;
-                for(auto & e : answ)
+                for (auto& e : answ)
                 {
                     std::cerr << "Element : " << e << std::endl;
                 }
@@ -339,32 +332,36 @@ public:
             TESTLOG("GetReply: " << content);
             m_requester->write({ content });
             auto reply = m_requester->read();
-            if ( !reply.empty())
+            if (!reply.empty())
             {
-                TESTLOG("Answer: " <<  reply.at(0) );
+                TESTLOG("Answer: " << reply.at(0));
             }
             Common::PluginProtocol::Protocol protocol;
-            auto message=  protocol.deserialize(reply);
-            if( message.m_command == Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY  && message.m_error.empty())
+            auto message = protocol.deserialize(reply);
+            if (message.m_command == Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY &&
+                message.m_error.empty())
             {
-                if( message.m_payload.empty())
+                if (message.m_payload.empty())
                 {
                     std::cerr << "Empty telemetry" << std::endl;
                     abort();
                 }
                 std::string telemetry = message.m_payload.at(0);
 
-                try{
-                    Common::Telemetry::flatJsonToMap(telemetry);
-                }catch(std::exception& ex)
+                try
                 {
-                    std::cerr << "telemetry returned invalid json: "<< ex.what() <<std::endl;
+                    Common::Telemetry::flatJsonToMap(telemetry);
+                }
+                catch (std::exception& ex)
+                {
+                    std::cerr << "telemetry returned invalid json: " << ex.what() << std::endl;
                     abort();
                 }
             }
-            if( message.m_command == Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION && message.m_error.empty())
+            if (message.m_command == Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION &&
+                message.m_error.empty())
             {
-                if( !message.m_acknowledge)
+                if (!message.m_acknowledge)
                 {
                     std::cerr << "It expects an acknowledge: " << std::endl;
                     abort();
@@ -391,6 +388,7 @@ public:
     }
 
     bool managemementAgentRunning() { return threadRunning(); }
+
 private:
     Tests::TempDir m_tempdir;
     Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr;
@@ -411,12 +409,12 @@ void mainTest(const PluginProtocolProto::WatchdogMsgs& messages)
     // fuzz test.
     static WatchdogRunner watchdogRunner;
 
-    for (const PluginProtocolProto::WatchdogMsg & message : messages.messages())
+    for (const PluginProtocolProto::WatchdogMsg& message : messages.messages())
     {
         if (message.has_wdctl())
         {
             std::vector<std::string> commands;
-            for( auto & cmd: message.wdctl().commands())
+            for (auto& cmd : message.wdctl().commands())
             {
                 commands.push_back(cmd);
             }

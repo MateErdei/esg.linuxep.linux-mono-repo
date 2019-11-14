@@ -2,7 +2,7 @@ syntax = "proto2";
 package PluginProtocolProto;
 import "PluginAPIMessage.proto";
 message Wdctl {
-  repeated string commands =1 ;
+  repeated string commands = 1;
 }
 
 message WdService{
@@ -11,7 +11,7 @@ message WdService{
 
 message WatchdogMsg{
   optional Wdctl wdctl = 1;
-  optional WdService wdservice =2;
+  optional WdService wdservice = 2;
 }
 
 message WatchdogMsgs {

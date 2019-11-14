@@ -122,7 +122,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadIs
     EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
     EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
     EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
-    // On sent error both the acknowledgement is ignored
+    // On sent error the acknowledgement is ignored
     EXPECT_EQ(receivedMessage.m_acknowledge, false);
 }
 
