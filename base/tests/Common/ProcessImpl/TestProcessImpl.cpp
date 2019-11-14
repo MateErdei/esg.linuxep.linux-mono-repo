@@ -14,8 +14,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
-#include <boost/process/child.hpp>
-#include <boost/process/args.hpp>
 
 #include <fstream>
 
@@ -91,37 +89,11 @@ namespace
         }
     }
 
-    void myTestWithBoost()
-    {
-        auto currPid = ::getpid();
-        std::cout << "Test started for tid: " << std::this_thread::get_id() << std::endl;
-        for (int i = 0; i < 3; i++)
-        {
-            boost::process::child child( "/bin/sleep", boost::process::args={"0.1"});
-
-            ASSERT_NE(currPid, child.id());
-            auto v1 = ::time(nullptr);
-            child.wait();
-            auto v2 = ::time(nullptr);
-            EXPECT_TRUE(v2 - v1 <= 1) << "time elapsed: " << v2 - v1;
-            std::cout << "Test: " << i << " finished: " << std::endl;
-        }
-    }
-
     TEST(ProcessImpl, TestDataRaceForProcessImpl)
     {
         Common::Logging::ConsoleLoggingSetup loggingSetup;
         auto f1 = std::async(std::launch::async, myTest);
         auto f2 = std::async(std::launch::async, myTest);
-        f1.get();
-        f2.get();
-    }
-
-
-    TEST(ProcessImpl, TestDataRaceForProcessImplWithBoost)
-    {
-        auto f1 = std::async(std::launch::async, myTestWithBoost);
-        auto f2 = std::async(std::launch::async, myTestWithBoost);
         f1.get();
         f2.get();
     }
@@ -425,7 +397,7 @@ sleep 1
             for( int i=0; i<2; i++)
             {
                 process->exec("/bin/bash", { tempdir.absPath("script") });
-                process->waitUntilProcessEnds();
+                process->wait(std::chrono::milliseconds(3), 1);
             }
         });
 
@@ -433,6 +405,7 @@ sleep 1
             for( int i =0; i<5000; i++)
             {
                 process->getStatus();
+                std::this_thread::sleep_for(std::chrono::microseconds(300));
             }
         });
 
@@ -440,6 +413,7 @@ sleep 1
             for( int i =0; i<5000; i++)
             {
                 process->wait(std::chrono::milliseconds(1), 0);
+                std::this_thread::sleep_for(std::chrono::microseconds(300));
             }
         });
         startScript.get();
