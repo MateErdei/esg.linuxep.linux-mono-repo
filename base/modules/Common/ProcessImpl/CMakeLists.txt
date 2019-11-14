@@ -3,8 +3,6 @@ add_library(processimplobject OBJECT
         ProcessImpl.cpp
         ProcessImpl.h
         ArgcAndEnv.h
-        StdPipeThread.cpp
-        StdPipeThread.h
         PipeHolder.cpp
         PipeHolder.h
         Logger.h
