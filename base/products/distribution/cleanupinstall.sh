@@ -127,13 +127,13 @@ function can_delete()
        do
          if [[ ${REALM_PATH} == +* ]]
          then
-            if [[ ${FILE_PATH} == ${SOPHOS_INSTALL}${REALM_PATH:1}* ]]
+            if [[ ${FILE_PATH} == ${SOPHOS_INSTALL}/${REALM_PATH:1}* ]]
             then
               INCLUDED_PATH=1
             fi
          elif [[ ${REALM_PATH} == -* ]]
          then
-            if [[ ${FILE_PATH} == ${SOPHOS_INSTALL}${REALM_PATH:1}* ]]
+            if [[ ${FILE_PATH} == ${SOPHOS_INSTALL}/${REALM_PATH:1}* ]]
             then
               EXCLUDED_PATH=2
             fi
