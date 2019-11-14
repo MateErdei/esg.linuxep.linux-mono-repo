@@ -6,9 +6,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "ProcessImpl.h"
 #include "Logger.h"
-#include "PipeHolder.h"
+#include <Common/Process/IProcessException.h>
 #include "BoostProcessHolder.h"
-
 #include <algorithm>
 #include <iostream>
 #include <pwd.h>
