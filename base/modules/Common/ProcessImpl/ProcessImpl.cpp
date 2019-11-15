@@ -161,7 +161,6 @@ namespace Common{
                 LOGWARN("Failure to start process: " << ex.what());
                 m_callback();
                 m_d = std::shared_ptr<IProcessHolder>(new FailedToStartProcess());
-                //throw Process::IProcessException(ex.what());
             }
         }
         int ProcessImpl::exitCode()
