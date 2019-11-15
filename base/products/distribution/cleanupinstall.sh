@@ -198,7 +198,7 @@ function perform_cleanup()
                     fi
                 done
             else
-                if [[ $(can_delete ${SPECIFIC_FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
+                if [[ $(can_delete ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
                 then
                     rm -rf ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} >/dev/null
                 fi
