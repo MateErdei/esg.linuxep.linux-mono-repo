@@ -107,7 +107,7 @@ namespace Common{
             m_callback{ []() {} },
         m_notifyTrimmed{ [](std::string) {} }
         {
-            m_d.reset( new NoExecCalled());
+            m_d = std::make_shared<NoExecCalled>();
         }
 
         ProcessImpl::~ProcessImpl() = default;
@@ -147,20 +147,20 @@ namespace Common{
             m_pid = -1;
             try
             {
-                m_d = std::shared_ptr<IProcessHolder>(new BoostProcessHolder(path, arguments, extraEnvironment, uid, gid, m_callback, m_notifyTrimmed,
-                                               m_outputLimit));
+                m_d = std::make_shared<BoostProcessHolder>(path, arguments, extraEnvironment, uid, gid, m_callback, m_notifyTrimmed,
+                                               m_outputLimit);
                 m_pid = m_d->pid();
             }
             catch (Common::Process::IProcessException& ex)
             {
                 LOGWARN("Failure to setup process: " << ex.what());
-                m_d = std::shared_ptr<IProcessHolder>(new FailedToStartProcess());
+                m_d = std::make_shared<FailedToStartProcess>();
                 throw;
             }catch ( std::exception& ex)
             {
                 LOGWARN("Failure to start process: " << ex.what());
                 m_callback();
-                m_d = std::shared_ptr<IProcessHolder>(new FailedToStartProcess());
+                m_d = std::make_shared<FailedToStartProcess>();
             }
         }
         int ProcessImpl::exitCode()
