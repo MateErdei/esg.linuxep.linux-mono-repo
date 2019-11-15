@@ -71,13 +71,13 @@ namespace
         std::cout << "Test started for tid: " << std::this_thread::get_id() << std::endl;
         for (int i = 0; i < 3; i++)
         {
-            std::cout << "sleep: " << std::this_thread::get_id() << " " <<  i  << std::endl;
+            std::cout << "sleep: " << std::this_thread::get_id() << " " << i << std::endl;
             process->exec("/bin/sleep", { "0.1" });
             ASSERT_NE(currPid, process->childPid());
             auto v1 = ::time(nullptr);
 
-            while (process->wait(std::chrono::milliseconds{ 1 }, 0) != ProcessStatus::FINISHED);
-
+            while (process->wait(std::chrono::milliseconds{ 1 }, 0) != ProcessStatus::FINISHED)
+                ;
 
             auto v2 = ::time(nullptr);
 
@@ -393,24 +393,24 @@ sleep 1
         auto process = createProcess();
         process->setOutputLimit(100);
 
-        auto startScript = std::async(std::launch::async, [&process, &tempdir](){
-            for( int i=0; i<2; i++)
+        auto startScript = std::async(std::launch::async, [&process, &tempdir]() {
+            for (int i = 0; i < 2; i++)
             {
                 process->exec("/bin/bash", { tempdir.absPath("script") });
                 process->wait(std::chrono::milliseconds(3), 1);
             }
         });
 
-        auto getStatus = std::async(std::launch::async, [&process](){
-            for( int i =0; i<5000; i++)
+        auto getStatus = std::async(std::launch::async, [&process]() {
+            for (int i = 0; i < 5000; i++)
             {
                 process->getStatus();
                 std::this_thread::sleep_for(std::chrono::microseconds(300));
             }
         });
 
-        auto fastWait = std::async(std::launch::async, [&process](){
-            for( int i =0; i<5000; i++)
+        auto fastWait = std::async(std::launch::async, [&process]() {
+            for (int i = 0; i < 5000; i++)
             {
                 process->wait(std::chrono::milliseconds(1), 0);
                 std::this_thread::sleep_for(std::chrono::microseconds(300));
