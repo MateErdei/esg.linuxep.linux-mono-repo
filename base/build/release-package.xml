@@ -65,7 +65,7 @@
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
-        <package name="sspl-telemetry-config-dev" version="master/%LASTGOODCOMPONENTBUILD%/sspl-telemetry-config-dev/1.0.0/output" dest="input/telemetry" buildtype="dev">
+        <package buildtype="dev" name="sspl-telemetry-config-dev" version="1.0" dest="input/telemetry">
             <include src="telemetry-config.json" dest="." />
         </package>
         <package buildtype="prod" name="sspl-telemetry-config" version="1.0/EES-9377" dest="input/telemetry">
@@ -80,7 +80,7 @@
         </command>
         <command buildtype="dev">
             <program>/bin/bash</program>
-            <args>./build.sh --clean</args>
+            <args>./build.sh --clean --debug</args>
             <workingdir>sspl-base-build</workingdir>
         </command>
     </buildcommands>
@@ -91,6 +91,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,test-logging</publishbranches>
+        <publishbranches>master,feature/LINUXDAR-695-ci-to-produce-debug</publishbranches>
     </publish>
 </package>
