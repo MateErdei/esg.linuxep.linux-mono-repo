@@ -111,6 +111,7 @@ function can_delete()
    # Returns 1 if can delete, any other value should be treated as false.
 
    local FILE_PATH="$1"
+   local WORKING_DIST="$2"
 
    INCLUDED_PATH=0
    EXCLUDED_PATH=0
@@ -121,9 +122,9 @@ function can_delete()
    # a - sign in front of the path indecates explicitly that files in that path cannot be deleted.  This is for excluding
    # some subpaths is the update/cache folder.
 
-   if [[ -f ${WORKING_DIST}/filestodelete.dat ]]
+   if [[ -f ${WORKING_DIST}/cleanuprealm.dat ]]
    then
-       for REALM_PATH in $(cat cleanuprealm.dat)
+       for REALM_PATH in $(cat ${WORKING_DIST}/cleanuprealm.dat)
        do
          if [[ ${REALM_PATH} == +* ]]
          then
@@ -168,7 +169,7 @@ function perform_cleanup()
     do
         for FILE_TO_DELETE in $(cat ${FILES_TO_REMOVE_DATA_FILE} | xargs -ri expr {} : '[^/]*/\(.*\)' | xargs -ri echo ${SOPHOS_INSTALL}/{})
         do
-            if [[ $(can_delete ${FILE_TO_DELETE}) == 1 ]]
+            if [[ $(can_delete ${FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
             then
                 rm -f ${FILE_TO_DELETE}*
             fi
@@ -191,13 +192,13 @@ function perform_cleanup()
             then
                 for FILE_FOUND in $(find ${SOPHOS_INSTALL} -name ${SPECIFIC_FILE_TO_DELETE})
                 do
-                    if [[ $(can_delete ${FILE_FOUND}) == 1 ]]
+                    if [[ $(can_delete ${FILE_FOUND} ${WORKING_DIST}) == 1 ]]
                     then
                         rm -f ${FILE_FOUND} >/dev/null
                     fi
                 done
             else
-                if [[ $(can_delete ${SPECIFIC_FILE_TO_DELETE}) == 1 ]]
+                if [[ $(can_delete ${SPECIFIC_FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
                 then
                     rm -rf ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} >/dev/null
                 fi
