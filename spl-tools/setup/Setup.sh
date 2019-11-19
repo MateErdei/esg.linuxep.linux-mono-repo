@@ -161,6 +161,13 @@ fi
 
 # Setup CI build scripts
 echoProgress "Setting up the CI build scripts"
-sudo ./SetupCIBuildScripts.sh
+
+setupCIBuildScript=${SCRIPT_DIR}/SetupCIBuildScripts.sh
+if [[ -x ${setupCIBuildScript} ]]
+then
+  ${setupCIBuildScript}
+else
+    error "Cannot execute ${setupCIBuildScript}"
+fi
 
 popd &> /dev/null
