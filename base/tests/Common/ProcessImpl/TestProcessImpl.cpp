@@ -17,6 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <fstream>
 
+
 using namespace Common::Process;
 namespace
 {
@@ -47,6 +48,26 @@ namespace
         ASSERT_EQ(process->output(), "");
         EXPECT_EQ(process->exitCode(), 0);
     }
+
+    TEST(ProcessImpl, getStatusWillDetectProcessFinished) // NOLINT
+    {
+        auto process = createProcess();
+        process->exec("/bin/sleep", { "0.1" });
+        bool detected = false;
+        for(int i=0; i<15;i++)
+        {
+            if (process->getStatus()==Common::Process::ProcessStatus::FINISHED)
+            {
+                detected = true;
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        EXPECT_TRUE(detected) << "Failed to detect process finished";
+        ASSERT_EQ(process->output(), "");
+        EXPECT_EQ(process->exitCode(), 0);
+    }
+
 
     int asyncSleep()
     {
@@ -420,5 +441,29 @@ sleep 1
         getStatus.get();
         fastWait.get();
     }
+
+    std::string fileDescriptorsOfPid(int pid)
+    {
+        auto process = createProcess();
+        std::string path = "/proc/" + std::to_string(pid) + "/fd";
+        process->exec("/bin/ls", {"-l", path});
+        return process->output();
+    }
+
+    TEST(ProcessImpl, ChildShouldNotKeepFileDescriptorsOfParent) // NOLINT
+    {
+        auto process = createProcess();
+        std::ofstream ofs ("testkeepfiledesc.txt", std::ofstream::out);
+        std::string parentFds = fileDescriptorsOfPid(::getpid());
+        process->exec("/bin/sleep", { "5" });
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::string childFds = fileDescriptorsOfPid(process->childPid());
+
+        EXPECT_THAT(childFds, ::testing::Not(::testing::HasSubstr("testkeepfiledesc")));
+        EXPECT_THAT(parentFds, ::testing::HasSubstr("testkeepfiledesc"));
+        process->kill(0);
+    }
+
+
 
 } // namespace

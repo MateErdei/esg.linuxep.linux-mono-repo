@@ -15,8 +15,32 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <boost/process/io.hpp>
 #include <boost/process/pipe.hpp>
 #include <boost/system/error_code.hpp>
+#include <Common/FileSystem/IFilePermissions.h>
 
 #pragma GCC diagnostic pop
+
+namespace {
+    std::vector<int> getCurrentlyOpenFileDescriptors()
+    {
+        std::vector<int> fds;
+        struct  stat buf;
+#ifdef OPEN_MAX
+        for (int fd = 3; fd < OPEN_MAX; fd++)
+#else
+        for (int fd = 3; fd < 256; ++fd)
+#endif
+        {
+            if ( ::fstat(fd, &buf) != -1)
+            {
+                if (!  (S_IFIFO & buf.st_mode))
+                {
+                    fds.push_back(fd);
+                }
+            }
+        }
+        return fds;
+    }
+}
 
 namespace Common
 {
@@ -29,13 +53,13 @@ namespace Common
             std::vector<int> m_fds{};
 
         public:
-            sophos_exe(uid_t uid, gid_t gid) : m_uid(uid), m_gid(gid) {}
+            sophos_exe(uid_t uid, gid_t gid, std::vector<int> fds) : m_uid(uid), m_gid(gid), m_fds(fds) {}
 
             template<typename Sequence>
             void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
             {
                 // Must set group first whilst still root
-                if (::setgid(m_gid) != 0)
+                if ( ::setgid(m_gid) != 0)
                 {
                     exec.set_error(boost::process::detail::get_last_error(), "Failed to set group id");
                     return;
@@ -45,6 +69,13 @@ namespace Common
                     exec.set_error(boost::process::detail::get_last_error(), "Failed to set user id");
                     return;
                 }
+
+                int previousErr = errno;
+                for(auto & fd: m_fds)
+                {
+                    ::close(fd);
+                }
+                errno=previousErr;
             }
         };
 
@@ -222,13 +253,13 @@ namespace Common
 
                 env_[entry.first] = entry.second;
             }
-
+            auto fds = getCurrentlyOpenFileDescriptors();
             m_child = std::unique_ptr<boost::process::child>(new boost::process::child(
                 path,
                 boost::process::args = arguments,
                 env_,
                 (boost::process::std_out & boost::process::std_err) > asyncPipe,
-                sophos_exe(uid, gid)));
+                sophos_exe(uid, gid, fds)));
             LOGDEBUG("Child created");
             armAsyncReaderForChildStdOutput();
             LOGDEBUG("Monitoring of io in place");
@@ -286,7 +317,11 @@ namespace Common
             return m_cached.output;
         }
 
-        bool BoostProcessHolder::hasFinished() { return m_finished; }
+        bool BoostProcessHolder::hasFinished()
+        {
+            wait(std::chrono::milliseconds(0));
+            return m_finished;
+        }
 
         void BoostProcessHolder::sendTerminateSignal()
         {
