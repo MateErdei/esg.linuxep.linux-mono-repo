@@ -37,7 +37,9 @@ namespace Common{
         class FailedToStartProcess
                 : public IProcessHolder
         {
+            int m_errorCode;
         public:
+            FailedToStartProcess(int errorCode): m_errorCode(errorCode){}
             int pid() override
             { return -1; }
 
@@ -50,7 +52,7 @@ namespace Common{
             };
 
             int exitCode() override
-            { return 2; }
+            { return m_errorCode; }
 
             std::string output() override
             { return ""; }
@@ -154,13 +156,20 @@ namespace Common{
             catch (Common::Process::IProcessException& ex)
             {
                 LOGWARN("Failure to setup process: " << ex.what());
-                m_d = std::make_shared<FailedToStartProcess>();
+                m_d = std::make_shared<FailedToStartProcess>(2);
                 throw;
+            }
+            catch (std::system_error & system_error)
+            {
+                LOGWARN("Failure to start process: " << system_error.what());
+                m_d = std::make_shared<FailedToStartProcess>(system_error.code().value());
+                m_callback();
             }catch ( std::exception& ex)
             {
                 LOGWARN("Failure to start process: " << ex.what());
+                m_d = std::make_shared<FailedToStartProcess>(2);
                 m_callback();
-                m_d = std::make_shared<FailedToStartProcess>();
+
             }
         }
         int ProcessImpl::exitCode()
