@@ -160,6 +160,8 @@ function perform_cleanup()
     local DATA_FOLDERS=$(ls -d */)
     popd
 
+    FILES_OR_DIRECTORIES_DELETED=""
+
     # remove all files listed for component
     # the content of the remove files will have a file path matching the CID not the installer
     # "expr {} : '[^/]*/\(.*\)'" removes the first folder from the given path
@@ -171,6 +173,7 @@ function perform_cleanup()
         do
             if [[ $(can_delete ${FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
             then
+                FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
                 rm -f ${FILE_TO_DELETE}*
             fi
         done
@@ -194,12 +197,14 @@ function perform_cleanup()
                 do
                     if [[ $(can_delete ${FILE_FOUND} ${WORKING_DIST}) == 1 ]]
                     then
+                        FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
                         rm -f ${FILE_FOUND} >/dev/null
                     fi
                 done
             else
                 if [[ $(can_delete ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
                 then
+                    FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
                     rm -rf ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} >/dev/null
                 fi
             fi
@@ -208,4 +213,9 @@ function perform_cleanup()
 
     # clean up all broken symlinks created by deleting installed files
     find ${SOPHOS_INSTALL} -xtype l -delete
+
+    if [[ ! -z "${FILES_OR_DIRECTORIES_DELETED}" ]]
+    then
+      echo "List of files or directories removed during upgrade${FILES_OR_DIRECTORIES_DELETED}"
+    fi
 }
