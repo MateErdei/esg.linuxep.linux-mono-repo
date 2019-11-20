@@ -90,7 +90,7 @@
         <buildoutputs>
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
-        </buildoutputs>feature/
+        </buildoutputs>
         <publishbranches>master</publishbranches>
     </publish>
 </package>
