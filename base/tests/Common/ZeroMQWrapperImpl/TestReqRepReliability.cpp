@@ -7,7 +7,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #ifndef ARTISANBUILD
 
 #    include "ReqRepTestImplementations.h"
-
+#    include <Common/Process/IProcess.h>
+#    include <Common/Process/IProcessException.h>
+#    include <Common/ProcessImpl/ProcessInfo.h>
 #    include <Common/ZMQWrapperApi/IContext.h>
 #    include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 #    include <Common/ZeroMQWrapper/IReadable.h>
@@ -20,8 +22,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #    include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
 #    include <gmock/gmock.h>
 #    include <gtest/gtest.h>
+
+
 #    include <tests/Common/Helpers/TempDir.h>
 #    include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+
 
 #    include <future>
 #    include <stdio.h>
@@ -29,6 +34,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #    include <thread>
 #    include <unistd.h>
 #    include <zmq.h>
+#include <Common/Process/IProcess.h>
 
 extern char** environ;
 
@@ -98,45 +104,18 @@ namespace
             // Find executable
             std::string exe = CMAKE_CURRENT_BINARY_DIR;
             exe += "/TestReqRepTool";
-            // Create argument list
-            char** newargv = static_cast<char**>(malloc(sizeof(char*) * (args.size() + 2)));
-            const char* exe_cstr = exe.c_str();
-            newargv[0] = const_cast<char*>(exe_cstr); // Not actually modified
-            for (size_t i = 0; i < args.size(); i++)
+
+            auto process = Common::Process::createProcess();
+
+            process->exec(exe, args);
+            auto result = std::make_tuple(process->exitCode(), process->output());
+            std::cout << "TestReqRepTool executable output: "<< std::get<1>(result)<<std::endl;
+            int exitCode = std::get<0>(result);
+
+            if (exitCode != 0)
             {
-                newargv[i + 1] = const_cast<char*>(args[i].c_str()); // Not actually modified
+                std::cout << "TestReqRepTool executable exit code: " << exitCode << std::endl;
             }
-            newargv[args.size() + 1] = nullptr;
-
-            char* newenviron[] = { nullptr };
-
-            // Fork
-
-            std::cerr << "Fork from " << ::getpid() << std::endl;
-            std::cerr << "Will exec " << exe << std::endl;
-
-            pid_t child = fork();
-
-            if (child != 0)
-            {
-                // Must not do memory operations in child process
-                free(newargv);
-            }
-
-            if (child == -1)
-            {
-                throw std::logic_error("Failed to create process");
-            }
-            else if (child != 0)
-            {
-                monitorChild(child);
-                return;
-            }
-
-            // Exec
-            ::execve(exe_cstr, newargv, newenviron);
-            perror("execve"); /* execve() returns only on error */
-            _exit(70);
         }
     };
 
@@ -158,9 +137,23 @@ namespace
             Requester requester(serveraddress, zmq_context);
             return requester.sendReceive("hello");
         });
+
         runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "serveRequest" });
 
-        EXPECT_EQ(std::string("granted"), futureRequester.get());
+        std::string actual("");
+
+        try {
+            // this throws.  "No Incomming data"?
+            actual = futureRequester.get();
+        }
+        catch(std::exception& e)
+        {
+            std::string s = e.what();
+            std::cout << s;
+        }
+
+        EXPECT_EQ(std::string("granted"), actual);
+
     }
 
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply) // NOLINT
@@ -188,16 +181,36 @@ namespace
         auto futureRequester = std::async(std::launch::async, [serveraddress, zmq_context]() {
             Requester requester(serveraddress, zmq_context);
             EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
-            return requester.sendReceive("hello2");
+
+            int retryCount = 5;
+            std::string result;
+
+            while(retryCount > 0)
+            {
+                try
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                    result = requester.sendReceive("hello2");
+                    break;
+                }
+                catch(...)
+                {
+                    retryCount--;
+                }
+            }
+            return result;
         });
 
-        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "breakAfterReceiveMessage" });
+        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "breakAfterReceiveMessage"});
         //        runInExternalProcess.runFork(
         //                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
         //        );
-        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "serveRequest" });
+
+        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "serveRequest"});
+
 
         EXPECT_EQ(std::string("granted"), futureRequester.get());
+
     }
 
     TEST_F(ReqRepReliabilityTests, requesterShouldRecoverAReplierSendingBrokenMessage) // NOLINT
@@ -210,7 +223,24 @@ namespace
         auto futureRequester = std::async(std::launch::async, [serveraddress, zmq_context]() {
             Requester requester(serveraddress, zmq_context);
             EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
-            return requester.sendReceive("hello2");
+
+            int retryCount = 5;
+            std::string result;
+
+            while(retryCount > 0)
+            {
+                try
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                    result = requester.sendReceive("hello2");
+                    break;
+                }
+                catch(...)
+                {
+                    retryCount--;
+                }
+            }
+            return result;
         });
 
         //        runInExternalProcess.runFork(

@@ -29,6 +29,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <future>
 #include <zmq.h>
+#include <cstdlib>
 
 using namespace Common::Reactor;
 using data_t = Common::ZeroMQWrapper::IReadable::data_t;
@@ -106,12 +107,26 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::fileSystem();
     std::string fakeServerPath = Common::FileSystem::join(ReactorImplTestsPath(), "FakeServerRunner");
+    const char * currentLibsPath = std::getenv("LD_LIBRARY_PATH");
+
     std::string libsPath = Common::FileSystem::join(ReactorImplTestsPath(), "../../../libs");
+
     ASSERT_TRUE(fileSystem->isDirectory(libsPath));
     ASSERT_TRUE(fileSystem->isExecutable(fakeServerPath));
     data_t args{ socketAddress };
+
+    std::stringstream fullLibsPath;
+    if(currentLibsPath)
+    {
+        fullLibsPath << currentLibsPath << ":" << libsPath;
+    }
+    else
+    {
+        fullLibsPath << libsPath;
+    }
+
     std::vector<Common::Process::EnvironmentPair> environment;
-    environment.push_back(Common::Process::EnvironmentPair{ "LD_LIBRARY_PATH", libsPath });
+    environment.push_back(Common::Process::EnvironmentPair{ "LD_LIBRARY_PATH", fullLibsPath.str() });
     process->exec(fakeServerPath, args, environment);
 
     auto context = Common::ZMQWrapperApi::createContext();

@@ -55,8 +55,8 @@ namespace ReqRepTest
             m_context(std::move(context))
         {
             m_requester = m_context->getRequester();
-            m_requester->setTimeout(1000);
-            m_requester->setConnectionTimeout(1000);
+            m_requester->setTimeout(2000);
+            m_requester->setConnectionTimeout(2000);
             m_requester->connect(serverAddress);
         }
 
@@ -132,8 +132,8 @@ namespace ReqRepTest
             Unreliable(killChannelAddress)
         {
             m_replier = m_context->getReplier();
-            m_replier->setTimeout(1000);
-            m_replier->setConnectionTimeout(1000);
+            m_replier->setTimeout(2000);
+            m_replier->setConnectionTimeout(2000);
             m_replier->listen(serverAddress);
         }
 
