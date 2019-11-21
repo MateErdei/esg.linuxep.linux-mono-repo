@@ -11,7 +11,6 @@ mcs_router Module
 import builtins
 import configparser
 import fcntl
-import gc
 import logging
 import logging.handlers
 import os
@@ -328,4 +327,19 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    value = main()
+    LOGGER.debug("mcsrouter main loop finished with exit code: {}".format(value))
+    # for some weird reason, in some cases the sys.exit will not
+    # really exit due to some deadlock on cleaning up and the executable
+    # Performing a 'ps -elf' on the process will have the word: 'futex_?'.
+    # Forcing a garbage collection seems to prevent this error case.
+    # This has been first detected by the system test:
+    # MCS Router Stops If MCS Certificate Cannot Be Read By Sophos-spl-user
+    try:
+        import gc
+        LOGGER.debug("run gc")
+        gc.collect()
+        LOGGER.debug("gc done")
+    except Exception as ex:
+        LOGGER.warning("Issue with garbage collection: {}".format(ex))
+    sys.exit(value)
