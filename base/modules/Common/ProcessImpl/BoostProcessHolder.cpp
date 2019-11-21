@@ -6,8 +6,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "BoostProcessHolder.h"
 #include "IProcessException.h"
 #include "Logger.h"
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-result"
+#include <Common/FileSystem/IFilePermissions.h>
 #include <boost/asio/read.hpp>
 #include <boost/process/args.hpp>
 #include <boost/process/env.hpp>
@@ -15,7 +17,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <boost/process/io.hpp>
 #include <boost/process/pipe.hpp>
 #include <boost/system/error_code.hpp>
-#include <Common/FileSystem/IFilePermissions.h>
 
 #pragma GCC diagnostic pop
 
@@ -48,6 +49,7 @@ namespace Common
     {
         struct sophos_exe : boost::process::extend::handler
         {
+        private:
             uid_t m_uid;
             gid_t m_gid;
             std::vector<int> m_fds{};
@@ -128,7 +130,7 @@ namespace Common
                         // be executed when size is equal the m_outputLimit.
                         // the promise of the set of output limit is that there will be notification of past strings
                         // in such a way to avoid the remainder of the output to go beyond 2xm_outputLimit
-                        if (m_output.size() > 0)
+                        if (!m_output.empty())
                         {
                             try
                             {
@@ -141,7 +143,7 @@ namespace Common
                             }
                         }
                         // notice the absence of += the output has been assigned the latest value in the
-                        // bufferForIOServicefer.
+                        // bufferForIOService.
                         m_output =
                             std::string(this->bufferForIOService.begin(), this->bufferForIOService.begin() + size);
                     }
@@ -194,7 +196,7 @@ namespace Common
                 }
                 catch (std::exception& ex)
                 {
-                    LOGWARN("Exeption on reporting process finished: " << ex.what());
+                    LOGWARN("Exception on reporting process finished: " << ex.what());
                 }
                 return result;
 
@@ -245,8 +247,8 @@ namespace Common
             m_path(path),
             bufferForIOService(outputLimit == 0 ? 4096 : outputLimit),
             asyncPipe(asioIOService),
-            m_callback(callback),
-            m_notifyTrimmed(notifyTrimmed),
+            m_callback(std::move(callback)),
+            m_notifyTrimmed(std::move(notifyTrimmed)),
             m_outputLimit(outputLimit),
             m_finished(false)
         {
@@ -352,5 +354,5 @@ namespace Common
             m_child->terminate();
             wait();
         }
-    }; // namespace ProcessImpl
+    } // namespace ProcessImpl
 } // namespace Common
