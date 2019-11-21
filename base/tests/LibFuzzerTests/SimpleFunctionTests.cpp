@@ -215,7 +215,7 @@ void verifySplitString(const std::string & input)
     }
     else
     {
-        if ( !response.empty())
+        if (!(response[0] == "" && response.size() == 1))
         {
             std::cerr << "for no data, there should be an empty vector as output" << std::endl;
             ::abort();
@@ -230,7 +230,10 @@ void verifySplitString(const std::string & input)
     {
         count += element.size();
     }
-    count += response.size() -1;
+
+    int delimit_chars = (response.size() -1) * delimiter.size();
+    count += delimit_chars;
+
     if( count != content.size())
     {
         std::cerr << "The sum of the parts should be equal the content" << std::endl;
