@@ -20,7 +20,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #pragma GCC diagnostic pop
 
 namespace {
-    std::vector<int> getCurrentlyOpenFileDescriptors()
+    std::vector<int> getFileDescriptorsToCloseAfterFork(const std::vector<int>& preserve)
     {
         std::vector<int> fds;
         struct  stat buf;
@@ -32,7 +32,7 @@ namespace {
         {
             if ( ::fstat(fd, &buf) != -1)
             {
-                if (!  (S_IFIFO & buf.st_mode))
+                if( std::find(preserve.begin(), preserve.end(), fd) == preserve.end() )
                 {
                     fds.push_back(fd);
                 }
@@ -154,47 +154,56 @@ namespace Common
 
         ProcessResult BoostProcessHolder::waitChildProcessToFinish()
         {
-            LOGDEBUG("Process main loop: Check output");
-            // there is one possible case where the ioService may hang forever ( for example, if the child receives
-            // a sigkill. This is because the pipe will not be closed.
-            // for this case, the io run in its thread, and after the recognition of the service stop
-            // the pipe is explicitly closed.
-            auto ioservice = std::async(std::launch::async, [this]() { asioIOService.run(); });
-            LOGDEBUG("Process main loop: Waiting for process to finish");
-            std::error_code ec;
-            m_child->wait(ec);
-            LOGDEBUG("Process main loop: Wait finished");
             try
             {
-                // give some extra time to the ioservice to capture any remaining data
-                if (ioservice.wait_for(std::chrono::seconds(1)) != std::future_status::ready)
+                LOGDEBUG("Process main loop: Check output");
+                // there is one possible case where the ioService may hang forever ( for example, if the child receives
+                // a sigkill. This is because the pipe will not be closed.
+                // for this case, the io run in its thread, and after the recognition of the service stop
+                // the pipe is explicitly closed.
+                auto ioservice = std::async(std::launch::async, [this]() { asioIOService.run(); });
+                LOGDEBUG(m_path << "Process main loop: Waiting for process to finish");
+                std::error_code ec;
+                m_child->wait(ec);
+                LOGDEBUG(m_path << " Process main loop: Wait finished");
+                try
                 {
-                    asyncPipe.close();
+                    // give some extra time to the ioservice to capture any remaining data
+                    if (ioservice.wait_for(std::chrono::seconds(1)) != std::future_status::ready)
+                    {
+                        asyncPipe.close();
+                    }
                 }
-            }
-            catch (std::exception& ex)
-            {
-                LOGWARN("Error on closing the pipe: " << ex.what());
-            }
+                catch (std::exception& ex)
+                {
+                    LOGWARN("Error on closing the pipe: " << ex.what());
+                }
 
-            if (ec)
-            {
-                LOGWARN("Process wait reported error: " << ec.message());
+                if (ec)
+                {
+                    LOGWARN("Process wait reported error: " << ec.message());
+                }
+                ioservice.get();
+                LOGDEBUG("Process main loop: Retrieve results");
+                ProcessResult result;
+                result.output = m_output;
+                result.exitCode = m_child->exit_code();
+                try
+                {
+                    m_callback();
+                }
+                catch (std::exception& ex)
+                {
+                    LOGWARN("Exeption on reporting process finished: " << ex.what());
+                }
+                return result;
+
             }
-            ioservice.get();
-            LOGDEBUG("Process main loop: Retrieve results");
-            ProcessResult result;
-            result.output = m_output;
-            result.exitCode = m_child->exit_code();
-            try
+            catch (std::exception & ex)
             {
-                m_callback();
+                LOGWARN(m_path << " Exception on the main loop for wait " << ex.what());
+                throw;
             }
-            catch (std::exception& ex)
-            {
-                LOGWARN("Exeption on reporting process finished: " << ex.what());
-            }
-            return result;
         }
 
         std::future<ProcessResult> BoostProcessHolder::asyncWaitChildProcessToFinish()
@@ -233,6 +242,7 @@ namespace Common
             Process::IProcess::functor callback,
             std::function<void(std::string)> notifyTrimmed,
             size_t outputLimit) :
+            m_path(path),
             bufferForIOService(outputLimit == 0 ? 4096 : outputLimit),
             asyncPipe(asioIOService),
             m_callback(callback),
@@ -255,7 +265,9 @@ namespace Common
 
                 env_[entry.first] = entry.second;
             }
-            auto fds = getCurrentlyOpenFileDescriptors();
+            int source = asyncPipe.native_source();
+            int sink = asyncPipe.native_sink();
+            auto fds = getFileDescriptorsToCloseAfterFork({source, sink});
             m_child = std::unique_ptr<boost::process::child>(new boost::process::child(
                 path,
                 boost::process::args = arguments,
@@ -278,7 +290,7 @@ namespace Common
                 {
                     kill();
                 }
-                m_child->wait();
+                wait();
             }
             catch (std::exception& ex)
             {
@@ -330,6 +342,7 @@ namespace Common
             auto m_pid = pid();
             LOGSUPPORT("Terminating process " << m_pid);
             ::kill(m_pid, SIGTERM);
+            wait(std::chrono::milliseconds(1));
         }
 
         void BoostProcessHolder::kill()
@@ -337,6 +350,7 @@ namespace Common
             auto m_pid = pid();
             LOGSUPPORT("Killing process " << m_pid);
             m_child->terminate();
+            wait();
         }
     }; // namespace ProcessImpl
 } // namespace Common

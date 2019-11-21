@@ -64,6 +64,7 @@ namespace Common
             std::future<ProcessResult> asyncWaitChildProcessToFinish();
             void cacheResult();
             /* necessary for boost */
+            std::string m_path;
             boost::asio::io_service asioIOService;
             std::vector<char> bufferForIOService;
             std::string m_output;
