@@ -197,14 +197,14 @@ function perform_cleanup()
                 do
                     if [[ $(can_delete ${FILE_FOUND} ${WORKING_DIST}) == 1 ]]
                     then
-                        FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
+                        FILES_OR_DIRECTORIES_DELETED+=", ${FILE_FOUND}"
                         rm -f ${FILE_FOUND} >/dev/null
                     fi
                 done
             else
                 if [[ $(can_delete ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
                 then
-                    FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
+                    FILES_OR_DIRECTORIES_DELETED+=", ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE}"
                     rm -rf ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} >/dev/null
                 fi
             fi
