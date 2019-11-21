@@ -2,7 +2,7 @@
 ---
 sspl-base:
     build:
-        branch: harvey
+        branch: abelard
         name: sspl-base
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base
@@ -16,14 +16,14 @@ sspl-edr:
     line-id: ServerProtectionLinux-Plugin-EDR
 ssplmdr-suite:
     build:
-        branch: harvey
+        branch: abelard
         name: sspl-mdr-componentsuite
         output: output\SDDS-SSPL-MDR-COMPONENT-SUITE
     canonical-name: ServerProtectionLinuxPlugin-MDR
     line-id: ServerProtectionLinux-Plugin-MDR
 ssplmdr-control-component:
     build:
-        branch: harvey
+        branch: abelard
         name: sspl-mdr-componentsuite
         output: output\SDDS-SSPL-MDR-COMPONENT
     canonical-name: ServerProtectionLinux-MDR-Control-Component
@@ -31,7 +31,7 @@ ssplmdr-control-component:
     mountpoint: .
 ssplmdr-dbos-component:
     build:
-        branch: harvey
+        branch: abelard
         name: sspl-mdr-componentsuite
         output: output\SDDS-SSPL-DBOS-COMPONENT
     canonical-name: ServerProtectionLinux-MDR-DBOS-Component
@@ -39,7 +39,7 @@ ssplmdr-dbos-component:
     mountpoint: .
 ssplmdr-osquery-component:
     build:
-        branch: harvey
+        branch: abelard
         name: sspl-mdr-componentsuite
         output: output\SDDS-SSPL-OSQUERY-COMPONENT
     canonical-name: ServerProtectionLinux-MDR-osquery-Component
