@@ -160,46 +160,14 @@ BUILDARCH=$unamestr-$cpustr
 
 echo "Build architecture is $BUILDARCH"
 
-MLP=
-EXTRA_LIBS=
-
-if [[ "$unamestr" == "HP-UX" ]]; then
-    MLP=-mlp64
-    EXTRA_LIBS=-L/usr/lib/hpux64
-fi
-
-AIX=
-if [[ "$unamestr" == "AIX" ]]; then
-    # Ensure open64() etc appear in headers without
-    # crazy ifdef's redefining the word 'open'
-    LARGEFILES=-D_LARGE_FILE_API
-    # Work around http://wiki.buici.com/xwiki/bin/view/Programing+C+and+C%2B%2B/Autoconf+and+RPL_MALLOC
-    export ac_cv_func_malloc_0_nonnull=yes
-fi
-
-SECURITY_CPP=
-SECURITY_COMPILE=
-SECURITY_LINK=
-PENTIUM3_COMPILE=
-
-if [[ "$PLATFORM" == "linux" ]]
-then
-    SECURITY_CPP="-D_FORTIFY_SOURCE=2"
-    SECURITY_COMPILE="-fstack-protector-all"
-    PENTIUM3_COMPILE="-march=i686 -mtune=pentium3"
-    SECURITY_LINK="-Wl,-z,relro,-z,now -fstack-protector-all"
-fi
+SECURITY_CPP="-D_FORTIFY_SOURCE=2"
+SECURITY_COMPILE="-fstack-protector-all"
+SECURITY_LINK="-Wl,-z,relro,-z,now -fstack-protector-all"
 
 SYMBOLS=-g
 OPTIMIZE=-O2
-CPP_OPTIONS="$SECURITY_CPP $LARGEFILES -std=c++0x"
+CPP_OPTIONS="$SECURITY_CPP -std=c++17"
 COMPILE_OPTIONS="$SYMBOLS $OPTIMIZE $MLP $SECURITY_COMPILE"
-OPTIONS="$COMPILE_OPTIONS $SECURITY_CPP $LARGEFILES"
-LINK_OPTIONS="$MLP $EXTRA_LIBS $SECURITY_LINK"
+OPTIONS="$COMPILE_OPTIONS $SECURITY_CPP"
+LINK_OPTIONS="$SECURITY_LINK"
 
-# Without this, gunzip isn't found for some reason.
-if [[ $BUILDARCH == "HP-UX-ia64" ]]; then
-    export PATH=/usr/contrib/bin:$PATH
-# Turn on modern Unix APIs
-    COMPILE_OPTIONS="-D_XOPEN_SOURCE=500 -D_XOPEN_SOURCE_EXTENDED $COMPILE_OPTIONS"
-fi
