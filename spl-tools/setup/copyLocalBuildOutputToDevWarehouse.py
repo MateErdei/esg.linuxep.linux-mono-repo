@@ -5,7 +5,7 @@ import shutil
 import socket
 
 HOSTNAME = socket.gethostname()
-assert HOSTNAME != "master", "your machine cannot be called master"
+assert HOSTNAME.lower() != "master", "your machine cannot be called master"
 
 BFR_PATH = os.path.join("/mnt", "filer6", "bfr")
 def require_filer6_bfr_exists():
