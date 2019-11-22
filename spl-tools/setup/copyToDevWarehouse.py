@@ -21,7 +21,9 @@ ALLOWED_PRODUCT_BFR_PATHS = [
 SSPL_TOOLS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 assert os.path.basename(SSPL_TOOLS) == "sspl-tools" and os.path.isdir(SSPL_TOOLS)
 
+# It doesn't matter what this is, as long as it works. This one works.
 DEFAULT_BUILD_TIMESTAMP= "20191014161549-a"
+# This version isn't used for anything, it is a directoy name between the build timestamp and output folder
 DEFAULT_VERSION_DIRECTORY_NAME="1.0.0"
 OUTPUT_DIRECTORY_NAME="output"
 
