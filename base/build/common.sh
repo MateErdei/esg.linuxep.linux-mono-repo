@@ -26,7 +26,13 @@ function unpack_scaffold_gcc_make()
     pushd /build/input
 
     local GCC_TARFILE=$(ls $INPUT/gcc-*-$PLATFORM.tar.gz)
-    if [[ -f $GCC_TARFILE ]]
+    if [[ -d /build/input/gcc ]]
+    then
+        ## Already unpacked
+        echo "WARNING: Using existing unpacked gcc"
+        export PATH=/build/input/gcc/bin:$PATH
+        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
+    elif [[ -f $GCC_TARFILE ]]
     then
         if [[ -z $NO_REMOVE_GCC ]]
         then
@@ -37,12 +43,6 @@ function unpack_scaffold_gcc_make()
         tar xzf $GCC_TARFILE
         export PATH=/build/input/gcc/bin:$PATH
         export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
-    elif [[ -d /build/input/gcc ]]
-    then
-        ## Already unpacked
-        echo "WARNING: Using existing unpacked gcc"
-        export PATH=/build/input/gcc/bin:$PATH
-        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
     else
         echo "WARNING: BUILDING WITH LOCAL GCC!"
     fi
@@ -51,7 +51,12 @@ function unpack_scaffold_gcc_make()
     [[ -x $GCC ]] || exitFailure 50 "No gcc is available"
 
     local MAKE_TARFILE=$(ls $INPUT/make-*-$PLATFORM.tar.gz)
-    if [[ -f $MAKE_TARFILE ]]
+    if [[ -d /build/input/make/bin ]]
+    then
+        ## Already unpacked
+        echo "WARNING: Using existing unpacked make"
+        export PATH=/build/input/make/bin:$PATH
+    elif [[ -f $MAKE_TARFILE ]]
     then
         if [[ -z $NO_REMOVE_MAKE ]]
         then
