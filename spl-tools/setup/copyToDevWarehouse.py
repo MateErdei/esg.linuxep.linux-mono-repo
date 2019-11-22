@@ -9,7 +9,7 @@ assert HOSTNAME != "master", "your machine cannot be called master"
 
 BFR_PATH = os.path.join("/mnt", "filer6", "bfr")
 def require_filer6_bfr_exists():
-    assert os.path.isdir(BFR_PATH), "could not find filer6 bfr at: {}".format(BFR_PATH)
+    assert os.path.isdir(BFR_PATH), "Could not find filer6 bfr at: {}".format(BFR_PATH)
 require_filer6_bfr_exists()
 
 ALLOWED_PRODUCT_BFR_PATHS = [
