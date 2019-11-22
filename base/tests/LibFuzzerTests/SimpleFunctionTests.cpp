@@ -208,7 +208,7 @@ void verifySplitString(const std::string & input)
     {
         if (response.empty())
         {
-            std::cerr << "splited vector can not be empty for a non empty content" << std::endl;
+            std::cerr << "vector returned from splitString can not be empty for a non empty content" << std::endl;
 
             ::abort();
         }
@@ -217,7 +217,7 @@ void verifySplitString(const std::string & input)
     {
         if (!(response[0] == "" && response.size() == 1))
         {
-            std::cerr << "for no data, there should be an empty vector as output" << std::endl;
+            std::cerr << "for no data, vector returned from splitString should be {''}" << std::endl;
             ::abort();
         }
         else
