@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-import copyToDevWarehouse
-from copyToDevWarehouse import HOSTNAME, BFR_PATH, SSPL_TOOLS, BASE, MTR
+from copyLocalBuildOutputToDevWarehouse import BASE, MTR
 
 
 def error(errorCode, message):
