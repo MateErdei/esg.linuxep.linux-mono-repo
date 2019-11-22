@@ -215,7 +215,7 @@ void verifySplitString(const std::string & input)
     }
     else
     {
-        if (!(response[0] == "" && response.size() == 1))
+        if (!(response.size() == 1 && response[0] == ""))
         {
             std::cerr << "for no data, vector returned from splitString should be {''}" << std::endl;
             ::abort();
