@@ -90,3 +90,15 @@ install(FILES ${TELEMETRY_CONFIG_FILE}
         DESTINATION files/base/etc
         PERMISSIONS OWNER_READ
         )
+
+install ( DIRECTORY ${GCC_INPUT}/lib64
+        DESTINATION files/base/
+        CONFIGURATIONS Debug
+        FILES_MATCHING PATTERN libasan.so.*
+        )
+
+install ( DIRECTORY ${GCC_INPUT}/lib64
+        DESTINATION files/base/
+        CONFIGURATIONS Debug
+        FILES_MATCHING PATTERN libubsan.so.*
+        )

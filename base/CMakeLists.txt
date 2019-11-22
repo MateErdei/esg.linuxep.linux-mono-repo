@@ -16,8 +16,7 @@ if (BUILD_FUZZ_TESTS )
     set(NO_FUZZING_FLAGS "-fno-sanitize=fuzzer")
     set(WARNING_FLAGS "")
 else()
-    set(SANITISE_FLAGS   "-fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
-    set(SANITIZE_EXE_FLAGS "-static-libasan -static-libubsan")
+    set(SANITISE_FLAGS   "-fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
     set(NO_FUZZING_FLAGS "")
     set(FUZZER_COMPILER_FLAGS "" )
     set(FUZZER_LINKER_FLAGS "" )
@@ -54,6 +53,22 @@ set(PYTHON_EXECUTABLE python3)
 
 include (CTest)
 enable_testing()
+
+if(NOT GCC_INPUT)
+    set (GCC_INPUT "/build/input/gcc")
+endif(NOT GCC_INPUT)
+
+find_library(ASAN_LIBRARY
+        NAMES libasan
+        PATHS ${GCC_INPUT}/lib64/
+        NO_DEFAULT_PATH
+        )
+
+find_library(UBSAN_LIBRARY
+        NAMES libubsan
+        PATHS ${GCC_INPUT}/lib64/
+        NO_DEFAULT_PATH
+        )
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)

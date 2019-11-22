@@ -308,12 +308,16 @@ function build()
         export CC=$BULLSEYE_DIR/bin/gcc
         export CXX=$BULLSEYE_DIR/bin/g++
         covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
+    else
+        export CC=/build/input/gcc/bin/gcc
+        export CXX=/build/input/gcc/bin/g++
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/build/input/gcc/lib64/
     fi
 
 #   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
-    export CPLUS_INCLUDE_PATH=/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
-    export CPATH=/usr/include/x86_64-linux-gnu/:${CPATH}
+    export LIBRARY_PATH=/build/input/gcc/lib64/:${LIBRARY_PATH}
+    export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:${CPLUS_INCLUDE_PATH}
+    export CPATH=/build/input/gcc/include/:${CPATH}
 
     echo "After setup: PATH=$PATH"
     echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"

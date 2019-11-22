@@ -10,15 +10,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "PipeForTests.h"
 #include "ReactorImplTestsPath.h"
 
-#include "Common/Process/IProcess.h"
-#include "Common/Reactor/IReactor.h"
-#include "Common/ReactorImpl/GenericCallbackListener.h"
-#include "Common/ReactorImpl/ReactorImpl.h"
-#include "Common/ZMQWrapperApi/IContext.h"
-#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
+#include <Common/Process/IProcess.h>
+#include <Common/Reactor/IReactor.h>
+#include <Common/ReactorImpl/GenericCallbackListener.h>
+#include <Common/ReactorImpl/ReactorImpl.h>
+#include <Common/ZMQWrapperApi/IContext.h>
+#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ReactorImpl/ReadableFd.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapperImpl/SocketImpl.h>
@@ -107,7 +108,7 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::fileSystem();
     std::string fakeServerPath = Common::FileSystem::join(ReactorImplTestsPath(), "FakeServerRunner");
-    const char * currentLibsPath = std::getenv("LD_LIBRARY_PATH");
+    std::string currentLibsPath = Common::UtilityImpl::StringUtils::checkAndConstruct( secure_getenv("LD_LIBRARY_PATH"));
 
     std::string libsPath = Common::FileSystem::join(ReactorImplTestsPath(), "../../../libs");
 
@@ -116,7 +117,7 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
     data_t args{ socketAddress };
 
     std::stringstream fullLibsPath;
-    if(currentLibsPath)
+    if(!currentLibsPath.empty())
     {
         fullLibsPath << currentLibsPath << ":" << libsPath;
     }
