@@ -93,15 +93,17 @@ namespace Common
             // should only be at most two padding characters.
 
             std::string s = sEncoded;
-
+            std::string sPlain;
             erase_all(s, "\r\n");
+
+            if (s.empty())
+            {
+                return sPlain;
+            }
 
             erase_from_end(s, '=');
 
             // If the encoded string is empty, the decoded string is also empty.
-
-            std::string sPlain;
-
             if (s.empty())
             {
                 return sPlain;

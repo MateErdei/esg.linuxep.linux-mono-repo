@@ -115,7 +115,7 @@ namespace Common
 
             if (encrypted.size() < saltLength + 1)
             {
-                throw Common::Obfuscation::ICipherException("");
+                throw Common::Obfuscation::ICipherException("Salt length is bigger than the input string");
             }
             ObfuscationImpl::SecureDynamicBuffer salt(encrypted.begin() + 1, encrypted.begin() + saltLength + 1);
             ObfuscationImpl::SecureDynamicBuffer cipherText(encrypted.begin() + saltLength + 1, encrypted.end());
