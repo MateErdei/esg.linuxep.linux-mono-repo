@@ -23,9 +23,9 @@ assert os.path.basename(SSPL_TOOLS) == "sspl-tools" and os.path.isdir(SSPL_TOOLS
 
 # It doesn't matter what this is, as long as it works. This one works.
 DEFAULT_BUILD_TIMESTAMP= "20191014161549-a"
-# This version isn't used for anything, it is a directoy name between the build timestamp and output folder
-DEFAULT_VERSION_DIRECTORY_NAME="1.0.0"
-OUTPUT_DIRECTORY_NAME="output"
+# This version isn't used for anything, it is a directory name between the build timestamp and output folder
+DEFAULT_VERSION_DIRECTORY_NAME = "1.0.0"
+OUTPUT_DIRECTORY_NAME = "output"
 
 class product():
     def __init__(self, bfr_name, local_name):
@@ -73,8 +73,7 @@ class product():
 
         if os.path.isdir(bfr_output_directory_path):
             return bfr_output_directory_path
-        else:
-            raise AssertionError("{} does not exist".format(bfr_output_directory_path))
+        raise AssertionError("{} does not exist".format(bfr_output_directory_path))
 
     def get_local_repo_output_path(self):
         local_repo_path = os.path.join(SSPL_TOOLS, self.local_name)
@@ -84,8 +83,7 @@ class product():
                 return local_output_directory
             else:
                 raise AssertionError("output folder not found for {} at {}".format(self.local_name, local_output_directory))
-        else:
-            raise AssertionError("{} not found on local machine at {}".format(self.local_name, local_repo_path))
+        raise AssertionError("{} not found on local machine at {}".format(self.local_name, local_repo_path))
 
 
     def make_required_bfr_directories(self):
@@ -118,7 +116,7 @@ class product():
             shutil.rmtree(bfr_output_directory)
             shutil.copytree(local_output_directory_path, bfr_output_directory)
         except AssertionError as exception:
-            print "ERROR: Failed to copy with error: {}".format(exception)
+            print("ERROR: Failed to copy with error: {}".format(exception))
             return False
         return True
 
@@ -130,7 +128,7 @@ def main():
     mtr_success = MTR.copy_from_local_to_bfr()
 
     if base_success and mtr_success:
-        print """SUCCESS
+        print("""SUCCESS
 You now need to kick off the ci build for your pairing stations sspl-warehouse branch
 
 If it doesn't yet have one, make a branch from master named "develop/${pairingStationName}" (all lower case)
@@ -139,7 +137,7 @@ and replace all uncommented references to master in "def/common/components.yaml"
 Once the ci build is completed successfully, change the default value for 
 "OSTIA_VUT_ADDRESS_BRANCH" in "${systemproducttests}/libs/WarehouseUtils.py"
 to develop-${pairingStationName}. This will set your pairing station to use your warehouse.
-"""
+""")
 
 if __name__ == '__main__':
     main()
