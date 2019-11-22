@@ -17,21 +17,18 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <modules/Common/UtilityImpl/StringUtils.h>
 #include <modules/Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
 #include <simplefunction.pb.h>
-#include <thread>
-#include <unistd.h>
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
 #    include <libprotobuf-mutator/src/mutator.h>
 #endif
-#include <fcntl.h>
 #include <future>
 #include <stddef.h>
-#include <stdint.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/RegexUtilities.h>
 #include <Common/Process/IProcess.h>
 #include <Common/ObfuscationImpl/Base64.h>
 #include <Common/ObfuscationImpl/Obfuscate.h>
+#include <Common/Obfuscation/ICipherException.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <Common/sslimpl/Md5Calc.h>
 #include <Common/TelemetryConfigImpl/Serialiser.h>
@@ -159,7 +156,7 @@ void verifyBase64(const std::string & input)
     }
 
     std::string decoded = Common::ObfuscationImpl::Base64::Decode(encoded);
-    if( decoded != input)
+    if (decoded != input)
     {
         std::cerr << "Failed decode message. Input:" << input << " encoded: "<< encoded << " decoded: " << decoded << std::endl;
         abort();
@@ -170,9 +167,15 @@ void verifyDeobfuscate(const std::string & input)
     try
     {
         Common::ObfuscationImpl::SECDeobfuscate(input);
-    }catch (std::exception & ex)
+    }
+    catch (Common::Obfuscation::ICipherException& e)
+    {
+        return;
+    }
+    catch (std::exception& ex)
     {
         std::string reason = ex.what();
+
         if ( reason.find("SECDeobfuscation Failed") != std::string::npos)
         {
             return;
