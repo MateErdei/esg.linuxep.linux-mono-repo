@@ -58,18 +58,6 @@ if(NOT GCC_INPUT)
     set (GCC_INPUT "/build/input/gcc")
 endif(NOT GCC_INPUT)
 
-find_library(ASAN_LIBRARY
-        NAMES libasan
-        PATHS ${GCC_INPUT}/lib64/
-        NO_DEFAULT_PATH
-        )
-
-find_library(UBSAN_LIBRARY
-        NAMES libubsan
-        PATHS ${GCC_INPUT}/lib64/
-        NO_DEFAULT_PATH
-        )
-
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
