@@ -293,6 +293,7 @@ namespace Common
                     kill();
                 }
                 wait();
+                m_child->wait();
             }
             catch (std::exception& ex)
             {
