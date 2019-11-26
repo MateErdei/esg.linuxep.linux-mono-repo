@@ -27,14 +27,6 @@ namespace Common
             std::string output;
         };
 
-        struct BoostChildProcessDestructor
-        {
-            void operator()(boost::process::child * p)
-            {
-                p->wait();
-                delete p;
-            }
-        };
 
         class BoostProcessHolder: public  IProcessHolder
         {
@@ -77,7 +69,7 @@ namespace Common
             std::vector<char> bufferForIOService;
             std::string m_output;
             boost::process::async_pipe asyncPipe;
-            std::unique_ptr<boost::process::child, BoostChildProcessDestructor> m_child;
+            std::unique_ptr<boost::process::child> m_child;
 
             /* handle the results */
             Process::IProcess::functor m_callback;

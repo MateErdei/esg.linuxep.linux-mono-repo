@@ -270,7 +270,7 @@ namespace Common
             int source = asyncPipe.native_source();
             int sink = asyncPipe.native_sink();
             auto fds = getFileDescriptorsToCloseAfterFork({source, sink});
-            m_child = std::unique_ptr<boost::process::child, BoostChildProcessDestructor>(new boost::process::child(
+            m_child = std::unique_ptr<boost::process::child>(new boost::process::child(
                 path,
                 boost::process::args = arguments,
                 env_,
@@ -297,6 +297,14 @@ namespace Common
             catch (std::exception& ex)
             {
                 LOGWARN("Exception in the destructor of process impl: " << ex.what());
+            }
+            try
+            {
+                m_child->wait();
+            }
+            catch (std::exception& ex)
+            {
+                LOGWARN("Exception in the destructor of child process impl: " << ex.what());
             }
         }
 
