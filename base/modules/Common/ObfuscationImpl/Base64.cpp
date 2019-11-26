@@ -71,7 +71,7 @@ namespace
 
     void erase_from_end(std::string& s, char valueToErase)
     {
-        while (s.back() == valueToErase)
+        while (!s.empty() && s.back() == valueToErase)
         {
             s.erase(s.begin() + s.size() - 1, s.end());
         }
