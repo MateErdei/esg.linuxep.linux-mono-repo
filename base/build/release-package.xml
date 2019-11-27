@@ -73,16 +73,17 @@
         </package>
     </inputs>
     <buildcommands>
-        <command  buildtype="prod">
+        <!--<command  buildtype="prod"> -->
+        <command>
           <program>/bin/bash</program>
           <args>./build.sh --clean</args>
           <workingdir>sspl-base-build</workingdir>
         </command>
-        <command buildtype="dev">
+        <!--<command buildtype="dev">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --debug</args>
+            <args>./build.sh - -clean - -debug</args> 'when put back remove space between hyphens'
             <workingdir>sspl-base-build</workingdir>
-        </command>
+        </command> -->
     </buildcommands>
     <publish>
         <workingdir>sspl-base-build</workingdir>
