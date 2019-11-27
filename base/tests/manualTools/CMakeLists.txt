@@ -9,9 +9,6 @@ add_executable(PickYourPoison
         PickYourPoison.cpp
         )
 
-add_executable(CheckProcessResources CheckProcessResources.cpp)
-target_link_libraries(CheckProcessResources processimpl)
-
 target_include_directories(LoggerLimit PUBLIC ${LOG4CPLUS_INCLUDE_DIR} )
 target_include_directories(FaultInjectionLogger PUBLIC ${LOG4CPLUS_INCLUDE_DIR} )
 target_link_libraries(LoggerLimit logging)
