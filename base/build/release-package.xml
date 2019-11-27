@@ -73,6 +73,7 @@
         </package>
     </inputs>
     <buildcommands>
+        <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command  buildtype="prod"> -->
         <command>
           <program>/bin/bash</program>
