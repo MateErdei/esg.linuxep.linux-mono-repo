@@ -137,7 +137,6 @@ namespace TelemetrySchedulerImpl
             }
             catch (const std::runtime_error& e)
             {
-                std::stringstream msg;
                 LOGERROR("Telemetry configuration file " << m_pathManager.getTelemetrySupplementaryFilePath()
                                                          << " JSON is invalid: " << e.what(););
             }

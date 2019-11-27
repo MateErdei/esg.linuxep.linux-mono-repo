@@ -256,7 +256,11 @@ void verifyTelemetryConfig(const std::string & input)
         std::string reason = ex.what();
         if( reason.find("Configuration JSON is invalid") != std::string::npos)
         {
-            return ;
+            return;
+        }
+        else if( reason.find("Configuration from deserialised JSON is invalid") != std::string::npos)
+        {
+            return;
         }
         std::cerr << "Non expected error " << ex.what() << std::endl;
         throw;
