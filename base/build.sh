@@ -237,6 +237,16 @@ function build()
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/curl/lib64
         untar_input SUL
         untar_input boost
+        # FIXME LINUXDAR-850: remove the patching when the related issue is incorporated into the released version of boost
+        # https://github.com/boostorg/process/issues/62
+        BOOST_PROCESS_TARGET=${REDIST}/boost/include/boost/process/detail/posix/executor.hpp
+        diff -u patched_boost_executor.hpp ${BOOST_PROCESS_TARGET} && DIFFERS=0 || DIFFERS=1
+        if [[ "${DIFFERS}" == "1" ]]; then
+          echo "Patch Boost executor"
+          cp patched_boost_executor.hpp  ${BOOST_PROCESS_TARGET}
+        else
+          echo 'Boost executor alredy patched'
+        fi
         untar_input expat
         untar_input zlib
         untar_input log4cplus

@@ -16,8 +16,11 @@ int main()
             proc->exec("/bin/sleep", {"0"});
             proc->output();
             int code = 0;
-// uncomment the line below to fix the problem
-// code= proc->exitCode();
+            code= proc->exitCode();
+            if ( code != 0)
+            {
+                ::abort();
+            }
             if (i % 100 == 0)
             {
                 std::cout << "iteration: " << i << " .last code: " << code << std::endl;
