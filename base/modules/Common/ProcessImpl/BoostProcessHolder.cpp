@@ -17,7 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <boost/process/io.hpp>
 #include <boost/process/pipe.hpp>
 #include <boost/system/error_code.hpp>
-
+#include <boost/process/exe.hpp>
 #pragma GCC diagnostic pop
 
 namespace {
@@ -215,7 +215,6 @@ namespace Common
 
         void BoostProcessHolder::cacheResult()
         {
-            LOGINFO("Entering cache result");
             std::lock_guard<std::mutex> lock{ m_onCacheResult };
             if (!m_finished)
             {
@@ -232,7 +231,6 @@ namespace Common
 
                 m_finished = true;
             }
-            LOGINFO("Leaving cache result");
         }
 
         BoostProcessHolder::BoostProcessHolder(
@@ -270,8 +268,8 @@ namespace Common
             int source = asyncPipe.native_source();
             int sink = asyncPipe.native_sink();
             auto fds = getFileDescriptorsToCloseAfterFork({source, sink});
-            m_child = std::unique_ptr<boost::process::child, BoostChildProcessDestructor>(new boost::process::child(
-                path,
+            m_child = std::unique_ptr<boost::process::child>(new boost::process::child(
+                boost::process::exe =  path,
                 boost::process::args = arguments,
                 env_,
                 (boost::process::std_out & boost::process::std_err) > asyncPipe,

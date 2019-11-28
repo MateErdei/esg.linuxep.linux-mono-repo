@@ -524,5 +524,22 @@ sleep 1
     }
 
 
+    TEST(ProcessImpl, DoesNotUseShellToExecute)
+    {
+        std::string content = R"(This is not an executable)";
+        Tests::TempDir tempdir;
+        tempdir.createFile("script", content);
+        auto filePath = tempdir.absPath("script");
+        // make it executable
+        int ret= ::chmod(filePath.c_str(), 0700);
+        ASSERT_EQ(ret, 0);
+        auto process = createProcess();
+        process->exec(filePath, {});
+        std::string out = process->output();
+        int exitCode = process->exitCode();
+        ASSERT_EQ(exitCode, ENOEXEC);
+        EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("This: not found")));
+    }
+
 
 } // namespace
