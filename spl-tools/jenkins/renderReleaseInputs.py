@@ -40,7 +40,7 @@ dot.attr('graph', overlap='false')
 # Save as png image
 dot.attr('graph', format='png')
 # If you run this locally you can change view to be true for it to open.
-dot.render("dependencies", view=True)
+dot.render("dependencies", view=False)
 
 # Save as pdf
 dot.attr('graph', format='pdf')
