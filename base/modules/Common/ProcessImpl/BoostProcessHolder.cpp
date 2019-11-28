@@ -204,6 +204,7 @@ namespace Common
 
         void BoostProcessHolder::cacheResult()
         {
+            LOGINFO("Entering cache result");
             std::lock_guard<std::mutex> lock{ m_onCacheResult };
             if (!m_finished)
             {
@@ -220,6 +221,7 @@ namespace Common
 
                 m_finished = true;
             }
+            LOGINFO("Leaving cache result");
         }
 
         BoostProcessHolder::BoostProcessHolder(
