@@ -303,11 +303,11 @@ function build()
     else
         export CC=/build/input/gcc/bin/gcc
         export CXX=/build/input/gcc/bin/g++
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/build/input/gcc/lib64/:/usr/lib/x86_64-linux-gnu/
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/build/input/gcc/lib64/
     fi
 
 #   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=/build/input/gcc/lib64/:${LIBRARY_PATH}
+    export LIBRARY_PATH=/build/input/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu/
     export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:${CPLUS_INCLUDE_PATH}
     export CPATH=/build/input/gcc/include/:${CPATH}
 

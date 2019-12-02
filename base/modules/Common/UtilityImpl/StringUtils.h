@@ -123,6 +123,11 @@ namespace Common
             // coverity [ +tainted_string_sanitize_content : arg-0 ]
             static std::string checkAndConstruct(const char* untaintedCString, size_t maxLen = 10000)
             {
+                if (untaintedCString == NULL)
+                {
+                    return "";
+                }
+
                 if (::strnlen(untaintedCString, maxLen) == maxLen)
                 {
                     throw std::invalid_argument{ "Input c-string exceeds a reasonable limit " };
