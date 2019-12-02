@@ -442,6 +442,65 @@ sleep 1
         fastWait.get();
     }
 
+
+    TEST(ProcessImpl, CheckDataReaceAndThreadSafetyOnPublicInterfaceOfProcess) // NOLINT
+    {
+        //Common::Logging::ConsoleLoggingSetup loggingSetup;
+        std::string bashScript = R"(#!/bin/bash
+echo 'started'
+echo 'keep running'
+sleep 1
+)";
+        Tests::TempDir tempdir;
+        tempdir.createFile("script", bashScript);
+        auto process = createProcess();
+        process->setOutputLimit(100);
+        std::atomic<bool> keeprunning{true};
+
+        auto killThread = std::async(std::launch::async, [&keeprunning,&process]() {
+                                while (keeprunning) {
+                                    process->kill();
+                                }
+                            }
+        );
+
+        auto waitThread = std::async(std::launch::async, [&keeprunning,&process]() {
+                                         while (keeprunning) {
+                                             process->wait(std::chrono::milliseconds(3),2);
+                                         }
+                                     }
+        );
+
+        auto waitAllThread = std::async(std::launch::async, [&keeprunning,&process]() {
+                                         while (keeprunning) {
+                                             process->waitUntilProcessEnds();
+                                         }
+                                     }
+        );
+
+        auto statusThread = std::async(std::launch::async, [&keeprunning,&process]() {
+                                            while (keeprunning) {
+                                                process->getStatus();
+                                            }
+                                        }
+        );
+
+        for(int i=0; i<100;i++)
+        {
+            process->exec("/bin/bash", { tempdir.absPath("script") });
+            process->waitUntilProcessEnds();
+            process->output();
+            process->exitCode();
+        }
+        keeprunning=false;
+        killThread.get();
+        waitThread.get();
+        waitAllThread.get();
+        statusThread.get();
+
+    }
+
+
     std::string fileDescriptorsOfPid(int pid)
     {
         auto process = createProcess();
