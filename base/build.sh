@@ -221,20 +221,17 @@ function build()
         else
             exitFailure 12 "Failed to find openssl"
         fi
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}
 
         local CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
         if [[ -f "$CMAKE_TAR" ]]
         then
             tar xzf "$CMAKE_TAR" -C "$REDIST"
-            addpath "$REDIST/cmake/bin"
         else
             echo "WARNING: using system cmake"
         fi
 
         untar_input versig
         untar_input curl
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/curl/lib64
         untar_input SUL
         untar_input boost
         # FIXME LINUXDAR-850: remove the patching when the related issue is incorporated into the released version of boost
@@ -250,9 +247,7 @@ function build()
         untar_input expat
         untar_input zlib
         untar_input log4cplus
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
         untar_input zeromq
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
         untar_input protobuf
         untar_input capnproto
         untar_input python
@@ -261,7 +256,6 @@ function build()
         untar_input pycryptodome
         untar_input $GOOGLETESTTAR
         addpath ${REDIST}/protobuf/install${BITS}/bin
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
 
         mkdir -p ${REDIST}/certificates
         if [[ -f ${INPUT}/ps_rootca.crt ]]
@@ -291,6 +285,8 @@ function build()
         fi
     fi
 
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}:${REDIST}/curl/lib64:${REDIST}/log4cplus/lib:${REDIST}/zeromq/lib:${REDIST}/protobuf/install${BITS}/lib
+    export PATH=${PATH}:${REDIST}/cmake/bin
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
 
@@ -311,7 +307,7 @@ function build()
     else
         export CC=/build/input/gcc/bin/gcc
         export CXX=/build/input/gcc/bin/g++
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/build/input/gcc/lib64/
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/build/input/gcc/lib64/:/usr/lib/x86_64-linux-gnu/
     fi
 
 #   Required for build scripts to run on dev machines
