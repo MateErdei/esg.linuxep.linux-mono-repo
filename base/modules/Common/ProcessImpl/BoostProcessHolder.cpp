@@ -239,10 +239,10 @@ namespace Common
 
         void BoostProcessHolder::cacheResult()
         {
-            LOGINFO("Entering cache result");
+            LOGDEBUG("Entering cache result");
             std::lock_guard<std::mutex> lock{ m_onCacheResult };
             cacheResultLocked(lock);
-            LOGINFO("Leaving cache result");
+            LOGDEBUG("Leaving cache result");
         }
         void BoostProcessHolder::cacheResultLocked(std::lock_guard<std::mutex>& /*locked*/)
         {
