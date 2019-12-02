@@ -321,11 +321,12 @@ namespace Common
             try
             {
                 std::lock_guard<std::mutex> lock{ m_onCacheResult };
+
                 if(m_child->valid())
                 {
                     m_child->terminate();
                 }
-
+                cacheResultLocked(lock);
             }
             catch (std::exception& ex)
             {
