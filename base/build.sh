@@ -9,7 +9,6 @@ FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
 
-source /etc/profile
 set -ex
 set -o pipefail
 
@@ -22,8 +21,6 @@ export BASE
 export OUTPUT
 
 ## These can't be exitFailure since it doesn't exist till the sourcing is done
-[ -f "$BASE"/build/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
-source "$BASE"/build/pathmgr.sh
 [ -f "$BASE"/build/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build/common.sh
 
@@ -255,7 +252,6 @@ function build()
         untar_input python-pathtools
         untar_input pycryptodome
         untar_input $GOOGLETESTTAR
-        addpath ${REDIST}/protobuf/install${BITS}/bin
 
         mkdir -p ${REDIST}/certificates
         if [[ -f ${INPUT}/ps_rootca.crt ]]
@@ -286,7 +282,7 @@ function build()
     fi
 
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}:${REDIST}/curl/lib64:${REDIST}/log4cplus/lib:${REDIST}/zeromq/lib:${REDIST}/protobuf/install${BITS}/lib
-    export PATH=${PATH}:${REDIST}/cmake/bin
+    export PATH=${PATH}:${REDIST}/cmake/bin:${REDIST}/protobuf/install${BITS}/bin
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
 
@@ -295,7 +291,7 @@ function build()
         BULLSEYE_DIR=/opt/BullseyeCoverage
         [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
         [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
-        addpath ${BULLSEYE_DIR}/bin:$PATH
+        export PATH=${PATH}:${BULLSEYE_DIR}/bin:$PATH
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
         export COV_HTML_BASE

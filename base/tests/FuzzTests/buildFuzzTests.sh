@@ -37,9 +37,7 @@ CMAKE_BUILD_FULL_PATH="${SOURCE_DIR}/${CMAKE_BUILD_DIR}"
 
 BASE=${SOURCE_DIR}
 
-## These can't be exitFailure since it doesn't exist till the sourcing is done
-[[ -f "$BASE"/build/pathmgr.sh ]] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
-source "$BASE"/build/pathmgr.sh
+
 [[ -f "$BASE"/build/common.sh ]] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build/common.sh
 
