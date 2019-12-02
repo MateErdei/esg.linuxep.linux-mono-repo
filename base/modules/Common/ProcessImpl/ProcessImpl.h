@@ -52,13 +52,13 @@ namespace Common
         private:
             // in order to protect for data race, this pointer will
             // need to be shared pointer
-            std::shared_ptr<IProcessHolder> m_d;
             std::shared_ptr<IProcessHolder> safeAccess();
             std::mutex m_protectImplOnBoost;
             std::atomic<int> m_pid;
             size_t m_outputLimit;
             Process::IProcess::functor m_callback;
             std::function<void(std::string)> m_notifyTrimmed;
+            std::shared_ptr<IProcessHolder> m_d;
         };
 
         class ProcessFactory

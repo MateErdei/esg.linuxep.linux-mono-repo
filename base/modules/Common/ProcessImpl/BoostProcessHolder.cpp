@@ -117,6 +117,7 @@ namespace Common
          */
         void BoostProcessHolder::handleMessage(const boost::system::error_code& ec, std::size_t size)
         {
+            std::lock_guard<std::mutex> lock{m_outputAccess};
             if (ec)
             {
                 // end of file ( pipe closed) is a normal thing to happen, no error at all.
@@ -207,7 +208,10 @@ namespace Common
                 ioservice.get();
                 LOGDEBUG("Process main loop: Retrieve results");
                 ProcessResult result;
-                result.output = m_output;
+                {
+                    std::lock_guard<std::mutex> lock{m_outputAccess};
+                    result.output = m_output;
+                }
                 result.exitCode = m_child->exit_code();
                 try
                 {
@@ -270,12 +274,12 @@ namespace Common
             Process::IProcess::functor callback,
             std::function<void(std::string)> notifyTrimmed,
             size_t outputLimit) :
+            m_callback(std::move(callback)),
+            m_notifyTrimmed(std::move(notifyTrimmed)),
             m_path(path),
             bufferForIOService(outputLimit == 0 ? 4096 : outputLimit),
             asyncPipe(asioIOService),
             m_status{Process::ProcessStatus::NOTSTARTED},
-            m_callback(std::move(callback)),
-            m_notifyTrimmed(std::move(notifyTrimmed)),
             m_outputLimit(outputLimit),
             m_finished(false)
         {
@@ -321,10 +325,7 @@ namespace Common
                 {
                     m_child->terminate();
                 }
-                if(m_result.valid())
-                {
-                    m_result.get();
-                }
+
             }
             catch (std::exception& ex)
             {
