@@ -71,6 +71,7 @@ namespace Common
             ProcessResult waitChildProcessToFinish();
             std::future<ProcessResult> asyncWaitChildProcessToFinish();
             void cacheResult();
+            void cacheResultLocked(std::lock_guard<std::mutex>& locked);
             /* necessary for boost */
             std::string m_path;
             boost::asio::io_service asioIOService;
@@ -78,13 +79,15 @@ namespace Common
             std::string m_output;
             boost::process::async_pipe asyncPipe;
             std::unique_ptr<boost::process::child, BoostChildProcessDestructor> m_child;
+            int m_pid;
 
             /* handle the results */
+            std::atomic<Process::ProcessStatus> m_status;
             Process::IProcess::functor m_callback;
             std::function<void(std::string)> m_notifyTrimmed;
             size_t m_outputLimit;
             std::atomic<bool> m_finished;
-            std::future<ProcessResult> m_result;
+            std::shared_future<ProcessResult> m_result;
             ProcessResult m_cached;
             std::mutex m_onCacheResult;
 

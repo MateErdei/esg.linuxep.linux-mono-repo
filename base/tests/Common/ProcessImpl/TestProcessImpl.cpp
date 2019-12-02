@@ -485,7 +485,7 @@ sleep 1
                                         }
         );
 
-        for(int i=0; i<100;i++)
+        for(int i=0; i<10;i++)
         {
             process->exec("/bin/bash", { tempdir.absPath("script") });
             process->waitUntilProcessEnds();

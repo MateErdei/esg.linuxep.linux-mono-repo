@@ -41,6 +41,24 @@ namespace {
         }
         return fds;
     }
+
+    class ScopedDeferExecution
+    {
+        std::function<void()> m_func;
+    public:
+        ScopedDeferExecution(std::function<void()> func): m_func(std::move(func)){}
+        ~ScopedDeferExecution()
+        {
+            try {
+                m_func();
+            }catch (std::exception& ex)
+            {
+                LOGWARN("Exception on running deferred cleanup: " << ex.what());
+            }
+
+        }
+    };
+
 }
 
 namespace Common
@@ -156,6 +174,7 @@ namespace Common
 
         ProcessResult BoostProcessHolder::waitChildProcessToFinish()
         {
+            ScopedDeferExecution setStatusToFinished([this](){this->m_status=Process::ProcessStatus::FINISHED;});
             try
             {
                 LOGDEBUG("Process main loop: Check output");
@@ -210,12 +229,19 @@ namespace Common
 
         std::future<ProcessResult> BoostProcessHolder::asyncWaitChildProcessToFinish()
         {
+            m_status = Process::ProcessStatus::RUNNING;
             return std::async(std::launch::async, [this]() { return this->waitChildProcessToFinish(); });
         }
 
         void BoostProcessHolder::cacheResult()
         {
+            LOGINFO("Entering cache result");
             std::lock_guard<std::mutex> lock{ m_onCacheResult };
+            cacheResultLocked(lock);
+            LOGINFO("Leaving cache result");
+        }
+        void BoostProcessHolder::cacheResultLocked(std::lock_guard<std::mutex>& /*locked*/)
+        {
             if (!m_finished)
             {
                 try
@@ -231,7 +257,9 @@ namespace Common
 
                 m_finished = true;
             }
+
         }
+
 
         BoostProcessHolder::BoostProcessHolder(
             const std::string& path,
@@ -245,6 +273,7 @@ namespace Common
             m_path(path),
             bufferForIOService(outputLimit == 0 ? 4096 : outputLimit),
             asyncPipe(asioIOService),
+            m_status{Process::ProcessStatus::NOTSTARTED},
             m_callback(std::move(callback)),
             m_notifyTrimmed(std::move(notifyTrimmed)),
             m_outputLimit(outputLimit),
@@ -268,7 +297,7 @@ namespace Common
             int source = asyncPipe.native_source();
             int sink = asyncPipe.native_sink();
             auto fds = getFileDescriptorsToCloseAfterFork({source, sink});
-            m_child = std::unique_ptr<boost::process::child>(new boost::process::child(
+            m_child = std::unique_ptr<boost::process::child, BoostChildProcessDestructor>(new boost::process::child(
                 boost::process::exe =  path,
                 boost::process::args = arguments,
                 env_,
@@ -280,17 +309,22 @@ namespace Common
 
             m_result = asyncWaitChildProcessToFinish();
             LOGDEBUG("Process Running");
+            m_pid = m_child->id();
         }
 
         BoostProcessHolder::~BoostProcessHolder()
         {
             try
             {
-                if (!hasFinished())
+                std::lock_guard<std::mutex> lock{ m_onCacheResult };
+                if(m_child->valid())
                 {
-                    kill();
+                    m_child->terminate();
                 }
-                wait();
+                if(m_result.valid())
+                {
+                    m_result.get();
+                }
             }
             catch (std::exception& ex)
             {
@@ -298,9 +332,15 @@ namespace Common
             }
         }
 
-        int BoostProcessHolder::pid() { return m_child->id(); }
+        int BoostProcessHolder::pid()
+        {
+            return m_pid;
+        }
 
-        void BoostProcessHolder::wait() { cacheResult(); }
+        void BoostProcessHolder::wait()
+        {
+            cacheResult();
+        }
 
         Process::ProcessStatus BoostProcessHolder::wait(std::chrono::milliseconds timeToWait)
         {
@@ -310,9 +350,10 @@ namespace Common
             }
             else
             {
+                std::lock_guard<std::mutex> lock{ m_onCacheResult };
                 if (m_result.wait_for(timeToWait) == std::future_status::ready)
                 {
-                    cacheResult();
+                    cacheResultLocked(lock);
                     return Process::ProcessStatus::FINISHED;
                 }
                 return Process::ProcessStatus::TIMEOUT;
@@ -333,24 +374,29 @@ namespace Common
 
         bool BoostProcessHolder::hasFinished()
         {
-            wait(std::chrono::milliseconds(0));
-            return m_finished;
+            return m_status == Process::ProcessStatus::FINISHED;
         }
 
         void BoostProcessHolder::sendTerminateSignal()
         {
-            auto m_pid = pid();
+            if( hasFinished())
+            {
+                return;
+            }
             LOGSUPPORT("Terminating process " << m_pid);
             ::kill(m_pid, SIGTERM);
-            wait(std::chrono::milliseconds(1));
         }
 
         void BoostProcessHolder::kill()
         {
-            auto m_pid = pid();
+            if( hasFinished())
+            {
+                return;
+            }
             LOGSUPPORT("Killing process " << m_pid);
             m_child->terminate();
-            wait();
+            cacheResult();
         }
+
     } // namespace ProcessImpl
 } // namespace Common
