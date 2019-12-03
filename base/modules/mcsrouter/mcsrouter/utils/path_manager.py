@@ -55,6 +55,13 @@ def root_ca_path():
     """
     return os.path.join(mcs_path(), "certs/mcs_rootca.crt")
 
+
+def ca_env_override_flag_path():
+    """
+    ca_env_override_flag_path
+    """
+    return os.path.join(mcs_path(), "certs/ca_env_override_flag")
+
 # base/mcs/action
 
 
