@@ -1,7 +1,9 @@
 {
   "policyAppIds": [
+    "LiveQuery"
   ],
   "statusAppIds": [
+    "LiveQuery"
   ],
   "pluginName": "@PLUGIN_NAME@",
   "executableFullPath": "plugins/@PLUGIN_NAME@/bin/@plugin_name@",

@@ -1,4 +1,3 @@
-include(GoogleTest)
 
 SophosAddTest(TestPlugin
         TestPlugin.cpp

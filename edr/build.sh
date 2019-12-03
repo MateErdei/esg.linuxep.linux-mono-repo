@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-DEFAULT_PRODUCT=TemplatePlugin
+DEFAULT_PRODUCT=edr
 
 FAILURE_DIST_FAILED=18
-FAILURE_COPY_SDDS_FAILED=60
 FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
+FAILURE_UNIT_TESTS=54
+FAILURE_COPY_SDDS_FAILED=60
 
 source /etc/profile
 set -ex
@@ -41,8 +42,9 @@ UNITTEST=1
 export ENABLE_STRIP=1
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
+BULLSEYE_SYSTEM_TESTS=0
 COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
-COV_HTML_BASE=sspl-plugin-audit-unittest
+COV_HTML_BASE=sspl-plugin-edr-unittest
 VALGRIND=0
 GOOGLETESTTAR=googletest-release-1.8.1
 
@@ -129,6 +131,14 @@ do
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
             ;;
+        --bullseye-system-tests)
+            BULLSEYE=1
+            BULLSEYE_UPLOAD=1
+            BULLSEYE_SYSTEM_TESTS=1
+            COVFILE="/tmp/root/sspl-edr-combined.cov"
+            BULLSEYE_UPLOAD=1
+            COV_HTML_BASE=sspl-plugin-mtr-combined
+            ;;
         --valgrind)
             VALGRIND=1
             ;;
@@ -141,8 +151,8 @@ done
 
 [[ -n "${PLUGIN_NAME}" ]] || PLUGIN_NAME=${DEFAULT_PRODUCT}
 [[ -n "${PRODUCT}" ]] || PRODUCT=${PLUGIN_NAME}
-[[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Server Protection Linux - $PRODUCT"
-[[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-$PRODUCT"
+[[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Managed Threat Response plug-in"
+[[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-EDR-Control-Component"
 [[ -n "${DEFAULT_HOME_FOLDER}" ]] || DEFAULT_HOME_FOLDER="$PRODUCT"
 
 export NO_REMOVE_GCC=1
@@ -151,9 +161,9 @@ INPUT=$BASE/input
 
 if [[ ! -d "$INPUT" ]]
 then
-    if [[ -d "$BASE/sspl-template-plugin-build" ]]
+    if [[ -d "$BASE/sspl-edr-control-plugin-build" ]]
     then
-        INPUT="$BASE/sspl-template-plugin-build/input"
+        INPUT="$BASE/sspl-edr-control-plugin-build/input"
     else
         MESSAGE_PART1="You need to run the following to setup your input folder: "
         MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
@@ -214,6 +224,7 @@ function build()
         untar_input pluginapi "" ${PLUGIN_TAR}
         untar_input cmake cmake-3.11.2-linux
         untar_input $GOOGLETESTTAR
+        untar_input boost
     fi
 
     addpath "$REDIST/cmake/bin"
@@ -233,21 +244,31 @@ function build()
         export CC=$BULLSEYE_DIR/bin/gcc
         export CXX=$BULLSEYE_DIR/bin/g++
         covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
+    else
+        export CC=/build/input/gcc/bin/gcc
+        export CXX=/build/input/gcc/bin/g++
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/build/input/gcc/lib64/
     fi
 
-    #   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
+    # Required for build scripts to run on dev machines
+    export LIBRARY_PATH=/build/input/gcc/lib64/:/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
+    export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
+    export C_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${C_INCLUDE_PATH}
+
     echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
+    echo "After setup: CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH}"
+    echo "After setup: C_INCLUDE_PATH=${C_INCLUDE_PATH}"
 
     [[ -n $CC ]] || CC=$(which gcc)
     [[ -n $CXX ]] || CXX=$(which g++)
     export CC
     export CXX
 
-    if (( $NO_BUILD == 1 ))
+    if [[ $NO_BUILD == 1 ]]
     then
         exit 0
     fi
+
 
     [[ $CLEAN == 1 ]] && rm -rf build${BITS}
     mkdir -p build${BITS}
@@ -262,6 +283,7 @@ function build()
             -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
             -DCMAKE_CXX_COMPILER=$CXX \
             -DCMAKE_C_COMPILER=$CC \
+            -DNO_GCOV="true" \
             ${EXTRA_CMAKE_OPTIONS} \
         .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} CXX=$CXX CC=$CC || exitFailure 15 "Failed to build $PRODUCT"
@@ -276,7 +298,8 @@ function build()
             local EXITCODE=$?
             exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
         }
-    elif (( ${UNITTEST} == 1 ))
+    # Run the unit tests unless we are doing bullseye system tests then don't run unit test first
+    elif (( ${UNITTEST} == 1 && ${BULLSEYE_SYSTEM_TESTS} == 0 ))
     then
         make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?
@@ -302,6 +325,26 @@ function build()
     if [[ -d build${BITS}/symbols ]]
     then
         cp -a build${BITS}/symbols output/
+    fi
+
+    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
+    then
+        cd $BASE
+        export BULLSEYE_SYSTEM_TEST_BRANCH
+        bash -x $BASE/build/bullseye/runSystemTest.sh || {
+            ## System tests failed to sync or similar
+            EXIT=$?
+            echo "System tests failed: $EXIT"
+            exit ${EXIT}
+        }
+
+        if (( ${UNITTEST} == 1 ))
+        then
+            cd ${BASE}
+            cd build${BITS}
+            export COV_HTML_BASE
+            make CTEST_OUTPUT_ON_FAILURE=1 test || echo "Unit tests failed for $PRODUCT: $?"
+        fi
     fi
 
     if [[ ${BULLSEYE_UPLOAD} == 1 ]]

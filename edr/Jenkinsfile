@@ -1,10 +1,10 @@
 
 library "standardPipeline"
 
-project = 'sspl-template-plugin'
-version_key = '0.5.0'
+project = 'sspl-edr-control-plugin'
+version_key = '1.0.2'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-template.git'
-project_builddir = 'sspl-template-plugin-build'
+project_builddir = 'sspl-edr-control-plugin-build'
 project_release_xml = 'build-files/release-package.xml'
 
 properties([

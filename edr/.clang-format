@@ -14,14 +14,14 @@ AlignConsecutiveDeclarations: false
 AlignEscapedNewlines: Right
 AlignOperands: true
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortFunctionsOnASingleLine: Inline
+AllowShortFunctionsOnASingleLine: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: true
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBraces: Allman
 BreakConstructorInitializers: AfterColon
-# BreakInheritanceList: AfterColon
+BreakInheritanceList: AfterColon
 ColumnLimit: 120
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 Cpp11BracedListStyle: false
@@ -34,8 +34,16 @@ IncludeCategories:
     Priority: 2
   - Regex: '".*"'
     Priority: 3
-  - Regex: '<[^/]*>'
+  - Regex: '<test/.*>'
     Priority: 5
+  - Regex: '<gmock/.*>'
+    Priority: 6
+  - Regex: '<gtest/.*>'
+    Priority: 7
+  - Regex: '<[^/]*.h>'
+    Priority: 9
+  - Regex: '<[^/]*>'
+    Priority: 8
   - Regex: '<.*>'
     Priority: 4
 IndentCaseLabels: true
@@ -50,11 +58,11 @@ PointerAlignment: Left
 SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: false
 SpaceBeforeAssignmentOperators: true
-# SpaceBeforeCpp11BracedList: true
-# SpaceBeforeCtorInitializerColon: true
-# SpaceBeforeInheritanceColon: true
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
-# SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeRangeBasedForLoopColon: true
 SpaceInEmptyParentheses: false
 SpacesInAngles: false
 SpacesInCStyleCastParentheses: false
