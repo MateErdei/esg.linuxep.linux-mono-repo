@@ -282,7 +282,7 @@ function build()
     fi
 
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}:${REDIST}/curl/lib64:${REDIST}/log4cplus/lib:${REDIST}/zeromq/lib:${REDIST}/protobuf/install${BITS}/lib
-    export PATH=${PATH}:${REDIST}/cmake/bin:${REDIST}/protobuf/install${BITS}/bin
+    export PATH=${REDIST}/cmake/bin:${REDIST}/protobuf/install${BITS}/bin:${PATH}
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
 
@@ -307,8 +307,8 @@ function build()
     fi
 
 #   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=/build/input/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu/
-    export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:${CPLUS_INCLUDE_PATH}
+    export LIBRARY_PATH=/build/input/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
+    export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
     export CPATH=/build/input/gcc/include/:${CPATH}
 
     echo "After setup: PATH=$PATH"
@@ -318,7 +318,7 @@ function build()
     COMMON_LDFLAGS="${LINK_OPTIONS:-}"
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
 
-    if (( "${NO_BUILD}" == "1" ))
+    if [[ "${NO_BUILD}" == "1" ]]
     then
         exit 0
     fi
@@ -328,8 +328,6 @@ function build()
     cd build${BITS}
     echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >env
     echo "export PATH=$PATH" >>env
-
-
 
     [[ -n ${NPROC:-} ]] || { which nproc > /dev/null 2>&1 && NPROC=$((`nproc` / 2)); } || NPROC=2
     (( $NPROC < 1 )) && NPROC=1
