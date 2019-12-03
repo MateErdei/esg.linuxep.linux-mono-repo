@@ -443,9 +443,9 @@ sleep 1
     }
 
 
-    TEST(ProcessImpl, CheckDataReaceAndThreadSafetyOnPublicInterfaceOfProcess) // NOLINT
+    TEST(ProcessImpl, CheckDataRaceAndThreadSafetyOnPublicInterfaceOfProcess) // NOLINT
     {
-        //Common::Logging::ConsoleLoggingSetup loggingSetup;
+
         std::string bashScript = R"(#!/bin/bash
 echo 'started'
 echo 'keep running'

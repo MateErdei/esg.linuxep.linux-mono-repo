@@ -50,14 +50,14 @@ namespace Common
             void setNotifyProcessFinishedCallBack(Process::IProcess::functor) override;
 
         private:
-            // in order to protect for data race, this pointer will
-            // need to be shared pointer
-            std::shared_ptr<IProcessHolder> safeAccess();
             std::mutex m_protectImplOnBoost;
             std::atomic<int> m_pid;
             size_t m_outputLimit;
             Process::IProcess::functor m_callback;
             std::function<void(std::string)> m_notifyTrimmed;
+            // in order to protect for data race, this pointer will
+            // need to be shared pointer to be used via this safeAccess method.
+            std::shared_ptr<IProcessHolder> safeAccess();
             std::shared_ptr<IProcessHolder> m_d;
         };
 
