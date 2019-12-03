@@ -346,7 +346,7 @@ namespace Common
 
         Process::ProcessStatus BoostProcessHolder::wait(std::chrono::milliseconds timeToWait)
         {
-            if (m_finished)
+            if (hasFinished())
             {
                 return Process::ProcessStatus::FINISHED;
             }
