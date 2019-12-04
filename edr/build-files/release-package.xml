@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-edr-control-plugin" version="1.0.2">
+<package name="sspl-edr-plugin" version="1.0.2">
     <versioning>
-        <workingdir>sspl-edr-control-plugin-build/products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>sspl-edr-plugin-build/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
-        <workingdir>sspl-edr-control-plugin-build</workingdir>
+        <workingdir>sspl-edr-plugin-build</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
         <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.0.1/output" dest="input" buildtype="dev">
@@ -35,17 +35,17 @@
         <command>
             <program>/bin/bash</program>
             <args>./build.sh --clean --name edr</args>
-            <workingdir>sspl-edr-control-plugin-build</workingdir>
+            <workingdir>sspl-edr-plugin-build</workingdir>
         </command>
         <!--<command buildtype="dev">>
             <program>/bin/bash</program>
             <args>./build.sh - -clean - -debug - -name mtr</args> 'When put back remove spaces between hyphens'
-            <workingdir>sspl-edr-control-plugin-build</workingdir>
+            <workingdir>sspl-edr-plugin-build</workingdir>
         </command> -->
     </buildcommands>
     <publish>
-        <workingdir>sspl-edr-control-plugin-build</workingdir>
-        <destdir>sspl-edr-control-plugin</destdir>
+        <workingdir>sspl-edr-plugin-build</workingdir>
+        <destdir>sspl-edr-plugin</destdir>
         <buildoutputs>
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>

@@ -152,7 +152,7 @@ done
 [[ -n "${PLUGIN_NAME}" ]] || PLUGIN_NAME=${DEFAULT_PRODUCT}
 [[ -n "${PRODUCT}" ]] || PRODUCT=${PLUGIN_NAME}
 [[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Managed Threat Response plug-in"
-[[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-EDR-Control-Component"
+[[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-EDR-Component"
 [[ -n "${DEFAULT_HOME_FOLDER}" ]] || DEFAULT_HOME_FOLDER="$PRODUCT"
 
 export NO_REMOVE_GCC=1
@@ -161,9 +161,9 @@ INPUT=$BASE/input
 
 if [[ ! -d "$INPUT" ]]
 then
-    if [[ -d "$BASE/sspl-edr-control-plugin-build" ]]
+    if [[ -d "$BASE/sspl-edr-plugin-build" ]]
     then
-        INPUT="$BASE/sspl-edr-control-plugin-build/input"
+        INPUT="$BASE/sspl-edr-plugin-build/input"
     else
         MESSAGE_PART1="You need to run the following to setup your input folder: "
         MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"

@@ -1,4 +1,4 @@
-def PLUGIN_NAME = "sspl-edr-control-plugin"
+def PLUGIN_NAME = "sspl-edr-plugin"
 
 environment {
     PLUGIN_NAME = "${PLUGIN_NAME}"
