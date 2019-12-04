@@ -33,15 +33,6 @@
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command buildtype="prod">-->
         <command>
-            <program>/bin/pwd</program>
-            <workingdir>sspl-edr-plugin-build</workingdir>
-        </command>
-        <command>
-            <program>/bin/ls</program>
-            <args>../..  ../  .</args>
-            <workingdir>sspl-edr-plugin-build</workingdir>
-        </command>
-        <command>
             <program>/bin/bash</program>
             <args>./build.sh --clean --name edr</args>
             <workingdir>sspl-edr-plugin-build</workingdir>
