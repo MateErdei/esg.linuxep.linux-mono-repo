@@ -48,7 +48,7 @@
         <destdir>sspl-edr-plugin</destdir>
         <buildoutputs>
             <!-- Release -->
-            <output name="output\" srcfolder="output" artifactpath="output\" mode="release"> </output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="debug, release"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
         <publishbranches>master, feature, bugfix, release</publishbranches>
