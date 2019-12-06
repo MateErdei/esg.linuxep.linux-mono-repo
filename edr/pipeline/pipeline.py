@@ -11,7 +11,6 @@ def robot_task(machine: tap.Machine):
 
 
 def get_inputs(context: tap.PipelineContext):
-    print(str(context.artifact.))
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
