@@ -14,7 +14,7 @@ def get_inputs(context: tap.PipelineContext):
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
-        #edr=context.artifact.build() / 'output'
+        edr=context.artifact.build() / 'output'
     )
     return test_inputs
 
