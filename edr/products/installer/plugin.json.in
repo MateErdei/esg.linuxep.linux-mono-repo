@@ -15,5 +15,5 @@
       "value": "SOPHOS_INSTALL_VALUE"
     }
   ],
-  "executableUserAndGroup": "sophos-spl-user:sophos-spl-group"
+  "executableUserAndGroup": "root:root"
 }
