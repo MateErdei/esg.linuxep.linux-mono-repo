@@ -19,7 +19,7 @@ def get_inputs(context: tap.PipelineContext):
     return test_inputs
 
 
-@tap.pipeline(version=1, component='edr_plugin')
+@tap.pipeline(version=1, component='ssl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
     machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
     with stage.group('test'):
