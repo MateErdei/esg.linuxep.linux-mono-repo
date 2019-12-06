@@ -19,8 +19,8 @@ def get_inputs(context: tap.PipelineContext):
     return test_inputs
 
 
-@tap.pipeline(version=1, component='sspl-edr-plugin')
-def sspl_edr_plugin(stage: tap.Root, context: tap.PipelineContext):
+@tap.pipeline(version=1, component='edr_plugin')
+def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
     machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
     with stage.group('test'):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
