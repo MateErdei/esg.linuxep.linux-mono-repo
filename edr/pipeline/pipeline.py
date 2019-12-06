@@ -14,12 +14,12 @@ def get_inputs(context: tap.PipelineContext):
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
-        edr=context.artifact.build() / 'release' / 'output'
+        #edr=context.artifact.build() / 'output'
     )
     return test_inputs
 
 
-@tap.pipeline(version=1, component='ssl-plugin-edr-component')
+@tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
     machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
     with stage.group('test'):
