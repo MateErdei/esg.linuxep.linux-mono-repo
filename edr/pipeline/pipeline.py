@@ -9,12 +9,22 @@ def robot_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
 
-@tap.pipeline(version=1, component='edr_plugin')
-def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
-    inputs = dict(
-        test_scripts=context.artifact.from_folder('./TA')
-    )
 
+def get_inputs(context: tap.PipelineContext):
+    test_inputs = dict(
+        test_scripts=context.artifact.from_folder('./TA'),
+        #edr=context.artifact.build() / 'release' / 'output'
+    )
+    print(str(context.artifact.build()))
+    return test_inputs
+
+
+@tap.pipeline(version=1, component='sspl-edr-plugin')
+def sspl_edr_plugin(stage: tap.Root, context: tap.PipelineContext):
+    # inputs = dict(
+    #     test_scripts=context.artifact.from_folder('./TA')
+    # )
+    machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
     with stage.group('test'):
-        stage.task('ubuntu1804_x64', robot_task, machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=inputs, platform=tap.Platform.Linux))
+        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
 
