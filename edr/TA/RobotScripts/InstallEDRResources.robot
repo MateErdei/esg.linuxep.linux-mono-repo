@@ -1,26 +1,48 @@
 *** Settings ***
 Library         Process
+Library         OperatingSystem
+#Library         FakeManagement.py
 
+
+Test Teardown   Remove All
 *** Variables ***
-${EDR_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/edr
-${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
+${TEST_INPUT_PATH}  /opt/test/inputs/edr
+${BASE_SDDS}    ${TEST_INPUT_PATH}/base-sdds
+${EDR_SDDS}     ${TEST_INPUT_PATH}/SDDS-COMPONENT
+${SOPHOS_INSTALL}   /opt/sophos-spl
+${EDR_PLUGIN_PATH}  ${SOPHOS_INSTALL}/plugins/edr
+${EDR_LOG_PATH}    ${EDR_PLUGIN_PATH}/log/edr.log
+
+${EDR_IPC_FILE}       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
+
+*** Test Cases ***
+EDR Can Be Installed and Executed By Watchdog
+    Mock Base For Component Installed
+    Copy EDR Components
+    #Extract SystemProductTestOutputTar File
+
 
 *** Keywords ***
-#Install EDR Directly
-#    ${MDR_SDDS_DIR} =  Get SSPL MDR Plugin SDDS
-#    ${result} =    Run Process  ${MDR_SDDS_DIR}/install.sh
-#    Should Be Equal As Integers    ${result.rc}    0
-#    Log  ${result.stdout}
-#    Log  ${result.stderr}
-#    Check MDR Plugin Installed
+Mock Base For Component Installed
+    Create Directory   ${SOPHOS_INSTALL}
+    Create Directory   ${SOPHOS_INSTALL}/var/ipc/
+    Create Directory   ${SOPHOS_INSTALL}/var/ipc/plugins/
+    Create File        ${SOPHOS_INSTALL}/base/etc/logger.conf   "VERBOSITY=DEBUG"
 
-Check MDR Plugin Installed
-    File Should Exist   ${EDR_PLUGIN_PATH}/bin/edr
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check MDR Plugin Running
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  edr <> Entering the main loop
+
+Copy EDR Components
+    Copy Directory   ${EDR_SDDS}/files/plugins   ${SOPHOS_INSTALL}
+    Copy Directory   ${EDR_SDDS}/files/base   ${SOPHOS_INSTALL}
+    Run Process   ldconfig   -lN   *.so.*   cwd=${EDR_PLUGIN_PATH}/lib64/   shell=True
+
+Extract SystemProductTestOutputTar File
+    Remove Directory    ${TEST_INPUT_PATH}/SystemProductTestOutput   True
+    ${result} =   Run Process    tar  xvf   ${TEST_INPUT_PATH}/SystemProductTestOutput.tar.gz   -C  ${TEST_INPUT_PATH}/SystemProductTestOutput
+    Log   ${result.stdout}
+    Log   ${result.stderr}
+    File Should Exist   ${TEST_INPUT_PATH}/SystemProductTestOutput
+
+Remove All
+    Log File   ${EDR_LOG_PATH}
+    Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Run Process   rm   -rf   ${SOPHOS_INSTALL}
