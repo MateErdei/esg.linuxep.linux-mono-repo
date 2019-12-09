@@ -32,7 +32,7 @@ Mock Base For Component Installed
 
 Copy EDR Components
     Copy Directory   ${EDR_SDDS}/files/plugins   ${SOPHOS_INSTALL}
-    Copy Directory   ${EDR_SDDS}/files/base   ${SOPHOS_INSTALL}
+    Copy Directory   ${EDR_SDDS}/files/base/pluginRegistry   ${SOPHOS_INSTALL}
     Run Process   ldconfig   -lN   *.so.*   cwd=${EDR_PLUGIN_PATH}/lib64/   shell=True
 
 Extract SystemProductTestOutputTar File
@@ -43,6 +43,4 @@ Extract SystemProductTestOutputTar File
     File Should Exist   ${TEST_INPUT_PATH}/SystemProductTestOutput
 
 Remove All
-    Log File   ${EDR_LOG_PATH}
-    Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Process   rm   -rf   ${SOPHOS_INSTALL}
