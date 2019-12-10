@@ -64,7 +64,7 @@ def deserialise_message(serialised_message):
     else:
         message.contents = []
         for item in pluginapimessage.payload:
-            message.contents.append(item.encode("ascii"))
+            message.contents.append(item)
     return message
 
 def serialise_message(message):

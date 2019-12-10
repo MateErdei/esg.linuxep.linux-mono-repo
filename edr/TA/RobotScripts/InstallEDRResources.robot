@@ -22,17 +22,28 @@ EDR Can Be Installed and Executed By Watchdog
     Mock Base For Component Installed
     Copy EDR Components
     Start Fake Management
-    Link Appid Plugin  ALC  edr
     ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
 
     Check EDR Plugin Installed
 
     ${policyContent} =  Set Variable   This is a policy test only
-    send policy content  ${policyContent}
+    send plugin policy  edr  LiveQuery  ${policyContent}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  ${policyContent}
+    ${actionContent} =  Set Variable  This is an action test
+    send plugin action  edr  LiveQuery  ${actionContent}
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Received new Action
+
+    ${edrStatus}=  get plugin status  edr  LiveQuery
+    Should Contain  ${edrStatus}   RevID
+
+    ${edrTelemetry}=  get plugin telemetry  edr
+    Should Contain  ${edrTelemetry}   Number of Scans
 
     ${result} =   Terminate Process  ${handle}
 

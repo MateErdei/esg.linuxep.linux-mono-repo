@@ -4,12 +4,94 @@
 # All rights reserved.
 import os
 import time
-
-import PathManager
-SCRIPTSFILESPATH = os.path.join(os.path.dirname(__file__), ".", "RobotScripts")
-PathManager.addPathToSysPath(SCRIPTSFILESPATH)
-
+import zmq
 from PluginCommunicationTools import FakeManagementAgent
+from PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
+from PluginCommunicationTools.common.IPCDir import IPC_DIR
+from PluginCommunicationTools.common.messages import *
+from PluginCommunicationTools.common.ProtobufSerialisation import *
+
+class ManagementAgentPluginRequester(object):
+    def __init__(self, plugin_name, logger):
+        self.name = plugin_name
+        self.logger = logger
+        self.__m_socket_path = "ipc://{}/plugins/{}.ipc".format(IPC_DIR, self.name)
+        self.__m_socket = try_get_socket(ZMQ_CONTEXT, self.__m_socket_path, zmq.REQ)
+
+    def __del__(self):
+        self.__m_socket.close()
+
+    def send_message(self, message):
+        to_send = serialise_message(message)
+        self.__m_socket.send(to_send)
+
+    def build_message(self, command, app_id, contents):
+        return Message(app_id, self.name, command.value, contents)
+
+    def action(self, app_id, action):
+        self.logger.info("Sending {} action to {} via {}".format(action, self.name, self.__m_socket_path))
+        message = self.build_message(Messages.DO_ACTION, app_id, [action])
+        self.send_message(message)
+
+        raw_response = self.__m_socket.recv()
+        response = deserialise_message(raw_response)
+        if response.acknowledge:
+            return Messages.ACK.value
+        elif response.error:
+            return response.error
+        elif response.contents is None:
+            return ""
+        else:
+            return response.contents[0]
+
+    def policy(self, app_id, policy_xml):
+        self.logger.info("Sending policy XML to {} via {}, XML:{}".format(self.name, self.__m_socket_path, policy_xml))
+        message = self.build_message(Messages.APPLY_POLICY, app_id, [policy_xml])
+        self.send_message(message)
+
+        raw_response = self.__m_socket.recv()
+        response = deserialise_message(raw_response)
+        if response.acknowledge:
+            return Messages.ACK.value
+        elif response.error:
+            return response.error
+        elif response.contents is None:
+            return ""
+        else:
+            return response.contents[0]
+
+    def get_status(self, app_id):
+        self.logger.info("Request Status for {}".format( self.name))
+        request_message = self.build_message(Messages.REQUEST_STATUS, app_id, [])
+        self.send_message(request_message)
+        raw_response = self.__m_socket.recv()
+        response = deserialise_message(raw_response)
+        if response.acknowledge or response.error or (response.contents and len(response.contents) < 2):
+            self.logger.error("No status in message from plugin: {}, contents: {}".format(response.plugin_name, response.contents))
+            return ""
+        self.logger.info("Got status back from plugin, plugin name: {}, status: {}".format(self.name, response.contents))
+
+        # This is a list of 2 items: status with XML and status without XML
+        status = response.contents[0]
+        return status
+
+    def get_telemetry(self):
+        self.logger.info("Request Telemetry for {}".format(self.name))
+        request_message = self.build_message(Messages.REQUEST_TELEMETRY, "no-app-id", [])
+        self.send_message(request_message)
+        raw_response = self.__m_socket.recv()
+        response = deserialise_message(raw_response)
+
+        if response.acknowledge or response.error or (response.contents and len(response.contents) < 1):
+            self.logger.error("No telemetry in message from plugin: {}, contents: {}".format(response.plugin_name, response.contents))
+            return ""
+        self.logger.info("Got telemetry back from plugin, plugin name: {}, status: {}".format(self.name, response.contents))
+        received_telemetry = response.contents[0]
+        return received_telemetry
+
+    def send_raw_message(self, to_send):
+        self.__m_socket.send_multipart(to_send)
+        return self.__m_socket.recv_multipart()
 
 
 class FakeManagement(object):
@@ -19,22 +101,11 @@ class FakeManagement(object):
         self.agent = None
         pass
 
-    def _get_file_content(self, filename_or_path):
-        if os.path.exists(filename_or_path):
-            filepath = filename_or_path
-        else:
-            filepath = os.path.join("./", filename_or_path + ".xml")
-            if not os.path.exists(filepath):
-                raise AssertionError("Policy file not found: " + filepath)
-        return open(filepath, 'r').read()
-
-
     def start_fake_management(self):
         if self.agent:
             raise AssertionError("Agent already initialized")
         self.agent = FakeManagementAgent.Agent(self.logger)
         self.agent.start()
-
 
     def stop_fake_management(self):
         if not self.agent:
@@ -42,60 +113,21 @@ class FakeManagement(object):
         self.agent.stop()
         self.agent = None
 
-    def link_appid_plugin(self, appid, pluginname):
-        if not self.agent:
-            raise AssertionError("Agent not initialized")
-        self.appid = str(appid)
-        self.pluginname = str(pluginname)
-        self.agent.link_app_id_to_plugin(appid, pluginname)
+    def send_plugin_policy(self, plugin_name, appid, content):
+        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+        plugin.policy(appid, content)
 
-    def send_policy(self, policyname ):
-        policycontent = self._get_file_content(policyname)
-        self.send_policy_content(policycontent)
+    def send_plugin_action(self, plugin_name, appid, content):
+        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+        plugin.action(appid, content)
 
-    def send_policy_content(self, policycontent):
-        print("Send policy content: {}".format(policycontent))
-        response = self.agent.send_apply_policy(self.appid, policycontent)
-        if b'ACK' not in response:
-            raise AssertionError( "Plugin Responded with error: " + str(response))
+    def get_plugin_status(self, plugin_name, appid):
+        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+        return plugin.get_status(appid)
 
-
-    def send_action(self, actionname ):
-        actioncontent = self._get_file_content(actionname)
-        response = self.agent.send_action(self.pluginname, self.appid, actioncontent)
-        if 'ACK' not in response:
-            raise AssertionError(str(response))
-
-
-    def get_telemetry(self):
-        return self.agent.get_telemetry(self.pluginname)
-
-    def wait_registered(self):
-        for i in range(10):
-            if self.agent.registered_plugins:
-                return
-            time.sleep(0.1)
-        raise AssertionError("No plugin registered recently")
-
-    def check_status_compliant(self):
-        status_contents = self.agent.get_status(self.appid, self.pluginname)
-        strcontents = str(status_contents)
-        self.logger.info("Current status: " + strcontents)
-        if not all(['Res="Same"' in status_content for status_content in status_contents]):
-            raise AssertionError("Status content not compiant: " + strcontents)
-
-    def check_status_contains(self, statusElement):
-        status_contents = self.agent.get_status(self.appid, self.pluginname)
-        strcontents = str(status_contents)
-        self.logger.info("Current status: " + strcontents)
-        if not all([statusElement in status_content for status_content in status_contents]):
-            raise AssertionError("Status does not contain: " + statusElement)
-
-    def check_telemetry_contain(self, matchstring):
-        self.logger.info("try to match the " + matchstring)
-        content = self.get_telemetry()
-        if matchstring not in content:
-            raise AssertionError("Content of telemetry:" + content)
+    def get_plugin_telemetry(self, plugin_name):
+        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+        return plugin.get_telemetry()
 
     def __del__(self):
         if self.agent:
