@@ -11,11 +11,11 @@ ${SOPHOS_INSTALL}   /opt/sophos-spl
 ${EDR_PLUGIN_PATH}  ${SOPHOS_INSTALL}/plugins/edr
 ${EDR_LOG_PATH}    ${EDR_PLUGIN_PATH}/log/edr.log
 
-*** Test Cases ***
-EDR Can Be Installed and Executed By Watchdog
-    Install Base For Component Tests
-    Install EDR Directly from SDDS
-    Check EDR Plugin Installed
+#*** Test Cases ***
+#EDR Can Be Installed and Executed By Watchdog
+#    Install Base For Component Tests
+#    Install EDR Directly from SDDS
+#    Check EDR Plugin Installed
 
 
 *** Keywords ***

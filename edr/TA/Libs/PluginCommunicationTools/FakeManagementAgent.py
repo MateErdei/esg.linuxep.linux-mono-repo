@@ -18,7 +18,7 @@ from .common.ProtobufSerialisation import *
 
 class Plugin(object):
     def __init__(self, plugin_name, logger):
-        self.name = plugin_name.encode("UTF-8")
+        self.name = plugin_name
         self.logger = logger
         self.__m_socket_path = "ipc://{}/plugins/{}.ipc".format(IPC_DIR, self.name)
         self.__m_socket = try_get_socket(ZMQ_CONTEXT, self.__m_socket_path, zmq.REQ)
@@ -72,7 +72,7 @@ class Plugin(object):
             return response.contents[0]
 
     def policy(self, app_id, policy_xml):
-        self.logger.info(b"Sending policy XML to %s via %s, XML:%s" % (self.name, self.__m_socket_path, policy_xml))
+        self.logger.info("Sending policy XML to {} via {}, XML:{}".format(self.name, self.__m_socket_path, policy_xml))
         message = self.build_message(Messages.APPLY_POLICY, app_id, [policy_xml])
         self.send_message(message)
 

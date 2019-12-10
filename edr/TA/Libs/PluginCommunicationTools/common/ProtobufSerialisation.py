@@ -23,7 +23,7 @@ import google.protobuf
 # during the initialisation of the robot tests. If you wish to use this in isolation you will need
 # to copy the SystemProductTestOutput folder from a build of base into the root of the System Product Tests
 # See libs/SystemProductTestOutputInstall.py for more information.
-from PluginAPIMessage_pb2 import PluginAPIMessage
+from .PluginAPIMessage_pb2 import PluginAPIMessage
 
 LOGGER = setup_logging("protobuf_processing", "protobuf log")
 

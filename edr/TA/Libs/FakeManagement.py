@@ -2,10 +2,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
 # All rights reserved.
-
-
-
-
 import os
 import time
 
@@ -55,9 +51,14 @@ class FakeManagement(object):
 
     def send_policy(self, policyname ):
         policycontent = self._get_file_content(policyname)
+        self.send_policy_content(policycontent)
+
+    def send_policy_content(self, policycontent):
+        print("Send policy content: {}".format(policycontent))
         response = self.agent.send_apply_policy(self.appid, policycontent)
-        if 'ACK' not in response:
+        if b'ACK' not in response:
             raise AssertionError( "Plugin Responded with error: " + str(response))
+
 
     def send_action(self, actionname ):
         actioncontent = self._get_file_content(actionname)
