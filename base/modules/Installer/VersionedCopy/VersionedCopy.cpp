@@ -116,7 +116,7 @@ namespace
         }
     }
 
-    void copyFile(const Path& src, const Path& dest) { Common::FileSystem::fileSystem()->copyFile(src, dest); }
+    void copyFile(const Path& src, const Path& dest) { Common::FileSystem::fileSystem()->copyFilePreserveDestPermissions(src, dest); }
 
     void createSymbolicLink(const Path& target, const Path& destination)
     {

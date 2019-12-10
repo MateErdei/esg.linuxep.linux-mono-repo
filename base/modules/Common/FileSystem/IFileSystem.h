@@ -207,6 +207,13 @@ namespace Common
             virtual void copyFile(const Path& src, const Path& dest) const = 0;
 
             /**
+             * Copy one file to another, preserving destination permissions if dest already exists
+             * @param src, source file that is to be copied
+             * @param dest, location where the file will be copied to and permissions copied from
+             */
+            virtual void copyFilePreserveDestPermissions(const Path& src, const Path& dest) const = 0;
+
+            /**
              * Remove file from filesystem
              * @param path, full path to the file which is to be deleted
              */

@@ -6,6 +6,7 @@ agent_adapter Module
 import logging
 import os
 import subprocess
+import sys
 
 import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.path_manager as path_manager
@@ -69,7 +70,13 @@ class ComputerCommonStatus:
         self.ipv4s = list(ip_address.get_non_local_ipv4())
         self.ipv6s = list(ip_address.get_non_local_ipv6())
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
-        self.mac_addresses = self.get_mac_addresses()
+
+        mac_addresses = []
+        try:
+            mac_addresses = self.get_mac_addresses()
+        except PermissionError as e:
+            LOGGER.error("Insufficient permission to run machineid. {}".format(e))
+        self.mac_addresses = mac_addresses
 
     def __eq__(self, other):
         """
@@ -167,17 +174,20 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         get_version
         """
-        version_location = os.path.join(path_manager.base_path(), "VERSION.ini")
-        if os.path.isfile(version_location):
-            with open(version_location) as version_file:
-                for line in version_file.readlines():
-                    line = line.strip()
-                    if "PRODUCT_VERSION" in line:
-                        version = line.split("=")[-1].strip()
-                        return version
-            LOGGER.error("PRODUCT_VERSION is not in VERSION.ini: Reporting softwareVersion=0 to Central")
-        else:
-            LOGGER.error("VERSION.ini file does not exist: Reporting softwareVersion=0 to Central")
+        try:
+            version_location = os.path.join(path_manager.base_path(), "VERSION.ini")
+            if os.path.isfile(version_location):
+                with open(version_location) as version_file:
+                    for line in version_file.readlines():
+                        line = line.strip()
+                        if "PRODUCT_VERSION" in line:
+                            version = line.split("=")[-1].strip()
+                            return version
+                LOGGER.error("PRODUCT_VERSION is not in VERSION.ini: Reporting softwareVersion=0 to Central")
+            else:
+                LOGGER.error("VERSION.ini file does not exist: Reporting softwareVersion=0 to Central")
+        except PermissionError as e:
+            LOGGER.error("Insufficient permissions to read VERSION.ini file: Reporting softwareVersion=0 to Central")
         return 0
 
     def get_status_xml(self):

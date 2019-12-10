@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "FilePermissionsImpl.h"
 
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
 #include <Common/UtilityImpl/StrError.h>
@@ -112,6 +113,44 @@ namespace Common
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }
+
+        std::string FilePermissionsImpl::getGroupName(const Path& filePath) const
+        {
+            if (!FileSystem::fileSystem()->isFile(filePath))
+            {
+                throw FileSystem::IFileSystemException("File does not exist ");
+            }
+
+            struct stat statbuf; // NOLINT
+            int ret = stat(filePath.c_str(), &statbuf);
+            if (ret != 0)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Calling stat on " << filePath << " caused this error: " <<  std::strerror(errno);
+                throw FileSystem::IFileSystemException(errorMessage.str());
+            }
+            return getGroupName(statbuf.st_gid);
+        }
+
+        std::string FilePermissionsImpl::getUserName(const Path& filePath) const
+        {
+            if (!FileSystem::fileSystem()->isFile(filePath))
+            {
+                throw FileSystem::IFileSystemException("File does not exist ");
+            }
+
+            struct stat statbuf; // NOLINT
+            int ret = stat(filePath.c_str(), &statbuf);
+            if (ret != 0)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Calling stat on " << filePath << " caused this error: " <<  std::strerror(errno);
+                throw FileSystem::IFileSystemException(errorMessage.str());
+            }
+            return getUserName(statbuf.st_uid);
+        }
+
+
 
         uid_t FilePermissionsImpl::getUserId(const std::string& userString) const
         {

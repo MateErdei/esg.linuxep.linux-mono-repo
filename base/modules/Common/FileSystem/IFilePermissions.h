@@ -57,6 +57,14 @@ namespace Common
             virtual std::string getGroupName(const gid_t& groupId) const = 0;
 
             /**
+             * Get the file owner group name from a file path
+             *
+             * @param filePath
+             * @return returns either a group name or an empty string if the file doesn't exist.
+             */
+            virtual std::string getGroupName(const Path& filePath) const = 0;
+
+            /**
              * get the user id from user name
              *
              *
@@ -73,6 +81,14 @@ namespace Common
              * doesn't exist.
              */
             virtual std::string getUserName(const uid_t& userId) const = 0;
+
+            /**
+             * Get the file owner user name from a file path
+             *
+             * @param filePath
+             * @return returns either a user name or an empty string if the user doesn't exist.
+             */
+            virtual std::string getUserName(const Path& filePath) const = 0;
         };
 
         /**

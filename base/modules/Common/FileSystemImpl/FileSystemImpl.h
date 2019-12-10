@@ -19,6 +19,8 @@ namespace Common
 
             void copyFile(const Path& src, const Path& dest) const override;
 
+            void copyFilePreserveDestPermissions(const Path& src, const Path& dest) const override;
+
             bool exists(const Path& path) const override;
 
             bool isExecutable(const Path& path) const override;
@@ -69,7 +71,6 @@ namespace Common
             off_t fileSize(const Path& path) const override;
 
             std::time_t lastModifiedTime(const Path& path) const override;
-
         };
 
         std::unique_ptr<IFileSystem>& fileSystemStaticPointer();

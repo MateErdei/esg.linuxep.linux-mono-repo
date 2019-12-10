@@ -433,6 +433,31 @@ namespace Common
                     "', contents failed to copy. Check space available on device.");
             }
         }
+        void FileSystemImpl::copyFilePreserveDestPermissions(const Path& src, const Path& dest) const
+        {
+            if (exists(dest))
+            {
+                std::string groupName = Common::FileSystem::filePermissions()->getGroupName(dest);
+                std::string userName = Common::FileSystem::filePermissions()->getUserName(dest);
+
+                struct stat statbuf; // NOLINT
+                int ret = stat(dest.c_str(), &statbuf);
+
+                if (ret != 0)
+                {
+                    std::stringstream errorMessage;
+                    errorMessage << "Calling stat on " << dest << " caused this error: " <<  std::strerror(errno);
+                    throw FileSystem::IFileSystemException(errorMessage.str());
+                }
+                copyFile(src, dest);
+                Common::FileSystem::filePermissions()->chown(dest, userName, groupName);
+                Common::FileSystem::filePermissions()->chmod(dest, statbuf.st_mode);
+            }
+            else
+            {
+                copyFile(src, dest);
+            }
+        }
 
         std::vector<Path> FileSystemImpl::listFiles(const Path& directoryPath) const
         {
