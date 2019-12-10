@@ -6,14 +6,17 @@
 
 
 import os
-from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
+from robot.libraries.BuiltIn import BuiltIn
 
 
 def getInstallLocation():
-    try:
-        return os.environ.get('SOPHOS_INSTALL', None) or BuiltIn().get_variable_value("${SOPHOS_INSTALL}")
-    except RobotNotRunningError:
-        return "/opt/sophos-spl"
+    env_set = os.environ.get('SOPHOS_INSTALL', None)
+    if env_set:
+        return env_set
+    robot_set = BuiltIn().get_variable_value("${SOPHOS_INSTALL}", None)
+    if robot_set:
+        return robot_set
+    return "/opt/sophos-spl"
 
 
 INSTALL_LOCATION = getInstallLocation()

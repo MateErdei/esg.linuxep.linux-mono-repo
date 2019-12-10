@@ -2,22 +2,11 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
 # All rights reserved.
-
-
-
-
-import sys
-import os
 from enum import Enum
-from .SetupLogger import setup_logging
+from .SetupLogger import get_logger
 from .messages import Message
 
-SYSTEMPRODUCTTESTOUTPUT = os.path.join(os.path.dirname(__file__), "..", "..", "..", "SystemProductTestOutput")
-if SYSTEMPRODUCTTESTOUTPUT not in sys.path:
-    sys.path.append(SYSTEMPRODUCTTESTOUTPUT)
-
 # Test we actually have protobuf before trying to import the message
-import google.protobuf
 
 # The following imports are made from the SystemProductTestOutput folder which is generated
 # during the initialisation of the robot tests. If you wish to use this in isolation you will need
@@ -25,7 +14,7 @@ import google.protobuf
 # See libs/SystemProductTestOutputInstall.py for more information.
 from .PluginAPIMessage_pb2 import PluginAPIMessage
 
-LOGGER = setup_logging("protobuf_processing", "protobuf log")
+LOGGER = get_logger("protobuf_processing")
 
 class Messages(Enum):
     # from management agent

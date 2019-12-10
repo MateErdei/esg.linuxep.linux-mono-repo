@@ -1,21 +1,52 @@
 *** Settings ***
 Library         Process
 Library         OperatingSystem
+Library         ../Libs/FakeManagement.py
 
-Test Teardown   Uninstall All
+Resource    ComponentSetup.robot
+
 *** Variables ***
-${TEST_INPUT_PATH}  /opt/test/inputs/edr
-${BASE_SDDS}    ${TEST_INPUT_PATH}/base-sdds
-${EDR_SDDS}     ${TEST_INPUT_PATH}/SDDS-COMPONENT
-${SOPHOS_INSTALL}   /opt/sophos-spl
-${EDR_PLUGIN_PATH}  ${SOPHOS_INSTALL}/plugins/edr
+${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
+${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${EDR_LOG_PATH}    ${EDR_PLUGIN_PATH}/log/edr.log
 
-#*** Test Cases ***
-#EDR Can Be Installed and Executed By Watchdog
-#    Install Base For Component Tests
-#    Install EDR Directly from SDDS
-#    Check EDR Plugin Installed
+*** Test Cases ***
+EDR Plugin Can Register With Management Agent And Recieve A Policy
+    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
+
+    Check EDR Plugin Installed
+
+    ${policyContent} =  Set Variable   This is a policy test only
+    send plugin policy  edr  LiveQuery  ${policyContent}
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  ${policyContent}
+
+EDR Plugin Can Recieve Actions
+    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
+
+    Check EDR Plugin Installed
+
+    ${actionContent} =  Set Variable  This is an action test
+    Send Plugin Action  edr  LiveQuery  ${actionContent}
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Received new Action
+
+EDR plugin Can Send Status
+    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
+
+    Check EDR Plugin Installed
+
+    ${edrStatus}=  get plugin status  edr  LiveQuery
+    Should Contain  ${edrStatus}   RevID
+
+    ${edrTelemetry}=  get plugin telemetry  edr
+    Should Contain  ${edrTelemetry}   Number of Scans
+
+    ${result} =   Terminate Process  ${handle}
 
 
 *** Keywords ***
@@ -24,22 +55,22 @@ Run Shell Process
     ${result} =   Run Process  ${Command}   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\n stdout: \n ${result.stdout} \n. stderr: \n {result.stderr}"
 
-
-
-Install Base For Component Tests
-    Run Shell Process  bash ${BASE_SDDS}/install.sh    OnError=Base Installation Failed
-    Run Shell Process  /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to Stop Mcsrouter
-
-Install EDR Directly from SDDS
-    Run Shell Process  bash ${EDR_SDDS}/install.sh   OnError=Failed to install EDR
-
 Check EDR Plugin Running
     Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/edr   OnError=EDR not running
 
+File Log Contains
+    [Arguments]  ${path}  ${input}
+    ${content} =  Get File   ${path}
+    Should Contain  ${content}  ${input}
+
+
 EDR Plugin Log Contains
     [Arguments]  ${input}
-    ${content} =  Get File   ${EDR_LOG_PATH}
-    Should Contain  ${content}  ${input}
+    File Log Contains  ${EDR_LOG_PATH}   ${input}
+
+FakeManagement Log Contains
+    [Arguments]  ${input}
+    File Log Contains  ${FAKEMANAGEMENT_AGENT_LOG_PATH}   ${input}
 
 Check EDR Plugin Installed
     File Should Exist   ${EDR_PLUGIN_PATH}/bin/edr
@@ -51,8 +82,8 @@ Check EDR Plugin Installed
     ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  edr <> Entering the main loop
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  FakeManagement Log Contains   Registered plugin: edr
 
-Uninstall All
-    Log File   ${EDR_LOG_PATH}
-    Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
-    Run Shell Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   OnError=Failed to Uninstall base

@@ -7,5 +7,5 @@
 
 from . import InstallLocation
 
-INSTALL_LOCATION = InstallLocation.INSTALL_LOCATION
-IPC_DIR = "{}/var/ipc".format(INSTALL_LOCATION)
+def ipc_dir():
+    return "{}/var/ipc".format(InstallLocation.getInstallLocation())

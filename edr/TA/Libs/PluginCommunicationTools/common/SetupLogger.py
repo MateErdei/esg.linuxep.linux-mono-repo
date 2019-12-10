@@ -2,7 +2,6 @@ import logging.handlers
 import os
 from . import InstallLocation
 
-
 def setup_logging(filename, name):
     logger = logging.getLogger(name)
     #Remove any previous handlers which may exist on global logger
@@ -23,13 +22,12 @@ def setup_logging(filename, name):
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.DEBUG)
     logger.addHandler(file_handler)
-
-    #stream_handler = logging.StreamHandler()
-    #stream_handler.setFormatter(formatter)
-    #stream_handler.setLevel(logging.DEBUG)
-    #logger.addHandler(stream_handler)
     return logger
+
+
+def get_logger(name):
+    return logging.getLogger(name)
+
 
 def get_log_dir():
     return os.path.join(InstallLocation.getInstallLocation(), "tmp")
-    #return os.path.join( "/tmp")

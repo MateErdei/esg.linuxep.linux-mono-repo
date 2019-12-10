@@ -6,15 +6,12 @@
 
 
 from threading import Thread
-import json
 import zmq
 
 from .common.socket_utils import try_get_socket, ZMQ_CONTEXT
-from .common.IPCDir import IPC_DIR
 from .common import messages
-from .common.messages import *
 from .common.ProtobufSerialisation import *
-
+from .common.SetupLogger import setup_logging
 
 class Agent(object):
     def __init__(self, logger):

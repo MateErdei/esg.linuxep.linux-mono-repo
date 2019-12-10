@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
 # All rights reserved.
-import os
-import time
+
 import zmq
 from PluginCommunicationTools import FakeManagementAgent
 from PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
-from PluginCommunicationTools.common.IPCDir import IPC_DIR
+from PluginCommunicationTools.common.IPCDir import ipc_dir
 from PluginCommunicationTools.common.messages import *
 from PluginCommunicationTools.common.ProtobufSerialisation import *
 
@@ -15,7 +14,7 @@ class ManagementAgentPluginRequester(object):
     def __init__(self, plugin_name, logger):
         self.name = plugin_name
         self.logger = logger
-        self.__m_socket_path = "ipc://{}/plugins/{}.ipc".format(IPC_DIR, self.name)
+        self.__m_socket_path = "ipc://{}/plugins/{}.ipc".format(ipc_dir(), self.name)
         self.__m_socket = try_get_socket(ZMQ_CONTEXT, self.__m_socket_path, zmq.REQ)
 
     def __del__(self):
@@ -99,7 +98,6 @@ class FakeManagement(object):
     def __init__(self):
         self.logger = FakeManagementAgent.setup_logging("fake_management_agent.log", "Fake Management Agent")
         self.agent = None
-        pass
 
     def start_fake_management(self):
         if self.agent:
@@ -109,7 +107,8 @@ class FakeManagement(object):
 
     def stop_fake_management(self):
         if not self.agent:
-            raise AssertionError("Agent not initialized")
+            self.logger.info("Agent already stopped")
+            return
         self.agent.stop()
         self.agent = None
 
