@@ -20,11 +20,13 @@ from . import computer
 from .adapters import agent_adapter
 from .adapters import app_proxy_adapter
 from .adapters import event_receiver
+from .adapters import response_receiver
 from .adapters import generic_adapter
 from .adapters import mcs_adapter
 from .mcsclient import config_exception
 from .mcsclient import events as events_module
 from .mcsclient import events_timer as events_timer_module
+from .mcsclient import responses as responses_module
 from .mcsclient import mcs_commands
 from .mcsclient import mcs_connection
 from .mcsclient import mcs_exception
@@ -308,6 +310,10 @@ class MCS:
             directory_watcher.add_watch(
                 path_manager.status_dir(),
                 patterns=["*.xml"])
+            directory_watcher.add_watch(
+                path_manager.response_dir(),
+                patterns=["*.json"],
+                ignore_delete=True)
 
             return directory_watcher
         except Exception as ex:
@@ -351,6 +357,14 @@ class MCS:
             LOGGER.debug(
                 "Next event update in %.2f s",
                 events_timer.relative_time())
+
+        responses = responses_module.Responses()
+
+        def add_response(*response_args):
+            """
+            add_response
+            """
+            responses.add_response(*response_args)
 
         def status_updated(reason=None):
             """
@@ -472,6 +486,12 @@ class MCS:
                         add_event(app_id, event, timestamp.timestamp(
                             event_time), 10000, id_manager.generate_id())
 
+                    # get all pending responses
+                    for app_id, correlation_id, response_time, response in response_receiver.receive():
+                        LOGGER.info("queuing response for %s", app_id)
+                        add_response(app_id, correlation_id, response, timestamp.timestamp(
+                            response_time), 10000, id_manager.generate_id())
+
                     # send status
                     if error_count > 0:
                         pass  # Not sending status while in error state
@@ -508,6 +528,17 @@ class MCS:
                         except Exception:
                             events_timer.error_sending_events()
                             raise
+
+                    # send responses
+                    if error_count > 0:
+                        pass  # Not sending responses while in error state
+                    elif responses.has_responses():
+                        LOGGER.debug("Sending responses")
+                        try:
+                            comms.send_responses(responses.get_responses())
+                            responses.reset()
+                        except Exception as exception:
+                            LOGGER.error("Failed to send responses: {}".format(str(exception)))
 
                 except socket.error:
                     LOGGER.exception("Got socket error")

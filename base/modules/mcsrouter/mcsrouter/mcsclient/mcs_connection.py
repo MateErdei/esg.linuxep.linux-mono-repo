@@ -904,11 +904,11 @@ class MCSConnection:
         (headers, body) = self.__request(command_path, headers, body, method)
         return body
 
-    def send_message_with_id(self, command_path, body="", method="GET"):
+    def send_message_with_id(self, command_path, body="", method="GET", additional_variables=None):
         """
         send_message_with_id
         """
-        return self.send_message(command_path + self.get_id(), body, method)
+        return self.send_message(command_path + self.get_id() + additional_variables, body, method)
 
     def send_status_event(self, status):
         """
@@ -929,6 +929,18 @@ class MCSConnection:
             self.send_message_with_id("/events/endpoint/", events_xml, "POST")
         except mcsrouter.utils.xml_helper.XMLException:
             LOGGER.warning("Event xml rejected")
+
+    def send_responses(self, responses):
+        """
+        send_responses
+        """
+        for response in responses:
+            self.send_message_with_id(
+                "/responses/endpoint/",
+                response.m_body,
+                "POST",
+                "/{}/{}/".format(response.m_app_id, response.m_correlation_id))
+
 
     def query_commands(self, app_ids=None):
         """

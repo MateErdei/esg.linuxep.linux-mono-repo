@@ -90,6 +90,13 @@ def policy_dir():
     return os.path.join(mcs_path(), 'policy')
 
 
+def response_dir():
+    """
+    response_dir
+    """
+    return os.path.join(mcs_path(), 'response')
+
+
 def mcs_policy_file():
     """
     mcs_policy_file
