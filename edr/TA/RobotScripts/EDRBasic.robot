@@ -17,7 +17,7 @@ EDR Plugin Can Register With Management Agent And Recieve A Policy
     Check EDR Plugin Installed
 
     ${policyContent} =  Set Variable   This is a policy test only
-    send plugin policy  edr  LiveQuery  ${policyContent}
+    Send Plugin Policy  edr  LiveQuery  ${policyContent}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
@@ -40,10 +40,10 @@ EDR plugin Can Send Status
 
     Check EDR Plugin Installed
 
-    ${edrStatus}=  get plugin status  edr  LiveQuery
+    ${edrStatus}=  Get Plugin Status  edr  LiveQuery
     Should Contain  ${edrStatus}   RevID
 
-    ${edrTelemetry}=  get plugin telemetry  edr
+    ${edrTelemetry}=  Get Plugin Telemetry  edr
     Should Contain  ${edrTelemetry}   Number of Scans
 
     ${result} =   Terminate Process  ${handle}

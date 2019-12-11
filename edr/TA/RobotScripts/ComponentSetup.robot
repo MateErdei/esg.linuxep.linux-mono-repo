@@ -7,9 +7,9 @@ Library         ../Libs/FakeManagement.py
 *** Keywords ***
 
 Component Test Setup
-    Run Keyword And Ignore Error   empty directory   ${COMPONENT_ROOT_PATH}/log
-    Run Keyword And Ignore Error   empty directory   ${SOPHOS_INSTALL}/tmp
-    start fake management
+    Run Keyword And Ignore Error   Empty Directory   ${COMPONENT_ROOT_PATH}/log
+    Run Keyword And Ignore Error   Empty Directory   ${SOPHOS_INSTALL}/tmp
+    Start Fake Management
 
 
 Component Test TearDown
