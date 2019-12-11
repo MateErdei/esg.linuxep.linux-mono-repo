@@ -150,8 +150,6 @@ namespace Common
             return getUserName(statbuf.st_uid);
         }
 
-
-
         uid_t FilePermissionsImpl::getUserId(const std::string& userString) const
         {
             struct passwd userBuf;

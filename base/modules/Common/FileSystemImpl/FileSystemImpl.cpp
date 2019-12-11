@@ -441,8 +441,8 @@ namespace Common
                 std::string groupName = m_filePermissions->getGroupName(dest);
                 std::string userName = m_filePermissions->getUserName(dest);
 
-
                 copyFile(src, dest);
+
                 m_filePermissions->chown(dest, userName, groupName);
                 m_filePermissions->chmod(dest, m_filePermissions->getFilePermissions(dest));
             }

@@ -396,8 +396,6 @@ chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
-sleep 15
-
 # Telemetry needs to be able to access the version file.
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/VERSION.ini"
 chmod 640 "${SOPHOS_INSTALL}/base/VERSION.ini"
