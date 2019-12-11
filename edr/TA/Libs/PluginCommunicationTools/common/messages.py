@@ -4,7 +4,7 @@
 # All rights reserved.
 
 from enum import Enum
-from .IPCDir import ipc_dir
+from .PathsLocation import ipc_dir
 
 MANAGEMENT_AGENT_SOCKET_PATH = "ipc://{}/mcs_agent.ipc".format(ipc_dir())
 

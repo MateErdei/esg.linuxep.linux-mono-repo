@@ -2,14 +2,11 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
 # All rights reserved.
-
-
-
 import os
 from robot.libraries.BuiltIn import BuiltIn
 
 
-def getInstallLocation():
+def get_install_location():
     env_set = os.environ.get('SOPHOS_INSTALL', None)
     if env_set:
         return env_set
@@ -19,4 +16,5 @@ def getInstallLocation():
     return "/opt/sophos-spl"
 
 
-INSTALL_LOCATION = getInstallLocation()
+def ipc_dir():
+    return "{}/var/ipc".format(get_install_location())

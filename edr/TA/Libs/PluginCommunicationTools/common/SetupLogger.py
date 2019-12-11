@@ -1,6 +1,6 @@
 import logging.handlers
 import os
-from . import InstallLocation
+from .PathsLocation import get_install_location
 
 def setup_logging(filename, name):
     logger = logging.getLogger(name)
@@ -30,4 +30,4 @@ def get_logger(name):
 
 
 def get_log_dir():
-    return os.path.join(InstallLocation.getInstallLocation(), "tmp")
+    return os.path.join(get_install_location(), "tmp")

@@ -6,7 +6,7 @@
 import zmq
 from PluginCommunicationTools import FakeManagementAgent
 from PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
-from PluginCommunicationTools.common.IPCDir import ipc_dir
+from PluginCommunicationTools.common.PathsLocation import ipc_dir
 from PluginCommunicationTools.common.messages import *
 from PluginCommunicationTools.common.ProtobufSerialisation import *
 
