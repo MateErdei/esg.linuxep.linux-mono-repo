@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-template-plugin" version="0.5.0">
+<package name="sspl-plugin-mav" version="0.5.0">
     <versioning>
-        <workingdir>sspl-template-plugin-build/products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>sspl-plugin-mav-build/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
-        <workingdir>sspl-template-plugin-build</workingdir>
+        <workingdir>sspl-plugin-mav-build</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
         <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.0.0/output" dest="input" buildtype="dev">
@@ -29,13 +29,13 @@
     <buildcommands>
         <command>
             <program>/bin/bash</program>
-            <args>./build.sh --name sspl-template-plugin</args>
-            <workingdir>sspl-template-plugin-build</workingdir>
+            <args>./build.sh --name sspl-plugin-mav</args>
+            <workingdir>sspl-plugin-mav-build</workingdir>
         </command>
     </buildcommands>
     <publish>
-        <workingdir>sspl-template-plugin-build</workingdir>
-        <destdir>sspl-template-plugin</destdir>
+        <workingdir>sspl-plugin-mav-build</workingdir>
+        <destdir>sspl-plugin-mav</destdir>
         <buildoutputs>
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>

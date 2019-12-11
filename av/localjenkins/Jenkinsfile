@@ -1,4 +1,4 @@
-def PLUGIN_NAME = "sspl-template-plugin"
+def PLUGIN_NAME = "sspl-plugin-mav"
 
 environment {
     PLUGIN_NAME = "${PLUGIN_NAME}"
