@@ -71,8 +71,8 @@ namespace Common
             ProcessResult waitChildProcessToFinish();
             std::future<ProcessResult> asyncWaitChildProcessToFinish();
             void cacheResult();
-            void cacheResultLocked(std::lock_guard<std::mutex>& locked);
-            std::mutex m_onCacheResult;
+            void cacheResultLocked(std::unique_lock<std::timed_mutex>& locked);
+            std::timed_mutex m_onCacheResult;
             std::mutex m_outputAccess;
             Process::IProcess::functor m_callback;
             std::function<void(std::string)> m_notifyTrimmed;

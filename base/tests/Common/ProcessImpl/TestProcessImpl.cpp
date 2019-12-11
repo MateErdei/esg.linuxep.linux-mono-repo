@@ -187,6 +187,28 @@ namespace
         ASSERT_EQ(process->output(), "");
     }
 
+    TEST(ProcessImpl, WaitFromDifferentThreadsDoesNotDeadLock) // NOLINT
+    {
+        Common::Logging::ConsoleLoggingSetup consoleLogging;
+        auto process = createProcess();
+        process->exec("/bin/sleep", { "5" });
+        auto t2 = std::async(std::launch::async, [&process](){
+            // I'm trying to demonstrate that calling wait after another thread had called output should not make it
+            // wait for more than the timeToWait ( in this case 10 milliseconds).
+            // 5 times this 10 milliseconds is still far less than the full time of this executable.
+            // Calling wait after output has returned, will have the ProcessStatus::FINISHED as return value.
+            for(int i=0; i<5; i++)
+            {
+                EXPECT_EQ(process->wait(std::chrono::milliseconds(10),1), Common::Process::ProcessStatus::TIMEOUT) << "iteration: " << i;
+            }
+            // Intention of the test already proved. Killing the process to finish as fast as possible.
+            process->kill();
+        });
+        process->output();
+        t2.get();
+    }
+
+
     TEST(ProcessImpl, ProcessWillNotBlockOnGettingOutputAfterWaitUntillProcessEnds) // NOLINT
     {
         std::string bashScript = R"(#!/bin/bash

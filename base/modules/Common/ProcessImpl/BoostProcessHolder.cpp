@@ -240,11 +240,11 @@ namespace Common
         void BoostProcessHolder::cacheResult()
         {
             LOGDEBUG("Entering cache result");
-            std::lock_guard<std::mutex> lock{ m_onCacheResult };
+            std::unique_lock<std::timed_mutex> lock{ m_onCacheResult };
             cacheResultLocked(lock);
             LOGDEBUG("Leaving cache result");
         }
-        void BoostProcessHolder::cacheResultLocked(std::lock_guard<std::mutex>& /*locked*/)
+        void BoostProcessHolder::cacheResultLocked(std::unique_lock<std::timed_mutex>& /*locked*/)
         {
             if (!m_finished)
             {
@@ -320,12 +320,11 @@ namespace Common
         {
             try
             {
-                std::lock_guard<std::mutex> lock{ m_onCacheResult };
-
                 if(m_child->valid())
                 {
                     m_child->terminate();
                 }
+                std::unique_lock<std::timed_mutex> lock{ m_onCacheResult };
                 cacheResultLocked(lock);
             }
             catch (std::exception& ex)
@@ -352,7 +351,11 @@ namespace Common
             }
             else
             {
-                std::lock_guard<std::mutex> lock{ m_onCacheResult };
+                std::unique_lock<std::timed_mutex> lock{ m_onCacheResult, std::defer_lock };
+                 if (!lock.try_lock_for(timeToWait))
+                {
+                    return Process::ProcessStatus::TIMEOUT;
+                }
                 if (m_result.wait_for(timeToWait) == std::future_status::ready)
                 {
                     cacheResultLocked(lock);
