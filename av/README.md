@@ -1,14 +1,16 @@
-# Template Plugin for Everest
+# Modular Anti-Virus Plugin for SSPL
 
-Derived from Example Plugin:
-
-Description of Example Plugin and Architecture: https://wiki.sophos.net/display/SAVLU/Example+Plugin+Architecture
-
-Ensure you have setup SSH keys in Stash, and have permission to clone this repo and the Everest-SystemProductTests repo.
-Email douglas.leeder@sophos.com to get repository access.
+Simple plugin to do AV for SSPL.
 
 ----
 
+Implement command-line AV, and possibly other sorts of AV.
+Will use SUSI libraries to implement detection.
+
+----
+
+
+TODO:
 This is a base for developing plugins.
 
 Fork this repo for each new plugin then in the new repo:
