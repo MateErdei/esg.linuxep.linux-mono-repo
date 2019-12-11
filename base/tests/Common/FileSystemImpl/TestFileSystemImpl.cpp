@@ -576,6 +576,31 @@ namespace
                 "', contents failed to copy. Check space available on device.");
     }
 
+    TEST_F(FileSystemImplTest, copyFilePreserveDestPermissions) // NOLINT
+    {
+        Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
+        Path A = tempdir.absPath("A");
+        Path B = tempdir.absPath("B");
+        tempdir.createFile("A", "FOOBAR");
+        tempdir.createFile("B", "TO_BE_OVERWRITTEN");
+
+        auto m_filePermissions = Common::FileSystem::filePermissions();
+        __mode_t filePermissions = S_IRUSR | S_IWUSR | S_IRGRP;
+        EXPECT_NE(filePermissions,m_filePermissions->getFilePermissions(B));
+
+        m_filePermissions->chmod(B,filePermissions);
+        mode_t before = m_filePermissions->getFilePermissions(B);
+
+        EXPECT_NO_THROW(m_fileSystem->copyFilePreserveDestPermissions(A, B)); // NOLINT
+        EXPECT_TRUE(m_fileSystem->exists(B));
+
+        std::string content = m_fileSystem->readFile(B);
+        EXPECT_EQ(content, "FOOBAR");
+
+        mode_t after = m_filePermissions->getFilePermissions(B);
+        EXPECT_EQ(before,after);
+    }
+
     TEST_F(FileSystemImplTest, removeFileDeletesFile) // NOLINT
     {
         std::string filePath =

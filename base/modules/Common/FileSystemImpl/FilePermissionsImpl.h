@@ -32,6 +32,8 @@ namespace Common
             std::string getUserName(const uid_t& userId) const override;
 
             std::string getUserName(const Path& filePath) const override;
+
+            mode_t getFilePermissions(const Path& filePath) const override;
         };
 
         std::unique_ptr<IFilePermissions>& filePermissionsStaticPointer();

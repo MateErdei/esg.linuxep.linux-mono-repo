@@ -135,4 +135,23 @@ namespace
         EXPECT_EQ(Common::FileSystem::filePermissions()->getUserName(0), "root");
     }
 
+    TEST(FilePermissionsImpl, getFilePermissions) // NOLINT
+    {
+        auto m_filePermissions = Common::FileSystem::filePermissions();
+        Tests::TempDir tempdir("", "FilePermissionsImpl_getFilePermissions");
+        Path A = tempdir.absPath("A");
+        tempdir.createFile("A", "FOOBAR");
+
+        mode_t initialPermissions = S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP;
+        m_filePermissions->chmod(A, initialPermissions);
+        mode_t initialPermissionsRead = m_filePermissions->getFilePermissions(A);
+        EXPECT_EQ(initialPermissions, initialPermissionsRead);
+
+        mode_t newFilePermissions = S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IXUSR;
+        m_filePermissions->chmod(A, newFilePermissions);
+        auto newPermissionsRead = m_filePermissions->getFilePermissions(A);
+        EXPECT_NE(initialPermissionsRead, newPermissionsRead);
+        EXPECT_EQ(newFilePermissions, newPermissionsRead);
+    }
+
 } // namespace

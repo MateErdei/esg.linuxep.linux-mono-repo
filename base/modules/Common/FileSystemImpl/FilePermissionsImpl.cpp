@@ -204,6 +204,25 @@ namespace Common
             }
         }
 
+        mode_t FilePermissionsImpl::getFilePermissions(const Path& filePath) const
+        {
+            if (!FileSystem::fileSystem()->isFile(filePath))
+            {
+                throw FileSystem::IFileSystemException("File does not exist ");
+            }
+
+            struct stat statbuf; // NOLINT
+            int ret = stat(filePath.c_str(), &statbuf);
+
+            if (ret != 0)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Calling stat on " << filePath << " caused this error: " <<  std::strerror(errno);
+                throw FileSystem::IFileSystemException(errorMessage.str());
+            }
+            return statbuf.st_mode;
+        }
+
         std::unique_ptr<Common::FileSystem::IFilePermissions>& filePermissionsStaticPointer()
         {
             static std::unique_ptr<Common::FileSystem::IFilePermissions> instance =

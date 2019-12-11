@@ -89,6 +89,14 @@ namespace Common
              * @return returns either a user name or an empty string if the user doesn't exist.
              */
             virtual std::string getUserName(const Path& filePath) const = 0;
+
+            /**
+             * Get the file's permissions from a file path
+             *
+             * @param filePath
+             * @return returns the permissions on the file or throws if the file doesn't exist
+             */
+            virtual mode_t getFilePermissions(const Path& filePath) const = 0;
         };
 
         /**

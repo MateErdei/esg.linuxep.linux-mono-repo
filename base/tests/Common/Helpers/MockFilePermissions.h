@@ -24,6 +24,7 @@ public:
     MOCK_CONST_METHOD1(getUserId, uid_t(const std::string& userString));
     MOCK_CONST_METHOD1(getUserName, std::string(const uid_t& userId));
     MOCK_CONST_METHOD1(getUserName, std::string(const Path& filePath));
+    MOCK_CONST_METHOD1(getFilePermissions, mode_t(const Path& filePath));
 };
 
 class IgnoreFilePermissions

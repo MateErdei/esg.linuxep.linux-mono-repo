@@ -435,23 +435,16 @@ namespace Common
         }
         void FileSystemImpl::copyFilePreserveDestPermissions(const Path& src, const Path& dest) const
         {
+            auto m_filePermissions =  Common::FileSystem::filePermissions();
             if (exists(dest))
             {
-                std::string groupName = Common::FileSystem::filePermissions()->getGroupName(dest);
-                std::string userName = Common::FileSystem::filePermissions()->getUserName(dest);
+                std::string groupName = m_filePermissions->getGroupName(dest);
+                std::string userName = m_filePermissions->getUserName(dest);
 
-                struct stat statbuf; // NOLINT
-                int ret = stat(dest.c_str(), &statbuf);
 
-                if (ret != 0)
-                {
-                    std::stringstream errorMessage;
-                    errorMessage << "Calling stat on " << dest << " caused this error: " <<  std::strerror(errno);
-                    throw FileSystem::IFileSystemException(errorMessage.str());
-                }
                 copyFile(src, dest);
-                Common::FileSystem::filePermissions()->chown(dest, userName, groupName);
-                Common::FileSystem::filePermissions()->chmod(dest, statbuf.st_mode);
+                m_filePermissions->chown(dest, userName, groupName);
+                m_filePermissions->chmod(dest, m_filePermissions->getFilePermissions(dest));
             }
             else
             {
