@@ -17,3 +17,4 @@ redist
 tests/googletest
 log
 PLUGINNAME
+sspl-plugin-mav-build/
