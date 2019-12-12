@@ -584,19 +584,19 @@ namespace
         tempdir.createFile("A", "FOOBAR");
         mode_t newFilePermissions = S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP;
 
-        auto m_filePermissions = Common::FileSystem::filePermissions();
-        std::string ownerName = m_filePermissions->getUserName(A);
-        std::string groupName = m_filePermissions->getGroupName(A);
+        auto filePermissions = Common::FileSystem::filePermissions();
+        std::string ownerName = filePermissions->getUserName(A);
+        std::string groupName = filePermissions->getGroupName(A);
 
         EXPECT_FALSE(m_fileSystem->exists(B));
-        EXPECT_NE(newFilePermissions,m_filePermissions->getFilePermissions(A));
+        EXPECT_NE(newFilePermissions, filePermissions->getFilePermissions(A));
         EXPECT_NO_THROW(m_fileSystem->copyFileAndSetPermissions(A, B, newFilePermissions, ownerName, groupName)); // NOLINT
         EXPECT_TRUE(m_fileSystem->exists(B));
 
         std::string content = m_fileSystem->readFile(B);
         EXPECT_EQ(content, "FOOBAR");
 
-        mode_t filePermissionsRead = m_filePermissions->getFilePermissions(B);
+        mode_t filePermissionsRead = filePermissions->getFilePermissions(B);
         EXPECT_EQ(newFilePermissions, filePermissionsRead);
     }
 

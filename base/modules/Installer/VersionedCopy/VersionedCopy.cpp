@@ -120,8 +120,7 @@ namespace
     void copyFileAndSetPermission(const Path& src, const Path& dest, const mode_t mode, std::string& ownerName, std::string& groupName) {
         Common::FileSystem::fileSystem()->copyFileAndSetPermissions(src, dest, mode, ownerName, groupName); }
 
-    void copyFile(const Path& src, const Path& dest) {
-        Common::FileSystem::fileSystem()->copyFile(src, dest); }
+    void copyFile(const Path& src, const Path& dest) { Common::FileSystem::fileSystem()->copyFile(src, dest); }
 
     void createSymbolicLink(const Path& target, const Path& destination)
     {
@@ -287,10 +286,10 @@ int VersionedCopy::versionedCopy(const Path& filename, const Path& DIST, const P
     // Copy file
     if (Common::FileSystem::fileSystem()->exists(fullInstallFilename))
     {
-        auto m_filePermissions =  Common::FileSystem::filePermissions();
-        std::string groupName = m_filePermissions->getGroupName(fullInstallFilename);
-        std::string userName = m_filePermissions->getUserName(fullInstallFilename);
-        mode_t mode = m_filePermissions->getFilePermissions(fullInstallFilename);
+        auto filePermissions =  Common::FileSystem::filePermissions();
+        std::string groupName = filePermissions->getGroupName(fullInstallFilename);
+        std::string userName = filePermissions->getUserName(fullInstallFilename);
+        mode_t mode = filePermissions->getFilePermissions(fullInstallFilename);
         copyFileAndSetPermission(filename, extensionName, mode, userName, groupName);
     }
     else

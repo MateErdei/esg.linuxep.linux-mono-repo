@@ -440,10 +440,10 @@ namespace Common
             const std::string& ownerName,
             const std::string& groupName) const
         {
-            auto m_filePermissions =  Common::FileSystem::filePermissions();
+            auto filePermissions =  Common::FileSystem::filePermissions();
             copyFile(src, dest);
-            m_filePermissions->chown(dest, ownerName, groupName);
-            m_filePermissions->chmod(dest, mode);
+            filePermissions->chown(dest, ownerName, groupName);
+            filePermissions->chmod(dest, mode);
         }
 
         std::vector<Path> FileSystemImpl::listFiles(const Path& directoryPath) const
