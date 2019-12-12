@@ -119,7 +119,7 @@ namespace Common
         {
             if (!FileSystem::fileSystem()->isFile(filePath))
             {
-                throw FileSystem::IFileSystemException("File does not exist ");
+                throw FileSystem::IFileSystemException("File does not exist");
             }
 
             struct stat statbuf; // NOLINT
