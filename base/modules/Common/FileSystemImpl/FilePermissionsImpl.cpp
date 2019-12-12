@@ -53,10 +53,11 @@ namespace Common
 
         void FilePermissionsImpl::chmod(const Path& path, __mode_t mode) const
         {
-            if (::chmod(path.c_str(), mode) != 0)
+            int ret = ::chmod(path.c_str(), mode);
+            if (ret != 0)
             {
                 std::stringstream errorMessage;
-                errorMessage << "chmod failed to set file permissions to " << mode << " on " << path;
+                errorMessage << "chmod failed to set file permissions to " << mode << " on " << path << " with error "  << std::strerror(errno);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }

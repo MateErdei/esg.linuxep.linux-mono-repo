@@ -576,29 +576,28 @@ namespace
                 "', contents failed to copy. Check space available on device.");
     }
 
-    TEST_F(FileSystemImplTest, copyFilePreserveDestPermissions) // NOLINT
+    TEST_F(FileSystemImplTest, copyFileAndSetPermissions) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
         tempdir.createFile("A", "FOOBAR");
-        tempdir.createFile("B", "TO_BE_OVERWRITTEN");
+        mode_t newFilePermissions = S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP;
 
         auto m_filePermissions = Common::FileSystem::filePermissions();
-        __mode_t filePermissions = S_IRUSR | S_IWUSR | S_IRGRP;
-        EXPECT_NE(filePermissions,m_filePermissions->getFilePermissions(B));
+        std::string ownerName = m_filePermissions->getUserName(A);
+        std::string groupName = m_filePermissions->getGroupName(A);
 
-        m_filePermissions->chmod(B,filePermissions);
-        mode_t before = m_filePermissions->getFilePermissions(B);
-
-        EXPECT_NO_THROW(m_fileSystem->copyFilePreserveDestPermissions(A, B)); // NOLINT
+        EXPECT_FALSE(m_fileSystem->exists(B));
+        EXPECT_NE(newFilePermissions,m_filePermissions->getFilePermissions(A));
+        EXPECT_NO_THROW(m_fileSystem->copyFileAndSetPermissions(A, B, newFilePermissions, ownerName, groupName)); // NOLINT
         EXPECT_TRUE(m_fileSystem->exists(B));
 
         std::string content = m_fileSystem->readFile(B);
         EXPECT_EQ(content, "FOOBAR");
 
-        mode_t after = m_filePermissions->getFilePermissions(B);
-        EXPECT_EQ(before,after);
+        mode_t filePermissionsRead = m_filePermissions->getFilePermissions(B);
+        EXPECT_EQ(newFilePermissions, filePermissionsRead);
     }
 
     TEST_F(FileSystemImplTest, removeFileDeletesFile) // NOLINT

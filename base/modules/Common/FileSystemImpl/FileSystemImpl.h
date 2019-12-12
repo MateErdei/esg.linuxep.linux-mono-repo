@@ -19,7 +19,12 @@ namespace Common
 
             void copyFile(const Path& src, const Path& dest) const override;
 
-            void copyFilePreserveDestPermissions(const Path& src, const Path& dest) const override;
+            void copyFileAndSetPermissions(
+                const Path& src,
+                const Path& dest,
+                mode_t mode,
+                const std::string& ownerName,
+                const std::string& groupName) const override;
 
             bool exists(const Path& path) const override;
 

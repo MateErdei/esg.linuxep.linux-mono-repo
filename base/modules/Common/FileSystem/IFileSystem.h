@@ -207,11 +207,19 @@ namespace Common
             virtual void copyFile(const Path& src, const Path& dest) const = 0;
 
             /**
-             * Copy one file to another, preserving destination permissions if dest already exists
+             * Copy one file to another, and set file permissions and owners
              * @param src, source file that is to be copied
-             * @param dest, location where the file will be copied to and permissions copied from
+             * @param dest, location where the file will be copied to
+             * @param mode, Permissions of file
+             * @param ownerName, the name of the user which will be set as file owner
+             * @param groupName, the name of the group which will be set as file group
              */
-            virtual void copyFilePreserveDestPermissions(const Path& src, const Path& dest) const = 0;
+            virtual void copyFileAndSetPermissions(
+                const Path& src,
+                const Path& dest,
+                mode_t mode,
+                const std::string& ownerName,
+                const std::string& groupName) const = 0;
 
             /**
              * Remove file from filesystem

@@ -47,7 +47,7 @@ public:
     MOCK_CONST_METHOD1(removeFile, void(const Path& path));
     MOCK_CONST_METHOD1(removeFileOrDirectory, void(const Path& path));
     MOCK_CONST_METHOD2(copyFile, void(const Path& src, const Path& dest));
-    MOCK_CONST_METHOD2(copyFilePreserveDestPermissions, void(const Path& src, const Path& dest));
+    MOCK_CONST_METHOD5(copyFileAndSetPermissions, void(const Path& src,const Path& dest, const mode_t mode, const std::string& ownerName, const std::string& groupName));
     MOCK_CONST_METHOD1(makedirs, void(const Path& path));
     MOCK_CONST_METHOD1(makeAbsolute, Path(const Path& path));
     MOCK_CONST_METHOD1(readlink, Path(const Path& path));

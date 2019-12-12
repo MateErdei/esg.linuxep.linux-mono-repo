@@ -7,6 +7,7 @@
 #include "VersionedCopy.h"
 
 #include <Common/Exceptions/Print.h>
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <sys/stat.h>
 
@@ -116,7 +117,11 @@ namespace
         }
     }
 
-    void copyFile(const Path& src, const Path& dest) { Common::FileSystem::fileSystem()->copyFilePreserveDestPermissions(src, dest); }
+    void copyFileAndSetPermission(const Path& src, const Path& dest, const mode_t mode, std::string& ownerName, std::string& groupName) {
+        Common::FileSystem::fileSystem()->copyFileAndSetPermissions(src, dest, mode, ownerName, groupName); }
+
+    void copyFile(const Path& src, const Path& dest) {
+        Common::FileSystem::fileSystem()->copyFile(src, dest); }
 
     void createSymbolicLink(const Path& target, const Path& destination)
     {
@@ -280,7 +285,18 @@ int VersionedCopy::versionedCopy(const Path& filename, const Path& DIST, const P
     Path extensionBase = Common::FileSystem::basename(extensionName);
 
     // Copy file
-    copyFile(filename, extensionName); // TODO LINUXEP-6535: Permissions and ownership
+    if (Common::FileSystem::fileSystem()->exists(fullInstallFilename))
+    {
+        auto m_filePermissions =  Common::FileSystem::filePermissions();
+        std::string groupName = m_filePermissions->getGroupName(fullInstallFilename);
+        std::string userName = m_filePermissions->getUserName(fullInstallFilename);
+        mode_t mode = m_filePermissions->getFilePermissions(fullInstallFilename);
+        copyFileAndSetPermission(filename, extensionName, mode, userName, groupName);
+    }
+    else
+    {
+        copyFile(filename, extensionName);
+    }
 
     // Change/create symlink
     createSymbolicLink(extensionBase, fullInstallFilename);

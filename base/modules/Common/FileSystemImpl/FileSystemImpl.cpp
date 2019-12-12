@@ -433,23 +433,17 @@ namespace Common
                     "', contents failed to copy. Check space available on device.");
             }
         }
-        void FileSystemImpl::copyFilePreserveDestPermissions(const Path& src, const Path& dest) const
+        void FileSystemImpl::copyFileAndSetPermissions(
+            const Path& src,
+            const Path& dest,
+            mode_t mode,
+            const std::string& ownerName,
+            const std::string& groupName) const
         {
             auto m_filePermissions =  Common::FileSystem::filePermissions();
-            if (exists(dest))
-            {
-                std::string groupName = m_filePermissions->getGroupName(dest);
-                std::string userName = m_filePermissions->getUserName(dest);
-
-                copyFile(src, dest);
-
-                m_filePermissions->chown(dest, userName, groupName);
-                m_filePermissions->chmod(dest, m_filePermissions->getFilePermissions(dest));
-            }
-            else
-            {
-                copyFile(src, dest);
-            }
+            copyFile(src, dest);
+            m_filePermissions->chown(dest, ownerName, groupName);
+            m_filePermissions->chmod(dest, mode);
         }
 
         std::vector<Path> FileSystemImpl::listFiles(const Path& directoryPath) const
