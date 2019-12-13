@@ -448,6 +448,8 @@ then
     then
         waitForProcess "mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
     fi
+    # Provide time to Watchdog to start all managed services
+    sleep  2
 else
     if software_changed ${DIST} ${PRODUCT_LINE_ID}
     then
@@ -456,6 +458,11 @@ else
         perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
 
         startSsplService
+
+        waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
+
+        # Provide time to Watchdog to start all managed services
+        sleep  2
     fi
 fi
 
@@ -468,6 +475,7 @@ then
 fi
 
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
+
 
 ## Exit with error code if registration was run and failed
 exit ${EXIT_CODE}
