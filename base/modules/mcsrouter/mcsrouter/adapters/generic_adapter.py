@@ -44,7 +44,18 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         __process_policy
         """
         # handle non ascii characters ( LINUXEP-6757 )
-        policy = policy.encode('utf-8')
+        try:
+            policy = policy.encode('utf-8')
+        except AttributeError as exception:
+            # If connection is lost product system test has shown (timing dependant) that the policy.encode line
+            # will fail because it is a byte object.  Hopefully catching the error will help identify why.
+            LOGGER.error(
+                "Failed to encode %s policy, error: (%s), using policy value: %s",
+                self.__m_app_id,
+                str(exception),
+                str(policy))
+            return []
+
         LOGGER.debug(
             "{} Adapter processing policy {}".format(
                 self.__m_app_id,
