@@ -35,25 +35,24 @@ static bool isWhitelistedCert(void *token, const char *fileTopLevelCert, size_t 
     return false;
 }
 
-SusiCallbackTable lrCb = {CALLBACK_TABLE_VERSION, NULL, isWhitelistedFile, isTrustedCert, isWhitelistedCert};
-
 static SusiCallbackTable my_susi_callbacks{
         .version = CALLBACK_TABLE_VERSION,
+        .token = nullptr,
+        .IsWhitelistedFile = isWhitelistedFile,
+        .IsTrustedCert = isTrustedCert,
+        .IsWhitelistedCert = isWhitelistedCert
 };
 
 class SusiGlobalHandler
 {
 public:
-    SusiGlobalHandler(const std::string& json_config);
+    explicit SusiGlobalHandler(const std::string& json_config);
     ~SusiGlobalHandler() noexcept;
 };
 
 SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
 {
     my_susi_callbacks.token = this;
-    my_susi_callbacks.IsTrustedCert = isTrustedCert;
-    my_susi_callbacks.IsWhitelistedFile = isWhitelistedFile;
-    my_susi_callbacks.IsWhitelistedCert = isWhitelistedCert;
 
     SusiResult res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
     std::cerr << "Global Susi constructed res=" << std::hex << res << std::dec << std::endl;
@@ -70,7 +69,7 @@ SusiGlobalHandler::~SusiGlobalHandler()
 class SusiHolder
 {
 public:
-    SusiHolder(const std::string& scannerConfig);
+    explicit SusiHolder(const std::string& scannerConfig);
     ~SusiHolder();
     SusiScannerHandle m_handle;
 };
@@ -95,8 +94,9 @@ SusiHolder::~SusiHolder()
 
 void mysusi_log_callback(void* token, SusiLogLevel level, const char* message)
 {
+    static_cast<void>(token);
     std::string m(message);
-    if (m.size() > 0)
+    if (!m.empty())
     {
         std::cerr << level << ": " << m << std::endl;
     }
@@ -105,7 +105,8 @@ void mysusi_log_callback(void* token, SusiLogLevel level, const char* message)
 static const SusiLogCallback GL_log_callback{
     .version = SUSI_LOG_CALLBACK_VERSION,
     .token = nullptr,
-    .log = mysusi_log_callback
+    .log = mysusi_log_callback,
+    .minLogLevel = SUSI_LOG_LEVEL_DETAIL
 };
 
 int main(int argc, char* argv[])

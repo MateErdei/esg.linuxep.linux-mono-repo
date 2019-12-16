@@ -65,6 +65,11 @@
             <include src="release/lib" dest="openssl/lib" />
         </package>
 
+        <package buildtype="dev" name="susi" version="master/%LASTGOODBUILD%/susi-linux-x64-gcc740/0.1.0" dest="build/_inputs" >
+            <include src="release/lib" dest="susi/lib"/>
+            <include src="release/include" dest="susi/include"/>
+        </package>
+
         <!-- TODO: production build is not available yet (!) -->
         <package buildtype="dev" name="httpsrequester" version="master/%LASTGOODBUILD%/libglobalrep-linux-x64-gcc730/1.0.0" dest="build/_inputs" >
             <include src="lib" dest="gr/lib"/>
