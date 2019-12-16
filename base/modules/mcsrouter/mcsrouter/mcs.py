@@ -210,19 +210,8 @@ class MCS:
         #~ apps = [ "ALC", "SAV", "HBT", "NTP", "SHS", "SDU", "UC", "MR" ]
         self.__plugin_registry = plugin_registry.PluginRegistry(
             install_dir)
-        # pylint: disable=unused-variable
-        apps, ignored = self.__plugin_registry.added_and_removed_app_ids()
-        # pylint: enable=unused-variable
 
-        for app in apps:
-            self.__m_computer.add_adapter(
-                generic_adapter.GenericAdapter(
-                    app, install_dir))
-
-        # AppsProxy needs to report all AppIds apart from AGENT and APPSPROXY
-        app_ids = self.__m_computer.get_app_ids()
-        self.__m_computer.add_adapter(
-            app_proxy_adapter.AppProxyAdapter(app_ids))
+        self.check_registry_and_update_apps()
 
         self.__m_agent = agent_adapter.AgentAdapter()
         self.__m_computer.add_adapter(self.__m_agent)
@@ -320,6 +309,43 @@ class MCS:
             raise config_exception.ConfigException(
                 config_exception.composeMessage("Managing Communication Paths", str(ex))
             )
+
+    def check_registry_and_update_apps(self):
+        added_apps, removed_apps = self.__plugin_registry.added_and_removed_app_ids()
+
+        if not added_apps and not removed_apps:
+            return
+
+        self.__m_computer.remove_adapter_by_app_id('APPSPROXY')
+
+
+        # Check for any new app_ids 'for newly installed plugins'
+
+        if added_apps or removed_apps:
+            if added_apps:
+                LOGGER.info(
+                    "New AppIds found to register for: " +
+                    ' ,'.join(added_apps))
+            if removed_apps:
+                LOGGER.info(
+                    "AppIds not supported anymore: " +
+                    ' ,'.join(removed_apps))
+                # Not removing adapters if plugin uninstalled -
+                # this will cause Central to delete commands
+            for app in added_apps:
+                self.__m_computer.add_adapter(
+                    generic_adapter.GenericAdapter(
+                        app, path_manager.install_dir()))
+
+        # AppsProxy needs to report all AppIds apart from AGENT and APPSPROXY
+        app_ids = [app for app in self.__m_computer.get_app_ids() if app not in [
+            'APPSPROXY', 'AGENT']]
+        LOGGER.info(
+            "Reconfiguring the APPSPROXY to handle: " +
+            ' '.join(app_ids))
+        self.__m_computer.add_adapter(
+            app_proxy_adapter.AppProxyAdapter(app_ids))
+
 
     def run(self):
         """
@@ -419,31 +445,7 @@ class MCS:
                         self.__m_computer.clear_cache()
                         status_updated(reason="reregistration")
 
-                    # Check for any new app_ids 'for newly installed plugins'
-                    added_apps, removed_apps = self.__plugin_registry.added_and_removed_app_ids()
-                    if added_apps or removed_apps:
-                        if added_apps:
-                            LOGGER.info(
-                                "New AppIds found to register for: " +
-                                ' ,'.join(added_apps))
-                        if removed_apps:
-                            LOGGER.info(
-                                "AppIds not supported anymore: " +
-                                ' ,'.join(removed_apps))
-                            # Not removing adapters if plugin uninstalled -
-                            # this will cause Central to delete commands
-                        for app in added_apps:
-                            self.__m_computer.add_adapter(
-                                generic_adapter.GenericAdapter(
-                                    app, path_manager.install_dir()))
-                        app_ids = [app for app in self.__m_computer.get_app_ids() if app not in [
-                            'APPSPROXY', 'AGENT']]
-                        LOGGER.info(
-                            "Reconfiguring the APPSPROXY to handle: " +
-                            ' '.join(app_ids))
-                        self.__m_computer.remove_adapter_by_app_id('APPSPROXY')
-                        self.__m_computer.add_adapter(
-                            app_proxy_adapter.AppProxyAdapter(app_ids))
+                    self.check_registry_and_update_apps()
 
                     if time.time() > last_commands + self.__m_command_check_interval.get():
                         appids = self.__m_computer.get_app_ids()
