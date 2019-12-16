@@ -50,10 +50,10 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             # If connection is lost product system test has shown (timing dependant) that the policy.encode line
             # will fail because it is a byte object.  Hopefully catching the error will help identify why.
             LOGGER.error(
-                "Failed to encode %s policy, error: (%s), using policy value: %s",
+                "Failed to encode {} policy, error: ({}), using policy value: {}".format(
                 self.__m_app_id,
                 str(exception),
-                str(policy))
+                str(policy)))
             return []
 
         LOGGER.debug(
