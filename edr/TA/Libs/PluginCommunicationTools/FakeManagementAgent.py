@@ -9,14 +9,15 @@ from threading import Thread
 import zmq
 
 from .common.socket_utils import try_get_socket, ZMQ_CONTEXT
-from .common import messages
+#from .common import messages
 from .common.ProtobufSerialisation import *
 from .common.SetupLogger import setup_logging
+from .common.PathsLocation import management_agent_socket_path
 
 class Agent(object):
     def __init__(self, logger):
         # IPC Socket paths
-        self.management_agent_socket_path = messages.management_agent_socket_path()
+        self.management_agent_socket_path = management_agent_socket_path()
         # IPC Sockets
         self.management_agent_socket = try_get_socket(ZMQ_CONTEXT, self.management_agent_socket_path, zmq.REP)
         self.__m_running = True
