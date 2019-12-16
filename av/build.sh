@@ -151,9 +151,9 @@ INPUT=$BASE/input
 
 if [[ ! -d "$INPUT" ]]
 then
-    if [[ -d "$BASE/sspl-template-plugin-build" ]]
+    if [[ -d "$BASE/sspl-plugin-mav-build" ]]
     then
-        INPUT="$BASE/sspl-template-plugin-build/input"
+        INPUT="$BASE/sspl-plugin-mav-build/input"
     else
         MESSAGE_PART1="You need to run the following to setup your input folder: "
         MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
@@ -319,5 +319,6 @@ function build()
 
 build 64 2>&1 | tee -a $LOG
 EXIT=$?
+mkdir -p $OUTPUT
 cp $LOG $OUTPUT/ || true
 exit $EXIT
