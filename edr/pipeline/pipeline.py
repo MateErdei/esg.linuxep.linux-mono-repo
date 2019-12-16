@@ -27,6 +27,20 @@ def robot_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
 
+def pytest_task(machine: tap.Machine):
+    try:
+        install_requirements(machine)
+        tests_dir = str(machine.inputs.test_scripts)
+        args = ['python', '-u', '-m', 'pytest', tests_dir,
+                '-o', 'log_cli=true',
+                '--html', '/opt/test/results/report.html'
+                ]
+        machine.run(*args)
+        machine.run('ls', '/opt/test/logs')
+    finally:
+        machine.output_artifact('/opt/test/results', 'results')
+        machine.output_artifact('/opt/test/logs', 'logs')
+
 
 def get_inputs(context: tap.PipelineContext):
     print(str(context.artifact.build()))
@@ -40,6 +54,8 @@ def get_inputs(context: tap.PipelineContext):
 @tap.pipeline(version=1, component='sspl-edr-plugin')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
     machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
-    with stage.group('test'):
+    with stage.group('integration'):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
+    with stage.group('component'):
+        stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
 

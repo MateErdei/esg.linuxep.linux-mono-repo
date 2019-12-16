@@ -16,7 +16,7 @@ from .common.SetupLogger import setup_logging
 class Agent(object):
     def __init__(self, logger):
         # IPC Socket paths
-        self.management_agent_socket_path = messages.MANAGEMENT_AGENT_SOCKET_PATH
+        self.management_agent_socket_path = messages.management_agent_socket_path()
         # IPC Sockets
         self.management_agent_socket = try_get_socket(ZMQ_CONTEXT, self.management_agent_socket_path, zmq.REP)
         self.__m_running = True

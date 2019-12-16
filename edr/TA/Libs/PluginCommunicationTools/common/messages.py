@@ -5,8 +5,10 @@
 
 from enum import Enum
 from .PathsLocation import ipc_dir
+import os
 
-MANAGEMENT_AGENT_SOCKET_PATH = "ipc://{}/mcs_agent.ipc".format(ipc_dir())
+def management_agent_socket_path():
+    return "ipc://{}".format(os.path.join(ipc_dir(), "mcs_agent.ipc"))
 
 class ControlMessagesToPlugin(Enum):
     REGISTER = b'RegisterPlugin'

@@ -4,17 +4,17 @@
 # All rights reserved.
 
 import zmq
-from PluginCommunicationTools import FakeManagementAgent
-from PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
-from PluginCommunicationTools.common.PathsLocation import ipc_dir
-from PluginCommunicationTools.common.messages import *
-from PluginCommunicationTools.common.ProtobufSerialisation import *
+from Libs.PluginCommunicationTools import FakeManagementAgent
+from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
+from Libs.PluginCommunicationTools.common import PathsLocation
+from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
+
 
 class ManagementAgentPluginRequester(object):
     def __init__(self, plugin_name, logger):
         self.name = plugin_name
         self.logger = logger
-        self.__m_socket_path = "ipc://{}/plugins/{}.ipc".format(ipc_dir(), self.name)
+        self.__m_socket_path = "ipc://{}/plugins/{}.ipc".format(PathsLocation.ipc_dir(), self.name)
         self.__m_socket = try_get_socket(ZMQ_CONTEXT, self.__m_socket_path, zmq.REQ)
 
     def __del__(self):

@@ -37,7 +37,6 @@ EDR Plugin Can Recieve Actions
 
 EDR plugin Can Send Status
     ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
-
     Check EDR Plugin Installed
 
     ${edrStatus}=  Get Plugin Status  edr  LiveQuery
