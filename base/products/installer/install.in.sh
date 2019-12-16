@@ -315,6 +315,7 @@ makedir 711 "${SOPHOS_INSTALL}/base/lib64"
 
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/policy"
+makedir 750 "${SOPHOS_INSTALL}/base/mcs/response"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/status/cache"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/event"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/certs"

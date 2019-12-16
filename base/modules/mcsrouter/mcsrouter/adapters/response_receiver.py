@@ -5,8 +5,6 @@
 response_receiver Module
 """
 
-
-
 import logging
 import os
 import re
@@ -34,15 +32,14 @@ def receive():
             app_id = match_object.group(1)
             correlation_id = match_object.group(2)
             time = os.path.getmtime(file_path)
-            body = None
             try:
                 with open(file_path, 'r', encoding='utf-8') as file_to_read:
                     body = file_to_read.read()
                     validate_string_as_json(body)
-            except ValueError as error:
+                    yield (app_id, correlation_id, time, body)
+            except json.JSONDecodeError as error:
                 LOGGER.error("Failed to load response json file \"{}\". Error: {}".format(file_path, str(error)))
                 continue
-            yield (app_id, correlation_id, time, body)
         else:
             LOGGER.warning("Malformed response file: %s", response_file)
 

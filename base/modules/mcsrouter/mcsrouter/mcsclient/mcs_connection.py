@@ -904,11 +904,34 @@ class MCSConnection:
         (headers, body) = self.__request(command_path, headers, body, method)
         return body
 
-    def send_message_with_id(self, command_path, body="", method="GET", additional_variables=None):
+    def send_message_with_id(self, command_path, body="", method="GET"):
         """
         send_message_with_id
         """
-        return self.send_message(command_path + self.get_id() + additional_variables, body, method)
+        return self.send_message(command_path + self.get_id(), body, method)
+
+    def send_live_query_response_with_id(self, response):
+        """
+        send_live_query_response_with_id
+        """
+        command_path = response.get_command_path(self.get_id())
+        bytes_to_be_encoded = "{}:{}".format(self.get_id(), self.get_password())
+        bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
+
+        headers = {
+            "Authorization": "Basic " +
+                             to_utf8(base64.b64encode(bytes_to_be_encoded)),
+            "Content-Length": response.m_gzip_body_size,
+            "Content-Type": "application/gzip; charset=utf-8",
+            "ActualSize": response.m_json_body_size
+        }
+
+        LOGGER.debug(
+            "MCS request url={} body size={}".format(
+                command_path,
+                response.m_gzip_body_size))
+        (headers, body) = self.__request(command_path, headers, response.m_gzip_body, "POST")
+        return body
 
     def send_status_event(self, status):
         """
@@ -935,12 +958,10 @@ class MCSConnection:
         send_responses
         """
         for response in responses:
-            self.send_message_with_id(
-                "/responses/endpoint/",
-                response.m_body,
-                "POST",
-                "/{}/{}/".format(response.m_app_id, response.m_correlation_id))
-
+            if response.m_json_body_size != 0:
+                self.send_live_query_response_with_id(response)
+            else:
+                LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(response.m_correlation_id))
 
     def query_commands(self, app_ids=None):
         """

@@ -489,8 +489,8 @@ class MCS:
                     # get all pending responses
                     for app_id, correlation_id, response_time, response in response_receiver.receive():
                         LOGGER.info("queuing response for %s", app_id)
-                        add_response(app_id, correlation_id, response, timestamp.timestamp(
-                            response_time), 10000, id_manager.generate_id())
+                        add_response(app_id, correlation_id, timestamp.timestamp(
+                            response_time), response)
 
                     # send status
                     if error_count > 0:

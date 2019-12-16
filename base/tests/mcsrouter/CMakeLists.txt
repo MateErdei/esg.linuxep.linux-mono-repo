@@ -62,6 +62,22 @@ add_test (NAME PythonTestProxyAuthorization
 set_tests_properties(PythonTestProxyAuthorization
         PROPERTIES ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/build64:${PROJECT_SOURCE_DIR}/modules")
 
+add_test (NAME PythonTestResponse
+        COMMAND ${PYTHON_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/TestResponse.py
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/modules
+        )
+
+set_tests_properties(PythonTestResponse
+        PROPERTIES ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/build64:${PROJECT_SOURCE_DIR}/modules")
+
+add_test (NAME PythonTestResponseReceiver
+        COMMAND ${PYTHON_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/TestResponseReceiver.py
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/modules
+        )
+
+set_tests_properties(PythonTestResponseReceiver
+        PROPERTIES ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/build64:${PROJECT_SOURCE_DIR}/modules")
+
 add_test (NAME PythonTestSECObfuscation
         COMMAND ${PYTHON_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/TestSECObfuscation.py
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/modules
