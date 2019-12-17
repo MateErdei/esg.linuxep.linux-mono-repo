@@ -51,9 +51,9 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             # will fail because it is a byte object.  Hopefully catching the error will help identify why.
             LOGGER.error(
                 "Failed to encode {} policy, error: ({}), using policy value: {}".format(
-                self.__m_app_id,
-                str(exception),
-                str(policy)))
+                    self.__m_app_id,
+                    str(exception),
+                    policy))
             return []
 
         LOGGER.debug(
@@ -150,6 +150,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         process_command
         """
+        
         try:
             LOGGER.debug(
                 "%s Adapter processing %s",
