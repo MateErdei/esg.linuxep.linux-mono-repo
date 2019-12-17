@@ -52,6 +52,10 @@ while [[ $# -ge 1 ]] ; do
             shift
             MCS_CA=$1
             ;;
+        --allow-override-mcs-ca)
+            shift
+            ALLOW_OVERRIDE_MCS_CA=--allow-override-mcs-ca
+            ;;
         *)
             echo "BAD OPTION $1"
             exit 2
@@ -420,6 +424,12 @@ then
 
     if [[ -n "$MCS_CA" ]]
     then
+        if [[ "$ALLOW_OVERRIDE_MCS_CA" == --allow-override-mcs-ca ]]
+        then
+            touch "${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"
+            chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"
+            chmod 444 "${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"
+        fi
         export MCS_CA
     fi
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
