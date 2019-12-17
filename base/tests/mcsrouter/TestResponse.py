@@ -3,7 +3,9 @@
 
 
 import unittest
+import mock
 import sys
+import time
 
 import gzip
 import logging
@@ -12,6 +14,8 @@ logger = logging.getLogger("TestResponse")
 import PathManager
 
 import mcsrouter.mcsclient.responses
+import mcsrouter.utils.timestamp as timestamp
+
 EXAMPLE_BODY = """{
     "type": "sophos.mgt.response.RunLiveQuery",
     "queryMetaData": {
@@ -124,7 +128,35 @@ class TestResponse(unittest.TestCase):
         responses.add_response("app_id", "correlation_id", "timestamp", EXAMPLE_BODY)
         self.assertTrue(responses.has_responses())
 
+    @mock.patch('time.time', return_value=1576600337.2105377)
+    def test_prune_old_responses_removes_old_response(self, *mockargs):
+        responses = mcsrouter.mcsclient.responses.Responses()
+        responses.add_response("app_id", "correlation_id", timestamp.timestamp(time.time() - 35), EXAMPLE_BODY)
+        self.assertFalse(responses.has_responses())
+        self.assertEqual([], responses.get_responses())
 
+    @mock.patch('time.time', return_value=1576600337.2105377)
+    def test_prune_old_responses_does_not_remove_current_response(self, *mockargs):
+        responses = mcsrouter.mcsclient.responses.Responses()
+        responses.add_response("app_id", "correlation_id", timestamp.timestamp(time.time() - 25), EXAMPLE_BODY)
+        self.assertTrue(responses.has_responses())
+        self.assertEqual(1, len(responses.get_responses()))
+
+    @mock.patch('time.time', return_value=1576600337.2105377)
+    def test_prune_old_responses_only_removes_old_response(self, *mockargs):
+        responses = mcsrouter.mcsclient.responses.Responses()
+        responses.add_response("app_id", "correlation_id", timestamp.timestamp(time.time() - 25), EXAMPLE_BODY)
+        responses.add_response("app_id", "correlation_id", timestamp.timestamp(time.time() - 35), EXAMPLE_BODY)
+        self.assertEqual(2, len(responses.get_responses()))
+        self.assertTrue(responses.has_responses())
+        self.assertEqual(1, len(responses.get_responses()))
+
+    @mock.patch('time.time', return_value=1576600337.2105377)
+    def test_prune_old_responses_does_nothing_if_no_responses(self, *mockargs):
+        responses = mcsrouter.mcsclient.responses.Responses()
+        self.assertEqual(0, len(responses.get_responses()))
+        self.assertFalse(responses.has_responses())
+        self.assertEqual(0, len(responses.get_responses()))
 
 
 if __name__ == '__main__':

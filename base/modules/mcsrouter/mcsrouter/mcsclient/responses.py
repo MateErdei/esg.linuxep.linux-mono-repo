@@ -7,6 +7,9 @@ responses Module
 
 import logging
 import gzip
+import time
+
+from mcsrouter.utils import timestamp
 
 
 LOGGER = logging.getLogger(__name__)
@@ -56,6 +59,7 @@ class Responses(object):
         __init__
         """
         self.__m_responses = []
+        self.__m_time_to_live = 30
 
     def add_response(self, app_id, correlation_id, creation_time, body):
         """
@@ -77,10 +81,19 @@ class Responses(object):
     def get_responses(self):
         return self.__m_responses
 
+    def _response_is_alive(self, response):
+        if response.m_creation_time > timestamp.timestamp(time.time() - self.__m_time_to_live):
+            return True
+        return False
+
+    def prune_old_responses(self):
+        self.__m_responses = list(filter(self._response_is_alive, self.__m_responses))
+
     def has_responses(self):
         """
         has_responses
         """
+        self.prune_old_responses()
         if self.__m_responses:
             return True
         return False
