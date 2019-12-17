@@ -312,6 +312,10 @@ do
         --proxy-credentials=*)
             export PROXY_CREDENTIALS="${i#*=}"
         ;;
+        --allow-override-mcs-ca)
+            ALLOW_OVERRIDE_MCS_CA=--allow-override-mcs-ca
+            shift
+        ;;
     esac
 done
 
@@ -542,7 +546,7 @@ chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base i
 
 echo "Running base installer"
 echo "Product will be installed to: ${SOPHOS_INSTALL}"
-MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" ./install.sh
+MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" ./install.sh $ALLOW_OVERRIDE_MCS_CA
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
 then
