@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-DEFAULT_PRODUCT=TemplatePlugin
+DEFAULT_PRODUCT=sspl-plugin-mav
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
@@ -25,8 +25,10 @@ mkdir -p $BASE/log || exit 1
 
 ## These can't be exitFailure since it doesn't exist till the sourcing is done
 [ -f "$BASE"/build-files/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
+# shellcheck source=build-files/pathmgr.sh
 source "$BASE"/build-files/pathmgr.sh
 [ -f "$BASE"/build-files/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
+# shellcheck source=build-files/common.sh
 source "$BASE"/build-files/common.sh
 
 CMAKE_BUILD_TYPE=RelWithDebInfo
@@ -211,10 +213,15 @@ function build()
     then
         mkdir -p $REDIST
         unpack_scaffold_gcc_make "$INPUT"
-        untar_input pluginapi "" ${PLUGIN_TAR}
+        untar_input pluginapi "" "${PLUGIN_TAR}"
         untar_input cmake cmake-3.11.2-linux
         untar_input $GOOGLETESTTAR
     fi
+
+    SUSI_DIR=$INPUT/susi
+    ln -snf "$SUSI_DIR" "$REDIST"/susi
+    ln -snf . "$SUSI_DIR"/include/interface
+    ln -snf libsusi.so.1 "$SUSI_DIR"/lib/libsusi.so
 
     addpath "$REDIST/cmake/bin"
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
