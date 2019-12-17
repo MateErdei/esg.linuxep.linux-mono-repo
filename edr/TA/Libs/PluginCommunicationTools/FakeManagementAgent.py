@@ -9,7 +9,6 @@ from threading import Thread
 import zmq
 
 from .common.socket_utils import try_get_socket, ZMQ_CONTEXT
-#from .common import messages
 from .common.ProtobufSerialisation import *
 from .common.SetupLogger import setup_logging
 from .common.PathsLocation import management_agent_socket_path
