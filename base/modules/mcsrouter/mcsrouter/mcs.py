@@ -22,6 +22,7 @@ from .adapters import app_proxy_adapter
 from .adapters import event_receiver
 from .adapters import response_receiver
 from .adapters import generic_adapter
+from .adapters import livequery_adapter
 from .adapters import mcs_adapter
 from .mcsclient import config_exception
 from .mcsclient import events as events_module
@@ -315,8 +316,9 @@ class MCS:
 
         if not added_apps and not removed_apps:
             return
-
-        self.__m_computer.remove_adapter_by_app_id('APPSPROXY')
+        apps_proxy = 'APPSPROXY'
+        if apps_proxy in self.__m_computer.get_app_ids():
+            self.__m_computer.remove_adapter_by_app_id(apps_proxy)
 
 
         # Check for any new app_ids 'for newly installed plugins'
@@ -325,7 +327,7 @@ class MCS:
             if added_apps:
                 LOGGER.info(
                     "New AppIds found to register for: " +
-                    ' ,'.join(added_apps))
+                    ', '.join(added_apps))
             if removed_apps:
                 LOGGER.info(
                     "AppIds not supported anymore: " +
@@ -333,13 +335,20 @@ class MCS:
                 # Not removing adapters if plugin uninstalled -
                 # this will cause Central to delete commands
             for app in added_apps:
-                self.__m_computer.add_adapter(
-                    generic_adapter.GenericAdapter(
-                        app, path_manager.install_dir()))
+                if app == "LiveQuery":
+                    LOGGER.debug( "Add LiveQuery adapter for app {}".format(app))
+                    self.__m_computer.add_adapter(
+                        livequery_adapter.LiveQueryAdapter(app, path_manager.install_dir())
+                    )
+                else:
+                    LOGGER.debug( "Add Generic adapter for app {}".format(app))
+                    self.__m_computer.add_adapter(
+                        generic_adapter.GenericAdapter(
+                            app, path_manager.install_dir()))
 
         # AppsProxy needs to report all AppIds apart from AGENT and APPSPROXY
         app_ids = [app for app in self.__m_computer.get_app_ids() if app not in [
-            'APPSPROXY', 'AGENT']]
+            apps_proxy, 'AGENT']]
         LOGGER.info(
             "Reconfiguring the APPSPROXY to handle: " +
             ' '.join(app_ids))

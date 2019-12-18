@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def appendPath(d):
     if d not in sys.path:
-        sys.path.append(d)
+        sys.path.insert(0, d)
 
 
 def get_modules_dir():

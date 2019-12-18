@@ -1001,6 +1001,12 @@ class MCSConnection:
                     self,
                     node,
                     commands) for node in command_nodes]
+        except KeyError as key:
+            LOGGER.error("Invalid command. Missing required field: {}".format(key))
+            return []
+        except ValueError as value_error:
+            LOGGER.error("Invalid command: {}.".format(value_error))
+            return []
         finally:
             doc.unlink()
         return commands

@@ -95,6 +95,10 @@ class BasicCommand(Command):
         self.__m_body = self.__m_values['body']
         self._m_app_id = self.__m_values['appId']
         self.__m_xml_text = xml_text
+        if self._m_command_id == "":
+            raise ValueError("Required field 'id' must not be empty")
+        if self._m_app_id == "":
+            raise ValueError("Required field 'AppId' is empty")
 
     def get(self, key):
         """

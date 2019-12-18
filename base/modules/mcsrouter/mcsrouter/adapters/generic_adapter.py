@@ -41,7 +41,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
     def __process_policy(self, policy):
         """
-        __process_policy
+        word of caution: this is a 'private method' will not be overriden by classes inheriting from GenericAdapter
         """
         # handle non ascii characters ( LINUXEP-6757 )
         try:
@@ -86,9 +86,10 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
         return []
 
-    def __process_action(self, command):
+    def _process_action(self, command):
         """
-        __process_action
+        Process the actions by creating the file
+        Can be overriden by classes inheriting from Generic Adapter
         """
         LOGGER.debug("Received %s action", self.__m_app_id)
 
@@ -157,9 +158,11 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
                 self.__m_app_id,
                 str(command))
             try:
+                LOGGER.debug("{} adapter try to process policy".format(self.__m_app_id))
                 policy = command.get_policy()
                 return self.__process_policy(policy)
             except NotImplementedError:
-                return self.__process_action(command)
+                LOGGER.debug("{} adaptor processing as action".format(self.__m_app_id))
+                return self._process_action(command)
         finally:
             command.complete()
