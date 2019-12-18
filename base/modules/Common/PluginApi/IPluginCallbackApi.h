@@ -51,6 +51,10 @@ namespace Common
              * action.
              */
             virtual void queueAction(const std::string& actionXml) = 0;
+            virtual void queueAction(const std::string& content, const std::string& /*correlationId*/)
+            {
+                queueAction(content);
+            };
 
             /**
              *  Method that will be called when the Plugin receives a SIGTERM or SIGINT (@see

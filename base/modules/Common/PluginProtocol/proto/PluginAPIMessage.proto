@@ -25,5 +25,6 @@ message PluginAPIMessage
     repeated string payload = 4;
     optional string error = 5;
     optional bool acknowledge = 6;
+    optional string correlationId = 7;
 }
 

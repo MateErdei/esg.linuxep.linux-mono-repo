@@ -114,6 +114,11 @@ namespace Common
             pluginAPIMessage.set_pluginname(dataMessage.m_pluginName);
             pluginAPIMessage.set_command(PluginProtocol::serializeCommand(dataMessage.m_command));
 
+            if ( !dataMessage.m_correlationId.empty())
+            {
+                pluginAPIMessage.set_correlationid(dataMessage.m_correlationId);
+            }
+
             if (!dataMessage.m_error.empty())
             {
                 pluginAPIMessage.set_error(dataMessage.m_error);
@@ -187,6 +192,12 @@ namespace Common
             {
                 message.m_payload.push_back(payload_content);
             }
+
+            if ( deserializedData.has_correlationid())
+            {
+                message.m_correlationId = deserializedData.correlationid();
+            }
+
             return message;
         }
     } // namespace PluginProtocol

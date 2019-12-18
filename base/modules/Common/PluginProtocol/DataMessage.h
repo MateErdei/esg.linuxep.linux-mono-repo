@@ -75,6 +75,12 @@ namespace Common
              * m_payload, vector used to store the actual message data.
              */
             std::vector<std::string> m_payload;
+
+            /**
+             * correlation id refers to the id of the command received by central.
+             * Currently, it is populated only by Command Request (LiveQuery)
+             */
+             std::string m_correlationId;
         };
 
         std::string ConvertCommandEnumToString(Commands command);
