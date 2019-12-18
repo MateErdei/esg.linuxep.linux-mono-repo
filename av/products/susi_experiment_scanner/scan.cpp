@@ -109,6 +109,16 @@ static const SusiLogCallback GL_log_callback{
     .minLogLevel = SUSI_LOG_LEVEL_DETAIL
 };
 
+static std::string replace(std::string& source, const std::string& target, const std::string& replacement)
+{
+    std::string::size_type pos = source.find(target);
+    std::string::size_type len = target.length();
+
+    source.replace(pos, len, replacement);
+
+    return source;
+}
+
 int main(int argc, char* argv[])
 {
     // std::cout << "SUSI_E_INITIALISING=0x" << std::hex << SUSI_E_INITIALISING << std::dec << std::endl;
@@ -119,7 +129,7 @@ int main(int argc, char* argv[])
 
     static const std::string config = R"({
     "library": {
-        "libraryPath": "/home/pair/gitrepos/susi_experiment/susi",
+        "libraryPath": "<<LIBRARY_PATH>>",
         "tempPath": "/tmp",
         "product": {
             "name": "DLCL_Experiment",
@@ -153,7 +163,16 @@ int main(int argc, char* argv[])
         }
     }
 })";
-    SusiGlobalHandler global_susi(config);
+    std::string libraryPath = "/home/pair/gitrepos/sspl-tools/sspl-plugin-mav-susi-component/sspl-plugin-mav-susi-component-build/output/susi";
+    if (argc > 1)
+    {
+        libraryPath = argv[1];
+    }
+
+    std::string runtimeConfig = config;
+    replace(runtimeConfig, "<<LIBRARY_PATH>>", libraryPath);
+
+    SusiGlobalHandler global_susi(runtimeConfig);
 
     static const std::string scannerConfig = R"({
     "scanner": {
@@ -190,9 +209,9 @@ int main(int argc, char* argv[])
     })";
 
     const char* filename = "/etc/fstab";
-    if (argc > 1)
+    if (argc > 2)
     {
-        filename = argv[1];
+        filename = argv[2];
     }
 
     SusiScanResult* result = nullptr;
