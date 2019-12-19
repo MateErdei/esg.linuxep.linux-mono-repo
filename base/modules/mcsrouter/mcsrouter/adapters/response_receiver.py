@@ -21,12 +21,13 @@ def validate_string_as_json(string):
 
 def receive():
     """
-    Async receive call
+    This function is to be used as a generator in for loops to yield a tuple
+    containing data about LiveQuery response files.
     """
 
     response_dir = os.path.join(path_manager.response_dir())
     for response_file in os.listdir(response_dir):
-        match_object = re.match(r"([A-Z]*)_([A-Za-z0-9]*)_response.json", response_file)
+        match_object = re.match(r"^([^_]*)_([^_]*)_response\.json$", response_file)
         file_path = os.path.join(response_dir, response_file)
         if match_object:
             app_id = match_object.group(1)
@@ -36,11 +37,9 @@ def receive():
                 with open(file_path, 'r', encoding='utf-8') as file_to_read:
                     body = file_to_read.read()
                     validate_string_as_json(body)
-                    yield (app_id, correlation_id, time, body)
+                    yield (file_path, app_id, correlation_id, time, body)
             except json.JSONDecodeError as error:
                 LOGGER.error("Failed to load response json file \"{}\". Error: {}".format(file_path, str(error)))
                 continue
         else:
             LOGGER.warning("Malformed response file: %s", response_file)
-
-        os.remove(file_path)

@@ -35,14 +35,24 @@ class EnvelopeHandler:
         self._last_message = ""
         self._last_request = ""
 
-    def _is_get(self, message):
+    @staticmethod
+    def _is_get(message):
         return message.startswith("GET ")
 
+    @staticmethod
+    def _trim_body_from_response_request(message):
+        return message.split(":")[0].strip()
+
     def set_request(self, last_request):
-        if self._is_get(last_request):
-            ENVELOPE_LOGGER.debug(last_request)
+        if "/responses/endpoint/" in last_request:
+            loggable_last_request = self._trim_body_from_response_request(last_request)
         else:
-            ENVELOPE_LOGGER.info(last_request)
+            loggable_last_request = last_request
+
+        if self._is_get(last_request):
+            ENVELOPE_LOGGER.debug(loggable_last_request)
+        else:
+            ENVELOPE_LOGGER.info(loggable_last_request)
 
         self._last_request = last_request
 
@@ -820,6 +830,12 @@ class MCSConnection:
         """
         self.__close_connection()
 
+    def _build_request_string(self, method, path, body):
+        if body in (None, ""):
+            return "{} {}".format(method, path)
+        else:
+            return "{} {} : {}".format(method, path, body)
+
     def __request(self, path, headers, body="", method="GET"):
         """
         __request
@@ -833,10 +849,7 @@ class MCSConnection:
             LOGGER.debug("Sending cookies: {}".format(cookies))
 
         ENVELOPE_LOGGER.debug("request headers={}".format(str(headers)))
-        if body in (None, ""):
-            request_string = "{} {}".format(method, path)
-        else:
-            request_string = "{} {} : {}".format(method, path, body)
+        request_string = self._build_request_string(method, path, body)
         GLOBAL_ENVELOPE_HANDLER.set_request(request_string)
 
         # Need to use the path from above, so that we can have different URLs
@@ -875,7 +888,7 @@ class MCSConnection:
         (endpoint_id, password) = body.split(":", 1)
         LOGGER.debug("Register returned endpoint_id '{}'".format(endpoint_id))
         LOGGER.debug("Register returned password   '{}'".format(password))
-        return (endpoint_id, password)
+        return endpoint_id, password
 
     def action_completed(self, action):
         """
@@ -883,17 +896,17 @@ class MCSConnection:
         """
         pass
 
+    def _get_basic_authorization_header(self):
+        bytes_to_be_encoded = "{}:{}".format(self.get_id(), self.get_password())
+        bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
+        return "Basic {}".format(to_utf8(base64.b64encode(bytes_to_be_encoded)))
+
     def send_message(self, command_path, body="", method="GET"):
         """
         send_message
         """
-
-        bytes_to_be_encoded = "{}:{}".format(self.get_id(), self.get_password())
-        bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
-
         headers = {
-            "Authorization": "Basic " +
-                             to_utf8(base64.b64encode(bytes_to_be_encoded)),
+            "Authorization": self._get_basic_authorization_header(),
             "Content-Type": "application/xml; charset=utf-8",
         }
         if method != "GET":
@@ -912,15 +925,14 @@ class MCSConnection:
 
     def send_live_query_response_with_id(self, response):
         """
-        send_live_query_response_with_id
+        prepare a HTTP request to send to central containing a LiveQuery response
+        :param response: A response object (responses.py) which contains data from a livequery response file
+        :return: The gzipped body of the LiveQuery response file
         """
         command_path = response.get_command_path(self.get_id())
-        bytes_to_be_encoded = "{}:{}".format(self.get_id(), self.get_password())
-        bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
 
         headers = {
-            "Authorization": "Basic " +
-                             to_utf8(base64.b64encode(bytes_to_be_encoded)),
+            "Authorization": self._get_basic_authorization_header(),
             "Content-Length": response.m_gzip_body_size,
             "Content-Type": "application/gzip; charset=utf-8",
             "ActualSize": response.m_json_body_size
@@ -955,13 +967,19 @@ class MCSConnection:
 
     def send_responses(self, responses):
         """
-        send_responses
+        This method is used in mcs.py to trigger the sending of LiveQuery responses to central
         """
         for response in responses:
-            if response.m_json_body_size != 0:
-                self.send_live_query_response_with_id(response)
-            else:
-                LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(response.m_correlation_id))
+            try:
+                if response.m_json_body_size != 0:
+                    self.send_live_query_response_with_id(response)
+                else:
+                    LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(response.m_correlation_id))
+                response.remove_response_file()
+
+            except Exception as e:
+                LOGGER.error("Failed to send response ({} : {}) : {}".format(response.m_app_id, response.m_correlation_id, e))
+
 
     def query_commands(self, app_ids=None):
         """

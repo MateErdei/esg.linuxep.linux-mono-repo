@@ -11,6 +11,7 @@ INSTALL_DIR=os.path.join(BUILD_DIR,"install")
 import PathManager
 import tempfile
 import shutil
+import re
 import mcsrouter.utils.plugin_registry as plugin_registry
 import mcsrouter.utils.xml_helper as xml_helper
 import mcsrouter.mcsclient.status_event as status_event
@@ -207,6 +208,16 @@ class TestSophosLogging(unittest.TestCase):
         finally:
             shutil.rmtree(dirn)
 
+def assert_message_in_logs(message, logArray, log_level=None):
+    for log_message in logArray:
+        if message in log_message:
+            if log_level:
+                if re.match(r'^{}:'.format(log_level), log_message):
+                    return
+                else:
+                    raise AssertionError( "Messsage: {}, not found in {} logs: {}".format(message, log_level, logArray))
+            return
+    raise AssertionError( "Messsage: {}, not found in logs: {}".format(message, logArray))
 
 if __name__ == '__main__':
     import logging
