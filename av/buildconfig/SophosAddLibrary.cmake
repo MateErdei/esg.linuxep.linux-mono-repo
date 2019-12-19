@@ -45,7 +45,7 @@ function(sophos_add_library TARGET  )
     target_include_directories(${TARGET} PUBLIC ${pluginapiinclude}  ${CMAKE_SOURCE_DIR} ${Args_EXTRA_INCLUDES})
 
 
-    target_link_libraries(${TARGET}  PUBLIC ${Args_EXTRA_PROJECTS} ${pluginapilib} ${Args_EXTRA_LIBS})
+    target_link_libraries(${TARGET}  PUBLIC ${Args_EXTRA_PROJECTS} ${pluginapilib} ${log4cpluslib} ${protobuflib} ${Args_EXTRA_LIBS})
 
     add_dependencies(${TARGET} copy_libs)
 

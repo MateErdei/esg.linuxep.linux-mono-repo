@@ -1,1 +1,2 @@
+add_subdirectory(filewalker)
 add_subdirectory(pluginimpl)

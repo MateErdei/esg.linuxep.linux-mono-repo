@@ -1,0 +1,15 @@
+
+
+
+BASE=$INST/plugins/sspl-plugin-mav
+           files/plugins/${PLUGIN_NAME}/bin
+
+BASE/susi
+BASE/susi/lib
+BASE/susi/v1
+            /vdb
+BASE/lib64
+BASE/bin
+
+
+
