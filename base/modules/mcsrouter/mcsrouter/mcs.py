@@ -320,31 +320,28 @@ class MCS:
         if apps_proxy in self.__m_computer.get_app_ids():
             self.__m_computer.remove_adapter_by_app_id(apps_proxy)
 
-
         # Check for any new app_ids 'for newly installed plugins'
-
-        if added_apps or removed_apps:
-            if added_apps:
-                LOGGER.info(
-                    "New AppIds found to register for: " +
-                    ', '.join(added_apps))
-            if removed_apps:
-                LOGGER.info(
-                    "AppIds not supported anymore: " +
-                    ' ,'.join(removed_apps))
-                # Not removing adapters if plugin uninstalled -
-                # this will cause Central to delete commands
-            for app in added_apps:
-                if app == "LiveQuery":
-                    LOGGER.debug( "Add LiveQuery adapter for app {}".format(app))
-                    self.__m_computer.add_adapter(
-                        livequery_adapter.LiveQueryAdapter(app, path_manager.install_dir())
-                    )
-                else:
-                    LOGGER.debug( "Add Generic adapter for app {}".format(app))
-                    self.__m_computer.add_adapter(
-                        generic_adapter.GenericAdapter(
-                            app, path_manager.install_dir()))
+        if added_apps:
+            LOGGER.info(
+                "New AppIds found to register for: " +
+                ', '.join(added_apps))
+        if removed_apps:
+            LOGGER.info(
+                "AppIds not supported anymore: " +
+                ' ,'.join(removed_apps))
+            # Not removing adapters if plugin uninstalled -
+            # this will cause Central to delete commands
+        for app in added_apps:
+            if app == "LiveQuery":
+                LOGGER.debug( "Add LiveQuery adapter for app {}".format(app))
+                self.__m_computer.add_adapter(
+                    livequery_adapter.LiveQueryAdapter(app, path_manager.install_dir())
+                )
+            else:
+                LOGGER.debug( "Add Generic adapter for app {}".format(app))
+                self.__m_computer.add_adapter(
+                    generic_adapter.GenericAdapter(
+                        app, path_manager.install_dir()))
 
         # AppsProxy needs to report all AppIds apart from AGENT and APPSPROXY
         app_ids = [app for app in self.__m_computer.get_app_ids() if app not in [

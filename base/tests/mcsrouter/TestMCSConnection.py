@@ -1,6 +1,4 @@
 import unittest
-import sys
-import json
 import os
 
 import PathManager
@@ -55,37 +53,37 @@ class TestMCSConnection(unittest.TestCase):
         except Exception:
             pass
 
-    def testUserAgentConstructorEmptyRegToken(self):
+    def test_user_agent_constructor_empty_reg_token(self):
         expected = "Sophos MCS Client/5 Linux sessions "
         actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5","")
         self.assertEqual(actual,expected)
 
-    def testUserAgentConstructorUnknownRegToken(self):
+    def test_user_agent_constructor_unknown_reg_token(self):
         expected = "Sophos MCS Client/5 Linux sessions "
         actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5","unknown")
         self.assertEqual(actual,expected)
 
-    def testUserAgentConstructorNoneRegToken(self):
+    def test_user_agent_constructor_none_reg_token(self):
         expected = "Sophos MCS Client/5 Linux sessions "
         actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5",None)
         self.assertEqual(actual,expected)
 
-    def testUserAgentConstructorRegToken(self):
+    def test_user_agent_constructor_reg_token(self):
         expected = "Sophos MCS Client/5 Linux sessions regToken"
         actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5","Foobar")
         self.assertEqual(actual,expected)
 
-    def testUserAgentConstructorDiffPlatform(self):
+    def test_user_agent_constructor_diff_platform(self):
         expected = "Sophos MCS Client/5 MyPlatform sessions regToken"
         actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5","Foobar","MyPlatform")
         self.assertEqual(actual,expected)
 
-    def testUserAgentConstructorDiffVersion(self):
+    def test_user_agent_constructor_diff_version(self):
         expected = "Sophos MCS Client/99 Linux sessions regToken"
         actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("99","Foobar")
         self.assertEqual(actual,expected)
 
-    def testQueryWillProcessCompleteCommands(self):
+    def test_query_will_process_complete_commands(self):
         mcs_connection=FakeMCSConnection("""<command>
         <id>anyid</id>
         <appId>LiveQuery</appId>
@@ -98,7 +96,7 @@ class TestMCSConnection(unittest.TestCase):
         self._log_does_not_contain(logs.output, 'error')
 
 
-    def testQueryCommandRejectCommandWithoutID(self):
+    def test_query_command_reject_command_without_id(self):
         mcs_connection=FakeMCSConnection("""<command>
         <appId>LiveQuery</appId>
         <creationTime>FakeTime</creationTime>
@@ -109,7 +107,7 @@ class TestMCSConnection(unittest.TestCase):
             mcs_connection.query_commands(['ALC', 'LiveQuery'])
         self._log_contains(logs.output, "Invalid command. Missing required field: 'id'")
 
-    def testQueryCommandRejectCommandWithEmptyID(self):
+    def test_query_command_reject_command_with_empty_id(self):
         mcs_connection=FakeMCSConnection("""<command>
         <id></id>
         <appId>LiveQuery</appId>
@@ -119,9 +117,9 @@ class TestMCSConnection(unittest.TestCase):
       </command>""")
         with self.assertLogs() as logs:
             mcs_connection.query_commands(['ALC', 'LiveQuery'])
-        self._log_contains(logs.output, "Invalid command: Required field 'id' is empty")
+        self._log_contains(logs.output, "Invalid command: Required field 'id' must not be empty")
 
-    def testQueryCommandRejectCommandWithoutAppId(self):
+    def test_query_command_reject_command_withhout_app_id(self):
         mcs_connection=FakeMCSConnection("""<command>
         <id>anyid</id>
         <creationTime>FakeTime</creationTime>
@@ -133,7 +131,7 @@ class TestMCSConnection(unittest.TestCase):
         self._log_contains(logs.output, "Invalid command. Missing required field: 'appId'")
 
 
-    def testQueryCommandRejectCommandWithEmptyID(self):
+    def test_query_command_reject_command_with_empty_app_id(self):
         mcs_connection=FakeMCSConnection("""<command>
         <id>anyid</id>
         <appId></appId>
@@ -146,7 +144,7 @@ class TestMCSConnection(unittest.TestCase):
         self._log_contains(logs.output, "Invalid command: Required field 'AppId' is empty")
 
 
-    def testQueryCommandRejectCommandWithoutBody(self):
+    def test_query_command_reject_command_without_body(self):
         mcs_connection=FakeMCSConnection("""<command>
         <id>anyid</id>
         <appId>LiveQuery</appId>

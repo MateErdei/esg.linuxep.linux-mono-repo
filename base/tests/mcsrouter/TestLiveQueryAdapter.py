@@ -35,7 +35,7 @@ def get_node(xml_text):
     command_nodes = doc.getElementsByTagName('command')[0]
     return command_nodes
 
-def createlive_query_command(name, query, correlation_id, creationTime):
+def create_live_query_command(name, query, correlation_id, creation_time):
     body = osquery_body(name, query)
     xml_string = r"""<command>
         <id>{}</id>
@@ -43,7 +43,7 @@ def createlive_query_command(name, query, correlation_id, creationTime):
         <creationTime>{}</creationTime>
         <ttl>PT10000S</ttl>
         <body>{}</body>
-      </command>""".format(correlation_id, creationTime, xml.sax.saxutils.escape(body))
+      </command>""".format(correlation_id, creation_time, xml.sax.saxutils.escape(body))
     return LiveQueryCommand(get_node(xml_string), xml_string)
 
 def create_live_query_with_very_large_body(correlation_id, creationTime):
@@ -68,13 +68,13 @@ class TestLiveQueryAdapter(unittest.TestCase):
                 return
         raise AssertionError( "Messsage: {}, not found in logs: {}".format(message, logs))
 
-    def testLiveQueryAdapterProcessCommandXmlAndWritesFileToTempActionDir(self):
+    def test_live_query_adapter_process_command_xml_and_writes_file_to_temp_action_dir(self):
         fixed_datetime = datetime.datetime(2019, month=5, day=7, hour=13, minute=33, second=24, microsecond=870000)
         expected_date_string = "20190507133324870000"
 
         livequery_adapter = LiveQueryAdapter('LiveQuery', INSTALL_DIR)
         self.assertEqual(livequery_adapter.get_app_id(), 'LiveQuery')
-        live_query_command = createlive_query_command(name="Test", query="select * from process", correlation_id="correlation-id", creationTime="FakeTime")
+        live_query_command = create_live_query_command(name="Test", query="select * from process", correlation_id="correlation-id", creation_time="FakeTime")
         mocked_open_function = mock.mock_open()
         with self.assertLogs("mcsrouter.adapters.livequery_adapter", level='DEBUG') as logs:
             with mock.patch("builtins.open", mocked_open_function) as mock_i:
@@ -86,14 +86,14 @@ class TestLiveQueryAdapter(unittest.TestCase):
         handle.write.assert_called_once_with(b'{"type": "sophos.mgt.action.RunLiveQuery", "name": "Test", "query": "select * from process"}')
         self._log_contains(logs.output, 'Query saved to path')
 
-    def testLiveQueryWithXmlEntitiesWillBeCorrectEscaped(self):
+    def test_live_query_with_xml_entities_will_be_correct_escaped(self):
         fixed_datetime = datetime.datetime(2019, month=5, day=7, hour=13, minute=33, second=24, microsecond=870000)
         expected_date_string = "20190507133324870000"
 
         livequery_adapter = LiveQueryAdapter('LiveQuery', INSTALL_DIR)
         self.assertEqual(livequery_adapter.get_app_id(), 'LiveQuery')
         query = """select time from process where time > 30 and name != "hello" """
-        live_query_command = createlive_query_command(name="Test", query=query, correlation_id="correlation-id", creationTime="FakeTime")
+        live_query_command = create_live_query_command(name="Test", query=query, correlation_id="correlation-id", creation_time="FakeTime")
         mocked_open_function = mock.mock_open()
         with self.assertLogs("mcsrouter.adapters.livequery_adapter", level='DEBUG') as logs:
             with mock.patch("builtins.open", mocked_open_function) as mock_i:

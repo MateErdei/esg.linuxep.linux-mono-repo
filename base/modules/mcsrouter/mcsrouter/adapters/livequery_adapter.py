@@ -15,7 +15,6 @@ LOGGER = logging.getLogger(__name__)
 class LiveQueryAdapter(generic_adapter.GenericAdapter):
     def __init__(self, app_id, install_dir):
         generic_adapter.GenericAdapter.__init__(self, app_id, install_dir)
-        LOGGER.debug("Livequery adaptor created and setup")
 
     def _process_action(self, command):
         """
@@ -42,5 +41,4 @@ class LiveQueryAdapter(generic_adapter.GenericAdapter):
         action_path_tmp = os.path.join(path_manager.actions_temp_dir(), action_name)
         LOGGER.info("Query saved to path {}".format(action_path_tmp))
         mcsrouter.utils.utf8_write.utf8_write(action_path_tmp, body)
-        LOGGER.debug("LiveQuery adaptor finished point")
         return []
