@@ -64,7 +64,9 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
         COMMAND mkdir -p pluginapi/include/Common/ZMQWrapperApi
         COMMAND mkdir -p pluginapi/tests/include/Common/Helpers
+        COMMAND mkdir -p pluginapi/include/thirdparty/nlohmann-json
         COMMAND mkdir -p pluginapi/tests/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/thirdparty/nlohmann-json pluginapi/include/thirdparty/nlohmann-json
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
