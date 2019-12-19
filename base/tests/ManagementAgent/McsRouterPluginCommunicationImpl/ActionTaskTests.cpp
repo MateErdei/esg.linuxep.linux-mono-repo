@@ -33,7 +33,7 @@ private:
 
 TEST_F(ActionTaskTests, ActionTaskQueuesActionWhenRun) // NOLINT
 {
-    EXPECT_CALL(m_mockPluginManager, queueAction("SAV", "Hello")).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, queueAction("SAV", "Hello", "")).WillOnce(Return(1));
 
     auto filesystemMock = new NiceMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
@@ -48,7 +48,7 @@ TEST_F(ActionTaskTests, ActionTaskQueuesActionWhenRun) // NOLINT
 
 TEST_F(ActionTaskTests, ActionTaskDeletesActionFileOnceQueued) // NOLINT
 {
-    EXPECT_CALL(m_mockPluginManager, queueAction("SAV", "Hello")).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, queueAction("SAV", "Hello", "")).WillOnce(Return(1));
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
@@ -64,7 +64,7 @@ TEST_F(ActionTaskTests, ActionTaskDeletesActionFileOnceQueued) // NOLINT
 
 TEST_F(ActionTaskTests, ActionTaskHandlesNameWithoutHyphen) // NOLINT
 {
-    EXPECT_CALL(m_mockPluginManager, queueAction(_, _)).Times(0);
+    EXPECT_CALL(m_mockPluginManager, queueAction(_, _, _)).Times(0);
 
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
         m_mockPluginManager, "/tmp/action/ActionTaskHandlesNameWithoutHyphen");

@@ -122,7 +122,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogServiceWillShouldIgnoreInvalidRequests) 
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
-    pluginProxy.queueAction("", "NotValidAction");
+    pluginProxy.queueAction("", "NotValidAction","");
     pluginProxy.applyNewPolicy("", "anypolicy");
     std::vector<Common::PluginApi::StatusInfo> returnedStatus = pluginProxy.getStatus();
     ASSERT_EQ(returnedStatus.size(), 1);

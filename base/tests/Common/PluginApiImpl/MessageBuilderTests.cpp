@@ -111,8 +111,7 @@ TEST_F(MessageBuilderTests, requestDoActionMessageReturnsExpectedMessage) // NOL
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
     std::string payload = "ActionXml";
     expectedMessage.m_payload.push_back(payload);
-
-    DataMessage actualMessage = m_messageBuilder->requestDoActionMessage(defaultAppId, payload);
+    DataMessage actualMessage = m_messageBuilder->requestDoActionMessage(defaultAppId, payload, "");
 
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }

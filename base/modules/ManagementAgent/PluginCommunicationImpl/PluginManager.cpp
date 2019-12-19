@@ -102,7 +102,7 @@ namespace ManagementAgent
             return pluginsNotified;
         }
 
-        int PluginManager::queueAction(const std::string& appId, const std::string& actionXml)
+        int PluginManager::queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId)
         {
             LOGSUPPORT("PluginManager: Queue action " << appId);
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
@@ -117,7 +117,7 @@ namespace ManagementAgent
                 {
                     try
                     {
-                        proxy.second->queueAction(appId, actionXml);
+                        proxy.second->queueAction(appId, actionXml, correlationId);
                         ++pluginsNotified;
                     }
                     catch (std::exception& ex)

@@ -123,7 +123,7 @@ namespace watchdog
                     *requester, WatchdogServiceLineName(), 5000, 5000);
                 Common::PluginCommunicationImpl::PluginProxy pluginProxy(
                     std::move(requester), WatchdogServiceLineName());
-                pluginProxy.queueAction("", WDServiceCallBack::TriggerUpdate());
+                pluginProxy.queueAction("", WDServiceCallBack::TriggerUpdate(), "");
                 LOGINFO("Update Acknowledged.");
             }
             catch (Common::PluginCommunication::IPluginCommunicationException& ex)

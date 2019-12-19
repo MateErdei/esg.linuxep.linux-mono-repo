@@ -51,8 +51,9 @@ namespace Common
              * action.
              */
             virtual void queueAction(const std::string& actionXml) = 0;
-            virtual void queueAction(const std::string& content, const std::string& /*correlationId*/)
+            virtual void queueActionWithCorrelation(const std::string& content, const std::string& correlationId)
             {
+                (void) correlationId;
                 queueAction(content);
             };
 

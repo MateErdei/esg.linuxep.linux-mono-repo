@@ -39,10 +39,10 @@ namespace Common
             }
         }
 
-        void PluginProxy::queueAction(const std::string& appId, const std::string& actionXml)
+        void PluginProxy::queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId)
         {
             Common::PluginProtocol::DataMessage replyMessage =
-                getReply(m_messageBuilder.requestDoActionMessage(appId, actionXml));
+                getReply(m_messageBuilder.requestDoActionMessage(appId, actionXml, correlationId));
             if (!m_messageBuilder.hasAck(replyMessage))
             {
                 throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'action event'");

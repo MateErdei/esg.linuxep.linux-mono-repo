@@ -207,14 +207,14 @@ TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromR
 TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin) // NOLINT
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testaction")).Times(1);
-    std::thread applyAction([this]() { EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testaction"), 1); });
+    std::thread applyAction([this]() { EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testaction", ""), 1); });
     applyAction.join();
 }
 
 TEST_F(TestPluginManager, TestDoActionNotSentToRegisteredPluginWithWrongAppId) // NOLINT
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testaction")).Times(0);
-    std::thread applyAction([this]() { EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testaction"), 0); });
+    std::thread applyAction([this]() { EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testaction", ""), 0); });
     applyAction.join();
 }
 
@@ -223,11 +223,11 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction) // 
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionnotsent")).Times(0);
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionsent")).Times(1);
     std::thread applyAction([this]() {
-        EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionnotsent"), 0);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionnotsent",""), 0);
         std::vector<std::string> appIds;
         appIds.emplace_back("wrongappid");
         m_pluginManagerPtr->registerAndSetAppIds(m_pluginOneName, appIds, appIds);
-        EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionsent"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionsent",""), 1);
     });
     applyAction.join();
 }
@@ -238,8 +238,8 @@ TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPlugins) // NOLINT
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(1);
     std::thread applyAction([this]() {
         m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone",""), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo",""), 1);
     });
     applyAction.join();
 }
@@ -261,9 +261,9 @@ TEST_F(TestPluginManager, TestDoActionOnFailedPluginLeavesItInRegisteredPluginLi
         m_pluginApiTwo.reset();
         std::vector<std::string> pluginsBeforeRemoval = { m_pluginOneName, m_pluginTwoName };
         std::vector<std::string> pluginsAfterRemoval = { m_pluginOneName, m_pluginTwoName };
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone",""), 1);
         EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsBeforeRemoval);
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo"), 0);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo",""), 0);
         EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsAfterRemoval);
     });
     applyPolicy.join();
@@ -286,9 +286,9 @@ TEST_F(TestPluginManager, TestDoActionOnPluginNoLongerInstalledRemovesItFromRegi
         m_pluginApiTwo.reset();
         std::vector<std::string> pluginsBeforeRemoval = { m_pluginOneName, m_pluginTwoName };
         std::vector<std::string> pluginsAfterRemoval = { m_pluginOneName };
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone",""), 1);
         EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsBeforeRemoval);
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo"), 0);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo",""), 0);
         EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsAfterRemoval);
     });
     applyPolicy.join();
@@ -299,8 +299,8 @@ TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPluginsInOneThread) // NOLI
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(1);
     m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
-    EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
-    EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo"), 1);
+    EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone",""), 1);
+    EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo",""), 1);
 }
 
 TEST_F(TestPluginManager, TestGetStatusOnRegisteredPlugins) // NOLINT
@@ -364,7 +364,7 @@ TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName) // NO
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
     EXPECT_CALL(*secondMockedPluginApiCallback, queueAction("testaction_after_re-registration")).Times(1);
     std::thread secondRegistration([this, &secondMockedPluginApiCallback]() {
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone",""), 1);
 
         // the system will fail to create a plugin to bind to the same address.
         ASSERT_THROW(
@@ -397,7 +397,38 @@ TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName) // NO
         }
         ASSERT_TRUE(m_pluginApi) << "Failed to create a new plugin api binding to the same address. ";
 
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testaction_after_re-registration"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testaction_after_re-registration",""), 1);
     });
     secondRegistration.join();
 }
+
+// mock to demonstrate that plugins implementing queueActionWithCorrelation will receive
+// actions in that method.
+class MockedPluginApiCallbackWithQueueActionAndCorrelation : public MockedPluginApiCallback
+{
+public:
+    void queueAction(const std::string&) override
+    {
+        throw std::logic_error("this method should never be called");
+    }
+    MOCK_METHOD2(queueActionWithCorrelation, void(const std::string&, const std::string&));
+
+};
+
+
+TEST_F(TestPluginManager, PluginImplementingQueueActionWithCorrelationShouldReceiveTheCorrelation) // NOLINT
+{
+    std::shared_ptr<MockedPluginApiCallbackWithQueueActionAndCorrelation> pluginWithFullQueueAction = std::make_shared<MockedPluginApiCallbackWithQueueActionAndCorrelation>();
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
+    EXPECT_CALL(*pluginWithFullQueueAction, queueActionWithCorrelation("testactionone", "correlation1")).Times(1);
+    m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, pluginWithFullQueueAction);
+    // the same action was sent to the two plugins.
+    // pluginOne receives in the queueAction
+    // pluginTwo receives in the queueActionWithCorrelation
+    EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactionone","correlation1"), 1);
+    EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone","correlation1"), 1);
+
+}
+
+
+

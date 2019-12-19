@@ -47,10 +47,11 @@ namespace ManagementAgent
              *
              * @param appId
              * @param actionXml
+             * @param correlationId  refers to the tag id of the command sent from Central. It will be empty if not available
              * @return Number of plugins that received the action.
              * @note In case of error
              */
-            virtual int queueAction(const std::string& appId, const std::string& actionXml) = 0;
+            virtual int queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId) = 0;
 
             /**
              * Query the plugin for the status of each appId that the plugin named pluginName support.

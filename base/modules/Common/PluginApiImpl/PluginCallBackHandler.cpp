@@ -38,7 +38,7 @@ namespace Common
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION:
                         LOGSUPPORT("Received new Action");
-                        m_pluginCallback->queueAction(m_messageBuilder.requestExtractAction(request), request.m_correlationId);
+                        m_pluginCallback->queueActionWithCorrelation(m_messageBuilder.requestExtractAction(request), request.m_correlationId);
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS:
                     {

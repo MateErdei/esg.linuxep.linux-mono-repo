@@ -30,7 +30,7 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
         LOGWARN("Got an invalid file name for action detection: " << m_filePath);
         return;
     }
-
+    //TODO: IMPLEMENT THE REQUEST WITH CORRELATION HERE
     std::string appId = basename.substr(0, pos);
     std::string payload;
 
@@ -44,7 +44,7 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
         throw;
     }
 
-    int pluginsNotified = m_pluginManager.queueAction(appId, payload);
+    int pluginsNotified = m_pluginManager.queueAction(appId, payload, "");
     LOGINFO("Action " << m_filePath << " sent to " << pluginsNotified << " plugins");
 
     Common::FileSystem::fileSystem()->removeFile(m_filePath);

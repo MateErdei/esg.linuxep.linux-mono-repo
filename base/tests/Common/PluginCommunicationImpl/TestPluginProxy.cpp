@@ -133,11 +133,12 @@ TEST_F(TestPluginProxy, TestPluginProxyDoAction) // NOLINT
 {
     auto doActionMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "thisisanaction");
+    doActionMsg.m_correlationId = "correlation-id";
     auto ackMsg = createAcknowledgementMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION);
     auto serialisedMsg = m_Protocol.serialize(doActionMsg);
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    ASSERT_NO_THROW(m_pluginProxy->queueAction("plugin_one", "thisisanaction"));
+    ASSERT_NO_THROW(m_pluginProxy->queueAction("plugin_one", "thisisanaction", "correlation-id"));
 }
 
 TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck) // NOLINT
@@ -149,7 +150,7 @@ TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck) // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     EXPECT_THROW( // NOLINT
-        m_pluginProxy->queueAction("plugin_one", "thisisanaction"),
+        m_pluginProxy->queueAction("plugin_one", "thisisanaction", ""),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
