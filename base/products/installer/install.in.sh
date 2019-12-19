@@ -428,7 +428,7 @@ then
         then
             touch "${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"
             chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"
-            chmod 444 "${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"
+            chmod 640 "${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"
         fi
         export MCS_CA
     fi
