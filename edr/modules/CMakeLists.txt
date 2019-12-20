@@ -1,2 +1,2 @@
+add_subdirectory(livequery)
 add_subdirectory(pluginimpl)
-add_subdirectory(Proc)

@@ -17,8 +17,30 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/OsqueryProcessImpl.h>
 #include <modules/pluginimpl/PluginAdapter.h>
+#include <modules/livequery/IResponseDispatcher.h>
+
 
 std::string g_pluginName = PLUGIN_NAME;
+
+class FakeQueryProcessor: public livequery::IQueryProcessor
+{
+public:
+     livequery::QueryResponse query(const std::string & /*query*/) override
+     {
+         return livequery::QueryResponse{};
+     }
+};
+
+class FakeDispatcher : public livequery::IResponseDispatcher
+{
+public:
+    void sendResponse(const std::string& , const livequery::QueryResponse& ) override
+    {
+
+    }
+
+};
+
 
 int main()
 {
@@ -55,8 +77,11 @@ int main()
         LOGERROR("Plugin Api could not be instantiated: " << apiException.what());
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
+    std::unique_ptr<livequery::IQueryProcessor> queryProcessor(new FakeQueryProcessor{});
+    std::unique_ptr<livequery::IResponseDispatcher> queryResponder(new FakeDispatcher{});
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack,
+                                std::move(queryProcessor), std::move(queryResponder));
 
     try
     {

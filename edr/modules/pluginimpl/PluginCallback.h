@@ -23,7 +23,8 @@ namespace Plugin
         // not implemented.
         void applyNewPolicy(const std::string& policyXml) override;
 
-        void queueAction(const std::string& actionXml) override;
+        void queueAction(const std::string& ) override;
+        void queueActionWithCorrelation(const std::string& queryJson, const std::string& correlationId) override;
 
         void onShutdown() override;
         Common::PluginApi::StatusInfo getStatus(const std::string& appId) override;

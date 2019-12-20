@@ -26,12 +26,16 @@ namespace Plugin
 
     void PluginCallback::applyNewPolicy(const std::string& policyXml)
     {
-        LOGSUPPORT("Not Implemented: applyNewPolicy. Policy: " << policyXml);
+        LOGSUPPORT("Applying new policy");
+        m_task->push(Task{ Task::TaskType::Policy, policyXml });
     }
 
-    void PluginCallback::queueAction(const std::string&  actionXml)
+    void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGERROR("This method should never be called."); }
+
+    void PluginCallback::queueActionWithCorrelation(const std::string& queryJson, const std::string& correlationId)
     {
-        LOGSUPPORT("Not Implemented: queueAction. Action: " << actionXml);
+        LOGSUPPORT("Receive new query");
+        m_task->push(Task{Task::TaskType::Query, queryJson, correlationId});
     }
 
     void PluginCallback::onShutdown()

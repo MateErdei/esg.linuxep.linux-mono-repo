@@ -94,6 +94,8 @@ if(NOT EXISTS ${INPUT})
     message( FATAL_ERROR ${ERRORMESSAGE})
 endif()
 
+SET( PLUGINAPIPATH /tmp/pluginapi)
+
 if(NOT DEFINED PLUGINAPIPATH)
     SET( PLUGINAPIPATH ${INPUT}/pluginapi)
 endif()

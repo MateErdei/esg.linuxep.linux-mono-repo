@@ -10,7 +10,7 @@ namespace Plugin
     void QueueTask::push(Task task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
-        m_list.push_back(task);
+        m_list.emplace_back(std::move(task));
         m_cond.notify_one();
     }
 
@@ -25,25 +25,7 @@ namespace Plugin
 
     void QueueTask::pushStop()
     {
-        Task stopTask{ .taskType = Task::TaskType::STOP, .Content = "" };
-        push(stopTask);
-    }
-
-    void QueueTask::pushOsqueryProcessDelayRestart()
-    {
-        Task stopTask{ .taskType = Task::TaskType::OSQUERYPROCESSFAILEDTOSTART, .Content = "" };
-        push(stopTask);
-    }
-
-    void QueueTask::pushOsqueryProcessFinished()
-    {
-        Task stopTask{ .taskType = Task::TaskType::OSQUERYPROCESSFINISHED, .Content = "" };
-        push(stopTask);
-    }
-
-    void QueueTask::pushRestartOsquery()
-    {
-        Task stopTask{ .taskType = Task::TaskType::RESTARTOSQUERY, .Content = "" };
+        Task stopTask{ .m_taskType = Task::TaskType::Stop, .m_content = "" };
         push(stopTask);
     }
 } // namespace Plugin

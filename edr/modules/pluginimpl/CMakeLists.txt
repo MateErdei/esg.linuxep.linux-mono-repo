@@ -14,12 +14,7 @@ sophos_add_library(pluginimpl SHARED
         Telemetry.cpp
         Telemetry.h
         config.h
-        ApplicationPaths.h
-        ApplicationPaths.cpp
-        OsqueryProcessImpl.h
-        OsqueryProcessImpl.cpp
-        IOsqueryProcess.h
-        TelemetryConsts.h
-        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
-        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} procimpl
+        EXTRA_PROJECTS livequeryimpl
+        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules
+        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
 )
