@@ -111,7 +111,7 @@ class TestMCSConnection(unittest.TestCase):
         sucessful_get_command_path = lambda endpoint_id: "/responses/endpoint/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
         unsuccessful_get_command_path = lambda endpoint_id: raise_exception("Induced Exception")
         bad_response = SimpleNamespace(m_json_body_size=12, get_command_path=unsuccessful_get_command_path, remove_response_file=dummy_function, m_app_id="bad_app_id", m_correlation_id="bad_correlation_id")
-        good_response = SimpleNamespace(m_json_body_size=12, get_command_path=sucessful_get_command_path, remove_response_file=dummy_function, m_app_id="good_app_id", m_correlation_id="good_correlation_id", m_gzip_body_size=12, m_gzip_body = "body")
+        good_response = SimpleNamespace(m_json_body_size=12, get_command_path=sucessful_get_command_path, remove_response_file=dummy_function, m_app_id="good_app_id", m_correlation_id="good_correlation_id", m_gzip_body_size=12, m_json_body = '{"hello": "world"}')
 
         responses = [bad_response, good_response]
         with self.assertLogs(level="ERROR") as error_logs:
@@ -124,9 +124,9 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request", return_value=("header", "body"))
     def test_send_live_query_response_with_id(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
-        gzip_body = gzip.compress(bytes("body", "utf-8"))
+        json_body = '{"hello": "world"}'
         dummy_get_command_path = lambda endpoint_id: "/responses/endpoint/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
-        response = SimpleNamespace(m_json_body_size=12, m_gzip_body=gzip_body, m_gzip_body_size=len(gzip_body), get_command_path=dummy_get_command_path)
+        response = SimpleNamespace(m_json_body_size=12, m_json_body=json_body, m_gzip_body_size=len(json_body), get_command_path=dummy_get_command_path)
         body = mcs_connection.send_live_query_response_with_id(response)
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request.call_count, 1)
         self.assertEqual(body, "body")

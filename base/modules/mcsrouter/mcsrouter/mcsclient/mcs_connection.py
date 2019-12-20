@@ -933,8 +933,7 @@ class MCSConnection:
 
         headers = {
             "Authorization": self._get_basic_authorization_header(),
-            "Content-Length": response.m_gzip_body_size,
-            "Content-Type": "application/gzip; charset=utf-8",
+            "Content-Type":  "application/json",
             "ActualSize": response.m_json_body_size
         }
 
@@ -942,7 +941,7 @@ class MCSConnection:
             "MCS request url={} body size={}".format(
                 command_path,
                 response.m_gzip_body_size))
-        (headers, body) = self.__request(command_path, headers, response.m_gzip_body, "POST")
+        (headers, body) = self.__request(command_path, headers, response.m_json_body, "POST")
         return body
 
     def send_status_event(self, status):
