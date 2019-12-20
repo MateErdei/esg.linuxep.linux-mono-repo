@@ -17,8 +17,12 @@ namespace Plugin
     {
         enum class TaskType
         {
-            Policy,
-            Stop
+            //POLICY,
+            RESTARTOSQUERY,
+            OSQUERYPROCESSFINISHED,
+            OSQUERYPROCESSFAILEDTOSTART,
+            STOP
+            //UPDATEMESSAGERELAY
         };
         TaskType taskType;
         std::string Content;
@@ -34,6 +38,9 @@ namespace Plugin
         void push(Task);
         Task pop();
         void pushStop();
+        void pushOsqueryProcessDelayRestart();
+        void pushOsqueryProcessFinished();
+        void pushRestartOsquery();
     };
 
 } // namespace Plugin

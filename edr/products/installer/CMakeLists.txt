@@ -4,6 +4,11 @@ configure_file(cleanuprealm.dat.in ${PROJECT_BINARY_DIR}/cleanuprealm.dat @ONLY 
 configure_file(plugin.json.in ${PROJECT_BINARY_DIR}/${PLUGIN_NAME}.json @ONLY )
 configure_file(uninstall.sh.in ${PROJECT_BINARY_DIR}/uninstall.sh @ONLY )
 
+install(FILES ${OSQUERY_BINARY}
+        DESTINATION
+        files/plugins/${PLUGIN_NAME}/bin/
+        PERMISSIONS OWNER_READ OWNER_EXECUTE)
+
 install(FILES  ${PROJECT_BINARY_DIR}/${PLUGIN_NAME}.json DESTINATION files/base/pluginRegistry)
 
 install(FILES ${PROJECT_BINARY_DIR}/install.sh

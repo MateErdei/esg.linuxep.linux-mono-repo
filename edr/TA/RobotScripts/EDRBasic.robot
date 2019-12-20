@@ -47,6 +47,11 @@ EDR plugin Can Send Status
 
     ${result} =   Terminate Process  ${handle}
 
+EDR plugin Can Start Osquery
+    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
+    Check EDR Plugin Installed
+    Check Osquery Running
+    ${result} =   Terminate Process  ${handle}
 
 *** Keywords ***
 Run Shell Process
@@ -86,3 +91,5 @@ Check EDR Plugin Installed
     ...  1 secs
     ...  FakeManagement Log Contains   Registered plugin: edr
 
+Check Osquery Running
+    Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd   OnError=osquery not running

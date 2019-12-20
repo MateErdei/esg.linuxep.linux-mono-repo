@@ -1,27 +1,42 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2019 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "config.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IPidLockFileUtils.h>
 #include <Common/Logging/PluginLoggingSetup.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/ErrorCodes.h>
+#include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/PluginApi/IPluginResourceManagement.h>
+#include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/Logger.h>
+#include <modules/pluginimpl/OsqueryProcessImpl.h>
 #include <modules/pluginimpl/PluginAdapter.h>
 
-const char* PluginName = PLUGIN_NAME;
+std::string g_pluginName = PLUGIN_NAME;
 
 int main()
 {
     using namespace Plugin;
     int ret = 0;
-    Common::Logging::PluginLoggingSetup loggerSetup(PluginName);
+    Common::Logging::PluginLoggingSetup loggerSetup(g_pluginName);
+
+    std::unique_ptr<Common::FileSystem::ILockFileHolder> lockFile;
+    try
+    {
+        lockFile = Common::FileSystem::acquireLockFile(pidFile());
+    }
+    catch( std::system_error & ex)
+    {
+        LOGERROR( ex.what());
+        LOGERROR("Only one instance of EDR can run.");
+        return ex.code().value();
+    }
 
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
         Common::PluginApi::createPluginResourceManagement();
@@ -33,7 +48,7 @@ int main()
 
     try
     {
-        baseService = resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
+        baseService = resourceManagement->createPluginAPI(g_pluginName, sharedPluginCallBack);
     }
     catch (const Common::PluginApi::ApiException & apiException)
     {

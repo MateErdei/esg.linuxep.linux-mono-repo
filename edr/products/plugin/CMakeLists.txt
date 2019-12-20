@@ -1,11 +1,9 @@
-
-
 add_executable(${plugin_name}
         main.cpp)
 target_link_libraries(${plugin_name} PUBLIC pluginimpl)
 
 SET_TARGET_PROPERTIES( ${plugin_name}
-       PROPERTIES
+        PROPERTIES
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
 

@@ -20,6 +20,7 @@ namespace Plugin
     public:
         explicit PluginCallback(std::shared_ptr<QueueTask> task);
 
+        // not implemented.
         void applyNewPolicy(const std::string& policyXml) override;
 
         void queueAction(const std::string& actionXml) override;
