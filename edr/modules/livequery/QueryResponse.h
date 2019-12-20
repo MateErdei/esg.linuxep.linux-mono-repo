@@ -14,6 +14,10 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 namespace livequery{
     class QueryResponse {
     public:
+        static QueryResponse emptyResponse()
+        {
+            return QueryResponse{};
+        }
     };
 }
 

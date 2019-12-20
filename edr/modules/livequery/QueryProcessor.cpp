@@ -29,18 +29,51 @@ namespace
 void livequery::processQuery(livequery::IQueryProcessor &iQueryProcessor, livequery::IResponseDispatcher& dispatcher,
         const std::string &queryJson, const std::string &correlationId)
 {
-    auto queryMap = Common::Telemetry::flatJsonToMap(queryJson);
-    auto queryIter = queryMap.find(querySqlKey);
-    if ( queryMap.find(queryTypeKey) == queryMap.end() || queryMap.find(queryNameKey) == queryMap.end() || queryIter == queryMap.end())
+    std::unordered_map<std::string, Common::Telemetry::TelemetryValue> requestMap;
+    try
+    {
+        requestMap = Common::Telemetry::flatJsonToMap(queryJson);
+    }
+    catch(std::runtime_error& ex)
+    {
+        LOGWARN("Received an invalid request, failed to parse the json input.");
+        LOGSUPPORT("Invalid request, failed to parse the json with error: " << ex.what());
+        LOGDEBUG("Content of input request: " << queryJson);
+        return;;
+    }
+
+    auto queryIter = requestMap.find(querySqlKey);
+    auto queryNameIter = requestMap.find(queryNameKey);
+    if (requestMap.find(queryTypeKey) == requestMap.end() || queryNameIter == requestMap.end() || queryIter == requestMap.end())
     {
         //log invalid query abort
-        LOGWARN("Invalid query, required json values are: '" << queryTypeKey <<"', '" << queryNameKey << "'and '"<< querySqlKey);
+        LOGWARN("Invalid request, required json values are: '" << queryTypeKey <<"', '" << queryNameKey << "' and '"<< querySqlKey);
+        LOGDEBUG("Content of input request: " << queryJson);
         return;
     }
 
     //check option value is string
-    std::string query = queryIter->second.getString();
-    livequery::QueryResponse response =  iQueryProcessor.query(query);
-    dispatcher.sendResponse(correlationId, response);
+    if (queryIter->second.getType() != Common::Telemetry::TelemetryValue::Type::string_type ||
+            queryNameIter->second.getType() != Common::Telemetry::TelemetryValue::Type::string_type)
+    {
+        LOGWARN("Invalid request, required json value 'query' must be a string");
+        LOGDEBUG("Content of input request: " << queryJson);
+        return;
+    }
+
+    try
+    {
+        LOGINFO("Executing query name: " << queryNameIter->second.getString() << " and corresponding id: " << correlationId );
+        std::string query = queryIter->second.getString();
+        LOGDEBUG(query);
+        livequery::QueryResponse response =  iQueryProcessor.query(query);
+        dispatcher.sendResponse(correlationId, response);
+    }
+    catch(const std::exception& ex)
+    {
+        LOGWARN("Error while executing query");
+        LOGDEBUG("Content of input request: '" << queryIter->second.getString() <<"'");
+    }
+
 
 }
