@@ -17,6 +17,7 @@ import os
 import signal
 import sys
 import time
+import gc
 
 from . import sophos_https
 from .mcsclient import mcs_exception, config_exception
@@ -336,7 +337,6 @@ if __name__ == '__main__':
     # This has been first detected by the system test:
     # MCS Router Stops If MCS Certificate Cannot Be Read By Sophos-spl-user
     try:
-        import gc
         LOGGER.debug("run gc")
         gc.collect()
         LOGGER.debug("gc done")
