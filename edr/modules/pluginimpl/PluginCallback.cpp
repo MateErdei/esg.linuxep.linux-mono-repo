@@ -24,14 +24,14 @@ namespace Plugin
         LOGDEBUG("Plugin Callback Started");
     }
 
-    void PluginCallback::applyNewPolicy([[maybe_unused]] const std::string& policyXml)
+    void PluginCallback::applyNewPolicy(const std::string& policyXml)
     {
-        LOGSUPPORT("Not Implemented: applyNewPolicy");
+        LOGSUPPORT("Not Implemented: applyNewPolicy. Policy: " << policyXml);
     }
 
-    void PluginCallback::queueAction([[maybe_unused]] const std::string&  actionXml)
+    void PluginCallback::queueAction(const std::string&  actionXml)
     {
-        LOGSUPPORT("Not Implemented: queueAction");
+        LOGSUPPORT("Not Implemented: queueAction. Action: " << actionXml);
     }
 
     void PluginCallback::onShutdown()

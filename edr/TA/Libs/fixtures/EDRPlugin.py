@@ -2,8 +2,10 @@ import subprocess
 import os
 import time
 
+
 def _edr_exec_path():
     return os.path.join(os.environ['SOPHOS_INSTALL'], 'plugins/edr/bin/edr')
+
 
 def _edr_log_path():
     return os.path.join(os.environ['SOPHOS_INSTALL'], 'plugins/edr/log/edr.log')

@@ -95,10 +95,7 @@ namespace Plugin
             fileSystem->removeFileOrDirectory(osquerySocket);
         }
 
-        std::string osqueryFlagsFilePath = Plugin::osqueryFlagsFilePath();
-        std::string osqueryConigFilePath = Plugin::osqueryConfigFilePath();
-
-        const std::vector<std::string>& arguments = {"--config_path ", osqueryConigFilePath, "--flagfile", osqueryFlagsFilePath};
+        const std::vector<std::string>& arguments = {"--config_path=" + Plugin::osqueryConfigFilePath(), "--flagfile=" + Plugin::osqueryFlagsFilePath()};
 
         startProcess(osqueryPath, arguments);
         m_processMonitorPtr->waitUntilProcessEnds();

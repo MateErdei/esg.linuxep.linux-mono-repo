@@ -27,13 +27,14 @@ Mock Base Installation
     Remove Directory   ${SOPHOS_INSTALL}   recursive=True
     Create Directory   ${SOPHOS_INSTALL}
     Create Directory   ${SOPHOS_INSTALL}/tmp
-    Create Directory   ${SOPHOS_INSTALL}/var/ipc/
-    Create Directory   ${SOPHOS_INSTALL}/var/ipc/plugins/
+    Create Directory   ${SOPHOS_INSTALL}/var/ipc
+    Create Directory   ${SOPHOS_INSTALL}/var/ipc/plugins
     Create File        ${SOPHOS_INSTALL}/base/etc/logger.conf   VERBOSITY=DEBUG
     Run Process   groupadd  sophos-spl-group
 
 
 Setup Component For Testing
     Copy Directory   ${COMPONENT_SDDS}/files/plugins   ${SOPHOS_INSTALL}
+    Create Directory   ${SOPHOS_INSTALL}/plugins/edr/var
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
     Run Process   chmod +x ${COMPONENT_BIN_PATH}  shell=True
