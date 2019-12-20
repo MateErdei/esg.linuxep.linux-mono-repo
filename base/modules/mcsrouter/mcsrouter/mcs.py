@@ -489,7 +489,7 @@ class MCS:
                     # get all pending responses
                     for file_path, app_id, correlation_id, response_time, response_body in response_receiver.receive():
                         LOGGER.info("queuing response for %s", app_id)
-                        add_response(app_id, correlation_id, timestamp.timestamp(
+                        add_response(file_path, app_id, correlation_id, timestamp.timestamp(
                             response_time), response_body)
 
                     # send status

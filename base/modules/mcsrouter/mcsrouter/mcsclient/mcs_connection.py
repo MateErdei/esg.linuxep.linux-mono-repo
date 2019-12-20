@@ -977,8 +977,8 @@ class MCSConnection:
                     LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(response.m_correlation_id))
                 response.remove_response_file()
 
-            except Exception as e:
-                LOGGER.error("Failed to send response ({} : {}) : {}".format(response.m_app_id, response.m_correlation_id, e))
+            except Exception as exception:
+                LOGGER.error("Failed to send response ({} : {}) : {}".format(response.m_app_id, response.m_correlation_id, exception))
 
 
     def query_commands(self, app_ids=None):
