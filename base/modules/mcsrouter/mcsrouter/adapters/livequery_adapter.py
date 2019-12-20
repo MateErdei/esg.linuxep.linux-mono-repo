@@ -13,6 +13,11 @@ import mcsrouter.utils.xml_helper as xml_helper
 LOGGER = logging.getLogger(__name__)
 
 class LiveQueryAdapter(generic_adapter.GenericAdapter):
+    """
+    LiveQueryAdapter class override _process_action to handle processing of LiveQuery request
+    LiveQuery request require that their file written to the actions folder has its name as:
+     '<AppId=LiveQuery>_<correlation-id=id>_<timestamp=creationTime>_request.json'
+    """
     def __init__(self, app_id, install_dir):
         generic_adapter.GenericAdapter.__init__(self, app_id, install_dir)
 
