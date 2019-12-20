@@ -184,7 +184,7 @@ namespace Common
                 // for this case, the io run in its thread, and after the recognition of the service stop
                 // the pipe is explicitly closed.
                 auto ioservice = std::async(std::launch::async, [this]() { asioIOService.run(); });
-                LOGDEBUG(m_path << "Process main loop: Waiting for process to finish");
+                LOGDEBUG(m_path << " Process main loop: Waiting for process to finish");
                 std::error_code ec;
                 m_child->wait(ec);
                 LOGDEBUG(m_path << " Process main loop: Wait finished");
