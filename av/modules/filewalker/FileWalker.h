@@ -5,9 +5,9 @@
 #ifndef SSPL_PLUGIN_MAV_FILEWALKER_H
 #define SSPL_PLUGIN_MAV_FILEWALKER_H
 
-#include <experimental/filesystem>
+#include "sophos_filesystem.h"
 
-namespace fs = std::experimental::filesystem;
+namespace fs = sophos_filesystem;
 
 namespace filewalker
 {
