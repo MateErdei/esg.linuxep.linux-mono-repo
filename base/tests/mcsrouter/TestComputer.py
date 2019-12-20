@@ -17,6 +17,15 @@ def getTargetSystem():
     import mcsrouter.targetsystem
     return mcsrouter.targetsystem.TargetSystem()
 
+class ComputerThatSkipsDirectCommand (mcsrouter.computer.Computer):
+    def __init__(self):
+        mcsrouter.computer.Computer.__init__(self)
+
+    def direct_command(self, command):
+        logger.info("Skipping execution of command: {}".format(command))
+
+
+
 class TestcomputerCommonStatus(unittest.TestCase):
     @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
     def testCommonStatusXml(self, *mockarg):
@@ -89,6 +98,30 @@ class TestComputer(unittest.TestCase):
     def testStatusDoesNotChange(self):
         c = mcsrouter.computer.Computer()
         self.assertFalse(c.has_status_changed())
+
+    @mock.patch("os.path.isdir", return_value=True)
+    def test_run_commands_move_action_files_to_the_expected_path(self, *mockarg):
+        """Test to demonstrate that the finalization of Computer.run_commands will move any file found in
+        /tmp/sophos-spl/tmp/action to  /tmp/sophos-spl/base/mcs/action folder
+        /tmp is set as the 'root folder'
+        """
+
+        commands = ["fake1", "fake2"]
+
+        for initial_file_name, final_file_name in [("OrderMARK_SAV_action_timestamp.xml", "SAV_action_timestamp.xml"),
+                                                   ("1_LiveQuery_correlation-id_timestamp_response.json", "LiveQuery_correlation-id_timestamp_response.json"),
+                                                   ("AnyOtherFile.any", "AnyOtherFile.any"),
+                                                   ("Appid_forgotMark.txt", "forgotMark.txt")]: # it expects the first element before underscore to be the mark, and will remove it if found
+            c = ComputerThatSkipsDirectCommand()
+            mocked_open_function = mock.MagicMock()
+            temp_file_name = "/tmp/sophos-spl/tmp/action/" + initial_file_name
+            final_file_name = "/tmp/sophos-spl/base/mcs/action/" + final_file_name
+            glog_action = mock.MagicMock(side_effect=[[], [temp_file_name]])
+            with mock.patch("mcsrouter.computer.os.rename", mocked_open_function) as mock_i:
+                with mock.patch("mcsrouter.computer.glob.glob", glog_action) as glob_i:
+                    c.run_commands(commands)
+            mock_i.assert_called_once_with(temp_file_name, final_file_name)
+
 
 if __name__ == '__main__':
     unittest.main()
