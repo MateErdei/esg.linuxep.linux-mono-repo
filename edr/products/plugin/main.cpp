@@ -27,7 +27,7 @@ class FakeQueryProcessor: public livequery::IQueryProcessor
 public:
      livequery::QueryResponse query(const std::string & /*query*/) override
      {
-         return livequery::QueryResponse{};
+         return livequery::QueryResponse::emptyResponse();
      }
 };
 

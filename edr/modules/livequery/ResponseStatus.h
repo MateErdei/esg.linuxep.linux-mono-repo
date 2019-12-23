@@ -8,10 +8,24 @@ Copyright Sophos Limited.  All rights reserved.
 #include <string>
 
 namespace livequery{
-    enum class ErrorCode{SUCCESS, ERROR};
-    struct ResponseStatus {
+    enum class ErrorCode : int{
+        SUCCESS=0,
+        OSQUERYERROR=1,
+        RESPONSEEXCEEDLIMIT=100,
+        EXTENSIONEXITEDWHILERUNNING=101,
+        UNEXPECTEDERROR=102
+        };
+    class ResponseStatus
+    {
+    private:
         ErrorCode m_errorCode;
         std::string m_errorReason;
-        // todo extract this information from osquery status
+    public:
+        ResponseStatus( ErrorCode error);
+        void overrideErrorDescription(const std::string & );
+
+        ErrorCode  errorCode() const;
+        int errorValue() const;
+        const std::string&  errorDescription() const;
     };
 }
