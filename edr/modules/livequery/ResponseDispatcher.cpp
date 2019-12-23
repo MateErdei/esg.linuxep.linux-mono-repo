@@ -134,6 +134,19 @@ namespace livequery
 
     }
 
+/**
+ *  Create json respecting the requirement that the order of the first keys must be fixed.
+ *
+ *  type
+ *  queryMetaData
+ *  columnMetaData
+ *  columnData
+ *  https://wiki.sophos.net/pages/viewpage.action?spaceKey=SophosCloud&title=EMP%3A+action-run-live-query
+ *
+ *  Since this is not enforced by the json library, it has been composed in directly.
+ * @param response the QueryResponse which contain all the information for the json
+ * @return  The content of the serialized json.
+ */
     std::string ResponseDispatcher::serializeToJson(const QueryResponse &response)
     {
         std::stringstream serializedJson;

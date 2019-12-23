@@ -17,7 +17,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/OsqueryProcessImpl.h>
 #include <modules/pluginimpl/PluginAdapter.h>
-#include <modules/livequery/IResponseDispatcher.h>
+#include <modules/livequery/ResponseDispatcher.h>
 
 
 std::string g_pluginName = PLUGIN_NAME;
@@ -27,20 +27,25 @@ class FakeQueryProcessor: public livequery::IQueryProcessor
 public:
      livequery::QueryResponse query(const std::string & /*query*/) override
      {
-         return livequery::QueryResponse::emptyResponse();
+         livequery::ResponseStatus status{ livequery::ErrorCode::SUCCESS};
+         livequery::ResponseMetaData metaData;
+         livequery::ResponseData::ColumnHeaders headers;
+         headers.emplace_back("first", livequery::ResponseData::AcceptedTypes::STRING);
+         headers.emplace_back("second", livequery::ResponseData::AcceptedTypes::BIGINT);
+         livequery::ResponseData::ColumnData  columnData;
+         livequery::ResponseData::RowData  rowData;
+         rowData["first"] = "first1";
+         rowData["first"] = "first2";
+         columnData.push_back(rowData);
+         rowData["second"] = "second1";
+         rowData["second"] = "second2";
+         columnData.push_back(rowData);
+
+         livequery::QueryResponse response{status, livequery::ResponseData{headers,columnData}};
+         response.setMetaData(metaData);
+         return response;
      }
 };
-
-class FakeDispatcher : public livequery::IResponseDispatcher
-{
-public:
-    void sendResponse(const std::string& , const livequery::QueryResponse& ) override
-    {
-
-    }
-
-};
-
 
 int main()
 {
@@ -78,7 +83,7 @@ int main()
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
     std::unique_ptr<livequery::IQueryProcessor> queryProcessor(new FakeQueryProcessor{});
-    std::unique_ptr<livequery::IResponseDispatcher> queryResponder(new FakeDispatcher{});
+    std::unique_ptr<livequery::IResponseDispatcher> queryResponder(new livequery::ResponseDispatcher{});
 
     PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack,
                                 std::move(queryProcessor), std::move(queryResponder));
