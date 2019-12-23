@@ -5,11 +5,158 @@ Copyright Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ResponseDispatcher.h"
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFilePermissions.h>
+#include <thirdparty/nlohmann-json/json.hpp>
+#include <sstream>
+
+namespace
+{
+    class AppendToJsonArray
+    {
+    public:
+        explicit AppendToJsonArray(livequery::ResponseData::ValueType valueType):
+            m_valueType{valueType}
+        {
+
+        }
+        void extractValueAndAddToJson( const livequery::ResponseData::RowData & rowData, nlohmann::json &jsonArray) const
+        {
+            // it is expected to always succeed as this check was validated by the ResponseData
+            std::string value = rowData.at(m_valueType.first);
+            if ( m_valueType.second == livequery::ResponseData::AcceptedTypes::STRING)
+            {
+                jsonArray.push_back(value);
+            }
+            else
+            {
+                std::stringstream s(value);
+                long long longValue;
+                s >> longValue;
+                if (s.fail())
+                {
+                    // TODO what should be done?
+                    jsonArray.push_back(value);
+                }
+                else
+                {
+                    jsonArray.push_back(longValue);
+                }
+            }
+        }
+
+        livequery::ResponseData::ValueType  m_valueType;
+
+    };
+
+    std::string queryMetaDataObject(const livequery::QueryResponse & queryResponse)
+    {
+        nlohmann::json  queryMetaData;
+        //queryMetaData["durationMillis"] = 32;
+        //queryMetaData["sizeBytes"] = 490;
+        if (    queryResponse.status().errorCode() != livequery::ErrorCode::OSQUERYERROR
+                &&
+                !queryResponse.data().hasDataExceededLimit()
+                &&
+                queryResponse.data().hasHeaders())
+        {
+            queryMetaData["rows"] = queryResponse.data().columnData().size();
+        }
+        queryMetaData["errorCode"] = queryResponse.status().errorValue();
+        queryMetaData["errorMessage"] = queryResponse.status().errorDescription();
+        return queryMetaData.dump();
+    }
+    std::string toString(livequery::ResponseData::AcceptedTypes acceptedType )
+    {
+        switch (acceptedType)
+        {
+            case livequery::ResponseData::AcceptedTypes::BIGINT:
+                return "BIGINT";
+            default:
+            case livequery::ResponseData::AcceptedTypes::STRING:
+                return "TEXT";
+        }
+    }
+
+    std::string columnMetaDataObject(const livequery::QueryResponse & queryResponse)
+    {
+        nlohmann::json  columnMetaData = nlohmann::json::array();
+        const auto & headers = queryResponse.data().columnHeaders();
+        for( auto & entry: headers)
+        {
+            std::map<std::string,std::string> cell;
+            cell["name"] = entry.first;
+            cell["type"] = toString(entry.second);
+            columnMetaData.push_back(cell);
+        }
+        return columnMetaData.dump();
+    }
+
+    std::string columnDataObject(const livequery::QueryResponse & queryResponse)
+    {
+
+        const auto & headers = queryResponse.data().columnHeaders();
+        const auto & columnData = queryResponse.data().columnData();
+        std::vector<AppendToJsonArray> dataExtractors{};
+        for(auto & entry: headers)
+        {
+            dataExtractors.emplace_back(entry);
+        }
+
+        nlohmann::json  columnDataJson = nlohmann::json::array();
+
+        for( auto & rowData : columnData)
+        {
+            nlohmann::json  rowDataJson = nlohmann::json::array();
+            for( auto & dataExtractor : dataExtractors)
+            {
+                dataExtractor.extractValueAndAddToJson(rowData, rowDataJson);
+            }
+            columnDataJson.push_back(rowDataJson);
+        }
+        return columnDataJson.dump();
+    }
+}
 
 namespace livequery
 {
-    void ResponseDispatcher::sendResponse(const std::string &/*correlationId*/, const livequery::QueryResponse &/*response*/)
+    void ResponseDispatcher::sendResponse(const std::string & correlationId, const livequery::QueryResponse & response)
     {
+        std::string fileContent = serializeToJson(response);
+        std::string tmpPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+        std::string rootInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        std::string targetDir = Common::FileSystem::join( rootInstall, "base/mcs/response" );
+        std::string fileName = "LiveQuery_" + correlationId + "_response.json";
+        std::string fullTargetName = Common::FileSystem::join(targetDir, fileName);
 
+        Common::FileSystem::createAtomicFileToSophosUser(fileContent, fullTargetName, tmpPath);
+
+    }
+
+    std::string ResponseDispatcher::serializeToJson(const QueryResponse &response)
+    {
+        std::stringstream serializedJson;
+        serializedJson << R"({
+"type": "sophos.mgt.response.RunLiveQuery")";
+
+        serializedJson << R"(,
+"queryMetaData": )" << queryMetaDataObject(response);
+
+        if ( response.data().hasHeaders())
+        {
+            serializedJson << R"(,
+"columnMetaData": )" << columnMetaDataObject(response);
+        }
+
+        if( !response.data().columnData().empty())
+        {
+            serializedJson << R"(,
+"columnData": )" << columnDataObject(response);
+        }
+
+        serializedJson << R"(
+})";
+        return serializedJson.str();
     }
 }

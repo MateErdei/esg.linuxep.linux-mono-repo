@@ -11,7 +11,7 @@ namespace
         switch ( errorCode)
         {
             case livequery::ErrorCode::SUCCESS:
-                return std::string{};
+                return "OK";
             case livequery::ErrorCode::EXTENSIONEXITEDWHILERUNNING:
                 return "Extension exited while running query";
             case livequery::ErrorCode::RESPONSEEXCEEDLIMIT:

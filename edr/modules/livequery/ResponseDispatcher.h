@@ -13,5 +13,6 @@ namespace livequery{
     {
     public:
         void sendResponse(const std::string& correlationId, const QueryResponse& response) override;
+        std::string serializeToJson(const QueryResponse & response);
     };
 }
