@@ -1,0 +1,5 @@
+{
+  "type": "sophos.mgt.action.RunLiveQuery",
+  "name": "Top 2 Processes",
+  "query": "SELECT sophosPID, pathname, start_time FROM sophos_process_journal limit 2"
+}

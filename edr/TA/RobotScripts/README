@@ -10,17 +10,10 @@ In order to run these tests in tap do:
  2) tap run edr_plugin.integration --debug-loop
 
 In order to run them in vagrant box:
-    vagrant up
-    vagrant ssh
-    sudo mkdir -p  /opt/test/inputs
-    sudo mkdir -p /opt/test/inputs/edr/
-    sudo ln -s  /vagrant/sspl-plugin-edr-component/TA /opt/test/inputs/
-    sudo ln -s  /vagrant/sspl-plugin-edr-component/output/SDDS-COMPONENT /opt/test/inputs/edr/SDDS-COMPONENT
-    sudo apt-get -y install python3.7 python3-pip
-    python3 -m pip install pyzmq protobuf pytest-html robotframework
-    cd /vagrant/sspl-plugin-edr-component/TA
-    sudo python3 -m robot RobotScripts/
-
-
-
-
+  1) Setup some links:
+    a) /opt/test/inputs/test_scripts -> /vagrant/sspl-plugin-edr-component/TA
+    b) /opt/test/inputs/edr/SDDS-COMPONENT -> /vagrant/sspl-plugin-edr-component/output/SDDS-COMPONENT/
+  2) copy /vagrant/everest-base/output/SDDS-COMPONENT/ into   /opt/test/inputs/edr/base-sdds
+  3) ssh into vagrant
+  4) cd /vagrant/sspl-plugin-edr-component/TA
+  5) sudo python3 -m robot RobotScripts/
