@@ -11,6 +11,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
 #include <Common/UtilityImpl/StrError.h>
+#include <Common/UtilityImpl/UniformIntDistribution.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 #include <sys/stat.h>
 
 #include <cstdlib>
@@ -235,4 +237,28 @@ namespace Common
 Common::FileSystem::IFilePermissions* Common::FileSystem::filePermissions()
 {
     return Common::FileSystem::filePermissionsStaticPointer().get();
+}
+
+void Common::FileSystem::createAtomicFileToSophosUser(const std::string & content, const std::string& finalPath,
+        const std::string& tempDir)
+{
+
+    Common::UtilityImpl::UniformIntDistribution uniformIntDistribution(1000, 9999);
+    std::string fileName = Common::FileSystem::basename(finalPath);
+    auto fileSystem = Common::FileSystem::fileSystem();
+    std::string tempFilePath = Common::FileSystem::join(tempDir, fileName + std::to_string(uniformIntDistribution.next()));
+    try
+    {
+        fileSystem->writeFile(tempFilePath, content);
+        Common::FileSystem::filePermissions()->chown(tempFilePath, sophos::user(), sophos::group());
+        fileSystem->moveFile(tempFilePath, finalPath);
+    }
+    catch (Common::FileSystem::IFileSystemException& ex)
+    {
+        int ret = ::remove(tempFilePath.c_str());
+        static_cast<void>(ret);
+        std::string reason = ex.what();
+        throw Common::FileSystem::IFileSystemException(
+                std::string{"Failed to create file at: "} + finalPath + ". Reason: " + reason);
+    }
 }

@@ -52,26 +52,7 @@ namespace
         const std::string& content,
         const std::string& tempDir)
     {
-        Common::UtilityImpl::UniformIntDistribution uniformIntDistribution(1000, 9999);
-
-        std::string tempFilePath =
-            Common::FileSystem::join(tempDir, "tempfilename" + std::to_string(uniformIntDistribution.next()) + ".tmp");
-        try
-        {
-            LOGSUPPORT("Write report file to " << outputFilePath << " using temp file: " << tempDir);
-            auto fileSystem = Common::FileSystem::fileSystem();
-            fileSystem->writeFile(tempFilePath, content);
-            Common::FileSystem::filePermissions()->chown(tempFilePath, sophos::user(), sophos::group());
-            fileSystem->moveFile(tempFilePath, outputFilePath);
-            LOGDEBUG("Set ownership of file: " << outputFilePath << " to " << sophos::user());
-        }
-        catch (Common::FileSystem::IFileSystemException&)
-        {
-            int ret = ::remove(tempFilePath.c_str());
-            static_cast<void>(ret);
-            LOGERROR("Failed to create file at: " << outputFilePath);
-            throw;
-        }
+        Common::FileSystem::createAtomicFileToSophosUser(content, outputFilePath, tempDir);
     }
 
 } // namespace

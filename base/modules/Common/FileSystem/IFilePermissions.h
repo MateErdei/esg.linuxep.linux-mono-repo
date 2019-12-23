@@ -107,5 +107,9 @@ namespace Common
          * @return BORROWED IFilePermissions pointer
          */
         IFilePermissions* filePermissions();
+
+        /**helper method to create atomic file with permission to read/write for sophos-spl user and group
+         * */
+         void createAtomicFileToSophosUser(const std::string & content, const std::string& finalPath, const std::string & tempDir);
     } // namespace FileSystem
 } // namespace Common
