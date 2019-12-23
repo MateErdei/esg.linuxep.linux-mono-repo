@@ -11,7 +11,7 @@ def test_edr_plugin_can_receive_actions(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     agent = sspl_mock.management
     action_content = "test action"
-    agent.send_plugin_action('edr', 'LiveQuery', action_content)
+    agent.send_plugin_action('edr', 'LiveQuery', "123", action_content)
     edr_plugin_instance.wait_log_contains("Received new Action")
 
 

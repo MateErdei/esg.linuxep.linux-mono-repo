@@ -17,7 +17,6 @@ class ControlMessagesToPlugin(Enum):
     CUSTOM_MESSAGE_TO_AGENT = b'SendCustomMessageToAgent'
     STOP_PLUGIN = b'Stop'
 
-
 class Message(object):
     def __init__(self, app_id=None, plugin_name=None, command=None, contents=None, acknowledge=False, error=None):
         self.app_id = app_id
@@ -26,6 +25,7 @@ class Message(object):
         self.acknowledge = acknowledge
         self.error = error
         self.contents = contents
+        self.correlationId = ""
 
     def set_ack(self):
         self.acknowledge = True
@@ -37,6 +37,10 @@ class Message(object):
         self.error = error_message
 
     def __str__(self):
-        return "APPID={}, Command={}, Contents={}, Acknowledge={}, Error={}".format(self.app_id, self.command, self.contents, self.acknowledge, self.error)
+        if self.correlationId:
+            return "APPID={}, Command={}, Contents={}, Acknowledge={}, Error={}, CorrelationId={}".format(
+                self.app_id, self.command, self.contents, self.acknowledge, self.error, self.correlationId)
+        else:
+            return "APPID={}, Command={}, Contents={}, Acknowledge={}, Error={}".format(self.app_id, self.command, self.contents, self.acknowledge, self.error)
 
 

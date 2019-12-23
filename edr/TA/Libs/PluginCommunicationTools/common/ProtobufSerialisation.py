@@ -42,6 +42,8 @@ def deserialise_message(serialised_message):
 
     if pluginapimessage.HasField("error"):
         message.error = pluginapimessage.error
+    if pluginapimessage.HasField("correlationId"):
+        message.correlationId = pluginapimessage.correlationId
     elif pluginapimessage.HasField("acknowledge"):
         message.acknowledge = pluginapimessage.acknowledge
     else:
@@ -62,4 +64,6 @@ def serialise_message(message):
     else:
         for item in message.contents:
             pluginapimessage.payload.append(item)
+    if message.correlationId != "":
+        pluginapimessage.correlationId = message.correlationId
     return pluginapimessage.SerializeToString()

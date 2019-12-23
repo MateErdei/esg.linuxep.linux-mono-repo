@@ -72,6 +72,7 @@ void livequery::processQuery(livequery::IQueryProcessor &iQueryProcessor, livequ
     catch(const std::exception& ex)
     {
         LOGWARN("Error while executing query");
+        LOGSUPPORT("Error information: " << ex.what());
         LOGDEBUG("Content of input request: '" << queryIter->second.getString() <<"'");
     }
 

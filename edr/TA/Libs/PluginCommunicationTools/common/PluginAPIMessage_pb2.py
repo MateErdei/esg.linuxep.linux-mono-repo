@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='PluginProtocolProto',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=_b('\n\x16PluginAPIMessage.proto\x12\x13PluginProtocolProto\"\xea\x02\n\x10PluginAPIMessage\x12\x12\n\npluginName\x18\x01 \x01(\t\x12\x44\n\x07\x63ommand\x18\x02 \x01(\x0e\x32\x33.PluginProtocolProto.PluginAPIMessage.CommandOption\x12\x15\n\rapplicationId\x18\x03 \x01(\t\x12\x0f\n\x07payload\x18\x04 \x03(\t\x12\r\n\x05\x65rror\x18\x05 \x01(\t\x12\x13\n\x0b\x61\x63knowledge\x18\x06 \x01(\x08\"\xaf\x01\n\rCommandOption\x12\r\n\tSendEvent\x10\x01\x12\x0e\n\nSendStatus\x10\x02\x12\x10\n\x0cRegistration\x10\x03\x12\x0f\n\x0b\x41pplyPolicy\x10\x04\x12\x0c\n\x08\x44oAction\x10\x05\x12\x11\n\rRequestStatus\x10\x06\x12\r\n\tTelemetry\x10\x07\x12\x18\n\x14RequestCurrentPolicy\x10\x08\x12\x12\n\x0eInvalidCommand\x10\t')
+  serialized_pb=_b('\n\x16PluginAPIMessage.proto\x12\x13PluginProtocolProto\"\x81\x03\n\x10PluginAPIMessage\x12\x12\n\npluginName\x18\x01 \x01(\t\x12\x44\n\x07\x63ommand\x18\x02 \x01(\x0e\x32\x33.PluginProtocolProto.PluginAPIMessage.CommandOption\x12\x15\n\rapplicationId\x18\x03 \x01(\t\x12\x0f\n\x07payload\x18\x04 \x03(\t\x12\r\n\x05\x65rror\x18\x05 \x01(\t\x12\x13\n\x0b\x61\x63knowledge\x18\x06 \x01(\x08\x12\x15\n\rcorrelationId\x18\x07 \x01(\t\"\xaf\x01\n\rCommandOption\x12\r\n\tSendEvent\x10\x01\x12\x0e\n\nSendStatus\x10\x02\x12\x10\n\x0cRegistration\x10\x03\x12\x0f\n\x0b\x41pplyPolicy\x10\x04\x12\x0c\n\x08\x44oAction\x10\x05\x12\x11\n\rRequestStatus\x10\x06\x12\r\n\tTelemetry\x10\x07\x12\x18\n\x14RequestCurrentPolicy\x10\x08\x12\x12\n\x0eInvalidCommand\x10\t')
 )
 
 
@@ -70,8 +70,8 @@ _PLUGINAPIMESSAGE_COMMANDOPTION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=235,
-  serialized_end=410,
+  serialized_start=258,
+  serialized_end=433,
 )
 _sym_db.RegisterEnumDescriptor(_PLUGINAPIMESSAGE_COMMANDOPTION)
 
@@ -125,6 +125,13 @@ _PLUGINAPIMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='correlationId', full_name='PluginProtocolProto.PluginAPIMessage.correlationId', index=6,
+      number=7, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -139,7 +146,7 @@ _PLUGINAPIMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=48,
-  serialized_end=410,
+  serialized_end=433,
 )
 
 _PLUGINAPIMESSAGE.fields_by_name['command'].enum_type = _PLUGINAPIMESSAGE_COMMANDOPTION

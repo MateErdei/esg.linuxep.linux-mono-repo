@@ -27,9 +27,13 @@ class ManagementAgentPluginRequester(object):
     def build_message(self, command, app_id, contents):
         return Message(app_id, self.name, command.value, contents)
 
-    def action(self, app_id, action):
-        self.logger.info("Sending {} action to {} via {}".format(action, self.name, self.__m_socket_path))
+    def action(self, app_id, correlation, action):
+        self.logger.info("Sending {} action [correlation {}] to {} via {}".format(action,
+                                                                                  correlation,
+                                                                                  self.name,
+                                                                                  self.__m_socket_path))
         message = self.build_message(Messages.DO_ACTION, app_id, [action])
+        message.correlationId = correlation
         self.send_message(message)
 
         raw_response = self.__m_socket.recv()
@@ -116,9 +120,9 @@ class FakeManagement(object):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
         plugin.policy(appid, content)
 
-    def send_plugin_action(self, plugin_name, appid, content):
+    def send_plugin_action(self, plugin_name, appid, correlation, content):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
-        plugin.action(appid, content)
+        plugin.action(appid, correlation, content)
 
     def get_plugin_status(self, plugin_name, appid):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)

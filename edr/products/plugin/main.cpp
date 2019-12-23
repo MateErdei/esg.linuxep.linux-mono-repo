@@ -35,9 +35,9 @@ public:
          livequery::ResponseData::ColumnData  columnData;
          livequery::ResponseData::RowData  rowData;
          rowData["first"] = "first1";
-         rowData["first"] = "first2";
-         columnData.push_back(rowData);
          rowData["second"] = "second1";
+         columnData.push_back(rowData);
+         rowData["first"] = "first2";
          rowData["second"] = "second2";
          columnData.push_back(rowData);
 

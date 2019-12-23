@@ -2,13 +2,14 @@ import subprocess
 import os
 import time
 
+def _sophos_spl_path():
+    return os.environ['SOPHOS_INSTALL']
 
 def _edr_exec_path():
-    return os.path.join(os.environ['SOPHOS_INSTALL'], 'plugins/edr/bin/edr')
-
+    return os.path.join(_sophos_spl_path(), 'plugins/edr/bin/edr')
 
 def _edr_log_path():
-    return os.path.join(os.environ['SOPHOS_INSTALL'], 'plugins/edr/log/edr.log')
+    return os.path.join(_sophos_spl_path(), 'plugins/edr/log/edr.log')
 
 
 def _file_content(path):
@@ -25,18 +26,6 @@ class EDRPlugin:
         self._proc = subprocess.Popen([_edr_exec_path()])
 
     def stop_edr(self):
-        """
-        Stop EDR and allow graceful termination
-        """
-        if self._proc:
-            self._proc.terminate()
-            self._proc.wait()
-            self._proc = None
-
-    def kill_edr(self):
-        """
-        Stop EDR and do not allow graceful termination
-        """
         if self._proc:
             self._proc.kill()
             self._proc.wait()
@@ -56,5 +45,13 @@ class EDRPlugin:
                 return
             time.sleep(1)
         raise AssertionError("Log does not contain {}.\nFull log: {}".format(content, self.log()))
+
+    def wait_file(self, relative_path, timeout=10):
+        full_path = os.path.join(_sophos_spl_path(), relative_path)
+        for i in range(timeout):
+            if os.path.exists(full_path):
+                return _file_content(full_path)
+            time.sleep(1)
+        raise AssertionError("File not found after {} seconds. Path={}".format(timeout, full_path))
 
 
