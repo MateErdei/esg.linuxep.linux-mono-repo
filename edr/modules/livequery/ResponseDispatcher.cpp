@@ -10,11 +10,12 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <thirdparty/nlohmann-json/json.hpp>
-
+#include "Logger.h"
 #include <sstream>
 
 namespace
 {
+
     class AppendToJsonArray
     {
     public:
@@ -36,8 +37,10 @@ namespace
                 s >> longValue;
                 if (s.fail())
                 {
-                    // TODO what should be done?
-                    jsonArray.push_back(value);
+                    LOGERROR("Failed to convert value to integer: " << value);
+                    // very unlikely to happen as the value was integer for osquery
+                    // to claim it was integer.
+                    throw std::runtime_error("Conversion failure");
                 }
                 else
                 {
@@ -149,21 +152,32 @@ namespace livequery
 
         serializedJson << R"(,
 "queryMetaData": )" << queryMetaDataObject(response);
-
-        if (response.data().hasHeaders())
-        {
-            serializedJson << R"(,
+    try{
+            if (response.data().hasHeaders())
+            {
+                serializedJson << R"(,
 "columnMetaData": )" << columnMetaDataObject(response);
-        }
+            }
 
-        if (!response.data().columnData().empty())
-        {
-            serializedJson << R"(,
+            if (!response.data().columnData().empty())
+            {
+                serializedJson << R"(,
 "columnData": )" << columnDataObject(response);
+            }
+
+            serializedJson << R"(
+})";
+            return serializedJson.str();
+
+        }catch (std::exception & error) // NOLINT
+        {
+            LOGERROR( "Serialize to Json failed: " << error.what());
+            // consistent with Windows behaviour: https://stash.sophos.net/projects/WINEP/repos/livequery/browse/src/ExtensionLib/QueryProcessorCallback.cpp#210
+            QueryResponse error102{ResponseStatus{ErrorCode::UNEXPECTEDERROR},
+                                             ResponseData::emptyResponse()};
+            return serializeToJson(error102);
+
         }
 
-        serializedJson << R"(
-})";
-        return serializedJson.str();
     }
 } // namespace livequery

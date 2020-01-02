@@ -156,7 +156,7 @@ TEST(TestResponseDispatcher, validQueryResponseShouldReturnExpectedJson)
 }
 
 
-TEST(TestResponseDispatcher, invalidNumbersWillKeepTheirStringValue)
+TEST(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
 {
     ResponseData::ColumnData columnData;
     ResponseData::RowData  rowData;
@@ -174,27 +174,19 @@ TEST(TestResponseDispatcher, invalidNumbersWillKeepTheirStringValue)
 
     QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
                            ResponseData{headerExample(), columnData}};
+
     std::string expected = R"({
     "type": "sophos.mgt.response.RunLiveQuery",
     "queryMetaData": {
-        "rows": 3,
-        "errorCode": 0,
-        "errorMessage": "OK"
-    },
-    "columnMetaData": [
-      {"name": "pathname", "type": "TEXT"},
-      {"name": "sophosPID", "type": "TEXT"},
-      {"name": "start_time", "type": "BIGINT"}
-    ],
-    "columnData": [
-        ["anyfile","17984:132164677472649892", 50330],
-        ["anyfile","17984:132164677472649892", "thisIsNotInteger"],
-        ["anyfile","17984:132164677472649892", 35980]
-    ]
-})";
+        "errorCode": 102,
+        "errorMessage": "Unexpected error running query"
+    }
+}
+)";
     ResponseDispatcher dispatcher;
     std::string calculated = dispatcher.serializeToJson(response);
-    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))<< "\nCalculated: "<< calculated;
+    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))
+      << "\nCalculated: "<< calculated << ".\n expected: \n" << expected;
 }
 
 
