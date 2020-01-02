@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(sspl_edr_plugin)
+set(CMAKE_CXX_STANDARD 17)
 
 set(SANITISE_FLAGS   "-fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
 set(WARNING_FLAGS "-Wall -Wextra -Werror -fstack-protector-all")

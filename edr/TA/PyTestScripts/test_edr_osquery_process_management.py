@@ -29,6 +29,7 @@ def _wait_for_osquery_to_stop(pid):
 
     raise AssertionError("osqueryd failed to stop")
 
+
 def test_edr_plugin_starts_osquery(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     _wait_for_osquery_to_run()
