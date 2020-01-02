@@ -32,6 +32,11 @@ namespace
             }
             else
             {
+                if (value.empty())
+                {
+                    jsonArray.push_back(value);
+                    return;
+                }
                 std::stringstream s(value);
                 long long longValue;
                 s >> longValue;
