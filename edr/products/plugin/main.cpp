@@ -35,10 +35,10 @@ public:
          livequery::ResponseData::ColumnData  columnData;
          livequery::ResponseData::RowData  rowData;
          rowData["first"] = "first1";
-         rowData["second"] = "second1";
+         rowData["second"] = "1";
          columnData.push_back(rowData);
          rowData["first"] = "first2";
-         rowData["second"] = "second2";
+         rowData["second"] = "2";
          columnData.push_back(rowData);
 
          livequery::QueryResponse response{status, livequery::ResponseData{headers,columnData}};
