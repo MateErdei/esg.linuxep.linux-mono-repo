@@ -26,7 +26,7 @@ std::string Plugin::osqueryPath()
     return Common::FileSystem::join(fromRelative("bin"), osqueryBinaryName());
 }
 
-std::string Plugin::pidFile()
+std::string Plugin::lockFilePath()
 {
     return fromRelative("var/edr.lock");
 }
@@ -50,34 +50,19 @@ std::string Plugin::osqueryConfigFilePath()
     return fromRelative("etc/osquery.conf");
 }
 
-//
-//std::string Plugin::getDbosLogsDir()
-//{
-//    return fromRelative("dbos/data/logs");
-//}
-//
-//std::string Plugin::getOsqueryWatcherLog()
-//{
-//    return Common::FileSystem::join(getDbosLogsDir(), "osquery.watcher.log");
-//}
-//
-//std::string Plugin::getOsqueryOutputLog()
-//{
-//    return Common::FileSystem::join(getDbosLogsDir(), "osqueryd.output.log");
-//}
-//
-//std::string Plugin::getRestartOSQueryLogLineCacheCPU()
-//{
-//    return fromRelative("var/TelemetryOSQueryRestartCPU.txt");
-//}
-//
-//std::string Plugin::getRestartOSQueryLogLineCacheMemory()
-//{
-//    return fromRelative("var/TelemetryOSQueryRestartMemory.txt");
-//}
-//
-//std::string Plugin::getPurgeDatabaseOSQueryLogLineCache()
-//{
-//    return fromRelative("var/TelemetryDBPurge.txt");
-//}
+std::string Plugin::osqueryPidFile()
+{
+    return fromRelative("var/osquery.pid");
+}
+
+std::string Plugin::osQueryLogPath()
+{
+    return fromRelative("log");
+}
+
+std::string Plugin::osQueryDataBasePath()
+{
+    return fromRelative("var/osquery.db");
+}
+
 

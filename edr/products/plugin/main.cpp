@@ -29,7 +29,7 @@ int main()
     std::unique_ptr<Common::FileSystem::ILockFileHolder> lockFile;
     try
     {
-        lockFile = Common::FileSystem::acquireLockFile(pidFile());
+        lockFile = Common::FileSystem::acquireLockFile(lockFilePath());
     }
     catch( std::system_error & ex)
     {

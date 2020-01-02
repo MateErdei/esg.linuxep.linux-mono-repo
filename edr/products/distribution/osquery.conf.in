@@ -11,11 +11,11 @@
     "user_events": {
       "query": "select count(*) from user_events;",
       "interval": 86400
-    }
+    },
     "selinux_events": {
       "query": "select count(*) from selinux_events;",
       "interval": 86400
-    }
+    },
     "socket_events": {
       "query": "select count(*) from socket_events;",
       "interval": 86400

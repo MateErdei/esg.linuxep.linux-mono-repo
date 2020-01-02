@@ -24,6 +24,8 @@ namespace Plugin
         void requestStop() override;
 
     private:
+        void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath);
+
         void startProcess(const std::string & processPath, const std::vector<std::string>& arguments);
 
         Common::Process::IProcessPtr m_processMonitorPtr;

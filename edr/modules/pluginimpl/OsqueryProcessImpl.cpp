@@ -12,6 +12,7 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include <modules/Proc/ProcUtilities.h>
 
 #include <cassert>
+#include <iterator>
 
 namespace
 {
@@ -97,6 +98,8 @@ namespace Plugin
 
         const std::vector<std::string>& arguments = {"--config_path=" + Plugin::osqueryConfigFilePath(), "--flagfile=" + Plugin::osqueryFlagsFilePath()};
 
+        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
+
         startProcess(osqueryPath, arguments);
         m_processMonitorPtr->waitUntilProcessEnds();
         LOGINFO( "The osquery process finished");
@@ -143,6 +146,53 @@ namespace Plugin
         {
             m_processMonitorPtr->kill();
         }
+    }
+
+    void OsqueryProcessImpl::regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath)
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
+
+        if(fileSystem->isFile(osqueryFlagsFilePath))
+        {
+            fileSystem->removeFile(osqueryFlagsFilePath);
+        }
+
+        std::vector<std::string> flags {
+            "--host_identifier=uuid",
+            "--log_result_events=true",
+            "--utc",
+            "--disable_extensions=false",
+            "--logger_stderr=true",
+            "--logger_mode=420",
+            "--logger_min_stderr=0",
+            "--logger_min_status=0",
+            "--disable_watchdog=false",
+            "--watchdog_level=0",
+            "--watchdog_memory_limit=250",
+            "--watchdog_utilization_limit=30",
+            "--watchdog_delay=60",
+            "--enable_extensions_watchdog=false",
+            "--disable_audit=false",
+            "--audit_allow_config=true",
+            "--audit_allow_process_events=true",
+            "--audit_allow_fim_events=true",
+            "--audit_allow_selinux_events=true",
+            "--audit_allow_sockets=true",
+            "--audit_allow_user_events=true",
+            "--events_expiry=86400"};
+
+        flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
+        flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
+        flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
+        flags.push_back("--logger_path=" + Plugin::osQueryLogPath());
+
+        const char* const delim = "\n";
+
+        std::ostringstream flagsAsString;
+        std::copy(flags.begin(), flags.end(),
+                  std::ostream_iterator<std::string>(flagsAsString, delim));
+
+        fileSystem->writeFile(osqueryFlagsFilePath,flagsAsString.str());
     }
 
     void OsqueryProcessImpl::startProcess(const std::string& processPath, const std::vector<std::string>& arguments)

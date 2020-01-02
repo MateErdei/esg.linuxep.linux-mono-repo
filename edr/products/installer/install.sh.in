@@ -66,7 +66,7 @@ generate_manifest_diff $DIST ${COMPONENT_SUITE_LINE_ID}
 
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/policy
 rm -f ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/policy/mdr.xml
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/dbos/data/logs
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/edr/logs
 
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
 #chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/osquery/bin/"*

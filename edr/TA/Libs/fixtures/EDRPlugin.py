@@ -25,6 +25,18 @@ class EDRPlugin:
         self._proc = subprocess.Popen([_edr_exec_path()])
 
     def stop_edr(self):
+        """
+        Stop EDR and allow graceful termination
+        """
+        if self._proc:
+            self._proc.terminate()
+            self._proc.wait()
+            self._proc = None
+
+    def kill_edr(self):
+        """
+        Stop EDR and do not allow graceful termination
+        """
         if self._proc:
             self._proc.kill()
             self._proc.wait()

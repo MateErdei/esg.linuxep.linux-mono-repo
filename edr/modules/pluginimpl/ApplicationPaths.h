@@ -13,8 +13,10 @@ namespace Plugin
     std::string osqueryFlagsFilePath();
     std::string osqueryConfigFilePath();
     std::string osquerySocket();
-    std::string pidFile();
-//    std::string tempPath();
+    std::string lockFilePath();
+    std::string osqueryPidFile();
+    std::string osQueryLogPath();
+    std::string osQueryDataBasePath();
     std::string getEdrVersionIniFilePath();
 
 }
