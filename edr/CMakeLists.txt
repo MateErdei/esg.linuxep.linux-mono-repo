@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 project(sspl_edr_plugin)
-set(CMAKE_CXX_STANDARD 17)
 
 set(SANITISE_FLAGS   "-fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
 set(WARNING_FLAGS "-Wall -Wextra -Werror -fstack-protector-all")
@@ -39,8 +38,10 @@ endif()
 string( TOLOWER ${PLUGIN_NAME} plugin_name)
 
 if(NOT DEFINED PRODUCT_LINE_ID)
-    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-EDR)
+    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${PLUGIN_NAME})
 endif()
+
+set(COMPONENT_SUITE_LINE_ID ServerProtectionLinux-Plugin-EDR)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -56,7 +57,10 @@ endif()
 
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
-set(FEATURE_LIST "LIVEQUERY")
+set(FEATURE_LIST "EDR")
+
+
+set(CMAKE_CXX_STANDARD 17)
 
 # Check process children and give detail for each leak
 ## --trace-children=yes
@@ -93,7 +97,13 @@ if(NOT DEFINED PLUGINAPIPATH)
     SET( PLUGINAPIPATH ${INPUT}/pluginapi)
 endif()
 
-set( BOOST_INCLUDE_DIR ${INPUT}/boost/include )
+SET( OSQUERYSDK /tmp/osquerysdk)
+if (NOT DEFINED OSQUERYSDK)
+    SET( OSQUERYSDK ${INPUT}/osquerysdk)
+endif()
+
+set( BOOST_INPUT ${INPUT}/boost )
+set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
@@ -102,13 +112,79 @@ set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
 
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 
-set(OSQUERY_BINARY ${INPUT}/osquery/usr/bin/osqueryd)
-
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
-file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so.*)
-file(GLOB zlib ${PLUGINAPIPATH}/lib64/libz.so.*)
+file(GLOB expatlib    ${PLUGINAPIPATH}/lib64/libexpat.so.*)
+file(GLOB libz    ${PLUGINAPIPATH}/lib64/libz.so.*)
+
+
+find_library(OSQUERY_LIBRARY
+        NAMES osquerysdk
+        PATHS ${OSQUERYSDK}/lib
+        NO_DEFAULT_PATH
+        )
+
+
+find_library(GLOG_LIBRARY
+        NAMES glog
+        PATHS ${OSQUERYSDK}/lib
+        NO_DEFAULT_PATH
+        )
+
+find_library(THRIFT_LIBRARY
+        NAMES thrift
+        PATHS ${OSQUERYSDK}/lib
+        NO_DEFAULT_PATH
+        )
+
+#find_library(GFLAG_LIBRARY
+#        NAMES gflags
+#        PATHS ${OSQUERYSDK}/lib
+#        NO_DEFAULT_PATH
+#        )
+#find_library(OPENSSL_LIBRARY
+#        NAMES ssl
+#        PATHS ${INPUT}/openssl/lib64
+#        NO_DEFAULT_PATH
+#        )
+#
+#find_library(OPENSSLCRYPTO_LIBRARY
+#        NAMES crypto
+#        PATHS ${INPUT}/openssl/lib64
+#        NO_DEFAULT_PATH
+#        )
+#
+find_library(BOOST_CHRONO_LIBRARY
+        NAMES boost_chrono
+        PATHS ${INPUT}/boost/lib64
+        NO_DEFAULT_PATH
+        )
+
+find_library(BOOST_SYSTEM_LIBRARY
+        NAMES boost_system
+        PATHS ${INPUT}/boost/lib64
+        NO_DEFAULT_PATH
+        )
+
+find_library(BOOST_THREAD_LIBRARY
+        NAMES boost_thread
+        PATHS ${INPUT}/boost/lib64
+        NO_DEFAULT_PATH
+        )
+
+find_library(BOOST_FILESYSTEM_LIBRARY
+        NAMES boost_filesystem
+        PATHS ${INPUT}/boost/lib64
+        NO_DEFAULT_PATH
+        )
+
+find_library(BOOST_CONTEXT_LIBRARY
+        NAMES boost_context
+        PATHS ${INPUT}/boost/lib64
+        NO_DEFAULT_PATH
+        )
+
 
 add_subdirectory(modules)
 add_subdirectory(products)

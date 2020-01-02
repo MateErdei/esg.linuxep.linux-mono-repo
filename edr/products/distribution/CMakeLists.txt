@@ -1,3 +1,5 @@
+
+
 configure_file(PRODUCT_NAME.in PRODUCT_NAME @ONLY )
 configure_file(PLUGIN_NAME.in PLUGIN_NAME @ONLY )
 configure_file(RIGID_NAME.in RIGID_NAME @ONLY )
@@ -12,24 +14,50 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libgcc_s_path)
 string(STRIP "${libgcc_s_path}" libgcc_s_path )
 
-set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${pluginapilib} ${zmqlib} ${log4cpluslib} ${protobuflib} ${expatlib} ${zlib})
+
+set(third_party_libs
+        ${libstdcpp_path}
+        ${libgcc_s_path}
+        ${pluginapilib}
+        ${zmqlib}
+        ${expatlib}
+        ${libz}
+        ${log4cpluslib}
+        ${protobuflib}
+        ${OSQUERY_LIBRARY}
+        )
+
+INCLUDE(FindLibraryFullPath)
+
+function(add_third_party_library LIB LIBRARY_PATH)
+    FindLibraryFullPath(FOUND_LIB_ABSOLUTE ${LIB} ${LIBRARY_PATH})
+    message("Add third party: ${FOUND_LIB_ABSOLUTE}  ${LIB}" )
+    set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
+endfunction(add_third_party_library)
+
+foreach (LIB boost_chrono boost_date_time boost_filesystem boost_system boost_thread boost_context)
+    add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
+endforeach(LIB)
+
+add_third_party_library(thrift ${OSQUERYSDK}/lib)
+add_third_party_library(glog ${OSQUERYSDK}/lib)
 
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
 set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
-set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py )
+set(GENERATE_SDDS_IMPORT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImport.py )
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml
         COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
         )
 
 add_custom_target(
         dist
         COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(
@@ -37,7 +65,7 @@ add_custom_target(
         COMMAND rm -f ${DIST}/SDDS-Import.xml
         COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 install(FILES  ${third_party_libs}
