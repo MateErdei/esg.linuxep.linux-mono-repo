@@ -10,11 +10,6 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 #include "ResponseStatus.h"
 
 #include <string>
-// ResponseStatus
-
-//        ResponseData
-
-// ResponseMetaData
 namespace livequery
 {
     class QueryResponse
