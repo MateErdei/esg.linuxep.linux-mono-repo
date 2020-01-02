@@ -60,7 +60,7 @@ namespace livequery
         const ColumnHeaders& columnHeaders() const;
 
     private:
-        static bool isValidHeaderAndData(const ColumnHeaders&, const ColumnData&);
+        static bool isValidHeaderAndData(const ColumnHeaders& headers, const ColumnData& data);
         bool m_dataExceedLimit = false;
         ColumnHeaders m_headers;
         ColumnData m_columnData;

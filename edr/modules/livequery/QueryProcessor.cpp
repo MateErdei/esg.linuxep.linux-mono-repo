@@ -47,7 +47,6 @@ void livequery::processQuery(
         LOGSUPPORT("Invalid request, failed to parse the json with error: " << ex.what());
         LOGDEBUG("Content of input request: " << queryJson);
         return;
-        ;
     }
 
     auto queryIter = requestMap.find(querySqlKey);

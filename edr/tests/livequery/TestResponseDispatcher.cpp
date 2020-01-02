@@ -59,7 +59,7 @@ TEST(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumns)
     "type": "sophos.mgt.response.RunLiveQuery",
     "queryMetaData": {
         "errorCode": 100,
-        "errorMessage": "Response data exceeded 10mb"
+        "errorMessage": "Response data exceeded 10MB"
     },
     "columnMetaData": [
       {"name": "pathname", "type": "TEXT"},
@@ -69,7 +69,7 @@ TEST(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumns)
 })";
     ResponseDispatcher dispatcher;
     std::string calculated = dispatcher.serializeToJson(response);
-    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated));
+    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated)) << calculated;
 }
 
 TEST(TestResponseDispatcher, SpecificErrorConditionShouldBeIncludedInTheJsonFile)
