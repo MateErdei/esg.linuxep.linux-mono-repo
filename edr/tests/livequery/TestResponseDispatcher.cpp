@@ -190,6 +190,51 @@ TEST(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
 }
 
 
+TEST(TestResponseDispatcher, emptyNumberIsStillValidInteger)
+{
+    ResponseData::ColumnData columnData;
+    ResponseData::RowData  rowData;
+    rowData["pathname"] = "anyfile";
+    rowData["sophosPID"] = "17984:132164677472649892";
+    rowData["start_time"] = "50330";
+    columnData.push_back(rowData);
+
+    // create a start_time that is empty
+    rowData["start_time"] = "";
+    columnData.push_back(rowData);
+    // third row
+    rowData["start_time"] = "35980";
+    columnData.push_back(rowData);
+
+    QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
+                           ResponseData{headerExample(), columnData}};
+
+    std::string expected = R"({
+    "type": "sophos.mgt.response.RunLiveQuery",
+    "queryMetaData": {
+        "rows": 3,
+        "errorCode": 0,
+        "errorMessage": "OK"
+    },
+    "columnMetaData": [
+      {"name": "pathname", "type": "TEXT"},
+      {"name": "sophosPID", "type": "TEXT"},
+      {"name": "start_time", "type": "BIGINT"}
+    ],
+    "columnData": [
+        ["anyfile","17984:132164677472649892", 50330],
+        ["anyfile","17984:132164677472649892", ""],
+        ["anyfile","17984:132164677472649892", 35980]
+    ]
+})";
+    ResponseDispatcher dispatcher;
+    std::string calculated = dispatcher.serializeToJson(response);
+    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))
+                        << "\nCalculated: "<< calculated << ".\n expected: \n" << expected;
+}
+
+
+
 
 class ResposeDispatcherWithMockFileSystem: public ::testing::Test
 {
