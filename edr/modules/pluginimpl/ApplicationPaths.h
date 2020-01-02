@@ -19,5 +19,4 @@ namespace Plugin
     std::string osQueryDataBasePath();
     std::string getEdrVersionIniFilePath();
 
-}
-
+} // namespace Plugin
