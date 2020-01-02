@@ -19,6 +19,7 @@ Global Setup Tasks
     Set Global Variable  ${SOPHOS_INSTALL}          ${placeholder}
     Set Environment Variable  SOPHOS_INSTALL        ${SOPHOS_INSTALL}
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
+    Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotScripts
     Set Global Variable  ${COMPONENT_NAME}          edr
     Set Global Variable  ${COMPONENT_SDDS}          ${TEST_INPUT_PATH}/${COMPONENT_NAME}/SDDS-COMPONENT
     Set Global Variable  ${COMPONENT_ROOT_PATH}     ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}

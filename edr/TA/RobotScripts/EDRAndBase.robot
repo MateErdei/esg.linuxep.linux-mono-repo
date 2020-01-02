@@ -29,7 +29,7 @@ LiveQuery is Distributed to EDR Plugin and Its Answer is available to MCSRouter
 *** Keywords ***
 Simulate Live Query
     [Arguments]  ${name}  ${correlation}=123-4
-    ${requestFile} =  Set Variable  RobotScripts/data/${name}
+    ${requestFile} =  Set Variable  ${ROBOT_SCRIPTS_PATH}/data/${name}
     File Should Exist  ${requestFile}
     Copy File   ${requestFile}  ${SOPHOS_INSTALL}/tmp
     Run Shell Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/${name}  OnError=Failed to change ownership
