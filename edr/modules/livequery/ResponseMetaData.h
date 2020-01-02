@@ -11,6 +11,6 @@ namespace livequery
 {
     class ResponseMetaData
     {
-        // TODO: placeholder only to be filled up when the metadata is to be calculated.
+        // TODO LINUXDAR-831: placeholder only to be filled up when the metadata is to be calculated.
     };
 } // namespace livequery
