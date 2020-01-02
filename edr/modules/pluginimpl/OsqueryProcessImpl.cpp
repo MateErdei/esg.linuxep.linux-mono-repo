@@ -18,7 +18,7 @@ namespace
 {
     constexpr int OneK = 1024;
     constexpr int OutputBufferLimit = OneK;
-}
+} // namespace
 
 namespace
 {
@@ -90,22 +90,23 @@ namespace Plugin
         LOGINFO("Run osquery process");
         std::string osquerySocket = Plugin::osquerySocket();
 
-        if(fileSystem->exists(osquerySocket))
+        if (fileSystem->exists(osquerySocket))
         {
             // TODO make sure that when this throws we catch else where.
             fileSystem->removeFileOrDirectory(osquerySocket);
         }
 
-        const std::vector<std::string>& arguments = {"--config_path=" + Plugin::osqueryConfigFilePath(), "--flagfile=" + Plugin::osqueryFlagsFilePath()};
+        const std::vector<std::string>& arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
+                                                      "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
 
         startProcess(osqueryPath, arguments);
         m_processMonitorPtr->waitUntilProcessEnds();
-        LOGINFO( "The osquery process finished");
+        LOGINFO("The osquery process finished");
         int exitcode = m_processMonitorPtr->exitCode();
         std::string output = m_processMonitorPtr->output();
-        LOGDEBUG( "The osquery process output and exit code retrieved");
+        LOGDEBUG("The osquery process output and exit code retrieved");
         {
             std::lock_guard lock { m_processMonitorSharedResource };
             try
@@ -121,12 +122,12 @@ namespace Plugin
         // that it would not give any help to identify the problem, it is better to avoid having an useless line with :
         // ERROR: <blank>
         // For this reason, applying a minimum threshold (arbitrary) of characters to allow it to be displayed as error
-        if( output.size() > 5 )
+        if (output.size() > 5)
         {
             LOGERROR("The osquery process unexpected logs: " << output);
         }
 
-        switch(exitcode)
+        switch (exitcode)
         {
             case ECANCELED:
                 throw Plugin::IOsqueryCrashed("crashed");
@@ -152,34 +153,33 @@ namespace Plugin
     {
         auto fileSystem = Common::FileSystem::fileSystem();
 
-        if(fileSystem->isFile(osqueryFlagsFilePath))
+        if (fileSystem->isFile(osqueryFlagsFilePath))
         {
             fileSystem->removeFile(osqueryFlagsFilePath);
         }
 
-        std::vector<std::string> flags {
-            "--host_identifier=uuid",
-            "--log_result_events=true",
-            "--utc",
-            "--disable_extensions=false",
-            "--logger_stderr=true",
-            "--logger_mode=420",
-            "--logger_min_stderr=0",
-            "--logger_min_status=0",
-            "--disable_watchdog=false",
-            "--watchdog_level=0",
-            "--watchdog_memory_limit=250",
-            "--watchdog_utilization_limit=30",
-            "--watchdog_delay=60",
-            "--enable_extensions_watchdog=false",
-            "--disable_audit=false",
-            "--audit_allow_config=true",
-            "--audit_allow_process_events=true",
-            "--audit_allow_fim_events=true",
-            "--audit_allow_selinux_events=true",
-            "--audit_allow_sockets=true",
-            "--audit_allow_user_events=true",
-            "--events_expiry=86400"};
+        std::vector<std::string> flags { "--host_identifier=uuid",
+                                         "--log_result_events=true",
+                                         "--utc",
+                                         "--disable_extensions=false",
+                                         "--logger_stderr=true",
+                                         "--logger_mode=420",
+                                         "--logger_min_stderr=0",
+                                         "--logger_min_status=0",
+                                         "--disable_watchdog=false",
+                                         "--watchdog_level=0",
+                                         "--watchdog_memory_limit=250",
+                                         "--watchdog_utilization_limit=30",
+                                         "--watchdog_delay=60",
+                                         "--enable_extensions_watchdog=false",
+                                         "--disable_audit=false",
+                                         "--audit_allow_config=true",
+                                         "--audit_allow_process_events=true",
+                                         "--audit_allow_fim_events=true",
+                                         "--audit_allow_selinux_events=true",
+                                         "--audit_allow_sockets=true",
+                                         "--audit_allow_user_events=true",
+                                         "--events_expiry=86400" };
 
         flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
@@ -189,10 +189,9 @@ namespace Plugin
         const char* const delim = "\n";
 
         std::ostringstream flagsAsString;
-        std::copy(flags.begin(), flags.end(),
-                  std::ostream_iterator<std::string>(flagsAsString, delim));
+        std::copy(flags.begin(), flags.end(), std::ostream_iterator<std::string>(flagsAsString, delim));
 
-        fileSystem->writeFile(osqueryFlagsFilePath,flagsAsString.str());
+        fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
     }
 
     void OsqueryProcessImpl::startProcess(const std::string& processPath, const std::vector<std::string>& arguments)
@@ -201,16 +200,14 @@ namespace Plugin
         m_processMonitorPtr = Common::Process::createProcess();
         m_processMonitorPtr->setOutputLimit(OutputBufferLimit);
 
-        m_processMonitorPtr->setOutputTrimmedCallback([](std::string overflowOutput) {
-            LOGERROR("Non expected logs from osquery: " << overflowOutput);
-        });
+        m_processMonitorPtr->setOutputTrimmedCallback(
+            [](std::string overflowOutput) { LOGERROR("Non expected logs from osquery: " << overflowOutput); });
 
         m_processMonitorPtr->exec(processPath, arguments, {});
     }
 
     void OsqueryProcessImpl::killAnyOtherOsquery()
     {
-        //Proc::ensureNoExecWithThisCommIsRunning(Plugin::pluginBinaryName(), Plugin::pluginBinaryPath());
         Proc::ensureNoExecWithThisCommIsRunning(Plugin::osqueryBinaryName(), Plugin::osqueryPath());
     }
 } // namespace Plugin
