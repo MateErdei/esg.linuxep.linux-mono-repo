@@ -7,5 +7,4 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 #include "ResponseMetaData.h"
 namespace livequery
 {
-
 }

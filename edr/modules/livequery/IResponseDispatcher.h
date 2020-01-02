@@ -3,15 +3,16 @@
 Copyright Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#pragma  once
+#pragma once
 
 #include "QueryResponse.h"
 
-namespace livequery{
+namespace livequery
+{
     class IResponseDispatcher
     {
     public:
-        virtual ~IResponseDispatcher()= default;
+        virtual ~IResponseDispatcher() = default;
         virtual void sendResponse(const std::string& correlationId, const QueryResponse& response) = 0;
     };
-}
+} // namespace livequery

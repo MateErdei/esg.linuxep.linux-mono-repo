@@ -3,20 +3,23 @@
 Copyright 2019 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#pragma  once
+#pragma once
 
 #include "QueryResponse.h"
 #include "ResponseDispatcher.h"
 
-namespace livequery{
-
-    class IQueryProcessor {
+namespace livequery
+{
+    class IQueryProcessor
+    {
     public:
-        virtual ~IQueryProcessor()= default;
-        virtual QueryResponse query(const std::string & query) =0 ;
+        virtual ~IQueryProcessor() = default;
+        virtual QueryResponse query(const std::string& query) = 0;
     };
 
-    void processQuery(livequery::IQueryProcessor& iQueryProcessor, livequery::IResponseDispatcher& dispatcher,
-            const std::string& queryJson, const std::string& correlationId);
-}
-
+    void processQuery(
+        livequery::IQueryProcessor& iQueryProcessor,
+        livequery::IResponseDispatcher& dispatcher,
+        const std::string& queryJson,
+        const std::string& correlationId);
+} // namespace livequery

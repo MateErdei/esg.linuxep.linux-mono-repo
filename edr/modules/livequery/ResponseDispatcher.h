@@ -3,16 +3,17 @@
 Copyright Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#pragma  once
+#pragma once
 
-#include "QueryResponse.h"
 #include "IResponseDispatcher.h"
+#include "QueryResponse.h"
 
-namespace livequery{
-    class ResponseDispatcher :  public IResponseDispatcher
+namespace livequery
+{
+    class ResponseDispatcher : public IResponseDispatcher
     {
     public:
         void sendResponse(const std::string& correlationId, const QueryResponse& response) override;
-        std::string serializeToJson(const QueryResponse & response);
+        std::string serializeToJson(const QueryResponse& response);
     };
-}
+} // namespace livequery

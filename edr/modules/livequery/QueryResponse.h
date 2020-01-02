@@ -3,40 +3,40 @@
 Copyright 2019 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#pragma  once
+#pragma once
+
+#include "ResponseData.h"
+#include "ResponseMetaData.h"
+#include "ResponseStatus.h"
 
 #include <string>
-#include "ResponseData.h"
-#include "ResponseStatus.h"
-#include "ResponseMetaData.h"
-//ResponseStatus
+// ResponseStatus
 
 //        ResponseData
 
-//ResponseMetaData
-namespace livequery{
-    class QueryResponse {
+// ResponseMetaData
+namespace livequery
+{
+    class QueryResponse
+    {
         QueryResponse();
+
     public:
         static QueryResponse emptyResponse()
         {
-            return QueryResponse{};
+            return QueryResponse {};
         }
-        QueryResponse( ResponseStatus status, ResponseData data):
-           m_status(std::move(status)),
-           m_data( std::move(data))
+        QueryResponse(ResponseStatus status, ResponseData data) : m_status(std::move(status)), m_data(std::move(data))
         {
-
         }
-        void setMetaData(const ResponseMetaData& );
-        const ResponseStatus & status() const;
-        const ResponseMetaData & metaData() const;
-        const ResponseData & data() const;
+        void setMetaData(const ResponseMetaData&);
+        const ResponseStatus& status() const;
+        const ResponseMetaData& metaData() const;
+        const ResponseData& data() const;
 
     private:
         ResponseStatus m_status;
         ResponseMetaData m_metaData;
         ResponseData m_data;
     };
-}
-
+} // namespace livequery
