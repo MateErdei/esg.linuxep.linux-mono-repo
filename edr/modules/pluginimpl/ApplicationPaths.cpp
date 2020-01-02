@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ApplicationPaths.h"
@@ -64,5 +64,3 @@ std::string Plugin::osQueryDataBasePath()
 {
     return fromRelative("var/osquery.db");
 }
-
-
