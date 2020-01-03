@@ -34,7 +34,7 @@ namespace
             {
                 if (value.empty())
                 {
-                    jsonArray.push_back(value);
+                    jsonArray.push_back(nullptr);
                     return;
                 }
                 std::stringstream s(value);

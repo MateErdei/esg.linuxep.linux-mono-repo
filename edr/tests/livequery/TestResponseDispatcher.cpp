@@ -190,7 +190,7 @@ TEST(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
 }
 
 
-TEST(TestResponseDispatcher, emptyNumberIsStillValidInteger)
+TEST(TestResponseDispatcher, emptyNumberShouldBeSentAsNull)
 {
     ResponseData::ColumnData columnData;
     ResponseData::RowData  rowData;
@@ -223,7 +223,7 @@ TEST(TestResponseDispatcher, emptyNumberIsStillValidInteger)
     ],
     "columnData": [
         ["anyfile","17984:132164677472649892", 50330],
-        ["anyfile","17984:132164677472649892", ""],
+        ["anyfile","17984:132164677472649892", null],
         ["anyfile","17984:132164677472649892", 35980]
     ]
 })";
