@@ -211,14 +211,22 @@ namespace Plugin
                                          "--watchdog_utilization_limit=30",
                                          "--watchdog_delay=60",
                                          "--enable_extensions_watchdog=false",
+                                         "--disable_extensions=false",
                                          "--disable_audit=false",
+                                         "--enable_syslog=true",
                                          "--audit_allow_config=true",
                                          "--audit_allow_process_events=true",
                                          "--audit_allow_fim_events=false",
                                          "--audit_allow_selinux_events=true",
                                          "--audit_allow_sockets=true",
                                          "--audit_allow_user_events=true",
-                                         "--events_expiry=604800" };
+                                         "--syslog_events_expiry=604800",
+                                         "--syslog_pipe_path=/opt/sophos-spl/var/syslog_pipe",
+                                         "--events_expiry=604800",
+                                         "--force=true",
+                                         "--disable_enrollment=true",
+                                         "--enable_killswitch=false",
+                                         "--events_max=20000"};
 
         flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());

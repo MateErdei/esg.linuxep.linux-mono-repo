@@ -1,12 +1,3 @@
-
-def test_edr_plugin_receives_policy(sspl_mock, edr_plugin_instance):
-    edr_plugin_instance.start_edr()
-    agent = sspl_mock.management
-    policy_text = 'test policy'
-    agent.send_plugin_policy('edr', 'LiveQuery', policy_text)
-    edr_plugin_instance.wait_log_contains(policy_text)
-
-
 def test_edr_plugin_can_receive_actions(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     agent = sspl_mock.management
