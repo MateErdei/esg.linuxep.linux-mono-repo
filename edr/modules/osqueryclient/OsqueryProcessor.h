@@ -11,7 +11,11 @@ namespace osqueryclient{
 
     class OsqueryProcessor: public livequery::IQueryProcessor {
     public:
+        OsqueryProcessor(const std::string & socketPath);
         livequery::QueryResponse query(const std::string & query) override ;
+
+    private:
+        std::string m_socketPath;
     };
 }
 

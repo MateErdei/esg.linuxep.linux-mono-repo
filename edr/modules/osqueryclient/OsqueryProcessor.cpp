@@ -24,12 +24,15 @@ namespace osquery{
 namespace osqueryclient
 {
 
+    OsqueryProcessor::OsqueryProcessor(const std::string &socketPath) : m_socketPath(socketPath) {
+
+    }
+
+
     livequery::QueryResponse OsqueryProcessor::query(const std::string & query)
     {
-        std::string socket = "/opt/sophos-spl/plugins/mtr/dbos/data/osquery_wMmeAvZXcX.sock";
-
         osquery::QueryData qd;
-        auto client = osquery::makeClient(socket);
+        auto client = osquery::makeClient(m_socketPath);
         auto osqueryStatus = client->query(query, qd);
         if ( !osqueryStatus.ok())
         {
@@ -71,4 +74,5 @@ namespace osqueryclient
 
         return response;
     }
+
 }
