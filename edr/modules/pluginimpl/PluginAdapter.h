@@ -35,6 +35,7 @@ namespace Plugin
         void mainLoop();
 
     private:
+
         void processQuery(const std::string & query, const std::string & correlationId);
         void processPolicy(const std::string& policyXml);
     };

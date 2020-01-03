@@ -25,7 +25,25 @@ namespace Plugin
 
     void QueueTask::pushStop()
     {
-        Task stopTask{ .m_taskType = Task::TaskType::Stop, .m_content = "" };
+        Task stopTask{ .m_taskType = Task::TaskType::STOP, .m_content = "" };
+        push(stopTask);
+    }
+
+    void QueueTask::pushOsqueryProcessDelayRestart()
+    {
+        Task stopTask{ .m_taskType = Task::TaskType::OSQUERYPROCESSFAILEDTOSTART, .m_content = "" };
+        push(stopTask);
+    }
+
+    void QueueTask::pushOsqueryProcessFinished()
+    {
+        Task stopTask{ .m_taskType = Task::TaskType::OSQUERYPROCESSFINISHED, .m_content = "" };
+        push(stopTask);
+    }
+
+    void QueueTask::pushRestartOsquery()
+    {
+        Task stopTask{ .m_taskType = Task::TaskType::RESTARTOSQUERY, .m_content = "" };
         push(stopTask);
     }
 } // namespace Plugin
