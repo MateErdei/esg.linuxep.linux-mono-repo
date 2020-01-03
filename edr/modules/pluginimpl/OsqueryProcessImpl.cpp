@@ -13,6 +13,7 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 #include <iterator>
+#include <unistd.h>
 
 namespace
 {
@@ -100,7 +101,7 @@ namespace Plugin
                                                       "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
-
+        regenerateOSQueryConfigFile(Plugin::osqueryConfigFilePath());
         startProcess(osqueryPath, arguments);
         m_processMonitorPtr->waitUntilProcessEnds();
         LOGINFO("The osquery process finished");
@@ -147,6 +148,50 @@ namespace Plugin
         {
             m_processMonitorPtr->kill();
         }
+    }
+
+    void OsqueryProcessImpl::regenerateOSQueryConfigFile(const std::string& osqueryConfigFilePath)
+    {
+        char hostname[1024];
+        gethostname(hostname, 1024);
+
+        auto fileSystem = Common::FileSystem::fileSystem();
+
+        if (fileSystem->isFile(osqueryConfigFilePath))
+        {
+            fileSystem->removeFile(osqueryConfigFilePath);
+        }
+
+        std::stringstream osqueryConfiguration;
+
+        osqueryConfiguration << R"(
+        {
+            "options": {
+                "host_identifier": ")" << hostname << R"(",
+                "schedule_splay_percent": 10
+            },
+            "schedule": {
+                "process_events": {
+                    "query": "select count(*) from process_events;",
+                    "interval": 86400
+                },
+                "user_events": {
+                    "query": "select count(*) from user_events;",
+                    "interval": 86400
+                },
+                "selinux_events": {
+                    "query": "select count(*) from selinux_events;",
+                    "interval": 86400
+                },
+                "socket_events": {
+                    "query": "select count(*) from socket_events;",
+                    "interval": 86400
+                }
+            }
+        })";
+
+        fileSystem->writeFile(osqueryConfigFilePath, osqueryConfiguration.str());
+
     }
 
     void OsqueryProcessImpl::regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath)

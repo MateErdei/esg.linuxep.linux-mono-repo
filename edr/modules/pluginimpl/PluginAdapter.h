@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019 Sophos Limited.  All rights reserved.
+Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -26,13 +26,11 @@ namespace Plugin
         PluginAdapter(
             std::shared_ptr<QueueTask> queueTask,
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-            std::shared_ptr<PluginCallback> callback
-            );
+            std::shared_ptr<PluginCallback> callback);
         void mainLoop();
         ~PluginAdapter();
 
     private:
-
         void setUpOsqueryMonitor();
         void stopOsquery();
         std::future<void> m_monitor;

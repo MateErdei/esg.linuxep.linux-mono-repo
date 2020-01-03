@@ -25,6 +25,7 @@ namespace Plugin
 
     private:
         void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath);
+        void regenerateOSQueryConfigFile(const std::string& osqueryConfigFilePath);
 
         void startProcess(const std::string & processPath, const std::vector<std::string>& arguments);
 

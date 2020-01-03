@@ -68,10 +68,6 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 configure_file(VERSION.ini.in VERSION.ini @ONLY)
-configure_file(osquery.conf.in osquery.conf @ONLY )
 
 install(FILES ../../build64/products/distribution/VERSION.ini
         DESTINATION files/plugins/${PLUGIN_NAME}/)
-
-install(FILES ../../build64/products/distribution/osquery.conf
-        DESTINATION files/plugins/${PLUGIN_NAME}/etc/)

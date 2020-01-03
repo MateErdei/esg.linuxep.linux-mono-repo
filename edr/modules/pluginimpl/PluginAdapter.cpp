@@ -1,60 +1,60 @@
 /******************************************************************************************************
 
-Copyright 2018-2019 Sophos Limited.  All rights reserved.
+Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "PluginAdapter.h"
+
 #include "ApplicationPaths.h"
+#include "IOsqueryProcess.h"
 #include "Logger.h"
 #include "TelemetryConsts.h"
-#include "IOsqueryProcess.h"
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/Proc/ProcUtilities.h>
 
 #include <cmath>
 
+// helper class that allow to schedule a task.
+// but it also has some capability of interrupting the scheduler at any point
+// which is used to respond on shutdown request.
+class WaitUpTo
+{
+    std::chrono::milliseconds m_ms;
+    std::function<void()> m_onFinish;
+    std::promise<void> m_promise;
+    std::future<void> m_anotherThread;
+    std::atomic<bool> m_finished;
 
-    // helper class that allow to schedule a task.
-    // but it also has some capability of interrupting the scheduler at any point
-    // which is used to respond on shutdown request.
-    class WaitUpTo
+public:
+    WaitUpTo(std::chrono::milliseconds ms, std::function<void(void)> onFinish) :
+        m_ms(ms),
+        m_onFinish(std::move(onFinish)),
+        m_promise {},
+        m_anotherThread {},
+        m_finished { false }
     {
-        std::chrono::milliseconds m_ms;
-        std::function<void()> m_onFinish;
-        std::promise<void> m_promise;
-        std::future<void> m_anotherThread;
-        std::atomic<bool> m_finished;
-
-    public:
-        WaitUpTo(std::chrono::milliseconds ms, std::function<void(void)> onFinish) :
-            m_ms(ms),
-            m_onFinish(std::move(onFinish)),
-            m_promise {},
-            m_anotherThread {},
-            m_finished { false }
-        {
-            m_anotherThread = std::async(std::launch::async, [this]() {
-              if (m_promise.get_future().wait_for(m_ms) == std::future_status::timeout)
-              {
-                  m_finished = true;
-                  m_onFinish();
-              }
-            });
-        }
-        void cancel()
-        {
-            if (!m_finished.exchange(true, std::memory_order::memory_order_seq_cst))
+        m_anotherThread = std::async(std::launch::async, [this]() {
+            if (m_promise.get_future().wait_for(m_ms) == std::future_status::timeout)
             {
-                m_promise.set_value();
+                m_finished = true;
+                m_onFinish();
             }
-        }
-        ~WaitUpTo()
+        });
+    }
+    void cancel()
+    {
+        if (!m_finished.exchange(true, std::memory_order::memory_order_seq_cst))
         {
-            cancel();
+            m_promise.set_value();
         }
-    };
+    }
+    ~WaitUpTo()
+    {
+        cancel();
+    }
+};
 
 namespace Plugin
 {
@@ -62,10 +62,10 @@ namespace Plugin
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback) :
-            m_queueTask(std::move(queueTask)),
-            m_baseService(std::move(baseService)),
-            m_callback(std::move(callback)),
-            m_timesOsqueryProcessFailedToStart(0)
+        m_queueTask(std::move(queueTask)),
+        m_baseService(std::move(baseService)),
+        m_callback(std::move(callback)),
+        m_timesOsqueryProcessFailedToStart(0)
     {
     }
 
@@ -103,15 +103,17 @@ namespace Plugin
                     static unsigned int growthBase = 2;
                     static unsigned int maxTime = 320;
 
-                    auto delay = static_cast<unsigned int>(baseDelay * ::pow(growthBase, m_timesOsqueryProcessFailedToStart));
+                    auto delay =
+                        static_cast<unsigned int>(baseDelay * ::pow(growthBase, m_timesOsqueryProcessFailedToStart));
                     if (delay < maxTime)
                     {
                         m_timesOsqueryProcessFailedToStart++;
                     }
                     LOGDEBUG("The osquery process failed to start. Scheduling a retry in " << delay << " seconds.");
                     Common::Telemetry::TelemetryHelper::getInstance().increment(plugin::telemetryOsqueryRestarts, 1UL);
-                    m_delayedRestart.reset( //NOLINT
-                        new WaitUpTo(std::chrono::seconds(delay), [this]() { this->m_queueTask->pushRestartOsquery(); }));
+                    m_delayedRestart.reset( // NOLINT
+                        new WaitUpTo(
+                            std::chrono::seconds(delay), [this]() { this->m_queueTask->pushRestartOsquery(); }));
             }
         }
     }
@@ -149,12 +151,12 @@ namespace Plugin
     {
         try
         {
-            while(m_osqueryProcess && m_monitor.valid())
+            while (m_osqueryProcess && m_monitor.valid())
             {
                 LOGINFO("Issue request to stop to osquery.");
                 m_osqueryProcess->requestStop();
 
-                if(m_monitor.wait_for(std::chrono::seconds(2)) == std::future_status::timeout)
+                if (m_monitor.wait_for(std::chrono::seconds(2)) == std::future_status::timeout)
                 {
                     LOGWARN("Timeout while waiting for osquery monitoring to finish.");
                     continue;
@@ -162,7 +164,7 @@ namespace Plugin
                 m_monitor.get(); // ensure that IOsqueryProcess::keepOsqueryRunning has finished.
             }
         }
-        catch (std::exception & ex)
+        catch (std::exception& ex)
         {
             LOGWARN("Unexpected exception: " << ex.what());
         }
@@ -174,9 +176,10 @@ namespace Plugin
         {
             if (m_monitor.valid())
             {
-                stopOsquery();       // in case it reach this point without the request to stop being issued.
+                stopOsquery(); // in case it reach this point without the request to stop being issued.
             }
-        }catch (std::exception& ex)
+        }
+        catch (std::exception& ex)
         {
             std::cerr << "Plugin adapter exception: " << ex.what() << std::endl;
         }

@@ -33,6 +33,7 @@ def install_component(sophos_install):
     plugin_executable = os.path.join(plugin_dir_path, 'bin/edr')
     os.makedirs(os.path.join(plugin_dir_path, 'var'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'logs'), exist_ok=True)
+    os.makedirs(os.path.join(plugin_dir_path, 'etc'), exist_ok=True)
     run_shell(['ldconfig', '-lN', '*.so.*'], cwd=plugin_lib64_path)
     run_shell(['chmod', '+x', plugin_executable])
     os.environ['SOPHOS_INSTALL'] = sophos_install
