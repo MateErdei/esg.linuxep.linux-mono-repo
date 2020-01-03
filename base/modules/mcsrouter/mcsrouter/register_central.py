@@ -372,14 +372,14 @@ def inner_main(argv):
 
         ca_file_env = os.environ.get("MCS_CA", "")
         if ca_file_env and os.path.isfile(ca_file_env):
-            #if os.path.isfile(path_manager.ca_env_override_flag_path()):
-            #    LOGGER.warning("Using %s as certificate CA", ca_file_env)
-            config.set("CAFILE", ca_file_env)
-            #else:
-            #    LOGGER.warning(
-            #        "Cannot use {} as certificate CA without override flag: {}".format(
-            #            ca_file_env,
-            #            path_manager.ca_env_override_flag_path()))
+            if os.path.isfile(path_manager.ca_env_override_flag_path()):
+                LOGGER.warning("Using %s as certificate CA", ca_file_env)
+                config.set("CAFILE", ca_file_env)
+            else:
+                LOGGER.warning(
+                    "Cannot use {} as certificate CA without override flag: {}".format(
+                        ca_file_env,
+                        path_manager.ca_env_override_flag_path()))
 
         config.save()
 

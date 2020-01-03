@@ -169,14 +169,14 @@ class MCSConnection:
         cafile = path_manager.root_ca_path()
         ca_file_env = os.environ.get("MCS_CA", None)
         if ca_file_env not in ("", None) and os.path.isfile(ca_file_env):
-            #if os.path.isfile(path_manager.ca_env_override_flag_path()):
-            #    LOGGER.warning("Using {} as certificate CA".format(ca_file_env))
-            cafile = ca_file_env
-            #else:
-            #    LOGGER.warning(
-            #        "Cannot use {} as certificate CA without override flag: {}".format(
-            #            ca_file_env,
-            #            path_manager.ca_env_override_flag_path()))
+            if os.path.isfile(path_manager.ca_env_override_flag_path()):
+                LOGGER.warning("Using {} as certificate CA".format(ca_file_env))
+                cafile = ca_file_env
+            else:
+                LOGGER.warning(
+                    "Cannot use {} as certificate CA without override flag: {}".format(
+                        ca_file_env,
+                        path_manager.ca_env_override_flag_path()))
         cafile = self.__m_config.get_default("CAFILE", cafile)
         if cafile is None or not os.path.isfile(cafile):
             raise mcsrouter.mcsclient.mcs_exception.MCSCACertificateException(
