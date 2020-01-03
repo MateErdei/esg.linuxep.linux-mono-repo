@@ -120,7 +120,7 @@ namespace Plugin
                     {
                         m_timesOsqueryProcessFailedToStart++;
                     }
-                    LOGDEBUG("The osquery process failed to start. Scheduling a retry in " << delay << " seconds.");
+                    LOGWARN("The osquery process failed to start. Scheduling a retry in " << delay << " seconds.");
                     Common::Telemetry::TelemetryHelper::getInstance().increment(plugin::telemetryOsqueryRestarts, 1UL);
                     m_delayedRestart.reset( // NOLINT
                         new WaitUpTo(
