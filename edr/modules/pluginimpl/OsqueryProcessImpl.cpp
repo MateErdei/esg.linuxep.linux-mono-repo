@@ -231,10 +231,8 @@ namespace Plugin
         flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
         flags.push_back("--logger_path=" + Plugin::osQueryLogPath());
 
-        const char* const delim = "\n";
-
         std::ostringstream flagsAsString;
-        std::copy(flags.begin(), flags.end(), std::ostream_iterator<std::string>(flagsAsString, delim));
+        std::copy(flags.begin(), flags.end(), std::ostream_iterator<std::string>(flagsAsString, "\n"));
 
         fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
     }
