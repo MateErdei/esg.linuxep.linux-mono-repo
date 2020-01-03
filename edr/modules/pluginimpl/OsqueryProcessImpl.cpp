@@ -68,15 +68,6 @@ namespace Plugin
         OsqueryProcessFactory::instance().restoreCreator();
     }
 
-    OsqueryProcessImpl::OsqueryProcessImpl() : m_safeToDestroy { true }
-    {
-    }
-
-    OsqueryProcessImpl::~OsqueryProcessImpl()
-    {
-        assert(m_safeToDestroy);
-    }
-
     void OsqueryProcessImpl::keepOsqueryRunning()
     {
         auto fileSystem = Common::FileSystem::fileSystem();

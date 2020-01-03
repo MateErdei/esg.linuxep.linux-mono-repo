@@ -92,9 +92,19 @@ def test_edr_plugin_regenerates_flags_file(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     _wait_for_osquery_to_run()
 
-    with open(flags_file_path, 'r') as flags_file:
-        # Check that something we expect is in the file which means the bad contents from above was overwritten
-        assert ("host_identifier" in flags_file.read())
+    # Allow some time for the flags file to be overwritten
+    tries = 5
+    flags_file_was_regenerated = False
+    while tries > 0:
+        tries -= 1
+        with open(flags_file_path, 'r') as flags_file:
+            # Check that something we expect is in the file which means the bad contents from above was overwritten
+            if "host_identifier" not in flags_file.read():
+                time.sleep(1)
+                continue
+            else:
+                flags_file_was_regenerated = True
+    assert flags_file_was_regenerated
 
 
 

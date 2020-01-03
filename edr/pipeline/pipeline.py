@@ -14,6 +14,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
+
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
@@ -24,6 +25,7 @@ def install_requirements(machine: tap.Machine):
         # the previous command will fail if user already exists. But this is not an error
         print("On adding user and group: {}".format(ex))
 
+
 def robot_task(machine: tap.Machine):
     try:
         install_requirements(machine)
@@ -32,6 +34,7 @@ def robot_task(machine: tap.Machine):
         machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
+
 
 def pytest_task(machine: tap.Machine):
     try:

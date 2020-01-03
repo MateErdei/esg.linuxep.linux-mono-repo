@@ -18,8 +18,6 @@ namespace Plugin
     {
     public:
         static void killAnyOtherOsquery();
-        OsqueryProcessImpl();
-        ~OsqueryProcessImpl();
         void keepOsqueryRunning() override;
         void requestStop() override;
 

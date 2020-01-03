@@ -30,7 +30,6 @@ class EDRPlugin:
         except KeyError as ex:
             raise AssertionError("Sophos spl group, or user not present: {}".format(ex))
 
-
     def start_edr(self):
         self.stop_edr()
         self._ensure_sophos_required_unix_user_and_group_exists()
