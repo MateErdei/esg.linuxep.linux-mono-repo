@@ -35,3 +35,4 @@ EDR plugin Can Send Status
     Should Contain  ${edrTelemetry}   Number of Scans
 
     ${result} =   Terminate Process  ${handle}
+

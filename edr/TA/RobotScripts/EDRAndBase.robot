@@ -26,6 +26,14 @@ LiveQuery is Distributed to EDR Plugin and Its Answer is available to MCSRouter
     ...  1 secs
     ...  File Should Exist    ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_123-4_response.json
 
+EDR plugin Can Start Osquery
+    Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Osquery Running
+
+
 *** Keywords ***
 Simulate Live Query
     [Arguments]  ${name}  ${correlation}=123-4
@@ -72,9 +80,28 @@ Check EDR Plugin Installed With Base
     ...  1 secs
     ...  EDR Plugin Log Contains  edr <> Entering the main loop
 
+Check Osquery Running
+    Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd   OnError=osquery not running
+
+Display All SSPL Files Installed
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+
 
 EDR And Base Teardown
     Run Keyword If Test Failed   Log File   ${EDR_LOG_PATH}
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Run Keyword If Test Failed   Display All SSPL Files Installed
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
+    Run Keyword If Test Failed   Log File   ${EDR_LOG_PATH}
+    Remove File    ${EDR_LOG_PATH}
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+

@@ -64,19 +64,13 @@ done
 
 generate_manifest_diff $DIST ${COMPONENT_SUITE_LINE_ID}
 
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/policy
-rm -f ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/policy/mdr.xml
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/logs
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var
 
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
 #chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/osquery/bin/"*
 
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
-
-#Add in message relay configuration directory with correct permissions
-mkdir -p ${SOPHOS_INSTALL}/var/sophosspl/mcs/current_connection/
-chmod -R 0750 ${SOPHOS_INSTALL}/var/sophosspl/
-chown -R sophos-spl-user:sophos-spl-group "${SOPHOS_INSTALL}/var/sophosspl/"
 
 ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${COMPONENT_SUITE_LINE_ID}.sh"
 
