@@ -7,11 +7,5 @@ sophos_add_library(procimpl SHARED
         EXTRA_LIBS ${pluginapilib}
 )
 
-SET_TARGET_PROPERTIES(procimpl
-        PROPERTIES
-        INSTALL_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
-        )
-
 add_dependencies(procimpl copy_libs)
 

@@ -83,15 +83,14 @@ namespace Plugin
 
         if (fileSystem->exists(osquerySocket))
         {
-            // TODO make sure that when this throws we catch else where.
             fileSystem->removeFileOrDirectory(osquerySocket);
         }
 
-        const std::vector<std::string>& arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
-                                                      "--flagfile=" + Plugin::osqueryFlagsFilePath() };
+        std::vector<std::string> arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
+                                               "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
-        regenerateOSQueryConfigFile(Plugin::osqueryConfigFilePath());
+        regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
         startProcess(osqueryPath, arguments);
         m_processMonitorPtr->waitUntilProcessEnds();
         LOGINFO("The osquery process finished");
@@ -140,14 +139,18 @@ namespace Plugin
         }
     }
 
-    void OsqueryProcessImpl::regenerateOSQueryConfigFile(const std::string& osqueryConfigFilePath)
+    void OsqueryProcessImpl::regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath)
     {
-        char rawHostname[1024];
-        gethostname(rawHostname, 1024);
-        std::string hostname(rawHostname);
+        std::array<char, 1024> rawHostname{};
+        int ret = gethostname(rawHostname.data(), rawHostname.size());
+        if (ret == -1)
+        {
+            throw std::runtime_error("Could not get hostname to insert into osquery config file.");
+        }
+
+        std::string hostname(rawHostname.begin(), rawHostname.end());
 
         auto fileSystem = Common::FileSystem::fileSystem();
-
         if (fileSystem->isFile(osqueryConfigFilePath))
         {
             fileSystem->removeFile(osqueryConfigFilePath);
@@ -200,8 +203,8 @@ namespace Plugin
                                          "--disable_extensions=false",
                                          "--logger_stderr=true",
                                          "--logger_mode=420",
-                                         "--logger_min_stderr=0",
-                                         "--logger_min_status=0",
+                                         "--logger_min_stderr=1",
+                                         "--logger_min_status=1",
                                          "--disable_watchdog=false",
                                          "--watchdog_level=0",
                                          "--watchdog_memory_limit=250",
@@ -215,7 +218,7 @@ namespace Plugin
                                          "--audit_allow_selinux_events=true",
                                          "--audit_allow_sockets=true",
                                          "--audit_allow_user_events=true",
-                                         "--events_expiry=86400" };
+                                         "--events_expiry=604800" };
 
         flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());

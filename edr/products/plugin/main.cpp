@@ -20,7 +20,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <modules/livequery/ResponseDispatcher.h>
 
 
-std::string g_pluginName = PLUGIN_NAME;
+const char* g_pluginName = PLUGIN_NAME;
 
 class FakeQueryProcessor: public livequery::IQueryProcessor
 {
