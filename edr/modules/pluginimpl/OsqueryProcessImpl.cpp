@@ -11,9 +11,8 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <modules/Proc/ProcUtilities.h>
 
-#include <cassert>
 #include <iterator>
-#include <unistd.h>
+
 
 namespace
 {
@@ -141,15 +140,6 @@ namespace Plugin
 
     void OsqueryProcessImpl::regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath)
     {
-        std::array<char, 1024> rawHostname{};
-        int ret = gethostname(rawHostname.data(), rawHostname.size());
-        if (ret == -1)
-        {
-            throw std::runtime_error("Could not get hostname to insert into osquery config file.");
-        }
-
-        std::string hostname(rawHostname.begin(), rawHostname.end());
-
         auto fileSystem = Common::FileSystem::fileSystem();
         if (fileSystem->isFile(osqueryConfigFilePath))
         {
@@ -161,7 +151,6 @@ namespace Plugin
         osqueryConfiguration << R"(
         {
             "options": {
-                "host_identifier": ")" << hostname << R"(",
                 "schedule_splay_percent": 10
             },
             "schedule": {
