@@ -12,18 +12,6 @@ ${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${EDR_LOG_PATH}    ${EDR_PLUGIN_PATH}/log/edr.log
 
 *** Test Cases ***
-EDR Plugin Can Register With Management Agent And Recieve A Policy
-    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
-
-    Check EDR Plugin Installed
-
-    ${policyContent} =  Set Variable   This is a policy test only
-    Send Plugin Policy  edr  LiveQuery  ${policyContent}
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  ${policyContent}
-
 EDR Plugin Can Recieve Actions
     ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
 
