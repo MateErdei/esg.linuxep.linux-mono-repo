@@ -17,8 +17,7 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    constexpr int OneK = 1024;
-    constexpr int OutputBufferLimit = OneK;
+    constexpr int OUTPUT_BUFFER_LIMIT_KB = 1024;
 } // namespace
 
 namespace
@@ -244,7 +243,7 @@ namespace Plugin
     {
         std::lock_guard lock { m_processMonitorSharedResource };
         m_processMonitorPtr = Common::Process::createProcess();
-        m_processMonitorPtr->setOutputLimit(OutputBufferLimit);
+        m_processMonitorPtr->setOutputLimit(OUTPUT_BUFFER_LIMIT_KB);
 
         m_processMonitorPtr->setOutputTrimmedCallback(
             [](std::string overflowOutput) { LOGERROR("Non expected logs from osquery: " << overflowOutput); });
