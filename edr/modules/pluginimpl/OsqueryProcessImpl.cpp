@@ -152,8 +152,9 @@ namespace Plugin
 
     void OsqueryProcessImpl::regenerateOSQueryConfigFile(const std::string& osqueryConfigFilePath)
     {
-        char hostname[1024];
-        gethostname(hostname, 1024);
+        char rawHostname[1024];
+        gethostname(rawHostname, 1024);
+        std::string hostname(rawHostname);
 
         auto fileSystem = Common::FileSystem::fileSystem();
 
@@ -220,7 +221,7 @@ namespace Plugin
                                          "--disable_audit=false",
                                          "--audit_allow_config=true",
                                          "--audit_allow_process_events=true",
-                                         "--audit_allow_fim_events=true",
+                                         "--audit_allow_fim_events=false",
                                          "--audit_allow_selinux_events=true",
                                          "--audit_allow_sockets=true",
                                          "--audit_allow_user_events=true",

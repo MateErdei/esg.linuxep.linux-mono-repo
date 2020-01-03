@@ -72,7 +72,6 @@ def test_edr_plugin_kills_existing_osquery_instances(sspl_mock, edr_plugin_insta
 
 def test_edr_plugin_regenerates_flags_file(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
-    time.sleep(60)
     initial_osquery_pid = _wait_for_osquery_to_run()
     edr_plugin_instance.stop_edr()
     _wait_for_osquery_to_stop(initial_osquery_pid)
