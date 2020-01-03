@@ -17,6 +17,12 @@ def pip_install(machine: tap.Machine, *install_args: str):
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
+    try:
+        machine.run('useradd', 'sophos-spl-user')
+        machine.run('groupadd', 'sophos-spl-group')
+    except Exception as ex:
+        # the previous command will fail if user already exists. But this is not an error
+        print("On adding user and group: {}".format(ex))
 
 def robot_task(machine: tap.Machine):
     try:
