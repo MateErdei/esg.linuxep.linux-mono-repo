@@ -27,9 +27,11 @@
         </package>
 
         <!-- SUSI imports -->
-        <package name="sspl-plugin-mav-susi-component" version="master/%LASTGOODCOMPONENTBUILD%/sspl-plugin-mav-susi-component/0.5.0/output" dest="input">
+        <package name="sspl-plugin-mav-susi-component"
+                 version="master/%LASTGOODCOMPONENTBUILD%/sspl-plugin-mav-susi-component/0.5.0/output"
+                 dest="input" buildtype="dev">
+            <include src="susi" dest="."/>
         </package>
-
 
     </inputs>
     <buildcommands>
