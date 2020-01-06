@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="sspl-plugin-mav" version="0.5.0">
     <versioning>
-        <workingdir>sspl-plugin-mav-build/products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>sspl-plugin-av-build/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
-        <workingdir>sspl-plugin-mav-build</workingdir>
+        <workingdir>sspl-plugin-av-build</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
         <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.0.1/output" dest="input" buildtype="dev">
@@ -35,13 +35,13 @@
     <buildcommands>
         <command>
             <program>/bin/bash</program>
-            <args>./build.sh --name sspl-plugin-mav</args>
-            <workingdir>sspl-plugin-mav-build</workingdir>
+            <args>./build.sh --name sspl-plugin-anti-virus</args>
+            <workingdir>sspl-plugin-av-build</workingdir>
         </command>
     </buildcommands>
     <publish>
-        <workingdir>sspl-plugin-mav-build</workingdir>
-        <destdir>sspl-plugin-mav</destdir>
+        <workingdir>sspl-plugin-av-build</workingdir>
+        <destdir>sspl-plugin-anti-virus</destdir>
         <buildoutputs>
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
