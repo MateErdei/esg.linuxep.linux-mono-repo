@@ -13,7 +13,11 @@ if __name__ == '__main__':
 
     for robot_result_file in robot_results:
         dest_file_path = os.path.join(tap_logs_dir, robot_result_file)
+        src_file_path = os.path.join(robot_results_folder, robot_result_file)
+        if not os.path.exists(src_file_path):
+            print("File does not exist {}. skipping".format(src_file_path))
+            continue
         if os.path.exists(dest_file_path):
             os.remove(dest_file_path)
-        shutil.move(os.path.join(robot_results_folder,robot_result_file), tap_logs_dir)
+        shutil.move(src_file_path, tap_logs_dir)
 

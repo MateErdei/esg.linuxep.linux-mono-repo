@@ -1,13 +1,40 @@
-import psutil
 import time
 import os
+
+
+class ProcEntry:
+    def __init__(self, pid):
+        self.pid = pid
+        self._name = _try_file_content(os.path.join('/proc', pid, 'comm'))
+
+    def name(self):
+        return self._name
+
+    def __repr__(self):
+        return "pid: {}, name:{}".format(self.pid, self._name)
+
+
+def _try_file_content(file_path):
+    try:
+        with open(file_path, 'r') as file_handler:
+            return file_handler.read()
+    except IOError:
+        # reading proc entry can fail related to the time to read
+        # ignore those errors
+        return ""
+
+
+def process_iter():
+    for pid in os.listdir('/proc'):
+        if '0' <= pid[0] <= '9':
+            yield ProcEntry(pid)
 
 
 def _wait_for_osquery_to_run():
     times_run = 0
     while times_run < 10:
         times_run += 1
-        for p in psutil.process_iter():
+        for p in process_iter():
             if p.name() == "osqueryd":
                 return p.pid
         time.sleep(1)
@@ -19,7 +46,7 @@ def _wait_for_osquery_to_stop(pid):
     while times_run < 10:
         times_run += 1
         pids = []
-        for p in psutil.process_iter():
+        for p in process_iter():
             pids.append(p.pid)
 
         if pid in pids:
@@ -30,11 +57,24 @@ def _wait_for_osquery_to_stop(pid):
     raise AssertionError("osqueryd failed to stop")
 
 
+def detect_failure(func):
+    def wrapper_function(sspl_mock, edr_plugin_instance):
+        try:
+            v = func(sspl_mock, edr_plugin_instance)
+            return v
+        except:
+            edr_plugin_instance.set_failed()
+            raise
+    return wrapper_function
+
+
+@detect_failure
 def test_edr_plugin_starts_osquery(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     _wait_for_osquery_to_run()
 
 
+@detect_failure
 def test_edr_plugin_restarts_osquery_after_kill_signal(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     initial_osquery_pid = _wait_for_osquery_to_run()
@@ -44,6 +84,7 @@ def test_edr_plugin_restarts_osquery_after_kill_signal(sspl_mock, edr_plugin_ins
     assert (initial_osquery_pid != new_osquery_pid)
 
 
+@detect_failure
 def test_edr_plugin_restarts_osquery_after_segv_signal(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     initial_osquery_pid = _wait_for_osquery_to_run()
@@ -53,6 +94,7 @@ def test_edr_plugin_restarts_osquery_after_segv_signal(sspl_mock, edr_plugin_ins
     assert (initial_osquery_pid != new_osquery_pid)
 
 
+@detect_failure
 def test_osquery_is_stopped_if_edr_plugin_is_stopped(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     initial_osquery_pid = _wait_for_osquery_to_run()
@@ -60,6 +102,7 @@ def test_osquery_is_stopped_if_edr_plugin_is_stopped(sspl_mock, edr_plugin_insta
     _wait_for_osquery_to_stop(initial_osquery_pid)
 
 
+@detect_failure
 def test_edr_plugin_kills_existing_osquery_instances(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     initial_osquery_pid = _wait_for_osquery_to_run()
@@ -70,6 +113,7 @@ def test_edr_plugin_kills_existing_osquery_instances(sspl_mock, edr_plugin_insta
     assert (initial_osquery_pid != new_osquery_pid)
 
 
+@detect_failure
 def test_edr_plugin_regenerates_flags_file(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     initial_osquery_pid = _wait_for_osquery_to_run()

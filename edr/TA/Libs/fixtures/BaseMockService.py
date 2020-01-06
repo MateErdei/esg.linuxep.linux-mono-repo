@@ -50,11 +50,13 @@ def install_component(sophos_install):
     shutil.copytree(os.path.join(sdds(), 'files/plugins'), os.path.join(sophos_install, 'plugins'))
     plugin_lib64_path = os.path.join(plugin_dir_path, 'lib64')
     plugin_executable = os.path.join(plugin_dir_path, 'bin/edr')
+    osquery_executable = os.path.join(plugin_dir_path, 'bin/osqueryd')
     os.makedirs(os.path.join(plugin_dir_path, 'var'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'logs'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'etc'), exist_ok=True)
     run_shell(['ldconfig', '-lN', '*.so.*'], cwd=plugin_lib64_path)
     run_shell(['chmod', '+x', plugin_executable])
+    run_shell(['chmod', '+x', osquery_executable])
     os.environ['SOPHOS_INSTALL'] = sophos_install
 
 

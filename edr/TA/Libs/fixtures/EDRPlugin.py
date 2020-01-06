@@ -7,8 +7,10 @@ import pwd
 def _sophos_spl_path():
     return os.environ['SOPHOS_INSTALL']
 
+
 def _edr_exec_path():
     return os.path.join(_sophos_spl_path(), 'plugins/edr/bin/edr')
+
 
 def _edr_log_path():
     return os.path.join(_sophos_spl_path(), 'plugins/edr/log/edr.log')
@@ -22,6 +24,10 @@ def _file_content(path):
 class EDRPlugin:
     def __init__(self):
         self._proc = None
+        self._failed = False
+
+    def set_failed(self):
+        self._failed = True
 
     def _ensure_sophos_required_unix_user_and_group_exists(self):
         try:
@@ -36,6 +42,21 @@ class EDRPlugin:
         self._proc = subprocess.Popen([_edr_exec_path()])
 
     def stop_edr(self):
+        """
+        Stop EDR and allow graceful termination
+        """
+        if self._proc:
+            self._proc.terminate()
+            self._proc.wait()
+            self._proc = None
+        if self._failed:
+            print("Report on Failure:")
+            print(self.log())
+
+    def kill_edr(self):
+        """
+        Stop EDR and do not allow graceful termination
+        """
         if self._proc:
             self._proc.kill()
             self._proc.wait()

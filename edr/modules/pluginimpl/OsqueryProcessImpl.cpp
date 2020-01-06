@@ -210,13 +210,13 @@ namespace Plugin
                                          "--audit_allow_sockets=true",
                                          "--audit_allow_user_events=true",
                                          "--syslog_events_expiry=604800",
-                                         "--syslog_pipe_path=/opt/sophos-spl/var/syslog_pipe",
                                          "--events_expiry=604800",
                                          "--force=true",
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false",
                                          "--events_max=20000"};
 
+        flags.push_back("--syslog_pipe_path=" + Plugin::syslogPipe()),
         flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
         flags.push_back("--extensions_socket=" + Plugin::osquerySocket());

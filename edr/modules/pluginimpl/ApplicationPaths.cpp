@@ -55,6 +55,11 @@ std::string Plugin::osqueryPidFile()
     return fromRelative("var/osquery.pid");
 }
 
+std::string Plugin::syslogPipe()
+{
+    return fromRelative("var/syslog_pipe");
+}
+
 std::string Plugin::osQueryLogPath()
 {
     return fromRelative("log");
