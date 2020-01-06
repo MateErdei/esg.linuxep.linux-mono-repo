@@ -1,10 +1,10 @@
 
 library "standardPipeline"
 
-project = 'sspl-plugin-mav'
+project = 'sspl-plugin-anti-virus'
 version_key = '0.5.0'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-modular-anti-virus.git'
-project_builddir = 'sspl-plugin-mav-plugin-build'
+project_builddir = project
 project_release_xml = 'build-files/release-package.xml'
 
 properties([
@@ -18,7 +18,7 @@ properties([
 skipDefaultCheckout()
 try{
 	version_number = GetVersionNumber(version_key, project)
-    PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    PreBuild(params, version_number, project)
 
     parallel Build:{
         ArtisanBuild(
