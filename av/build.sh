@@ -150,7 +150,7 @@ done
 export NO_REMOVE_GCC=1
 
 INPUT=$BASE/input
-BUILD_DIR=sspl-plugin-av-build
+BUILD_DIR=sspl-plugin-anti-virus
 
 if [[ ! -d "$INPUT" ]]
 then

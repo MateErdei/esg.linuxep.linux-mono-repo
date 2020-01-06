@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-plugin-mav" version="0.5.0">
+<package name="sspl-plugin-anti-virus" version="0.5.0">
     <versioning>
-        <workingdir>sspl-plugin-av-build/products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>sspl-plugin-anti-virus/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
-        <workingdir>sspl-plugin-av-build</workingdir>
+        <workingdir>sspl-plugin-anti-virus</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
         <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.0.2/output" dest="input" buildtype="dev">
@@ -38,21 +38,21 @@
         <command>
             <program>/bin/ls</program>
             <args>.</args>
-            <workingdir>sspl-plugin-av-build</workingdir>
+            <workingdir>sspl-plugin-anti-virus</workingdir>
         </command>
         <command>
             <program>/bin/ls</program>
-            <args>/BaseFolder /BaseFolder/sspl-plugin-av-build</args>
-            <workingdir>sspl-plugin-av-build</workingdir>
+            <args>/BaseFolder /BaseFolder/sspl-plugin-anti-virus</args>
+            <workingdir>sspl-plugin-anti-virus</workingdir>
         </command>
         <command>
             <program>/bin/bash</program>
             <args>./build.sh --name sspl-plugin-anti-virus</args>
-            <workingdir>sspl-plugin-av-build</workingdir>
+            <workingdir>sspl-plugin-anti-virus</workingdir>
         </command>
     </buildcommands>
     <publish>
-        <workingdir>sspl-plugin-av-build</workingdir>
+        <workingdir>sspl-plugin-anti-virus</workingdir>
         <destdir>sspl-plugin-anti-virus</destdir>
         <buildoutputs>
             <output name="output" srcfolder="output"> </output>
