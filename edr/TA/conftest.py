@@ -57,17 +57,17 @@ def edr_plugin_instance(request):
 
 def collect_logs(test_name):
     """
-    Copy all logs, whether pass or failure
+    Copy all logs from the install directory
     """
-    log_dir = "/opt/test/logs/test_logs/{}".format(test_name)
+    dir_to_export_logs_to = "/opt/test/logs/test_logs/{}".format(test_name)
 
     # Clear old logs if running via debug-loop
-    shutil.rmtree(log_dir)
+    shutil.rmtree(dir_to_export_logs_to)
 
-    os.makedirs(log_dir)
+    os.makedirs(dir_to_export_logs_to)
     for filename in Path(pytest.sophos_install_location).rglob('*.log'):
-        print("Copying log file: {} to {}".format(filename, log_dir))
-        shutil.copy(filename, log_dir)
+        print("Copying log file: {} to {}".format(filename, dir_to_export_logs_to))
+        shutil.copy(filename, dir_to_export_logs_to)
 
 
 def pytest_runtest_protocol(item, nextitem):
