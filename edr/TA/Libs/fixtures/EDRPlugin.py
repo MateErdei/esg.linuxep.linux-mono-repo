@@ -16,6 +16,14 @@ def _edr_log_path():
     return os.path.join(_sophos_spl_path(), 'plugins/edr/log/edr.log')
 
 
+def _edr_oquery_paths():
+    _edr_log_dir = os.path.join(_sophos_spl_path(), 'plugins/edr/log')
+    osquery_logs = [file_name for file_name in os.listdir(_edr_log_dir) if 'osquery' in file_name ]
+    if not osquery_logs:
+        return []
+    return [os.path.join(_edr_log_dir, file_name) for file_name in osquery_logs]
+
+
 def _file_content(path):
     with open(path, 'r') as f:
         return f.read()
@@ -52,6 +60,8 @@ class EDRPlugin:
         if self._failed:
             print("Report on Failure:")
             print(self.log())
+            print("Osquery logs:")
+            print(self.osquery_logs())
 
     def kill_edr(self):
         """
@@ -64,6 +74,13 @@ class EDRPlugin:
 
     def log(self):
         return _file_content(_edr_log_path())
+
+    def osquery_logs(self):
+        full_content = ""
+        for file_path in _edr_oquery_paths():
+            full_content += "\n\tFile: {}\n".format(file_path)
+            full_content += _file_content(file_path)
+        return full_content
 
     def log_contains(self, content):
         log_content = self.log()

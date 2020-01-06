@@ -4,8 +4,8 @@ import os
 
 class ProcEntry:
     def __init__(self, pid):
-        self.pid = pid
-        self._name = _try_file_content(os.path.join('/proc', pid, 'comm'))
+        self.pid = int(pid)
+        self._name = _try_file_content(os.path.join('/proc', str(pid), 'comm')).strip()
 
     def name(self):
         return self._name
@@ -38,7 +38,7 @@ def _wait_for_osquery_to_run():
             if p.name() == "osqueryd":
                 return p.pid
         time.sleep(1)
-    raise AssertionError("osqueryd not found in process list.")
+    raise AssertionError("osqueryd not found in process list: {}".format([p for p in process_iter()]))
 
 
 def _wait_for_osquery_to_stop(pid):
