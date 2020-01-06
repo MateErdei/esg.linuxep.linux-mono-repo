@@ -47,6 +47,7 @@ COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-audit-unittest
 VALGRIND=0
 GOOGLETESTTAR=googletest-release-1.8.1
+NO_BUILD=0
 
 while [[ $# -ge 1 ]]
 do
