@@ -35,16 +35,9 @@ try{
             'release')
         }
 
-    SuccessfulBuild(
-		params.CommitHash,
-		params.PortalId,
-		params.PortalAddress,
-		'master',
-		project_gitrepo,
-		"${env.BRANCH_NAME}",
-		project_release_xml)
+    SuccessfulBuild(project_release_xml)
 
 } catch(e){
-    FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    FailedBuild(e)
     error("Build failed: " + e.toString())
 }
