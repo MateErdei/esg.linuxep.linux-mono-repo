@@ -36,6 +36,16 @@
     </inputs>
     <buildcommands>
         <command>
+            <program>/bin/ls</program>
+            <args>.</args>
+            <workingdir>sspl-plugin-av-build</workingdir>
+        </command>
+        <command>
+            <program>/bin/ls</program>
+            <args>/BaseFolder /BaseFolder/sspl-plugin-av-build</args>
+            <workingdir>sspl-plugin-av-build</workingdir>
+        </command>
+        <command>
             <program>/bin/bash</program>
             <args>./build.sh --name sspl-plugin-anti-virus</args>
             <workingdir>sspl-plugin-av-build</workingdir>

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-DEFAULT_PRODUCT=sspl-plugin-mav
+DEFAULT_PRODUCT=sspl-plugin-anti-virus
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
@@ -150,12 +150,13 @@ done
 export NO_REMOVE_GCC=1
 
 INPUT=$BASE/input
+BUILD_DIR=sspl-plugin-av-build
 
 if [[ ! -d "$INPUT" ]]
 then
-    if [[ -d "$BASE/sspl-plugin-mav-build" ]]
+    if [[ -d "$BASE/$BUILD_DIR" ]]
     then
-        INPUT="$BASE/sspl-plugin-mav-build/input"
+        INPUT="$BASE/$BUILD_DIR/input"
     else
         MESSAGE_PART1="You need to run the following to setup your input folder: "
         MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
