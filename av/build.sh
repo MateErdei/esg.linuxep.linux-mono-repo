@@ -220,8 +220,10 @@ function build()
     fi
 
     SUSI_DIR=$INPUT/susi
+    [[ -d $SUSI_DIR ]] || exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Can't find SUSI input: $SUSI_DIR"
+    ls -lR "$SUSI_DIR"
     ln -snf "$SUSI_DIR" "$REDIST"/susi
-    ln -snf . "$SUSI_DIR"/include/interface
+    [[ -d $SUSI_DIR/lib ]] || exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Can't find $SUSI_DIR/lib"
     ln -snf libsusi.so.1 "$SUSI_DIR"/lib/libsusi.so
 
     addpath "$REDIST/cmake/bin"
