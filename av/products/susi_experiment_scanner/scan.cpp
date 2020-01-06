@@ -1,5 +1,4 @@
 
-#include <SusiTypes.h>
 #include <Susi.h>
 
 #include <string>
