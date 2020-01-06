@@ -43,7 +43,7 @@ int main()
         LOGERROR("Plugin Api could not be instantiated: " << apiException.what());
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
-    std::unique_ptr<livequery::IQueryProcessor> queryProcessor(new osqueryclient::OsqueryProcessor{socket});
+    std::unique_ptr<livequery::IQueryProcessor> queryProcessor(new osqueryclient::OsqueryProcessor{Plugin::osquerySocket()});
     std::unique_ptr<livequery::IResponseDispatcher> queryResponder(new livequery::ResponseDispatcher{});
 
 
