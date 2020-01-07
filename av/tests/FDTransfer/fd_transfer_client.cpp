@@ -79,7 +79,9 @@ int main(int argc, char* argv[])
         handle_error("Failed to connect to unix socket");
     }
 
-    write(socket_fd, "ABCD", 4);
+    int bytesWritten = write(socket_fd, "ABCD", 4);
+    static_cast<void>(bytesWritten);
+    assert(bytesWritten == 4);
 
     send_fd(socket_fd, file_fd);
 

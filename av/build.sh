@@ -48,6 +48,7 @@ COV_HTML_BASE=sspl-plugin-audit-unittest
 VALGRIND=0
 GOOGLETESTTAR=googletest-release-1.8.1
 NO_BUILD=0
+LOCAL_GCC=0
 
 while [[ $# -ge 1 ]]
 do
@@ -72,6 +73,9 @@ do
             ;;
         --no-build)
             NO_BUILD=1
+            ;;
+        --local-gcc|--no-gcc)
+            LOCAL_GCC=1
             ;;
         --no-unpack)
             NO_UNPACK=1
@@ -214,7 +218,7 @@ function build()
     if [[ -z "$NO_UNPACK" ]]
     then
         mkdir -p $REDIST
-        unpack_scaffold_gcc_make "$INPUT"
+        (( LOCAL_GCC == 0 )) && unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" "${PLUGIN_TAR}"
         untar_input cmake cmake-3.11.2-linux
         untar_input $GOOGLETESTTAR
@@ -228,7 +232,10 @@ function build()
     ls -lR "$SUSI_DIR"
     ln -snf "$SUSI_DIR" "$REDIST"/susi
     [[ -d $SUSI_DIR/lib ]] || exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Can't find $SUSI_DIR/lib"
-    ln -snf libsusi.so.1 "$SUSI_DIR"/lib/libsusi.so
+    if [[ ! -f "$SUSI_DIR"/libsusi.so ]] && [[ -f "$SUSI_DIR"/libsusi.so.1 ]]
+    then
+        ln -snf libsusi.so.1 "$SUSI_DIR"/libsusi.so
+    fi
 
     addpath "$REDIST/cmake/bin"
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest

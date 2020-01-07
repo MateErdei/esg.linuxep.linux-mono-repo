@@ -61,16 +61,16 @@ static bool handleConnection(int fd)
     std::cout << "Got connection "<< fd << std::endl;
 
     char receive_buffer[5];
-    read(fd, receive_buffer, sizeof(receive_buffer) - 1);
-    receive_buffer[4] = 0;
+    int bytesRead = read(fd, receive_buffer, sizeof(receive_buffer) - 1);
+    receive_buffer[bytesRead] = 0;
 
     std::cout << "Received:" << receive_buffer << std::endl;
 
     int file_fd = recv_fd(fd);
 
     // Test reading the file
-    read(file_fd, receive_buffer, sizeof(receive_buffer) - 1);
-    receive_buffer[4] = 0;
+    bytesRead = read(file_fd, receive_buffer, sizeof(receive_buffer) - 1);
+    receive_buffer[bytesRead] = 0;
     std::cout << "File:" << receive_buffer << std::endl;
 
     // Test stat the file
@@ -83,6 +83,14 @@ static bool handleConnection(int fd)
     return false;
 }
 
+static void throwIfBadFd(int fd, const std::string& message)
+{
+    if (fd >= 0)
+    {
+        return;
+    }
+    throw std::runtime_error(message);
+}
 
 int main()
 {
@@ -95,7 +103,7 @@ int main()
     const std::string path = "/tmp/unix_socket";
 
     int server_fd = socket(PF_UNIX, SOCK_STREAM, 0);
-    assert(server_fd >= 0);
+    throwIfBadFd(server_fd, "Failed to create socket");
 
     struct sockaddr_un addr = {};
 

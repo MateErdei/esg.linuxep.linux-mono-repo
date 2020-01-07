@@ -4,7 +4,7 @@ add_executable(susi_experiment_scanner
 
 target_include_directories(susi_experiment_scanner PRIVATE ${susi_include})
 
-find_library(SUSI_LIB NAMES susi PATHS ${susi_libdir} ${SUSIPATH})
+find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
 
 target_link_libraries(susi_experiment_scanner PRIVATE ${SUSI_LIB})
 
