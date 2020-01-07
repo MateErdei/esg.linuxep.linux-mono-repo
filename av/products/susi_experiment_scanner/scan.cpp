@@ -73,11 +73,19 @@ public:
     SusiScannerHandle m_handle;
 };
 
+static void throwIfNotOk(SusiResult res, const std::string& message)
+{
+    if (res != SUSI_S_OK)
+    {
+        throw std::runtime_error(message);
+    }
+}
+
 SusiHolder::SusiHolder(const std::string& scannerConfig)
     : m_handle(nullptr)
 {
     SusiResult res = SUSI_CreateScanner(scannerConfig.c_str(), &m_handle);
-    assert(res == SUSI_S_OK);
+    throwIfNotOk(res, "Failed to create SUSI Scanner");
     std::cerr << "Susi scanner constructed" << std::endl;
 }
 
@@ -86,7 +94,7 @@ SusiHolder::~SusiHolder()
     if (m_handle != nullptr)
     {
         SusiResult res = SUSI_DestroyScanner(m_handle);
-        assert(res == SUSI_S_OK);
+        throwIfNotOk(res, "Failed to destroy SUSI Scanner");
         std::cerr << "Susi scanner destroyed" << std::endl;
     }
 }
@@ -124,7 +132,7 @@ int main(int argc, char* argv[])
 
     SusiResult ret;
     ret = SUSI_SetLogCallback(&GL_log_callback);
-    assert(ret == SUSI_S_OK);
+    throwIfNotOk(ret, "Failed to set log callback");
 
     static const std::string config = R"({
     "library": {
