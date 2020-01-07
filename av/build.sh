@@ -222,6 +222,7 @@ function build()
         untar_input pluginapi "" "${PLUGIN_TAR}"
         untar_input cmake cmake-3.11.2-linux
         untar_input $GOOGLETESTTAR
+        python3 "$BASE"/build-files/create_library_links.py $REDIST
     fi
 
     SUSI_DIR=$INPUT/susi
