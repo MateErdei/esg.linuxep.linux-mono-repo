@@ -62,7 +62,7 @@ def collect_logs(test_name):
     dir_to_export_logs_to = "/opt/test/logs/test_logs/{}".format(test_name)
 
     # Clear old logs if running via debug-loop
-    shutil.rmtree(dir_to_export_logs_to)
+    shutil.rmtree(dir_to_export_logs_to, ignore_errors=True)
 
     os.makedirs(dir_to_export_logs_to)
     for filename in Path(pytest.sophos_install_location).rglob('*.log'):
