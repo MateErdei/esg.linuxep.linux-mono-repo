@@ -42,7 +42,7 @@ def pytest_task(machine: tap.Machine):
         tests_dir = str(machine.inputs.test_scripts)
         args = ['python', '-u', '-m', 'pytest', tests_dir,
                 '-o', 'log_cli=true',
-                '--html', '/opt/test/results/report.html'
+                '--html=/opt/test/results/report.html'
                 ]
         machine.run(*args)
         machine.run('ls', '/opt/test/logs')

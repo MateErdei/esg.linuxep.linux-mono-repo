@@ -29,6 +29,12 @@ def install_component_setup(tmpdir_factory):
     sophos_install = dir_path.strpath
     install_component(sophos_install)
     pytest.sophos_install_location = sophos_install
+
+    #clear previous test logs
+    test_logs_dir = "/opt/test/logs/test_logs"
+
+    # Clear old logs if running via debug-loop
+    shutil.rmtree(test_logs_dir, ignore_errors=True)
     return sophos_install
 
 
@@ -61,22 +67,19 @@ def collect_logs(test_name):
     """
     dir_to_export_logs_to = "/opt/test/logs/test_logs/{}".format(test_name)
 
-    # Clear old logs if running via debug-loop
-    shutil.rmtree(dir_to_export_logs_to, ignore_errors=True)
-
     os.makedirs(dir_to_export_logs_to)
     for filename in Path(pytest.sophos_install_location).rglob('*.log'):
         print("Copying log file: {} to {}".format(filename, dir_to_export_logs_to))
         shutil.copy(filename, dir_to_export_logs_to)
 
 
-def pytest_runtest_protocol(item, nextitem):
-    reports = runtestprotocol(item, nextitem=nextitem)
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    # execute all other hooks to obtain the report object
+    outcome = yield
+    report = outcome.get_result()
     print("Current install location: {}".format(pytest.sophos_install_location))
 
-    for report in reports:
-        if report.when == 'call':
-            # report.outcome will be "passed" if the test passed
-            print("Result: {}, Test: {}".format(item.name, report.outcome))
-            collect_logs(item.name)
-    return True
+    if report.failed:
+        print("Result: {}, Test: {}".format(item.name, report.outcome))
+        collect_logs(item.name)
