@@ -7,7 +7,8 @@ ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-template.git
 ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-eventprocessor.git
 ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-component.git
 ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-componentsuite.git
-ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-modular-anti-virus.git
+ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-anti-virus.git
+ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-av-susi-component.git
 ssh://git@stash.sophos.net:7999/linuxep/sspl-aws-runner.git
 ssh://git@stash.sophos.net:7999/linuxep/versig.git
 ssh://git@stash.sophos.net:7999/linuxep/sul.git
