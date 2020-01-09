@@ -151,7 +151,7 @@ done
 
 [[ -n "${PLUGIN_NAME}" ]] || PLUGIN_NAME=${DEFAULT_PRODUCT}
 [[ -n "${PRODUCT}" ]] || PRODUCT=${PLUGIN_NAME}
-[[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Managed Threat Response plug-in"
+[[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Endpoint Detection and Response plug-in"
 [[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-EDR-Component"
 [[ -n "${DEFAULT_HOME_FOLDER}" ]] || DEFAULT_HOME_FOLDER="$PRODUCT"
 
