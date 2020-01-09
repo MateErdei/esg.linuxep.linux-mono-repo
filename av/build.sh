@@ -49,6 +49,7 @@ VALGRIND=0
 GOOGLETESTTAR=googletest-release-1.8.1
 NO_BUILD=0
 LOCAL_GCC=0
+LOCAL_CMAKE=0
 
 while [[ $# -ge 1 ]]
 do
@@ -76,6 +77,9 @@ do
             ;;
         --local-gcc|--no-gcc)
             LOCAL_GCC=1
+            ;;
+        --local-cmake|--no-cmake)
+            LOCAL_CMAKE=1
             ;;
         --no-unpack)
             NO_UNPACK=1
@@ -222,7 +226,8 @@ function build()
         (( LOCAL_GCC == 0 )) && unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" "${PLUGIN_TAR}"
         python3 "$BASE"/build-files/create_library_links.py $REDIST
-        untar_input cmake cmake-3.11.2-linux
+        (( LOCAL_CMAKE == 0 )) && untar_input cmake cmake-3.11.2-linux
+        untar_input protobuf
         untar_input $GOOGLETESTTAR
         untar_input susi
     fi
