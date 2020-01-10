@@ -26,8 +26,8 @@
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
         <!-- Need to compile our own messages -->
-        <package name="protobuflinux11" version="3-9-1-10/217398/output" dest="input">
-            <include src="protobuf.tar" dest="."/>
+        <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
+            <include src="capnproto.tar" dest="."/>
         </package>
 
         <!-- SUSI imports -->

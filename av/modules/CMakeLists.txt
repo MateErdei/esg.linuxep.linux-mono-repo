@@ -1,2 +1,3 @@
 add_subdirectory(filewalker)
 add_subdirectory(pluginimpl)
+add_subdirectory(scan_messages)

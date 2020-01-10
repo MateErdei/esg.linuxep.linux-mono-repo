@@ -227,7 +227,7 @@ function build()
         untar_input pluginapi "" "${PLUGIN_TAR}"
         python3 "$BASE"/build-files/create_library_links.py $REDIST
         (( LOCAL_CMAKE == 0 )) && untar_input cmake cmake-3.11.2-linux
-        untar_input protobuf
+        untar_input capnproto
         untar_input $GOOGLETESTTAR
         untar_input susi
     fi
