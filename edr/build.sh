@@ -137,7 +137,7 @@ do
             BULLSEYE_SYSTEM_TESTS=1
             COVFILE="/tmp/root/sspl-edr-combined.cov"
             BULLSEYE_UPLOAD=1
-            COV_HTML_BASE=sspl-plugin-mtr-combined
+            COV_HTML_BASE=sspl-plugin-edr-combined
             ;;
         --valgrind)
             VALGRIND=1
