@@ -2,8 +2,8 @@
 // Created by pair on 13/01/2020.
 //
 
-#ifndef SSPL_PLUGIN_MAV_SCANREQUEST_H
-#define SSPL_PLUGIN_MAV_SCANREQUEST_H
+#ifndef SSPL_PLUGIN_AV_SCANREQUEST_H
+#define SSPL_PLUGIN_AV_SCANREQUEST_H
 
 #include <ScanRequest.capnp.h>
 #include <string>
@@ -29,5 +29,4 @@ namespace scan_messages
     };
 }
 
-
-#endif //SSPL_PLUGIN_MAV_SCANREQUEST_H
+#endif //SSPL_PLUGIN_AV_SCANREQUEST_H
