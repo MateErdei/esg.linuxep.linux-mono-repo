@@ -269,7 +269,7 @@ function build()
     mkdir -p build${BITS}
     cd build${BITS}
     [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -v -DREDIST="${REDIST}" \
+    cmake -v \
              -DINPUT="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
             -DPRODUCT_NAME="${PRODUCT_NAME}" \
