@@ -155,19 +155,19 @@ namespace Plugin
             },
             "schedule": {
                 "process_events": {
-                    "query": "select count(*) from process_events;",
+                    "query": "select count(*) as process_events_count from process_events;",
                     "interval": 86400
                 },
                 "user_events": {
-                    "query": "select count(*) from user_events;",
+                    "query": "select count(*) as user_events_count from user_events;",
                     "interval": 86400
                 },
                 "selinux_events": {
-                    "query": "select count(*) from selinux_events;",
+                    "query": "select count(*) as selinux_events_count from selinux_events;",
                     "interval": 86400
                 },
                 "socket_events": {
-                    "query": "select count(*) from socket_events;",
+                    "query": "select count(*) as socket_events_count from socket_events;",
                     "interval": 86400
                 }
             }
