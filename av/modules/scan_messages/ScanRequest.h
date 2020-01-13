@@ -2,8 +2,7 @@
 // Created by pair on 13/01/2020.
 //
 
-#ifndef SSPL_PLUGIN_AV_SCANREQUEST_H
-#define SSPL_PLUGIN_AV_SCANREQUEST_H
+#pragma once
 
 #include <ScanRequest.capnp.h>
 #include <string>
@@ -28,5 +27,3 @@ namespace scan_messages
         void setRequestFromMessage(Sophos::ssplav::FileScanRequest::Reader& requestMessage);
     };
 }
-
-#endif //SSPL_PLUGIN_AV_SCANREQUEST_H

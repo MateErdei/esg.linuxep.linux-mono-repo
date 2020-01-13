@@ -2,8 +2,7 @@
 // Created by pair on 13/01/2020.
 //
 
-#ifndef SSPL_PLUGIN_AV_SCANRESPONSE_H
-#define SSPL_PLUGIN_AV_SCANRESPONSE_H
+#pragma once
 
 namespace scan_messages
 {
@@ -13,4 +12,3 @@ namespace scan_messages
     };
 }
 
-#endif //SSPL_PLUGIN_AV_SCANRESPONSE_H
