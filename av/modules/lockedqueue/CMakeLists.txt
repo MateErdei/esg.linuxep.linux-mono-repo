@@ -5,3 +5,4 @@ add_library(lockedqueue SHARED
         )
 
 target_include_directories(lockedqueue PUBLIC ${pluginapiinclude})
+target_link_libraries(lockedqueue ${pluginapilib})

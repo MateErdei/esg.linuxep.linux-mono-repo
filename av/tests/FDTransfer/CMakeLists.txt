@@ -4,3 +4,5 @@ add_executable(fd_transfer_client
 
 add_executable(fd_transfer_server
         fd_transfer_server.cpp)
+target_link_libraries(fd_transfer_server  PUBLIC unixsocket)
+target_include_directories(fd_transfer_server PUBLIC ${CMAKE_SOURCE_DIR}/modules)

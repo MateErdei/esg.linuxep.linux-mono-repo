@@ -7,6 +7,6 @@ add_library(unixsocket SHARED
         ScanningServerConnectionThread.cpp
         ScanningServerConnectionThread.h Print.h)
 
-target_link_libraries(unixsocket  PUBLIC scanmessages)
+target_link_libraries(unixsocket  PUBLIC scanmessages ${pluginapilib})
 
 target_include_directories(unixsocket PUBLIC ${pluginapiinclude})

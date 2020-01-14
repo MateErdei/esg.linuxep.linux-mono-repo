@@ -34,16 +34,16 @@ void unixsocket::ScanningServerConnectionThread::notifyTerminate()
 {
 
 }
-
-static void throwOnError(int ret, const std::string& message)
-{
-    if (ret == 0)
-    {
-        return;
-    }
-    perror(message.c_str());
-    throw std::runtime_error(message);
-}
+//
+//static void throwOnError(int ret, const std::string& message)
+//{
+//    if (ret == 0)
+//    {
+//        return;
+//    }
+//    perror(message.c_str());
+//    throw std::runtime_error(message);
+//}
 
 /**
  * Receive a single file descriptor from a unix socket
@@ -66,8 +66,13 @@ static int recv_fd(int socket)
     msg.msg_control = buf;
     msg.msg_controllen = sizeof(buf);
 
-    int ret = recvmsg (socket, &msg, 0);
-    throwOnError(ret, "Failed to receive message");
+    errno = 0;
+    int ret = recvmsg (socket, &msg, 0); // ret = bytes received
+    if (ret < 0)
+    {
+        perror("Failed to receive fd recvmsg");
+        return -1;
+    }
 
     cmsg = CMSG_FIRSTHDR(&msg);
 
@@ -88,6 +93,12 @@ void unixsocket::ScanningServerConnectionThread::run()
     std::cout << "Received:" << receive_buffer << std::endl;
 
     int file_fd = recv_fd(fd);
+    if (file_fd < 0)
+    {
+        PRINT("Aborting connection");
+        ::close(fd);
+        return;
+    }
 
     // Test reading the file
     bytesRead = read(file_fd, receive_buffer, sizeof(receive_buffer) - 1);
