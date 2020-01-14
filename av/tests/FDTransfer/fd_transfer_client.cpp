@@ -6,6 +6,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/SocketUtils.h"
 
+#include "ScanRequest.capnp.h"
+
+#include <capnp/message.h>
+#include <capnp/serialize.h>
+
 #include <string>
 #include <cstdio>
 #include <cstdlib>
@@ -14,8 +19,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <sys/un.h>
 #include <unistd.h>
 #include <cassert>
-#include <sys/types.h>
-#include <sys/stat.h>
+//#include <sys/types.h>
+//#include <sys/stat.h>
 #include <fcntl.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
@@ -77,9 +82,22 @@ int main(int argc, char* argv[])
         handle_error("Failed to connect to unix socket");
     }
 
-    unixsocket::writeLength(socket_fd, 4);
 
-    int bytesWritten = write(socket_fd, "ABCD", 4);
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+            message.initRoot<Sophos::ssplav::FileScanRequest>();
+
+    requestBuilder.setPathname(path);
+
+    // Convert to byte string
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+
+
+
+    unixsocket::writeLength(socket_fd, dataAsString.size());
+    int bytesWritten = write(socket_fd, dataAsString.c_str(), dataAsString.size());
     static_cast<void>(bytesWritten);
 
     send_fd(socket_fd, file_fd);
