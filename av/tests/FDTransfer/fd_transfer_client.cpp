@@ -4,9 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-//
-// Created by Douglas Leeder on 19/12/2019.
-//
+#include "unixsocket/SocketUtils.h"
 
 #include <string>
 #include <cstdio>
@@ -79,9 +77,10 @@ int main(int argc, char* argv[])
         handle_error("Failed to connect to unix socket");
     }
 
-    int bytesWritten = write(socket_fd, "\04ABCD", 5);
+    unixsocket::writeLength(socket_fd, 4);
+
+    int bytesWritten = write(socket_fd, "ABCD", 4);
     static_cast<void>(bytesWritten);
-    assert(bytesWritten == 5);
 
     send_fd(socket_fd, file_fd);
 

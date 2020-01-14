@@ -20,7 +20,11 @@ void unixsocket::writeLength(int socketfd, int length)
         uint8_t c = length;
         ::write(socketfd, &c, 1);
     }
-    assert(false);
+    else
+    {
+        // divide into 7-bit chunks, and send big-endian with top bit set.
+        assert(false);
+    }
 }
 
 int unixsocket::readLength(int socketfd)
