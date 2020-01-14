@@ -136,7 +136,8 @@ tempfileContent = """#!/bin/bash
 pushd "%s"
 export BASE_DIST=%s
 %s
-sudo -E /usr/bin/python -m robot %s
+export PYTHONPATH=/vagrant/everest-systemproducttests/libs/:/vagrant/everest-systemproducttests/SupportFiles/:$PYTHONPATH
+sudo -E /usr/bin/python3 -m robot %s
 popd
 """ % (remotedir, base_folder, env_variables,  ' '.join(quoted_args))
 
