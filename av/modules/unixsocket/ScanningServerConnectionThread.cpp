@@ -5,7 +5,100 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanningServerConnectionThread.h"
+#include "Print.h"
+
+#include <stdexcept>
+#include <iostream>
+
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(int fd)
+    : m_finished(false), m_fd(fd)
+{
+}
+
+bool unixsocket::ScanningServerConnectionThread::finished()
+{
+    return m_finished;
+}
+
+void unixsocket::ScanningServerConnectionThread::start()
+{
+
+}
+
+void unixsocket::ScanningServerConnectionThread::notifyTerminate()
+{
+
+}
+
+static void throwOnError(int ret, const std::string& message)
+{
+    if (ret == 0)
+    {
+        return;
+    }
+    perror(message.c_str());
+    throw std::runtime_error(message);
+}
+
+/**
+ * Receive a single file descriptor from a unix socket
+ * @param socket
+ * @return
+ */
+static int recv_fd(int socket)
+{
+    int fd;
+
+    struct msghdr msg = {};
+    struct cmsghdr *cmsg;
+    char buf[CMSG_SPACE(sizeof(int))];
+    char dup[256];
+    memset(buf, '\0', sizeof(buf));
+    struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
+
+    msg.msg_iov = &io;
+    msg.msg_iovlen = 1;
+    msg.msg_control = buf;
+    msg.msg_controllen = sizeof(buf);
+
+    int ret = recvmsg (socket, &msg, 0);
+    throwOnError(ret, "Failed to receive message");
+
+    cmsg = CMSG_FIRSTHDR(&msg);
+
+    memcpy (&fd, (int *) CMSG_DATA(cmsg), sizeof(int));
+
+    return fd;
+}
 
 void unixsocket::ScanningServerConnectionThread::run()
 {
+    int fd = m_fd;
+    PRINT("Got connection "<< fd);
+
+    char receive_buffer[5];
+    int bytesRead = read(fd, receive_buffer, sizeof(receive_buffer) - 1);
+    receive_buffer[bytesRead] = 0;
+
+    std::cout << "Received:" << receive_buffer << std::endl;
+
+    int file_fd = recv_fd(fd);
+
+    // Test reading the file
+    bytesRead = read(file_fd, receive_buffer, sizeof(receive_buffer) - 1);
+    receive_buffer[bytesRead] = 0;
+    std::cout << "File:" << receive_buffer << std::endl;
+
+    // Test stat the file
+    struct stat statbuf = {};
+    ::fstat(file_fd, &statbuf);
+    std::cout << "size:" << statbuf.st_size << std::endl;
+
+    ::close(file_fd);
+    ::close(fd);
 }

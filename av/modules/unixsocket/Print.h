@@ -6,21 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <string>
+#include <iostream>
 
-namespace unixsocket
-{
-    class ScanningServerSocket
-    {
-    public:
-        explicit ScanningServerSocket(const std::string& path);
-
-        void run();
-
-    private:
-        int m_socket_fd;
-        bool handleConnection(int fd);
-
-    };
-}
-
+// NOLINTNEXTLINE
+#define PRINT(x) std::cerr << x << '\n'
