@@ -453,7 +453,6 @@ class MCSConnection:
         auth_calculator = self.get_authenticator_for_proxy(proxy, host, port)
         retry_count = 0
         retry = True
-
         while retry and retry_count < 5:
             retry = False
             retry_count += 1
@@ -480,7 +479,7 @@ class MCSConnection:
                 assert proxy_host is not None
                 retry = auth_calculator.update_auth_header(exception.response)
                 exception.close()
-                if retry:
+                if retry and retry_count < 5:
                     LOGGER.info(
                         "Retrying 407 response with updated auth header")
                 else:
