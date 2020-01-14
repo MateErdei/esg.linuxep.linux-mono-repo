@@ -24,11 +24,12 @@ class SophosProxyDigestAuthHandler(urllib.request.AbstractDigestAuthHandler):
     def get_proxy_authorization(self, remote_host, chal, remote_port=443):
         """
         get_proxy_authorization
+        This method is an adaptation of AbstractDigestAuthHandler.get_authorization
         """
         #pylint: disable=too-many-locals
         try:
             realm = chal['realm']
-            nonce = chal['nonce'].encode("UTF-8")
+            nonce = chal['nonce']
             qop = chal.get('qop')
             algorithm = chal.get('algorithm', 'MD5')
             # mod_digest doesn't send an opaque, even though it isn't
@@ -49,8 +50,8 @@ class SophosProxyDigestAuthHandler(urllib.request.AbstractDigestAuthHandler):
         uri = "{}:{}".format(remote_host, remote_port)
         A2 = "CONNECT:%s" % uri
 
-        H_A1_as_bytes = H(A1).encode("utf-8")
-        H_A2_as_bytes = H(A2).encode("utf-8")
+        H_A1_as_bytes = H(A1)
+        H_A2_as_bytes = H(A2)
 
         if qop == 'auth':
             if nonce == self.last_nonce:
@@ -59,31 +60,28 @@ class SophosProxyDigestAuthHandler(urllib.request.AbstractDigestAuthHandler):
                 self.nonce_count = 1
                 self.last_nonce = nonce
 
-            nc_value = b'%08x' % self.nonce_count
+            nc_value = '%08x' % self.nonce_count
             cnonce = self.get_cnonce(nonce)
 
-            qop_as_bytes = qop.encode("utf-8")
-
-            nonce_bit = "{}{}{}{}{}".format(
-                nonce, nc_value, cnonce, qop_as_bytes, H_A2_as_bytes)
-            nonce_bit = nonce_bit.encode("utf-8")
+            nonce_bit = "{}:{}:{}:{}:{}".format(
+                nonce, nc_value, cnonce, qop, H_A2_as_bytes)
 
             respdig = KD(H_A1_as_bytes, nonce_bit)
         elif qop is None:
-            respdig = KD(H_A1_as_bytes, b"%s:%s" % (nonce, H_A2_as_bytes))
+            respdig = KD(H_A1_as_bytes, "{}:{}".format(nonce, H_A2_as_bytes))
         else:
             # TODO: handle auth-int.
-            raise urllib.error.URLError("qop '%s' is not supported." % qop)
+            raise urllib.error.URLError("qop '{}' is not supported.".format(qop))
 
         # TODO: should the partial digests be encoded too?
 
-        base = 'username="%s", realm="%s", nonce="%s", uri="%s", ' \
-               'response="%s"' % (user, realm, nonce, uri, respdig)
+        base = 'username="{}", realm="{}", nonce="{}", uri="{}", ' \
+               'response="{}"'.format(user, realm, nonce, uri, respdig)
         if opaque:
-            base += ', opaque="%s"' % opaque
-        base += ', algorithm="%s"' % algorithm
+            base += ', opaque="{}"'.format(opaque)
+        base += ', algorithm="{}"'.format(algorithm)
         if qop:
-            base += ', qop=auth, nc=%s, cnonce="%s"' % (nc_value, cnonce)
+            base += ', qop=auth, nc={}, cnonce="{}"'.format(nc_value, cnonce)
         return base
 
 
@@ -159,7 +157,7 @@ class ProxyAuthorization:
             self.m_remote_host, chal, remote_port=self.m_remote_port)
 
         if auth:
-            self.m_auth_header = b'Digest %s' % auth.encode("utf-8")
+            self.m_auth_header = 'Digest {}'.format(auth)
             return True
 
         LOGGER.error("Unable to get authorization!")
