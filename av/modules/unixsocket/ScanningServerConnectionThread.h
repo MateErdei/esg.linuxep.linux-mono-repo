@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <cstdint>
 #include "Common/Threads/NotifyPipe.h"
 
 namespace unixsocket
@@ -22,7 +23,6 @@ namespace unixsocket
         bool m_finished;
         int m_fd;
         Common::Threads::NotifyPipe m_terminationPipe;
-
     };
 }
 

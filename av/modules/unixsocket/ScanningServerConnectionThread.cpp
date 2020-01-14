@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanningServerConnectionThread.h"
 #include "Print.h"
+#include "SocketUtils.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -14,6 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/un.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <memory>
 
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(int fd)
     : m_finished(false), m_fd(fd)
@@ -83,33 +85,80 @@ static int recv_fd(int socket)
 
 void unixsocket::ScanningServerConnectionThread::run()
 {
-    int fd = m_fd;
-    PRINT("Got connection "<< fd);
+    int socket_fd = m_fd;
+    PRINT("Got connection "<< socket_fd);
+    int buffer_size = 256;
+    auto proto_buffer = std::make_unique<char[]>(buffer_size);
 
-    char receive_buffer[5];
-    int bytesRead = read(fd, receive_buffer, sizeof(receive_buffer) - 1);
-    receive_buffer[bytesRead] = 0;
-
-    std::cout << "Received:" << receive_buffer << std::endl;
-
-    int file_fd = recv_fd(fd);
-    if (file_fd < 0)
+    while (true)
     {
-        PRINT("Aborting connection");
-        ::close(fd);
-        return;
+        // read length
+        int32_t length = unixsocket::readLength(socket_fd);
+        if (length < 0)
+        {
+            PRINT("Aborting connection: failed to read length");
+            ::close(socket_fd);
+            return;
+        }
+
+        PRINT("Read a length of "<<length);
+
+        // read capn proto
+        if (length > buffer_size)
+        {
+            proto_buffer.reset(new char[length]);
+            buffer_size = length;
+        }
+
+        int bytes_read = read(socket_fd, proto_buffer.get(), length);
+        if (bytes_read != length)
+        {
+            PRINT("Aborting connection: failed to read capn proto");
+            ::close(socket_fd);
+            return;
+        }
+
+        PRINT("Read capn of "<< bytes_read);
+
+        // read fd
+        int file_fd = recv_fd(socket_fd);
+        if (file_fd < 0)
+        {
+            PRINT("Aborting connection: failed to read fd");
+            ::close(socket_fd);
+            return;
+        }
+
+        PRINT("Managed to get file descriptor: "<< file_fd);
+        ::close(file_fd);
+
+//        scan(proto, file_fd);
     }
 
-    // Test reading the file
-    bytesRead = read(file_fd, receive_buffer, sizeof(receive_buffer) - 1);
-    receive_buffer[bytesRead] = 0;
-    std::cout << "File:" << receive_buffer << std::endl;
-
-    // Test stat the file
-    struct stat statbuf = {};
-    ::fstat(file_fd, &statbuf);
-    std::cout << "size:" << statbuf.st_size << std::endl;
-
-    ::close(file_fd);
-    ::close(fd);
+//    char receive_buffer[5];
+//    int bytesRead = read(fd, receive_buffer, sizeof(receive_buffer) - 1);
+//    receive_buffer[bytesRead] = 0;
+//
+//    std::cout << "Received:" << receive_buffer << std::endl;
+//
+//    int file_fd = recv_fd(fd);
+//    if (file_fd < 0)
+//    {
+//        PRINT("Aborting connection");
+//        ::close(fd);
+//        return;
+//    }
+//
+//    // Test reading the file
+//    bytesRead = read(file_fd, receive_buffer, sizeof(receive_buffer) - 1);
+//    receive_buffer[bytesRead] = 0;
+//    std::cout << "File:" << receive_buffer << std::endl;
+//
+//    // Test stat the file
+//    struct stat statbuf = {};
+//    ::fstat(file_fd, &statbuf);
+//    std::cout << "size:" << statbuf.st_size << std::endl;
+//
+//    ::close(file_fd);
+//    ::close(fd);
 }
