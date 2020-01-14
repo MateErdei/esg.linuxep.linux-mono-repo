@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
     Sophos::ssplav::FileScanRequest::Builder requestBuilder =
             message.initRoot<Sophos::ssplav::FileScanRequest>();
 
-    requestBuilder.setPathname(path);
+    requestBuilder.setPathname(filename);
 
     // Convert to byte string
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
 
     send_fd(socket_fd, file_fd);
 
-    close(file_fd);
-    close(socket_fd);
+    ::close(file_fd);
+    ::close(socket_fd);
 
     return 0;
 }

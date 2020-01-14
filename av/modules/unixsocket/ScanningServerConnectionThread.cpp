@@ -7,6 +7,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanningServerConnectionThread.h"
 #include "Print.h"
 #include "SocketUtils.h"
+#include "ScanRequest.capnp.h"
+
+#include <capnp/message.h>
+#include <capnp/serialize.h>
 
 #include <stdexcept>
 #include <iostream>
@@ -87,8 +91,8 @@ void unixsocket::ScanningServerConnectionThread::run()
 {
     int socket_fd = m_fd;
     PRINT("Got connection "<< socket_fd);
-    int buffer_size = 256;
-    auto proto_buffer = std::make_unique<char[]>(buffer_size);
+    uint32_t buffer_size = 256;
+    auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
     while (true)
     {
@@ -104,13 +108,13 @@ void unixsocket::ScanningServerConnectionThread::run()
         PRINT("Read a length of "<<length);
 
         // read capn proto
-        if (length > buffer_size)
+        if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
         {
-            proto_buffer.reset(new char[length]);
-            buffer_size = length;
+            buffer_size = 1 + length / sizeof(capnp::word);
+            proto_buffer = kj::heapArray<capnp::word>(buffer_size);
         }
 
-        int bytes_read = read(socket_fd, proto_buffer.get(), length);
+        ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
         if (bytes_read != length)
         {
             PRINT("Aborting connection: failed to read capn proto");
@@ -119,6 +123,15 @@ void unixsocket::ScanningServerConnectionThread::run()
         }
 
         PRINT("Read capn of "<< bytes_read);
+
+        auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
+
+        capnp::FlatArrayMessageReader messageInput(view);
+        Sophos::ssplav::FileScanRequest::Reader requestReader =
+                messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
+
+        std::string pathname = requestReader.getPathname();
+        PRINT("Scan requested of " << pathname);
 
         // read fd
         int file_fd = recv_fd(socket_fd);
