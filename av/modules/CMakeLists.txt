@@ -1,3 +1,5 @@
 add_subdirectory(filewalker)
+add_subdirectory(lockedqueue)
 add_subdirectory(pluginimpl)
 add_subdirectory(scan_messages)
+add_subdirectory(unixsocket)
