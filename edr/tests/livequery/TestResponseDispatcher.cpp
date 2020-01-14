@@ -118,21 +118,54 @@ TEST(TestResponseDispatcher, emptyResponseWhereNotRowWasSelectedShouldReturnExpe
     EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))<< "\nCalculated: "<< calculated;
 }
 
-TEST(TestResponseDispatcher, validQueryResponseShouldReturnExpectedJson)
+TEST(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJson)
 {
+    //create response data given a real osquery response as below
+    /*
+    std::string realOSqueryResonse = R"(
+    {
+        "action": "added",
+        "columns": {
+        "time": "1518221620",
+        "pid": "21306",
+        "path": "/usr/bin/someexe",
+        "mode": "01000755"
+        "lastAccess": "Tue Jan 14 15:53:13 2020 UTC",
+        },
+        "UnixTime": "1518223620",
+        "calendarTime": "Tue Jan 14 17:53:13 2020 UTC",
+        "name": "process_events"
+    })";
+     */
+
+    ResponseData::ColumnHeaders  headers;
+    headers.emplace_back("time", ResponseData::AcceptedTypes::BIGINT);
+    headers.emplace_back("pid", ResponseData::AcceptedTypes::INTEGER);
+    headers.emplace_back("mode", ResponseData::AcceptedTypes::UNSIGNED_BIGINT);
+    headers.emplace_back("path", ResponseData::AcceptedTypes::STRING);
+    headers.emplace_back("uid", ResponseData::AcceptedTypes::INTEGER);
+    headers.emplace_back("lastAccess", ResponseData::AcceptedTypes::DATETIME);
+
+
     ResponseData::ColumnData columnData;
     ResponseData::RowData  rowData;
-    rowData["pathname"] = "C:\\Windows\\System32\\pacjsworker.exe";
-    rowData["sophosPID"] = "17984:132164677472649892";
-    rowData["start_time"] = "50330";
+    rowData["time"] = "1518221620";
+    rowData["pid"] = "21306";
+    rowData["mode"] = "01000755";
+    rowData["path"] = "/usr/bin/someexe";
+    rowData["uid"] = "500";
+    rowData["lastAccess"] = "Tue Jan 14 15:53:13 2020 UTC";
     columnData.push_back(rowData);
-    // the only difference between first and second row is the start_time
-    rowData["start_time"] = "50331";
+    // difference between first and second row is the pid,path, and empty mode empty time
+    rowData["pid"] = "50331";
+    rowData["mode"] = "";
+    rowData["path"] = "/usr/bin/someOther.exe";
+    rowData["uid"] = "";
     columnData.push_back(rowData);
 
 
     QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
-                           ResponseData{headerExample(), columnData}};
+                           ResponseData{headers, columnData}};
     std::string expected = R"({
     "type": "sophos.mgt.response.RunLiveQuery",
     "queryMetaData": {
@@ -141,13 +174,16 @@ TEST(TestResponseDispatcher, validQueryResponseShouldReturnExpectedJson)
         "errorMessage": "OK"
     },
     "columnMetaData": [
-      {"name": "pathname", "type": "TEXT"},
-      {"name": "sophosPID", "type": "TEXT"},
-      {"name": "start_time", "type": "BIGINT"}
+      {"name": "time", "type": "BIGINT"},
+      {"name": "pid", "type": "INTEGER"},
+      {"name": "mode", "type": "UNSIGNED BIGINT"},
+      {"name": "path", "type": "TEXT"},
+      {"name": "uid", "type": "INTEGER"},
+     {"name": "lastAccess", "type": "DATETIME"}
     ],
     "columnData": [
-        ["C:\\Windows\\System32\\pacjsworker.exe","17984:132164677472649892", 50330],
-        ["C:\\Windows\\System32\\pacjsworker.exe","17984:132164677472649892", 50331]
+        [1518221620, 21306, "01000755", "/usr/bin/someexe", 500, "Tue Jan 14 15:53:13 2020 UTC"],
+        [1518221620, 50331, "", "/usr/bin/someOther.exe", null, "Tue Jan 14 15:53:13 2020 UTC"]
     ]
 })";
     ResponseDispatcher dispatcher;

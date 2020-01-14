@@ -18,15 +18,33 @@ namespace
 
     class AppendToJsonArray
     {
+        template <typename T> T extractNonTextValues(const std::string& value) const  //[[nodiscard]]
+        {
+            std::stringstream s(value);
+            T tValue;
+            s >> tValue;
+            if (s.fail())
+            {
+                LOGERROR("Failed to convert value to " << typeid(tValue).name() << ": " << value);
+                // very unlikely to happen as the value was of type T for osquery
+                // to claim it was integer.
+                throw std::runtime_error("Conversion failure");
+            }
+            return tValue;
+        }
+
     public:
-        explicit AppendToJsonArray(livequery::ResponseData::ValueType valueType) : m_valueType { valueType }
+        explicit AppendToJsonArray(livequery::ResponseData::ValueType valueType) : m_valueType {std::move(valueType) }
         {
         }
         void extractValueAndAddToJson(const livequery::ResponseData::RowData& rowData, nlohmann::json& jsonArray) const
         {
             // it is expected to always succeed as this check was validated by the ResponseData
             std::string value = rowData.at(m_valueType.first);
-            if (m_valueType.second == livequery::ResponseData::AcceptedTypes::STRING)
+            if (m_valueType.second == livequery::ResponseData::AcceptedTypes::STRING ||
+                m_valueType.second == livequery::ResponseData::AcceptedTypes::DATE ||
+                m_valueType.second == livequery::ResponseData::AcceptedTypes::DATETIME ||
+                m_valueType.second == livequery::ResponseData::AcceptedTypes::UNSIGNED_BIGINT)
             {
                 jsonArray.push_back(value);
             }
@@ -37,19 +55,14 @@ namespace
                     jsonArray.push_back(nullptr);
                     return;
                 }
-                std::stringstream s(value);
-                long long longValue;
-                s >> longValue;
-                if (s.fail())
+
+                if (m_valueType.second == livequery::ResponseData::AcceptedTypes::BIGINT)
                 {
-                    LOGERROR("Failed to convert value to integer: " << value);
-                    // very unlikely to happen as the value was integer for osquery
-                    // to claim it was integer.
-                    throw std::runtime_error("Conversion failure");
+                    jsonArray.push_back(extractNonTextValues<unsigned long>(value));
                 }
-                else
+                else if (m_valueType.second == livequery::ResponseData::AcceptedTypes::INTEGER)
                 {
-                    jsonArray.push_back(longValue);
+                    jsonArray.push_back(extractNonTextValues<long>(value));
                 }
             }
         }
@@ -77,6 +90,14 @@ namespace
         {
             case livequery::ResponseData::AcceptedTypes::BIGINT:
                 return "BIGINT";
+            case livequery::ResponseData::AcceptedTypes::DATE:
+                return "DATE";
+            case livequery::ResponseData::AcceptedTypes::DATETIME:
+                return "DATETIME";
+            case livequery::ResponseData::AcceptedTypes::INTEGER:
+                return "INTEGER";
+            case livequery::ResponseData::AcceptedTypes::UNSIGNED_BIGINT:
+                return "UNSIGNED BIGINT";
             default:
             case livequery::ResponseData::AcceptedTypes::STRING:
                 return "TEXT";

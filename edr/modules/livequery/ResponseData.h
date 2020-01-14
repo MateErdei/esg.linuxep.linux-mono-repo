@@ -35,7 +35,11 @@ namespace livequery
         enum class AcceptedTypes
         {
             BIGINT,
-            STRING
+            DATE,
+            DATETIME,
+            INTEGER,
+            STRING,
+            UNSIGNED_BIGINT
         };
         using ValueType = std::pair<std::string, AcceptedTypes>;
         using RowData = std::map<std::string, std::string>;
