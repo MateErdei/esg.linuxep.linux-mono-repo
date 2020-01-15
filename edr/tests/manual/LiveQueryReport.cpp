@@ -42,6 +42,15 @@ int main(int argc, char * argv[])
 
     osquery::QueryData qd;
     auto client = osquery::makeClient(m_socketPath);
+    try
+    {
+        auto osqueryStatus = client->query(query, qd);
+    }catch (std::exception & ex)
+    {
+        std::cout << ex.what() << std::endl;
+        return 0;
+    }
+
     auto osqueryStatus = client->query(query, qd);
     if ( !osqueryStatus.ok())
     {
@@ -56,9 +65,6 @@ int main(int argc, char * argv[])
         return 1;
     }
 
-    livequery::ResponseData::ColumnData  columnData = qd;
-    livequery::ResponseData::ColumnHeaders headers;
-
     std::cout << "Columns: \n";
     for (const auto& row : qcolumn)
     {
@@ -68,7 +74,7 @@ int main(int argc, char * argv[])
     }
     std::cout << std::endl;
     std::cout << "Data: \n";
-    for(auto & row: columnData)
+    for(auto & row: qd)
     {
         for( auto & columnEntry: row)
         {
