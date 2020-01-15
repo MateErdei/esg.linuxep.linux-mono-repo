@@ -195,7 +195,7 @@ namespace Plugin
                 if (paths.size() > 100) {
                     LOGINFO("Purging Database");
                     stopOsquery();
-                    
+
                     for (const auto &filepath : paths)
                     {
                         ifileSystem->removeFile(filepath);
