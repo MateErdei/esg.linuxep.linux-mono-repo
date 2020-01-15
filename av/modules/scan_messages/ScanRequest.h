@@ -40,7 +40,7 @@ namespace scan_messages
          */
         void setPath(const std::string& path);
         void setFd(int);
-        Builder serialise();
+        std::string serialise();
 
     private:
         AutoFd m_fd;

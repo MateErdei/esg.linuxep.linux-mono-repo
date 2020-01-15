@@ -64,7 +64,7 @@ void scan_messages::ScanRequest::setFd(int fd)
     m_fd.reset(fd);
 }
 
-Builder scan_messages::ScanRequest::serialise()
+std::string scan_messages::ScanRequest::serialise()
 {
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::FileScanRequest::Builder requestBuilder =
@@ -72,5 +72,8 @@ Builder scan_messages::ScanRequest::serialise()
 
     requestBuilder.setPathname(m_path);
 
-    return requestBuilder;
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+    return dataAsString;
 }

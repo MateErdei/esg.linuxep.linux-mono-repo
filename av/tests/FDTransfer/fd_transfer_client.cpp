@@ -22,6 +22,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 //#include <sys/types.h>
 //#include <sys/stat.h>
 #include <fcntl.h>
+#include <scan_messages/ScanRequest.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
@@ -82,27 +83,25 @@ int main(int argc, char* argv[])
         handle_error("Failed to connect to unix socket");
     }
 
-
-    ::capnp::MallocMessageBuilder message;
-    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
-            message.initRoot<Sophos::ssplav::FileScanRequest>();
-
-    requestBuilder.setPathname(filename);
-
-    // Convert to byte string
-    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
-    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
-    std::string dataAsString(bytes.begin(), bytes.end());
-
-
+    scan_messages::ScanRequest request;
+    request.setFd(file_fd); // file_fd owned by request now
+    request.setPath(filename);
+    std::string dataAsString = request.serialise();
 
     unixsocket::writeLength(socket_fd, dataAsString.size());
-    int bytesWritten = write(socket_fd, dataAsString.c_str(), dataAsString.size());
+    ssize_t bytesWritten = write(socket_fd, dataAsString.c_str(), dataAsString.size());
     static_cast<void>(bytesWritten);
+    if (bytesWritten < 0)
+    {
+        handle_error("Failed to write capn buffer to unix socket");
+    }
+    else if (dataAsString.size() != static_cast<unsigned>(bytesWritten))
+    {
+        handle_error("Failed to write complete capn buffer to unix socket");
+    }
 
     send_fd(socket_fd, file_fd);
 
-    ::close(file_fd);
     ::close(socket_fd);
 
     return 0;
