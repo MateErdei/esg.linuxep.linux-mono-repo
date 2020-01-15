@@ -33,6 +33,9 @@
         <package name="osquery-linux" version="4-0-2-1/EES-15942" dest="input">
             <include src="osquery-4.0.2_1.linux_x86_64.tar.gz" dest="."/>
         </package>
+        <package name="osquerysdklinux11" version="1-0-0-32/218249/output" dest="input">
+            <include src="osquerysdk.tar" dest="."/>
+        </package>
     </inputs>
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->

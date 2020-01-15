@@ -97,7 +97,6 @@ if(NOT DEFINED PLUGINAPIPATH)
     SET( PLUGINAPIPATH ${INPUT}/pluginapi)
 endif()
 
-SET( OSQUERYSDK /tmp/osquerysdk)
 if (NOT DEFINED OSQUERYSDK)
     SET( OSQUERYSDK ${INPUT}/osquerysdk)
 endif()
@@ -121,22 +120,23 @@ file(GLOB libz    ${PLUGINAPIPATH}/lib64/libz.so.*)
 
 find_library(OSQUERY_LIBRARY
         NAMES osquerysdk
-        PATHS ${OSQUERYSDK}/lib
+        PATHS ${OSQUERYSDK}/lib64
         NO_DEFAULT_PATH
         )
 
 
 find_library(GLOG_LIBRARY
         NAMES glog
-        PATHS ${OSQUERYSDK}/lib
+        PATHS ${OSQUERYSDK}/lib64
         NO_DEFAULT_PATH
         )
 
 find_library(THRIFT_LIBRARY
         NAMES thrift
-        PATHS ${OSQUERYSDK}/lib
+        PATHS ${OSQUERYSDK}/lib64
         NO_DEFAULT_PATH
         )
+message(this is the thrift: ${THRIFT_LIBRARY})
 
 #find_library(GFLAG_LIBRARY
 #        NAMES gflags

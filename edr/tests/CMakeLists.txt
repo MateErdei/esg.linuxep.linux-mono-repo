@@ -9,3 +9,4 @@ add_custom_target(echogTest
 include(GoogleTest)
 add_subdirectory(plugin)
 add_subdirectory(livequery)
+add_subdirectory(manual)

@@ -7,7 +7,7 @@ sophos_add_library(osqueryclient SHARED
         EXTRA_INCLUDES
                 ${CMAKE_CURRENT_BINARY_DIR}
                 ${CMAKE_SOURCE_DIR}/modules
-                ${OSQUERYSDK}/include64
+                ${OSQUERYSDK}/include
                 ${GOOGLETESTINCLUDE}
                 ${BOOST_INCLUDE_DIR}
         EXTRA_LIBS

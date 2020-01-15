@@ -39,10 +39,11 @@ foreach (LIB boost_chrono boost_date_time boost_filesystem boost_system boost_th
     add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
 endforeach(LIB)
 
-add_third_party_library(thrift ${OSQUERYSDK}/lib)
-add_third_party_library(glog ${OSQUERYSDK}/lib)
-add_third_party_library(gflags_nothreads ${OSQUERYSDK}/lib)
-add_third_party_library(gflags ${OSQUERYSDK}/lib)
+add_third_party_library(thrift ${OSQUERYSDK}/lib64)
+add_third_party_library(glog ${OSQUERYSDK}/lib64)
+# check if this is necessary or not
+#add_third_party_library(gflags_nothreads ${OSQUERYSDK}/lib64)
+add_third_party_library(gflags ${OSQUERYSDK}/lib64)
 
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
