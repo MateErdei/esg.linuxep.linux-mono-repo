@@ -26,3 +26,10 @@ scan_messages::AutoFd::~AutoFd()
 {
     reset(-1);
 }
+
+int scan_messages::AutoFd::release()
+{
+    int fd = m_fd;
+    m_fd = -1;
+    return fd;
+}

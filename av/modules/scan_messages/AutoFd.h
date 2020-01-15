@@ -16,6 +16,7 @@ namespace scan_messages
         ~AutoFd();
         void reset(int fd=-1);
         int get() { return m_fd; }
+        int release();
     private:
         int m_fd;
     };
