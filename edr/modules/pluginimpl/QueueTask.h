@@ -34,7 +34,7 @@ namespace Plugin
 
     public:
         void push(Task);
-        Task pop();
+        bool pop(Task&, int timeout);
         void pushStop();
     };
 

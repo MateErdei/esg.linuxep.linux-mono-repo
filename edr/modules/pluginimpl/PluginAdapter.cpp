@@ -16,6 +16,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <modules/Proc/ProcUtilities.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 #include <cmath>
 
@@ -88,48 +89,70 @@ namespace Plugin
         std::unique_ptr<WaitUpTo> m_delayedRestart;
         while (true)
         {
-            Task task = m_queueTask->pop();
-            switch (task.m_taskType)
+            Task task;
+            if( !m_queueTask->pop(task, 3600))
             {
-                case Task::TaskType::STOP:
-                    LOGDEBUG("Process task STOP");
-                    stopOsquery();
-                    return;
-                case Task::TaskType::RESTARTOSQUERY:
-                    LOGDEBUG("Process task RESTARTOSQUERY");
-                    LOGINFO("Restarting osquery");
-                    setUpOsqueryMonitor();
-                    break;
-                case Task::TaskType::OSQUERYPROCESSFINISHED:
-                    LOGDEBUG("Process task OSQUERYPROCESSFINISHED");
-                    m_timesOsqueryProcessFailedToStart = 0;
-                    LOGDEBUG("osquery stopped. Scheduling its restart in 10 seconds.");
-                    Common::Telemetry::TelemetryHelper::getInstance().increment(plugin::telemetryOsqueryRestarts, 1UL);
-                    m_delayedRestart.reset( // NOLINT
-                        new WaitUpTo(std::chrono::seconds(10), [this]() { this->m_queueTask->pushRestartOsquery(); }));
-                    break;
-                case Task::TaskType::Policy:
-                    LOGWARN("No policy expected for EDR plugin");
-                    break;
-                case Task::TaskType::Query:
-                    processQuery(task.m_content, task.m_correlationId);
-                    break;
-                case Task::TaskType::OSQUERYPROCESSFAILEDTOSTART:
-                    static unsigned int baseDelay = 10;
-                    static unsigned int growthBase = 2;
-                    static unsigned int maxTime = 320;
+                databasePurge();
+                setUpOsqueryMonitor();
+            }
+            else
+            {
+                switch (task.m_taskType)
+                {
+                    case Task::TaskType::STOP:
+                        LOGDEBUG("Process task STOP");
+                        stopOsquery();
+                        return;
+                    case Task::TaskType::RESTARTOSQUERY:
+                        LOGDEBUG("Process task RESTARTOSQUERY");
+                        LOGINFO("Restarting osquery");
+                        setUpOsqueryMonitor();
+                        break;
+                    case Task::TaskType::OSQUERYPROCESSFINISHED:
+                        LOGDEBUG("Process task OSQUERYPROCESSFINISHED");
+                        m_timesOsqueryProcessFailedToStart = 0;
+                        LOGDEBUG("osquery stopped. Scheduling its restart in 10 seconds.");
+                        Common::Telemetry::TelemetryHelper::getInstance().increment(plugin::telemetryOsqueryRestarts, 1UL);
+                        m_delayedRestart.reset( // NOLINT
+                            new WaitUpTo(std::chrono::seconds(10), [this]() { this->m_queueTask->pushRestartOsquery(); }));
+                        break;
+                    case Task::TaskType::Policy:
+                        LOGWARN("No policy expected for EDR plugin");
+                        break;
+                    case Task::TaskType::Query:
+                        processQuery(task.m_content, task.m_correlationId);
+                        break;
+                    case Task::TaskType::OSQUERYPROCESSFAILEDTOSTART:
+                        static unsigned int baseDelay = 10;
+                        static unsigned int growthBase = 2;
+                        static unsigned int maxTime = 320;
 
-                    auto delay =
-                        static_cast<unsigned int>(baseDelay * ::pow(growthBase, m_timesOsqueryProcessFailedToStart));
-                    if (delay < maxTime)
-                    {
-                        m_timesOsqueryProcessFailedToStart++;
-                    }
-                    LOGWARN("The osquery process failed to start. Scheduling a retry in " << delay << " seconds.");
-                    Common::Telemetry::TelemetryHelper::getInstance().increment(plugin::telemetryOsqueryRestarts, 1UL);
-                    m_delayedRestart.reset( // NOLINT
-                        new WaitUpTo(
-                            std::chrono::seconds(delay), [this]() { this->m_queueTask->pushRestartOsquery(); }));
+                        auto delay =
+                            static_cast<unsigned int>(baseDelay * ::pow(growthBase, m_timesOsqueryProcessFailedToStart));
+                        if (delay < maxTime)
+                        {
+                            m_timesOsqueryProcessFailedToStart++;
+                        }
+                        LOGWARN("The osquery process failed to start. Scheduling a retry in " << delay << " seconds.");
+                        Common::Telemetry::TelemetryHelper::getInstance().increment(plugin::telemetryOsqueryRestarts, 1UL);
+                        m_delayedRestart.reset( // NOLINT
+                            new WaitUpTo(
+                                std::chrono::seconds(delay), [this]() { this->m_queueTask->pushRestartOsquery(); }));
+                }
+            }
+        }
+    }
+
+    void PluginAdapter::databasePurge()
+    {
+        auto* ifileSystem = Common::FileSystem::fileSystem();
+        std::vector<std::string> paths = ifileSystem->listFiles(Plugin::osQueryDataBasePath());
+        if (paths.size() > 100)
+        {
+            stopOsquery();
+            for (const auto& filepath : paths)
+            {
+                ifileSystem->removeFile(filepath);
             }
         }
     }

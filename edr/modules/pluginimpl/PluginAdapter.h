@@ -13,7 +13,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <livequery/IResponseDispatcher.h>
 
 #include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/Process/IProcess.h>
 
 #include <future>
 
@@ -44,12 +43,7 @@ namespace Plugin
         void processQuery(const std::string & query, const std::string & correlationId);
         void setUpOsqueryMonitor();
         void stopOsquery();
-        void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath);
-        void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
-        bool checkIfServiceActive(const std::string& serviceName);
-        void stopSystemService(const std::string& serviceName);
-        void prepareSystemForPlugin();
-
+        void databasePurge();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
         unsigned int m_timesOsqueryProcessFailedToStart;

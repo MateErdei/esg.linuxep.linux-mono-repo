@@ -14,13 +14,22 @@ namespace Plugin
         m_cond.notify_one();
     }
 
-    Task QueueTask::pop()
+    bool QueueTask::pop(Task& task, int timeout)
     {
         std::unique_lock<std::mutex> lck(m_mutex);
-        m_cond.wait(lck, [this] { return !m_list.empty(); });
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+        m_cond.wait_until(lck, now + std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
+
+        if (m_list.empty())
+        {
+            return false;
+        }
+
         Task val = m_list.front();
         m_list.pop_front();
-        return val;
+        task =  val;
+        return true;
     }
 
     void QueueTask::pushStop()

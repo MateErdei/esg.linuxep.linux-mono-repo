@@ -88,6 +88,8 @@ namespace Plugin
         std::vector<std::string> arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
                                                "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
+        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
+        regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
         startProcess(osqueryPath, arguments);
         m_processMonitorPtr->waitUntilProcessEnds();
         LOGINFO("The osquery process finished");
@@ -136,12 +138,94 @@ namespace Plugin
         }
     }
 
+    void OsqueryProcessImpl::regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath)
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
+        if (fileSystem->isFile(osqueryConfigFilePath))
+        {
+            fileSystem->removeFile(osqueryConfigFilePath);
+        }
 
+        std::stringstream osqueryConfiguration;
 
+        osqueryConfiguration << R"(
+        {
+            "options": {
+                "schedule_splay_percent": 10
+            },
+            "schedule": {
+                "process_events": {
+                    "query": "select count(*) as process_events_count from process_events;",
+                    "interval": 86400
+                },
+                "user_events": {
+                    "query": "select count(*) as user_events_count from user_events;",
+                    "interval": 86400
+                },
+                "selinux_events": {
+                    "query": "select count(*) as selinux_events_count from selinux_events;",
+                    "interval": 86400
+                },
+                "socket_events": {
+                    "query": "select count(*) as socket_events_count from socket_events;",
+                    "interval": 86400
+                }
+            }
+        })";
 
+        fileSystem->writeFile(osqueryConfigFilePath, osqueryConfiguration.str());
 
+    }
 
+    void OsqueryProcessImpl::regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath)
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
 
+        if (fileSystem->isFile(osqueryFlagsFilePath))
+        {
+            fileSystem->removeFile(osqueryFlagsFilePath);
+        }
+
+        std::vector<std::string> flags { "--host_identifier=uuid",
+                                         "--log_result_events=true",
+                                         "--utc",
+                                         "--disable_extensions=false",
+                                         "--logger_stderr=true",
+                                         "--logger_mode=420",
+                                         "--logger_min_stderr=1",
+                                         "--logger_min_status=1",
+                                         "--disable_watchdog=false",
+                                         "--watchdog_level=0",
+                                         "--watchdog_memory_limit=250",
+                                         "--watchdog_utilization_limit=30",
+                                         "--watchdog_delay=60",
+                                         "--enable_extensions_watchdog=false",
+                                         "--disable_audit=false",
+                                         "--enable_syslog=true",
+                                         "--audit_allow_config=true",
+                                         "--audit_allow_process_events=true",
+                                         "--audit_allow_fim_events=false",
+                                         "--audit_allow_selinux_events=true",
+                                         "--audit_allow_sockets=true",
+                                         "--audit_allow_user_events=true",
+                                         "--syslog_events_expiry=604800",
+                                         "--events_expiry=604800",
+                                         "--force=true",
+                                         "--disable_enrollment=true",
+                                         "--enable_killswitch=false",
+                                         "--events_max=20000"};
+
+        flags.push_back("--syslog_pipe_path=" + Plugin::syslogPipe()),
+        flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
+        flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
+        flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
+        flags.push_back("--logger_path=" + Plugin::osQueryLogPath());
+
+        std::ostringstream flagsAsString;
+        std::copy(flags.begin(), flags.end(), std::ostream_iterator<std::string>(flagsAsString, "\n"));
+
+        fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
+    }
 
     void OsqueryProcessImpl::startProcess(const std::string& processPath, const std::vector<std::string>& arguments)
     {
