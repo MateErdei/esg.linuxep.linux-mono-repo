@@ -19,6 +19,15 @@ namespace osquery{
     }
 }
 
+/**
+ * Usage:
+ * LiveQueryReport  'sockpath'  'query'
+ * Example:
+ * LiveQueryReport /tmp/osquery.sock 'select * from osquery_flags'
+ * @param argc
+ * @param argv
+ * @return
+ */
 
 int main(int argc, char * argv[])
 {
