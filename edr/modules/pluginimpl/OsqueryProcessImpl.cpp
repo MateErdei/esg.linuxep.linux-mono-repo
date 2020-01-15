@@ -190,7 +190,7 @@ namespace Plugin
                                          "--log_result_events=true",
                                          "--utc",
                                          "--disable_extensions=false",
-                                         "--logger_stderr=true",
+                                         "--logger_stderr=false",
                                          "--logger_mode=420",
                                          "--logger_min_stderr=1",
                                          "--logger_min_status=1",
