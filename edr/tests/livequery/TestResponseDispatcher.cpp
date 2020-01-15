@@ -307,7 +307,7 @@ TEST_F(ResposeDispatcherWithMockFileSystem, sendResponseShouldCreateFileAsExpect
     dispatcher.sendResponse("correlation", response);
 }
 
-TEST_F(ResposeDispatcherWithMockFileSystem, invalidNumbersWillProduceError)
+TEST_F(ResposeDispatcherWithMockFileSystem, invalidNumbersWillGetErrorResponseCode102WrittenToResponseFile)
 {
     ResponseData::ColumnData columnData;
     ResponseData::RowData  rowData;
