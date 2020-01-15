@@ -17,7 +17,10 @@ namespace unixsocket
     {
     public:
         explicit ScanningClientSocket(const std::string& socket_path);
+        ~ScanningClientSocket();
 
         scan_messages::ScanResponse scan(int fd, const std::string& file_path);
+    private:
+        int m_socket_fd;
     };
 }
