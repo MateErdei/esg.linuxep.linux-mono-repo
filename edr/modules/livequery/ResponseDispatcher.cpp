@@ -191,21 +191,21 @@ namespace livequery
 
         serializedJson << R"(,
 "queryMetaData": )" << queryMetaDataObject(response);
-    //try{
-            if (response.data().hasHeaders())
-            {
-                serializedJson << R"(,
+
+        if (response.data().hasHeaders())
+        {
+            serializedJson << R"(,
 "columnMetaData": )" << columnMetaDataObject(response);
-            }
+        }
 
-            if (!response.data().columnData().empty())
-            {
-                serializedJson << R"(,
+        if (!response.data().columnData().empty())
+        {
+            serializedJson << R"(,
 "columnData": )" << columnDataObject(response);
-            }
+        }
 
-            serializedJson << R"(
+        serializedJson << R"(
 })";
-            return serializedJson.str();
+        return serializedJson.str();
     }
 } // namespace livequery
