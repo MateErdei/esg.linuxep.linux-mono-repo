@@ -41,23 +41,22 @@ bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
     return true;
 }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "hicpp-signed-bitwise"
 int unixsocket::readLength(int socket_fd)
 {
     int32_t total = 0;
     uint8_t byte; // For some reason clang-tidy thinks this is signed
+    const uint8_t TOP_BIT = 0x80;
     while (true)
     {
         int count = read(socket_fd, &byte, 1);
         if (count == 1)
         {
-            if ((byte & 0x80) == 0)
+            if ((byte & TOP_BIT) == 0)
             {
                 total = total * 128 + byte;
                 return total;
             }
-            total = total * 128 + (byte ^ 0x80);
+            total = total * 128 + (byte ^ TOP_BIT);
             if (total > 128 * 1024)
             {
                 return -1;
@@ -70,4 +69,3 @@ int unixsocket::readLength(int socket_fd)
         }
     }
 }
-#pragma clang diagnostic pop
