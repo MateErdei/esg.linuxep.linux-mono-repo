@@ -12,6 +12,15 @@ warehouses:
                 release-tags:
                     -   base-version: ""
                         tag: RECOMMENDED
+            sspl-edr:
+                import:
+                    description: "Sophos Linux Endpoint Detection and Response"
+                    version: "1.0.0"
+                features: [LiveQuery]
+                platforms: []
+                release-tags:
+                    - base-version: ""
+                      tag: RECOMMENDED
     ssplmdr-wh:
         components:
             ssplmdr-suite:
