@@ -17,7 +17,7 @@ std::string scan_messages::ScanResponse::serialise()
     Sophos::ssplav::FileScanResponse::Builder responseBuilder =
             message.initRoot<Sophos::ssplav::FileScanResponse>();
 
-    responseBuilder.setClean(false);
+    responseBuilder.setClean(m_clean);
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
     kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();

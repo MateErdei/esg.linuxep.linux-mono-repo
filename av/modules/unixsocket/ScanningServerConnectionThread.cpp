@@ -173,5 +173,8 @@ unixsocket::ScanningServerConnectionThread::scan(scan_messages::AutoFd& fd, cons
     ::fstat(fd.get(), &statbuf);
     std::cout << "size:" << statbuf.st_size << std::endl;
 
-    return scan_messages::ScanResponse();
+    scan_messages::ScanResponse response;
+    response.setClean(buffer[0] == 'r');
+
+    return response;
 }

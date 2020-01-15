@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <cassert>
 #include <fcntl.h>
+#include <unixsocket/Print.h>
 
 int main(int argc, char* argv[])
 {
@@ -25,6 +26,15 @@ int main(int argc, char* argv[])
     unixsocket::ScanningClientSocket socket(path);
     auto response = socket.scan(file_fd, filename); // takes ownership of file_fd
     static_cast<void>(response);
+
+    if (response.clean())
+    {
+        PRINT(filename << " is fake clean");
+    }
+    else
+    {
+        PRINT(filename << " is fake infected");
+    }
 
     return 0;
 }
