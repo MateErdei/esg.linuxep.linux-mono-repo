@@ -82,10 +82,16 @@ void send_fd(int socket, int fd)  // send fd by socket
 
 scan_messages::ScanResponse unixsocket::ScanningClientSocket::scan(int file_fd, const std::string& filename)
 {
+    scan_messages::AutoFd fd(file_fd);
+    return scan(fd, filename);
+}
+
+scan_messages::ScanResponse
+unixsocket::ScanningClientSocket::scan(scan_messages::AutoFd& fd, const std::string& file_path)
+{
     assert(m_socket_fd >= 0);
     scan_messages::ScanRequest request;
-    request.setFd(file_fd); // file_fd owned by request now
-    request.setPath(filename);
+    request.setPath(file_path);
     std::string dataAsString = request.serialise();
 
     unixsocket::writeLength(m_socket_fd, dataAsString.size());
@@ -100,7 +106,7 @@ scan_messages::ScanResponse unixsocket::ScanningClientSocket::scan(int file_fd, 
         handle_error("Failed to write complete capn buffer to unix socket");
     }
 
-    send_fd(m_socket_fd, file_fd);
+    send_fd(m_socket_fd, fd.get());
 
     return scan_messages::ScanResponse();
 }

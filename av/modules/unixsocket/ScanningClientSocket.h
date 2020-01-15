@@ -20,6 +20,8 @@ namespace unixsocket
         ~ScanningClientSocket();
 
         scan_messages::ScanResponse scan(int fd, const std::string& file_path);
+        scan_messages::ScanResponse scan(scan_messages::AutoFd& fd, const std::string& file_path);
+
     private:
         int m_socket_fd;
     };
