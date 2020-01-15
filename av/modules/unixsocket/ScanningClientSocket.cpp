@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanningClientSocket.h"
 #include "SocketUtils.h"
+#include "Print.h"
 
 #include <string>
 #include <cstdio>
@@ -94,19 +95,25 @@ unixsocket::ScanningClientSocket::scan(scan_messages::AutoFd& fd, const std::str
     request.setPath(file_path);
     std::string dataAsString = request.serialise();
 
-    unixsocket::writeLength(m_socket_fd, dataAsString.size());
-    ssize_t bytesWritten = write(m_socket_fd, dataAsString.c_str(), dataAsString.size());
-    static_cast<void>(bytesWritten);
-    if (bytesWritten < 0)
+    if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
     {
         handle_error("Failed to write capn buffer to unix socket");
     }
-    else if (dataAsString.size() != static_cast<unsigned>(bytesWritten))
-    {
-        handle_error("Failed to write complete capn buffer to unix socket");
-    }
 
     send_fd(m_socket_fd, fd.get());
+
+
+    uint32_t buffer_size = 256;
+    auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+
+    int32_t length = unixsocket::readLength(m_socket_fd);
+    if (length < 0)
+    {
+        PRINT("Aborting connection: failed to read length");
+        ::close(m_socket_fd);
+        handle_error ("Failed to read length");
+    }
+
 
     return scan_messages::ScanResponse();
 }

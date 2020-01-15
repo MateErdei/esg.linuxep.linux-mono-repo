@@ -90,7 +90,7 @@ static int recv_fd(int socket)
 void unixsocket::ScanningServerConnectionThread::run()
 {
     int socket_fd = m_fd;
-    PRINT("Got connection "<< socket_fd);
+    PRINT("Got connection " << socket_fd);
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
@@ -105,7 +105,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             return;
         }
 
-        PRINT("Read a length of "<<length);
+        PRINT("Read a length of " << length);
 
         // read capn proto
         if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
@@ -122,7 +122,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             return;
         }
 
-        PRINT("Read capn of "<< bytes_read);
+        PRINT("Read capn of " << bytes_read);
 
         auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
@@ -141,37 +141,37 @@ void unixsocket::ScanningServerConnectionThread::run()
             ::close(socket_fd);
             return;
         }
+        PRINT("Managed to get file descriptor: " << file_fd);
 
-        PRINT("Managed to get file descriptor: "<< file_fd);
-        ::close(file_fd);
+        scan_messages::AutoFd file_fd_manager(file_fd);
 
-//        scan(proto, file_fd);
+        auto result = scan(file_fd_manager, pathname);
+        file_fd_manager.reset();
+
+        std::string serialised_result = result.serialise();
+
+        if (! writeLengthAndBuffer(socket_fd, serialised_result))
+        {
+            PRINT("Failed to write result to unix socket");
+        }
     }
+}
 
-//    char receive_buffer[5];
-//    int bytesRead = read(fd, receive_buffer, sizeof(receive_buffer) - 1);
-//    receive_buffer[bytesRead] = 0;
-//
-//    std::cout << "Received:" << receive_buffer << std::endl;
-//
-//    int file_fd = recv_fd(fd);
-//    if (file_fd < 0)
-//    {
-//        PRINT("Aborting connection");
-//        ::close(fd);
-//        return;
-//    }
-//
-//    // Test reading the file
-//    bytesRead = read(file_fd, receive_buffer, sizeof(receive_buffer) - 1);
-//    receive_buffer[bytesRead] = 0;
-//    std::cout << "File:" << receive_buffer << std::endl;
-//
-//    // Test stat the file
-//    struct stat statbuf = {};
-//    ::fstat(file_fd, &statbuf);
-//    std::cout << "size:" << statbuf.st_size << std::endl;
-//
-//    ::close(file_fd);
-//    ::close(fd);
+scan_messages::ScanResponse
+unixsocket::ScanningServerConnectionThread::scan(scan_messages::AutoFd& fd, const std::string& file_path)
+{
+    PRINT("Attempting scan of "<< file_path);
+    char buffer[4];
+
+    // Test reading the file
+    ssize_t bytesRead = read(fd.get(), buffer, sizeof(buffer) - 1);
+    buffer[bytesRead] = 0;
+    std::cout << "Data from file:" << buffer << std::endl;
+
+    // Test stat the file
+    struct stat statbuf = {};
+    ::fstat(fd.get(), &statbuf);
+    std::cout << "size:" << statbuf.st_size << std::endl;
+
+    return scan_messages::ScanResponse();
 }

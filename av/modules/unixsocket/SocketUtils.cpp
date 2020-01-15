@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SocketUtils.h"
+#include "Print.h"
 
 #include <cassert>
 #include <cstdint>
@@ -27,13 +28,28 @@ void unixsocket::writeLength(int socketfd, int length)
     }
 }
 
-int unixsocket::readLength(int socketfd)
+bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
+{
+    writeLength(socket_fd, buffer.size());
+
+    ssize_t bytes_written = ::write(socket_fd, buffer.c_str(), buffer.size());
+    if (static_cast<unsigned>(bytes_written) != buffer.size())
+    {
+        PRINT("Failed to write buffer to unix socket");
+        return false;
+    }
+    return true;
+}
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-signed-bitwise"
+int unixsocket::readLength(int socket_fd)
 {
     int32_t total = 0;
-    uint8_t byte;
+    uint8_t byte; // For some reason clang-tidy thinks this is signed
     while (true)
     {
-        int count = read(socketfd, &byte, 1);
+        int count = read(socket_fd, &byte, 1);
         if (count == 1)
         {
             if ((byte & 0x80) == 0)
@@ -54,3 +70,4 @@ int unixsocket::readLength(int socketfd)
         }
     }
 }
+#pragma clang diagnostic pop
