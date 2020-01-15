@@ -18,19 +18,19 @@ namespace
 
     class AppendToJsonArray
     {
-        template <typename T> T extractNonTextValues(const std::string& value) const  //[[nodiscard]]
+        template <typename T> [[nodiscard]] T extractNonTextValues(const std::string& value) const
         {
             std::stringstream s(value);
-            T tValue;
-            s >> tValue;
+            T valueOfTypeT;
+            s >> valueOfTypeT;
             if (s.fail())
             {
-                LOGERROR("Failed to convert value to " << typeid(tValue).name() << ": " << value);
+                LOGERROR("Failed to convert value to " << typeid(valueOfTypeT).name() << ": " << value);
                 // very unlikely to happen as the value was of type T for osquery
-                // to claim it was integer.
+                // to claim it was of type T.
                 throw std::runtime_error("Conversion failure");
             }
-            return tValue;
+            return valueOfTypeT;
         }
 
     public:
@@ -58,7 +58,7 @@ namespace
 
                 if (m_valueType.second == livequery::ResponseData::AcceptedTypes::BIGINT)
                 {
-                    jsonArray.push_back(extractNonTextValues<unsigned long>(value));
+                    jsonArray.push_back(extractNonTextValues<long long>(value));
                 }
                 else if (m_valueType.second == livequery::ResponseData::AcceptedTypes::INTEGER)
                 {
@@ -147,7 +147,19 @@ namespace livequery
 {
     void ResponseDispatcher::sendResponse(const std::string& correlationId, const livequery::QueryResponse& response)
     {
-        std::string fileContent = serializeToJson(response);
+        std::string fileContent;
+        try
+        {
+            fileContent = serializeToJson(response);
+        }
+        catch (std::exception & error) // NOLINT
+        {
+            LOGERROR("Serialize to Json failed: " << error.what());
+            // consistent with Windows behaviour: https://stash.sophos.net/projects/WINEP/repos/livequery/browse/src/ExtensionLib/QueryProcessorCallback.cpp#210
+            QueryResponse error102{ResponseStatus{ErrorCode::UNEXPECTEDERROR},
+                                   ResponseData::emptyResponse()};
+            fileContent = serializeToJson(error102);
+        }
         std::string tmpPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         std::string rootInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         std::string targetDir = Common::FileSystem::join(rootInstall, "base/mcs/response");
@@ -169,6 +181,7 @@ namespace livequery
      *  Since this is not enforced by the json library, it has been composed in directly.
      * @param response the QueryResponse which contain all the information for the json
      * @return  The content of the serialized json.
+     * @exceptions Will throw std::exception if it fails serialize the response
      */
     std::string ResponseDispatcher::serializeToJson(const QueryResponse& response)
     {
@@ -178,7 +191,7 @@ namespace livequery
 
         serializedJson << R"(,
 "queryMetaData": )" << queryMetaDataObject(response);
-    try{
+    //try{
             if (response.data().hasHeaders())
             {
                 serializedJson << R"(,
@@ -194,16 +207,5 @@ namespace livequery
             serializedJson << R"(
 })";
             return serializedJson.str();
-
-        }catch (std::exception & error) // NOLINT
-        {
-            LOGERROR( "Serialize to Json failed: " << error.what());
-            // consistent with Windows behaviour: https://stash.sophos.net/projects/WINEP/repos/livequery/browse/src/ExtensionLib/QueryProcessorCallback.cpp#210
-            QueryResponse error102{ResponseStatus{ErrorCode::UNEXPECTEDERROR},
-                                             ResponseData::emptyResponse()};
-            return serializeToJson(error102);
-
-        }
-
     }
 } // namespace livequery

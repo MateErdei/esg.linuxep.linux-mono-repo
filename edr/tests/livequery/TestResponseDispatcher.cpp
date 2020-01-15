@@ -220,11 +220,8 @@ TEST(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
 }
 )";
     ResponseDispatcher dispatcher;
-    std::string calculated = dispatcher.serializeToJson(response);
-    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))
-      << "\nCalculated: "<< calculated << ".\n expected: \n" << expected;
+    EXPECT_THROW(dispatcher.serializeToJson(response), std::exception); // NOLINT
 }
-
 
 TEST(TestResponseDispatcher, emptyNumberShouldBeSentAsNull)
 {
@@ -310,4 +307,32 @@ TEST_F(ResposeDispatcherWithMockFileSystem, sendResponseShouldCreateFileAsExpect
     dispatcher.sendResponse("correlation", response);
 }
 
+TEST_F(ResposeDispatcherWithMockFileSystem, invalidNumbersWillProduceError)
+{
+    ResponseData::ColumnData columnData;
+    ResponseData::RowData  rowData;
+    rowData["pathname"] = "anyfile";
+    rowData["sophosPID"] = "17984:132164677472649892";
+    rowData["start_time"] = "50330";
+    columnData.push_back(rowData);
 
+    // create a start_time that is not integer
+    rowData["start_time"] = "thisIsNotInteger";
+    columnData.push_back(rowData);
+
+    QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
+                           ResponseData{headerExample(), columnData}};
+
+    //this string can't have arbitrary spaces and new lines otherwise it will not match
+    std::string expected = R"({
+"type": "sophos.mgt.response.RunLiveQuery",
+"queryMetaData": {"errorCode":102,"errorMessage":"Unexpected error running query"}
+})";
+    ResponseDispatcher dispatcher;
+
+    EXPECT_CALL(*mockFileSystem, moveFile(_,"/opt/sophos-spl/base/mcs/response/LiveQuery_correlation_response.json"));
+    EXPECT_CALL(*mockFilePermissions, chown(_,"sophos-spl-user","sophos-spl-group"));
+    EXPECT_CALL(*mockFileSystem, writeFile(_, expected));
+    dispatcher.sendResponse("correlation", response);
+
+}
