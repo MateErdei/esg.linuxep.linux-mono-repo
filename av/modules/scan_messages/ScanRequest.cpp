@@ -8,30 +8,31 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <unistd.h>
 
-scan_messages::ScanRequest::ScanRequest()
-        : m_fd(-1)
-{
-}
+#include <capnp/message.h>
+#include <capnp/serialize.h>
 
-scan_messages::ScanRequest::ScanRequest(int fd, Sophos::ssplav::FileScanRequest::Reader &requestMessage)
+using namespace scan_messages;
+using Builder = ScanRequest::Builder;
+using Reader = ScanRequest::Reader;
+
+ScanRequest::ScanRequest(int fd, Reader& requestMessage)
     : m_fd(fd)
 {
     setRequestFromMessage(requestMessage);
 }
 
-scan_messages::ScanRequest::~ScanRequest()
+ScanRequest::~ScanRequest()
 {
     close();
 }
 
-void scan_messages::ScanRequest::resetRequest(int fd, Sophos::ssplav::FileScanRequest::Reader& requestMessage)
+void ScanRequest::resetRequest(int fd, Reader& requestMessage)
 {
-    close();
-    m_fd = fd;
+    m_fd.reset(fd);
     setRequestFromMessage(requestMessage);
 }
 
-void scan_messages::ScanRequest::setRequestFromMessage(Sophos::ssplav::FileScanRequest::Reader &requestMessage)
+void scan_messages::ScanRequest::setRequestFromMessage(Reader &requestMessage)
 {
     m_path = requestMessage.getPathname();
 
@@ -39,7 +40,7 @@ void scan_messages::ScanRequest::setRequestFromMessage(Sophos::ssplav::FileScanR
 
 int scan_messages::ScanRequest::fd()
 {
-    return m_fd;
+    return m_fd.get();
 }
 
 std::string scan_messages::ScanRequest::path()
@@ -49,10 +50,27 @@ std::string scan_messages::ScanRequest::path()
 
 void scan_messages::ScanRequest::close()
 {
-    if (m_fd >= 0)
-    {
-        ::close(m_fd);
-        m_fd = -1;
-    }
+    m_fd.reset(-1);
     m_path = "";
+}
+
+void scan_messages::ScanRequest::setPath(const std::string& path)
+{
+    m_path = path;
+}
+
+void scan_messages::ScanRequest::setFd(int fd)
+{
+    m_fd.reset(fd);
+}
+
+Builder scan_messages::ScanRequest::serialise()
+{
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+            message.initRoot<Sophos::ssplav::FileScanRequest>();
+
+    requestBuilder.setPathname(m_path);
+
+    return requestBuilder;
 }

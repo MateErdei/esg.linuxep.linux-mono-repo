@@ -6,18 +6,20 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "scan_messages/ScanResponse.h"
-#include "scan_messages/ScanRequest.h"
 
-#include <string>
-
-namespace unixsocket
+namespace scan_messages
 {
-    class ScanningClientSocket
+    class AutoFd
     {
     public:
-        explicit ScanningClientSocket(const std::string& socket_path);
-
-        scan_messages::ScanResponse scan(int fd, const std::string& file_path);
+        explicit AutoFd(int fd=-1);
+        ~AutoFd();
+        void reset(int fd=-1);
+        int get() { return m_fd; }
+    private:
+        int m_fd;
     };
 }
+
+
+

@@ -5,7 +5,11 @@ CAPN_GENERATE_CPP(CapNGeneratedFilesSrcs CapNGeneratedFilesHeaders
 add_library(scanmessages SHARED
         ${CapNGeneratedFilesHeaders}
         ${CapNGeneratedFilesSrcs}
-        ScanRequest.cpp ScanRequest.h
-        ScanResponse.cpp ScanResponse.h)
+        ScanRequest.cpp
+        ScanRequest.h
+        ScanResponse.cpp
+        ScanResponse.h
+        AutoFd.cpp
+        AutoFd.h)
 
 target_include_directories(scanmessages PUBLIC "${CAPNPROTO_INCLUDE_DIR}" ${CMAKE_CURRENT_BINARY_DIR})

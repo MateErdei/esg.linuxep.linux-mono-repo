@@ -9,4 +9,4 @@ add_library(unixsocket SHARED
 
 target_link_libraries(unixsocket  PUBLIC scanmessages ${pluginapilib})
 
-target_include_directories(unixsocket PUBLIC ${pluginapiinclude})
+target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
