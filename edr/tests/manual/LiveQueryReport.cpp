@@ -32,6 +32,11 @@ namespace osquery{
 int main(int argc, char * argv[])
 {
     assert(argc==3);
+    if(argc != 3)
+    {
+        std::cerr << "Usage: " << argv[0] << " [socketpath] [query]" << std::endl;
+        return 2;
+    }
     std::string m_socketPath{argv[1]};
     std::string query{argv[2]};
 

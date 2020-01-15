@@ -124,7 +124,6 @@ find_library(OSQUERY_LIBRARY
         NO_DEFAULT_PATH
         )
 
-
 find_library(GLOG_LIBRARY
         NAMES glog
         PATHS ${OSQUERYSDK}/lib64
@@ -136,25 +135,12 @@ find_library(THRIFT_LIBRARY
         PATHS ${OSQUERYSDK}/lib64
         NO_DEFAULT_PATH
         )
-message(this is the thrift: ${THRIFT_LIBRARY})
 
-#find_library(GFLAG_LIBRARY
-#        NAMES gflags
-#        PATHS ${OSQUERYSDK}/lib
-#        NO_DEFAULT_PATH
-#        )
-#find_library(OPENSSL_LIBRARY
-#        NAMES ssl
-#        PATHS ${INPUT}/openssl/lib64
-#        NO_DEFAULT_PATH
-#        )
-#
-#find_library(OPENSSLCRYPTO_LIBRARY
-#        NAMES crypto
-#        PATHS ${INPUT}/openssl/lib64
-#        NO_DEFAULT_PATH
-#        )
-#
+find_library(GFLAG_LIBRARY
+        NAMES gflags
+        PATHS ${OSQUERYSDK}/lib64
+        NO_DEFAULT_PATH
+        )
 find_library(BOOST_CHRONO_LIBRARY
         NAMES boost_chrono
         PATHS ${INPUT}/boost/lib64

@@ -5,6 +5,7 @@ add_executable(LiveQueryReport
         )
 target_link_libraries(LiveQueryReport PUBLIC livequeryimpl
         ${GLOG_LIBRARY}
+        ${GFLAG_LIBRARY}
         ${OSQUERY_LIBRARY}
         ${THRIFT_LIBRARY}
         ${BOOST_CHRONO_LIBRARY}

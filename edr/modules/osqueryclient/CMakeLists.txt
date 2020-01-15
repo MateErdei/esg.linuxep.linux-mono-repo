@@ -12,6 +12,7 @@ sophos_add_library(osqueryclient SHARED
                 ${BOOST_INCLUDE_DIR}
         EXTRA_LIBS
             ${GLOG_LIBRARY}
+            ${GFLAG_LIBRARY}
             ${OSQUERY_LIBRARY}
             ${THRIFT_LIBRARY}
             ${BOOST_CHRONO_LIBRARY}
