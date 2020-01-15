@@ -41,8 +41,7 @@ endforeach(LIB)
 
 add_third_party_library(thrift ${OSQUERYSDK}/lib64)
 add_third_party_library(glog ${OSQUERYSDK}/lib64)
-# check if this is necessary or not
-#add_third_party_library(gflags_nothreads ${OSQUERYSDK}/lib64)
+add_third_party_library(gflags_nothreads ${OSQUERYSDK}/lib64)
 add_third_party_library(gflags ${OSQUERYSDK}/lib64)
 
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
