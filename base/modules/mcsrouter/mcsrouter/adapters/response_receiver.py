@@ -40,6 +40,10 @@ def receive():
                     yield (file_path, app_id, correlation_id, time, body)
             except json.JSONDecodeError as error:
                 LOGGER.error("Failed to load response json file \"{}\". Error: {}".format(file_path, str(error)))
-                continue
+                try:
+                    os.remove(file_path)
+                except OSError as error:
+                    LOGGER.warning("Could not remove response json file \"{}\". Error: {}".format(file_path,
+                                                                                                  str(error)))
         else:
             LOGGER.warning("Malformed response file: %s", response_file)
