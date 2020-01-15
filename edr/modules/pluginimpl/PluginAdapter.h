@@ -40,9 +40,12 @@ namespace Plugin
 
     private:
 
+        int MAX_LOGFILE_SIZE = 1024 *1024;
         void processQuery(const std::string & query, const std::string & correlationId);
         void setUpOsqueryMonitor();
         void stopOsquery();
+        void rotateOsqueryLogs();
+        void cleanAndSetUp();
         void databasePurge();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
