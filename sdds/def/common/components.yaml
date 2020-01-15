@@ -10,7 +10,7 @@ sspl-base:
 sspl-edr:
     build:
         branch: master
-        name: sspl-edr
+        name: sspl-edr-plugin
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-EDR
     line-id: ServerProtectionLinux-Plugin-EDR
