@@ -8,6 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SocketUtils.h"
 #include "Print.h"
 
+#include <capnp/message.h>
+#include <capnp/serialize.h>
+
 #include <string>
 #include <cstdio>
 #include <cstdlib>
@@ -16,9 +19,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/un.h>
 #include <unistd.h>
 #include <cassert>
-//#include <sys/types.h>
-//#include <sys/stat.h>
 #include <fcntl.h>
+#include <ScanResponse.capnp.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
@@ -102,18 +104,37 @@ unixsocket::ScanningClientSocket::scan(scan_messages::AutoFd& fd, const std::str
 
     send_fd(m_socket_fd, fd.get());
 
-
-    uint32_t buffer_size = 256;
-    auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
-
     int32_t length = unixsocket::readLength(m_socket_fd);
     if (length < 0)
     {
         PRINT("Aborting connection: failed to read length");
-        ::close(m_socket_fd);
         handle_error ("Failed to read length");
     }
 
 
-    return scan_messages::ScanResponse();
+
+    uint32_t buffer_size = 1 + length / sizeof(capnp::word);
+    auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+
+    ssize_t bytes_read = ::read(m_socket_fd, proto_buffer.begin(), length);
+    if (bytes_read != length)
+    {
+        PRINT("Aborting connection: failed to read capn proto");
+        handle_error ("Failed to read capn proto");
+    }
+
+
+
+    auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::FileScanResponse::Reader responseReader =
+            messageInput.getRoot<Sophos::ssplav::FileScanResponse>();
+
+
+    scan_messages::ScanResponse response;
+
+    response.setClean(responseReader.getClean());
+
+    return response;
 }

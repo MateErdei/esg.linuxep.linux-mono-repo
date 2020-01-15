@@ -24,3 +24,13 @@ std::string scan_messages::ScanResponse::serialise()
     std::string dataAsString(bytes.begin(), bytes.end());
     return dataAsString;
 }
+
+void scan_messages::ScanResponse::setClean(bool b)
+{
+    m_clean = b;
+}
+
+scan_messages::ScanResponse::ScanResponse()
+    : m_clean(false)
+{
+}
