@@ -65,6 +65,11 @@ std::string Plugin::osQueryLogPath()
     return fromRelative("log");
 }
 
+std::string Plugin::osQueryResultsLogPath()
+{
+    return fromRelative("log/osqueryd.results.log");
+}
+
 std::string Plugin::osQueryDataBasePath()
 {
     return fromRelative("var/osquery.db");

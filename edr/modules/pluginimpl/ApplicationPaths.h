@@ -17,6 +17,7 @@ namespace Plugin
     std::string osqueryPidFile();
     std::string syslogPipe();
     std::string osQueryLogPath();
+    std::string osQueryResultsLogPath();
     std::string osQueryDataBasePath();
     std::string edrConfigFilePath();
     std::string getEdrVersionIniFilePath();

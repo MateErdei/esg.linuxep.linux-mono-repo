@@ -141,14 +141,14 @@ namespace Plugin
     void PluginAdapter::rotateOsqueryLogs()
     {
         auto* ifileSystem = Common::FileSystem::fileSystem();
-        std::string logPath = Plugin::osQueryLogPath();
+        std::string logPath = Plugin::osQueryResultsLogPath();
         off_t size = ifileSystem->fileSize(logPath);
 
         if (size > MAX_LOGFILE_SIZE)
         {
             stopOsquery();
             LOGDEBUG("Rotating osquery logs");
-            std::string fileToDelete = Common::FileSystem::join(logPath,".10");
+            std::string fileToDelete = logPath + ".10";
 
             if (ifileSystem->isFile(fileToDelete))
             {
