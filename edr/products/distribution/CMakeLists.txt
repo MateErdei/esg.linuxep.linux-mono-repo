@@ -1,5 +1,9 @@
 
 
+
+#set( ENV{LONG_DESCRIPTION} TESTabc )
+
+
 configure_file(PRODUCT_NAME.in PRODUCT_NAME @ONLY )
 configure_file(PLUGIN_NAME.in PLUGIN_NAME @ONLY )
 configure_file(RIGID_NAME.in RIGID_NAME @ONLY )
@@ -19,19 +23,19 @@ set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${pluginapilib} ${zmqlib
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
 set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
-set(GENERATE_SDDS_IMPORT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImport.py )
+set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py )
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml
         COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
         )
 
 add_custom_target(
         dist
         COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(
@@ -39,7 +43,7 @@ add_custom_target(
         COMMAND rm -f ${DIST}/SDDS-Import.xml
         COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 install(FILES  ${third_party_libs}
