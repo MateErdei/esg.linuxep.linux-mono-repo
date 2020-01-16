@@ -50,7 +50,7 @@
     </buildcommands>
     <publish>
         <workingdir>sspl-edr-plugin-build</workingdir>
-        <destdir>sspl-plugin-edr-component</destdir>
+        <destdir>sspl-edr-plugin</destdir>
         <buildoutputs>
             <!-- Release -->
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
