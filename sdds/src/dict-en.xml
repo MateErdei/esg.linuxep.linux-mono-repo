@@ -136,6 +136,15 @@
         </Language>
       </Label>
     </Features>
+    <Features>
+      <Label>
+        <Token>LiveQuery</Token>
+        <Language lang="en">
+          <ShortDesc>Live Query</ShortDesc>
+          <LongDesc>Live Query</LongDesc>
+        </Language>
+      </Label>
+    </Features>
     <Roles>
       <Label>
         <Token>SAU</Token>
