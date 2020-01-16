@@ -66,7 +66,6 @@ public:
     ~TestOSQueryProcessor()
     {
         m_osqueryProcess->kill();
-
     }
     livequery::QueryResponse success(livequery::ResponseData::ColumnHeaders headers, livequery::ResponseData::ColumnData columnData)
     {
@@ -127,6 +126,12 @@ public:
 
 
     return ::testing::AssertionSuccess();
+}
+
+TEST_F(TestOSQueryProcessor, VerifyOsqueryCanBeStarted) // NOLINT
+{
+    m_osqueryProcess->kill();
+    EXPECT_EQ(m_osqueryProcess->output(), "");
 }
 
 
