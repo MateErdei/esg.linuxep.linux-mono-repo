@@ -11,10 +11,14 @@ def _sophos_spl_path():
 def _edr_exec_path():
     return os.path.join(_sophos_spl_path(), 'plugins/edr/bin/edr')
 
+def _osquery_database_path():
+    return os.path.join(_sophos_spl_path(), 'plugins/edr/var/osquery.db')
 
 def _edr_log_path():
     return os.path.join(_sophos_spl_path(), 'plugins/edr/log/edr.log')
 
+def _log_path():
+    return os.path.join(_sophos_spl_path(), 'plugins/edr/log/')
 
 def _edr_oquery_paths():
     _edr_log_dir = os.path.join(_sophos_spl_path(), 'plugins/edr/log')
@@ -36,6 +40,12 @@ class EDRPlugin:
 
     def set_failed(self):
         self._failed = True
+
+    def osquery_database_path(self):
+        return _osquery_database_path()
+
+    def log_path(self):
+        return _log_path()
 
     def _ensure_sophos_required_unix_user_and_group_exists(self):
         try:
@@ -90,7 +100,7 @@ class EDRPlugin:
         """Wait for up to timeout seconds for the log_contains to report true"""
         for i in range(timeout):
             if self.log_contains(content):
-                return
+                return True
             time.sleep(1)
         raise AssertionError("Log does not contain {}.\nFull log: {}".format(content, self.log()))
 

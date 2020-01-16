@@ -159,12 +159,12 @@ namespace Plugin
             int iterator = 9;
             while (iterator > 0)
             {
-                std::string oldExtension = "."+ std::to_string(9);
+                std::string oldExtension = "." + std::to_string(9);
                 std::string fileToIncrement = Common::FileSystem::join(logPath,oldExtension);
 
                 if (ifileSystem->isFile(fileToIncrement))
                 {
-                    std::string newExtension = "."+ std::to_string(9+1);
+                    std::string newExtension = "." + std::to_string(9 + 1);
                     std::string fileDestination = Common::FileSystem::join(logPath,newExtension);
                     ifileSystem->moveFile(fileToIncrement,fileDestination);
                 }
