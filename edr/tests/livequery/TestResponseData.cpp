@@ -88,7 +88,7 @@ TEST(TestResponseData, rowsWithExtraElementsWillThrowException) // NOLINT
     EXPECT_THROW(livequery::ResponseData(headerStrIntStr(), columnData), livequery::InvalidReponseData);
 }
 
-TEST(TestResponseData, rowsWithMissingElementsWillThrowException) // NOLINT
+TEST(TestResponseData, rowsAreAllowedToHaveMissingElements) // NOLINT
 {
     livequery::ResponseData::ColumnData columnData;
     columnData.push_back( singleRowStrIntStr(1));
@@ -96,7 +96,7 @@ TEST(TestResponseData, rowsWithMissingElementsWillThrowException) // NOLINT
     second.erase("second");
     columnData.push_back(second);
 
-    EXPECT_THROW(livequery::ResponseData(headerStrIntStr(), columnData), livequery::InvalidReponseData);
+    EXPECT_NO_THROW(livequery::ResponseData(headerStrIntStr(), columnData));
 }
 
 TEST(TestResponseData, rowsWithDifferentElementsWillThrowException) // NOLINT

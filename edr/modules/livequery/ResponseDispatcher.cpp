@@ -39,8 +39,17 @@ namespace
         }
         void extractValueAndAddToJson(const livequery::ResponseData::RowData& rowData, nlohmann::json& jsonArray) const
         {
-            // it is expected to always succeed as this check was validated by the ResponseData
-            std::string value = rowData.at(m_valueType.first);
+            auto valueIterator = rowData.find(m_valueType.first);
+            // setting missing records to null.
+            // this can happen if some of the rows have more or less entries than the others.
+            // to cope with this situation and still send user all the data, the missing values are set to null.
+            if ( valueIterator == rowData.end())
+            {
+                jsonArray.push_back(nullptr);
+                return;
+            }
+
+            const std::string& value = valueIterator->second;
             if (m_valueType.second == livequery::ResponseData::AcceptedTypes::STRING ||
                 m_valueType.second == livequery::ResponseData::AcceptedTypes::DATE ||
                 m_valueType.second == livequery::ResponseData::AcceptedTypes::DATETIME ||
@@ -70,7 +79,7 @@ namespace
         livequery::ResponseData::ValueType m_valueType;
     };
 
-    std::string queryMetaDataObject(const livequery::QueryResponse& queryResponse)
+    std::string queryMetaDataObject(const livequery::QueryResponse& queryResponse, bool exceededLimit)
     {
         nlohmann::json queryMetaData;
         // queryMetaData["durationMillis"] = 32;
@@ -80,28 +89,18 @@ namespace
         {
             queryMetaData["rows"] = queryResponse.data().columnData().size();
         }
-        queryMetaData["errorCode"] = queryResponse.status().errorValue();
-        queryMetaData["errorMessage"] = queryResponse.status().errorDescription();
-        return queryMetaData.dump();
-    }
-    std::string toString(livequery::ResponseData::AcceptedTypes acceptedType)
-    {
-        switch (acceptedType)
+        if ( exceededLimit)
         {
-            case livequery::ResponseData::AcceptedTypes::BIGINT:
-                return "BIGINT";
-            case livequery::ResponseData::AcceptedTypes::DATE:
-                return "DATE";
-            case livequery::ResponseData::AcceptedTypes::DATETIME:
-                return "DATETIME";
-            case livequery::ResponseData::AcceptedTypes::INTEGER:
-                return "INTEGER";
-            case livequery::ResponseData::AcceptedTypes::UNSIGNED_BIGINT:
-                return "UNSIGNED BIGINT";
-            default:
-            case livequery::ResponseData::AcceptedTypes::STRING:
-                return "TEXT";
+            livequery::ResponseStatus exceedError{livequery::ErrorCode::RESPONSEEXCEEDLIMIT};
+            queryMetaData["errorCode"] = exceedError.errorValue();
+            queryMetaData["errorMessage"] = exceedError.errorDescription();
         }
+        else{
+            queryMetaData["errorCode"] = queryResponse.status().errorValue();
+            queryMetaData["errorMessage"] = queryResponse.status().errorDescription();
+        }
+
+        return queryMetaData.dump();
     }
 
     std::string columnMetaDataObject(const livequery::QueryResponse& queryResponse)
@@ -112,7 +111,7 @@ namespace
         {
             std::map<std::string, std::string> cell;
             cell["name"] = entry.first;
-            cell["type"] = toString(entry.second);
+            cell["type"] = livequery::ResponseData::AcceptedTypesToString(entry.second);
             columnMetaData.push_back(cell);
         }
         return columnMetaData.dump();
@@ -185,12 +184,25 @@ namespace livequery
      */
     std::string ResponseDispatcher::serializeToJson(const QueryResponse& response)
     {
+        std::string columnDataObjectSerialized;
+        bool limitExceeded = false;
+        if (!response.data().columnData().empty())
+        {
+            columnDataObjectSerialized = columnDataObject(response);
+            auto size_bytes = columnDataObjectSerialized.size();
+            if (size_bytes > 10 * 1024 * 1024)
+            {
+                LOGWARN("Limit exceeded. Response would have: " << size_bytes << " bytes");
+                limitExceeded = true;
+            }
+        }
+
         std::stringstream serializedJson;
         serializedJson << R"({
 "type": "sophos.mgt.response.RunLiveQuery")";
 
         serializedJson << R"(,
-"queryMetaData": )" << queryMetaDataObject(response);
+"queryMetaData": )" << queryMetaDataObject(response, limitExceeded);
 
         if (response.data().hasHeaders())
         {
@@ -198,10 +210,10 @@ namespace livequery
 "columnMetaData": )" << columnMetaDataObject(response);
         }
 
-        if (!response.data().columnData().empty())
+        if ( ! limitExceeded && !columnDataObjectSerialized.empty())
         {
             serializedJson << R"(,
-"columnData": )" << columnDataObject(response);
+"columnData": )" << columnDataObjectSerialized ;
         }
 
         serializedJson << R"(

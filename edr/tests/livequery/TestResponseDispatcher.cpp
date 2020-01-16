@@ -267,6 +267,92 @@ TEST(TestResponseDispatcher, emptyNumberShouldBeSentAsNull)
 }
 
 
+TEST(TestResponseDispatcher, missingEntriesShouldBeSetToNull)
+{
+    ResponseData::ColumnData columnData;
+    ResponseData::RowData  firstRow;
+    firstRow["pathname"] = "anyfile";
+    firstRow["sophosPID"] = "17984:132164677472649892";
+    firstRow["start_time"] = "50330";
+    columnData.push_back(firstRow);
+
+    ResponseData::RowData  secondRow;
+    secondRow["pathname"] = "anyfile";
+    // do not have sophosPID
+    //secondRow["sophosPID"] = "17984:132164677472649892";
+    secondRow["start_time"] = "50330";
+    columnData.push_back(secondRow);
+
+    ResponseData::RowData  thirdRow;
+    thirdRow["pathname"] = "anyfile";
+    thirdRow["sophosPID"] = "17984:132164677472649892";
+    //thirdRow["start_time"] = "50330";
+    columnData.push_back(thirdRow);
+
+    QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
+                           ResponseData{headerExample(), columnData}};
+
+    std::string expected = R"({
+    "type": "sophos.mgt.response.RunLiveQuery",
+    "queryMetaData": {
+        "rows": 3,
+        "errorCode": 0,
+        "errorMessage": "OK"
+    },
+    "columnMetaData": [
+      {"name": "pathname", "type": "TEXT"},
+      {"name": "sophosPID", "type": "TEXT"},
+      {"name": "start_time", "type": "BIGINT"}
+    ],
+    "columnData": [
+        ["anyfile","17984:132164677472649892", 50330],
+        ["anyfile",null, 50330],
+        ["anyfile","17984:132164677472649892", null]
+    ]
+})";
+    ResponseDispatcher dispatcher;
+    std::string calculated = dispatcher.serializeToJson(response);
+    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))
+                        << "\nCalculated: "<< calculated << ".\n expected: \n" << expected;
+}
+
+TEST(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumnsIfTheyExceed10Mb)
+{
+    ResponseData::ColumnData columnData;
+    columnData.reserve(10*1024);
+    ResponseData::RowData  firstRow;
+    std::cout << ctime(nullptr)<<std::endl;
+    std::string largestring(1000,'b');
+    firstRow["pathname"] = largestring;
+    firstRow["sophosPID"] = "17984:132164677472649892";
+    firstRow["start_time"] = "50330";
+    for( long long i=0; i<10*1024; i++)
+    {
+        columnData.push_back(firstRow);
+    }
+    std::cout << ctime(nullptr)<<std::endl;
+    QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
+                           ResponseData{headerExample(), columnData }};
+    std::cout << ctime(nullptr)<<std::endl;
+    std::string expected = R"({
+    "type": "sophos.mgt.response.RunLiveQuery",
+    "queryMetaData": {
+        "rows": 10240,
+        "errorCode": 100,
+        "errorMessage": "Response data exceeded 10MB"
+    },
+    "columnMetaData": [
+      {"name": "pathname", "type": "TEXT"},
+      {"name": "sophosPID", "type": "TEXT"},
+      {"name": "start_time", "type": "BIGINT"}
+    ]
+})";
+    ResponseDispatcher dispatcher;
+    std::string calculated = dispatcher.serializeToJson(response);
+    std::cout << ctime(nullptr)<<std::endl;
+    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated)) << calculated;
+}
+
 
 
 class ResposeDispatcherWithMockFileSystem: public ::testing::Test

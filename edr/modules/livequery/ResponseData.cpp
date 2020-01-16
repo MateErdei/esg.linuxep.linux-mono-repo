@@ -4,13 +4,11 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ResponseData.h"
-
+#include <unordered_set>
 #include "Logger.h"
 namespace livequery
 {
-    ResponseData::ResponseData()
-    {
-    }
+    ResponseData::ResponseData() = default;
 
     ResponseData ResponseData::emptyResponse()
     {
@@ -54,31 +52,72 @@ namespace livequery
         return m_headers;
     }
 
+    /**
+     * A valid responsedata requires that no entry in the column data is not defined in the headers.
+     * @return
+     */
     bool ResponseData::isValidHeaderAndData(
         const ResponseData::ColumnHeaders& headers,
         const ResponseData::ColumnData& data)
     {
-        int row = 0;
+        std::unordered_set<std::string> columnsReported;
+        for (const auto& row : headers)
+        {
+            const std::string & columnName = row.first;
+            columnsReported.insert(columnName);
+        }
+        int row=0;
         for (auto& columnsInRow : data)
         {
-            if (columnsInRow.size() != headers.size())
+            for( auto & cellInRow : columnsInRow)
             {
-                LOGWARN(
-                    "Error in row: " << row << ". Number of entries (" << columnsInRow.size()
-                                     << ") is different from the expected (" << headers.size() << ")");
-                return false;
-            }
-            for (auto& headerEntry : headers)
-            {
-                if (columnsInRow.count(headerEntry.first) != 1)
+                if (columnsReported.find(cellInRow.first) == columnsReported.end())
                 {
-                    LOGWARN("Error in row: " << row << ". Missing at least element (" << headerEntry.first << ")");
-
+                    LOGWARN("Error in row: " << row << ". Unexpected value named (" << cellInRow.first << ")");
                     return false;
                 }
             }
             row++;
         }
         return true;
+    }
+
+    std::string ResponseData::AcceptedTypesToString(livequery::ResponseData::AcceptedTypes acceptedType)
+    {
+        switch (acceptedType)
+        {
+            case livequery::ResponseData::AcceptedTypes::BIGINT:
+                return "BIGINT";
+            case livequery::ResponseData::AcceptedTypes::DATE:
+                return "DATE";
+            case livequery::ResponseData::AcceptedTypes::DATETIME:
+                return "DATETIME";
+            case livequery::ResponseData::AcceptedTypes::INTEGER:
+                return "INTEGER";
+            case livequery::ResponseData::AcceptedTypes::UNSIGNED_BIGINT:
+                return "UNSIGNED BIGINT";
+            default:
+            case livequery::ResponseData::AcceptedTypes::STRING:
+                return "TEXT";
+        }
+    }
+
+    ResponseData::AcceptedTypes ResponseData::AcceptedTypesFromString(const std::string& acceptedTypeStr)
+    {
+        static std::unordered_map<std::string, ResponseData::AcceptedTypes > mapString2Type{
+                {"TEXT", ResponseData::AcceptedTypes::STRING},
+                { "BIGINT", ResponseData::AcceptedTypes::BIGINT},
+                {"INTEGER", ResponseData::AcceptedTypes::INTEGER},
+                {"UNSIGNED LONG", ResponseData::AcceptedTypes::UNSIGNED_BIGINT},
+                {"DATE", ResponseData::AcceptedTypes::DATE},
+                {"DATETIME", ResponseData::AcceptedTypes::DATETIME}
+        };
+
+        auto found = mapString2Type.find(acceptedTypeStr);
+        if (found == mapString2Type.end())
+        {
+            return ResponseData::AcceptedTypes::STRING;
+        }
+        return found->second;
     }
 } // namespace livequery

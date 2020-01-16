@@ -42,7 +42,11 @@ public:
                 {"--extensions_socket"},
                 {osquerySocket()},
                 {"--D"},
-                {"--disable_logging=True"}
+                {"--disable_logging=True"},
+                {"--watchdog_memory_limit"},
+                {"100"},
+                {"--watchdog_utilization_limit"},
+                {"10"}
         };
         osqu->exec(osqueryBin, flags);
         return osqu;
@@ -75,68 +79,40 @@ public:
         return response;
     }
 
-};
-
-TEST_F(TestOSQueryProcessor, SimpleSelectShouldReturn) // NOLINT
-{
-    std::string m_testFakeSocketPath(osquerySocket());
-    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));//FIXME remove this sleep
-    auto response = osqueryProcessor.query("select name,value from osquery_flags where name=='ephemeral'");
-    livequery::ResponseData::ColumnData columnData;
-    columnData.push_back( { {"name","ephemeral"},{"value","true"} } );
-    auto expectedResponse = success({{"name",livequery::ResponseData::AcceptedTypes::STRING},
-                                     {"value",livequery::ResponseData::AcceptedTypes::STRING}}, columnData);
-    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
-}
-
-
-TEST_F(TestOSQueryProcessor, QueryShouldBeResitentToIntermitentFailure) // NOLINT
-{
-    m_osqueryProcess->kill();
-    std::atomic<bool> keepRunning = true;
-    auto keep_restarting_osquery= std::async(std::launch::async, [this, &keepRunning](){
-        for(int i=0; i<10;i++)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            auto osq = this->startOsquery();
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        }
-        keepRunning = false;
-    });
-    std::string m_testFakeSocketPath(osquerySocket());
-    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
-
-
-    livequery::ResponseData::ColumnData columnData;
-    columnData.push_back( { {"name","ephemeral"},{"value","true"} } );
-    auto expectedResponse = success({{"name",livequery::ResponseData::AcceptedTypes::STRING},
-                                     {"value",livequery::ResponseData::AcceptedTypes::STRING}}, columnData);
-
-    for(int i=0; i<10; i++)
+    livequery::QueryResponse failure( livequery::ErrorCode errorCode, std::string description)
     {
-        if (!keepRunning)
-        {
-            break;
-        }
-        auto response = osqueryProcessor.query("select name,value from osquery_flags where name=='ephemeral'");
-        EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+        livequery::ResponseStatus status{ errorCode};
+        status.overrideErrorDescription(description);
+
+        livequery::QueryResponse response{status, livequery::ResponseData::emptyResponse()};
+
+        livequery::ResponseMetaData metaData;
+        response.setMetaData(metaData);
+        return response;
+
     }
-}
 
-
+};
 ::testing::AssertionResult TestOSQueryProcessor::responseIsEquivalent(
         const char* m_expr,
         const char* n_expr,
-        const livequery::QueryResponse& expectedResponse,
-        const livequery::QueryResponse& actualResponse)
+        const livequery::QueryResponse& actualResponse,
+        const livequery::QueryResponse& expectedResponse)
 {
     std::stringstream s;
     s << m_expr << " and " << n_expr << " failed: ";
     if (expectedResponse.status().errorCode() != actualResponse.status().errorCode())
     {
         return ::testing::AssertionFailure() << s.str() << " Expected response status : " << expectedResponse.status().errorValue()
-                                             << ". Actual response status: " << expectedResponse.status().errorValue() << ".";
+                                             << ". Actual response status: " << actualResponse.status().errorValue() << ".";
+    }
+    std::string actualDescription = actualResponse.status().errorDescription();
+    std::string expectedPartOfDescription = expectedResponse.status().errorDescription();
+
+    if( actualDescription.find(expectedPartOfDescription) == std::string::npos )
+    {
+        return ::testing::AssertionFailure() << s.str() << " Expected response status error differ. " << expectedPartOfDescription << " Not inside the: " <<  actualDescription;
+
     }
 
     if (expectedResponse.data().columnData() != actualResponse.data().columnData())
@@ -152,3 +128,167 @@ TEST_F(TestOSQueryProcessor, QueryShouldBeResitentToIntermitentFailure) // NOLIN
 
     return ::testing::AssertionSuccess();
 }
+
+
+TEST_F(TestOSQueryProcessor, SimpleSelectShouldReturn) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    auto response = osqueryProcessor.query("select name,value from osquery_flags where name=='ephemeral'");
+    livequery::ResponseData::ColumnData columnData;
+    columnData.push_back( { {"name","ephemeral"},{"value","true"} } );
+    auto expectedResponse = success({{"name",livequery::ResponseData::AcceptedTypes::STRING},
+                                     {"value",livequery::ResponseData::AcceptedTypes::STRING}}, columnData);
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+
+//TEST_F(TestOSQueryProcessor, QueryShouldBeResitentToIntermitentFailure) // NOLINT
+//{
+//    m_osqueryProcess->kill();
+//    std::atomic<bool> keepRunning = true;
+//    auto keep_restarting_osquery= std::async(std::launch::async, [this, &keepRunning](){
+//        for(int i=0; i<10;i++)
+//        {
+//            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//            auto osq = this->startOsquery();
+//            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+//        }
+//        keepRunning = false;
+//    });
+//    std::string m_testFakeSocketPath(osquerySocket());
+//    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+//
+//
+//    livequery::ResponseData::ColumnData columnData;
+//    columnData.push_back( { {"name","ephemeral"},{"value","true"} } );
+//    auto expectedResponse = success({{"name",livequery::ResponseData::AcceptedTypes::STRING},
+//                                     {"value",livequery::ResponseData::AcceptedTypes::STRING}}, columnData);
+//
+//    for(int i=0; i<10; i++)
+//    {
+//        if (!keepRunning)
+//        {
+//            break;
+//        }
+//        auto response = osqueryProcessor.query("select name,value from osquery_flags where name=='ephemeral'");
+//        EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+//    }
+//}
+
+TEST_F(TestOSQueryProcessor, NoOSqueryAvailableShouldReturnError) // NOLINT
+{
+    m_osqueryProcess->kill();
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    auto response = osqueryProcessor.query("foo");
+    auto expectedResponse = failure( livequery::ErrorCode::UNEXPECTEDERROR, "connect");
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+
+TEST_F(TestOSQueryProcessor, InvalidStatementShouldReturnError) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    auto response = osqueryProcessor.query("foo");
+    auto expectedResponse = failure( livequery::ErrorCode::OSQUERYERROR, "syntax error");
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+TEST_F(TestOSQueryProcessor, InvalidTableNameShouldReturnError) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    auto response = osqueryProcessor.query("select * from foo");
+    auto expectedResponse = failure( livequery::ErrorCode::OSQUERYERROR, "no such table");
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+TEST_F(TestOSQueryProcessor, InvalidColumnNameShouldReturnError) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    auto response = osqueryProcessor.query("select invalidname from osquery_flags");
+    auto expectedResponse = failure( livequery::ErrorCode::OSQUERYERROR, "no such column");
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+TEST_F(TestOSQueryProcessor, MissingARequiredConstrainShouldReturnError) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    auto response = osqueryProcessor.query("select * from hash");
+    auto expectedResponse = failure( livequery::ErrorCode::OSQUERYERROR, "no query solution");
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+TEST_F(TestOSQueryProcessor, AttemptToModifyAnOsQueryTableShouldReturnError) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    auto response = osqueryProcessor.query("insert into processes values(path='foo')");
+    auto expectedResponse = failure( livequery::ErrorCode::OSQUERYERROR, "may not be modified");
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+TEST_F(TestOSQueryProcessor, CreatingTempTableThatAlreadyExistsShouldReturnError) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    auto response = osqueryProcessor.query("create table myprocesses(bar int); create table myprocesses(hello int)");
+    auto expectedResponse = failure( livequery::ErrorCode::OSQUERYERROR, "already exist");
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+TEST_F(TestOSQueryProcessor, LiveQueryShouldReportOnQueriesThatCausedOsqueryWatchdogToRestartOsquery) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    std::string insaneQuery{R"(WITH RECURSIVE
+counting (curr, next)
+AS
+( SELECT 1,1
+  UNION ALL
+  SELECT next, curr+1 FROM counting
+  LIMIT 10000000000 )
+SELECT group_concat(curr) FROM counting;)"};
+    auto response = osqueryProcessor.query(insaneQuery);
+    auto expectedResponse = failure( livequery::ErrorCode::EXTENSIONEXITEDWHILERUNNING, "running query");
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+TEST_F(TestOSQueryProcessor, VerifyOSQueryResponseHasExpectedTypesForINTEGERandBIGINT) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    auto response = osqueryProcessor.query("select core,user from cpu_time Limit 1");
+    livequery::ResponseData::ColumnHeaders expectedHeaders;
+    expectedHeaders.push_back({"core", livequery::ResponseData::AcceptedTypes::INTEGER});
+    expectedHeaders.push_back( {"user", livequery::ResponseData::AcceptedTypes::BIGINT});
+    EXPECT_EQ(expectedHeaders, response.data().columnHeaders());
+}
+
+TEST_F(TestOSQueryProcessor, HeaderWillBeDeducedIfNotCompletellyGivenByOsQueryAndTheTypeWillAlwaysBeText) // NOLINT
+{
+    std::string m_testFakeSocketPath(osquerySocket());
+    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
+    // osquery.getQueryColumns will only return information for user and type BIGINT
+    // the information from core will be 'deduced'.
+    auto response = osqueryProcessor.query("select user from cpu_time Limit 1;select core from cpu_time Limit 1");
+    auto &  responseColumnData = response.data().columnData();
+
+    livequery::ResponseData::ColumnData columnData;
+    // I want to verify only the structure and the headers, not the value.
+    columnData.push_back( { {"user", responseColumnData.at(0).at("user")} } );
+    columnData.push_back( { {"core",responseColumnData.at(1).at("core")} } );
+    livequery::ResponseData::ColumnHeaders  headers{
+            {"user",livequery::ResponseData::AcceptedTypes::BIGINT},
+            {"core",livequery::ResponseData::AcceptedTypes::STRING}, // core was deduced from the columnData
+    };
+    auto expectedResponse = success(headers, columnData);
+    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
+}
+
+
+

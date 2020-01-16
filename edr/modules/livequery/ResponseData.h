@@ -62,6 +62,8 @@ namespace livequery
 
         const ColumnData& columnData() const;
         const ColumnHeaders& columnHeaders() const;
+        static std::string AcceptedTypesToString(AcceptedTypes acceptedType);
+        static AcceptedTypes AcceptedTypesFromString(const std::string& acceptedTypeStr);
 
     private:
         static bool isValidHeaderAndData(const ColumnHeaders& headers, const ColumnData& data);
