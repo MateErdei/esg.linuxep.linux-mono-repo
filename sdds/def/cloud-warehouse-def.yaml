@@ -129,7 +129,7 @@ customer-files:
             - warehouse: sspl-wh
 
     -   warehouse: sspl-wh
-        user: edr_user_vut
+        user: mtr_user_vut
         password: password
         split-warehouses:
             - warehouse: sspl-wh
