@@ -86,7 +86,7 @@ namespace Plugin
         while (true)
         {
             Task task;
-            if( !m_queueTask->pop(task, 3600))
+            if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
                 cleanAndSetUp();
             }
@@ -159,12 +159,12 @@ namespace Plugin
             int iterator = 9;
             while (iterator > 0)
             {
-                std::string oldExtension = "." + std::to_string(9);
+                std::string oldExtension = "." + std::to_string(iterator);
                 std::string fileToIncrement = Common::FileSystem::join(logPath,oldExtension);
 
                 if (ifileSystem->isFile(fileToIncrement))
                 {
-                    std::string newExtension = "." + std::to_string(9 + 1);
+                    std::string newExtension = "." + std::to_string(iterator + 1);
                     std::string fileDestination = Common::FileSystem::join(logPath,newExtension);
                     ifileSystem->moveFile(fileToIncrement,fileDestination);
                 }

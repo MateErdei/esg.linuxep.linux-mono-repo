@@ -42,6 +42,7 @@ namespace Plugin
 
         int MAX_LOGFILE_SIZE = 1024 * 1024;
         size_t MAX_THRESHOLD = 100;
+        int QUEUE_TIMEOUT = 3600;
         void processQuery(const std::string & query, const std::string & correlationId);
         void setUpOsqueryMonitor();
         void stopOsquery();
