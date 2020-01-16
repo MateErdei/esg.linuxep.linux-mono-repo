@@ -36,6 +36,9 @@
         <package name="osquerysdklinux11" version="1-0-0-32/218249/output" dest="input">
             <include src="osquerysdk.tar" dest="."/>
         </package>
+        <package name="openssllinux11" version="1-1-1d-10/217518/output" dest="input">
+            <include src="openssl.tar" dest="."/>
+        </package>
     </inputs>
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->

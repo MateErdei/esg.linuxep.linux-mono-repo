@@ -22,4 +22,6 @@ sophos_add_library(osqueryclient SHARED
             ${BOOST_THREAD_LIBRARY}
             ${BOOST_FILESYSTEM_LIBRARY}
             ${BOOST_CONTEXT_LIBRARY}
+            ${OPENSSLCRYPTO_LIBRARY}
+            ${OPENSSL_LIBRARY}
         )

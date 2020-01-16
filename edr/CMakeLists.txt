@@ -171,6 +171,17 @@ find_library(BOOST_CONTEXT_LIBRARY
         NO_DEFAULT_PATH
         )
 
+find_library(OPENSSL_LIBRARY
+        NAMES ssl
+        PATHS ${INPUT}/openssl/lib64
+        NO_DEFAULT_PATH
+        )
+
+find_library(OPENSSLCRYPTO_LIBRARY
+        NAMES crypto
+        PATHS ${INPUT}/openssl/lib64
+        NO_DEFAULT_PATH
+        )
 
 add_subdirectory(modules)
 add_subdirectory(products)
