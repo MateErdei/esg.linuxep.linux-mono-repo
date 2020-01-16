@@ -39,10 +39,8 @@ endif()
 string( TOLOWER ${PLUGIN_NAME} plugin_name)
 
 if(NOT DEFINED PRODUCT_LINE_ID)
-    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${PLUGIN_NAME})
+    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-EDR)
 endif()
-
-set(COMPONENT_SUITE_LINE_ID ServerProtectionLinux-Plugin-EDR)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
