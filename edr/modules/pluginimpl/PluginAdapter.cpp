@@ -192,7 +192,7 @@ namespace Plugin
             {
                 std::vector<std::string> paths = ifileSystem->listFiles(databasePath);
 
-                if (paths.size() > 100) {
+                if (paths.size() > MAX_THRESHOLD) {
                     LOGINFO("Purging Database");
                     stopOsquery();
 

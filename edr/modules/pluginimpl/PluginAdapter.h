@@ -40,7 +40,8 @@ namespace Plugin
 
     private:
 
-        int MAX_LOGFILE_SIZE = 1024 *1024;
+        int MAX_LOGFILE_SIZE = 1024 * 1024;
+        size_t MAX_THRESHOLD = 100;
         void processQuery(const std::string & query, const std::string & correlationId);
         void setUpOsqueryMonitor();
         void stopOsquery();
