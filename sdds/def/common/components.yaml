@@ -9,7 +9,7 @@ sspl-base:
     line-id: ServerProtectionLinux-Base
 sspl-edr:
     build:
-        branch: feature-LINUXDAR-821
+        branch: master
         name: sspl-edr-plugin
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-EDR
