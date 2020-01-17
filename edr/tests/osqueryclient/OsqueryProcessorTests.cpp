@@ -11,8 +11,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <modules/osqueryclient/OsqueryProcessor.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Helpers/TempDir.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <thread>
 #include <future>
+#include <stdlib.h>
 
 using namespace ::testing;
 #ifndef OSQUERYBIN
@@ -27,14 +29,35 @@ public:
 
     TestOSQueryProcessor() : m_tempDir("/tmp")
     {
+        if( skipTest()) return;
         m_osqueryProcess = startOsquery();
         std::cout << "osquery pid: " << m_osqueryProcess->childPid() << std::endl;
     }
 
+    std::string osqueryBinaryPath()
+    {
+        char * OSQ_ENV_PATH  = secure_getenv("OVERRIDE_OSQUERY_BIN");
+        if (OSQ_ENV_PATH)
+        {
+            return std::string{OSQ_ENV_PATH};
+        }
+        std::string COMPILED_DEFINED_PATH{OSQUERYBIN};
+        if ( Common::FileSystem::fileSystem()->exists(COMPILED_DEFINED_PATH))
+        {
+            return COMPILED_DEFINED_PATH;
+        }
+        throw std::logic_error("Osquery path not found. Please, set environment variable OVERRIDE_OSQUERY_BIN");
+    }
+
+    bool skipTest()
+    {
+        return secure_getenv("RUN_GOOGLE_COMPONENT_TESTS") == nullptr;
+    }
+
+
     Common::Process::IProcessPtr startOsquery()
     {
-        std::string osqueryBin{OSQUERYBIN};
-        assert(osqueryBin != "");
+        std::string osqueryBin = osqueryBinaryPath();
 
         auto osqu = Common::Process::createProcess();
         std::vector<std::string> flags{
@@ -65,7 +88,10 @@ public:
 
     ~TestOSQueryProcessor()
     {
-        m_osqueryProcess->kill();
+        if ( m_osqueryProcess)
+        {
+            m_osqueryProcess->kill();
+        }
     }
     livequery::QueryResponse success(livequery::ResponseData::ColumnHeaders headers, livequery::ResponseData::ColumnData columnData)
     {
@@ -130,6 +156,8 @@ public:
 
 TEST_F(TestOSQueryProcessor, VerifyOsqueryCanBeStarted) // NOLINT
 {
+    if( skipTest()) return;
+    ASSERT_TRUE(false);
     m_osqueryProcess->kill();
     EXPECT_EQ(m_osqueryProcess->output(), "");
 }
@@ -137,6 +165,7 @@ TEST_F(TestOSQueryProcessor, VerifyOsqueryCanBeStarted) // NOLINT
 
 TEST_F(TestOSQueryProcessor, SimpleSelectShouldReturn) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     auto response = osqueryProcessor.query("select name,value from osquery_flags where name=='ephemeral'");
@@ -183,6 +212,7 @@ TEST_F(TestOSQueryProcessor, SimpleSelectShouldReturn) // NOLINT
 
 TEST_F(TestOSQueryProcessor, NoOSqueryAvailableShouldReturnError) // NOLINT
 {
+    if( skipTest()) return;
     m_osqueryProcess->kill();
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
@@ -194,6 +224,7 @@ TEST_F(TestOSQueryProcessor, NoOSqueryAvailableShouldReturnError) // NOLINT
 
 TEST_F(TestOSQueryProcessor, InvalidStatementShouldReturnError) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     auto response = osqueryProcessor.query("foo");
@@ -203,6 +234,7 @@ TEST_F(TestOSQueryProcessor, InvalidStatementShouldReturnError) // NOLINT
 
 TEST_F(TestOSQueryProcessor, InvalidTableNameShouldReturnError) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     auto response = osqueryProcessor.query("select * from foo");
@@ -212,6 +244,7 @@ TEST_F(TestOSQueryProcessor, InvalidTableNameShouldReturnError) // NOLINT
 
 TEST_F(TestOSQueryProcessor, InvalidColumnNameShouldReturnError) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     auto response = osqueryProcessor.query("select invalidname from osquery_flags");
@@ -221,6 +254,7 @@ TEST_F(TestOSQueryProcessor, InvalidColumnNameShouldReturnError) // NOLINT
 
 TEST_F(TestOSQueryProcessor, MissingARequiredConstrainShouldReturnError) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     auto response = osqueryProcessor.query("select * from hash");
@@ -230,6 +264,7 @@ TEST_F(TestOSQueryProcessor, MissingARequiredConstrainShouldReturnError) // NOLI
 
 TEST_F(TestOSQueryProcessor, AttemptToModifyAnOsQueryTableShouldReturnError) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     auto response = osqueryProcessor.query("insert into processes values(path='foo')");
@@ -239,6 +274,7 @@ TEST_F(TestOSQueryProcessor, AttemptToModifyAnOsQueryTableShouldReturnError) // 
 
 TEST_F(TestOSQueryProcessor, CreatingTempTableThatAlreadyExistsShouldReturnError) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     auto response = osqueryProcessor.query("create table myprocesses(bar int); create table myprocesses(hello int)");
@@ -248,6 +284,7 @@ TEST_F(TestOSQueryProcessor, CreatingTempTableThatAlreadyExistsShouldReturnError
 
 TEST_F(TestOSQueryProcessor, LiveQueryShouldReportOnQueriesThatCausedOsqueryWatchdogToRestartOsquery) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     std::string insaneQuery{R"(WITH RECURSIVE
@@ -265,6 +302,7 @@ SELECT group_concat(curr) FROM counting;)"};
 
 TEST_F(TestOSQueryProcessor, VerifyOSQueryResponseHasExpectedTypesForINTEGERandBIGINT) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     auto response = osqueryProcessor.query("select core,user from cpu_time Limit 1");
@@ -276,6 +314,7 @@ TEST_F(TestOSQueryProcessor, VerifyOSQueryResponseHasExpectedTypesForINTEGERandB
 
 TEST_F(TestOSQueryProcessor, HeaderWillBeDeducedIfNotCompletellyGivenByOsQueryAndTheTypeWillAlwaysBeText) // NOLINT
 {
+    if( skipTest()) return;
     std::string m_testFakeSocketPath(osquerySocket());
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     // osquery.getQueryColumns will only return information for user and type BIGINT
