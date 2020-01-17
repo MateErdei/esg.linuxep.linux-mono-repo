@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "scan_messages/ScanResponse.h"
-#include "scan_messages/ScanRequest.h"
+#include "scan_messages/AutoFd.h"
 
 #include <string>
 

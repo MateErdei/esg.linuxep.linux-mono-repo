@@ -10,6 +10,6 @@ add_library(scanmessages SHARED
         ScanResponse.cpp
         ScanResponse.h
         AutoFd.cpp
-        AutoFd.h)
+        AutoFd.h ClientScanRequest.cpp ClientScanRequest.h)
 
 target_include_directories(scanmessages PUBLIC "${CAPNPROTO_INCLUDE_DIR}" ${CMAKE_CURRENT_BINARY_DIR})

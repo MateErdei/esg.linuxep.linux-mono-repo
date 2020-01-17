@@ -8,19 +8,20 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SocketUtils.h"
 #include "Print.h"
 
-#include <capnp/message.h>
+#include "scan_messages/ClientScanRequest.h"
+#include <ScanResponse.capnp.h>
+
 #include <capnp/serialize.h>
 
 #include <string>
 #include <cstdio>
 #include <cstdlib>
+#include <cassert>
 
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <cassert>
 #include <fcntl.h>
-#include <ScanResponse.capnp.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
@@ -93,7 +94,7 @@ scan_messages::ScanResponse
 unixsocket::ScanningClientSocket::scan(scan_messages::AutoFd& fd, const std::string& file_path)
 {
     assert(m_socket_fd >= 0);
-    scan_messages::ScanRequest request;
+    scan_messages::ClientScanRequest request;
     request.setPath(file_path);
     std::string dataAsString = request.serialise();
 
