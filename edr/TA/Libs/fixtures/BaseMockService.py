@@ -10,6 +10,9 @@ from Libs.FakeManagement import FakeManagement
 def sdds():
     return "/opt/test/inputs/edr/SDDS-COMPONENT"
 
+def google_component_tests_dir():
+    return "/opt/test/inputs/edr/componenttests"
+
 
 def run_shell(args, **kwargs):
     print('run command {}'.format(args))
@@ -71,6 +74,7 @@ def component_test_setup(sophos_install):
 class BaseMockService:
     def __init__(self, root_path):
         self.sspl = root_path
+        self.google_test_dir = google_component_tests_dir()
         self.management = FakeManagement()
         self.management.start_fake_management()
 

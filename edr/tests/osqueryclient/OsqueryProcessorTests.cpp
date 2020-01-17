@@ -15,11 +15,16 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <thread>
 #include <future>
 #include <stdlib.h>
-
+#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
+#include <osquery/flagalias.h>
 using namespace ::testing;
 #ifndef OSQUERYBIN
 #define OSOSQUERYBIN ""
 #endif
+namespace osquery{
+
+    FLAG(bool, decorations_top_level, false, "test");
+}
 
 class TestOSQueryProcessor : public ::testing::Test
 {
@@ -64,12 +69,14 @@ public:
                 {"--ephemeral"},
                 {"--extensions_socket"},
                 {osquerySocket()},
+                {"--logger_path"},
+                {m_tempDir.dirPath()},
                 {"--D"},
-                {"--disable_logging=True"},
                 {"--watchdog_memory_limit"},
                 {"100"},
                 {"--watchdog_utilization_limit"},
-                {"10"}
+                {"10"},
+                {"--verbose"}
         };
         osqu->exec(osqueryBin, flags);
         return osqu;
@@ -157,9 +164,22 @@ public:
 TEST_F(TestOSQueryProcessor, VerifyOsqueryCanBeStarted) // NOLINT
 {
     if( skipTest()) return;
+    std::string osqueryLog{ m_tempDir.absPath("osqueryd.INFO")};
+    for( int i = 1; i<15; i++)
+    {
+        if (Common::FileSystem::fileSystem()->exists(osqueryLog))
+        {
+            std::string logContent = Common::FileSystem::fileSystem()->readFile(osqueryLog);
+            if ( logContent.find("Event publisher not enabled") != std::string::npos)
+            {
+                break;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
     m_osqueryProcess->kill();
     std::string output = m_osqueryProcess->output();
-    EXPECT_EQ(output, "") << output;
+    EXPECT_THAT(output, ::testing::HasSubstr("Extension manager service starting: /tmp/"));
 }
 
 
@@ -175,40 +195,6 @@ TEST_F(TestOSQueryProcessor, SimpleSelectShouldReturn) // NOLINT
                                      {"value",livequery::ResponseData::AcceptedTypes::STRING}}, columnData);
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
-
-
-//TEST_F(TestOSQueryProcessor, QueryShouldBeResitentToIntermitentFailure) // NOLINT
-//{
-//    m_osqueryProcess->kill();
-//    std::atomic<bool> keepRunning = true;
-//    auto keep_restarting_osquery= std::async(std::launch::async, [this, &keepRunning](){
-//        for(int i=0; i<10;i++)
-//        {
-//            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//            auto osq = this->startOsquery();
-//            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-//        }
-//        keepRunning = false;
-//    });
-//    std::string m_testFakeSocketPath(osquerySocket());
-//    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
-//
-//
-//    livequery::ResponseData::ColumnData columnData;
-//    columnData.push_back( { {"name","ephemeral"},{"value","true"} } );
-//    auto expectedResponse = success({{"name",livequery::ResponseData::AcceptedTypes::STRING},
-//                                     {"value",livequery::ResponseData::AcceptedTypes::STRING}}, columnData);
-//
-//    for(int i=0; i<10; i++)
-//    {
-//        if (!keepRunning)
-//        {
-//            break;
-//        }
-//        auto response = osqueryProcessor.query("select name,value from osquery_flags where name=='ephemeral'");
-//        EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
-//    }
-//}
 
 TEST_F(TestOSQueryProcessor, NoOSqueryAvailableShouldReturnError) // NOLINT
 {

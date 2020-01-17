@@ -16,6 +16,11 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/PluginAdapter.h>
 #include <modules/livequery/ResponseDispatcher.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
+#include <osquery/flagalias.h>
+namespace osquery{
+
+    FLAG(bool, decorations_top_level, false, "test");
+}
 
 
 const char* PluginName = PLUGIN_NAME;

@@ -6,14 +6,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "OsqueryClientImpl.h"
 #include <osquery/flags.h>
-#include <osquery/flagalias.h>
 #include <thrift/transport/TTransportException.h>
 #include "Logger.h"
 
 namespace osquery
 {
 
-    FLAG(bool, decorations_top_level, false, "test");
     std::unique_ptr<osquery::ExtensionManagerAPI> makeClient(const std::string& socket)
     {
         for( int i = 0; i<5; i++)

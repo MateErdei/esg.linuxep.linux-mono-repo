@@ -1,3 +1,18 @@
+import os
+import subprocess
+
+def test_google_component_tests(sspl_mock, edr_plugin_instance):
+    proc_path = os.path.join(sspl_mock.google_test_dir, "TestOsqueryProcessor")
+    copyenv = os.environ.copy()
+    copyenv["OVERRIDE_OSQUERY_BIN"] = os.path.join(sspl_mock.sspl, "plugins/edr/bin/osqueryd")
+    copyenv["RUN_GOOGLE_COMPONENT_TESTS"] = "1"
+    copyenv["LD_LIBRARY_PATH"] = os.path.join(sspl_mock.sspl, "plugins/edr/lib64/")
+    popen = subprocess.Popen(proc_path, env=copyenv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    results = popen.communicate()
+    print(results[0].decode())
+    if popen.returncode != 0:
+        raise AssertionError("Google tests failed. Also providing the stderr: \n{}".format(results[1].decode))
+
 
 def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
