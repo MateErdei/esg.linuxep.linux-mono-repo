@@ -81,6 +81,7 @@ namespace Plugin
     {
         LOGINFO("Entering the main loop");
         cleanAndSetUp();
+        setUpOsqueryMonitor();
 
         std::unique_ptr<WaitUpTo> m_delayedRestart;
         while (true)
@@ -138,47 +139,10 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::rotateOsqueryLogs()
-    {
-        auto* ifileSystem = Common::FileSystem::fileSystem();
-        std::string logPath = Plugin::osQueryResultsLogPath();
-        off_t size = ifileSystem->fileSize(logPath);
-
-        if (size > MAX_LOGFILE_SIZE)
-        {
-            stopOsquery();
-            LOGDEBUG("Rotating osquery logs");
-            std::string fileToDelete = logPath + ".10";
-
-            if (ifileSystem->isFile(fileToDelete))
-            {
-                LOGDEBUG("Log limit reached : Deleting oldest osquery log file");
-                ifileSystem->removeFile(fileToDelete);
-            }
-
-            int iterator = 9;
-            while (iterator > 0)
-            {
-                std::string oldExtension = "." + std::to_string(iterator);
-                std::string fileToIncrement = Common::FileSystem::join(logPath,oldExtension);
-
-                if (ifileSystem->isFile(fileToIncrement))
-                {
-                    std::string newExtension = "." + std::to_string(iterator + 1);
-                    std::string fileDestination = Common::FileSystem::join(logPath,newExtension);
-                    ifileSystem->moveFile(fileToIncrement,fileDestination);
-                }
-
-                iterator -= 1;
-            }
-        }
-    }
-
     void PluginAdapter::cleanAndSetUp()
     {
         databasePurge();
-        rotateOsqueryLogs();
-        setUpOsqueryMonitor();
+        m_DataManager.rotateOsqueryLogs();
     }
 
     void PluginAdapter::databasePurge()
@@ -200,6 +164,9 @@ namespace Plugin
                     {
                         ifileSystem->removeFile(filepath);
                     }
+
+                    LOGDEBUG("Purging Done");
+                    setUpOsqueryMonitor();
                 }
             }
             else
@@ -217,6 +184,7 @@ namespace Plugin
 
     void PluginAdapter::setUpOsqueryMonitor()
     {
+        stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
         std::shared_ptr<Plugin::IOsqueryProcess> osqueryProcess { createOsqueryProcess() };

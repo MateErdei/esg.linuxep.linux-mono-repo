@@ -9,9 +9,10 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "IOsqueryProcess.h"
 #include "PluginCallback.h"
 #include "QueueTask.h"
+#include "OsqueryDataManager.h"
 #include <livequery/IQueryProcessor.h>
-#include <livequery/IResponseDispatcher.h>
 
+#include <livequery/IResponseDispatcher.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 
 #include <future>
@@ -39,14 +40,12 @@ namespace Plugin
         ~PluginAdapter();
 
     private:
-
-        int MAX_LOGFILE_SIZE = 1024 * 1024;
+        OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 3600;
         void processQuery(const std::string & query, const std::string & correlationId);
         void setUpOsqueryMonitor();
         void stopOsquery();
-        void rotateOsqueryLogs();
         void cleanAndSetUp();
         void databasePurge();
         std::future<void> m_monitor;

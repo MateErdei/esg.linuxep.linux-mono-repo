@@ -7,6 +7,8 @@ sophos_add_library(pluginimpl SHARED
         QueueTask.h
         Logger.h
         Logger.cpp
+        OsqueryDataManager.cpp
+        OsqueryDataManager.h
         PluginAdapter.cpp
         PluginAdapter.h
         StringReplace.cpp

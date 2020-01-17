@@ -16,6 +16,10 @@ def test_edr_plugin_purges_database_when_threshold_reached(sspl_mock, edr_plugin
     edr_plugin_instance.start_edr()
 
     assert edr_plugin_instance.wait_log_contains("Purging Database")
+    assert edr_plugin_instance.wait_log_contains("Purging Done", 15)
+    files = os.listdir(db_path)
+    assert len(files) < 10
+
 
 def test_edr_plugin_rotates_logfiles_when_threshold_reached(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
@@ -39,3 +43,4 @@ def test_edr_plugin_rotates_logfiles_when_threshold_reached(sspl_mock, edr_plugi
 
     assert edr_plugin_instance.wait_log_contains("Rotating osquery logs")
     assert edr_plugin_instance.wait_log_contains("Log limit reached : Deleting oldest osquery log file")
+
