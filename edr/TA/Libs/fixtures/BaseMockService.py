@@ -10,10 +10,6 @@ from Libs.FakeManagement import FakeManagement
 def sdds():
     return "/opt/test/inputs/edr/SDDS-COMPONENT"
 
-def google_component_tests_dir():
-    return "/opt/test/inputs/edr/componenttests"
-
-
 def run_shell(args, **kwargs):
     print('run command {}'.format(args))
     output = subprocess.check_output(' '.join(args), shell=True, stderr=subprocess.STDOUT, **kwargs)
@@ -51,6 +47,8 @@ def install_component(sophos_install):
     run_shell(['sudo', 'groupadd', '-f', 'sophos-spl-group'])
 
     shutil.copytree(os.path.join(sdds(), 'files/plugins'), os.path.join(sophos_install, 'plugins'))
+    component_tests_dir = os.path.join(sophos_install, 'componenttests')
+    shutil.copytree('/opt/test/inputs/edr/componenttests', component_tests_dir )
     plugin_lib64_path = os.path.join(plugin_dir_path, 'lib64')
     plugin_executable = os.path.join(plugin_dir_path, 'bin/edr')
     osquery_executable = os.path.join(plugin_dir_path, 'bin/osqueryd')
@@ -59,6 +57,7 @@ def install_component(sophos_install):
     os.makedirs(os.path.join(plugin_dir_path, 'etc'), exist_ok=True)
     run_shell(['ldconfig', '-lN', '*.so.*'], cwd=plugin_lib64_path)
     run_shell(['chmod', '+x', plugin_executable])
+    run_shell(['chmod', '+x', os.path.join(component_tests_dir, '*')])
     run_shell(['chmod', '+x', osquery_executable])
     os.environ['SOPHOS_INSTALL'] = sophos_install
 
@@ -74,7 +73,7 @@ def component_test_setup(sophos_install):
 class BaseMockService:
     def __init__(self, root_path):
         self.sspl = root_path
-        self.google_test_dir = google_component_tests_dir()
+        self.google_test_dir = os.path.join(root_path, 'componenttests')
         self.management = FakeManagement()
         self.management.start_fake_management()
 
