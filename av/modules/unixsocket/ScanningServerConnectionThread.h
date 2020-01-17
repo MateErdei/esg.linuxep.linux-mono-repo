@@ -18,6 +18,8 @@ namespace unixsocket
     class ScanningServerConnectionThread
     {
     public:
+        ScanningServerConnectionThread(const ScanningServerConnectionThread&) = delete;
+        ScanningServerConnectionThread& operator=(const ScanningServerConnectionThread&) = delete;
         explicit ScanningServerConnectionThread(int fd);
         void run();
         void notifyTerminate();

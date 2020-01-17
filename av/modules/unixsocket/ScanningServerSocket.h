@@ -13,6 +13,8 @@ namespace unixsocket
     class ScanningServerSocket
     {
     public:
+        ScanningServerSocket(const ScanningServerSocket&) = delete;
+        ScanningServerSocket& operator=(const ScanningServerSocket&) = delete;
         explicit ScanningServerSocket(const std::string& path);
 
         void run();

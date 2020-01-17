@@ -13,14 +13,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <fcntl.h>
 
-static void printout(const fs::path& p)
+static void printout(unixsocket::ScanningClientSocket& socket, const fs::path& p)
 {
     PRINT("Scanning " << p);
     int file_fd = open(p.c_str(), O_RDONLY);
     assert(file_fd >= 0);
 
-    const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
-    unixsocket::ScanningClientSocket socket(path);
     auto response = socket.scan(file_fd, p); // takes ownership of file_fd
     static_cast<void>(response);
 
@@ -36,9 +34,16 @@ static void printout(const fs::path& p)
 
 int main(int argc, char* argv[])
 {
+    const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
+    unixsocket::ScanningClientSocket socket(path);
+
     for(int i=1; i < argc; i++)
     {
-        auto fw = filewalker::FileWalker(argv[i], printout);
+        filewalker::FileWalker fw(
+                argv[i],
+                [&socket](auto p)
+                { printout(socket, p); }
+        );
         fw.run();
     }
 
