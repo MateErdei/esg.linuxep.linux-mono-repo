@@ -44,7 +44,7 @@ void OsqueryDataManager::rotateOsqueryLogs()
 
             iterator -= 1;
         }
-        
+
         ifileSystem->moveFile(logPath,logPath + ".1");
 
     }
