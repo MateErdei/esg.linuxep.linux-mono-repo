@@ -1,9 +1,3 @@
-
-
-
-#set( ENV{LONG_DESCRIPTION} TESTabc )
-
-
 configure_file(PRODUCT_NAME.in PRODUCT_NAME @ONLY )
 configure_file(PLUGIN_NAME.in PLUGIN_NAME @ONLY )
 configure_file(RIGID_NAME.in RIGID_NAME @ONLY )
