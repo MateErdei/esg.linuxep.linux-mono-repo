@@ -16,7 +16,7 @@ warehouses:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
                     version: "1.0.0"
-                features: [LiveQuery]
+                features: [LIVEQUERY]
                 platforms: []
                 release-tags:
                     - base-version: ""
