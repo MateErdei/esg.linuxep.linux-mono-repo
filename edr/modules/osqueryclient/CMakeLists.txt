@@ -3,6 +3,9 @@ message("gloglibrary: ${GLOG_LIBRARY}")
 sophos_add_library(osqueryclient SHARED
         OsqueryProcessor.h
         OsqueryProcessor.cpp
+        IOsqueryClient.h
+        OsqueryClientImpl.h
+        OsqueryClientImpl.cpp
         Logger.h
         Logger.cpp
         EXTRA_PROJECTS livequeryimpl

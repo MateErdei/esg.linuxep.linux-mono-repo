@@ -6,11 +6,9 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #include "OsqueryProcessor.h"
 #include "Logger.h"
+#include "IOsqueryClient.h"
 #include <livequery/ResponseData.h>
 #include <livequery/ResponseStatus.h>
-#include <extensions/interface.h>
-#include <osquery/flags.h>
-#include <osquery/flagalias.h>
 #include <thrift/transport/TTransportException.h>
 #include <iostream>
 #include <unordered_set>
@@ -70,40 +68,19 @@ namespace
     }
 }
 
-namespace osquery{
-
-    FLAG(bool, decorations_top_level, false, "test");
-    std::unique_ptr<osquery::ExtensionManagerAPI> makeClient(std::string socket)
-    {
-        for( int i = 0; i<5; i++)
-        {
-            try{
-                return std::make_unique<osquery::ExtensionManagerClient>(socket, 10000);
-            }catch(apache::thrift::transport::TTransportException & ex)
-            {
-                LOGINFO("Connection to osquery failed: " << ex.what());
-                std::this_thread::sleep_for(std::chrono::milliseconds(200));
-            }
-        }
-        throw  osqueryclient::FailedToStablishConnectionException("Could not connect to osquery after 1 second");
-    }
-}
-
-
 namespace osqueryclient
 {
 
-    OsqueryProcessor::OsqueryProcessor(const std::string &socketPath) : m_socketPath(socketPath) {
-
-    }
-
+    OsqueryProcessor::OsqueryProcessor(std::string socketPath) : m_socketPath(std::move(socketPath))
+    {}
 
     livequery::QueryResponse OsqueryProcessor::query(const std::string & query)
     {
         try
         {
             osquery::QueryData queryData;
-            auto client = osquery::makeClient(m_socketPath);
+            auto client = osqueryclient::factory().create();
+            client->connect(m_socketPath);
 
             auto osqueryStatus = client->query(query, queryData);
             if ( !osqueryStatus.ok())

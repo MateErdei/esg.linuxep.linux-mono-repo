@@ -157,7 +157,6 @@ public:
 TEST_F(TestOSQueryProcessor, VerifyOsqueryCanBeStarted) // NOLINT
 {
     if( skipTest()) return;
-    ASSERT_TRUE(false);
     m_osqueryProcess->kill();
     EXPECT_EQ(m_osqueryProcess->output(), "");
 }
