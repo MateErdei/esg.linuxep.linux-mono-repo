@@ -24,6 +24,8 @@ namespace scan_messages
 #endif /* AUTO_FD_IMPLICIT_INT */
 
         void reset(int fd=-1);
+        void close();
+        
         [[nodiscard]] int get() const { return m_fd; }
         [[nodiscard]] int fd() const { return m_fd; }
 
