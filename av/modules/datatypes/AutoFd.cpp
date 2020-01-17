@@ -8,13 +8,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <unistd.h>
 
-void scan_messages::AutoFd::reset(int fd)
+using namespace datatypes;
+
+void AutoFd::reset(int fd)
 {
     close();
     m_fd = fd;
 }
 
-void scan_messages::AutoFd::close()
+void AutoFd::close()
 {
     if (m_fd >= 0)
     {
@@ -23,18 +25,18 @@ void scan_messages::AutoFd::close()
     m_fd = -1;
 }
 
-scan_messages::AutoFd::AutoFd(int fd)
+AutoFd::AutoFd(int fd)
         : m_fd(fd)
 {
 }
 
-scan_messages::AutoFd::AutoFd(scan_messages::AutoFd&& other) noexcept
+AutoFd::AutoFd(AutoFd&& other) noexcept
     : m_fd(other.m_fd)
 {
     other.m_fd = -1;
 }
 
-scan_messages::AutoFd& scan_messages::AutoFd::operator=(scan_messages::AutoFd&& other) noexcept
+AutoFd& AutoFd::operator=(AutoFd&& other) noexcept
 {
     int tempfd = other.m_fd;
     other.m_fd = m_fd;
@@ -42,12 +44,12 @@ scan_messages::AutoFd& scan_messages::AutoFd::operator=(scan_messages::AutoFd&& 
     return *this;
 }
 
-scan_messages::AutoFd::~AutoFd()
+AutoFd::~AutoFd()
 {
     close();
 }
 
-int scan_messages::AutoFd::release()
+int AutoFd::release()
 {
     int fd = m_fd;
     m_fd = -1;

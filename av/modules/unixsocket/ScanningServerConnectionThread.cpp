@@ -89,7 +89,7 @@ static int recv_fd(int socket)
 
 void unixsocket::ScanningServerConnectionThread::run()
 {
-    scan_messages::AutoFd socket_fd(std::move(m_fd));
+    datatypes::AutoFd socket_fd(std::move(m_fd));
     PRINT("Got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
@@ -140,7 +140,7 @@ void unixsocket::ScanningServerConnectionThread::run()
         }
         PRINT("Managed to get file descriptor: " << file_fd);
 
-        scan_messages::AutoFd file_fd_manager(file_fd);
+        datatypes::AutoFd file_fd_manager(file_fd);
 
         auto result = scan(file_fd_manager, pathname);
         file_fd_manager.reset();
@@ -155,7 +155,7 @@ void unixsocket::ScanningServerConnectionThread::run()
 }
 
 scan_messages::ScanResponse
-unixsocket::ScanningServerConnectionThread::scan(scan_messages::AutoFd& fd, const std::string& file_path)
+unixsocket::ScanningServerConnectionThread::scan(datatypes::AutoFd& fd, const std::string& file_path)
 {
     PRINT("Attempting scan of "<< file_path);
     char buffer[4];

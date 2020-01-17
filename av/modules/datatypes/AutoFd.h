@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-namespace scan_messages
+namespace datatypes
 {
     class AutoFd
     {
@@ -25,7 +25,7 @@ namespace scan_messages
 
         void reset(int fd=-1);
         void close();
-        
+
         [[nodiscard]] int get() const { return m_fd; }
         [[nodiscard]] int fd() const { return m_fd; }
 

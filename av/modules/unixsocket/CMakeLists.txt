@@ -7,6 +7,9 @@ add_library(unixsocket SHARED
         ScanningServerConnectionThread.cpp
         ScanningServerConnectionThread.h Print.h SocketUtils.cpp SocketUtils.h)
 
-target_link_libraries(unixsocket  PUBLIC scanmessages ${pluginapilib})
+target_link_libraries(unixsocket  PUBLIC
+        scanmessages
+        datatypes
+        ${pluginapilib})
 
 target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)

@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #define AUTO_FD_IMPLICIT_INT
-#include <scan_messages/AutoFd.h>
+#include <datatypes/AutoFd.h>
 #include <scan_messages/ScanResponse.h>
 #include "Common/Threads/NotifyPipe.h"
 
@@ -28,9 +28,9 @@ namespace unixsocket
         void start();
     private:
         bool m_finished;
-        scan_messages::AutoFd m_fd;
+        datatypes::AutoFd m_fd;
         Common::Threads::NotifyPipe m_terminationPipe;
-        scan_messages::ScanResponse scan(scan_messages::AutoFd& fd, const std::string& file_path);
+        scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path);
     };
 }
 

@@ -6,9 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "AutoFd.h"
 #include "ScanRequest.capnp.h"
 #include "ClientScanRequest.h"
+
+#include "datatypes/AutoFd.h"
+
 #include <string>
 
 namespace scan_messages
@@ -36,7 +38,7 @@ namespace scan_messages
         void resetRequest(int fd, Reader& requestMessage);
 
     private:
-        AutoFd m_fd;
+        datatypes::AutoFd m_fd;
         void close();
         void setRequestFromMessage(Reader& requestMessage);
     };

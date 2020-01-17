@@ -76,12 +76,12 @@ void send_fd(int socket, int fd)  // send fd by socket
 
 scan_messages::ScanResponse unixsocket::ScanningClientSocket::scan(int file_fd, const std::string& filename)
 {
-    scan_messages::AutoFd fd(file_fd);
+    datatypes::AutoFd fd(file_fd);
     return scan(fd, filename);
 }
 
 scan_messages::ScanResponse
-unixsocket::ScanningClientSocket::scan(scan_messages::AutoFd& fd, const std::string& file_path)
+unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const std::string& file_path)
 {
     assert(m_socket_fd >= 0);
     scan_messages::ClientScanRequest request;

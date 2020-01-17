@@ -1,3 +1,4 @@
+add_subdirectory(datatypes)
 add_subdirectory(filewalker)
 add_subdirectory(lockedqueue)
 add_subdirectory(pluginimpl)
