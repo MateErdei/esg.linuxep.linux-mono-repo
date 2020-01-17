@@ -138,7 +138,7 @@
     </Features>
     <Features>
       <Label>
-        <Token>LiveQuery</Token>
+        <Token>LIVEQUERY</Token>
         <Language lang="en">
           <ShortDesc>Live Query</ShortDesc>
           <LongDesc>Live Query</LongDesc>
