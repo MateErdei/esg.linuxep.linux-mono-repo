@@ -158,7 +158,8 @@ TEST_F(TestOSQueryProcessor, VerifyOsqueryCanBeStarted) // NOLINT
 {
     if( skipTest()) return;
     m_osqueryProcess->kill();
-    EXPECT_EQ(m_osqueryProcess->output(), "");
+    std::string output = m_osqueryProcess->output();
+    EXPECT_EQ(output, "") << output;
 }
 
 

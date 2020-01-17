@@ -15,6 +15,15 @@ add_dependencies(TestOsqueryProcessor copy_libs)
 
 SET_TARGET_PROPERTIES(TestOsqueryProcessor
         PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64:$ORIGIN/../files/plugins/edr/lib64"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs:${INPUT}/pluginapi/lib64/"
         )
+
+
+install(FILES ${INPUT}/pluginapi/tests/lib64/libsharedtesthelpers.so
+        DESTINATION ../componenttests
+        PERMISSIONS OWNER_READ OWNER_EXECUTE
+        )
+
+install(TARGETS TestOsqueryProcessor
+        DESTINATION ../componenttests)
