@@ -11,8 +11,6 @@ target_link_libraries(avscanner PRIVATE
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         )
 
-
-
 SET_TARGET_PROPERTIES( avscanner
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
@@ -24,6 +22,8 @@ install(TARGETS avscanner
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE  GROUP_READ GROUP_EXECUTE
         )
 
+
+## Create a duplicate for scheduled scans - (Add capability to read all files at install time)
 ADD_CUSTOM_COMMAND(
         TARGET avscanner
         POST_BUILD
