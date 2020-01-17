@@ -26,9 +26,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
 unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket_path)
-    : m_socket_fd(-1)
 {
-    m_socket_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    m_socket_fd.reset(socket(AF_UNIX, SOCK_STREAM, 0));
     assert(m_socket_fd >= 0);
 
     const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
@@ -42,16 +41,7 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket
     int ret = connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
     if (ret != 0)
     {
-        ::close(m_socket_fd);
         handle_error("Failed to connect to unix socket");
-    }
-}
-
-unixsocket::ScanningClientSocket::~ScanningClientSocket()
-{
-    if (m_socket_fd >= 0)
-    {
-        ::close(m_socket_fd);
     }
 }
 

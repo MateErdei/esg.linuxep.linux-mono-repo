@@ -6,6 +6,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#define AUTO_FD_IMPLICIT_INT
+#include "scan_messages/AutoFd.h"
+
 #include <string>
 
 namespace unixsocket
@@ -20,7 +23,7 @@ namespace unixsocket
         void run();
 
     private:
-        int m_socket_fd;
+        scan_messages::AutoFd m_socket_fd;
         bool handleConnection(int fd);
 
     };

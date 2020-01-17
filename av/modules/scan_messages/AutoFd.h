@@ -12,6 +12,11 @@ namespace scan_messages
     {
     public:
         explicit AutoFd(int fd=-1);
+        AutoFd(const AutoFd&) = delete;
+        AutoFd& operator=(const AutoFd&) = delete;
+        AutoFd(AutoFd&&) noexcept;
+        AutoFd& operator=(AutoFd&&) noexcept;
+
         ~AutoFd();
 
 #ifdef AUTO_FD_IMPLICIT_INT

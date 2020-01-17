@@ -89,8 +89,8 @@ static int recv_fd(int socket)
 
 void unixsocket::ScanningServerConnectionThread::run()
 {
-    int socket_fd = m_fd;
-    PRINT("Got connection " << socket_fd);
+    scan_messages::AutoFd socket_fd(std::move(m_fd));
+    PRINT("Got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
@@ -101,7 +101,6 @@ void unixsocket::ScanningServerConnectionThread::run()
         if (length < 0)
         {
             PRINT("Aborting connection: failed to read length");
-            ::close(socket_fd);
             return;
         }
 
@@ -118,7 +117,6 @@ void unixsocket::ScanningServerConnectionThread::run()
         if (bytes_read != length)
         {
             PRINT("Aborting connection: failed to read capn proto");
-            ::close(socket_fd);
             return;
         }
 
@@ -138,7 +136,6 @@ void unixsocket::ScanningServerConnectionThread::run()
         if (file_fd < 0)
         {
             PRINT("Aborting connection: failed to read fd");
-            ::close(socket_fd);
             return;
         }
         PRINT("Managed to get file descriptor: " << file_fd);

@@ -37,7 +37,7 @@ static void throwIfBadFd(int fd, const std::string& message)
 
 unixsocket::ScanningServerSocket::ScanningServerSocket(const std::string& path)
 {
-    m_socket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
+    m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");
 
 
@@ -73,8 +73,7 @@ void unixsocket::ScanningServerSocket::run()
         }
     }
 
-    close(m_socket_fd);
-
+    m_socket_fd.reset();
 }
 
 bool unixsocket::ScanningServerSocket::handleConnection(int fd)
