@@ -68,5 +68,9 @@ ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_I
 setcap cap_sys_chroot=ep "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/scanning_service"
 setcap cap_dac_read_search=ep "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/scheduled_file_walker"
 
+chmod 0755 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/avscanner"
+
+ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/avscanner" /usr/local/bin/avscanner
+
 #After install start the plugin
 "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"

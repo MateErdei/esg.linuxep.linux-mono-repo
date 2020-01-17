@@ -4,3 +4,5 @@ add_library(datatypes SHARED
         AutoFd.h
         )
 
+install(TARGETS datatypes
+        LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

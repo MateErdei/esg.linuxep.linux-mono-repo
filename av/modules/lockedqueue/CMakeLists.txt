@@ -6,3 +6,6 @@ add_library(lockedqueue SHARED
 
 target_include_directories(lockedqueue PUBLIC ${pluginapiinclude})
 target_link_libraries(lockedqueue ${pluginapilib})
+
+install(TARGETS lockedqueue
+        LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

@@ -13,3 +13,6 @@ target_link_libraries(unixsocket  PUBLIC
         ${pluginapilib})
 
 target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
+
+install(TARGETS unixsocket
+        LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

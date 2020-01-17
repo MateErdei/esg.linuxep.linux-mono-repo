@@ -21,3 +21,7 @@ target_include_directories(scanmessages PUBLIC
         )
 
 target_link_libraries(scanmessages datatypes)
+
+
+install(TARGETS scanmessages
+        LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
