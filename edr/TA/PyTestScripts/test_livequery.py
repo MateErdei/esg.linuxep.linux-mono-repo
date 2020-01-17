@@ -32,6 +32,10 @@ def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin
     columnMetaDataPos = file_content.find("columnMetaData")
     columnDataPos = file_content.find("columnData")
     # demonstrate expected order of the main key values
-    assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
+    try:
+        assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
+    except:
+        print(file_content)
+        raise
 
 
