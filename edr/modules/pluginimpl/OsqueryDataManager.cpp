@@ -33,17 +33,20 @@ void OsqueryDataManager::rotateOsqueryLogs()
         while (iterator > 0)
         {
             std::string oldExtension = "." + std::to_string(iterator);
-            std::string fileToIncrement = Common::FileSystem::join(logPath,oldExtension);
+            std::string fileToIncrement = logPath + oldExtension;
 
             if (ifileSystem->isFile(fileToIncrement))
             {
                 std::string newExtension = "." + std::to_string(iterator + 1);
-                std::string fileDestination = Common::FileSystem::join(logPath,newExtension);
+                std::string fileDestination = logPath + newExtension;
                 ifileSystem->moveFile(fileToIncrement,fileDestination);
             }
 
             iterator -= 1;
         }
+        
+        ifileSystem->moveFile(logPath,logPath + ".1");
+
     }
 }
 
