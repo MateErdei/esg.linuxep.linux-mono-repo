@@ -42,7 +42,7 @@ void OsqueryDataManager::removeOldWarningFiles()
     auto* ifileSystem = Common::FileSystem::fileSystem();
     std::vector<std::string> files = ifileSystem->listFiles(Plugin::osQueryLogPath());
     std::vector<std::string> warningFiles;
-    std::vector<std::string> InfoFiles;
+    std::vector<std::string> infoFiles;
     for (const auto file :files)
     {
         std::string filename = Common::FileSystem::basename(file);
@@ -52,19 +52,17 @@ void OsqueryDataManager::removeOldWarningFiles()
         }
         else if (filename.find("osqueryd.INFO.") != std::string::npos)
         {
-            InfoFiles.push_back(file);
+            infoFiles.push_back(file);
         }
     }
 
-    if (InfoFiles.size() > 10)
+    if (infoFiles.size() > 10)
     {
-        std::sort(InfoFiles.begin(),InfoFiles.end());
-        int iterator = InfoFiles.size();
-        while(iterator > 10)
+        std::sort(infoFiles.begin(), infoFiles.end());
+
+        for (int i = infoFiles.size() - 10; i > 0; i--)
         {
-            ifileSystem->removeFile(InfoFiles.back());
-            InfoFiles.pop_back();
-            iterator = iterator - 1;
+            ifileSystem->removeFile(infoFiles[i-1]);
         }
         LOGINFO("Removed old osquery INFO files");
     }
@@ -72,12 +70,9 @@ void OsqueryDataManager::removeOldWarningFiles()
     if (warningFiles.size() > 10)
     {
         std::sort(warningFiles.begin(),warningFiles.end());
-        int iterator = warningFiles.size();
-        while(iterator > 10)
+        for (int i = warningFiles.size()-10; i > 0; i--)
         {
-            ifileSystem->removeFile(warningFiles.back());
-            warningFiles.pop_back();
-            iterator = iterator - 1;
+            ifileSystem->removeFile(warningFiles[i-1]);
         }
         LOGINFO("Removed old osquery WARNING files");
     }

@@ -107,10 +107,10 @@ def test_edr_plugin_removes_old_warning_files_when_threshold_reached(sspl_mock, 
             preserved_files.append(path)
 
     assert len(preserved_files) == 10
-    assert os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1001") in preserved_files
+    assert os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1012") in preserved_files
     removed_files = list(set(warning_paths) - (set(preserved_files)))
     assert len(removed_files) == 2
-    assert os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1012") in removed_files
+    assert os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1001") in removed_files
 
 def test_edr_plugin_removes_old_info_files_when_threshold_reached(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
@@ -148,7 +148,7 @@ def test_edr_plugin_removes_old_info_files_when_threshold_reached(sspl_mock, edr
             preserved_files.append(path)
 
     assert len(preserved_files) == 10
-    assert os.path.join(log_path, "osqueryd.INFO.20200117-042121.1001") in preserved_files
+    assert os.path.join(log_path, "osqueryd.INFO.20200117-042121.1012") in preserved_files
     removed_files = list(set(info_paths) - (set(preserved_files)))
     assert len(removed_files) == 2
-    assert os.path.join(log_path, "osqueryd.INFO.20200117-042121.1012") in removed_files
+    assert os.path.join(log_path, "osqueryd.INFO.20200117-042121.1001") in removed_files
