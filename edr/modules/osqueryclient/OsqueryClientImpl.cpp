@@ -14,7 +14,7 @@ namespace osquery
 
     std::unique_ptr<osquery::ExtensionManagerAPI> makeClient(const std::string& socket)
     {
-        for( int i = 0; i<5; i++)
+        for( int i = 0; i<15; i++)
         {
             try{
                 return std::make_unique<osquery::ExtensionManagerClient>(socket, 10000);
@@ -24,7 +24,7 @@ namespace osquery
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
         }
-        throw  osqueryclient::FailedToStablishConnectionException("Could not connect to osquery after 1 second");
+        throw  osqueryclient::FailedToStablishConnectionException("Could not connect to osquery after 3 seconds");
     }
 }
 
