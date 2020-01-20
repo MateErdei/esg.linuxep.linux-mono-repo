@@ -1,6 +1,18 @@
 import os
 import subprocess
 
+def detect_failure(func):
+    def wrapper_function(sspl_mock, edr_plugin_instance):
+        try:
+            v = func(sspl_mock, edr_plugin_instance)
+            return v
+        except:
+            edr_plugin_instance.set_failed()
+            raise
+    return wrapper_function
+
+
+@detect_failure
 def test_google_component_tests(sspl_mock, edr_plugin_instance):
     proc_path = os.path.join(sspl_mock.google_test_dir, "TestOsqueryProcessor")
     copyenv = os.environ.copy()
@@ -13,7 +25,7 @@ def test_google_component_tests(sspl_mock, edr_plugin_instance):
     if popen.returncode != 0:
         raise AssertionError("Google tests failed. Also providing the stderr: \n{}".format(results[1].decode))
 
-
+@detect_failure
 def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     agent = sspl_mock.management
@@ -35,6 +47,7 @@ def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin
     try:
         assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
     except:
+        print("Test live query failed.")
         print(file_content)
         raise
 
