@@ -56,7 +56,7 @@ endif()
 
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
-set(FEATURE_LIST "LiveQuery")
+set(FEATURE_LIST "LIVEQUERY")
 
 # Check process children and give detail for each leak
 ## --trace-children=yes
