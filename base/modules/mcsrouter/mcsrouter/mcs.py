@@ -146,6 +146,8 @@ class CommandCheckInterval:
         self.set(retry_delay)
         LOGGER.info("[backoff] waiting up to %fs after %d failures",
                     delay_upper_bound, error_count)
+        if delay_upper_bound > 3600:
+            LOGGER.error("Connection with Central broken for over an hour")
 
 
 class MCS:
@@ -549,7 +551,7 @@ class MCS:
                             LOGGER.error("Failed to send responses: {}".format(str(exception)))
 
                 except socket.error:
-                    LOGGER.exception("Got socket error")
+                    LOGGER.warning("Got socket error")
                     error_count += 1
                     self.__m_command_check_interval.set_on_error(error_count)
                 except mcs_connection.MCSHttpUnauthorizedException as exception:
