@@ -46,7 +46,7 @@ namespace Plugin
         void processQuery(const std::string & query, const std::string & correlationId);
         void setUpOsqueryMonitor();
         void stopOsquery();
-        void cleanAndSetUp();
+        void cleanUpOldOsqueryFiles();
         void databasePurge();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;

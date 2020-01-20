@@ -11,7 +11,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 class OsqueryDataManager
 {
 public:
-    void rotateOsqueryLogs();
+    void CleanUpOsqueryLogs();
     void removeOldWarningFiles();
     void rotateFiles(std::string path, int limit);
 

@@ -12,7 +12,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 
 
-void OsqueryDataManager::rotateOsqueryLogs()
+void OsqueryDataManager::CleanUpOsqueryLogs()
 {
     std::string logPath = Plugin::osQueryResultsLogPath();
     auto* ifileSystem = Common::FileSystem::fileSystem();
@@ -46,11 +46,11 @@ void OsqueryDataManager::removeOldWarningFiles()
     for (const auto file :files)
     {
         std::string filename = Common::FileSystem::basename(file);
-        if ( ! (filename.find("osqueryd.WARNING.") == std::string::npos) )
+        if (filename.find("osqueryd.WARNING.") != std::string::npos)
         {
             warningFiles.push_back(file);
         }
-        else if( ! (filename.find("osqueryd.INFO.") == std::string::npos) )
+        else if (filename.find("osqueryd.INFO.") != std::string::npos)
         {
             InfoFiles.push_back(file);
         }

@@ -1,6 +1,7 @@
 
 SophosAddTest(TestPlugin
-        TestPlugin.cpp
+        TestQueueTask.cpp
+        TestOsqueryDataManager.cpp
         TestPubSub.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt

@@ -80,7 +80,7 @@ namespace Plugin
     void PluginAdapter::mainLoop()
     {
         LOGINFO("Entering the main loop");
-        cleanAndSetUp();
+        cleanUpOldOsqueryFiles();
         setUpOsqueryMonitor();
 
         std::unique_ptr<WaitUpTo> m_delayedRestart;
@@ -89,7 +89,7 @@ namespace Plugin
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
-                cleanAndSetUp();
+                cleanUpOldOsqueryFiles();
             }
             else
             {
@@ -139,10 +139,10 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::cleanAndSetUp()
+    void PluginAdapter::cleanUpOldOsqueryFiles()
     {
         databasePurge();
-        m_DataManager.rotateOsqueryLogs();
+        m_DataManager.CleanUpOsqueryLogs();
     }
 
     void PluginAdapter::databasePurge()
