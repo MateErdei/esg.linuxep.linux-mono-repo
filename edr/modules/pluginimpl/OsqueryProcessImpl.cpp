@@ -12,6 +12,8 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include <modules/Proc/ProcUtilities.h>
 
 #include <iterator>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 
 namespace
@@ -88,8 +90,8 @@ namespace Plugin
         std::vector<std::string> arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
                                                "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
-        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
-        regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
+        prepareSystemBeforeStartingOSQuery();
+
         startProcess(osqueryPath, arguments);
         m_processMonitorPtr->waitUntilProcessEnds();
         LOGINFO("The osquery process finished");
@@ -202,6 +204,7 @@ namespace Plugin
                                          "--enable_extensions_watchdog=false",
                                          "--disable_extensions=false",
                                          "--disable_audit=false",
+                                         "--audit_persist=true",
                                          "--enable_syslog=true",
                                          "--audit_allow_config=true",
                                          "--audit_allow_process_events=true",
@@ -227,6 +230,31 @@ namespace Plugin
 
         fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
     }
+
+    void OsqueryProcessImpl::prepareSystemBeforeStartingOSQuery()
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
+
+        if (fileSystem->isFile(Plugin::edrConfigFilePath()))
+        {
+            try
+            {
+                boost::property_tree::ptree ptree;
+                boost::property_tree::read_ini(Plugin::edrConfigFilePath(), ptree);
+                m_disableAuditD = ptree.get<std::string>("disable_autitd");
+            }
+            catch (boost::property_tree::ptree_error& ex)
+            {
+                m_disableAuditD = "1"; // Default true
+            }
+        }
+
+        LOGINFO("disableAuditD flag set to " << m_disableAuditD );
+
+        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
+        regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
+    }
+
 
     void OsqueryProcessImpl::startProcess(const std::string& processPath, const std::vector<std::string>& arguments)
     {

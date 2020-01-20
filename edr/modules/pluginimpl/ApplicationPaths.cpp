@@ -69,3 +69,8 @@ std::string Plugin::osQueryDataBasePath()
 {
     return fromRelative("var/osquery.db");
 }
+
+std::string Plugin::edrConfigFilePath()
+{
+    return fromRelative("etc/plugin.conf");
+}

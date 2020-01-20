@@ -87,5 +87,25 @@ fi
 
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 
+# Create config file to manage if AuditD should be stopped by the plugin
+CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
+
+# only create config file on clean installation
+if [[ -f ${CONFIG_FILE} ]]
+    then
+    INSTALL_OPTIONS_FILE=${SOPHOS_INSTALL}/base/etc/install_options
+
+    # Default to disabling auditd
+    auditd_option="disable_autitd=1"
+    if grep -qF "--disable-autitd" "$INSTALL_OPTIONS_FILE"
+    then
+        auditd_option="disable_autitd=1"
+    elif grep -qF "--do-not-disable-autitd" "$INSTALL_OPTIONS_FILE"
+    then
+        auditd_option="disable_autitd=0"
+    fi
+    cat $auditd_option >> $CONFIG_FILE
+fi
+
 #After install start the plugin
 "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"

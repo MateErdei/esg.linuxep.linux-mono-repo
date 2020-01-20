@@ -24,11 +24,12 @@ namespace Plugin
     private:
         void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath);
         void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
-
+        void prepareSystemBeforeStartingOSQuery();
         void startProcess(const std::string & processPath, const std::vector<std::string>& arguments);
 
         Common::Process::IProcessPtr m_processMonitorPtr;
         std::mutex m_processMonitorSharedResource;
+        std::string m_disableAuditD;
     };
 
     class ScopedReplaceOsqueryProcessCreator
