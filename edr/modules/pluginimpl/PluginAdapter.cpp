@@ -176,9 +176,7 @@ namespace Plugin
         }
         catch (Common::FileSystem::IFileSystemException& e)
         {
-            std::stringstream errorMessage;
-            errorMessage << "Database cannot be purged due to exception: " << e.what();
-            LOGERROR(errorMessage.str());
+            LOGERROR("Database cannot be purged due to exception: " << e.what());
         }
     }
 
