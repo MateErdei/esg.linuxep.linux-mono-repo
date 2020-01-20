@@ -38,6 +38,7 @@ void OsqueryDataManager::rotateOsqueryLogs()
 }
 void OsqueryDataManager::removeOldWarningFiles()
 {
+    LOGDEBUG("Checking for osquery INFO/WARNING files");
     auto* ifileSystem = Common::FileSystem::fileSystem();
     std::vector<std::string> files = ifileSystem->listFiles(Plugin::osQueryLogPath());
     std::vector<std::string> warningFiles;
@@ -65,6 +66,7 @@ void OsqueryDataManager::removeOldWarningFiles()
             InfoFiles.pop_back();
             iterator = iterator - 1;
         }
+        LOGINFO("Removed old osquery INFO files");
     }
 
     if (warningFiles.size() > 10)
@@ -77,6 +79,7 @@ void OsqueryDataManager::removeOldWarningFiles()
             warningFiles.pop_back();
             iterator = iterator - 1;
         }
+        LOGINFO("Removed old osquery WARNING files");
     }
 }
 
