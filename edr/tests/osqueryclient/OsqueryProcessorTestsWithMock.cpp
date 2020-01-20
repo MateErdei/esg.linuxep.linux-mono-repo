@@ -23,9 +23,7 @@ public:
 
     void setupMockClient()
     {
-        //m_mockClientPtr.reset(new MockIOsqueryClient());
         m_mockClientPtr = std::make_unique<MockIOsqueryClient>();
-
         osqueryclient::factory().replace([this]() {return std::move(m_mockClientPtr);});
     }
 
