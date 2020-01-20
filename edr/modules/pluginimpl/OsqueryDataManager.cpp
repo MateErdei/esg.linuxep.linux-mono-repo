@@ -29,24 +29,30 @@ void OsqueryDataManager::rotateOsqueryLogs()
             ifileSystem->removeFile(fileToDelete);
         }
 
-        int iterator = 9;
-        while (iterator > 0)
-        {
-            std::string oldExtension = "." + std::to_string(iterator);
-            std::string fileToIncrement = logPath + oldExtension;
-
-            if (ifileSystem->isFile(fileToIncrement))
-            {
-                std::string newExtension = "." + std::to_string(iterator + 1);
-                std::string fileDestination = logPath + newExtension;
-                ifileSystem->moveFile(fileToIncrement,fileDestination);
-            }
-
-            iterator -= 1;
-        }
+        rotateFiles(logPath, 9);
 
         ifileSystem->moveFile(logPath,logPath + ".1");
 
+    }
+}
+
+void OsqueryDataManager::rotateFiles(std::string path, int limit)
+{
+    auto* ifileSystem = Common::FileSystem::fileSystem();
+    int iterator = limit;
+    while (iterator > 0)
+    {
+        std::string oldExtension = "." + std::to_string(iterator);
+        std::string fileToIncrement = path + oldExtension;
+
+        if (ifileSystem->isFile(fileToIncrement))
+        {
+            std::string newExtension = "." + std::to_string(iterator + 1);
+            std::string fileDestination = path + newExtension;
+            ifileSystem->moveFile(fileToIncrement,fileDestination);
+        }
+
+        iterator -= 1;
     }
 }
 
