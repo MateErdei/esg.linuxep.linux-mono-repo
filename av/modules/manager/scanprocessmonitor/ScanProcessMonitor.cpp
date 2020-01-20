@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanProcessMonitor.h"
+#include "Logger.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Process/IProcess.h"
@@ -15,12 +16,12 @@ plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(std:
     if (m_scanner_path.empty())
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        m_scanner_path = appConfig.getData("SCANNER_PATH");
+        m_scanner_path = appConfig.getData("SCANNER_PATH"); // throws exception if SCANNER_PATH not specified
     }
 
     if (m_scanner_path.empty())
     {
-        throw std::runtime_error("No SCANNER_PATH specified in configuration");
+        throw std::runtime_error("SCANNER_PATH is empty in arguments/configuration");
     }
 }
 
@@ -38,6 +39,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
     while (!terminate)
     {
+        LOGINFO("Starting "<< m_scanner_path);
         process->exec(m_scanner_path, {});
 
         // TODO wait for both notify pipes

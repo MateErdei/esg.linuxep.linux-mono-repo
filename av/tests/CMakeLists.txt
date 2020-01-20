@@ -8,5 +8,6 @@ add_custom_target(echogTest
         )
 add_subdirectory(FDTransfer)
 add_subdirectory(FileWalkerTest)
+add_subdirectory(manager)
 add_subdirectory(plugin)
 add_subdirectory(scan_messages)
