@@ -12,6 +12,7 @@ class OsqueryDataManager
 {
 public:
     void rotateOsqueryLogs();
+    void removeOldWarningFiles();
     void rotateFiles(std::string path, int limit);
 
 private:

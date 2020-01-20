@@ -70,3 +70,83 @@ def test_edr_plugin_rotates_logfiles_when_threshold_reached(sspl_mock, edr_plugi
 
     assert actual_files == expected_files
 
+
+def test_edr_plugin_removes_old_warning_files_when_threshold_reached(sspl_mock, edr_plugin_instance):
+    edr_plugin_instance.start_edr()
+    i = 10
+    time.sleep(3)
+
+    warning_paths = []
+    log_path = edr_plugin_instance.log_path()
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1001"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1002"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1003"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1004"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1005"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1006"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1007"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1008"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1009"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1010"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1011"))
+    warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1012"))
+
+    for path in warning_paths:
+        with open(path, 'a')as file:
+            file.write("blah")
+
+    edr_plugin_instance.stop_edr()
+    edr_plugin_instance.start_edr()
+
+    time.sleep(5)
+
+    paths_to_remove = []
+    end_paths = os.listdir(log_path)
+    for path in warning_paths:
+        if os.path.basename(path) in end_paths:
+            print(path)
+            paths_to_remove.append(path)
+
+    assert len(paths_to_remove) == 10
+    warning_paths = list(set(warning_paths) - (set(paths_to_remove)))
+    assert len(warning_paths) == 2
+
+def test_edr_plugin_removes_old_info_files_when_threshold_reached(sspl_mock, edr_plugin_instance):
+    edr_plugin_instance.start_edr()
+    i = 10
+    time.sleep(3)
+
+    info_paths = []
+    log_path = edr_plugin_instance.log_path()
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1001"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1002"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1003"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1004"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1005"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1006"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1007"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1008"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1009"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1010"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1011"))
+    info_paths.append(os.path.join(log_path, "osqueryd.INFO.20200117-042121.1012"))
+
+    for path in info_paths:
+        with open(path, 'a')as file:
+            file.write("blah")
+
+    edr_plugin_instance.stop_edr()
+    edr_plugin_instance.start_edr()
+
+    time.sleep(5)
+
+    paths_to_remove = []
+    end_paths = os.listdir(log_path)
+    for path in info_paths:
+        if os.path.basename(path) in end_paths:
+            print(path)
+            paths_to_remove.append(path)
+
+    assert len(paths_to_remove) == 10
+    info_paths = list(set(info_paths) - (set(paths_to_remove)))
+    assert len(info_paths) == 2

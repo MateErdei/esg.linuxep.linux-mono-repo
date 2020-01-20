@@ -32,7 +32,51 @@ void OsqueryDataManager::rotateOsqueryLogs()
         rotateFiles(logPath, 9);
 
         ifileSystem->moveFile(logPath,logPath + ".1");
+    }
+    removeOldWarningFiles();
 
+}
+void OsqueryDataManager::removeOldWarningFiles()
+{
+    auto* ifileSystem = Common::FileSystem::fileSystem();
+    std::vector<std::string> files = ifileSystem->listFiles(Plugin::osQueryLogPath());
+    std::vector<std::string> warningFiles;
+    std::vector<std::string> InfoFiles;
+    for (const auto file :files)
+    {
+        std::string filename = Common::FileSystem::basename(file);
+        if ( ! (filename.find("osqueryd.WARNING.") == std::string::npos) )
+        {
+            warningFiles.push_back(file);
+        }
+        else if( ! (filename.find("osqueryd.INFO.") == std::string::npos) )
+        {
+            InfoFiles.push_back(file);
+        }
+    }
+
+    if (InfoFiles.size() > 10)
+    {
+        std::sort(InfoFiles.begin(),InfoFiles.end());
+        int iterator = InfoFiles.size();
+        while(iterator > 10)
+        {
+            ifileSystem->removeFile(InfoFiles.back());
+            InfoFiles.pop_back();
+            iterator = iterator - 1;
+        }
+    }
+
+    if (warningFiles.size() > 10)
+    {
+        std::sort(warningFiles.begin(),warningFiles.end());
+        int iterator = warningFiles.size();
+        while(iterator > 10)
+        {
+            ifileSystem->removeFile(warningFiles.back());
+            warningFiles.pop_back();
+            iterator = iterator - 1;
+        }
     }
 }
 
