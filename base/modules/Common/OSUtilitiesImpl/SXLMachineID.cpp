@@ -33,7 +33,7 @@ namespace Common
             return std::string();
         }
 
-        void SXLMachineID::createMachineID()
+        std::string SXLMachineID::generateMachineID()
         {
             std::stringstream content;
             content << "sspl-machineid";
@@ -43,7 +43,12 @@ namespace Common
             }
             std::string md5hash = Common::sslimpl::md5(content.str());
             std::string re_hash = Common::sslimpl::md5(md5hash);
-            Common::FileSystem::fileSystem()->writeFile(machineIDPath(), re_hash);
+            return re_hash;
+        }
+
+        void SXLMachineID::createMachineIDFile()
+        {
+            Common::FileSystem::fileSystem()->writeFile(machineIDPath(), generateMachineID());
             Common::FileSystem::filePermissions()->chmod(machineIDPath(), S_IRUSR | S_IWUSR | S_IRGRP); // NOLINT
             Common::FileSystem::filePermissions()->chown(machineIDPath(), "root", sophos::group());
         }
@@ -52,17 +57,6 @@ namespace Common
         {
             return Common::FileSystem::join(
                 Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), "base/etc/machine_id.txt");
-        }
-
-        std::string SXLMachineID::fetchMachineIdAndCreateIfNecessary()
-        {
-            std::string machineID = getMachineID();
-            if (machineID.empty())
-            {
-                createMachineID();
-                machineID = getMachineID();
-            }
-            return machineID;
         }
 
         // It is meant to be used in the installer, hence, it does not use log but standard error
@@ -108,7 +102,7 @@ namespace Common
             {
                 if (sxlMachineID.getMachineID() == "")
                 {
-                    sxlMachineID.createMachineID();
+                    sxlMachineID.createMachineIDFile();
                 }
             }
             catch (std::exception& ex)

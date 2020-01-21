@@ -20,15 +20,16 @@ namespace Common
              */
             std::string getMachineID();
             /**
-             * Create a machine id that is composed by: a fixed prefix: sspl-machineid + list of macs.
-             * The calculated md5 of the resulted string.
+             * Write to file machine ID
              */
-            void createMachineID();
+            void createMachineIDFile();
 
             /**
-             * Equivalent to getMachineId and if empty, call created and getMachineId again.
+             * Create a machine id that is composed by: a fixed prefix: sspl-machineid + list of macs.
+             * The calculated md5 of the resulted string.
+             * @return machine id string
              */
-            std::string fetchMachineIdAndCreateIfNecessary();
+            std::string generateMachineID();
 
         private:
             std::string machineIDPath() const;

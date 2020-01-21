@@ -14,6 +14,7 @@ Copyright 2018-2019 Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
@@ -61,7 +62,15 @@ namespace UpdateSchedulerImpl
         m_pendingUpdate(false)
     {
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
-        m_machineID = sxlMachineID.fetchMachineIdAndCreateIfNecessary();
+        try
+        {
+            m_machineID = sxlMachineID.getMachineID();
+        }
+        catch (Common::FileSystem::IFileSystemException& e)
+        {
+            m_machineID = sxlMachineID.generateMachineID();
+            LOGERROR(e.what());
+        }
     }
 
     void UpdateSchedulerProcessor::mainLoop()
