@@ -1,17 +1,21 @@
 /******************************************************************************************************
 
-Copyright 2018-2019 Sophos Limited.  All rights reserved.
+Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #pragma once
 
+#include "IOsqueryProcess.h"
 #include "PluginCallback.h"
 #include "QueueTask.h"
 #include <livequery/IQueryProcessor.h>
 #include <livequery/IResponseDispatcher.h>
 
 #include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/Process/IProcess.h>
+
+#include <future>
 
 namespace Plugin
 {
@@ -33,10 +37,21 @@ namespace Plugin
             std::unique_ptr<livequery::IResponseDispatcher> responseDispatcher);
 
         void mainLoop();
+        ~PluginAdapter();
 
     private:
 
         void processQuery(const std::string & query, const std::string & correlationId);
-        void processPolicy(const std::string& policyXml);
+        void setUpOsqueryMonitor();
+        void stopOsquery();
+        void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath);
+        void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
+        bool checkIfServiceActive(const std::string& serviceName);
+        void stopSystemService(const std::string& serviceName);
+        void prepareSystemForPlugin();
+
+        std::future<void> m_monitor;
+        std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
+        unsigned int m_timesOsqueryProcessFailedToStart;
     };
 } // namespace Plugin
