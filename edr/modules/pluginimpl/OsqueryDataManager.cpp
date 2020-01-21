@@ -56,7 +56,7 @@ void OsqueryDataManager::removeOldWarningFiles()
         }
     }
 
-    if ((int)infoFiles.size() > FILE_LIMIT)
+    if (infoFiles.size() > FILE_LIMIT)
     {
         std::sort(infoFiles.begin(), infoFiles.end());
 
@@ -68,7 +68,7 @@ void OsqueryDataManager::removeOldWarningFiles()
         }
     }
 
-    if ((int)warningFiles.size() > FILE_LIMIT)
+    if (warningFiles.size() > FILE_LIMIT)
     {
         std::sort(warningFiles.begin(),warningFiles.end());
 

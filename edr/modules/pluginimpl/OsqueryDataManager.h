@@ -16,8 +16,8 @@ public:
     void rotateFiles(std::string path, int limit);
 
 private:
-    const int MAX_LOGFILE_SIZE = 1024 * 1024;
-    const int FILE_LIMIT = 10;
+    const unsigned int MAX_LOGFILE_SIZE = 1024 * 1024;
+    const unsigned int FILE_LIMIT = 10;
 
 };
 
