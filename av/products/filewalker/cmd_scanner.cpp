@@ -13,7 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <fcntl.h>
 
-static void printout(unixsocket::ScanningClientSocket& socket, const fs::path& p)
+static void scan(unixsocket::ScanningClientSocket& socket, const sophos_filesystem::path& p)
 {
     PRINT("Scanning " << p);
     int file_fd = open(p.c_str(), O_RDONLY);
@@ -32,19 +32,34 @@ static void printout(unixsocket::ScanningClientSocket& socket, const fs::path& p
     }
 }
 
+namespace
+{
+    class CallbackImpl : public filewalker::IFileWalkCallbacks
+    {
+    public:
+        CallbackImpl(unixsocket::ScanningClientSocket& socket)
+                : m_socket(socket)
+        {}
+
+        void processFile(const sophos_filesystem::path& p)
+        {
+            scan(m_socket, p);
+        }
+
+    private:
+        unixsocket::ScanningClientSocket& m_socket;
+    };
+}
+
 int main(int argc, char* argv[])
 {
     const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
     unixsocket::ScanningClientSocket socket(path);
 
+    CallbackImpl callbacks(socket);
     for(int i=1; i < argc; i++)
     {
-        filewalker::FileWalker fw(
-                argv[i],
-                [&socket](auto p)
-                { printout(socket, p); }
-        );
-        fw.run();
+        filewalker::walk(argv[i], callbacks);
     }
 
     return 0;

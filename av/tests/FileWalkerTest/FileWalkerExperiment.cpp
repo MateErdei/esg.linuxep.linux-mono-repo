@@ -5,18 +5,25 @@
 #include "filewalker/FileWalker.h"
 #include <iostream>
 
-static void printout(const fs::path& p)
-{
-    std::cout << p << '\n';
+namespace fs = sophos_filesystem;
 
-}
+class CallbackImpl : public filewalker::IFileWalkCallbacks
+{
+public:
+    CallbackImpl() = default;
+    void processFile(const sophos_filesystem::path& p)
+    {
+        std::cout << p << '\n';
+    }
+
+};
 
 int main(int argc, char* argv[])
 {
+    CallbackImpl callbacks;
     for(int i=1; i < argc; i++)
     {
-        auto fw = filewalker::FileWalker(argv[i], printout);
-        fw.run();
+        filewalker::walk(argv[i], callbacks);
     }
 
     return 0;

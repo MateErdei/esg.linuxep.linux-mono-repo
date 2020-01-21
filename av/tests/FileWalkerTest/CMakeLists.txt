@@ -15,3 +15,13 @@ SET_TARGET_PROPERTIES( file_walker_experiment
         BUILD_RPATH "$ORIGIN"
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
+
+add_executable(TestFileWalkerBackTrackProtection
+        TestFileWalkerBackTrackProtection.cpp)
+target_include_directories(TestFileWalkerBackTrackProtection PRIVATE ${CMAKE_SOURCE_DIR}/modules)
+target_link_libraries(TestFileWalkerBackTrackProtection PRIVATE filewalker)
+SET_TARGET_PROPERTIES(TestFileWalkerBackTrackProtection
+        PROPERTIES
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        )
