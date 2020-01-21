@@ -5,4 +5,5 @@ sophos_add_library(filewalker SHARED
         IFileWalkCallbacks.h
         sophos_filesystem.h
         EXTRA_LIBS $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+        EXTRA_INCLUDES ${CMAKE_SOURCE_DIR}/modules
         )

@@ -57,7 +57,8 @@ int main()
     assert(ret == 0);
     ret = symlink(BASE "/a/b", BASE "/a/b/e");
     assert(ret == 0);
-
+    ret = symlink("c", BASE "/a/b/f");
+    assert(ret == 0);
 
     CallbackImpl callbacks;
     filewalker::walk(BASE, callbacks);

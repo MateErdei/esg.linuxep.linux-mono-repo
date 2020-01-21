@@ -6,6 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "FileWalker.h"
 
+#include "datatypes/Print.h"
+
 #include <utility>
 
 namespace fs = sophos_filesystem;
@@ -25,6 +27,10 @@ void FileWalker::run()
         if (fs::is_regular_file(p.status()))
         {
             m_callback.processFile(p);
+        }
+        else
+        {
+            PRINT("Not calling with " << p);
         }
     }
 }
