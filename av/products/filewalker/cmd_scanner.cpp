@@ -37,11 +37,11 @@ namespace
     class CallbackImpl : public filewalker::IFileWalkCallbacks
     {
     public:
-        CallbackImpl(unixsocket::ScanningClientSocket& socket)
+        explicit CallbackImpl(unixsocket::ScanningClientSocket& socket)
                 : m_socket(socket)
         {}
 
-        void processFile(const sophos_filesystem::path& p)
+        void processFile(const sophos_filesystem::path& p) override
         {
             scan(m_socket, p);
         }
