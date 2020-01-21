@@ -14,31 +14,9 @@ namespace fs = sophos_filesystem;
 
 using namespace filewalker;
 
-namespace
+void FileWalker::walk(const sophos_filesystem::path& starting_point)
 {
-    class FileWalker
-    {
-    public:
-        /**
-         * Construct a new file walker
-         *
-         * @param starting_point
-         * @param callbacks BORROWED reference to callbacks
-         */
-        FileWalker(sophos_filesystem::path starting_point, IFileWalkCallbacks& callbacks)
-                : m_starting_path(std::move(starting_point)), m_callback(callbacks)
-        {}
-
-        void run();
-    private:
-        const sophos_filesystem::path m_starting_path;
-        IFileWalkCallbacks& m_callback;
-    };
-}
-
-void FileWalker::run()
-{
-    for(const auto& p: fs::recursive_directory_iterator(m_starting_path))
+    for(const auto& p: fs::recursive_directory_iterator(starting_point))
     {
         if (fs::is_regular_file(p.status()))
         {
@@ -51,8 +29,8 @@ void FileWalker::run()
     }
 }
 
-void filewalker::walk(sophos_filesystem::path starting_point, IFileWalkCallbacks& callbacks)
+void filewalker::walk(const sophos_filesystem::path& starting_point, IFileWalkCallbacks& callbacks)
 {
-    FileWalker f(std::move(starting_point), callbacks);
-    f.run();
+    FileWalker f(callbacks);
+    f.walk(starting_point);
 }
