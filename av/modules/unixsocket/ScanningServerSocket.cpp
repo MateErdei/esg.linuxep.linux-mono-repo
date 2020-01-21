@@ -5,16 +5,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanningServerSocket.h"
-#include "Print.h"
 #include "ScanningServerConnectionThread.h"
 
 #include <stdexcept>
-#include <iostream>
 
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <sys/stat.h>
 
 static void throwOnError(int ret, const std::string& message)
 {

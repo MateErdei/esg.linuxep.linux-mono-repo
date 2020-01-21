@@ -6,8 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanningClientSocket.h"
 #include "SocketUtils.h"
-#include "Print.h"
 
+#include "datatypes/Print.h"
 #include "scan_messages/ClientScanRequest.h"
 #include <ScanResponse.capnp.h>
 

@@ -5,7 +5,7 @@ add_library(unixsocket SHARED
         ScanningClientSocket.cpp
         ScanningClientSocket.h
         ScanningServerConnectionThread.cpp
-        ScanningServerConnectionThread.h Print.h SocketUtils.cpp SocketUtils.h)
+        ScanningServerConnectionThread.h SocketUtils.cpp SocketUtils.h)
 
 target_link_libraries(unixsocket  PUBLIC
         scanmessages

@@ -5,11 +5,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanningServerConnectionThread.h"
-#include "Print.h"
 #include "SocketUtils.h"
 #include "ScanRequest.capnp.h"
 
-#include <capnp/message.h>
+#include "datatypes/Print.h"
 #include <capnp/serialize.h>
 
 #include <stdexcept>

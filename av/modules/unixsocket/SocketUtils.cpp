@@ -5,7 +5,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SocketUtils.h"
-#include "Print.h"
+
+#include "datatypes/Print.h"
 
 #include <cassert>
 #include <cstdint>

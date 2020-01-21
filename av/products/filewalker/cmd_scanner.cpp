@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "filewalker/FileWalker.h"
 #include <unixsocket/ScanningClientSocket.h>
-#include <unixsocket/Print.h>
+#include <datatypes/Print.h>
 
 #include <iostream>
 #include <string>
