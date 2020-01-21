@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -54,23 +55,13 @@ int main()
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
 
     // Create test tree
-    ::mkdir(BASE, 0700);
-    ::mkdir(BASE "/a", 0700);
-    ::mkdir(BASE "/a/b", 0700);
-    int fd = ::open(BASE "/a/b/c",O_CREAT|O_RDWR, 0700);
-    const std::string CONTENTS = "EICAR";
-    int ret = ::write(fd, CONTENTS.c_str(), CONTENTS.size());
-    static_cast<void>(ret);
-    ::close(fd);
-    ret = symlink("b", BASE "/a/d");
-    assert(ret == 0 || errno == EEXIST);
-    static_cast<void>(ret);
-    ret = symlink(BASE "/a/b", BASE "/a/b/e");
-    assert(ret == 0 || errno == EEXIST);
-    static_cast<void>(ret);
-    ret = symlink("c", BASE "/a/b/f");
-    assert(ret == 0 || errno == EEXIST);
-    static_cast<void>(ret);
+    fs::remove_all(BASE);
+    fs::create_directories(BASE "/a/b");
+    std::ofstream(BASE "/a/b/c");
+
+    fs::create_symlink("b", BASE "/a/d");
+    fs::create_symlink(BASE "/a/b", BASE "/a/b/e");
+    fs::create_symlink("c", BASE "/a/b/f");
 
     CallbackImpl callbacks;
     filewalker::FileWalker w(callbacks);
