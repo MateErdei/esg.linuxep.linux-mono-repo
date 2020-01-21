@@ -61,7 +61,9 @@ int main()
     assert(ret == 0);
 
     CallbackImpl callbacks;
-    filewalker::walk(BASE, callbacks);
+    filewalker::FileWalker w(callbacks);
+    w.followSymlinks();
+    w.walk(BASE);
 
     return 0;
 }
