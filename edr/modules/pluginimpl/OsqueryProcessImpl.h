@@ -31,7 +31,6 @@ namespace Plugin
 
         Common::Process::IProcessPtr m_processMonitorPtr;
         std::mutex m_processMonitorSharedResource;
-        std::string m_disableAuditD;
     };
 
     class ScopedReplaceOsqueryProcessCreator

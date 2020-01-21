@@ -89,11 +89,11 @@ copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 
 # Create config file to manage if AuditD should be stopped by the plugin
 CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
+INSTALL_OPTIONS_FILE="${SOPHOS_INSTALL}/base/etc/install_options"
 
 # only create config file on clean installation
-if [[ -f ${CONFIG_FILE} ]]
-    then
-    INSTALL_OPTIONS_FILE="${SOPHOS_INSTALL}/base/etc/install_options"
+if [[ -f ${INSTALL_OPTIONS_FILE} ]]
+then
 
     # Default to disabling auditd
     auditd_option="disable_autitd=1"

@@ -258,6 +258,8 @@ namespace Plugin
     {
         auto fileSystem = Common::FileSystem::fileSystem();
 
+        bool disableAuditD = true;
+
         if (fileSystem->isFile(Plugin::edrConfigFilePath()))
         {
             LOGINFO("prepareSystemBeforeStartingOSQuery found file: " <<  Plugin::edrConfigFilePath());
@@ -265,19 +267,18 @@ namespace Plugin
             {
                 boost::property_tree::ptree ptree;
                 boost::property_tree::read_ini(Plugin::edrConfigFilePath(), ptree);
-                m_disableAuditD = ptree.get<std::string>("disable_autitd");
-                LOGINFO("prepareSystemBeforeStartingOSQuery success returned: " << m_disableAuditD);
+                disableAuditD = (ptree.get<std::string>("disable_autitd") == "1");
+                LOGINFO("prepareSystemBeforeStartingOSQuery success returned: " << disableAuditD);
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                m_disableAuditD = "1"; // Default true
-                LOGINFO("prepareSystemBeforeStartingOSQuery failure returned: " << m_disableAuditD);
+                LOGINFO("prepareSystemBeforeStartingOSQuery failure returned: " << disableAuditD);
             }
         }
 
-        LOGINFO("disable_autitd flag set to: " << m_disableAuditD );
+        LOGINFO("disable_autitd flag set to: " << disableAuditD );
 
-        if(m_disableAuditD == "1")
+        if(disableAuditD)
         {
             std::string serviceName("auditd");
 

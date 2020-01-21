@@ -18,7 +18,7 @@ In order to run them in vagrant box:
     sudo ln -s /vagrant/sspl-plugin-edr-component/output/SDDS-COMPONENT /opt/test/inputs/edr/SDDS-COMPONENTF
     sudo ln -s /vagrant/everest-base/output/SDDS-COMPONENT /opt/test/inputs/edr/base-sdds
     sudo apt-get -y install python3.7 python3-pip
-#!!    sudo -H python3 -m pip install pyzmq protobuf pytest-html robotframework
+    sudo -H python3 -m pip install pyzmq protobuf pytest-html robotframework
     cd /vagrant/sspl-plugin-edr-component/TA
     sudo python3 -m robot RobotScripts/
 
