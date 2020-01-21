@@ -96,13 +96,13 @@ if [[ -f ${INSTALL_OPTIONS_FILE} ]]
 then
 
     # Default to disabling auditd
-    auditd_option="disable_autitd=1"
-    if grep -qF "--disable-autitd" "$INSTALL_OPTIONS_FILE"
+    auditd_option="disable_auditd=1"
+    if grep -qF "disable-auditd" "$INSTALL_OPTIONS_FILE"
     then
-        auditd_option="disable_autitd=1"
-    elif grep -qF "--do-not-disable-autitd" "$INSTALL_OPTIONS_FILE"
+        auditd_option="disable_auditd=1"
+    elif grep -qF "do-not-disable-auditd" "$INSTALL_OPTIONS_FILE"
     then
-        auditd_option="disable_autitd=0"
+        auditd_option="disable_auditd=0"
     fi
     cat $auditd_option >> $CONFIG_FILE
 fi

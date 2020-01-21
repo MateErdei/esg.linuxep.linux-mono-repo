@@ -306,8 +306,6 @@ namespace Plugin
         auto process = Common::Process::createProcess();
         process->exec("/bin/systemctl", { "is-active", serviceName });
 
-        LOGINFO("checkIfServiceActive result output: " << process->output());
-
         return (process->exitCode() == 0);
     }
 
@@ -361,12 +359,10 @@ namespace Plugin
             LOGINFO("Could not find EDR Plugin config file: " <<  Plugin::edrConfigFilePath());
         }
 
-        LOGINFO("disable_autitd flag set to: " << disableAuditD );
+        std::string serviceName("auditd");
 
         if(disableAuditD)
         {
-            std::string serviceName("auditd");
-
             if (checkIfServiceActive(serviceName))
             {
                 stopSystemService(serviceName);
@@ -377,7 +373,13 @@ namespace Plugin
             }
 
             // Check to make sure all platforms use the same service name for auditd
-
+        }
+        else
+        {
+            if(checkIfServiceActive(serviceName))
+            {
+                LOGINFO("EDR configuration set to not disable AuditD.");
+            }
         }
 
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
