@@ -147,7 +147,7 @@ class CommandCheckInterval:
         LOGGER.info("[backoff] waiting up to %fs after %d failures",
                     delay_upper_bound, error_count)
         if delay_upper_bound > 3600:
-            LOGGER.error("Connection with Central broken for over an hour")
+            LOGGER.error("Connection with Central down for over an hour")
 
 
 class MCS:
