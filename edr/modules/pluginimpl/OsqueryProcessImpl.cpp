@@ -256,44 +256,48 @@ namespace Plugin
 
     void OsqueryProcessImpl::prepareSystemBeforeStartingOSQuery()
     {
-        auto fileSystem = Common::FileSystem::fileSystem();
-
-        bool disableAuditD = true;
-
-        if (fileSystem->isFile(Plugin::edrConfigFilePath()))
-        {
-            LOGINFO("prepareSystemBeforeStartingOSQuery found file: " <<  Plugin::edrConfigFilePath());
-            try
-            {
-                boost::property_tree::ptree ptree;
-                boost::property_tree::read_ini(Plugin::edrConfigFilePath(), ptree);
-                disableAuditD = (ptree.get<std::string>("disable_autitd") == "1");
-                LOGINFO("prepareSystemBeforeStartingOSQuery success returned: " << disableAuditD);
-            }
-            catch (boost::property_tree::ptree_error& ex)
-            {
-                LOGINFO("prepareSystemBeforeStartingOSQuery failure returned: " << disableAuditD);
-            }
-        }
-
-        LOGINFO("disable_autitd flag set to: " << disableAuditD );
-
-        if(disableAuditD)
-        {
-            std::string serviceName("auditd");
-
-            if (checkIfServiceActive(serviceName))
-            {
-                stopSystemService(serviceName);
-            }
-            else
-            {
-                LOGINFO("Not disabling auditd");
-            }
-
-            // Check to make sure all platforms use the same service name for auditd
-
-        }
+//        auto fileSystem = Common::FileSystem::fileSystem();
+//
+//        bool disableAuditD = true;
+//
+//        if (fileSystem->isFile(Plugin::edrConfigFilePath()))
+//        {
+//            LOGINFO("prepareSystemBeforeStartingOSQuery found file: " <<  Plugin::edrConfigFilePath());
+//            try
+//            {
+//                boost::property_tree::ptree ptree;
+//                boost::property_tree::read_ini(Plugin::edrConfigFilePath(), ptree);
+//                disableAuditD = (ptree.get<std::string>("disable_autitd") == "1");
+//                LOGINFO("prepareSystemBeforeStartingOSQuery success returned: " << disableAuditD);
+//            }
+//            catch (boost::property_tree::ptree_error& ex)
+//            {
+//                LOGINFO("prepareSystemBeforeStartingOSQuery failure returned: " << disableAuditD);
+//            }
+//        }
+//        else
+//        {
+//            LOGINFO("Could not find EDR Plugin config file: " <<  Plugin::edrConfigFilePath());
+//        }
+//
+//        LOGINFO("disable_autitd flag set to: " << disableAuditD );
+//
+//        if(disableAuditD)
+//        {
+//            std::string serviceName("auditd");
+//
+//            if (checkIfServiceActive(serviceName))
+//            {
+//                stopSystemService(serviceName);
+//            }
+//            else
+//            {
+//                LOGINFO("AuditD not found on system or is not active.");
+//            }
+//
+//            // Check to make sure all platforms use the same service name for auditd
+//
+//        }
 
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
