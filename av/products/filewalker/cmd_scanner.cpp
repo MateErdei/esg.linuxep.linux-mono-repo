@@ -46,6 +46,11 @@ namespace
             scan(m_socket, p);
         }
 
+        bool includeDirectory(const sophos_filesystem::path&) override
+        {
+            return true;
+        }
+
     private:
         unixsocket::ScanningClientSocket& m_socket;
     };

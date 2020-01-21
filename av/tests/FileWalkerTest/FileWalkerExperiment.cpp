@@ -11,9 +11,13 @@ class CallbackImpl : public filewalker::IFileWalkCallbacks
 {
 public:
     CallbackImpl() = default;
-    void processFile(const sophos_filesystem::path& p)
+    void processFile(const sophos_filesystem::path& p) override
     {
         std::cout << p << '\n';
+    }
+    bool includeDirectory(const sophos_filesystem::path&) override
+    {
+        return true;
     }
 
 };

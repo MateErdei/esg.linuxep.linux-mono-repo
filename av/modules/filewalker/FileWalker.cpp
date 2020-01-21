@@ -52,6 +52,10 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
                 {
 //                    PRINT("First time " << p << " " << statbuf.st_ino);
                     seen_symlinks.insert(statbuf.st_ino);
+                    if (!m_callback.includeDirectory(p))
+                    {
+                        iterator.disable_recursion_pending();
+                    }
                 }
             }
             else
@@ -59,11 +63,18 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
                 LOGERROR("Failed to stat " << p);
             }
         }
-        else
+        else if (fs::is_directory(p.status()))
         {
 //            PRINT("Not calling with " << p);
+            if (!m_callback.includeDirectory(p))
+            {
+                iterator.disable_recursion_pending();
+            }
         }
-
+        else
+        {
+            // ignoring p
+        }
     }
 }
 

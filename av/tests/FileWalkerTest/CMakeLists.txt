@@ -1,3 +1,4 @@
+include(GoogleTest)
 
 add_executable(file_walker_experiment
         FileWalkerExperiment.cpp)
@@ -24,4 +25,16 @@ SET_TARGET_PROPERTIES(TestFileWalkerBackTrackProtection
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        )
+
+SophosAddTest(TestFileWalker
+        TestFileWalker.cpp
+        PROJECTS filewalker
+        INC_DIRS
+        ${CMAKE_SOURCE_DIR}/modules
+        )
+SET_TARGET_PROPERTIES(TestFileWalker
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )

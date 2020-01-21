@@ -41,6 +41,10 @@ public:
 
         std::cout << p << '\n';
     }
+    bool includeDirectory(const sophos_filesystem::path&) override
+    {
+        return true;
+    }
 };
 
 #define BASE "/tmp/TestFileWalkerBackTrackProtection"
