@@ -56,30 +56,28 @@ void OsqueryDataManager::removeOldWarningFiles()
         }
     }
 
-    const int fileLimit = 10;
-
-    if (infoFiles.size() > fileLimit)
+    if ((int)infoFiles.size() > FILE_LIMIT)
     {
         std::sort(infoFiles.begin(), infoFiles.end());
 
-        int infoFilesToDelete = infoFiles.size() - fileLimit;
+        int infoFilesToDelete = infoFiles.size() - FILE_LIMIT;
         for (int i = 0; i < infoFilesToDelete; i++)
         {
             ifileSystem->removeFile(infoFiles[i]);
+            LOGINFO("Removed old osquery INFO file: " << Common::FileSystem::basename(infoFiles[i]));
         }
-        LOGINFO("Removed old osquery INFO files");
     }
 
-    if (warningFiles.size() > fileLimit)
+    if ((int)warningFiles.size() > FILE_LIMIT)
     {
         std::sort(warningFiles.begin(),warningFiles.end());
 
-        int warningFilesToDelete = warningFiles.size() - fileLimit;
+        int warningFilesToDelete = warningFiles.size() - FILE_LIMIT;
         for (int i = 0; i < warningFilesToDelete; i++)
         {
             ifileSystem->removeFile(warningFiles[i]);
+            LOGINFO("Removed old osquery WARNING file: " << Common::FileSystem::basename(warningFiles[i]));
         }
-        LOGINFO("Removed old osquery WARNING files");
     }
 }
 

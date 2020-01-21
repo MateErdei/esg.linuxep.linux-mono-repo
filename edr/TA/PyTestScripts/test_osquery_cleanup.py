@@ -97,7 +97,7 @@ def test_edr_plugin_removes_old_warning_files_when_threshold_reached(sspl_mock, 
     edr_plugin_instance.stop_edr()
     edr_plugin_instance.start_edr()
 
-    assert edr_plugin_instance.wait_log_contains("Removed old osquery WARNING files")
+    assert edr_plugin_instance.wait_log_contains("Removed old osquery WARNING file:")
 
     preserved_files = []
     end_paths = os.listdir(log_path)
@@ -138,7 +138,7 @@ def test_edr_plugin_removes_old_info_files_when_threshold_reached(sspl_mock, edr
     edr_plugin_instance.stop_edr()
     edr_plugin_instance.start_edr()
 
-    assert edr_plugin_instance.wait_log_contains("Removed old osquery INFO files")
+    assert edr_plugin_instance.wait_log_contains("Removed old osquery INFO file:")
 
     preserved_files = []
     end_paths = os.listdir(log_path)
