@@ -97,14 +97,14 @@ then
 
     # Default to disabling auditd
     auditd_option="disable_auditd=1"
-    if grep -qF "disable-auditd" "$INSTALL_OPTIONS_FILE"
+    if grep -q "^--disable-auditd" "${INSTALL_OPTIONS_FILE}"
     then
         auditd_option="disable_auditd=1"
-    elif grep -qF "do-not-disable-auditd" "$INSTALL_OPTIONS_FILE"
+    elif grep -q "^--do-not-disable-auditd" "${INSTALL_OPTIONS_FILE}"
     then
         auditd_option="disable_auditd=0"
     fi
-    cat $auditd_option >> $CONFIG_FILE
+    cat $auditd_option >> ${CONFIG_FILE}
 fi
 
 #After install start the plugin
