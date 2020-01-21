@@ -306,7 +306,9 @@ namespace Plugin
         auto process = Common::Process::createProcess();
         process->exec("/bin/systemctl", { "is-active", serviceName });
 
-        return (process->output() == "active");
+        LOGINFO("checkIfServiceActive result output: " << process->output());
+
+        return (process->exitCode() == 0);
     }
 
     void PluginAdapter::stopSystemService(const std::string& serviceName)
