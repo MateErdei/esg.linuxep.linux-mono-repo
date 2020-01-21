@@ -142,7 +142,7 @@ namespace Plugin
     void PluginAdapter::cleanUpOldOsqueryFiles()
     {
         databasePurge();
-        m_DataManager.CleanUpOsqueryLogs();
+        m_DataManager.cleanUpOsqueryLogs();
     }
 
     void PluginAdapter::databasePurge()
