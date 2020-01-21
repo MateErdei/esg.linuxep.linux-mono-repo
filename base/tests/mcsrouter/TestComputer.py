@@ -39,10 +39,6 @@ class TestcomputerCommonStatus(unittest.TestCase):
 class TestComputer(unittest.TestCase):
     @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
     def testStatusXml(self, *mockarg):
-        # ts = getTargetSystem()
-        # if not ts.is_linux:
-        #     return
-        #
         c = mcsrouter.computer.Computer()
         #
         # computerStatus = c.getCommonStatusXml()

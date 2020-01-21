@@ -62,11 +62,10 @@ class ComputerCommonStatus:
         __init__
         """
         self.computer_name = target_system.hostname()
-        self.operating_system = target_system.platform
+        self.operating_system = "linux"
         self.fqdn = ip_address.get_fqdn()
         self.user = "root@%s" % self.fqdn
-        self.sls = target_system.check_if_updatable_to_sls()
-        self.arch = target_system.arch
+        self.arch = target_system.architecture()
         self.ipv4s = list(ip_address.get_non_local_ipv4())
         self.ipv6s = list(ip_address.get_non_local_ipv6())
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
@@ -194,21 +193,10 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         get_status_xml
         """
-        target_system = self.__target_system()
-        if target_system.detect_is_ec2_instance():
-
-            return "".join((
-                self.get_status_header(),
-                self.get_common_status_xml(),
-                self.get_aws_status(),
-                self.get_platform_status(),
-                self.get_policy_status(),
-                self.get_status_footer()
-            ))
-
         return "".join((
             self.get_status_header(),
             self.get_common_status_xml(),
+            self.get_aws_status(),  # Empty string if not aws
             self.get_platform_status(),
             self.get_policy_status(),
             self.get_status_footer()
@@ -270,9 +258,9 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         get_platform_status
         """
         target_system = self.__target_system()
-        platform = target_system.platform
+        platform = "linux"
         vendor = target_system.vendor()
-        kernel = target_system.kernel
+        kernel = target_system.kernel()
         os_name = target_system.os_name
 
         # should always be able to obtain first and second values from os_version
@@ -282,7 +270,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         if version_length == 0:
             major_version = ""
             minor_version = ""
-            logging.warn("OS Version not found")
+            logging.warning("OS Version not found")
         elif version_length == 1:
             # this is expected on amazon Linux
             major_version = os_version[0]
@@ -309,6 +297,9 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         target_system = self.__target_system()
         aws_info = target_system.detect_instance_info()
+
+        if aws_info is None:
+            return ""
 
         region = aws_info["region"]
         account_id = aws_info["accountId"]
