@@ -22,7 +22,10 @@ void FileWalker::run()
 {
     for(const auto& p: fs::recursive_directory_iterator(m_starting_path))
     {
-        m_callback.processFile(p);
+        if (fs::is_regular_file(p.status()))
+        {
+            m_callback.processFile(p);
+        }
     }
 }
 
