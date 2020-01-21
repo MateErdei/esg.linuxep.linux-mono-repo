@@ -93,7 +93,7 @@ CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
 # only create config file on clean installation
 if [[ -f ${CONFIG_FILE} ]]
     then
-    INSTALL_OPTIONS_FILE=${SOPHOS_INSTALL}/base/etc/install_options
+    INSTALL_OPTIONS_FILE="${SOPHOS_INSTALL}/base/etc/install_options"
 
     # Default to disabling auditd
     auditd_option="disable_autitd=1"

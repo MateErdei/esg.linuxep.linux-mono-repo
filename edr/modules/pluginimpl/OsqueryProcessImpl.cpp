@@ -231,25 +231,68 @@ namespace Plugin
         fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
     }
 
+    bool OsqueryProcessImpl::checkIfServiceActive(const std::string& serviceName)
+    {
+        auto process = Common::Process::createProcess();
+        process->exec("/usr/sbin/service", { serviceName, "stop" });
+
+        return (process->output() == "active");
+    }
+
+    void OsqueryProcessImpl::stopSystemService(const std::string& serviceName)
+    {
+        auto process = Common::Process::createProcess();
+        process->exec("/usr/sbin/service", { serviceName, "stop" });
+
+        if(process->exitCode() == 0)
+        {
+            LOGINFO("Successfully stopped service: " << serviceName);
+        }
+        else
+        {
+            LOGWARN("Failed to stop service: " << serviceName);
+        }
+    }
+
     void OsqueryProcessImpl::prepareSystemBeforeStartingOSQuery()
     {
         auto fileSystem = Common::FileSystem::fileSystem();
 
         if (fileSystem->isFile(Plugin::edrConfigFilePath()))
         {
+            LOGINFO("prepareSystemBeforeStartingOSQuery found file: " <<  Plugin::edrConfigFilePath());
             try
             {
                 boost::property_tree::ptree ptree;
                 boost::property_tree::read_ini(Plugin::edrConfigFilePath(), ptree);
                 m_disableAuditD = ptree.get<std::string>("disable_autitd");
+                LOGINFO("prepareSystemBeforeStartingOSQuery success returned: " << m_disableAuditD);
             }
             catch (boost::property_tree::ptree_error& ex)
             {
                 m_disableAuditD = "1"; // Default true
+                LOGINFO("prepareSystemBeforeStartingOSQuery failure returned: " << m_disableAuditD);
             }
         }
 
-        LOGINFO("disableAuditD flag set to " << m_disableAuditD );
+        LOGINFO("disable_autitd flag set to: " << m_disableAuditD );
+
+        if(m_disableAuditD == "1")
+        {
+            std::string serviceName("auditd");
+
+            if (checkIfServiceActive(serviceName))
+            {
+                stopSystemService(serviceName);
+            }
+            else
+            {
+                LOGINFO("Not disabling auditd");
+            }
+
+            // Check to make sure all platforms use the same service name for auditd
+
+        }
 
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
