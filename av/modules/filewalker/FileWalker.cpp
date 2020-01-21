@@ -25,7 +25,9 @@ namespace
          * @param starting_point
          * @param callbacks BORROWED reference to callbacks
          */
-        FileWalker(sophos_filesystem::path starting_point, IFileWalkCallbacks& callbacks);
+        FileWalker(sophos_filesystem::path starting_point, IFileWalkCallbacks& callbacks)
+                : m_starting_path(std::move(starting_point)), m_callback(callbacks)
+        {}
 
         void run();
     private:
@@ -33,12 +35,6 @@ namespace
         IFileWalkCallbacks& m_callback;
     };
 }
-
-FileWalker::FileWalker(fs::path starting_point, IFileWalkCallbacks& func)
-    : m_starting_path(std::move(starting_point)), m_callback(func)
-{
-}
-
 
 void FileWalker::run()
 {
