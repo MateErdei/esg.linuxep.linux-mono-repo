@@ -10,9 +10,7 @@ add_library(scanmessages SHARED
         ScanResponse.cpp
         ScanResponse.h
         ClientScanRequest.cpp
-        ClientScanRequest.h
-        ../datatypes/AutoFd.cpp
-        ../datatypes/AutoFd.h )
+        ClientScanRequest.h )
 
 target_include_directories(scanmessages PUBLIC
         "${CAPNPROTO_INCLUDE_DIR}"

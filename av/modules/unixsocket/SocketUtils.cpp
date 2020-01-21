@@ -16,11 +16,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 void unixsocket::writeLength(int socketfd, int length)
 {
+    ssize_t bytes_written;
     // TODO implement proper length writing
     if (length < 128)
     {
         uint8_t c = length;
-        ::write(socketfd, &c, 1);
+        bytes_written = ::write(socketfd, &c, 1);
+        static_cast<void>(bytes_written);
     }
     else
     {
