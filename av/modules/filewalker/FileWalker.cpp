@@ -14,6 +14,26 @@ namespace fs = sophos_filesystem;
 
 using namespace filewalker;
 
+namespace
+{
+    class FileWalker
+    {
+    public:
+        /**
+         * Construct a new file walker
+         *
+         * @param starting_point
+         * @param callbacks BORROWED reference to callbacks
+         */
+        FileWalker(sophos_filesystem::path starting_point, IFileWalkCallbacks& callbacks);
+
+        void run();
+    private:
+        const sophos_filesystem::path m_starting_path;
+        IFileWalkCallbacks& m_callback;
+    };
+}
+
 FileWalker::FileWalker(fs::path starting_point, IFileWalkCallbacks& func)
     : m_starting_path(std::move(starting_point)), m_callback(func)
 {
