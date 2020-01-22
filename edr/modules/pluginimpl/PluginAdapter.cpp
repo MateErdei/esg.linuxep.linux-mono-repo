@@ -314,6 +314,13 @@ namespace Plugin
         auto process = Common::Process::createProcess();
         process->exec("/bin/systemctl", { "stop", serviceName });
 
+        if(process->exitCode() == 4)
+        {
+            // handle error: unit auditd.service may be requested by dependency only
+            // try to stop the service again using service command
+            process->exec("/sbin/service", { serviceName, "stop" });
+        }
+
         if(process->exitCode() == 0)
         {
             LOGINFO("Successfully stopped service: " << serviceName);
