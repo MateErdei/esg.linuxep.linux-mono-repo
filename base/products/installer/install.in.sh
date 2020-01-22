@@ -423,6 +423,14 @@ then
 
     echo "Installation complete, performing post install steps"
 
+    # Save the install options file to etc for the product to use
+    if [[ -f "$INSTALL_OPTIONS_FILE" ]]
+    then
+      cp "$INSTALL_OPTIONS_FILE" "$SOPHOS_INSTALL/base/etc/install_options"
+      chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/install_options"
+      chmod 400 "${SOPHOS_INSTALL}/base/etc/install_options"
+    fi
+
     if [[ -n "$MCS_CA" ]]
     then
         if [[ "$ALLOW_OVERRIDE_MCS_CA" == --allow-override-mcs-ca ]]
@@ -486,7 +494,6 @@ then
 fi
 
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
-
 
 ## Exit with error code if registration was run and failed
 exit ${EXIT_CODE}
