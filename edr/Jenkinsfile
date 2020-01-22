@@ -23,6 +23,7 @@ try{
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     git_branch = "${env.BRANCH_NAME}"
+    echo git_branch
     if (git_branch == 'master')
     {
         echo 'Starting edr master branch builds'
@@ -48,6 +49,7 @@ try{
         },
         coverage_build:
         {
+            echo 'Starting edr master coverage build'
             ArtisanBuild(
                 params.CommitHash,
                 params.PortalId,

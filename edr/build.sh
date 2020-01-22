@@ -125,7 +125,7 @@ do
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
-#            BULLSEYE_UPLOAD=1
+            BULLSEYE_UPLOAD=1
             UNITTEST=1
             ;;
 #        --bullseye-upload-unittest|--bullseye-upload)
