@@ -91,27 +91,17 @@ copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
 INSTALL_OPTIONS_FILE="${SOPHOS_INSTALL}/base/etc/install_options"
 
-echo "Reading install options" >> /tmp/install_log
-
-# only create config file on clean installation
 if [[ ! -f CONFIG_FILE && -f ${INSTALL_OPTIONS_FILE} ]]
 then
-    echo "Reading install options file found" >> /tmp/install_log
-
     # Default to disabling auditd
     auditd_option="disable_auditd=1"
     if grep -q "^--disable-auditd" "${INSTALL_OPTIONS_FILE}"
     then
-        echo "writing disabling auditd" >> /tmp/install_log
         auditd_option="disable_auditd=1"
     elif grep -q "^--do-not-disable-auditd" "${INSTALL_OPTIONS_FILE}"
     then
-        echo "Writing do not disable auditd" >> /tmp/install_log
         auditd_option="disable_auditd=0"
     fi
-
-    echo "install options result $auditd_option" >> /tmp/install_log
-
     echo $auditd_option >> ${CONFIG_FILE}
 fi
 

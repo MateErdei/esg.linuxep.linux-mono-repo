@@ -341,22 +341,20 @@ namespace Plugin
 
         if (fileSystem->isFile(Plugin::edrConfigFilePath()))
         {
-            LOGINFO("prepareSystemBeforeStartingOSQuery found file: " <<  Plugin::edrConfigFilePath());
             try
             {
                 boost::property_tree::ptree ptree;
                 boost::property_tree::read_ini(Plugin::edrConfigFilePath(), ptree);
-                disableAuditD = (ptree.get<std::string>("disable_autitd") == "1");
-                LOGINFO("prepareSystemBeforeStartingOSQuery success returned: " << disableAuditD);
+                disableAuditD = (ptree.get<std::string>("disable_auditd") == "1");
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                LOGINFO("prepareSystemBeforeStartingOSQuery failure returned: " << disableAuditD);
+                LOGWARN("Failed to read disable_auditd configuration from config file, using default value");
             }
         }
         else
         {
-            LOGINFO("Could not find EDR Plugin config file: " <<  Plugin::edrConfigFilePath());
+            LOGWARN("Could not find EDR Plugin config file: " <<  Plugin::edrConfigFilePath() << ", using disable_auditd default value");
         }
 
         std::string serviceName("auditd");
@@ -378,7 +376,7 @@ namespace Plugin
         {
             if(checkIfServiceActive(serviceName))
             {
-                LOGINFO("EDR configuration set to not disable AuditD.");
+                LOGWARN("EDR configuration set to not disable AuditD, it will not be possible to obtain event data.");
             }
         }
 
