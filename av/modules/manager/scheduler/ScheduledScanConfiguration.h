@@ -18,5 +18,3 @@ namespace manager::scheduler
         explicit ScheduledScanConfiguration(Common::XmlUtilities::AttributesMap& savPolicy);
     };
 }
-
-
