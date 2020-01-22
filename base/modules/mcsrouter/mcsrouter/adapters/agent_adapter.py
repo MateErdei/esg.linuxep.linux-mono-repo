@@ -261,7 +261,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         platform = "linux"
         vendor = target_system.vendor()
         kernel = target_system.kernel()
-        os_name = target_system.os_name
+        os_name = target_system.os_name()
 
         # should always be able to obtain first and second values from os_version
         os_version = target_system.os_version()

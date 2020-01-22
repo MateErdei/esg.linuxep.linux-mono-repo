@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Sophos Plc, Oxford, England.
+# Copyright 2018-2020 Sophos Plc, Oxford, England.
 
 
 """
@@ -7,13 +7,11 @@ TargetSystem Module
 """
 # pylint: disable=too-many-lines
 
-import glob
 import json
+import platform
 import os
 import re
-import socket
 import subprocess
-import sys
 import time
 import urllib.error
 import urllib.parse
@@ -46,25 +44,17 @@ class TargetSystem:
         """
         self._save_uname()
         self.m_install_dir = install_dir
-
-        # First check if lsb_release is available
-        self.m_description, self.m_distributor_id, self.m_release = self.__collect_lsb_release()
-
+        self.m_description, self.m_distributor_id, self.m_release = self._collect_lsb_release()
         self.m_vendor = self.get_vendor()
-        self.product = self.get_product()
+        self.m_product = self.m_description
         self.m_os_version = self.get_os_version()
-        self.ambiguous = None
-        self.os_name = self.product
 
     def _read_uname(self):
         """
         _read_uname
         :return:
         """
-        try:
-            return os.uname()
-        except OSError:  # os.uname() can fail on HP-UX with > 8 character hostnames
-            return socket.gethostname()
+        return [platform.node(), platform.release(), platform.machine()]
 
     def _save_uname(self):
         """
@@ -74,80 +64,28 @@ class TargetSystem:
         self.uname = self._read_uname()
         self.last_uname_save = time.time()
 
-    def __back_tick(self, command):
+    def run_command(self, command, shell=False):
         """
-        __back_tick
+        run_command
         :return:
         """
-        if isinstance(command, str):
-            command = [command]
         # Clean environment
         env = os.environ.copy()
-
-        # Need to reset the python variables in case command is a python script
-        env_variables = ['PYTHONPATH', 'LD_LIBRARY_PATH', 'PYTHONHOME']
-        for variable in env_variables:
-            orig = "ORIGINAL_%s" % variable
-            if orig in env and env[orig] != "":
-                env[variable] = env[orig]
-            else:
-                env.pop(variable, None)  # Ignore the variable if it's missing
-
-        def attempt(command, env, shell=False):
-            """
-            attempt
-            :return:
-            """
-            try:
-                proc = subprocess.Popen(command, env=env,
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        shell=shell)
-                stdout_b, stderr_b = proc.communicate()  # pylint: disable=unused-variable
-                stdout = to_utf8(stdout_b) if stdout_b else ""
-                ret_code = proc.wait()
-                assert ret_code is not None
-            except OSError:
-                ret_code = -1
-                stdout = ""
-            return ret_code, stdout
-
-        ret_code, stdout = attempt(command, env)
-        if ret_code == 0:
-            return ret_code, stdout
-
-        # Maybe we tried to execute a Python program with incorrect environment
-        # so lets try again without any.
-        clear_env = env.copy()
-        for variable in env_variables:
-            clear_env.pop(variable, None)
-
-        ret_code, stdout = attempt(command, clear_env)
-        if ret_code == 0:
-            return ret_code, stdout
-
-        # Try via the shell
-
-        ret_code, stdout = attempt(command, env, shell=True)
-        if ret_code == 0:
-            return ret_code, stdout
-        ret_code, stdout = attempt(command, clear_env, shell=True)
-        if ret_code == 0:
-            return ret_code, stdout
-
-        # Try with restricted PATH
-        env['PATH'] = "/usr/bin:/bin:/usr/sbin:/sbin"
-        ret_code, stdout = attempt(command, env)
-        if ret_code == 0:
-            return ret_code, stdout
-        clear_env['PATH'] = env['PATH']
-        ret_code, stdout = attempt(command, clear_env)
-        if ret_code == 0:
-            return ret_code, stdout
-
+        try:
+            proc = subprocess.Popen(command, env=env,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    shell=shell)
+            stdout_b, stderr_b = proc.communicate()  # pylint: disable=unused-variable
+            stdout = to_utf8(stdout_b) if stdout_b else ""
+            ret_code = proc.wait()
+            assert ret_code is not None
+        except OSError:
+            ret_code = -1
+            stdout = ""
         return ret_code, stdout
 
-    def __collect_lsb_release(self):
+    def _collect_lsb_release(self):
         """
         Collect any lsb_release info
         """
@@ -169,7 +107,7 @@ class TargetSystem:
 
         ret_code = -2
         for lsb_release_exe in lsb_release_exes:
-            (ret_code, stdout) = self.__back_tick([lsb_release_exe, '-a'])
+            (ret_code, stdout) = self.run_command([lsb_release_exe, '-a'])
             if ret_code == 0:
                 break
 
@@ -190,40 +128,14 @@ class TargetSystem:
         return description, distributor_id, release
 
     def get_vendor(self):
-        # Correct distribution
         if self.m_distributor_id:
-            # Lower case and strip spaces
-            vendor = self.m_distributor_id.lower()
-            vendor = vendor.replace(" ", "")
-            vendor = vendor.replace("/", "_")
-            match = False
+            vendor = self.m_distributor_id.lower().replace(" ", "").replace("/", "_")
             for key in DISTRIBUTION_NAME_MAP:
                 if vendor.startswith(key):
                     vendor = DISTRIBUTION_NAME_MAP[key]
-                    match = True
                     break
-            if not match:
-                if vendor in ['n_a', '']:
-                    vendor = self.m_lsb_description
-                    vendor = vendor.lower()
-                    vendor = vendor.replace(" ", "")
-                    vendor = vendor.replace("/", "_")
-                    for key in DISTRIBUTION_NAME_MAP:
-                        if vendor.startswith(key):
-                            vendor = DISTRIBUTION_NAME_MAP[key]
-                            match = True
-                            break
-                if not match:
-                    # Create a valid distribution name from whatever we're given
-                    # Endswith
-                    length = len(vendor) - len("linux")
-                    if length > 0 and vendor.rfind("linux") == length:
-                        vendor = vendor[:length]
             return vendor
         return None
-
-    def get_product(self):
-        return self.m_description
 
     def get_os_version(self):
         # Parse description for ubuntu version
@@ -240,21 +152,17 @@ class TargetSystem:
         # Attempt to parse the Release field into digit blocks
         release = self.m_release
         if release:
-            os_version = []
-            while True:
-                matched = re.match(r"(\d+)\.(.*)", release)
-                if matched:
-                    os_version.append(matched.group(1))
-                    release = matched.group(2)
-                    continue
-                break
-            while len(os_version) < 3:
-                os_version.append("")
+            os_version = release.split(".")
+            if len(os_version) > 3:
+                os_version = os_version[:3]
+            else:
+                while len(os_version) < 3:
+                    os_version.append("")
             return os_version
 
         number_block_re = re.compile(r"\d+")
-        if self.product:
-            blocks = number_block_re.findall(self.product)
+        if self.m_product:
+            blocks = number_block_re.findall(self.m_product)
             blocks_length = len(blocks)
             if blocks_length > 0:
                 return blocks
@@ -274,56 +182,44 @@ class TargetSystem:
                               '/etc/issue',
                               '/etc/centos-release',
                               '/etc/redhat-release',
-                              '/etc/UnitedLinux-release',
                               '/etc/system-release']
 
         distro_identified = None
         for distro_file in distro_check_files:
+            if distro_identified:
+                break
             distro_identified = self.check_distro_file(
-                distro_file, distro_identified)
+                distro_file)
 
-        if distro_identified is None:
+        if not distro_identified:
             distro_identified = 'unknown'
-            self.product = 'unknown'
+            self.m_product = 'unknown'
 
         return distro_identified
 
-    def check_distro_file(self, distro_file, distro_identified):
+    def check_distro_file(self, distro_file):
         """
         Check a file to see if it describes the distro
         """
         if not os.path.exists(distro_file):
-            return distro_identified
-        check_file = open(distro_file)
-        original_contents = check_file.readline().strip()
-        check_file.close()
-        # Lowercase and strip spaces to match map table content
-        check_contents = original_contents.lower()
-        check_contents = check_contents.replace(" ", "")
+            return None
+        with open(distro_file) as check_file:
+            original_contents = check_file.readline()
+
+        check_contents = original_contents.lower().replace(" ", "")
 
         # conversion mapping between string at start of file and distro name
-
         for distro_string in DISTRIBUTION_NAME_MAP:
             if check_contents.startswith(distro_string):
-                if distro_identified:
-                    if distro_identified != DISTRIBUTION_NAME_MAP[distro_string]:
-                        # Ambiguous distro!
-                        if self.ambiguous is None:
-                            self.ambiguous = [distro_identified]
-                        self.ambiguous = self.ambiguous + \
-                            [DISTRIBUTION_NAME_MAP[distro_string]]
-                        distro_identified = 'unknown'
-                        self.product = 'unknown'
-                else:
-                    distro_identified = DISTRIBUTION_NAME_MAP[distro_string]
-                    self.product = original_contents
-        return distro_identified
+                self.m_product = original_contents.strip()
+                return DISTRIBUTION_NAME_MAP[distro_string]
+        return None
 
     def kernel(self):
         """
         Detect the kernel we are running on.
         """
-        return self.uname[2]
+        return self.uname[1]
 
     def detect_is_ec2_instance(self):
         """
@@ -408,19 +304,19 @@ class TargetSystem:
         """
         Detect on which architecture we are running on.
         """
-        return self.uname[4]
+        return self.uname[2]
 
     def hostname(self):
         """
         hostname
         :return:
         """
-        hostname = self.uname[1].split(".")[0]
+        hostname = self.uname[0].split(".")[0]
         ten_mins = 600
         if (abs(time.time() - self.last_uname_save)
                 > ten_mins or hostname == "localhost"):
             self._save_uname()
-            hostname = self.uname[1].split(".")[0]
+            hostname = self.uname[0].split(".")[0]
         return hostname
 
     def vendor(self):
@@ -438,3 +334,10 @@ class TargetSystem:
         :return:
         """
         return self.m_os_version
+
+    def os_name(self):
+        """
+        os_name
+        :return:
+        """
+        return self.m_product
