@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <extensions/interface.h>
-#include "Factory.h"
+#include <Common/UtilityImpl/Factory.h>
 namespace osqueryclient
 {
     class FailedToStablishConnectionException : public std::runtime_error
