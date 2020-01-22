@@ -43,9 +43,15 @@
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command buildtype="prod">-->
-        <command>
+        <command mode="release">
             <program>/bin/bash</program>
-            <args>./build.sh --bullseye --clean --name edr</args>
+            <args>./build.sh --clean --name edr</args>
+            <workingdir>sspl-edr-plugin-build</workingdir>
+        </command>
+
+        <command mode="coverage">
+            <program>/bin/bash</program>
+            <args>./build.sh --clean --name edr --bullseye</args>
             <workingdir>sspl-edr-plugin-build</workingdir>
         </command>
         <!--<command buildtype="dev">>
@@ -61,6 +67,11 @@
             <!-- Release -->
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
             <output name="build_log" srcfolder="log"> </output>
+
+            <!-- coverage -->
+            <output name="output" srcfolder="output" artifactpath="output" mode="coverage"> </output>
+            <output name="build_log" srcfolder="log"> </output>
+
         </buildoutputs>
         <publishbranches>master,feature,bugfix,release</publishbranches>
     </publish>

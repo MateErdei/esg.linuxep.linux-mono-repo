@@ -128,17 +128,17 @@ do
 #            BULLSEYE_UPLOAD=1
             UNITTEST=1
             ;;
-        --bullseye-upload-unittest|--bullseye-upload)
-            BULLSEYE_UPLOAD=1
-            ;;
-        --bullseye-system-tests)
-            BULLSEYE=1
-            BULLSEYE_UPLOAD=1
-            BULLSEYE_SYSTEM_TESTS=1
-            COVFILE="/tmp/root/sspl-edr-combined.cov"
-            BULLSEYE_UPLOAD=1
-            COV_HTML_BASE=sspl-plugin-edr-combined
-            ;;
+#        --bullseye-upload-unittest|--bullseye-upload)
+#            BULLSEYE_UPLOAD=1
+#            ;;
+#        --bullseye-system-tests)
+#            BULLSEYE=1
+#            BULLSEYE_UPLOAD=1
+#            BULLSEYE_SYSTEM_TESTS=1
+#            COVFILE="/tmp/root/sspl-edr-combined.cov"
+#            BULLSEYE_UPLOAD=1
+#            COV_HTML_BASE=sspl-plugin-edr-combined
+#            ;;
         --valgrind)
             VALGRIND=1
             ;;
@@ -304,7 +304,9 @@ function build()
             exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
         }
     # Run the unit tests unless we are doing bullseye system tests then don't run unit test first
-    elif (( ${UNITTEST} == 1 && ${BULLSEYE_SYSTEM_TESTS} == 0 ))
+    #elif (( ${UNITTEST} == 1 && ${BULLSEYE_SYSTEM_TESTS} == 0 ))
+    #unit test will be ran for coverage on ci build machine always.
+    elif (( ${UNITTEST} == 1 ))
     then
         make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?
@@ -334,34 +336,40 @@ function build()
         cp -a build${BITS}/symbols output/
     fi
 
-    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
+    if (( ${BULLSEYE} == 1 ))
     then
-        cd $BASE
-        export BULLSEYE_SYSTEM_TEST_BRANCH
-        bash -x $BASE/build/bullseye/runSystemTest.sh || {
-            ## System tests failed to sync or similar
-            EXIT=$?
-            echo "System tests failed: $EXIT"
-            exit ${EXIT}
-        }
-
-        if (( ${UNITTEST} == 1 ))
-        then
-            cd ${BASE}
-            cd build${BITS}
-            export COV_HTML_BASE
-            make CTEST_OUTPUT_ON_FAILURE=1 test || echo "Unit tests failed for $PRODUCT: $?"
-        fi
+        #keep a copy of the COVFILE for the testing in tap machine??
+        cp -a ${COVFILE} output/coverage || exitFailure FAILURE_BULLSEYE "Failed to copy ${COVFILE} to the output dir"
     fi
 
-    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
-    then
-        ## Process bullseye output
-        ## upload unit tests
-        cd $BASE
-        export BASE
-        bash -x build/bullseye/uploadResults.sh || exit $?
-    fi
+#    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
+#    then
+#        cd $BASE
+#        export BULLSEYE_SYSTEM_TEST_BRANCH
+#        bash -x $BASE/build/bullseye/runSystemTest.sh || {
+#            ## System tests failed to sync or similar
+#            EXIT=$?
+#            echo "System tests failed: $EXIT"
+#            exit ${EXIT}
+#        }
+#
+#        if (( ${UNITTEST} == 1 ))
+#        then
+#            cd ${BASE}
+#            cd build${BITS}
+#            export COV_HTML_BASE
+#            make CTEST_OUTPUT_ON_FAILURE=1 test || echo "Unit tests failed for $PRODUCT: $?"
+#        fi
+#    fi
+
+#    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
+#    then
+#        ## Process bullseye output
+#        ## upload unit tests
+#        cd $BASE
+#        export BASE
+#        bash -x build/bullseye/uploadResults.sh || exit $?
+#    fi
 
     echo "Build Successful"
     return 0
