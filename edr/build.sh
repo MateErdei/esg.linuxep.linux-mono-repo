@@ -362,14 +362,14 @@ function build()
 #        fi
 #    fi
 
-#    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
-#    then
-#        ## Process bullseye output
-#        ## upload unit tests
-#        cd $BASE
-#        export BASE
-#        bash -x build/bullseye/uploadResults.sh || exit $?
-#    fi
+    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
+    then
+        ## Process bullseye output
+        ## upload unit tests
+        cd $BASE
+        export BASE
+        bash -x build/bullseye/uploadResults.sh || exit $?
+    fi
 
     echo "Build Successful"
     return 0
