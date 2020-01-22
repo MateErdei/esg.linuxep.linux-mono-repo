@@ -45,7 +45,7 @@
         <!--<command buildtype="prod">-->
         <command>
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr</args>
+            <args>./build.sh --bullseye --clean --name edr</args>
             <workingdir>sspl-edr-plugin-build</workingdir>
         </command>
         <!--<command buildtype="dev">>
