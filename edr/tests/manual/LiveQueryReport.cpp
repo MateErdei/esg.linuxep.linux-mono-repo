@@ -10,13 +10,14 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <osquery/flags.h>
 #include <osquery/flagalias.h>
 #include <iostream>
+#include <livequery/IQueryProcessor.h>
+#include <osqueryclient/OsqueryProcessor.h>
+#include <thirdparty/nlohmann-json/json.hpp>
+#include <Common/Logging/ConsoleLoggingSetup.h>
+
 namespace osquery{
 
     FLAG(bool, decorations_top_level, false, "test");
-    std::unique_ptr<osquery::ExtensionManagerAPI> makeClient(std::string socket)
-    {
-        return std::make_unique<osquery::ExtensionManagerClient>(socket, 10000);
-    }
 }
 
 /**
@@ -28,6 +29,20 @@ namespace osquery{
  * @param argv
  * @return
  */
+namespace livequery
+{
+    class ShowInConsoleDispatcher : public livequery::ResponseDispatcher
+    {
+    public:
+        void sendResponse(const std::string& /*correlationId*/, const QueryResponse& response) override
+        {
+            auto content = serializeToJson(response);
+            nlohmann::json  jsoncontent = nlohmann::json::parse(content);
+            std::cout << jsoncontent.dump(2) << std::endl;
+        }
+    };
+
+}
 
 int main(int argc, char * argv[])
 {
@@ -37,50 +52,18 @@ int main(int argc, char * argv[])
         std::cerr << "Usage: " << argv[0] << " [socketpath] [query]" << std::endl;
         return 2;
     }
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
     std::string m_socketPath{argv[1]};
     std::string query{argv[2]};
+    livequery::ShowInConsoleDispatcher showInConsoleDispatcher;
+    osqueryclient::OsqueryProcessor osqueryProcessor{m_socketPath};
 
-    osquery::QueryData qd;
-    auto client = osquery::makeClient(m_socketPath);
-    try
-    {
-        auto osqueryStatus = client->query(query, qd);
-    }catch (std::exception & ex)
-    {
-        std::cout << ex.what() << std::endl;
-        return 0;
-    }
+    nlohmann::json queryStructure;
+    queryStructure["type"] = "sophos.mgt.action.RunLiveQuery";
+    queryStructure["name"] = "";
+    queryStructure["query"] = query;
 
-    auto osqueryStatus = client->query(query, qd);
-    if ( !osqueryStatus.ok())
-    {
-        std::cerr << "Query failed: " << osqueryStatus.getMessage() << std::endl;
-        return 1;
-    }
-    osquery::QueryData qcolumn;
-    osqueryStatus = client->getQueryColumns(query, qcolumn);
-    if ( !osqueryStatus.ok())
-    {
-        std::cerr << "Query column failed: " << osqueryStatus.getMessage() << std::endl;
-        return 1;
-    }
-
-    std::cout << "Columns: \n";
-    for (const auto& row : qcolumn)
-    {
-        const std::string & columnName = row.begin()->first;
-        const std::string & columnType = row.begin()->second;
-        std::cout <<  "Name: " << columnName << "\t Type: " << columnType << '\n';
-    }
-    std::cout << std::endl;
-    std::cout << "Data: \n";
-    for(auto & row: qd)
-    {
-        for( auto & columnEntry: row)
-        {
-            std::cout << columnEntry.first << ":" << columnEntry.second << '\t';
-        }
-        std::cout << std::endl;
-    }
+    livequery::processQuery(osqueryProcessor, showInConsoleDispatcher,
+            queryStructure.dump(), "anycorrelation" );
     return 0;
 }

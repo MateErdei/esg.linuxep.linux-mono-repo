@@ -3,7 +3,7 @@ set( GOOGLETESTINCLUDE ${CMAKE_SOURCE_DIR}/tests/googletest/googletest/include )
 add_executable(LiveQueryReport
         LiveQueryReport.cpp
         )
-target_link_libraries(LiveQueryReport PUBLIC livequeryimpl
+target_link_libraries(LiveQueryReport PUBLIC osqueryclient
         ${GLOG_LIBRARY}
         ${GFLAG_LIBRARY}
         ${OSQUERY_LIBRARY}
@@ -29,5 +29,10 @@ target_include_directories(LiveQueryReport PUBLIC
 
 SET_TARGET_PROPERTIES( LiveQueryReport
         PROPERTIES
+        BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
+
+install(TARGETS LiveQueryReport
+        DESTINATION ../componenttests)
+
