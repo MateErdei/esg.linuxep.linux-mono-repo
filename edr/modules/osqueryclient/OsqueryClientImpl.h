@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace osqueryclient
 {
-    class OsqueryClientImpl :   public virtual IOsqueryClient
+    class OsqueryClientImpl : public virtual IOsqueryClient
     {
     public:
         ~OsqueryClientImpl() = default;
@@ -22,4 +22,4 @@ namespace osqueryclient
     private:
         std::unique_ptr<osquery::ExtensionManagerAPI> m_client;
     };
-} //namespace osqueryclient
+} // namespace osqueryclient
