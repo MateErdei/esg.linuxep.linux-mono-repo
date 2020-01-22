@@ -263,6 +263,87 @@ TEST(ScheduledScanConfiguration, testWholePolicy) // NOLINT
     auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
 }
 
+TEST(ScheduledScanConfiguration, justOndemandPolicy) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <extensions>
+      <allFiles>false</allFiles>
+      <excludeSophosDefined/>
+      <userDefined/>
+      <noExtensions>true</noExtensions>
+    </extensions>
+    <exclusions>
+      <filePathSet>{{exclusions}}</filePathSet>
+      <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
+    </exclusions>
+    <posixExclusions>
+      <filePathSet><filePath>Exclusion1</filePath></filePathSet>
+      <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
+    </posixExclusions>
+    <macExclusions>
+      <filePathSet>{{posixExclusions}}</filePathSet>
+      <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
+    </macExclusions>
+    <scanSet>
+      <!-- if {{scheduledScanEnabled}} -->
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+          <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>{{day}}</day>
+          </daySet>
+          <timeSet>
+            <time>{{scheduledScanTime}}</time>
+          </timeSet>
+        </schedule>
+        <settings>
+          <scanObjectSet>
+            <CDDVDDrives>false</CDDVDDrives>
+            <hardDrives>true</hardDrives>
+            <networkDrives>false</networkDrives>
+            <removableDrives>false</removableDrives>
+            <kernelMemory>true</kernelMemory>
+          </scanObjectSet>
+          <scanBehaviour>
+            <level>normal</level>
+            <archives>{{scheduledScanArchives}}</archives>
+            <pua>true</pua>
+            <suspiciousFileDetection>false</suspiciousFileDetection>
+            <scanForMacViruses>false</scanForMacViruses>
+            <anti-rootkits>true</anti-rootkits>
+          </scanBehaviour>
+          <actions>
+            <disinfect>true</disinfect>
+            <puaRemoval>false</puaRemoval>
+            <fileAction>doNothing</fileAction>
+            <destination/>
+            <suspiciousFiles>
+              <fileAction>doNothing</fileAction>
+              <destination/>
+            </suspiciousFiles>
+          </actions>
+          <on-demand-options>
+            <minimise-scan-impact>true</minimise-scan-impact>
+          </on-demand-options>
+        </settings>
+      </scan>
+    </scanSet>
+    <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto exclusions = m->exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    EXPECT_EQ(exclusions.at(0),"Exclusion1");
+}
+
 TEST(ScheduledScanConfiguration, TestSimpleParsing) //NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml><key>value</key></xml>");

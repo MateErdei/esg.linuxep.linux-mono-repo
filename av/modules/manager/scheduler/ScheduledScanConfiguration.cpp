@@ -320,5 +320,6 @@ ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::Att
     <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
   </onDemandScan>
  */
-    static_cast<void>(savPolicy);
+    auto filePath = savPolicy.lookup("config/onDemandScan/posixExclusions/filePathSet/filePath");
+    m_exclusions.push_back(filePath.value(filePath.TextId));
 }
