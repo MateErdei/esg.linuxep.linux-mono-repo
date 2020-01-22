@@ -189,10 +189,10 @@ namespace livequery
         if (!response.data().columnData().empty())
         {
             columnDataObjectSerialized = columnDataObject(response);
-            auto size_bytes = columnDataObjectSerialized.size();
-            if (size_bytes > 10 * 1024 * 1024)
+            auto sizeBytes = columnDataObjectSerialized.size();
+            if (sizeBytes > 10 * 1024 * 1024)
             {
-                LOGWARN("Limit exceeded. Response would have: " << size_bytes << " bytes");
+                LOGWARN("Limit exceeded. Response would have: " << sizeBytes << " bytes");
                 limitExceeded = true;
             }
         }

@@ -4,8 +4,8 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ResponseData.h"
-#include <unordered_set>
 #include "Logger.h"
+#include <unordered_set>
 namespace livequery
 {
     ResponseData::ResponseData() = default;
