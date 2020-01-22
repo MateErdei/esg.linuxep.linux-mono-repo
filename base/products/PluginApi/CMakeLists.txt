@@ -61,6 +61,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/TelemetryHelperImpl
         COMMAND mkdir -p pluginapi/include/Common/Threads
         COMMAND mkdir -p pluginapi/include/Common/XmlUtilities
+        COMMAND mkdir -p pluginapi/include/Common/UtilityImpl
         COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
         COMMAND mkdir -p pluginapi/include/Common/ZMQWrapperApi
         COMMAND mkdir -p pluginapi/tests/include/Common/Helpers
@@ -119,6 +120,7 @@ add_copy_directory(Common/Reactor)
 add_copy_directory(Common/TelemetryHelperImpl)
 add_copy_directory(Common/Threads)
 add_copy_directory(Common/XmlUtilities)
+add_copy_directory(Common/UtilityImpl)
 add_copy_directory(Common/ZeroMQWrapper)
 add_copy_directory(Common/ZMQWrapperApi)
 add_copy_test_directory(Common/Helpers)
