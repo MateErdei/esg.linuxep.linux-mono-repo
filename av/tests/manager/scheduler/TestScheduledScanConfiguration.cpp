@@ -4,11 +4,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
-
 #include <gtest/gtest.h>
 
 #include "manager/scheduler/ScheduledScanConfiguration.h"
+#include <datatypes/Print.h>
 
 using namespace manager::scheduler;
 
@@ -257,5 +256,23 @@ TEST(ScheduledScanConfiguration, testWholePolicy) // NOLINT
   <quarantineManager reportInStatus="true"/>
 </config>
 )MULTILINE");
+
+    auto attributes = attributeMap.lookup("config/continuousScan/kernelMemoryScan/enabled");
+    EXPECT_EQ(attributes.value(attributes.TextId), "true");
+
     auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+}
+
+TEST(ScheduledScanConfiguration, TestSimpleParsing) //NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml("<xml><key>value</key></xml>");
+    auto attributes = attributeMap.lookup("xml/key");
+    EXPECT_EQ(attributes.value(attributes.TextId), "value");
+}
+
+TEST(ScheduledScanConfiguration, TestTextIdAttribute) //NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml("<xml><key TestId=\"foo\">bar</key></xml>");
+    auto attributes = attributeMap.lookup("xml/key");
+    EXPECT_EQ(attributes.value(attributes.TextId), "bar"); // Rather than foo
 }
