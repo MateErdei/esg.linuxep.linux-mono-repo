@@ -56,7 +56,6 @@ PROXY_CREDENTIALS=
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
 system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
 
-
 function cleanup_and_exit()
 {
     [ -z "$OVERRIDE_INSTALLER_CLEANUP" ] && rm -rf "$SOPHOS_TEMP_DIRECTORY"
@@ -392,11 +391,20 @@ if [ -n "$MESSAGE_RELAYS" ]
 then
     if [ -n "$DEBUG_THIN_INSTALLER" ]
     then
-    echo "Message Relays: $MESSAGE_RELAYS"
+      echo "Message Relays: $MESSAGE_RELAYS"
     fi
-
     MESSAGE_RELAYS="--messagerelay $MESSAGE_RELAYS"
 fi
+
+# Save installer arguments to file for base and plugins to use.
+INSTALL_OPTIONS_FILE="${SOPHOS_TEMP_DIRECTORY}/install_options"
+
+# File format expects the args to be either --option  or --option=value
+for arg in $args
+do
+  echo $arg >> "${INSTALL_OPTIONS_FILE}"
+done
+
 
 # Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
@@ -546,7 +554,7 @@ chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base i
 
 echo "Running base installer"
 echo "Product will be installed to: ${SOPHOS_INSTALL}"
-MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" ./install.sh $ALLOW_OVERRIDE_MCS_CA
+MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" ./install.sh $ALLOW_OVERRIDE_MCS_CA
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
 then
