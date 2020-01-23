@@ -340,7 +340,7 @@ function build()
     if (( ${BULLSEYE} == 1 ))
     then
         #keep a copy of the COVFILE for the testing in tap machine??
-        cp -a ${COVFILE} ${OUTPUT_DIR}/|| exitFailure ${FAILURE_BULLSEYE} "Failed to copy ${COVFILE} to the output dir"
+        cp -a ${COVFILE} output/|| exitFailure ${FAILURE_BULLSEYE} "Failed to copy ${COVFILE} to the output dir"
     fi
 
 #    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
