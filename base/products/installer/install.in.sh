@@ -424,6 +424,7 @@ then
     echo "Installation complete, performing post install steps"
 
     # Save the install options file to etc for the product to use
+    # INSTALL_OPTIONS_FILE is an env variable passed in by thininstaller
     if [[ -f "$INSTALL_OPTIONS_FILE" ]]
     then
       BASE_INSTALL_OPTIONS_FILE="$SOPHOS_INSTALL/base/etc/install_options"
