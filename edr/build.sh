@@ -125,8 +125,8 @@ do
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
-            BULLSEYE_UPLOAD=1
-            UNITTEST=1
+#            BULLSEYE_UPLOAD=1
+#            UNITTEST=1
             ;;
 #        --bullseye-upload-unittest|--bullseye-upload)
 #            BULLSEYE_UPLOAD=1
@@ -235,18 +235,22 @@ function build()
 
     if [[ ${BULLSEYE} == 1 ]]
     then
-        BULLSEYE_DIR=/opt/BullseyeCoverage
-        [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
-        [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
-        addpath ${BULLSEYE_DIR}/bin:$PATH
-        export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
+#        BULLSEYE_DIR=/opt/BullseyeCoverage
+#        [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
+#        [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+#        addpath ${BULLSEYE_DIR}/bin:$PATH
+#        export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
-        export COV_HTML_BASE
-        export BULLSEYE_DIR
+#        export COV_HTML_BASE
+#        export BULLSEYE_DIR
         bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
-        export CC=$BULLSEYE_DIR/bin/gcc
-        export CXX=$BULLSEYE_DIR/bin/g++
-        covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
+#        export CC=$BULLSEYE_DIR/bin/gcc
+#        export CXX=$BULLSEYE_DIR/bin/g++
+#        covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
+        #Remove me!!!
+        export CC=/build/input/gcc/bin/gcc
+        export CXX=/build/input/gcc/bin/g++
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/build/input/gcc/lib64/
     else
         export CC=/build/input/gcc/bin/gcc
         export CXX=/build/input/gcc/bin/g++
@@ -343,7 +347,7 @@ function build()
     if (( ${BULLSEYE} == 1 ))
     then
         #keep a copy of the COVFILE for the testing in tap machine??
-        cp -a ${COVFILE} ${OUTPUT_DIR}/|| exitFailure FAILURE_BULLSEYE "Failed to copy ${COVFILE} to the output dir"
+        cp -a ${COVFILE} ${OUTPUT_DIR}/|| exitFailure ${FAILURE_BULLSEYE} "Failed to copy ${COVFILE} to the output dir"
     fi
 
 #    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))

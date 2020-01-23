@@ -59,7 +59,7 @@ try{
             )
 
             build_image.build(
-                        pathToReleasePackage: 'build/config/release-package.xml',               // Path to package xml.
+                        pathToReleasePackage: project_release_xml,               // Path to package xml.
                         buildMode: 'coverage',                                                   // Build mode used by the package xml options e.g. for driving bullseye builds, coverity builds, 64-bit, 32-bit etc.
                         buildTimeOut: 30                                                        // Timeout in minutes.
                     )
