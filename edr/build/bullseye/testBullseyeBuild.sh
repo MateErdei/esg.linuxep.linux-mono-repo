@@ -72,8 +72,6 @@ then
 fi
 
 #move the build to /opt/test/inputs/edr as expected by test is running on TAP
-#a) /opt/test/inputs/test_scripts -> /vagrant/sspl-plugin-edr-component/TA
-#b) /opt/test/inputs/edr/SDDS-COMPONENT -> /vagrant/sspl-plugin-edr-component/output/SDDS-COMPONENT/
 PYTEST_SCRIPTS=/opt/test/inputs/test_scripts
 ln -nsf "${BASE}/TA" ${PYTEST_SCRIPTS}
 ln -nsf ${SSPL_EDR_PLUGIN}  /opt/test/inputs/edr

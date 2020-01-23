@@ -125,20 +125,20 @@ do
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
-#            BULLSEYE_UPLOAD=1
-#            UNITTEST=1
+            BULLSEYE_UPLOAD=1
+            UNITTEST=1
             ;;
-#        --bullseye-upload-unittest|--bullseye-upload)
-#            BULLSEYE_UPLOAD=1
-#            ;;
-#        --bullseye-system-tests)
-#            BULLSEYE=1
-#            BULLSEYE_UPLOAD=1
-#            BULLSEYE_SYSTEM_TESTS=1
-#            COVFILE="/tmp/root/sspl-edr-combined.cov"
-#            BULLSEYE_UPLOAD=1
-#            COV_HTML_BASE=sspl-plugin-edr-combined
-#            ;;
+        --bullseye-upload-unittest|--bullseye-upload)
+            BULLSEYE_UPLOAD=1
+            ;;
+        --bullseye-system-tests)
+            BULLSEYE=1
+            BULLSEYE_UPLOAD=1
+            BULLSEYE_SYSTEM_TESTS=1
+            COVFILE="/tmp/root/sspl-edr-combined.cov"
+            BULLSEYE_UPLOAD=1
+            COV_HTML_BASE=sspl-plugin-edr-combined
+            ;;
         --valgrind)
             VALGRIND=1
             ;;
@@ -235,22 +235,18 @@ function build()
 
     if [[ ${BULLSEYE} == 1 ]]
     then
-#        BULLSEYE_DIR=/opt/BullseyeCoverage
-#        [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
-#        [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
-#        addpath ${BULLSEYE_DIR}/bin:$PATH
-#        export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
+        BULLSEYE_DIR=/opt/BullseyeCoverage
+        [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
+        [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+        addpath ${BULLSEYE_DIR}/bin:$PATH
+        export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
-#        export COV_HTML_BASE
-#        export BULLSEYE_DIR
+        export COV_HTML_BASE
+        export BULLSEYE_DIR
         bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
-#        export CC=$BULLSEYE_DIR/bin/gcc
-#        export CXX=$BULLSEYE_DIR/bin/g++
-#        covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
-        #Remove me!!!
-        export CC=/build/input/gcc/bin/gcc
-        export CXX=/build/input/gcc/bin/g++
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/build/input/gcc/lib64/
+        export CC=$BULLSEYE_DIR/bin/gcc
+        export CXX=$BULLSEYE_DIR/bin/g++
+        covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
     else
         export CC=/build/input/gcc/bin/gcc
         export CXX=/build/input/gcc/bin/g++
@@ -306,9 +302,7 @@ function build()
             exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
         }
     # Run the unit tests unless we are doing bullseye system tests then don't run unit test first
-    #elif (( ${UNITTEST} == 1 && ${BULLSEYE_SYSTEM_TESTS} == 0 ))
-    #unit test will be ran for coverage on ci build machine always.
-    elif (( ${UNITTEST} == 1 ))
+    elif (( ${UNITTEST} == 1 && ${BULLSEYE_SYSTEM_TESTS} == 0 ))
     then
         make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?
@@ -324,7 +318,6 @@ function build()
     rm -rf output
     mkdir -p output
     echo "STARTINGDIR=$STARTINGDIR" >output/STARTINGDIR
-    echo "STARTINGDIR=$STARTINGDIR" >output/STARTINGDIR
     echo "BASE=$BASE" >output/BASE
     echo "PATH=$PATH" >output/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >output/LD_LIBRARY_PATH
@@ -338,31 +331,24 @@ function build()
         cp -a build${BITS}/symbols output/
     fi
 
-    if (( ${BULLSEYE} == 1 ))
+    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
     then
-        #keep a copy of the COVFILE for the testing in tap machine??
-        cp -a ${COVFILE} output/|| exitFailure ${FAILURE_BULLSEYE} "Failed to copy ${COVFILE} to the output dir"
-    fi
+        cd $BASE
+        bash -x $BASE/build/bullseye/testBullseyeBuild.sh || {
+            ## component tests failed to sync or similar
+            EXIT=$?
+            echo "component tests failed: $EXIT"
+            exit ${EXIT}
+        }
 
-#    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
-#    then
-#        cd $BASE
-#        export BULLSEYE_SYSTEM_TEST_BRANCH
-#        bash -x $BASE/build/bullseye/testBullseyeBuild.sh || {
-#            ## System tests failed to sync or similar
-#            EXIT=$?
-#            echo "System tests failed: $EXIT"
-#            exit ${EXIT}
-#        }
-#
-#        if (( ${UNITTEST} == 1 ))
-#        then
-#            cd ${BASE}
-#            cd build${BITS}
-#            export COV_HTML_BASE
-#            make CTEST_OUTPUT_ON_FAILURE=1 test || echo "Unit tests failed for $PRODUCT: $?"
-#        fi
-#    fi
+        if (( ${UNITTEST} == 1 ))
+        then
+            cd ${BASE}
+            cd build${BITS}
+            export COV_HTML_BASE
+            make CTEST_OUTPUT_ON_FAILURE=1 test || echo "Unit tests failed for $PRODUCT: $?"
+        fi
+    fi
 
     if [[ ${BULLSEYE_UPLOAD} == 1 ]]
     then

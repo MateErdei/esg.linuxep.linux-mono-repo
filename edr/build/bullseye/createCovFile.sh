@@ -17,34 +17,32 @@ function failure()
 
 [[ -n ${COVFILE} ]] || failure 2 "COVFILE not set!"
 
-#if [[ -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager ]]
-#then
-#    covlmgr -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager --use || failure 3 "Unable to use licence /pandorum/BullseyeLM/BullseyeCoverageLicenseManager"
-#elif [[ -f /root/BullseyeCoverageLicenseManager ]]
-#then
-#    covlmgr -f /root/BullseyeCoverageLicenseManager --use \
-#        || failure 3 "Unable to use licence /root/BullseyeCoverageLicenseManager"
-#fi
+if [[ -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager ]]
+then
+    covlmgr -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager --use || failure 3 "Unable to use licence /pandorum/BullseyeLM/BullseyeCoverageLicenseManager"
+elif [[ -f /root/BullseyeCoverageLicenseManager ]]
+then
+    covlmgr -f /root/BullseyeCoverageLicenseManager --use \
+        || failure 3 "Unable to use licence /root/BullseyeCoverageLicenseManager"
+fi
 
 CLEAN=0
 if [[ ! -f ${COVFILE} ]]
 then
     mkdir -p $(dirname ${COVFILE})
     chmod 777 $(dirname ${COVFILE})
-#    covmgr -l -c
-#    cov01 -1
-#
-#    [[ -f ${COVFILE} ]] || {
-#        echo "Failed to create COVFILE: $?"
-#        exit 1
-#    }
-#    CLEAN=1
-  #TODO - remove this after debug
-  touch  $COVFILE
+    covmgr -l -c
+    cov01 -1
+
+    [[ -f ${COVFILE} ]] || {
+        echo "Failed to create COVFILE: $?"
+        exit 1
+    }
+    CLEAN=1
 fi
 
 chmod 666 "${COVFILE}"
-#covselect --deleteAll || failure 10 "Failed to clean cov selections"
+covselect --deleteAll || failure 10 "Failed to clean cov selections"
 
 ## cov exclusions need to be relative to the COVFILE
 
@@ -82,9 +80,9 @@ echo "SCRIPT_DIR=$SCRIPT_DIR"
 echo "SRC_DIR=$SRC_DIR"
 echo "rel path = $currentDir"
 
-
-EXCLUSION_FILE=$COVDIR/$currentDir/src/regression/supportFiles/bullseye/bullseyeExclusionFile.txt
-
+#
+#EXCLUSION_FILE=$COVDIR/$currentDir/src/regression/supportFiles/bullseye/bullseyeExclusionFile.txt
+#
 #[ -f $EXCLUSION_FILE ] || {
 #    echo "Relative path between $COVFILE and $BASE_DIR is incorrect!"
 #    echo "Path tried = $EXCLUSION_FILE"
@@ -104,26 +102,29 @@ function exclude()
     echo "covselect --add $*"
     covselect --add $@ || failure 3 "Failed to add exclusion $*"
 }
-#
-#echo "Excluding \!../../redist/"
-#covselect --quiet --add \!../../redist/ || failure 4 "Failed to exclude /redist"
-#echo "Excluding \!../../opt/"
-#covselect --quiet --add \!../../opt/ || failure 5 "Failed to exclude /opt"
-#echo "Excluding \!../../lib/"
-#covselect --quiet --add \!../../lib/ || failure 6 "Failed to exclude /lib"
-#
-#SRC_TEST_DIR=${SRC_DIR}/tests
-#
-#[[ -d ${SRC_TEST_DIR} ]] || {
-#    echo "Failed to find src dir - SRC_TEST_DIR doesn't exist"
-#    exit 2
-#}
-#
-#exclude \!../..${SRC_DIR}/build/
-#exclude \!../..${SRC_DIR}/build64/
-#exclude \!../..${SRC_DIR}/redist/
-#exclude \!../..${SRC_DIR}/sspl-edr-plugin-build/
-#exclude \!../..${SRC_TEST_DIR}/
-#
-#echo "Exclusions:"
-#covselect --list --no-banner
+
+echo "Excluding \!../../redist/"
+covselect --quiet --add \!../../redist/ || failure 4 "Failed to exclude /redist"
+echo "Excluding \!../../opt/"
+covselect --quiet --add \!../../opt/ || failure 5 "Failed to exclude /opt"
+echo "Excluding \!../../lib/"
+covselect --quiet --add \!../../lib/ || failure 6 "Failed to exclude /lib"
+
+SRC_TEST_DIR=${SRC_DIR}/tests
+
+[[ -d ${SRC_TEST_DIR} ]] || {
+    echo "Failed to find src dir - SRC_TEST_DIR doesn't exist"
+    exit 2
+}
+
+exclude \!../..${SRC_DIR}/build/
+exclude \!../..${SRC_DIR}/build64/
+exclude \!../..${SRC_DIR}/redist/
+exclude \!../..${SRC_DIR}/sspl-edr-plugin-build/
+exclude \!../..${SRC_TEST_DIR}/
+exclude \!../..${SRC_DIR}/log/
+exclude \!../..${SRC_DIR}/cmake-build-debug/
+exclude \!../..${SRC_DIR}/TA/
+
+echo "Exclusions:"
+covselect --list --no-banner
