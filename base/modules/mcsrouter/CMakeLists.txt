@@ -19,7 +19,7 @@ add_custom_target(mcsrouter
         ${CMAKE_BINARY_DIR}/lib-dynload
         ${CMAKE_BINARY_DIR}/pathtools
         ${CMAKE_BINARY_DIR}/watchdog
-        ${PYCRYPTODOME_INPUT}/Crypto
+        ${CMAKE_BINARY_DIR}/Crypto
         ${CMAKE_BINARY_DIR}/python3
         )
 # this is to make sure there is a connection between the targets that clion knows it needs to build
@@ -66,7 +66,7 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/watchdog
         COMMAND find ${CMAKE_BINARY_DIR}/watchdog -name "*.pyo" -type f | xargs -r rm -f
         )
 
-add_custom_command(OUTPUT ${PYCRYPTODOME_INPUT}/Crypto
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Crypto
         WORKING_DIRECTORY ${PYCRYPTODOME_INPUT}/..
         # Copy the whole directory as it may contain a mix of python and C files.
         COMMAND cp -r ${PYCRYPTODOME_INPUT}/Crypto ${CMAKE_BINARY_DIR}
