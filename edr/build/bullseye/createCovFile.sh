@@ -29,8 +29,8 @@ function failure()
 CLEAN=0
 if [[ ! -f ${COVFILE} ]]
 then
-#    mkdir -p $(dirname ${COVFILE})
-#    chmod 777 $(dirname ${COVFILE})
+    mkdir -p $(dirname ${COVFILE})
+    chmod 777 $(dirname ${COVFILE})
 #    covmgr -l -c
 #    cov01 -1
 #
@@ -40,7 +40,6 @@ then
 #    }
 #    CLEAN=1
   #TODO - remove this after debug
-  mkdir -p $COVDIR
   touch  $COVFILE
 fi
 
