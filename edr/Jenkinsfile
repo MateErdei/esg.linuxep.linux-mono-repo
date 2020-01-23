@@ -38,15 +38,6 @@ try{
                 params.Mode,
                 version_number,
                 project_builddir)
-
-            SuccessfulBuild(
-                params.CommitHash,
-                params.PortalId,
-                params.PortalAddress,
-                'master',
-                project_gitrepo,
-                git_branch,
-                project_release_xml)
         },
         coverage_build:
         {
@@ -56,16 +47,15 @@ try{
                 project_release_xml,
                 'coverage',
                 version_number,
-                project_builddir,
-                )
+                project_builddir)
         }
     }
     else
     {
         echo 'Starting ticket branch edr build'
         ArtisanBuild(buildAgentTemplate, project_release_xml, params.Mode, version_number, project_builddir)
-        SuccessfulBuild(project_release_xml)
     }
+    SuccessfulBuild(project_release_xml)
 
 } catch(e){
     FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
