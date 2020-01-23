@@ -339,7 +339,6 @@ namespace Plugin
     void PluginAdapter::prepareSystemForPlugin()
     {
         auto fileSystem = Common::FileSystem::fileSystem();
-
         bool disableAuditD = true;
 
         if (fileSystem->isFile(Plugin::edrConfigFilePath()))
@@ -363,7 +362,6 @@ namespace Plugin
         }
 
         std::string serviceName("auditd");
-
         if (disableAuditD)
         {
             if (checkIfServiceActive(serviceName))
@@ -374,8 +372,6 @@ namespace Plugin
             {
                 LOGINFO("AuditD not found on system or is not active.");
             }
-
-            // Check to make sure all platforms use the same service name for auditd
         }
         else
         {
