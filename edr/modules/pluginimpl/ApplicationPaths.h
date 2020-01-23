@@ -20,5 +20,7 @@ namespace Plugin
     std::string osQueryDataBasePath();
     std::string edrConfigFilePath();
     std::string getEdrVersionIniFilePath();
+    std::string systemctlPath();
+    std::string servicePath();
 
 } // namespace Plugin

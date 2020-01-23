@@ -13,10 +13,9 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/Proc/ProcUtilities.h>
-
-#include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <modules/Proc/ProcUtilities.h>
 
 #include <cmath>
 
@@ -60,6 +59,7 @@ public:
     }
 };
 #include "Telemetry.h"
+
 #include <livequery/ResponseDispatcher.h>
 
 namespace Plugin
@@ -73,8 +73,8 @@ namespace Plugin
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
-        m_queryProcessor{std::move(queryProcessor)},
-        m_responseDispatcher{std::move(responseDispatcher)},
+        m_queryProcessor { std::move(queryProcessor) },
+        m_responseDispatcher { std::move(responseDispatcher) },
         m_timesOsqueryProcessFailedToStart(0)
     {
     }
@@ -202,11 +202,10 @@ namespace Plugin
         // safe to clean up.
     }
 
-    void PluginAdapter::processQuery(const std::string &queryJson, const std::string &correlationId)
+    void PluginAdapter::processQuery(const std::string& queryJson, const std::string& correlationId)
     {
         livequery::processQuery(*m_queryProcessor, *m_responseDispatcher, queryJson, correlationId);
     }
-
 
     void PluginAdapter::regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath)
     {
@@ -244,7 +243,6 @@ namespace Plugin
         })";
 
         fileSystem->writeFile(osqueryConfigFilePath, osqueryConfiguration.str());
-
     }
 
     void PluginAdapter::regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath)
@@ -285,9 +283,9 @@ namespace Plugin
                                          "--force=true",
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false",
-                                         "--events_max=20000"};
+                                         "--events_max=20000" };
 
-        flags.push_back("--syslog_pipe_path=" + Plugin::syslogPipe()),
+        flags.push_back("--syslog_pipe_path=" + Plugin::syslogPipe());
         flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
         flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
@@ -299,11 +297,10 @@ namespace Plugin
         fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
     }
 
-
     bool PluginAdapter::checkIfServiceActive(const std::string& serviceName)
     {
         auto process = Common::Process::createProcess();
-        process->exec("/bin/systemctl", { "is-active", serviceName });
+        process->exec(Plugin::systemctlPath(), { "is-active", serviceName });
 
         return (process->exitCode() == 0);
     }
@@ -311,20 +308,20 @@ namespace Plugin
     void PluginAdapter::stopSystemService(const std::string& serviceName)
     {
         auto process = Common::Process::createProcess();
-        process->exec("/bin/systemctl", { "stop", serviceName });
+        process->exec(Plugin::systemctlPath(), { "stop", serviceName });
 
-        if(process->exitCode() == 4)
+        if (process->exitCode() == 4)
         {
             // handle error: unit auditd.service may be requested by dependency only
             // try to stop the service again using service command
-            process->exec("/sbin/service", { serviceName, "stop" });
+            process->exec(Plugin::servicePath(), { serviceName, "stop" });
         }
 
-        if(process->exitCode() == 0)
+        if (process->exitCode() == 0)
         {
             LOGINFO("Successfully stopped service: " << serviceName);
-            process->exec("/bin/systemctl", { "disable", serviceName });
-            if(process->exitCode() == 0)
+            process->exec(Plugin::systemctlPath(), { "disable", serviceName });
+            if (process->exitCode() == 0)
             {
                 LOGINFO("Successfully disabled service: " << serviceName);
             }
@@ -360,12 +357,14 @@ namespace Plugin
         }
         else
         {
-            LOGWARN("Could not find EDR Plugin config file: " <<  Plugin::edrConfigFilePath() << ", using disable_auditd default value");
+            LOGWARN(
+                "Could not find EDR Plugin config file: " << Plugin::edrConfigFilePath()
+                                                          << ", using disable_auditd default value");
         }
 
         std::string serviceName("auditd");
 
-        if(disableAuditD)
+        if (disableAuditD)
         {
             if (checkIfServiceActive(serviceName))
             {
@@ -380,7 +379,7 @@ namespace Plugin
         }
         else
         {
-            if(checkIfServiceActive(serviceName))
+            if (checkIfServiceActive(serviceName))
             {
                 LOGWARN("EDR configuration set to not disable AuditD, it will not be possible to obtain event data.");
             }
@@ -389,6 +388,5 @@ namespace Plugin
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath());
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
     }
-
 
 } // namespace Plugin

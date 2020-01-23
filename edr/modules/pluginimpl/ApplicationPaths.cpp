@@ -74,3 +74,11 @@ std::string Plugin::edrConfigFilePath()
 {
     return fromRelative("etc/plugin.conf");
 }
+std::string Plugin::systemctlPath()
+{
+    return "/bin/systemctl";
+}
+std::string Plugin::servicePath()
+{
+    return "/sbin/service";
+}
