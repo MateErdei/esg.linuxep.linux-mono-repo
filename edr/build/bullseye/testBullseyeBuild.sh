@@ -15,9 +15,6 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 [[ -n ${BASE} ]] || BASE=${SCRIPT_DIR}/../..
 export BASE
 
-#marked out
-[[ -n ${TEST_SELECTOR} ]] || TEST_SELECTOR=
-
 if [[ -n "$COVFILE" ]]
 then
     echo "Creating links for COVFILE $COVFILE"
@@ -38,9 +35,6 @@ export COVFILE
 PRIVATE_KEY="${SCRIPT_DIR}/private.key"
 chmod 600 "${PRIVATE_KEY}"
 export GIT_SSH_COMMAND="ssh -i ${PRIVATE_KEY}"
-
-#SYSTEM_TEST_CHECKOUT="/tmp/system-tests"
-
 
 unset LD_LIBRARY_PATH
 
