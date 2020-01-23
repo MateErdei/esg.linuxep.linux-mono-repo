@@ -24,8 +24,7 @@ try{
 
     git_branch = "${env.BRANCH_NAME}"
     echo git_branch
-//  replace below with this when done testing  if (git_branch == 'master')
-    if (git_branch.endsWith('coverity-to-the-edr-plugin'))
+    if (git_branch == 'master')
     {
         parallel Build:
         {
