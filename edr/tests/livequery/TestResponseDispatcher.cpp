@@ -65,7 +65,8 @@ TEST(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumns)
       {"name": "pathname", "type": "TEXT"},
       {"name": "sophosPID", "type": "TEXT"},
       {"name": "start_time", "type": "BIGINT"}
-    ]
+    ],
+    "columnData":[]
 })";
     ResponseDispatcher dispatcher;
     std::string calculated = dispatcher.serializeToJson(response);
@@ -111,7 +112,8 @@ TEST(TestResponseDispatcher, emptyResponseWhereNotRowWasSelectedShouldReturnExpe
       {"name": "pathname", "type": "TEXT"},
       {"name": "sophosPID", "type": "TEXT"},
       {"name": "start_time", "type": "BIGINT"}
-    ]
+    ],
+    "columnData":[]
 })";
     ResponseDispatcher dispatcher;
     std::string calculated = dispatcher.serializeToJson(response);
@@ -316,7 +318,7 @@ TEST(TestResponseDispatcher, missingEntriesShouldBeSetToNull)
                         << "\nCalculated: "<< calculated << ".\n expected: \n" << expected;
 }
 
-TEST(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumnsIfTheyExceed10Mb)
+TEST(TestResponseDispatcher, JsonForExceededEntriesHasEmptyDataColumnsIfTheyExceed10Mb)
 {
     ResponseData::ColumnData columnData;
     columnData.reserve(10*1024);
@@ -345,7 +347,8 @@ TEST(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumnsIf
       {"name": "pathname", "type": "TEXT"},
       {"name": "sophosPID", "type": "TEXT"},
       {"name": "start_time", "type": "BIGINT"}
-    ]
+    ],
+    "columnData":[]
 })";
     ResponseDispatcher dispatcher;
     std::string calculated = dispatcher.serializeToJson(response);

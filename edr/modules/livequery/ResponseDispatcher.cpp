@@ -210,12 +210,17 @@ namespace livequery
 "columnMetaData": )" << columnMetaDataObject(response);
         }
 
-        if ( ! limitExceeded && !columnDataObjectSerialized.empty())
+        if ( !limitExceeded && !columnDataObjectSerialized.empty())
         {
             serializedJson << R"(,
 "columnData": )" << columnDataObjectSerialized ;
         }
-
+        else if (response.status().errorCode() == livequery::ErrorCode::SUCCESS \
+        || response.status().errorCode() == livequery::ErrorCode::RESPONSEEXCEEDLIMIT)
+        {
+            serializedJson << R"(,
+"columnData":[])";
+        }
         serializedJson << R"(
 })";
         return serializedJson.str();
