@@ -24,8 +24,9 @@ try{
 
     git_branch = "${env.BRANCH_NAME}"
     echo git_branch
-    if (git_branch == 'master')
-    {
+//  replace below with this when done testing  if (git_branch == 'master')
+    if (git_branch.endsWith('coverity-to-the-edr-plugin'))
+
         echo 'Starting edr master branch builds'
         parallel Build:
         {
@@ -49,22 +50,20 @@ try{
         },
         coverage_build:
         {
-            echo 'Starting edr master coverage build'
-            ArtisanBuild(
-                params.CommitHash,
-                params.PortalId,
-                buildAgentTemplate,
-                project_release_xml,
-                'coverage',
-                version_number,
-                project_builddir,
-                )
+            echo 'Starting coverage build'
+            def build_image = DockerBuildImage(
+            operatingSystem: 'Linux',
+            dockerfileDirectoryPath: 'build/scripts',
+            dockerfileName: 'docker/ESGCI_Dockerfile'
+            )
+
+            build_image.build(
+                        pathToReleasePackage: 'build/config/release-package.xml',               // Path to package xml.
+                        buildMode: 'coverage',                                                   // Build mode used by the package xml options e.g. for driving bullseye builds, coverity builds, 64-bit, 32-bit etc.
+                        buildTimeOut: 30                                                        // Timeout in minutes.
+                    )
+            echo 'Finished coverage build'
         }
-    }
-    else if (git_branch.endsWith('coverage-build'))
-    {
-        echo 'Starting bullseye coverage build'
-        ArtisanBuild(buildAgentTemplate, project_release_xml, 'coverage', version_number, project_builddir)
     }
     else
     {

@@ -225,8 +225,6 @@ function build()
         untar_input cmake cmake-3.11.2-linux
         untar_input $GOOGLETESTTAR
         untar_input boost
-        untar_input osquerysdk
-        untar_input openssl
 
         mkdir -p "$REDIST"/osquery
         tar xzf ${INPUT}/osquery-4.0.2_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
@@ -319,17 +317,23 @@ function build()
     make dist CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
     cd ..
 
-    rm -rf output
-    mkdir -p output
-    echo "STARTINGDIR=$STARTINGDIR" >output/STARTINGDIR
-    echo "BASE=$BASE" >output/BASE
-    echo "PATH=$PATH" >output/PATH
-    echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >output/LD_LIBRARY_PATH
+    #output to different directory according build type
+    OUTPUT_DIR="output"
+    if(( ${BULLSEYE} == 1))
+    then
+      OUTPUT_DIR="coverage"
+    fi
+
+    rm -rf ${OUTPUT_DIR}
+    mkdir -p ${OUTPUT_DIR}
+    echo "STARTINGDIR=$STARTINGDIR" >${OUTPUT_DIR}/STARTINGDIR
+    echo "BASE=$BASE" >${OUTPUT_DIR}/BASE
+    echo "PATH=$PATH" >${OUTPUT_DIR}/PATH
+    echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >${OUTPUT_DIR}/LD_LIBRARY_PATH
 
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
-    cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
-    cp -a ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
-    cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
+    cp -a build64/sdds ${OUTPUT_DIR}/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
+    cp -a ${INPUT}/base-sdds  ${OUTPUT_DIR}/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
 
     if [[ -d build${BITS}/symbols ]]
     then
@@ -339,7 +343,7 @@ function build()
     if (( ${BULLSEYE} == 1 ))
     then
         #keep a copy of the COVFILE for the testing in tap machine??
-        cp -a ${COVFILE} output/|| exitFailure FAILURE_BULLSEYE "Failed to copy ${COVFILE} to the output dir"
+        cp -a ${COVFILE} ${OUTPUT_DIR}/|| exitFailure FAILURE_BULLSEYE "Failed to copy ${COVFILE} to the output dir"
     fi
 
 #    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
