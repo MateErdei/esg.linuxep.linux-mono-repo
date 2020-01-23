@@ -15,6 +15,11 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 log_mode=tap.LoggingMode.ON_ERROR)
 
 
+def has_coverage_build(branch_name):
+    """If the branch name does an analysis mode build"""
+    return branch_name == 'master' or branch_name.endswith('coverage')
+
+
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
@@ -51,12 +56,15 @@ def pytest_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext):
+def get_inputs(context: tap.PipelineContext, coverage):
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         edr=context.artifact.build() / 'output'
     )
+    if has_coverage_build(context.branch) and coverage == True:
+        test_inputs['edr_coverage']=context.artifact.build() / 'coverage'
+
     return test_inputs
 
 
@@ -66,5 +74,9 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
     with stage.group('integration'):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     with stage.group('component'):
+        if 'edr_coverage' in machine.inputs:
+            machine.inputs['edr'] = machine.inputs['edr_coverage']
+            machine.inputs.pop('edr_coverage')
+            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
 
