@@ -26,6 +26,7 @@ try{
     echo git_branch
 //  replace below with this when done testing  if (git_branch == 'master')
     if (git_branch.endsWith('coverity-to-the-edr-plugin'))
+    {
 
         echo 'Starting edr master branch builds'
         parallel Build:
@@ -52,9 +53,9 @@ try{
         {
             echo 'Starting coverage build'
             def build_image = DockerBuildImage(
-            operatingSystem: 'Linux',
-            dockerfileDirectoryPath: 'build/scripts',
-            dockerfileName: 'docker/ESGCI_Dockerfile'
+                operatingSystem: 'Linux',
+                dockerfileDirectoryPath: 'build/scripts',
+                dockerfileName: 'docker/ESGCI_Dockerfile'
             )
 
             build_image.build(
