@@ -15,13 +15,15 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 [[ -n ${BASE} ]] || BASE=${SCRIPT_DIR}/../..
 export BASE
 
+#marked out
 [[ -n ${TEST_SELECTOR} ]] || TEST_SELECTOR=
 
 if [[ -n "$COVFILE" ]]
 then
     echo "Creating links for COVFILE $COVFILE"
     sudo ln -nsf "$COVFILE" /root/fulltest.cov
-    sudo ln -nsf "$COVFILE" /test.cov
+    #sudo ln -nsf "$COVFILE" /test.cov
+
     COVDIR=$(dirname "$COVFILE")
     echo "COVFILE=$COVFILE" >/tmp/BullseyeCoverageEnv.txt
     echo "COVDIR=$COVDIR" >>/tmp/BullseyeCoverageEnv.txt
@@ -37,13 +39,13 @@ PRIVATE_KEY="${SCRIPT_DIR}/private.key"
 chmod 600 "${PRIVATE_KEY}"
 export GIT_SSH_COMMAND="ssh -i ${PRIVATE_KEY}"
 
-SYSTEM_TEST_CHECKOUT="/tmp/system-tests"
+#SYSTEM_TEST_CHECKOUT="/tmp/system-tests"
 
 [[ -n ${BULLSEYE_SYSTEM_TEST_BRANCH} ]] || BULLSEYE_SYSTEM_TEST_BRANCH=master
 
 unset LD_LIBRARY_PATH
 
-ln -nsf "$COVFILE" test.cov
+#ln -nsf "$COVFILE" test.cov
 ln -nsf "$COVFILE" .
 
 DEVBFR=NOT_FOUND
@@ -55,27 +57,30 @@ LASTGOODBUILD () {
 }
 
 [[ ! -z ${BASE_BRANCH} ]]                 || BASE_BRANCH="master"
-[[ ! -z ${EXAMPLE_PLUGIN_BRANCH} ]]       || EXAMPLE_PLUGIN_BRANCH="master"
-[[ ! -z ${AUDIT_PLUGIN_BRANCH} ]]         || AUDIT_PLUGIN_BRANCH="master"
-[[ ! -z ${EVENT_PROCESSOR_BRANCH} ]]      || EVENT_PROCESSOR_BRANCH="master"
-[[ ! -z ${MDR_PLUGIN_BRANCH} ]]           || MDR_PLUGIN_BRANCH="master"
-[[ ! -z ${MDR_COMPONENT_SUITE_BRANCH} ]]  || MDR_COMPONENT_SUITE_BRANCH="master"
+[[ ! -z ${EDR_PLUGIN_BRANCH} ]]           || EDR_PLUGIN_BRANCH="master"
 
 ## Find base
 BASE_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-base/${BASE_BRANCH}" )/sspl-base/*/output/SDDS-COMPONENT)
 export BASE_DIST=${BASE_SOURCE}
 
 
-# Use the bullseye build of the MTR plugin which has just been done
-export SSPL_EDR_PLUGIN_SDDS="/opt/test/inputs/edr/SDDS-COMPONENT"
-if [[ ! -d "$SSPL_PLUGIN_EVENTPROCESSOR_SDDS" ]]
+# Use the bullseye build of the EDR plugin which has just been done
+SSPL_EDR_PLUGIN="${BASE}/output"
+if [[ ! -d ${SSPL_EDR_PLUGIN} ]]
 then
     failure 79 "No EDR plugin build"
 fi
 
+#move the build to /opt/test/inputs/edr as expected by test is running on TAP
+#a) /opt/test/inputs/test_scripts -> /vagrant/sspl-plugin-edr-component/TA
+#b) /opt/test/inputs/edr/SDDS-COMPONENT -> /vagrant/sspl-plugin-edr-component/output/SDDS-COMPONENT/
+PYTEST_SCRIPTS=/opt/test/inputs/test_scripts
+ln -nsf "${BASE}/TA" ${PYTEST_SCRIPTS}
+ln -nsf ${SSPL_EDR_PLUGIN}  /opt/test/inputs/edr
+
 ## Requires sudo permissions:
 PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,
-cd /home/bullseye/jenkins-agent/workspace/SSPL-EDR-Plugin-bullseye-unit-test-coverage/TA
+cd ${PYTEST_SCRIPTS}
 sudo \
     --preserve-env="${PRESERVE_ENV}" \
     python3 -m pytest

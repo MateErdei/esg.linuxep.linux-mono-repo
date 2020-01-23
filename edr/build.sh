@@ -324,6 +324,7 @@ function build()
     rm -rf output
     mkdir -p output
     echo "STARTINGDIR=$STARTINGDIR" >output/STARTINGDIR
+    echo "STARTINGDIR=$STARTINGDIR" >output/STARTINGDIR
     echo "BASE=$BASE" >output/BASE
     echo "PATH=$PATH" >output/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >output/LD_LIBRARY_PATH
@@ -347,7 +348,7 @@ function build()
 #    then
 #        cd $BASE
 #        export BULLSEYE_SYSTEM_TEST_BRANCH
-#        bash -x $BASE/build/bullseye/runSystemTest.sh || {
+#        bash -x $BASE/build/bullseye/testBullseyeBuild.sh || {
 #            ## System tests failed to sync or similar
 #            EXIT=$?
 #            echo "System tests failed: $EXIT"

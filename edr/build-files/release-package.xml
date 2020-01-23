@@ -70,7 +70,6 @@
 
             <!-- Coverage -->
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
-            <output name="build_log" srcfolder="log" artifactpath="coverage/build_log" mode="coverage"> </output>
 
         </buildoutputs>
         <publishbranches>master,feature,bugfix,release</publishbranches>
