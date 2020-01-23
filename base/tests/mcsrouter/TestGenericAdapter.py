@@ -76,6 +76,51 @@ class TestGenericAdapter(unittest.TestCase):
         with mock.patch("builtins.open", mocked_open_function):
             m.process_command(alc_policy)
 
+    def testBrokenPolicyShouldNotCrashGenericAdapter(self):
+
+        m = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
+        self.assertEqual(m.get_app_id(), 'ALC')
+        invalid_alc_policy="""<?xml version='1.0'?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="
+
+
+" xmlns="http://www.sophos.com/EE/AUConfig">
+<csc:Comp RevID="5514d7970027ac81cc3686799c9359043dafbc72d4b809490ca82bacc4bf5026" policyType="1"></csc:Comp>
+<AUConfig platform="Linux">
+<sophos_address address="http://es-web.sophos.com/update"></sophos_address>
+<primary_location>
+<server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="xn28ddszs1q" UserName="CSP7I0S0GZZE" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"></server>
+<proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"></proxy>
+</primary_location>
+<secondary_location>
+<server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"></server>
+<proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"></proxy>
+</secondary_location>
+<schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"></schedule>
+<logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"></logging>
+<bootstrap Location="" UsePrimaryServerAddress="true"></bootstrap>
+<cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"></cloud_subscription>
+<cloud_subscriptions>
+<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"></subscription>
+<subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"></subscription>
+</cloud_subscriptions>
+<delay_supplements enabled="true"></delay_supplements>
+</AUConfig>
+<Features>
+<Feature id="CORE"></Feature>
+<Feature id="MDR"></Feature>
+<Feature id="SDU"></Feature>
+</Features>
+<intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"></intelligent_updating>
+<customer id="ad936fd6-329d-e43b-cb15-3635be1058db"></customer>
+</AUConfigurations>"""
+        alc_policy = FakeCommand(invalid_alc_policy)
+        mocked_open_function = mock.mock_open()
+        with mock.patch("builtins.open", mocked_open_function):
+            m.process_command(alc_policy)
+
+
+
     def testGetStatus(self):
         m = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
         self.assertEqual(m.get_app_id(), 'ALC')
