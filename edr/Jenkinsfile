@@ -27,15 +27,16 @@ try{
 //  replace below with this when done testing  if (git_branch == 'master')
     if (git_branch.endsWith('coverity-to-the-edr-plugin'))
     {
-        echo 'Starting edr master branch builds'
         parallel Build:
         {
+            echo 'Starting edr master release builds'
             ArtisanBuild(
                 buildAgentTemplate,
                 project_release_xml,
                 params.Mode,
                 version_number,
                 project_builddir)
+            echo 'Finished edr master release build'
         },
         coverage_build:
         {
@@ -46,6 +47,7 @@ try{
                 'coverage',
                 version_number,
                 project_builddir)
+            echo 'Finished edr master coverage build'
         }
     }
     else
