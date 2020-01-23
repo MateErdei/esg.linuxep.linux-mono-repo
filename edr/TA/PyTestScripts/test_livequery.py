@@ -122,7 +122,7 @@ def test_edr_plugin_expected_responses_to_livequery(sspl_mock, edr_plugin_instan
     """)
 
     send_and_receive_query_and_verify(crash_query, sspl_mock.management, edr_plugin_instance,
-                                      crash_query_response, response_timeout=60)
+                                      crash_query_response, response_timeout=100)
 
     # demonstrate that after a 'osquery crash' it is still possible to get normal and good answers
     send_and_receive_query_and_verify(top_2_processes_query, sspl_mock.management, edr_plugin_instance, top_2_processes_response)
