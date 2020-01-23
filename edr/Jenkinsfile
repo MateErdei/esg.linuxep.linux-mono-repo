@@ -31,8 +31,6 @@ try{
         parallel Build:
         {
             ArtisanBuild(
-                params.CommitHash,
-                params.PortalId,
                 buildAgentTemplate,
                 project_release_xml,
                 params.Mode,
