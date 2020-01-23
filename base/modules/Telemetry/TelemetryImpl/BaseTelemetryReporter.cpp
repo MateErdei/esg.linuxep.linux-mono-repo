@@ -114,7 +114,9 @@ namespace Telemetry
             //TODO - LINUXDAR-735
             // Current implementation has to get around the limitations of AttributesMap::entitiesThatContainPath implementation -
             Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(policyXml);
-            std::string customerElementPath = "AUConfigurations/customer";
+
+            // Search for paths that include the # so that we don't match sub-elements of customer or elements that start with customer
+            std::string customerElementPath = "AUConfigurations/customer#";
             auto matchingPaths = attributesMap.entitiesThatContainPath(customerElementPath);
             if (matchingPaths.empty())
             {
@@ -127,7 +129,6 @@ namespace Telemetry
                 std::string customerId = attributes.value("id");
                 std::string expectedCustomerIdPath;
                 expectedCustomerIdPath += customerElementPath;
-                expectedCustomerIdPath += "#";
                 expectedCustomerIdPath += customerId;
                 if( matchingPath == (expectedCustomerIdPath) )
                 {

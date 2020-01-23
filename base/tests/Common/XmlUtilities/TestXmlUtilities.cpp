@@ -200,3 +200,44 @@ TEST(TestXmlUtilities, DuplicateElementsWithIdsCanBeRetrieved) // NOLINT
     EXPECT_EQ(attributesList[0].value("id"), "1");
     EXPECT_EQ(attributesList[1].value("id"), "2");
 }
+
+TEST(TestXmlUtilities, ChildElementsAreNotRetrieved) // NOLINT
+{
+    auto simpleXml = parseXml(R"(<xml><a id="1">ONE<a id="99"/></a><a id="2">TWO<a id="98"/></a></xml>)");
+    auto attributesList = simpleXml.lookupMultiple("xml/a");
+    ASSERT_EQ(attributesList.size(), 2);
+    EXPECT_EQ(attributesList[0].value("id"), "1");
+    EXPECT_EQ(attributesList[0].contents(), "ONE");
+    EXPECT_EQ(attributesList[1].value("id"), "2");
+    EXPECT_EQ(attributesList[1].contents(), "TWO");
+}
+
+TEST(TestXmlUtilities, GetIdFromElement) // NOLINT
+{
+    /*
+     * This is an investigation around the bug LINUXDAR-735
+     * entitiesThatContainPath will return child elements of the queried elements.
+     * lookupMultiple doesn't return child elements
+     * Adding the # prevents either from returning prefix-extending versions
+     */
+
+    std::string policySnippet = R"(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <customer id="a">
+    <entry id="b"/>
+  </customer>
+  <customerflag id="c"/>
+</AUConfigurations>)";
+
+    auto simpleXml = parseXml(policySnippet);
+    auto keys = simpleXml.entitiesThatContainPath("AUConfigurations/customer#");
+    ASSERT_EQ(keys.size(), 2);
+    EXPECT_EQ(keys[0], "AUConfigurations/customer#a");
+    auto attrs = simpleXml.lookup(keys[0]);
+    EXPECT_EQ(attrs.value("id"), "a");
+
+
+    auto attributesList = simpleXml.lookupMultiple("AUConfigurations/customer#");
+    ASSERT_EQ(attributesList.size(), 1);
+    EXPECT_EQ(attributesList[0].value("id"), "a");
+}

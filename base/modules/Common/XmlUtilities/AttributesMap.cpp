@@ -287,7 +287,7 @@ namespace Common::XmlUtilities
         std::vector<Attributes> results;
         for (const auto& fullPathEntry : m_idOrderedFullName)
         {
-            if (fullPathEntry.find(entityFullPath) == 0)
+            if (fullPathEntry.find(entityFullPath) == 0 && fullPathEntry.substr(entityFullPath.size()).find('/') == std::string::npos)
             {
                 results.push_back(m_attributesMap.at(fullPathEntry));
             }
