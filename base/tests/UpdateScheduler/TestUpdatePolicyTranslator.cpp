@@ -19,6 +19,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <future>
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 static const std::string updatePolicyWithCache{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
@@ -141,6 +142,7 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
 </AUConfigurations>
 )sophos" };
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 static const std::string updatePolicyWithProxy{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
@@ -183,6 +185,7 @@ static const std::string updatePolicyWithProxy{ R"sophos(<?xml version="1.0"?>
 </AUConfigurations>
 )sophos" };
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 static const std::string updatePolicyWithScheduledUpdate{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
@@ -226,6 +229,7 @@ static const std::string updatePolicyWithScheduledUpdate{ R"sophos(<?xml version
 </AUConfigurations>
 )sophos" };
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 static const std::string updatePolicyWithAESCredential{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
@@ -269,12 +273,14 @@ static const std::string updatePolicyWithAESCredential{ R"sophos(<?xml version="
 </AUConfigurations>
 )sophos" };
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 static const std::string incorrectPolicyTypeXml{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="2"/>
 </AUConfigurations>
 )sophos" };
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 static const std::string cacheCertificates{ R"sophos(-----BEGIN CERTIFICATE-----
 MIIDxDCCAqygAwIBAgIQEFgFEJ0SYXZx+dHI2UTIVzANBgkqhkiG9w0BAQsFADBh
 MQswCQYDVQQGEwJHQjEPMA0GA1UEBwwGT3hmb3JkMQ8wDQYDVQQKDAZTb3Bob3Mx
@@ -343,6 +349,7 @@ wFkMtR8hrPVLP0hcHuzWN2cBmrl0C6TeKufqbZBqb/MPn2LWzKcvF44xs3k7uP/H
 JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 -----END CERTIFICATE-----)sophos" };
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 static const std::string mdrSSPLBasePolicy{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="6d95c7ad1c25b034c94bea54fad38711e3f5057157c3468a8aafe3885f213802" policyType="1"/>
@@ -458,6 +465,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
     EXPECT_EQ(primarySubscription.fixedVersion(), "11");
 
+    // Won't include the ServerProtectionLinux-Base subscription
     const auto& productsSubscription = config.getProductsSubscription();
     ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
@@ -1073,7 +1081,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
 
 // updatePolicyWithAESCredential
 
-TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated)
+TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated) // NOLINT(cert-err58-cpp)
 {
     EXPECT_EQ(
         UpdatePolicyTranslator::calculateSulObfuscated("regruser", "regrABC123pass"),

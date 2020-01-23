@@ -242,7 +242,7 @@ namespace UpdateSchedulerImpl
             if (!delayUpdatingDay.empty() && !delayUpdatingDay.empty())
             {
                 std::string delayUpdatingDayAndTime = delayUpdatingDay + "," + delayUpdatingTime;
-                std::tm scheduledUpdateTime;
+                std::tm scheduledUpdateTime{};
                 if (strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
                 {
                     scheduledUpdate.setScheduledTime({ .weekDay = scheduledUpdateTime.tm_wday,
@@ -275,7 +275,7 @@ namespace UpdateSchedulerImpl
             config.setSystemSslCertificatePath(":system:");
 
             auto cloudSubscriptions =
-                attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions");
+                attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions/subscription");
             std::vector<SulDownloader::suldownloaderdata::ProductSubscription> productsSubscription;
 
             bool ssplBaseIncluded = false;
@@ -313,13 +313,17 @@ namespace UpdateSchedulerImpl
                                                 << " not in the subscription of the policy.");
             }
 
-            auto features = attributesMap.entitiesThatContainPath("AUConfigurations/Features");
+            auto features = attributesMap.entitiesThatContainPath("AUConfigurations/Features/Feature");
             std::vector<std::string> allFeatures;
             bool includesCore = false;
             for (const auto& feature : features)
             {
                 auto featureDetails = attributesMap.lookup(feature);
                 std::string featureName = featureDetails.value("id");
+                if (featureName.empty())
+                {
+                    continue;
+                }
                 if (featureName == "CORE")
                 {
                     includesCore = true;
