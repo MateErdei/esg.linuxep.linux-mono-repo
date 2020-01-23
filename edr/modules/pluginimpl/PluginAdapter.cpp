@@ -12,7 +12,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "TelemetryConsts.h"
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <modules/Proc/ProcUtilities.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/Proc/ProcUtilities.h>
 
@@ -289,7 +288,7 @@ namespace Plugin
                                          "--events_max=20000"};
 
         flags.push_back("--syslog_pipe_path=" + Plugin::syslogPipe()),
-            flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
+        flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
         flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
         flags.push_back("--logger_path=" + Plugin::osQueryLogPath());
