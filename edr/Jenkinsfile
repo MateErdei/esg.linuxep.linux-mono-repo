@@ -52,8 +52,6 @@ try{
         {
             echo 'Starting edr master coverage build'
             ArtisanBuild(
-                params.CommitHash,
-                params.PortalId,
                 buildAgentTemplate,
                 project_release_xml,
                 'coverage',
