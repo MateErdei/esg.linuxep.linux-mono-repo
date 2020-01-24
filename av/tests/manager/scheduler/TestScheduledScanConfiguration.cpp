@@ -381,3 +381,125 @@ TEST(ScheduledScanConfiguration, TestTextIdAttribute) //NOLINT
     auto attributes = attributeMap.lookup("xml/key");
     EXPECT_EQ(attributes.value(attributes.TextId), "bar"); // Rather than foo
 }
+
+TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
+{
+
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <!-- if {{scheduledScanEnabled}} -->
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+          <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>{{day}}</day>
+          </daySet>
+          <timeSet>
+            <time>{{scheduledScanTime}}</time>
+          </timeSet>
+        </schedule>
+        <settings>
+          <scanObjectSet>
+            <CDDVDDrives>false</CDDVDDrives>
+            <hardDrives>true</hardDrives>
+            <networkDrives>false</networkDrives>
+            <removableDrives>false</removableDrives>
+            <kernelMemory>true</kernelMemory>
+          </scanObjectSet>
+          <scanBehaviour>
+            <level>normal</level>
+            <archives>{{scheduledScanArchives}}</archives>
+            <pua>true</pua>
+            <suspiciousFileDetection>false</suspiciousFileDetection>
+            <scanForMacViruses>false</scanForMacViruses>
+            <anti-rootkits>true</anti-rootkits>
+          </scanBehaviour>
+          <actions>
+            <disinfect>true</disinfect>
+            <puaRemoval>false</puaRemoval>
+            <fileAction>doNothing</fileAction>
+            <destination/>
+            <suspiciousFiles>
+              <fileAction>doNothing</fileAction>
+              <destination/>
+            </suspiciousFiles>
+          </actions>
+          <on-demand-options>
+            <minimise-scan-impact>true</minimise-scan-impact>
+          </on-demand-options>
+        </settings>
+      </scan>
+      <scan>
+        <name>Another scan!</name>
+        <schedule>
+          <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>{{day}}</day>
+          </daySet>
+          <timeSet>
+            <time>{{scheduledScanTime}}</time>
+          </timeSet>
+        </schedule>
+        <settings>
+          <scanObjectSet>
+            <CDDVDDrives>false</CDDVDDrives>
+            <hardDrives>true</hardDrives>
+            <networkDrives>false</networkDrives>
+            <removableDrives>false</removableDrives>
+            <kernelMemory>true</kernelMemory>
+          </scanObjectSet>
+          <scanBehaviour>
+            <level>normal</level>
+            <archives>{{scheduledScanArchives}}</archives>
+            <pua>true</pua>
+            <suspiciousFileDetection>false</suspiciousFileDetection>
+            <scanForMacViruses>false</scanForMacViruses>
+            <anti-rootkits>true</anti-rootkits>
+          </scanBehaviour>
+          <actions>
+            <disinfect>true</disinfect>
+            <puaRemoval>false</puaRemoval>
+            <fileAction>doNothing</fileAction>
+            <destination/>
+            <suspiciousFiles>
+              <fileAction>doNothing</fileAction>
+              <destination/>
+            </suspiciousFiles>
+          </actions>
+          <on-demand-options>
+            <minimise-scan-impact>true</minimise-scan-impact>
+          </on-demand-options>
+        </settings>
+      </scan>
+    </scanSet>
+    <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto attributes = attributeMap.lookupMultiple("config/onDemandScan/scanSet/scan");
+    EXPECT_EQ(attributes.size(), 2);
+
+    auto scanIds = attributeMap.entitiesThatContainPath("config/onDemandScan/scanSet/scan", false);
+    ASSERT_EQ(scanIds.size(), 2);
+//    ASSERT_EQ(scanIds[0], "config/onDemandScan/scanSet/scan");
+//    ASSERT_EQ(scanIds[1], "config/onDemandScan/scanSet/scan_0");
+
+    // Check scan name 1 is "Sophos Cloud Scheduled Scan"
+    auto attr = attributeMap.lookup(scanIds[0] + "/name");
+    EXPECT_EQ(attr.contents(), "Sophos Cloud Scheduled Scan");
+
+    attr = attributeMap.lookup(scanIds[1] + "/name");
+    EXPECT_EQ(attr.contents(), "Another scan!");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto scans = m->scans();
+    ASSERT_EQ(scans.size(), 2);
+    EXPECT_EQ(scans[0].name(), "Sophos Cloud Scheduled Scan");
+    EXPECT_EQ(scans[1].name(), "Another scan!");
+}

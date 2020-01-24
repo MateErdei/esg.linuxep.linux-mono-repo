@@ -323,6 +323,12 @@ ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::Att
     auto exclusionAttrs = savPolicy.lookupMultiple("config/onDemandScan/posixExclusions/filePathSet/filePath");
     for (const auto& attr : exclusionAttrs)
     {
-        m_exclusions.push_back(attr.contents());
+        m_exclusions.emplace_back(attr.contents());
+    }
+
+    auto scanIds = savPolicy.entitiesThatContainPath("config/onDemandScan/scanSet/scan", false);
+    for (const auto& id : scanIds)
+    {
+        m_scans.emplace_back(ScheduledScan(savPolicy, id));
     }
 }
