@@ -42,7 +42,7 @@ UNITTEST=1
 export ENABLE_STRIP=1
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
-BULLSEYE_SYSTEM_TESTS=0
+BULLSEYE_COMPONENT_TESTS=0
 COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-edr-unittest
 VALGRIND=0
@@ -134,7 +134,7 @@ do
         --bullseye-system-tests)
             BULLSEYE=1
             BULLSEYE_UPLOAD=1
-            BULLSEYE_SYSTEM_TESTS=1
+            BULLSEYE_COMPONENT_TESTS=1
             COVFILE="/tmp/root/sspl-edr-combined.cov"
             BULLSEYE_UPLOAD=1
             COV_HTML_BASE=sspl-plugin-edr-combined
@@ -302,7 +302,7 @@ function build()
             exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
         }
     # Run the unit tests unless we are doing bullseye system tests then don't run unit test first
-    elif (( ${UNITTEST} == 1 && ${BULLSEYE_SYSTEM_TESTS} == 0 ))
+    elif (( ${UNITTEST} == 1 && ${BULLSEYE_COMPONENT_TESTS} == 0 ))
     then
         make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?
@@ -331,7 +331,7 @@ function build()
         cp -a build${BITS}/symbols output/
     fi
 
-    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
+    if (( ${BULLSEYE_COMPONENT_TESTS} == 1 ))
     then
         cd $BASE
         bash -x $BASE/build/bullseye/testBullseyeBuild.sh || {

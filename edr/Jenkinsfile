@@ -37,17 +37,17 @@ try{
                 project_builddir)
             echo 'Finished edr master release build'
         },
-        coverage_build:
-        {
-            echo 'Starting edr master coverage build'
-            ArtisanBuild(
-                buildAgentTemplate,
-                project_release_xml,
-                'coverage',
-                version_number,
-                project_builddir)
-            echo 'Finished edr master coverage build'
-        }
+//         coverage_build:
+//         {
+//             echo 'Starting edr master coverage build'
+//             ArtisanBuild(
+//                 buildAgentTemplate,
+//                 project_release_xml,
+//                 'coverage',
+//                 version_number,
+//                 project_builddir)
+//             echo 'Finished edr master coverage build'
+//         }
     }
     else
     {

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-## Run the system tests with the output from a build
+## Run the component tests with the output from a build
 
 function failure()
 {
