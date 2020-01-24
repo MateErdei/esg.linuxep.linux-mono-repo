@@ -63,7 +63,7 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
         edr=context.artifact.build() / 'output'
     )
     #override the edr input and get the bullseye coverage build insteady
-    if coverage == True and has_coverage_build(context.branch):
+    if coverage and has_coverage_build(context.branch):
         test_inputs['edr'] = context.artifact.build() / 'coverage'
 
     return test_inputs
