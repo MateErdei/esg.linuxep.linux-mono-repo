@@ -37,6 +37,7 @@ try{
                 project_builddir)
             echo 'Finished edr master release build'
         },
+        // TODO - uncomment this when CI supports bullseye
 //         coverage_build:
 //         {
 //             echo 'Starting edr master coverage build'
