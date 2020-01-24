@@ -1,10 +1,27 @@
 import os
-import time
 
+
+def detect_failure(func):
+    def wrapper_function(sspl_mock, edr_plugin_instance):
+        try:
+            v = func(sspl_mock, edr_plugin_instance)
+            return v
+        except:
+            edr_plugin_instance.set_failed()
+            raise
+    return wrapper_function
+
+# In order to verify the cleanup algorithms which always run on startup and periodically (every 1hour) all these tests use
+# the start up to enter the clean up
+
+
+@detect_failure
 def test_edr_plugin_purges_database_when_threshold_reached(sspl_mock, edr_plugin_instance):
-    edr_plugin_instance.start_edr()
+    edr_plugin_instance.prepare_for_test()
     i = 105
-    time.sleep(3)
+
+    # Make sure the directory for the db files is there so we can put the test files in place
+    os.makedirs(edr_plugin_instance.osquery_database_path(), exist_ok=True)
     while i > 0:
         db_path = edr_plugin_instance.osquery_database_path()
         path = os.path.join(db_path, str(i))
@@ -12,7 +29,6 @@ def test_edr_plugin_purges_database_when_threshold_reached(sspl_mock, edr_plugin
             file.write("blah")
         i -= 1
 
-    edr_plugin_instance.stop_edr()
     edr_plugin_instance.start_edr()
 
     assert edr_plugin_instance.wait_log_contains("Purging Database")
@@ -20,11 +36,10 @@ def test_edr_plugin_purges_database_when_threshold_reached(sspl_mock, edr_plugin
     files = os.listdir(db_path)
     assert len(files) < 10
 
-
+@detect_failure
 def test_edr_plugin_rotates_logfiles_when_threshold_reached(sspl_mock, edr_plugin_instance):
-    edr_plugin_instance.start_edr()
+    edr_plugin_instance.prepare_for_test()
     i = 10
-    time.sleep(3)
     while i > 0:
         log_path = edr_plugin_instance.log_path()
         path = os.path.join(log_path, "osqueryd.results.log." + str(i))
@@ -38,7 +53,6 @@ def test_edr_plugin_rotates_logfiles_when_threshold_reached(sspl_mock, edr_plugi
     with open(file_to_rotate, 'ab')as file:
         file.write(b"\0"*i)
 
-    edr_plugin_instance.stop_edr()
     edr_plugin_instance.start_edr()
 
     assert edr_plugin_instance.wait_log_contains("Rotating osquery logs")
@@ -71,10 +85,9 @@ def test_edr_plugin_rotates_logfiles_when_threshold_reached(sspl_mock, edr_plugi
     assert actual_files == expected_files
 
 
+@detect_failure
 def test_edr_plugin_removes_old_warning_files_when_threshold_reached(sspl_mock, edr_plugin_instance):
-    edr_plugin_instance.start_edr()
-    time.sleep(3)
-
+    edr_plugin_instance.prepare_for_test()
     warning_paths = []
     log_path = edr_plugin_instance.log_path()
     warning_paths.append(os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1001"))
@@ -94,7 +107,6 @@ def test_edr_plugin_removes_old_warning_files_when_threshold_reached(sspl_mock, 
         with open(path, 'a')as file:
             file.write("blah")
 
-    edr_plugin_instance.stop_edr()
     edr_plugin_instance.start_edr()
 
     assert edr_plugin_instance.wait_log_contains("Removed old osquery WARNING file:")
@@ -103,7 +115,7 @@ def test_edr_plugin_removes_old_warning_files_when_threshold_reached(sspl_mock, 
     end_paths = os.listdir(log_path)
     for path in warning_paths:
         if os.path.basename(path) in end_paths:
-            print(path)
+            print("preserved file: {}".format(path))
             preserved_files.append(path)
 
     assert len(preserved_files) == 10
@@ -112,9 +124,10 @@ def test_edr_plugin_removes_old_warning_files_when_threshold_reached(sspl_mock, 
     assert len(removed_files) == 2
     assert os.path.join(log_path, "osqueryd.WARNING.20200117-042121.1001") in removed_files
 
+
+@detect_failure
 def test_edr_plugin_removes_old_info_files_when_threshold_reached(sspl_mock, edr_plugin_instance):
-    edr_plugin_instance.start_edr()
-    time.sleep(3)
+    edr_plugin_instance.prepare_for_test()
 
     info_paths = []
     log_path = edr_plugin_instance.log_path()
@@ -135,7 +148,6 @@ def test_edr_plugin_removes_old_info_files_when_threshold_reached(sspl_mock, edr
         with open(path, 'a')as file:
             file.write("blah")
 
-    edr_plugin_instance.stop_edr()
     edr_plugin_instance.start_edr()
 
     assert edr_plugin_instance.wait_log_contains("Removed old osquery INFO file:")

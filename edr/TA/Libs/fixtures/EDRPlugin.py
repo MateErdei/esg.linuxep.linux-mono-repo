@@ -54,9 +54,12 @@ class EDRPlugin:
         except KeyError as ex:
             raise AssertionError("Sophos spl group, or user not present: {}".format(ex))
 
-    def start_edr(self):
+    def prepare_for_test(self):
         self.stop_edr()
         self._ensure_sophos_required_unix_user_and_group_exists()
+
+    def start_edr(self):
+        self.prepare_for_test()
         self._proc = subprocess.Popen([_edr_exec_path()])
 
     def stop_edr(self):
@@ -82,8 +85,12 @@ class EDRPlugin:
             self._proc.wait()
             self._proc = None
 
+    # Will return empty string if log doesn't exist
     def log(self):
-        return _file_content(_edr_log_path())
+        log_path = _edr_log_path()
+        if not os.path.exists(log_path):
+            return ""
+        return _file_content(log_path)
 
     def osquery_logs(self):
         full_content = ""

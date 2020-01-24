@@ -6,12 +6,11 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include "OsqueryDataManager.h"
 
-#include "Logger.h"
 #include "ApplicationPaths.h"
+#include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
-
 
 void OsqueryDataManager::cleanUpOsqueryLogs()
 {
@@ -34,7 +33,7 @@ void OsqueryDataManager::cleanUpOsqueryLogs()
 
             rotateFiles(logPath, 9);
 
-            ifileSystem->moveFile(logPath,logPath + ".1");
+            ifileSystem->moveFile(logPath, logPath + ".1");
         }
         removeOldWarningFiles();
     }
@@ -42,7 +41,6 @@ void OsqueryDataManager::cleanUpOsqueryLogs()
     {
         LOGERROR("Failed to clean up old osquery files with error: " << ex.what());
     }
-
 }
 void OsqueryDataManager::removeOldWarningFiles()
 {
@@ -51,31 +49,41 @@ void OsqueryDataManager::removeOldWarningFiles()
     std::vector<std::string> files = ifileSystem->listFiles(Plugin::osQueryLogPath());
     std::vector<std::string> warningFiles;
     std::vector<std::string> infoFiles;
-    try {
-        for (const auto file :files) {
+    try
+    {
+        for (const auto file : files)
+        {
             std::string filename = Common::FileSystem::basename(file);
-            if (filename.find("osqueryd.WARNING.") != std::string::npos) {
+            if (filename.find("osqueryd.WARNING.") != std::string::npos)
+            {
                 warningFiles.push_back(file);
-            } else if (filename.find("osqueryd.INFO.") != std::string::npos) {
+            }
+            else if (filename.find("osqueryd.INFO.") != std::string::npos)
+            {
                 infoFiles.push_back(file);
             }
         }
 
-        if (infoFiles.size() > FILE_LIMIT) {
+        if (infoFiles.size() > FILE_LIMIT)
+        {
             std::sort(infoFiles.begin(), infoFiles.end());
 
             int infoFilesToDelete = infoFiles.size() - FILE_LIMIT;
-            for (int i = 0; i < infoFilesToDelete; i++) {
+
+            for (int i = 0; i < infoFilesToDelete; i++)
+            {
                 ifileSystem->removeFile(infoFiles[i]);
                 LOGINFO("Removed old osquery INFO file: " << Common::FileSystem::basename(infoFiles[i]));
             }
         }
 
-        if (warningFiles.size() > FILE_LIMIT) {
+        if (warningFiles.size() > FILE_LIMIT)
+        {
             std::sort(warningFiles.begin(), warningFiles.end());
 
             int warningFilesToDelete = warningFiles.size() - FILE_LIMIT;
-            for (int i = 0; i < warningFilesToDelete; i++) {
+            for (int i = 0; i < warningFilesToDelete; i++)
+            {
                 ifileSystem->removeFile(warningFiles[i]);
                 LOGINFO("Removed old osquery WARNING file: " << Common::FileSystem::basename(warningFiles[i]));
             }
@@ -91,7 +99,8 @@ void OsqueryDataManager::rotateFiles(std::string path, int limit)
 {
     auto* ifileSystem = Common::FileSystem::fileSystem();
     int iterator = limit;
-    try{
+    try
+    {
         while (iterator > 0)
         {
             std::string oldExtension = "." + std::to_string(iterator);
@@ -101,7 +110,7 @@ void OsqueryDataManager::rotateFiles(std::string path, int limit)
             {
                 std::string newExtension = "." + std::to_string(iterator + 1);
                 std::string fileDestination = path + newExtension;
-                ifileSystem->moveFile(fileToIncrement,fileDestination);
+                ifileSystem->moveFile(fileToIncrement, fileDestination);
             }
 
             iterator -= 1;
@@ -112,4 +121,3 @@ void OsqueryDataManager::rotateFiles(std::string path, int limit)
         LOGERROR("Failed to rotate files with error: " << ex.what());
     }
 }
-
