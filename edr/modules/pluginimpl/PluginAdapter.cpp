@@ -420,7 +420,14 @@ namespace Plugin
         {
             if (checkIfServiceActive(serviceName))
             {
-                stopSystemService(serviceName);
+                try
+                {
+                    stopSystemService(serviceName);
+                }
+                catch (std::exception& ex)
+                {
+                    LOGERROR("Failed to stop and disable auditd");
+                }
             }
             else
             {
