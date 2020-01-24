@@ -152,18 +152,20 @@ namespace
         {
             elementPath = elementPath + "#" + id;
         }
-        // If ids are not unique add an integer to allow the map to disambiguate them.
+        // Reset the count if we have moved to a different element
+        // otherwise keep the count to optimise the next loop
         if (m_lastEntry != elementPath)
         {
             m_lastEntry = elementPath;
             m_entryCount = 0;
         }
-        else
+        // If ids are not unique add an integer to allow the map to disambiguate them.
+        auto elementPathBase = elementPath;
+        while (m_attributesMap.count(elementPath) > 0)
         {
-            std::stringstream appendNumber;
-            appendNumber << "_" << m_entryCount++;
-            std::string number = appendNumber.str();
-            elementPath = elementPath + number;
+            std::stringstream newElementPath;
+            newElementPath << elementPathBase << "_" << m_entryCount++;
+            elementPath = newElementPath.str();
         }
         m_pathIds.push_back(elementPath); // A list of all element paths we use
         return elementPath;
@@ -271,12 +273,22 @@ namespace Common::XmlUtilities
 
     std::vector<std::string> AttributesMap::entitiesThatContainPath(const std::string& entityPath) const
     {
+        return entitiesThatContainPath(entityPath, true);
+    }
+
+    auto AttributesMap::entitiesThatContainPath(const std::string &entityPath,
+                                                bool includeChildren) const -> std::vector<std::string>
+    {
         std::vector<std::string> fullPaths;
         for (const auto& fullPathEntry : m_idOrderedFullName)
         {
             if (fullPathEntry.find(entityPath) != std::string::npos)
             {
-                fullPaths.push_back(fullPathEntry);
+                // Include a node if we are including children or the node is not a child node
+                if (includeChildren || fullPathEntry.substr(entityPath.size()).find('/') == std::string::npos)
+                {
+                    fullPaths.push_back(fullPathEntry);
+                }
             }
         }
         return fullPaths;

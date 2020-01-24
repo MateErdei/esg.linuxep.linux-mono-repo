@@ -44,6 +44,7 @@ namespace Common::XmlUtilities
             std::vector<std::string> idOrderedFullName);
         auto lookup(const std::string& entityFullPath) const -> Attributes;
         auto entitiesThatContainPath(const std::string& entityPath) const -> std::vector<std::string>;
+        auto entitiesThatContainPath(const std::string& entityPath, bool includeChildren) const -> std::vector<std::string>;
 
         /**
          * Get all elements that start with the provided path.

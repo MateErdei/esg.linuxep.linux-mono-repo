@@ -189,6 +189,24 @@ TEST(TestXmlUtilities, DuplicateElementsCanBeRetrieved) // NOLINT
     ASSERT_EQ(attributesList.size(), 2);
     EXPECT_EQ(attributesList[0].contents(), "ONE");
     EXPECT_EQ(attributesList[1].contents(), "TWO");
+
+    // Test that the right names are present
+    auto entityNames = simpleXml.entitiesThatContainPath("xml/a");
+    EXPECT_EQ(entityNames[0], "xml/a");
+    EXPECT_EQ(entityNames[1], "xml/a_0");
+}
+
+TEST(TestXmlUtilities, DuplicateElementsWithIdCanBeRetrieved) // NOLINT
+{
+    auto simpleXml = parseXml(R"(<xml><a id="x">ONE</a><a id="x">TWO</a></xml>)");
+    auto attributesList = simpleXml.lookupMultiple("xml/a");
+    ASSERT_EQ(attributesList.size(), 2);
+    EXPECT_EQ(attributesList[0].contents(), "ONE");
+    EXPECT_EQ(attributesList[1].contents(), "TWO");
+
+    auto entityNames = simpleXml.entitiesThatContainPath("xml/a");
+    EXPECT_EQ(entityNames[0], "xml/a#x");
+    EXPECT_EQ(entityNames[1], "xml/a#x_0");
 }
 
 
@@ -236,8 +254,136 @@ TEST(TestXmlUtilities, GetIdFromElement) // NOLINT
     auto attrs = simpleXml.lookup(keys[0]);
     EXPECT_EQ(attrs.value("id"), "a");
 
+    keys = simpleXml.entitiesThatContainPath("AUConfigurations/customer#", false);
+    ASSERT_EQ(keys.size(), 1);
+    EXPECT_EQ(keys[0], "AUConfigurations/customer#a");
+    attrs = simpleXml.lookup(keys[0]);
+    EXPECT_EQ(attrs.value("id"), "a");
 
     auto attributesList = simpleXml.lookupMultiple("AUConfigurations/customer#");
     ASSERT_EQ(attributesList.size(), 1);
     EXPECT_EQ(attributesList[0].value("id"), "a");
+}
+
+TEST(TestXmlUtilities, DuplicateStructuresAreAvailable) // NOLINT
+{
+    std::string policySnippet = R"MULTILINE(<?xml version="1.0"?>
+<config>
+    <scanSet>
+      <!-- if {{scheduledScanEnabled}} -->
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+          <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>{{day}}</day>
+          </daySet>
+          <timeSet>
+            <time>{{scheduledScanTime}}</time>
+          </timeSet>
+        </schedule>
+        <settings>
+          <scanObjectSet>
+            <CDDVDDrives>false</CDDVDDrives>
+            <hardDrives>true</hardDrives>
+            <networkDrives>false</networkDrives>
+            <removableDrives>false</removableDrives>
+            <kernelMemory>true</kernelMemory>
+          </scanObjectSet>
+          <scanBehaviour>
+            <level>normal</level>
+            <archives>{{scheduledScanArchives}}</archives>
+            <pua>true</pua>
+            <suspiciousFileDetection>false</suspiciousFileDetection>
+            <scanForMacViruses>false</scanForMacViruses>
+            <anti-rootkits>true</anti-rootkits>
+          </scanBehaviour>
+          <actions>
+            <disinfect>true</disinfect>
+            <puaRemoval>false</puaRemoval>
+            <fileAction>doNothing</fileAction>
+            <destination/>
+            <suspiciousFiles>
+              <fileAction>doNothing</fileAction>
+              <destination/>
+            </suspiciousFiles>
+          </actions>
+          <on-demand-options>
+            <minimise-scan-impact>true</minimise-scan-impact>
+          </on-demand-options>
+        </settings>
+      </scan>
+      <scan>
+        <name>Another scan!</name>
+        <schedule>
+          <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>Monday</day>
+            <day>Tuesday</day>
+            <day>Wednesday</day>
+          </daySet>
+          <timeSet>
+            <time>{{scheduledScanTime}}</time>
+          </timeSet>
+        </schedule>
+        <settings>
+          <scanObjectSet>
+            <CDDVDDrives>false</CDDVDDrives>
+            <hardDrives>true</hardDrives>
+            <networkDrives>false</networkDrives>
+            <removableDrives>false</removableDrives>
+            <kernelMemory>true</kernelMemory>
+          </scanObjectSet>
+          <scanBehaviour>
+            <level>normal</level>
+            <archives>{{scheduledScanArchives}}</archives>
+            <pua>true</pua>
+            <suspiciousFileDetection>false</suspiciousFileDetection>
+            <scanForMacViruses>false</scanForMacViruses>
+            <anti-rootkits>true</anti-rootkits>
+          </scanBehaviour>
+          <actions>
+            <disinfect>true</disinfect>
+            <puaRemoval>false</puaRemoval>
+            <fileAction>doNothing</fileAction>
+            <destination/>
+            <suspiciousFiles>
+              <fileAction>doNothing</fileAction>
+              <destination/>
+            </suspiciousFiles>
+          </actions>
+          <on-demand-options>
+            <minimise-scan-impact>true</minimise-scan-impact>
+          </on-demand-options>
+        </settings>
+      </scan>
+    </scanSet>
+</config>
+)MULTILINE";
+
+    auto simpleXml = parseXml(policySnippet);
+
+    auto keys = simpleXml.entitiesThatContainPath("config/scanSet/scan", false);
+    ASSERT_EQ(keys.size(), 2);
+    EXPECT_EQ(keys[0], "config/scanSet/scan");
+    EXPECT_EQ(keys[1], "config/scanSet/scan_0");
+
+    auto key0 = keys[0];
+    key0 += "/name";
+    auto attr = simpleXml.lookup(key0);
+    EXPECT_EQ(attr.contents(), "Sophos Cloud Scheduled Scan");
+
+    auto key1 = keys[1];
+    key1 += "/name";
+    attr = simpleXml.lookup(key1);
+    EXPECT_EQ(attr.contents(), "Another scan!");
+
+    key1 = keys[1] + "/schedule/daySet/day";
+    auto attrs = simpleXml.lookupMultiple(key1);
+    ASSERT_EQ(attrs.size(), 3);
+    EXPECT_EQ(attrs[0].contents(), "Monday");
+    EXPECT_EQ(attrs[1].contents(), "Tuesday");
+    EXPECT_EQ(attrs[2].contents(), "Wednesday");
+
+
 }
