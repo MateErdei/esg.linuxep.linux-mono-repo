@@ -91,18 +91,18 @@ copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
 INSTALL_OPTIONS_FILE="${SOPHOS_INSTALL}/base/etc/install_options"
 
-if [[ ! -f CONFIG_FILE && -f ${INSTALL_OPTIONS_FILE} ]]
+if [[ ! -f "${CONFIG_FILE}" && -f "${INSTALL_OPTIONS_FILE}" ]]
 then
     # Default to disabling auditd
-    auditd_option="disable_auditd=1"
+    AUDITD_OPTION="disable_auditd=1"
     if grep -q "^--disable-auditd" "${INSTALL_OPTIONS_FILE}"
     then
-        auditd_option="disable_auditd=1"
+        AUDITD_OPTION="disable_auditd=1"
     elif grep -q "^--do-not-disable-auditd" "${INSTALL_OPTIONS_FILE}"
     then
-        auditd_option="disable_auditd=0"
+        AUDITD_OPTION="disable_auditd=0"
     fi
-    echo $auditd_option >> ${CONFIG_FILE}
+    echo ${AUDITD_OPTION} >> "${CONFIG_FILE}"
 fi
 
 #After install start the plugin
