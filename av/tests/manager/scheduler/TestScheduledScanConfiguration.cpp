@@ -344,6 +344,30 @@ TEST(ScheduledScanConfiguration, justOndemandPolicy) // NOLINT
     EXPECT_EQ(exclusions.at(0),"Exclusion1");
 }
 
+TEST(ScheduledScanConfiguration, multipleExclusions) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <posixExclusions>
+      <filePathSet>
+        <filePath>Exclusion1</filePath>
+        <filePath>Exclusion2</filePath>
+      </filePathSet>
+    </posixExclusions>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto exclusions = m->exclusions();
+    EXPECT_EQ(exclusions.size(), 2);
+    EXPECT_EQ(exclusions.at(0),"Exclusion1");
+    EXPECT_EQ(exclusions.at(1),"Exclusion2");
+}
+
 TEST(ScheduledScanConfiguration, TestSimpleParsing) //NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml><key>value</key></xml>");
