@@ -491,6 +491,7 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
           </daySet>
           <timeSet>
             <time>13:00:00</time>
+            <time>17:00:00</time>
           </timeSet>
         </schedule>
         <settings>
@@ -555,4 +556,11 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
     ASSERT_EQ(days.size(), 2);
     EXPECT_EQ(days.days()[0], SATURDAY);
     EXPECT_EQ(days.days()[1], THURSDAY);
+
+    const auto& times = scans[1].times();
+    ASSERT_EQ(times.size(), 2);
+    EXPECT_EQ(times.times()[0].hour(), 13);
+    EXPECT_EQ(times.times()[0].minute(), 0);
+    EXPECT_EQ(times.times()[1].hour(), 17);
+    EXPECT_EQ(times.times()[1].minute(), 0);
 }

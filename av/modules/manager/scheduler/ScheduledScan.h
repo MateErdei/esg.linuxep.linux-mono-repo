@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "DaySet.h"
+#include "TimeSet.h"
 
 namespace manager::scheduler
 {
@@ -24,9 +25,15 @@ namespace manager::scheduler
             return m_days;
         }
 
+        [[nodiscard]] const TimeSet& times() const
+        {
+            return m_times;
+        }
+
     private:
         std::string m_name;
         DaySet m_days;
+        TimeSet m_times;
     };
 }
 

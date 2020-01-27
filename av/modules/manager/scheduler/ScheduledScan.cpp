@@ -55,8 +55,8 @@ using namespace manager::scheduler;
  */
 
 ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id)
-    : m_days(savPolicy, id + "/schedule/daySet/day")
+    : m_name(savPolicy.lookup(id + "/name").contents()),
+      m_days(savPolicy, id + "/schedule/daySet/day"),
+      m_times(savPolicy, id + "/schedule/timeSet/time")
 {
-    auto attr = savPolicy.lookup(id + "/name");
-    m_name = attr.contents();
 }
