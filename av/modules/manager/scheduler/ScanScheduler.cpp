@@ -75,6 +75,18 @@ void ScanScheduler::findNextTime(timespec& timespec)
         time_t nextTime = scan.calculateNextTime(now);
         next = std::min(nextTime, next);
     }
-    timespec.tv_sec = (next - now);
+    time_t delay = (next - now);
+
+    // SAV halves the delay instead
+    if (delay > 3600)
+    {
+        delay = 3600; // Only wait 1 hour, so that we can handle machine sleep/hibernate better
+    }
+    if (delay < 1)
+    {
+        // Always wait 1 second
+        delay = 1;
+    }
+    timespec.tv_sec = delay;
     timespec.tv_nsec = 0;
 }

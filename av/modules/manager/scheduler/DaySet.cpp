@@ -69,3 +69,20 @@ void DaySet::sort()
 {
     std::sort(m_days.begin(), m_days.end());
 }
+
+int DaySet::getNextDay(struct tm now, bool forceTomorrow) const
+{
+    for (const auto& day : m_days)
+    {
+        if (day < now.tm_wday)
+        {
+            continue;
+        }
+        if (day == now.tm_wday && !forceTomorrow)
+        {
+            return 0;
+        }
+        return day - now.tm_wday;
+    }
+    return 7 + m_days[0] - now.tm_wday;
+}

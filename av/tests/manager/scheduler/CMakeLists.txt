@@ -1,16 +1,17 @@
 include(GoogleTest)
 
-SophosAddTest(TestScheduledScanConfiguration
-        TestScheduledScanConfiguration
+SophosAddTest(TestScheduledScan
+        TestScheduledScanConfiguration.cpp
+        TestScheduleCalculations.cpp
         PROJECTS scanscheduler
         LIBS ${pluginapilib} ${testhelperslib} rt
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
             ${CMAKE_SOURCE_DIR}/modules
         )
 
-add_dependencies(TestScheduledScanConfiguration copy_libs)
+add_dependencies(TestScheduledScan copy_libs)
 
-SET_TARGET_PROPERTIES(TestScheduledScanConfiguration
+SET_TARGET_PROPERTIES(TestScheduledScan
         PROPERTIES
         INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"

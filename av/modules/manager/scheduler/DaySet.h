@@ -13,14 +13,14 @@ namespace manager::scheduler
 {
     enum Day
     {
-        INVALID,
-        MONDAY,
-        TUESDAY,
-        WEDNESDAY,
-        THURSDAY,
-        FRIDAY,
-        SATURDAY,
-        SUNDAY
+        INVALID = -1,
+        SUNDAY = 0,
+        MONDAY = 1,
+        TUESDAY = 2,
+        WEDNESDAY = 3,
+        THURSDAY = 4,
+        FRIDAY = 5,
+        SATURDAY = 6
     };
 
     class DaySet
@@ -36,6 +36,9 @@ namespace manager::scheduler
             return m_days.size();
         }
         void sort();
+
+        int getNextDay(struct tm now, bool forceTomorrow) const;
+
     private:
         std::vector<Day> m_days;
     };

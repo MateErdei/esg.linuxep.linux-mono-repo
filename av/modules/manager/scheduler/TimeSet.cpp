@@ -35,7 +35,7 @@ Time::Time(const std::string& time)
     m_second = time_buffer.tm_sec;
 }
 
-bool Time::operator<(const Time& rhs)
+bool Time::operator<(const Time& rhs) const
 {
     if (m_hour < rhs.m_hour)
     {
@@ -56,6 +56,11 @@ bool Time::operator<(const Time& rhs)
     return m_second < rhs.m_second;
 }
 
+bool Time::stillDueToday(const struct tm& now) const
+{
+    return (hour() > now.tm_hour || (hour() == now.tm_hour && minute() > now.tm_min));
+}
+
 TimeSet::TimeSet(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id)
 {
     for ( const auto& attr : savPolicy.lookupMultiple(id))
@@ -67,4 +72,18 @@ TimeSet::TimeSet(Common::XmlUtilities::AttributesMap& savPolicy, const std::stri
 void TimeSet::sort()
 {
     std::sort(m_times.begin(), m_times.end());
+}
+
+Time TimeSet::getNextTime(const struct tm& now, bool& forceTomorrow) const
+{
+    forceTomorrow = false;
+    for (const auto& t : m_times)
+    {
+        if (t.stillDueToday(now))
+        {
+            return t;
+        }
+    }
+    forceTomorrow = true;
+    return m_times.at(0);
 }

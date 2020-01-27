@@ -16,9 +16,10 @@ namespace manager::scheduler
     {
     public:
         explicit Time(const std::string& time);
-        int hour() { return m_hour;}
-        int minute() { return m_minute;}
-        bool operator<(const Time& rhs);
+        [[nodiscard]] int hour() const { return m_hour;}
+        [[nodiscard]] int minute() const { return m_minute;}
+        bool operator<(const Time& rhs) const;
+        bool stillDueToday(const struct tm& now) const;
     private:
         int m_hour;
         int m_minute;
@@ -38,6 +39,9 @@ namespace manager::scheduler
             return m_times.size();
         }
         void sort();
+
+        Time getNextTime(const struct tm& now, bool& forceTomorrow) const;
+
     private:
         std::vector<Time> m_times;
     };
