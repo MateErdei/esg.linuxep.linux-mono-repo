@@ -554,8 +554,9 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
 
     const auto& days = scans[0].days();
     ASSERT_EQ(days.size(), 2);
-    EXPECT_EQ(days.days()[0], SATURDAY);
-    EXPECT_EQ(days.days()[1], THURSDAY);
+    // Days are sorted while being processed
+    EXPECT_EQ(days.days()[0], THURSDAY);
+    EXPECT_EQ(days.days()[1], SATURDAY);
 
     const auto& times = scans[1].times();
     ASSERT_EQ(times.size(), 2);

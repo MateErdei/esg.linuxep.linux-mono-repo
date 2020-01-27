@@ -18,6 +18,7 @@ namespace manager::scheduler
         explicit Time(const std::string& time);
         int hour() { return m_hour;}
         int minute() { return m_minute;}
+        bool operator<(const Time& rhs);
     private:
         int m_hour;
         int m_minute;
@@ -36,6 +37,7 @@ namespace manager::scheduler
         {
             return m_times.size();
         }
+        void sort();
     private:
         std::vector<Time> m_times;
     };

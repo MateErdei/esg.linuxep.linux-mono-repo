@@ -4,6 +4,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <algorithm>
 #include "ScheduledScan.h"
 
 using namespace manager::scheduler;
@@ -57,6 +58,21 @@ using namespace manager::scheduler;
 ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id)
     : m_name(savPolicy.lookup(id + "/name").contents()),
       m_days(savPolicy, id + "/schedule/daySet/day"),
-      m_times(savPolicy, id + "/schedule/timeSet/time")
+      m_times(savPolicy, id + "/schedule/timeSet/time"),
+      m_lastRunTime(0)
 {
+    m_days.sort();
+    m_times.sort();
+}
+
+time_t ScheduledScan::calculateNextTime(time_t now) const
+{
+    // First look at times, work out if the time is today or tomorrow (assuming we would run today)
+    for (const auto& time : m_times.times())
+    {
+        static_cast<void>(time);
+        return now;
+    }
+
+    return now;
 }

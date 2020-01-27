@@ -30,10 +30,13 @@ namespace manager::scheduler
             return m_times;
         }
 
+        [[nodiscard]] time_t calculateNextTime(time_t now) const;
+
     private:
         std::string m_name;
         DaySet m_days;
         TimeSet m_times;
+        time_t m_lastRunTime;
     };
 }
 

@@ -7,6 +7,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "DaySet.h"
 #include "Logger.h"
 
+#include <algorithm>
+
 using namespace manager::scheduler;
 
 /*
@@ -61,4 +63,9 @@ DaySet::DaySet(Common::XmlUtilities::AttributesMap& savPolicy, const std::string
         const std::string d = attr.contents();
         m_days.push_back(convertFromString(d));
     }
+}
+
+void DaySet::sort()
+{
+    std::sort(m_days.begin(), m_days.end());
 }

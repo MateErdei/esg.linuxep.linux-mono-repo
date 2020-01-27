@@ -35,6 +35,7 @@ namespace manager::scheduler
         {
             return m_days.size();
         }
+        void sort();
     private:
         std::vector<Day> m_days;
     };
