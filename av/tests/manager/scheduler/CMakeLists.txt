@@ -3,6 +3,7 @@ include(GoogleTest)
 SophosAddTest(TestScheduledScan
         TestScheduledScanConfiguration.cpp
         TestScheduleCalculations.cpp
+        SetupLogging.cpp
         PROJECTS scanscheduler
         LIBS ${pluginapilib} ${testhelperslib} rt
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}

@@ -8,11 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "manager/scheduler/ScheduledScanConfiguration.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-
 using namespace manager::scheduler;
-
-static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
 
 
 TEST(ScheduledScanConfiguration, constructionWithArg) // NOLINT

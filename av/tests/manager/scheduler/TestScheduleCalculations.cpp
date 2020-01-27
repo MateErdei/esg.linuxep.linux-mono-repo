@@ -8,12 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "manager/scheduler/ScheduledScanConfiguration.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <datatypes/Print.h>
 
 using namespace manager::scheduler;
-
-static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
 
 static auto getThursdayAndSaturdayMidnightAttributeMap()
 {
@@ -117,7 +114,6 @@ TEST(ScheduleCalculations, ThursdayWrapped) // NOLINT
     now_tm.tm_min = 0;
     now_tm.tm_sec = 1;
     now = ::mktime(&now_tm);
-    PRINT(now);
 
     auto result = scan.calculateNextTime(now);
 
@@ -144,7 +140,6 @@ TEST(ScheduleCalculations, ThursdayNotWrapped) // NOLINT
     now_tm.tm_min = 59;
     now_tm.tm_sec = 1;
     now = ::mktime(&now_tm);
-    PRINT(now);
 
     auto result = scan.calculateNextTime(now);
 
