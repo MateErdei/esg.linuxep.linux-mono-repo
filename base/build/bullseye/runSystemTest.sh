@@ -174,11 +174,11 @@ if [[ -n "${TEST_SELECTOR}" ]]
 then
     sudo \
         --preserve-env="${PRESERVE_ENV}" \
-        robot --loglevel "${LOG_LEVEL}" ${EXCLUSION} --test "${TEST_SELECTOR}" tests
+        python3 -m robot --loglevel "${LOG_LEVEL}" ${EXCLUSION} --test "${TEST_SELECTOR}" tests
 else
     sudo \
         --preserve-env="${PRESERVE_ENV}" \
-        robot --loglevel "${LOG_LEVEL}" ${EXCLUSION} tests
+        python3 -m robot --loglevel "${LOG_LEVEL}" ${EXCLUSION} tests
 fi
 
 echo "Tests exited with $?"
