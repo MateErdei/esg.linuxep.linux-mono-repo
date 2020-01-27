@@ -169,7 +169,7 @@ fi
 ## Requires sudo permissions ##
 
 # Ensure we have robot installed for python3.
-sudo -H python3 -m pip install robotframework
+sudo -H python3 -m pip install robotframework psutil pyzmq watchdog protobuf ecdsa pycrypto awscli argparse paramiko
 
 PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLEPLUGIN_SDDS,THIN_INSTALLER_OVERRIDE,SYSTEM_PRODUCT_TEST_OUTPUT,SSPL_AUDIT_PLUGIN_SDDS,SSPL_PLUGIN_EVENTPROCESSOR_SDDS,SDDS_SSPL_DBOS_COMPONENT,SDDS_SSPL_OSQUERY_COMPONENT,SDDS_SSPL_MDR_COMPONENT,SDDS_SSPL_MDR_COMPONENT_SUITE,SSPL_MDR_PLUGIN_SDDS
 LOG_LEVEL=TRACE
