@@ -66,7 +66,8 @@ def collect_logs(test_name):
     Copy all logs from the install directory
     """
     dir_to_export_logs_to = "/opt/test/logs/test_logs/{}".format(test_name)
-
+    if os.path.exists(dir_to_export_logs_to):
+        shutil.rmtree(dir_to_export_logs_to)
     os.makedirs(dir_to_export_logs_to)
     for filename in Path(pytest.sophos_install_location).rglob('*.log'):
         print("Copying log file: {} to {}".format(filename, dir_to_export_logs_to))

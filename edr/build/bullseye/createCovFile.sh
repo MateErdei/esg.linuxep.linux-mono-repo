@@ -80,23 +80,6 @@ echo "SCRIPT_DIR=$SCRIPT_DIR"
 echo "SRC_DIR=$SRC_DIR"
 echo "rel path = $currentDir"
 
-#
-#EXCLUSION_FILE=$COVDIR/$currentDir/src/regression/supportFiles/bullseye/bullseyeExclusionFile.txt
-#
-#[ -f $EXCLUSION_FILE ] || {
-#    echo "Relative path between $COVFILE and $BASE_DIR is incorrect!"
-#    echo "Path tried = $EXCLUSION_FILE"
-#    [[ -f ${SCRIPT_DIR}/bullseyeExclusionFile.txt ]] || echo "Can't find exclusion file at all!"
-#    exit 1
-#}
-#
-#IFS="$(printf '\n\t')"
-#for f in $(cat $EXCLUSION_FILE)
-#do
-#    echo "Excluding  \!${currentDir}\/$f"
-#    covselect --quiet --add \!${currentDir}\/$f
-#done
-
 function exclude()
 {
     echo "covselect --add $*"
@@ -123,7 +106,6 @@ exclude \!../..${SRC_DIR}/redist/
 exclude \!../..${SRC_DIR}/sspl-edr-plugin-build/
 exclude \!../..${SRC_TEST_DIR}/
 exclude \!../..${SRC_DIR}/log/
-exclude \!../..${SRC_DIR}/cmake-build-debug/
 exclude \!../..${SRC_DIR}/TA/
 
 echo "Exclusions:"

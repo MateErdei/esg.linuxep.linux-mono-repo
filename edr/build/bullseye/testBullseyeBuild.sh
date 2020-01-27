@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-## Run the component tests with the output from a build
+## Run the system tests with the output from a build
 
 function failure()
 {
@@ -18,9 +18,6 @@ export BASE
 if [[ -n "$COVFILE" ]]
 then
     echo "Creating links for COVFILE $COVFILE"
-    sudo ln -nsf "$COVFILE" /root/fulltest.cov
-    sudo ln -nsf "$COVFILE" /test.cov
-
     COVDIR=$(dirname "$COVFILE")
     echo "COVFILE=$COVFILE" >/tmp/BullseyeCoverageEnv.txt
     echo "COVDIR=$COVDIR" >>/tmp/BullseyeCoverageEnv.txt
@@ -32,37 +29,28 @@ else
 fi
 export COVFILE
 
-PRIVATE_KEY="${SCRIPT_DIR}/private.key"
-chmod 600 "${PRIVATE_KEY}"
-export GIT_SSH_COMMAND="ssh -i ${PRIVATE_KEY}"
-
-unset LD_LIBRARY_PATH
-
-ln -nsf "$COVFILE" test.cov
-ln -nsf "$COVFILE" .
-
-DEVBFR=NOT_FOUND
-[[ -d /mnt/filer6/bfr/sspl-base ]] && DEVBFR=/mnt/filer6/bfr
-[[ -d /uk-filer6/bfr/sspl-base ]] && DEVBFR=/uk-filer6/bfr
-
 # Use the bullseye build of the EDR plugin which has just been done
-SSPL_EDR_PLUGIN="${BASE}/output"
-if [[ ! -d ${SSPL_EDR_PLUGIN} ]]
+export SSPL_EDR_PLUGIN_SDDS="$BASE/output/SDDS-COMPONENT"
+if [[ ! -d "$SSPL_EDR_PLUGIN_SDDS" ]]
 then
     failure 79 "No EDR plugin build"
 fi
 
-#move the build to /opt/test/inputs/edr as expected by test is running on TAP
-PYTEST_SCRIPTS=/opt/test/inputs/test_scripts
-sudo ln -nsf "${BASE}/TA" ${PYTEST_SCRIPTS}
-sudo ln -nsf ${SSPL_EDR_PLUGIN}  /opt/test/inputs/edr
-
+## Find mdr component suite
 ## Requires sudo permissions:
-PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,
-cd ${PYTEST_SCRIPTS}
-sudo \
-    --preserve-env="${PRESERVE_ENV}" \
-    python3 -m pytest
+PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE
+LOG_LEVEL=TRACE
 
+COMPONENT_TEST_STAGING_DIR=/opt/test/inputs
+sudo mkdir -p ${COMPONENT_TEST_STAGING_DIR}
+sudo ln -nsf ${BASE}/output ${COMPONENT_TEST_STAGING_DIR}/edr
+
+PYTESTDIR=${BASE}/TA/
+cd ${PYTESTDIR}
+sudo \
+        --preserve-env="${PRESERVE_ENV}" \
+        python3 -m pytest
+
+sudo unlink ${COMPONENT_TEST_STAGING_DIR}/edr
 echo "Tests exited with $?"
 exit 0
