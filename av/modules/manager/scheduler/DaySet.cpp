@@ -78,11 +78,17 @@ int DaySet::getNextDay(struct tm now, bool forceTomorrow) const
         {
             continue;
         }
-        if (day == now.tm_wday && !forceTomorrow)
+        else if (day == now.tm_wday)
         {
-            return 0;
+            if (!forceTomorrow)
+            {
+                return 0;
+            }
         }
-        return day - now.tm_wday;
+        else
+        {
+            return day - now.tm_wday;
+        }
     }
     return 7 + m_days[0] - now.tm_wday;
 }
