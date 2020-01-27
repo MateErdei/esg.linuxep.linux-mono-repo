@@ -7,9 +7,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include "manager/scheduler/ScheduledScanConfiguration.h"
-#include <datatypes/Print.h>
+
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using namespace manager::scheduler;
+
+static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
+
 
 TEST(ScheduledScanConfiguration, constructionWithArg) // NOLINT
 {
@@ -382,6 +386,49 @@ TEST(ScheduledScanConfiguration, TestTextIdAttribute) //NOLINT
     EXPECT_EQ(attributes.value(attributes.TextId), "bar"); // Rather than foo
 }
 
+TEST(ScheduledScanConfiguration, DaySet) // NOLINT
+{
+
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+          <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>saturday</day>
+            <day>thursday</day>
+          </daySet>
+          <timeSet>
+            <time>00:00:00</time>
+          </timeSet>
+        </schedule>
+      </scan>
+    </scanSet>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto scanIds = attributeMap.entitiesThatContainPath("config/onDemandScan/scanSet/scan", false);
+    ASSERT_EQ(scanIds.size(), 1);
+    ASSERT_EQ(scanIds[0], "config/onDemandScan/scanSet/scan");
+
+    auto days_from_xml = attributeMap.lookupMultiple("config/onDemandScan/scanSet/scan/schedule/daySet/day");
+    ASSERT_EQ(days_from_xml.size(), 2);
+
+
+    // And with the real code
+    auto scan = ScheduledScan(attributeMap, scanIds[0]);
+    EXPECT_EQ(scan.name(), "Sophos Cloud Scheduled Scan");
+    auto days = scan.days();
+    ASSERT_EQ(days.size(), 2);
+
+}
+
 TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
 {
 
@@ -397,10 +444,11 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
         <schedule>
           <daySet>
             <!-- for day in {{scheduledScanDays}} -->
-            <day>{{day}}</day>
+            <day>saturday</day>
+            <day>thursday</day>
           </daySet>
           <timeSet>
-            <time>{{scheduledScanTime}}</time>
+            <time>00:00:00</time>
           </timeSet>
         </schedule>
         <settings>
@@ -439,10 +487,10 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
         <schedule>
           <daySet>
             <!-- for day in {{scheduledScanDays}} -->
-            <day>{{day}}</day>
+            <day>friday</day>
           </daySet>
           <timeSet>
-            <time>{{scheduledScanTime}}</time>
+            <time>13:00:00</time>
           </timeSet>
         </schedule>
         <settings>
@@ -502,4 +550,9 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
     ASSERT_EQ(scans.size(), 2);
     EXPECT_EQ(scans[0].name(), "Sophos Cloud Scheduled Scan");
     EXPECT_EQ(scans[1].name(), "Another scan!");
+
+    const auto& days = scans[0].days();
+    ASSERT_EQ(days.size(), 2);
+    EXPECT_EQ(days.days()[0], SATURDAY);
+    EXPECT_EQ(days.days()[1], THURSDAY);
 }

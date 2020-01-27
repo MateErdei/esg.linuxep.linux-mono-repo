@@ -1,6 +1,8 @@
 sophos_add_library(scanscheduler SHARED
-        Logger.h
+        DaySet.cpp
+        DaySet.h
         Logger.cpp
+        Logger.h
         ScanScheduler.cpp
         ScanScheduler.h
         ScheduledScan.cpp
