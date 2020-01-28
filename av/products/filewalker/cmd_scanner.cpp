@@ -58,7 +58,7 @@ namespace
 
 int main(int argc, char* argv[])
 {
-    const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
+    const std::string path = "/opt/sophos-spl/plugins/sspl-plugin-anti-virus/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(path);
 
     CallbackImpl callbacks(socket);

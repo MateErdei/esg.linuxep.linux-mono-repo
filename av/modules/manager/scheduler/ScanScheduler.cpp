@@ -6,6 +6,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanScheduler.h"
 #include "Logger.h"
+#include "ScanRunner.h"
+
+#include "NamedScan.capnp.h"
+
+#include <capnp/message.h>
+#include <capnp/serialize.h>
 
 using namespace manager::scheduler;
 
@@ -53,11 +59,33 @@ void manager::scheduler::ScanScheduler::run()
                 LOGINFO("Updating scheduled scan configuration");
             }
         }
-        else
+
+        time_t now = ::time(nullptr);
+        if (now >= m_nextScanTime)
         {
             // timeout - run scan
+            runNextScan();
         }
     }
+    for (auto& item : m_runningScans)
+    {
+        item.second->requestStop();
+    }
+    for (auto& item : m_runningScans)
+    {
+        item.second->join();
+    }
+}
+
+void ScanScheduler::runNextScan()
+{
+    // serialise next scan
+    std::string name = m_nextScan.name();
+    std::string nextscan = serialiseNextScan();
+
+    auto runner = std::make_unique<ScanRunner>(name, std::move(nextscan));
+    runner->start();
+    m_runningScans[name] = std::move(runner);
 }
 
 void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration config)
@@ -73,8 +101,13 @@ void ScanScheduler::findNextTime(timespec& timespec)
     for (const auto& scan : m_config.scans())
     {
         time_t nextTime = scan.calculateNextTime(now);
-        next = std::min(nextTime, next);
+        if (nextTime < next)
+        {
+            m_nextScan = scan;
+            next = nextTime;
+        }
     }
+    m_nextScanTime = next;
     time_t delay = (next - now);
 
     // SAV halves the delay instead
@@ -89,4 +122,28 @@ void ScanScheduler::findNextTime(timespec& timespec)
     }
     timespec.tv_sec = delay;
     timespec.tv_nsec = 0;
+}
+
+std::string ScanScheduler::serialiseNextScan()
+{
+    // Move so that m_nextScan is empty
+    ScheduledScan scan = std::move(m_nextScan);
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Builder requestBuilder =
+            message.initRoot<Sophos::ssplav::NamedScan>();
+
+    requestBuilder.setName(scan.name());
+
+    auto exclusionsInput = m_config.exclusions();
+    auto exclusions = requestBuilder.initExcludePaths(exclusionsInput.size());
+    for (unsigned i=0; i < exclusionsInput.size(); i++)
+    {
+        exclusions.set(i, exclusionsInput[i]);
+    }
+
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+    return dataAsString;
 }

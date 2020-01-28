@@ -32,6 +32,6 @@ ADD_CUSTOM_COMMAND(
 )
 
 INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/scheduled_file_walker
-        DESTINATION files/plugins/${PLUGIN_NAME}/bin
+        DESTINATION files/plugins/${PLUGIN_NAME}/sbin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
 )
