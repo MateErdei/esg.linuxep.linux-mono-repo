@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "sophos_filesystem.h"
+#include "datatypes/sophos_filesystem.h"
 
 namespace filewalker
 {
