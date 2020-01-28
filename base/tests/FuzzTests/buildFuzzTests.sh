@@ -98,7 +98,7 @@ mkdir -p ${CMAKE_BUILD_FULL_PATH} || exitFailure ${FAILURE_BUILD_FUZZ} "Setup bu
 
 pushd ${CMAKE_BUILD_FULL_PATH}
   ${CMAKE} -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" -DCMAKE_CXX_COMPILER="${AFL_PATH}/afl-g++" -DCMAKE_C_COMPILER="${AFL_PATH}/afl-gcc" -DBUILD_FUZZ_TESTS=True  "${SOURCE_DIR}"
-  make -j4 copy_libs ${TARGETS}
+  AFL_HARDEN=1  make -j4 copy_libs ${TARGETS}
 popd
 
 MachineFuzzTestCase="${SSPL_TOOLS_DIR}/${FuzzTestCaseRelDir}"
