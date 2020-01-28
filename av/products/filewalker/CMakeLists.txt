@@ -1,6 +1,8 @@
 
 add_executable(avscanner
         cmd_scanner.cpp
+        Options.cpp
+        Options.h
         )
 
 target_include_directories(avscanner PRIVATE ${CMAKE_SOURCE_DIR}/modules)

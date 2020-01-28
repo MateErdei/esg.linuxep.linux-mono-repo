@@ -4,7 +4,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "Options.h"
+
 #include "filewalker/FileWalker.h"
+
 #include <unixsocket/ScanningClientSocket.h>
 #include <datatypes/Print.h>
 
@@ -12,6 +15,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <cassert>
 #include <fcntl.h>
+
+bool startswith(const char* value, const char* substr);
 
 static void scan(unixsocket::ScanningClientSocket& socket, const sophos_filesystem::path& p)
 {
@@ -58,13 +63,17 @@ namespace
 
 int main(int argc, char* argv[])
 {
-    const std::string path = "/opt/sophos-spl/plugins/sspl-plugin-anti-virus/chroot/unix_socket";
-    unixsocket::ScanningClientSocket socket(path);
+    avscanner::Options options;
+    options.handleArgs(argc, argv);
+    auto paths = options.paths();
 
+    const std::string unix_socket_path = "/opt/sophos-spl/plugins/sspl-plugin-anti-virus/chroot/unix_socket";
+    unixsocket::ScanningClientSocket socket(unix_socket_path);
     CallbackImpl callbacks(socket);
-    for(int i=1; i < argc; i++)
+
+    for (const auto& path : paths)
     {
-        filewalker::walk(argv[i], callbacks);
+        filewalker::walk(path, callbacks);
     }
 
     return 0;
