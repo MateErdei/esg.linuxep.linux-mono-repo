@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Options.h"
 
-using namespace avscanner;
+using namespace avscanner::avscannerimpl;
 
 namespace
 {

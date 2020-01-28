@@ -1,13 +1,12 @@
 
 add_executable(avscanner
         cmd_scanner.cpp
-        Options.cpp
-        Options.h
         )
 
 target_include_directories(avscanner PRIVATE ${CMAKE_SOURCE_DIR}/modules)
 
 target_link_libraries(avscanner PRIVATE
+        avscannerimpl
         filewalker
         unixsocket
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>

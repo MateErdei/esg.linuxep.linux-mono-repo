@@ -9,7 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace avscanner
+namespace avscanner::avscannerimpl
 {
     class Options
     {

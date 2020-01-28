@@ -4,7 +4,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Options.h"
+#include "avscanner/avscannerimpl/Options.h"
 
 #include "filewalker/FileWalker.h"
 
@@ -15,8 +15,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <cassert>
 #include <fcntl.h>
+#include <fstream>
 
-bool startswith(const char* value, const char* substr);
+using namespace avscanner::avscannerimpl;
 
 static void scan(unixsocket::ScanningClientSocket& socket, const sophos_filesystem::path& p)
 {
@@ -61,12 +62,8 @@ namespace
     };
 }
 
-int main(int argc, char* argv[])
+static int runCommandLineScan(std::vector<std::string> paths)
 {
-    avscanner::Options options;
-    options.handleArgs(argc, argv);
-    auto paths = options.paths();
-
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/sspl-plugin-anti-virus/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
     CallbackImpl callbacks(socket);
@@ -77,4 +74,37 @@ int main(int argc, char* argv[])
     }
 
     return 0;
+}
+
+static std::string readFile(const std::string& path)
+{
+    std::ifstream s(path);
+    std::string contents;
+    s >> contents;
+    return contents;
+}
+
+static int runNamedScan(const std::string& configPath)
+{
+    std::string contents = readFile(configPath);
+
+    return 0;
+}
+
+int main(int argc, char* argv[])
+{
+    Options options;
+    options.handleArgs(argc, argv);
+    auto paths = options.paths();
+    auto config = options.config();
+
+    if (!config.empty())
+    {
+        return runNamedScan(config);
+    }
+    else
+    {
+        return runCommandLineScan(paths);
+    }
+
 }
