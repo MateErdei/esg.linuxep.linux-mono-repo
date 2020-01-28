@@ -5,38 +5,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "avscanner/avscannerimpl/Options.h"
+#include "avscanner/avscannerimpl/ScanClient.h"
 
 #include "filewalker/FileWalker.h"
 
 #include <unixsocket/ScanningClientSocket.h>
-#include <datatypes/Print.h>
 
-#include <iostream>
 #include <string>
-#include <cassert>
-#include <fcntl.h>
 #include <fstream>
 
 using namespace avscanner::avscannerimpl;
-
-static void scan(unixsocket::ScanningClientSocket& socket, const sophos_filesystem::path& p)
-{
-    PRINT("Scanning " << p);
-    int file_fd = open(p.c_str(), O_RDONLY);
-    assert(file_fd >= 0);
-
-    auto response = socket.scan(file_fd, p); // takes ownership of file_fd
-    static_cast<void>(response);
-
-    if (response.clean())
-    {
-        PRINT(p << " is fake clean");
-    }
-    else
-    {
-        PRINT(p << " is fake infected");
-    }
-}
 
 namespace
 {
@@ -44,12 +22,12 @@ namespace
     {
     public:
         explicit CallbackImpl(unixsocket::ScanningClientSocket& socket)
-                : m_socket(socket)
+                : m_scanner(socket)
         {}
 
         void processFile(const sophos_filesystem::path& p) override
         {
-            scan(m_socket, p);
+            m_scanner.scan(p);
         }
 
         bool includeDirectory(const sophos_filesystem::path&) override
@@ -58,7 +36,7 @@ namespace
         }
 
     private:
-        unixsocket::ScanningClientSocket& m_socket;
+        ScanClient m_scanner;
     };
 }
 
