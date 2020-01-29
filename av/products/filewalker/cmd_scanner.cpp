@@ -28,5 +28,4 @@ int main(int argc, char* argv[])
         runner = std::make_unique<NamedScanRunner>(config);
     }
     return runner->run();
-
 }

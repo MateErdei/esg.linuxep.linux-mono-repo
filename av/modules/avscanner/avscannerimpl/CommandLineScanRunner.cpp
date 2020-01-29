@@ -62,7 +62,7 @@ int CommandLineScanRunner::run()
 {
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
-    const std::string unix_socket_path = "/opt/sophos-spl/plugins/sspl-plugin-anti-virus/chroot/unix_socket";
+    const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
     CallbackImpl callbacks(socket, scanCallbacks);
 

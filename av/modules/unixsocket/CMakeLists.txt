@@ -16,3 +16,8 @@ target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_
 
 install(TARGETS unixsocket
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
+
+SET_TARGET_PROPERTIES(unixsocket
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "$ORIGIN")

@@ -12,7 +12,3 @@ SET_TARGET_PROPERTIES( susi_experiment_scanner
         PROPERTIES
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
-
-install(TARGETS susi_experiment_scanner
-        DESTINATION files/plugins/${PLUGIN_NAME}/bin
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)

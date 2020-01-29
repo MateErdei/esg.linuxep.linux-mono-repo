@@ -10,6 +10,6 @@ SET_TARGET_PROPERTIES( ${plugin_name}
         )
 
 install(TARGETS ${plugin_name}
-        DESTINATION files/plugins/${PLUGIN_NAME}/bin
+        DESTINATION files/plugins/${PLUGIN_NAME}/sbin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE  GROUP_READ GROUP_EXECUTE)
 

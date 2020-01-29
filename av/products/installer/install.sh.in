@@ -62,16 +62,22 @@ done
 
 ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 
-chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
+chmod 0755 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/avscanner"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin/"*
 
 VAR="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
 mkdir -p "$VAR"
 chmod 0700 "$VAR"
-chown -R ${USER_NAME}:${GROUP_NAME} "$VAR"
 
-chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
-chmod 0755 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/avscanner"
-chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin/"*
+CHROOT="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/chroot"
+mkdir -p "$CHROOT"
+mkdir -p "$CHROOT"
+chmod 0700 "$CHROOT"
+
+chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 pushd "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
 THREAT_DETECTOR="sophos_threat_detector"
