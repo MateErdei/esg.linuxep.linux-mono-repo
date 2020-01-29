@@ -6,5 +6,7 @@ add_library(avscannerimpl SHARED
 
 target_include_directories(avscannerimpl PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
+target_link_libraries(avscannerimpl unixsocket)
+
 install(TARGETS avscannerimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

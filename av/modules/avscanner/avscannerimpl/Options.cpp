@@ -27,7 +27,7 @@ bool Options::handleOption(const std::string& key, const std::string& value)
     return false;
 }
 
-void Options::handleArgs(int argc, char** argv)
+Options::Options(int argc, char** argv)
 {
     m_paths.reserve(argc);
     bool allPaths = false;

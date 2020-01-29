@@ -40,7 +40,7 @@ namespace
     };
 }
 
-static int runCommandLineScan(std::vector<std::string> paths)
+static int runCommandLineScan(const std::vector<std::string>& paths)
 {
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/sspl-plugin-anti-virus/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
@@ -71,8 +71,7 @@ static int runNamedScan(const std::string& configPath)
 
 int main(int argc, char* argv[])
 {
-    Options options;
-    options.handleArgs(argc, argv);
+    Options options(argc, argv);
     auto paths = options.paths();
     auto config = options.config();
 

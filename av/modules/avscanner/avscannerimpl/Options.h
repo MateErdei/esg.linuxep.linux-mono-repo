@@ -14,7 +14,7 @@ namespace avscanner::avscannerimpl
     class Options
     {
     public:
-        void handleArgs(int argc, char* argv[]);
+        Options(int argc, char* argv[]);
 
         [[nodiscard]] std::string config() const
         {
