@@ -8,6 +8,7 @@ add_library(avscannerimpl SHARED
         NamedScanRunner.h
         CommandLineScanRunner.cpp
         CommandLineScanRunner.h
+        IRunner.h
         )
 
 target_include_directories(avscannerimpl PUBLIC ${CMAKE_SOURCE_DIR}/modules)

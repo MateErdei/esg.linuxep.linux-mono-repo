@@ -53,7 +53,12 @@ namespace
     };
 }
 
-int CommandLineScanRunner::run(const std::vector<std::string>& paths)
+CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths)
+    : m_paths(std::move(paths))
+{
+}
+
+int CommandLineScanRunner::run()
 {
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
@@ -61,7 +66,7 @@ int CommandLineScanRunner::run(const std::vector<std::string>& paths)
     unixsocket::ScanningClientSocket socket(unix_socket_path);
     CallbackImpl callbacks(socket, scanCallbacks);
 
-    for (const auto& path : paths)
+    for (const auto& path : m_paths)
     {
         filewalker::walk(path, callbacks);
     }
