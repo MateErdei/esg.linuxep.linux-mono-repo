@@ -17,3 +17,8 @@ target_link_libraries(avscannerimpl unixsocket filewalker $<$<AND:$<CXX_COMPILER
 
 install(TARGETS avscannerimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
+
+SET_TARGET_PROPERTIES(avscannerimpl
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
+        BUILD_RPATH "$ORIGIN")

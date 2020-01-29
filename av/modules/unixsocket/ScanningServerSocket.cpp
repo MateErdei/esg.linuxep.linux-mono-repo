@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 static void throwOnError(int ret, const std::string& message)
 {
@@ -47,6 +48,8 @@ unixsocket::ScanningServerSocket::ScanningServerSocket(const std::string& path)
     unlink(path.c_str());
     int ret = bind(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
     throwOnError(ret, "Failed to bind to unix socket path");
+
+    ::chmod(path.c_str(), 0777);
 }
 
 

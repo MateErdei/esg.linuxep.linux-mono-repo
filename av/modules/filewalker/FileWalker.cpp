@@ -19,6 +19,12 @@ using namespace filewalker;
 
 void FileWalker::walk(const sophos_filesystem::path& starting_point)
 {
+    if (fs::is_regular_file(starting_point))
+    {
+        m_callback.processFile(starting_point);
+        return;
+    }
+
     std::set<ino_t> seen_symlinks;
     fs::directory_options options = fs::directory_options::none;
     if (m_follow_symlinks)

@@ -126,6 +126,10 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const std::string&
     scan_messages::ScanResponse response;
 
     response.setClean(responseReader.getClean());
+    if (responseReader.hasThreatName())
+    {
+        response.setThreatName(responseReader.getThreatName());
+    }
 
     return response;
 }

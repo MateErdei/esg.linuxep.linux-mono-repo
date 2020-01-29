@@ -63,10 +63,12 @@ done
 ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 
 chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64"
+chmod 0755 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64"/*
 chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin"
-chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
 chmod 0755 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/avscanner"
-chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin/"*
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin"/*
 
 VAR="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
 mkdir -p "$VAR"
@@ -74,8 +76,7 @@ chmod 0700 "$VAR"
 
 CHROOT="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/chroot"
 mkdir -p "$CHROOT"
-mkdir -p "$CHROOT"
-chmod 0700 "$CHROOT"
+chmod 0711 "$CHROOT"
 
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 

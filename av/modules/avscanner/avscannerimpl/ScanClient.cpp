@@ -23,7 +23,6 @@ ScanClient::ScanClient(unixsocket::ScanningClientSocket& socket, std::shared_ptr
 
 void ScanClient::scan(const sophos_filesystem::path& p)
 {
-    PRINT("Scanning " << p);
     int file_fd = ::open(p.c_str(), O_RDONLY);
     assert(file_fd >= 0);
 
@@ -35,6 +34,6 @@ void ScanClient::scan(const sophos_filesystem::path& p)
     }
     else
     {
-        m_callbacks->infectedFile(p, "EICAR");
+        m_callbacks->infectedFile(p, response.threatName());
     }
 }

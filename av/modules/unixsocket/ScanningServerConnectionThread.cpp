@@ -156,21 +156,26 @@ void unixsocket::ScanningServerConnectionThread::run()
 scan_messages::ScanResponse
 unixsocket::ScanningServerConnectionThread::scan(datatypes::AutoFd& fd, const std::string& file_path)
 {
-    PRINT("Attempting scan of "<< file_path);
-    char buffer[4];
+    char buffer[512];
 
     // Test reading the file
     ssize_t bytesRead = read(fd.get(), buffer, sizeof(buffer) - 1);
     buffer[bytesRead] = 0;
-    std::cout << "Data from file:" << buffer << std::endl;
+    std::cout << "Read " << bytesRead << " from " << file_path << '\n';
 
     // Test stat the file
     struct stat statbuf = {};
     ::fstat(fd.get(), &statbuf);
-    std::cout << "size:" << statbuf.st_size << std::endl;
+    std::cout << "size:" << statbuf.st_size << '\n';
 
     scan_messages::ScanResponse response;
-    response.setClean(buffer[0] == 'r');
+    std::string contents(buffer);
+    bool clean = (contents.find("EICAR") == std::string::npos);
+    response.setClean(clean);
+    if (!clean)
+    {
+        response.setThreatName("EICAR");
+    }
 
     return response;
 }

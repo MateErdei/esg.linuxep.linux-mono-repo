@@ -21,9 +21,8 @@ namespace
     class ScanCallbackImpl : public IScanCallbacks
     {
     public:
-        void cleanFile(const path& p) override
+        void cleanFile(const path&) override
         {
-            PRINT(p << " is fake clean");
         }
         void infectedFile(const path& p, const std::string& threatName) override
         {
@@ -40,6 +39,7 @@ namespace
 
         void processFile(const sophos_filesystem::path& p) override
         {
+            PRINT("Scanning " << p);
             m_scanner.scan(p);
         }
 

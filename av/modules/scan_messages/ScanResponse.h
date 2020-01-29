@@ -15,13 +15,24 @@ namespace scan_messages
     public:
         ScanResponse();
 
-        std::string serialise();
-
+        void setThreatName(std::string);
         void setClean(bool);
-        bool clean() { return m_clean;}
+
+        [[nodiscard]] std::string serialise() const;
+
+        [[nodiscard]] bool clean() const
+        {
+            return m_clean;
+        }
+
+        [[nodiscard]] std::string threatName() const
+        {
+            return m_threatName;
+        }
 
     private:
         bool m_clean;
+        std::string m_threatName;
     };
 }
 
