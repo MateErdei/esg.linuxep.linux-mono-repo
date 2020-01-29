@@ -60,7 +60,7 @@ do
     $SOPHOS_INSTALL/base/bin/versionedcopy $F || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
 done
 
-ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
+ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 
 chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin"

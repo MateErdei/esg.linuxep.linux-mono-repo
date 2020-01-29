@@ -11,5 +11,5 @@ install(FILES ${PROJECT_BINARY_DIR}/install.sh
         )
 
 install(FILES ${PROJECT_BINARY_DIR}/uninstall.sh
-        DESTINATION files/plugins/${PLUGIN_NAME}/bin/
+        DESTINATION files/plugins/${PLUGIN_NAME}/sbin/
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
