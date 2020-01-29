@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <fstream>
+#include <avscanner/avscannerimpl/NamedScanRunner.h>
 
 using namespace avscanner::avscannerimpl;
 
@@ -54,21 +55,6 @@ static int runCommandLineScan(const std::vector<std::string>& paths)
     return 0;
 }
 
-static std::string readFile(const std::string& path)
-{
-    std::ifstream s(path);
-    std::string contents;
-    s >> contents;
-    return contents;
-}
-
-static int runNamedScan(const std::string& configPath)
-{
-    std::string contents = readFile(configPath);
-
-    return 0;
-}
-
 int main(int argc, char* argv[])
 {
     Options options(argc, argv);
@@ -77,7 +63,8 @@ int main(int argc, char* argv[])
 
     if (!config.empty())
     {
-        return runNamedScan(config);
+        avscanner::avscannerimpl::NamedScanRunner runner(config);
+        runner.run();
     }
     else
     {
