@@ -104,6 +104,11 @@ void unixsocket::ScanningServerConnectionThread::run()
         }
 
         PRINT("Read a length of " << length);
+        if (length == 0)
+        {
+            PRINT("Ignoring length of zero");
+            continue;
+        }
 
         // read capn proto
         if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))

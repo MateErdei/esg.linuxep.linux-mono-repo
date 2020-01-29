@@ -18,6 +18,10 @@ void unixsocket::writeLength(int socketfd, int length)
 {
     ssize_t bytes_written;
     // TODO implement proper length writing
+    if (length == 0)
+    {
+        throw std::runtime_error("Attempting to write length of zero");
+    }
     if (length < 128)
     {
         uint8_t c = length;
@@ -28,6 +32,7 @@ void unixsocket::writeLength(int socketfd, int length)
     {
         // divide into 7-bit chunks, and send big-endian with top bit set.
         assert(false);
+        throw std::runtime_error("Length > 128 not supported yet!");
     }
 }
 
