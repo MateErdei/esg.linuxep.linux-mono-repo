@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-DEFAULT_PRODUCT=sspl-plugin-anti-virus
+DEFAULT_PRODUCT=av
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
