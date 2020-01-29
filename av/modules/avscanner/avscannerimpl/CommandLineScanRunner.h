@@ -7,16 +7,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace avscanner::avscannerimpl
 {
-    class NamedScanRunner
+    class CommandLineScanRunner
     {
     public:
-        explicit NamedScanRunner(const std::string& configPath);
-        int run();
-    private:
-        std::string m_contents;
+        int run(const std::vector<std::string>& paths);
     };
 }
 

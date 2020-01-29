@@ -4,39 +4,31 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "NamedScanRunner.h"
-
+#include "CommandLineScanRunner.h"
 #include "ScanClient.h"
 
-#include <filewalker/IFileWalkCallbacks.h>
+#include "datatypes/Print.h"
+#include "filewalker/FileWalker.h"
 #include <unixsocket/ScanningClientSocket.h>
 
-#include <fstream>
+#include <memory>
+#include <utility>
 
 using namespace avscanner::avscannerimpl;
-
-static std::string readFile(const std::string& path)
-{
-    std::ifstream s(path);
-    std::string contents;
-    s >> contents;
-    return contents;
-}
-
-NamedScanRunner::NamedScanRunner(const std::string& configPath)
-{
-    m_contents = readFile(configPath);
-}
 
 namespace
 {
     class ScanCallbackImpl : public IScanCallbacks
     {
     public:
-        void cleanFile(const path&) override
-        {}
-        void infectedFile(const path&, const std::string&) override
-        {}
+        void cleanFile(const path& p) override
+        {
+            PRINT(p << " is fake clean");
+        }
+        void infectedFile(const path& p, const std::string& threatName) override
+        {
+            PRINT(p << " is infected with " << threatName);
+        }
     };
 
     class CallbackImpl : public filewalker::IFileWalkCallbacks
@@ -61,7 +53,7 @@ namespace
     };
 }
 
-int NamedScanRunner::run()
+int CommandLineScanRunner::run(const std::vector<std::string>& paths)
 {
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
@@ -69,6 +61,10 @@ int NamedScanRunner::run()
     unixsocket::ScanningClientSocket socket(unix_socket_path);
     CallbackImpl callbacks(socket, scanCallbacks);
 
+    for (const auto& path : paths)
+    {
+        filewalker::walk(path, callbacks);
+    }
+
     return 0;
 }
-
