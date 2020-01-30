@@ -33,7 +33,13 @@ namespace manager::scheduler
 
         [[nodiscard]] time_t calculateNextTime(time_t now) const;
 
+        [[nodiscard]] bool valid() const
+        {
+            return m_valid;
+        }
+
     private:
+        bool m_valid;
         std::string m_name;
         DaySet m_days;
         TimeSet m_times;

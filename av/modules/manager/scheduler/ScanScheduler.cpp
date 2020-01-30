@@ -15,6 +15,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace manager::scheduler;
 
+const time_t INVALID_TIME = static_cast<time_t>(-1);
+
 static int addFD(fd_set* fds, int fd, int currentMax)
 {
     FD_SET(fd, fds);
@@ -64,7 +66,7 @@ void manager::scheduler::ScanScheduler::run()
         }
 
         time_t now = ::time(nullptr);
-        if (now >= m_nextScanTime)
+        if (now >= m_nextScanTime && m_nextScanTime != INVALID_TIME)
         {
             // timeout - run scan
             runNextScan();
@@ -83,6 +85,11 @@ void manager::scheduler::ScanScheduler::run()
 
 void ScanScheduler::runNextScan()
 {
+    if (!m_nextScan.valid())
+    {
+        LOGDEBUG("Refusing to run invalid scan");
+        return;
+    }
     // serialise next scan
     std::string name = m_nextScan.name();
     std::string nextscan = serialiseNextScan();
@@ -101,10 +108,18 @@ void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration 
 void ScanScheduler::findNextTime(timespec& timespec)
 {
     time_t now = ::time(nullptr);
-    auto next = static_cast<time_t>(-1);
+    auto next = INVALID_TIME;
     for (const auto& scan : m_config.scans())
     {
+        if (!scan.valid())
+        {
+            continue;
+        }
         time_t nextTime = scan.calculateNextTime(now);
+        if (nextTime == INVALID_TIME)
+        {
+            continue;
+        }
         if (nextTime < next)
         {
             m_nextScan = scan;
@@ -115,11 +130,15 @@ void ScanScheduler::findNextTime(timespec& timespec)
     time_t delay = (next - now);
 
     // SAV halves the delay instead
-    if (delay > 3600)
+    if (next == INVALID_TIME)
+    {
+        delay = 3600;
+    }
+    else if (delay > 3600)
     {
         delay = 3600; // Only wait 1 hour, so that we can handle machine sleep/hibernate better
     }
-    if (delay < 1)
+    else if (delay < 1)
     {
         // Always wait 1 second
         delay = 1;

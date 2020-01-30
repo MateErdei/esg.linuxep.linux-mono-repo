@@ -57,13 +57,16 @@ using namespace manager::scheduler;
  */
 
 ScheduledScan::ScheduledScan()
-    : m_name("INVALID"),
+    :
+    m_valid(false),
+    m_name("INVALID"),
     m_lastRunTime(static_cast<time_t>(-1))
 {
 }
 
 ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id)
-    : m_name(savPolicy.lookup(id + "/name").contents()),
+    : m_valid(true),
+      m_name(savPolicy.lookup(id + "/name").contents()),
       m_days(savPolicy, id + "/schedule/daySet/day"),
       m_times(savPolicy, id + "/schedule/timeSet/time"),
       m_lastRunTime(static_cast<time_t>(-1))
@@ -74,6 +77,11 @@ ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, con
 
 time_t ScheduledScan::calculateNextTime(time_t now) const
 {
+    if (!m_valid)
+    {
+        return static_cast<time_t>(-1);
+    }
+
     struct tm now_struct{};
     struct tm* result;
 
