@@ -1,0 +1,18 @@
+
+add_library(sophosthreatdetectorimpl SHARED
+        SophosThreatDetectorMain.cpp SophosThreatDetectorMain.h)
+
+target_link_libraries(sophosthreatdetectorimpl  PUBLIC
+        unixsocket
+        )
+
+target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
+
+install(TARGETS sophosthreatdetectorimpl
+        LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
+
+SET_TARGET_PROPERTIES(sophosthreatdetectorimpl
+        PROPERTIES
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
+        )

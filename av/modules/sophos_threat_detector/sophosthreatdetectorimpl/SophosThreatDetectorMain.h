@@ -4,9 +4,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "sophos_threat_detector/sophosthreatdetectorimpl/SophosThreatDetectorMain.h"
+#pragma once
 
-int main()
+namespace sspl::sophosthreatdetectorimpl
 {
-    return sspl::sophosthreatdetectorimpl::sophos_threat_detector_main();
+    int sophos_threat_detector_main();
 }

@@ -2,7 +2,7 @@
 add_executable(sophos_threat_detector
         sophos_threat_detector_main.cpp
         )
-target_link_libraries(sophos_threat_detector  PUBLIC unixsocket)
+target_link_libraries(sophos_threat_detector  PUBLIC sophosthreatdetectorimpl)
 target_include_directories(sophos_threat_detector PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 SET_TARGET_PROPERTIES( sophos_threat_detector
