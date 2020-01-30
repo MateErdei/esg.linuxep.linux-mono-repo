@@ -11,6 +11,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 namespace unixsocket
 {
     int readLength(int socketfd);
-    void writeLength(int socketfd, int length);
+    void writeLength(int socketfd, unsigned length);
     bool writeLengthAndBuffer(int socketfd, const std::string& buffer);
 }

@@ -10,29 +10,50 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 #include <cstdint>
+#include <cstdio>
+#include <deque>
+#include <memory>
 
 #include <unistd.h>
-#include <cstdio>
 
-void unixsocket::writeLength(int socketfd, int length)
+static std::deque<uint8_t> splitInto7Bits(unsigned length)
 {
-    ssize_t bytes_written;
-    // TODO implement proper length writing
+    std::deque<uint8_t> bytes;
+    while (length > 0)
+    {
+        uint8_t c = length & static_cast<uint8_t>(127);
+        bytes.push_front(c);
+        length >>= static_cast<uint8_t>(7);
+    }
+    return bytes;
+}
+
+static std::unique_ptr<uint8_t[]> addTopBitAndPutInBuffer(const std::deque<uint8_t>& bytes)
+{
+    const uint8_t TOP_BIT = 0x80;
+    std::unique_ptr<uint8_t[]> buffer(new uint8_t[bytes.size()]);
+    for(size_t i=0; i < bytes.size()-1; i++)
+    {
+        buffer[i] = bytes[i] | TOP_BIT;
+    }
+    buffer[bytes.size()-1] = bytes[bytes.size()-1];
+    return buffer;
+}
+
+void unixsocket::writeLength(int socketfd, unsigned length)
+{
     if (length == 0)
     {
         throw std::runtime_error("Attempting to write length of zero");
     }
-    if (length < 128)
+
+    auto bytes = splitInto7Bits(length);
+    auto buffer = addTopBitAndPutInBuffer(bytes);
+    ssize_t bytes_written;
+    bytes_written = ::write(socketfd, buffer.get(), bytes.size());
+    if (bytes_written != static_cast<ssize_t>(bytes.size()))
     {
-        uint8_t c = length;
-        bytes_written = ::write(socketfd, &c, 1);
-        static_cast<void>(bytes_written);
-    }
-    else
-    {
-        // divide into 7-bit chunks, and send big-endian with top bit set.
-        assert(false);
-        throw std::runtime_error("Length > 128 not supported yet!");
+        throw std::runtime_error("Failed to write length to socket");
     }
 }
 
