@@ -80,6 +80,8 @@ void livequery::processQuery(
         LOGDEBUG(query);
         livequery::QueryResponse response = iQueryProcessor.query(query);
         dispatcher.sendResponse(correlationId, response);
+        LOGINFO("Finished executing query with name: " << queryNameIter->second.getString()
+                                         << " and corresponding id: " << correlationId);
     }
     catch (const std::exception& ex)
     {

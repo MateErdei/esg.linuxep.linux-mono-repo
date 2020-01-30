@@ -159,6 +159,7 @@ namespace livequery
                                    ResponseData::emptyResponse()};
             fileContent = serializeToJson(error102);
         }
+        LOGDEBUG("Query result: " << fileContent);
         std::string tmpPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         std::string rootInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         std::string targetDir = Common::FileSystem::join(rootInstall, "base/mcs/response");
