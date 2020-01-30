@@ -73,15 +73,16 @@ void livequery::processQuery(
 
     try
     {
-        LOGINFO(
-            "Executing query name: " << queryNameIter->second.getString()
-                                     << " and corresponding id: " << correlationId);
+        std::string queryName = queryNameIter->second.getString();
+        LOGINFO("Executing query name: " << queryName  << " and corresponding id: " << correlationId);
+
         std::string query = queryIter->second.getString();
         LOGDEBUG(query);
+
         livequery::QueryResponse response = iQueryProcessor.query(query);
+        LOGINFO("Finished executing query with name: " << queryName << " and corresponding id: " << correlationId);
+
         dispatcher.sendResponse(correlationId, response);
-        LOGINFO("Finished executing query with name: " << queryNameIter->second.getString()
-                                         << " and corresponding id: " << correlationId);
     }
     catch (const std::exception& ex)
     {
