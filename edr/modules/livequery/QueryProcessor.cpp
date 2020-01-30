@@ -88,7 +88,7 @@ void livequery::processQuery(
         else
         {
             LOGINFO("Query with name: " << queryName << " and corresponding id: " << correlationId
-                                << " failed to execute with error: " << response.status().errorDescription());
+                                << "failed to execute with error: " << response.status().errorDescription());
         }
 
         dispatcher.sendResponse(correlationId, response);
