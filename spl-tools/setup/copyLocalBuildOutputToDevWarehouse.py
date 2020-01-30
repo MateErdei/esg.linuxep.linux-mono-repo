@@ -14,7 +14,8 @@ require_filer6_bfr_exists()
 
 ALLOWED_PRODUCT_BFR_PATHS = [
     "/mnt/filer6/bfr/sspl-base",
-    "/mnt/filer6/bfr/sspl-mdr-componentsuite"
+    "/mnt/filer6/bfr/sspl-mdr-componentsuite",
+    "/mnt/filer6/bfr/sspl-edr-plugin"
 ]
 
 
@@ -122,12 +123,14 @@ class product():
 
 BASE = product("sspl-base", "everest-base")
 MTR = product("sspl-mdr-componentsuite", "sspl-plugin-mdr-componentsuite")
+EDR = product("sspl-edr-plugin", "sspl-plugin-edr-component")
 
 def main():
     base_success = BASE.copy_from_local_to_bfr()
     mtr_success = MTR.copy_from_local_to_bfr()
+    edr_success = EDR.copy_from_local_to_bfr()
 
-    if base_success and mtr_success:
+    if base_success and mtr_success and edr_success:
         print("""SUCCESS
 You now need to kick off the ci build for your pairing stations sspl-warehouse branch
 
