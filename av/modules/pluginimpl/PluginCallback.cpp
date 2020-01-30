@@ -30,7 +30,11 @@ namespace Plugin
         m_task->push(Task{ Task::TaskType::Policy, policyXml });
     }
 
-    void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGSUPPORT("Queueing action"); }
+    void PluginCallback::queueAction(const std::string& actionXml )
+    {
+        LOGSUPPORT("Queueing action");
+        m_task->push(Task{.taskType=Task::TaskType::Action, actionXml });
+    }
 
     void PluginCallback::onShutdown()
     {

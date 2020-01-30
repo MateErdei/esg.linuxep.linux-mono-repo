@@ -18,7 +18,8 @@ namespace Plugin
         enum class TaskType
         {
             Policy,
-            Stop
+            Stop,
+            Action
         };
         TaskType taskType;
         std::string Content;

@@ -10,7 +10,7 @@ namespace Plugin
     void QueueTask::push(Task task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
-        m_list.push_back(task);
+        m_list.emplace_back(std::move(task));
         m_cond.notify_one();
     }
 
@@ -18,7 +18,7 @@ namespace Plugin
     {
         std::unique_lock<std::mutex> lck(m_mutex);
         m_cond.wait(lck, [this] { return !m_list.empty(); });
-        Task val = m_list.front();
+        Task val = std::move(m_list.front());
         m_list.pop_front();
         return val;
     }
@@ -26,6 +26,6 @@ namespace Plugin
     void QueueTask::pushStop()
     {
         Task stopTask{ .taskType = Task::TaskType::Stop, .Content = "" };
-        push(stopTask);
+        push(std::move(stopTask));
     }
 } // namespace Plugin

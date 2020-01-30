@@ -36,6 +36,9 @@ namespace Plugin
                 case Task::TaskType::Policy:
                     processPolicy(task.Content);
                     break;
+
+                case Task::TaskType::Action:
+                    break;
             }
         }
     }
