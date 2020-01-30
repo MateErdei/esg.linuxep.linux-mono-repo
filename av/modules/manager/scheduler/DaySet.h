@@ -26,6 +26,7 @@ namespace manager::scheduler
     class DaySet
     {
     public:
+        DaySet() = default;
         DaySet(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id);
         [[nodiscard]] std::vector<Day> days() const
         {

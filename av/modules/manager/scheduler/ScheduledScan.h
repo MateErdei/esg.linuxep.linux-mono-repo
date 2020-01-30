@@ -14,6 +14,7 @@ namespace manager::scheduler
     class ScheduledScan
     {
     public:
+        ScheduledScan();
         ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id);
         [[nodiscard]] std::string name() const
         {

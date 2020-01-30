@@ -20,6 +20,11 @@ target_include_directories(scanmessages PUBLIC
 
 target_link_libraries(scanmessages datatypes)
 
+SET_TARGET_PROPERTIES(scanmessages
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64")
+
 
 install(TARGETS scanmessages
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

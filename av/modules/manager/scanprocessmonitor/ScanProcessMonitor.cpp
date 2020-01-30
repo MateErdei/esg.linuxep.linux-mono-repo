@@ -10,7 +10,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Process/IProcess.h"
 
-plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(std::string scanner_path)
+namespace fs = sophos_filesystem;
+
+plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(sophos_filesystem::path scanner_path)
     : m_scanner_path(std::move(scanner_path))
 {
     if (m_scanner_path.empty())
@@ -23,11 +25,17 @@ plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(std:
     {
         throw std::runtime_error("SCANNER_PATH is empty in arguments/configuration");
     }
+
+    if (! fs::is_regular_file(m_scanner_path))
+    {
+        throw std::runtime_error("SCANNER_PATH doesn't refer to a file");
+    }
 }
 
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 {
     announceThreadStarted();
+    LOGINFO("Starting sophos_thread_detector monitor");
 
     bool terminate = false;
 
@@ -42,15 +50,31 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         LOGINFO("Starting "<< m_scanner_path);
         process->exec(m_scanner_path, {});
 
-        // TODO wait for both notify pipes
-
-        process->waitUntilProcessEnds();
-
-        terminate = stopRequested();
+        // TODO - more investigation on how subprocess exit is handled?
+        while (process->getStatus() == Common::Process::ProcessStatus::RUNNING && !terminate)
+        {
+            process->wait(Common::Process::milli(100), 1);
+            terminate = stopRequested();
+        }
+        if (terminate)
+        {
+            break;
+        }
+        else
+        {
+            process->waitUntilProcessEnds();
+            LOGERROR("sophos_threat_detector exiting with "<< process->exitCode());
+            struct timespec sleepPeriod{};
+            sleepPeriod.tv_sec = 0;
+            sleepPeriod.tv_nsec = 100*1000*1000;
+            nanosleep(&sleepPeriod, nullptr);
+        }
     }
     process->kill();
     process->waitUntilProcessEnds();
     process.reset();
+
+    LOGINFO("Exiting sophos_thread_detector monitor");
 }
 
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::subprocess_exited()

@@ -29,6 +29,7 @@ namespace manager::scheduler
     class TimeSet
     {
     public:
+        TimeSet() = default;
         TimeSet(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id);
         [[nodiscard]] std::vector<Time> times() const
         {

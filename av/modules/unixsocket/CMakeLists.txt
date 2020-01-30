@@ -24,4 +24,4 @@ install(TARGETS unixsocket
 SET_TARGET_PROPERTIES(unixsocket
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
-        BUILD_RPATH "$ORIGIN")
+        BUILD_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64")

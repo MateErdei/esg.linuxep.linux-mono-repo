@@ -13,6 +13,7 @@ namespace manager::scheduler
     class ScheduledScanConfiguration
     {
     public:
+        ScheduledScanConfiguration() = default;
         explicit ScheduledScanConfiguration(Common::XmlUtilities::AttributesMap& savPolicy);
         std::vector<std::string> exclusions()
         {

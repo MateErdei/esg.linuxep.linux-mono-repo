@@ -52,7 +52,7 @@ function(sophos_add_library TARGET  )
     SET_TARGET_PROPERTIES( ${TARGET}
             PROPERTIES
             INSTALL_RPATH "$ORIGIN"
-            BUILD_RPATH "$ORIGIN")
+            BUILD_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64")
 
     install(TARGETS ${TARGET}
             LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

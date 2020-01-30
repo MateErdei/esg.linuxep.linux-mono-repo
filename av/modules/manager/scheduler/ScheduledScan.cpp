@@ -56,11 +56,17 @@ using namespace manager::scheduler;
       </scan>
  */
 
+ScheduledScan::ScheduledScan()
+    : m_name("INVALID"),
+    m_lastRunTime(static_cast<time_t>(-1))
+{
+}
+
 ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id)
     : m_name(savPolicy.lookup(id + "/name").contents()),
       m_days(savPolicy, id + "/schedule/daySet/day"),
       m_times(savPolicy, id + "/schedule/timeSet/time"),
-      m_lastRunTime(0)
+      m_lastRunTime(static_cast<time_t>(-1))
 {
     m_days.sort();
     m_times.sort();

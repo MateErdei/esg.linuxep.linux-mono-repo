@@ -6,19 +6,31 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "config.h"
 
-#include <Common/FileSystem/IFileSystem.h>
+#include "modules/datatypes/sophos_filesystem.h"
+
 #include <Common/Logging/PluginLoggingSetup.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/ErrorCodes.h>
-#include <modules/pluginimpl/Logger.h>
-#include <modules/pluginimpl/PluginAdapter.h>
+
+#include <pluginimpl/Logger.h>
+#include <pluginimpl/PluginAdapter.h>
+
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 const char* PluginName = PLUGIN_NAME;
 
+namespace fs = sophos_filesystem;
+
 int main()
 {
+    // PLUGIN_INSTALL
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
+    fs::path pluginInstall = sophosInstall / "plugins" / PluginName;
+    appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+
     using namespace Plugin;
     int ret = 0;
     Common::Logging::PluginLoggingSetup loggerSetup(PluginName);

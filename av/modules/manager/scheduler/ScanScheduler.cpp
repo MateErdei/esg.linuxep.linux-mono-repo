@@ -23,6 +23,9 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 
 void manager::scheduler::ScanScheduler::run()
 {
+    announceThreadStarted();
+    LOGINFO("Starting scan scheduler");
+
     int exitFD = m_notifyPipe.readFd();
     int configFD = m_updateConfigurationPipe.readFd();
 
@@ -75,6 +78,7 @@ void manager::scheduler::ScanScheduler::run()
     {
         item.second->join();
     }
+    LOGINFO("Exiting scan scheduler");
 }
 
 void ScanScheduler::runNextScan()
