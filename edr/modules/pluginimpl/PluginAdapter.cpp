@@ -418,6 +418,7 @@ namespace Plugin
         std::string serviceName("auditd");
         if (disableAuditD)
         {
+            LOGINFO("EDR configuration set to disable AuditD");
             if (checkIfServiceActive(serviceName))
             {
                 try
@@ -436,9 +437,10 @@ namespace Plugin
         }
         else
         {
+            LOGINFO("EDR configuration set to not disable AuditD");
             if (checkIfServiceActive(serviceName))
             {
-                LOGWARN("EDR configuration set to not disable AuditD, it will not be possible to obtain event data.");
+                LOGWARN("AuditD is running, it will not be possible to obtain event data.");
             }
         }
 
