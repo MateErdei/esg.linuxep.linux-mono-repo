@@ -44,6 +44,6 @@ class LiveQueryAdapter(generic_adapter.GenericAdapter):
         order_tag = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
         action_name = "{}_{}_{}_{}_request.json".format(order_tag, app_id, correlation_id, timestamp)
         action_path_tmp = os.path.join(path_manager.actions_temp_dir(), action_name)
-        LOGGER.info("Query saved to path {}".format(action_path_tmp))
+        LOGGER.debug("Query saved to path {}".format(action_path_tmp))
         mcsrouter.utils.utf8_write.utf8_write(action_path_tmp, body)
         return []
