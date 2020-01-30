@@ -80,7 +80,16 @@ void livequery::processQuery(
         LOGDEBUG(query);
 
         livequery::QueryResponse response = iQueryProcessor.query(query);
-        LOGINFO("Finished executing query with name: " << queryName << " and corresponding id: " << correlationId);
+        if (response.status().errorCode() == livequery::ErrorCode::SUCCESS)
+        {
+            LOGINFO("Successfully executed query with name: "
+                            << queryName << " and corresponding id: " << correlationId);
+        }
+        else
+        {
+            LOGINFO("Query with name: " << queryName << " and corresponding id: " << correlationId
+                                << "failed to execute with error: " << response.status().errorDescription());
+        }
 
         dispatcher.sendResponse(correlationId, response);
     }
