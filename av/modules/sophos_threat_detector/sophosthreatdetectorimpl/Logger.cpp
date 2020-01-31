@@ -7,8 +7,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/Logging/LoggerConfig.h>
 
-log4cplus::Logger& getScanProcessMonitor()
+log4cplus::Logger& getSophosThreadDetectorImplLogger()
 {
-    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("ScanProcessMonitor");
+    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("SophosThreatDetectorImpl");
     return STATIC_LOGGER;
 }

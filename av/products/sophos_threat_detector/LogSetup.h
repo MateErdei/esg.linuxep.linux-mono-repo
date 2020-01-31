@@ -4,12 +4,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "LogSetup.h"
+#pragma once
 
-#include "sophos_threat_detector/sophosthreatdetectorimpl/SophosThreatDetectorMain.h"
 
-int main()
+class LogSetup
 {
-    LogSetup logging;
-    return sspl::sophosthreatdetectorimpl::sophos_threat_detector_main();
-}
+public:
+    LogSetup();
+    ~LogSetup();
+};
+
+
+

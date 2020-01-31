@@ -62,8 +62,10 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         }
         else
         {
+            std::string output = process->output();
             process->waitUntilProcessEnds();
             LOGERROR("sophos_threat_detector exiting with "<< process->exitCode());
+            LOGERROR("Output: "<< output);
             struct timespec sleepPeriod{};
             sleepPeriod.tv_sec = 0;
             sleepPeriod.tv_nsec = 100*1000*1000;

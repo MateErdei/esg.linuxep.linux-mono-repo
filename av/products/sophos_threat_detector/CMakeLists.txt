@@ -1,8 +1,8 @@
 
 add_executable(sophos_threat_detector
         sophos_threat_detector_main.cpp
-        )
-target_link_libraries(sophos_threat_detector  PUBLIC sophosthreatdetectorimpl)
+        LogSetup.cpp LogSetup.h)
+target_link_libraries(sophos_threat_detector  PUBLIC sophosthreatdetectorimpl ${log4cpluslib})
 target_include_directories(sophos_threat_detector PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 SET_TARGET_PROPERTIES( sophos_threat_detector

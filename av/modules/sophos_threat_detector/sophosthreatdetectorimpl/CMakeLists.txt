@@ -1,6 +1,9 @@
 
 add_library(sophosthreatdetectorimpl SHARED
-        SophosThreatDetectorMain.cpp SophosThreatDetectorMain.h)
+        SophosThreatDetectorMain.cpp
+        SophosThreatDetectorMain.h
+        Logger.cpp
+        Logger.h)
 
 target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         unixsocket

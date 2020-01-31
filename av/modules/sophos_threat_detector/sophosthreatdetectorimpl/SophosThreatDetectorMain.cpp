@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SophosThreatDetectorMain.h"
+#include "Logger.h"
 
 #include "unixsocket/ScanningServerSocket.h"
 
@@ -47,12 +48,12 @@ int sspl::sophosthreatdetectorimpl::sophos_threat_detector_main()
     }
     catch (std::exception& ex)
     {
-        PRINT("Caught std::exception: "<<ex.what() << " at top level");
+        LOGERROR("Caught std::exception: "<<ex.what() << " at top level");
         return 101;
     }
     catch(...)
     {
-        PRINT("Caught exception at top-level");
+        LOGERROR("Caught exception at top-level");
         return 100;
     }
 }

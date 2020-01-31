@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanningServerConnectionThread.h"
+#include "Logger.h"
 #include "SocketUtils.h"
 #include "ScanRequest.capnp.h"
 
@@ -18,7 +19,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/un.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <memory>
 
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(int fd)
     : m_finished(false), m_fd(fd)
@@ -86,10 +86,31 @@ static int recv_fd(int socket)
     return fd;
 }
 
+/**
+ * Parse a request.
+ *
+ * Placed in a function to ensure the MessageReader and view are deleted before the buffer might become invalid.
+ *
+ * @param proto_buffer
+ * @param bytes_read
+ * @return
+ */
+static std::string parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
+{
+    auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::FileScanRequest::Reader requestReader =
+            messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
+
+    return requestReader.getPathname();
+}
+
 void unixsocket::ScanningServerConnectionThread::run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
     PRINT("Got connection " << socket_fd.fd());
+    LOGDEBUG("Got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
@@ -126,13 +147,8 @@ void unixsocket::ScanningServerConnectionThread::run()
 
         PRINT("Read capn of " << bytes_read);
 
-        auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
+        std::string pathname = parseRequest(proto_buffer, bytes_read);
 
-        capnp::FlatArrayMessageReader messageInput(view);
-        Sophos::ssplav::FileScanRequest::Reader requestReader =
-                messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
-
-        std::string pathname = requestReader.getPathname();
         PRINT("Scan requested of " << pathname);
 
         // read fd
