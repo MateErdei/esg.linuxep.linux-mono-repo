@@ -11,7 +11,11 @@ SET_TARGET_PROPERTIES( sophos_threat_detector
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:$ORIGIN:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
         )
 
-install(TARGETS sophos_threat_detector
+add_executable(sophos_threat_detector_launcher
+        sophos_threat_detector_launcher.c)
+target_link_libraries(sophos_threat_detector_launcher  PUBLIC cap)
+
+install(TARGETS sophos_threat_detector sophos_threat_detector_launcher
         DESTINATION files/plugins/${PLUGIN_NAME}/sbin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
         )

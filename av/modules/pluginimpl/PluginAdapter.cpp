@@ -27,7 +27,7 @@ PluginAdapter::PluginAdapter(
 
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path sophos_threat_detector_path = appConfig.getData("PLUGIN_INSTALL");
-    sophos_threat_detector_path /= "sbin/sophos_threat_detector";
+    sophos_threat_detector_path /= "sbin/sophos_threat_detector_launcher";
     m_sophosThreadDetector = std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(sophos_threat_detector_path);
 }
 

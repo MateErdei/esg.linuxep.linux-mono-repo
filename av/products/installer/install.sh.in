@@ -81,12 +81,12 @@ chmod 0711 "$CHROOT"
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 pushd "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
-THREAT_DETECTOR="sophos_threat_detector"
+THREAT_DETECTOR="sophos_threat_detector_launcher"
 [[ -h "$THREAT_DETECTOR" ]] && THREAT_DETECTOR=$(readlink "$THREAT_DETECTOR")
-[[ -f "$THREAT_DETECTOR" ]] && setcap cap_sys_chroot=ep "$THREAT_DETECTOR"
+[[ -f "$THREAT_DETECTOR" ]] && setcap cap_sys_chroot=eip "$THREAT_DETECTOR"
 SCHEDULED_FILE_WALKER="scheduled_file_walker"
 [[ -h "$SCHEDULED_FILE_WALKER" ]] && SCHEDULED_FILE_WALKER=$(readlink "$SCHEDULED_FILE_WALKER")
-[[ -f "$SCHEDULED_FILE_WALKER" ]] && setcap cap_dac_read_search=ep "$SCHEDULED_FILE_WALKER"
+[[ -f "$SCHEDULED_FILE_WALKER" ]] && setcap cap_dac_read_search=eip "$SCHEDULED_FILE_WALKER"
 popd || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to return from sbin directory"
 
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/avscanner" /usr/local/bin/avscanner

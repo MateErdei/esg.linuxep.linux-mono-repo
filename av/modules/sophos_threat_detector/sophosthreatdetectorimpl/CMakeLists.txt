@@ -7,6 +7,7 @@ add_library(sophosthreatdetectorimpl SHARED
 
 target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         unixsocket
+        cap
         )
 
 target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)

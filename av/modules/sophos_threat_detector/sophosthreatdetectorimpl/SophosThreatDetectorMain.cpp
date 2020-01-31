@@ -8,10 +8,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include "unixsocket/ScanningServerSocket.h"
+#include <datatypes/Print.h>
 
 #include <string>
 #include <unistd.h>
-#include <datatypes/Print.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
@@ -24,7 +24,7 @@ static int inner_main()
 {
     int ret;
 
-    ret = chroot(CHROOT);
+    ret = ::chroot(CHROOT);
     if (ret != 0)
     {
         handle_error("Failed to chroot to "
@@ -37,7 +37,6 @@ static int inner_main()
     server.run();
 
     return 0;
-
 }
 
 int sspl::sophosthreatdetectorimpl::sophos_threat_detector_main()
