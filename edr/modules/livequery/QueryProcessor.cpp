@@ -73,8 +73,9 @@ void livequery::processQuery(
 
     try
     {
-        std::string queryName = queryNameIter->second.getString();
-        LOGINFO("Executing query name: " << queryName  << " and corresponding id: " << correlationId);
+        std::string queryDetails = "name: "  + queryNameIter->second.getString()
+                + " and corresponding id: " + correlationId;
+        LOGINFO("Executing query " << queryDetails);
 
         std::string query = queryIter->second.getString();
         LOGDEBUG(query);
@@ -82,13 +83,12 @@ void livequery::processQuery(
         livequery::QueryResponse response = iQueryProcessor.query(query);
         if (response.status().errorCode() == livequery::ErrorCode::SUCCESS)
         {
-            LOGINFO("Successfully executed query with name: "
-                            << queryName << " and corresponding id: " << correlationId);
+            LOGINFO("Successfully executed query with " << queryDetails);
         }
         else
         {
-            LOGINFO("Query with name: " << queryName << " and corresponding id: " << correlationId
-                                << " failed to execute with error: " << response.status().errorDescription());
+            LOGINFO("Query with " << queryDetails << " failed to execute with error: "
+                    << response.status().errorDescription());
         }
 
         dispatcher.sendResponse(correlationId, response);
