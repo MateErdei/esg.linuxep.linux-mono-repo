@@ -4,6 +4,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <stdexcept>
 #include "Options.h"
 
 using namespace avscanner::avscannerimpl;
@@ -47,6 +48,10 @@ Options::Options(int argc, char** argv)
         {
             const char* option = argv[i];
             i++;
+            if (i >= argc)
+            {
+                throw std::runtime_error("Specified an option without a value");
+            }
             const char* value = argv[i];
             handleOption(option, value);
         }
