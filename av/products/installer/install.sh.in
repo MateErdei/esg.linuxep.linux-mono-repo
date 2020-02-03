@@ -84,7 +84,7 @@ pushd "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin" || failure ${EXIT_FAIL_CRE
 THREAT_DETECTOR="sophos_threat_detector_launcher"
 [[ -h "$THREAT_DETECTOR" ]] && THREAT_DETECTOR=$(readlink "$THREAT_DETECTOR")
 [[ -f "$THREAT_DETECTOR" ]] && setcap cap_sys_chroot=eip "$THREAT_DETECTOR"
-SCHEDULED_FILE_WALKER="scheduled_file_walker"
+SCHEDULED_FILE_WALKER="scheduled_file_walker_launcher"
 [[ -h "$SCHEDULED_FILE_WALKER" ]] && SCHEDULED_FILE_WALKER=$(readlink "$SCHEDULED_FILE_WALKER")
 [[ -f "$SCHEDULED_FILE_WALKER" ]] && setcap cap_dac_read_search=eip "$SCHEDULED_FILE_WALKER"
 popd || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to return from sbin directory"

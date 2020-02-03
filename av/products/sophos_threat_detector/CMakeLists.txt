@@ -13,7 +13,8 @@ SET_TARGET_PROPERTIES( sophos_threat_detector
         )
 
 add_executable(sophos_threat_detector_launcher
-        sophos_threat_detector_launcher.c)
+        sophos_threat_detector_launcher.c
+        ../capability/PassOnCapability.c)
 target_link_libraries(sophos_threat_detector_launcher  PUBLIC cap)
 
 install(TARGETS sophos_threat_detector sophos_threat_detector_launcher

@@ -36,3 +36,14 @@ INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/scheduled_file_walker
         DESTINATION files/plugins/${PLUGIN_NAME}/sbin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
 )
+
+add_executable(scheduled_file_walker_launcher
+        scheduled_file_walker_launcher.c
+        ../capability/PassOnCapability.c)
+
+target_link_libraries(scheduled_file_walker_launcher  PUBLIC cap)
+
+install(TARGETS scheduled_file_walker_launcher
+        DESTINATION files/plugins/${PLUGIN_NAME}/sbin
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        )

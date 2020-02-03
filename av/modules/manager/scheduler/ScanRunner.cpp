@@ -22,8 +22,8 @@ using namespace manager::scheduler;
 ScanRunner::ScanRunner(std::string name, std::string scan)
     : m_name(std::move(name)), m_scan(std::move(scan)), m_scanCompleted(false)
 {
-    // Need to work out install directory
-    m_scanExecutable = "/opt/sophos-spl/plugins/sspl-plugin-anti-virus/sbin/scheduled_scan_walker";
+    // TODO: Need to work out install directory
+    m_scanExecutable = "/opt/sophos-spl/plugins/sspl-plugin-anti-virus/sbin/scheduled_scan_walker_launcher";
 }
 
 void ScanRunner::run()
