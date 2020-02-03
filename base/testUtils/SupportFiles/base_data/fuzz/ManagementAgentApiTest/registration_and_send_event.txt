@@ -1,0 +1,13 @@
+apimessage
+{
+  pluginName: "mdr"
+  applicationId: "MDR"
+  command: Registration
+}
+apimessage
+{
+  pluginName: "mdr"
+  applicationId: "MDR"
+  command: SendEvent
+  payload: "this event from plugin"
+}

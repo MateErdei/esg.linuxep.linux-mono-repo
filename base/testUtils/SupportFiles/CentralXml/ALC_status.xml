@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<status xmlns="com.sophos\mansys\status" type="sau">
+    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="2ae526b65dc9442989025cd1995802dcd3142eddbbefe7ee2f2922660adeaaf5" policyType="1"/>
+    <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="1">
+        <endpoint id="03753396c589cfe79993c22c98fe1a1a"/>
+    </autoUpdate>
+    <subscriptions>
+        <subscription rigidName="ServerProtectionLinux-Base" version="1.0.0.331" displayVersion="1.0.0.331"/>
+        <subscription rigidName="ServerProtectionLinux-Plugin-MDR" version="1.0.0.133" displayVersion="1.0.0.133"/></subscriptions>
+    <products>
+        <product rigidName="ServerProtectionLinux-Base" productName="Sophos Linux Base" downloadedVersion="1.0.0.331" installedVersion="1.0.0.331"/>
+        <product rigidName="ServerProtectionLinux-MDR-Control-Component" productName="Sophos Managed Threat Response plug-in" downloadedVersion="1.0.0.133" installedVersion="1.0.0.133"/>
+        <product rigidName="ServerProtectionLinux-MDR-DBOS-Component" productName="Sophos Managed Threat Response for Linux" downloadedVersion="1.0.1.75.33" installedVersion="1.0.1.75.33"/>
+        <product rigidName="ServerProtectionLinux-MDR-osquery-Component" productName="Sophos Live Query" downloadedVersion="3.3.2.33" installedVersion="3.3.2.33"/>
+    </products>
+</status>

@@ -1,0 +1,10 @@
+mcsrouter.pid
+sophos_managementagent.log
+mcsrouter.log
+mcs_envelope.log
+updatescheduler.log
+watchdog.log
+wdctl.log
+tscheduler.log
+ALC_status.xml
+ALC.xml

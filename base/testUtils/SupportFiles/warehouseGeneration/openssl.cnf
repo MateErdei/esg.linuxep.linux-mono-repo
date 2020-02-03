@@ -1,0 +1,30 @@
+[ req ]
+default_bits           = 1024
+default_keyfile        = keyfile.pem
+distinguished_name     = req_distinguished_name
+attributes             = req_attributes
+prompt                 = no
+output_password        = testpass
+
+[ req_distinguished_name ]
+C                      = GB
+ST                     = Oxfordshire
+L                      = Abingdon
+O                      = Sophos plc
+OU                     = Development Test
+CN                     = Dev Tester
+emailAddress           = devtest@sophos.com
+
+[ req_attributes ]
+challengePassword              = A challenge password
+
+[ ca ]
+default_ca             = my_ca
+
+[ my_ca ]
+database               = empty.txt
+private_key            = CID/testkey.pem
+certificate            = CID/rootca.crt
+default_md             = sha1
+default_days           = 1000
+default_crl_days       = 100

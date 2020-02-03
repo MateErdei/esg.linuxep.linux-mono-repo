@@ -1,0 +1,10 @@
+{
+  "additionalHeaders": [
+    "x-amz-acl:bucket-owner-full-control"
+  ],
+  "port": 443,
+  "resourceRoot": "linux/dev",
+  "server": "t1.sophosupd.com",
+  "verb": "PUT",
+  "interval": 86400
+}

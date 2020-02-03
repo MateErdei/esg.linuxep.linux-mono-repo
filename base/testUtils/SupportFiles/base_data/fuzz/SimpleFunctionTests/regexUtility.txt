@@ -1,0 +1,2 @@
+functionTarget: regexUtility
+payload: "([\\w]+)(-[\\w]+)?_policy.xml;ALC_policy.xml"

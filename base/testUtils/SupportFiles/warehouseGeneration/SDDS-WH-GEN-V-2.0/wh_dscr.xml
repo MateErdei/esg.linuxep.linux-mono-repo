@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SDDSData>
+	<DictionaryFiles>
+		<DictionaryFile>C:\Users\John Moffa\Desktop\en\dict_features_en.xml</DictionaryFile>
+		<DictionaryFile>C:\Users\John Moffa\Desktop\en\dict_lifestage_en.xml</DictionaryFile>
+		<DictionaryFile>C:\Users\John Moffa\Desktop\en\dict_platforms_en.xml</DictionaryFile>
+		<DictionaryFile>C:\Users\John Moffa\Desktop\en\dict_productlines_en.xml</DictionaryFile>
+		<DictionaryFile>C:\Users\John Moffa\Desktop\en\dict_releasetags_en.xml</DictionaryFile>
+		<DictionaryFile>C:\Users\John Moffa\Desktop\en\dict_roles_en.xml</DictionaryFile>
+		<DictionaryFile>C:\Users\John Moffa\Desktop\en\dict_savlines_en.xml</DictionaryFile>
+		<DictionaryFile>C:\Users\John Moffa\Desktop\en\dict_targettypes_en.xml</DictionaryFile>
+	</DictionaryFiles>
+	<ProductInstance>
+		<ComponentSuite>
+			<ComponentImport>C:\Users\John Moffa\Desktop\import packages\es2scpxp\SDDS-Import.xml</ComponentImport>
+			<MajorRelease>3</MajorRelease>
+			<MinorRelease>2</MinorRelease>
+			<TimeStamp>2010-07-09T17:43:59</TimeStamp>
+			<Supplements>				
+				<Supplement>
+					<Repositories>
+						<Repository>http://url_1</Repository>
+						<Repository>http://url_2</Repository>
+					</Repositories>
+					<Catalogue>sdds.test.xml</Catalogue>
+					<ProductLine>AE6CB2F2-43F1-4C0E-B1B7-907AEB1A6823</ProductLine>
+					<BaseVersion>1</BaseVersion>
+					<ReleaseTag>RECOMMENDED</ReleaseTag>
+					<DecodePath>msdc</DecodePath>
+				</Supplement>	
+			</Supplements>
+			<Resubscriptions>
+				<Resubscription>
+					<Line>theline</Line>
+					<Version>1.0.0</Version>
+				</Resubscription>		
+			</Resubscriptions>
+		</ComponentSuite>
+		<ReleaseTags>			
+			<ReleaseTag>
+				<Tag>LATEST</Tag>
+				<Base>1</Base>
+			</ReleaseTag>
+			<ReleaseTag> 
+				<Tag>RECOMMENDED</Tag>	
+			</ReleaseTag>
+		</ReleaseTags>
+		<FeatureSuppression>
+			<Feature>DLP</Feature>
+			<Feature>NAC</Feature>
+		</FeatureSuppression>
+		<PlatformSuppression>
+			<Platform>WIN_XP</Platform>
+			<Platform>WIN_7</Platform>
+		</PlatformSuppression>
+		<Components>
+			<Component>
+				<ComponentImport>C:\Users\John Moffa\Desktop\import packages\cbs\SDDS-Import.xml</ComponentImport>
+				<MajorRelease>4</MajorRelease>
+				<MinorRelease>3</MinorRelease>
+				<TimeStamp>2010-07-10T12:43:59</TimeStamp>
+				<Supplements>				
+					<Supplement>
+						<Repositories>
+							<Repository>http://url_1</Repository>
+							<Repository>http://url_2</Repository>
+						</Repositories>
+						<Catalogue>sdds.test.xml</Catalogue>
+						<ProductLine>AE6CB2F2-43F1-4C0E-B1B7-907AEB1A6823</ProductLine>
+						<BaseVersion>1</BaseVersion>
+						<ReleaseTag>RECOMMENDED</ReleaseTag>
+						<DecodePath>msdc</DecodePath>
+					</Supplement>
+					<Supplement>
+						<Repositories>
+							<Repository>http://url_3</Repository>
+							<Repository>http://url_4</Repository>
+						</Repositories>
+						<Catalogue>sdds.test.xml</Catalogue>
+						<ProductLine>BE6CB2F2-43F1-4C0E-B1B7-907AEB1A6823</ProductLine>
+						<ReleaseTag>RECOMMENDED</ReleaseTag>
+						<DecodePath>msdc</DecodePath>
+					</Supplement>
+					<Supplement>
+						<Repositories>
+							<Repository>http://url_5</Repository>
+							<Repository>http://url_6</Repository>
+						</Repositories>
+						<Catalogue>sdds.test.xml</Catalogue>
+						<ProductLine>CE6CB2F2-43F1-4C0E-B1B7-907AEB1A6823</ProductLine>
+						<VersionNumber>1.2.3.4</VersionNumber>
+						<DecodePath>msdc</DecodePath>
+					</Supplement>
+				</Supplements>
+				<Resubscriptions>
+					<Resubscription>
+						<Line>theline</Line>
+						<Version>1.0.0</Version>
+					</Resubscription>		
+				</Resubscriptions>
+			</Component>
+			<Component>
+				<ComponentImport>C:\Users\John Moffa\Desktop\import packages\rmsnt\SDDS-Import.xml</ComponentImport>
+			</Component>	
+			<Component>
+				<ComponentImport>C:\Users\John Moffa\Desktop\import packages\sau\SDDS-Import.xml</ComponentImport>
+			</Component>	
+			<Component>
+				<ComponentImport>C:\Users\John Moffa\Desktop\import packages\savxp\SDDS-Import.xml</ComponentImport>
+			</Component>	
+			<Component>
+				<ComponentImport>C:\Users\John Moffa\Desktop\import packages\scf\SDDS-Import.xml</ComponentImport>
+			</Component>								
+		</Components>	
+	</ProductInstance>
+</SDDSData>

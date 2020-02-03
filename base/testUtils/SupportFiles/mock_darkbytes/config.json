@@ -1,0 +1,33 @@
+{
+    "schedule": {
+      "running_processes": {
+        "query": "SELECT pid, path from process_events;",
+        "interval": 5,
+        "removed": false,
+	"snapshot": true,
+        "blacklist": false,
+        "description": "Retrieves the list of flags in the target system."
+      }
+    },
+    "options": {
+      "schedule_splay_percent": 3,
+      "logger_plugin": "tls",
+      "schedule_epoch": 1563494400,
+      "disable_events": "false",
+      "disable_audit": "false",
+      "audit_allow_config": "true",
+      "events_optimize": "true",
+      "events_max": 15000,
+      "events_expiry": 7200,
+      "table_delay": 375,
+      "hash_cache_max": 1000,
+      "hash_delay": 50
+    },
+    "decorators": {
+      "always": [
+        "SELECT endpoint_id AS eid FROM sophos_endpoint_id;"
+        ]
+    },
+    "file_paths": {},
+    "exclude_paths": {}
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ComponentData xmlns="badger:import">
+    <Dictionary>
+        <TargetTypes>
+            <Label>
+                <Token>ENDPOINT</Token>
+                <Language lang="en">
+                    <LongDesc>Endpoint deployment supported</LongDesc>
+                    <ShortDesc>ENDPOINT</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SERVER</Token>
+                <Language lang="en">
+                    <LongDesc>Server deployment supported</LongDesc>
+                    <ShortDesc>SERVER</ShortDesc>
+                </Language>
+            </Label>
+        </TargetTypes>
+    </Dictionary>
+</ComponentData>

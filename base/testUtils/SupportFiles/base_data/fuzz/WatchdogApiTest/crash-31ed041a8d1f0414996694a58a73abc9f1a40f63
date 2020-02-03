@@ -1,0 +1,10 @@
+messages {
+  wdctl {
+    commands: "STOP"
+    commands: "mdr"
+  }
+}
+messages {
+  wdctl {
+  }
+}

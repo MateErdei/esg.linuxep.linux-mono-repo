@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ComponentData xmlns="badger:import">
+    <Dictionary>
+        <Roles>
+            <Label>
+                <Token>CBS</Token>
+                <Language lang="en">
+                    <LongDesc>Client Bootstrapper</LongDesc>
+                    <ShortDesc>CBS</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>CRT</Token>
+                <Language lang="en">
+                    <LongDesc>Third-Party Security Software Detection</LongDesc>
+                    <ShortDesc>Third-Party Security Software Detection</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>EPS</Token>
+                <Language lang="en">
+                    <LongDesc>Endpoint Protection Suite</LongDesc>
+                    <ShortDesc>EPS</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>HIPS</Token>
+                <Language lang="en">
+                    <LongDesc>Host Intrusion Prevention</LongDesc>
+                    <ShortDesc>HIPS</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>IDES</Token>
+                <Language lang="en">
+                    <LongDesc>IDE Component</LongDesc>
+                    <ShortDesc>IDEs</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>NAC</Token>
+                <Language lang="en">
+                    <LongDesc>Network Access Control</LongDesc>
+                    <ShortDesc>NAC</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>RMS</Token>
+                <Language lang="en">
+                    <LongDesc>Remote Management System</LongDesc>
+                    <ShortDesc>RMS</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAU</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Auto-Update</LongDesc>
+                    <ShortDesc>SAU</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAV</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus</LongDesc>
+                    <ShortDesc>SAV</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SCF</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Client Firewall</LongDesc>
+                    <ShortDesc>SCF</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>VE</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Virus Engine</LongDesc>
+                    <ShortDesc>VE</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>VDATA</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Virus Data</LongDesc>
+                    <ShortDesc>VDATA</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>TBPS</Token>
+                <Language lang="en">
+                    <LongDesc>Talpa Binary Packs</LongDesc>
+                    <ShortDesc>TALPA</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SPA</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Patch Agent</LongDesc>
+                    <ShortDesc>SPA</ShortDesc>
+                </Language>
+            </Label>
+        </Roles>
+    </Dictionary>
+</ComponentData>

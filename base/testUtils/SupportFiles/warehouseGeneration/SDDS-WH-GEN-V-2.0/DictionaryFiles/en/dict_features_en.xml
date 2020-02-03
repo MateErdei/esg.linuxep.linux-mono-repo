@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ComponentData xmlns="badger:import">
+    <Dictionary>
+        <Features>
+            <Label>
+                <Token>AV</Token>
+                <Language lang="en">
+                    <LongDesc>Anti-virus</LongDesc>
+                    <ShortDesc>Anti-virus</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>DLP</Token>
+                <Language lang="en">
+                    <LongDesc>Data Control</LongDesc>
+                    <ShortDesc>Data Control</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>DVCCNTRL</Token>
+                <Language lang="en">
+                    <LongDesc>Device Control</LongDesc>
+                    <ShortDesc>Device Control</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>HIPS</Token>
+                <Language lang="en">
+                    <LongDesc>Host Intrusion Prevention</LongDesc>
+                    <ShortDesc>Host Intrusion Prevention</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>PUA</Token>
+                <Language lang="en">
+                    <LongDesc>Application Control</LongDesc>
+                    <ShortDesc>Application Control</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>CLNTFRWLL</Token>
+                <Language lang="en">
+                    <LongDesc>Firewall</LongDesc>
+                    <ShortDesc>Firewall</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>CRT</Token>
+                <Language lang="en">
+                    <LongDesc>Third-Party Security Software Detection</LongDesc>
+                    <ShortDesc>Third-Party Security Software Detection</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SCA</Token>
+                <Language lang="en">
+                    <LongDesc>Compliance Control</LongDesc>
+                    <ShortDesc>Compliance Control</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>PATCH</Token>
+                <Language lang="en">
+                    <LongDesc>Patch Management</LongDesc>
+                    <ShortDesc>Patch Management</ShortDesc>
+                </Language>
+            </Label>
+        </Features>
+    </Dictionary>
+</ComponentData>

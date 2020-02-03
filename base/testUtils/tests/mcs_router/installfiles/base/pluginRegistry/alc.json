@@ -1,0 +1,25 @@
+{
+"policyAppIds": [
+ "ALC", "SAV", "HBT"
+ ],
+ "statusAppIds": [
+  "ALC", "SAV", "HBT"
+ ],
+ "pluginName": "ALC",
+ "xmlTranslatorPath": "",
+ "executableFullPath": "path2",
+ "executableArguments": [
+  "arg1", "arg2"
+ ],
+ "environmentVariables": [
+  {
+   "name": "hello",
+   "value": "world"
+  },
+  {
+   "name": "arg2",
+   "value": "world"
+  }
+ ]
+}
+

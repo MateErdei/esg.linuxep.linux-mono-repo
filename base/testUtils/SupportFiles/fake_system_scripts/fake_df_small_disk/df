@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Swallow arguments (the -kP) and just echo out a fake df output.
+
+read -r -d '' FAKE_DF << EOM
+Filesystem     1024-blocks     Used Available Capacity Mounted on
+/dev/sdb1        246002848 51191088       400      22% /
+EOM
+
+echo -e "${FAKE_DF}"

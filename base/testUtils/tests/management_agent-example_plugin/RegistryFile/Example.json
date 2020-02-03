@@ -1,0 +1,23 @@
+{
+  "policyAppIds": [
+    "SAV"
+  ],
+  "statusAppIds": [
+    "SAV"
+  ],
+  "pluginName": "Example",
+  "executableFullPath": "plugins/Example/bin/example",
+  "executableArguments": [
+  ],
+  "environmentVariables": [
+    {
+      "name": "SOPHOS_INSTALL",
+      "value": "SOPHOS_INSTALL_VALUE"
+    },
+    {
+      "name": "PATHTOSCAN",
+      "value": "PATH_TO_SCAN"
+    }
+  ],
+  "executableUserAndGroup": "sophos-spl-user:sophos-spl-group"
+}

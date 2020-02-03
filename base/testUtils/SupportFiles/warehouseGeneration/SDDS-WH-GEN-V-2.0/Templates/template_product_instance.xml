@@ -1,0 +1,28 @@
+	<ProductInstance>
+		<ComponentSuite>
+		    <ComponentImport><!-- ComponentImport --></ComponentImport>
+			<!-- MajorRelease -->
+			<!-- MinorRelease -->
+			<!-- TimeStamp -->
+            <!-- LifeStage -->
+			<Supplements>
+    			<!-- Supplement -->
+			</Supplements>
+			<Resubscriptions>
+    			<!-- Resubscription -->
+			</Resubscriptions>
+            <DecodePath><!-- DecodePath --></DecodePath>
+		</ComponentSuite>
+		<ReleaseTags>
+    		<!-- ReleaseTag -->
+		</ReleaseTags>
+		<FeatureSuppression>
+    		<!-- Feature -->
+		</FeatureSuppression>
+		<PlatformSuppression>
+    		<!-- Platform -->
+		</PlatformSuppression>
+		<Components>
+    		<!-- Component -->
+		</Components>
+	</ProductInstance>

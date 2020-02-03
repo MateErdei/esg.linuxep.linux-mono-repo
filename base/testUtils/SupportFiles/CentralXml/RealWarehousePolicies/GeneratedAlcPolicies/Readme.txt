@@ -1,0 +1,1 @@
+This folder contains generated alc policies that should be used when connecting to ostia/real warehouses

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ComponentData xmlns="badger:import">
+    <Dictionary>
+        <Lifestage>
+            <Label>
+                <Token>NEW</Token>
+                <Language lang="en">
+                    <LongDesc>New</LongDesc>
+                    <ShortDesc>New</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>PROVISIONAL</Token>
+                <Language lang="en">
+                    <LongDesc>Provisional</LongDesc>
+                    <ShortDesc>Provisional</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>APPROVED</Token>
+                <Language lang="en">
+                    <LongDesc>Approved</LongDesc>
+                    <ShortDesc>Approved</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>RETIRING</Token>
+                <Language lang="en">
+                    <LongDesc>Retiring</LongDesc>
+                    <ShortDesc>Retiring</ShortDesc>
+                </Language>
+            </Label>
+        </Lifestage>
+    </Dictionary>
+</ComponentData>

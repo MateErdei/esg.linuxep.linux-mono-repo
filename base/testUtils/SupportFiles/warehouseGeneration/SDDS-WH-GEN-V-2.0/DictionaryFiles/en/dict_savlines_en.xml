@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ComponentData xmlns="badger:import">
+    <Dictionary>
+        <SAVLine>
+            <Label>
+                <Token>SSPL</Token>
+                <Language lang="en">
+                    <LongDesc>SSPL line long</LongDesc>
+                    <ShortDesc>SSPL ls</ShortDesc>
+                </Language>
+            </Label>
+             <Label>
+                <Token>SAVEE9X</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For 95/98/Me Line</LongDesc>
+                    <ShortDesc>SAV9X</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVEENT</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For NT Line</LongDesc>
+                    <ShortDesc>SAVNT</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVEEXP</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For 2000+ Line</LongDesc>
+                    <ShortDesc>SAVXP</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVEEOSX</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For OS X Line</LongDesc>
+                    <ShortDesc>SAVOSX</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVEELINUX</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Linux Line</LongDesc>
+                    <ShortDesc>SAVLinux</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>EESAVLINUX</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Linux Line</LongDesc>
+                    <ShortDesc>SAVLinux</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVSUNOS10INTEL</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For SUN OS 10 on Intel Line</LongDesc>
+                    <ShortDesc>SAV SUN OS10 Intel</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVSUNOS10SPARC</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For SUN OS 10 on Sparc Line</LongDesc>
+                    <ShortDesc>SAV SUN OS10 Sparc</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVSUNOS9SPARC</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For SUN OS 9 on Sparc Line</LongDesc>
+                    <ShortDesc>SAV SUN OS9 Sparc</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVHPUX1111HPPA</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For HP-UX 11.11 on HP-PA Line</LongDesc>
+                    <ShortDesc>SAV HPUX 11.11 HP-PA</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVHPUX110HPPA</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For HP-UX 11.0 on HP-PA Line</LongDesc>
+                    <ShortDesc>SAV HPUX 11.0 HP-PA</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVHPUX1123ITANIUM</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For HP-UX 11.23 on Itanium Line</LongDesc>
+                    <ShortDesc>SAV HPUX 11.23 Itanium</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVHPUX1120ITANIUM</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For HP-UX 11.20 on Itanium Line</LongDesc>
+                    <ShortDesc>SAV HPUX 11.20 Itanium</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVFREEBSD5X86</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Free BSD 5 on x86 Line</LongDesc>
+                    <ShortDesc>SAV Free BSD 5 x86</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVFREEBSD5AMD64</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Free BSD 5 on AMD64 Line</LongDesc>
+                    <ShortDesc>SAV Free BSD 5 AMD64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVFREEBSD6X86</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Free BSD 6 on x86 Line</LongDesc>
+                    <ShortDesc>SAV Free BSD 6 x86</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVFREEBSD6AMD64</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Free BSD 6 on AMD64 Line</LongDesc>
+                    <ShortDesc>SAV Free BSD 6 AMD64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVINW</Token>
+                <Language lang="en">
+                    <LongDesc>SAV Interface for Netware Line</LongDesc>
+                    <ShortDesc>SAVINW</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVNW</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Netware</LongDesc>
+                    <ShortDesc>SAVNW</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVAIX</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For AIX Line</LongDesc>
+                    <ShortDesc>SAV AIX</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVFREEBSD52</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Free BSD 5.2 Line</LongDesc>
+                    <ShortDesc>SAV Free BSD 5.2</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVFREEBSDELF</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Free BSD ELF Line</LongDesc>
+                    <ShortDesc>SAV Free BSD ELF</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVFREEBSDELF45</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Free BSD ELF 4.5 Line</LongDesc>
+                    <ShortDesc>SAV Free BSD ELF 4.5</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVFREEBSD_6</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Free BSD 6 Line</LongDesc>
+                    <ShortDesc>SAV Free BSD 6</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVFREEBSD_6_AMD64</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Free BSD 6 on AMD64 Line</LongDesc>
+                    <ShortDesc>SAV Free BSD 6 on AMD64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVHP_UX</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For HP-UX Line</LongDesc>
+                    <ShortDesc>SAV HPUX</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVHP_UX_IA64</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For HP-UX on IA64 Line</LongDesc>
+                    <ShortDesc>SAV HPUX on IA64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVLINUXAMD64</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Linux on AMD64 Line</LongDesc>
+                    <ShortDesc>SAV For Linux on AMD64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVLINUXIA64</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Linux on IA64 Line</LongDesc>
+                    <ShortDesc>SAV For Linux on IA64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVLINUXLIBC6</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Linux libc 6 Line</LongDesc>
+                    <ShortDesc>SAV For Linux libc 6</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVLINUXLIBC6GLIB22</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Linux libc 6  glib 2.2 Line</LongDesc>
+                    <ShortDesc>SAV For Linux libc 6  glib 2.2</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVSCOUNIXWARE</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For SCO Unixware Line</LongDesc>
+                    <ShortDesc>SAV For SCO Unixware</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVSOLARISINTEL</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Solaris on Intel Line</LongDesc>
+                    <ShortDesc>SAV For Solaris on Intel</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVSOLARIS_S</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For Solaris Line</LongDesc>
+                    <ShortDesc>SAV For Solaris</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVAIXPPC</Token>
+                <Language lang="en">
+                    <LongDesc>SAV For AIX on PowerPC Line</LongDesc>
+                    <ShortDesc>SAV For AIX on PowerPC</ShortDesc>
+                </Language>
+            </Label>
+        </SAVLine>
+    </Dictionary>
+</ComponentData>

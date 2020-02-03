@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ComponentData xmlns="badger:import">
+    <Dictionary>
+        <Identity>
+            <Label>
+                <Token>97B6A561-5F87-4A2E-A4FE-177F48D8899F</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Third-party Security Software Removal Tool</LongDesc>
+                    <ShortDesc>CRT</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>B78E2198-0430-43FE-B2CC-F3C410C92A59</Token>
+                <Language lang="en">
+                    <LongDesc>Documentation</LongDesc>
+                    <ShortDesc>DOC</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>8BAA10C1-3844-465E-919C-D778AC720090</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Mac OS X 10.2/10.3</LongDesc>
+                    <ShortDesc>MAC OS X 10.2/10.3</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>7381C59E-B205-422E-9838-3D6C21425867</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Windows 95/98/Me</LongDesc>
+                    <ShortDesc>Windows 9x</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>5CF594B0-9FED-4212-BA91-A4077CB1D1F3</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Linux (on-access)</LongDesc>
+                    <ShortDesc>Linux - Please see KBA 118624 for supported platforms</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SSPL-RIGIDNAME</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Server Protection for Linux</LongDesc>
+                    <ShortDesc>Linux</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>ServerProtectionLinux-Base</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Server Protection for Linux</LongDesc>
+                    <ShortDesc>Linux</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>443DC50B-DFC1-4678-AC88-19965CAEA3B7</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Windows NT</LongDesc>
+                    <ShortDesc>Windows NT</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>CF87F829-EA39-4D74-97F7-B849606F0044</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Solaris/Intel (Manageable)</LongDesc>
+                    <ShortDesc>Solaris 9/10 (INTEL)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>5CFA73B4-DBC2-4A70-8B18-C29AA9014C81</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Solaris/SPARC (Manageable)</LongDesc>
+                    <ShortDesc>Solaris 9/10 (SPARC)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>80406593-8F6F-4E0F-89F2-0DB727FF9EAE</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Windows</LongDesc>
+                    <ShortDesc>Windows 2000 and above</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>F26F7EC0-1302-4DA7-8B6B-A5383051D41A</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Endpoint Security and Control for Windows</LongDesc>
+                    <ShortDesc>Windows 2000 and above</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>8BAA10C1-3844-465E-919C-D778A5407708</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Mac OS X 10.4+</LongDesc>
+                    <ShortDesc>MAC OS X 10.4+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>75D1DB32-58FE-4B82-9465-0168F8823ED6</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Endpoint Security and Control for Windows (Low Delta)</LongDesc>
+                    <ShortDesc>Windows 2000 and above (Low Delta)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>4780A645-D3D0-4882-9EBD-9CF704A59B50</Token>
+                <Language lang="en">
+                    <LongDesc>Host Intrusion Protection Data</LongDesc>
+                    <ShortDesc>HIPS</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>AE6CB2F2-43F1-4C0E-B1B7-907AEB1A6823</Token>
+                <Language lang="en">
+                    <LongDesc>Management Service Data Component</LongDesc>
+                    <ShortDesc>MSDC</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>664C3EF9-E3EA-4065-A660-73847BD9281B</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Compliance Agent</LongDesc>
+                    <ShortDesc>SCA</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>7A196C88-93D7-4776-96FB-3FFA73DA897B</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Compliance Agent (64-bit)</LongDesc>
+                    <ShortDesc>SCA64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>D752FAB9-5883-4b36-8740-61565B6BAD29</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Remote Management System for Windows 95/98/Me</LongDesc>
+                    <ShortDesc>RMS9X</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>390DCDC2-10A9-4ef3-B8D8-0CA7F0E7EB92</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Remote Management System for Windows NT and 2000+</LongDesc>
+                    <ShortDesc>RMSNT</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>9BF40A4E-23AE-48be-9974-5A1F261DBEE8</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos AutoUpdate</LongDesc>
+                    <ShortDesc>SAU</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>3B758ED7-87C1-4e89-BDE1-F49DFF1249F6</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Windows 95/98/Me</LongDesc>
+                    <ShortDesc>SAV9X</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>1F46AC1D-7094-4675-8DDE-5C63197849D8</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for AIX (PowerPC)</LongDesc>
+                    <ShortDesc>SAV AIX (PPC)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>59F99D2E-65F2-4746-9362-B0AA23752012</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for FreeBSD Version 6+ (Intel,ELF)</LongDesc>
+                    <ShortDesc>SAV FreeBSD 6+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>A8DC428C-C5D2-4840-9077-05D889B755F3</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for FreeBSD Version 6+ (AMD64)</LongDesc>
+                    <ShortDesc>SAV FreeBSD 6+ (AMD64)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>9182A46F-A9FF-4C80-B7F4-D6B60F680021</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for FreeBSD Version 5.2+ (Intel,elf)</LongDesc>
+                    <ShortDesc>SAV FreeBSD 5.2+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>D9F1F6F0-28E7-4501-93D3-836F48B06C8F</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for FreeBSD Version 3+ (Intel,elf)</LongDesc>
+                    <ShortDesc>SAV FreeBSD 3+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>30B3994A-30D1-47D7-AC72-F906A79B6493</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for FreeBSD Version 4.5+ (Intel,elf)</LongDesc>
+                    <ShortDesc>SAV FreeBSD 4.5+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>64B29A12-9C1D-479A-ACDB-93BFDB2F183A</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for HP-UX (HP-PA)</LongDesc>
+                    <ShortDesc>SAV HP_UX (HP-PA)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>D5919FBB-0BFE-4C5B-900A-1D92BA592F7C</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for HP-UX (Itanium)</LongDesc>
+                    <ShortDesc>SAV HP_UX (IA64)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>E2DAB8EC-97A3-4909-BF17-8A6568B79FEF</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus Interface for Linux</LongDesc>
+                    <ShortDesc>SAVI Linux</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>3D9F7FAF-AA5F-421F-AC28-2AD1D04A8183</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus Interface for NetWare</LongDesc>
+                    <ShortDesc>SAVI Netware</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>CA54BBDC-5A89-4D9D-9884-61AA0AD14D95</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Linux</LongDesc>
+                    <ShortDesc>SAV Linux</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>DA6474E8-0816-40BB-AF11-46738ADA187B</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Linux (AMD64,glibc2.3)</LongDesc>
+                    <ShortDesc>SAV Linux (AMD64)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>7E367225-3BDA-4F8C-BD27-F24984E7E9EE</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Linux on Itanium (IA64,glibc2.2)</LongDesc>
+                    <ShortDesc>SAV Linux (IA64)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>E4ACAD4B-C1BD-4148-9403-C9781ABD6C2B</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Linux (Intel,libc6)</LongDesc>
+                    <ShortDesc>SAV Linux (Libc6)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>1A672300-4B41-4FE9-A4B6-7BC377C58D42</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Linux (Intel,libc6-glibc2.2)</LongDesc>
+                    <ShortDesc>SAV Linux (Libc6-glibc2.2)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>7998C326-2CA5-4830-B7D2-B792D2460975</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Windows NT</LongDesc>
+                    <ShortDesc>SAVNT</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>F8B9FFAF-DF6C-41D2-A081-975A3D7BD0D7</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for NetWare</LongDesc>
+                    <ShortDesc>SAVNW</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>B7E9FCE3-82A1-4BA7-9ECD-3C859F48AD17</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for SCO UnixWare</LongDesc>
+                    <ShortDesc>SAV SCO UNIXWARE</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>D9725F64-1906-47F8-8B29-929C51E03CB3</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Solaris (SPARC)</LongDesc>
+                    <ShortDesc>SAV Solaris (Sparc)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>CB605AAE-C5D9-4A27-A5B1-B88361025326</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Solaris (Intel)</LongDesc>
+                    <ShortDesc>SAV Solaris (Intel)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>E17FE03B-0501-4aaa-BC69-0129D965F311</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for Windows 2000+</LongDesc>
+                    <ShortDesc>SAVXP</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>4DB41E90-DC56-41DC-B91E-9B8E537489A8</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Client Firewall</LongDesc>
+                    <ShortDesc>SCF</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>7D48A012-0C64-4F21-BA27-A9CEDF442749</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Enterprise Console</LongDesc>
+                    <ShortDesc>SEC</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>2EDBCF44-B258-48E2-B9B0-AE589B988C94</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Firewall (32-bit)</LongDesc>
+                    <ShortDesc>SFW</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>C2068E26-16BE-4808-BE69-18358B6D8BAF</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Firewall (64-bit)</LongDesc>
+                    <ShortDesc>SFW64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>C58B1255-C24E-43d6-B2EB-9FB302B42E99</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Patch Agent</LongDesc>
+                    <ShortDesc>SPA</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>D918120F-5C45-4e77-BEBF-7D921273B2E0</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Patch Agent (64-bit)</LongDesc>
+                    <ShortDesc>SPA64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Update Manager</LongDesc>
+                    <ShortDesc>SUM</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>0E66A911-5583-4488-B479-07FFDBA61899</Token>
+                <Language lang="en">
+                    <LongDesc>Talpa</LongDesc>
+                    <ShortDesc>TALPA</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>A4FB6230-A173-4FEB-AA85-2E68C5E63F66</Token>
+                <Language lang="en">
+                    <LongDesc>Uncdownload</LongDesc>
+                    <ShortDesc>UNCDOWNLOAD</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>C311B965-1C90-432f-9437-63875BA878F7</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Computer Security for Windows</LongDesc>
+                    <ShortDesc>Windows 2000 and above</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>95AD0346-BA6B-4F43-B6F0-1F74241BECDA</Token>
+                <Language lang="en">
+                    <LongDesc>Client Bootstrapper</LongDesc>
+                    <ShortDesc>CBS</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>905F6B56-DF17-4CF8-B413-7162F2D2DD3F</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for HP-UX/Itanium (Manageable)</LongDesc>
+                    <ShortDesc>HP-UX (IA64) 11.23+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>B5E7E2A7-3B64-437D-801F-21CC9D67CC6D</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Antispam Engine</LongDesc>
+                    <ShortDesc>ASE</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>43F3AB41-6B33-40A7-8E99-22F237C97AB3</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Anti-Virus for AIX/Power (Manageable)</LongDesc>
+                    <ShortDesc>AIX (PowerPC) 5.3+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SophosComputerSecurityScan</Token>
+                <Language lang="en">
+                    <LongDesc>Sophos Computer Security Scan Endpoint Application</LongDesc>
+                    <ShortDesc>SCSS</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>SAVIW32</Token>
+                <Language lang="en">
+                    <LongDesc>SAV Interface for Windows</LongDesc>
+                    <ShortDesc>SAVI Windows</ShortDesc>
+                </Language>
+            </Label>
+        </Identity>
+    </Dictionary>
+</ComponentData>

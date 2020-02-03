@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<notification xmlns="http://www.sophos.com/EE/Event" type="sophos.mgt.msg.event.threat"
+    description="Virus File found in /tmp/中英字典"
+    timestamp="20181011 142142">
+   <threat
+        type="1"
+        name="VirusFile"
+        scanType="201"
+        status="200"
+        id="T2398541734956424221"
+        idSource="Tmd5(dis,vName,path)">
+       <user userId="TestUser" domain="" />
+       <item file="中英字典" path="/tmp/"/>
+       <action action="116"/>
+   </threat>
+</notification>

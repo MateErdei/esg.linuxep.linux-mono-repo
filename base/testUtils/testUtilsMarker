@@ -1,0 +1,2 @@
+This File Marks the Root of the Robot Framework Directories.
+It is used for orienting paths in libs/PathManager.py

@@ -1,0 +1,13 @@
+messages {
+  wdctl {
+    commands: "STOP"
+    commands: "mtt"
+  }
+  wdservice {
+    apimessage {
+      pluginName: "mtt"
+      command: Telemetry
+      acknowledge: true
+    }
+  }
+}

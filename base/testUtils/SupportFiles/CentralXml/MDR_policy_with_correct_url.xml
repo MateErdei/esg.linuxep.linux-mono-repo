@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<policy type="MDR" xmlns:csc="com.sophos\msys\csc" RevID="TESTPOLICY1" policyType="54">
+    <configuration xmlns:auto-ns1="com.sophos\mansys\policy">
+        <endpointId>DummyEndpointID</endpointId>
+        <customerId>DummyCustomerID</customerId>
+        <url>test.endpointintel.darkbytes.io</url>
+        <enrollmentSecret>DummySecret</enrollmentSecret>
+    </configuration>
+</policy>

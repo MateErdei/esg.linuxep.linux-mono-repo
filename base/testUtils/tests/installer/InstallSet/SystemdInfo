@@ -1,0 +1,2 @@
+o644, root, root, /lib/systemd/system/sophos-spl.service
+o644, root, root, /lib/systemd/system/sophos-spl-update.service

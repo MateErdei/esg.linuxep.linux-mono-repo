@@ -1,0 +1,2 @@
+payload: "{\"additionalHeaders\":[],\"externalProcessWaitRetries\":10,\"externalProcessWaitTime\":100,\"interval\":0,\"maxJsonSize\":1000000,\"messageRelays\":[],\"pluginConnectionTimeout\":5000,\"pluginSendReceiveTimeout\":5000,\"port\":0,\"proxies\":[],\"resourcePath\":\"\",\"resourceRoot\":\"\",\"server\":\"\",\"telemetryServerCertificatePath\":\"\",\"verb\":\"PUT\"}"
+functionTarget: telemetryConfig

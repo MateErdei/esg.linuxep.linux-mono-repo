@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ComponentData xmlns="badger:import">
+    <Dictionary>
+        <Platforms>
+            <Label>
+                <Token>AIX_5-3_POWERPC</Token>
+                <Language lang="en">
+                    <LongDesc>AIX 5.3+ (PowerPC)</LongDesc>
+                    <ShortDesc>AIX 5.3+ PPC</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>AIX_POWERPC</Token>
+                <Language lang="en">
+                    <LongDesc>AIX (PowerPC)</LongDesc>
+                    <ShortDesc>AIX PPC</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>FREEBSD_3_INTEL_ELF</Token>
+                <Language lang="en">
+                    <LongDesc>FreeBSD Version 3+ (Intel,ELF)</LongDesc>
+                    <ShortDesc>FreeBSD3+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>FREEBSD_4-5_INTEL_ELF</Token>
+                <Language lang="en">
+                    <LongDesc>FreeBSD Version 4.5+ (Intel,ELF)</LongDesc>
+                    <ShortDesc>FreeBSD4.5+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>FREEBSD_5-2_INTEL_ELF</Token>
+                <Language lang="en">
+                    <LongDesc>FreeBSD Version 5.2+ (Intel,ELF)</LongDesc>
+                    <ShortDesc>FreeBSD5.2+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>FREEBSD_6_X64_AMD64</Token>
+                <Language lang="en">
+                    <LongDesc>FreeBSD Version 6+ (AMD64)</LongDesc>
+                    <ShortDesc>FreeBSD6+AMD</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>FREEBSD_6_INTEL_ELF</Token>
+                <Language lang="en">
+                    <LongDesc>FreeBSD Version 6+ (Intel,ELF)</LongDesc>
+                    <ShortDesc>FreeBSD6+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>HPUX_11-23_X64_IA</Token>
+                <Language lang="en">
+                    <LongDesc>HP-UX 11.23+ (IA64)</LongDesc>
+                    <ShortDesc>HP-UX 11.23+ (IA64)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>HPUX_PA</Token>
+                <Language lang="en">
+                    <LongDesc>HP-UX (HP-PA)</LongDesc>
+                    <ShortDesc>HP-UX (HP-PA)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>HPUX_X64_IA</Token>
+                <Language lang="en">
+                    <LongDesc>HP-UX (IA64)</LongDesc>
+                    <ShortDesc>HP-UX (IA64)</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>LINUX_X64_AMD64_GLIB2-3</Token>
+                <Language lang="en">
+                    <LongDesc>Linux (AMD64,glibc2.3)</LongDesc>
+                    <ShortDesc>Linux glibc2.3</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>LINUX_X64_IA_GLIB2-2</Token>
+                <Language lang="en">
+                    <LongDesc>Linux (IA64,glibc2.2)</LongDesc>
+                    <ShortDesc>Linux IA64 glibc2.2</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>LINUX_INTEL_LIBC6</Token>
+                <Language lang="en">
+                    <LongDesc>Linux (Intel,libc6)</LongDesc>
+                    <ShortDesc>Linux Intel libc6</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>LINUX_INTEL_LIBC6_GLIB2-2</Token>
+                <Language lang="en">
+                    <LongDesc>Linux (Intel,libc6-glibc2.2)</LongDesc>
+                    <ShortDesc>Linux Intl libc6 glibc2.2</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>MAC_OSX_10-2</Token>
+                <Language lang="en">
+                    <LongDesc>Mac OS X 10.2+</LongDesc>
+                    <ShortDesc>OSX 10.2+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>MAC_OSX_10-4</Token>
+                <Language lang="en">
+                    <LongDesc>Mac OS X 10.4+</LongDesc>
+                    <ShortDesc>OSX 10.4+</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>NETWARE</Token>
+                <Language lang="en">
+                    <LongDesc>NetWare</LongDesc>
+                    <ShortDesc>NetWare</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>UNIX_SCO</Token>
+                <Language lang="en">
+                    <LongDesc>SCO UnixWare</LongDesc>
+                    <ShortDesc>SCO</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>UNIX_SOLARIS_INTEL</Token>
+                <Language lang="en">
+                    <LongDesc>Solaris (INTEL)</LongDesc>
+                    <ShortDesc>Solaris_INTEL</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>UNIX_SOLARIS_SPARC</Token>
+                <Language lang="en">
+                    <LongDesc>Solaris (SPARC)</LongDesc>
+                    <ShortDesc>Solaris_SPARC</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>UNIX_SOLARIS_10_INTEL</Token>
+                <Language lang="en">
+                    <LongDesc>Solaris 10+ (Intel)</LongDesc>
+                    <ShortDesc>Solaris_10+_Intl</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>UNIX_SOLARIS_9_SPARC</Token>
+                <Language lang="en">
+                    <LongDesc>Solaris 9+ (Sparc)</LongDesc>
+                    <ShortDesc>Solaris_9+_sparc</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_2000</Token>
+                <Language lang="en">
+                    <LongDesc>Windows 2000</LongDesc>
+                    <ShortDesc>Win2000</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_2000_SVR</Token>
+                <Language lang="en">
+                    <LongDesc>Windows 2000 Server</LongDesc>
+                    <ShortDesc>Win2000Svr</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_2003_SVR</Token>
+                <Language lang="en">
+                    <LongDesc>Windows 2003</LongDesc>
+                    <ShortDesc>Win2003</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_2008_SVR</Token>
+                <Language lang="en">
+                    <LongDesc>Windows 2008</LongDesc>
+                    <ShortDesc>Win2008</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_2008_R2_SVR_X64</Token>
+                <Language lang="en">
+                    <LongDesc>Windows 2008 R2</LongDesc>
+                    <ShortDesc>Win2008R2</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_9X</Token>
+                <Language lang="en">
+                    <LongDesc>Windows 95, Windows 98, Windows Me</LongDesc>
+                    <ShortDesc>Win9x</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_NT</Token>
+                <Language lang="en">
+                    <LongDesc>Windows NT</LongDesc>
+                    <ShortDesc>WinNT</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_NT_SVR</Token>
+                <Language lang="en">
+                    <LongDesc>Windows NT Server</LongDesc>
+                    <ShortDesc>WinNTSvr</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_VISTA</Token>
+                <Language lang="en">
+                    <LongDesc>Windows Vista</LongDesc>
+                    <ShortDesc>Vista</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_VISTA_X64</Token>
+                <Language lang="en">
+                    <LongDesc>Windows Vista (64-bit)</LongDesc>
+                    <ShortDesc>Vista64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_XP</Token>
+                <Language lang="en">
+                    <LongDesc>Windows XP</LongDesc>
+                    <ShortDesc>WinXP</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_XP_X64</Token>
+                <Language lang="en">
+                    <LongDesc>Windows XP (64-bit)</LongDesc>
+                    <ShortDesc>WinXP64</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_7</Token>
+                <Language lang="en">
+                    <LongDesc>Windows 7</LongDesc>
+                    <ShortDesc>Win7</ShortDesc>
+                </Language>
+            </Label>
+            <Label>
+                <Token>WIN_7_X64</Token>
+                <Language lang="en">
+                    <LongDesc>Windows 7 (64-bit)</LongDesc>
+                    <ShortDesc>Win7X64</ShortDesc>
+                </Language>
+            </Label>
+        </Platforms>
+    </Dictionary>
+</ComponentData>

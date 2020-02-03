@@ -1,0 +1,10 @@
+{
+  "policyAppIds": [
+    "SAV"
+  ],
+  "statusAppIds": [
+    "SAV"
+  ],
+  "pluginName": "fakesavplugin",
+  "executableFullPath": "plugins/fakesavplugin/bin/fakesavplugin"
+}

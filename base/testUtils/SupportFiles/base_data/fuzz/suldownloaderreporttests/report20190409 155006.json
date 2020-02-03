@@ -1,0 +1,18 @@
+{
+ "startTime": "20190409 155003",
+ "finishTime": "",
+ "syncTime": "",
+ "status": "INSTALLFAILED",
+ "sulError": "",
+ "errorDescription": "Update failed",
+ "urlSource": "http://dci.sophosupd.com/update",
+ "products": [
+  {
+   "rigidName": "ServerProtectionLinux-Base",
+   "productName": "7BC4ADBD-3657-4709-AB51-31438C191449",
+   "downloadVersion": "0.5.1.202",
+   "errorDescription": "Product ServerProtectionLinux-Base failed signature verification",
+   "productStatus": "VERIFYFAILED"
+  }
+ ]
+}

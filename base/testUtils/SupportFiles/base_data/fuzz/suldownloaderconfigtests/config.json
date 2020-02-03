@@ -1,0 +1,33 @@
+{
+ "sophosURLs": [
+  "http://dci.sophosupd.com/update",
+  "http://dci.sophosupd.net/update"
+ ],
+ "credential": {
+  "username": "CSP190408113225",
+  "password": "password"
+ },
+ "proxy": {
+  "url": "",
+  "credential": {
+   "username": "",
+   "password": "",
+   "proxyType": ""
+  }
+ },
+ "certificatePath": "/opt/sophos-spl/base/update/certs",
+ "installationRootPath": "/opt/sophos-spl",
+ "systemSslPath": ":system:",
+ "cacheUpdateSslPath": "",
+ "releaseTag": "RECOMMENDED",
+ "baseVersion": "0",
+ "primary": "ServerProtectionLinux-Base",
+ "prefixNames": [
+  "ServerProtectionLinux-Plugin"
+ ],
+ "installArguments": [
+  "--instdir",
+  "/opt/sophos-spl"
+ ],
+ "logLevel": "VERBOSE"
+}

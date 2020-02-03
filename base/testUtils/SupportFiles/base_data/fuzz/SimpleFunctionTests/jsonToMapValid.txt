@@ -1,0 +1,2 @@
+functionTarget: jsonToMap
+payload: "{\"unsigned integer\":1,\"signed integer\":-1, \"float\" : 3.142, \"string\":\"ThisIsAString\", \"boolean\": true, \"NestedStructure\":{\"nested1\":4294967200,\"nested2\":3.2,\"nested3\":-4},\"Array\":[\"TestValue\",true,{\"nested1\":4294967200,\"nested2\":3.2,\"nested3\":-4}]}"

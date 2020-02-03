@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
+    <timestamp>"20181011 142142"</timestamp>
+    <appInfo>
+        <number>109</number>
+        <message>
+            <message_inserts>
+                <insert></insert>
+            </message_inserts>
+        </message>
+        <updateSource>"Sophos"</updateSource>
+    </appInfo>
+    <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>
+</event>

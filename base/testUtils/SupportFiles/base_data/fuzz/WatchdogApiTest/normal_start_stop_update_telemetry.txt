@@ -1,0 +1,65 @@
+messages {
+  wdctl {
+    commands: "STOP"
+    commands: "mdr"
+  }
+}
+messages {
+  wdservice {
+    apimessage {
+      pluginName: "mdr"
+      command: DoAction
+      applicationId: "MDR"
+      payload: "TriggerUpdate"
+    }
+  }
+}
+messages {
+  wdctl {
+    commands: "START"
+    commands: "mtr"
+  }
+}
+messages {
+  wdctl {
+    commands: "REMOVE"
+    commands: "mtr"
+  }
+}
+messages {
+  wdctl {
+    commands: "ISRUNNING"
+    commands: "mtr"
+  }
+}
+messages {
+  wdctl {
+    commands: "STOP"
+    commands: "mtr"
+  }
+}
+messages {
+  wdservice {
+    apimessage {
+      pluginName: "mdr"
+      command: Telemetry
+      applicationId: "MDR"
+    }
+  }
+}
+messages {
+  wdservice {
+    apimessage {
+      pluginName: "mdr"
+      command: DoAction
+      applicationId: "MDR"
+      payload: "TriggerUpdate"
+    }
+  }
+}
+messages {
+  wdctl {
+    commands: "ISRUNNING"
+    commands: "mdr"
+  }
+}
