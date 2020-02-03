@@ -7,6 +7,8 @@ import shutil
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 import robot.api.logger as logger
 
+import PathManager
+
 
 LOCALHOSTS = """dci.sophosupd.com 127.0.0.1
 dci.sophosupd.net 127.0.0.1
@@ -27,7 +29,7 @@ def get_variable(varName, defaultValue=None):
 
 class UpdateServer(object):
     def __init__(self, server_log="update_server.log"):
-        self.server_path = os.path.join(".", "SupportFiles")
+        self.server_path = PathManager.get_support_file_path()
         self.private_pem = os.path.join(self.server_path, "https", "server-private.pem")
         self.server_processes = []
         self.proxy_processes = {}

@@ -23,7 +23,7 @@ Default Tags   MDR_PLUGIN  FAULTINJECTION
 
 *** Variables ***
 
-${PickYourPoisonExecutable}  SystemProductTestOutput/PickYourPoison
+${PickYourPoisonExecutable}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/PickYourPoison
 ${PickYourPoisonArgFile}  /tmp/PickYourPoisonArgument
 ${MtrPluginExecutableName}  mtr
 ${MtrAgentExecutableName}  SophosMTR

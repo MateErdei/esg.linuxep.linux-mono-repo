@@ -9,7 +9,7 @@ import os
 import time
 
 import PathManager
-SUPPORTFILESPATH = os.path.join(os.path.dirname(__file__), "..", "SupportFiles")
+SUPPORTFILESPATH = PathManager.get_support_file_path()
 PathManager.addPathToSysPath(SUPPORTFILESPATH)
 
 

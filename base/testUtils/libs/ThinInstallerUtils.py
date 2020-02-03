@@ -14,7 +14,7 @@ import WarehouseUtils
 import CentralUtils
 from robot.libraries.BuiltIn import BuiltIn
 
-
+import PathManager
 
 
 def extract_hashed_credentials_from_alc_policy(alc_file_path):
@@ -53,7 +53,7 @@ class ThinInstallerUtils(object):
         self.last_good_artisan_build_file = os.path.join(filer6,
                                                          "sspl-thininstaller",
                                                          "master/sspl-thininstaller_lastgoodbuild.txt")
-        self.https_certs_dir = os.path.join(os.getcwd(), "./SupportFiles/https/ca")
+        self.https_certs_dir = os.path.join(PathManager.get_support_file_path(), "https/ca")
 
         try:
             os.makedirs(self.installer_files)
@@ -232,12 +232,12 @@ class ThinInstallerUtils(object):
     def run_thininstaller(self, command, expected_return_code=0, mcsurl=None, mcs_ca=None, proxy=None, override_location="https://localhost:1233", override_path=None, certs_dir=None, real=False):
         cwd = os.getcwd()
         if not certs_dir:
-            sophos_certs_dir = os.path.join(cwd, "SupportFiles", "sophos_certs")
+            sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
             logger.info("sophos_certs_dir: {}".format(sophos_certs_dir))
         else:
             sophos_certs_dir = certs_dir
         if not mcs_ca:
-            mcs_ca = os.path.join(cwd, "SupportFiles/CloudAutomation/root-ca.crt.pem")
+            mcs_ca = os.path.join(PathManager.get_support_file_path(), "CloudAutomation/root-ca.crt.pem")
         if sophos_certs_dir == "system":
             logger.info("do not set override_sophos_certs")
             try:
@@ -285,7 +285,7 @@ class ThinInstallerUtils(object):
 
     def run_real_thininstaller(self):
         cwd = os.getcwd()
-        certs_dir = os.path.join(cwd, "SupportFiles", "sophos_certs", "prod_certs")
+        certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs", "prod_certs")
         mcs_ca = CentralUtils.get_nova_mcs_ca_path()
         self.run_thininstaller([self.default_installsh_path],
                                mcs_ca=mcs_ca,
@@ -358,8 +358,7 @@ class ThinInstallerUtils(object):
         self.run_thininstaller(command, 4)
 
     def run_default_thininstaller_with_fake_small_disk(self):
-        cwd = os.getcwd()
-        fake_small_disk_df_dir = os.path.join(cwd, "SupportFiles", "fake_system_scripts", "fake_df_small_disk")
+        fake_small_disk_df_dir = os.path.join(PathManager.get_support_file_path(), "fake_system_scripts", "fake_df_small_disk")
         self.env["PATH"] = fake_small_disk_df_dir + ":" + os.environ['PATH']
         self.run_thininstaller([self.default_installsh_path], 5)
 

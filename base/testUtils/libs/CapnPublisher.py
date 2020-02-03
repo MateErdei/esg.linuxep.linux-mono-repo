@@ -10,7 +10,7 @@ import time
 from FakeMultiPublisher import FakeMultiPublisher
 
 import PathManager
-SUPPORTFILESPATH = os.path.join(os.path.dirname(__file__), "..", "SupportFiles")
+SUPPORTFILESPATH = PathManager.get_support_file_path()
 PathManager.addPathToSysPath(SUPPORTFILESPATH)
 
 from PluginCommunicationTools.common.CapnpSerialisation import CredentialWrapper, CredentialEventChannel, ProcessWrapper, ProcessEventChannel, convert_linux_epoch_to_win32_epoch

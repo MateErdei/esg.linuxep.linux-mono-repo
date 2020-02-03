@@ -5,6 +5,8 @@ import shutil
 import subprocess
 import time
 from Watchdog import get_install
+import PathManager
+
 try:
     raise 'skip'
     from robot.api import logger
@@ -94,7 +96,7 @@ class MTRService(object):
     def __init__(self):
         self.pending_request = os.path.join(MOCKSERVICEDIR, 'newrequest.txt')
         self.pending_raw_request = os.path.join(MOCKSERVICEDIR, 'newrawrequest.txt')
-        self.support_path = os.path.join(".", "SupportFiles")
+        self.support_path = PathManager.get_support_file_path()
         self.mtr_path = os.path.join(self.support_path, "runDarkBytesMock.py")
         self.mtr_service = None
         self.mtr_log = None

@@ -653,7 +653,7 @@ class MCSRouter(object):
 
     def send_status_file(self, filename):
         status_file = os.path.join(self.tmp_path, self.alc_status_file)
-        filepath = os.path.join("./SupportFiles/CentralXml", filename)
+        filepath = os.path.join(PathManager.get_support_file_path(), "CentralXml", filename)
         shutil.copy(filepath, status_file)
         shutil.move(status_file, os.path.join(self.mcs_dir, "status", self.alc_status_file))
 

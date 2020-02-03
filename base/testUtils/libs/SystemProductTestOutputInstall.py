@@ -87,8 +87,9 @@ class SystemProductTestOutputInstall(object):
         ret_code = os.system("tar -xf {} -C {} capnproto/include/capnp/ --strip-components 2 > /dev/null".format(capnp_tar_path, capnp_prod_sys_test_output_path))
         if ret_code != 0 or not os.path.exists(os.path.join(capnp_prod_sys_test_output_path, "capnp")):
             raise AssertionError("CAPNPROTO not extracted correctly! return is {} ".format(ret_code))
-
-        return system_product_test_path
+        
+        
+        return system_product_test_path, capnp_prod_sys_test_output_path
 
     def clean_up_system_product_test_output(self):
         shutil.rmtree(os.path.join(self.install_base_path, "SystemProductTestOutput"))

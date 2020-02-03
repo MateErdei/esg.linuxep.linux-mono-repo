@@ -12,7 +12,7 @@ import time
 
 import PathManager
 
-SUPPORTFILEPATH = os.path.join(os.path.dirname(__file__), "..", "SupportFiles")
+SUPPORTFILEPATH = PathManager.get_support_file_path()
 PathManager.addPathToSysPath(SUPPORTFILEPATH)
 
 from PluginCommunicationTools.common.SetupLogger import setup_logging, get_log_dir

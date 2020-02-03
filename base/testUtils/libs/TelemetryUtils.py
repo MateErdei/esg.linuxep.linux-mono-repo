@@ -16,6 +16,7 @@ import BaseInfo as base_info
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 import robot.api.logger as logger
 from MDRUtils import get_mtr_version
+import PathManager
 
 
 class TelemetryUtils:
@@ -271,7 +272,7 @@ class TelemetryUtils:
 
     def hang_system_command(self, command_path):
         self.break_system_command(command_path)
-        hang_file = os.path.abspath("SupportFiles/Telemetry/hang")
+        hang_file = os.path.abspath(os.path.join(PathManager.get_support_file_path(), "Telemetry/hang"))
         if not os.path.exists(hang_file):
             raise AssertionError("Test file : {} was not in the support files".format(hang_file))
         shutil.copyfile(hang_file, command_path)
@@ -279,7 +280,7 @@ class TelemetryUtils:
 
     def overload_system_command(self, command_path):
         self.break_system_command(command_path)
-        overload_file = os.path.abspath("SupportFiles/Telemetry/overload_stdout")
+        overload_file = os.path.abspath(os.path.join(PathManager.get_support_file_path(), "Telemetry/overload_stdout"))
         if not os.path.exists(overload_file):
             raise AssertionError("Test file : {} was not in the support files".format(overload_file))
         shutil.copyfile(overload_file, command_path)
@@ -287,7 +288,7 @@ class TelemetryUtils:
 
     def crash_system_command(self, command_path):
         self.break_system_command(command_path)
-        crash_file = os.path.abspath("SupportFiles/Telemetry/crash")
+        crash_file = os.path.abspath(os.path.join(PathManager.get_support_file_path(), "Telemetry/crash"))
         if not os.path.exists(crash_file):
             raise AssertionError("Test file : {} was not in the support files".format(crash_file))
         shutil.copyfile(crash_file, command_path)
@@ -295,7 +296,7 @@ class TelemetryUtils:
 
     def permission_denied_system_command(self, command_path):
         self.break_system_command(command_path)
-        root_file = os.path.abspath("SupportFiles/Telemetry/hang")
+        root_file = os.path.abspath(os.path.join(PathManager.get_support_file_path(), "Telemetry/hang"))
         if not os.path.exists(root_file):
             raise AssertionError("Test file : {} was not in the support files".format(root_file))
         shutil.copyfile(root_file, command_path)

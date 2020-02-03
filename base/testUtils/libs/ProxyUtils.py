@@ -10,7 +10,7 @@ import os
 
 import PathManager
 
-SUPPORTFILEPATH = os.path.join(os.path.dirname(__file__), "..", "SupportFiles")
+SUPPORTFILEPATH = PathManager.get_support_file_path()
 PathManager.addPathToSysPath(SUPPORTFILEPATH)
 
 import IPAddress
@@ -102,7 +102,7 @@ def unmodify_hosts_file(**newLines):
 
 def restart_Secure_Server_Proxy():
 
-    SUPPORTFILEPATH = os.path.join(os.path.dirname(__file__), "..", "SupportFiles")
+    SUPPORTFILEPATH = PathManager.get_support_file_path()
     APPSERVER_KEYFILE=os.path.join(SUPPORTFILEPATH, "secureServerProxy", "secure_server_ssh_key")
     assert(os.path.isfile(APPSERVER_KEYFILE))
     os.chmod(APPSERVER_KEYFILE, 0o600)

@@ -13,6 +13,8 @@ import base64
 import shutil
 import time
 
+import PathManager
+
 FuzzerRelativePath = "cmake-fuzz/tests/LibFuzzerTests"
 FuzzRelativePath = "cmake-afl-fuzz/tests/FuzzTests"
 TIMEOUTMINUTES=1

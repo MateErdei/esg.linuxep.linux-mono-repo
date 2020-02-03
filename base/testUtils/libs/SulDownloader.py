@@ -1,9 +1,11 @@
 import json
+import os
+import PathManager
 
 # Note that the default values set here are also reproduced in the Perform Install keyword in TestSulDownloader
 
 def create_config(install_path=None, rigidname="ServerProtectionLinux-Base",
-                  certificatePath="./SupportFiles/sophos_certs/", include_plugins=None, remove_entries=[],
+                  certificatePath=os.path.join(PathManager.get_support_file_path(), "sophos_certs/"), include_plugins=None, remove_entries=[],
                   **kwargs):
     """
     Create a JSON config to supply as input to SUL Downloader
@@ -33,7 +35,7 @@ def create_config(install_path=None, rigidname="ServerProtectionLinux-Base",
         },
         "certificatePath": certificatePath,
         "installationRootPath": install_path,
-        "systemSslPath": "./SupportFiles/https/ca",
+        "systemSslPath": os.path.join(PathManager.get_support_file_path(), "https/ca"),
         "primarySubscription": {
             "rigidName": "%s" %rigidname,
             "tag": "RECOMMENDED"
@@ -61,7 +63,10 @@ def create_config(install_path=None, rigidname="ServerProtectionLinux-Base",
     return config
 
 
-def create_update_cache_config(install_path=None, rigidname="ServerProtectionLinux-Base",certificatePath="./SupportFiles/sophos_certs/", include_plugins=None):
+def create_update_cache_config(install_path=None, 
+                               rigidname="ServerProtectionLinux-Base",
+                               certificatePath=os.path.join(PathManager.get_support_file_path(), "sophos_certs/"), 
+                               include_plugins=None):
     """
     Create a JSON config to supply as input to SUL Downloader
     :param install_path: the target path into which the product should be installed (optional)
@@ -73,7 +78,7 @@ def create_update_cache_config(install_path=None, rigidname="ServerProtectionLin
     config = create_config(install_path, rigidname, certificatePath, include_plugins)
 
     config['updateCache'] = ["localhost:1235", "localhost:1236"]
-    config['cacheUpdateSslPath'] = "./SupportFiles/https/ca"
+    config['cacheUpdateSslPath'] = os.path.join(PathManager.get_support_file_path(), "https/ca")
 
     return config
 

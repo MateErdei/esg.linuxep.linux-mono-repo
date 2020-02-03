@@ -524,7 +524,7 @@ def require_fresh_startup():
 
 def get_machine_id_generate_by_python():
     import sys
-    supportFilesPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../SupportFiles')
+    supportFilesPath = PathManager.get_support_file_path()
     sys.path.append(supportFilesPath)
     import SXLMachineID as sxl
     return sxl.generateMachineId()

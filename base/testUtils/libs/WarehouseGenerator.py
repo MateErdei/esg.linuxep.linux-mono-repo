@@ -4,6 +4,7 @@ import subprocess
 import os
 import robot.api.logger
 
+import PathManager
 
 class ComponentConfig(object):
     def __init__(self, rigidname, source_directory, target_directory, product_type):
@@ -34,8 +35,8 @@ class ComponentConfig(object):
 # noinspection PyInterpreter
 class WarehouseGenerator(object):
     def __init__(self):
-        self.script = "./SupportFiles/warehouseGeneration/generateWarehouse.sh"
-        self.customer_file_script = "./SupportFiles/warehouseGeneration/generateCustomerFile.sh"
+        self.script = os.path.join(PathManager.get_support_file_path(), "warehouseGeneration/generateWarehouse.sh")
+        self.customer_file_script = os.path.join(PathManager.get_support_file_path(), "warehouseGeneration/generateCustomerFile.sh")
         if not os.path.isfile(self.script):
             raise AssertionError("Cannot find: {}".format(self.script))
 

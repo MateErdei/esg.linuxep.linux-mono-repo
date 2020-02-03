@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 from robot.api import logger
 
+import PathManager
+
 
 MCS_PATH = "base/mcs"
 MCS_STATUS_PATH = os.path.join(MCS_PATH, 'status')
@@ -150,12 +152,12 @@ class UpdateSchedulerHelper(object):
         config = json.load(open(config_path, 'r'))
         logger.info("Original value: {}".format(config))
         config['sophosURLs'] = [url]
-        config['certificatePath'] = os.path.abspath('./SupportFiles/sophos_certs')
-        config['systemSslPath'] = os.path.abspath('./SupportFiles/https/ca')
+        config['certificatePath'] = os.path.abspath(os.path.join(PathManager.get_support_file_path(), 'sophos_certs'))
+        config['systemSslPath'] = os.path.abspath(os.path.join(PathManager.get_support_file_path(), 'https/ca'))
         if use_update_cache:
             logger.info("using update cache")
             config['updateCache'] = ['localhost:1236']
-            config['cacheUpdateSslPath'] = os.path.abspath('./SupportFiles/https/ca')
+            config['cacheUpdateSslPath'] = os.path.abspath(PathManager.get_support_file_path(), '/https/ca')
         filecontent = json.dumps(config, separators=(',', ': '), indent=4)
         logger.info("New content: {}".format(filecontent))
         open(config_path, 'w').write(filecontent)
@@ -276,7 +278,7 @@ class UpdateSchedulerHelper(object):
     def _get_content_of_policy(self, original_file, **kwargs):
         temp_alc_path = os.path.join(self.get_install(), 'tmp/ALC-1_policy.xml')
         if not os.path.exists(original_file):
-            search_support = os.path.join('./SupportFiles/CentralXml/', original_file)
+            search_support = os.path.join(PathManager.get_support_file_path(), 'CentralXml/', original_file)
             if os.path.exists(search_support):
                 original_file = search_support
             else:

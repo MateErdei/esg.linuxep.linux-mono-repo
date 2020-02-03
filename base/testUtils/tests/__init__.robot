@@ -72,9 +72,9 @@ Global Setup Tasks
     Directory Should Exist  ${OPENSSL_BIN_PATH}
     Directory Should Exist  ${OPENSSL_LIB_PATH}
 
-    ${system_product_test_output_path} =  Install System Product Test Output  ${CAPNP_INPUT}
+    ${system_product_test_tar_path}  ${system_product_test_output_path} =  Install System Product Test Output  ${CAPNP_INPUT}
     Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}  ${system_product_test_output_path}
-    ${colored_message} =  Evaluate  "\\033[33mUsing the following for system product test output ${system_product_test_output_path}\\033[0m"
+    ${colored_message} =  Evaluate  "\\033[33mUsing the following for system product test output ${system_product_test_tar_path}\\033[0m"
     Log To Console  \n ${colored_message} \n
 
     # Turn on the pub sub logging on all tests globally. The pub sub will then be logged in the management agent log
