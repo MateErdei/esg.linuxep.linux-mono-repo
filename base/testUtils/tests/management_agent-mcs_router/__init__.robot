@@ -20,6 +20,6 @@ Setup MCS And Management Agent Tests
 
 Cleanup MCS And Management Agent Tests
     Stop Local Cloud Server
-    Run Process    make   cleanCerts    cwd=./SupportFiles/CloudAutomation/
+    Run Process    make   cleanCerts    cwd=${SUPPORT_FILES}/CloudAutomation/
     Uninstall SSPL
 

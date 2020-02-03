@@ -41,8 +41,8 @@ Teardown
 Refresh HTTPS Certs
     Cleanup System Ca Certs
     Regenerate HTTPS Certificates
-    Copy File   SupportFiles/https/ca/root-ca.crt.pem    SupportFiles/https/ca/root-ca.crt
-    Install System Ca Cert  SupportFiles/https/ca/root-ca.crt
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
 Set Bad Environment Proxy
     Set Environment Variable  https_proxy  http://localhost:2/

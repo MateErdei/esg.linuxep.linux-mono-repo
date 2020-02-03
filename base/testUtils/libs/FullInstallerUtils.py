@@ -106,23 +106,29 @@ def get_component_suite_sdds_entry(name, environment_variable_name, candidates, 
 
 
 def get_exampleplugin_sdds():
+    candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("exampleplugin")
-    candidates = [os.path.join(local_path_to_plugin, "build64/sdds"),
-                  os.path.join(local_path_to_plugin, "cmake-build-debug/sdds")]
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("Example Plugin", "EXAMPLEPLUGIN_SDDS", candidates)
 
 
 def get_event_processor_plugin_sdds():
+    candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-eventprocessor")
-    candidates = [os.path.join(local_path_to_plugin, "build64/sdds"),
-                  os.path.join(local_path_to_plugin, "cmake-build-debug/sdds")]
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("Event Processor Plugin", "SSPL_PLUGIN_EVENTPROCESSOR_SDDS", candidates)
 
 
 def get_sspl_audit_plugin_sdds():
+    candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-eventprocessor")
-    candidates = [os.path.join(local_path_to_plugin, "build64/sdds"),
-                  os.path.join(local_path_to_plugin, "cmake-build-debug/sdds")]
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("SSPL Audit Plugin", "SSPL_AUDIT_PLUGIN_SDDS", candidates)
 
 
@@ -135,8 +141,10 @@ class MDRSuite:
         self.mdr_suite = mdr_suite
 
 def get_sspl_mdr_component_suite():
+    candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-mdr-componentsuite")
-    candidates = [os.path.join(local_path_to_plugin, "/output")]
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "/output"))
     dbos = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-DBOS-Component",  "SDDS_SSPL_DBOS_COMPONENT", candidates)
     osquery = get_component_suite_sdds_entry("SDDS-SSPL-OSQUERY-COMPONENT",  "SDDS_SSPL_OSQUERY_COMPONENT", candidates)
     mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control",  "SDDS_SSPL_MDR_COMPONENT", candidates)
@@ -157,9 +165,11 @@ def get_sspl_mdr_component_suite_1():
     return MDRSuite(dbos, osquery, mdr_plugin, mdr_suite)
 
 def get_sspl_mdr_plugin_sdds():
+    candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-mdr-component")
-    candidates = [os.path.join(local_path_to_plugin, "build64/sdds"),
-                  os.path.join(local_path_to_plugin, "cmake-build-debug/sdds")]
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("SSPL MDR Plugin", "SSPL_MDR_PLUGIN_SDDS", candidates)
 
 def get_sspl_base_sdds_version_0_5():
@@ -632,7 +642,7 @@ def get_file_info_for_installation():
     fullFiles = set()
     fullDirectories = [SOPHOS_INSTALL]
 
-    exclusions = open("tests/installer/InstallSet/ExcludeFiles").readlines()
+    exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "installer/InstallSet/ExcludeFiles")).readlines()
     exclusions = set(( e.strip() for e in exclusions ))
 
     for (base, dirs, files) in os.walk(SOPHOS_INSTALL):

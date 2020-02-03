@@ -22,5 +22,5 @@ Run Digest Auth Proxy Server For 10 Minutes
     Sleep    10 minutes
 
 Run Update Server For 10 Minutes
-    Start Update Server    8192    ./SupportFiles/update_cache
+    Start Update Server    8192    ${SUPPORT_FILES}/update_cache
     Sleep    10 minutes

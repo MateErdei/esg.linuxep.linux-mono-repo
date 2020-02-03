@@ -18,14 +18,14 @@ Test Teardown    Thin installer test teardown
 ### Setup
 Setup Update Tests
     Regenerate HTTPS Certificates
-    Copy File   SupportFiles/https/ca/root-ca.crt.pem    SupportFiles/https/ca/root-ca.crt
-    Install System Ca Cert  SupportFiles/https/ca/root-ca.crt
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
     Uninstall SAV
 
 ### Cleanup
 Cleanup Update Tests
     Cleanup System Ca Certs
-    Run Process    make    clean    cwd=./SupportFiles/https/
+    Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
 Thin installer test teardown
     General Test Teardown

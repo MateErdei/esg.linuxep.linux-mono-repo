@@ -56,7 +56,7 @@ Suite Setup
 
 Suite Teardown
     Teardown Ostia Warehouse Environment
-    Run Process    make    clean    cwd=./SupportFiles/https/
+    Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
 Cleanup Local Warehouse And Thininstaller
     Stop Proxy Servers
@@ -74,11 +74,11 @@ Prepare Installation For Upgrade Using Policy
     Install Upgrade Certs For Policy  ${PolicyPath}
 
 Install Local SSL Server Cert To System
-    Copy File   SupportFiles/https/ca/root-ca.crt.pem    SupportFiles/https/ca/root-ca.crt
-    Install System Ca Cert  SupportFiles/https/ca/root-ca.crt
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
 Install Ostia SSL Certs To System
-    Install System Ca Cert  SupportFiles/sophos_certs/OstiaCA.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/OstiaCA.crt
 
 Revert System CA Certs
     Cleanup System Ca Certs

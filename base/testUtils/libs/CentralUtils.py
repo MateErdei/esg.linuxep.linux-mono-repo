@@ -233,7 +233,7 @@ def get_sspl_thinstaller_url():
 
 
 def get_sspl_registration():
-    bashfile = "./SupportFiles/CloudAutomation/BashScripts/getSSPLInstallerandCommand.sh"
+    bashfile = os.path.join(PathManager.get_support_file_path() ,"CloudAutomation/BashScripts/getSSPLInstallerandCommand.sh")
     command = ["bash", bashfile, get_sspl_thinstaller_url()]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout = process.communicate()[0]
@@ -305,10 +305,7 @@ def Send_Query_From_Fake_Cloud(name, query, command_id="correlation-id"):
     CloudAutomation.SendToFakeCloud.sendLiveQueryToFakeCloud(json.dumps(query_dict), command_id=command_id)
 
 def Set_Local_CA_Environment_Variable():
-    scriptdir = os.path.abspath(os.path.dirname(__file__))
-    rootdir = os.path.dirname(scriptdir)
-    supportFiles = os.path.join(rootdir, "SupportFiles")
-    MCS_CA = os.path.join(supportFiles, "CloudAutomation", "root-ca.crt.pem")
+    MCS_CA = os.path.join(PathManager.get_support_file_path(), "CloudAutomation", "root-ca.crt.pem")
     Set_MCS_CA_Environment_Variable(MCS_CA)
 
 def getSophosGID():
@@ -532,7 +529,7 @@ def dump_Appserver_Log(APPSERVER_LINES=2000):
 
     login = OPTIONS.login
 
-    SUPPORTFILEPATH = os.path.join(os.path.dirname(__file__), "..", "SupportFiles")
+    SUPPORTFILEPATH = PathManager.get_support_file_path()
     assert(os.path.isdir(SUPPORTFILEPATH))
     APPSERVER_KEYFILE=os.path.join(SUPPORTFILEPATH, "nova", "rsa-key-appserver-log-sandbox.pem")
     assert(os.path.isfile(APPSERVER_KEYFILE))

@@ -45,10 +45,10 @@ Action Applied After Policies
     Queue Update Now  talisker
     Queue Update Now  jura
 
-    Send Policy File  alc  SupportFiles/CentralXml/ALC_policy_direct_just_base.xml
-    Send Policy File  alc  SupportFiles/CentralXml/ALC_policy_direct.xml
-    Send Policy File  alc  SupportFiles/CentralXml/ALC_policy_direct_base_and_example_plugin.xml
-    Send Policy File  alc  SupportFiles/CentralXml/ALC_policy_with_cache.xml
+    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct.xml
+    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_base_and_example_plugin.xml
+    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_policy_with_cache.xml
 
     Wait Until Keyword Succeeds
     ...  30 secs

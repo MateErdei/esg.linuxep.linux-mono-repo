@@ -8,6 +8,8 @@ import json
 import shutil
 from robot.api import logger
 
+import PathManager
+
 INSTALLPATH = os.getenv("SOPHOS_INSTALL", "/opt/sophos-spl")
 BINPATH = os.path.join(INSTALLPATH, "base/bin" )
 CONFIGPATH = os.path.join(INSTALLPATH, "tmp" )
@@ -19,7 +21,7 @@ FAKESULCONFIG = os.path.join(CONFIGPATH,'fakesul.py' )
 
 #SIMULATION: NOTHING, COPYREPORT, CREATEDONEFILE
 
-FakeSulDownloaderScriptPath = os.path.join('.', 'SupportFiles/fake_system_scripts/FakeSulDownloaderScript.py')
+FakeSulDownloaderScriptPath = os.path.join(PathManager.get_support_file_path(), 'fake_system_scripts/FakeSulDownloaderScript.py')
 
 
 def write_file(file_path, content):

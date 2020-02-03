@@ -117,7 +117,7 @@ Install Audit Plugin From Warehouse
 
 Run AuditPlugin Against Example
     [Arguments]  ${NameOfTheExample}  ${distribution}=ubuntu
-    ${PathOfFile} =   Catenate  SEPARATOR=  ./SupportFiles/auditd_data/  ${distribution}  /  ${NameOfTheExample}  AuditEvents.bin
+    ${PathOfFile} =   Catenate  SEPARATOR=  ${SUPPORT_FILES}/auditd_data/  ${distribution}  /  ${NameOfTheExample}  AuditEvents.bin
     ${PathOfAuditPlugin} =   Catenate  SEPARATOR=  ${SOPHOS_INSTALL}/plugins/AuditPlugin/bin/${SSPL_AUDIT_BINARY_NAME}
     Should Be Equal  ${PathOfAuditPlugin}  /opt/sophos-spl/plugins/AuditPlugin/bin/${SSPL_AUDIT_BINARY_NAME}
     File Should Exist  ${PathOfAuditPlugin}

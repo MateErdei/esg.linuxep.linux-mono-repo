@@ -46,7 +46,7 @@ Nova Reports Reboot Required When MCS Sends Reboot Required Event
     [Documentation]  Derived from CLOUD.UPD.002_Reboot_required.sh
     Setup Fresh Install Nova
     Require Registered    waitForALCPolicy=${True}
-    ${rebootevent}=  Set Variable  ./SupportFiles/CentralXml/ALC_reboot_required_event.xml
+    ${rebootevent}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_reboot_required_event.xml
     Send Event File  ALC  ${rebootevent}
     Wait Nova Report New UpdateReboot
 

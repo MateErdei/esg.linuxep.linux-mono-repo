@@ -38,7 +38,7 @@ ${BaseVUTPolicy}   ${GeneratedWarehousePolicies}/base_only_VUT.xml
 *** Keywords ***
 Local Suite Setup
     Regenerate Certificates
-    Copy File  SupportFiles/CloudAutomation/root-ca.crt.pem  /tmp/root-ca.crt.pem
+    Copy File  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem  /tmp/root-ca.crt.pem
     Setup Ostia Warehouse Environment
 
 Local Suite Teardown
@@ -303,7 +303,7 @@ Thin Installer Attempts Install And Register Through Message Relays
     ...  Successfully connected to localhost:4443 via localhost:20000
 
     # Check the message relays made their way through to the MCS Router
-    File Should Exist  SupportFiles/CloudAutomation/root-ca.crt.pem
+    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     Wait Until Keyword Succeeds
         ...  65 secs
         ...  5 secs

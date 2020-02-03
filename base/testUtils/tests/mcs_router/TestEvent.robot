@@ -53,7 +53,7 @@ SAV Event Sent With Non Ascii Character
 
     Install FakeSavPlugin
 
-    ${chineseevent}=  Set Variable  ./SupportFiles/CentralXml/SAV_nonascii-event.xml
+    ${chineseevent}=  Set Variable  ${SUPPORT_FILES}/CentralXml/SAV_nonascii-event.xml
     Send Event File  SAV  ${chineseevent}
     File Should Exist  ${SOPHOS_INSTALL}/base/mcs/event/SAV_event-001.xml
 
@@ -101,7 +101,7 @@ Verify Large Event XML Gets Rejected
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
-    Send Event File    ALC    ./SupportFiles/CentralXml/ALC_large_event.xml
+    Send Event File    ALC    ${SUPPORT_FILES}/CentralXml/ALC_large_event.xml
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -113,7 +113,7 @@ Verify Event XML Containing Script Tag Gets Rejected
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
-    Send Event File    ALC    ./SupportFiles/CentralXml/ALC_with_script_tag.xml
+    Send Event File    ALC    ${SUPPORT_FILES}/CentralXml/ALC_with_script_tag.xml
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -122,7 +122,7 @@ Verify Event XML Containing Script Tag Gets Rejected
 
 *** Keywords ***
 Install FakeSavPlugin
-    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration   ./SupportFiles/fakesavplugin.json
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration   ${SUPPORT_FILES}/fakesavplugin.json
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Should Be Equal As Integers    ${result.rc}    0

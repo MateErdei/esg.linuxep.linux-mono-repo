@@ -165,7 +165,7 @@ Verify Status Message Sent When Registering With Central And Event And Status Se
 
 Verify Status Message And Event Is Sent On First Update And Not On Following Updates If Product Doesnt Change
     [Tags]  MCS  FAKE_CLOUD  UPDATE_SCHEDULER  MCS_ROUTER  OSTIA
-    ${defaultpolicy}=  Set Variable   ./SupportFiles/CentralXml/ALC_policy_for_upgrade_test_just_base.xml
+    ${defaultpolicy}=  Set Variable   ${SUPPORT_FILES}/CentralXml/ALC_policy_for_upgrade_test_just_base.xml
     ${statusPath}=  Set Variable  ${MCS_DIR}/status/ALC_status.xml
     ${UpdateSchedulerLog} =  Set Variable  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 
@@ -241,7 +241,7 @@ Verify Status Message Is Sent When New Policy Received Even If Product Update Is
     Check Correct MCS Password And ID For Local Cloud Saved
 
     #Set policy being sent from cloud before starting MCS
-    ${scheduled_update_policy}=  Set Variable  ./SupportFiles/CentralXml/ALC_policy_scheduled_update.xml
+    ${scheduled_update_policy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
 
     Start System Watchdog
 
@@ -350,8 +350,8 @@ Check MCS Envelope for Status Being Same On N Status Sent
     Should contain   ${string}   Res=&amp;quot;Same&amp;quot;
 
 Change Update Certs In Installed Base To Use Locally Generated Certs
-    Copy File   SupportFiles/sophos_certs/rootca.crt  ${SOPHOS_INSTALL}/base/update/certs/rootca.crt
-    Copy File   SupportFiles/sophos_certs/ps_rootca.crt  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${SOPHOS_INSTALL}/base/update/certs/rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
 
 Wait For Update Status File
     Wait Until Keyword Succeeds
@@ -364,8 +364,8 @@ Create Warehouse From Dist
     ${dist} =  Get Folder With Installer
     Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base
 
-    Copy File   SupportFiles/sophos_certs/rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/rootca.crt
-    Copy File   SupportFiles/sophos_certs/ps_rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/ps_rootca.crt
     Remove File  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/etc/logger.conf
     #Turn on debug logging on update
     Create File  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
@@ -385,8 +385,8 @@ Create Warehouse With Base And Example Plugin
     Remove Directory  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}  recursive=${TRUE}
     Copy Directory     ${PathToBase}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
 
-    Copy File   SupportFiles/sophos_certs/rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/rootca.crt
-    Copy File   SupportFiles/sophos_certs/ps_rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/ps_rootca.crt
     Remove File  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/etc/logger.conf
     #Turn on debug logging on update
     Create File  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n

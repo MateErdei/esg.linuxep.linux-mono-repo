@@ -25,7 +25,7 @@ Clean McsRouter Log File
     Should Be Equal As Integers  ${result.rc}   0   msg=Failed to truncate mcsrouter log file
 
 Cleanup Certificates
-    Run Process    make   cleanCerts    cwd=./SupportFiles/CloudAutomation/
+    Run Process    make   cleanCerts    cwd=${SUPPORT_FILES}/CloudAutomation/
     Remove Directory  ../everest-base/modules/mcsrouter/base  recursive=True
 
 
@@ -69,7 +69,7 @@ Restart MCSRouter And Clear Logs
 
 
 Regenerate Certificates
-    ${result} =  Run Process    make    cleanCerts    cwd=./SupportFiles/CloudAutomation  stderr=STDOUT  env:OPENSSL_CONF=../https/openssl.cnf  env:RANDFILE=.rnd
+    ${result} =  Run Process    make    cleanCerts    cwd=${SUPPORT_FILES}/CloudAutomation  stderr=STDOUT  env:OPENSSL_CONF=../https/openssl.cnf  env:RANDFILE=.rnd
     Should Be Equal As Integers 	${result.rc} 	0
     Log 	cleanCerts output: ${result.stdout}
 
@@ -77,7 +77,7 @@ Regenerate Certificates
 
 Generate Local Fake Cloud Certificates
     #Note RANDFILE env variable is required to create the certificates on amazon
-    ${result} =  Run Process    make    all           cwd=./SupportFiles/CloudAutomation  stderr=STDOUT  env:OPENSSL_CONF=../https/openssl.cnf  env:RANDFILE=.rnd
+    ${result} =  Run Process    make    all           cwd=${SUPPORT_FILES}/CloudAutomation  stderr=STDOUT  env:OPENSSL_CONF=../https/openssl.cnf  env:RANDFILE=.rnd
     Log 	all output: ${result.stdout}
 
     # You need execute permission on all folders up to the certificate file to use it in mcsrouter (lower priv user)
@@ -86,8 +86,8 @@ Generate Local Fake Cloud Certificates
     Run Keyword And Ignore Error  Run Process    chmod  a+x  /home/jenkins  #RHEL and CentOS
     Run Keyword And Ignore Error  Run Process    chmod  a+x  /root          #Amazon
 
-    File Should Exist  ./SupportFiles/CloudAutomation/server-private.pem
-    File Should Exist  ./SupportFiles/CloudAutomation/root-ca.crt.pem
+    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/server-private.pem
+    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
 
 Check MCS Router Running
     ${pid} =  Check MCS Router Process Running  require_running=True

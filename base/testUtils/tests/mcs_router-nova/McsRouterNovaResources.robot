@@ -67,8 +67,8 @@ Require Warehouse In Localhost
     Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
     Can Curl Url    https://localhost:1234/catalogue/sdds.ServerProtectionLinux-Base.xml
     Can Curl Url    https://localhost:1233
-    Copy File   SupportFiles/https/ca/root-ca.crt.pem    SupportFiles/https/ca/root-ca.crt
-    Install System Ca Cert  SupportFiles/https/ca/root-ca.crt
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
 Require Update Cache Warehouse In Localhost
     Setup Warehouse In Localhost
@@ -79,8 +79,8 @@ Require Update Cache Warehouse In Localhost
 
     Can Curl Url    https://localhost:1236/sophos/customer
     Can Curl Url    https://localhost:1236/sophos/warehouse/catalogue/sdds.${BASE_RIGID_NAME}.xml
-    Copy File   SupportFiles/https/ca/root-ca.crt.pem    SupportFiles/https/ca/root-ca.crt
-    Install System Ca Cert  SupportFiles/https/ca/root-ca.crt
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
 Wait For Config File
     [Arguments]     ${expectedContent}  ${filePath}
@@ -108,8 +108,8 @@ Setup Fresh Install Nova
     Set Test Variable    ${certPath}    ${SOPHOS_INSTALL}/base/update/certs
     Generate Update Certs
     Remove Files  ${certPath}/ps_rootca.crt  ${certPath}/ps_rootca.crt.0  ${certPath}/rootca.crt   ${certPath}/rootca.crt.0  ${certPath}/cache_certificates.crt
-    Copy File   SupportFiles/sophos_certs/ps_rootca.crt    ${SOPHOS_INSTALL}/base/update/certs
-    Copy File   SupportFiles/sophos_certs/rootca.crt    ${SOPHOS_INSTALL}/base/update/certs
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt    ${SOPHOS_INSTALL}/base/update/certs
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt    ${SOPHOS_INSTALL}/base/update/certs
     Log File   /etc/hosts
 
 

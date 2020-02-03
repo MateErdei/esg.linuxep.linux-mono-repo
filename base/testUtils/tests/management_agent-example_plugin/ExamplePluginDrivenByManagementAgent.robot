@@ -92,12 +92,12 @@ Plugin Uninstalls Cleanly And Management Agent Notices
 *** Keywords ***
 
 Atomic Write SAV Policy On Access Scan Enabled
-    Copy File  ./SupportFiles/CentralXml/SAVPolicyOnAccessEnabled.xml  /opt/sophos-spl/base/mcs/tmp/SAV_policy.xml
+    Copy File  ${SUPPORT_FILES}/CentralXml/SAVPolicyOnAccessEnabled.xml  /opt/sophos-spl/base/mcs/tmp/SAV_policy.xml
     Run Process  chown  sophos-spl-user:sophos-spl-group  /opt/sophos-spl/base/mcs/tmp/SAV_policy.xml
     Move File  /opt/sophos-spl/base/mcs/tmp/SAV_policy.xml  /opt/sophos-spl/base/mcs/policy/SAV_policy.xml
 
 Atomic Write SAV Action Scan Now
-    Copy File  ./SupportFiles/CentralXml/ScanNowAction.xml  /opt/sophos-spl/base/mcs/tmp/SAV_action_dummytime.xml
+    Copy File  ${SUPPORT_FILES}/CentralXml/ScanNowAction.xml  /opt/sophos-spl/base/mcs/tmp/SAV_action_dummytime.xml
     Run Process  chown  sophos-spl-user:sophos-spl-group  /opt/sophos-spl/base/mcs/tmp/SAV_action_dummytime.xml
     Move File  /opt/sophos-spl/base/mcs/tmp/SAV_action_dummytime.xml  /opt/sophos-spl/base/mcs/action/SAV_action_dummytime.xml
 

@@ -59,15 +59,15 @@ Only One Policy Is Distributed When Receiving Multiple ALC Policies On Command P
     Mark Mcsrouter Log
 
     Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-    ${FirstALCPolicy}=  Set Variable  SupportFiles/CentralXml/ALC_policy_direct_just_base.xml
+    ${FirstALCPolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
     Send Policy File  alc  ${FirstALCPolicy}
-    ${SecondALCPolicy}=  Set Variable  SupportFiles/CentralXml/ALC_policy_direct.xml
+    ${SecondALCPolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct.xml
     Send Policy File  alc  ${SecondALCPolicy}
-    ${ThirdALCPolicy}=  Set Variable  SupportFiles/CentralXml/ALC_policy_direct_base_and_example_plugin.xml
+    ${ThirdALCPolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_base_and_example_plugin.xml
     Send Policy File  alc  ${ThirdALCPolicy}
-    ${FourthALCPolicy}=  Set Variable  SupportFiles/CentralXml/ALC_policy_scheduled_update.xml
+    ${FourthALCPolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
     Send Policy File  alc  ${FourthALCPolicy}
-    ${FinalALCPolicy}=  Set Variable  SupportFiles/CentralXml/ALC_policy_with_cache.xml
+    ${FinalALCPolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_with_cache.xml
     Send Policy File  alc  ${FinalALCPolicy}
 
     Wait Until Keyword Succeeds
@@ -99,7 +99,7 @@ SAV Policy with Chinese characters is written to File
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
     Check Default Policies Exist
-    ${chinesepolicy}=  Set Variable  ./SupportFiles/CentralXml/SAV_policy_with_chinese.xml
+    ${chinesepolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/SAV_policy_with_chinese.xml
     Send Policy File  sav  ${chinesepolicy}
     Wait Until Keyword Succeeds
     ...  30 secs

@@ -58,7 +58,8 @@ Global Setup Tasks
 
     ${placeholder} =  PathManager.get_support_file_path
     Set Global Variable  ${SUPPORT_FILES}     ${placeholder}
-    Log  ${SUPPORT_FILES}
+    ${placeholder} =  PathManager.get_robot_tests_path
+    Set Global Variable  ${ROBOT_TESTS_DIR}     ${placeholder}
 
 
 
@@ -82,7 +83,7 @@ Global Setup Tasks
     Run Keyword If   ${PUB_SUB_LOGGING}   Create Full Installer With Pub Sub Logging
 
     Generate Real Warehouse Alc Files
-    Set Global Variable  ${GeneratedWarehousePolicies}  SupportFiles/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies
+    Set Global Variable  ${GeneratedWarehousePolicies}  ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies
 
 Global Cleanup Tasks
     Clean Up System Product Test Output

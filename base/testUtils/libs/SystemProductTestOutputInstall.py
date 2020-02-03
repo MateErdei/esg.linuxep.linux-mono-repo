@@ -8,7 +8,6 @@
 import os
 import shutil
 import tarfile
-import PathManager
 
 import PathManager
 SUPPORTFILESPATH = PathManager.get_support_file_path()

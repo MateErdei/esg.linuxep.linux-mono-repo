@@ -56,7 +56,7 @@ Teardown
 
 Cert Test Teardown
     Teardown
-    Install System Ca Cert  SupportFiles/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
 Run ThinInstaller Instdir And Check It Fails
     [Arguments]    ${path}

@@ -72,7 +72,8 @@ def get_libs_path():
     return LIBS_PATH
 
 ROBOT_TESTS_PATH = os.path.join(ROOT_PATH, "tests")
-
+def get_robot_tests_path():
+    return ROBOT_TESTS_PATH
 
 def addPathToSysPath(p):
     p = os.path.normpath(p)

@@ -109,7 +109,7 @@ Check SSPL systemd files are correct
     Create File  ./tmp/NewSystemdInfo  ${SystemdInfo.stdout}
     #Make sure expected and tested results are both sorted on test system as ubuntu minimum gives a different result for a sort
     ${SystemdInfo}=  Run Process  sort  ./tmp/NewSystemdInfo
-    ${ExpectedSystemdInfo}=  Run Process  sort  tests/installer/InstallSet/SystemdInfo
+    ${ExpectedSystemdInfo}=  Run Process  sort  ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo
     Should Be Equal As Strings  ${ExpectedSystemdInfo.stdout}  ${SystemdInfo.stdout}
 
 Check Watchdog Running

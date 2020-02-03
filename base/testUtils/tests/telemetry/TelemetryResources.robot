@@ -20,7 +20,7 @@ ${SUPPLEMENTARY_FILE}   ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
 ${EXE_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/telemetry/var/telemetry-exe.json
 ${TELEMETRY_OUTPUT_JSON}    ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
 
-${TELEMETRY_CONFIG_FILE_SOURCE}  ./SupportFiles/Telemetry/telemetry-config.json
+${TELEMETRY_CONFIG_FILE_SOURCE}  ${SUPPORT_FILES}/Telemetry/telemetry-config.json
 ${TELEMETRY_CONFIG_FILE}   ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
 
 ${TELEMETRY_EXECUTABLE}    ${SOPHOS_INSTALL}/base/bin/telemetry
@@ -156,10 +156,10 @@ Drop sophos-spl-user File Into Place
     File Exists With Permissions   ${destFilepath}   sophos-spl-user  sophos-spl-group  -rw-------
 
 Drop ALC Policy Into Place
-    Drop sophos-spl-user File Into Place     ./SupportFiles/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    Drop sophos-spl-user File Into Place     ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 Drop ALC Policy With Fixed Version Into Place
-    Drop sophos-spl-user File Into Place     ./SupportFiles/CentralXml/ALC_FixedVersionPolicy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    Drop sophos-spl-user File Into Place     ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 Drop MCS Config Into Place
-    Drop sophos-spl-user File Into Place     ./SupportFiles/base_data/mcs.config  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Drop sophos-spl-user File Into Place     ${SUPPORT_FILES}/base_data/mcs.config  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config

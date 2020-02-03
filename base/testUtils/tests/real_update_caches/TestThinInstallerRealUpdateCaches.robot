@@ -22,7 +22,7 @@ Thin Installer Can install Via Real Dogfood Update Cache With Middle Which Cause
     [Tags]  MANUAL   THININSTALLER
     Require Uninstalled
     Get Thininstaller
-    Build Thininstaller From Sections  ./SupportFiles/ThinInstallerMiddles/dogfood.txt
+    Build Thininstaller From Sections  ${SUPPORT_FILES}/ThinInstallerMiddles/dogfood.txt
     Run Thininstaller With No Env Changes  0
 
     # Ensure we used the UCs
@@ -34,7 +34,7 @@ Thin Installer Can install Via Real Dogfood Update Cache With Middle Which Cause
 Thin Installer Can install Via Real Update Cache
     Require Uninstalled
     Get Thininstaller
-    Build Thininstaller From Sections  ./SupportFiles/ThinInstallerMiddles/real_ucmr.txt
+    Build Thininstaller From Sections  ${SUPPORT_FILES}/ThinInstallerMiddles/real_ucmr.txt
 
     Run Real Thininstaller
 
@@ -46,7 +46,7 @@ Thin Installer Can install Via Real Update Cache
 Thin Installer Can install by Falling Back from Broken Update Cache to Real Update Cache
     Require Uninstalled
     Get Thininstaller
-    Build Thininstaller From Sections  ./SupportFiles/ThinInstallerMiddles/real_ucmr_first_uc_broken.txt
+    Build Thininstaller From Sections  ${SUPPORT_FILES}/ThinInstallerMiddles/real_ucmr_first_uc_broken.txt
 
     Run Real Thininstaller
 

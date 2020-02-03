@@ -6,11 +6,12 @@ import glob
 from datetime import datetime, timedelta
 
 from robot.api import logger
+import PathManager
 
 
 
 def run_diagnose(pathTodiagnose,outputfolder):
-    bashfile = "./SupportFiles/Diagnose/RunDiagnose.sh"
+    bashfile = os.path.join(PathManager.get_support_file_path(), "Diagnose/RunDiagnose.sh")
     command = ["bash", bashfile, pathTodiagnose, outputfolder]
     log_path = os.path.join("/tmp", "diagnose.log")
     log = open(log_path, 'w+')

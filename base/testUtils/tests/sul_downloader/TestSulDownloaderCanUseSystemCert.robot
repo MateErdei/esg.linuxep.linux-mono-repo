@@ -36,7 +36,7 @@ Teardown Tmpdir
     Remove Ostia Certificate
 
 Install Ostia Certificate
-    Copy File          SupportFiles/sophos_certs/OstiaCA.crt  /usr/local/share/ca-certificates
+    Copy File          ${SUPPORT_FILES}/sophos_certs/OstiaCA.crt  /usr/local/share/ca-certificates
     File Should Exist  /usr/local/share/ca-certificates/OstiaCA.crt
     ${result} =        Run Process  update-ca-certificates
     Log    "stderr = ${result.stderr}"

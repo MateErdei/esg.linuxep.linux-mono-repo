@@ -245,14 +245,14 @@ Telemetry Executable Handles Errors When Reading Missing MCS Config For Endpoint
 
 Telemetry Executable Handles Errors When Reading MCS Config With Missing Key For Endpoint ID
     Drop ALC Policy Into Place
-    Drop sophos-spl-user File Into Place  ./SupportFiles/base_data/mcs.config-missing-mcs-id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Drop sophos-spl-user File Into Place  ${SUPPORT_FILES}/base_data/mcs.config-missing-mcs-id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}  endpointId
 
 Telemetry Executable Handles Errors When Reading Corrupt MCS Config For Endpoint ID
     Drop ALC Policy Into Place
-    Drop sophos-spl-user File Into Place  ./SupportFiles/base_data/garbage-text  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Drop sophos-spl-user File Into Place  ${SUPPORT_FILES}/base_data/garbage-text  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}  endpointId

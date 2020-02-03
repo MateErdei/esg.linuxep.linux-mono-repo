@@ -137,7 +137,7 @@ MDRLog Report Starting SophosMTR
     Should Contain X Times  ${MdrLogContents}  Run SophosMTR  ${times}  MDR Log should contain : "Run SophosMTR. Times=${times}"
 
 Send New MDR Policy
-    ${OriginalMDRPolicy} =  Get File  ./SupportFiles/CentralXml/MDR_policy.xml
+    ${OriginalMDRPolicy} =  Get File  ${SUPPORT_FILES}/CentralXml/MDR_policy.xml
     ${MDRPolicy} =  Replace String   ${OriginalMDRPolicy}  TESTPOLICY1   NEWPOLICY1
     Create File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${MDRPolicy}
     Move File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy

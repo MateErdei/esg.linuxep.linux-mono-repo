@@ -123,7 +123,7 @@ Check Status and Events Are Created
     [Return]  ${eventPath}
 
 Simulate Update Now
-    Copy File   ./SupportFiles/CentralXml/ALC_update_now.xml  ${SOPHOS_INSTALL}/tmp
+    Copy File   ${SUPPORT_FILES}/CentralXml/ALC_update_now.xml  ${SOPHOS_INSTALL}/tmp
     ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/ALC_update_now.xml    shell=True
     Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
     Move File   ${SOPHOS_INSTALL}/tmp/ALC_update_now.xml  ${SOPHOS_INSTALL}/base/mcs/action/ALC_action_1.xml
@@ -383,7 +383,7 @@ Teardown Servers For Update Scheduler
     General Test Teardown
     Log SystemCtl Update Status
     Stop Update Server
-    Run Process    make   cleanCerts    cwd=./SupportFiles/CloudAutomation/
+    Run Process    make   cleanCerts    cwd=${SUPPORT_FILES}/CloudAutomation/
     Run Keyword If Test Failed    Display All tmp Files Present
     Run Keyword If Test Failed    Log File  /etc/hosts
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts

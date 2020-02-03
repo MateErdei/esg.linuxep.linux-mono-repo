@@ -55,21 +55,21 @@ Verify that the full installer works correctly
     Set Test Variable  ${SymbolicLinkInfo}
     ## Check Directory Structure
     Log  ${DirectoryInfo}
-    ${ExpectedDirectoryInfo}=  Get File  tests/installer/InstallSet/DirectoryInfo
+    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/installer/InstallSet/DirectoryInfo
     Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
 
     ## Check File Info
     # wait for /opt/sophos-spl/base/mcs/status/cache/ALC.xml to exist
-    ${ExpectedFileInfo}=  Get File  tests/installer/InstallSet/FileInfo
+    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/installer/InstallSet/FileInfo
     Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
 
     ## Check Symbolic Links
-    ${ExpectedSymbolicLinkInfo} =  Get File  tests/installer/InstallSet/SymbolicLinkInfo
+    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/installer/InstallSet/SymbolicLinkInfo
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
     ## Check systemd files
     ${SystemdInfo}=  get systemd file info
-    ${ExpectedSystemdInfo}=  Get File  tests/installer/InstallSet/SystemdInfo
+    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo
     Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
 
 Verify Sockets Have Correct Permissions
@@ -179,9 +179,9 @@ Installer Succeeds If The System Has A Libc Version Greater Than That Of The Bui
 
 *** Keywords ***
 Save Current InstalledFiles To Local Path
-    Create File  tests/installer/InstallSet/FileInfo  ${FileInfo}
-    Create File  tests/installer/InstallSet/DirectoryInfo  ${DirectoryInfo}
-    Create File  tests/installer/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
+    Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/FileInfo  ${FileInfo}
+    Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/DirectoryInfo  ${DirectoryInfo}
+    Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
 
 Install Tests Teardown
     General Test Teardown

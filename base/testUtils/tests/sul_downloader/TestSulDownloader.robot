@@ -1374,7 +1374,7 @@ Test SulDownloader times out installs
     ${Message} =  Set Variable   LONG DELAY
     ${ConfigRigidname} =  Set Variable  ${BASE_RIGID_NAME}
     ${WarehouseRigidName} =  Set Variable  ${BASE_RIGID_NAME}
-    ${ConfigFileCert} =  Set Variable  ./SupportFiles/sophos_certs/
+    ${ConfigFileCert} =  Set Variable  ${SUPPORT_FILES}/sophos_certs/
     ${rootPath} =  Set Variable    ${tmpdir}/TestInstallFiles/${ConfigRigidname}
 
     Create Directory    ${tmpdir}/TestInstallFiles/
@@ -1420,7 +1420,7 @@ Test That Only One SulDownloader Can Run At One Time
     Create Install File   0   Installer Executed  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}  5
     Create Warehouse for tmp product  ${BASE_RIGID_NAME}  ${BASE_RIGID_NAME}
     Start Warehouse servers  ${BASE_RIGID_NAME}
-    Create SulDownloader Config  ${BASE_RIGID_NAME}  ./SupportFiles/sophos_certs/
+    Create SulDownloader Config  ${BASE_RIGID_NAME}  ${SUPPORT_FILES}/sophos_certs/
 
     ${Sul_Handle} =  Start Process  ${SUL_DOWNLOADER}  ${tmpdir}/update_config.json  ${tmpdir}/update_report.json
     Wait Until Keyword Succeeds
@@ -1845,7 +1845,7 @@ Start Warehouse servers
 
 Create SulDownloader Config
     [Arguments]  ${WarehouseRigidName}=${BASE_RIGID_NAME}
-    ...          ${ConfigFileCert}=./SupportFiles/sophos_certs/
+    ...          ${ConfigFileCert}=${SUPPORT_FILES}/sophos_certs/
     ${config} =    Create JSON Config    install_path=${tmpdir}/sspl   rigidname=${WarehouseRigidName}  certificatePath=${ConfigFileCert}
     Create File    ${tmpdir}/update_config.json    content=${config}
     Log File   ${tmpdir}/update_config.json
@@ -1854,7 +1854,7 @@ Create SulDownloader Config
 Perform Install
     [Arguments]  ${ExitCode}  ${Message}   ${OutputJsonFile}=${tmpdir}/update_report.json
     ...          ${ConfigRigidname}=${BASE_RIGID_NAME}   ${WarehouseRigidName}=${BASE_RIGID_NAME}
-    ...          ${ConfigFileCert}=./SupportFiles/sophos_certs/
+    ...          ${ConfigFileCert}=${SUPPORT_FILES}/sophos_certs/
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Create Install File   ${ExitCode}   ${Message}  ${tmpdir}/TestInstallFiles/${ConfigRigidname}
 

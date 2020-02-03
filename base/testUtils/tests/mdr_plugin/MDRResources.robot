@@ -222,7 +222,7 @@ Start MDR Plugin
     ...  Check MDR Plugin Running
 
 Send Default MDR Policy And Check it is Written With Correct Permissions
-    ${MDRPolicy} =  Get File  ./SupportFiles/CentralXml/MDR_policy.xml
+    ${MDRPolicy} =  Get File  ${SUPPORT_FILES}/CentralXml/MDR_policy.xml
     Create File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${MDRPolicy}
     Move File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy
     Wait Until Keyword Succeeds
@@ -315,7 +315,7 @@ Install Directly From Component Suite
     Should Be Equal As Integers  ${result.rc}  0    "MDR installer failed: stdout: ${result.stdout} stderr: ${result.stderr}"
 
 Insert MTR Policy
-    ${MDRPolicy} =  Get File  ./SupportFiles/CentralXml/MDR_policy.xml
+    ${MDRPolicy} =  Get File  ${SUPPORT_FILES}/CentralXml/MDR_policy.xml
     Create File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${MDRPolicy}
     Move File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy
 

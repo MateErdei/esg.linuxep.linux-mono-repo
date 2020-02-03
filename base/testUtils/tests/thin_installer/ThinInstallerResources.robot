@@ -1,4 +1,4 @@
 *** Keywords ***
 Regenerate HTTPS Certificates
-    Run Process    make    clean    cwd=./SupportFiles/https/
-    Run Process    make    all    cwd=./SupportFiles/https/
+    Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
+    Run Process    make    all    cwd=${SUPPORT_FILES}/https/

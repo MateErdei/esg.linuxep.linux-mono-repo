@@ -17,6 +17,7 @@ from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
 import robot.libraries.BuiltIn
 import CentralUtils
+import PathManager
 import json
 
 DUMMY_ALC_POLICY = """<?xml version="1.0"?><AUConfigurations xmlns:csc="com.sophos\msys\csc"><csc:Comp RevID="ba53ba11" policyType="1"/></AUConfigurations>"""
@@ -170,7 +171,7 @@ class MCSRouter(object):
     ROBOT_LIBRARY_SCOPE = 'TEST SUITE'
     
     def __init__(self):
-        self.support_path = os.path.join(".", "SupportFiles")
+        self.support_path = PathManager.get_support_file_path()
         self.cloud_server_path = os.path.join(self.support_path, "CloudAutomation")
         self.tmp_path = os.path.join(".", "tmp")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
