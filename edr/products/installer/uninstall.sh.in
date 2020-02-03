@@ -31,4 +31,30 @@ rm -rf "$UNINSTALLDIR"
 rm -r "$SYMLINK"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
 
+STATUS_XML=${BASEDIR}/base/mcs/status/LiveQuery_status.xml
+[ -f ${STATUS_XML} ] && rm -f ${STATUS_XML}
+CACHED_STATUS_XML=${BASEDIR}/base/mcs/status/cache/LiveQuery.xml
+[ -f ${CACHED_STATUS_XML} ] && rm -f ${CACHED_STATUS_XML}
 
+# Check for any OSQuery processes running and attempt to kill them
+OSQUERY_PATH=${BASEDIR}/plugins/edr/osquery/bin/osquery
+for i in {0..2}
+do
+  PROCESS=$(pgrep -f ${OSQUERY_PATH})
+  if [[ -z ${PROCESS} ]]
+  then
+    break
+  else
+    kill ${PROCESS}
+    sleep 1
+  fi
+done
+pgrep -f ${OSQUERY_PATH} | xargs -i echo "Could not kill OSQuery process after 3 attempts: {}"
+
+# check that everything has been uninstalled correctly
+function failure
+{
+    >&2 echo $1
+    exit 1
+}
+[ ! -f ${CACHED_STATUS_XML} ] &&  [ ! -f  ${STATUS_XML} ]  &&  [ ! -d ${UNINSTALLDIR} ] || failure "Failed to remove ${PLUGIN_NAME} related files."
