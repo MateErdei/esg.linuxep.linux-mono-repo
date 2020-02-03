@@ -31,11 +31,13 @@ def getSystemProductTestOutput(install_base_path=None):
     except EnvironmentError:
         deststat = None
 
+    
     everest_base_path = PathManager.find_local_base_dir_path()
-    system_product_test_output = [os.path.join(everest_base_path, "output"),
-                                  os.path.join(everest_base_path, "cmake-build-debug", "SystemProductTestOutput"),
-                                  os.path.join(os.path.dirname(__file__), "..", "..", "everest-base", "build64", "SystemProductTestOutput")]
-
+    system_product_test_output = []
+    if everest_base_path:
+        system_product_test_output.append(os.path.join(everest_base_path, "output"))
+        system_product_test_output.append(os.path.join(everest_base_path, "cmake-build-debug", "SystemProductTestOutput"))
+        system_product_test_output.append(os.path.join(everest_base_path, "build64", "SystemProductTestOutput"))
     env_path = os.environ.get("SYSTEM_PRODUCT_TEST_OUTPUT")
     if env_path:
         system_product_test_output.insert(0, env_path)
