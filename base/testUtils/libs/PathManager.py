@@ -31,12 +31,12 @@ def are_basenames_in_directory(directory_to_check, basenames, callback_to_verify
 
 def find_local_component_dir_path(component_dirname):
     dir_path = os.path.dirname(THIS_FILE_PATH)
-    #loops until "sspl-plugin-mdr-component" is in directory pointed to by dir_path
+    #loops until "component_dirname" is in directory pointed to by dir_path
     while not are_basenames_in_directory(dir_path, [component_dirname]):
         dir_path = os.path.dirname(dir_path)
         print(dir_path)
         if dir_path ==  "/":
-            logger.warning("Failed to find {} dir, recursed till reached root".format(component_dirname))
+            logger.warn("Failed to find {} dir, recursed till reached root".format(component_dirname))
     return os.path.join(dir_path, component_dirname)
     
 
