@@ -11,4 +11,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 int pass_on_capability(cap_value_t cap);
 
+void set_no_new_privs();
+
 #endif //SSPL_PLUGIN_MAV_PASSONCAPABILITY_H

@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
     {
         return ret;
     }
+    set_no_new_privs();
     argv[0] = "sophos_threat_detector";
     execv("/opt/sophos-spl/plugins/av/sbin/sophos_threat_detector", argv);
     return 70; // If the exec fails

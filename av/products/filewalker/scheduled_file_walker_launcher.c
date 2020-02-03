@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
     {
         return ret;
     }
+    set_no_new_privs();
     argv[0] = "scheduled_file_walker";
     execv("/opt/sophos-spl/plugins/av/sbin/scheduled_file_walker", argv);
     return 70; // If the exec fails

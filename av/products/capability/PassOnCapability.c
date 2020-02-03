@@ -74,3 +74,8 @@ int pass_on_capability(cap_value_t cap)
 
     return 0;
 }
+
+void set_no_new_privs()
+{
+    prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+}
