@@ -155,7 +155,7 @@ if [[ -L ./everest-systemproducttests/robot ]]
 then
     warning "Symlink already exists"
 else
-    ln -s ../tests/remoterobot.py everest-systemproducttests/robot
+    ln -s ../tests/remoterobot.py everest-base/testUtils/robot
     chmod +x tests/remoterobot.py
 fi
 
