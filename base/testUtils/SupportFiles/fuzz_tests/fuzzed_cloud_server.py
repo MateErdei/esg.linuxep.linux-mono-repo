@@ -9,8 +9,8 @@ import ssl
 import sys
 import os
 import time
-import PathManager
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
 libs_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir, 'SupportFiles'))
 sys.path.insert(1, libs_dir)
 
