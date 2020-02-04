@@ -5,18 +5,18 @@ https://wiki.sophos.net/pages/viewpage.action?pageId=317105394
 In order to run these tests in tap do:
  1) activate the tap environment:
     source tap/bin/activate
- 2) tap run edr_plugin.component --debug-loop
+ 2) tap run av_plugin.component --debug-loop
 
 In order to run them in vagrant box:
   1) ssh into vagrant
   2) Setup some links:
     a) mkdir -p /opt/test/inputs
-    b) mkdir -p /opt/test/inputs/edr
-    c) ln -s /vagrant/sspl-plugin-edr-component/TA  /opt/test/inputs/test_scripts
-    d) ln -s /vagrant/sspl-plugin-edr-component/output/SDDS-COMPONENT/  /opt/test/inputs/edr/SDDS-COMPONENT
-    e) ln -s /vagrant/sspl-plugin-edr-component/output/componenttests/  /opt/test/inputs/edr/componenttests
+    b) mkdir -p /opt/test/inputs/av
+    c) ln -s /vagrant/sspl-plugin-anti-virus/TA  /opt/test/inputs/test_scripts
+    d) ln -s /vagrant/sspl-plugin-anti-virus/output/SDDS-COMPONENT/  /opt/test/inputs/av/SDDS-COMPONENT
+    e) ln -s /vagrant/sspl-plugin-anti-virus/output/componenttests/  /opt/test/inputs/av/componenttests
 
-  3) cd /vagrant/sspl-plugin-edr-component/TA
+  3) cd /vagrant/sspl-plugin-anti-virus/TA
   4) python3 -u -m pytest
   5) Result files can be seen at: /var/tmp/pytest-of-vagrant/pytest-current/sophos-splcurrent
 
