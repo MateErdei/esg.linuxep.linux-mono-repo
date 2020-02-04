@@ -56,8 +56,13 @@
         <workingdir>sspl-plugin-anti-virus</workingdir>
         <destdir>sspl-plugin-anti-virus</destdir>
         <buildoutputs>
-            <output name="output" srcfolder="output"> </output>
-            <output name="build_log" srcfolder="log"> </output>
+            <!-- rename logs for coverage builds -->
+            <output name="build_log" srcfolder="log" mode="debug,release"> </output>
+            <output name="coverage_log" srcfolder="log" mode="coverage"> </output>
+
+            <!-- rename output for coverage builds -->
+            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
+            <output name="coverage" srcfolder="output" artifactpath="output" mode="coverage"> </output>
         </buildoutputs>
         <publishbranches>master,feature/LINUXDAR-1398_TAP_testing</publishbranches>
     </publish>
