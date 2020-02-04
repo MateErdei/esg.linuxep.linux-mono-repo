@@ -2,9 +2,9 @@
 Test Teardown    Teardown
 Suite Teardown   Nova Suite Teardown
 
-Library     ${libs_directory}/FullInstallerUtils.py
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/ThinInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 
 Resource    ../GeneralTeardownResource.robot
 Resource  ../mcs_router-nova/McsRouterNovaResources.robot

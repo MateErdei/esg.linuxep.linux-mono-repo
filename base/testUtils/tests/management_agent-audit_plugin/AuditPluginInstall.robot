@@ -3,13 +3,13 @@ Library     Process
 Library     Collections
 Library     OperatingSystem
 
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/FullInstallerUtils.py
-Library     ${libs_directory}/CapnSubscriber.py
-Library     ${libs_directory}/SshSupport.py
-Library     ${libs_directory}/AuditSupport.py
-Library     ${libs_directory}/UserUtils.py
-Library     ${libs_directory}/OSUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/CapnSubscriber.py
+Library     ${LIBS_DIRECTORY}/SshSupport.py
+Library     ${LIBS_DIRECTORY}/AuditSupport.py
+Library     ${LIBS_DIRECTORY}/UserUtils.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  ../sul_downloader/SulDownloaderResources.robot
 Resource  ../installer/InstallerResources.robot

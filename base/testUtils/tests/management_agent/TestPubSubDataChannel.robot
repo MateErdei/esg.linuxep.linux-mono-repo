@@ -5,8 +5,8 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
-Library     ${libs_directory}/FakeMultiSubscriber.py
-Library     ${libs_directory}/FakeMultiPublisher.py
+Library     ${LIBS_DIRECTORY}/FakeMultiSubscriber.py
+Library     ${LIBS_DIRECTORY}/FakeMultiPublisher.py
 
 Test Teardown   Test Teardown For Suite
 

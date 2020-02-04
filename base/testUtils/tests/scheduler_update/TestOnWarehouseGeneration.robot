@@ -8,10 +8,10 @@ Resource  ../GeneralTeardownResource.robot
 
 Library    Process
 Library    OperatingSystem
-Library    ${libs_directory}/UpdateServer.py
-Library    ${libs_directory}/WarehouseGenerator.py
-Library    ${libs_directory}/LogUtils.py
-Library    ${libs_directory}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/UpdateServer.py
+Library    ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 Default Tags   SULDOWNLOADER
 

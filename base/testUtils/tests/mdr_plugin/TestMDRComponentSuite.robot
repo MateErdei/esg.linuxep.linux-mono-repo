@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Suite description
-Library     ${libs_directory}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 
 
 Resource  ../installer/InstallerResources.robot

@@ -1,8 +1,8 @@
 *** Settings ***
 Documentation    Test installation on different filsystems
 
-Library    ${libs_directory}/LogUtils.py
-Library    ${libs_directory}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot

@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation  Test the Telemetry Scheduler
 
-Library    ${libs_directory}/TemporaryDirectoryManager.py
+Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 
 Resource  TelemetryResources.robot
 Resource  ../GeneralTeardownResource.robot

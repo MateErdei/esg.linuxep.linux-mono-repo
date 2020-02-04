@@ -1,8 +1,8 @@
 *** Settings ***
 Documentation    Test registering with Central with full installer
 
-Library    ${libs_directory}/FullInstallerUtils.py
-Library    ${libs_directory}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot

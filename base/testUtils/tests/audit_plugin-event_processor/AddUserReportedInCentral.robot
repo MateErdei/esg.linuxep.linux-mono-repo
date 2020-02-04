@@ -1,7 +1,7 @@
 *** Settings ***
 
-Library     ${libs_directory}/UserUtils.py
-Library     ${libs_directory}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/UserUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource  ../management_agent-audit_plugin/AuditPluginResources.robot
 Resource  ../management_agent-event_processor/EventProcessorResources.robot

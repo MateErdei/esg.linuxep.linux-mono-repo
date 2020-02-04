@@ -2,8 +2,8 @@
 Library    Process
 Library    OperatingSystem
 
-Library     ${libs_directory}/FullInstallerUtils.py
-Library     ${libs_directory}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/LogControlResources.robot
 

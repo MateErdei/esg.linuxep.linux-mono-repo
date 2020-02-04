@@ -1,6 +1,6 @@
 *** Settings ***
-Library     ${libs_directory}/AuditSupport.py
-Library     ${libs_directory}/CapnSubscriber.py
+Library     ${LIBS_DIRECTORY}/AuditSupport.py
+Library     ${LIBS_DIRECTORY}/CapnSubscriber.py
 Resource  ../watchdog/LogControlResources.robot
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot

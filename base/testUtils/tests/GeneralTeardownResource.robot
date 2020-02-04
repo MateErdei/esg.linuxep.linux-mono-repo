@@ -1,12 +1,11 @@
 *** Settings ***
-Library     ${libs_directory}/TeardownTools.py
+Library     ../libs/TeardownTools.py
 
 Resource    installer/InstallerResources.robot
 Library    OperatingSystem
 
 *** Variables ***
 
-${libs_directory}                       ../libs
 *** Keywords ***
 Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/updatescheduler.log

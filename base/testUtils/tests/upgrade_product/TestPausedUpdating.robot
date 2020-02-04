@@ -3,7 +3,7 @@ Documentation    Demonstrate paused updating is triggered by policy change and t
 Default Tags   PAUSED_UPDATE  UPDATE_SCHEDULER  SULDOWNLOADER
 
 
-Library     ${libs_directory}/PolicyUtils.py
+Library     ${LIBS_DIRECTORY}/PolicyUtils.py
 
 Resource    ../upgrade_product/UpgradeResources.robot
 

@@ -3,10 +3,10 @@ Library     Process
 Library     Collections
 Library     OperatingSystem
 
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/FullInstallerUtils.py
-Library     ${libs_directory}/CapnPublisher.py
-Library     ${libs_directory}/CapnSubscriber.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/CapnPublisher.py
+Library     ${LIBS_DIRECTORY}/CapnSubscriber.py
 
 Test Setup  Setup Event Processor Plugin Tmpdir
 Test Teardown  Default Test Teardown

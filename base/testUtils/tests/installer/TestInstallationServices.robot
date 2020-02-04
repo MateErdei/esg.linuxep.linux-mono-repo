@@ -2,7 +2,7 @@
 Documentation    Test correct services are started when installer is run
 
 Library    String
-Library    ${libs_directory}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot

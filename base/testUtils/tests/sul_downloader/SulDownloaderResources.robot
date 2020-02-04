@@ -1,9 +1,9 @@
 *** Settings ***
 Library    Process
 Library    OperatingSystem
-Library    ${libs_directory}/SulDownloader.py
-Library    ${libs_directory}/UpdateServer.py
-Library    ${libs_directory}/WarehouseGenerator.py
+Library    ${LIBS_DIRECTORY}/SulDownloader.py
+Library    ${LIBS_DIRECTORY}/UpdateServer.py
+Library    ${LIBS_DIRECTORY}/WarehouseGenerator.py
 
 Resource  ../watchdog/LogControlResources.robot
 

@@ -1,10 +1,10 @@
 *** Settings ***
 Library    Process
-Library    ${libs_directory}/UpdateServer.py
-Library    ${libs_directory}/WarehouseGenerator.py
-Library    ${libs_directory}/ThinInstallerUtils.py
-Library    ${libs_directory}/OSUtils.py
-Library    ${libs_directory}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/UpdateServer.py
+Library    ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 Resource   ./ThinInstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 

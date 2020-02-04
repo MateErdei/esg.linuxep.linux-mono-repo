@@ -4,11 +4,11 @@ Documentation    Tests to verify we can register successfully with
 ...              Also tests bad registrations, and deregistrations.
 
 Library     OperatingSystem
-Library     ${libs_directory}/WarehouseGenerator.py
-Library     ${libs_directory}/FullInstallerUtils.py
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/UpdateServer.py
-Library     ${libs_directory}/UpdateSchedulerHelper.py   # for replace_sophos_urls_to_localhost
+Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/UpdateServer.py
+Library     ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py   # for replace_sophos_urls_to_localhost
 Library     String
 
 Resource  ../management_agent-event_processor/EventProcessorResources.robot

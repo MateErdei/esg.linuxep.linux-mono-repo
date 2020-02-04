@@ -2,8 +2,8 @@
 Documentation     Test the Telemetry executable
 
 Library           ${LIBS_DIRECTORY}/CentralUtils.py
-Library           ${libs_directory}/MCSRouter.py
-Library           ${libs_directory}/SystemInfo.py
+Library           ${LIBS_DIRECTORY}/MCSRouter.py
+Library           ${LIBS_DIRECTORY}/SystemInfo.py
 Library           OperatingSystem
 
 Resource  TelemetryResources.robot

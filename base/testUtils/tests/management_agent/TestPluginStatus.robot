@@ -5,8 +5,8 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/FakePluginWrapper.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
 
 Resource    ManagementAgentResources.robot

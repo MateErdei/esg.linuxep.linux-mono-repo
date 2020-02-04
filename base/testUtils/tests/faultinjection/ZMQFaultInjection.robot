@@ -4,8 +4,8 @@ Documentation    Suite description
 Library    OperatingSystem
 Library    Process
 Resource  ../GeneralTeardownResource.robot
-Library     ${libs_directory}/FaultInjectionTools.py
-Library     ${libs_directory}/OSUtils.py
+Library     ${LIBS_DIRECTORY}/FaultInjectionTools.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
 Resource  ../installer/InstallerResources.robot
 
 Suite Setup  ZMQ Suite Setup
@@ -17,7 +17,7 @@ Test Teardown   ZMQ Test Teardown
 Default Tags  FAULTINJECTION
 
 *** Variables ***
-${ZMQCheckerSourceDir} =  ${libs_directory}/../SystemProductTestOutput/zmqchecker
+${ZMQCheckerSourceDir} =  ${LIBS_DIRECTORY}/../SystemProductTestOutput/zmqchecker
 ${ZMQCheckerDir} =  /tmp/zmqchecker
 
 ${TESTUSER} =  sophos-spl-user

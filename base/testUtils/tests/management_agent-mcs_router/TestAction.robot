@@ -1,8 +1,8 @@
 *** Settings ***
 Library    OperatingSystem
-Library    ${libs_directory}/MCSRouter.py
-Library    ${libs_directory}/FakePluginWrapper.py
-Library    ${libs_directory}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource    ../management_agent/ManagementAgentResources.robot
 Resource    ../installer/InstallerResources.robot

@@ -3,10 +3,10 @@ Documentation    Fault injection cases involving corruption of the pluginRegistr
 
 Library     OperatingSystem
 Library     String
-Library     ${libs_directory}/FaultInjectionTools.py
-Library     ${libs_directory}/FullInstallerUtils.py
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/FaultInjectionTools.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
 Resource  ../telemetry/TelemetryResources.robot
 Resource  ../installer/InstallerResources.robot

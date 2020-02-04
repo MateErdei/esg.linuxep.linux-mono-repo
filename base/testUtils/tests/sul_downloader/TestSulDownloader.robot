@@ -5,11 +5,11 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
-Library           ${libs_directory}/SulDownloader.py
-Library           ${libs_directory}/UpdateServer.py
-Library           ${libs_directory}/WarehouseGenerator.py
-Library           ${libs_directory}/LogUtils.py
-Library           ${libs_directory}/OSUtils.py
+Library           ${LIBS_DIRECTORY}/SulDownloader.py
+Library           ${LIBS_DIRECTORY}/UpdateServer.py
+Library           ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Library           ${LIBS_DIRECTORY}/LogUtils.py
+Library           ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource          SulDownloaderResources.robot
 Resource          ../installer/InstallerResources.robot

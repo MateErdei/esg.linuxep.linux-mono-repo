@@ -2,7 +2,7 @@
 Documentation    Suite description
 
 
-Library     ${libs_directory}/TemporaryDirectoryManager.py
+Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 
 Resource    ../installer/InstallerResources.robot
 

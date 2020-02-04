@@ -4,12 +4,12 @@ Documentation    Telemetry testing resources.
 Library    OperatingSystem
 Library    Process
 Library    String
-Library    ${libs_directory}/FullInstallerUtils.py
-Library    ${libs_directory}/LogUtils.py
-Library    ${libs_directory}/OSUtils.py
-Library    ${libs_directory}/TelemetryUtils.py
-Library    ${libs_directory}/Watchdog.py
-Library    ${libs_directory}/HttpsServer.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
+Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${LIBS_DIRECTORY}/HttpsServer.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/WatchdogResources.robot

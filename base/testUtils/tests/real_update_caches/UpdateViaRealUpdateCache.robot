@@ -2,8 +2,8 @@
 Suite Setup       Setup MCS Tests Nova
 Test Teardown   Post NOVA Update Teardown
 
-Library     ${libs_directory}/FullInstallerUtils.py
-Library     ${libs_directory}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource    ../GeneralTeardownResource.robot
 Resource  ../installer/InstallerResources.robot

@@ -3,7 +3,7 @@ Library     Process
 Library     Collections
 Library     OperatingSystem
 
-Library     ${libs_directory}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource    ../example_plugin/ExamplePluginResources.robot
 Resource  ../GeneralTeardownResource.robot

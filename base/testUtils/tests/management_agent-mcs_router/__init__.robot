@@ -3,7 +3,7 @@
 Resource  ../installer/InstallerResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
 
-Library    ${libs_directory}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
 
 Suite Setup      Setup MCS And Management Agent Tests
 Suite Teardown   Cleanup MCS And Management Agent Tests

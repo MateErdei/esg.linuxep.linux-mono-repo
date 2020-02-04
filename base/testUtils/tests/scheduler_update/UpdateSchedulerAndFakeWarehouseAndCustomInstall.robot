@@ -6,11 +6,11 @@ Test Teardown   Teardown For Test
 
 Library    Process
 Library    OperatingSystem
-Library    ${libs_directory}/UpdateSchedulerHelper.py
-Library    ${libs_directory}/UpdateServer.py
-Library    ${libs_directory}/WarehouseGenerator.py
-Library    ${libs_directory}/LogUtils.py
-Library    ${libs_directory}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
+Library    ${LIBS_DIRECTORY}/UpdateServer.py
+Library    ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 Resource  SchedulerUpdateResources.robot
 

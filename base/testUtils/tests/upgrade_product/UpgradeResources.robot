@@ -7,7 +7,7 @@ Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library     ${LIBS_DIRECTORY}/TeardownTools.py
 Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${libs_directory}/UpdateSchedulerHelper.py
+Library     ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library     Process
 Library     OperatingSystem
 Library     String
@@ -45,7 +45,6 @@ Test Teardown
     Require Uninstalled
     Cleanup Temporary Folders
     Require Uninstalled
-    Run Keyword If   ${UninstallAudit}  Uninstall AuditD If Required
 
 Suite Setup
     Regenerate HTTPS Certificates
@@ -104,25 +103,6 @@ Wait For Initial Update To Fail
     Remove File  ${SOPHOS_INSTALL}/logs/base/updatescheduler.log
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 
-Install And Enable AuditD If Required
-    ${Result}=  Is Ubuntu
-    Run Keyword If   ${Result}==${True}
-    ...   Run Shell Process   apt-get install auditd -y    OnError=failed to install auditd  timeout=200s
-
-    #  Assume all other supported platforms install software using YUM
-    Run Keyword Unless  ${Result}==${True}
-    ...  Run Shell Process   yum install audit -y    OnError=failed to install auditd  timeout=200s
-
-    Run Shell Process   systemctl start auditd    OnError=failed to start auditd
-
-Uninstall AuditD If Required
-    ${Result}=  Is Ubuntu
-    Run Keyword If   ${Result}==${True}
-    ...   Run Shell Process   apt-get remove auditd -y    OnError=failed to remove auditd  timeout=200s
-
-    #  Assume all other supported platforms install software using YUM
-    Run Keyword Unless  ${Result}==${True}
-    ...  Run Shell Process   yum remove audit -y    OnError=failed to remove auditd  timeout=200s
 
 Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s

@@ -1,7 +1,7 @@
 *** Settings ***
 Library    Process
 Library    OperatingSystem
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ../libs/FullInstallerUtils.py
 
 Resource  ../GeneralTeardownResource.robot
 

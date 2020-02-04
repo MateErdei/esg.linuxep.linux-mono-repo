@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Suite description
-Library     ${libs_directory}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 
 
 Resource  ../upgrade_product/UpgradeResources.robot
@@ -8,7 +8,7 @@ Resource  ../installer/InstallerResources.robot
 Resource  MDRResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../GeneralTeardownResource.robot
-Library    ${libs_directory}/UpdateSchedulerHelper.py
+Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 
 Test Setup  Test Setup
 Test Teardown  Test Teardown

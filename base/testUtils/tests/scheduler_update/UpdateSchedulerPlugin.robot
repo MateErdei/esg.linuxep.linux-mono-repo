@@ -8,11 +8,11 @@ Test Teardown   Teardown For Test
 Library    Process
 Library    OperatingSystem
 Library    DateTime
-Library    ${libs_directory}/LogUtils.py
-Library    ${libs_directory}/FakeSulDownloader.py
-Library    ${libs_directory}/UpdateSchedulerHelper.py
-Library    ${libs_directory}/MCSRouter.py
-Library    ${libs_directory}/TelemetryUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/FakeSulDownloader.py
+Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
 
 Resource  ../watchdog/LogControlResources.robot
 Resource  ../installer/InstallerResources.robot

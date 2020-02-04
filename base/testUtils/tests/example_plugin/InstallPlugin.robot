@@ -4,11 +4,11 @@
 Test Setup  Install Example Plugin Test Setup
 Test Teardown    Install Plugin Test Teardown
 
-Library     ${libs_directory}/WarehouseGenerator.py
-Library     ${libs_directory}/UpdateServer.py
-Library     ${libs_directory}/SulDownloader.py
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/FakeManagement.py
+Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Library     ${LIBS_DIRECTORY}/UpdateServer.py
+Library     ${LIBS_DIRECTORY}/SulDownloader.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/FakeManagement.py
 
 Resource  ExamplePluginResources.robot
 Resource  ../GeneralTeardownResource.robot

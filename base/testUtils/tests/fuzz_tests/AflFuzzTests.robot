@@ -4,7 +4,7 @@ Documentation    Suite description
 Default Tags  FUZZ
 
 Library           OperatingSystem
-Library    ../libs/FuzzerSupport.py
+Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
 Resource  ../GeneralTeardownResource.robot
 Resource  FuzzTestsResources.robot
 

@@ -5,8 +5,8 @@ Suite Teardown   Cleanup SUL Downloader Tests
 
 Library    Process
 Library    OperatingSystem
-Library    ${libs_directory}/SulDownloader.py
-Library    ${libs_directory}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/SulDownloader.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 *** Keywords ***
 

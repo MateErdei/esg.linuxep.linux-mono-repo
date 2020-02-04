@@ -1,5 +1,5 @@
 *** Settings ***
-Library    ${libs_directory}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 *** Keywords ***
 Wait For EDR to be Installed
@@ -23,8 +23,6 @@ Install EDR
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
     Wait For Initial Update To Fail
-
-    Override LogConf File as Global Level  DEBUG
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Trigger Update Now
@@ -51,6 +49,54 @@ Report On MCS_CA
     ${result}=  Run Process    ls -l ${mcs_ca}     shell=True
     Log  ${result.stdout}
     Log File  ${mcs_ca}
+
+
+Check AuditD Executable Running
+    ${result} =    Run Process  pgrep  ^auditd
+    Should Be Equal As Integers    ${result.rc}    0       msg="stdout:${result.stdout}\n err: ${result.stderr}"
+
+Check AuditD Executable Not Running
+    ${result} =    Run Process  pgrep  ^auditd
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\n err: ${result.stderr}"
+
+Check AuditD Service Disabled
+    ${result} =    Run Process  systemctl  is-enabled  auditd
+    log  ${result.stdout}
+    log  ${result.stderr}
+    log  ${result.rc}
+    Should Not Be Equal As Integers    ${result.rc}    0
+
+Check EDR Log Shows AuditD Has Been Disabled
+    ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
+    Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to disable AuditD
+    Should Contain  ${EDR_LOG_CONTENT}   Successfully stopped service: auditd
+    Should Contain  ${EDR_LOG_CONTENT}   Successfully disabled service: auditd
+
+Check EDR Log Shows AuditD Has Not Been Disabled
+    ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
+    Should Not Contain  ${EDR_LOG_CONTENT}   Successfully disabled service: auditd
+    Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to not disable AuditD
+    Should Contain  ${EDR_LOG_CONTENT}   AuditD is running, it will not be possible to obtain event data.
+
+Install And Enable AuditD If Required
+    ${Result}=  Is Ubuntu
+    Run Keyword If   ${Result}==${True}
+    ...   Run Shell Process   apt-get install auditd -y    OnError=failed to install auditd  timeout=200s
+
+    #  Assume all other supported platforms install software using YUM
+    Run Keyword Unless  ${Result}==${True}
+    ...  Run Shell Process   yum install audit -y    OnError=failed to install auditd  timeout=200s
+
+    Run Shell Process   systemctl start auditd    OnError=failed to start auditd
+
+Uninstall AuditD If Required
+    ${Result}=  Is Ubuntu
+    Run Keyword If   ${Result}==${True}
+    ...   Run Shell Process   apt-get remove auditd -y    OnError=failed to remove auditd  timeout=200s
+
+    #  Assume all other supported platforms install software using YUM
+    Run Keyword Unless  ${Result}==${True}
+    ...  Run Shell Process   yum remove audit -y    OnError=failed to remove auditd  timeout=200s
 
 EDR Suite Setup
     UpgradeResources.Suite Setup
