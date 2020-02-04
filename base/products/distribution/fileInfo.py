@@ -39,7 +39,7 @@ class FileInfo(object):
         sha384calc = hashlib.sha384()
         length = 0
 
-        f = open(self.__m_fullPath)
+        f = open(self.__m_fullPath, "rb")
         while True:
             data = f.read(1024*100)
             if not data:

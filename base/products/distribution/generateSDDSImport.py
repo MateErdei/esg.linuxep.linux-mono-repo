@@ -179,7 +179,23 @@ def get_sdds_import_tempate():
         raise Exception("Unknown SDDS template given: {}".format(template))
 
 
+PY3 = sys.version_info[0] == 3
+
+if PY3:
+    unicode_str = str
+    byte_str = bytes
+else:
+    unicode_str = unicode
+    byte_str = str
+
+def ensure_binary_string(s):
+    if isinstance(s, unicode_str):
+        return s.encode("UTF-8")
+    return s
+
+
 def generate_sdds_import(dist, file_objects, BASE=None):
+    dist = ensure_binary_string(dist)
     sdds_import_path = os.path.join(dist, b"SDDS-Import.xml")
 
     doc = xml.dom.minidom.parseString(get_sdds_import_tempate())
@@ -223,12 +239,13 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     longDescription = getVariable("LONG_DESCRIPTION", "LONG_DESCRIPTION", "longDescription", longDescription, reportAbsentFile=False)
     setTextInTag(doc, "LongDesc", longDescription)
 
-
+    xmlstr = doc.toxml('UTF-8')
+    assert(isinstance(xmlstr, byte_str))
+    doc.unlink()
 
     f = open(sdds_import_path, "wb")
-    doc.writexml(f, encoding="UTF-8")
+    f.write(xmlstr)
     f.close()
-    doc.unlink()
 
 def main(argv):
     dist = argv[1]
