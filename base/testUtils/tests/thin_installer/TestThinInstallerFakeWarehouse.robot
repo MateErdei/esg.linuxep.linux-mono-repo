@@ -338,8 +338,6 @@ Thin Installer Environment Proxy
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Digest Proxy
-    [Tags]  TESTFAILURE  THIN_INSTALLER  OSTIA
-    #TODO LINUXDAR-942
     Should Not Exist    ${SOPHOS_INSTALL}
     Check MCS Router Not Running
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
@@ -365,8 +363,6 @@ Thin Installer Digest Proxy
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Basic Proxy
-    [Tags]  TESTFAILURE  THIN_INSTALLER  OSTIA
-    #TODO LINUXDAR-942
     Should Not Exist    ${SOPHOS_INSTALL}
     Check MCS Router Not Running
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}

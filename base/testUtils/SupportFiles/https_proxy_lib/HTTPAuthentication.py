@@ -1,9 +1,7 @@
 
-## Need md5
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import new as md5
+
+from hashlib import md5
+
 
 import base64
 import re
@@ -68,7 +66,7 @@ class AuthHandler(object):
         body = ("<html><head><title>Error</title></head>" +
                 "<body><h1>%s %s.</h1></body>"%(self.code,self.message) +
                 "</html>")
-        assert isinstance(body,basestring)
+        assert isinstance(body, str)
 
         response = "HTTP/1.0 %d %s\n"%(self.code,self.message)
         self.outHeader['Content-Type'] = "text/html"
@@ -100,34 +98,34 @@ AUTHORIZATION = re.compile (
 
 class BasicAuthentication(Authentication):
 
-    def __init__(self,passwords):
+    def __init__(self, passwords):
         self.__m_passwords = passwords
 
-    def authorize(self,auth_info):
-        (username,password) = auth_info
-        logger.info("Authenticated with %s:%s",username,password)
+    def authorize(self, auth_info):
+        (username, password) = auth_info
+        logger.info("Authenticated with {}:{}".format(username,password))
         return self.__m_passwords.getPassword(username) == password
 
     def getScheme(self):
         return "Basic"
 
-    def return407(self,handler):
+    def return407(self, handler):
         handler.send_407()
-        handler.send_header('Proxy-Authenticate','%s realm="%s"' % (self.getScheme(),self.getRealm()))
+        handler.send_header('Proxy-Authenticate', '{} realm="{}"'.format(self.getScheme(), self.getRealm()))
         handler.end_headers()
         return False
 
-    def authenticate(self,handler):
+    def authenticate(self, handler):
         auth_header = handler.headers.get("Proxy-Authorization")
         if auth_header is None:
-            logger.error('no authorization info <%s>',auth_header)
+            logger.error('no authorization info')
             self.return407(handler)
             return False
 
         mo = AUTHORIZATION.match(auth_header)
         if mo is None:
-            logger.error('malformed authorization info <%s>',auth_header)
-            handler.send_error(400, 'malformed authorization info <%s>' % auth_header)
+            logger.error('malformed authorization info <{}>'.format(auth_header))
+            handler.send_error(400, 'malformed authorization info <{}>'.format(auth_header))
             return False
 
         scheme = mo.group(1)
@@ -137,13 +135,12 @@ class BasicAuthentication(Authentication):
             self.return407(handler)
             return False
 
-        import base64
         try:
             decoded = base64.b64decode(cookie)
         except Exception as e:
             logger.error(e)
-            logger.error('malformed authorization info "%s" from "%s"',cookie,auth_header)
-            handler.send_error(400, 'malformed authorization info "%s" from "%s"' % (cookie,auth_header))
+            logger.error('malformed authorization info "{}" from "{}"'.format(cookie,auth_header))
+            handler.send_error(400, 'malformed authorization info "{}" from "{}"'.format(cookie,auth_header))
             return False
 
         auth_info = decoded.decode('utf-8').split(':')

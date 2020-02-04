@@ -312,8 +312,6 @@ SulDownloader Should not claim proxy connection when sul will not apply it
 
 
 Simple environment proxy
-    [Tags]  TESTFAILURE  SULDOWNLOADER
-    #TODO LINUXDAR-942
     Require Warehouse With Fake Single Installer Product
 
     Start Simple Proxy Server    1235
@@ -364,8 +362,6 @@ Wrong environment proxy
 
 
 Update through basic auth proxy unobfuscated creds
-    [Tags]  TESTFAILURE  SULDOWNLOADER
-    #TODO LINUXDAR-942
     Require Warehouse With Fake Single Installer Product
 
     ${username} =  Set Variable  username
@@ -393,8 +389,6 @@ Update through basic auth proxy unobfuscated creds
 
 
 Update through basic auth proxy unobfuscated creds with obfuscated password
-    [Tags]  TESTFAILURE  SULDOWNLOADER
-    #TODO LINUXDAR-942
     Require Warehouse With Fake Single Installer Product
 
     ${username} =  Set Variable  username
@@ -484,8 +478,6 @@ Simple proxy with obfuscated password as Sent By Central
 
 
 Update through digest auth proxy unobfuscated creds
-    [Tags]  TESTFAILURE  SULDOWNLOADER
-    #TODO LINUXDAR-942
     Require Warehouse With Fake Single Installer Product
     ${username} =  Set Variable  username
     ${password} =  Set Variable  password
@@ -512,8 +504,6 @@ Update through digest auth proxy unobfuscated creds
 
 
 Update through basic auth proxy obfuscated creds
-    [Tags]  TESTFAILURE  SULDOWNLOADER
-    #TODO LINUXDAR-942
     Require Warehouse With Fake Single Installer Product
 
     ${username} =  Set Variable  username
@@ -541,8 +531,6 @@ Update through basic auth proxy obfuscated creds
     Verify SulDownloader Connects Via Proxy   ${proxy_url}
 
 Update through digest auth proxy obfuscated creds
-    [Tags]  TESTFAILURE  SULDOWNLOADER
-    #TODO LINUXDAR-942
     Require Warehouse With Fake Single Installer Product
 
     ${username} =  Set Variable  username

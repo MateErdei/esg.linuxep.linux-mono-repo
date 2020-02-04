@@ -114,7 +114,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
     def send_407(self, message="Proxy Authentication Required"):
         self.send_response(407, message)
-        self.end_headers()
+
 
     def do_CONNECT(self):
         if not GL_AUTHENTICATION.authenticate(self):
@@ -166,8 +166,9 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         try:
             s = socket.create_connection(address, timeout=self.timeout)
         except Exception as e:
-            logger.warn("connect_relay failed")
+            logger.warning("connect_relay failed with error {}".format(e))
             return self.send_error(502)
+        logger.debug("connection success")
 
         self.send_response(200, 'Connection Established')
         self.end_headers()
@@ -259,7 +260,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
                 res_body = res.read()
             except Exception as e:
-                logger.warning("do_GET failed")
+                logger.warning("do_GET failed with error {}".format(e))
                 if origin in self.tls.conns:
                     del self.tls.conns[origin]
                 continue
@@ -460,21 +461,21 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 def createServer(port, HandlerClass, ServerClass):
     ServerClass.address_family = socket.AF_INET
 
-    for server in ('', 'localhost','127.0.0.1'):
+    for server in ('', 'localhost', '127.0.0.1'):
         server_address = (server, port)
         try:
             return ServerClass(server_address, HandlerClass)
         except socket.error as e:
-            logger.warn("Failed to serve to %s via IPv4"%server)
+            logger.warning("Failed to serve to {} via IPv4 with error {}".format(server, e))
 
     ServerClass.address_family = socket.AF_INET6
 
-    for server in ('', 'localhost','127.0.0.1'):
+    for server in ('', 'localhost', '127.0.0.1'):
         server_address = (server, port)
         try:
             return ServerClass(server_address, HandlerClass)
         except socket.error as e:
-            logger.warn("Failed to serve to %s via IPv6"%server)
+            logger.warning("Failed to serve to {} via IPv6with error {}".format(server,e))
 
     return None
 
