@@ -94,6 +94,11 @@ function unpack_scaffold_gcc_make()
     else
         echo "Warning: Building with OS binutils"
     fi
+
+    if [[ -x $(which yum) ]]
+    then
+        yum install libcap-devel
+    fi
 }
 
 
