@@ -449,8 +449,8 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyS
 
     configurationData.verifySettingsAreValid();
 
-    suldownloaderdata::ProxyCredentials proxyCredentials("username", "password", "2");
-    std::vector<Proxy> expectedProxyList = { Proxy(savedURL), Proxy(Proxy::NoProxy) };
+    suldownloaderdata::ProxyCredentials proxyCredentials("user", "password", "");
+    std::vector<Proxy> expectedProxyList = { Proxy("savedProxy.com", proxyCredentials ), Proxy(Proxy::NoProxy) };
     EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
 }

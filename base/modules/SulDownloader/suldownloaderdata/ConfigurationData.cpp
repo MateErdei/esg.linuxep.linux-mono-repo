@@ -14,7 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
 #include <google/protobuf/util/json_util.h>
-
+#include <Common/UtilityImpl/StringUtils.h>
 #include <ConfigurationSettings.pb.h>
 #include <iostream>
 #include <sstream>
@@ -62,6 +62,43 @@ namespace
             return false;
         }
         return true;
+    }
+
+
+    void processSavedProxiesURL(const std::string& savedProxyURL, std::vector<Proxy> &options)
+    {
+        LOGINFO("processSavedProxiesURL Entry");
+        if( savedProxyURL.find("https://") != std::string::npos || savedProxyURL.find("http://") != std::string::npos)
+        {
+            auto proxyDetails = Common::UtilityImpl::StringUtils::splitString(savedProxyURL, "@");
+            if (proxyDetails.empty())
+            {
+                //Unauthenticated proxy
+                //ip and port http(s)://<ip address>:<port>
+                options.emplace_back(Proxy(savedProxyURL));
+            }
+            else if(proxyDetails.size() == 2)
+            {
+                //authenticated proxy
+                //http://user:password@ip_address:port
+
+                std::string proxyUser;
+                std::string  proxyPassword;
+                std::string  proxyType;
+                auto proxyAddress = proxyDetails[1];
+                //extract user:password from http(s)://user:password
+                auto user_password = Common::UtilityImpl::StringUtils::splitString(Common::UtilityImpl::StringUtils::splitString(proxyDetails[0], "//")[1], ":");
+                if(user_password.size() == 2)
+                {
+                    proxyUser = user_password[0];
+                    proxyPassword = user_password[1];
+                    auto proxy = Proxy(proxyAddress, ProxyCredentials(proxyUser, proxyPassword, proxyType) );
+                    LOGINFO(proxy.toStringPostfix());
+                    options.emplace_back(proxy);
+                }
+            }
+        }
+        //all other cases something is wrong with that savedProxyURL string
     }
 } // namespace
 
@@ -517,7 +554,7 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
     if (Common::FileSystem::fileSystem()->isFile(savedProxyFilePath))
     {
         std::string savedProxyURL = Common::FileSystem::fileSystem()->readFile(savedProxyFilePath);
-        options.emplace_back(Proxy(savedProxyURL));
+        processSavedProxiesURL(savedProxyURL, options);
     }
     options.emplace_back(Proxy(Proxy::NoProxy));
 
@@ -560,7 +597,7 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     {
         setProtobufEntries(product, settings.add_products());
     }
-    for (auto feature : configurationData.getFeatures())
+    for (auto& feature : configurationData.getFeatures())
     {
         settings.add_features(feature);
     }
