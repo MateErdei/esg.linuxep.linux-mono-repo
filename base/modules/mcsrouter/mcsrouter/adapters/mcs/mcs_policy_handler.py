@@ -177,8 +177,7 @@ class MCSPolicyHandler:
 
     def __apply_mcs_server(self, dom):
         """
-        We ignore multiple server nodes, since all the examples we've seen and the specification
-        only have one server specified.
+        load mcs server urls into policy config
         """
         node = self.__get_element(dom, "servers")
         if node is None:
@@ -197,6 +196,7 @@ class MCSPolicyHandler:
             self.__m_policy_config.set(key, server)
             index += 1
 
+        # removes old servers that are no longer in the policy
         while True:
             key = "mcs_policy_url%d" % index
             if not self.__m_policy_config.remove(key):
@@ -206,8 +206,7 @@ class MCSPolicyHandler:
 
     def __apply_push_server(self, dom):
         """
-        We ignore multiple server nodes, since all the examples we've seen and the specification
-        only have one server specified.
+        load push server urls into policy config
         """
         node = self.__get_element(dom, "pushServers")
         if node is None:
@@ -226,6 +225,7 @@ class MCSPolicyHandler:
             self.__m_policy_config.set(key, server)
             index += 1
 
+        # removes old servers that are no longer in the policy
         while True:
             key = "pushServer%d" % index
             if not self.__m_policy_config.remove(key):
