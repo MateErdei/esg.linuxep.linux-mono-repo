@@ -13,3 +13,7 @@ install(FILES
         ${CMAKE_BINARY_DIR}/tests/manualTools/FaultInjectionLogger
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
+
+install(DIRECTORY
+        ${CMAKE_SOURCE_DIR}/testUtils
+        DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
