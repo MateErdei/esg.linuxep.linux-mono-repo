@@ -2,6 +2,7 @@ import tap.v1 as tap
 
 import os
 
+
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
     pip_index = os.environ.get('TAP_PIP_INDEX_URL')
@@ -60,11 +61,11 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
-        edr=context.artifact.build() / 'output'
+        av=context.artifact.build() / 'output'
     )
-    #override the edr input and get the bullseye coverage build insteady
+    # override the edr input and get the bullseye coverage build instead
     if coverage and has_coverage_build(context.branch):
-        test_inputs['edr'] = context.artifact.build() / 'coverage'
+        test_inputs['av'] = context.artifact.build() / 'coverage'
 
     return test_inputs
 
