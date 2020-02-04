@@ -274,14 +274,21 @@ class ThinInstallerUtils(object):
             self.dump_log()
             raise AssertionError("Thin Installer failed with exit code: " + str(rc) + " but was expecting: " + str(expected_return_code))
 
-    def run_default_thininstaller(self, expected_return_code = 0, mcsurl=None, override_location="https://localhost:1233", certs_dir=None, no_connection_address_override=False):
+    def run_default_thininstaller(self,
+                                  expected_return_code=0,
+                                  mcsurl=None,
+                                  override_location="https://localhost:1233",
+                                  certs_dir=None,
+                                  no_connection_address_override=False,
+                                  proxy=None):
         if no_connection_address_override:
             override_location = None
         self.run_thininstaller([self.default_installsh_path],
                                expected_return_code,
                                mcsurl,
                                override_location=override_location,
-                               certs_dir=certs_dir)
+                               certs_dir=certs_dir,
+                               proxy=proxy)
 
     def run_real_thininstaller(self):
         cwd = os.getcwd()

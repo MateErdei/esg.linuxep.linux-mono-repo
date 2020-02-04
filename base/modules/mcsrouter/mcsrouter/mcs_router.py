@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-# Copyright 2019 Sophos Plc, Oxford, England.
+# Copyright 2020 Sophos Plc, Oxford, England.
 
 """
 mcs_router Module
 """
 #pylint: disable=no-self-use, too-few-public-methods
-
-
 
 import builtins
 import configparser

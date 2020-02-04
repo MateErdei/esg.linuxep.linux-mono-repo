@@ -287,7 +287,7 @@ Thin Installer Attempts Install And Register Through Message Relays
     ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost3:10000)
     ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:20000)
     ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost7:9999)
-    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nSuccessfully got [No error] from Sophos Central
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: localhost:20000\nDEBUG: Successfully got [No error] from Sophos Central
 
     Should Exist    ${SOPHOS_INSTALL}
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
@@ -318,11 +318,6 @@ Thin Installer Environment Proxy
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
 
-
-    # Installation should fail before starting the proxy
-    Configure And Run Thininstaller Using Real Warehouse Policy  3  ${BaseVUTPolicy}  proxy=http://localhost:10000
-
-
     Start Simple Proxy Server  10000
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  proxy=http://localhost:10000
 
@@ -335,6 +330,7 @@ Thin Installer Environment Proxy
     Check MCS Config Contains  proxy=http://localhost:10000  MCS Config does not have proxy present
 
     Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Digest Proxy
@@ -342,11 +338,6 @@ Thin Installer Digest Proxy
     Check MCS Router Not Running
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
-
-
-    # Installation should fail before starting the proxy
-    Configure And Run Thininstaller Using Real Warehouse Policy  3  ${BaseVUTPolicy}  proxy=http://username:password@localhost:10000
-
 
     Start Proxy Server With Digest Auth  10000  username  password
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  proxy=http://username:password@localhost:10000
@@ -360,6 +351,8 @@ Thin Installer Digest Proxy
     Check MCS Config Contains  proxy=http://username:password@localhost:10000  MCS Config does not have proxy present
 
     Check Thininstaller Log Does Not Contain  ERROR
+
+    Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://username:password@localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://username:password@localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Basic Proxy
@@ -367,9 +360,6 @@ Thin Installer Basic Proxy
     Check MCS Router Not Running
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
-
-    # Installation should fail before starting the proxy
-    Configure And Run Thininstaller Using Real Warehouse Policy  3  ${BaseVUTPolicy}  proxy=http://username:password@localhost:10000
 
     Start Proxy Server With Basic Auth  10000  username  password
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  proxy=http://username:password@localhost:10000
@@ -383,6 +373,7 @@ Thin Installer Basic Proxy
     Check MCS Config Contains  proxy=http://username:password@localhost:10000  MCS Config does not have proxy present
 
     Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://username:password@localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://username:password@localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Parses Update Caches Correctly
