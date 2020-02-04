@@ -6,8 +6,8 @@ https://wiki.sophos.net/pages/viewpage.action?pageId=317105394
 
 In order to run these tests in tap do:
  1) activate the tap environment:
-    source tap/bin/activate
- 2) tap run edr_plugin.integration --debug-loop
+    source tapvenv/bin/activate
+ 2) tap run av_plugin.integration --debug-loop
 
 In order to run them in vagrant box:
     vagrant up

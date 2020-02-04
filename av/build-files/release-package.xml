@@ -41,9 +41,14 @@
 
     </inputs>
     <buildcommands>
-        <command>
+        <command mode="release">
             <program>/bin/bash</program>
             <args>./build.sh --name av</args>
+            <workingdir>sspl-plugin-anti-virus</workingdir>
+        </command>
+        <command mode="coverage">
+            <program>/bin/bash</program>
+            <args>./build.sh --name av --bullseye</args>
             <workingdir>sspl-plugin-anti-virus</workingdir>
         </command>
     </buildcommands>
