@@ -23,9 +23,10 @@ if [[ "LibFuzzerTests" != "${FUZZ_TEST_DIR_NAME}" ]]; then
   echo "Not executed from LibFuzzerTests: ${FUZZ_TEST_DIR_NAME}"; exit 1;
 fi
 
-if [[ "everest-base"  != "${PROJECT}" ]]; then
-  echo "Not inside everest-base : ${PROJECT}"; exit 1;
-fi
+# TODO - check this
+#if [[ "everest-base"  != "${PROJECT}" ]]; then
+#  echo "Not inside everest-base : ${PROJECT}"; exit 1;
+#fi
 
 BASE=${PROJECT_ROOT_SOURCE}
 
