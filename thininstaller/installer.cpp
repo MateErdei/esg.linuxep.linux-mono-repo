@@ -187,9 +187,9 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
     }
 
     // Try via system proxy
-    if (g_httpsProxy)
+    if (!connected && g_httpsProxy)
     {
-        canConnectToCloud(g_httpsProxy);
+        connected = canConnectToCloud(g_httpsProxy);
     }
 
     // Try direct
