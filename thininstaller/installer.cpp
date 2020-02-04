@@ -319,7 +319,7 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string&
         ServerAddress proxy = ServerAddress(address, priority);
         proxies.push_back(proxy);
     }
-    std::stable_sort(proxies.begin(), proxies.end(), [](ServerAddress p1, ServerAddress p2) {
+    std::stable_sort(proxies.begin(), proxies.end(), [](const ServerAddress& p1, const ServerAddress& p2) {
         return p1.getPriority() < p2.getPriority();
     });
     return proxies;
