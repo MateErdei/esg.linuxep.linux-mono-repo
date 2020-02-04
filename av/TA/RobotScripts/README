@@ -1,0 +1,27 @@
+Use these robot tests for Component Integration tests as defined in the wiki:
+
+https://wiki.sophos.net/pages/viewpage.action?pageId=317105394
+
+
+
+In order to run these tests in tap do:
+ 1) activate the tap environment:
+    source tap/bin/activate
+ 2) tap run edr_plugin.integration --debug-loop
+
+In order to run them in vagrant box:
+    vagrant up
+    vagrant ssh
+    sudo mkdir -p /opt/test/inputs
+    sudo mkdir -p /opt/test/inputs/edr/
+    sudo ln -s /vagrant/sspl-plugin-edr-component/TA /opt/test/inputs/
+    sudo ln -s /vagrant/sspl-plugin-edr-component/output/SDDS-COMPONENT /opt/test/inputs/edr/SDDS-COMPONENT
+    sudo ln -s /vagrant/everest-base/output/SDDS-COMPONENT /opt/test/inputs/edr/base-sdds
+    sudo apt-get -y install python3.7 python3-pip
+    sudo -H python3 -m pip install pyzmq protobuf pytest-html robotframework
+    cd /vagrant/sspl-plugin-edr-component/TA
+    sudo python3 -m robot RobotScripts/
+
+
+
+

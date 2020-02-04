@@ -1,0 +1,5 @@
+{
+  "type": "sophos.mgt.action.RunLiveQuery",
+  "name": "Incorrect Query",
+  "query": "SELECT name FROM proc"
+}
