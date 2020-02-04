@@ -117,13 +117,13 @@ class TestMCSAdapter(unittest.TestCase):
         #PathManager.resetConfigManager()
         PathManager.safeDelete("install/rms/mcsPolicy.xml")
         PathManager.safeDelete("install/tmp/mcsPolicy.xml")
-        PathManager.safeDelete("install/etc/sophosav/mcs_policy.config")
+        PathManager.safeDelete("base/etc/sophosspl/mcs_policy.config")
 
     def testCreation(self):
         adapter = createAdapter()
 
     # def testApplyPolicy(self):
-    #     policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+    #     policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
     #     configManager = setFakeConfigManager()
     #     adapter = createAdapter(policy_config,policy_config)
     #     command = FakePolicyCommand(SIMPLE_MCS_POLICY)
@@ -138,7 +138,7 @@ class TestMCSAdapter(unittest.TestCase):
     #     self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM",0),20)
     #     self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM",0),20)
     #     self.assertEqual(policy_config.getDefault("mcs_policy_url1",""),"https://mcs.sandbox.sophos/sophos/management/ep")
-    #     self.assertTrue(os.path.isfile("install/etc/sophosav/mcs_policy.config"))
+    #     self.assertTrue(os.path.isfile("base/etc/sophosspl/mcs_policy.config"))
     #     (res,revID,policyType) = extractCompliance(adapter._getStatusXml())
     #     self.assertEqual(policyType,"25")
     #     self.assertEqual(res,"Same")
@@ -149,7 +149,7 @@ class TestMCSAdapter(unittest.TestCase):
 # <policy xmlns:csc="com.sophos\msys\csc" type="mcs">
 # </policy>
 # """
-#         policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+#         policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 #         configManager = setFakeConfigManager()
 #         adapter = createAdapter(policy_config)
 #         command = FakePolicyCommand(TEST_CONFIG)
@@ -179,7 +179,7 @@ class TestMCSAdapter(unittest.TestCase):
 #         self.assertEqual(actual,TEST_CONFIG)
 
     # def testPolicyLoadedAtCreation(self):
-    #     policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+    #     policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
     #     PathManager.writeFile("install/rms/mcsPolicy.xml",SIMPLE_MCS_POLICY)
     #     adapter = createAdapter(policy_config)
     #     self.assertTrue(policy_config.getBool("useSystemProxy",False))
@@ -189,7 +189,7 @@ class TestMCSAdapter(unittest.TestCase):
     #     self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM",0),20)
 
     # def testParsingExamplePolicy(self):
-    #     policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+    #     policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
     #     configManager = setFakeConfigManager()
     #     adapter = createAdapter(policy_config)
     #     command = FakePolicyCommand(EXAMPLE_MCS_POLICY)
@@ -200,7 +200,7 @@ class TestMCSAdapter(unittest.TestCase):
     #     self.assertEqual(policy_config.getDefault("MCSToken",""),"{{registrationToken}}")
 
     # def testParsingPolicyWithProxies(self):
-    #     policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+    #     policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
     #     configManager = setFakeConfigManager()
     #     adapter = createAdapter(policy_config)
     #     command = FakePolicyCommand(MCS_POLICY_WITH_PROXIES)
@@ -213,7 +213,7 @@ class TestMCSAdapter(unittest.TestCase):
 
     # def testParsingPolicyWithUnsetProxies(self):
     #     # Set proxies in the policy
-    #     policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+    #     policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
     #     configManager = setFakeConfigManager()
     #     adapter = createAdapter(policy_config)
     #     command = FakePolicyCommand(MCS_POLICY_WITH_PROXIES)
@@ -234,7 +234,7 @@ class TestMCSAdapter(unittest.TestCase):
     #     self.assertEqual(policy_config.getDefault("mcs_policy_proxy_credentials",""),"")
 
     # def testNonCompliantURL(self):
-    #     policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+    #     policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
     #     applied_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs.config",policy_config)
     #     configManager = setFakeConfigManager()
     #     adapter = createAdapter(policy_config,applied_config)
@@ -250,7 +250,7 @@ class TestMCSAdapter(unittest.TestCase):
     #     self.assertEqual(revID,"6f9cb63e8cb1eaa98df9efbf5d218056668f5f34392ba53cf206af03d7eb6614")
 
     # def testNonCompliantPollingInterval(self):
-    #     policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+    #     policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
     #     applied_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs.config",policy_config)
     #     configManager = setFakeConfigManager()
     #     adapter = createAdapter(policy_config,applied_config)
@@ -278,7 +278,7 @@ class TestMCSAdapter(unittest.TestCase):
     </bogus>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
         policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
@@ -299,7 +299,7 @@ class TestMCSAdapter(unittest.TestCase):
     <commandPollingDelay/>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
         policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
@@ -320,7 +320,7 @@ class TestMCSAdapter(unittest.TestCase):
     <commandPollingDelay default="FooBar"/>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
         policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
@@ -342,7 +342,7 @@ class TestMCSAdapter(unittest.TestCase):
     </servers>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("MCSURL","FOOBAR")
 
@@ -365,7 +365,7 @@ class TestMCSAdapter(unittest.TestCase):
     </servers>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("MCSURL","FOOBAR")
 
@@ -391,7 +391,7 @@ class TestMCSAdapter(unittest.TestCase):
         <pushFallbackPollInterval>120</pushFallbackPollInterval>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("MCSURL","FOOBAR")
 
@@ -418,7 +418,7 @@ class TestMCSAdapter(unittest.TestCase):
 
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("MCSURL","FOOBAR")
 
@@ -440,7 +440,7 @@ class TestMCSAdapter(unittest.TestCase):
     </proxies>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("mcs_policy_proxy","FOOBAR")
 
@@ -463,7 +463,7 @@ class TestMCSAdapter(unittest.TestCase):
     </proxies>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("mcs_policy_proxy","FOOBAR")
 
@@ -487,7 +487,7 @@ class TestMCSAdapter(unittest.TestCase):
     </proxyCredentials>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("mcs_policy_proxy","FOOBAR")
         policy_config.set("mcs_policy_proxy_credentials","FOOBAR")
@@ -515,7 +515,7 @@ class TestMCSAdapter(unittest.TestCase):
     </proxyCredentials>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         policy_config.set("mcs_policy_proxy","FOOBAR")
         policy_config.set("mcs_policy_proxy_credentials","FOOBAR")
@@ -533,7 +533,7 @@ class TestMCSAdapter(unittest.TestCase):
         TEST_POLICY="""<?xml version="1.0"?>
 <foobar xmlns:csc="com.sophos\msys\csc" type="mcs">
 </foobar>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -560,7 +560,7 @@ class TestMCSAdapter(unittest.TestCase):
     </servers>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         adapter = createAdapter(policy_config)
 
@@ -589,7 +589,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -613,7 +613,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -640,7 +640,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -663,7 +663,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -686,7 +686,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -709,7 +709,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -732,7 +732,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -755,7 +755,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -778,7 +778,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -801,7 +801,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -824,7 +824,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -848,7 +848,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -872,7 +872,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
@@ -925,7 +925,7 @@ class TestMCSAdapter(unittest.TestCase):
     </messageRelays>
 </configuration>
 </policy>"""
-        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
