@@ -1,16 +1,21 @@
-def test_edr_plugin_can_receive_actions(sspl_mock, edr_plugin_instance):
-    edr_plugin_instance.start_edr()
+def test_av_plugin_can_receive_actions(sspl_mock, av_plugin_instance):
+    av_plugin_instance.start_av()
     agent = sspl_mock.management
-    action_content = "test action"
-    agent.send_plugin_action('edr', 'LiveQuery', "123", action_content)
-    edr_plugin_instance.wait_log_contains("Received new Action")
+    action_content = "ScanNow"
+    agent.send_plugin_action('av', 'sav', "123", action_content)
+    av_plugin_instance.wait_log_contains("Received new Action")
 
 
-def test_edr_can_send_status(sspl_mock, edr_plugin_instance):
-    edr_plugin_instance.start_edr()
+def test_av_can_send_status(sspl_mock, av_plugin_instance):
+    av_plugin_instance.start_av()
     agent = sspl_mock.management
-    status = agent.get_plugin_status('edr', 'LiveQuery')
+    status = agent.get_plugin_status('av', 'sav')
     assert "RevID" in status
-    edr_telemetry = agent.get_plugin_telemetry('edr')
-    assert "Number of Scans" in edr_telemetry
+
+
+def test_av_can_send_telemetry(sspl_mock, av_plugin_instance):
+    av_plugin_instance.start_av()
+    agent = sspl_mock.management
+    av_telemetry = agent.get_plugin_telemetry('av')
+    assert "Number of Scans" in av_telemetry
 

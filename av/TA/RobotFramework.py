@@ -4,6 +4,7 @@ import sys
 
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
+
 def main():
     tags = {'include': [], 'exclude': []}
     log_files = ['log.html', 'output.xml', 'report.html']
@@ -32,6 +33,7 @@ def main():
         robot_args['listener'] = listener
 
     sys.exit(robot.run(robot_args['path'], **robot_args))
+
 
 if __name__ == '__main__':
     main()

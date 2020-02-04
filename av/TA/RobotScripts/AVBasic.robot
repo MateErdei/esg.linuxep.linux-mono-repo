@@ -7,32 +7,34 @@ Resource    ComponentSetup.robot
 Resource    EDRResources.robot
 
 *** Variables ***
-${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
-${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
-${EDR_LOG_PATH}    ${EDR_PLUGIN_PATH}/log/edr.log
+${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
+${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
+${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 
 *** Test Cases ***
-EDR Plugin Can Recieve Actions
-    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
+AV Plugin Can Recieve Actions
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
 
-    Check EDR Plugin Installed
+    Check AV Plugin Installed
 
     ${actionContent} =  Set Variable  This is an action test
-    Send Plugin Action  edr  LiveQuery  corr123  ${actionContent}
+    Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains  Received new Action
+    ...  AV Plugin Log Contains  Received new Action
 
-EDR plugin Can Send Status
-    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
-    Check EDR Plugin Installed
+    ${result} =   Terminate Process  ${handle}
 
-    ${edrStatus}=  Get Plugin Status  edr  LiveQuery
-    Should Contain  ${edrStatus}   RevID
+AV plugin Can Send Status
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
 
-    ${edrTelemetry}=  Get Plugin Telemetry  edr
-    Should Contain  ${edrTelemetry}   Number of Scans
+    ${status}=  Get Plugin Status  av  sav
+    Should Contain  ${status}   RevID
+
+    ${telemetry}=  Get Plugin Telemetry  av
+    Should Contain  ${telemetry}   Number of Scans
 
     ${result} =   Terminate Process  ${handle}
 

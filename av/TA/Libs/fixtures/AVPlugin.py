@@ -4,28 +4,28 @@ import time
 import grp
 import pwd
 
+
 def _sophos_spl_path():
     return os.environ['SOPHOS_INSTALL']
 
 
-def _edr_exec_path():
-    return os.path.join(_sophos_spl_path(), 'plugins/edr/bin/edr')
+PLUGIN_NAME="av"
 
-def _osquery_database_path():
-    return os.path.join(_sophos_spl_path(), 'plugins/edr/var/osquery.db')
 
-def _edr_log_path():
-    return os.path.join(_sophos_spl_path(), 'plugins/edr/log/edr.log')
+def _av_plugin_dir():
+    return os.path.join(_sophos_spl_path(), 'plugins', PLUGIN_NAME)
+
+
+def _av_exec_path():
+    return os.path.join(_av_plugin_dir(), 'sbin', PLUGIN_NAME)
+
 
 def _log_path():
-    return os.path.join(_sophos_spl_path(), 'plugins/edr/log/')
+    return os.path.join(_av_plugin_dir(), 'log')
 
-def _edr_oquery_paths():
-    _edr_log_dir = os.path.join(_sophos_spl_path(), 'plugins/edr/log')
-    osquery_logs = [file_name for file_name in os.listdir(_edr_log_dir) if 'osquery' in file_name ]
-    if not osquery_logs:
-        return []
-    return [os.path.join(_edr_log_dir, file_name) for file_name in osquery_logs]
+
+def _plugin_log_path():
+    return os.path.join(_log_path(), PLUGIN_NAME+'.log')
 
 
 def _file_content(path):
@@ -33,16 +33,13 @@ def _file_content(path):
         return f.read()
 
 
-class EDRPlugin:
+class AVPlugin(object):
     def __init__(self):
         self._proc = None
         self._failed = False
 
     def set_failed(self):
         self._failed = True
-
-    def osquery_database_path(self):
-        return _osquery_database_path()
 
     def log_path(self):
         return _log_path()
@@ -55,16 +52,16 @@ class EDRPlugin:
             raise AssertionError("Sophos spl group, or user not present: {}".format(ex))
 
     def prepare_for_test(self):
-        self.stop_edr()
+        self.stop_av()
         self._ensure_sophos_required_unix_user_and_group_exists()
 
-    def start_edr(self):
+    def start_av(self):
         self.prepare_for_test()
-        self._proc = subprocess.Popen([_edr_exec_path()])
+        self._proc = subprocess.Popen([_av_exec_path()])
 
-    def stop_edr(self):
+    def stop_av(self):
         """
-        Stop EDR and allow graceful termination
+        Stop Plugin and allow graceful termination
         """
         if self._proc:
             self._proc.terminate()
@@ -73,12 +70,10 @@ class EDRPlugin:
         if self._failed:
             print("Report on Failure:")
             print(self.log())
-            print("Osquery logs:")
-            print(self.osquery_logs())
 
-    def kill_edr(self):
+    def kill_av(self):
         """
-        Stop EDR and do not allow graceful termination
+        Stop AV and do not allow graceful termination
         """
         if self._proc:
             self._proc.kill()
@@ -87,17 +82,10 @@ class EDRPlugin:
 
     # Will return empty string if log doesn't exist
     def log(self):
-        log_path = _edr_log_path()
+        log_path = _plugin_log_path()
         if not os.path.exists(log_path):
             return ""
         return _file_content(log_path)
-
-    def osquery_logs(self):
-        full_content = ""
-        for file_path in _edr_oquery_paths():
-            full_content += "\n\tFile: {}\n".format(file_path)
-            full_content += _file_content(file_path)
-        return full_content
 
     def log_contains(self, content):
         log_content = self.log()

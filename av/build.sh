@@ -126,7 +126,7 @@ do
         --no-clean|--noclean)
             CLEAN=0
             ;;
-        --unit-test)
+        --unit-test|--unittest)
             UNITTEST=1
             ;;
         --no-unit-test)
@@ -142,6 +142,9 @@ do
             ;;
         --valgrind)
             VALGRIND=1
+            ;;
+        --get-input)
+            python3 -m build_scripts.artisan_fetch build-files/release-package.xml
             ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
@@ -314,7 +317,14 @@ function build()
 
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
-    cp -a "${INPUT}/base-sdds"  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
+    if [[ -d "${INPUT}/base-sdds" ]]
+    then
+        cp -a "${INPUT}/base-sdds"  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
+    fi
+    if [[ -d build64/componenttests ]]
+    then
+        cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
+    fi
 
 
     if [[ -d build${BITS}/symbols ]]

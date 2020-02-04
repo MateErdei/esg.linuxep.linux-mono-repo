@@ -1,11 +1,23 @@
+#!/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (C) 2020 Sophos Ltd
+# All rights reserved.
+
+# Run with as: python3 -u -m pytest
+
 import pytest
+
 import sys
+import os
 
 sys.path.append('/opt/test/inputs/test_scripts')
 sys.path.append('/opt/test/inputs/test_scripts/Libs')
+os.environ['TA_DIR'] = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.environ['TA_DIR'])
+
 
 from Libs.fixtures.BaseMockService import BaseMockService, install_component, component_test_setup
-from Libs.fixtures.EDRPlugin import EDRPlugin
+from Libs.fixtures.AVPlugin import AVPlugin
 from _pytest.runner import runtestprotocol
 from pathlib import Path
 import os
@@ -29,6 +41,7 @@ def install_component_setup(tmpdir_factory):
     sophos_install = dir_path.strpath
     install_component(sophos_install)
     pytest.sophos_install_location = sophos_install
+    print("Current install location: {}".format(pytest.sophos_install_location))
 
     #clear previous test logs
     test_logs_dir = "/opt/test/logs/test_logs"
@@ -51,14 +64,14 @@ def sspl_mock(install_component_setup, request):
     return component
 
 @pytest.fixture(scope="class")
-def edr_plugin_instance(request):
-    edr = EDRPlugin()
+def av_plugin_instance(request):
+    av = AVPlugin()
 
     def fin():
-        edr.stop_edr()
+        av.stop_av()
 
     request.addfinalizer(fin)
-    return edr
+    return av
 
 
 def collect_logs(test_name):
@@ -79,8 +92,8 @@ def pytest_runtest_makereport(item, call):
     # execute all other hooks to obtain the report object
     outcome = yield
     report = outcome.get_result()
-    print("Current install location: {}".format(pytest.sophos_install_location))
 
     if report.failed:
+        print("Current install location: {}".format(pytest.sophos_install_location))
         print("Result: {}, Test: {}".format(item.name, report.outcome))
         collect_logs(item.name)

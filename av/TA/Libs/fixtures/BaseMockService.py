@@ -3,12 +3,53 @@ import os
 import pwd
 import shutil
 import subprocess
+import glob
+import re
 
 from Libs.FakeManagement import FakeManagement
 
+PLUGIN = "av"
+
+
+def ret_if_dir(p):
+    if os.path.isdir(p):
+        return p
+    return None
+
+
+def output():
+    OUTPUT = os.environ.get("OUTPUT", None)
+    if OUTPUT is None:
+        TA_DIR = os.environ.get("TA_DIR", None)
+        if TA_DIR is None:
+            fixtures = os.path.abspath(os.path.dirname(__file__))
+            Libs = os.path.dirname(fixtures)
+            TA_DIR = os.path.dirname(Libs)
+        OUTPUT = os.path.join(TA_DIR, "..", "output")
+
+    return (
+            ret_if_dir(os.path.join("/opt/test/inputs", PLUGIN)) or
+            ret_if_dir(OUTPUT) or
+            None
+    )
+
 
 def sdds():
-    return "/opt/test/inputs/edr/SDDS-COMPONENT"
+    OUTPUT = output()
+    return os.path.join(OUTPUT, "SDDS-COMPONENT")
+
+
+def base_sdds():
+    OUTPUT = output()
+    return (
+        os.environ.get("SSPL_BASE_SDDS", None) or
+        os.path.join(OUTPUT, "base-sdds")
+    )
+
+
+def component_tests_src():
+    return os.path.join(output(), 'componenttests')
+
 
 def run_shell(args, **kwargs):
     print('run command {}'.format(args))
@@ -36,41 +77,89 @@ def create_users_and_group():
     create_group('sophos-spl-group')
 
 
-def install_component(sophos_install):
-    create_users_and_group()
+COMPONENT_NAME = "av"
 
-    plugin_dir_path = os.path.join(sophos_install, 'plugins/edr')
-    for rel_path in ['tmp', 'var/ipc', 'var/ipc/plugins', 'base/etc', 'base/mcs/response']:
+
+def create_library_symlinks(p):
+    LIB_RE = re.compile(r"^(.*)\.\d+$")
+
+    while True:
+        mo = LIB_RE.match(p)
+        if not mo:
+            return
+
+        os.symlink(os.path.basename(p), mo.group(1))
+        p = mo.group(1)
+
+
+def create_library_symlinks_from_glob(*p):
+    p = os.path.join(*p)
+    possible = glob.glob(p)
+    possible.sort()
+    p = possible[-1]
+    create_library_symlinks(p)
+
+
+def install_base(sophos_install):
+    create_users_and_group()
+    for rel_path in ['tmp', 'var/ipc', 'var/ipc/plugins', 'base/etc', 'base/mcs/response', "base/lib64"]:
         full_path = os.path.join(sophos_install, rel_path)
         os.makedirs(full_path, exist_ok=True)
+
     write_file(os.path.join(sophos_install, 'base/etc/logger.conf'), "VERBOSITY=DEBUG")
-    run_shell(['sudo', 'groupadd', '-f', 'sophos-spl-group'])
+
+    # base_sdds_dir = base_sdds()
+    # base_files = os.path.join(base_sdds_dir, "files")
+    # base_libs = os.path.join(base_files, "base", "lib64")
+    # dest_libs = os.path.join(sophos_install, "base", "lib64")
+    #
+    # def copy_lib(lib_glob):
+    #     src = glob.glob(os.path.join(base_libs, lib_glob))[0]
+    #     dest = os.path.join(dest_libs, os.path.basename(src))
+    #     shutil.copy(src, dest)
+    #     create_library_symlinks(dest)
+    #
+    # copy_lib("liblog4cplus-2.0.so.*")
+    # copy_lib("libprotobuf.so.*")
+    # copy_lib("libzmq.so.*")
+
+
+def install_component(sophos_install):
+
+    # Ensure that appropriate libraries from base are present
+    install_base(sophos_install)
 
     shutil.copytree(os.path.join(sdds(), 'files/plugins'), os.path.join(sophos_install, 'plugins'))
-    component_tests_dir = os.path.join(sophos_install, 'componenttests')
-    shutil.copytree('/opt/test/inputs/edr/componenttests', component_tests_dir )
-    plugin_lib64_path = os.path.join(plugin_dir_path, 'lib64')
-    plugin_executable = os.path.join(plugin_dir_path, 'bin/edr')
-    osquery_executable = os.path.join(plugin_dir_path, 'bin/osqueryd')
+    plugin_dir_path = os.path.join(sophos_install, 'plugins', COMPONENT_NAME)
+    plugin_lib64_path = os.path.join(plugin_dir_path, "lib64")
+    create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "liblog4cplus-2.0.so.*"))
+    create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libprotobuf.so.*"))
+    create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libzmq.so.*"))
+
+    plugin_executable = os.path.join(plugin_dir_path, 'sbin', COMPONENT_NAME)
     os.makedirs(os.path.join(plugin_dir_path, 'var'), exist_ok=True)
-    os.makedirs(os.path.join(plugin_dir_path, 'logs'), exist_ok=True)
+    os.makedirs(os.path.join(plugin_dir_path, 'log'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'etc'), exist_ok=True)
-    run_shell(['ldconfig', '-lN', '*.so.*'], cwd=plugin_lib64_path)
     run_shell(['chmod', '+x', plugin_executable])
-    run_shell(['chmod', '+x', os.path.join(component_tests_dir, '*')])
-    run_shell(['chmod', '+x', osquery_executable])
     os.environ['SOPHOS_INSTALL'] = sophos_install
+
+    component_test_src_path = component_tests_src()
+    if os.path.isdir(component_test_src_path):
+        component_tests_dir = os.path.join(sophos_install, 'componenttests')
+        shutil.copytree(component_test_src_path, component_tests_dir )
+        run_shell(['chmod', '+x', os.path.join(component_tests_dir, '*')])
+
 
 
 def component_test_setup(sophos_install):
-    for rel_path in ['tmp', 'plugins/edr/log']:
+    for rel_path in ['tmp', os.path.join('plugins', COMPONENT_NAME, 'log')]:
         full_path = os.path.join(sophos_install, rel_path)
         shutil.rmtree(full_path, ignore_errors=True)
         os.makedirs(full_path)
     os.environ['SOPHOS_INSTALL'] = sophos_install
 
 
-class BaseMockService:
+class BaseMockService(object):
     def __init__(self, root_path):
         self.sspl = root_path
         self.google_test_dir = os.path.join(root_path, 'componenttests')
