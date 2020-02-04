@@ -346,7 +346,7 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
 
     if (session == nullptr)
     {
-        fprintf(stderr, "Failed to init SUL session\n");
+        logError("Failed to init SUL session");
         return 45;
     }
 
@@ -490,6 +490,11 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
             location.c_str(),
             ret,
             SU_getErrorDetails(session));
+
+
+
+
+
         return 48;
     }
 
@@ -560,7 +565,7 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
     }
 
     // If we got here then all download attempts have failed.
-    fprintf(stderr, "Failed to download installer\n");
+    log("Failed to download installer");
     return ret;
 }
 
@@ -570,19 +575,16 @@ int main(int argc, char** argv)
 
     if (argc < 2)
     {
-        fprintf(stderr, "Expecting a filename as an argument but none supplied\n");
+        logError("Expecting a filename as an argument but none supplied");
         return 40;
     }
     std::string arg_filename = argv[1];
-    if (g_DebugMode)
-    {
-        printf("Filename = [%s]\n", arg_filename.c_str());
-    }
+    logDebug("Filename = [" + arg_filename + "]");
 
     FILE* f = fopen(arg_filename.c_str(), "r");
     if (!f)
     {
-        fprintf(stderr, "Cannot open credentials file\n");
+        logError("Cannot open credentials file");
         return 41;
     }
 
@@ -631,13 +633,13 @@ int main(int argc, char** argv)
 
     if (g_mcs_url.empty())
     {
-        fprintf(stderr, "Didn't find mcs url in credentials file\n");
+        logError("Didn't find mcs url in credentials file");
         return 42;
     }
 
     if (g_sul_credentials.empty())
     {
-        fprintf(stderr, "Didn't find update credentials in credentials file\n");
+        logError("Didn't find update credentials in credentials file");
         return 43;
     }
 
