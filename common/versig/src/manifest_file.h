@@ -5,10 +5,12 @@
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_MANIFEST_FILE_H_INCLUDED_)
-#    define _MANIFEST_FILE_H_INCLUDED_
+#define _MANIFEST_FILE_H_INCLUDED_
 
-#    include "digest_body.h"
-#    include "signed_file.h"
+#include "digest_body.h"
+#include "signed_file.h"
+
+#include <tuple>
 
 namespace VerificationTool
 {
@@ -22,7 +24,7 @@ namespace VerificationTool
         bool ReadBody() OVERRIDE;
         // Read body of manifest file
 
-        bool DataCheck(
+        std::tuple<bool, std::string> DataCheck(
             string DataDirpath, //[i] Path to directory containing data files.
             bool requireSHA256);
         // Confirm files in data-directory match contents of manifest.
