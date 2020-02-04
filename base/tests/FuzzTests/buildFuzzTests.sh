@@ -28,9 +28,10 @@ if [[ "FuzzTests" != "$(basename ${FuzzTestsDir})" ]]; then
   echo "Not executed from FuzzTests: ${FuzzTestsDir}"; exit 1;
 fi
 
-if [[ "${PROJECT}" != "$(basename ${SOURCE_DIR})" ]]; then
-  echo "Not executed from ${PROJECT}: ${SOURCE_DIR}"; exit 1;
-fi
+# TODO - check this
+#if [[ "${PROJECT}" != "$(basename ${SOURCE_DIR})" ]]; then
+#  echo "Not executed from ${PROJECT}: ${SOURCE_DIR}"; exit 1;
+#fi
 
 CMAKE_BUILD_DIR=cmake-afl-fuzz
 CMAKE_BUILD_FULL_PATH="${SOURCE_DIR}/${CMAKE_BUILD_DIR}"
