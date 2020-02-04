@@ -97,7 +97,7 @@ function unpack_scaffold_gcc_make()
 
     if [[ -x $(which yum) ]]
     then
-        yum install libcap-devel
+        yum -y install libcap-devel
     fi
 }
 
