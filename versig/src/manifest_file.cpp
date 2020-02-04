@@ -33,12 +33,12 @@ namespace VerificationTool
         return true;
     }
 
-    bool ManifestFile::DataCheck(
+    std::tuple<bool, std::string> ManifestFile::DataCheck(
         string DataDirpath, //[i] Path to directory containing data files.
         bool requireSHA256)
     // Confirm files in data-directory match contents of manifest.
-    // Returns true if checksums of all actual files match those recorded in
-    // the manifest. Otherwise, returns false.
+    // Returns a tuple value of true and an empty error string if checksums of all actual files match those recorded in
+    // the manifest. Otherwise, returns tuple value of false and provides an errorMessage string for reporting later.
     // Only checks files recorded in the manifest. For SAV for Linux, the set
     // of file in a CID may be a subset of the files recorded in the manifest,
     // so missing files are treated as OK.
@@ -46,10 +46,11 @@ namespace VerificationTool
         if (DataDirpath.empty())
         {
             // Missing files are not a problem
-            return true;
+            return std::make_tuple(true, "");
         }
 
         bool bAllFilesOK = true;
+        std::string errorMessage("");
         ManifestFile::files_iter p = FileRecordsBegin();
         while (bAllFilesOK && (p != FileRecordsEnd()))
         {
@@ -64,6 +65,7 @@ namespace VerificationTool
                     break;
 
                 case file_info::file_invalid:
+                    errorMessage = "Invalid file found: " + p->path();
                 default:
                     bAllFilesOK = false;
                     break;
@@ -71,7 +73,7 @@ namespace VerificationTool
             ++p;
         }
 
-        return bAllFilesOK;
+        return std::make_tuple(bAllFilesOK, errorMessage);
     }
 
     /**

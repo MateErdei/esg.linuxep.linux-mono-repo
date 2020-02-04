@@ -39,6 +39,7 @@
 
 #include <cassert>
 #include <sstream>
+#include <tuple>
 
 using namespace VerificationTool;
 using namespace verify_exceptions;
@@ -193,10 +194,12 @@ static int versig_operation(const Arguments& args)
         // Validate data files against contents of manifest
         if (!DataDirpath.empty())
         {
-            bOK = MF.DataCheck(DataDirpath, args.requireSHA256);
+            std::tuple<bool, std::string> dataCheckResult = MF.DataCheck(DataDirpath, args.requireSHA256);
+            bOK = std::get<0>(dataCheckResult);
+
             if (!bOK)
             {
-                Output("unable to verify one or more data files\n");
+                Output(std::get<1>(dataCheckResult) + "\n");
                 return g_EXIT_BADFILE;
             }
             else
