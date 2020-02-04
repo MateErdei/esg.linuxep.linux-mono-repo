@@ -30,7 +30,7 @@ def check_vagrant_up_and_running():
 
 def get_plugin_names():
     repos = []
-    with open(os.path.join(currdir, "../setup/gitRepos.txt")) as f:
+    with open(os.path.join(currdir, "../../setup/gitRepos.txt")) as f:
         for line in f.readlines():
             plugin = {}
             line = line.strip()
@@ -136,7 +136,7 @@ tempfileContent = """#!/bin/bash
 pushd "%s"
 export BASE_DIST=%s
 %s
-export PYTHONPATH=/vagrant/everest-systemproducttests/libs/:/vagrant/everest-systemproducttests/SupportFiles/:$PYTHONPATH
+export PYTHONPATH=/vagrant/everest-base/testUtils/libs/:/vagrant/everest-base/testUtils/SupportFiles/:$PYTHONPATH
 sudo -E /usr/bin/python3 -m robot %s
 popd
 """ % (remotedir, base_folder, env_variables,  ' '.join(quoted_args))
