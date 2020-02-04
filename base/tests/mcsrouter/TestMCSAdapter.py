@@ -379,7 +379,58 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertEqual(policy_config.get_default("mcs_policy_url2",None),"https://mcs2.sandbox.sophos/sophos/management/ep")
         self.assertEqual(policy_config.get_default("MCSURL",None),"FOOBAR")
 
-#
+    def testMCSPushServerElements(self):
+        TEST_POLICY="""<?xml version="1.0"?>
+<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+<configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">
+    <csc:Comp RevID="5" policyType="25"/>
+        <pushServers>
+          <pushServer>https://push-loadbalancer-prod-eu-west1.sophos.com</pushServer>
+        </pushServers>
+        <pushPingTimeout>90</pushPingTimeout>
+        <pushFallbackPollInterval>120</pushFallbackPollInterval>
+</configuration>
+</policy>"""
+        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+
+        policy_config.set("MCSURL","FOOBAR")
+
+        adapter = createAdapter(policy_config)
+
+        command = FakePolicyCommand(TEST_POLICY)
+        adapter.process_command(command)
+        self.assertTrue(command.m_complete)
+
+        self.assertEqual(policy_config.get_default("pushServer1", None), "https://push-loadbalancer-prod-eu-west1.sophos.com")
+        self.assertEqual(policy_config.get_int("pushPingTimeout", 0), 90)
+        self.assertEqual(policy_config.get_int("pushFallbackPollInterval", 0), 120)
+        self.assertEqual(policy_config.get_default("MCSURL", None), "FOOBAR")
+
+    def testMultiplePushServersInPushServersElement(self):
+        TEST_POLICY="""<?xml version="1.0"?>
+<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+<configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">
+    <csc:Comp RevID="5" policyType="25"/>
+        <pushServers>
+          <pushServer>https://push-loadbalancer-prod-eu-west1.sophos.com</pushServer>
+          <pushServer>https://push-loadbalancer-prod-eu-west2.sophos.com</pushServer>
+        </pushServers>
+
+</configuration>
+</policy>"""
+        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+
+        policy_config.set("MCSURL","FOOBAR")
+
+        adapter = createAdapter(policy_config)
+
+        command = FakePolicyCommand(TEST_POLICY)
+        adapter.process_command(command)
+        self.assertTrue(command.m_complete)
+
+        self.assertEqual(policy_config.get_default("pushServer1", None), "https://push-loadbalancer-prod-eu-west1.sophos.com")
+        self.assertEqual(policy_config.get_default("pushServer2", None), "https://push-loadbalancer-prod-eu-west2.sophos.com")
+
     def testNoProxyInProxiesElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
 <policy xmlns:csc="com.sophos\msys\csc" type="mcs">

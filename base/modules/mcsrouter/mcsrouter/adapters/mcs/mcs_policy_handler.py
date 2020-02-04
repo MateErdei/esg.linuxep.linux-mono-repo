@@ -204,6 +204,35 @@ class MCSPolicyHandler:
             index += 1
         return True
 
+    def __apply_push_server(self, dom):
+        """
+        We ignore multiple server nodes, since all the examples we've seen and the specification
+        only have one server specified.
+        """
+        node = self.__get_element(dom, "pushServers")
+        if node is None:
+            return False
+
+        servers = self.__get_non_empty_sub_elements(node, "pushServer")
+
+        if not servers:
+            LOGGER.error("MCS Policy has no pushServer nodes in PushServers element")
+            return False
+
+        index = 1
+        for server in servers:
+            key = "pushServer%d" % index
+            LOGGER.debug("Push Server URL %s = %s", key, server)
+            self.__m_policy_config.set(key, server)
+            index += 1
+
+        while True:
+            key = "pushServer%d" % index
+            if not self.__m_policy_config.remove(key):
+                break
+            index += 1
+        return True
+
     def __apply_message_relays(self, dom):
         """
         Reading message relay priority, port, address and ID from policy into config
@@ -370,6 +399,8 @@ class MCSPolicyHandler:
             self.__apply_policy_setting(policy_node, "useSystemProxy")
             self.__apply_policy_setting(policy_node, "useAutomaticProxy")
             self.__apply_policy_setting(policy_node, "useDirect")
+            self.__apply_policy_setting(policy_node, "pushPingTimeout")
+            self.__apply_policy_setting(policy_node, "pushFallbackPollInterval")
             self.__apply_polling_delay(policy_node)
             # MCSToken is the config option we are already using for the Token
             # elsewhere
@@ -379,6 +410,7 @@ class MCSPolicyHandler:
                 "MCSToken",
                 treat_missing_as_empty=True)
             self.__apply_mcs_server(policy_node)
+            self.__apply_push_server(policy_node)
             self.__apply_proxy_options(policy_node)
             self.__apply_message_relays(policy_node)
 
@@ -463,41 +495,3 @@ class MCSPolicyHandler:
             index += 1
 
         return compliant
-
-
-#~ <?xml version="1.0"?>
- #~ <policy xmlns:csc="com.sophos\msys\csc" type="mcs">
-   #~ <meta protocolVersion="1.1"/>
-   #~ <csc:Comp RevID="6f9cb63e8cb1eaa98df9efbf5d218056668f5f34392ba53cf206af03d7eb6614" policyType="25"/>  # pylint: disable=line-too-long
-   #~ <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">  # pylint: disable=line-too-long
-     #~ <registrationToken>21e72d59248ce0dc5f957b659d72a4261b663041bbc96c54a81c8ea578186648</registrationToken>  # pylint: disable=line-too-long
-     #~ <servers>
-       #~ <server>https://mcs.sandbox.sophos/sophos/management/ep</server>
-     #~ </servers>
-     #~ <useSystemProxy>true</useSystemProxy>
-     #~ <useAutomaticProxy>true</useAutomaticProxy>
-     #~ <useDirect>true</useDirect>
-     #~ <randomSkewFactor>1</randomSkewFactor>
-     #~ <commandPollingDelay default="20"/>
-     #~ <policyChangeServers/>
-   #~ </configuration>
- #~ </policy>
-
-
-#~ <?xml version="1.0"?>
-#~ <policy xmlns:csc="com.sophos\msys\csc" type="mcs">
-  #~ <meta protocolVersion="1.1"/>
-  #~ <csc:Comp RevID="0e09e27cfc21f8d7510d562c56e34507711bdce48bfdfd3846965f130fef142a" policyType="25"/>  # pylint: disable=line-too-long
-  #~ <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">  # pylint: disable=line-too-long
-    #~ <registrationToken>1e64e66751cb985159cf40e8b06ca5018e5f7f5e0afad2bdc1225058b81a8b30</registrationToken>  # pylint: disable=line-too-long
-    #~ <servers>
-      #~ <server>https://dzr-mcs-amzn-eu-west-1-4c5f.upe.q.hmr.sophos.com/sophos/management/ep</server>  # pylint: disable=line-too-long
-    #~ </servers>
-    #~ <useSystemProxy>true</useSystemProxy>
-    #~ <useAutomaticProxy>true</useAutomaticProxy>
-    #~ <useDirect>true</useDirect>
-    #~ <randomSkewFactor>1</randomSkewFactor>
-    #~ <commandPollingDelay default="20"/>
-    #~ <policyChangeServers/>
-  #~ </configuration>
-#~ </policy>
