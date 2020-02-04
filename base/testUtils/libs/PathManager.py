@@ -61,17 +61,21 @@ def get_testUtils_dir():
             raise AssertionError("Failed to find testUtils dir, recursed till reached root")
     return dir_path
 
-ROOT_PATH = get_testUtils_dir()
+ROBOT_ROOT_PATH = get_testUtils_dir()
 
-SUPPORTFILEPATH = os.path.join(ROOT_PATH, "SupportFiles")
+REPO_ROOT_PATH = os.path.dirname(ROBOT_ROOT_PATH)
+def get_repo_root_path():
+    return REPO_ROOT_PATH
+
+SUPPORTFILEPATH = os.path.join(ROBOT_ROOT_PATH, "SupportFiles")
 def get_support_file_path():
     return SUPPORTFILEPATH
 
-LIBS_PATH = os.path.join(ROOT_PATH, "libs")
+LIBS_PATH = os.path.join(ROBOT_ROOT_PATH, "libs")
 def get_libs_path():
     return LIBS_PATH
 
-ROBOT_TESTS_PATH = os.path.join(ROOT_PATH, "tests")
+ROBOT_TESTS_PATH = os.path.join(ROBOT_ROOT_PATH, "tests")
 def get_robot_tests_path():
     return ROBOT_TESTS_PATH
 
