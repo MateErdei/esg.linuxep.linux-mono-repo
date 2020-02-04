@@ -20,6 +20,7 @@ set -x
 #   AUDIT_PLUGIN
 #   EVENT_PROCESSOR
 #   MDR_PLUGIN
+#   EDR_PLUGIN
 #   THININSTALLER
 #   MDR_COMPONENT_SUITE
 
@@ -77,6 +78,7 @@ export BASE_DIST="/tmp/distribution"
 export EXAMPLEPLUGIN_SDDS="/tmp/Example-Plugin-SDDS-COMPONENT"
 export SSPL_AUDIT_PLUGIN_SDDS="/tmp/Audit-Plugin-SDDS-COMPONENT"
 export SSPL_PLUGIN_EVENTPROCESSOR_SDDS="/tmp/Event-Processor-Plugin-SDDS-COMPONENT"
+export SSPL_EDR_PLUGIN_SDDS="/tmp/EDR-Plugin-SDDS-COMPONENT"
 export SSPL_MDR_PLUGIN_SDDS="/tmp/MDR-Plugin-SDDS-COMPONENT"
 export SYSTEM_PRODUCT_TEST_OUTPUT="/tmp/SystemProductTestOutput"
 export THIN_INSTALLER_OVERRIDE="/tmp/ThinInstaller"
@@ -97,6 +99,7 @@ export SDDS_SSPL_MDR_COMPONENT_SUITE="/tmp/SDDS-SSPL-MDR-COMPONENT-SUITE"
 [[ ! -z ${AUDIT_PLUGIN_BRANCH} ]]         || AUDIT_PLUGIN_BRANCH="master"
 [[ ! -z ${EVENT_PROCESSOR_BRANCH} ]]      || EVENT_PROCESSOR_BRANCH="master"
 [[ ! -z ${MDR_PLUGIN_BRANCH} ]]           || MDR_PLUGIN_BRANCH="master"
+[[ ! -z ${EDR_PLUGIN_BRANCH} ]]           || EDR_PLUGIN_BRANCH="master"
 [[ ! -z ${THININSTALLER_BRANCH} ]]        || THININSTALLER_BRANCH="master"
 [[ ! -z ${MDR_COMPONENT_SUITE_BRANCH} ]]  || MDR_COMPONENT_SUITE_BRANCH="master"
 
@@ -114,6 +117,7 @@ LASTGOODBUILD () {
 [[ ! -z  ${AUDIT_PLUGIN_SOURCE} ]]                 || AUDIT_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-audit/${AUDIT_PLUGIN_BRANCH}" )/sspl-audit/*/output/SDDS-COMPONENT)
 [[ ! -z  ${EVENT_PROCESSOR_SOURCE} ]]              || EVENT_PROCESSOR_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-eventprocessor/${EVENT_PROCESSOR_BRANCH}" )/sspl-eventprocessor/*/output/SDDS-COMPONENT)
 [[ ! -z  ${MDR_PLUGIN_SOURCE} ]]                   || MDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-control-plugin/${MDR_PLUGIN_BRANCH}" )/sspl-mdr-control-plugin/*/output/SDDS-COMPONENT)
+[[ ! -z  ${EDR_PLUGIN_SOURCE} ]]                   || EDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-edr-plugin/${EDR_PLUGIN_BRANCH}" )/sspl-edr-plugin/*/output/SDDS-COMPONENT)
 [[ ! -z  ${THININSTALLER_SOURCE} ]]                || THININSTALLER_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-thininstaller/${THININSTALLER_BRANCH}" )/sspl-thininstaller/*/output)
 [[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE} ]]          || MDR_COMPONENT_SUITE_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-componentsuite/${MDR_COMPONENT_SUITE_BRANCH}" )/sspl-mdr-componentsuite/*/output)
 # It is not expected that you will ever override the following locations as they are implied by previously set variables
@@ -132,6 +136,7 @@ LASTGOODBUILD () {
 [[ -d ${AUDIT_PLUGIN_SOURCE} ]]                 || fail "Error: ${AUDIT_PLUGIN_SOURCE} doesn't exist"
 [[ -d ${EVENT_PROCESSOR_SOURCE} ]]              || fail "Error: ${EVENT_PROCESSOR_SOURCE} doesn't exist"
 [[ -d ${MDR_PLUGIN_SOURCE} ]]                   || fail "Error: ${MDR_PLUGIN_SOURCE} doesn't exist"
+[[ -d ${EDR_PLUGIN_SOURCE} ]]                   || fail "Error: ${EDR_PLUGIN_SOURCE} doesn't exist"
 [[ -f ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} ]]   || fail "Error: ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} doesn't exist"
 [[ -d ${THININSTALLER_SOURCE} ]]                || fail "Error: ${THININSTALLER_SOURCE} doesn't exist"
 [[ -d ${MDR_COMPONENT_SUITE_SOURCE_DBOS} ]]     || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_DBOS} doesn't exist"
@@ -144,6 +149,7 @@ sudo rm -rf ${EXAMPLEPLUGIN_SDDS}
 sudo rm -rf ${SSPL_AUDIT_PLUGIN_SDDS}
 sudo rm -rf ${SSPL_PLUGIN_EVENTPROCESSOR_SDDS}
 sudo rm -rf ${SSPL_MDR_PLUGIN_SDDS}
+sudo rm -rf ${SSPL_EDR_PLUGIN_SDDS}
 sudo rm -rf ${SYSTEM_PRODUCT_TEST_OUTPUT}
 sudo rm -rf ${THIN_INSTALLER_OVERRIDE}
 sudo rm -rf ${SDDS_SSPL_DBOS_COMPONENT}
@@ -159,6 +165,7 @@ sudo cp -r ${EXAMPLE_PLUGIN_SOURCE} ${EXAMPLEPLUGIN_SDDS}
 sudo cp -r ${AUDIT_PLUGIN_SOURCE} ${SSPL_AUDIT_PLUGIN_SDDS}
 sudo cp -r ${EVENT_PROCESSOR_SOURCE} ${SSPL_PLUGIN_EVENTPROCESSOR_SDDS}
 sudo cp -r ${MDR_PLUGIN_SOURCE} ${SSPL_MDR_PLUGIN_SDDS}
+sudo cp -r ${EDR_PLUGIN_SOURCE} ${SSPL_EDR_PLUGIN_SDDS}
 sudo cp -r ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} ${SYSTEM_PRODUCT_TEST_OUTPUT}
 sudo cp -r ${THININSTALLER_SOURCE} ${THIN_INSTALLER_OVERRIDE}
 sudo cp -r ${MDR_COMPONENT_SUITE_SOURCE_DBOS} ${SDDS_SSPL_DBOS_COMPONENT}
@@ -171,6 +178,7 @@ echo "Using ${EXAMPLE_PLUGIN_SOURCE} as EXAMPLE_PLUGIN_SOURCE"
 echo "Using ${AUDIT_PLUGIN_SOURCE} as AUDIT_PLUGIN_SOURCE"
 echo "Using ${EVENT_PROCESSOR_SOURCE} as EVENT_PROCESSOR_SOURCE"
 echo "Using ${MDR_PLUGIN_SOURCE} as MDR_PLUGIN_SOURCE"
+echo "Using ${EDR_PLUGIN_SOURCE} as EDR_PLUGIN_SOURCE"
 echo "Using ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} as SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE"
 echo "Using ${THININSTALLER_SOURCE} as THININSTALLER_SOURCE"
 echo "Using ${MDR_COMPONENT_SUITE_SOURCE_DBOS} as MDR_COMPONENT_SUITE_DBOS_SDDS"
