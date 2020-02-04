@@ -194,16 +194,34 @@ def extract_ip(extracted_tar_path):
                     continue
                 return ip
 
-
-# VERSION.INI is not in dogfood yet so we have to get product version from somewhere else.
+# cat VERSION.ini
+#  PRODUCT_NAME = Sophos Server Protection Linux - Base
+#  PRODUCT_VERSION = 1.0.1.451
+#  BUILD_DATE = 2019-11-28
 def extract_base_version(extracted_tar_path):
-    with open(os.path.join(extracted_tar_path, "BaseFiles", "ALC_status.xml"), 'r') as alc_status:
-        status = xmltodict.parse(alc_status.read(), dict_constructor=dict)
-        subscriptions = status['status']['subscriptions']['subscription']
+    try:
+        with open(os.path.join(extracted_tar_path, "BaseFiles", "VERSION.ini"), 'r') as version_file:
+            for line in version_file:
+                line = line.strip()
+                if "PRODUCT_VERSION = " in line:
+                    tag_and_version = line.split("PRODUCT_VERSION = ")
+                    if len(tag_and_version) > 1:
+                        return tag_and_version[1]
+    except:
+        print("could not extract version from VERSION.ini file")
 
-        for subscription in subscriptions:
-            if subscription['@rigidName'] == "ServerProtectionLinux-Base":
-                return subscription['@version']
+    try:
+        # Before late 2019 VERSION.INI was not in dogfood so we had to get product version from somewhere else.
+        with open(os.path.join(extracted_tar_path, "BaseFiles", "ALC_status.xml"), 'r') as alc_status:
+            status = xmltodict.parse(alc_status.read(), dict_constructor=dict)
+            subscriptions = status['status']['subscriptions']['subscription']
+
+            for subscription in subscriptions:
+                if subscription['@rigidName'] == "ServerProtectionLinux-Base":
+                    return subscription['@version']
+    except:
+        print("could not extract version from policy file")
+
     return "unknown"
 
 
@@ -257,7 +275,7 @@ def process_diagnose_file(tar_path):
         file_size_bytes = os.path.getsize(file_name_string)
 
         # skip system files bigger than 1MB
-        if file_size_bytes < 1000000:
+        if file_size_bytes < 250000:
             system_files.append(str(filename))
             print("Including system file: {}".format(filename))
         else:
@@ -279,7 +297,7 @@ def process_diagnose_file(tar_path):
     # This account has only insert privileges (not even select) so it is safe to include here.
     # Dashboard sanitizes html so a script being inserted for example will not do anything when displayed.
     dogfood_db = mysql.connector.connect(
-        host="10.55.36.229",
+        host="sspl-alex-1",
         user="dogfoodrw",
         passwd="mason-R8Chu",
         database="dogfood"
@@ -289,8 +307,9 @@ def process_diagnose_file(tar_path):
     for log in logs:
         process_log_file(hostname, dogfood_db, ip, log, product_base_version)
 
-    # for sys_file in system_files:
-    #     process_system_file(hostname, dogfood_db, ip, sys_file)
+    # CURRENTLY DISABLED, need to speed this up and then we can re-enable it.
+    #for sys_file in system_files:
+    #    process_system_file(hostname, dogfood_db, ip, sys_file)
 
     mark_tar_as_processed(tar_path)
 
@@ -376,7 +395,7 @@ def main():
         if is_sspl_diagnose_file(tar_path):
             tars.append(tar_path)
         else:
-            print("The file: {}, does not start with sspl-diagnose and end with .tar.gz, so assuming it is not an SSPL dog food tar.gz file.".format(tar_path))
+            print("The file: {}, does not start with sspl-diagnose and end with .tar.gz, so assuming it is not an SSPL dog food tar.gz file.",format(tar_path))
     else:
         exit(1)
 
