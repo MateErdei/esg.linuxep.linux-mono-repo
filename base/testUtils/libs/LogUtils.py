@@ -41,6 +41,7 @@ class LogUtils(object):
         self.update_scheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "updatescheduler.log")
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
+        self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
@@ -333,6 +334,9 @@ class LogUtils(object):
 
     def check_register_central_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.register_log, "Register Central")
+
+    def check_edr_log_contains(self, string_to_contain):
+        self.check_log_contains(string_to_contain, self.edr_log, "EDR")
 
     def check_mdr_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.mdr_log, "MDR")

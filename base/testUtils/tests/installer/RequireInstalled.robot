@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Setup an installation
 
-Library    ${libs_directory}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 Resource  ../installer/InstallerResources.robot
 

@@ -11,10 +11,10 @@ Test Teardown    Run Keywords
 ...              Run Keyword If Test Failed    Dump Warehouse Log
 
 Library    Process
-Library    ${libs_directory}/UpdateServer.py
-Library    ${libs_directory}/WarehouseGenerator.py
-Library    ${libs_directory}/ThinInstallerUtils.py
-Library    ${libs_directory}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/UpdateServer.py
+Library    ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource  ../GeneralTeardownResource.robot
 

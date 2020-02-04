@@ -2,8 +2,8 @@
 
 Library    OperatingSystem
 Library    Collections
-Library    ${libs_directory}/FullInstallerUtils.py
-Library    ${libs_directory}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  WatchdogResources.robot
 

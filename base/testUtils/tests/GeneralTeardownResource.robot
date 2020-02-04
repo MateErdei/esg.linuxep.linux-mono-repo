@@ -1,12 +1,9 @@
 *** Settings ***
-Library     ${libs_directory}/TeardownTools.py
+Library     ${LIBS_DIRECTORY}/TeardownTools.py
 
 Resource    installer/InstallerResources.robot
 Library    OperatingSystem
 
-*** Variables ***
-
-${libs_directory}                       ../libs
 *** Keywords ***
 Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/updatescheduler.log
@@ -80,6 +77,7 @@ General Test Teardown
     Run Keyword If Test Failed    Log Status Of Sophos Spl
     Run Keyword If Test Failed    Display All SSPL Files Installed
     Run Keyword If Test Failed    Dump All Sophos Processes
-    Check Dmesg For Segfaults
+    #TODO put this back when bug LINUXDAR-1329 is fixed
+    #Check Dmesg For Segfaults
     Combine Coverage If Present
 

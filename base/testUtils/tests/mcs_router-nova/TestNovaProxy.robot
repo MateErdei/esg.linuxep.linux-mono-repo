@@ -6,12 +6,12 @@ Resource  ../watchdog/LogControlResources.robot
 Resource  McsRouterNovaResources.robot
 
 
-Library    ${libs_directory}/MCSRouter.py
-Library    ${libs_directory}/CentralUtils.py
-Library     ${libs_directory}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 # For proxies:
-Library    ${libs_directory}/UpdateServer.py
-Library    ${libs_directory}/ProxyUtils.py
+Library    ${LIBS_DIRECTORY}/UpdateServer.py
+Library    ${LIBS_DIRECTORY}/ProxyUtils.py
 
 
 ## EXCLUDE_AWS because this requires the secureproxyserver

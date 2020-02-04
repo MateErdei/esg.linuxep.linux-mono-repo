@@ -1,7 +1,7 @@
 *** Settings ***
-Library    ${libs_directory}/LogUtils.py
-Library    ${libs_directory}/Watchdog.py
-Library    ${libs_directory}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/LogControlResources.robot

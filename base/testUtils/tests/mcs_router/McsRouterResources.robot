@@ -1,10 +1,10 @@
 *** Settings ***
 Documentation    Shared keywords for MCS Router tests
 
-Library     ${libs_directory}/MCSRouter.py
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/UpdateServer.py
-Library     ${libs_directory}/CentralUtils.py
+Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/UpdateServer.py
+Library     ${LIBS_DIRECTORY}/CentralUtils.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/WatchdogResources.robot

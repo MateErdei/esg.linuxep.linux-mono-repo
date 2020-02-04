@@ -1,9 +1,9 @@
 *** Settings ***
 
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/DiagnoseUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/DiagnoseUtils.py
 
-Library     ${libs_directory}/OSUtils.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
 
 Library     OperatingSystem
 

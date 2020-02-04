@@ -1,12 +1,12 @@
 *** Settings ***
-Library     ${libs_directory}/FullInstallerUtils.py
-Library     ${libs_directory}/MCSRouter.py
-Library     ${libs_directory}/OSUtils.py
-Library     ${libs_directory}/WarehouseUtils.py
-Library     ${libs_directory}/WarehouseGenerator.py
-Library     ${libs_directory}/TeardownTools.py
-Library     ${libs_directory}/TemporaryDirectoryManager.py
-Library     ${libs_directory}/ThinInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
+Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Library     ${LIBS_DIRECTORY}/TeardownTools.py
+Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
+Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library     ${libs_directory}/UpdateSchedulerHelper.py
 Library     Process
 Library     OperatingSystem

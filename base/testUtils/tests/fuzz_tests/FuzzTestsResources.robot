@@ -1,13 +1,14 @@
 *** Settings ***
 Documentation    Resource file for fuzz tests
 
-Library    ../libs/FuzzerSupport.py
+Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
+Library    ${LIBS_DIRECTORY}/PathManager.py
 Library           OperatingSystem
 
 
 *** Keywords ***
 Fuzzer Tests Global Setup
-        ${placeholder}=  Normalize Path  ${libs_directory}/../../everest-base
+        ${placeholder}=  Find Local Base Dir Path
         Set Global Variable  ${EVEREST-BASE}  ${placeholder}
         Directory Should Exist  ${EVEREST-BASE}
         Fuzzer Set Paths  ${EVEREST-BASE}  ${SUPPORT_FILES}/base_data/fuzz

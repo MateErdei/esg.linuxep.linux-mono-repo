@@ -19,9 +19,6 @@ Test Teardown   General Test Teardown
 
 *** Keywords ***
 Global Setup Tasks
-    ${placeholder}=  Normalize Path  ${CURDIR}../../libs
-    Set Global Variable  ${libs_directory}  ${placeholder}
-
     # SOPHOS_INSTALL
     ${placeholder} =  Get Environment Variable  SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}  ${placeholder}
@@ -60,6 +57,8 @@ Global Setup Tasks
     Set Global Variable  ${SUPPORT_FILES}     ${placeholder}
     ${placeholder} =  PathManager.get_robot_tests_path
     Set Global Variable  ${ROBOT_TESTS_DIR}     ${placeholder}
+    ${placeholder}=  PathManager.get_libs_path
+    Set Global Variable  ${LIBS_DIRECTORY}  ${placeholder}
 
 
 

@@ -3,8 +3,8 @@ Documentation    EndToEnd Test Related to MTR Features
 
 Library           OperatingSystem
 
-Library     ${libs_directory}/WarehouseUtils.py
-Library     ${libs_directory}/OSUtils.py
+Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource    ../installer/InstallerResources.robot
 Resource    ../thin_installer/ThinInstallerResources.robot
@@ -16,9 +16,9 @@ Resource    ../upgrade_product/UpgradeResources.robot
 Resource  ../telemetry/TelemetryResources.robot
 
 
-Library     ${libs_directory}/ThinInstallerUtils.py
-Library     ${libs_directory}/MTRService.py
-Library     ${libs_directory}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/MTRService.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 Suite Setup     MDR Install And Upgrade Setup
 Suite Teardown  MDR Install And Upgrade Teardown

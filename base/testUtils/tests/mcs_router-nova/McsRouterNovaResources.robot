@@ -7,12 +7,12 @@ Resource  ../mdr_plugin/MDRResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Library     ${libs_directory}/WarehouseGenerator.py
-Library     ${libs_directory}/FullInstallerUtils.py
-Library     ${libs_directory}/CentralUtils.py
-Library     ${libs_directory}/LogUtils.py
-Library     ${libs_directory}/UpdateSchedulerHelper.py
-Library     ${libs_directory}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
+Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
 
 *** Variables ***

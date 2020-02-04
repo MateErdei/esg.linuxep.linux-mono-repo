@@ -36,7 +36,7 @@ def find_local_component_dir_path(component_dirname):
         dir_path = os.path.dirname(dir_path)
         print(dir_path)
         if dir_path ==  "/":
-            logger.warn("Failed to find {} dir, recursed till reached root".format(component_dirname))
+            logger.info("Failed to find {} dir, recursed till reached root".format(component_dirname))
             return None
     return os.path.join(dir_path, component_dirname)
     

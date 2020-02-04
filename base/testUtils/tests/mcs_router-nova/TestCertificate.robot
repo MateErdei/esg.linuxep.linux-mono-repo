@@ -4,7 +4,7 @@ Documentation    Register SSPL with Nova Central
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  McsRouterNovaResources.robot
 
-Library     ${libs_directory}/CentralUtils.py
+Library     ${LIBS_DIRECTORY}/CentralUtils.py
 
 Default Tags  CENTRAL  MCS
 

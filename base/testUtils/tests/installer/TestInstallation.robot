@@ -5,9 +5,9 @@ Suite Setup  Local Suite Setup
 
 Documentation    Test Installation
 
-Library    ${libs_directory}/LogUtils.py
-Library    ${libs_directory}/OSUtils.py
-Library    ${libs_directory}/TemporaryDirectoryManager.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library    Collections
 
 Resource  ../installer/InstallerResources.robot

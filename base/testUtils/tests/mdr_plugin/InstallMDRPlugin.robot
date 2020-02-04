@@ -1,9 +1,9 @@
 *** Settings ***
-Library    ${libs_directory}/LogUtils.py
-Library    ${libs_directory}/Watchdog.py
-Library    ${libs_directory}/MCSRouter.py
-Library    ${libs_directory}/MDRUtils.py
-Library    ${libs_directory}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/MDRUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  ../mcs_router-nova/McsRouterNovaResources.robot
 Resource  ../installer/InstallerResources.robot

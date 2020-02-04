@@ -156,8 +156,10 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
 
     #TODO LINUXDAR-1196 remove when we next release
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Plugin Api could not be instantiated: No incoming data
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr died with 43
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log      mtr <> Plugin Api could not be instantiated: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log       ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr died with 43
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Installation failed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log          Failed to start mtr: Timeout out connecting to watchdog: No incoming data
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -593,13 +595,15 @@ Check AuditD Service Disabled
 
 Check EDR Log Shows AuditD Has Been Disabled
     ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
+    Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to disable AuditD
     Should Contain  ${EDR_LOG_CONTENT}   Successfully stopped service: auditd
     Should Contain  ${EDR_LOG_CONTENT}   Successfully disabled service: auditd
 
 Check EDR Log Shows AuditD Has Not Been Disabled
     ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
     Should Not Contain  ${EDR_LOG_CONTENT}   Successfully disabled service: auditd
-    Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to not disable AuditD, it will not be possible to obtain event data.
+    Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to not disable AuditD
+    Should Contain  ${EDR_LOG_CONTENT}   AuditD is running, it will not be possible to obtain event data.
 
 Check for Management Agent Failing To Send Message To MTR And Check Recovery
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data

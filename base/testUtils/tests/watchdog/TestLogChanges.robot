@@ -3,9 +3,9 @@ Documentation    Test the control of the logging settings in SSPL
 
 Library    Process
 Library    OperatingSystem
-Library    ${libs_directory}/FullInstallerUtils.py
-Library    ${libs_directory}/Watchdog.py
-Library    ${libs_directory}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource  WatchdogResources.robot
 Resource  ../installer/InstallerResources.robot

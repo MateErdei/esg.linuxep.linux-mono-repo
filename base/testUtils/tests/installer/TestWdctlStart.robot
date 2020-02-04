@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Test that wdctl start operation
 
-Library    ${libs_directory}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot

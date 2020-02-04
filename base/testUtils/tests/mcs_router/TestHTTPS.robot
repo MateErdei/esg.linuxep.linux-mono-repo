@@ -1,5 +1,5 @@
 *** Settings ***
-Library     ${libs_directory}/CentralUtils.py
+Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library   OperatingSystem
 
 Resource  McsRouterResources.robot

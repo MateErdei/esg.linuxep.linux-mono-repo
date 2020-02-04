@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation     Test the Telemetry executable
 
-Library           ${libs_directory}/CentralUtils.py
+Library           ${LIBS_DIRECTORY}/CentralUtils.py
 Library           ${libs_directory}/MCSRouter.py
 Library           ${libs_directory}/SystemInfo.py
 Library           OperatingSystem

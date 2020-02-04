@@ -3,7 +3,7 @@ Documentation    Tests to verify we can register successfully with
 ...              fake cloud and save the ID and password we receive.
 ...              Also tests bad registrations, and deregistrations.
 
-Library     ${libs_directory}/OSUtils.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     String
 
 Suite Setup      Setup MCS Tests

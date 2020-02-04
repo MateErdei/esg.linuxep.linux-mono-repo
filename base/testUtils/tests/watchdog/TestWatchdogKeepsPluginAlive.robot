@@ -2,8 +2,8 @@
 Documentation    Test watchdog restarts plugin after exit
 
 Library    OperatingSystem
-Library    ${libs_directory}/FullInstallerUtils.py
-Library    ${libs_directory}/Watchdog.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/Watchdog.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot

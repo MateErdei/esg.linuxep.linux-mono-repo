@@ -5,7 +5,7 @@ Resource  ../mcs_router/McsRouterResources.robot
 Resource  ../watchdog/LogControlResources.robot
 Resource  McsRouterNovaResources.robot
 
-Library     ${libs_directory}/CentralUtils.py
+Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library     ${libs_directory}/LogUtils.py
 
 Default Tags  CENTRAL  MCS

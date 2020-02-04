@@ -1,10 +1,10 @@
 *** Settings ***
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  McsRouterNovaResources.robot
-Library    ${libs_directory}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
 
-Library   ${libs_directory}/CentralUtils.py
-Library   ${libs_directory}/ProxyUtils.py
+Library   ${LIBS_DIRECTORY}/CentralUtils.py
+Library   ${LIBS_DIRECTORY}/ProxyUtils.py
 
 Suite Setup      Setup MCS Tests Nova
 Suite Teardown   Nova Suite Teardown

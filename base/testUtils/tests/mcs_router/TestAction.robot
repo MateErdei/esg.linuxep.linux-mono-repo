@@ -1,6 +1,6 @@
 *** Settings ***
 Library  OperatingSystem
-Library    ${libs_directory}/FilesystemWatcher.py
+Library    ${LIBS_DIRECTORY}/FilesystemWatcher.py
 
 Resource  McsRouterResources.robot
 

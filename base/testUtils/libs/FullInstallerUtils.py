@@ -172,6 +172,14 @@ def get_sspl_mdr_plugin_sdds():
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("SSPL MDR Plugin", "SSPL_MDR_PLUGIN_SDDS", candidates)
 
+def get_sspl_edr_plugin_sdds():
+    candidates = []
+    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-edr-component")
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
+    return get_plugin_sdds("SSPL EDR Plugin", "SSPL_EDR_PLUGIN_SDDS", candidates)
+
 def get_sspl_base_sdds_version_0_5():
     candidates = ["/uk-filer5/prodro/bir/sspl-base/0-5-0-223/213552/output/SDDS-COMPONENT/"]
     return get_plugin_sdds("SSPL Base Version 0.5", "SSPL_BASE_SDDS_RELEASE_0_5", candidates)
