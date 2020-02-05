@@ -490,11 +490,6 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
             location.c_str(),
             ret,
             SU_getErrorDetails(session));
-
-
-
-
-
         return 48;
     }
 
