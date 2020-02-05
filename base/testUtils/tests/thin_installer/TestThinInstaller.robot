@@ -274,4 +274,5 @@ Thin Installer Falls Back From Bad Env Proxy To Direct
     # NB we use the warehouse URL as the MCSUrl here as the thin installer just does a get over HTTPS that's all we need
     # the url to respond against
     Run Default Thininstaller   expected_return_code=0  mcsurl=https://localhost:1233  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com
-    Check Thininstaller Log Contains    INSTALLER EXECUTED
+    Check Thininstaller Log Contains  INSTALLER EXECUTED
+    Check Thininstaller Log Contains  WARN: Could not connect using proxy
