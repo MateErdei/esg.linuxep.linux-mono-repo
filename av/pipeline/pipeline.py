@@ -74,9 +74,9 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
 def av_plugin(stage: tap.Root, context: tap.PipelineContext):
     machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
     machine_bullseye_test=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, coverage=True), platform=tap.Platform.Linux)
-    with stage.group('integration'):
-        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     with stage.group('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
         stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test)
+    with stage.group('integration'):
+        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
 
