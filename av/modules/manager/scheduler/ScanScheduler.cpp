@@ -59,9 +59,11 @@ void manager::scheduler::ScanScheduler::run()
                 LOGINFO("Exiting from scan scheduler");
                 break;
             }
-            if (FD_ISSET(configFD, &tempRead))
-            {
+            if (FD_ISSET(configFD, &tempRead)) {
                 LOGINFO("Updating scheduled scan configuration");
+                while (m_updateConfigurationPipe.notified())
+                {
+                }
             }
         }
 
