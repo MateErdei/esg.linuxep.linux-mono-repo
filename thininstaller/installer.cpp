@@ -125,9 +125,6 @@ static bool canConnectToCloud(const std::string& proxy = "")
     bool ret = false;
     g_buf[0] = 0;
 
-
-    //curl_global_init(CURL_GLOBAL_DEFAULT); // NOLINT
-
     CURL* curl = curl_easy_init();
     if (curl)
     {
