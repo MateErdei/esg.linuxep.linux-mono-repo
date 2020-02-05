@@ -4,14 +4,14 @@ Documentation    Suite description
 Library         Process
 Library         OperatingSystem
 
-Resource        EDRResources.robot
+Resource        AVResources.robot
 Resource        ComponentSetup.robot
 
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
 
 Test Setup      No Operation
-Test Teardown   EDR And Base Teardown
+Test Teardown   AV And Base Teardown
 
 *** Test Cases ***
 AV plugin Can Start sophos_threat_detector

@@ -4,7 +4,7 @@ Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 
 Resource    ComponentSetup.robot
-Resource    EDRResources.robot
+Resource    AVResources.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
