@@ -348,13 +348,6 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string&
     return proxies;
 }
 
-class ScopedSulInit
-{
-public:
-    ScopedSulInit() { SU_init(); }
-    ~ScopedSulInit() { SU_deinit(); }
-};
-
 class SULSession
 {
 public:
