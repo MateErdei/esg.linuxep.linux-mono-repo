@@ -590,6 +590,37 @@ Unreachable proxy
     ...  ${Succeed_To_Download_Directly}
 
 
+Can Use Authenticated Proxy Saved In Savedproxy Config
+    [Tags]  SMOKE  SULDOWNLOADER
+    Require Warehouse With Fake Single Installer Product
+
+    ${username} =  Set Variable  username
+    ${password} =  Set Variable  password
+    Start Proxy Server With Basic Auth    1235  ${username}  ${password}
+
+    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${proxy_domain_and_port} =  Set Variable   localhost:1235
+    ${username_password} =      Set Variable   ${username}:${password}
+    ${proxy_url} =              Set Variable   http://${username_password}@${proxy_domain_and_port}
+
+    Log  ${config}
+    Log Dictionary    ${config}
+    ${config_json} =    Data to JSON    ${config}
+    Log    "config_json = ${config_json}"
+    Create File    ${tmpdir}/update_config.json    content=${config_json}
+
+    Create File    ${tmpdir}/sspl/base/etc/savedproxy.config    content=${proxy_url}
+
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+
+    Check SulDownloader Result   ${result}   ${SUCCESS}
+
+    Check SulDownloader Report Contains
+    ...     SUCCESS
+    ...     UPGRADED
+
+    Verify SulDownloader Connects Via Proxy   ${proxy_domain_and_port}
+
 
 Test Product Uninstalls If Not In Warehouse
     ${UninstallMessage} =   Set Variable   UNINSTALLER EXECUTED
