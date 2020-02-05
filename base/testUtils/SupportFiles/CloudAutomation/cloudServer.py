@@ -1025,7 +1025,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             logger.debug("SEND Cookie: %s", AWSCOOKIE + "; Expires=Fri, 18 May 2020 10:25:17 GMT; Path=/")
             self.send_header("Set-Cookie", AWSCOOKIE + "; Expires=Fri, 18 May 2020 10:25:17 GMT; Path=/")
 
-    def ret(self, message=None, code=200):
+    def ret(self, message=None, code=200, extra_header={}):
         if message is None:
             message = ""
 
@@ -1044,6 +1044,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         self.send_header("Content-Length", str(len(message)))
         self.sendAWSCookie()
         self.send_cookie()
+        for k, v in extra_header.items():
+            self.send_header(k, v)
         self.end_headers()
         self.wfile.write(message)
 
@@ -1133,6 +1135,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         else:
             logger.error("Requested non-existent policy")
             return self.ret("Unknown policy", code=500)
+
+    def push_redirect(self):
+        logger.info("Push redirect requested")
+        return self.ret(code=307, extra_header={'Location': 'https://localhost:8459{}'.format(self.path)})
 
     def send_401(self):
         action_log.debug("401")
@@ -1240,6 +1246,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.mcs_commands()
         elif self.path.startswith("/mcs/policy/application/"):
             return self.mcs_policy()
+        elif self.path.startswith('/mcs/push/endpoint/'):
+            return self.push_redirect()
 
         return self.ret("Unknown MCS verb", code=500)
 

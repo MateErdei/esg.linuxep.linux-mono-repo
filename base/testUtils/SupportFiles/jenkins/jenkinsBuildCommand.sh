@@ -68,6 +68,17 @@ function platform_exclude_tag()
     fi
 }
 
+function pip_install()
+{
+  local python_target="$1"
+  python3 -c "import ${python_target}" 2> /dev/null
+  if [[ "$?" != "0" ]];then
+    sudo -E python3 -m pip install ${python_target}
+  else
+    echo "Python package ${python_target} already installed"
+  fi
+}
+
 EXPECTED_WORKSPACE="/home/jenkins/workspace/Everest-SystemProductTests/label/(RhelCloneBuilder|Rhel8CloneBuilder|CentOSCloneBuilder|UbuntuCloneBuilder)"
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
 then
@@ -185,6 +196,12 @@ echo "Using ${MDR_COMPONENT_SUITE_SOURCE_DBOS} as MDR_COMPONENT_SUITE_DBOS_SDDS"
 echo "Using ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} as MDR_COMPONENT_SUITE_OSQUERY_SDDS"
 echo "Using ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} as MDR_COMPONENT_SUITE_PLUGIN_SDDS"
 echo "Using ${MDR_COMPONENT_SUITE_SOURCE_SUITE} as MDR_COMPONENT_SUITE_SDDS"
+
+# install dependencies
+for python_package in sseclient  aiohttp aiohttp_sse asyncio; do
+  pip_install ${python_package}
+done
+
 
 ROBOT_BASE_COMMAND="sudo -E python3 -m robot -x robot.xml --loglevel TRACE "
 RERUNFAILED=${RERUNFAILED:-false}
