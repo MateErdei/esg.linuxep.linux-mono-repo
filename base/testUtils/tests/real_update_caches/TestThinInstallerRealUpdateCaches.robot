@@ -40,7 +40,7 @@ Thin Installer Can install Via Real Update Cache
 
     # Ensure we used the UCs
     Check Thininstaller Log Does Not Contain  http://dci.sophosupd.com/update
-    Check Thininstaller Log Contains  Successfully download installer from update cache address [sspluc1:8191]
+    Check Thininstaller Log Contains  Successfully downloaded installer from update cache address [sspluc1:8191]
     Check Thininstaller Log Contains  Installation complete, performing post install steps
 
 Thin Installer Can install by Falling Back from Broken Update Cache to Real Update Cache
@@ -52,5 +52,5 @@ Thin Installer Can install by Falling Back from Broken Update Cache to Real Upda
 
     # Ensure we used the UCs
     Check Thininstaller Log Contains  Failed to connect to warehouse at https://uncontactableuc:8191/sophos/customer (SUL error is [4-Out of sources])
-    Check Thininstaller Log Contains  Successfully download installer from update cache address [sspluc1:8191]
+    Check Thininstaller Log Contains  Successfully downloaded installer from update cache address [sspluc1:8191]
     Check Thininstaller Log Contains  Installation complete, performing post install steps
