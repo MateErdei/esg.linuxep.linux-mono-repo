@@ -180,6 +180,7 @@ static bool canConnectToCloud(const std::string& proxy = "")
 }
 
 /// Check if we can contact Central via any of the following: Message Relays, env proxy, directly.
+/// Note that we only log success here, failure message will be handled by the bash script.
 /// \param proxies Vector of Message Relays which will be used first to test connectivity.
 /// \return Return true if Central is contactable, false otherwise.
 static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& proxies)
@@ -194,6 +195,7 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
         if (canConnectToCloud(proxy.getAddress()))
         {
             connected = true;
+            log("Successfully verified connection to Sophos Central via Message Relay: " + proxy.getAddress());
             break;
         }
     }
@@ -202,19 +204,28 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
     if (!connected && g_httpsProxy)
     {
         connected = canConnectToCloud(g_httpsProxy);
+        if (connected)
+        {
+            log("Successfully verified connection to Sophos Central via proxy: " + std::string(g_httpsProxy));
+        }
     }
 
     // Try direct
     if (!connected)
     {
         connected = canConnectToCloud();
+        if (connected)
+        {
+            if (g_httpsProxy)
+            {
+                log("WARN: Could not connect using proxy");
+            }
+            log("Successfully verified connection to Sophos Central");
+        }
     }
 
-    // Only log success here, failure message will be handled by the bash script.
-    if (connected)
-    {
-        log("Successfully verified connection to Sophos Central");
-    }
+
+
 
     return connected;
 }
