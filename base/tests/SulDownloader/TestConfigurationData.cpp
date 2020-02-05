@@ -5,6 +5,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ConfigurationDataBase.h"
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
@@ -468,6 +469,31 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxySh
 
     std::vector<Proxy> expectedProxyList = { Proxy("http://savedProxy.com"), Proxy(Proxy::NoProxy) };
     std::vector<Proxy> actualProxyList = configurationData.proxiesList();
+    EXPECT_EQ(actualProxyList, expectedProxyList);
+    EXPECT_TRUE(configurationData.isVerified());
+}
+
+
+TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLoggedAndNotReturnValidObject) // NOLINT
+{
+    Common::Logging::ConsoleLoggingSetup consoleLogger;
+    testing::internal::CaptureStderr();
+
+    auto& fileSystem = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(true));
+    std::string savedURL("www.user:password@invalidsavedProxy.com");
+    EXPECT_CALL(fileSystem, readFile(_)).WillOnce(Return(savedURL));
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+
+    configurationData.verifySettingsAreValid();
+
+    std::vector<Proxy> expectedProxyList = {Proxy(Proxy::NoProxy)};
+    std::vector<Proxy> actualProxyList = configurationData.proxiesList();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Proxy URL not in expected format."));
+
     EXPECT_EQ(actualProxyList, expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
 }
