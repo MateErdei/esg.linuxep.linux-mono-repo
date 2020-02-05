@@ -7,6 +7,7 @@ Resource    ComponentSetup.robot
 
 *** Variables ***
 ${COMPONENT}       av
+${COMPONENT_UC}    AV
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
@@ -21,8 +22,14 @@ Run Shell Process
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
     Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\n stdout: \n ${result.stdout} \n. stderr: \n ${result.stderr}"
 
-Check AV Plugin Running
+Check Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
+
+Check sophos_threat_detector Running
+    Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector   OnError=sophos_threat_detector not running
+
+Check AV Plugin Running
+    Check Plugin Running
 
 File Log Contains
     [Arguments]  ${path}  ${input}
@@ -41,20 +48,23 @@ FakeManagement Log Contains
     [Arguments]  ${input}
     File Log Contains  ${FAKEMANAGEMENT_AGENT_LOG_PATH}   ${input}
 
-Check AV Plugin Installed
+Check Plugin Installed and Running
     File Should Exist   ${PLUGIN_BINARY}
     Wait Until Keyword Succeeds
     ...  15 secs
-    ...  1 secs
-    ...  Check AV Plugin Running
+    ...  3 secs
+    ...  Check Plugin Running
     Wait Until Keyword Succeeds
     ...  15 secs
-    ...  1 secs
-    ...  Plugin Log Contains  av <> Entering the main loop
+    ...  3 secs
+    ...  Plugin Log Contains  ${COMPONENT} <> Entering the main loop
+
+Check AV Plugin Installed
+    Check Plugin Installed and Running
     Wait Until Keyword Succeeds
     ...  15 secs
-    ...  1 secs
-    ...  FakeManagement Log Contains   Registered plugin: av
+    ...  3 secs
+    ...  FakeManagement Log Contains   Registered plugin: ${COMPONENT}
 
 Install With Base SDDS
     Remove Directory   ${SOPHOS_INSTALL}   recursive=True
@@ -83,7 +93,7 @@ Install AV Directly from SDDS
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\n stdout: \n${result.stdout}\n. stderr: \n {result.stderr}"
 
 Check AV Plugin Installed With Base
-    Check AV Plugin Installed
+    Check Plugin Installed and Running
 
 Display All SSPL Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True

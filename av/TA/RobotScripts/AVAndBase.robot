@@ -18,6 +18,6 @@ AV plugin Can Start sophos_threat_detector
     Check AV Plugin Installed With Base
     Wait Until Keyword Succeeds
     ...  15 secs
-    ...  1 secs
+    ...  3 secs
     ...  Check sophos_threat_detector Running
 
