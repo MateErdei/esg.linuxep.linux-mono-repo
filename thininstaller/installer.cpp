@@ -93,6 +93,20 @@ static size_t function_pt(char* ptr, size_t size, size_t nmemb, void*)
     return sizeOfData;
 }
 
+class CurlSession
+{
+public:
+    CurlSession()
+    {
+        if (curl_global_init(CURL_GLOBAL_DEFAULT) != 0)
+        {
+            throw std::runtime_error("Failed to init curl");
+        }
+    }
+
+    ~CurlSession() { curl_global_cleanup(); }
+};
+
 /// Checks if we can connect to Sophos Central
 /// \param proxy The full proxy string to use, if left empty then proxies will be explicitly turned off for this attempt
 /// \return Returns true if we can connect to Sophos Central
@@ -111,7 +125,8 @@ static bool canConnectToCloud(const std::string& proxy = "")
     bool ret = false;
     g_buf[0] = 0;
 
-    curl_global_init(CURL_GLOBAL_DEFAULT); // NOLINT
+
+    //curl_global_init(CURL_GLOBAL_DEFAULT); // NOLINT
 
     CURL* curl = curl_easy_init();
     if (curl)
@@ -163,8 +178,6 @@ static bool canConnectToCloud(const std::string& proxy = "")
         // Always cleanup
         curl_easy_cleanup(curl);
     }
-
-    curl_global_cleanup();
     return ret;
 }
 
@@ -173,6 +186,7 @@ static bool canConnectToCloud(const std::string& proxy = "")
 /// \return Return true if Central is contactable, false otherwise.
 static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& proxies)
 {
+    CurlSession init;
     log("Attempting to connect to Sophos Central");
     bool connected = false;
 
@@ -255,7 +269,7 @@ static bool logSulError(const char* what, SU_Result ret, SU_Handle session)
 }
 
 #define RETURN_IF_ERROR(what, sulerror)                                                                            \
-if (logSulError(what, sulerror, session))                                                                          \
+if (logSulError(what, sulerror, session.m_session))                                                                \
 {                                                                                                                  \
     return sulerror;                                                                                               \
 }
@@ -333,6 +347,35 @@ public:
 };
 
 
+class SULSession
+{
+public:
+    SULSession() { m_session = SU_beginSession(); }
+    SULSession(const SULSession&) = delete;
+    SULSession& operator=(const SULSession&) = delete;
+
+    ~SULSession()
+    {
+        if (m_session != nullptr)
+        {
+            SU_endSession(m_session);
+        }
+    }
+
+    SU_Handle m_session = nullptr;
+};
+
+class SULInit
+{
+public:
+    SULInit(const SULInit&) = delete;
+    SULInit& operator=(const SULInit&) = delete;
+
+    SULInit() { SU_init(); }
+
+    ~SULInit() { SU_deinit(); }
+};
+
 /// Downloads installer from sophos URL
 /// \param location Sophos warehouse URL
 /// \param updateCache Whether location is an Update Cache.
@@ -340,11 +383,11 @@ public:
 /// \return Error code or 0 for success.
 static int downloadInstaller(std::string location, bool updateCache, bool disableEnvProxy)
 {
-    ScopedSulInit sulInit;
+    SULInit init;
     SU_Result ret;
-    SU_Handle session = SU_beginSession();
+    SULSession session;
 
-    if (session == nullptr)
+    if (session.m_session == nullptr)
     {
         logError("Failed to init SUL session");
         return 45;
@@ -359,36 +402,36 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
         };
         for (auto& redirectFromAddress : redirectFromAddresses)
         {
-            ret = SU_addRedirect(session, redirectFromAddress, redirectToLocation.c_str());
+            ret = SU_addRedirect(session.m_session, redirectFromAddress, redirectToLocation.c_str());
             RETURN_IF_ERROR("addredirect", ret);
         }
 
         location = "https://" + location + "/sophos/customer";
     }
 
-    ret = SU_setLoggingLevel(session, SU_LoggingLevel_verbose);
+    ret = SU_setLoggingLevel(session.m_session, SU_LoggingLevel_verbose);
     RETURN_IF_ERROR("SU_setLoggingLevel", ret)
 
-    ret = SU_addCache(session, "./cache");
+    ret = SU_addCache(session.m_session, "./cache");
     RETURN_IF_ERROR("addCache", ret);
 
-    ret = SU_setLocalRepository(session, "./warehouse");
+    ret = SU_setLocalRepository(session.m_session, "./warehouse");
     RETURN_IF_ERROR("setlocal", ret);
 
-    ret = SU_addSophosLocation(session, location.c_str());
+    ret = SU_addSophosLocation(session.m_session, location.c_str());
     RETURN_IF_ERROR("addsophoslocation", ret);
 
-    ret = SU_setUseHttps(session, true);
+    ret = SU_setUseHttps(session.m_session, true);
     RETURN_IF_ERROR("setUseHttps", ret);
 
     if (updateCache)
     {
         auto certsToUse = const_cast<char*>("installer/uc_certs.crt");
-        ret = SU_setSslCertificatePath(session, certsToUse);
+        ret = SU_setSslCertificatePath(session.m_session, certsToUse);
         RETURN_IF_ERROR("setSslCertificatePath", ret);
     }
 
-    ret = SU_setUseSophosCertStore(session, true);
+    ret = SU_setUseSophosCertStore(session.m_session, true);
     RETURN_IF_ERROR("setUseSophosCertStore", ret);
 
     char* certsDir = getenv("OVERRIDE_SOPHOS_CERTS");
@@ -408,10 +451,10 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
         proxy = "noproxy:";
     }
 
-    ret = SU_addUpdateSource(session, "SOPHOS", creds, creds, proxy, nullptr, nullptr);
+    ret = SU_addUpdateSource(session.m_session, "SOPHOS", creds, creds, proxy, nullptr, nullptr);
     RETURN_IF_ERROR("addUpdateSource", ret);
 
-    ret = SU_setCertificatePath(session, certsDir);
+    ret = SU_setCertificatePath(session.m_session, certsDir);
     RETURN_IF_ERROR("setCertificatePath", ret);
 
     std::stringstream listingWarehouseMessage;
@@ -420,20 +463,20 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
     {
         listingWarehouseMessage << " using UC";
     }
-    if (!disableEnvProxy)
+    if (!disableEnvProxy && g_httpsProxy)
     {
         listingWarehouseMessage << " env proxy [" << g_httpsProxy << "]";
     }
     logDebug(listingWarehouseMessage.str());
 
-    ret = SU_readRemoteMetadata(session);
+    ret = SU_readRemoteMetadata(session.m_session);
     logDebug("readRemoteMetadata: " + std::to_string(ret));
 
     if (isSULError(ret))
     {
         logDebug(
             "Failed to connect to warehouse at " + location + " (SUL error is [" + std::to_string(ret) + "-" +
-            SU_getErrorDetails(session) + "]). Please check your firewall rules and proxy configuration");
+            SU_getErrorDetails(session.m_session) + "]). Please check your firewall rules and proxy configuration");
 
         return 46;
     }
@@ -441,7 +484,7 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
     while (true)
     {
         logDebug("Getting next product");
-        SU_PHandle product = SU_getProductRelease(session);
+        SU_PHandle product = SU_getProductRelease(session.m_session);
         if (product)
         {
             if (g_DebugMode)
@@ -479,7 +522,7 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
         return 47;
     }
 
-    ret = SU_synchronise(session);
+    ret = SU_synchronise(session.m_session);
     logDebug("synchronise: " + std::to_string(ret));
     if (isSULError(ret))
     {
@@ -489,16 +532,16 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
             "Please check your firewall rules and proxy configuration\n",
             location.c_str(),
             ret,
-            SU_getErrorDetails(session));
+            SU_getErrorDetails(session.m_session));
         return 48;
     }
 
     ret = SU_addDistribution(g_Product, "./distribute/", 0, "", "");
     RETURN_IF_ERROR("addDistribution", ret);
-    ret = SU_distribute(session, 0);
+    ret = SU_distribute(session.m_session, 0);
     RETURN_IF_ERROR("distribute", ret);
-    ret = SU_endSession(session);
-    RETURN_IF_ERROR("SU_endSession", ret);
+//    ret = SU_endSession(session.m_session);
+//    RETURN_IF_ERROR("SU_endSession", ret);
 
     return 0;
 }
@@ -644,11 +687,19 @@ int main(int argc, char** argv)
         g_mcs_url = std::string(override_mcs_url);
     }
 
-    if (!canConnectToCloudDirectOrProxies(relays))
+    try
     {
-        // Exit 44 means cannot connect to Cloud - must correspond to handling in installer_header.sh
-        return 44;
+        if (!canConnectToCloudDirectOrProxies(relays))
+        {
+            // Exit 44 means cannot connect to Cloud - must correspond to handling in installer_header.sh
+            return 44;
+        }
     }
+    catch(std::runtime_error& ex)
+    {
+        logError(ex.what());
+    }
+
 
     return downloadInstallerDirectOrCaches(update_caches);
 }
