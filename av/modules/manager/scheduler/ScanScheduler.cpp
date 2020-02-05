@@ -105,6 +105,11 @@ void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration 
     m_updateConfigurationPipe.notify();
 }
 
+void ScanScheduler::scanNow()
+{
+
+}
+
 void ScanScheduler::findNextTime(timespec& timespec)
 {
     time_t now = ::time(nullptr);
@@ -146,6 +151,9 @@ void ScanScheduler::findNextTime(timespec& timespec)
     timespec.tv_sec = delay;
     timespec.tv_nsec = 0;
 }
+
+//TODO LINUXDAR-1405
+
 
 std::string ScanScheduler::serialiseNextScan()
 {

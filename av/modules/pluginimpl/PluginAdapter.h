@@ -34,6 +34,7 @@ namespace Plugin
 
     private:
         void processPolicy(const std::string& policyXml);
+        void processAction(const std::string& actionXml);
         void innerLoop();
 
     };

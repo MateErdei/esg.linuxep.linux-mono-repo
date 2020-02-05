@@ -75,6 +75,8 @@ void PluginAdapter::innerLoop()
                 break;
 
             case Task::TaskType::Action:
+                //TODO LINUXDAR-1405 Process the action
+                // processAction()
                 break;
         }
     }
@@ -86,4 +88,12 @@ void PluginAdapter::processPolicy(const std::string& policyXml)
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+}
+
+void PluginAdapter::processAction(const std::string& actionXml)
+{
+    LOGDEBUG("Process action: " << actionXml);
+
+    auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
+//    m_scanScheduler.scanNow()
 }
