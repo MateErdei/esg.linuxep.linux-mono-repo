@@ -45,7 +45,6 @@ Test MDR Policy Fuzzer
     Run MCS Router Fuzzer   mdr  1
 
 Test ALC Policy Fuzzer
-# TODO LINUXDAR-829-MCS Router crashes while parsing malformed url in ALC policy.  Re-enable after this ticket is fixed.
     Run MCS Router Fuzzer  alc  5
 
 *** Keywords ***
