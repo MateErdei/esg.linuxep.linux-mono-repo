@@ -27,7 +27,7 @@ Test Teardown   Run Keywords
 ...             Dump Kittylogs Dir Contents
 ...             Stop System Watchdog
 
-Test Timeout  180 minutes
+Test Timeout  210 minutes
 
 
 *** Variables ***
@@ -46,8 +46,7 @@ Test MDR Policy Fuzzer
 
 Test ALC Policy Fuzzer
 # TODO LINUXDAR-829-MCS Router crashes while parsing malformed url in ALC policy.  Re-enable after this ticket is fixed.
-    [Tags]  TESTFAILURE  MCS_FUZZ
-    Run MCS Router Fuzzer  alc  3
+    Run MCS Router Fuzzer  alc  5
 
 *** Keywords ***
 Run MCS Router Fuzzer

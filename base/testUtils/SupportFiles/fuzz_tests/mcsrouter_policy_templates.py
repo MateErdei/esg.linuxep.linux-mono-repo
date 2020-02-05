@@ -41,7 +41,7 @@ mdr_policy = \
                                    ], delimiter="\n")
                         ], delimiter="\n")
 
-mdr_policy_fuzzed = Template(fields=[declaration_fuzz, newline_static, mdr_policy], name="mdr_policy_fuzz")
+mdr_policy_fuzzed = Template(fields=[declaration_static, newline_static, mdr_policy], name="mdr_policy_fuzz")
 
 
 ### mcs policy ###
@@ -311,4 +311,4 @@ alc_policy = \
                ], delimiter="\n"
                )
 
-alc_policy_fuzzed = Template(fields=[declaration_fuzz, newline_static, alc_policy], name="alc_policy_fuzz")
+alc_policy_fuzzed = Template(fields=[declaration_static, newline_static, alc_policy], name="alc_policy_fuzz")

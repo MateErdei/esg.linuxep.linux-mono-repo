@@ -26,9 +26,17 @@ class FuzzerSupport( object):
         self._everest_path = ""
         self._input_root_dir = ""
         self.mcs_fuzz_runner_process = None
+        self.mcs_fuzz_logger = None
 
-    def __del__(self):
-        self._clean_tmp_dir()
+def __del__(self):
+    if self.mcs_fuzz_logger:
+        self.mcs_fuzz_logger.close()
+        self.mcs_fuzz_logger = None
+    self._clean_tmp_dir()
+
+    def _mcs_fuzz_logger_path(self):
+        assert self._tmp_dir
+        return os.path.join(self._tmp_dir, 'mcs_fuzzer.log')
 
     def _verify_paths(self):
         if not os.path.isdir(self._everest_path):
@@ -139,6 +147,11 @@ class FuzzerSupport( object):
             logger.info("No file created after the execution of Fuzzer. All good!")
         return failures
 
+    def mcs_fuzz_logs(self):
+        with open(self._mcs_fuzz_logger_path(), 'r') as file_handler:
+            return file_handler.read().decode()[:-10000]
+        return ""
+
     def start_mcs_fuzzer(self, mcs_fuzzer_path, suite, range = 1):
         #range == 1 will run all mutations produced by fuzzer
         #range == 2 will run mutations/2 (half) and 3 will run a third
@@ -146,21 +159,25 @@ class FuzzerSupport( object):
         environment['ASAN_OPTIONS'] = 'detect_odr_violation=0'
         args = [sys.executable, mcs_fuzzer_path, "--suite", suite, "--range", str(range)]
         logger.info("Running: {}".format(args))
-        self.mcs_fuzz_runner_process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        #setup the tmp_dir
+        self._set_temp_dir(tempfile.mkdtemp())
+        self.mcs_fuzz_logger = open(self._mcs_fuzz_logger_path(), 'w')
+        self.mcs_fuzz_runner_process = subprocess.Popen(args, stdout=self.mcs_fuzz_logger, stderr=self.mcs_fuzz_logger,
                                                         env=environment)
         time.sleep(2)
         logger.info(self.mcs_fuzz_runner_process)
         pid = self.mcs_fuzz_runner_process.pid
         poll_return = self.mcs_fuzz_runner_process.poll()
         if poll_return:
-            out, err = self.mcs_fuzz_runner_process.communicate()
-            raise AssertionError("Failed to start fuzzed fake cloud server {}.\n Stdout: {} \n Stderr: {}".format(
-                    poll_return, out.decode(), err.decode()))
+            logs = self.mcs_fuzz_logs()
+            raise AssertionError("Failed to start fuzzed fake cloud server {}.\n Stdout: {}".format(
+                poll_return, logs))
 
     def wait_for_mcs_fuzzer(self):
-        out,err= self.mcs_fuzz_runner_process.communicate()
+        self.mcs_fuzz_runner_process.wait()
         if self.mcs_fuzz_runner_process.returncode != 0:
-            raise AssertionError("MCS Fuzzer found errors: {}\n{}".format(out.decode(), err.decode()))
+            logs = self.mcs_fuzz_logs()
+            raise AssertionError("MCS Fuzzer found errors: {}".format(logs))
 
     def kill_mcs_fuzzer(self):
         if self.mcs_fuzz_runner_process.returncode is None:
