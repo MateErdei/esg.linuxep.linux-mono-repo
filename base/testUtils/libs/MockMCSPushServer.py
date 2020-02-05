@@ -5,6 +5,7 @@ import asyncio
 from aiohttp import web
 from aiohttp.web import Response
 from aiohttp_sse import sse_response
+import PathManager
 import ssl
 import logging
 import os
@@ -229,9 +230,10 @@ if __name__ == "__main__":
     
     """
     import argparse
+    default_cert = os.path.join( PathManager.get_support_file_path(), 'CloudAutomation/server-private.pem')
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--certfile', type=str, help='Path to the private.pem certificate for launching https server',
-                        default='SupportFiles/CloudAutomation/server-private.pem')
+                        default=default_cert)
     parser.add_argument('--logpath', type=str, help='Path to the log file to be created', default='mcspushserver.log')
     parser.add_argument('--ping-time', type=int, help='Interval for the keep alive ping message [seconds]', default=10)
     parser.add_argument('--port', type=int, help='Port number to listen to.', default=8459)
