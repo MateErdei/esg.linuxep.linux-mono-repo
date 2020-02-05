@@ -21,7 +21,7 @@ Run Shell Process
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
     Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\n stdout: \n ${result.stdout} \n. stderr: \n ${result.stderr}"
 
-Check EDR Plugin Running
+Check AV Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
 
 File Log Contains
@@ -64,7 +64,7 @@ Install With Base SDDS
 
 Uninstall All
     Log File    /tmp/installer.log
-    Log File   ${EDR_LOG_PATH}
+    Log File   ${AV_LOG_PATH}
     Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\n stdout: \n${result.stdout}\n. stderr: \n {result.stderr}"
