@@ -28,11 +28,11 @@ class FuzzerSupport( object):
         self.mcs_fuzz_runner_process = None
         self.mcs_fuzz_logger = None
 
-def __del__(self):
-    if self.mcs_fuzz_logger:
-        self.mcs_fuzz_logger.close()
-        self.mcs_fuzz_logger = None
-    self._clean_tmp_dir()
+    def __del__(self):
+        if self.mcs_fuzz_logger:
+            self.mcs_fuzz_logger.close()
+            self.mcs_fuzz_logger = None
+        self._clean_tmp_dir()
 
     def _mcs_fuzz_logger_path(self):
         assert self._tmp_dir
