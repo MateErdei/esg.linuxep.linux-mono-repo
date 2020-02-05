@@ -8,6 +8,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <unistd.h>
@@ -266,7 +267,7 @@ static bool logSulError(const char* what, SU_Result ret, SU_Handle session)
 }
 
 #define RETURN_IF_ERROR(what, sulerror)                                                                            \
-if (logSulError(what, sulerror, session.m_session))                                                                \
+if (logSulError(what, sulerror, session->m_session))                                                                \
 {                                                                                                                  \
     return sulerror;                                                                                               \
 }
@@ -343,11 +344,17 @@ public:
     ~ScopedSulInit() { SU_deinit(); }
 };
 
-
 class SULSession
 {
 public:
-    SULSession() { m_session = SU_beginSession(); }
+    SULSession()
+    {
+        m_session = SU_beginSession();
+        if (m_session == nullptr)
+        {
+            throw std::runtime_error("Failed to start SUL session");
+        }
+    }
     SULSession(const SULSession&) = delete;
     SULSession& operator=(const SULSession&) = delete;
 
@@ -382,9 +389,19 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
 {
     SULInit init;
     SU_Result ret;
-    SULSession session;
+    std::unique_ptr<SULSession> session;
 
-    if (session.m_session == nullptr)
+    try
+    {
+        session.reset(new SULSession());
+    }
+    catch(std::runtime_error& ex)
+    {
+        logDebug(ex.what());
+        return 49;
+    }
+
+    if (session->m_session == nullptr)
     {
         logError("Failed to init SUL session");
         return 45;
@@ -399,36 +416,36 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
         };
         for (auto& redirectFromAddress : redirectFromAddresses)
         {
-            ret = SU_addRedirect(session.m_session, redirectFromAddress, redirectToLocation.c_str());
+            ret = SU_addRedirect(session->m_session, redirectFromAddress, redirectToLocation.c_str());
             RETURN_IF_ERROR("addredirect", ret);
         }
 
         location = "https://" + location + "/sophos/customer";
     }
 
-    ret = SU_setLoggingLevel(session.m_session, SU_LoggingLevel_verbose);
+    ret = SU_setLoggingLevel(session->m_session, SU_LoggingLevel_verbose);
     RETURN_IF_ERROR("SU_setLoggingLevel", ret)
 
-    ret = SU_addCache(session.m_session, "./cache");
+    ret = SU_addCache(session->m_session, "./cache");
     RETURN_IF_ERROR("addCache", ret);
 
-    ret = SU_setLocalRepository(session.m_session, "./warehouse");
+    ret = SU_setLocalRepository(session->m_session, "./warehouse");
     RETURN_IF_ERROR("setlocal", ret);
 
-    ret = SU_addSophosLocation(session.m_session, location.c_str());
+    ret = SU_addSophosLocation(session->m_session, location.c_str());
     RETURN_IF_ERROR("addsophoslocation", ret);
 
-    ret = SU_setUseHttps(session.m_session, true);
+    ret = SU_setUseHttps(session->m_session, true);
     RETURN_IF_ERROR("setUseHttps", ret);
 
     if (updateCache)
     {
         auto certsToUse = const_cast<char*>("installer/uc_certs.crt");
-        ret = SU_setSslCertificatePath(session.m_session, certsToUse);
+        ret = SU_setSslCertificatePath(session->m_session, certsToUse);
         RETURN_IF_ERROR("setSslCertificatePath", ret);
     }
 
-    ret = SU_setUseSophosCertStore(session.m_session, true);
+    ret = SU_setUseSophosCertStore(session->m_session, true);
     RETURN_IF_ERROR("setUseSophosCertStore", ret);
 
     char* certsDir = getenv("OVERRIDE_SOPHOS_CERTS");
@@ -448,10 +465,10 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
         proxy = "noproxy:";
     }
 
-    ret = SU_addUpdateSource(session.m_session, "SOPHOS", creds, creds, proxy, nullptr, nullptr);
+    ret = SU_addUpdateSource(session->m_session, "SOPHOS", creds, creds, proxy, nullptr, nullptr);
     RETURN_IF_ERROR("addUpdateSource", ret);
 
-    ret = SU_setCertificatePath(session.m_session, certsDir);
+    ret = SU_setCertificatePath(session->m_session, certsDir);
     RETURN_IF_ERROR("setCertificatePath", ret);
 
     std::stringstream listingWarehouseMessage;
@@ -466,14 +483,14 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
     }
     logDebug(listingWarehouseMessage.str());
 
-    ret = SU_readRemoteMetadata(session.m_session);
+    ret = SU_readRemoteMetadata(session->m_session);
     logDebug("readRemoteMetadata: " + std::to_string(ret));
 
     if (isSULError(ret))
     {
         logDebug(
             "Failed to connect to warehouse at " + location + " (SUL error is [" + std::to_string(ret) + "-" +
-            SU_getErrorDetails(session.m_session) + "]). Please check your firewall rules and proxy configuration");
+            SU_getErrorDetails(session->m_session) + "]). Please check your firewall rules and proxy configuration");
 
         return 46;
     }
@@ -481,7 +498,7 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
     while (true)
     {
         logDebug("Getting next product");
-        SU_PHandle product = SU_getProductRelease(session.m_session);
+        SU_PHandle product = SU_getProductRelease(session->m_session);
         if (product)
         {
             if (g_DebugMode)
@@ -519,7 +536,7 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
         return 47;
     }
 
-    ret = SU_synchronise(session.m_session);
+    ret = SU_synchronise(session->m_session);
     logDebug("synchronise: " + std::to_string(ret));
     if (isSULError(ret))
     {
@@ -529,16 +546,14 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
             "Please check your firewall rules and proxy configuration\n",
             location.c_str(),
             ret,
-            SU_getErrorDetails(session.m_session));
+            SU_getErrorDetails(session->m_session));
         return 48;
     }
 
     ret = SU_addDistribution(g_Product, "./distribute/", 0, "", "");
     RETURN_IF_ERROR("addDistribution", ret);
-    ret = SU_distribute(session.m_session, 0);
+    ret = SU_distribute(session->m_session, 0);
     RETURN_IF_ERROR("distribute", ret);
-//    ret = SU_endSession(session.m_session);
-//    RETURN_IF_ERROR("SU_endSession", ret);
 
     return 0;
 }
