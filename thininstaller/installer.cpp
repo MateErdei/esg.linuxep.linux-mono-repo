@@ -710,6 +710,8 @@ int main(int argc, char** argv)
     catch(std::runtime_error& ex)
     {
         logError(ex.what());
+        // Exit 44 means cannot connect to Cloud - must correspond to handling in installer_header.sh
+        return 44;
     }
 
 
