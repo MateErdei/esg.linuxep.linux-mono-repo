@@ -151,11 +151,11 @@ fi
 
 # Setup robot test symlink
 echoProgress "Creating robot test Symlink"
-if [[ -L ./everest-systemproducttests/robot ]]
+if [[ -L everest-base/testUtils/robot ]]
 then
     warning "Symlink already exists"
 else
-    ln -s ../tests/remoterobot.py everest-base/testUtils/robot
+    ln -s ../../tests/remoterobot.py everest-base/testUtils/robot
     chmod +x tests/remoterobot.py
 fi
 
