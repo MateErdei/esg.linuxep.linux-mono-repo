@@ -17,7 +17,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <ConfigurationSettings.pb.h>
 #include <iostream>
-#include <sstream>
 
 namespace
 {
@@ -64,47 +63,6 @@ namespace
         return true;
     }
 
-
-    void processSavedProxiesURL(const std::string& savedProxyURL, std::vector<Proxy> &options)
-    {
-        //savedProxyURL: can be in the following formats
-        // http(s)://username:password@192.168.0.1:8080
-        // http(s)://192.168.0.1
-        // http(s)://192.168.0.1:8080
-
-        if( savedProxyURL.find("https://") != std::string::npos || savedProxyURL.find("http://") != std::string::npos)
-        {
-            std::vector<std::string> proxyDetails = Common::UtilityImpl::StringUtils::splitString(savedProxyURL, "@");
-            if (proxyDetails.size() == 1)
-            {
-                options.emplace_back(Proxy(savedProxyURL));
-                return;
-            }
-            else if(proxyDetails.size() == 2)
-            {
-                std::string proxyUser;
-                std::string  proxyPassword;
-                std::string  proxyType;
-                std::string proxyAddress = proxyDetails[1];
-                //extract user:password from http(s)://user:password
-                std::vector<std::string> proxyCredentials = Common::UtilityImpl::StringUtils::splitString(proxyDetails[0], "//");
-                std::vector<std::string> user_password = Common::UtilityImpl::StringUtils::splitString(proxyCredentials[1], ":");
-
-                if(user_password.size() == 2)
-                {
-                    proxyUser = user_password[0];
-                    proxyPassword = user_password[1];
-                    Proxy proxy = Proxy(proxyAddress, ProxyCredentials(proxyUser, proxyPassword, proxyType) );
-                    options.emplace_back(proxy);
-                }
-
-                return;
-            }
-        }
-
-        // not logging proxy here in-case it contains username and passwords.
-        LOGWARN("Proxy URL not in expected format.");
-    }
 } // namespace
 
 using namespace SulDownloader;
@@ -559,7 +517,12 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
     if (Common::FileSystem::fileSystem()->isFile(savedProxyFilePath))
     {
         std::string savedProxyURL = Common::FileSystem::fileSystem()->readFile(savedProxyFilePath);
-        processSavedProxiesURL(savedProxyURL, options);
+
+        auto savedProxyOpt = proxyFromSavedProxyUrl(savedProxyURL);
+        if(savedProxyOpt.has_value())
+        {
+            options.emplace_back(savedProxyOpt.value());
+        }
     }
     options.emplace_back(Proxy(Proxy::NoProxy));
 
@@ -670,4 +633,42 @@ const std::string ProductSubscription::toString() const
     s << "name = " << m_rigidName << " baseversion = " << m_baseVersion << " tag = " << m_tag
       << " fixedversion = " << m_fixedVersion;
     return s.str();
+}
+
+std::optional<Proxy> ConfigurationData::proxyFromSavedProxyUrl(const std::string& savedProxyURL)
+{
+    //savedProxyURL: can be in the following formats
+    // http(s)://username:password@192.168.0.1:8080
+    // http(s)://192.168.0.1
+    // http(s)://192.168.0.1:8080
+
+    if( savedProxyURL.find("https://") != std::string::npos || savedProxyURL.find("http://") != std::string::npos)
+    {
+        std::vector<std::string> proxyDetails = Common::UtilityImpl::StringUtils::splitString(savedProxyURL, "@");
+        if (proxyDetails.size() == 1)
+        {
+            return Proxy(savedProxyURL);
+        }
+        else if(proxyDetails.size() == 2)
+        {
+            std::string proxyUser;
+            std::string  proxyPassword;
+            std::string proxyAddress = proxyDetails[1];
+            //extract user:password from http(s)://user:password
+            std::vector<std::string> proxyCredentials = Common::UtilityImpl::StringUtils::splitString(proxyDetails[0], "//");
+            if(proxyCredentials.size() == 2)
+            {
+                std::vector<std::string> user_password = Common::UtilityImpl::StringUtils::splitString(proxyCredentials[1], ":");
+                if (user_password.size() == 2)
+                {
+                    proxyUser = user_password[0];
+                    proxyPassword = user_password[1];
+                    return Proxy(proxyAddress, ProxyCredentials(proxyUser, proxyPassword, {}));
+                }
+            }
+        }
+    }
+    // not logging proxy here in-case it contains username and passwords.
+    LOGWARN("Proxy URL not in expected format.");
+    return std::nullopt;
 }

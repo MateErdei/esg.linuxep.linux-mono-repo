@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace SulDownloader
 {
@@ -328,6 +329,14 @@ namespace SulDownloader
              * @param settingsString, string contain a json formatted data representing the state of configurationData
              */
             static std::string toJsonSettings(const ConfigurationData&);
+
+            /**
+             * Retrieve the Proxy URL and Credentials for authenticated proxy in the format http(s)://username:password@192.168.0.1:8080
+             * proxyurl without credentials is passed through as is.
+             * @param savedProxyURL the string with proxy url and optionally credentials as can be used on command line
+             * @return Proxy object
+             */
+            static std::optional<Proxy> proxyFromSavedProxyUrl(const std::string& savedProxyURL);
 
         private:
             enum class State

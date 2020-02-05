@@ -498,6 +498,24 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLo
     EXPECT_TRUE(configurationData.isVerified());
 }
 
+
+TEST_F(ConfigurationDataTest, proxyFromSavedProxyUrlShouldBeLoggedAndReturnNullOpt) // NOLINT
+{
+    Common::Logging::ConsoleLoggingSetup consoleLogger;
+    testing::internal::CaptureStderr();
+
+    std::string savedProxyURL("@http://invalidsavedProxy.com");
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+
+    std::optional<Proxy> expectedProxy = std::nullopt;
+    std::optional<Proxy> actualProxy = configurationData.proxyFromSavedProxyUrl(savedProxyURL);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Proxy URL not in expected format."));
+    EXPECT_EQ(actualProxy, expectedProxy);
+}
+
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificatePathWillUseDefaultOne) // NOLINT
 {
     setupFileSystemAndGetMock();
