@@ -278,7 +278,7 @@ static bool logSulError(const char* what, SU_Result ret, SU_Handle session)
 }
 
 #define RETURN_IF_ERROR(what, sulerror)                                                                            \
-if (logSulError(what, sulerror, session->m_session))                                                                \
+if (logSulError(what, sulerror, session->m_session))                                                               \
 {                                                                                                                  \
     return sulerror;                                                                                               \
 }
@@ -593,7 +593,7 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
             ret = downloadInstaller(cache.getAddress(), true, true);
             if (ret == 0)
             {
-                logDebug("\"Successfully download installer from update cache address [" + cache.getAddress() + "]");
+                logDebug("Successfully downloaded installer from update cache address [" + cache.getAddress() + "]");
                 return ret;
             }
         }
@@ -611,7 +611,7 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
     }
 
     // If we failed to download via UCs and directly (possibly via a proxy)
-    // then here we check to see if proxy was set, if any where set and the download failed then we try without proxies.
+    // then here we check to see if proxy was set, if one is set and the download failed then we try without proxies.
     if (g_httpsProxy)
     {
         // Download installer directly from sophos, *disallowing* env proxies
