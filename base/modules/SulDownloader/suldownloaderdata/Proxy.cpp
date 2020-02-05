@@ -50,7 +50,7 @@ std::string Proxy::toStringPostfix() const
     }
     else
     {
-        return std::string("via proxy: ") + "http://"+ getCredentials().getUsername() + ":" + getCredentials().getPassword() + "@" + getUrl();
+        return std::string("via proxy: ") + getUrl();
     }
 }
 

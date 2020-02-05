@@ -455,6 +455,23 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyS
     EXPECT_TRUE(configurationData.isVerified());
 }
 
+TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxyShouldReturnValidObject) // NOLINT
+{
+    auto& fileSystem = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(true));
+    std::string savedURL("http://savedProxy.com");
+    EXPECT_CALL(fileSystem, readFile(_)).WillOnce(Return(savedURL));
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+
+    configurationData.verifySettingsAreValid();
+
+    std::vector<Proxy> expectedProxyList = { Proxy("http://savedProxy.com"), Proxy(Proxy::NoProxy) };
+    std::vector<Proxy> actualProxyList = configurationData.proxiesList();
+    EXPECT_EQ(actualProxyList, expectedProxyList);
+    EXPECT_TRUE(configurationData.isVerified());
+}
+
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificatePathWillUseDefaultOne) // NOLINT
 {
     setupFileSystemAndGetMock();

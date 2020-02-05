@@ -67,38 +67,43 @@ namespace
 
     void processSavedProxiesURL(const std::string& savedProxyURL, std::vector<Proxy> &options)
     {
-        LOGINFO("processSavedProxiesURL Entry");
+        //savedProxyURL: can be in the following formats
+        // http(s)://username:password@192.168.0.1:8080
+        // http(s)://192.168.0.1
+        // http(s)://192.168.0.1:8080
+
         if( savedProxyURL.find("https://") != std::string::npos || savedProxyURL.find("http://") != std::string::npos)
         {
-            auto proxyDetails = Common::UtilityImpl::StringUtils::splitString(savedProxyURL, "@");
-            if (proxyDetails.empty())
+            std::vector<std::string> proxyDetails = Common::UtilityImpl::StringUtils::splitString(savedProxyURL, "@");
+            if (proxyDetails.size() == 1)
             {
-                //Unauthenticated proxy
-                //ip and port http(s)://<ip address>:<port>
                 options.emplace_back(Proxy(savedProxyURL));
+                return;
             }
             else if(proxyDetails.size() == 2)
             {
-                //authenticated proxy
-                //http://user:password@ip_address:port
-
                 std::string proxyUser;
                 std::string  proxyPassword;
                 std::string  proxyType;
-                auto proxyAddress = proxyDetails[1];
+                std::string proxyAddress = proxyDetails[1];
                 //extract user:password from http(s)://user:password
-                auto user_password = Common::UtilityImpl::StringUtils::splitString(Common::UtilityImpl::StringUtils::splitString(proxyDetails[0], "//")[1], ":");
+                std::vector<std::string> proxyCredentials = Common::UtilityImpl::StringUtils::splitString(proxyDetails[0], "//");
+                std::vector<std::string> user_password = Common::UtilityImpl::StringUtils::splitString(proxyCredentials[1], ":");
+
                 if(user_password.size() == 2)
                 {
                     proxyUser = user_password[0];
                     proxyPassword = user_password[1];
-                    auto proxy = Proxy(proxyAddress, ProxyCredentials(proxyUser, proxyPassword, proxyType) );
-                    LOGINFO(proxy.toStringPostfix());
+                    Proxy proxy = Proxy(proxyAddress, ProxyCredentials(proxyUser, proxyPassword, proxyType) );
                     options.emplace_back(proxy);
                 }
+
+                return;
             }
         }
-        //all other cases something is wrong with that savedProxyURL string
+
+        // not logging proxy here in-case it contains username and passwords.
+        LOGWARN("Proxy URL not in expected format.");
     }
 } // namespace
 
