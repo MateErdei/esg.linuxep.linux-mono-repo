@@ -62,8 +62,8 @@
 
             <!-- rename output for coverage builds -->
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
-            <output name="coverage" srcfolder="output" artifactpath="output" mode="coverage"> </output>
+            <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
-        <publishbranches>master,feature/LINUXDAR-1398_TAP_testing</publishbranches>
+        <publishbranches>master,bugfix/get_coverage_builds_working</publishbranches>
     </publish>
 </package>

@@ -136,15 +136,21 @@ def install_component(sophos_install):
     shutil.copytree(os.path.join(sdds(), 'files/plugins'), os.path.join(sophos_install, 'plugins'))
     plugin_dir_path = os.path.join(sophos_install, 'plugins', COMPONENT_NAME)
     plugin_lib64_path = os.path.join(plugin_dir_path, "lib64")
+    for x in os.listdir(plugin_lib64_path):
+        os.chmod(os.path.join(plugin_lib64_path, x), 0o755)
+
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "liblog4cplus-2.0.so.*"))
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libprotobuf.so.*"))
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libzmq.so.*"))
 
-    plugin_executable = os.path.join(plugin_dir_path, 'sbin', COMPONENT_NAME)
     os.makedirs(os.path.join(plugin_dir_path, 'var'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'log'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'etc'), exist_ok=True)
-    run_shell(['chmod', '+x', plugin_executable])
+
+    sbin = os.path.join(plugin_dir_path, 'sbin')
+    for x in os.listdir(sbin):
+        os.chmod(os.path.join(sbin, x), 0o700)
+
     os.environ['SOPHOS_INSTALL'] = sophos_install
 
     component_test_src_path = component_tests_src()
