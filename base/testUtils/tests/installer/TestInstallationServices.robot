@@ -60,4 +60,5 @@ Verify Update Service Installed And Uninstalled Correctly
     ## Ubuntu 16.04  returns 3 for unknown services
     Should Not Be Equal As Integers  ${result.rc}  0  Able to get status of ${UPDATE_SERVICE} after uninstall.
     Should Contain Any   ${result.stdout}    ${UPDATE_SERVICE}.service could not be found.
+    ...    ${UPDATE_SERVICE}.service not found.
     ...    not-found (Reason: No such file or directory)
