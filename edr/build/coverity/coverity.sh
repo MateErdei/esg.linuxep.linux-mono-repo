@@ -2,6 +2,7 @@
 
 hostname
 ip addr
+ls /usr/local/share/ca-certificates/
 
 STARTINGDIR=${BASE}
 EDR_PLUGIN="$STARTINGDIR"/sspl-edr-plugin-build
@@ -15,8 +16,6 @@ mkdir -p build64
 cd build64
 
 export PATH=/home/jenkins/coverity/bin:/usr/local/bin:"$EDR_PLUGIN_REDIST"/cmake/bin:${PATH}
-export CC=/usr/bin/gcc
-export CXX=/usr/bin/g++
 
 cmake ../
 
