@@ -6,7 +6,7 @@ def params = [
            defaultValue: '{}',
            description: 'Information about the build which triggered this in JSON.'),
     choice(name: 'RUN_TESTS_ON_COVERAGE',
-           choices: 'no\ynes',
+           choices: 'no\nyes',
            defaultValue: 'no',
            description: 'If the we should also run tests against the coverage build')
 ]
