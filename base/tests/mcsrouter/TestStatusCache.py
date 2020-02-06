@@ -5,7 +5,9 @@
 import unittest
 import sys
 import time
-
+import hashlib
+import mock
+import json
 #import logging
 #logger = logging.getLogger("TestStatusCache")
 
@@ -22,54 +24,197 @@ class TestStatusCache(unittest.TestCase):
     def setUp(self):
         self.__m_originalDelay = mcsrouter.mcsclient.status_cache.MAX_STATUS_DELAY
 
+        # path value does not actually matter as the file system is mocked.
+        # only specified for completeness.
+        #self.__m_status_cached_path = "/opt/sophos-spl/base/mcs/status/cache"
+        self.__m_status_cached_path = "/tmp"
+
     def tearDown(self):
         mcsrouter.mcsclient.status_cache.MAX_STATUS_DELAY = self.__m_originalDelay
 
     def test_creation(self):
         cache = createCache()
 
-    def testCacheAllowsFirstStatus(self):
+
+    def _hash_string(self, string_to_hash):
+        hash_object = hashlib.md5(string_to_hash.encode())
+        return hash_object.hexdigest()
+
+    def _get_single_record_json_string(self, app_id, status_string):
+        status_time_stamp = time.time()
+        status_hash = self._hash_string(status_string)
+        return '{"' + app_id + '": {"timestamp": ' + str(status_time_stamp) + ', "status_hash":  "' + status_hash + '"}}'
+
+    def _get_multiple_record_json_string(self, app_id1, status_string1, app_id2, status_string2):
+        status_time_stamp = time.time()
+        status_hash1 = self._hash_string(status_string1)
+        status_hash2 = self._hash_string(status_string2)
+        return '{"' + app_id1 + '": {"timestamp": ' + str(status_time_stamp) + ', "status_hash":  "' + status_hash1 + '"}' \
+               + ', "' + app_id2 + '": {"timestamp": ' + str(status_time_stamp) + ', "status_hash":  "' + status_hash2 + '"}}'
+
+    @mock.patch('mcsrouter.mcsclient.status_cache.json')
+    @mock.patch('mcsrouter.mcsclient.status_cache.os.path')
+    def testCacheAllowsFirstStatus(self, mock_path, mock_json):
         cache = createCache()
-        ret = cache.has_status_changed_and_record("FOO","MyStatus")
-        self.assertTrue(ret)
+
+        json_string = self._get_single_record_json_string("FOO", "MyStatus")
+        json_dict = json.loads(json_string)
+
+        mock_path.isfile.return_value = False
+        mocked_open_write_function = mock.mock_open()
+        with mock.patch("builtins.open", mocked_open_write_function):
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            self.assertTrue(ret)
 
 
-    def testCacheAllowsDifferentStatuses(self):
+    @mock.patch('mcsrouter.mcsclient.status_cache.json')
+    @mock.patch('mcsrouter.mcsclient.status_cache.os.path')
+    def testCacheAllowsDifferentStatuses(self, mock_path, mock_json):
         cache = createCache()
-        ret = cache.has_status_changed_and_record("FOO","MyStatus")
-        self.assertTrue(ret)
-        ret = cache.has_status_changed_and_record("FOO","MyStatus2")
-        self.assertTrue(ret)
 
-    def testCachePreventsDuplicateStatuses(self):
+        json_string = self._get_single_record_json_string("FOO", "MyStatus")
+        json_dict = json.loads(json_string)
+
+        mock_path.isfile.return_value = False
+        mocked_open_write_function = mock.mock_open()
+        with mock.patch("builtins.open", mocked_open_write_function):
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            self.assertTrue(ret)
+
+        mock_path.isfile.return_value = True
+        mock_json.load.return_value = json_dict
+        mocked_open_read_function = mock.mock_open(read_data=json_string)
+        with mock.patch("builtins.open", mocked_open_read_function):
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus2", self.__m_status_cached_path)
+            self.assertTrue(ret)
+
+
+    @mock.patch('mcsrouter.mcsclient.status_cache.json')
+    @mock.patch('mcsrouter.mcsclient.status_cache.os.path')
+    def testCachePreventsDuplicateStatuses(self, mock_path, mock_json):
         cache = createCache()
-        ret = cache.has_status_changed_and_record("FOO","MyStatus")
-        self.assertTrue(ret)
-        ret = cache.has_status_changed_and_record("FOO","MyStatus")
-        self.assertFalse(ret)
 
-    def testCacheAllowsStatusAfterDelay(self):
+        json_string = self._get_single_record_json_string("FOO", "MyStatus")
+        json_dict = json.loads(json_string)
+
+        mock_path.isfile.return_value = False
+        mocked_open_write_function = mock.mock_open()
+        with mock.patch("builtins.open", mocked_open_write_function):
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            self.assertTrue(ret)
+
+        mock_path.isfile.return_value = True
+        mock_json.load.return_value = json_dict
+        mocked_open_read_function = mock.mock_open(read_data=json_string)
+        with mock.patch("builtins.open", mocked_open_read_function):
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            self.assertFalse(ret)
+
+
+    @mock.patch('mcsrouter.mcsclient.status_cache.json')
+    @mock.patch('mcsrouter.mcsclient.status_cache.os.path')
+    def testCacheHandlesDifferentAndSameStatusesCorrectly(self, mock_path, mock_json):
+        # test to ensure
+        cache = createCache()
+
+        json_string = self._get_single_record_json_string("FOO", "MyStatus")
+        json_dict = json.loads(json_string)
+
+        # 1st status should be added to cache
+        mock_path.isfile.return_value = False
+        mocked_open_write_function = mock.mock_open()
+        with mock.patch("builtins.open", mocked_open_write_function):
+            ret = cache.has_status_changed_and_record("FOO1", "MyStatus", self.__m_status_cached_path)
+            self.assertTrue(ret)
+
+        # 2nd status should be added to cache
+        mock_path.isfile.return_value = True
+        mock_json.load.return_value = json_dict
+        mocked_open_read_function = mock.mock_open(read_data=json_string)
+        with mock.patch("builtins.open", mocked_open_read_function):
+            ret = cache.has_status_changed_and_record("FOO2", "MyStatus2", self.__m_status_cached_path)
+            self.assertTrue(ret)
+
+        # 3rd status should be in cache
+        json_string = self._get_multiple_record_json_string("FOO1", "MyStatus", "FOO2", "MyStatus2")
+        json_dict = json.loads(json_string)
+
+        mock_path.isfile.return_value = True
+        mock_json.load.return_value = json_dict
+        mocked_open_read_function = mock.mock_open(read_data=json_string)
+        with mock.patch("builtins.open", mocked_open_read_function):
+            ret = cache.has_status_changed_and_record("FOO1", "MyStatus", self.__m_status_cached_path)
+            self.assertFalse(ret)
+
+
+    @mock.patch('mcsrouter.mcsclient.status_cache.json')
+    @mock.patch('mcsrouter.mcsclient.status_cache.os.path')
+    def testCacheAllowsStatusAfterDelay(self, mock_path, mock_json):
         mcsrouter.mcsclient.status_cache.MAX_STATUS_DELAY = 1
         cache = createCache()
-        ret = cache.has_status_changed_and_record("FOO","MyStatus")
-        self.assertTrue(ret)
+
+        json_string = self._get_single_record_json_string("FOO", "MyStatus")
+        json_dict = json.loads(json_string)
+
+        mock_path.isfile.return_value = False
+        mocked_open_write_function = mock.mock_open()
+        with mock.patch("builtins.open", mocked_open_write_function):
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            self.assertTrue(ret)
+
         time.sleep(2)
-        ret = cache.has_status_changed_and_record("FOO","MyStatus")
-        self.assertTrue(ret)
 
-    def testTimestampRemoved(self):
-        cache = createCache()
-        ret = cache.has_status_changed_and_record("FOO",' timestamp="2017-09-14T15:43:10.74112Z"')
-        self.assertTrue(ret)
-        ret = cache.has_status_changed_and_record("FOO",' timestamp="2017-09-14T19:43:10.74112Z"')
-        self.assertFalse(ret)
+        mock_path.isfile.return_value = True
+        mock_json.load.return_value = json_dict
+        mocked_open_read_function = mock.mock_open(read_data=json_string)
+        with mock.patch("builtins.open", mocked_open_read_function):
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            self.assertTrue(ret)
 
-    def testEscapedTimestampRemoved(self):
+    @mock.patch('mcsrouter.mcsclient.status_cache.json')
+    @mock.patch('mcsrouter.mcsclient.status_cache.os.path')
+    def testTimestampRemoved(self, mock_path, mock_json):
+        # Check that the time stamp is correctly removed to verify the status messages can be correctly compared.
         cache = createCache()
-        ret = cache.has_status_changed_and_record("NTP",' timestamp=&quot;2017-09-14T15:43:10.74112&quot;')
-        self.assertTrue(ret)
-        ret = cache.has_status_changed_and_record("NTP",' timestamp=&quot;2017-09-14T19:43:10.74112&quot;')
-        self.assertFalse(ret)
+
+        json_string = self._get_single_record_json_string("FOO", '  MyStatus')
+        json_dict = json.loads(json_string)
+
+        mock_path.isfile.return_value = False
+        mocked_open_write_function = mock.mock_open()
+        with mock.patch("builtins.open", mocked_open_write_function):
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp="2017-09-14T15:43:10.74112Z" MyStatus', self.__m_status_cached_path)
+            self.assertTrue(ret)
+
+        mock_path.isfile.return_value = True
+        mock_json.load.return_value = json_dict
+        mocked_open_read_function = mock.mock_open(read_data=json_string)
+        with mock.patch("builtins.open", mocked_open_read_function):
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp="2017-09-14T19:43:10.74112Z" MyStatus', self.__m_status_cached_path)
+            self.assertFalse(ret)
+
+    @mock.patch('mcsrouter.mcsclient.status_cache.json')
+    @mock.patch('mcsrouter.mcsclient.status_cache.os.path')
+    def testEscapedTimestampRemoved(self, mock_path, mock_json):
+        # Check that the time stamp is correctly removed to verify the status messages can be correctly compared.
+        cache = createCache()
+
+        json_string = self._get_single_record_json_string("FOO", '  MyStatus')
+        json_dict = json.loads(json_string)
+
+        mock_path.isfile.return_value = False
+        mocked_open_write_function = mock.mock_open()
+        with mock.patch("builtins.open", mocked_open_write_function):
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T15:43:10.74112&quot;', self.__m_status_cached_path)
+            self.assertTrue(ret)
+
+        mock_path.isfile.return_value = True
+        mock_json.load.return_value = json_dict
+        mocked_open_read_function = mock.mock_open(read_data=json_string)
+        with mock.patch("builtins.open", mocked_open_read_function):
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T19:43:10.74112&quot; MyStatus', self.__m_status_cached_path)
+            self.assertFalse(ret)
+
 
 # except ImportError:
 #     #logger.error("Bad sys.path: %s",str(sys.path))

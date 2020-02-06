@@ -119,6 +119,14 @@ def status_dir():
     """
     return os.path.join(mcs_path(), 'status')
 
+def status_cache_dir():
+    """
+    status_dir
+    """
+    return os.path.join(status_dir(), 'cache')
+
+
+
 # base/pluginRegistry
 
 

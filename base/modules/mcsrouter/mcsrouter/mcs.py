@@ -450,7 +450,7 @@ class MCS:
                         error_count = 0
                         # If re-registering due to a de-dupe from Central,
                         # clear cache and re-send status.
-                        self.__m_computer.clear_cache()
+                        self.__m_computer.clear_cache(path_manager.status_cache_dir())
                         status_updated(reason="reregistration")
 
                     self.check_registry_and_update_apps()
