@@ -20,6 +20,8 @@ export CXX=/usr/bin/g++
 
 cmake ../
 
+cov-configure --gcc
+
 cov-build --dir covdir make -j2
 
 cov-import-scm --dir covdir --scm git --filename-regex ${EDR_PLUGIN}/\.\*
