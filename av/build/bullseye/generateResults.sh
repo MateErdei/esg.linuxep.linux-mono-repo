@@ -12,19 +12,24 @@ function exitFailure()
     exit $E
 }
 
+[[ -n ${BULLSEYE_DIR} ]] || exitFailure 1 "BULLSEYE_DIR not set"
+[[ -n ${COVFILE} ]] || exitFailure 2 "COVFILE not set"
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-av-unittest
 [[ -n ${htmldir} ]] || htmldir=output/coverage/${COV_HTML_BASE}
-export htmldir
 
 PRIVATE_KEY=${BASE}/build/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=build/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
 
-bash ${0%/*}/generateResults.sh || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+echo "Exclusions:"
+covselect --list --no-banner --file "$COVFILE"
 
-## Ensure ssh won't complain about private key permissions:
-chmod 600 ${PRIVATE_KEY}
-rsync -va --rsh="ssh -i build/bullseye/private.key" --delete $htmldir \
-    upload@allegro.eng.sophos:public_html/bullseye/  \
-    </dev/null \
-    || exitFailure $FAILURE_BULLSEYE "Failed to upload bulleye html"
+$BULLSEYE_DIR/bin/covhtml \
+    --file "$COVFILE"     \
+    --srcdir /            \
+    --verbose             \
+    "$htmldir"            \
+    </dev/null            \
+    || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+
+chmod -R a+rX "$htmldir"

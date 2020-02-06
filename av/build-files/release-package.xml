@@ -48,7 +48,7 @@
         </command>
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --name av --bullseye</args>
+            <args>./build.sh --name av --esg-ci-coverage</args>
             <workingdir>sspl-plugin-anti-virus</workingdir>
         </command>
     </buildcommands>

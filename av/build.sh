@@ -132,6 +132,11 @@ do
         --no-unit-test)
             UNITTEST=0
             ;;
+        --esg-ci-coverage)
+            BULLSEYE=1
+            UNITTEST=1
+            BULLSEYE_UPLOAD=0
+            ;;
         --bullseye|--bulleye)
             BULLSEYE=1
             BULLSEYE_UPLOAD=1
@@ -332,13 +337,22 @@ function build()
         cp -a build${BITS}/symbols output/
     fi
 
-    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
+
+    htmldir=$BASE/output/coverage_html
+    if (( ${BULLSEYE_UPLOAD} == 1 ))
     then
         ## Process bullseye output
         ## upload unit tests
         cd $BASE
         export BASE
+        export htmldir
         bash -x build/bullseye/uploadResults.sh || exit $?
+    elif (( ${BULLSEYE} == 1 ))
+    then
+        cd $BASE
+        export BASE
+        export htmldir
+        bash -x build/bullseye/generateResults.sh || exit $?
     fi
 
     echo "Build Successful"
