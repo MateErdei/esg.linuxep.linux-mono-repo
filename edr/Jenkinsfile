@@ -36,19 +36,30 @@ try{
                 version_number,
                 project_builddir)
             echo 'Finished edr master release build'
-        }//,
-        // TODO - uncomment this when CI supports bullseye
-//         coverage_build:
-//         {
-//             echo 'Starting edr master coverage build'
-//             ArtisanBuild(
-//                 buildAgentTemplate,
-//                 project_release_xml,
-//                 'coverage',
-//                 version_number,
-//                 project_builddir)
-//             echo 'Finished edr master coverage build'
-//         }
+        },
+        //TODO - uncomment this when CI supports bullseye
+        coverage_build:
+        {
+            echo 'Starting edr master coverage build'
+            ArtisanBuild(
+                JenkinsLinuxTemplate3,
+                project_release_xml,
+                'coverage',
+                version_number,
+                project_builddir)
+            echo 'Finished edr master coverage build'
+        },
+        coverity_build:
+        {
+            echo 'Starting edr master coverage build'
+            ArtisanBuild(
+                JenkinsLinuxTemplate3,
+                project_release_xml,
+                'coverity',
+                version_number,
+                project_builddir)
+            echo 'Finished edr master coverage build'
+        }
     }
     else
     {

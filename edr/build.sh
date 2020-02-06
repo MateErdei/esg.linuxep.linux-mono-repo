@@ -72,6 +72,10 @@ do
         --no-build)
             NO_BUILD=1
             ;;
+        --coverity)
+            NO_BUILD=1
+            COVERITY=1
+            ;;
         --no-unpack)
             NO_UNPACK=1
             ;;
@@ -269,6 +273,16 @@ function build()
 
     if [[ $NO_BUILD == 1 ]]
     then
+      if [[ $COVERITY == 1 ]]
+      then
+        bash -x $BASE/build/coverity/coverity.sh || {
+            ## component tests failed to sync or similar
+            EXIT=$?
+            echo " Coverity build failed: $EXIT"
+            exit ${EXIT}
+        }
+        #do coverity
+      fi
         exit 0
     fi
 

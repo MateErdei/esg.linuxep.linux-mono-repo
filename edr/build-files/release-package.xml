@@ -54,6 +54,12 @@
             <args>./build.sh --clean --name edr --bullseye</args>
             <workingdir>sspl-edr-plugin-build</workingdir>
         </command>
+
+        <command mode="coverity">
+            <program>/bin/bash</program>
+            <args>./build.sh --no-build --name edr --coverity</args>
+            <workingdir>sspl-edr-plugin-build</workingdir>
+        </command>
         <!--<command buildtype="dev">>
             <program>/bin/bash</program>
             <args>./build.sh - -clean - -debug - -name mtr</args> 'When put back remove spaces between hyphens'
