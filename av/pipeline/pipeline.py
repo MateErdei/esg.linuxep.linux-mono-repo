@@ -18,7 +18,9 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return branch_name == 'master' or branch_name.endswith('coverage')
+    return branch_name in ('master'
+                           'bugfix/get_coverage_builds_working'
+                           ) or branch_name.endswith('coverage')
 
 
 def install_requirements(machine: tap.Machine):
@@ -63,8 +65,9 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
         test_scripts=context.artifact.from_folder('./TA'),
         av=context.artifact.build() / 'output'
     )
-    # override the edr input and get the bullseye coverage build instead
-    if coverage and has_coverage_build(context.branch):
+    # override the av input and get the bullseye coverage build instead
+    if coverage:
+        assert has_coverage_build(context.branch)
         test_inputs['av'] = context.artifact.build() / 'coverage'
 
     return test_inputs
@@ -73,13 +76,19 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
 @tap.pipeline(version=1, component='sspl-plugin-anti-virus')
 def av_plugin(stage: tap.Root, context: tap.PipelineContext):
     machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
-    machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
-                                        inputs=get_inputs(context,
-                                                          coverage=True),
-                                        platform=tap.Platform.Linux)
+    has_coverage = has_coverage_build(context.branch)
+    if has_coverage:
+        machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
+                                            inputs=get_inputs(context,
+                                                              coverage=True),
+                                            platform=tap.Platform.Linux)
+    else:
+        machine_bullseye_test = None
+
     with stage.group('integration'):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     with stage.group('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
-        stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test)
+        if has_coverage:
+            stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test)
 
