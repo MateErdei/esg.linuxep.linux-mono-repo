@@ -30,7 +30,7 @@ cov-analyze --dir covdir --security --concurrency --enable-constraint-fpp --enab
 cov-format-errors --dir covdir --html-output cov-html --include-files ${EDR_PLUGIN} --strip-path $EDR_PLUGIN -X
 
 echo $(pwd)
-ll ../build/coveritycoverity.key
+ll ../build/coverity/coverity.key
 chmod 600 ../build/coveritycoverity.key
 cov-commit-defects --dir covdir --host abn-coverity1.green.sophos --https-port 8443 --ssl --auth-key-file ../build/coverity/coverity.key \
     --stream "SSP-Linux-Plugin-EDR" --strip-path "${EDR_PLUGIN}" --on-new-cert trust --scm git --certs ../build/coverity/sophos-certs.crt \

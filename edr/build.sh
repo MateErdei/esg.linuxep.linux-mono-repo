@@ -228,6 +228,8 @@ function build()
         untar_input cmake cmake-3.11.2-linux
         untar_input $GOOGLETESTTAR
         untar_input boost
+        untar_input osquerysdk
+        untar_input openssl
 
         mkdir -p "$REDIST"/osquery
         tar xzf ${INPUT}/osquery-4.0.2_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
@@ -275,7 +277,6 @@ function build()
       if [[ $COVERITY == 1 ]]
       then
         bash -x $BASE/build/coverity/coverity.sh || {
-            ## component tests failed to sync or similar
             EXIT=$?
             echo " Coverity build failed: $EXIT"
             exit ${EXIT}
@@ -338,6 +339,11 @@ function build()
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
     cp -a ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
+    cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
+    if [[ ${BULLSEYE} == 1 ]]
+    then
+      cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
+    fi
 
     if [[ -d build${BITS}/symbols ]]
     then
