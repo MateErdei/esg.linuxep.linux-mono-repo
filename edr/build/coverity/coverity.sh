@@ -3,6 +3,7 @@
 hostname
 ip addr
 ls /usr/local/share/ca-certificates/
+which cov-commit-defects
 
 STARTINGDIR=${BASE}
 EDR_PLUGIN="$STARTINGDIR"/sspl-edr-plugin-build
@@ -29,6 +30,6 @@ cov-analyze --dir covdir --security --concurrency --enable-constraint-fpp --enab
 
 cov-format-errors --dir covdir --html-output cov-html --include-files ${EDR_PLUGIN} --strip-path $EDR_PLUGIN -X
 
-cov-commit-defects --dir covdir --host abn-coverity1.green.sophos --https-port 8443 --ssl --auth-key-file ~/coverity.key \
-    --stream "SSP-Linux-Plugin-EDR" --strip-path "${EDR_PLUGIN}" --on-new-cert trust --scm git --certs ~/sophos-certs.crt \
+cov-commit-defects --dir covdir --host abn-coverity1.green.sophos --https-port 8443 --ssl --auth-key-file coverity.key \
+    --stream "SSP-Linux-Plugin-EDR" --strip-path "${EDR_PLUGIN}" --on-new-cert trust --scm git --certs sophos-certs.crt \
     --description "$BUILD_TAG"
