@@ -1,0 +1,9 @@
+#!/usr/bin/env groovy
+@Library("tap-pipe")
+
+def params = [
+    string(name: 'UPSTREAM_CONTEXT',
+           defaultValue: '{}',
+           description: 'Information about the build which triggered this in JSON.'),
+]
+tapPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'sspl-base'; buildParameters = params }
