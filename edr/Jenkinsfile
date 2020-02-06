@@ -42,7 +42,7 @@ try{
         {
             echo 'Starting edr master coverage build'
             ArtisanBuild(
-                JenkinsLinuxTemplate3,
+                'JenkinsLinuxTemplate3',
                 project_release_xml,
                 'coverage',
                 version_number,
@@ -53,7 +53,7 @@ try{
         {
             echo 'Starting edr master coverage build'
             ArtisanBuild(
-                JenkinsLinuxTemplate3,
+                'JenkinsLinuxTemplate3',
                 project_release_xml,
                 'coverity',
                 version_number,
