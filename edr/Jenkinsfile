@@ -24,7 +24,7 @@ try{
 
     git_branch = "${env.BRANCH_NAME}"
     echo git_branch
-    if (git_branch == 'master')
+    if (git_branch == 'feature/LINUXDAR-1278-move-bullseye-and-coverity-for-the-edr-plugin-to-ci-and-tap')
     {
         parallel Build:
         {
