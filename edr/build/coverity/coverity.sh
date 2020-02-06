@@ -9,15 +9,13 @@ STARTINGDIR=${BASE}
 EDR_PLUGIN="$STARTINGDIR"/sspl-edr-plugin-build
 EDR_PLUGIN_REDIST="$EDR_PLUGIN"/redist
 
-
 cd "$EDR_PLUGIN"
-python3 -m build_scripts.artisan_fetch build-files/release-package.xml
 
 rm -rf build64/
 mkdir -p build64
 cd build64
 
-export PATH=/home/jenkins/coverity/bin:/usr/local/bin:"$EDR_PLUGIN_REDIST"/cmake/bin:${PATH}
+export PATH=/usr/local/bin:"$EDR_PLUGIN_REDIST"/cmake/bin:${PATH}
 
 cmake ../
 
@@ -32,7 +30,8 @@ cov-analyze --dir covdir --security --concurrency --enable-constraint-fpp --enab
 cov-format-errors --dir covdir --html-output cov-html --include-files ${EDR_PLUGIN} --strip-path $EDR_PLUGIN -X
 
 echo $(pwd)
-ls
-cov-commit-defects --dir covdir --host abn-coverity1.green.sophos --https-port 8443 --ssl --auth-key-file coverity.key \
-    --stream "SSP-Linux-Plugin-EDR" --strip-path "${EDR_PLUGIN}" --on-new-cert trust --scm git --certs sophos-certs.crt \
+ll ../build/coveritycoverity.key
+chmod 600 ../build/coveritycoverity.key
+cov-commit-defects --dir covdir --host abn-coverity1.green.sophos --https-port 8443 --ssl --auth-key-file ../build/coveritycoverity.key \
+    --stream "SSP-Linux-Plugin-EDR" --strip-path "${EDR_PLUGIN}" --on-new-cert trust --scm git --certs ../build/coveritysophos-certs.crt \
     --description "$BUILD_TAG"
