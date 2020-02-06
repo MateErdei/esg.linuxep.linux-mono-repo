@@ -290,7 +290,7 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertTrue(command.m_complete)
 
         self.assertEqual(123, policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM", 0))
-        self.assertEqual(123, policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", 0))
+        self.assertEqual(14400, policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", 0))
 
     def testNoAttributeInPollingElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
