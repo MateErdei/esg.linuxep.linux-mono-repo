@@ -438,6 +438,7 @@ namespace Plugin
             {
                 LOGINFO("AuditD not found on system or is not active.");
             }
+            breakLinkBetweenJournaldAndAuditSubsystem();
         }
         else
         {
@@ -450,6 +451,42 @@ namespace Plugin
 
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditD);
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
+    }
+
+    void PluginAdapter::runSystemCtlCommand(const std::string& command const std::string& target)
+    {
+        auto process = Common::Process::createProcess();
+        process->exec(Plugin::systemctlPath(), { command, target });
+
+        if (process->exitCode() != 0)
+        {
+            // Add throw here
+            LOGWARN("Failed to run systemctl command: " << command << " " << target);
+        }
+    }
+
+    bool PluginAdapter::checkIfJournaldLinkedToAuditSubsystem()
+    {
+        //bool returnValue = true;
+        return true; //(returnValue);
+    }
+
+    void PluginAdapter::breakLinkBetweenJournaldAndAuditSubsystem()
+    {
+        if (checkIfJournaldLinkedToAuditSubsystem())
+        {
+            try
+            {
+
+                runSystemCtlCommand("mask", "systemd-journald-audit.socket");
+                runSystemCtlCommand("stop", "systemd-journald");
+                runSystemCtlCommand("start", "systemd-journald");
+            }
+            catch (std::exception& ex)
+            {
+                LOGERROR("Failed to break link between audit subsystem and journald: " << ex.what());
+            }
+        }
     }
 
 } // namespace Plugin

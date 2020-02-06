@@ -54,6 +54,9 @@ namespace Plugin
         bool checkIfServiceActive(const std::string& serviceName);
         void stopSystemService(const std::string& serviceName);
         void prepareSystemForPlugin();
+        void runSystemCtlCommand(const std::string& command const std::string& target);
+        bool checkIfJournaldLinkedToAuditSubsystem();
+        void breakLinkBetweenJournaldAndAuditSubsystem();
 
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
