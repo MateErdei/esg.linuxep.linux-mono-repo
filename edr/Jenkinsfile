@@ -6,7 +6,7 @@ version_key = '1.0.2'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-edr-component.git'
 project_builddir = 'sspl-edr-plugin-build'
 project_release_xml = 'build-files/release-package.xml'
-buildAgentTemplate = 'JenkinsLinuxTemplate1'
+buildAgentTemplate = 'JenkinsLinuxTemplate3'
 
 properties([
   parameters([

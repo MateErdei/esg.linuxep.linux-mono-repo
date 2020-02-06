@@ -5,8 +5,8 @@ def params = [
     string(name: 'UPSTREAM_CONTEXT',
            defaultValue: '{}',
            description: 'Information about the build which triggered this in JSON.'),
-    choice(name: 'coverage',
-           choices: 'no\nyes',
+    choice(name: 'RUN_TESTS_ON_COVERAGE',
+           choices: 'no\yes',
            defaultValue: 'no',
            description: 'If the we should also run tests against the coverage build')
 ]

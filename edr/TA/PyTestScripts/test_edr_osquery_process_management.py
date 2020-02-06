@@ -53,8 +53,9 @@ def _wait_for_osquery_to_stop(pid):
             time.sleep(1)
             continue
         return
-
-    raise AssertionError("osqueryd failed to stop")
+    with open('/proc/{}/status') as handler:
+        content = handler.read()
+    raise AssertionError("osqueryd failed to stop. Information {}".format(content))
 
 
 def detect_failure(func):
