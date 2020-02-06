@@ -31,7 +31,7 @@ cov-format-errors --dir covdir --html-output cov-html --include-files ${EDR_PLUG
 
 echo $(pwd)
 ll ../build/coverity/coverity.key
-chmod 600 ../build/coveritycoverity.key
+chmod 600 ../build/coverity/coverity.key
 cov-commit-defects --dir covdir --host abn-coverity1.green.sophos --https-port 8443 --ssl --auth-key-file ../build/coverity/coverity.key \
     --stream "SSP-Linux-Plugin-EDR" --strip-path "${EDR_PLUGIN}" --on-new-cert trust --scm git --certs ../build/coverity/sophos-certs.crt \
     --description "$BUILD_TAG"
