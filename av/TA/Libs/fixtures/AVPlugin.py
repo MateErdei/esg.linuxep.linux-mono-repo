@@ -4,12 +4,16 @@ import time
 import grp
 import pwd
 
+import logging
+logger = logging.getLogger("AVPlugin")
+logger.setLevel(logging.DEBUG)
+
 
 def _sophos_spl_path():
     return os.environ['SOPHOS_INSTALL']
 
 
-PLUGIN_NAME="av"
+PLUGIN_NAME = "av"
 
 
 def _av_plugin_dir():
@@ -63,13 +67,22 @@ class AVPlugin(object):
         """
         Stop Plugin and allow graceful termination
         """
+        logger.debug("Start stop_av")
         if self._proc:
             self._proc.terminate()
-            self._proc.wait()
+            try:
+                self._proc.wait(15)
+            except subprocess.TimeoutExpired:
+                logger.fatal("Timeout attempting to terminate av plugin")
+                logger.fatal("Log: %s", self.log())
+                self._proc.kill()
+                self._proc.wait()
+
             self._proc = None
         if self._failed:
             print("Report on Failure:")
             print(self.log())
+        logger.debug("Finish stop_av")
 
     def kill_av(self):
         """

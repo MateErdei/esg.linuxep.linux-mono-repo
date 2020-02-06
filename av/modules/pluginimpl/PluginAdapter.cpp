@@ -36,27 +36,31 @@ namespace
     class ThreadRunner
     {
     public:
-        explicit ThreadRunner(Common::Threads::AbstractThread& thread)
-            : m_thread(thread)
+        explicit ThreadRunner(Common::Threads::AbstractThread& thread, std::string name)
+            : m_thread(thread), m_name(std::move(name))
         {
+            LOGINFO("Starting "<<name);
             m_thread.start();
         }
         ~ThreadRunner()
         {
+            LOGINFO("Stopping "<<m_name);
             m_thread.requestStop();
+            LOGINFO("Joining "<<m_name);
             m_thread.join();
         }
 
     private:
         Common::Threads::AbstractThread& m_thread;
+        std::string m_name;
     };
 }
 
 void PluginAdapter::mainLoop()
 {
     LOGINFO("Entering the main loop");
-    ThreadRunner scheduler(m_scanScheduler); // Automatically terminate scheduler on both normal exit and exceptions
-    ThreadRunner sophos_thread_detector(*m_sophosThreadDetector);
+    ThreadRunner scheduler(m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
+    ThreadRunner sophos_thread_detector(*m_sophosThreadDetector, "threatDetector");
     innerLoop();
 }
 

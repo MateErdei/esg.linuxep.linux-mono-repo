@@ -45,31 +45,49 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
             [this]() {subprocess_exited();}
     );
 
+    struct timespec restartBackoff{};
+    restartBackoff.tv_sec = 0;
+    restartBackoff.tv_nsec = 100*1000*1000;
+
+
     while (!terminate)
     {
-        LOGINFO("Starting "<< m_scanner_path);
-        process->exec(m_scanner_path, {});
-
-        // TODO - more investigation on how subprocess exit is handled?
-        while (process->getStatus() == Common::Process::ProcessStatus::RUNNING && !terminate)
-        {
-            process->wait(Common::Process::milli(100), 1);
-            terminate = stopRequested();
-        }
+        // Check if we should terminate before doing anything else
+        terminate = stopRequested();
         if (terminate)
         {
             break;
+        }
+
+        if (process->getStatus() != Common::Process::ProcessStatus::RUNNING)
+        {
+            LOGINFO("Starting " << m_scanner_path);
+            process->exec(m_scanner_path, {});
+        }
+
+        process->wait(Common::Process::milli(100), 1);
+
+        terminate = stopRequested();
+        if (terminate)
+        {
+            break;
+        }
+
+        if (process->getStatus() == Common::Process::ProcessStatus::RUNNING)
+        {
+            restartBackoff.tv_sec = 0;
         }
         else
         {
             std::string output = process->output();
             process->waitUntilProcessEnds();
             LOGERROR("sophos_threat_detector exiting with "<< process->exitCode());
-            LOGERROR("Output: "<< output);
-            struct timespec sleepPeriod{};
-            sleepPeriod.tv_sec = 0;
-            sleepPeriod.tv_nsec = 100*1000*1000;
-            nanosleep(&sleepPeriod, nullptr);
+            if (!output.empty())
+            {
+                LOGERROR("Output: " << output);
+            }
+            nanosleep(&restartBackoff, nullptr);
+            restartBackoff.tv_sec += 1;
         }
     }
     process->kill();

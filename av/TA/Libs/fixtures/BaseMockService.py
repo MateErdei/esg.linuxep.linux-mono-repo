@@ -6,6 +6,10 @@ import subprocess
 import glob
 import re
 
+import logging
+logger = logging.getLogger("BaseMockService")
+logger.setLevel(logging.DEBUG)
+
 from Libs.FakeManagement import FakeManagement
 
 PLUGIN = "av"
@@ -150,7 +154,6 @@ def install_component(sophos_install):
         run_shell(['chmod', '+x', os.path.join(component_tests_dir, '*')])
 
 
-
 def component_test_setup(sophos_install):
     for rel_path in ['tmp', os.path.join('plugins', COMPONENT_NAME, 'log')]:
         full_path = os.path.join(sophos_install, rel_path)
@@ -167,4 +170,6 @@ class BaseMockService(object):
         self.management.start_fake_management()
 
     def cleanup(self):
+        logger.debug("Start cleanup")
         self.management.stop_fake_management()
+        logger.debug("Finish cleanup")
