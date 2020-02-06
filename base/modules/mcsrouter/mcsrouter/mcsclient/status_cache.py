@@ -32,8 +32,6 @@ class StatusCache:
         """
         __init__
         """
-        self.__m_adapter_status_cache = {}
-
 
     def _remove_timestamp_from_status(self, status_xml):
         status_xml = status_xml.replace('&quot;', '"')
@@ -52,6 +50,9 @@ class StatusCache:
         @return True if status changed
 
         """
+
+        adapter_status_cache = {}
+
         assert isinstance(adapter_status_xml, str)
         now = time.time()
 
