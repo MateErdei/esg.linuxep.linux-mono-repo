@@ -19,7 +19,8 @@ namespace Plugin
         {
             Policy,
             Stop,
-            Action
+            Action,
+            ScanComplete
         };
         TaskType taskType;
         std::string Content;

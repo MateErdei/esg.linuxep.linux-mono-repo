@@ -13,10 +13,11 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 
 #include <Common/PluginApi/IBaseServiceApi.h>
+#include <modules/manager/scheduler/IScanComplete.h>
 
 namespace Plugin
 {
-    class PluginAdapter
+    class PluginAdapter : public IScanComplete
     {
     private:
         std::shared_ptr<QueueTask> m_queueTask;
@@ -31,10 +32,10 @@ namespace Plugin
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
             std::shared_ptr<PluginCallback> callback);
         void mainLoop();
+        void processScanComplete(std::string& scanCompletedXml) override;
 
     private:
         void processPolicy(const std::string& policyXml);
-        void processAction(const std::string& actionXml);
         void innerLoop();
 
     };
