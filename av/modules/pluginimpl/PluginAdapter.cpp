@@ -82,8 +82,10 @@ void PluginAdapter::innerLoop()
                 //TODO LINUXDAR-1405 Process the action
                 // processAction()
                 break;
+
             case Task::TaskType::ScanComplete:
                 m_baseService->sendEvent("2", task.Content);
+                break;
         }
     }
 }
