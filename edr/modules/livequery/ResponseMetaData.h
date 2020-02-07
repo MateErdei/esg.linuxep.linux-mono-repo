@@ -11,6 +11,12 @@ namespace livequery
 {
     class ResponseMetaData
     {
-        // TODO LINUXDAR-831: placeholder only to be filled up when the metadata is to be calculated.
+    public:
+        ResponseMetaData();
+        ResponseMetaData(long queryStart);
+        long getQueryStart() const;
+
+    private:
+        long m_queryStartMillisEpoch;
     };
 } // namespace livequery

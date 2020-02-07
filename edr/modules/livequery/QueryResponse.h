@@ -21,7 +21,7 @@ namespace livequery
         {
             return QueryResponse {};
         }
-        QueryResponse(ResponseStatus status, ResponseData data) : m_status(std::move(status)), m_data(std::move(data))
+        QueryResponse(ResponseStatus status, ResponseData data, ResponseMetaData metaData) : m_status(std::move(status)), m_metaData(metaData), m_data(std::move(data))
         {
         }
         void setMetaData(const ResponseMetaData&);

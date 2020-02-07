@@ -26,7 +26,7 @@ namespace
      * empty.
      * For tests, the easiest way to 'reproduce' this issue is to issue 2 queries. For example:
      * select name from processes; select pid from processes;
-     * Osquery getQueryColumns will return only the informatio of name for the queries above.
+     * Osquery getQueryColumns will return only the information of name for the queries above.
      *
      * For this reason, this method starts from the information given in the queryColumnsInfo and deduce any extra
      * column based on the data provided by osquery.
@@ -72,7 +72,7 @@ namespace
             status.overrideErrorDescription(overrideMessage);
         }
 
-        return livequery::QueryResponse { status, livequery::ResponseData::emptyResponse() };
+        return livequery::QueryResponse {status, livequery::ResponseData::emptyResponse(), livequery::ResponseMetaData()};
     }
 } // namespace
 
@@ -89,6 +89,9 @@ namespace osqueryclient
             osquery::QueryData queryData;
             auto client = osqueryclient::factory().create();
             client->connect(m_socketPath);
+
+            // Metadata includes query duration
+            long start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 
             auto osqueryStatus = client->query(query, queryData);
             if (!osqueryStatus.ok())
@@ -108,10 +111,7 @@ namespace osqueryclient
 
             livequery::ResponseStatus status { livequery::ErrorCode::SUCCESS };
 
-            livequery::QueryResponse response { status, livequery::ResponseData { headers, queryData } };
-
-            livequery::ResponseMetaData metaData;
-            response.setMetaData(metaData);
+            livequery::QueryResponse response { status, livequery::ResponseData { headers, queryData }, livequery::ResponseMetaData{start}};
 
             return response;
         }

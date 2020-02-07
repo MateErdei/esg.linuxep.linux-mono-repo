@@ -48,7 +48,7 @@ public:
     {
         livequery::ResponseStatus status { livequery::ErrorCode::SUCCESS };
 
-        livequery::QueryResponse response { status, livequery::ResponseData { headers, columnData } };
+        livequery::QueryResponse response { status, livequery::ResponseData { headers, columnData }, livequery::ResponseMetaData() };
 
         livequery::ResponseMetaData metaData;
         response.setMetaData(metaData);
@@ -60,7 +60,7 @@ public:
         livequery::ResponseStatus status { errorCode };
         status.overrideErrorDescription(description);
 
-        livequery::QueryResponse response { status, livequery::ResponseData::emptyResponse() };
+        livequery::QueryResponse response { status, livequery::ResponseData::emptyResponse(), livequery::ResponseMetaData() };
 
         livequery::ResponseMetaData metaData;
         response.setMetaData(metaData);

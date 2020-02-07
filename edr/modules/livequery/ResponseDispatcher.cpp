@@ -79,11 +79,21 @@ namespace
         livequery::ResponseData::ValueType m_valueType;
     };
 
-    std::string queryMetaDataObject(const livequery::QueryResponse& queryResponse, bool exceededLimit)
+    std::string queryMetaDataObject(const livequery::QueryResponse& queryResponse, size_t sizeInBytes, bool exceededLimit)
     {
         nlohmann::json queryMetaData;
-        // queryMetaData["durationMillis"] = 32;
-        // queryMetaData["sizeBytes"] = 490;
+
+        queryMetaData["sizeBytes"] = exceededLimit ? 0 : sizeInBytes;
+
+        // We define this to be the end of the query as we're done querying and we have also serialised much of the data to JSON.
+        if (queryResponse.metaData().getQueryStart() != 0)
+        {
+            auto nowMilliEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                     std::chrono::steady_clock::now().time_since_epoch())
+                                     .count();
+            queryMetaData["durationMillis"] = nowMilliEpoch - queryResponse.metaData().getQueryStart();
+        }
+
         if (queryResponse.status().errorCode() != livequery::ErrorCode::OSQUERYERROR &&
             !queryResponse.data().hasDataExceededLimit() && queryResponse.data().hasHeaders())
         {
@@ -156,7 +166,8 @@ namespace livequery
             LOGERROR("Serialize to Json failed: " << error.what());
             // consistent with Windows behaviour: https://stash.sophos.net/projects/WINEP/repos/livequery/browse/src/ExtensionLib/QueryProcessorCallback.cpp#210
             QueryResponse error102{ResponseStatus{ErrorCode::UNEXPECTEDERROR},
-                                   ResponseData::emptyResponse()};
+                                   ResponseData::emptyResponse(),
+                                   ResponseMetaData()};
             fileContent = serializeToJson(error102);
         }
         LOGDEBUG("Query result: " << fileContent);
@@ -187,10 +198,11 @@ namespace livequery
     {
         std::string columnDataObjectSerialized;
         bool limitExceeded = false;
+        size_t sizeBytes = 0;
         if (!response.data().columnData().empty())
         {
             columnDataObjectSerialized = columnDataObject(response);
-            auto sizeBytes = columnDataObjectSerialized.size();
+            sizeBytes = columnDataObjectSerialized.size();
             if (sizeBytes > 10 * 1024 * 1024)
             {
                 LOGWARN("Limit exceeded. Response would have: " << sizeBytes << " bytes");
@@ -203,7 +215,7 @@ namespace livequery
 "type": "sophos.mgt.response.RunLiveQuery")";
 
         serializedJson << R"(,
-"queryMetaData": )" << queryMetaDataObject(response, limitExceeded);
+"queryMetaData": )" << queryMetaDataObject(response, sizeBytes, limitExceeded);
 
         if (response.data().hasHeaders())
         {
