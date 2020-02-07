@@ -9,6 +9,8 @@ Resource  ../GeneralTeardownResource.robot
 
 Test Teardown  Test Teardown
 
+Default Tags  FAKE_CLOUD
+
 *** Test Case ***
 MCSPushServer Can Be Used To Send Push Server Message
     Start MCS Push Server
@@ -24,7 +26,7 @@ MCSPushServer Can Be Used To Send Push Server Message
 # a problem.
 # FIXME: LINUXDAR-1400 - Verify this is not a problem with the real push server from central
 Client Should Detect Push Server Disconnection
-    [Tags]  TESTFAILURE
+    [Tags]  TESTFAILURE  FAKE_CLOUD
     Start MCS Push Server
     Start SSE Client
     Check MCS Push Message Sent    Single Message
