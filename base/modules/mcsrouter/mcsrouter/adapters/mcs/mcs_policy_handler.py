@@ -11,6 +11,7 @@ import xml.dom.minidom
 import xml.parsers.expat  # for xml.parsers.expat.ExpatError
 
 import mcsrouter.utils.path_manager as path_manager
+import mcsrouter.utils.default_values as default_values
 import mcsrouter.utils.utf8_write
 import mcsrouter.utils.xml_helper
 
@@ -176,11 +177,13 @@ class MCSPolicyHandler:
         """
         __apply_polling_delay
         """
-        min_poll_value = str(self.__get_default_int_value(dom, "commandPollingDelay", 20))
+        min_poll_value = str(self.__get_default_int_value(dom, "commandPollingDelay",
+                                                          default_values.get_default_command_poll()))
         #TODO LINUXDAR-1412 set COMMAND_CHECK_INTERVAL_MAXIMUM to flagsPollingInterval
-        #max_poll_value = str(self.__get_default_int_value(dom, "flagsPollingInterval", 4*3600))
+        #max_poll_value = str(self.__get_default_int_value(dom, "flagsPollingInterval"
+        # , default_values.get_default_flgs_poll()))
         max_poll_value = min_poll_value
-        ping_timeout = str(self.__get_int_value(dom, "pushPingTimeout", 90))
+        ping_timeout = str(self.__get_int_value(dom, "pushPingTimeout", default_values.get_default_push_ping_timeout()))
         push_poll_value = str(self.__get_int_value(dom, "pushFallbackPollInterval", int(min_poll_value)))
 
 

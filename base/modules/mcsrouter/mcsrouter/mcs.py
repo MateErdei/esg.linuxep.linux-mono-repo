@@ -37,6 +37,7 @@ from .utils import config as config_module
 from .utils import directory_watcher as directory_watcher_module
 from .utils import id_manager
 from .utils import path_manager
+from .utils import default_values
 from .utils import plugin_registry
 from .utils import signal_handler
 from .utils import timestamp
@@ -49,9 +50,9 @@ class CommandCheckInterval:
     """
     CommandCheckInterval
     """
-    # seconds*minutes
-    DEFAULT_MAX_POLLING_INTERVAL = 60*30
-    DEFAULT_MIN_POLLING_INTERVAL = 20
+
+    DEFAULT_MAX_POLLING_INTERVAL = default_values.get_default_flags_poll()
+    DEFAULT_MIN_POLLING_INTERVAL = default_values.get_default_command_poll()
 
 
     def __init__(self, config):
