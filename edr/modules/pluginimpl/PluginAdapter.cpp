@@ -453,22 +453,29 @@ namespace Plugin
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
     }
 
-    void PluginAdapter::runSystemCtlCommand(const std::string& command const std::string& target)
+    std::string PluginAdapter::runSystemCtlCommand(const std::string& command, const std::string& target, bool returnValue)
     {
         auto process = Common::Process::createProcess();
         process->exec(Plugin::systemctlPath(), { command, target });
 
-        if (process->exitCode() != 0)
+        if (process->exitCode() == 0)
         {
-            // Add throw here
-            LOGWARN("Failed to run systemctl command: " << command << " " << target);
+            if (returnValue)
+            {
+                return process->output();
+            }
+            return "";
         }
+        LOGWARN("Failed to run systemctl command: " << command << " " << target);
+        return "";
+
     }
 
     bool PluginAdapter::checkIfJournaldLinkedToAuditSubsystem()
     {
-        //bool returnValue = true;
-        return true; //(returnValue);
+        std::string linkStatus;
+        linkStatus = runSystemCtlCommand("is-enabled", "systemd-journald-audit.socket", true);
+        return !(linkStatus == "masked");
     }
 
     void PluginAdapter::breakLinkBetweenJournaldAndAuditSubsystem()
@@ -477,16 +484,17 @@ namespace Plugin
         {
             try
             {
-
+                LOGINFO("Masking journald audit socket");
                 runSystemCtlCommand("mask", "systemd-journald-audit.socket");
                 runSystemCtlCommand("stop", "systemd-journald");
                 runSystemCtlCommand("start", "systemd-journald");
             }
             catch (std::exception& ex)
             {
-                LOGERROR("Failed to break link between audit subsystem and journald: " << ex.what());
+                LOGERROR("Failed to mask journald audit socket: " << ex.what());
             }
         }
+        LOGDEBUG("Jounald audit socket is already masked");
     }
 
 } // namespace Plugin

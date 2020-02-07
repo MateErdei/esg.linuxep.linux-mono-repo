@@ -54,7 +54,7 @@ namespace Plugin
         bool checkIfServiceActive(const std::string& serviceName);
         void stopSystemService(const std::string& serviceName);
         void prepareSystemForPlugin();
-        void runSystemCtlCommand(const std::string& command const std::string& target);
+        std::string runSystemCtlCommand(const std::string& command, const std::string& target, bool returnValue=false);
         bool checkIfJournaldLinkedToAuditSubsystem();
         void breakLinkBetweenJournaldAndAuditSubsystem();
 
