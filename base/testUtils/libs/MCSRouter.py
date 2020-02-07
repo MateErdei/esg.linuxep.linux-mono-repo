@@ -1025,6 +1025,25 @@ class MCSRouter(object):
         assert rc == 0, "failed to run make all in cloud automation folder"
 
 
+    def create_back_dated_alc_status_cache_file(self, output_file, status):
+        """
+        create_back_dated_alc_status_cache_file: Creates a json file where the ALC status is just over 7 days old.
+        :param output_file: location to write the created status cache json file.
+        """
+        now = int(time.time())
+        older_than_7_days = now - (60 * 60 * 24 * 7 + 1 )
+        hash_object = hashlib.md5(status.encode())
+        alc_status_hash =  hash_object.hexdigest()
+
+        status_file_contents = r'{"MCS": {"timestamp": 1581068893.815016, "status_hash": "dacbef969e71827dc783759d200a00f4"},' + \
+                               r' "ALC": {"timestamp": ' + str(older_than_7_days) + r', "status_hash": "' + alc_status_hash + r'"},' + \
+                               r' "APPSPROXY": {"timestamp": 1581068893.8161232, "status_hash": "7b52e4dd17ccef61ddc23fa24c7ded69"},' + \
+                               r' "AGENT": {"timestamp": 1581068893.9086106, "status_hash": "073e11d9fdbc4902b784295b43ed4f89"}}'
+
+        with open(output_file, 'w') as status_file:
+            status_file.write(status_file_contents)
+
+
 def main(argv):
     r = MCSRouter()
     r.kill_mcsrouter()

@@ -66,14 +66,18 @@ class StatusCache:
         cached_status_file_time_stamp = 0
 
         if os.path.isfile(cached_status_file_path):
-            with open(cached_status_file_path, 'r') as cached_status_json_infile:
-                adapter_status_cache = json.load(cached_status_json_infile)
+            try:
+                with open(cached_status_file_path, 'r') as cached_status_json_infile:
+                    adapter_status_cache = json.load(cached_status_json_infile)
 
-                app_id_data = adapter_status_cache.get(app_id)
+                    app_id_data = adapter_status_cache.get(app_id)
 
-                if app_id_data:
-                    cached_status_file_time_stamp = app_id_data['timestamp']
-                    cached_status_hash = app_id_data['status_hash']
+                    if app_id_data:
+                        cached_status_file_time_stamp = app_id_data['timestamp']
+                        cached_status_hash = app_id_data['status_hash']
+            except IOError:
+                LOGGER.warning("Failed to read status cache file, resetting")
+                self.clear_cache(status_cache_dir)
 
         if hashed_adapter_status_xml == cached_status_hash and (
                 now - cached_status_file_time_stamp) < MAX_STATUS_DELAY:

@@ -43,14 +43,14 @@ class TestStatusCache(unittest.TestCase):
     def _get_single_record_json_string(self, app_id, status_string):
         status_time_stamp = time.time()
         status_hash = self._hash_string(status_string)
-        return '{"' + app_id + '": {"timestamp": ' + str(status_time_stamp) + ', "status_hash":  "' + status_hash + '"}}'
+        return r'{"' + app_id + '": {"timestamp": ' + str(status_time_stamp) + ', "status_hash":  "' + status_hash + '"}}'
 
     def _get_multiple_record_json_string(self, app_id1, status_string1, app_id2, status_string2):
         status_time_stamp = time.time()
         status_hash1 = self._hash_string(status_string1)
         status_hash2 = self._hash_string(status_string2)
-        return '{"' + app_id1 + '": {"timestamp": ' + str(status_time_stamp) + ', "status_hash":  "' + status_hash1 + '"}' \
-               + ', "' + app_id2 + '": {"timestamp": ' + str(status_time_stamp) + ', "status_hash":  "' + status_hash2 + '"}}'
+        return r'{"' + app_id1 + r'": {"timestamp": ' + str(status_time_stamp) + r', "status_hash":  "' + status_hash1 + r'"}' \
+               + r', "' + app_id2 + r'": {"timestamp": ' + str(status_time_stamp) + r', "status_hash":  "' + status_hash2 + r'"}}'
 
     @mock.patch('mcsrouter.mcsclient.status_cache.json')
     @mock.patch('mcsrouter.mcsclient.status_cache.os.path')
