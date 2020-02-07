@@ -314,7 +314,7 @@ function build()
             exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
         }
     # Run the unit tests unless we are doing bullseye system tests then don't run unit test first
-    elif (( ${UNITTEST} == 1 ))   #elif (( ${UNITTEST} == 1 && ${BULLSEYE_COMPONENT_TESTS} == 0 ))
+    elif (( ${UNITTEST} == 1 ))
     then
         make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?
