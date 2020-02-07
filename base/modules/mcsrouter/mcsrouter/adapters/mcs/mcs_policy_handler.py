@@ -127,6 +127,24 @@ class MCSPolicyHandler:
             return default_value
 
         return value
+
+    def __get_int_value(self, dom, element_name, default_value):
+        node = self.__get_element(dom, element_name)
+        if node is None:
+            LOGGER.error(
+                "MCS policy has no element {}".format(element_name))
+            return default_value
+        value = mcsrouter.utils.xml_helper.get_text_from_element(node)
+
+        try:
+            value = int(value)
+        except ValueError:
+            LOGGER.error(
+                "MCS policy {} default is not a number".format(element_name))
+            return default_value
+
+        return value
+
     def __apply_policy_setting(
             self,
             dom,
@@ -162,8 +180,8 @@ class MCSPolicyHandler:
         #TODO LINUXDAR-1412 set COMMAND_CHECK_INTERVAL_MAXIMUM to flagsPollingInterval
         #max_poll_value = str(self.__get_default_int_value(dom, "flagsPollingInterval", 4*3600))
         max_poll_value = min_poll_value
-        ping_timeout = str(self.__get_default_int_value(dom, "pushPingTimeout", 90))
-        push_poll_value = str(self.__get_default_int_value(dom, "pushFallbackPollInterval", int(min_poll_value)))
+        ping_timeout = str(self.__get_int_value(dom, "pushPingTimeout", 90))
+        push_poll_value = str(self.__get_int_value(dom, "pushFallbackPollInterval", int(min_poll_value)))
 
 
         LOGGER.debug("MCS policy commandPollingDelay = {}".format(min_poll_value))

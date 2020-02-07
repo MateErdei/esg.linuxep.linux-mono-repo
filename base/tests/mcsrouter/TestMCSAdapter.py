@@ -406,6 +406,51 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertEqual(policy_config.get_int("pushFallbackPollInterval", 0), 120)
         self.assertEqual(policy_config.get_default("MCSURL", None), "FOOBAR")
 
+    def testMCSPushServerElementsAreLoadedIntoConfig(self):
+        TEST_POLICY="""<?xml version="1.0"?>
+<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+<configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">
+    <csc:Comp RevID="5" policyType="25"/>
+        <pushServers>
+          <pushServer>https://push-loadbalancer-prod-eu-west1.sophos.com</pushServer>
+        </pushServers>
+        <pushPingTimeout>50</pushPingTimeout>
+        <pushFallbackPollInterval>20</pushFallbackPollInterval>
+</configuration>
+</policy>"""
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
+
+
+        adapter = createAdapter(policy_config)
+
+        command = FakePolicyCommand(TEST_POLICY)
+        adapter.process_command(command)
+        self.assertTrue(command.m_complete)
+
+        self.assertEqual(50, policy_config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT", 0))
+        self.assertEqual(20, policy_config.get_int("PUSH_SERVER_CHECK_INTERVAL", 0))
+
+    def testMCSPushServerDefaultValuesAreLoadedIntoConfig(self):
+        TEST_POLICY="""<?xml version="1.0"?>
+<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+<configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">
+    <csc:Comp RevID="5" policyType="25"/>
+        <pushServers>
+          <pushServer>https://push-loadbalancer-prod-eu-west1.sophos.com</pushServer>
+        </pushServers>
+</configuration>
+</policy>"""
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
+
+        adapter = createAdapter(policy_config)
+
+        command = FakePolicyCommand(TEST_POLICY)
+        adapter.process_command(command)
+        self.assertTrue(command.m_complete)
+
+        self.assertEqual(90, policy_config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT", 0))
+        self.assertEqual(20, policy_config.get_int("PUSH_SERVER_CHECK_INTERVAL", 0))
+
     def testMultiplePushServersInPushServersElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
 <policy xmlns:csc="com.sophos\msys\csc" type="mcs">
