@@ -17,6 +17,7 @@ import socket
 import time
 
 from . import computer
+from . import mcs_push_client
 from .adapters import agent_adapter
 from .adapters import app_proxy_adapter
 from .adapters import event_receiver
@@ -444,6 +445,9 @@ class MCS:
         directory_watcher = self._get_directory_watcher()
         notify_pipe_file_descriptor = directory_watcher.notify_pipe_file_descriptor
 
+        push_client = mcs_push_client.MCSPushClient("url", "cert", 100)
+        push_notification_pipe_file_descriptor = push_client.notify_activity_pipe()
+
         last_commands = 0
 
         running = True
@@ -528,7 +532,7 @@ class MCS:
                     # send status
                     if error_count > 0:
                         pass  # Not sending status while in error state
-                    elif self.__m_status_timer.send_status():
+                    elif self.__m_status_timer.send_status(): # todo check if this is to worry about
                         status_event = status_event_module.StatusEvent()
                         changed = self.__m_computer.fill_status_event(status_event)
                         if changed:
@@ -653,7 +657,7 @@ class MCS:
                     # pylint: disable=unused-variable
                     ready_to_read, ready_to_write, in_error = \
                         select.select(
-                            [signal_handler.sig_term_pipe[0], notify_pipe_file_descriptor],
+                            [signal_handler.sig_term_pipe[0], notify_pipe_file_descriptor, push_notification_pipe_file_descriptor],
                             [],
                             [],
                             timeout)

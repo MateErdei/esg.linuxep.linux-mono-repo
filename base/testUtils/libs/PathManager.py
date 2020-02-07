@@ -5,7 +5,11 @@
 
 import os
 import sys
-from robot.api import logger
+try:
+    from robot.api import logger
+except:
+    import logging
+    logger = logging.getLogger(__name__)
 
 THIS_FILE_PATH = os.path.realpath(__file__)
 
