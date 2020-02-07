@@ -43,3 +43,10 @@ TEST(TestScanRunner, testCompletionXmlGenerationDoesContainTimestamp) // NOLINT
     EXPECT_THAT(xml, ::testing::HasSubstr("<timestamp>"));
     EXPECT_THAT(xml, ::testing::HasSubstr("</timestamp>"));
 }
+
+TEST(TestScanRunner, testCompletionXmlGenerationChangesTimestamp) // NOLINT
+{
+    std::string xml1 = generateScanCompleteXml("FOO");
+    std::string xml2 = generateScanCompleteXml("FOO");
+    EXPECT_NE(xml1, xml2);
+}
