@@ -17,6 +17,6 @@ namespace livequery
         long getQueryStart() const;
 
     private:
-        long m_queryStartMillisEpoch;
+        long m_queryStartMillisEpoch = 0;
     };
 } // namespace livequery
