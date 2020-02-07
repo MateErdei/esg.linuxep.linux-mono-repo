@@ -129,7 +129,6 @@ do
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
-            UNITTEST=1
             ;;
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
@@ -276,12 +275,11 @@ function build()
     then
       if [[ $COVERITY == 1 ]]
       then
-        bash -x $BASE/build/coverity/coverity.sh || {
+        bash -x $BASE/build/coverity/testCoverity.sh || {
             EXIT=$?
             echo " Coverity build failed: $EXIT"
             exit ${EXIT}
         }
-        #do coverity
       fi
         exit 0
     fi
@@ -316,7 +314,7 @@ function build()
             exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
         }
     # Run the unit tests unless we are doing bullseye system tests then don't run unit test first
-    elif (( ${UNITTEST} == 1 && ${BULLSEYE_COMPONENT_TESTS} == 0 ))
+    elif (( ${UNITTEST} == 1 ))   #elif (( ${UNITTEST} == 1 && ${BULLSEYE_COMPONENT_TESTS} == 0 ))
     then
         make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?
@@ -340,42 +338,25 @@ function build()
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
     cp -a ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
     cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
+
     if [[ ${BULLSEYE} == 1 ]]
     then
+      if [[ ${UNITTEST} == 1 ]]
+      then
+            ## Process bullseye output
+            ## upload unit tests
+            cd $BASE
+            export htmldir=output/coverage/${COV_HTML_BASE}
+            export BULLSEYE_UPLOAD
+            bash -x build/bullseye/uploadResults.sh || exit $?
+        fi
       cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
+      cp -a build/bullseye output || exitFailure $FAILURE_BULLSEYE  "Failed to copy files for uploading results"
     fi
 
     if [[ -d build${BITS}/symbols ]]
     then
         cp -a build${BITS}/symbols output/
-    fi
-
-    if (( ${BULLSEYE_COMPONENT_TESTS} == 1 ))
-    then
-        cd $BASE
-        bash -x $BASE/build/bullseye/testBullseyeBuild.sh || {
-            ## component tests failed to sync or similar
-            EXIT=$?
-            echo "component tests failed: $EXIT"
-            exit ${EXIT}
-        }
-
-        if (( ${UNITTEST} == 1 ))
-        then
-            cd ${BASE}
-            cd build${BITS}
-            export COV_HTML_BASE
-            make CTEST_OUTPUT_ON_FAILURE=1 test || echo "Unit tests failed for $PRODUCT: $?"
-        fi
-    fi
-
-    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
-    then
-        ## Process bullseye output
-        ## upload unit tests
-        cd $BASE
-        export BASE
-        bash -x build/bullseye/uploadResults.sh || exit $?
     fi
 
     echo "Build Successful"

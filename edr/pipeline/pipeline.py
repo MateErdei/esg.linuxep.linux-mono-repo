@@ -17,7 +17,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return branch_name == 'master' or branch_name.endswith('coverage')
+    return branch_name == 'master' or branch_name.endswith('ci-and-tap')
 
 
 def install_requirements(machine: tap.Machine):

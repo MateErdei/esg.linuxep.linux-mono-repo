@@ -55,6 +55,12 @@
             <workingdir>sspl-edr-plugin-build</workingdir>
         </command>
 
+        <command mode="coverage" unittest="no">
+            <program>/bin/bash</program>
+            <args>./build.sh --clean --name edr --bullseye --no-unit-test</args>
+            <workingdir>sspl-edr-plugin-build</workingdir>
+        </command>
+
         <command mode="coverity">
             <program>/bin/bash</program>
             <args>./build.sh --no-build --name edr --coverity</args>
