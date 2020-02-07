@@ -30,14 +30,13 @@ void manager::scheduler::ScanScheduler::run()
 
     int exitFD = m_notifyPipe.readFd();
     int configFD = m_updateConfigurationPipe.readFd();
-    int scanNowFD = m_scanNowPipe.readFd();
 
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
     max = addFD(&readFDs, exitFD, max);
     max = addFD(&readFDs, configFD, max);
-    max = addFD(&readFDs, scanNowFD, max);
+
 
     while (true)
     {
@@ -45,12 +44,12 @@ void manager::scheduler::ScanScheduler::run()
         findNextTime(timeout);
 
         fd_set tempRead = readFDs;
-        int ret = ::pselect(max + 1, &tempRead, NULL, NULL, &timeout, NULL);
+        int ret = ::pselect(max+1, &tempRead, NULL, NULL, &timeout, NULL);
 
         if (ret < 0)
         {
             // handle error
-            LOGERROR("Scheduled failed: " << errno);
+            LOGERROR("Scheduled failed: "<< errno);
             break;
         }
         else if (ret > 0)
@@ -65,25 +64,15 @@ void manager::scheduler::ScanScheduler::run()
                 LOGINFO("Updating scheduled scan configuration");
                 while (m_updateConfigurationPipe.notified())
                 {
-                    // Clear updateConfigurationPipe
-                }
-            }
-            if (FD_ISSET(scanNowFD, &tempRead))
-            {
-                LOGINFO("Starting Scan Now scan");
-                runNextScan(m_config.scanNowScan());
-                while (m_scanNowPipe.notified())
-                {
-                    // Clear scanNowPipe
                 }
             }
         }
 
         time_t now = ::time(nullptr);
-        if (now >= m_nextScheduledScanTime && m_nextScheduledScanTime != INVALID_TIME)
+        if (now >= m_nextScanTime && m_nextScanTime != INVALID_TIME)
         {
             // timeout - run scan
-            runNextScan(m_nextScheduledScan);
+            runNextScan();
         }
     }
     for (auto& item : m_runningScans)
@@ -97,18 +86,18 @@ void manager::scheduler::ScanScheduler::run()
     LOGINFO("Exiting scan scheduler");
 }
 
-void ScanScheduler::runNextScan(const ScheduledScan& nextScan)
+void ScanScheduler::runNextScan()
 {
-    if (!nextScan.valid())
+    if (!m_nextScan.valid())
     {
         LOGDEBUG("Refusing to run invalid scan");
         return;
     }
     // serialise next scan
-    std::string name = nextScan.name();
-    std::string serialisedNextScan = serialiseNextScan(nextScan);
+    std::string name = m_nextScan.name();
+    std::string nextscan = serialiseNextScan();
 
-    auto runner = std::make_unique<ScanRunner>(name, std::move(serialisedNextScan));
+    auto runner = std::make_unique<ScanRunner>(name, std::move(nextscan));
     runner->start();
     m_runningScans[name] = std::move(runner);
 }
@@ -117,11 +106,6 @@ void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration 
 {
     m_config = std::move(config);
     m_updateConfigurationPipe.notify();
-}
-
-void ScanScheduler::scanNow()
-{
-    m_scanNowPipe.notify();
 }
 
 void ScanScheduler::findNextTime(timespec& timespec)
@@ -141,11 +125,11 @@ void ScanScheduler::findNextTime(timespec& timespec)
         }
         if (nextTime < next)
         {
-            m_nextScheduledScan = scan;
+            m_nextScan = scan;
             next = nextTime;
         }
     }
-    m_nextScheduledScanTime = next;
+    m_nextScanTime = next;
     time_t delay = (next - now);
 
     // SAV halves the delay instead
@@ -166,17 +150,20 @@ void ScanScheduler::findNextTime(timespec& timespec)
     timespec.tv_nsec = 0;
 }
 
-std::string ScanScheduler::serialiseNextScan(const ScheduledScan& nextScan)
+std::string ScanScheduler::serialiseNextScan()
 {
+    // Move so that m_nextScan is empty
+    ScheduledScan scan = std::move(m_nextScan);
+
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Builder requestBuilder =
             message.initRoot<Sophos::ssplav::NamedScan>();
 
-    requestBuilder.setName(nextScan.name());
+    requestBuilder.setName(scan.name());
 
     auto exclusionsInput = m_config.exclusions();
     auto exclusions = requestBuilder.initExcludePaths(exclusionsInput.size());
-    for (unsigned i = 0; i < exclusionsInput.size(); i++)
+    for (unsigned i=0; i < exclusionsInput.size(); i++)
     {
         exclusions.set(i, exclusionsInput[i]);
     }
