@@ -4,6 +4,7 @@ sophos_add_library(scanscheduler SHARED
         DaySet.h
         GlobalConfiguration.cpp
         GlobalConfiguration.h
+        IScanComplete.h
         Logger.cpp
         Logger.h
         ScanRunner.cpp
