@@ -91,7 +91,7 @@ class CommandCheckInterval:
             self.DEFAULT_MIN_POLLING_INTERVAL)
         if self.__m_command_check_interval_minimum != interval_min:
             self.__m_command_check_interval_minimum = interval_min
-            LOGGER.debug("COMMAND_CHECK_INTERVAL_MINIMUM=%d", interval_min)
+            LOGGER.debug("COMMAND_CHECK_INTERVAL_MINIMUM={}".format(str(interval_min)))
         return interval_min
 
     def __get_maximum(self):

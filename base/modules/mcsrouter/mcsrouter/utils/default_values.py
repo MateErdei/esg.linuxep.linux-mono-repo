@@ -1,4 +1,4 @@
-#defaimport mcsrouter.utils.path_manager as path_managerult values are set by Central
+#default values are set by Central
 # https://wiki.sophos.net/display/SophosCloud/EMP%3A+policy-mcs#EMP:policy-mcs-ExtendforMCSPushServer
 
 def get_default_command_poll():
