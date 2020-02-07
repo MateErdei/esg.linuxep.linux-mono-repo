@@ -63,7 +63,7 @@ std::string ScanRunner::generateScanCompleteXml(std::string name, std::string sc
             R"sophos(<?xml version="1.0"?>
         <event xmlns="http://www.sophos.com/EE/EESavEvent" type="sophos.mgt.sav.scanCompleteEvent">
           <defaultDescription>The scan has completed!</defaultDescription>
-          <timestamp>20130403 033843</timestamp>
+          <timestamp></timestamp>
           <scanComplete>
             <scanName></scanName>
           </scanComplete>
