@@ -62,6 +62,8 @@ class CommandCheckInterval:
         self.__m_config = config
         self.__m_command_check_interval_minimum = 0
         self.__m_command_check_interval_maximum = 0
+        self.__m_push_ping_timeout = 0
+        self.__m_push_command_check_interval = 0
 
         self.__m_command_check_maximum_retry_number = self.__m_config.get_int(
             "COMMAND_CHECK_MAXIMUM_RETRY_NUMBER", 10)
@@ -71,6 +73,8 @@ class CommandCheckInterval:
             "COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY", self.__m_command_check_base_retry_delay * 2)
 
         self.set()
+        self.__get_ping_timeout()
+        self.__get_push_poll_interval()
 
     def get(self):
         """
@@ -99,8 +103,26 @@ class CommandCheckInterval:
             self.DEFAULT_MAX_POLLING_INTERVAL)
         if self.__m_command_check_interval_maximum != interval_max:
             self.__m_command_check_interval_maximum = interval_max
-            LOGGER.debug("COMMAND_CHECK_INTERVAL_MAXIMUM=%d", interval_max)
+            LOGGER.debug("COMMAND_CHECK_INTERVAL_MAXIMUM={}".format(str(interval_max)))
         return interval_max
+
+    def __get_ping_timeout(self):
+        ping_timeout = self.__m_config.get_int(
+            "PUSH_SERVER_CONNECTION_TIMEOUT",
+            self.__get_minimum())
+        if self.__m_push_ping_timeout != ping_timeout:
+            self.__m_push_ping_timeout = ping_timeout
+            LOGGER.debug("PUSH_SERVER_CONNECTION_TIMEOUT={}".format(str(ping_timeout)))
+        return ping_timeout
+
+    def __get_push_poll_interval(self):
+        push_interval = self.__m_config.get_int(
+            "PUSH_SERVER_CHECK_INTERVAL",
+            self.__get_minimum())
+        if self.__m_push_command_check_interval != push_interval:
+            self.__m_push_command_check_interval = push_interval
+            LOGGER.debug("PUSH_SERVER_CHECK_INTERVAL={}".format(str(push_interval)))
+        return push_interval
 
     def set(self, val=None):
         """
