@@ -308,6 +308,7 @@ def process_diagnose_file(tar_path):
         process_log_file(hostname, dogfood_db, ip, log, product_base_version)
 
     # CURRENTLY DISABLED, need to speed this up and then we can re-enable it.
+    # TODO LINUXDAR-1402
     #for sys_file in system_files:
     #    process_system_file(hostname, dogfood_db, ip, sys_file)
 
