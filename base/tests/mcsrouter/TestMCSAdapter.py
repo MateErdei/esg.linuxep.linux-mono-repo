@@ -426,6 +426,7 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertTrue(command.m_complete)
 
         self.assertEqual(50, policy_config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT", 0))
+        self.assertEqual(20, policy_config.get_int("PUSH_SERVER_CHECK_INTERVAL", 0))
 
     def testMCSPushFallbaclPollElementsAreLoadedIntoConfig(self):
         TEST_POLICY="""<?xml version="1.0"?>
@@ -447,6 +448,7 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertTrue(command.m_complete)
 
         self.assertEqual(20, policy_config.get_int("PUSH_SERVER_CHECK_INTERVAL", 0))
+        self.assertEqual(90, policy_config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT", 0))
 
     def testMCSPushServerDefaultValuesAreLoadedIntoConfig(self):
         TEST_POLICY="""<?xml version="1.0"?>
