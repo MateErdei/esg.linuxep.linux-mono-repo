@@ -476,7 +476,7 @@ TEST_F(ResposeDispatcherWithMockFileSystem, invalidNumbersWillGetErrorResponseCo
 
     EXPECT_CALL(*mockFileSystem, moveFile(_,"/opt/sophos-spl/base/mcs/response/LiveQuery_correlation_response.json"));
     EXPECT_CALL(*mockFilePermissions, chown(_,"sophos-spl-user","sophos-spl-group"));
-    //EXPECT_CALL(*mockFileSystem, writeFile(_, expected));
+    EXPECT_CALL(*mockFileSystem, writeFile(_, expected));
     dispatcher.sendResponse("correlation", response);
 
 }
