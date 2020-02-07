@@ -29,6 +29,7 @@ namespace manager::scheduler
         std::string m_scanExecutable;
         bool m_scanCompleted;
 
+        std::string generateScanCompleteXml(std::string name, std::string scan);
     };
 }
 

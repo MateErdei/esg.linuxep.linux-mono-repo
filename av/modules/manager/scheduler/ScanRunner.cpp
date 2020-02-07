@@ -14,6 +14,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 // C++ std
 #include <fstream>
+// String replacer
+# include "Common/UtilityImpl/StringUtils.h"
 
 namespace fs = sophos_filesystem;
 
@@ -51,4 +53,23 @@ void ScanRunner::run()
     process.reset();
     fs::remove(config_file);
     m_scanCompleted = true;
+}
+
+std::string ScanRunner::generateScanCompleteXml(std::string name, std::string scan)
+{
+    name = m_name;
+    scan = m_scan;
+    std::string scanCompleteXml = Common::UtilityImpl::StringUtils:: orderedStringReplace(
+            R"sophos(<?xml version="1.0"?>
+        <event xmlns="http://www.sophos.com/EE/EESavEvent" type="sophos.mgt.sav.scanCompleteEvent">
+          <defaultDescription>The scan has completed!</defaultDescription>
+          <timestamp>20130403 033843</timestamp>
+          <scanComplete>
+            <scanName></scanName>
+          </scanComplete>
+          <entity></entity>
+        </event>)sophos",{{"<scanName></scanName>", "<scanName>" + name + "</scanName>" },
+                          {"<entity></entity>", "<entity>" + scan + "</entity>"}});
+    return scanCompleteXml;
+
 }
