@@ -303,7 +303,8 @@ def process_diagnose_file(tar_path):
         database="dogfood"
     )
 
-    # TODO LINUXEP-8365 When importing don't do it one log line at a time do it in bulk.
+    # Improvements recorded in https://wiki.sophos.net/display/LD/SSPL+Dogfood+System
+    # When importing don't do it one log line at a time do it in bulk.
     for log in logs:
         process_log_file(hostname, dogfood_db, ip, log, product_base_version)
 
