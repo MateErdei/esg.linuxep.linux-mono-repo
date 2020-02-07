@@ -1,16 +1,8 @@
-/******************************************************************************************************void PluginAdapter::processAction(const std::string& actionXml)
-{
-    LOGDEBUG("Process action: " << actionXml);
-
-    auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
-//    m_scanScheduler.scanNow()
-}
-
+/******************************************************************************************************
 
 Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-
 #pragma once
 
 #include "QueueTask.h"
