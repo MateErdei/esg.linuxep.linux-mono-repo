@@ -144,7 +144,7 @@ def get_sspl_mdr_component_suite():
     candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-mdr-componentsuite")
     if local_path_to_plugin:
-        candidates.append(os.path.join(local_path_to_plugin, "/output"))
+        candidates.append(os.path.join(local_path_to_plugin, "output"))
     dbos = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-DBOS-Component",  "SDDS_SSPL_DBOS_COMPONENT", candidates)
     osquery = get_component_suite_sdds_entry("SDDS-SSPL-OSQUERY-COMPONENT",  "SDDS_SSPL_OSQUERY_COMPONENT", candidates)
     mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control",  "SDDS_SSPL_MDR_COMPONENT", candidates)

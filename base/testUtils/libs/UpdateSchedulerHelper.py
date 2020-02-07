@@ -157,7 +157,8 @@ class UpdateSchedulerHelper(object):
         if use_update_cache:
             logger.info("using update cache")
             config['updateCache'] = ['localhost:1236']
-            config['cacheUpdateSslPath'] = os.path.abspath(PathManager.get_support_file_path(), '/https/ca')
+            cache_path = os.path.join(PathManager.get_support_file_path(), 'https/ca')
+            config['cacheUpdateSslPath'] = os.path.abspath(cache_path)
         filecontent = json.dumps(config, separators=(',', ': '), indent=4)
         logger.info("New content: {}".format(filecontent))
         open(config_path, 'w').write(filecontent)

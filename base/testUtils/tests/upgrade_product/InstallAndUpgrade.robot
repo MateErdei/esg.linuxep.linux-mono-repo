@@ -160,6 +160,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log       ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr died with 43
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Installation failed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log          Failed to start mtr: Timeout out connecting to watchdog: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log    mcsrouter.adapters.agent_adapter <> Insufficient permissions to read VERSION.ini file: Reporting softwareVersion=0 to Central
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
