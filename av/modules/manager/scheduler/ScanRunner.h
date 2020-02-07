@@ -7,12 +7,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "ScheduledScanConfiguration.h"
+#include "IScanComplete.h"
 
 #include <Common/Threads/AbstractThread.h>
 
 namespace manager::scheduler
 {
-    class ScanRunner : public Common::Threads::AbstractThread
+    class ScanRunner : public Common::Threads::AbstractThread, IScanComplete
     {
     public:
         explicit ScanRunner(std::string name, std::string scan);
@@ -21,6 +22,7 @@ namespace manager::scheduler
         {
             return m_scanCompleted;
         }
+        void processScanComplete(std::string& scanCompletedXml) override;
     private:
         void run() override;
 
@@ -29,7 +31,7 @@ namespace manager::scheduler
         std::string m_scanExecutable;
         bool m_scanCompleted;
 
-        std::string generateScanCompleteXml(std::string name, std::string scan);
+        std::string generateScanCompleteXml(std::string name);
     };
 }
 

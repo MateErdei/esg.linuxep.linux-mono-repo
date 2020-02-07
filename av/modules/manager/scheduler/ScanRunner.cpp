@@ -53,12 +53,15 @@ void ScanRunner::run()
     process.reset();
     fs::remove(config_file);
     m_scanCompleted = true;
+    LOGINFO("Sending scan complete event to Central");
+    std::string scanCompletedXml = generateScanCompleteXml(m_name);
+    LOGINFO("XML" << scanCompletedXml);
+    processScanComplete(scanCompletedXml);
 }
 
-std::string ScanRunner::generateScanCompleteXml(std::string name, std::string scan)
+std::string ScanRunner::generateScanCompleteXml(std::string name)
 {
     name = m_name;
-    scan = m_scan;
     std::string scanCompleteXml = Common::UtilityImpl::StringUtils:: orderedStringReplace(
             R"sophos(<?xml version="1.0"?>
         <event xmlns="http://www.sophos.com/EE/EESavEvent" type="sophos.mgt.sav.scanCompleteEvent">
@@ -68,8 +71,13 @@ std::string ScanRunner::generateScanCompleteXml(std::string name, std::string sc
             <scanName></scanName>
           </scanComplete>
           <entity></entity>
-        </event>)sophos",{{"<scanName></scanName>", "<scanName>" + name + "</scanName>" },
-                          {"<entity></entity>", "<entity>" + scan + "</entity>"}});
+        </event>)sophos",{{"<scanName></scanName>", "<scanName>" + name + "</scanName>" }});
     return scanCompleteXml;
+}
+
+void ScanRunner::processScanComplete(std::string &scanCompletedXml)
+{
+    scanCompletedXml = "Scan complete";
+    LOGINFO("Scan has complete")
 
 }
