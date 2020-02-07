@@ -13,7 +13,7 @@ properties([
     string(name: 'CommitHash', defaultValue: ''),
     string(name: 'PortalId', defaultValue: ''),
     string(name: 'PortalAddress', defaultValue: ''),
-    string(name: 'Mode', defaultValue: 'release'),
+    //string(name: 'mode', defaultValue: 'release'),
     string(name: 'UnitTest', defaultValue: 'yes')
   ])
 ])
@@ -33,7 +33,7 @@ try{
             ArtisanBuild(
                 buildAgentTemplate,
                 project_release_xml,
-                params.Mode,
+                params.mode,
                 version_number,
                 project_builddir)
             echo 'Finished edr master release build'
