@@ -22,9 +22,9 @@ PluginAdapter::PluginAdapter(
     std::shared_ptr<PluginCallback> callback) :
     m_queueTask(std::move(queueTask)),
     m_baseService(std::move(baseService)),
-    m_callback(std::move(callback))
+    m_callback(std::move(callback)),
+    m_scanScheduler(*this)
 {
-
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path sophos_threat_detector_path = appConfig.getData("PLUGIN_INSTALL");
     sophos_threat_detector_path /= "sbin/sophos_threat_detector_launcher";
@@ -103,5 +103,4 @@ void PluginAdapter::processScanComplete(std::string &scanCompletedXml)
     LOGDEBUG("Sending scan complete notification to central " << scanCompletedXml);
 
     m_queueTask->push(Task{.taskType=Task::TaskType::ScanComplete, scanCompletedXml});
-
 }

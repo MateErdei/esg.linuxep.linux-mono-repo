@@ -17,6 +17,7 @@ namespace manager::scheduler
     class ScanScheduler : public Common::Threads::AbstractThread
     {
     public:
+        explicit ScanScheduler(IScanComplete& completionNotifier);
         void run() override;
 
         void updateConfig(ScheduledScanConfiguration);
@@ -24,6 +25,7 @@ namespace manager::scheduler
         void scanNow();
 
     private:
+        IScanComplete& m_completionNotifier;
         Common::Threads::NotifyPipe m_updateConfigurationPipe;
         Common::Threads::NotifyPipe m_scanNowPipe;
         ScheduledScanConfiguration m_config;

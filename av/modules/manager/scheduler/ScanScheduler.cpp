@@ -17,6 +17,11 @@ using namespace manager::scheduler;
 
 const time_t INVALID_TIME = static_cast<time_t>(-1);
 
+ScanScheduler::ScanScheduler(IScanComplete& completionNotifier)
+    : m_completionNotifier(completionNotifier)
+{
+}
+
 static int addFD(fd_set* fds, int fd, int currentMax)
 {
     FD_SET(fd, fds);
@@ -97,7 +102,7 @@ void ScanScheduler::runNextScan()
     std::string name = m_nextScan.name();
     std::string nextscan = serialiseNextScan();
 
-    auto runner = std::make_unique<ScanRunner>(name, std::move(nextscan));
+    auto runner = std::make_unique<ScanRunner>(name, std::move(nextscan), m_completionNotifier);
     runner->start();
     m_runningScans[name] = std::move(runner);
 }
