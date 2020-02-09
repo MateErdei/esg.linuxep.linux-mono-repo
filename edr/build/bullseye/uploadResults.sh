@@ -12,8 +12,6 @@ function exitFailure()
     exit $E
 }
 
-[[ -n ${BULLSEYE_DIR} ]] || exitFailure 1 "BULLSEYE_DIR not set"
-[[ -n ${COVFILE} ]] || exitFailure 2 "COVFILE not set"
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-plugin-edr-combined
 [[ -n ${htmldir} ]] || htmldir=/opt/test/logs/coverage/${COV_HTML_BASE}
 
@@ -21,9 +19,13 @@ PRIVATE_KEY=${BASE}/build/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=build/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
 
-
 if [[ -z ${UPLOAD_ONLY} ]]
 then
+  BULLSEYE_DIR=/opt/BullseyeCoverage
+  [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
+  [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+  [[ -n ${COVFILE} ]] || exitFailure 2 "COVFILE not set"
+
   echo "Exclusions:"
   $BULLSEYE_DIR/bin/covselect --list --no-banner --file "$COVFILE"
 
@@ -36,6 +38,9 @@ then
       "$htmldir"            \
       </dev/null            \
       || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+elif
+  #upload results
+  BULLSEYE_UPLOAD=1
 fi
 
 chmod -R a+rX "$htmldir"

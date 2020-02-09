@@ -2,6 +2,12 @@ import tap.v1 as tap
 
 import os
 
+COVFILE_UNITTEST = '/opt/test/inputs/edr/sspl-plugin-edr-unit.cov'
+COVFILE_COMBINED = '/opt/test/logs/sspl-edr-combined.cov'
+UPLOAD_SCRIPT = '/opt/test/inputs/edr/bullseye/uploadResults.sh'
+LOGS_DIR = '/opt/testlogs'
+INPUTS_DIR = '/opt/test/inputs'
+
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
     pip_index = os.environ.get('TAP_PIP_INDEX_URL')
@@ -44,12 +50,29 @@ def robot_task(machine: tap.Machine):
 def pytest_task(machine: tap.Machine):
     try:
         install_requirements(machine)
+
         tests_dir = str(machine.inputs.test_scripts)
         args = ['python', '-u', '-m', 'pytest', tests_dir,
                 '-o', 'log_cli=true',
                 '--html=/opt/test/results/report.html'
                 ]
-        machine.run(*args)
+
+        if coverage and has_coverage_build(context.branch):
+            #upload unit test coverage
+            unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
+            machine.run('bash', 'x',  UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
+            machine.run('mv', unitest_htmldir, LOGS_DIR)
+            machine.run('cp', COVFILE_UNITTEST, LOGS_DIR)
+            
+            #run component tests with coverage file
+            machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
+            machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
+
+            combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
+            machine.run('bash', 'x',  UPLOAD_SCRIPT, environment={'BULLSEYE_UPLOAD': 1, 'htmldir': combined_htmldir})
+        else:
+            machine.run(*args)
+
         machine.run('ls', '/opt/test/logs')
     finally:
         machine.output_artifact('/opt/test/results', 'results')
