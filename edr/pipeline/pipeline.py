@@ -60,7 +60,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str='no'):
         if has_coverage_build(branch) and coverage=='yes':
             #upload unit test coverage
             unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
-            machine.run('bash', 'x',  UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
+            machine.run('bash', '-x',  UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
             machine.run('mv', unitest_htmldir, LOGS_DIR)
             machine.run('cp', COVFILE_UNITTEST, LOGS_DIR)
             
@@ -69,7 +69,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str='no'):
             machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
 
             combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
-            machine.run('bash', 'x',  UPLOAD_SCRIPT, environment={'BULLSEYE_UPLOAD': 1, 'htmldir': combined_htmldir})
+            machine.run('bash', '-x',  UPLOAD_SCRIPT, environment={'BULLSEYE_UPLOAD': 1, 'htmldir': combined_htmldir})
         else:
             machine.run(*args)
 
