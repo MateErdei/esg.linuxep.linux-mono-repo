@@ -57,7 +57,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage=False):
                 '--html=/opt/test/results/report.html'
                 ]
 
-        if coverage and has_coverage_build(branch):
+        if has_coverage_build(branch) and coverage==True:
             #upload unit test coverage
             unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
             machine.run('bash', 'x',  UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
