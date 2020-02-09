@@ -74,7 +74,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str='no'):
             machine.run(*args)
 
         machine.run('ls', '/opt/test/logs')
-        machine.run('ls', '/opt/test/inputs/bullseye_files')
+        machine.run('ls', '/opt/test/inputs/')
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
