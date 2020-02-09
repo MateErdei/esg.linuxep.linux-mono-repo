@@ -57,7 +57,7 @@ def pytest_task(machine: tap.Machine):
                 '--html=/opt/test/results/report.html'
                 ]
 
-        if (has_coverage_build(context.branch):
+        if has_coverage_build(context.branch):
             #upload unit test coverage
             unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
             machine.run('bash', 'x',  UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
@@ -102,6 +102,6 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     with stage.group('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
-        if( has_coverage_build(context.branch ):
+        if has_coverage_build(context.branch):
             stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test)
 
