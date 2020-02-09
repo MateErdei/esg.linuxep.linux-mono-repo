@@ -38,7 +38,7 @@ then
       "$htmldir"            \
       </dev/null            \
       || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
-elif
+else
   #upload results
   BULLSEYE_UPLOAD=1
 fi
