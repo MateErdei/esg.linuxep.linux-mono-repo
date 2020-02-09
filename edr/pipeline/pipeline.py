@@ -102,7 +102,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
     with stage.group('integration'):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     with stage.group('component'):
-        stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine, branch=branch_name)
+        stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine, branch=branch_name, coverage='no')
         if has_coverage_build(branch_name):
             stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test, branch=branch_name, coverage='yes')
 
