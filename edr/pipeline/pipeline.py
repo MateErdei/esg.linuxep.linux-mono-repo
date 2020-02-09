@@ -47,7 +47,7 @@ def robot_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/results', 'results')
 
 
-def pytest_task(machine: tap.Machine, branch: str, coverage=False):
+def pytest_task(machine: tap.Machine, branch: str, coverage: bool=False):
     try:
         install_requirements(machine)
 
@@ -80,7 +80,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage=False):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext, coverage=False):
+def get_inputs(context: tap.PipelineContext, coverage:bool=False):
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
