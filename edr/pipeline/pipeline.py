@@ -57,7 +57,7 @@ def pytest_task(machine: tap.Machine):
                 '--html=/opt/test/results/report.html'
                 ]
 
-        if coverage and has_coverage_build(context.branch):
+        if (has_coverage_build(context.branch):
             #upload unit test coverage
             unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
             machine.run('bash', 'x',  UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
@@ -74,6 +74,7 @@ def pytest_task(machine: tap.Machine):
             machine.run(*args)
 
         machine.run('ls', '/opt/test/logs')
+        machine.run('ls', '/opt/test/inputs/bullseye_files')
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -88,6 +89,7 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
     #override the edr input and get the bullseye coverage build insteady
     if coverage and has_coverage_build(context.branch):
         test_inputs['edr'] = context.artifact.build() / 'coverage'
+        test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
 
     return test_inputs
 
@@ -100,5 +102,6 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     with stage.group('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
-        stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test)
+        if( has_coverage_build(context.branch ):
+            stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test)
 
