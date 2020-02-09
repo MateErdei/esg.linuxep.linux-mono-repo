@@ -47,7 +47,7 @@ def robot_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/results', 'results')
 
 
-def pytest_task(machine: tap.Machine, branch: str, coverage: bool=False):
+def pytest_task(machine: tap.Machine, branch: str, coverage: str='no'):
     try:
         install_requirements(machine)
 
@@ -57,7 +57,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: bool=False):
                 '--html=/opt/test/results/report.html'
                 ]
 
-        if has_coverage_build(branch) and coverage==True:
+        if has_coverage_build(branch) and coverage=='yes':
             #upload unit test coverage
             unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
             machine.run('bash', 'x',  UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
@@ -80,14 +80,14 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: bool=False):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext, coverage:bool=False):
+def get_inputs(context: tap.PipelineContext, coverage:str='no'):
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         edr=context.artifact.build() / 'output'
     )
     #override the edr input and get the bullseye coverage build insteady
-    if coverage and has_coverage_build(context.branch):
+    if coverage=='yes' and has_coverage_build(context.branch):
         test_inputs['edr'] = context.artifact.build() / 'coverage'
         test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
 
@@ -98,11 +98,11 @@ def get_inputs(context: tap.PipelineContext, coverage:bool=False):
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
     branch_name = context.branch
     machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
-    machine_bullseye_test=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, coverage=True), platform=tap.Platform.Linux)
+    machine_bullseye_test=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, coverage='yes'), platform=tap.Platform.Linux)
     with stage.group('integration'):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     with stage.group('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine, branch=branch_name)
         if has_coverage_build(branch_name):
-            stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test, branch=branch_name, coverage=True)
+            stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test, branch=branch_name, coverage='yes')
 
