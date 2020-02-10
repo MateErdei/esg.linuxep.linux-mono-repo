@@ -90,7 +90,7 @@
         <workingdir>sspl-base-build</workingdir>
         <destdir>sspl-base</destdir>
         <buildoutputs>
-            <output name="output" srcfolder="output"> </output>
+            <output name="output" srcfolder="output" artifactpath="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
         <publishbranches>master,feature</publishbranches>
