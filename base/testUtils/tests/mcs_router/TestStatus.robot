@@ -97,7 +97,7 @@ ALC Status Not Sent When Status Message Is In The Cache And Cached Timestamp Is 
     Send ALC Status    Some ALC Status Message
 
     Sleep  60
-    check_cloud_server_log_contains_pattern   .*Some ALC Status Message.*   1
+    Check Cloud Server Log Contains Pattern   .*Some ALC Status Message.*   1
 
 ALC Status Is Sent When Status Message Is In The Cache And Cached Timestamp Is Greater Than Seven Days Old
     Register With Local Cloud Server
@@ -121,7 +121,7 @@ ALC Status Is Sent When Status Message Is In The Cache And Cached Timestamp Is G
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
-    ...  check_cloud_server_log_contains_pattern   .*Some ALC Status Message.*   2
+    ...  Check Cloud Server Log Contains Pattern   .*Some ALC Status Message.*   2
 
 
 ALC Status Not Sent When Status Message Is In The Cache And MCS Router Restarted
@@ -138,7 +138,7 @@ ALC Status Not Sent When Status Message Is In The Cache And MCS Router Restarted
     Start MCSRouter
 
     Sleep  60
-    check_cloud_server_log_contains_pattern   .*Some ALC Status Message.*   1
+    Check Cloud Server Log Contains Pattern   .*Some ALC Status Message.*   1
 
 ALC Status Sent When Status Message Is In The Cache And MCS Router Restarted
     Register With Local Cloud Server
@@ -162,7 +162,7 @@ ALC Status Sent When Status Message Is In The Cache And MCS Router Restarted
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
-    ...  check_cloud_server_log_contains_pattern   .*Some ALC Status Message.*   2
+    ...  Check Cloud Server Log Contains Pattern   .*Some ALC Status Message.*   2
 
 
 *** Keywords ***
