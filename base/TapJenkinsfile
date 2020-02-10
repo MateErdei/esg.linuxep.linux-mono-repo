@@ -6,4 +6,4 @@ def params = [
            defaultValue: '{}',
            description: 'Information about the build which triggered this in JSON.'),
 ]
-tapPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'sspl-base'; buildParameters = params }
+tapPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'sspl_base'; buildParameters = params }

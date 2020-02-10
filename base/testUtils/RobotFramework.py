@@ -5,7 +5,7 @@ import sys
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 def main():
-    tags = {'include': [], 'exclude': []}
+    tags = {'include': ['smoke'], 'exclude': []}
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {
