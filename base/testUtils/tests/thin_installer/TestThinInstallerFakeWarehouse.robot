@@ -166,7 +166,7 @@ Thin Installer Fails When No Path In Systemd File
     Log File  /lib/systemd/system/sophos-spl.service
 
     Configure And Run Thininstaller Using Real Warehouse Policy  20  ${BaseVUTPolicy}
-    Check Thininstaller Log Contains  An existing installation of Sophos Managed Threat Response for Linux was found but could not find the installed path.
+    Check Thininstaller Log Contains  An existing installation of Sophos Server Protection for Linux was found but could not find the installed path.
     Check Thininstaller Log Does Not Contain  ERROR
     remove_thininstaller_log
     Check Root Directory Permissions Are Not Changed

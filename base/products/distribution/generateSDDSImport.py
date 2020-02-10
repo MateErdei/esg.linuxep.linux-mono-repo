@@ -235,7 +235,7 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     shortDescription = getVariable("SHORT_DESCRIPTION", "SHORT_DESCRIPTION", "shortDescription", fullVersion, reportAbsentFile=False)
     setTextInTag(doc, "ShortDesc", shortDescription)
 
-    longDescription = "Sophos Managed Threat Response for Linux v%s" % fullVersion
+    longDescription = "Sophos Server Protection for Linux v%s" % fullVersion
     longDescription = getVariable("LONG_DESCRIPTION", "LONG_DESCRIPTION", "longDescription", longDescription, reportAbsentFile=False)
     setTextInTag(doc, "LongDesc", longDescription)
 
