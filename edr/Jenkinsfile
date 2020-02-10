@@ -64,7 +64,7 @@ try{
     else
     {
         echo 'Starting ticket branch edr build'
-        ArtisanBuild(buildAgentTemplate, project_release_xml, params.Mode, version_number, project_builddir)
+        ArtisanBuild(buildAgentTemplate, project_release_xml, params.mode, version_number, project_builddir)
     }
     SuccessfulBuild(project_release_xml)
 
