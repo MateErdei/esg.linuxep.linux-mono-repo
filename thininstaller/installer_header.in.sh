@@ -6,7 +6,7 @@ echo "This software is governed by the terms and conditions of a licence agreeme
 
 args="$*"
 VERSION=@PRODUCT_VERSION_REPLACEMENT_STRING@
-PRODUCT_NAME="Sophos Server Protection for Linux"
+PRODUCT_NAME="Sophos Linux Protection"
 
 # Display help
 if [ "x$args" = "x--help" ] || [ "x$args" = "x-h" ]
