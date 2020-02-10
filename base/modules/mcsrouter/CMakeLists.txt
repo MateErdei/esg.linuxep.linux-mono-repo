@@ -75,7 +75,9 @@ function(add_python_library INPUT_PATH  PACKAGE_NAME)
 
 endfunction(add_python_library)
 
-foreach (PYTHON_PACKAGE_NAME  watchdog Crypto pathtools certifi chardet idna requests six.py sseclient.py urllib3)
+add_python_library(${PYCRYPTODOME_INPUT} Crypto)
+
+foreach (PYTHON_PACKAGE_NAME  watchdog pathtools certifi chardet idna requests six.py sseclient.py urllib3)
     add_python_library(${INPUT}/${PYTHON_PACKAGE_NAME} ${PYTHON_PACKAGE_NAME})
 endforeach(PYTHON_PACKAGE_NAME)
 
