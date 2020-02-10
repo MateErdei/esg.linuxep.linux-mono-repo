@@ -213,3 +213,29 @@ Stop 401 Server
     [Arguments]    ${handle}
     ${result} =  Terminate Process  ${handle}
     Log  "401 server output: " ${result.stdout} ${result.stderr}
+
+
+Log Content of MCS Push Server Log
+    ${LogContent}=  MCS Push Server Log
+    Log  ${LogContent}
+
+Push Server Teardown with MCS Fake Server
+    MCSRouter Test Teardown
+    Stop Local Cloud Server
+    Cleanup Local Cloud Server Logs
+    Push Server Test Teardown   runGeneral=False
+
+
+Push Server Test Teardown
+    [Arguments]  ${runGeneral}=True
+    Shutdown MCS Push Server
+    Run Keyword If Test Failed    Log Content of MCS Push Server Log
+    Run Keyword If  ${runGeneral}  General Test Teardown
+
+Install Register And Wait First MCS Policy With MCS Policy
+    [Arguments]  ${mcs_policy}
+    Start Local Cloud Server  --initial-mcs-policy  ${mcs_policy}
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    Wait New MCS Policy Downloaded

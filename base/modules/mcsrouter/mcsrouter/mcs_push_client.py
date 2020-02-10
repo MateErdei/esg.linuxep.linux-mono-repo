@@ -90,9 +90,7 @@ class MCSPushClient:
     def _start_service(self):
         """Raise exception if cannot stablish connection with the push server"""
 
-        if self._impl:
-            self._impl.stop()
-            self._impl = None
+        self.stop_service()        
         try:
             self._notify_mcsrouter_channel.clear()
             url, cert, expected_ping = self._settings.as_tuple()
@@ -110,6 +108,8 @@ class MCSPushClient:
         if not self._impl:
             return
         self._impl.stop()
+        self._impl = None
+        logger.info("MCS push client stopped")
 
     def pending_commands(self):
         if not self._impl:
@@ -164,6 +164,8 @@ class MCSPushClientInternal(threading.Thread):
                         msg_event = next(self.messages)
                         msg = msg_event.data
                         if msg:
+                            # we don't want to log the full message, just the beginning is enough 
+                            logger.info("Received command: {}".format(msg[:100]))
                             self._append_command(MsgType.MCSCommand, msg)
                         else:
                             logger.debug("Server sent ping")

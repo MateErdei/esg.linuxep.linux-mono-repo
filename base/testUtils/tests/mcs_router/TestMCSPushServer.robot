@@ -7,7 +7,7 @@ Resource  McsRouterResources.robot
 
 Resource  ../GeneralTeardownResource.robot
 
-Test Teardown  Test Teardown
+Test Teardown  Push Server Test Teardown
 
 Default Tags  FAKE_CLOUD
 
@@ -61,7 +61,7 @@ MCSPushServer Can Control The Ping Interval
     Check Ping Time Interval  3
 
 MCS Fake Server Redirects To MCS Push Server
-    [Teardown]  Teardown with MCS Fake Server
+    [Teardown]  Push Server Teardown with MCS Fake Server
     Start Local Cloud Server
     Start MCS Push Server
     Verify Cloud Server Redirect
@@ -75,20 +75,3 @@ MCS Fake Server Redirects To MCS Push Server
 
 
 *** Keywords ***
-
-Log Content of MCS Push Server Log
-    ${LogContent}=  MCS Push Server Log
-    Log  ${LogContent}
-
-Teardown with MCS Fake Server
-    MCSRouter Test Teardown
-    Stop Local Cloud Server
-    Cleanup Local Cloud Server Logs
-    Test Teardown   runGeneral=False
-
-
-Test Teardown
-    [Arguments]  ${runGeneral}=True
-    Shutdown MCS Push Server
-    Run Keyword If Test Failed    Log Content of MCS Push Server Log
-    Run Keyword If  ${runGeneral}  General Test Teardown

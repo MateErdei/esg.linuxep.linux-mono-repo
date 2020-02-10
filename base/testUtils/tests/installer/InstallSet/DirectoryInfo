@@ -25,6 +25,10 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/certifi
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/cli
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/metadata
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/Crypto
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/Crypto/Cipher
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/Crypto/Hash
@@ -66,7 +70,16 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/C
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/Crypto/SelfTest/Util
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/Crypto/Signature
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/Crypto/Util
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/idna
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/pathtools
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/requests
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/urllib3
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/urllib3/contrib
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/urllib3/contrib/_securetransport
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/urllib3/packages
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/urllib3/packages/backports
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/urllib3/packages/ssl_match_hostname
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/urllib3/util
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/watchdog
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/watchdog/observers
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/watchdog/tricks

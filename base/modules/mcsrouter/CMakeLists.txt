@@ -75,7 +75,17 @@ function(add_python_library INPUT_PATH  PACKAGE_NAME)
 
 endfunction(add_python_library)
 
-add_python_library(${PYCRYPTODOME_INPUT} Crypto)
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Crypto
+        WORKING_DIRECTORY ${PYCRYPTODOME_INPUT}/..
+        # Copy the whole directory as it may contain a mix of python and C files.
+        COMMAND cp -r ${PYCRYPTODOME_INPUT}/Crypto ${CMAKE_BINARY_DIR}
+        # Remove unwanted files.
+        COMMAND find ${CMAKE_BINARY_DIR}/Crypto -name "*.pyc" -type f | xargs -r rm -f
+        COMMAND find ${CMAKE_BINARY_DIR}/Crypto -name "*.pyo" -type f | xargs -r rm -f
+        )
+
+install(DIRECTORY ${CMAKE_BINARY_DIR}/Crypto
+            DESTINATION files/base/lib/python3.7/site-packages)
 
 foreach (PYTHON_PACKAGE_NAME  watchdog pathtools certifi chardet idna requests six.py sseclient.py urllib3)
     add_python_library(${INPUT}/${PYTHON_PACKAGE_NAME} ${PYTHON_PACKAGE_NAME})
