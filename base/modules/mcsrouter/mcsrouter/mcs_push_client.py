@@ -131,7 +131,6 @@ class MCSPushClient:
             logger.info("Push Server settings changed. Applying it")
             self._settings = settings
             url, cert, expected_ping = self._settings.as_tuple()
-            logger.debug("Jake: Settings for push client: url: {}, ping {} and cert {}".format(url, expected_ping, cert))
             self._start_service()
             return True
         return False
