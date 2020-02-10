@@ -63,6 +63,7 @@ DaySet::DaySet(Common::XmlUtilities::AttributesMap& savPolicy, const std::string
         const std::string d = attr.contents();
         m_days.push_back(convertFromString(d));
     }
+    sort();
 }
 
 void DaySet::sort()

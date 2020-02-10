@@ -5,7 +5,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <algorithm>
-#include <utility>
 #include "ScheduledScan.h"
 #include "Logger.h"
 
@@ -59,38 +58,28 @@ using namespace manager::scheduler;
 
 ScheduledScan::ScheduledScan()
     :
-    m_valid(false),
     m_name("INVALID"),
-    m_lastRunTime(static_cast<time_t>(-1))
-{
-}
-
-ScheduledScan::ScheduledScan(std::string name)
-    :
-    m_valid(true),
-    m_isScanNow(false),
-    m_name(std::move(name)),
-    m_days(),
-    m_times(),
-    m_lastRunTime(static_cast<time_t>(-1))
+    m_lastRunTime(static_cast<time_t>(-1)),
+    m_valid(false),
+    m_archiveScanning(false)
 {
 }
 
 ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id)
-    : m_valid(true),
-      m_isScanNow(true),
-      m_name(savPolicy.lookup(id + "/name").contents()),
+    : m_name(savPolicy.lookup(id + "/name").contents()),
       m_days(savPolicy, id + "/schedule/daySet/day"),
       m_times(savPolicy, id + "/schedule/timeSet/time"),
-      m_lastRunTime(static_cast<time_t>(-1))
+      m_lastRunTime(static_cast<time_t>(-1)),
+      m_valid(true),
+      m_archiveScanning(false)
 {
-    m_days.sort();
-    m_times.sort();
+    std::string archiveSetting = savPolicy.lookup(id+"/settings/scanBehaviour/archives").contents();
+    m_archiveScanning = (archiveSetting == "true");
 }
 
 time_t ScheduledScan::calculateNextTime(time_t now) const
 {
-    if (!m_valid || !m_isScanNow)
+    if (!m_valid)
     {
         return static_cast<time_t>(-1);
     }

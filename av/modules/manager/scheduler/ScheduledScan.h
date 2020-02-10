@@ -15,10 +15,7 @@ namespace manager::scheduler
     {
     public:
         ScheduledScan();
-        ScheduledScan(std::string  name);
         ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id);
-
-
         [[nodiscard]] std::string name() const
         {
             return m_name;
@@ -41,13 +38,22 @@ namespace manager::scheduler
             return m_valid;
         }
 
+        /**
+         *
+         * @return True if the scan should look inside archive files.
+         */
+        [[nodiscard]] bool archiveScanning() const
+        {
+            return m_archiveScanning;
+        }
+
     private:
-        bool m_valid;
-        bool m_isScanNow;
         std::string m_name;
         DaySet m_days;
         TimeSet m_times;
         time_t m_lastRunTime;
+        bool m_valid;
+        bool m_archiveScanning;
     };
 }
 

@@ -420,7 +420,7 @@ TEST(ScheduledScanConfiguration, DaySet) // NOLINT
     // And with the real code
     auto scan = ScheduledScan(attributeMap, scanIds[0]);
     EXPECT_EQ(scan.name(), "Sophos Cloud Scheduled Scan");
-    auto days = scan.days();
+    const auto& days = scan.days();
     ASSERT_EQ(days.size(), 2);
 
 }
@@ -560,17 +560,99 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
     EXPECT_EQ(times.times()[0].minute(), 0);
     EXPECT_EQ(times.times()[1].hour(), 17);
     EXPECT_EQ(times.times()[1].minute(), 0);
+}
 
-    // Check scanNowScan is constructed correctly
-    auto scanNowScan = m->scanNowScan();
+TEST(ScheduledScanConfiguration, TestArchiveSettingTrue) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <settings>
+          <scanBehaviour>
+            <archives>true</archives>
+          </scanBehaviour>
+        </settings>
+      </scan>
+    </scanSet>
+  </onDemandScan>
+</config>
+)MULTILINE");
 
-    EXPECT_TRUE(scanNowScan.valid());
-    EXPECT_EQ(scanNowScan.name(), "scanNow");
-    EXPECT_EQ(scanNowScan.calculateNextTime(::time(nullptr)), static_cast<time_t>(-1));
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto scans = m->scans();
+    ASSERT_EQ(scans.size(), 1);
+    const auto& scan = scans[0];
+    auto scanArchives = scan.archiveScanning();
+    EXPECT_TRUE(scanArchives);
+}
 
-    const auto& scanNowTimes = scanNowScan.times();
-    EXPECT_EQ(scanNowTimes.size(), 0);
+TEST(ScheduledScanConfiguration, TestArchiveSettingFalse) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <settings>
+          <scanBehaviour>
+            <archives>false</archives>
+          </scanBehaviour>
+        </settings>
+      </scan>
+    </scanSet>
+  </onDemandScan>
+</config>
+)MULTILINE");
 
-    const auto& scanNowDays = scanNowScan.days();
-    EXPECT_EQ(scanNowDays.size(), 0);
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto scans = m->scans();
+    ASSERT_EQ(scans.size(), 1);
+    const auto& scan = scans[0];
+    auto scanArchives = scan.archiveScanning();
+    EXPECT_FALSE(scanArchives);
+}
+
+TEST(ScheduledScanConfiguration, TestEmptyXml) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto scans = m->scans();
+    ASSERT_EQ(scans.size(), 0);
+}
+
+TEST(ScheduledScanConfiguration, MissingArchiveSettings) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+      </scan>
+    </scanSet>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto scans = m->scans();
+    ASSERT_EQ(scans.size(), 1);
+    const auto& scan = scans[0];
+    auto scanArchives = scan.archiveScanning();
+    EXPECT_FALSE(scanArchives);
 }

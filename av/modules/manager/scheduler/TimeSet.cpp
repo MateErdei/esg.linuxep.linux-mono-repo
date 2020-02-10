@@ -67,6 +67,7 @@ TimeSet::TimeSet(Common::XmlUtilities::AttributesMap& savPolicy, const std::stri
     {
         m_times.emplace_back(attr.contents());
     }
+    sort();
 }
 
 void TimeSet::sort()
