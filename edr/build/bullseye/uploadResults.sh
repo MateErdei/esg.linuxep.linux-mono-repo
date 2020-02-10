@@ -20,6 +20,8 @@ PRIVATE_KEY=${BASE}/build/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key 
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=/opt/test/inputs/edr/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
+## Ensure ssh won't complain about private key permissions:
+chmod 600 ${PRIVATE_KEY}
 
 if [[ -z ${UPLOAD_ONLY} ]]
 then
@@ -49,9 +51,7 @@ chmod -R a+rX "$htmldir"
 
 if [[ ${BULLSEYE_UPLOAD} == 1 ]]
 then
-  ## Ensure ssh won't complain about private key permissions:
-  chmod 600 ${PRIVATE_KEY}
-  rsync -va --rsh="ssh -i ${PRIVATE_KEY}" --delete $htmldir \
+  rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" --delete $htmldir \
       upload@allegro.eng.sophos:public_html/bullseye/  \
       </dev/null \
       || exitFailure $FAILURE_BULLSEYE "Failed to upload bulleye html"

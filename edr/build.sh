@@ -351,7 +351,6 @@ function build()
             bash -x build/bullseye/uploadResults.sh || exit $?
         fi
       cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
-      cp -a build/bullseye output || exitFailure $FAILURE_BULLSEYE  "Failed to copy files for uploading results"
     fi
 
     if [[ -d build${BITS}/symbols ]]

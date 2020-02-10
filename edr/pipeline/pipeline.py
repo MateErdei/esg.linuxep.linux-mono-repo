@@ -3,10 +3,12 @@ import tap.v1 as tap
 import os
 
 COVFILE_UNITTEST = '/opt/test/inputs/edr/sspl-plugin-edr-unit.cov'
-COVFILE_COMBINED = '/opt/test/logs/sspl-edr-combined.cov'
-UPLOAD_SCRIPT = '/opt/test/inputs/edr/bullseye/uploadResults.sh'
-LOGS_DIR = '/opt/testlogs'
+COVFILE_COMBINED = '/opt/test/inputs/edr/sspl-edr-combined.cov'
+UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
+LOGS_DIR = '/opt/test/logs'
+RESULTS_DIR = '/opt/test/results'
 INPUTS_DIR = '/opt/test/inputs'
+
 
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
@@ -47,7 +49,7 @@ def robot_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/results', 'results')
 
 
-def pytest_task(machine: tap.Machine, branch: str, coverage: str='no'):
+def pytest_task(machine: tap.Machine, branch: str, coverage: str = 'no'):
     try:
         install_requirements(machine)
 
@@ -57,19 +59,33 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str='no'):
                 '--html=/opt/test/results/report.html'
                 ]
 
-        if has_coverage_build(branch) and coverage=='yes':
-            #upload unit test coverage
+        if coverage == 'yes':
+            # upload unit test coverage html results to allegro
             unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
-            machine.run('bash', '-x',  UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
-            machine.run('mv', unitest_htmldir, LOGS_DIR)
-            machine.run('cp', COVFILE_UNITTEST, LOGS_DIR)
-            
-            #run component tests with coverage file
+            machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
+
+            # publish unit test coverage file and results to artifactory results/coverage
+            coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
+            machine.run('mkdir', coverage_results_dir)
+            machine.run('mv', unitest_htmldir, coverage_results_dir)
+            machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
+
+            # run component tests with coverage file to get combined coverage
             machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
             machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
 
-            combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
-            machine.run('bash', '-x',  UPLOAD_SCRIPT, environment={'BULLSEYE_UPLOAD': 1, 'htmldir': combined_htmldir})
+            machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
+
+            # generate combined coverage html results and upload to allegro
+            # ToDo enable this step when there is a TAP test template with Bullseye - LINUXDAR-ticket-num
+            #  #Workaround is to download the coverage file from artifactory and view on a machine with Bullseye license
+            #combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
+            #machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'BULLSEYE_UPLOAD': 1, 'htmldir': combined_htmldir})
+
+            # publish combined html results and coverage file to artifactory
+            # ToDo uncomment this step when there is a TAP test template with Bullseye - LINUXDAR-ticket-num
+            #machine.run('mv', unitest_htmldir, coverage_results_dir)
+            machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
         else:
             machine.run(*args)
 
@@ -80,14 +96,14 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str='no'):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext, coverage:str='no'):
+def get_inputs(context: tap.PipelineContext, coverage_inputs: str = 'no'):
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         edr=context.artifact.build() / 'output'
     )
-    #override the edr input and get the bullseye coverage build insteady
-    if coverage=='yes' and has_coverage_build(context.branch):
+    # override the edr input and get the bullseye coverage build insteady
+    if coverage_inputs == 'yes':
         test_inputs['edr'] = context.artifact.build() / 'coverage'
         test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
 
@@ -95,14 +111,16 @@ def get_inputs(context: tap.PipelineContext, coverage:str='no'):
 
 
 @tap.pipeline(version=1, component='sspl-edr-plugin')
-def edr_plugin(stage: tap.Root, context: tap.PipelineContext):
+def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     branch_name = context.branch
-    machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
-    machine_bullseye_test=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, coverage='yes'), platform=tap.Platform.Linux)
+    machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+
     with stage.group('integration'):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     with stage.group('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine, branch=branch_name, coverage='no')
-        if has_coverage_build(branch_name):
-            stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test, branch=branch_name, coverage='yes')
-
+        if parameters.coverage == 'yes' or has_coverage_build(branch_name):
+            machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, coverage_inputs='yes'),
+                                                platform=tap.Platform.Linux)
+            stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test,
+                       branch=branch_name, coverage='yes')
