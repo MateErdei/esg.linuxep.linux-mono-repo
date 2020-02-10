@@ -62,18 +62,23 @@ ScheduledScan::ScheduledScan()
     m_valid(false),
     m_name("INVALID"),
     m_lastRunTime(static_cast<time_t>(-1))
+{
 }
 
 ScheduledScan::ScheduledScan(std::string name)
     :
     m_valid(true),
+    m_isScanNow(false),
     m_name(std::move(name)),
+    m_days(),
+    m_times(),
     m_lastRunTime(static_cast<time_t>(-1))
 {
 }
 
 ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id)
     : m_valid(true),
+      m_isScanNow(true),
       m_name(savPolicy.lookup(id + "/name").contents()),
       m_days(savPolicy, id + "/schedule/daySet/day"),
       m_times(savPolicy, id + "/schedule/timeSet/time"),
@@ -85,7 +90,7 @@ ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, con
 
 time_t ScheduledScan::calculateNextTime(time_t now) const
 {
-    if (!m_valid)
+    if (!m_valid || !m_isScanNow)
     {
         return static_cast<time_t>(-1);
     }

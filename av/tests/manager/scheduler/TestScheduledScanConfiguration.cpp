@@ -560,4 +560,17 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
     EXPECT_EQ(times.times()[0].minute(), 0);
     EXPECT_EQ(times.times()[1].hour(), 17);
     EXPECT_EQ(times.times()[1].minute(), 0);
+
+    // Check scanNowScan is constructed correctly
+    auto scanNowScan = m->scanNowScan();
+
+    EXPECT_TRUE(scanNowScan.valid());
+    EXPECT_EQ(scanNowScan.name(), "scanNow");
+    EXPECT_EQ(scanNowScan.calculateNextTime(::time(nullptr)), static_cast<time_t>(-1));
+
+    const auto& scanNowTimes = scanNowScan.times();
+    EXPECT_EQ(scanNowTimes.size(), 0);
+
+    const auto& scanNowDays = scanNowScan.days();
+    EXPECT_EQ(scanNowDays.size(), 0);
 }

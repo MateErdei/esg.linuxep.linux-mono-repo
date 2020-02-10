@@ -43,6 +43,7 @@ namespace manager::scheduler
 
     private:
         bool m_valid;
+        bool m_isScanNow;
         std::string m_name;
         DaySet m_days;
         TimeSet m_times;
