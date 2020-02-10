@@ -24,11 +24,6 @@ class TestStatusCache(unittest.TestCase):
     def setUp(self):
         self.__m_originalDelay = mcsrouter.mcsclient.status_cache.MAX_STATUS_DELAY
 
-        # path value does not actually matter as the file system is mocked.
-        # only specified for completeness.
-        #self.__m_status_cached_path = "/opt/sophos-spl/base/mcs/status/cache"
-        self.__m_status_cached_path = "/tmp"
-
     def tearDown(self):
         mcsrouter.mcsclient.status_cache.MAX_STATUS_DELAY = self.__m_originalDelay
 
@@ -63,7 +58,7 @@ class TestStatusCache(unittest.TestCase):
         mock_path.isfile.return_value = False
         mocked_open_write_function = mock.mock_open()
         with mock.patch("builtins.open", mocked_open_write_function):
-            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus")
             self.assertTrue(ret)
 
 
@@ -78,14 +73,14 @@ class TestStatusCache(unittest.TestCase):
         mock_path.isfile.return_value = False
         mocked_open_write_function = mock.mock_open()
         with mock.patch("builtins.open", mocked_open_write_function):
-            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus")
             self.assertTrue(ret)
 
         mock_path.isfile.return_value = True
         mock_json.load.return_value = json_dict
         mocked_open_read_function = mock.mock_open(read_data=json_string)
         with mock.patch("builtins.open", mocked_open_read_function):
-            ret = cache.has_status_changed_and_record("FOO", "MyStatus2", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus2")
             self.assertTrue(ret)
 
 
@@ -100,14 +95,14 @@ class TestStatusCache(unittest.TestCase):
         mock_path.isfile.return_value = False
         mocked_open_write_function = mock.mock_open()
         with mock.patch("builtins.open", mocked_open_write_function):
-            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus")
             self.assertTrue(ret)
 
         mock_path.isfile.return_value = True
         mock_json.load.return_value = json_dict
         mocked_open_read_function = mock.mock_open(read_data=json_string)
         with mock.patch("builtins.open", mocked_open_read_function):
-            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus")
             self.assertFalse(ret)
 
 
@@ -124,7 +119,7 @@ class TestStatusCache(unittest.TestCase):
         mock_path.isfile.return_value = False
         mocked_open_write_function = mock.mock_open()
         with mock.patch("builtins.open", mocked_open_write_function):
-            ret = cache.has_status_changed_and_record("FOO1", "MyStatus", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO1", "MyStatus")
             self.assertTrue(ret)
 
         # 2nd status should be added to cache
@@ -132,7 +127,7 @@ class TestStatusCache(unittest.TestCase):
         mock_json.load.return_value = json_dict
         mocked_open_read_function = mock.mock_open(read_data=json_string)
         with mock.patch("builtins.open", mocked_open_read_function):
-            ret = cache.has_status_changed_and_record("FOO2", "MyStatus2", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO2", "MyStatus2")
             self.assertTrue(ret)
 
         # 3rd status should be in cache
@@ -143,7 +138,7 @@ class TestStatusCache(unittest.TestCase):
         mock_json.load.return_value = json_dict
         mocked_open_read_function = mock.mock_open(read_data=json_string)
         with mock.patch("builtins.open", mocked_open_read_function):
-            ret = cache.has_status_changed_and_record("FOO1", "MyStatus", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO1", "MyStatus")
             self.assertFalse(ret)
 
 
@@ -159,7 +154,7 @@ class TestStatusCache(unittest.TestCase):
         mock_path.isfile.return_value = False
         mocked_open_write_function = mock.mock_open()
         with mock.patch("builtins.open", mocked_open_write_function):
-            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus")
             self.assertTrue(ret)
 
         time.sleep(2)
@@ -168,7 +163,7 @@ class TestStatusCache(unittest.TestCase):
         mock_json.load.return_value = json_dict
         mocked_open_read_function = mock.mock_open(read_data=json_string)
         with mock.patch("builtins.open", mocked_open_read_function):
-            ret = cache.has_status_changed_and_record("FOO", "MyStatus", self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", "MyStatus")
             self.assertTrue(ret)
 
     @mock.patch('mcsrouter.mcsclient.status_cache.json')
@@ -183,14 +178,14 @@ class TestStatusCache(unittest.TestCase):
         mock_path.isfile.return_value = False
         mocked_open_write_function = mock.mock_open()
         with mock.patch("builtins.open", mocked_open_write_function):
-            ret = cache.has_status_changed_and_record("FOO", ' timestamp="2017-09-14T15:43:10.74112Z" MyStatus', self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp="2017-09-14T15:43:10.74112Z" MyStatus')
             self.assertTrue(ret)
 
         mock_path.isfile.return_value = True
         mock_json.load.return_value = json_dict
         mocked_open_read_function = mock.mock_open(read_data=json_string)
         with mock.patch("builtins.open", mocked_open_read_function):
-            ret = cache.has_status_changed_and_record("FOO", ' timestamp="2017-09-14T19:43:10.74112Z" MyStatus', self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp="2017-09-14T19:43:10.74112Z" MyStatus')
             self.assertFalse(ret)
 
     @mock.patch('mcsrouter.mcsclient.status_cache.json')
@@ -205,14 +200,14 @@ class TestStatusCache(unittest.TestCase):
         mock_path.isfile.return_value = False
         mocked_open_write_function = mock.mock_open()
         with mock.patch("builtins.open", mocked_open_write_function):
-            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T15:43:10.74112&quot;', self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T15:43:10.74112&quot;')
             self.assertTrue(ret)
 
         mock_path.isfile.return_value = True
         mock_json.load.return_value = json_dict
         mocked_open_read_function = mock.mock_open(read_data=json_string)
         with mock.patch("builtins.open", mocked_open_read_function):
-            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T19:43:10.74112&quot; MyStatus', self.__m_status_cached_path)
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T19:43:10.74112&quot; MyStatus')
             self.assertFalse(ret)
 
 

@@ -5,8 +5,6 @@
 status_cache Module
 """
 
-
-
 import logging
 import os
 import re
@@ -14,6 +12,7 @@ import time
 import hashlib
 import json
 
+import mcsrouter.utils.path_manager as path_manager
 
 LOGGER = logging.getLogger(__name__)
 
@@ -43,7 +42,7 @@ class StatusCache:
         return hash_object.hexdigest()
 
 
-    def has_status_changed_and_record(self, app_id, adapter_status_xml, status_cache_dir):
+    def has_status_changed_and_record(self, app_id, adapter_status_xml):
         """
         Checks if an adapter has changed status, records new status if changed
 
@@ -60,7 +59,7 @@ class StatusCache:
 
         hashed_adapter_status_xml = self._hash_status(adapter_status_xml)
 
-        cached_status_file_path = os.path.join(status_cache_dir, 'status_cache.json')
+        cached_status_file_path = os.path.join(path_manager.status_cache_dir(), 'status_cache.json')
 
         cached_status_hash = ""
         cached_status_file_time_stamp = 0
@@ -77,7 +76,7 @@ class StatusCache:
                         cached_status_hash = app_id_data['status_hash']
             except IOError:
                 LOGGER.warning("Failed to read status cache file, resetting")
-                self.clear_cache(status_cache_dir)
+                self.clear_cache(path_manager.status_cache_dir())
 
         if hashed_adapter_status_xml == cached_status_hash and (
                 now - cached_status_file_time_stamp) < MAX_STATUS_DELAY:
@@ -95,10 +94,10 @@ class StatusCache:
 
         return True
 
-    def clear_cache(self, status_cache_dir):
+    def clear_cache(self):
         """
         clear_cache
         """
-        full_path = os.path.join(status_cache_dir, 'status_cache.json')
+        full_path = os.path.join(path_manager.status_cache_dir(), 'status_cache.json')
 
         os.remove(full_path)

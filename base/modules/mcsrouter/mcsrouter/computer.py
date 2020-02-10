@@ -66,7 +66,7 @@ class Computer:
                 continue
 
             if not self.__m_status_cache.has_status_changed_and_record(
-                    adapter.get_app_id(), status_xml, path_manager.status_cache_dir()):
+                    adapter.get_app_id(), status_xml):
                 # Status for this adapter hasn't actually changed
                 continue
 
@@ -193,4 +193,4 @@ class Computer:
         """
         clear_cache
         """
-        self.__m_status_cache.clear_cache(path_manager.status_cache_dir())
+        self.__m_status_cache.clear_cache()

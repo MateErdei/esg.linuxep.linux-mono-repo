@@ -96,7 +96,13 @@ ALC Status Not Sent When Status Message Is In The Cache And Cached Timestamp Is 
     # re-send status message.
     Send ALC Status    Some ALC Status Message
 
-    Sleep  60
+    Send ALC Status    Some New ALC Status Message
+
+    Wait Until Keyword Succeeds
+        ...  1 min
+        ...  5 secs
+        ...  Check Cloud Server Log For ALC Status    Some New ALC Status Message
+
     Check Cloud Server Log Contains Pattern   .*Some ALC Status Message.*   1
 
 ALC Status Is Sent When Status Message Is In The Cache And Cached Timestamp Is Greater Than Seven Days Old
