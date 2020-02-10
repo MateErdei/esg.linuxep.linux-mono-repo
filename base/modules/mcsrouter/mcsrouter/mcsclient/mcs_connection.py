@@ -665,7 +665,7 @@ class MCSConnection:
 
         except http.client.BadStatusLine as exception:
             self.__m_last_seen_http_error = exception
-            LOGGER.debug("Received httplib.BadStatusLine, closing connection")
+            LOGGER.info("Received httplib.BadStatusLine, closing connection")
             self.__m_cookies.clear()
             self.close()
             return None
@@ -682,7 +682,7 @@ class MCSConnection:
             # don't re-use old cookies after an error, as this may trigger
             # de-duplication
 
-            LOGGER.debug("Forgetting cookies due to comms error")
+            LOGGER.info("Forgetting cookies due to comms error")
             self.__m_cookies.clear()
             self.__close_connection()
             return None
