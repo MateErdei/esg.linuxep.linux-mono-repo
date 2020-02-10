@@ -107,7 +107,7 @@ Thin Installer fails to install on system without enough memory
 
 Thin Installer fails to install on system without enough storage
     Run Default Thininstaller With Fake Small Disk
-    Check Thininstaller Log Contains    Not enough space in / to install Sophos Server Protection for Linux. You can install elsewhere by re-running this installer with the --instdir argument
+    Check Thininstaller Log Contains    Not enough space in / to install Sophos Linux Protection. You can install elsewhere by re-running this installer with the --instdir argument
 
 Thin Installer fails to install to the tmp folder
     ${Install_Path}=  Set Variable  /tmp
@@ -208,7 +208,7 @@ Thin Installer Does Not Install When Existing Install Different To Intsdir Argum
     # Install to custom location, check we get error code 7
     Run Default Thininstaller With Args  7  --instdir=/customdir
     Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
-    Check Thininstaller Log Contains  Please uninstall Sophos Server Protection for Linux before using this installer. You can run /opt/sophos-spl/bin/uninstall.sh
+    Check Thininstaller Log Contains  Please uninstall Sophos Linux Protection before using this installer. You can run /opt/sophos-spl/bin/uninstall.sh
     remove_thininstaller_log
 
 
@@ -238,7 +238,7 @@ Thin Installer Detects Sweep And Cancels Installation
 
 Thin Installer Has Working Version Option
     Run Default Thininstaller With Args   0     --version
-    Check Thininstaller Log Contains    Sophos Server Protection for Linux Installer, version: 1.0.3
+    Check Thininstaller Log Contains    Sophos Linux Protection Installer, version: 1.0.3
 
 Check Installer Does Not Contain Todos Or Fixmes
     [Tags]   THIN_INSTALLER

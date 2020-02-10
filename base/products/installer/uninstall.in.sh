@@ -35,7 +35,7 @@ then
     ChoiceMade=false
     while [[ ${ChoiceMade} == false ]]
     do
-        read -p "Do you want to uninstall Sophos Server Protection for Linux? " yn
+        read -p "Do you want to uninstall Sophos Linux Protection? " yn
         case $yn in
             [Yy] | [Yy][Ee][Ss] ) ChoiceMade=true;;
             [Nn] | [Nn][Oo] ) exit 1;;
