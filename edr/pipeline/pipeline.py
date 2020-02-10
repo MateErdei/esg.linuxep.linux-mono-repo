@@ -25,7 +25,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return branch_name == 'master' or branch_name.endswith('ci-and-tap')
+    return branch_name == 'master' or branch_name.endswith('coverage')
 
 
 def install_requirements(machine: tap.Machine):
@@ -74,16 +74,14 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str = 'no'):
             machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
             machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
 
-            machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
-
             # generate combined coverage html results and upload to allegro
-            # ToDo enable this step when there is a TAP test template with Bullseye - LINUXDAR-ticket-num
+            # ToDo enable this step when there is a TAP test template with Bullseye - LINUXDAR-1435
             #  #Workaround is to download the coverage file from artifactory and view on a machine with Bullseye license
             #combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
             #machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'BULLSEYE_UPLOAD': 1, 'htmldir': combined_htmldir})
 
             # publish combined html results and coverage file to artifactory
-            # ToDo uncomment this step when there is a TAP test template with Bullseye - LINUXDAR-ticket-num
+            # ToDo uncomment this step when there is a TAP test template with Bullseye - LINUXDAR-1435
             #machine.run('mv', unitest_htmldir, coverage_results_dir)
             machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
         else:

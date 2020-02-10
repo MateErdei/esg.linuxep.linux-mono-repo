@@ -13,8 +13,7 @@ properties([
     string(name: 'CommitHash', defaultValue: ''),
     string(name: 'PortalId', defaultValue: ''),
     string(name: 'PortalAddress', defaultValue: ''),
-    //string(name: 'mode', defaultValue: 'release'),
-    string(name: 'UnitTest', defaultValue: 'yes')
+    string(name: 'mode', defaultValue: 'release')
   ])
 ])
 
