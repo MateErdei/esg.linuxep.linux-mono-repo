@@ -12,7 +12,7 @@ namespace livequery
     class ResponseMetaData
     {
     public:
-        ResponseMetaData();
+        ResponseMetaData() = default;
         ResponseMetaData(long queryStart);
         long getQueryStart() const;
 
