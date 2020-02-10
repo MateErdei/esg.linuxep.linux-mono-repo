@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 DEFAULT_PRODUCT=av
+BUILD_DIR=sspl-plugin-anti-virus
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
@@ -44,7 +45,7 @@ export ENABLE_STRIP=1
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
 COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
-COV_HTML_BASE=sspl-plugin-audit-unittest
+COV_HTML_BASE=sspl-plugin-${PRODUCT}-unittest
 VALGRIND=0
 GOOGLETESTTAR=googletest-release-1.8.1
 NO_BUILD=0
@@ -151,6 +152,13 @@ do
         --get-input)
             python3 -m build_scripts.artisan_fetch build-files/release-package.xml
             ;;
+        --setup)
+            python3 -m build_scripts.artisan_fetch build-files/release-package.xml
+            rm -f ${BUILD_DIR}/input/gcc-*-linux.tar.gz
+            NO_BUILD=1
+            LOCAL_GCC=1
+            LOCAL_CMAKE=1
+            ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
             ;;
@@ -167,7 +175,6 @@ done
 export NO_REMOVE_GCC=1
 
 INPUT=$BASE/input
-BUILD_DIR=sspl-plugin-anti-virus
 
 if [[ ! -d "$INPUT" ]]
 then

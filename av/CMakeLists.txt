@@ -74,10 +74,10 @@ endif()
 if(NOT EXISTS ${INPUT})
     string( APPEND ERRORMESSAGE
             "To build using CLion you first need to:\n"
-            "1. Fetch inputs in source folder by running:\n"
-            "    python3 -m build_scripts.artisan_fetch build-files/release-package.xml\n"
-            "2. Run the full build script with no build flag:\n"
-            "    ./build.sh --no-build\n"
+            "1. Install CI tools\n"
+            "    sudo bash .../setup/SetupCIBuildScripts.sh\n"
+            "1. Run the full build script with setup flag:\n"
+            "    ./build.sh --setup\n"
             "After that you will be able to build using CLion")
     message( FATAL_ERROR ${ERRORMESSAGE})
 endif()
