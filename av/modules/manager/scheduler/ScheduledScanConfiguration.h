@@ -23,8 +23,13 @@ namespace manager::scheduler
         {
             return m_scans;
         }
+        ScheduledScan scanNowScan()
+        {
+            return m_scanNowScan;
+        }
     private:
         std::vector<std::string> m_exclusions;
         std::vector<ScheduledScan> m_scans;
+        ScheduledScan m_scanNowScan;
     };
 }

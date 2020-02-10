@@ -18,12 +18,18 @@ namespace manager::scheduler
     {
     public:
         void run() override;
+
         void updateConfig(ScheduledScanConfiguration);
+
+        void scanNow();
+
     private:
         Common::Threads::NotifyPipe m_updateConfigurationPipe;
+        Common::Threads::NotifyPipe m_scanNowPipe;
         ScheduledScanConfiguration m_config;
-        ScheduledScan m_nextScan;
-        time_t m_nextScanTime;
+        ScheduledScan m_nextScheduledScan;
+        ScheduledScan m_scanNowScan;
+        time_t m_nextScheduledScanTime;
         using ScanRunnerPtr = std::unique_ptr<ScanRunner>;
         std::map<std::string, ScanRunnerPtr> m_runningScans;
 
@@ -40,9 +46,9 @@ namespace manager::scheduler
         /**
          * Start a thread to run a new scan.
          */
-        void runNextScan();
+        void runNextScan(const ScheduledScan& nextScan);
 
-        std::string serialiseNextScan();
+        std::string serialiseNextScan(ScheduledScan nextScan);
     };
 }
 

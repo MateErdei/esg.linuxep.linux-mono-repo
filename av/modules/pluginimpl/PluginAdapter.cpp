@@ -17,18 +17,20 @@ namespace fs = sophos_filesystem;
 using namespace Plugin;
 
 PluginAdapter::PluginAdapter(
-    std::shared_ptr<QueueTask> queueTask,
-    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-    std::shared_ptr<PluginCallback> callback) :
-    m_queueTask(std::move(queueTask)),
-    m_baseService(std::move(baseService)),
-    m_callback(std::move(callback))
+        std::shared_ptr<QueueTask> queueTask,
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
+        std::shared_ptr<PluginCallback> callback) :
+        m_queueTask(std::move(queueTask)),
+        m_baseService(std::move(baseService)),
+        m_callback(std::move(callback))
 {
 
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path sophos_threat_detector_path = appConfig.getData("PLUGIN_INSTALL");
     sophos_threat_detector_path /= "sbin/sophos_threat_detector_launcher";
-    m_sophosThreadDetector = std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(sophos_threat_detector_path);
+    m_sophosThreadDetector = std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
+            sophos_threat_detector_path
+    );
 }
 
 namespace
@@ -37,16 +39,17 @@ namespace
     {
     public:
         explicit ThreadRunner(Common::Threads::AbstractThread& thread, std::string name)
-            : m_thread(thread), m_name(std::move(name))
+                : m_thread(thread), m_name(std::move(name))
         {
-            LOGINFO("Starting "<<name);
+            LOGINFO("Starting " << name);
             m_thread.start();
         }
+
         ~ThreadRunner()
         {
-            LOGINFO("Stopping "<<m_name);
+            LOGINFO("Stopping " << m_name);
             m_thread.requestStop();
-            LOGINFO("Joining "<<m_name);
+            LOGINFO("Joining " << m_name);
             m_thread.join();
         }
 
@@ -59,7 +62,8 @@ namespace
 void PluginAdapter::mainLoop()
 {
     LOGINFO("Entering the main loop");
-    ThreadRunner scheduler(m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
+    ThreadRunner scheduler(m_scanScheduler, "scanScheduler"
+    ); // Automatically terminate scheduler on both normal exit and exceptions
     ThreadRunner sophos_thread_detector(*m_sophosThreadDetector, "threatDetector");
     innerLoop();
 }
@@ -79,8 +83,7 @@ void PluginAdapter::innerLoop()
                 break;
 
             case Task::TaskType::Action:
-                //TODO LINUXDAR-1405 Process the action
-                // processAction()
+                processAction(task.Content);
                 break;
         }
     }
@@ -99,5 +102,10 @@ void PluginAdapter::processAction(const std::string& actionXml)
     LOGDEBUG("Process action: " << actionXml);
 
     auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
-//    m_scanScheduler.scanNow()
+
+    if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
+    {
+        LOGINFO("Got to here");
+        m_scanScheduler.scanNow();
+    }
 }

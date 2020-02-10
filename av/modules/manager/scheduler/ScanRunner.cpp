@@ -20,7 +20,7 @@ namespace fs = sophos_filesystem;
 using namespace manager::scheduler;
 
 ScanRunner::ScanRunner(std::string name, std::string scan)
-    : m_name(std::move(name)), m_scan(std::move(scan)), m_scanCompleted(false)
+        : m_name(std::move(name)), m_scan(std::move(scan)), m_scanCompleted(false)
 {
     // TODO: Need to work out install directory
     m_scanExecutable = "/opt/sophos-spl/plugins/sspl-plugin-anti-virus/sbin/scheduled_scan_walker_launcher";
@@ -30,7 +30,7 @@ void ScanRunner::run()
 {
     announceThreadStarted();
 
-    LOGINFO("Starting scheduled scan "<<m_name);
+    LOGINFO("Starting scan " << m_name);
 
     fs::path config_dir("/opt/sophos-spl/plugins/sspl-plugin-anti-virus/var");
     fs::path config_file = config_dir / (m_name + ".config");
@@ -47,7 +47,7 @@ void ScanRunner::run()
     // Wait for stop request or file walker process exit, which ever comes first
     process->waitUntilProcessEnds();
 
-    LOGINFO("Completed scheduled scan "<<m_name);
+    LOGINFO("Completed scan " << m_name);
     process.reset();
     fs::remove(config_file);
     m_scanCompleted = true;

@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <algorithm>
+#include <utility>
 #include "ScheduledScan.h"
 #include "Logger.h"
 
@@ -60,6 +61,13 @@ ScheduledScan::ScheduledScan()
     :
     m_valid(false),
     m_name("INVALID"),
+    m_lastRunTime(static_cast<time_t>(-1))
+}
+
+ScheduledScan::ScheduledScan(std::string name)
+    :
+    m_valid(true),
+    m_name(std::move(name)),
     m_lastRunTime(static_cast<time_t>(-1))
 {
 }

@@ -17,7 +17,7 @@ using namespace manager::scheduler;
 
 const time_t INVALID_TIME = static_cast<time_t>(-1);
 
-static int addFD(fd_set* fds, int fd, int currentMax)
+static int addFD(fd_set *fds, int fd, int currentMax)
 {
     FD_SET(fd, fds);
     return std::max(fd, currentMax);
@@ -30,6 +30,9 @@ void manager::scheduler::ScanScheduler::run()
 
     int exitFD = m_notifyPipe.readFd();
     int configFD = m_updateConfigurationPipe.readFd();
+    int scanNowFD = m_scanNowPipe.readFd();
+
+    m_scanNowScan = m_config.scanNowScan();
 
     fd_set readFDs;
     FD_ZERO(&readFDs);
@@ -44,12 +47,12 @@ void manager::scheduler::ScanScheduler::run()
         findNextTime(timeout);
 
         fd_set tempRead = readFDs;
-        int ret = ::pselect(max+1, &tempRead, NULL, NULL, &timeout, NULL);
+        int ret = ::pselect(max + 1, &tempRead, NULL, NULL, &timeout, NULL);
 
         if (ret < 0)
         {
             // handle error
-            LOGERROR("Scheduled failed: "<< errno);
+            LOGERROR("Scheduled failed: " << errno);
             break;
         }
         else if (ret > 0)
@@ -64,15 +67,24 @@ void manager::scheduler::ScanScheduler::run()
                 LOGINFO("Updating scheduled scan configuration");
                 while (m_updateConfigurationPipe.notified())
                 {
+                    // Clear updateConfigurationPipe
+                }
+            }
+            if (FD_ISSET(scanNowFD, &tempRead))
+            {
+                LOGINFO("Starting Scan Now scan");
+                while (m_scanNowPipe.notified())
+                {
+                    // Clear scanNowPipe
                 }
             }
         }
 
         time_t now = ::time(nullptr);
-        if (now >= m_nextScanTime && m_nextScanTime != INVALID_TIME)
+        if (now >= m_nextScheduledScanTime && m_nextScheduledScanTime != INVALID_TIME)
         {
             // timeout - run scan
-            runNextScan();
+            runNextScan(m_nextScheduledScan);
         }
     }
     for (auto& item : m_runningScans)
@@ -86,18 +98,18 @@ void manager::scheduler::ScanScheduler::run()
     LOGINFO("Exiting scan scheduler");
 }
 
-void ScanScheduler::runNextScan()
+void ScanScheduler::runNextScan(const ScheduledScan& nextScan)
 {
-    if (!m_nextScan.valid())
+    if (!nextScan.valid())
     {
         LOGDEBUG("Refusing to run invalid scan");
         return;
     }
     // serialise next scan
-    std::string name = m_nextScan.name();
-    std::string nextscan = serialiseNextScan();
+    std::string name = nextScan.name();
+    std::string serialisedNextScan = serialiseNextScan(nextScan);
 
-    auto runner = std::make_unique<ScanRunner>(name, std::move(nextscan));
+    auto runner = std::make_unique<ScanRunner>(name, std::move(serialisedNextScan));
     runner->start();
     m_runningScans[name] = std::move(runner);
 }
@@ -110,7 +122,8 @@ void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration 
 
 void ScanScheduler::scanNow()
 {
-
+    runNextScan(m_scanNowScan);
+    m_scanNowPipe.notify();
 }
 
 void ScanScheduler::findNextTime(timespec& timespec)
@@ -130,11 +143,11 @@ void ScanScheduler::findNextTime(timespec& timespec)
         }
         if (nextTime < next)
         {
-            m_nextScan = scan;
+            m_nextScheduledScan = scan;
             next = nextTime;
         }
     }
-    m_nextScanTime = next;
+    m_nextScheduledScanTime = next;
     time_t delay = (next - now);
 
     // SAV halves the delay instead
@@ -155,13 +168,10 @@ void ScanScheduler::findNextTime(timespec& timespec)
     timespec.tv_nsec = 0;
 }
 
-//TODO LINUXDAR-1405
-
-
-std::string ScanScheduler::serialiseNextScan()
+std::string ScanScheduler::serialiseNextScan(ScheduledScan nextScan)
 {
-    // Move so that m_nextScan is empty
-    ScheduledScan scan = std::move(m_nextScan);
+    // Move so that nextScan is empty
+    ScheduledScan scan = std::move(nextScan);
 
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Builder requestBuilder =
@@ -171,7 +181,7 @@ std::string ScanScheduler::serialiseNextScan()
 
     auto exclusionsInput = m_config.exclusions();
     auto exclusions = requestBuilder.initExcludePaths(exclusionsInput.size());
-    for (unsigned i=0; i < exclusionsInput.size(); i++)
+    for (unsigned i = 0; i < exclusionsInput.size(); i++)
     {
         exclusions.set(i, exclusionsInput[i]);
     }

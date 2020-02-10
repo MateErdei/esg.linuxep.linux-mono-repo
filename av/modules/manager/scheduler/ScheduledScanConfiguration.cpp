@@ -331,4 +331,6 @@ ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::Att
     {
         m_scans.emplace_back(ScheduledScan(savPolicy, id));
     }
+
+    m_scanNowScan = ScheduledScan("scanNow");
 }
