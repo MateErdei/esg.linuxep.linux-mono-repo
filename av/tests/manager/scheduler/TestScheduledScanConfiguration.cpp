@@ -368,6 +368,21 @@ TEST(ScheduledScanConfiguration, multipleExclusions) // NOLINT
     EXPECT_EQ(exclusions.at(1),"Exclusion2");
 }
 
+TEST(ScheduledScanConfiguration, TestEmptyXml) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto scans = m->scans();
+    EXPECT_EQ(scans.size(), 0);
+    auto exclusions = m->exclusions();
+    EXPECT_EQ(exclusions.size(), 0);
+}
+
 TEST(ScheduledScanConfiguration, TestSimpleParsing) //NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml><key>value</key></xml>");
@@ -618,19 +633,6 @@ TEST(ScheduledScanConfiguration, TestArchiveSettingFalse) // NOLINT
     const auto& scan = scans[0];
     auto scanArchives = scan.archiveScanning();
     EXPECT_FALSE(scanArchives);
-}
-
-TEST(ScheduledScanConfiguration, TestEmptyXml) // NOLINT
-{
-    auto attributeMap = Common::XmlUtilities::parseXml(
-            R"MULTILINE(<?xml version="1.0"?>
-<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-</config>
-)MULTILINE");
-
-    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
-    auto scans = m->scans();
-    ASSERT_EQ(scans.size(), 0);
 }
 
 TEST(ScheduledScanConfiguration, MissingArchiveSettings) // NOLINT
