@@ -380,6 +380,7 @@ class MCS:
             app_proxy_adapter.AppProxyAdapter(app_ids))
 
 
+
     def run(self):
         """
         run
@@ -445,7 +446,7 @@ class MCS:
         directory_watcher = self._get_directory_watcher()
         notify_pipe_file_descriptor = directory_watcher.notify_pipe_file_descriptor
 
-        push_client = mcs_push_client.MCSPushClient("url", "cert", 100)
+        push_client = mcs_push_client.MCSPushClient()
         push_notification_pipe_file_descriptor = push_client.notify_activity_pipe()
 
         last_commands = 0
@@ -481,6 +482,13 @@ class MCS:
                         status_updated(reason="reregistration")
 
                     self.check_registry_and_update_apps()
+                    push_commands = push_client.pending_commands()
+                    if push_commands:
+                        LOGGER.info("Received command from Push Server")
+                    for push_command in push_commands:
+                        LOGGER.debug("Got pending push_command: {}".format(push_command))
+                        # TODO LINUXDAR-841: handle the incoming commands
+                        # TODO LINUXDAR-839: handle error cases
 
                     if time.time() > last_commands + self.__m_command_check_interval.get():
                         appids = self.__m_computer.get_app_ids()
@@ -496,6 +504,9 @@ class MCS:
                             mcs_token_after_commands = self.__get_mcs_token()
                             if mcs_token_before_commands != mcs_token_after_commands:
                                 self.__update_user_agent()
+
+                            push_client.check_push_server_settings_changed_and_reapply(self.__m_config, comms.ca_cert())
+
 
                         if commands:
                             LOGGER.debug("Got commands; resetting interval")
@@ -688,6 +699,8 @@ class MCS:
                                 break
                             else:
                                 raise
+                elif push_notification_pipe_file_descriptor in ready_to_read:
+                    LOGGER.debug("Pipe notified that there is new command from Push Server")
                 elif (after - before) < timeout:
                     LOGGER.debug(
                         "select exited with no event after=%f before=%f delta=%f timeout=%f",
@@ -697,6 +710,8 @@ class MCS:
                         timeout)
 
         finally:
+            if push_client:
+                push_client.stop_service()
             if self.__m_comms is not None:
                 self.__m_comms.close()
                 self.__m_comms = None

@@ -20,6 +20,13 @@ add_custom_target(mcsrouter
         ${CMAKE_BINARY_DIR}/pathtools
         ${CMAKE_BINARY_DIR}/watchdog
         ${CMAKE_BINARY_DIR}/Crypto
+        ${CMAKE_BINARY_DIR}/certifi
+        ${CMAKE_BINARY_DIR}/chardet
+        ${CMAKE_BINARY_DIR}/idna
+        ${CMAKE_BINARY_DIR}/requests
+        ${CMAKE_BINARY_DIR}/six.py
+        ${CMAKE_BINARY_DIR}/sseclient.py
+        ${CMAKE_BINARY_DIR}/urllib3
         ${CMAKE_BINARY_DIR}/python3
         )
 # this is to make sure there is a connection between the targets that clion knows it needs to build
@@ -48,32 +55,30 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/lib-dynload
         COMMAND cp -r ${PYTHON_INPUT}/install64/lib/python3.7/lib-dynload/ ${CMAKE_BINARY_DIR}
         )
 
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/pathtools
-        WORKING_DIRECTORY ${PATHTOOLS_INPUT}/..
-        # Copy the whole directory as it may contain a mix of python and C files.
-        COMMAND cp -r ${PATHTOOLS_INPUT} ${CMAKE_BINARY_DIR}
-        # Remove unwanted files.
-        COMMAND find ${CMAKE_BINARY_DIR}/pathtools -name "*.pyc" -type f | xargs -r rm -f
-        COMMAND find ${CMAKE_BINARY_DIR}/pathtools -name "*.pyo" -type f | xargs -r rm -f
-        )
+function(add_python_library INPUT_PATH  PACKAGE_NAME)
+    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}
+            WORKING_DIRECTORY ${INPUT_PATH}/..
+            # Copy the whole directory as it may contain a mix of python and C files.
+            COMMAND cp -r ${INPUT_PATH} ${CMAKE_BINARY_DIR}
+            # Remove unwanted files.
+            COMMAND find ${CMAKE_BINARY_DIR}/${PACKAGE_NAME} -name "*.pyc" -type f | xargs -r rm -f
+            COMMAND find ${CMAKE_BINARY_DIR}/${PACKAGE_NAME} -name "*.pyo" -type f | xargs -r rm -f
+            )
 
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/watchdog
-        WORKING_DIRECTORY ${WATCHDOG_INPUT}/..
-        # Copy the whole directory as it may contain a mix of python and C files.
-        COMMAND cp -r ${WATCHDOG_INPUT} ${CMAKE_BINARY_DIR}
-        # Remove unwanted files.
-        COMMAND find ${CMAKE_BINARY_DIR}/watchdog -name "*.pyc" -type f | xargs -r rm -f
-        COMMAND find ${CMAKE_BINARY_DIR}/watchdog -name "*.pyo" -type f | xargs -r rm -f
-        )
+    if (IS_DIRECTORY ${CMAKE_BINARY_DIR}/${PACKAGE_NAME} )
+        install(DIRECTORY ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}
+                DESTINATION files/base/lib/python3.7/site-packages)
+    else()
+        install(FILES ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}
+                DESTINATION files/base/lib/python3.7/site-packages)
+    endif()
 
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Crypto
-        WORKING_DIRECTORY ${PYCRYPTODOME_INPUT}/..
-        # Copy the whole directory as it may contain a mix of python and C files.
-        COMMAND cp -r ${PYCRYPTODOME_INPUT}/Crypto ${CMAKE_BINARY_DIR}
-        # Remove unwanted files.
-        COMMAND find ${PYCRYPTODOME_INPUT}/Crypto -name "*.pyc" -type f | xargs -r rm -f
-        COMMAND find ${PYCRYPTODOME_INPUT}/Crypto -name "*.pyo" -type f | xargs -r rm -f
-        )
+endfunction(add_python_library)
+
+foreach (PYTHON_PACKAGE_NAME  watchdog Crypto pathtools certifi chardet idna requests six.py sseclient.py urllib3)
+    add_python_library(${INPUT}/${PYTHON_PACKAGE_NAME} ${PYTHON_PACKAGE_NAME})
+endforeach(PYTHON_PACKAGE_NAME)
+
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/python3
         WORKING_DIRECTORY ${PYTHON_INPUT}
@@ -95,15 +100,6 @@ install(FILES ${CMAKE_BINARY_DIR}/python37.zip
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/lib-dynload
         DESTINATION files/base/lib/python3.7/)
-
-install(DIRECTORY ${CMAKE_BINARY_DIR}/pathtools
-        DESTINATION files/base/lib/python3.7/site-packages)
-
-install(DIRECTORY ${CMAKE_BINARY_DIR}/watchdog
-        DESTINATION files/base/lib/python3.7/site-packages)
-
-install(DIRECTORY ${CMAKE_BINARY_DIR}/Crypto
-        DESTINATION files/base/lib/python3.7/site-packages)
 
 install(FILES ${CMAKE_BINARY_DIR}/python3
         DESTINATION files/base/bin)

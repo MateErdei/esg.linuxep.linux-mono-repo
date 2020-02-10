@@ -205,6 +205,9 @@ class MCSConnection:
         self.__m_proxy_authenticators = {}
         self.__m_last_seen_http_error = None
 
+    def ca_cert(self):
+        return self.__m_ca_file
+
     def set_user_agent(self, agent):
         """
         set_user_agent

@@ -26,9 +26,18 @@ class PushClientCommand:
         self.msg_type = msg_type
         self.msg = msg_content
 
+    def __repr__(self):
+        if self.msg_type == MsgType.Error:
+            return "Error: {}".format(self.msg)
+        return "Command: {}".format(self.msg)
+
 class PipeChannel:
     def __init__(self):
         self.read, self.write = mcsrouter.utils.signal_handler.create_pipe()
+
+    def fileno(self):
+        """To be used for selectors"""
+        return self.read
 
     def notify(self):
         os.write(self.write, b'.')
@@ -50,47 +59,129 @@ class PipeChannel:
         os.close(self.read)
         os.close(self.write)
 
-class MCSPushClient(threading.Thread):
-    def __init__(self, url: str, cert: str, expected_ping_interval: int):
+class MCSPushException(RuntimeError):
+    pass
+
+class MCSPushSetting:
+    @staticmethod
+    def from_config(config, cert):
+        url = config.get_default("pushServer1", None)
+        expected_ping = config.get_int("pushPingTimeout")
+        certs = cert
+        return MCSPushSetting(url, certs, expected_ping)
+
+    def as_tuple(self):
+        return self.url, self.cert, self.expected_ping
+
+    def __eq__(self, other):
+        return self.as_tuple() == other.as_tuple()
+
+    def __init__(self, url=None, cert=None, expected_ping=None):
+        self.url = url
+        self.cert = cert
+        self.expected_ping = expected_ping
+
+class MCSPushClient:
+    def __init__(self):
+        self._notify_mcsrouter_channel = PipeChannel()
+        self._impl = None
+        self._settings = MCSPushSetting()
+
+    def _start_service(self):
+        """Raise exception if cannot stablish connection with the push server"""
+
+        if self._impl:
+            self._impl.stop()
+            self._impl = None
+        try:
+            self._notify_mcsrouter_channel.clear()
+            url, cert, expected_ping = self._settings.as_tuple()
+            logger.debug("Settings for push client: url: {}, ping {} and cert {}".format(url, expected_ping, cert))
+            if not url:
+                return
+            self._impl = MCSPushClientInternal(url, cert, expected_ping, self._notify_mcsrouter_channel)
+            self._impl.start()
+            logger.info("Established MCS Push Connection")
+        except Exception as e:
+            logger.warning(str(e))
+            raise MCSPushException("Failed to start MCS Push Client service")
+
+    def stop_service(self):
+        if not self._impl:
+            return
+        self._impl.stop()
+
+    def pending_commands(self):
+        if not self._impl:
+            return []
+        return self._impl.pending_commands()
+
+    def notify_activity_pipe(self):
+        return self._notify_mcsrouter_channel
+
+    def is_service_active(self):
+        if not self._impl:
+            return False
+        return self._impl.is_alive()
+
+    def check_push_server_settings_changed_and_reapply(self, config, cert):
+        # retrieve push server url and compare with the current one
+        settings = MCSPushSetting.from_config(config, cert)
+        if settings != self._settings:
+            logger.info("Push Server settings changed. Applying it")
+            self._settings = settings
+            url, cert, expected_ping = self._settings.as_tuple()
+            logger.debug("Jake: Settings for push client: url: {}, ping {} and cert {}".format(url, expected_ping, cert))
+            self._start_service()
+            return True
+        return False
+
+
+class MCSPushClientInternal(threading.Thread):
+    def __init__(self, url: str, cert: str, expected_ping_interval: int, mcsrouter_channel=PipeChannel() ):
         threading.Thread.__init__(self)
         self._url = url
         self._cert = cert
         self._expected_ping_interval = expected_ping_interval
         self._notify_push_client_channel = PipeChannel()
-        self._notify_mcsrouter_channel = PipeChannel()
+        self._notify_mcsrouter_channel = mcsrouter_channel
         self._pending_commands = []
+        self._pending_commands_lock = threading.Lock()
+        self.messages = sseclient.SSEClient(self._url, verify=self._cert)
 
-    def __del__(self):
-        self.stop()
-        self.join()
 
     def run(self):
         try:
-            messages = sseclient.SSEClient(self._url, verify=self._cert)
+
             sel = selectors.DefaultSelector()
-            sel.register(messages.resp.raw, selectors.EVENT_READ, 'push')
-            sel.register(self._notify_push_client_channel.read, selectors.EVENT_READ, 'stop')
+            sel.register(self.messages.resp.raw, selectors.EVENT_READ, 'push')
+            sel.register(self._notify_push_client_channel, selectors.EVENT_READ, 'stop')
             while True:
                 events = sel.select(self._expected_ping_interval)
                 if not events:
-                    self._push_error_message('No Ping from Server')
+                    self._append_command(MsgType.Error, 'No Ping from Server')
                 for key, mask in events:
                     if key.data == 'push':
-                        msg_event = next(messages)
+                        msg_event = next(self.messages)
                         msg = msg_event.data
                         if msg:
-                            self._push_message(msg)
+                            self._append_command(MsgType.MCSCommand, msg)
                         else:
                             logger.debug("Server sent ping")
                     elif key.data == 'stop':
                         logger.info("MCS Push Client main loop finished")
                         return
         except Exception as ex:
-            self._push_error_message('Push client Failure : {}'.format(ex))
-            raise
+            self._append_command(MsgType.Error, 'Push client Failure : {}'.format(ex))
 
     def stop(self):
         self._notify_push_client_channel.notify()
+        try:
+            self.join()
+        except RuntimeError:
+            # either because it has already been joined or because it has not been started. Not to worry
+            pass
+
 
     def notify_activity_pipe(self):
         """Clients should monitor the file descriptor returned by this method to know when there are 'new messages'
@@ -99,17 +190,21 @@ class MCSPushClient(threading.Thread):
         return self._notify_mcsrouter_channel.read
 
     def pending_commands(self):
-        copy_pending = self._pending_commands[:]
-        self._pending_commands = []
+        try:
+            self._pending_commands_lock.acquire()
+            copy_pending = self._pending_commands[:]
+            self._pending_commands = []
+        finally:
+            self._pending_commands_lock.release()
         self._notify_mcsrouter_channel.clear()
         return copy_pending
 
-    def _push_message(self, msg:str):
-        self._pending_commands.append( PushClientCommand(MsgType.MCSCommand, msg))
-        self._notify_mcsrouter_channel.notify()
-
-    def _push_error_message(self, msg:str):
-        self._pending_commands.append( PushClientCommand(MsgType.Error, msg))
+    def _append_command(self, msg_type, msg):
+        try:
+            self._pending_commands_lock.acquire()
+            self._pending_commands.append( PushClientCommand(msg_type, msg))
+        finally:
+            self._pending_commands_lock.release()
         self._notify_mcsrouter_channel.notify()
 
 
@@ -126,7 +221,7 @@ if __name__ == "__main__":
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-    client = MCSPushClient(url,cert,12)
+    client = MCSPushClientInternal(url, cert, 12)
     client.start()
     import time
     time.sleep(30)
