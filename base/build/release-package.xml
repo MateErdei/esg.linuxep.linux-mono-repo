@@ -71,6 +71,28 @@
         <package buildtype="prod" name="sspl-telemetry-config" version="1.0/EES-9377" dest="input/telemetry">
             <include src="telemetry-config.json" dest="." />
         </package>
+        <package name="python-certifi" version="sophos-linux-master/%LASTGOODCOMPONENTBUILD%/python-certifi/2019.11.28/certifi" dest="input" buildtype="dev">
+            <include src="python-certifi.tar" dest="."/>
+        </package>
+        <package name="python-urllib3" version="sophos-linux-master/%LASTGOODCOMPONENTBUILD%/python-urllib3/1.25.8/urllib3" dest="input" buildtype="dev">
+            <include src="python-urllib3.tar" dest="."/>
+        </package>
+        <package name="python-six" version="sophos-linux-master/%LASTGOODCOMPONENTBUILD%/python-six/1.14.0/six" dest="input" buildtype="dev">
+            <include src="python-six.tar" dest="."/>
+        </package>
+        <package name="python-requests" version="sophos-linux-master/%LASTGOODCOMPONENTBUILD%/python-requests/2.22.0/requests" dest="input" buildtype="dev">
+            <include src="python-requests.tar" dest="."/>
+        </package>
+        <package name="python-idna" version="sophos-linux-master/%LASTGOODCOMPONENTBUILD%/python-idna/11.0.0/idna" dest="input" buildtype="dev">
+            <include src="python-idna.tar" dest="."/>
+        </package>
+        <package name="python-chardet" version="sophos-linux-master/%LASTGOODCOMPONENTBUILD%/python-chardet/4.0.0/chardet" dest="input" buildtype="dev">
+            <include src="python-chardet.tar" dest="."/>
+        </package>
+        <package name="python-sseclient" version="sophos-linux-master/%LASTGOODCOMPONENTBUILD%/python-sseclient/0.0.23/sseclient" dest="input" buildtype="dev">
+            <include src="python-sseclient.tar" dest="."/>
+        </package>
+
     </inputs>
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->

@@ -250,6 +250,13 @@ function build()
         untar_input python
         untar_input python-watchdog
         untar_input python-pathtools
+        untar_input python-certifi
+        untar_input python-chardet
+        untar_input python-idna
+        untar_input python-requests
+        untar_input python-six
+        untar_input python-sseclient
+        untar_input python-urllib3
         untar_input pycryptodome
         untar_input $GOOGLETESTTAR
 

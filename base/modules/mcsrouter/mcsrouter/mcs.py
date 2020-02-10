@@ -487,6 +487,8 @@ class MCS:
                         LOGGER.info("Received command from Push Server")
                     for push_command in push_commands:
                         LOGGER.debug("Got pending push_command: {}".format(push_command))
+                        if push_command.msg_type == mcs_push_client.MsgType.Error:
+                            LOGGER.warning("Push Server service reported: {}".format(push_command.msg))
                         # TODO LINUXDAR-841: handle the incoming commands
                         # TODO LINUXDAR-839: handle error cases
 
