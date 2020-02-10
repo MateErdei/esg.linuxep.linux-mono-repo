@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019 Sophos Limited.  All rights reserved.
+Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -62,8 +62,7 @@ namespace
 void PluginAdapter::mainLoop()
 {
     LOGINFO("Entering the main loop");
-    ThreadRunner scheduler(m_scanScheduler, "scanScheduler"
-    ); // Automatically terminate scheduler on both normal exit and exceptions
+    ThreadRunner scheduler(m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
     ThreadRunner sophos_thread_detector(*m_sophosThreadDetector, "threatDetector");
     innerLoop();
 }
@@ -105,7 +104,6 @@ void PluginAdapter::processAction(const std::string& actionXml)
 
     if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
     {
-        LOGINFO("Got to here");
         m_scanScheduler.scanNow();
     }
 }

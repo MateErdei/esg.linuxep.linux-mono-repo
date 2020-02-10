@@ -4,10 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <gtest/gtest.h>
+
+#include <pluginimpl/Logger.h>
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <gtest/gtest.h>
-#include <modules/pluginimpl/Logger.h>
 
 using namespace Common::FileSystem;
 

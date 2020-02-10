@@ -32,8 +32,6 @@ void manager::scheduler::ScanScheduler::run()
     int configFD = m_updateConfigurationPipe.readFd();
     int scanNowFD = m_scanNowPipe.readFd();
 
-    m_scanNowScan = m_config.scanNowScan();
-
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
@@ -73,6 +71,7 @@ void manager::scheduler::ScanScheduler::run()
             if (FD_ISSET(scanNowFD, &tempRead))
             {
                 LOGINFO("Starting Scan Now scan");
+                runNextScan(m_config.scanNowScan());
                 while (m_scanNowPipe.notified())
                 {
                     // Clear scanNowPipe
@@ -122,7 +121,6 @@ void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration 
 
 void ScanScheduler::scanNow()
 {
-    runNextScan(m_scanNowScan);
     m_scanNowPipe.notify();
 }
 

@@ -28,7 +28,6 @@ namespace manager::scheduler
         Common::Threads::NotifyPipe m_scanNowPipe;
         ScheduledScanConfiguration m_config;
         ScheduledScan m_nextScheduledScan;
-        ScheduledScan m_scanNowScan;
         time_t m_nextScheduledScanTime;
         using ScanRunnerPtr = std::unique_ptr<ScanRunner>;
         std::map<std::string, ScanRunnerPtr> m_runningScans;
