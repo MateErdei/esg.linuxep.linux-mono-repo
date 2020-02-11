@@ -52,10 +52,11 @@ namespace Plugin
         void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection);
         void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
         bool checkIfServiceActive(const std::string& serviceName);
-        void stopSystemService(const std::string& serviceName);
+        void stopAndDisableSystemService(const std::string& serviceName);
         void prepareSystemForPlugin();
-        std::string runSystemCtlCommand(const std::string& command, const std::string& target, bool returnValue=false);
+        std::tuple<int, std::string> runSystemCtlCommand(const std::string& command, const std::string& target);
         bool checkIfJournaldLinkedToAuditSubsystem();
+        void maskJournald();
         void breakLinkBetweenJournaldAndAuditSubsystem();
 
         std::future<void> m_monitor;

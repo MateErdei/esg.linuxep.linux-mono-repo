@@ -363,7 +363,7 @@ namespace Plugin
         return (process->exitCode() == 0);
     }
 
-    void PluginAdapter::stopSystemService(const std::string& serviceName)
+    void PluginAdapter::stopAndDisableSystemService(const std::string& serviceName)
     {
         auto process = Common::Process::createProcess();
         process->exec(Plugin::systemctlPath(), { "stop", serviceName });
@@ -419,15 +419,15 @@ namespace Plugin
                                                           << ", using disable_auditd default value");
         }
 
-        std::string serviceName("auditd");
+        std::string auditdServiceName("auditd");
         if (disableAuditD)
         {
             LOGINFO("EDR configuration set to disable AuditD");
-            if (checkIfServiceActive(serviceName))
+            if (checkIfServiceActive(auditdServiceName))
             {
                 try
                 {
-                    stopSystemService(serviceName);
+                    stopAndDisableSystemService(auditdServiceName);
                 }
                 catch (std::exception& ex)
                 {
@@ -443,7 +443,7 @@ namespace Plugin
         else
         {
             LOGINFO("EDR configuration set to not disable AuditD");
-            if (checkIfServiceActive(serviceName))
+            if (checkIfServiceActive(auditdServiceName))
             {
                 LOGWARN("AuditD is running, it will not be possible to obtain event data.");
             }
@@ -453,29 +453,43 @@ namespace Plugin
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
     }
 
-    std::string PluginAdapter::runSystemCtlCommand(const std::string& command, const std::string& target, bool returnValue)
+    std::tuple<int, std::string> PluginAdapter::runSystemCtlCommand(const std::string& command, const std::string& target)
     {
         auto process = Common::Process::createProcess();
         process->exec(Plugin::systemctlPath(), { command, target });
-
-        if (process->exitCode() == 0)
-        {
-            if (returnValue)
-            {
-                return process->output();
-            }
-            return "";
-        }
-        LOGWARN("Failed to run systemctl command: " << command << " " << target);
-        return "";
-
+        return std::make_tuple(process->exitCode(), process->output());
     }
 
     bool PluginAdapter::checkIfJournaldLinkedToAuditSubsystem()
     {
-        std::string linkStatus;
-        linkStatus = runSystemCtlCommand("is-enabled", "systemd-journald-audit.socket", true);
-        return !(linkStatus == "masked");
+        return std::get<1>(runSystemCtlCommand("is-enabled", "systemd-journald-audit.socket")) != "masked";
+    }
+
+    void PluginAdapter::maskJournald()
+    {
+        LOGINFO("Masking journald audit socket");
+        auto [maskExitCode, maskOutput] = runSystemCtlCommand("mask", "systemd-journald-audit.socket");
+        if (maskExitCode != 0)
+        {
+            std::stringstream ss;
+            ss << "Masking systemd-journald-audit.socket failed, exit code: " << maskExitCode << ", output: " << maskOutput;
+            throw std::runtime_error(ss.str());
+        }
+
+        int timesToTry = 5;
+        int msToWait = 200;
+        for (int i = 0; i < timesToTry; ++i)
+        {
+            if (!checkIfJournaldLinkedToAuditSubsystem())
+            {
+                return;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(msToWait));
+        }
+
+        std::stringstream ss;
+        ss << "systemd-journald-audit.socket was not masked after " << timesToTry * msToWait << "ms";
+        throw std::runtime_error(ss.str());
     }
 
     void PluginAdapter::breakLinkBetweenJournaldAndAuditSubsystem()
@@ -484,10 +498,20 @@ namespace Plugin
         {
             try
             {
-                LOGINFO("Masking journald audit socket");
-                runSystemCtlCommand("mask", "systemd-journald-audit.socket");
-                runSystemCtlCommand("stop", "systemd-journald");
-                runSystemCtlCommand("start", "systemd-journald");
+                maskJournald();
+
+                // Restart systemd-journald service
+                auto [stopJournaldExitCode, stopJournaldOutput] = runSystemCtlCommand("stop", "systemd-journald");
+                if (stopJournaldExitCode != 0)
+                {
+                    LOGERROR("Failed to stop systemd-journald, exit code: " << stopJournaldExitCode << ", output: " << stopJournaldOutput);
+                }
+
+                auto [startJournaldExitCode, startJournaldOutput] = runSystemCtlCommand("start", "systemd-journald");
+                if (startJournaldExitCode != 0)
+                {
+                    LOGERROR("Failed to start systemd-journald, exit code: " << startJournaldExitCode << ", output: " << startJournaldOutput);
+                }
             }
             catch (std::exception& ex)
             {
