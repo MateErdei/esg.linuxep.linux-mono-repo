@@ -64,7 +64,7 @@ class MCSPushSetting:
     @staticmethod
     def from_config(config, cert):
         url = config.get_default("pushServer1", None)
-        expected_ping = config.get_int("pushPingTimeout")
+        expected_ping = config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT")
         certs = cert
         return MCSPushSetting(url, certs, expected_ping)
 
