@@ -358,7 +358,7 @@ TEST(TestResponseDispatcher, JsonForExceededEntriesHasEmptyDataColumnsIfTheyExce
         "rows": 10240,
         "errorCode": 100,
         "errorMessage": "Response data exceeded 10MB",
-        "sizeBytes" : 0
+        "sizeBytes" : 10629121
     },
     "columnMetaData": [
       {"name": "pathname", "type": "TEXT"},

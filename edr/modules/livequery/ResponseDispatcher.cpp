@@ -83,7 +83,7 @@ namespace
     {
         nlohmann::json queryMetaData;
 
-        queryMetaData["sizeBytes"] = exceededLimit ? 0 : sizeInBytes;
+        queryMetaData["sizeBytes"] = sizeInBytes;
 
         // We define this to be the end of the query as we're done querying and we have also serialised much of the data to JSON.
         if (queryResponse.metaData().getQueryStart() != 0)
