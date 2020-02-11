@@ -67,9 +67,9 @@ class SharedTestsUtilities(unittest.TestCase):
         GlobalFakeSSeClient.push_message(msg)
         GlobalFakeSSeClient.resp.raw.notify()
         events = self.get_events_from_pipe(push_client.notify_activity_pipe())
-        self.assertEqual(len(events), 1)
+        self.assertEqual(len(events), 1, msg="events: {}".format(events))
         pending = push_client.pending_commands()
-        self.assertEqual(len(pending), 1)
+        self.assertEqual(len(pending), 1, msg="events: {}".format(pending))
         return pending[0].msg
 
 class TestMCSPushClientInternal(SharedTestsUtilities):
@@ -133,7 +133,7 @@ class ConfigWithoutFile( mcsrouter.utils.config.Config):
     def __init__(self):
         mcsrouter.utils.config.Config.__init__(self)
         self.set('pushServer1', 'value')
-        self.set('pushPingTimeout', '10')
+        self.set('PUSH_SERVER_CONNECTION_TIMEOUT', '10')
 
 class TestMCSPushConfigSettings(unittest.TestCase):
     def test_extract_values_from_config(self):
