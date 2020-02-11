@@ -15,8 +15,8 @@ function exitFailure()
 SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 [[ -n ${BASE} ]] || BASE=${SCRIPT_DIR}/../..
 
-[[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-plugin-edr-combined
-[[ -n ${htmldir} ]] || htmldir=/opt/test/logs/coverage/${COV_HTML_BASE}
+[[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-plugin-edr-unittest
+[[ -n ${htmldir} ]] || htmldir=htmldir=${BASE}/output/coverage/${COV_HTML_BASE}
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key

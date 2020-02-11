@@ -57,6 +57,7 @@ sudo \
 
 sudo unlink ${COMPONENT_TEST_INPUTS_DIR}/edr </dev/null
 
+export COV_HTML_BASE=sspl-plugin-edr-combined
 export htmldir=${BASE}/output/coverage/sspl-plugin-edr-combined
 bash -x ${BASE}/build/bullseye/uploadResults.sh
 

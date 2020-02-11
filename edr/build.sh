@@ -135,7 +135,6 @@ do
             ;;
         --bullseye-system-tests)
             BULLSEYE=1
-            BULLSEYE_UPLOAD=1
             BULLSEYE_COMPONENT_TESTS=1
             COVFILE="/tmp/root/sspl-edr-combined.cov"
             COV_HTML_BASE=sspl-plugin-edr-combined
@@ -345,7 +344,9 @@ function build()
             ## Process bullseye output
             ## upload unit tests
             cd $BASE
-            export htmldir=output/coverage/sspl-plugin-edr-unittest
+
+            #keep the local jenkins tests seperated
+            export COV_HTML_BASE=sspl-plugin-edr-unittest
             export BULLSEYE_UPLOAD
             bash -x build/bullseye/uploadResults.sh || exit $?
         fi
