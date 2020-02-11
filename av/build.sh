@@ -166,10 +166,14 @@ do
     shift
 done
 
+
 [[ -n "${PLUGIN_NAME}" ]] || PLUGIN_NAME=${DEFAULT_PRODUCT}
 [[ -n "${PRODUCT}" ]] || PRODUCT=${PLUGIN_NAME}
+
+PRODUCT_UC=$(echo $PRODUCT | tr 'a-z' 'A-Z')
+
 [[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Server Protection Linux - $PRODUCT"
-[[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-$PRODUCT"
+[[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-${PRODUCT_UC}"
 [[ -n "${DEFAULT_HOME_FOLDER}" ]] || DEFAULT_HOME_FOLDER="$PRODUCT"
 
 export NO_REMOVE_GCC=1
@@ -183,7 +187,7 @@ then
         INPUT="$BASE/$BUILD_DIR/input"
     else
         MESSAGE_PART1="You need to run the following to setup your input folder: "
-        MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
+        MESSAGE_PART2="./build.sh --setup"
         exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
     fi
 fi

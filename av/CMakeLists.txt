@@ -26,10 +26,10 @@ if(NOT DEFINED PLUGIN_NAME)
     endif()
 endif()
 string( TOLOWER ${PLUGIN_NAME} plugin_name)
+string( TOUPPER ${PLUGIN_NAME} PLUGIN_NAME_UC)
 
 if(NOT DEFINED PRODUCT_LINE_ID)
-    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${PLUGIN_NAME})
-
+    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${PLUGIN_NAME_UC})
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
