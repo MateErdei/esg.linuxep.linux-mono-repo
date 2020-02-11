@@ -8,14 +8,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanClient.h"
 
-#include <capnp/message.h>
-#include <capnp/serialize.h>
-
 #include <filewalker/IFileWalkCallbacks.h>
 #include <unixsocket/ScanningClientSocket.h>
 
-#include <fcntl.h>
+#include <capnp/message.h>
+#include <capnp/serialize.h>
+
 #include <fstream>
+
+#include <fcntl.h>
 #include <unistd.h>
 
 using namespace avscanner::avscannerimpl;
