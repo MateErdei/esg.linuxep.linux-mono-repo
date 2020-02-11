@@ -113,7 +113,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     
     branch_name = context.branch
-    with stage.parallel('component'):
+    with stage.group('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine, branch=branch_name, coverage='no')
         if parameters.coverage == 'yes' or has_coverage_build(branch_name):
             machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, coverage_inputs='yes'),
