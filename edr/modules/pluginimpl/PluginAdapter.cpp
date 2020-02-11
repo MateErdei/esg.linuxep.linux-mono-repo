@@ -192,10 +192,11 @@ namespace Plugin
         std::shared_ptr<QueueTask> queue = m_queueTask;
         std::shared_ptr<Plugin::IOsqueryProcess> osqueryProcess { createOsqueryProcess() };
         m_osqueryProcess = osqueryProcess;
-        m_monitor = std::async(std::launch::async, [queue, osqueryProcess]() {
+        OsqueryStarted osqueryStarted;
+        m_monitor = std::async(std::launch::async, [queue, osqueryProcess, &osqueryStarted]() {
             try
             {
-                osqueryProcess->keepOsqueryRunning();
+                osqueryProcess->keepOsqueryRunning(osqueryStarted);
             }
             catch (Plugin::IOsqueryCrashed&)
             {
@@ -213,6 +214,9 @@ namespace Plugin
             }
             queue->pushOsqueryProcessFinished();
         });
+
+        // block here till osquery new instance is started.
+        osqueryStarted.wait_started();
     }
 
     void PluginAdapter::stopOsquery()

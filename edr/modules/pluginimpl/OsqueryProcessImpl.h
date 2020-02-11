@@ -8,7 +8,7 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include "IOsqueryProcess.h"
 
 #include <Common/Process/IProcess.h>
-
+#include "OsqueryStarted.h"
 #include <functional>
 #include <future>
 
@@ -18,7 +18,7 @@ namespace Plugin
     {
     public:
         static void killAnyOtherOsquery();
-        void keepOsqueryRunning() override;
+        void keepOsqueryRunning(OsqueryStarted&) override;
         void requestStop() override;
 
     private:
@@ -31,7 +31,7 @@ namespace Plugin
     class ScopedReplaceOsqueryProcessCreator
     {
     public:
-        ScopedReplaceOsqueryProcessCreator(std::function<IOsqueryProcessPtr()> creator);
+        explicit ScopedReplaceOsqueryProcessCreator(std::function<IOsqueryProcessPtr()> creator);
         ~ScopedReplaceOsqueryProcessCreator();
     };
 } // namespace Plugin

@@ -21,6 +21,16 @@ namespace
 
 namespace
 {
+    class AnounceStartedOnEndOfScope{
+        Plugin::OsqueryStarted & m_osqueryStarted;
+    public :
+        explicit AnounceStartedOnEndOfScope(Plugin::OsqueryStarted & osqueryStarted): m_osqueryStarted(osqueryStarted){}
+        ~AnounceStartedOnEndOfScope()
+        {
+            m_osqueryStarted.announce_started();
+        }
+    };
+
     class OsqueryProcessFactory
     {
         OsqueryProcessFactory()
@@ -67,33 +77,40 @@ namespace Plugin
         OsqueryProcessFactory::instance().restoreCreator();
     }
 
-    void OsqueryProcessImpl::keepOsqueryRunning()
+    void OsqueryProcessImpl::keepOsqueryRunning(OsqueryStarted& osqueryStarted)
     {
-        auto fileSystem = Common::FileSystem::fileSystem();
-        std::string osqueryPath = Plugin::osqueryPath();
-        killAnyOtherOsquery();
-        if (!fileSystem->isFile(osqueryPath))
+        std::string osqueryPath;
         {
-            std::string errorMessage = "Executable does not exist at: " + osqueryPath;
-            throw Plugin::IOsqueryCannotBeExecuted(errorMessage);
+            AnounceStartedOnEndOfScope anounceStartedOnEndOfScope(osqueryStarted);
+            auto fileSystem = Common::FileSystem::fileSystem();
+            osqueryPath = Plugin::osqueryPath();
+            killAnyOtherOsquery();
+            if (!fileSystem->isFile(osqueryPath))
+            {
+                std::string errorMessage = "Executable does not exist at: " + osqueryPath;
+                throw Plugin::IOsqueryCannotBeExecuted(errorMessage);
+            }
+            LOGINFO("Run osquery process");
+            std::string osquerySocket = Plugin::osquerySocket();
+
+            if (fileSystem->exists(osquerySocket))
+            {
+                fileSystem->removeFileOrDirectory(osquerySocket);
+            }
+
+            std::vector<std::string> arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
+                                                   "--flagfile=" + Plugin::osqueryFlagsFilePath() };
+
+            if (getPluginLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
+            {
+                arguments.emplace_back("--verbose");
+            }
+
+            startProcess(osqueryPath, arguments);
+            // only allow commands to be processed after this point.
+            // this will trigger osquery_started
         }
-        LOGINFO("Run osquery process");
-        std::string osquerySocket = Plugin::osquerySocket();
 
-        if (fileSystem->exists(osquerySocket))
-        {
-            fileSystem->removeFileOrDirectory(osquerySocket);
-        }
-
-        std::vector<std::string> arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
-                                               "--flagfile=" + Plugin::osqueryFlagsFilePath() };
-
-        if (getPluginLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
-        {
-            arguments.emplace_back("--verbose");
-        }
-
-        startProcess(osqueryPath, arguments);
         m_processMonitorPtr->waitUntilProcessEnds();
         LOGINFO("The osquery process finished");
         int exitcode = m_processMonitorPtr->exitCode();
@@ -162,7 +179,7 @@ namespace Plugin
         m_processMonitorPtr->setOutputLimit(OUTPUT_BUFFER_LIMIT_KB);
 
         m_processMonitorPtr->setOutputTrimmedCallback(
-            [](std::string overflowOutput) {
+            [](const std::string& overflowOutput) {
               if (getPluginLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
               {
                   LOGDEBUG("osquery logs: " << overflowOutput);

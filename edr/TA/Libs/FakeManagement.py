@@ -8,7 +8,6 @@ from Libs.PluginCommunicationTools import FakeManagementAgent
 from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
 from Libs.PluginCommunicationTools.common import PathsLocation
 from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
-import logging
 
 class ManagementAgentPluginRequester(object):
     def __init__(self, plugin_name, logger):
@@ -100,7 +99,7 @@ class ManagementAgentPluginRequester(object):
 class FakeManagement(object):
 
     def __init__(self):
-        self.logger = logging.getLogger("fake_management_agent.log")
+        self.logger = FakeManagementAgent.setup_logging("fake_management_agent.log", "Fake Management Agent")
         self.agent = None
 
     def start_fake_management(self):
