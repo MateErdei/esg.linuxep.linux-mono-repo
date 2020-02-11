@@ -1,7 +1,7 @@
 
 library "standardPipeline"
 
-project = 'sspl-edr-plugin'
+project = 'sspl-plugin-edr-component'
 version_key = '1.0.2'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-edr-component.git'
 project_builddir = 'sspl-edr-plugin-build'
