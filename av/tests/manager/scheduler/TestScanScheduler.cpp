@@ -9,12 +9,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "manager/scheduler/ScheduledScanConfiguration.h"
 #include "manager/scheduler/ScanScheduler.h"
 
-#include <datatypes/Print.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
 using namespace manager::scheduler;
 
-TEST(TestScanScheduler, scanNow)
+TEST(TestScanScheduler, scanNow) //NOLINT
 {
     Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
     testing::internal::CaptureStderr();
