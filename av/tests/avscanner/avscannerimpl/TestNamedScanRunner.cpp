@@ -24,12 +24,17 @@ TEST(NamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Builder scanConfigIn = message.initRoot<Sophos::ssplav::NamedScan>();
     scanConfigIn.setName(expectedScanName);
+    auto exclusions = scanConfigIn.initExcludePaths(expectedExclusions.size());
+    for (unsigned i=0; i < expectedExclusions.size(); i++)
+    {
+        exclusions.set(i, expectedExclusions[i]);
+    }
+
     Sophos::ssplav::NamedScan::Reader scanConfigOut = message.getRoot<Sophos::ssplav::NamedScan>();
 
-    std::unique_ptr<NamedScanRunner> runner = std::make_unique<NamedScanRunner>(scanConfigOut);
+    NamedScanRunner runner(scanConfigOut);
 
-    EXPECT_EQ(runner->getScanName(), expectedScanName);
-
+    NamedScanConfig config = runner.getConfig();
+    EXPECT_EQ(config.m_scanName, expectedScanName);
+    EXPECT_EQ(config.m_excludePaths, expectedExclusions);
 }
-
-

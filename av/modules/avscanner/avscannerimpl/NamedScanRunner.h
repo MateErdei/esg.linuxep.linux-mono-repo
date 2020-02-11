@@ -22,8 +22,7 @@ namespace avscanner::avscannerimpl
         explicit NamedScanRunner(const std::string& configPath);
         explicit NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedScanConfig);
         int run() override;
-        std::string getScanName() const;
-        std::vector<std::string> getExcludePaths() const;
+        NamedScanConfig& getConfig();
     private:
         NamedScanConfig m_config;
     };

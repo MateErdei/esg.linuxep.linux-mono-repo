@@ -56,6 +56,8 @@ namespace
 
         bool includeDirectory(const sophos_filesystem::path&) override
         {
+            // Exclude based on config
+            // Exclude all mount points
             return true;
         }
 
@@ -67,23 +69,23 @@ namespace
 
 int NamedScanRunner::run()
 {
-    auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
+    // evaluate mount information
 
+    auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
     ScanClient scanner(socket, scanCallbacks);
     CallbackImpl callbacks(scanner, m_config);
 
+    // work out which filesystems are included based of config and mount information
+
+    // for each select included mount point call filewalker for that mount point
+
     return 0;
 }
 
-std::string NamedScanRunner::getScanName() const
+NamedScanConfig& NamedScanRunner::getConfig()
 {
-    return m_config.m_scanName;
-}
-
-std::vector<std::string> NamedScanRunner::getExcludePaths() const
-{
-    return m_config.m_excludePaths;
+    return m_config;
 }
