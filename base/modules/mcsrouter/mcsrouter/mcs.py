@@ -545,7 +545,7 @@ class MCS:
                     # send status
                     if error_count > 0:
                         pass  # Not sending status while in error state
-                    elif self.__m_status_timer.send_status(): # todo check if this is to worry about
+                    elif self.__m_status_timer.send_status():
                         status_event = status_event_module.StatusEvent()
                         changed = self.__m_computer.fill_status_event(status_event)
                         if changed:
