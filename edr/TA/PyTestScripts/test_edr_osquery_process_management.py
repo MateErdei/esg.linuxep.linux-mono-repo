@@ -1,6 +1,7 @@
 import time
 import os
 
+from .test_edr_basic import detect_failure
 
 class ProcEntry:
     def __init__(self, pid):
@@ -56,17 +57,6 @@ def _wait_for_osquery_to_stop(pid):
     with open('/proc/{}/status') as handler:
         content = handler.read()
     raise AssertionError("osqueryd failed to stop. Information {}".format(content))
-
-
-def detect_failure(func):
-    def wrapper_function(sspl_mock, edr_plugin_instance):
-        try:
-            v = func(sspl_mock, edr_plugin_instance)
-            return v
-        except:
-            edr_plugin_instance.set_failed()
-            raise
-    return wrapper_function
 
 
 @detect_failure

@@ -10,7 +10,8 @@ from _pytest.runner import runtestprotocol
 from pathlib import Path
 import os
 import shutil
-
+import logging
+logger = logging.getLogger(__name__)
 
 def pytest_configure():
     pytest.sophos_install_location = ""
@@ -70,7 +71,7 @@ def collect_logs(test_name):
         shutil.rmtree(dir_to_export_logs_to)
     os.makedirs(dir_to_export_logs_to)
     for filename in Path(pytest.sophos_install_location).rglob('*.log'):
-        print("Copying log file: {} to {}".format(filename, dir_to_export_logs_to))
+        logger.info("Copying log file: {} to {}".format(filename, dir_to_export_logs_to))
         shutil.copy(filename, dir_to_export_logs_to)
 
 
@@ -79,8 +80,8 @@ def pytest_runtest_makereport(item, call):
     # execute all other hooks to obtain the report object
     outcome = yield
     report = outcome.get_result()
-    print("Current install location: {}".format(pytest.sophos_install_location))
+    logger.info("Current install location: {}".format(pytest.sophos_install_location))
 
     if report.failed:
-        print("Result: {}, Test: {}".format(item.name, report.outcome))
+        logger.info("Result: {}, Test: {}".format(item.name, report.outcome))
         collect_logs(item.name)

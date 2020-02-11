@@ -1,15 +1,8 @@
 import os
+import logging
 
-
-def detect_failure(func):
-    def wrapper_function(sspl_mock, edr_plugin_instance):
-        try:
-            v = func(sspl_mock, edr_plugin_instance)
-            return v
-        except:
-            edr_plugin_instance.set_failed()
-            raise
-    return wrapper_function
+logger = logging.getLogger(__name__)
+from .test_edr_basic import detect_failure
 
 # In order to verify the cleanup algorithms which always run on startup and periodically (every 1hour) all these tests use
 # the start up to enter the clean up
@@ -115,7 +108,7 @@ def test_edr_plugin_removes_old_warning_files_when_threshold_reached(sspl_mock, 
     end_paths = os.listdir(log_path)
     for path in warning_paths:
         if os.path.basename(path) in end_paths:
-            print("preserved file: {}".format(path))
+            logger.info("preserved file: {}".format(path))
             preserved_files.append(path)
 
     assert len(preserved_files) == 10
@@ -156,7 +149,7 @@ def test_edr_plugin_removes_old_info_files_when_threshold_reached(sspl_mock, edr
     end_paths = os.listdir(log_path)
     for path in info_paths:
         if os.path.basename(path) in end_paths:
-            print(path)
+            logger.info(path)
             preserved_files.append(path)
 
     assert len(preserved_files) == 10

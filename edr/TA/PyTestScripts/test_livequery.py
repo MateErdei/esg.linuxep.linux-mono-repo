@@ -2,7 +2,7 @@ import os
 import subprocess
 import json
 import logging
-
+from .test_edr_basic import detect_failure
 logger = logging.getLogger(__name__)
 
 
@@ -40,19 +40,10 @@ crash_query_response = """{
     }
     """
 
-def detect_failure(func):
-    def wrapper_function(sspl_mock, edr_plugin_instance):
-        try:
-            v = func(sspl_mock, edr_plugin_instance)
-            return v
-        except:
-            edr_plugin_instance.set_failed()
-            raise
-    return wrapper_function
 
 def check_responses_are_equivalent(actual_response, expected_response):
     try:
-        print("Size of actual response: {}".format(len(actual_response)))
+        logger.info("Size of actual response: {}".format(len(actual_response)))
         response_dict = json.loads(actual_response)
         expected_response_dict = json.loads(expected_response)
 
@@ -68,8 +59,8 @@ def check_responses_are_equivalent(actual_response, expected_response):
         assert expected_response_dict['queryMetaData']["errorCode"] == response_dict['queryMetaData']["errorCode"]
         assert expected_response_dict['queryMetaData']["errorMessage"] == response_dict['queryMetaData']["errorMessage"]
     except:
-        print("Test live query failed.")
-        print(actual_response[:1000])
+        logger.info("Test live query failed.")
+        logger.info(actual_response[:1000])
         raise
 
 def send_query( query_to_send, mock_management_agent):
@@ -194,8 +185,8 @@ def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin
     try:
         assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
     except:
-        print("Test live query failed.")
-        print(file_content)
+        logger.info("Test live query failed.")
+        logger.info(file_content)
         raise
 
 
