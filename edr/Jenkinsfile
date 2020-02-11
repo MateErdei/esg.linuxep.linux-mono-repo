@@ -24,8 +24,8 @@ try{
 
     git_branch = "${env.BRANCH_NAME}"
     echo git_branch
-//     if (git_branch == 'master')
-//     {
+    if (git_branch == 'master')
+    {
         parallel Build:
         {
             echo 'Starting edr master release builds'
@@ -60,12 +60,12 @@ try{
                 project_builddir)
             echo 'Finished edr master coverage build'
         }
-//     }
-//     else
-//     {
-//         echo 'Starting ticket branch edr build'
-//         ArtisanBuild(buildAgentTemplate, project_release_xml, params.mode, version_number, project_builddir)
-//     }
+    }
+    else
+    {
+        echo 'Starting ticket branch edr build'
+        ArtisanBuild(buildAgentTemplate, project_release_xml, params.mode, version_number, project_builddir)
+    }
     SuccessfulBuild(project_release_xml)
 
 } catch(e){
