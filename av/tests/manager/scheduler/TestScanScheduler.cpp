@@ -24,14 +24,6 @@ TEST(TestScanScheduler, scanNow)
             R"MULTILINE(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
   <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
-  <onDemandScan>
-    <posixExclusions>
-      <filePathSet>
-        <filePath>Exclusion1</filePath>
-        <filePath>Exclusion2</filePath>
-      </filePathSet>
-    </posixExclusions>
-  </onDemandScan>
 </config>
 )MULTILINE");
 
@@ -42,11 +34,13 @@ TEST(TestScanScheduler, scanNow)
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
 
-    scheduler.requestStop();
-    scheduler.join();
+    std::this_thread::sleep_for(std::chrono::milliseconds (10)); //5ms is actually enough
 
     std::string logs = testing::internal::GetCapturedStderr();
 
     EXPECT_NE(logs.find("INFO Starting scan scanNow"), std::string::npos);
     EXPECT_NE(logs.find("INFO Completed scan scanNow"), std::string::npos);
+
+    scheduler.requestStop();
+    scheduler.join();
 }

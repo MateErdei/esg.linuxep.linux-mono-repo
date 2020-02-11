@@ -37,7 +37,7 @@ void manager::scheduler::ScanScheduler::run()
     int max = -1;
     max = addFD(&readFDs, exitFD, max);
     max = addFD(&readFDs, configFD, max);
-
+    max = addFD(&readFDs, scanNowFD, max);
 
     while (true)
     {
