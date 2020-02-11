@@ -17,15 +17,15 @@ export BASE
 [[ -n ${COVFILE} ]] || COVFILE="/tmp/root/sspl-edr-combined.cov"
 if [[ -f "$COVFILE" ]]
 then
-  failure 78 "No COVFILE specified"
+  echo "Creating links for COVFILE $COVFILE"
+  COVDIR=$(dirname "$COVFILE")
+  echo "COVFILE=$COVFILE" >/tmp/BullseyeCoverageEnv.txt
+  echo "COVDIR=$COVDIR" >>/tmp/BullseyeCoverageEnv.txt
+  sudo chmod 0644 /tmp/BullseyeCoverageEnv.txt
+  sudo chmod 0666 "$COVFILE"
+  sudo chmod a+x "$COVDIR"
 else
-    echo "Creating links for COVFILE $COVFILE"
-    COVDIR=$(dirname "$COVFILE")
-    echo "COVFILE=$COVFILE" >/tmp/BullseyeCoverageEnv.txt
-    echo "COVDIR=$COVDIR" >>/tmp/BullseyeCoverageEnv.txt
-    sudo chmod 0644 /tmp/BullseyeCoverageEnv.txt
-    sudo chmod 0666 "$COVFILE"
-    sudo chmod a+x "$COVDIR"
+  failure 78 "No COVFILE specified"
 fi
 
 export BULLSEYE_UPLOAD=1
