@@ -1,14 +1,16 @@
 
 add_library(avscannerimpl SHARED
+        CommandLineScanRunner.cpp
+        CommandLineScanRunner.h
+        IRunner.h
+        NamedScanConfig.cpp
+        NamedScanConfig.h
+        NamedScanRunner.cpp
+        NamedScanRunner.h
         Options.cpp
         Options.h
         ScanClient.cpp
         ScanClient.h
-        NamedScanRunner.cpp
-        NamedScanRunner.h
-        CommandLineScanRunner.cpp
-        CommandLineScanRunner.h
-        IRunner.h
         )
 
 target_include_directories(avscannerimpl PUBLIC

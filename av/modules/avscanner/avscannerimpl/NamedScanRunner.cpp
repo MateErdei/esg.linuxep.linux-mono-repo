@@ -20,26 +20,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 
+
 NamedScanRunner::NamedScanRunner(const std::string& configPath)
+    : m_config(configFromFile(configPath))
 {
-    int fd = open(configPath.c_str(), O_RDONLY);
-    ::capnp::StreamFdMessageReader message(fd);
-
-    NamedScanRunner(message.getRoot<Sophos::ssplav::NamedScan>());
-
-    close(fd);
 }
 
 NamedScanRunner::NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedScanConfig)
+    : m_config(namedScanConfig)
 {
-    m_scanName = namedScanConfig.getName();
-
-    auto excludePaths = namedScanConfig.getExcludePaths();
-    m_excludePaths.reserve(excludePaths.size());
-    for (const auto& item : excludePaths)
-    {
-        m_excludePaths.emplace_back(item);
-    }
 }
 
 namespace
@@ -81,6 +70,7 @@ int NamedScanRunner::run()
 
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
+
     CallbackImpl callbacks(socket, scanCallbacks);
 
     return 0;
@@ -88,10 +78,10 @@ int NamedScanRunner::run()
 
 std::string NamedScanRunner::getScanName() const
 {
-    return m_scanName;
+    return m_config.m_scanName;
 }
 
 std::vector<std::string> NamedScanRunner::getExcludePaths() const
 {
-    return m_excludePaths;
+    return m_config.m_excludePaths;
 }

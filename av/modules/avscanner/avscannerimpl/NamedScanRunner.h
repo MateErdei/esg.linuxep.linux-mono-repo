@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IRunner.h"
+#include "NamedScanConfig.h"
 
 #include "NamedScan.capnp.h"
 
@@ -24,8 +25,7 @@ namespace avscanner::avscannerimpl
         std::string getScanName() const;
         std::vector<std::string> getExcludePaths() const;
     private:
-        std::string m_scanName;
-        std::vector<std::string> m_excludePaths;
+        NamedScanConfig m_config;
     };
 }
 
