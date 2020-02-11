@@ -45,8 +45,8 @@ namespace
     class CallbackImpl : public filewalker::IFileWalkCallbacks
     {
     public:
-        explicit CallbackImpl(unixsocket::ScanningClientSocket& socket, std::shared_ptr<IScanCallbacks> callbacks)
-                : m_scanner(socket, std::move(callbacks))
+        explicit CallbackImpl(ScanClient scanner, NamedScanConfig& config)
+                : m_scanner(std::move(scanner)), m_config(config)
         {}
 
         void processFile(const sophos_filesystem::path& p) override
@@ -61,6 +61,7 @@ namespace
 
     private:
         ScanClient m_scanner;
+        NamedScanConfig& m_config;
     };
 }
 
@@ -68,10 +69,11 @@ int NamedScanRunner::run()
 {
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
+
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
-
-    CallbackImpl callbacks(socket, scanCallbacks);
+    ScanClient scanner(socket, scanCallbacks);
+    CallbackImpl callbacks(scanner, m_config);
 
     return 0;
 }
