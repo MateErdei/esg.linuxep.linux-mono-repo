@@ -9,7 +9,7 @@ function failure()
     echo "$@"
     exit $E
 }
-
+echo $((env))
 SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 
 [[ -n ${BASE} ]] || BASE=${SCRIPT_DIR}/../..
@@ -49,7 +49,6 @@ then
   sudo mkdir -p ${COMPONENT_TEST_INPUTS_DIR}
   sudo ln -nsf ${BASE}/output ${COMPONENT_TEST_INPUTS_DIR}/edr
 
-## Find mdr component suite
 ## Requires sudo permissions:
 PRESERVE_ENV=OUTPUT,COVFILE,BASE,BULLSEYE_UPLOAD
 LOG_LEVEL=TRACE

@@ -15,10 +15,8 @@ function exitFailure()
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-plugin-edr-combined
 [[ -n ${htmldir} ]] || htmldir=/opt/test/logs/coverage/${COV_HTML_BASE}
 
-echo `pwd`
-PRIVATE_KEY=${BASE}/build/bullseye/private.key
-[[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key 
-[[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=/opt/test/inputs/edr/bullseye/private.key
+PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
+[[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
 ## Ensure ssh won't complain about private key permissions:
 chmod 600 ${PRIVATE_KEY}
