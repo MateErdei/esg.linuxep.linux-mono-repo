@@ -12,4 +12,5 @@ struct NamedScan {
     # The data required for a scan to run - passed on stdin
     name                @0 :Text;
     excludePaths        @1 :List(Text);
+    scanArchives        @2 :Bool;
 }
