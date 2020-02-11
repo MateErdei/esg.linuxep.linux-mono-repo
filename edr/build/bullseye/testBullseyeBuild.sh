@@ -14,7 +14,7 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 [[ -n ${BASE} ]] || BASE=${SCRIPT_DIR}/../..
 export BASE
 
-[[ -z ${COVFILE} ]] || COVFILE="/tmp/root/sspl-edr-combined.cov"
+[[ -n ${COVFILE} ]] || COVFILE="/tmp/root/sspl-edr-combined.cov"
 if [[ -f "$COVFILE" ]]
 then
   failure 78 "No COVFILE specified"
