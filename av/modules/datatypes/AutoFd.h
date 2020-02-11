@@ -21,7 +21,21 @@ namespace datatypes
 
 #ifdef AUTO_FD_IMPLICIT_INT
         [[nodiscard]] operator int() const { return m_fd; }
+        AutoFd& operator=(int fd)
+        {
+            reset(fd);
+            return *this;
+        }
 #endif /* AUTO_FD_IMPLICIT_INT */
+
+        [[nodiscard]] bool valid() const
+        {
+            return m_fd >= 0;
+        }
+
+#ifdef AUTO_FD_IMPLICIT_BOOL
+        [[nodiscard]] operator bool() const { return valid(); }
+#endif /* AUTO_FD_IMPLICIT_BOOL */
 
         void reset(int fd=-1);
         void close();

@@ -4,20 +4,22 @@
 
 #include "NamedScanConfig.h"
 
-#include <fstream>
+#define AUTO_FD_IMPLICIT_INT
+#include <datatypes/AutoFd.h>
 
-#include <capnp/message.h>
 #include <capnp/serialize.h>
 
+#include <fstream>
+
 #include <fcntl.h>
-#include <unistd.h>
 
 using namespace avscanner::avscannerimpl;
 
 NamedScanConfig::NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedScanConfig)
+    :
+    m_scanName(namedScanConfig.getName()),
+    m_scanArchives(namedScanConfig.getScanArchives())
 {
-    m_scanName = namedScanConfig.getName();
-
     auto excludePaths = namedScanConfig.getExcludePaths();
     m_excludePaths.reserve(excludePaths.size());
     for (const auto& item : excludePaths)
@@ -28,8 +30,8 @@ NamedScanConfig::NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedS
 
 NamedScanConfig avscanner::avscannerimpl::configFromFile(const std::string& configPath)
 {
-    int fd = open(configPath.c_str(), O_RDONLY);
-    if (fd < 0)
+    datatypes::AutoFd fd(open(configPath.c_str(), O_RDONLY));
+    if (!fd.valid())
     {
         throw std::runtime_error("Failed to open config");
     }
@@ -37,7 +39,7 @@ NamedScanConfig avscanner::avscannerimpl::configFromFile(const std::string& conf
     ::capnp::StreamFdMessageReader message(fd);
 
     NamedScanConfig config(message.getRoot<Sophos::ssplav::NamedScan>());
-    close(fd);
+    fd.close();
 
     return config;
 }
