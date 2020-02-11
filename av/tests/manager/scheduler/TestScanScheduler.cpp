@@ -9,15 +9,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "manager/scheduler/ScheduledScanConfiguration.h"
 #include "manager/scheduler/ScanScheduler.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 using namespace manager::scheduler;
 
 TEST(TestScanScheduler, scanNow) //NOLINT
 {
-    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
-    testing::internal::CaptureStderr();
-
     ScanScheduler scheduler;
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -33,13 +30,23 @@ TEST(TestScanScheduler, scanNow) //NOLINT
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds (10)); //5ms is actually enough
+    // Redirect sderr to buffer
+    std::stringstream buffer;
+    std::streambuf *sbuf = std::cerr.rdbuf();
+    std::cerr.rdbuf(buffer.rdbuf());
 
-    std::string logs = testing::internal::GetCapturedStderr();
+    int count = 0;
+    do {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        count++;
+    } while(buffer.str().find("INFO Completed scan scanNow") == std::string::npos && count < 200);
 
-    EXPECT_NE(logs.find("INFO Starting scan scanNow"), std::string::npos);
-    EXPECT_NE(logs.find("INFO Completed scan scanNow"), std::string::npos);
+    EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Starting scan scanNow"));
+    EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Completed scan scanNow"));
 
     scheduler.requestStop();
     scheduler.join();
+
+    // Reset stderr
+    std::cerr.rdbuf(sbuf);
 }
