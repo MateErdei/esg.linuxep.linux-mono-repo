@@ -76,7 +76,7 @@ int NamedScanRunner::run()
 
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
-    ScanClient scanner(socket, scanCallbacks);
+    ScanClient scanner(socket, scanCallbacks, m_config);
     CallbackImpl callbacks(scanner, m_config);
 
     // work out which filesystems are included based of config and mount information

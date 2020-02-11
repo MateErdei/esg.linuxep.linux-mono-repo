@@ -11,26 +11,38 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/Print.h"
 
 #include <iostream>
-#include <cassert>
 #include <fcntl.h>
 
 using namespace avscanner::avscannerimpl;
 
-ScanClient::ScanClient(unixsocket::ScanningClientSocket& socket, std::shared_ptr<IScanCallbacks> callbacks)
-    : m_socket(socket), m_callbacks(std::move(callbacks))
+ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
+                       std::shared_ptr<IScanCallbacks> callbacks,
+                       NamedScanConfig& config)
+       : ScanClient(socket, std::move(callbacks), config.m_scanArchives)
+{
+}
+
+ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
+                       std::shared_ptr<IScanCallbacks> callbacks,
+                       bool scanInArchives)
+        : m_socket(socket), m_callbacks(std::move(callbacks)), m_scanInArchives(scanInArchives)
 {
 }
 
 void ScanClient::scan(const sophos_filesystem::path& p)
 {
-    int file_fd = ::open(p.c_str(), O_RDONLY);
-    if (file_fd < 0)
+    datatypes::AutoFd file_fd(::open(p.c_str(), O_RDONLY));
+    if (!file_fd.valid())
     {
         PRINT("Unable to open "<<p);
         return;
     }
 
-    auto response = m_socket.scan(file_fd, p); // takes ownership of file_fd
+    scan_messages::ClientScanRequest request;
+    request.setPath(p);
+    request.setScanInsideArchives(m_scanInArchives);
+
+    auto response = m_socket.scan(file_fd, request);
 
     if (response.clean())
     {

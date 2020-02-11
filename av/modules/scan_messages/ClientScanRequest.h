@@ -19,14 +19,20 @@ namespace scan_messages
         ClientScanRequest() = default;
 
         /*
-         * Sender side interface - set the path and fd, then serialise
+         * Sender side interface - set the fields, then serialise
          */
         void setPath(const std::string& path);
-        std::string path();
 
-        std::string serialise();
-    private:
+        void setScanInsideArchives(bool a)
+        {
+            m_scanInsideArchives = a;
+        }
+
+        [[nodiscard]] std::string serialise() const;
+
+    protected:
         std::string m_path;
+        bool m_scanInsideArchives = false;
     };
 
 }

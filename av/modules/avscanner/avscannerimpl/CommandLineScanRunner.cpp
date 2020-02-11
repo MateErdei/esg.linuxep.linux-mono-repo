@@ -34,7 +34,7 @@ namespace
     {
     public:
         explicit CallbackImpl(unixsocket::ScanningClientSocket& socket, std::shared_ptr<IScanCallbacks> callbacks)
-                : m_scanner(socket, std::move(callbacks))
+                : m_scanner(socket, std::move(callbacks), false)
         {}
 
         void processFile(const sophos_filesystem::path& p) override

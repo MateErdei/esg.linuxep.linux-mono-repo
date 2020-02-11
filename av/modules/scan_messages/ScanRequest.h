@@ -37,6 +37,13 @@ namespace scan_messages
         ScanRequest(int fd, Reader& requestMessage);
         void resetRequest(int fd, Reader& requestMessage);
 
+        /**
+         * Should we scan inside archives in this file
+         */
+         [[nodiscard]] bool scanInsideArchives() const;
+
+
+        [[nodiscard]] std::string path() const;
     private:
         datatypes::AutoFd m_fd;
         void close();

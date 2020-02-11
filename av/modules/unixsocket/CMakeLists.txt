@@ -1,5 +1,6 @@
 
 add_library(unixsocket SHARED
+        IScanningClientSocket.h
         Logger.cpp
         Logger.h
         ScanningServerSocket.cpp

@@ -19,6 +19,7 @@ TEST(TestScanMessages, CreateScanRequestSerialisation) // NOLINT
             message.initRoot<Sophos::ssplav::FileScanRequest>();
 
     requestBuilder.setPathname("/etc/fstab");
+    requestBuilder.setScanInsideArchives(true);
 
     // Convert to byte string
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
@@ -35,6 +36,7 @@ TEST(TestScanMessages, CreateScanRequestSerialisation) // NOLINT
             messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
 
     EXPECT_EQ(requestReader.getPathname(), "/etc/fstab");
+    EXPECT_TRUE(requestReader.getScanInsideArchives());
 }
 
 TEST(TestScanMessages, CreateScanRequestObject) // NOLINT
@@ -45,6 +47,7 @@ TEST(TestScanMessages, CreateScanRequestObject) // NOLINT
             message.initRoot<Sophos::ssplav::FileScanRequest>();
 
     requestBuilder.setPathname("/etc/fstab");
+    requestBuilder.setScanInsideArchives(false);
 
     Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
 
@@ -52,21 +55,38 @@ TEST(TestScanMessages, CreateScanRequestObject) // NOLINT
 
     EXPECT_EQ(scanRequest->fd(), -1);
     EXPECT_EQ(scanRequest->path(), "/etc/fstab");
+    EXPECT_FALSE(scanRequest->scanInsideArchives());
 }
 
 TEST(TestScanMessages, ReuseScanRequestObject) // NOLINT
 {
-    ::capnp::MallocMessageBuilder message;
-    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
-            message.initRoot<Sophos::ssplav::FileScanRequest>();
-
-    requestBuilder.setPathname("/etc/fstab");
-
-    Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
-
     auto scanRequest = std::make_unique<scan_messages::ScanRequest>();
-    scanRequest->resetRequest(-1, requestReader);
+
+    {
+        ::capnp::MallocMessageBuilder message;
+        Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+                message.initRoot<Sophos::ssplav::FileScanRequest>();
+        requestBuilder.setPathname("/etc/fstab");
+        requestBuilder.setScanInsideArchives(true);
+        Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
+        scanRequest->resetRequest(-1, requestReader);
+    }
 
     EXPECT_EQ(scanRequest->fd(), -1);
     EXPECT_EQ(scanRequest->path(), "/etc/fstab");
+    EXPECT_TRUE(scanRequest->scanInsideArchives());
+
+    {
+        ::capnp::MallocMessageBuilder message;
+        Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+                message.initRoot<Sophos::ssplav::FileScanRequest>();
+        requestBuilder.setPathname("/etc/shadow");
+        requestBuilder.setScanInsideArchives(false);
+        Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
+        scanRequest->resetRequest(-1, requestReader);
+    }
+
+    EXPECT_EQ(scanRequest->fd(), -1);
+    EXPECT_EQ(scanRequest->path(), "/etc/shadow");
+    EXPECT_FALSE(scanRequest->scanInsideArchives());
 }

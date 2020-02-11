@@ -81,11 +81,18 @@ scan_messages::ScanResponse unixsocket::ScanningClientSocket::scan(int file_fd, 
 }
 
 scan_messages::ScanResponse
-unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const std::string& file_path)
+unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const std::string& file_path, bool scanInsideArchives)
 {
-    assert(m_socket_fd >= 0);
     scan_messages::ClientScanRequest request;
     request.setPath(file_path);
+    request.setScanInsideArchives(scanInsideArchives);
+    return scan(fd, request);
+}
+
+scan_messages::ScanResponse
+unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request)
+{
+    assert(m_socket_fd >= 0);
     std::string dataAsString = request.serialise();
 
     if (! writeLengthAndBuffer(m_socket_fd, dataAsString))

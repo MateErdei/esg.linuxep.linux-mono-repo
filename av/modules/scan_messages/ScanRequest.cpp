@@ -35,7 +35,7 @@ void ScanRequest::resetRequest(int fd, Reader& requestMessage)
 void scan_messages::ScanRequest::setRequestFromMessage(Reader &requestMessage)
 {
     setPath(requestMessage.getPathname());
-
+    setScanInsideArchives(requestMessage.getScanInsideArchives());
 }
 
 int scan_messages::ScanRequest::fd()
@@ -47,4 +47,14 @@ void scan_messages::ScanRequest::close()
 {
     m_fd.reset(-1);
     setPath("");
+}
+
+std::string ScanRequest::path() const
+{
+    return m_path;
+}
+
+bool ScanRequest::scanInsideArchives() const
+{
+    return m_scanInsideArchives;
 }

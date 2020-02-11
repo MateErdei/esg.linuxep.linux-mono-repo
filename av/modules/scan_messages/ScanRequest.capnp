@@ -10,5 +10,6 @@ $Cxx.namespace("Sophos::ssplav");
 
 ## A FileScanRequest also has a file descriptor send as aux data
 struct FileScanRequest {
-    pathname        @0 :Text;
+    pathname                @0 :Text;
+    scanInsideArchives      @1 :Bool;
 }
