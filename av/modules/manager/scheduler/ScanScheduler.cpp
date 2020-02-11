@@ -17,7 +17,7 @@ using namespace manager::scheduler;
 
 const time_t INVALID_TIME = static_cast<time_t>(-1);
 
-static int addFD(fd_set *fds, int fd, int currentMax)
+static int addFD(fd_set* fds, int fd, int currentMax)
 {
     FD_SET(fd, fds);
     return std::max(fd, currentMax);
@@ -166,16 +166,13 @@ void ScanScheduler::findNextTime(timespec& timespec)
     timespec.tv_nsec = 0;
 }
 
-std::string ScanScheduler::serialiseNextScan(ScheduledScan nextScan)
+std::string ScanScheduler::serialiseNextScan(const ScheduledScan& nextScan)
 {
-    // Move so that nextScan is empty
-    ScheduledScan scan = std::move(nextScan);
-
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Builder requestBuilder =
             message.initRoot<Sophos::ssplav::NamedScan>();
 
-    requestBuilder.setName(scan.name());
+    requestBuilder.setName(nextScan.name());
 
     auto exclusionsInput = m_config.exclusions();
     auto exclusions = requestBuilder.initExcludePaths(exclusionsInput.size());

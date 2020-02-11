@@ -15,7 +15,21 @@ namespace manager::scheduler
     {
     public:
         ScheduledScan();
+
+        /**
+         * Constructor for a scan now scan
+         * @param name name for the scan now scan
+         */
+        explicit ScheduledScan(std::string name);
+
+        /**
+         * Constructor for Standard Scheduled Scan
+         * @param savPolicy policy to apply to the scheduled scan
+         * @param id scan id for looking up scan settings in the policy
+         */
         ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id);
+
+
         [[nodiscard]] std::string name() const
         {
             return m_name;
@@ -38,6 +52,11 @@ namespace manager::scheduler
             return m_valid;
         }
 
+        [[nodiscard]] bool isScanNow() const
+        {
+            return m_isScanNow;
+        }
+
         /**
          *
          * @return True if the scan should look inside archive files.
@@ -53,6 +72,7 @@ namespace manager::scheduler
         TimeSet m_times;
         time_t m_lastRunTime;
         bool m_valid;
+        bool m_isScanNow;
         bool m_archiveScanning;
     };
 }

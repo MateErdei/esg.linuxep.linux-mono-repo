@@ -47,9 +47,6 @@ namespace manager::scheduler
          */
         void runNextScan(const ScheduledScan& nextScan);
 
-        std::string serialiseNextScan(ScheduledScan nextScan);
+        std::string serialiseNextScan(const ScheduledScan& nextScan);
     };
 }
-
-
-
