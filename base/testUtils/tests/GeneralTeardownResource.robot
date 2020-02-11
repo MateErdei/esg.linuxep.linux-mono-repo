@@ -79,7 +79,6 @@ General Test Teardown
     Run Keyword If Test Failed    Log Status Of Sophos Spl
     Run Keyword If Test Failed    Display All SSPL Files Installed
     Run Keyword If Test Failed    Dump All Sophos Processes
-    #TODO put this back when bug LINUXDAR-1329 is fixed
-    #Check Dmesg For Segfaults
+    Check Dmesg For Segfaults
     Combine Coverage If Present
 
