@@ -27,7 +27,7 @@ Default Tags  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER
 
 *** Test Case ***
 Successful Registration With Correct Log Permissions
-    [Tags]  SMOKE  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER
+    [Tags]  SMOKE  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER  TAP_TESTS
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/register_central.log  root  root  -rw-------

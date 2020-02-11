@@ -17,7 +17,7 @@ Default Tags   MANAGEMENT_AGENT
 
 *** Test Cases ***
 Verify Management Agent Creates New Event File When Plugin Raises A New Event
-    [Tags]  SMOKE  MANAGEMENT_AGENT
+    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
     # make sure no previous event xml file exists.
     Remove Event Xml Files
 

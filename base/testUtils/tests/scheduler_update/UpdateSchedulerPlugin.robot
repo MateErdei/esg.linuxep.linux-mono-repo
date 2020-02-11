@@ -29,7 +29,7 @@ ${TELEMETRY_JSON_FILE}     ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
 
 *** Test Cases ***
 UpdateScheduler SulDownloader Report Sync With Warehouse Success
-    [Tags]  SMOKE  UPDATE_SCHEDULER
+    [Tags]  SMOKE  UPDATE_SCHEDULER  TAP_TESTS
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
     Setup Base and Plugin Sync and UpToDate
     Simulate Update Now

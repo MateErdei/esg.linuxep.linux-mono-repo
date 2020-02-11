@@ -14,7 +14,7 @@ Test Teardown  Run Keywords  Kill Manual Watchdog  AND
 
 *** Test Cases ***
 Test watchdog restarts child after normal exit
-    [Tags]    WATCHDOG  SMOKE
+    [Tags]    WATCHDOG  SMOKE  TAP_TESTS
     Remove File  /tmp/TestWatchdogRestartsChildAfterNormalExit
     Setup Test Plugin Config  echo "Plugin startedat $(date)" >>/tmp/TestWatchdogRestartsChildAfterNormalExit
     Manually Start Watchdog

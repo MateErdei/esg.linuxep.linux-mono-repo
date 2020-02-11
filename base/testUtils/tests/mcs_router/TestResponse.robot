@@ -13,7 +13,7 @@ Suite Teardown    Run Keywords
 ...               Stop Local Cloud Server  AND
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
+Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS
 
 *** Test Cases ***
 Basic EDR Response Sent

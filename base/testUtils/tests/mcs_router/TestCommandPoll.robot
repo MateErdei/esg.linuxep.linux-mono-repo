@@ -19,7 +19,7 @@ Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
 
 *** Test Case ***
 Command Poll Sent
-    [Tags]  SMOKE  MCS  FAKE_CLOUD  MCS_ROUTER
+    [Tags]  SMOKE  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter

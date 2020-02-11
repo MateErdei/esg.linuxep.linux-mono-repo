@@ -73,7 +73,7 @@ Reset MachineID Permissions
 
 *** Test Cases ***
 Telemetry Executable Generates System Telemetry
-    [Tags]  SMOKE  TELEMETRY
+    [Tags]  SMOKE  TELEMETRY  TAP_TESTS
     [Documentation]    Telemetry Executable Generates System Telemetry
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}

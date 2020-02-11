@@ -19,6 +19,11 @@ try:
     from PluginCommunicationTools.common.SetupLogger import setup_logging
     CAPNPENABLED=True
 except Exception as ex:
+    import logging
+
+    def setup_logging(file_name, logname):
+        return logging.getLogger(logname)
+
     CAPNPENABLED=False
     CAPNPNEXCEPTION = ex
 

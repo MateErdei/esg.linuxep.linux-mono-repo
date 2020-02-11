@@ -12,7 +12,7 @@ Resource    ManagementAgentResources.robot
 
 *** Test Cases ***
 Verify Management Agent Sets Plugin Policy When Moved Into Policy Folder
-    [Tags]    MANAGEMENT_AGENT  SMOKE
+    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_TESTS
     # Test will invoke applyNewPolicy when file is moved into place
 
     # make sure no previous policy xml file exists.

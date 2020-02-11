@@ -14,7 +14,7 @@ Test Teardown  Run Keywords  Kill Manual Watchdog  AND
 
 *** Test Cases ***
 Test Watchdog Starts Plugin
-    [Tags]    WATCHDOG  SMOKE
+    [Tags]    WATCHDOG  SMOKE  TAP_TESTS
     Remove File  /tmp/TestWatchDogStartsPluginTestFile
     Setup Test Plugin Config  echo "Plugin started" > /tmp/TestWatchDogStartsPluginTestFile
     Manually Start Watchdog
