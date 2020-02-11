@@ -41,7 +41,6 @@ class CapnSubscriber(object):
         self.message_cache = None
 
     def clear_subscriber_stop(self):
-        require_capnpn()
         LOGGER.info("Capnsubscriber shutdown")
         if self.subscriber:
             self.subscriber.clean_up_multi_subscriber()
