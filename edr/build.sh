@@ -345,7 +345,7 @@ function build()
             ## Process bullseye output
             ## upload unit tests
             cd $BASE
-            export htmldir=output/coverage/${COV_HTML_BASE}
+            export htmldir=output/coverage/sspl-plugin-edr-unittest
             export BULLSEYE_UPLOAD
             bash -x build/bullseye/uploadResults.sh || exit $?
         fi
