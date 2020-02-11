@@ -14,20 +14,26 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
+def package_install(machine: tap.Machine, *install_args: str):
+    machine.run('apt-get', '-y', 'install', *install_args,
+                log_mode=tap.LoggingMode.ON_ERROR)
+
+
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
-    pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
     try:
+        pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
         machine.run('useradd', 'sophos-spl-user')
         machine.run('groupadd', 'sophos-spl-group')
     except Exception as ex:
         # the previous command will fail if user already exists. But this is not an error
-        print("On adding user and group: {}".format(ex))
+        print("On adding installing requirements: {}".format(ex))
 
 
 def robot_task(machine: tap.Machine):
     try:
+        package_install(machine, 'python3.7-dev')
         install_requirements(machine)
         machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
@@ -55,7 +61,8 @@ def get_inputs(context: tap.PipelineContext):
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./testUtils'),
-        edr=context.artifact.build() / 'output'
+        base=context.artifact.build() / 'output',
+        openssl=context.artifact.build() / 'openssl'
     )
     return test_inputs
 

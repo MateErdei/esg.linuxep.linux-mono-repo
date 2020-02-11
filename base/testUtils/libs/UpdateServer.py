@@ -200,8 +200,13 @@ class UpdateServer(object):
         openssl_input = get_variable("OPENSSL_INPUT")
         if openssl_input is None:
             raise AssertionError("Required env variable 'OPENSSL_INPUT' is not specified")
+        target_path = os.path.join(tmp_path, "openssl")
+        if os.path.isdir(openssl_input):
+            if not os.path.isdir(target_path):
+                shutil.copytree(openssl_input, target_path)
+            return target_path
 
         openssl_tar = os.path.join(openssl_input, "openssl.tar")
         os.system("tar -xvf {} -C {} > /dev/null".format(openssl_tar, tmp_path))
 
-        return os.path.join(tmp_path, "openssl")
+        return target_path

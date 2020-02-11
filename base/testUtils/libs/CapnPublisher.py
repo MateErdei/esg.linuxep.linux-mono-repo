@@ -13,8 +13,18 @@ import PathManager
 SUPPORTFILESPATH = PathManager.get_support_file_path()
 PathManager.addPathToSysPath(SUPPORTFILESPATH)
 
-from PluginCommunicationTools.common.CapnpSerialisation import CredentialWrapper, CredentialEventChannel, ProcessWrapper, ProcessEventChannel, convert_linux_epoch_to_win32_epoch
-from PluginCommunicationTools.common.SetupLogger import setup_logging
+
+try:
+    from PluginCommunicationTools.common.CapnpSerialisation import CredentialWrapper, CredentialEventChannel, ProcessWrapper, ProcessEventChannel, convert_linux_epoch_to_win32_epoch
+    from PluginCommunicationTools.common.SetupLogger import setup_logging
+    CAPNPENABLED=True
+except Exception as ex:
+    CAPNPENABLED=False
+    CAPNPNEXCEPTION = ex
+
+def require_capnpn():
+    if not CAPNPENABLED:
+        raise AssertionError("Capnpn not setup correctly {}".format(CAPNPNEXCEPTION))
 
 class CapnPublisher(object):
     def __init__(self):
@@ -26,10 +36,12 @@ class CapnPublisher(object):
             self.publisher = None
 
     def start_publisher(self):
+        require_capnpn()
         self.publisher = FakeMultiPublisher()
         self.publisher.add_publishers(1)
 
     def create_and_send_authentication_fail_with_current_time_plus_time_seconds(self, timeOffset = "0"):
+        require_capnpn()
         message = CredentialWrapper()
         message.setSessionType("network")
         message.setEventType("authFailure")
@@ -41,6 +53,7 @@ class CapnPublisher(object):
         self.send_message(CredentialEventChannel, message.serialise())
 
     def create_and_send_authentication_fail_containing_network_address_with_current_time_plus_time_seconds(self, networkAddress="123.123.123.123", timeOffset = "0"):
+        require_capnpn()
         message = CredentialWrapper()
         message.setSessionType("network")
         message.setEventType("authFailure")
@@ -53,6 +66,7 @@ class CapnPublisher(object):
         self.send_message(CredentialEventChannel, message.serialise())
 
     def create_and_send_wget_process_event(self, type="start"):
+        require_capnpn()
         message = ProcessWrapper()
         message.setEventType(type)
         message.setParentSophosPid(1000, convert_linux_epoch_to_win32_epoch(time.time()))
@@ -79,6 +93,7 @@ class CapnPublisher(object):
         self.send_message(ProcessEventChannel, message.serialise())
 
     def create_and_send_whoami_process_event(self, type="start"):
+        require_capnpn()
         message = ProcessWrapper()
         message.setEventType(type)
         message.setParentSophosPid(1000, convert_linux_epoch_to_win32_epoch(time.time()))
@@ -107,6 +122,7 @@ class CapnPublisher(object):
         self.send_message(ProcessEventChannel, message.serialise())
 
     def send_message(self, channel, data):
+        require_capnpn()
         if self.publisher is None:
             self.start_publisher()
         self.publisher.send_data(0, channel, data)

@@ -14,8 +14,18 @@ import PathManager
 SUPPORTFILESPATH = PathManager.get_support_file_path()
 PathManager.addPathToSysPath(SUPPORTFILESPATH)
 
-from PluginCommunicationTools.common.CapnpSerialisation import CredentialWrapper, CredentialEventChannel, ProcessWrapper, ProcessEventChannel, AnyDetectorChannel, convert_linux_epoch_to_win32_epoch
-from PluginCommunicationTools.common.SetupLogger import setup_logging
+try:
+    from PluginCommunicationTools.common.CapnpSerialisation import CredentialWrapper, CredentialEventChannel, ProcessWrapper, ProcessEventChannel, AnyDetectorChannel, convert_linux_epoch_to_win32_epoch
+    from PluginCommunicationTools.common.SetupLogger import setup_logging
+    CAPNPENABLED=True
+except Exception as ex:
+    CAPNPENABLED=False
+    CAPNPNEXCEPTION = ex
+
+def require_capnpn():
+    if not CAPNPENABLED:
+        raise AssertionError("Capnpn not setup correctly {}".format(CAPNPNEXCEPTION))
+
 
 LOGGER = setup_logging("CapnSubscriber.log", 'CapnSubscriber')
 
@@ -26,6 +36,7 @@ class CapnSubscriber(object):
         self.message_cache = None
 
     def clear_subscriber_stop(self):
+        require_capnpn()
         LOGGER.info("Capnsubscriber shutdown")
         if self.subscriber:
             self.subscriber.clean_up_multi_subscriber()
@@ -36,11 +47,13 @@ class CapnSubscriber(object):
         self.clear_subscriber_stop()
 
     def start_subscriber(self):
+        require_capnpn()
         self.subscriber = FakeMultiSubscriber()
         self.subscriber.add_subscriber(AnyDetectorChannel, "DummySubscriber")
         LOGGER.info("Capnsubscriber add subscriber")
 
     def receive_authentication_fail_with_historic_time(self):
+        require_capnpn()
         message = CredentialWrapper()
         byte_string = self.get_message(CredentialEventChannel)
         message.deserialise(byte_string)
@@ -71,11 +84,13 @@ class CapnSubscriber(object):
             raise AssertionError("Expected timestamp<{} got {} instead".format(currentTime, message.getTimestamp()))
 
     def recieve_process_event_with_historic_time(self):
+        require_capnpn()
         message = ProcessWrapper()
         byte_string = self.get_message(ProcessEventChannel)
         message.deserialise(byte_string)
 
     def flatten_dictionary(self, d, parent_key='', sep='.'):
+        require_capnpn()
         items = []
         for k, v in list(d.items()):
             new_key = parent_key + sep + k if parent_key else k
@@ -86,15 +101,18 @@ class CapnSubscriber(object):
         return dict(items)
 
     def byte_string_to_flattened_dict(self, byte_string, wrapper):
+        require_capnpn()
         wrapper.deserialise(byte_string)
         message_dict = wrapper.get_message_event().to_dict()
         return self.flatten_dictionary(message_dict)
 
     def subscriber_message_to_dict(self, channel):
+        require_capnpn()
         byte_string = self.get_message(channel)
         return self.convert_binary_message_to_dict(byte_string, channel)
 
     def capn_check_message(self, message, **kwargs):
+        require_capnpn()
         for key, value in list(kwargs.items()):
             try:
                 current_value = message[key]
@@ -105,6 +123,7 @@ class CapnSubscriber(object):
                 raise AssertionError("Message does not contain " + str(key))
 
     def convert_binary_message_to_dict(self, message, channel):
+        require_capnpn()
         if channel == CredentialEventChannel:
             wrapper = CredentialWrapper()
             return self.byte_string_to_flattened_dict(message, wrapper)
@@ -113,9 +132,11 @@ class CapnSubscriber(object):
             return self.byte_string_to_flattened_dict(message, wrapper)
 
     def cache_capn_queue_contents(self, channel):
+        require_capnpn()
         self.message_cache = self.subscriber.get_all_messages(0, channel)
 
     def check_capn_output_for_a_single_message(self, channel, **kwargs):
+        require_capnpn()
         if self.message_cache is None:
             self.cache_capn_queue_contents(channel)
 
@@ -142,11 +163,13 @@ class CapnSubscriber(object):
         raise AssertionError("Could not find the specified message in {} messages.".format(len(self.message_cache)))
 
     def clear_cache_and_check_capn_output_for_a_single_message(self, channel, **kwargs):
+        require_capnpn()
         self.message_cache = None
         self.check_capn_output_for_a_single_message(channel, **kwargs)
 
 
     def get_message(self, channel):
+        require_capnpn()
         if self.subscriber is None:
             self.start_subscriber()
         LOGGER.info("Capnsubscriber try to get next message")
@@ -157,6 +180,7 @@ class CapnSubscriber(object):
             raise
 
     def subscriber_get_all_messages(self, channel):
+        require_capnpn()
         assert (self.subscriber is not None)
         LOGGER.info("Capnsubscriber try to get all messages")
         try:
@@ -168,7 +192,9 @@ class CapnSubscriber(object):
             raise
 
     def get_credential_channel(self):
+        require_capnpn()
         return CredentialEventChannel
 
     def get_process_channel(self):
+        require_capnpn()
         return ProcessEventChannel

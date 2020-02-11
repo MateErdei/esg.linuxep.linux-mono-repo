@@ -1,8 +1,10 @@
 import json
 import robot
 import sys
-
+import os
 from pubtap.robotframework.tap_result_listener import tap_result_listener
+
+
 
 
 def main():
@@ -21,6 +23,12 @@ def main():
         'report': log_files[2],
         'suite': '*'
     }
+
+    os.environ['OPENSSL_INPUT'] = '/opt/test/inputs/openssl'
+    os.environ['SYSTEM_PRODUCT_TEST_OUTPUT'] = '/opt/test/inputs/base/'
+    os.environ['BASE_DIST'] = '/opt/test/inputs/base/SDDS-COMPONENT/'
+    os.environ['OUTPUT'] = '/opt/test/inputs/base/'
+    os.environ['CAPNP_INPUT'] = 'IGNORE'
 
     try:
         # Create the TAP Robot result listener.
