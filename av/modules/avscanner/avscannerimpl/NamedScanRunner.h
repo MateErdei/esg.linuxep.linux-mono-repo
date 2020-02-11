@@ -8,7 +8,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IRunner.h"
 
+#include "NamedScan.capnp.h"
+
 #include <string>
+#include <vector>
 
 namespace avscanner::avscannerimpl
 {
@@ -16,9 +19,13 @@ namespace avscanner::avscannerimpl
     {
     public:
         explicit NamedScanRunner(const std::string& configPath);
+        explicit NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedScanConfig);
         int run() override;
+        std::string getScanName() const;
+        std::vector<std::string> getExcludePaths() const;
     private:
-        std::string m_contents;
+        std::string m_scanName;
+        std::vector<std::string> m_excludePaths;
     };
 }
 

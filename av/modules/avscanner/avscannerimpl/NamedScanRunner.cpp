@@ -8,24 +8,38 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanClient.h"
 
+#include <capnp/message.h>
+#include <capnp/serialize.h>
+
 #include <filewalker/IFileWalkCallbacks.h>
 #include <unixsocket/ScanningClientSocket.h>
 
+#include <fcntl.h>
 #include <fstream>
+#include <unistd.h>
 
 using namespace avscanner::avscannerimpl;
 
-static std::string readFile(const std::string& path)
-{
-    std::ifstream s(path);
-    std::string contents;
-    s >> contents;
-    return contents;
-}
-
 NamedScanRunner::NamedScanRunner(const std::string& configPath)
 {
-    m_contents = readFile(configPath);
+    int fd = open(configPath.c_str(), O_RDONLY);
+    ::capnp::StreamFdMessageReader message(fd);
+
+    NamedScanRunner(message.getRoot<Sophos::ssplav::NamedScan>());
+
+    close(fd);
+}
+
+NamedScanRunner::NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedScanConfig)
+{
+    m_scanName = namedScanConfig.getName();
+
+    auto excludePaths = namedScanConfig.getExcludePaths();
+    m_excludePaths.reserve(excludePaths.size());
+    for (const auto& item : excludePaths)
+    {
+        m_excludePaths.emplace_back(item);
+    }
 }
 
 namespace
@@ -72,3 +86,12 @@ int NamedScanRunner::run()
     return 0;
 }
 
+std::string NamedScanRunner::getScanName() const
+{
+    return m_scanName;
+}
+
+std::vector<std::string> NamedScanRunner::getExcludePaths() const
+{
+    return m_excludePaths;
+}

@@ -1,6 +1,7 @@
 CAPN_GENERATE_CPP(CapNGeneratedFilesSrcs CapNGeneratedFilesHeaders
         ScanRequest.capnp
-        ScanResponse.capnp)
+        ScanResponse.capnp
+        NamedScan.capnp)
 
 add_library(scanmessages SHARED
         ${CapNGeneratedFilesHeaders}
