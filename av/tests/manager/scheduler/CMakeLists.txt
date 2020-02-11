@@ -1,6 +1,7 @@
 include(GoogleTest)
 
 SophosAddTest(TestScheduledScan
+        TestScheduledScan.cpp
         TestScanScheduler.cpp
         TestScheduledScanConfiguration.cpp
         TestScheduleCalculations.cpp

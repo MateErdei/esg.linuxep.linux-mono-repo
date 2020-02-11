@@ -397,47 +397,25 @@ TEST(ScheduledScanConfiguration, TestTextIdAttribute) //NOLINT
     EXPECT_EQ(attributes.value(attributes.TextId), "bar"); // Rather than foo
 }
 
-TEST(ScheduledScanConfiguration, DaySet) // NOLINT
+TEST(ScheduledScanConfiguration, ScanNowConstructed) //NOLINT
 {
+    auto attributeMap = Common::XmlUtilities::parseXml("<xml><key TestId=\"foo\">bar</key></xml>");
+    auto scanConfiguration = ScheduledScanConfiguration(attributeMap);
 
-    auto attributeMap = Common::XmlUtilities::parseXml(
-            R"MULTILINE(<?xml version="1.0"?>
-<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
-  <onDemandScan>
-    <scanSet>
-      <scan>
-        <name>Sophos Cloud Scheduled Scan</name>
-        <schedule>
-          <daySet>
-            <!-- for day in {{scheduledScanDays}} -->
-            <day>saturday</day>
-            <day>thursday</day>
-          </daySet>
-          <timeSet>
-            <time>00:00:00</time>
-          </timeSet>
-        </schedule>
-      </scan>
-    </scanSet>
-  </onDemandScan>
-</config>
-)MULTILINE");
+    // Check scanNowScan is constructed correctly
+    auto scanNowScan = scanConfiguration.scanNowScan();
 
-    auto scanIds = attributeMap.entitiesThatContainPath("config/onDemandScan/scanSet/scan", false);
-    ASSERT_EQ(scanIds.size(), 1);
-    ASSERT_EQ(scanIds[0], "config/onDemandScan/scanSet/scan");
+    EXPECT_TRUE(scanNowScan.valid());
+    EXPECT_EQ(scanNowScan.name(), "scanNow");
+    EXPECT_EQ(scanNowScan.calculateNextTime(::time(nullptr)), static_cast<time_t>(-1));
 
-    auto days_from_xml = attributeMap.lookupMultiple("config/onDemandScan/scanSet/scan/schedule/daySet/day");
-    ASSERT_EQ(days_from_xml.size(), 2);
+    const auto& scanNowTimes = scanNowScan.times();
+    EXPECT_EQ(scanNowTimes.size(), 0);
 
+    const auto& scanNowDays = scanNowScan.days();
+    EXPECT_EQ(scanNowDays.size(), 0);
 
-    // And with the real code
-    auto scan = ScheduledScan(attributeMap, scanIds[0]);
-    EXPECT_EQ(scan.name(), "Sophos Cloud Scheduled Scan");
-    const auto& days = scan.days();
-    ASSERT_EQ(days.size(), 2);
-
+    EXPECT_EQ(scanNowScan.isScanNow(), true);
 }
 
 TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
@@ -563,6 +541,9 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
     EXPECT_EQ(scans[0].name(), "Sophos Cloud Scheduled Scan");
     EXPECT_EQ(scans[1].name(), "Another scan!");
 
+    EXPECT_EQ(scans[0].isScanNow(), false);
+    EXPECT_EQ(scans[1].isScanNow(), false);
+
     const auto& days = scans[0].days();
     ASSERT_EQ(days.size(), 2);
     // Days are sorted while being processed
@@ -575,6 +556,21 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
     EXPECT_EQ(times.times()[0].minute(), 0);
     EXPECT_EQ(times.times()[1].hour(), 17);
     EXPECT_EQ(times.times()[1].minute(), 0);
+
+    // Check scanNowScan is constructed correctly
+    auto scanNowScan = m->scanNowScan();
+
+    EXPECT_TRUE(scanNowScan.valid());
+    EXPECT_EQ(scanNowScan.name(), "scanNow");
+    EXPECT_EQ(scanNowScan.calculateNextTime(::time(nullptr)), static_cast<time_t>(-1));
+
+    const auto& scanNowTimes = scanNowScan.times();
+    EXPECT_EQ(scanNowTimes.size(), 0);
+
+    const auto& scanNowDays = scanNowScan.days();
+    EXPECT_EQ(scanNowDays.size(), 0);
+
+    EXPECT_EQ(scanNowScan.isScanNow(), true);
 }
 
 TEST(ScheduledScanConfiguration, TestArchiveSettingTrue) // NOLINT

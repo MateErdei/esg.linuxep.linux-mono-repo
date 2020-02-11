@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <fstream>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 using namespace Plugin;
 
@@ -77,8 +78,8 @@ TEST(TestPluginAdapter, testProcessPolicy) //NOLINT
     expectedLog.append(policyXml);
     std::string logs = testing::internal::GetCapturedStderr();
 
-    EXPECT_NE(logs.find(expectedLog), std::string::npos);
-    EXPECT_NE(logs.find("Updating scheduled scan configuration"), std::string::npos);
+    EXPECT_THAT(logs, HasSubstr(expectedLog));
+    EXPECT_THAT(logs, HasSubstr("Updating scheduled scan configuration"));
 }
 
 
@@ -109,8 +110,8 @@ TEST(TestPluginAdapter, testProcessAction) //NOLINT
     expectedLog.append(actionXml);
     std::string logs = testing::internal::GetCapturedStderr();
 
-    EXPECT_NE(logs.find(expectedLog), std::string::npos);
-    EXPECT_NE(logs.find("Starting Scan Now scan"), std::string::npos);
+    EXPECT_THAT(logs, HasSubstr(expectedLog));
+    EXPECT_THAT(logs, HasSubstr("Starting Scan Now scan"));
 }
 
 TEST(TestPluginAdapter, testProcessActionMalformed) //NOLINT
@@ -140,6 +141,6 @@ TEST(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     expectedLog.append(actionXml);
     std::string logs = testing::internal::GetCapturedStderr();
 
-    EXPECT_NE(logs.find(expectedLog), std::string::npos);
-    EXPECT_EQ(logs.find("Starting Scan Now scan"), std::string::npos);
+    EXPECT_THAT(logs, HasSubstr(expectedLog));
+    EXPECT_THAT(logs, Not(HasSubstr("Starting Scan Now scan")));
 }
