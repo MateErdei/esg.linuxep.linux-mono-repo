@@ -45,9 +45,7 @@ class PipeChannel:
     def clear(self):
         while True:
             try:
-                if os.read(
-                        self.read,
-                        1024) is None:
+                if os.read(self.read, 1024) is None:
                     break
             except OSError as err:
                 if err.errno == errno.EAGAIN or err.errno == errno.EWOULDBLOCK:
@@ -84,7 +82,7 @@ class MCSPushSetting:
 class MCSPushClient:
     def __init__(self):
         self._notify_mcsrouter_channel = PipeChannel()
-        self._impl = None
+        self._push_client_impl = None
         self._settings = MCSPushSetting()
 
     def _start_service(self):
@@ -97,32 +95,32 @@ class MCSPushClient:
             logger.debug("Settings for push client: url: {}, ping {} and cert {}".format(url, expected_ping, cert))
             if not url:
                 return
-            self._impl = MCSPushClientInternal(url, cert, expected_ping, self._notify_mcsrouter_channel)
-            self._impl.start()
+            self._push_client_impl = MCSPushClientInternal(url, cert, expected_ping, self._notify_mcsrouter_channel)
+            self._push_client_impl.start()
             logger.info("Established MCS Push Connection")
         except Exception as e:
             logger.warning(str(e))
             raise MCSPushException("Failed to start MCS Push Client service")
 
     def stop_service(self):
-        if not self._impl:
+        if not self._push_client_impl:
             return
-        self._impl.stop()
-        self._impl = None
+        self._push_client_impl.stop()
+        self._push_client_impl = None
         logger.info("MCS push client stopped")
 
     def pending_commands(self):
-        if not self._impl:
+        if not self._push_client_impl:
             return []
-        return self._impl.pending_commands()
+        return self._push_client_impl.pending_commands()
 
     def notify_activity_pipe(self):
         return self._notify_mcsrouter_channel
 
     def is_service_active(self):
-        if not self._impl:
+        if not self._push_client_impl:
             return False
-        return self._impl.is_alive()
+        return self._push_client_impl.is_alive()
 
     def check_push_server_settings_changed_and_reapply(self, config, cert):
         # retrieve push server url and compare with the current one
@@ -130,7 +128,6 @@ class MCSPushClient:
         if settings != self._settings:
             logger.info("Push Server settings changed. Applying it")
             self._settings = settings
-            url, cert, expected_ping = self._settings.as_tuple()
             self._start_service()
             return True
         return False
@@ -207,25 +204,3 @@ class MCSPushClientInternal(threading.Thread):
         finally:
             self._pending_commands_lock.release()
         self._notify_mcsrouter_channel.notify()
-
-
-if __name__ == "__main__":
-    url = 'https://localhost:8459/mcs/push/endpoint/me'
-    cert = '/home/pair/gitrepos/sspl-tools/everest-base/testUtils/SupportFiles/CloudAutomation/root-ca.crt.pem'
-
-    import sys
-
-    logger.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-    client = MCSPushClientInternal(url, cert, 12)
-    client.start()
-    import time
-    time.sleep(30)
-    for command in client.pending_commands():
-        print(command.msg)
-    client.stop()
