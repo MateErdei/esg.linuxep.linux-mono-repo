@@ -14,12 +14,16 @@ import socket
 import selectors
 from enum import Enum
 import mcsrouter.utils.signal_handler
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 class MsgType(Enum):
     MCSCommand = 1
     Error = 2
 
+class PushClientStatus(Enum):
+    NothingChanged = 1
+    Connected = 2
+    Error = 3
 
 class PushClientCommand:
     def __init__(self, msg_type: MsgType, msg_content: str):
@@ -92,14 +96,14 @@ class MCSPushClient:
         try:
             self._notify_mcsrouter_channel.clear()
             url, cert, expected_ping = self._settings.as_tuple()
-            logger.debug("Settings for push client: url: {}, ping {} and cert {}".format(url, expected_ping, cert))
+            LOGGER.debug("Settings for push client: url: {}, ping {} and cert {}".format(url, expected_ping, cert))
             if not url:
                 return
             self._push_client_impl = MCSPushClientInternal(url, cert, expected_ping, self._notify_mcsrouter_channel)
             self._push_client_impl.start()
-            logger.info("Established MCS Push Connection")
+            LOGGER.info("Established MCS Push Connection")
         except Exception as e:
-            logger.warning(str(e))
+            LOGGER.warning(str(e))
             raise MCSPushException("Failed to start MCS Push Client service")
 
     def stop_service(self):
@@ -107,7 +111,7 @@ class MCSPushClient:
             return
         self._push_client_impl.stop()
         self._push_client_impl = None
-        logger.info("MCS push client stopped")
+        LOGGER.info("MCS push client stopped")
 
     def pending_commands(self):
         if not self._push_client_impl:
@@ -125,16 +129,29 @@ class MCSPushClient:
     def check_push_server_settings_changed_and_reapply(self, config, cert):
         # retrieve push server url and compare with the current one
         settings = MCSPushSetting.from_config(config, cert)
-        if settings != self._settings:
-            logger.info("Push Server settings changed. Applying it")
-            self._settings = settings
-            self._start_service()
-            return True
-        return False
+        needStart = False
+        try:
+            if settings != self._settings:
+                needStart = True
+                LOGGER.info("Push Server settings changed. Applying it")
+            elif not self.is_service_active() and self._settings.url:
+                LOGGER.info("Trying to re-connect to Push Server")
+                needStart = True
+
+            if needStart:
+                self._settings = settings
+                self._start_service()
+                return PushClientStatus.Connected
+            else:
+                return PushClientStatus.NothingChanged
+        except Exception as ex:
+            LOGGER.warning(str(ex))
+
+        return PushClientStatus.Error
 
 
 class MCSPushClientInternal(threading.Thread):
-    def __init__(self, url: str, cert: str, expected_ping_interval: int, mcsrouter_channel=PipeChannel() ):
+    def __init__(self, url: str, cert: str, expected_ping_interval: int, mcsrouter_channel=PipeChannel()):
         threading.Thread.__init__(self)
         self._url = url
         self._cert = cert
@@ -153,6 +170,7 @@ class MCSPushClientInternal(threading.Thread):
             sel.register(self.messages.resp.raw, selectors.EVENT_READ, 'push')
             sel.register(self._notify_push_client_channel, selectors.EVENT_READ, 'stop')
             while True:
+                # This call will block for the duration of the passed argument
                 events = sel.select(self._expected_ping_interval)
                 if not events:
                     self._append_command(MsgType.Error, 'No Ping from Server')
@@ -162,12 +180,12 @@ class MCSPushClientInternal(threading.Thread):
                         msg = msg_event.data
                         if msg:
                             # we don't want to log the full message, just the beginning is enough 
-                            logger.info("Received command: {}".format(msg[:100]))
+                            LOGGER.info("Received command: {}".format(msg[:100]))
                             self._append_command(MsgType.MCSCommand, msg)
                         else:
-                            logger.debug("Server sent ping")
+                            LOGGER.debug("Server sent ping")
                     elif key.data == 'stop':
-                        logger.info("MCS Push Client main loop finished")
+                        LOGGER.info("MCS Push Client main loop finished")
                         return
         except Exception as ex:
             self._append_command(MsgType.Error, 'Push client Failure : {}'.format(ex))
@@ -200,7 +218,7 @@ class MCSPushClientInternal(threading.Thread):
     def _append_command(self, msg_type, msg):
         try:
             self._pending_commands_lock.acquire()
-            self._pending_commands.append( PushClientCommand(msg_type, msg))
+            self._pending_commands.append(PushClientCommand(msg_type, msg))
         finally:
             self._pending_commands_lock.release()
         self._notify_mcsrouter_channel.notify()

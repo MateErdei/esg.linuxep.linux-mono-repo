@@ -3,10 +3,11 @@ import logging
 import mock
 import time
 import selectors
+import sseclient
 import PathManager
 import mcsrouter.utils.config
 from types import SimpleNamespace
-from mcsrouter.mcs_push_client import MCSPushClientInternal, PipeChannel, MCSPushClient, MCSPushException, MCSPushSetting
+from mcsrouter.mcs_push_client import MCSPushClientInternal, PipeChannel, MCSPushClient, MCSPushException, MCSPushSetting, PushClientStatus
 
 
 class ExtendedPipeChannel(PipeChannel):
@@ -172,16 +173,24 @@ class TestMCSPushClient(SharedTestsUtilities):
 
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
     def test_push_client_handle_config_changes(self, *mockargs):
-        self.assertTrue(self.push_client.check_push_server_settings_changed_and_reapply(ConfigWithoutFile(), 'certpath'))
+        self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(ConfigWithoutFile(), 'certpath'), PushClientStatus.Connected)
         config = ConfigWithoutFile()
         config.set('pushServer1', 'new url')
-        self.assertTrue(self.push_client.check_push_server_settings_changed_and_reapply(config, 'certpath'))
-        self.assertFalse(self.push_client.check_push_server_settings_changed_and_reapply(config, 'certpath'))
+        self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(config, 'certpath'), PushClientStatus.Connected)
+        self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(config, 'certpath'), PushClientStatus.NothingChanged)
 
 
-    @mock.patch("sseclient.SSEClient", new_callable=SSEClientSimulateConnectionFailureFactory)
-    def test_push_client_should_throw_if_failed_to_connect_to_push_service(self, *mockargs):
-        self.assertRaises(MCSPushException, self.push_client.check_push_server_settings_changed_and_reapply, ConfigWithoutFile(), 'certpath')
+
+    def test_push_client_returns_status_enum_when_applying_server_settings(self):
+        # This is the case for when the connection to the Push Server cannot be established
+        with mock.patch("sseclient.SSEClient", new_callable=SSEClientSimulateConnectionFailureFactory) as sseclient.SSEClient:
+            self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(ConfigWithoutFile(), 'certpath'), PushClientStatus.Error)
+
+        with mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory) as sseclient.SSEClient:
+            # this is the case for establishing connection to the push server
+            self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(ConfigWithoutFile(), 'certpath'), PushClientStatus.Connected)
+            # this is the case for a normal connected client without any settings change will just keep connected and nothing changes
+            self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(ConfigWithoutFile(), 'certpath'), PushClientStatus.NothingChanged)
 
 
 

@@ -69,6 +69,28 @@ Push Client Is Stopped When MCSRouter Stops
     ...          Check MCS Router Log Contains
     ...          MCS push client stopped
 
+Push Client With No Push Server
+    [TAGS]  TESTFAILURE
+    #LINUXDAR-839 is responsible for this story
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+
+
+    Wait Until Keyword Succeeds
+    ...          10s
+    ...          1s
+    ...          Run Keywords
+    ...          Check Mcsrouter Log Contains   Push Server settings changed. Applying it  AND
+    ...          Check Mcsrouter Log Contains   Failed to start MCS Push Client service
+
+    # demonstrate that without intervention, it will reconnect to the server if it becomes available
+    Start MCS Push Server
+    Wait Until Keyword Succeeds
+    ...          60s
+    ...          10s
+    ...          Check Mcsrouter Log Contains   Trying to re-connect to Push Server
+
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+
 *** Keywords ***
 
 Push Client started and connects to Push Server when the MCS Client receives MCS Policy
