@@ -1,6 +1,8 @@
-//
-// Created by pair on 11/02/2020.
-//
+/******************************************************************************************************
+
+Copyright 2020 Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include <redist/boost/include/boost/assert.hpp>
 #include "OsqueryStarted.h"

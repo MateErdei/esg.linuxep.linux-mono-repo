@@ -165,13 +165,6 @@ namespace Plugin
         }
     }
 
-
-
-
-
-
-
-
     void OsqueryProcessImpl::startProcess(const std::string& processPath, const std::vector<std::string>& arguments)
     {
         std::lock_guard lock { m_processMonitorSharedResource };
