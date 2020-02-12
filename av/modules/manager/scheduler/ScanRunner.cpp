@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 // Module
 #include "Logger.h"
 // Product
+#include "datatypes/Print.h"
 #include "datatypes/sophos_filesystem.h"
 // Base
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -31,7 +32,15 @@ ScanRunner::ScanRunner(std::string name, std::string scan, IScanComplete& comple
       m_scanCompleted(false)
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    m_pluginInstall = appConfig.getData("PLUGIN_INSTALL");
+    try
+    {
+        m_pluginInstall = appConfig.getData("PLUGIN_INSTALL");
+    }
+    catch (const std::out_of_range&)
+    {
+        PRINT("Using default plugin install directory");
+        m_pluginInstall = "/opt/sophos-spl/plugins/av";
+    }
     m_scanExecutable = m_pluginInstall / "sbin/scheduled_scan_walker_launcher";
 }
 

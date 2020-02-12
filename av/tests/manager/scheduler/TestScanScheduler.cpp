@@ -5,30 +5,21 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
 #include "manager/scheduler/ScheduledScanConfiguration.h"
 #include "manager/scheduler/ScanScheduler.h"
 
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
-#include <gmock/gmock.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 using namespace manager::scheduler;
 
 TEST(TestScanScheduler, scanNow) //NOLINT
 {
-    class FakeScanCompletion : public IScanComplete
-    {
-    public:
-        void processScanComplete(std::string& scanCompletedXml) override
-        {
-            m_xml = scanCompletedXml;
-        }
-        std::string m_xml;
-    };
-    FakeScanCompletion scanCompletion;
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/opt/sophos-spl/plugins/av"); // Fix this if it causes problems
 
-    ScanScheduler scheduler{scanCompletion};
-
+    ScanScheduler scheduler;
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
