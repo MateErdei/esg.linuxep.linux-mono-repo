@@ -24,10 +24,16 @@ namespace manager::scheduler
             return m_exclusions;
         }
 
-        bool allFiles()
+        bool scanAllFileExtensions()
         {
             return m_allFiles;
         }
+
+        bool scanFilesWithNoExtensions()
+        {
+            return m_scanFilesWithNoExtensions;
+        }
+
 
         /*
          * Scans config
@@ -45,5 +51,6 @@ namespace manager::scheduler
         std::vector<ScheduledScan> m_scans;
         ScheduledScan m_scanNowScan;
         bool m_allFiles = false;
+        bool m_scanFilesWithNoExtensions = false;
     };
 }

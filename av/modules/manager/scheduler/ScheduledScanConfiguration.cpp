@@ -329,6 +329,7 @@ ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::Att
 
     auto allFilesAttr = savPolicy.lookup("config/onDemandScan/extensions/allFiles");
     m_allFiles = allFilesAttr.contents() == "true";
+    m_scanFilesWithNoExtensions = savPolicy.lookup("config/onDemandScan/extensions/noExtensions").contents() == "true";
 
     auto scanIds = savPolicy.entitiesThatContainPath("config/onDemandScan/scanSet/scan", false);
     for (const auto& id : scanIds)

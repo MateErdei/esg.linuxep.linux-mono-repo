@@ -381,6 +381,9 @@ TEST(ScheduledScanConfiguration, TestEmptyXml) // NOLINT
     EXPECT_EQ(scans.size(), 0);
     auto exclusions = m->exclusions();
     EXPECT_EQ(exclusions.size(), 0);
+
+    EXPECT_FALSE(m->scanAllFileExtensions());
+    EXPECT_FALSE(m->scanFilesWithNoExtensions());
 }
 
 TEST(ScheduledScanConfiguration, TestSimpleParsing) //NOLINT
@@ -673,7 +676,7 @@ TEST(ScheduledScanConfiguration, allFilesFalse) // NOLINT
 )MULTILINE");
 
     auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
-    auto allFiles = m->allFiles();
+    auto allFiles = m->scanAllFileExtensions();
     EXPECT_FALSE(allFiles);
 }
 
@@ -692,6 +695,42 @@ TEST(ScheduledScanConfiguration, allFilesTrue) // NOLINT
 )MULTILINE");
 
     auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
-    auto allFiles = m->allFiles();
+    auto allFiles = m->scanAllFileExtensions();
     EXPECT_TRUE(allFiles);
+}
+
+TEST(ScheduledScanConfiguration, noExtensionsFalse) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <extensions>
+      <noExtensions>false</noExtensions>
+    </extensions>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    EXPECT_FALSE(m->scanFilesWithNoExtensions());
+}
+
+TEST(ScheduledScanConfiguration, noExtensionsTrue) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <extensions>
+      <noExtensions>true</noExtensions>
+    </extensions>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    EXPECT_TRUE(m->scanFilesWithNoExtensions());
 }
