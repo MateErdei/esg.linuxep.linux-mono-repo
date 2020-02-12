@@ -13,7 +13,6 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 
 #include <Common/PluginApi/IBaseServiceApi.h>
-#include <modules/manager/scheduler/IScanComplete.h>
 
 namespace Plugin
 {
