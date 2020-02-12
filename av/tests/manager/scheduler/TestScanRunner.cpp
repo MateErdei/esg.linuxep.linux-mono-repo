@@ -50,3 +50,13 @@ TEST(TestScanRunner, testCompletionXmlGenerationChangesTimestamp) // NOLINT
     std::string xml2 = generateScanCompleteXml("FOO");
     EXPECT_NE(xml1, xml2);
 }
+
+TEST(TestScanRunner, testTimestampGeneration) // NOLINT
+{
+    std::string timestamp1 = generateTimeStamp();
+    EXPECT_THAT(timestamp1, ::testing::MatchesRegex("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]+Z"));
+
+    std::string timestamp2 = generateTimeStamp();
+    EXPECT_THAT(timestamp2, ::testing::MatchesRegex("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]+Z"));
+}
+
