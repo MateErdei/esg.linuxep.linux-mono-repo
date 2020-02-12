@@ -15,10 +15,23 @@ namespace manager::scheduler
     public:
         ScheduledScanConfiguration() = default;
         explicit ScheduledScanConfiguration(Common::XmlUtilities::AttributesMap& savPolicy);
+
+        /*
+         * Global config
+         */
         std::vector<std::string> exclusions()
         {
             return m_exclusions;
         }
+
+        bool allFiles()
+        {
+            return false;
+        }
+
+        /*
+         * Scans config
+         */
         std::vector<ScheduledScan> scans()
         {
             return m_scans;

@@ -654,3 +654,25 @@ TEST(ScheduledScanConfiguration, MissingArchiveSettings) // NOLINT
     auto scanArchives = scan.archiveScanning();
     EXPECT_FALSE(scanArchives);
 }
+
+TEST(ScheduledScanConfiguration, extensionsAreParsed) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <extensions>
+      <allFiles>false</allFiles>
+      <excludeSophosDefined/>
+      <userDefined/>
+      <noExtensions>true</noExtensions>
+    </extensions>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto allFiles = m->allFiles();
+    EXPECT_FALSE(allFiles);
+}
