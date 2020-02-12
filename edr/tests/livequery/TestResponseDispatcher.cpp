@@ -69,8 +69,7 @@ TEST(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumns)
       {"name": "pathname", "type": "TEXT"},
       {"name": "sophosPID", "type": "TEXT"},
       {"name": "start_time", "type": "BIGINT"}
-    ],
-    "columnData":[]
+    ]
 })";
     ResponseDispatcher dispatcher;
     std::string calculated = dispatcher.serializeToJson(response);
@@ -364,8 +363,7 @@ TEST(TestResponseDispatcher, JsonForExceededEntriesHasEmptyDataColumnsIfTheyExce
       {"name": "pathname", "type": "TEXT"},
       {"name": "sophosPID", "type": "TEXT"},
       {"name": "start_time", "type": "BIGINT"}
-    ],
-    "columnData":[]
+    ]
 })";
     ResponseDispatcher dispatcher;
     std::string calculated = dispatcher.serializeToJson(response);
@@ -392,8 +390,7 @@ TEST(TestResponseDispatcher, JsonShouldContainDuration)
       {"name": "pathname", "type": "TEXT"},
       {"name": "sophosPID", "type": "TEXT"},
       {"name": "start_time", "type": "BIGINT"}
-    ],
-    "columnData":[]
+    ]
 })";
     ResponseDispatcher dispatcher;
     std::string calculated = dispatcher.serializeToJson(response);
@@ -407,7 +404,7 @@ TEST(TestResponseDispatcher, JsonShouldContainDuration)
     EXPECT_GT(calculatedDuration,  expectedDuration);
     jCalc["queryMetaData"]["durationMillis"] = 0;
     jExp["queryMetaData"]["durationMillis"] = 0;
-    EXPECT_EQ(jCalc, jExp);
+    EXPECT_TRUE(jCalc == jExp) << "The calculated JSON:" << jCalc.dump() << " does not match the expected JSON: " <<  jExp.dump() << " - Note that the ordering does not matter!";
 }
 
 

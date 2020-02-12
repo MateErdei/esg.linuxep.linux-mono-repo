@@ -228,8 +228,7 @@ namespace livequery
             serializedJson << R"(,
 "columnData": )" << columnDataObjectSerialized ;
         }
-        else if (response.status().errorCode() == livequery::ErrorCode::SUCCESS \
-        || response.status().errorCode() == livequery::ErrorCode::RESPONSEEXCEEDLIMIT)
+        else if (response.status().errorCode() == livequery::ErrorCode::SUCCESS && !limitExceeded)
         {
             serializedJson << R"(,
 "columnData":[])";
