@@ -10,7 +10,6 @@ import threading
 import os
 import errno
 import sseclient
-import socket
 import selectors
 from enum import Enum
 import mcsrouter.utils.signal_handler
@@ -54,8 +53,7 @@ class PipeChannel:
             except OSError as err:
                 if err.errno == errno.EAGAIN or err.errno == errno.EWOULDBLOCK:
                     break
-                else:
-                    raise
+                raise
 
     def __del__(self):
         os.close(self.read)
@@ -90,7 +88,7 @@ class MCSPushClient:
         self._settings = MCSPushSetting()
 
     def _start_service(self):
-        """Raise exception if cannot stablish connection with the push server"""
+        """Raise exception if cannot establish connection with the push server"""
 
         self.stop_service()        
         try:
