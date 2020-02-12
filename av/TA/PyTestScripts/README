@@ -17,7 +17,8 @@ In order to run them in vagrant box:
     e) ln -s /vagrant/sspl-plugin-anti-virus/output/componenttests/  /opt/test/inputs/av/componenttests
 
   3) cd /vagrant/sspl-plugin-anti-virus/TA
-  4) python3 -u -m pytest
-  5) Result files can be seen at: /var/tmp/pytest-of-vagrant/pytest-current/sophos-splcurrent
+  4) pip install -r requirements.txt
+  5) python3 -u -m pytest
+  6) Result files can be seen at: /var/tmp/pytest-of-vagrant/pytest-current/sophos-splcurrent
 
 For more information, check: https://wiki.sophos.net/display/LD/How+we+can+use+TAP+spike

@@ -114,7 +114,7 @@ void ScanScheduler::runNextScan(const ScheduledScan& nextScan)
 {
     if (!nextScan.valid())
     {
-        LOGDEBUG("Refusing to run invalid scan");
+        LOGDEBUG("Refusing to run invalid scan: " << nextScan.name());
         return;
     }
     // serialise next scan
