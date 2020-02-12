@@ -187,11 +187,6 @@ def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin
 }
     """
 
-    import time
-    time.sleep(5)
-    #output = subprocess.check_output([ 'ps', '-ef'  ])
-    #print(output)
-
     file_content = send_and_receive_query(query, sspl_mock.management, edr_plugin_instance)
 
     typePos = file_content.find('type')
