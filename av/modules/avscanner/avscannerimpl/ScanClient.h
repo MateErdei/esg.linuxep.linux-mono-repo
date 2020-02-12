@@ -25,9 +25,20 @@ namespace avscanner::avscannerimpl
     class ScanClient
     {
     public:
+        ScanClient(const ScanClient&) = delete;
+        ScanClient(ScanClient&&) = default;
         explicit ScanClient(unixsocket::IScanningClientSocket& socket, std::shared_ptr<IScanCallbacks> callbacks, NamedScanConfig& config);
         explicit ScanClient(unixsocket::IScanningClientSocket& socket, std::shared_ptr<IScanCallbacks> callbacks, bool scanInArchives);
-        void scan(const path& p);
+
+        /**
+         *
+         * Calls IScanCallbacks if provided
+         *
+         * @param p Path to open and scan
+         * @return Scan response
+         */
+        scan_messages::ScanResponse scan(const path& p);
+
     private:
         unixsocket::IScanningClientSocket& m_socket;
         std::shared_ptr<IScanCallbacks> m_callbacks;

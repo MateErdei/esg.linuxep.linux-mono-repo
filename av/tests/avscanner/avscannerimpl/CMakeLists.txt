@@ -1,26 +1,15 @@
 include(GoogleTest)
 
-SophosAddTest(TestNamedScanRunner
+SophosAddTest(TestAVScannerImpl
         TestNamedScanRunner.cpp
-        PROJECTS avscannerimpl
-        INC_DIRS
-        ${CMAKE_SOURCE_DIR}/modules
-        )
-
-SET_TARGET_PROPERTIES(TestNamedScanRunner
-        PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
-        )
-
-SophosAddTest(TestOptions
         TestOptions.cpp
+        TestScanClient.cpp
         PROJECTS avscannerimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
         )
 
-SET_TARGET_PROPERTIES(TestOptions
+SET_TARGET_PROPERTIES(TestAVScannerImpl
         PROPERTIES
         INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"

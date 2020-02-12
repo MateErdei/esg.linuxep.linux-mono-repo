@@ -29,13 +29,13 @@ ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
 {
 }
 
-void ScanClient::scan(const sophos_filesystem::path& p)
+scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& p)
 {
     datatypes::AutoFd file_fd(::open(p.c_str(), O_RDONLY));
     if (!file_fd.valid())
     {
         PRINT("Unable to open "<<p);
-        return;
+        return scan_messages::ScanResponse();
     }
 
     scan_messages::ClientScanRequest request;
@@ -44,12 +44,16 @@ void ScanClient::scan(const sophos_filesystem::path& p)
 
     auto response = m_socket.scan(file_fd, request);
 
-    if (response.clean())
+    if (m_callbacks)
     {
-        m_callbacks->cleanFile(p);
+        if (response.clean())
+        {
+            m_callbacks->cleanFile(p);
+        }
+        else
+        {
+            m_callbacks->infectedFile(p, response.threatName());
+        }
     }
-    else
-    {
-        m_callbacks->infectedFile(p, response.threatName());
-    }
+    return response;
 }
