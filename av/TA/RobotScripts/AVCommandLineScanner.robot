@@ -33,7 +33,7 @@ CLS Can Scan Clean File
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be True  ${rc}
+    Should Be Equal  ${rc}  ${0}
 
     Stop AV
 
@@ -45,7 +45,7 @@ CLS Can Scan Infected File
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be True  ${rc}
+   Should Be Equal  ${rc}  ${0}
 
    Stop AV
 
@@ -56,7 +56,7 @@ CLS Can Scan Non-Existent File
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be True  ${rc}
+   Should Be Equal  ${rc}  ${0}
 
    Stop AV
 
@@ -68,14 +68,34 @@ CLS Can Scan Zero Byte File
 
      Log To Console  return code is ${rc}
      Log To Console  output is ${output}
-     Should Be True  ${rc}
+     Should Be Equal  ${rc}  ${0}
 
      Stop AV
 
-CLS Can Scan Long Directory
+# Long Path is 4064 characters long
+CLS Can Scan Long Path
     Start AV
 
-    ${long_path} =  create long path  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  clean_file
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/clean_file
+
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
+    Should Be Equal  ${rc}  ${0}
 
     Stop AV
+
+# Huge Path is over 4064 characters long
+CLS Cannot Scan Huge Path
+    Start AV
+
+    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  clean_file
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/clean_file
+
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
+    Should Be Equal  ${rc}  ${0}
+
+    Stop AV
+
 
