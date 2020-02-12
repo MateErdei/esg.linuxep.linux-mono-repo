@@ -340,6 +340,7 @@ ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::Att
  */
     m_exclusions = collectList(savPolicy, "config/onDemandScan/posixExclusions/filePathSet/filePath");
     m_sophosExtensionExclusions = collectList(savPolicy, "config/onDemandScan/extensions/excludeSophosDefined/extension");
+    m_userDefinedExtensionInclusions = collectList(savPolicy, "config/onDemandScan/extensions/userDefined/extension");
     m_allFiles = collectBool(savPolicy, "config/onDemandScan/extensions/allFiles");
     m_scanFilesWithNoExtensions = collectBool(savPolicy, "config/onDemandScan/extensions/noExtensions");
 

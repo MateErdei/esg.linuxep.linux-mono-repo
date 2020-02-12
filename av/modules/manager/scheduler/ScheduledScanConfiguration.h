@@ -39,6 +39,11 @@ namespace manager::scheduler
             return m_sophosExtensionExclusions;
         }
 
+        std::vector<std::string> userDefinedExtensionInclusions()
+        {
+            return m_userDefinedExtensionInclusions;
+        }
+
 
         /*
          * Scans config
@@ -54,6 +59,7 @@ namespace manager::scheduler
     private:
         std::vector<std::string> m_exclusions;
         std::vector<std::string> m_sophosExtensionExclusions;
+        std::vector<std::string> m_userDefinedExtensionInclusions;
         std::vector<ScheduledScan> m_scans;
         ScheduledScan m_scanNowScan;
         bool m_allFiles = false;
