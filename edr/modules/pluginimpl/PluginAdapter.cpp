@@ -518,7 +518,10 @@ namespace Plugin
                 LOGERROR("Failed to mask journald audit socket: " << ex.what());
             }
         }
-        LOGDEBUG("Journald audit socket is already masked");
+        else
+        {
+            LOGDEBUG("Journald audit socket is already masked");
+        }
     }
 
 } // namespace Plugin
