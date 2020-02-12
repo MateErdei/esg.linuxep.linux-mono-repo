@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "CommandLineScanRunner.h"
 #include "ScanClient.h"
+#include "Mounts.h"
 
 #include "datatypes/Print.h"
 #include "filewalker/FileWalker.h"
@@ -93,6 +94,44 @@ CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths)
 
 int CommandLineScanRunner::run()
 {
+    // evaluate mount information
+    // Setup exclusions
+
+    // For each mount point
+    std::unique_ptr<IMountInfo> mountInfo = std::make_unique<Mounts>();
+    std::vector<IMountPoint*> mountpoints = mountInfo->mountPoints();
+    for (std::vector<IMountPoint*>::const_iterator mp = mountpoints.begin();
+         mp != mountpoints.end(); ++mp)
+    {
+        const std::string& mountpoint = (*mp)->mountPoint();
+        PRINT("Mount point: " << mountpoint.c_str());
+
+        if ( (*mp)->isHardDisc() )
+        {
+            PRINT(">>> isHardDisc");
+        }
+        else if ( (*mp)->isNetwork() )
+        {
+            PRINT(">>> isNetwork");
+        }
+        else if ( (*mp)->isOptical() )
+        {
+            PRINT(">>> isOptical");
+        }
+        else if ( (*mp)->isRemovable() )
+        {
+            PRINT(">>> isRemovable");
+        }
+        else if ( (*mp)->isSpecial() )
+        {
+            PRINT(">>> isSpecial");
+        }
+        else
+        {
+            PRINT(">>> Unknown FS type");
+        }
+    }
+
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";

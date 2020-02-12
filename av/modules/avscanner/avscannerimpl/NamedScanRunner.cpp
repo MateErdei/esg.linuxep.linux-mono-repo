@@ -6,7 +6,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "NamedScanRunner.h"
 
+#include "Mounts.h"
 #include "ScanClient.h"
+#include "datatypes/Print.h"
 
 #include <filewalker/IFileWalkCallbacks.h>
 #include <unixsocket/ScanningClientSocket.h>
@@ -73,6 +75,17 @@ namespace
 int NamedScanRunner::run()
 {
     // evaluate mount information
+    // Setup exclusions
+
+    // For each mount point
+    std::unique_ptr<IMountInfo> mountInfo = std::make_unique<Mounts>();
+    std::vector<IMountPoint*> mountpoints = mountInfo->mountPoints();
+    for (std::vector<IMountPoint*>::const_iterator mp = mountpoints.begin();
+         mp != mountpoints.end(); ++mp)
+    {
+        const std::string& mountpoint = (*mp)->mountPoint();
+        PRINT("Mount point: " << mountpoint.c_str());
+    }
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
