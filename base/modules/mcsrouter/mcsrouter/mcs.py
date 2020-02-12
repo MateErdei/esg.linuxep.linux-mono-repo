@@ -309,6 +309,7 @@ class MCS:
         status = agent.get_status_xml()
         token = config.get("MCSToken")
         (endpoint_id, password) = comms.register(token, status)
+        self.__m_computer.clear_cache()
         config.set("MCSID", endpoint_id)
         config.set("MCSPassword", password)
         config.set("MCS_saved_token", token)
@@ -473,7 +474,6 @@ class MCS:
                         error_count = 0
                         # If re-registering due to a de-dupe from Central,
                         # clear cache and re-send status.
-                        self.__m_computer.clear_cache()
                         status_updated(reason="reregistration")
 
                     self.check_registry_and_update_apps()

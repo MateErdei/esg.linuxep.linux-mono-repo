@@ -11,6 +11,7 @@ import re
 import time
 import hashlib
 import json
+import glob
 
 import mcsrouter.utils.path_manager as path_manager
 
@@ -97,7 +98,12 @@ class StatusCache:
     def clear_cache(self):
         """
         clear_cache
+        Remove all files in the status cache path including the cached files created by the management agent.
         """
-        full_path = os.path.join(path_manager.status_cache_dir(), 'status_cache.json')
+        if os.path.isdir(path_manager.status_cache_dir()):
+            cached_files_to_delete = glob.glob("{}/*".format(path_manager.status_cache_dir()))
+            for cached_file in cached_files_to_delete:
+                # ensure we only delete files.
+                if os.path.isfile(cached_file):
+                    os.remove(cached_file)
 
-        os.remove(full_path)

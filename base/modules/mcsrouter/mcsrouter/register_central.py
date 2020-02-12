@@ -280,6 +280,17 @@ def start_mcs_router():
         LOGGER.info("Start mcsrouter")
         subprocess.call([path_manager.wdctl_bin_path(), "start", "mcsrouter"])
 
+def restart_management_agent():
+    """
+    restart_management_agent
+    """
+    output = to_utf8(subprocess.check_output(
+        ["systemctl", "show", "-p", "SubState", "sophos-spl"]))
+    if "SubState=dead" not in output:
+        LOGGER.info("Restart managementagent")
+        subprocess.call([path_manager.wdctl_bin_path(), "stop", "managementagent"])
+        subprocess.call([path_manager.wdctl_bin_path(), "start", "managementagent"])
+
 
 def restart_update_scheduler():
     """
@@ -442,6 +453,7 @@ def inner_main(argv):
 
             remove_all_update_reports()
             start_mcs_router()
+            restart_management_agent()
             restart_update_scheduler()
             message = "Now managed by Sophos Central"
             LOGGER.info(message)
