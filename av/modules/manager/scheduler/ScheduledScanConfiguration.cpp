@@ -248,6 +248,23 @@ using namespace manager::scheduler;
 </config>
  */
 
+static std::vector<std::string> collectList(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& entityFullPath)
+{
+    std::vector<std::string> results;
+    auto attrs = savPolicy.lookupMultiple(entityFullPath);
+    results.reserve(attrs.size());
+    for (const auto& attr : attrs)
+    {
+        results.emplace_back(attr.contents());
+    }
+    return results;
+}
+
+static bool collectBool(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& entityFullPath)
+{
+    return savPolicy.lookup(entityFullPath).contents() == "true";
+}
+
 ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::AttributesMap& savPolicy)
     : m_allFiles(false)
 {
@@ -321,17 +338,13 @@ ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::Att
     <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
   </onDemandScan>
  */
-    auto exclusionAttrs = savPolicy.lookupMultiple("config/onDemandScan/posixExclusions/filePathSet/filePath");
-    for (const auto& attr : exclusionAttrs)
-    {
-        m_exclusions.emplace_back(attr.contents());
-    }
-
-    auto allFilesAttr = savPolicy.lookup("config/onDemandScan/extensions/allFiles");
-    m_allFiles = allFilesAttr.contents() == "true";
-    m_scanFilesWithNoExtensions = savPolicy.lookup("config/onDemandScan/extensions/noExtensions").contents() == "true";
+    m_exclusions = collectList(savPolicy, "config/onDemandScan/posixExclusions/filePathSet/filePath");
+    m_sophosExtensionExclusions = collectList(savPolicy, "config/onDemandScan/extensions/excludeSophosDefined/extension");
+    m_allFiles = collectBool(savPolicy, "config/onDemandScan/extensions/allFiles");
+    m_scanFilesWithNoExtensions = collectBool(savPolicy, "config/onDemandScan/extensions/noExtensions");
 
     auto scanIds = savPolicy.entitiesThatContainPath("config/onDemandScan/scanSet/scan", false);
+    m_scans.reserve(scanIds.size());
     for (const auto& id : scanIds)
     {
         m_scans.emplace_back(ScheduledScan(savPolicy, id));

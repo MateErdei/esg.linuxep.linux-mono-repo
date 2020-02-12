@@ -734,3 +734,50 @@ TEST(ScheduledScanConfiguration, noExtensionsTrue) // NOLINT
     auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
     EXPECT_TRUE(m->scanFilesWithNoExtensions());
 }
+
+//"onDemandScan/extensions/excludeSophosDefined/extension"
+
+
+TEST(ScheduledScanConfiguration, extensionExclusion) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <extensions>
+      <excludeSophosDefined><extension>exe</extension></excludeSophosDefined>
+    </extensions>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto e = m->sophosExtensionExclusions();
+    ASSERT_EQ(e.size(), 1);
+    EXPECT_EQ(e.at(0), "exe");
+}
+
+TEST(ScheduledScanConfiguration, multipleExtensionExclusion) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <extensions>
+      <excludeSophosDefined>
+        <extension>exe</extension>
+        <extension>jpg</extension>
+      </excludeSophosDefined>
+    </extensions>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto e = m->sophosExtensionExclusions();
+    ASSERT_EQ(e.size(), 2);
+    EXPECT_EQ(e.at(0), "exe");
+    EXPECT_EQ(e.at(1), "jpg");
+}
