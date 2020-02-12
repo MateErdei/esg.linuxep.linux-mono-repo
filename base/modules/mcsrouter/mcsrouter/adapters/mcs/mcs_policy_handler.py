@@ -132,7 +132,7 @@ class MCSPolicyHandler:
     def __get_int_value(self, dom, element_name, default_value):
         node = self.__get_element(dom, element_name)
         if node is None:
-            LOGGER.error(
+            LOGGER.info(
                 "MCS policy has no element {}".format(element_name))
             return default_value
         value = mcsrouter.utils.xml_helper.get_text_from_element(node)
@@ -182,7 +182,7 @@ class MCSPolicyHandler:
 
         #TODO LINUXDAR-1412 set COMMAND_CHECK_INTERVAL_MAXIMUM to flagsPollingInterval
         #max_poll_value = str(self.__get_default_int_value(dom, "flagsPollingInterval"
-        # , default_values.get_default_flgs_poll()))
+        # , default_values.get_default_flags_poll()))
         max_poll_value = min_poll_value
 
         ping_timeout = str(self.__get_int_value(dom, "pushPingTimeout",
