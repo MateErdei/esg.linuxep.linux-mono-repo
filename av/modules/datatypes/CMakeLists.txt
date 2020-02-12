@@ -4,7 +4,6 @@ add_library(datatypes SHARED
         AutoFd.h
         Print.h
         sophos_filesystem.h
-        ../manager/scheduler/IScanComplete.h
         )
 
 install(TARGETS datatypes
