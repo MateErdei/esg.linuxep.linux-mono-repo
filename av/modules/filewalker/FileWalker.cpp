@@ -38,6 +38,12 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         ++iterator )
     {
         const auto& p = *iterator;
+
+        if (fs::exists(p) == false)
+        {
+            // TO DO
+        }
+
         if (fs::is_regular_file(p.status()))
         {
             m_callback.processFile(p);
