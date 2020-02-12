@@ -249,6 +249,7 @@ using namespace manager::scheduler;
  */
 
 ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::AttributesMap& savPolicy)
+    : m_allFiles(false)
 {
     // We are interested in the onDemandScan section
 /*
@@ -325,6 +326,9 @@ ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::Att
     {
         m_exclusions.emplace_back(attr.contents());
     }
+
+    auto allFilesAttr = savPolicy.lookup("config/onDemandScan/extensions/allFiles");
+    m_allFiles = allFilesAttr.contents() == "true";
 
     auto scanIds = savPolicy.entitiesThatContainPath("config/onDemandScan/scanSet/scan", false);
     for (const auto& id : scanIds)

@@ -26,7 +26,7 @@ namespace manager::scheduler
 
         bool allFiles()
         {
-            return false;
+            return m_allFiles;
         }
 
         /*
@@ -44,5 +44,6 @@ namespace manager::scheduler
         std::vector<std::string> m_exclusions;
         std::vector<ScheduledScan> m_scans;
         ScheduledScan m_scanNowScan;
+        bool m_allFiles = false;
     };
 }
