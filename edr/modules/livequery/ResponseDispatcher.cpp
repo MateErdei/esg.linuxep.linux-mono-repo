@@ -88,10 +88,7 @@ namespace
         // We define this to be the end of the query as we're done querying and we have also serialised much of the data to JSON.
         if (queryResponse.metaData().getQueryStart() != 0)
         {
-            auto nowMilliEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                     std::chrono::steady_clock::now().time_since_epoch())
-                                     .count();
-            queryMetaData["durationMillis"] = nowMilliEpoch - queryResponse.metaData().getQueryStart();
+            queryMetaData["durationMillis"] = queryResponse.metaData().getMillisSinceStarted();
         }
 
         if (queryResponse.status().errorCode() != livequery::ErrorCode::OSQUERYERROR &&

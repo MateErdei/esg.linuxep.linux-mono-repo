@@ -15,6 +15,7 @@ namespace livequery
         ResponseMetaData() = default;
         ResponseMetaData(long queryStart);
         long getQueryStart() const;
+        long getMillisSinceStarted() const;
 
     private:
         long m_queryStartMillisEpoch = 0;
