@@ -682,7 +682,7 @@ class MCSConnection:
             # don't re-use old cookies after an error, as this may trigger
             # de-duplication
 
-            LOGGER.info("Forgetting cookies due to comms error")
+            LOGGER.info("Forgetting cookies due to comms error: '{}'".format(str(exception)))
             self.__m_cookies.clear()
             self.__close_connection()
             return None
