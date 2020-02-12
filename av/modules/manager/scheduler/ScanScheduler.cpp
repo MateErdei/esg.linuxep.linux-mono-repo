@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "ScanRunner.h"
 
-#include "NamedScan.capnp.h"
+#include <NamedScan.capnp.h>
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
@@ -24,6 +24,7 @@ ScanScheduler::ScanScheduler(IScanComplete& completionNotifier)
 
 static int addFD(fd_set* fds, int fd, int currentMax)
 {
+    assert(fd >= 0);
     FD_SET(fd, fds);
     return std::max(fd, currentMax);
 }
@@ -35,13 +36,14 @@ void manager::scheduler::ScanScheduler::run()
 
     int exitFD = m_notifyPipe.readFd();
     int configFD = m_updateConfigurationPipe.readFd();
+    int scanNowFD = m_scanNowPipe.readFd();
 
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
     max = addFD(&readFDs, exitFD, max);
     max = addFD(&readFDs, configFD, max);
-
+    max = addFD(&readFDs, scanNowFD, max);
 
     while (true)
     {
@@ -49,12 +51,12 @@ void manager::scheduler::ScanScheduler::run()
         findNextTime(timeout);
 
         fd_set tempRead = readFDs;
-        int ret = ::pselect(max+1, &tempRead, NULL, NULL, &timeout, NULL);
+        int ret = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
 
         if (ret < 0)
         {
             // handle error
-            LOGERROR("Scheduled failed: "<< errno);
+            LOGERROR("Scheduled failed: " << errno);
             break;
         }
         else if (ret > 0)
@@ -69,15 +71,25 @@ void manager::scheduler::ScanScheduler::run()
                 LOGINFO("Updating scheduled scan configuration");
                 while (m_updateConfigurationPipe.notified())
                 {
+                    // Clear updateConfigurationPipe
+                }
+            }
+            if (FD_ISSET(scanNowFD, &tempRead))
+            {
+                LOGINFO("Starting Scan Now scan");
+                runNextScan(m_config.scanNowScan());
+                while (m_scanNowPipe.notified())
+                {
+                    // Clear scanNowPipe
                 }
             }
         }
 
         time_t now = ::time(nullptr);
-        if (now >= m_nextScanTime && m_nextScanTime != INVALID_TIME)
+        if (now >= m_nextScheduledScanTime && m_nextScheduledScanTime != INVALID_TIME)
         {
             // timeout - run scan
-            runNextScan();
+            runNextScan(m_nextScheduledScan);
         }
     }
     for (auto& item : m_runningScans)
@@ -91,18 +103,18 @@ void manager::scheduler::ScanScheduler::run()
     LOGINFO("Exiting scan scheduler");
 }
 
-void ScanScheduler::runNextScan()
+void ScanScheduler::runNextScan(const ScheduledScan& nextScan)
 {
-    if (!m_nextScan.valid())
+    if (!nextScan.valid())
     {
         LOGDEBUG("Refusing to run invalid scan");
         return;
     }
     // serialise next scan
-    std::string name = m_nextScan.name();
-    std::string nextscan = serialiseNextScan();
+    std::string name = nextScan.name();
+    std::string serialisedNextScan = serialiseNextScan(nextScan);
 
-    auto runner = std::make_unique<ScanRunner>(name, std::move(nextscan), m_completionNotifier);
+    auto runner = std::make_unique<ScanRunner>(name, std::move(serialisedNextScan), m_completionNotifier);
     runner->start();
     m_runningScans[name] = std::move(runner);
 }
@@ -111,6 +123,11 @@ void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration 
 {
     m_config = std::move(config);
     m_updateConfigurationPipe.notify();
+}
+
+void ScanScheduler::scanNow()
+{
+    m_scanNowPipe.notify();
 }
 
 void ScanScheduler::findNextTime(timespec& timespec)
@@ -130,19 +147,15 @@ void ScanScheduler::findNextTime(timespec& timespec)
         }
         if (nextTime < next)
         {
-            m_nextScan = scan;
+            m_nextScheduledScan = scan;
             next = nextTime;
         }
     }
-    m_nextScanTime = next;
+    m_nextScheduledScanTime = next;
     time_t delay = (next - now);
 
     // SAV halves the delay instead
-    if (next == INVALID_TIME)
-    {
-        delay = 3600;
-    }
-    else if (delay > 3600)
+    if (next == INVALID_TIME || delay > 3600)
     {
         delay = 3600; // Only wait 1 hour, so that we can handle machine sleep/hibernate better
     }
@@ -155,22 +168,36 @@ void ScanScheduler::findNextTime(timespec& timespec)
     timespec.tv_nsec = 0;
 }
 
-std::string ScanScheduler::serialiseNextScan()
+std::string ScanScheduler::serialiseNextScan(const ScheduledScan& nextScan)
 {
-    // Move so that m_nextScan is empty
-    ScheduledScan scan = std::move(m_nextScan);
-
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Builder requestBuilder =
             message.initRoot<Sophos::ssplav::NamedScan>();
 
-    requestBuilder.setName(scan.name());
+    requestBuilder.setName(nextScan.name());
+    requestBuilder.setScanArchives(nextScan.archiveScanning());
+    requestBuilder.setScanAllFiles(m_config.scanAllFileExtensions());
+    requestBuilder.setScanFilesWithNoExtensions(m_config.scanFilesWithNoExtensions());
 
     auto exclusionsInput = m_config.exclusions();
     auto exclusions = requestBuilder.initExcludePaths(exclusionsInput.size());
-    for (unsigned i=0; i < exclusionsInput.size(); i++)
+    for (unsigned i = 0; i < exclusionsInput.size(); i++)
     {
         exclusions.set(i, exclusionsInput[i]);
+    }
+
+    auto extensionExclusionsInput = m_config.sophosExtensionExclusions();
+    auto extensionExclusions = requestBuilder.initUserDefinedExtensionInclusions(extensionExclusionsInput.size());
+    for (unsigned i = 0; i < extensionExclusionsInput.size(); ++i)
+    {
+        extensionExclusions.set(i, extensionExclusionsInput[i]);
+    }
+
+    auto extensionInclusionsInput = m_config.userDefinedExtensionInclusions();
+    auto extensionInclusions = requestBuilder.initUserDefinedExtensionInclusions(extensionInclusionsInput.size());
+    for (unsigned i = 0; i < extensionInclusionsInput.size(); ++i)
+    {
+        extensionInclusions.set(i, extensionInclusionsInput[i]);
     }
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
