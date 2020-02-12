@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 namespace manager::scheduler
 {
     std::string generateScanCompleteXml(const std::string& name);
+    std::string generateTimeStamp();
 
     class ScanRunner : public Common::Threads::AbstractThread
     {

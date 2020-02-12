@@ -68,6 +68,23 @@ void ScanRunner::run()
 
 std::string manager::scheduler::generateScanCompleteXml(const std::string& name)
 {
+    return Common::UtilityImpl::StringUtils::orderedStringReplace(
+            R"sophos(<?xml version="1.0"?>
+        <event xmlns="http://www.sophos.com/EE/EESavEvent" type="sophos.mgt.sav.scanCompleteEvent">
+          <defaultDescription>The scan has completed!</defaultDescription>
+          <timestamp>@@TIMESTAMP@@</timestamp>
+          <scanComplete>
+            <scanName>@@SCANNAME@@</scanName>
+          </scanComplete>
+          <entity></entity>
+        </event>)sophos",{
+                {"@@TIMESTAMP@@", generateTimeStamp()},
+                {"@@SCANNAME@@", name }
+            });
+}
+
+std::string manager::scheduler:: generateTimeStamp()
+{
     time_t rawtime;
     time(&rawtime);
     struct tm timeinfo{};
@@ -92,18 +109,5 @@ std::string manager::scheduler::generateScanCompleteXml(const std::string& name)
     }
     std::ostringstream timestamp;
     timestamp << timebuffer << tp.tv_nsec << "Z";
-
-    return Common::UtilityImpl::StringUtils::orderedStringReplace(
-            R"sophos(<?xml version="1.0"?>
-        <event xmlns="http://www.sophos.com/EE/EESavEvent" type="sophos.mgt.sav.scanCompleteEvent">
-          <defaultDescription>The scan has completed!</defaultDescription>
-          <timestamp>@@TIMESTAMP@@</timestamp>
-          <scanComplete>
-            <scanName>@@SCANNAME@@</scanName>
-          </scanComplete>
-          <entity></entity>
-        </event>)sophos",{
-                {"@@TIMESTAMP@@", timestamp.str()},
-                {"@@SCANNAME@@", name }
-            });
+    return timestamp.str();
 }
