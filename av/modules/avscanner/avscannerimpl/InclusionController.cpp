@@ -7,7 +7,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "InclusionController.h"
 
 #include "datatypes/Print.h"
-#include "StringSet.h"
 
 #include <algorithm>
 

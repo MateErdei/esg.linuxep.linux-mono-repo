@@ -7,7 +7,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IMountInfo.h"
-#include "StringSet.h"
 
 class Mounts : virtual public IMountInfo
 {
@@ -80,7 +79,7 @@ public:
     /**
      * Returns a list of mounted filesystems.
      */
-    StringSet devices() const;
+    std::vector<std::string> devices() const;
 
     /**
      * Indicates where the device is mounted
@@ -118,7 +117,7 @@ public:
      * @param path    Command to run
      * @param args    arguments.
      */
-    static std::string scrape(const std::string& path, const StringSet& args);
+    static std::string scrape(const std::string& path, const std::vector<std::string>& args);
 
     /**
      * Iterator for the list of mount points.
@@ -128,13 +127,6 @@ public:
 private:
     std::vector<IMountPoint*> m_devices;
 
-
-    /**
-     * Given a device ID, return the major device name.
-     *
-     * @param deviceID
-     */
-    static std::string majorName(dev_t deviceID);
     /**
      * Returns the path to the real mount point for a listing in /proc/mounts
      * @param device    a line from /proc/mounts.
@@ -157,8 +149,4 @@ private:
      * Try and parse /proc/mounts.
      */
     void parseProcMounts();
-    /**
-     * Parse one line of mount command output on Linux.
-     */
-    static bool parseLinuxMountsLine(const std::string& line, std::string& device, std::string& mountpoint, std::string& filesystem);
 };

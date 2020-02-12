@@ -74,42 +74,7 @@ std::string octalUnescape(const std::string& input)
  */
 Mounts::Mounts()
 {
-    std::string mountCommand="/bin/mount";
-    StringSet args(mountCommand);
-
-    std::string mount = scrape(mountCommand, args);
-
-
-    if (mount == "")
-    {
-        // /proc/mounts is only available on Linux
-        parseProcMounts();
-        return;
-    }
-
-    // otherwise parse our scrape
-    std::istringstream ist(mount);
-    std::string line;
-
-
-    while (!std::getline(ist, line).eof())
-    {
-        std::string device;
-        std::string mountpoint;
-        std::string filesystem;
-
-
-
-        // TODO: It could be better to use getmntent_r here, but it would mean refactoring everything for Linux.
-        if (!parseLinuxMountsLine(line, device, mountpoint, filesystem))
-        {
-            PRINT("Failed to parse: " << line.c_str());
-            continue;
-        }
-
-        PRINT("dev " << device << " on " << mountpoint << " type " << filesystem);
-        m_devices.push_back(new Drive(device, mountpoint, filesystem));
-    }
+    parseProcMounts();
 }
 
 /**
@@ -123,7 +88,6 @@ Mounts::~Mounts()
     }
 
     m_devices.clear();
-    return;
 }
 
 /**
@@ -182,9 +146,9 @@ void Mounts::parseProcMounts()
 /**
  * Returns a list of mounted filesystems.
  */
-StringSet Mounts::devices() const
+std::vector<std::string> Mounts::devices() const
 {
-    StringSet result;
+    std::vector<std::string> result;
 
     for (std::vector<IMountPoint*>::const_iterator it = m_devices.begin(); it != m_devices.end(); it++)
     {
@@ -287,9 +251,8 @@ const std::string& Mounts::Drive::fileSystem() const
  * @param path    Command to run
  * @param args    arguments.
  */
-std::string Mounts::scrape(const std::string& path, const StringSet& args)
+std::string Mounts::scrape(const std::string& path, const std::vector<std::string>& args)
 {
-    //PRINT("scrape(" << path << ", " << args << ")");
     std::string result;
     int fd[2];
 
@@ -324,7 +287,7 @@ std::string Mounts::scrape(const std::string& path, const StringSet& args)
                     int index = 0;
 
 
-                    for (StringSet::const_iterator it = args.begin(); it != args.end(); ++it)
+                    for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
                     {
                         argv[index] = new char[it->size() + 1];
                         memcpy(argv[index], it->c_str(), it->size() + 1);
@@ -423,32 +386,6 @@ std::string Mounts::realMountPoint(const std::string& device)
     return device;
 }
 
-bool Mounts::parseLinuxMountsLine(const std::string& line, std::string& device, std::string& mountpoint, std::string& filesystem)
-{
-    size_t on, type, space;
-
-
-    on = line.find(" on ");
-    type = line.find(" type ");
-
-    if (on == std::string::npos || type == std::string::npos)
-    {
-        return false;
-    }
-
-    space = line.find(' ', type + 6);
-    if (space == std::string::npos)
-    {
-        return false;
-    }
-
-    device = line.substr(0, on);
-    mountpoint = line.substr(on + 4, type - on - 4);
-    filesystem = line.substr(type + 6, space - type - 6);
-
-    return true;
-}
-
 bool Mounts::parseLinuxProcMountsLine(const std::string& line, std::string& device, std::string& mountpoint, std::string& filesystem)
 {
     std::istringstream ist(line);
@@ -484,9 +421,8 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
         std::string prefix = device.substr(0, equals);
         if (prefix == "LABEL" || prefix == "UUID")
         {
-            StringSet args("findfs");
-
-
+            std::vector<std::string> args;
+            args.push_back("findfs");
             args.push_back(device);
 
             // result is "" if findfs doesn't exist.
@@ -503,9 +439,8 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
             }
             else
             {
-                args = StringSet("mount -f -n -v", ' ');
-
-
+                args.clear();
+                args.push_back("mount -f -n -v");
                 args.push_back(device);
                 args.push_back("/");
 
@@ -526,54 +461,6 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
         }
     }
     return result;
-}
-
-/**
- * Given a device ID, return the major device name.
- *
- * @param deviceID
- */
-std::string Mounts::majorName(dev_t deviceID)
-{
-    std::string line;
-    std::ifstream ifst("/proc/devices");
-
-    //DBGOUT("  looking up major name for device " << deviceID);
-
-    if (!ifst)
-    {
-        throw std::runtime_error("Unable to open /proc/devices");
-    }
-
-    while (!std::getline(ifst, line).eof())
-    {
-        if (line == "")
-        {
-            // Character devices are followed by a blank line, and then by
-            // block devices.  Checking for the blank line.
-            break;
-        }
-    }
-    if (line != "")
-    {
-        throw std::runtime_error("Unable to find block devices in /proc/devices");
-    }
-
-    while(!std::getline(ifst, line).eof())
-    {
-        std::istringstream  ist(line);
-        unsigned            int id = 0;
-        std::string         name;
-
-
-        ist >> id >> name;
-        if (static_cast<int>(id) == static_cast<int>(major(deviceID)))
-        {
-            return name;
-        }
-    }
-
-    throw std::runtime_error("Unable to find requested block device in /proc/devices");
 }
 
 /**

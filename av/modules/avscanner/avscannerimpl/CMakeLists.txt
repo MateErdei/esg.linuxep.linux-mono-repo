@@ -17,8 +17,7 @@ add_library(avscannerimpl SHARED
         Mounts.h
         DeviceUtil.cpp
         DeviceUtil.h
-        StringSet.cpp
-        StringSet.h)
+        )
 
 target_include_directories(avscannerimpl PUBLIC
         ${CMAKE_SOURCE_DIR}/modules
