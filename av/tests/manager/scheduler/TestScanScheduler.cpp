@@ -10,12 +10,25 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "manager/scheduler/ScanScheduler.h"
 
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
+#include <gmock/gmock.h>
 
 using namespace manager::scheduler;
 
 TEST(TestScanScheduler, scanNow) //NOLINT
 {
-    ScanScheduler scheduler;
+    class FakeScanCompletion : public IScanComplete
+    {
+    public:
+        void processScanComplete(std::string& scanCompletedXml) override
+        {
+            m_xml = scanCompletedXml;
+        }
+        std::string m_xml;
+    };
+    FakeScanCompletion scanCompletion;
+
+    ScanScheduler scheduler{scanCompletion};
+
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
