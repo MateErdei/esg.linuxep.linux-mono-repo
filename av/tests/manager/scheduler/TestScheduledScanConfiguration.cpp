@@ -836,3 +836,38 @@ TEST(ScheduledScanConfiguration, scanLocalDisks) // NOLINT
 //    EXPECT_FALSE(scan.networkDrives());
 //    EXPECT_FALSE(scan.removableDrives());
 }
+
+TEST(ScheduledScanConfiguration, scanEverythingButLocalDisks) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <settings>
+          <scanObjectSet>
+            <CDDVDDrives>true</CDDVDDrives>
+            <hardDrives>false</hardDrives>
+            <networkDrives>true</networkDrives>
+            <removableDrives>true</removableDrives>
+          </scanObjectSet>
+        </settings>
+      </scan>
+    </scanSet>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto scans = m->scans();
+    ASSERT_EQ(scans.size(), 1);
+    const auto& scan = scans.at(0);
+
+    EXPECT_FALSE(scan.hardDrives());
+//    EXPECT_TRUE(scan.CDDVDDrives());
+//    EXPECT_TRUE(scan.networkDrives());
+//    EXPECT_TRUE(scan.removableDrives());
+}

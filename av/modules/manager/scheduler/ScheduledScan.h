@@ -72,7 +72,7 @@ namespace manager::scheduler
          */
         [[nodiscard]] bool hardDrives() const
         {
-            return true;
+            return m_scanLocalDisks;
         }
 
     private:
@@ -83,6 +83,7 @@ namespace manager::scheduler
         bool m_valid;
         bool m_isScanNow;
         bool m_archiveScanning;
+        bool m_scanLocalDisks;
     };
 }
 

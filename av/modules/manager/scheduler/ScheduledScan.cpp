@@ -93,9 +93,9 @@ ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, con
       m_lastRunTime(static_cast<time_t>(-1)),
       m_valid(true),
       m_isScanNow(false),
-      m_archiveScanning(false)
+      m_archiveScanning(collectBool(savPolicy, id+"/settings/scanBehaviour/archives")),
+      m_scanLocalDisks(collectBool(savPolicy, id+"/settings/scanObjectSet/hardDrives"))
 {
-    m_archiveScanning = collectBool(savPolicy, id+"/settings/scanBehaviour/archives");
 }
 
 time_t ScheduledScan::calculateNextTime(time_t now) const
