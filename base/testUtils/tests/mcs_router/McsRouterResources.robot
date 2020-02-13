@@ -64,8 +64,7 @@ MCSRouter Default Test Teardown
 
 Restart MCSRouter And Clear Logs
     Stop Mcsrouter If Running
-    Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
-    Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log
+    Remove File  ${SOPHOS_INSTALL}/base/sophosspl/mcsrouter.log
     Start MCSRouter
 
 
@@ -239,5 +238,5 @@ Install Register And Wait First MCS Policy With MCS Policy
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Override LogConf File as Global Level  DEBUG
-    Restart MCSRouter And Clear Logs
+    Start MCSRouter
     Wait New MCS Policy Downloaded

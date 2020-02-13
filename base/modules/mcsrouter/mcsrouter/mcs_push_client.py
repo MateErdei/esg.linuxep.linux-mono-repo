@@ -21,6 +21,7 @@ LOGGER = logging.getLogger(__name__)
 class MsgType(Enum):
     MCSCommand = 1
     Error = 2
+    Wakeup = 3
 
 
 class PushClientStatus(Enum):
@@ -186,11 +187,14 @@ class MCSPushClientInternal(threading.Thread):
                 for key, mask in events:
                     if key.data == 'push':
                         msg_event = next(self.messages)
-                        msg = msg_event.data
+                        msg = format_message(msg_event.data)
                         if msg:
+                            msg_type = MsgType.MCSCommand
+                            if is_msg_wakeup(msg):
+                                msg_type = MsgType.Wakeup
                             # we don't want to log the full message, just the beginning is enough 
                             LOGGER.info("Received command: {}".format(msg[:100]))
-                            self._append_command(MsgType.MCSCommand, msg)
+                            self._append_command(msg_type, msg)
                         else:
                             LOGGER.debug("Server sent ping")
                     elif key.data == 'stop':
@@ -230,3 +234,15 @@ class MCSPushClientInternal(threading.Thread):
         finally:
             self._pending_commands_lock.release()
         self._notify_mcsrouter_channel.notify()
+
+def format_message(incoming_message):
+    """
+    This function is for taking the format of a push server command
+    and reformatting it to match the regular MCS commands
+    """
+    # Pending information on how we receive the messages
+    formatted_message = incoming_message
+    return formatted_message
+
+def is_msg_wakeup(msg):
+    return "sophos.mgt.action.GetCommands" in msg

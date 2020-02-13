@@ -4,6 +4,8 @@ Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     String
 Resource    McsRouterResources.robot
+Resource    ../upgrade_product/UpgradeResources.robot
+Resource    ../management_agent/ManagementAgentResources.robot
 
 
 Suite Setup      Setup MCS Tests
@@ -24,6 +26,76 @@ MCSRouter Can Start And Receive Messages From The Push Client
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
+
+MCSRouter Can Start and Receive Update Now Action From Push Client
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
+
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/ALC_full_update_now_command.xml
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains   Received command from Push Server
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  File Should Exist  ${MCS_DIR}/action/ALC_action_FakeTime.xml
+
+    Check File Content  <?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>  ${MCS_DIR}/action/
+
+MCSRouter Can Start and Receive Wakeup Command From Push Client
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
+
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    Send Message To Push Server And Expect It In MCSRouter Log   <action type="sophos.mgt.action.GetCommands"></action>
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains  Received command from Push Server
+    Send Message To Push Server And Expect It In MCSRouter Log   <action type="sophos.mgt.action.GetCommands"></action>
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains  Received command from Push Server
+
+    Check MCSRouter Log Contains In Order  Received Wakeup from Push Server
+    ...                                    Checking for commands for
+    ...                                    Received Wakeup from Push Server
+    ...                                    Checking for commands for
+
+MCSRouter Safely Logs Invalid XML Action From Push Client And Recovers
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
+
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    Send Message To Push Server And Expect It In MCSRouter Log   <action type="sophos.mgt.action.Geands"></act>
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains  Failed to parse commands
+    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/ALC_full_update_now_command.xml
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  File Should Exist  ${MCS_DIR}/action/ALC_action_FakeTime.xml
 
 Push Client informs MCS Client if the connection with Push Server is disconnected and logged to MCSRouter
     Start MCS Push Server

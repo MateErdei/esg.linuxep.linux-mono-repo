@@ -1,0 +1,1 @@
+<?xml version="1.0"?><ns:commands xmlns:ns="http://www.sophos.com/xml/mcs/commands" schemaVersion="1.0"><command><id>ALC</id><seq>1</seq><appId>ALC</appId><creationTime>FakeTime</creationTime><ttl>PT10000S</ttl><body>&lt;?xml version='1.0'?&gt;&lt;action type="sophos.mgt.action.ALCForceUpdate"/&gt;</body></command></ns:commands>

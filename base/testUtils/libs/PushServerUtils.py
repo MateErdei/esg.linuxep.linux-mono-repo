@@ -44,6 +44,14 @@ class PushServerUtils:
         if r.status_code != 200:
             raise AssertionError("Send message Failed with code {} and Text {}".format(r.status_code, r.text))
 
+    def send_message_to_push_server_from_file(self, file):
+        """Use the subscription channel to send the contents of a file
+         to all the clients connected to the push server."""
+        if os.path.isfile(file):
+            with open(file, "r") as file_handle:
+                message = file_handle.read()
+                self.send_message_to_push_server(message)
+
     def configure_push_server_to_require_auth(self, authorization):
         """Configure the Push Server to validate the Authorization Header"""
         r = requests.put('https://localhost:{}/mcs/push/authorization'.format(self._port), data=authorization, verify=self._cert)
