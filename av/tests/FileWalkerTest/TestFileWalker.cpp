@@ -19,34 +19,38 @@ namespace fs = sophos_filesystem;
 
 static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup; // NOLINT(cert-err58-cpp)
 
-class Callbacks : public filewalker::IFileWalkCallbacks
+namespace
 {
-public:
-    Callbacks() = default;
-    void processFile(const sophos_filesystem::path& filepath) override
+    class FakeCallbacks : public filewalker::IFileWalkCallbacks
     {
-        FAIL() << "Managed to get a file" << filepath;
-    }
-    bool includeDirectory(const sophos_filesystem::path& filepath) override
-    {
-        return !(filepath.filename() == "b");
-    }
-};
+    public:
+        FakeCallbacks() = default;
+
+        void processFile(const sophos_filesystem::path& filepath) override
+        {
+            FAIL() << "Managed to get a file" << filepath;
+        }
+
+        bool includeDirectory(const sophos_filesystem::path& filepath) override
+        {
+            return !(filepath.filename() == "b");
+        }
+    };
+}
 
 TEST(TestFileWalker, excludeDirectory) // NOLINT
 {
-    fs::create_directories("TestFileWalker");
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
 
-    Callbacks callbacks;
+    FakeCallbacks callbacks;
     filewalker::walk("sandbox", callbacks);
-    fs::remove_all("TestFileWalker");
+    fs::remove_all("sandbox");
 }
 
 TEST(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
 {
-    Callbacks callbacks;
+    FakeCallbacks callbacks;
     filewalker::walk("sandbox", callbacks);
 }
 
@@ -63,7 +67,7 @@ TEST(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
     }
 
     fs::current_path(startingPath);
-    Callbacks callbacks;
+    FakeCallbacks callbacks;
     filewalker::walk("TestHugePathFileWalker", callbacks);
 
     auto traverse_and_delete_huge_directory = [](const sophos_filesystem::path& startingPath, int targetDirectory)
@@ -96,7 +100,7 @@ TEST(TestFileWalker, hugeFilePath) // NOLINT
 
     const fs::path& pathToScan = fs::current_path();
     fs::current_path(startingPath);
-    Callbacks callbacks;
+    FakeCallbacks callbacks;
     filewalker::walk(pathToScan, callbacks);
 
     auto traverse_and_delete_huge_directory = [](const sophos_filesystem::path& startingPath, int targetDirectory)
