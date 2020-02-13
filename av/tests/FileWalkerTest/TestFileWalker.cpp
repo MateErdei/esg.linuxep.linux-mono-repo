@@ -19,25 +19,25 @@ namespace fs = sophos_filesystem;
 
 static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup; // NOLINT(cert-err58-cpp)
 
+class Callbacks : public filewalker::IFileWalkCallbacks
+{
+public:
+    Callbacks() = default;
+    void processFile(const sophos_filesystem::path& filepath) override
+    {
+        FAIL() << "Managed to get a file" << filepath;
+    }
+    bool includeDirectory(const sophos_filesystem::path& filepath) override
+    {
+        return !(filepath.filename() == "b");
+    }
+};
+
 TEST(TestFileWalker, excludeDirectory) // NOLINT
 {
     fs::create_directories("TestFileWalker");
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
-
-    class Callbacks : public filewalker::IFileWalkCallbacks
-    {
-    public:
-        Callbacks() = default;
-        void processFile(const sophos_filesystem::path& filepath) override
-        {
-            FAIL() << "Managed to get a file" << filepath;
-        }
-        bool includeDirectory(const sophos_filesystem::path& filepath) override
-        {
-            return !(filepath.filename() == "b");
-        }
-    };
 
     Callbacks callbacks;
     filewalker::walk("sandbox", callbacks);
@@ -46,20 +46,6 @@ TEST(TestFileWalker, excludeDirectory) // NOLINT
 
 TEST(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
 {
-    class Callbacks : public filewalker::IFileWalkCallbacks
-    {
-    public:
-        Callbacks() = default;
-        void processFile(const sophos_filesystem::path& filepath) override
-        {
-            FAIL() << "Managed to get a file" << filepath;
-        }
-        bool includeDirectory(const sophos_filesystem::path& filepath) override
-        {
-            return !(filepath.filename() == "b");
-        }
-    };
-
     Callbacks callbacks;
     filewalker::walk("sandbox", callbacks);
 }
@@ -77,20 +63,6 @@ TEST(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
     }
 
     fs::current_path(startingPath);
-    class Callbacks : public filewalker::IFileWalkCallbacks
-    {
-    public:
-        Callbacks() = default;
-        void processFile(const sophos_filesystem::path& filepath) override
-        {
-            FAIL() << "Managed to get a file" << filepath;
-        }
-        bool includeDirectory(const sophos_filesystem::path& filepath) override
-        {
-            return !(filepath.filename() == "b");
-        }
-    };
-
     Callbacks callbacks;
     filewalker::walk("TestHugePathFileWalker", callbacks);
 
@@ -124,21 +96,6 @@ TEST(TestFileWalker, hugeFilePath) // NOLINT
 
     const fs::path& pathToScan = fs::current_path();
     fs::current_path(startingPath);
-
-    class Callbacks : public filewalker::IFileWalkCallbacks
-    {
-    public:
-        Callbacks() = default;
-        void processFile(const sophos_filesystem::path& filepath) override
-        {
-            FAIL() << "Managed to get a file" << filepath;
-        }
-        bool includeDirectory(const sophos_filesystem::path& filepath) override
-        {
-            return !(filepath.filename() == "b");
-        }
-    };
-
     Callbacks callbacks;
     filewalker::walk(pathToScan, callbacks);
 
