@@ -34,8 +34,13 @@ namespace
     class CallbackImpl : public filewalker::IFileWalkCallbacks
     {
     public:
-        explicit CallbackImpl(unixsocket::ScanningClientSocket& socket, std::shared_ptr<IScanCallbacks> callbacks)
+        explicit CallbackImpl(
+                unixsocket::ScanningClientSocket& socket,
+                std::shared_ptr<IScanCallbacks> callbacks,
+                std::vector<std::shared_ptr<IMountPoint>> allMountPoints
+                )
                 : m_scanner(socket, std::move(callbacks))
+                , m_allMountPoints(std::move(allMountPoints))
         {}
 
         void processFile(const sophos_filesystem::path& p) override
@@ -44,13 +49,21 @@ namespace
             m_scanner.scan(p);
         }
 
-        bool includeDirectory(const sophos_filesystem::path&) override
+        bool includeDirectory(const sophos_filesystem::path& p) override
         {
+            for (auto & mp : m_allMountPoints)
+            {
+                if (p.string().rfind(mp->mountPoint(), 0) == 0)
+                {
+                    return false;
+                }
+            }
             return true;
         }
 
     private:
         ScanClient m_scanner;
+        std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
     };
 }
 
@@ -84,21 +97,14 @@ int CommandLineScanRunner::run()
 
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
-    CallbackImpl callbacks(socket, scanCallbacks);
+    CallbackImpl callbacks(socket, scanCallbacks, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point
-    for (const auto& path : m_paths)
+    for (auto & mp : includedMountpoints)
     {
-        for (auto & mp : includedMountpoints)
-        {
-            std::string mountpointToScan = mp->mountPoint();
-            if (path.rfind(mountpointToScan, 0) == 0)
-            {
-                PRINT("Scanning: " << path << " because it is in included mountpoint: " << mountpointToScan);
-                filewalker::walk(path, callbacks);
-                continue;
-            }
-        }
+        std::string mountpointToScan = mp->mountPoint();
+        PRINT(">>> Scanning mount point: " << mountpointToScan);
+        filewalker::walk(mountpointToScan, callbacks);
     }
 
     return 0;

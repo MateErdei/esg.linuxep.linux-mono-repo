@@ -27,13 +27,11 @@ using namespace avscanner::avscannerimpl;
 
 NamedScanRunner::NamedScanRunner(const std::string& configPath)
     : m_config(configFromFile(configPath))
-    , m_logger(m_config.m_scanName)
 {
 }
 
 NamedScanRunner::NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedScanConfig)
     : m_config(namedScanConfig)
-    , m_logger(m_config.m_scanName)
 {
 }
 
@@ -51,8 +49,14 @@ namespace
     class CallbackImpl : public filewalker::IFileWalkCallbacks
     {
     public:
-        explicit CallbackImpl(ScanClient scanner, NamedScanConfig& config)
-                : m_scanner(std::move(scanner)), m_config(config)
+        explicit CallbackImpl(
+                ScanClient scanner,
+                NamedScanConfig& config,
+                std::vector<std::shared_ptr<IMountPoint>> allMountPoints
+                )
+                : m_scanner(std::move(scanner))
+                , m_config(config)
+                , m_allMountPoints(std::move(allMountPoints))
         {}
 
         void processFile(const sophos_filesystem::path& p) override
@@ -60,16 +64,22 @@ namespace
             m_scanner.scan(p);
         }
 
-        bool includeDirectory(const sophos_filesystem::path&) override
+        bool includeDirectory(const sophos_filesystem::path& p) override
         {
-            // Exclude based on config
-            // Exclude all mount points
+            for (auto & mp : m_allMountPoints)
+            {
+                if (p.string().rfind(mp->mountPoint(), 0) == 0)
+                {
+                    return false;
+                }
+            }
             return true;
         }
 
     private:
         ScanClient m_scanner;
         NamedScanConfig& m_config;
+        std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
     };
 }
 
@@ -116,14 +126,14 @@ int NamedScanRunner::run()
 
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
-    ScanClient scanner(socket, scanCallbacks, m_config);
-    CallbackImpl callbacks(std::move(scanner), m_config);
+    ScanClient scanner(socket, scanCallbacks);
+    CallbackImpl callbacks(scanner, m_config, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point
     for (auto & mp : includedMountpoints)
     {
         std::string mountpointToScan = mp->mountPoint();
-        PRINT("Scanning: " << mountpointToScan);
+        PRINT(">>> Scanning mount point: " << mountpointToScan);
         filewalker::walk(mountpointToScan, callbacks);
     }
 

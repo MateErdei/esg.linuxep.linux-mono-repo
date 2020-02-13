@@ -28,6 +28,11 @@ NamedScanConfig::NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedS
     {
         m_excludePaths.emplace_back(item);
     }
+
+    m_scanHardDisc = namedScanConfig.getScanHardDisc();
+    m_scanOptical = namedScanConfig.getScanOptical();
+    m_scanNetwork = namedScanConfig.getScanNetwork();
+    m_scanRemovable = namedScanConfig.getScanRemovable();
 }
 
 NamedScanConfig avscanner::avscannerimpl::configFromFile(const std::string& configPath)
