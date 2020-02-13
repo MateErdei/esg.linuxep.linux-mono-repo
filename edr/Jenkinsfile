@@ -23,8 +23,7 @@ try{
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     git_branch = "${env.BRANCH_NAME}"
-    echo git_branch
-    if (git_branch == 'master')
+    if (git_branch == 'master' || git_branch.endsWith('coverage'))
     {
         parallel Build:
         {

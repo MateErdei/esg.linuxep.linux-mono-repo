@@ -57,7 +57,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str = 'no'):
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
         args = ['python', '-u', '-m', 'pytest', tests_dir,
-                '-o', 'log_cli=true',
+                # '-o', 'log_cli=true',
                 '--html=/opt/test/results/report.html'
                 ]
 
@@ -114,7 +114,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
     machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
     with stage.group('integration'):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
-    
+
     branch_name = context.branch
     with stage.group('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine, branch=branch_name, coverage='no')
