@@ -1,10 +1,5 @@
 #!/bin/bash
 
-hostname
-ip addr
-ls /usr/local/share/ca-certificates/
-which cov-commit-defects
-
 STARTINGDIR=${BASE}
 EDR_PLUGIN="$STARTINGDIR"/sspl-edr-plugin-build
 EDR_PLUGIN_REDIST="$EDR_PLUGIN"/redist
