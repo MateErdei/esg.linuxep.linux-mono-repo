@@ -134,16 +134,16 @@ class MCSPushClient:
     def check_push_server_settings_changed_and_reapply(self, config, cert):
         # retrieve push server url and compare with the current one
         settings = MCSPushSetting.from_config(config, cert)
-        needStart = False
+        need_start = False
         try:
             if settings != self._settings:
-                needStart = True
+                need_start = True
                 LOGGER.info("Push Server settings changed. Applying it")
             elif not self.is_service_active() and self._settings.url:
                 LOGGER.info("Trying to re-connect to Push Server")
-                needStart = True
+                need_start = True
 
-            if needStart:
+            if need_start:
                 self._settings = settings
                 self._start_service()
                 return PushClientStatus.Connected
