@@ -96,7 +96,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
 //            PRINT("Not calling with " << p);
             if (!m_callback.includeDirectory(p))
             {
-                PRINT("Inside the directory control");
                 iterator.disable_recursion_pending();
             }
         }
