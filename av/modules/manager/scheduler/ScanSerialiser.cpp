@@ -24,6 +24,10 @@ std::string ScanSerialiser::serialiseScan(const ScheduledScanConfiguration& conf
     requestBuilder.setScanArchives(nextScan.archiveScanning());
     requestBuilder.setScanAllFiles(config.scanAllFileExtensions());
     requestBuilder.setScanFilesWithNoExtensions(config.scanFilesWithNoExtensions());
+    requestBuilder.setScanHardDrives(nextScan.hardDrives());
+    requestBuilder.setScanCDDVDDrives(nextScan.CDDVDDrives());
+    requestBuilder.setScanNetworkDrives(nextScan.networkDrives());
+    requestBuilder.setScanRemovableDrives(nextScan.removableDrives());
 
     {
         auto exclusionsInput = config.exclusions();

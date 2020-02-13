@@ -118,23 +118,28 @@ TEST(ScanSerialiser, FullScan) // NOLINT
 
 
     Deserialise r(dataAsString);
-    EXPECT_TRUE(r.requestReader.getScanArchives());
-    EXPECT_TRUE(r.requestReader.getScanAllFiles());
-    EXPECT_FALSE(r.requestReader.getScanFilesWithNoExtensions());
+    const auto& reader = r.requestReader;
+    EXPECT_TRUE(reader.getScanArchives());
+    EXPECT_TRUE(reader.getScanAllFiles());
+    EXPECT_FALSE(reader.getScanFilesWithNoExtensions());
+    EXPECT_FALSE(reader.getScanHardDrives());
+    EXPECT_TRUE(reader.getScanCDDVDDrives());
+    EXPECT_TRUE(reader.getScanNetworkDrives());
+    EXPECT_TRUE(reader.getScanRemovableDrives());
 
-    EXPECT_EQ(r.requestReader.getName(), "Sophos Cloud Scheduled Scan");
-    EXPECT_TRUE(r.requestReader.getScanAllFiles());
+    EXPECT_EQ(reader.getName(), "Sophos Cloud Scheduled Scan");
+    EXPECT_TRUE(reader.getScanAllFiles());
 
-    auto exclusions = r.requestReader.getExcludePaths();
+    auto exclusions = reader.getExcludePaths();
     ASSERT_EQ(exclusions.size(), 1);
     EXPECT_EQ(exclusions[0], "Exclusion1");
 
-    auto extensions = r.requestReader.getSophosExtensionExclusions();
+    auto extensions = reader.getSophosExtensionExclusions();
     ASSERT_EQ(extensions.size(), 2);
     EXPECT_EQ(extensions[0], "exe");
     EXPECT_EQ(extensions[1], "com");
 
-    auto inclusions = r.requestReader.getUserDefinedExtensionInclusions();
+    auto inclusions = reader.getUserDefinedExtensionInclusions();
     ASSERT_EQ(inclusions.size(), 1);
     EXPECT_EQ(inclusions[0], "png");
 }
