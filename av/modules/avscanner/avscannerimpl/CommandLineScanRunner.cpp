@@ -13,8 +13,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <memory>
 #include <utility>
+#include <exception>
 
 using namespace avscanner::avscannerimpl;
+namespace fs = sophos_filesystem;
 
 namespace
 {
@@ -35,21 +37,35 @@ namespace
     public:
         explicit CallbackImpl(unixsocket::ScanningClientSocket& socket, std::shared_ptr<IScanCallbacks> callbacks)
                 : m_scanner(socket, std::move(callbacks), false)
-        {}
-
-        void processFile(const sophos_filesystem::path& p) override
         {
-            PRINT("Scanning " << p);
-            m_scanner.scan(p);
         }
 
-        bool includeDirectory(const sophos_filesystem::path&) override
+        void processFile(const fs::path& p) override
+        {
+            PRINT("Scanning " << p);
+            try
+            {
+                m_scanner.scan(p);
+            } catch (const std::exception& e)
+            {
+                PRINT("Scanner failed to scan: " << p);
+                m_returnCode = 1;
+            }
+        }
+
+        bool includeDirectory(const fs::path&) override
         {
             return true;
         }
 
+        [[nodiscard]] int returnCode() const
+        {
+            return m_returnCode;
+        }
+
     private:
         ScanClient m_scanner;
+        int m_returnCode = 0;
     };
 }
 
@@ -68,8 +84,14 @@ int CommandLineScanRunner::run()
 
     for (const auto& path : m_paths)
     {
-        filewalker::walk(path, callbacks);
+        try
+        {
+            filewalker::walk(path, callbacks);
+        }catch (fs::filesystem_error& e)
+        {
+            return e.code().value();
+        }
     }
 
-    return 0;
+    return callbacks.returnCode();
 }

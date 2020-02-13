@@ -56,7 +56,7 @@ TEST(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
 
 TEST(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
 {
-    const sophos_filesystem::path& startingPath = fs::current_path();
+    const fs::path& startingPath = fs::current_path();
     fs::create_directories("TestHugePathFileWalker");
     fs::current_path("TestHugePathFileWalker");
 
@@ -101,11 +101,11 @@ TEST(TestFileWalker, hugeFilePath) // NOLINT
     const fs::path& pathToScan = fs::current_path();
     fs::current_path(startingPath);
     FakeCallbacks callbacks;
-    filewalker::walk(pathToScan, callbacks);
+    ASSERT_THROW(filewalker::walk(pathToScan, callbacks), fs::filesystem_error);
 
     auto traverse_and_delete_huge_directory = [](const sophos_filesystem::path& startingPath, int targetDirectory)
     {
-        fs::current_path("TestHugePathFileWalker");
+        fs::current_path("TestHugePathFileWalker2");
         for (int depth = 0; depth < targetDirectory; ++depth)
         {
             fs::current_path("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
