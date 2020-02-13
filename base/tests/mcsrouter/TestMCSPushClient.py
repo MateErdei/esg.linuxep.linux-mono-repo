@@ -173,24 +173,23 @@ class TestMCSPushClient(SharedTestsUtilities):
 
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
     def test_push_client_handle_config_changes(self, *mockargs):
-        self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(ConfigWithoutFile(), 'certpath'), PushClientStatus.Connected)
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath'))
         config = ConfigWithoutFile()
         config.set('pushServer1', 'new url')
-        self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(config, 'certpath'), PushClientStatus.Connected)
-        self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(config, 'certpath'), PushClientStatus.NothingChanged)
-
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath'))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath'))
 
 
     def test_push_client_returns_status_enum_when_applying_server_settings(self):
         # This is the case for when the connection to the Push Server cannot be established
         with mock.patch("sseclient.SSEClient", new_callable=SSEClientSimulateConnectionFailureFactory) as sseclient.SSEClient:
-            self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(ConfigWithoutFile(), 'certpath'), PushClientStatus.Error)
+            self.assertFalse(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath'))
 
         with mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory) as sseclient.SSEClient:
             # this is the case for establishing connection to the push server
-            self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(ConfigWithoutFile(), 'certpath'), PushClientStatus.Connected)
+            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath'))
             # this is the case for a normal connected client without any settings change will just keep connected and nothing changes
-            self.assertEqual(self.push_client.check_push_server_settings_changed_and_reapply(ConfigWithoutFile(), 'certpath'), PushClientStatus.NothingChanged)
+            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath'))
 
 
 

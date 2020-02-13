@@ -237,7 +237,9 @@ class LogUtils(object):
         contents = get_log_contents(log_location)
         return self.get_number_of_occurences_of_substring_in_string(contents, substring)
 
-    def get_number_of_occurences_of_substring_in_string(self, string, substring):
+    def get_number_of_occurences_of_substring_in_string(self, string, substring, use_regex=False):
+        if use_regex:
+            return self.get_number_of_occurences_of_regex_in_string(string, substring)
         count = 0
         index = 0
         while True:
@@ -247,6 +249,13 @@ class LogUtils(object):
             index += len(substring)
             count += 1
         return count
+
+    #require that special characters are escaped with '\' [ /, +, *, ., (, ) etc ]
+    def get_number_of_occurences_of_regex_in_string(self, string, reg_expresion_str):
+        import re
+        reg_expression = re.compile(reg_expresion_str)
+        log_occurrences = reg_expression.findall(string)
+        return len(log_occurrences)
 
     def mark_expected_error_in_log(self, log_location, error_message):
         error_string = "ERROR"
@@ -454,11 +463,14 @@ class LogUtils(object):
                                                                                    expected_occurence))
 
 
-    def check_mcs_envelope_log_contains_string_n_times(self, string_to_contain, expected_occurence):
+    def check_mcs_envelope_log_contains_regex_string_n_times(self, string_to_contain, expected_occurence):
+        self.check_mcs_envelope_log_contains_string_n_times(string_to_contain, expected_occurence, True)
+
+    def check_mcs_envelope_log_contains_string_n_times(self, string_to_contain, expected_occurence, use_regex=False):
         mcs_envelope_log = os.path.join(self.base_logs_dir, "sophosspl", "mcs_envelope.log")
         contents = get_log_contents(mcs_envelope_log)
 
-        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain)
+        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain, use_regex)
         if num_occurences != int(expected_occurence):
             raise AssertionError("mcs_envelope Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain, num_occurences, expected_occurence))
 

@@ -65,6 +65,7 @@ class CommandCheckInterval:
         self.__m_command_check_interval_maximum = 0
         self.__m_push_ping_timeout = 0
         self.__m_push_command_check_interval = 0
+        self.__use_fallback_polling_interval = False
 
         self.__m_command_check_maximum_retry_number = self.__m_config.get_int(
             "COMMAND_CHECK_MAXIMUM_RETRY_NUMBER", 10)
@@ -129,11 +130,16 @@ class CommandCheckInterval:
         """
         set
         """
-        if val is None:
-            val = self.__m_command_check_base_retry_delay
-        val = max(val, self.__get_minimum())
-        val = min(val, self.__get_maximum())
-        self.__m_command_check_interval = val
+        if not self.__use_fallback_polling_interval:
+            if val is None:
+                val = self.__m_command_check_base_retry_delay
+            val = max(val, self.__get_minimum())
+            val = min(val, self.__get_maximum())
+            self.__m_command_check_interval = val
+            LOGGER.debug("Set command poll interval to {}".format(val))
+        else:
+            self.__m_command_check_interval = self.__get_push_poll_interval()
+            LOGGER.debug("Set command poll interval to {}".format(self.__m_command_check_interval))
         return self.__m_command_check_interval
 
     def increment(self, val=None):
@@ -142,7 +148,14 @@ class CommandCheckInterval:
         """
         if val is None:
             val = self.__m_command_check_base_retry_delay
-        self.set(self.__m_command_check_interval + val)
+
+        if self.__use_fallback_polling_interval:
+            LOGGER.debug("resetting interval")
+            interval = self.__m_command_check_interval
+        else:
+            LOGGER.debug("increasing interval")
+            interval = self.__m_command_check_interval + val
+        self.set(interval)
 
     def set_on_error(self, error_count, transient=True):
         """
@@ -173,6 +186,8 @@ class CommandCheckInterval:
         if delay_upper_bound > 3600:
             LOGGER.error("Failed to connect with Central for more than an hour")
 
+    def set_use_fallback_polling_interval(self, use_fallback_polling_interval):
+        self.__use_fallback_polling_interval = use_fallback_polling_interval
 
 class MCS:
     """
@@ -379,7 +394,16 @@ class MCS:
         self.__m_computer.add_adapter(
             app_proxy_adapter.AppProxyAdapter(app_ids))
 
+    def stop_push_client(self, push_client):
+        if push_client:
+            LOGGER.info("Requesting MCS Push client to stop")
+            push_client.stop_service()
+        self.__m_command_check_interval.set_use_fallback_polling_interval(False)
 
+    def on_error(self, push_client, error_count=0, transient=True):
+        # need to call set_use_fallback_polling_interval via stop_push_client before set_on_error
+        self.stop_push_client(push_client)
+        self.__m_command_check_interval.set_on_error(error_count, transient)
 
     def run(self):
         """
@@ -449,7 +473,7 @@ class MCS:
         push_client = mcs_push_client.MCSPushClient()
         push_notification_pipe_file_descriptor = push_client.notify_activity_pipe()
 
-        last_commands = 0
+        last_command_time_check = 0
 
         running = True
         reregister = False
@@ -485,18 +509,28 @@ class MCS:
                     push_commands = push_client.pending_commands()
                     if push_commands:
                         LOGGER.info("Received command from Push Server")
+
+                    force_mcs_server_command_processing = False
+
                     for push_command in push_commands:
                         LOGGER.debug("Got pending push_command: {}".format(push_command))
                         if push_command.msg_type == mcs_push_client.MsgType.Error:
-                            LOGGER.warning("Push Server service reported: {}".format(push_command))
-                        # TODO LINUXDAR-841: handle the incoming commands
-                        # TODO LINUXDAR-839: handle error cases
+                            LOGGER.warning("Push Server service reported: {}".format(push_command.msg))
+                            self.stop_push_client(push_client)
+                            force_mcs_server_command_processing = True
+                        elif push_command.msg_type == mcs_push_client.MsgType.MCSCommand:
+                            # TODO LINUXDAR-841: need to set force_command_processing to True with wake_up command_only
+                            LOGGER.debug("Received MCS Push wakeup command")
+                            force_mcs_server_command_processing = True
+                            # TODO LINUXDAR-841: handle the incoming commands
 
-                    if time.time() > last_commands + self.__m_command_check_interval.get():
+
+                    if force_mcs_server_command_processing or \
+                            (time.time() > last_command_time_check + self.__m_command_check_interval.get()):
                         appids = self.__m_computer.get_app_ids()
                         LOGGER.debug("Checking for commands for %s", str(appids))
                         commands = comms.query_commands(appids)
-                        last_commands = time.time()
+                        last_command_time_check = time.time()
 
                         mcs_token_before_commands = self.__get_mcs_token()
 
@@ -507,14 +541,18 @@ class MCS:
                             if mcs_token_before_commands != mcs_token_after_commands:
                                 self.__update_user_agent()
 
-                            push_client.check_push_server_settings_changed_and_reapply(self.__m_config, comms.ca_cert())
-
+                        # If the push server is not connected, but have received mcs policy settings previously or
+                        # have just changed need to attempt to connect to server.
+                        if push_client.ensure_push_server_is_connected(self.__m_config, comms.ca_cert()):
+                            self.__m_command_check_interval.set_use_fallback_polling_interval(True)
+                        else:
+                            self.__m_command_check_interval.set_use_fallback_polling_interval(False)
 
                         if commands:
-                            LOGGER.debug("Got commands; resetting interval")
+                            LOGGER.debug("Got commands")
                             self.__m_command_check_interval.set()
                         else:
-                            LOGGER.debug("No commands; increasing interval")
+                            LOGGER.debug("No commands")
                             self.__m_command_check_interval.increment()
                         error_count = 0
 
@@ -522,7 +560,7 @@ class MCS:
                             "Next command check in %.2f s",
                             self.__m_command_check_interval.get())
 
-                    timeout_compensation = (time.time() - last_commands)
+                    timeout_compensation = (time.time() - last_command_time_check)
 
                     # Check to see if any adapters have new status
                     if self.__m_computer.has_status_changed() \
@@ -590,10 +628,12 @@ class MCS:
                         except Exception as exception:
                             LOGGER.error("Failed to send responses: {}".format(str(exception)))
 
+                    # reset command poll
                 except socket.error:
                     LOGGER.warning("Got socket error")
                     error_count += 1
-                    self.__m_command_check_interval.set_on_error(error_count)
+
+                    self.on_error(push_client, error_count)
                 except mcs_connection.MCSHttpUnauthorizedException as exception:
                     LOGGER.warning("Lost authentication with server")
                     header = exception.headers().get(
@@ -607,8 +647,7 @@ class MCS:
                             str(header))
 
                     error_count += 1
-                    self.__m_command_check_interval.set_on_error(
-                        error_count, transient=False)
+                    self.on_error(push_client, error_count, transient=False)
                 except mcs_connection.MCSHttpException as exception:
                     error_count += 1
                     transient = True
@@ -625,13 +664,12 @@ class MCS:
                     else:
                         LOGGER.exception("Got http error from MCS")
 
-                    self.__m_command_check_interval.set_on_error(
-                        error_count, transient)
+                    self.on_error(push_client, error_count, transient)
                 except (mcs_exception.MCSNetworkException, http.client.NotConnected):
                     # Already logged from mcsclient
                     #~ LOGGER.exception("Got connection failed exception")
                     error_count += 1
-                    self.__m_command_check_interval.set_on_error(error_count)
+                    self.on_error(push_client, error_count)
                 except http.client.BadStatusLine as exception:
                     after_time = time.time()
                     bad_status_line_delay = after_time - before_time
@@ -650,7 +688,7 @@ class MCS:
 
                     timeout = 10
                     error_count += 1
-                    self.__m_command_check_interval.set_on_error(error_count)
+                    self.on_error(push_client, error_count)
 
                 timeout = self.__m_command_check_interval.get()
                 if error_count == 0 and not reregister:

@@ -22,6 +22,7 @@ import mcsrouter.mcsclient.mcs_exception
 import mcsrouter.mcsclient.mcs_connection
 import mcsrouter.mcsclient.mcs_commands as mcs_commands
 import mcsrouter.adapters.generic_adapter as generic_adapter
+import mcsrouter.mcs_push_client
 ORIGINAL_MCS_CONNECTION = mcsrouter.mcsclient.mcs_connection.MCSConnection
 
 import mcsrouter.utils.config
@@ -184,6 +185,84 @@ class TestCommandCheckInterval(unittest.TestCase):
         config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","53")
         c.set(20)
         self.assertEqual(c.get(),53)
+
+
+    def test_set_interval_when_use_fallback_polling_interval_set_to_true(self):
+        #uses default command poll
+        config = mcsrouter.utils.config.Config()
+        command_check_interval = mcsrouter.mcs.CommandCheckInterval(config)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 20)
+
+        #is updated to the push fall back poll
+        config.set("PUSH_SERVER_CHECK_INTERVAL", "4400")
+        command_check_interval.set_use_fallback_polling_interval(True)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 4400)
+
+    def test_interval_increment_when_use_fallback_polling_interval_set_to_true(self):
+        #uses default command poll
+        config = mcsrouter.utils.config.Config()
+        command_check_interval = mcsrouter.mcs.CommandCheckInterval(config)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 20)
+
+
+        config.set("PUSH_SERVER_CHECK_INTERVAL", "4400")
+        command_check_interval.set_use_fallback_polling_interval(True)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 4400)
+        command_check_interval.increment()
+        # expect the interval not to change.
+        self.assertEqual(command_check_interval.get(), 4400)
+
+    def test_set_interval_when_use_fallback_polling_interval_set_to_False(self):
+        #uses default command poll
+        config = mcsrouter.utils.config.Config()
+        command_check_interval = mcsrouter.mcs.CommandCheckInterval(config)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 20)
+
+        #is updated to the push fall back poll
+        config.set("PUSH_SERVER_CHECK_INTERVAL", "4400")
+        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","53")
+        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","53")
+        command_check_interval.set_use_fallback_polling_interval(False)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 53)
+
+    def test_interval_increment_when_use_fallback_polling_interval_set_to_False(self):
+        #uses default command poll
+        config = mcsrouter.utils.config.Config()
+        command_check_interval = mcsrouter.mcs.CommandCheckInterval(config)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 20)
+
+
+        config.set("PUSH_SERVER_CHECK_INTERVAL", "4400")
+        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","53")
+        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","83")
+        command_check_interval.set_use_fallback_polling_interval(False)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 53)
+        command_check_interval.increment()
+        # expect the interval to be incremented.
+        self.assertEqual(command_check_interval.get(), (53 + 20))
+
+    def test_interval_will_revert_to_mcs_default_polling_when_use_fallback_polling_is_set_to_False(self):
+        config = mcsrouter.utils.config.Config()
+        config.set("PUSH_SERVER_CHECK_INTERVAL", "5500")
+        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","53")
+        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","53")
+
+        command_check_interval = mcsrouter.mcs.CommandCheckInterval(config)
+        command_check_interval.set_use_fallback_polling_interval(True)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 5500)
+        command_check_interval.set_use_fallback_polling_interval(False)
+        command_check_interval.set()
+        self.assertEqual(command_check_interval.get(), 53)
+
 
 
 if __name__ == '__main__':

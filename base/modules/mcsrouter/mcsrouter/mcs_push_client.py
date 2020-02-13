@@ -10,19 +10,24 @@ import threading
 import os
 import errno
 import sseclient
+import socket
 import selectors
 from enum import Enum
 import mcsrouter.utils.signal_handler
+
 LOGGER = logging.getLogger(__name__)
+
 
 class MsgType(Enum):
     MCSCommand = 1
     Error = 2
 
+
 class PushClientStatus(Enum):
     NothingChanged = 1
     Connected = 2
     Error = 3
+
 
 class PushClientCommand:
     def __init__(self, msg_type: MsgType, msg_content: str):
@@ -34,10 +39,8 @@ class PushClientCommand:
             return "Error: {}".format(self.msg)
         return "Command: {}".format(self.msg)
 
+
 class PipeChannel:
-    """
-    Wraps a read and write pipe which can be used for communication between threads
-    """
     def __init__(self):
         self.read, self.write = mcsrouter.utils.signal_handler.create_pipe()
 
@@ -46,10 +49,6 @@ class PipeChannel:
         return self.read
 
     def notify(self):
-        """
-        send an arbitrary message through the pipe to notify the listener
-        :return:
-        """
         os.write(self.write, b'.')
 
     def clear(self):
@@ -60,14 +59,17 @@ class PipeChannel:
             except OSError as err:
                 if err.errno == errno.EAGAIN or err.errno == errno.EWOULDBLOCK:
                     break
-                raise
+                else:
+                    raise
 
     def __del__(self):
         os.close(self.read)
         os.close(self.write)
 
+
 class MCSPushException(RuntimeError):
     pass
+
 
 class MCSPushSetting:
     @staticmethod
@@ -88,6 +90,7 @@ class MCSPushSetting:
         self.cert = cert
         self.expected_ping = expected_ping
 
+
 class MCSPushClient:
     def __init__(self):
         self._notify_mcsrouter_channel = PipeChannel()
@@ -95,9 +98,9 @@ class MCSPushClient:
         self._settings = MCSPushSetting()
 
     def _start_service(self):
-        """Raise exception if cannot establish connection with the push server"""
+        """Raise exception if cannot stablish connection with the push server"""
 
-        self.stop_service()        
+        self.stop_service()
         try:
             self._notify_mcsrouter_channel.clear()
             url, cert, expected_ping = self._settings.as_tuple()
@@ -131,27 +134,25 @@ class MCSPushClient:
             return False
         return self._push_client_impl.is_alive()
 
-    def check_push_server_settings_changed_and_reapply(self, config, cert):
+    def ensure_push_server_is_connected(self, config, cert):
         # retrieve push server url and compare with the current one
         settings = MCSPushSetting.from_config(config, cert)
-        need_start = False
+        needStart = False
         try:
             if settings != self._settings:
-                need_start = True
+                needStart = True
                 LOGGER.info("Push Server settings changed. Applying it")
             elif not self.is_service_active() and self._settings.url:
                 LOGGER.info("Trying to re-connect to Push Server")
-                need_start = True
+                needStart = True
 
-            if need_start:
+            if needStart:
                 self._settings = settings
                 self._start_service()
-                return PushClientStatus.Connected
-            return PushClientStatus.NothingChanged
         except Exception as ex:
             LOGGER.warning(str(ex))
 
-        return PushClientStatus.Error
+        return self.is_service_active()
 
 
 class MCSPushClientInternal(threading.Thread):
@@ -165,7 +166,6 @@ class MCSPushClientInternal(threading.Thread):
         self._pending_commands = []
         self._pending_commands_lock = threading.Lock()
         self.messages = sseclient.SSEClient(self._url, verify=self._cert)
-
 
     def run(self):
         try:
@@ -201,7 +201,6 @@ class MCSPushClientInternal(threading.Thread):
         except RuntimeError:
             # either because it has already been joined or because it has not been started. Not to worry
             pass
-
 
     def notify_activity_pipe(self):
         """Clients should monitor the file descriptor returned by this method to know when there are 'new messages'
