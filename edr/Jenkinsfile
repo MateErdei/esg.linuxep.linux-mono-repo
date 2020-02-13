@@ -23,7 +23,8 @@ try{
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     git_branch = "${env.BRANCH_NAME}"
-    if (git_branch == 'master' || params.mode == 'coverage')
+    if ( params.mode == 'release') &&
+        (git_branch == 'master' || git_branch.endsWith('coverage')) )
     {
         parallel Build:
         {
@@ -48,6 +49,31 @@ try{
             echo 'Finished edr master coverage build'
         },
         coverity_build:
+        {
+            echo 'Starting edr master coverage build'
+            ArtisanBuild(
+                'JenkinsLinuxTemplate3',
+                project_release_xml,
+                'coverity',
+                version_number,
+                project_builddir)
+            echo 'Finished edr master coverage build'
+        }
+    }
+    else if( params.mode == 'coverage')
+    {
+        echo 'Starting edr master coverage build'
+        ArtisanBuild(
+            'JenkinsLinuxTemplate3',
+            project_release_xml,
+            'coverage',
+            version_number,
+            project_builddir)
+        echo 'Finished edr master coverage build'
+    }
+    else if( params.mode == 'coverity')
+    {
+        parallel coverity_build:
         {
             echo 'Starting edr master coverage build'
             ArtisanBuild(
