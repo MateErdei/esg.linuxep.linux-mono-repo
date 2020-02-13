@@ -94,7 +94,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         else if (fs::is_directory(p.status()))
         {
 //            PRINT("Not calling with " << p);
-            PRINT("Inside the directory control");
             if (!m_callback.includeDirectory(p))
             {
                 PRINT("Inside the directory control");
