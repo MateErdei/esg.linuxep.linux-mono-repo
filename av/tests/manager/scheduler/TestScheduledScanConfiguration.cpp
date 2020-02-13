@@ -833,8 +833,8 @@ TEST(ScheduledScanConfiguration, scanLocalDisks) // NOLINT
 
     EXPECT_TRUE(scan.hardDrives());
     EXPECT_FALSE(scan.CDDVDDrives());
-//    EXPECT_FALSE(scan.networkDrives());
-//    EXPECT_FALSE(scan.removableDrives());
+    EXPECT_FALSE(scan.networkDrives());
+    EXPECT_FALSE(scan.removableDrives());
 }
 
 TEST(ScheduledScanConfiguration, scanEverythingButLocalDisks) // NOLINT
@@ -867,7 +867,7 @@ TEST(ScheduledScanConfiguration, scanEverythingButLocalDisks) // NOLINT
     const auto& scan = scans.at(0);
 
     EXPECT_FALSE(scan.hardDrives());
-//    EXPECT_TRUE(scan.CDDVDDrives());
-//    EXPECT_TRUE(scan.networkDrives());
-//    EXPECT_TRUE(scan.removableDrives());
+    EXPECT_TRUE(scan.CDDVDDrives());
+    EXPECT_TRUE(scan.networkDrives());
+    EXPECT_TRUE(scan.removableDrives());
 }

@@ -84,7 +84,24 @@ namespace manager::scheduler
             return m_scanLocalOpticalDisks;
         }
 
+        /**
+         * Should this scan cover remote/network mounts?
+         * @return
+         */
+        [[nodiscard]] bool networkDrives() const
+        {
+            return m_scanLocalOpticalDisks;
+        }
 
+        /**
+         * Should this scan cover local removable non-optical disks
+         * (Mostly floppy drives)
+         * @return
+         */
+        [[nodiscard]] bool removableDrives() const
+        {
+            return m_scanLocalOpticalDisks;
+        }
 
     private:
         std::string m_name;
