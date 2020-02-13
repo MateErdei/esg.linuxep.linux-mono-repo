@@ -19,27 +19,27 @@ namespace manager::scheduler
         /*
          * Global config
          */
-        std::vector<std::string> exclusions()
+        [[nodiscard]] std::vector<std::string> exclusions() const
         {
             return m_exclusions;
         }
 
-        bool scanAllFileExtensions()
+        [[nodiscard]] bool scanAllFileExtensions() const
         {
             return m_allFiles;
         }
 
-        bool scanFilesWithNoExtensions()
+        [[nodiscard]] bool scanFilesWithNoExtensions() const
         {
             return m_scanFilesWithNoExtensions;
         }
 
-        std::vector<std::string> sophosExtensionExclusions()
+        [[nodiscard]] std::vector<std::string> sophosExtensionExclusions() const
         {
             return m_sophosExtensionExclusions;
         }
 
-        std::vector<std::string> userDefinedExtensionInclusions()
+        [[nodiscard]] std::vector<std::string> userDefinedExtensionInclusions() const
         {
             return m_userDefinedExtensionInclusions;
         }
@@ -48,11 +48,11 @@ namespace manager::scheduler
         /*
          * Scans config
          */
-        std::vector<ScheduledScan> scans()
+        [[nodiscard]] std::vector<ScheduledScan> scans() const
         {
             return m_scans;
         }
-        ScheduledScan scanNowScan()
+        [[nodiscard]] ScheduledScan scanNowScan() const
         {
             return m_scanNowScan;
         }

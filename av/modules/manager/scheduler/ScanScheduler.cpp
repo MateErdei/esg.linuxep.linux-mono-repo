@@ -7,11 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanScheduler.h"
 #include "Logger.h"
 #include "ScanRunner.h"
-
-#include <NamedScan.capnp.h>
-
-#include <capnp/message.h>
-#include <capnp/serialize.h>
+#include "ScanSerialiser.h"
 
 using namespace manager::scheduler;
 
@@ -181,38 +177,5 @@ void ScanScheduler::findNextTime(timespec& timespec)
 
 std::string ScanScheduler::serialiseNextScan(const ScheduledScan& nextScan)
 {
-    ::capnp::MallocMessageBuilder message;
-    Sophos::ssplav::NamedScan::Builder requestBuilder =
-            message.initRoot<Sophos::ssplav::NamedScan>();
-
-    requestBuilder.setName(nextScan.name());
-    requestBuilder.setScanArchives(nextScan.archiveScanning());
-    requestBuilder.setScanAllFiles(m_config.scanAllFileExtensions());
-    requestBuilder.setScanFilesWithNoExtensions(m_config.scanFilesWithNoExtensions());
-
-    auto exclusionsInput = m_config.exclusions();
-    auto exclusions = requestBuilder.initExcludePaths(exclusionsInput.size());
-    for (unsigned i = 0; i < exclusionsInput.size(); i++)
-    {
-        exclusions.set(i, exclusionsInput[i]);
-    }
-
-    auto extensionExclusionsInput = m_config.sophosExtensionExclusions();
-    auto extensionExclusions = requestBuilder.initUserDefinedExtensionInclusions(extensionExclusionsInput.size());
-    for (unsigned i = 0; i < extensionExclusionsInput.size(); ++i)
-    {
-        extensionExclusions.set(i, extensionExclusionsInput[i]);
-    }
-
-    auto extensionInclusionsInput = m_config.userDefinedExtensionInclusions();
-    auto extensionInclusions = requestBuilder.initUserDefinedExtensionInclusions(extensionInclusionsInput.size());
-    for (unsigned i = 0; i < extensionInclusionsInput.size(); ++i)
-    {
-        extensionInclusions.set(i, extensionInclusionsInput[i]);
-    }
-
-    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
-    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
-    std::string dataAsString(bytes.begin(), bytes.end());
-    return dataAsString;
+    return ScanSerialiser::serialiseScan(m_config, nextScan);
 }

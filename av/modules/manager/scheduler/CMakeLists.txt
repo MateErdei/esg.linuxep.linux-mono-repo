@@ -11,6 +11,8 @@ sophos_add_library(scanscheduler SHARED
         ScanRunner.h
         ScanScheduler.cpp
         ScanScheduler.h
+        ScanSerialiser.cpp
+        ScanSerialiser.h
         ScheduledScan.cpp
         ScheduledScan.h
         ScheduledScanConfiguration.cpp
