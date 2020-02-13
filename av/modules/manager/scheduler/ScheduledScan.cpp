@@ -65,7 +65,11 @@ ScheduledScan::ScheduledScan()
     m_lastRunTime(static_cast<time_t>(-1)),
     m_valid(false),
     m_isScanNow(false),
-    m_archiveScanning(false)
+    m_archiveScanning(false),
+    m_scanLocalFixedDisks(false),
+    m_scanLocalOpticalDisks(false),
+    m_scanNetworkDrives(false),
+    m_scanRemovableDrives(false)
 {
 }
 
@@ -77,7 +81,11 @@ ScheduledScan::ScheduledScan(std::string name)
     m_lastRunTime(static_cast<time_t>(-1)),
     m_valid(true),
     m_isScanNow(true),
-    m_archiveScanning(false)
+    m_archiveScanning(false),
+    m_scanLocalFixedDisks(true),
+    m_scanLocalOpticalDisks(true),
+    m_scanNetworkDrives(false),
+    m_scanRemovableDrives(true)
 {
 }
 
@@ -96,7 +104,8 @@ ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, con
       m_archiveScanning(collectBool(savPolicy, id+"/settings/scanBehaviour/archives")),
       m_scanLocalFixedDisks(collectBool(savPolicy, id+"/settings/scanObjectSet/hardDrives")),
       m_scanLocalOpticalDisks(collectBool(savPolicy, id+"/settings/scanObjectSet/CDDVDDrives")),
-      m_scanNetworkDrives(collectBool(savPolicy, id+"/settings/scanObjectSet/networkDrives"))
+      m_scanNetworkDrives(collectBool(savPolicy, id+"/settings/scanObjectSet/networkDrives")),
+      m_scanRemovableDrives(collectBool(savPolicy, id+"/settings/scanObjectSet/removableDrives"))
 {
 }
 

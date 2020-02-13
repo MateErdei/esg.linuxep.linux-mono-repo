@@ -100,7 +100,7 @@ namespace manager::scheduler
          */
         [[nodiscard]] bool removableDrives() const
         {
-            return m_scanLocalOpticalDisks;
+            return m_scanRemovableDrives;
         }
 
     private:
@@ -114,6 +114,7 @@ namespace manager::scheduler
         bool m_scanLocalFixedDisks;
         bool m_scanLocalOpticalDisks;
         bool m_scanNetworkDrives;
+        bool m_scanRemovableDrives;
     };
 }
 
