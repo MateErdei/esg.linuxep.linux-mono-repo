@@ -1,4 +1,4 @@
-import jsonRobotFramework
+import json
 import robot
 import sys
 
