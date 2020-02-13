@@ -25,25 +25,31 @@ std::string ScanSerialiser::serialiseScan(const ScheduledScanConfiguration& conf
     requestBuilder.setScanAllFiles(config.scanAllFileExtensions());
     requestBuilder.setScanFilesWithNoExtensions(config.scanFilesWithNoExtensions());
 
-    auto exclusionsInput = config.exclusions();
-    auto exclusions = requestBuilder.initExcludePaths(exclusionsInput.size());
-    for (unsigned i = 0; i < exclusionsInput.size(); i++)
     {
-        exclusions.set(i, exclusionsInput[i]);
+        auto exclusionsInput = config.exclusions();
+        auto exclusions = requestBuilder.initExcludePaths(exclusionsInput.size());
+        for (unsigned i = 0; i < exclusionsInput.size(); i++)
+        {
+            exclusions.set(i, exclusionsInput[i]);
+        }
     }
 
-    auto extensionExclusionsInput = config.sophosExtensionExclusions();
-    auto extensionExclusions = requestBuilder.initUserDefinedExtensionInclusions(extensionExclusionsInput.size());
-    for (unsigned i = 0; i < extensionExclusionsInput.size(); ++i)
     {
-        extensionExclusions.set(i, extensionExclusionsInput[i]);
+        auto extensionExclusionsInput = config.sophosExtensionExclusions();
+        auto extensionExclusions = requestBuilder.initSophosExtensionExclusions(extensionExclusionsInput.size());
+        for (unsigned i = 0; i < extensionExclusionsInput.size(); ++i)
+        {
+            extensionExclusions.set(i, extensionExclusionsInput[i]);
+        }
     }
 
-    auto extensionInclusionsInput = config.userDefinedExtensionInclusions();
-    auto extensionInclusions = requestBuilder.initUserDefinedExtensionInclusions(extensionInclusionsInput.size());
-    for (unsigned i = 0; i < extensionInclusionsInput.size(); ++i)
     {
-        extensionInclusions.set(i, extensionInclusionsInput[i]);
+        auto extensionInclusionsInput = config.userDefinedExtensionInclusions();
+        auto extensionInclusions = requestBuilder.initUserDefinedExtensionInclusions(extensionInclusionsInput.size());
+        for (unsigned i = 0; i < extensionInclusionsInput.size(); ++i)
+        {
+            extensionInclusions.set(i, extensionInclusionsInput[i]);
+        }
     }
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
