@@ -17,16 +17,27 @@ using namespace manager::scheduler;
 
 const time_t INVALID_TIME = static_cast<time_t>(-1);
 
-ScanScheduler::ScanScheduler(IScanComplete& completionNotifier)
-    : m_completionNotifier(completionNotifier)
+static inline bool fd_isset(int fd, fd_set* fds)
 {
+    assert(fd >= 0);
+    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
+}
+
+static inline void internal_fd_set(int fd, fd_set* fds)
+{
+    assert(fd >= 0);
+    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
 }
 
 static int addFD(fd_set* fds, int fd, int currentMax)
 {
-    assert(fd >= 0);
-    FD_SET(fd, fds);
+    internal_fd_set(fd, fds);
     return std::max(fd, currentMax);
+}
+
+ScanScheduler::ScanScheduler(IScanComplete& completionNotifier)
+        : m_completionNotifier(completionNotifier)
+{
 }
 
 void manager::scheduler::ScanScheduler::run()
@@ -61,12 +72,12 @@ void manager::scheduler::ScanScheduler::run()
         }
         else if (ret > 0)
         {
-            if (FD_ISSET(exitFD, &tempRead))
+            if (fd_isset(exitFD, &tempRead))
             {
                 LOGINFO("Exiting from scan scheduler");
                 break;
             }
-            if (FD_ISSET(configFD, &tempRead))
+            if (fd_isset(configFD, &tempRead))
             {
                 LOGINFO("Updating scheduled scan configuration");
                 while (m_updateConfigurationPipe.notified())
@@ -74,7 +85,7 @@ void manager::scheduler::ScanScheduler::run()
                     // Clear updateConfigurationPipe
                 }
             }
-            if (FD_ISSET(scanNowFD, &tempRead))
+            if (fd_isset(scanNowFD, &tempRead))
             {
                 LOGINFO("Starting Scan Now scan");
                 runNextScan(m_config.scanNowScan());
