@@ -35,6 +35,9 @@ class PushClientCommand:
         return "Command: {}".format(self.msg)
 
 class PipeChannel:
+    """
+    Wraps a read and write pipe which can be used for communication between threads
+    """
     def __init__(self):
         self.read, self.write = mcsrouter.utils.signal_handler.create_pipe()
 
@@ -43,6 +46,10 @@ class PipeChannel:
         return self.read
 
     def notify(self):
+        """
+        send an arbitrary message through the pipe to notify the listener
+        :return:
+        """
         os.write(self.write, b'.')
 
     def clear(self):
@@ -140,8 +147,7 @@ class MCSPushClient:
                 self._settings = settings
                 self._start_service()
                 return PushClientStatus.Connected
-            else:
-                return PushClientStatus.NothingChanged
+            return PushClientStatus.NothingChanged
         except Exception as ex:
             LOGGER.warning(str(ex))
 

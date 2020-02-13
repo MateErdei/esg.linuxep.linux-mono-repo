@@ -71,25 +71,25 @@
         <package buildtype="prod" name="sspl-telemetry-config" version="1.0/EES-9377" dest="input/telemetry">
             <include src="telemetry-config.json" dest="." />
         </package>
-        <package name="python-certifi" version="2019-11-28-14/218568/certifi" dest="input">
+        <package name="python-certifi" version="2019-11-28-18/218616/certifi" dest="input">
             <include src="python-certifi.tar" dest="."/>
         </package>
-        <package name="python-urllib3" version="1-25-8-11/218567/urllib3" dest="input">
+        <package name="python-urllib3" version="1-25-8-13/218622/urllib3" dest="input">
             <include src="python-urllib3.tar" dest="."/>
         </package>
-        <package name="python-six" version="1-14-0-12/218571/six" dest="input">
+        <package name="python-six" version="1-14-0-14/218620/six" dest="input">
             <include src="python-six.tar" dest="."/>
         </package>
-        <package name="python-requests" version="2-22-0-7/218572/requests" dest="input">
+        <package name="python-requests" version="2-22-0-10/218619/requests" dest="input">
             <include src="python-requests.tar" dest="."/>
         </package>
-        <package name="python-idna" version="11-0-0-9/218573/idna" dest="input">
+        <package name="python-idna" version="2-8-0-1/218618/idna" dest="input">
             <include src="python-idna.tar" dest="."/>
         </package>
-        <package name="python-chardet" version="4-0-0-8/218574/chardet" dest="input">
+        <package name="python-chardet" version="3-0-4-3/218617/chardet" dest="input">
             <include src="python-chardet.tar" dest="."/>
         </package>
-        <package name="python-sseclient" version="0-0-23-13/218575/sseclient" dest="input">
+        <package name="python-sseclient" version="0-0-23-18/218621/sseclient" dest="input">
             <include src="python-sseclient.tar" dest="."/>
         </package>
 
