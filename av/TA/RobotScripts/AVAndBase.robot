@@ -3,6 +3,7 @@ Documentation    Suite description
 
 Library         Process
 Library         OperatingSystem
+Library         XML
 
 Resource        AVResources.robot
 Resource        ComponentSetup.robot
