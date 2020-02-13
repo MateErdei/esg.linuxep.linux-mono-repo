@@ -3,7 +3,6 @@ Documentation    Suite description
 
 Library         Process
 Library         OperatingSystem
-Library         XML
 
 Resource        AVResources.robot
 Resource        ComponentSetup.robot
@@ -13,6 +12,14 @@ Suite Teardown  Uninstall And Revert Setup
 
 Test Setup      No Operation
 Test Teardown   AV And Base Teardown
+
+*** Test Cases ***
+AV plugin Can Start sophos_threat_detector
+    Check AV Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  3 secs
+    ...  Check sophos_threat_detector Running
 
 *** Variables ***
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
@@ -56,13 +63,3 @@ Check For Scan Complete
 Verify Event XML
 
 Configure Scan Exclusions Everything Else ## Will allow for one directory to be selected during a scan
-
-
-
-
-
-
-
-
-
-
