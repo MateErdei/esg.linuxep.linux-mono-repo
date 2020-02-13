@@ -32,7 +32,7 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 }
 
 ScanScheduler::ScanScheduler(IScanComplete& completionNotifier)
-        : m_completionNotifier(completionNotifier)
+        : m_completionNotifier(completionNotifier), m_nextScheduledScanTime(-1)
 {
 }
 
