@@ -78,6 +78,25 @@ TELEMSUPP_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 """
 
 
+PY3 = sys.version_info[0] == 3
+
+if PY3:
+    unicode_str = str
+    byte_str = bytes
+else:
+    unicode_str = unicode
+    byte_str = str
+
+def ensure_binary_string(s):
+    if isinstance(s, unicode_str):
+        return s.encode("UTF-8")
+    return s
+
+def ensure_unicode_string(s):
+    if isinstance(s, byte_str):
+        return s.decode("UTF-8")
+    return s
+
 
 def addFile(doc, filelist, fileobj):
     """
@@ -91,11 +110,11 @@ def addFile(doc, filelist, fileobj):
     fileNode = doc.createElement("File")
     fileNode.setAttribute("MD5", fileobj.m_md5)
     fileNode.setAttribute("SHA384", fileobj.m_sha384)
-    fileNode.setAttribute("Name", fileobj.basename())
+    fileNode.setAttribute("Name", ensure_unicode_string(fileobj.basename()))
     fileNode.setAttribute("Size", str(fileobj.m_length))
     directory = fileobj.dirname()
     if directory != "":
-        fileNode.setAttribute("Offset", directory)
+        fileNode.setAttribute("Offset", ensure_unicode_string(directory))
 
     filelist.appendChild(fileNode)
 
@@ -179,21 +198,6 @@ def get_sdds_import_tempate():
         raise Exception("Unknown SDDS template given: {}".format(template))
 
 
-PY3 = sys.version_info[0] == 3
-
-if PY3:
-    unicode_str = str
-    byte_str = bytes
-else:
-    unicode_str = unicode
-    byte_str = str
-
-def ensure_binary_string(s):
-    if isinstance(s, unicode_str):
-        return s.encode("UTF-8")
-    return s
-
-
 def generate_sdds_import(dist, file_objects, BASE=None):
     dist = ensure_binary_string(dist)
     sdds_import_path = os.path.join(dist, b"SDDS-Import.xml")
@@ -240,7 +244,7 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     setTextInTag(doc, "LongDesc", longDescription)
 
     xmlstr = doc.toxml('UTF-8')
-    assert(isinstance(xmlstr, byte_str))
+    xmlstr = ensure_binary_string(xmlstr)
     doc.unlink()
 
     f = open(sdds_import_path, "wb")

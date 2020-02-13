@@ -61,26 +61,46 @@ class Options(object):
 
 def read(p):
     try:
-        c = open(p,"rb").read()
-        return c.split("-----BEGIN SIGNATURE-----")[0]
+        c = open(p, "rb").read()
+        return c.split(b"-----BEGIN SIGNATURE-----")[0]
     except EnvironmentError:
         return None
 
+PY2 = sys.version_info[0] == 2
+PY3 = sys.version_info[0] == 3
+if PY3:
+    unicode_str = str
+    byte_str = bytes
+else:
+    unicode_str = unicode
+    byte_str = str
+
+def ensure_bytes(s):
+    if isinstance(s, unicode_str):
+        return s.encode("UTF-8")
+    return s
+
 def generate_manifest(dist, file_objects):
     options = Options()
-    MANIFEST_NAME = os.environ.get(b"MANIFEST_NAME",b"manifest.dat")
-    manifest_path = os.path.join(dist, MANIFEST_NAME)
+    MANIFEST_NAME = os.environ.get("MANIFEST_NAME", b"manifest.dat")
+    manifest_path = os.path.join(
+        ensure_bytes(dist),
+        ensure_bytes(MANIFEST_NAME)
+        )
 
     previousContents = read(manifest_path)
     newContents = []
 
-    for f in file_objects:
-        display_path = b".\\" + f.m_path.replace(b"/", b"\\")
-        newContents.append(b'"%s" %d %s\n' % (display_path, f.m_length, f.m_sha1))
-        newContents.append(b'#sha256 %s\n' % f.m_sha256)
-        newContents.append(b'#sha384 %s\n' % f.m_sha384)
+    def eb(s):
+        return ensure_bytes(s)
 
-    newContents = "".join(newContents)
+    for f in file_objects:
+        display_path = b".\\" + ensure_bytes(f.m_path).replace(b"/", b"\\")
+        newContents.append(b'"%s" %d %s\n' % (display_path, f.m_length, ensure_bytes(f.m_sha1)))
+        newContents.append(b'#sha256 %s\n' % eb(f.m_sha256))
+        newContents.append(b'#sha384 %s\n' % eb(f.m_sha384))
+
+    newContents = b"".join(newContents)
     if newContents == previousContents:
         return False
 
@@ -98,11 +118,12 @@ def generate_manifest(dist, file_objects):
         signer.testSigning()
 
     sig = signer.encodedSignatureForFile(manifest_path)
+    sig = eb(sig)
 
     output = open(manifest_path, "ab")
     output.write(sig)
-    output.write(signer.public_cert())
-    output.write(signer.ca_cert())
+    output.write(eb(signer.public_cert()))
+    output.write(eb(signer.ca_cert()))
     output.close()
     return True
 

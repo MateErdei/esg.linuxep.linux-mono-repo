@@ -11,7 +11,7 @@ import sys
 
 
 def main(argv):
-    dist = argv[1]
+    dist = generateManifestDat.ensure_bytes(argv[1])
     if len(argv) > 2:
         distribution_list = argv[2]
     else:
