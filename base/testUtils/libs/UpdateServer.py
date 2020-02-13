@@ -203,9 +203,10 @@ class UpdateServer(object):
         target_path = os.path.join(tmp_path, "openssl")
         if os.path.isdir(openssl_input):
             if not os.path.isdir(target_path):
-                shutil.copytree(openssl_input, tmp_path)
+                shutil.copytree(openssl_input, target_path)
 
-        openssl_tar = os.path.join(tmp_path, "openssl.tar")
+
+        openssl_tar = os.path.join(openssl_input, "openssl.tar")
         os.system("tar -xvf {} -C {} > /dev/null".format(openssl_tar, tmp_path))
 
         return target_path
