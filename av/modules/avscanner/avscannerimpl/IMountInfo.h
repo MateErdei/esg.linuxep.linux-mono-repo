@@ -8,19 +8,20 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IMountPoint.h"
 
+#include <memory>
 #include <vector>
 
 class IMountInfo
 {
 
 public:
-    inline IMountInfo() { return; }
+    inline IMountInfo() = default;
 
-    inline virtual ~IMountInfo() { return; }
+    inline virtual ~IMountInfo() = default;
 
     /**
      * Iterator for the list of mount points.
      */
-    virtual std::vector<IMountPoint*> mountPoints() = 0;
+    virtual std::vector<std::shared_ptr<IMountPoint>> mountPoints() = 0;
 
 };

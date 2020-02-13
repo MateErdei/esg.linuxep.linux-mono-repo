@@ -12,9 +12,9 @@ class IMountPoint
 {
 
 public:
-    inline IMountPoint() { return; }
+    inline IMountPoint() = default;
 
-    inline virtual ~IMountPoint() { return; }
+    inline virtual ~IMountPoint() = default;
 
     virtual std::string device() const = 0;
     virtual std::string filesystemType() const = 0;

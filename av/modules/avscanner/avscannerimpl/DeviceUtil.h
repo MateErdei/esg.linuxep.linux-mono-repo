@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 class DeviceUtil
 {
 public:
-    virtual ~DeviceUtil(){}
+    virtual ~DeviceUtil() = default;
 
     /**
      * Determine if the device specified is a floppy drive.
@@ -64,12 +64,6 @@ public:
      */
     static bool isRemovable(const std::string& devicePath, const std::string& mountPoint = "", const std::string& filesystemType = "");
     /**
-     * Given a device ID, return the major device name.
-     *
-     * @param deviceID
-     */
-    static std::string majorName(dev_t deviceID);
-    /**
      * Determine if the device specified is a system/pseudo filesystem.
      *
      * @return True if the device is a system filesystem.
@@ -82,5 +76,5 @@ public:
 
 
 private:
-    DeviceUtil(){}
+    DeviceUtil() = default;
 };

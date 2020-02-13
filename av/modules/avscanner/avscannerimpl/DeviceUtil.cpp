@@ -162,7 +162,6 @@ bool DeviceUtil::isOptical(const std::string& devicePath, const std::string& mou
     {
         struct cdrom_volctrl vol;
 
-
         // I'd like to use CDROMREADTOCHDR and assume success or EIO means its
         // a CDROM drive.  Unfortuantely, on Redhat 8.0 (see [FML1384]) all
         // hard drives generate EIO on this ioctl.
@@ -204,54 +203,6 @@ bool DeviceUtil::isRemovable(const std::string& devicePath, const std::string& m
 
     return isFloppy(devicePath,mountPoint,filesystemType) ||
            isOptical(devicePath,mountPoint,filesystemType);
-}
-
-/**
- * Given a device ID, return the major device name.
- *
- * @param deviceID
- */
-std::string DeviceUtil::majorName(dev_t deviceID)
-{
-    std::string line;
-    std::ifstream ifst("/proc/devices");
-
-    //DBGOUT("  looking up major name for device " << deviceID);
-
-    if (!ifst)
-    {
-        throw std::runtime_error("Unable to open /proc/devices");
-    }
-
-    while (!std::getline(ifst, line).eof())
-    {
-        if (line == "")
-        {
-            // Character devices are followed by a blank line, and then by
-            // block devices.  Checking for the blank line.
-            break;
-        }
-    }
-    if (line != "")
-    {
-        throw std::runtime_error("Unable to find block devices in /proc/devices");
-    }
-
-    while(!std::getline(ifst, line).eof())
-    {
-        std::istringstream  isst(line);
-        unsigned            int id = 0;
-        std::string         name;
-
-
-        isst >> id >> name;
-        if (static_cast<int>(id) == static_cast<int>(major(deviceID)))
-        {
-            return name;
-        }
-    }
-
-    throw std::runtime_error("Unable to find requested block device in /proc/devices");
 }
 
 /**
@@ -301,7 +252,7 @@ bool DeviceUtil::isSystem(const std::string& devicePath, const std::string& moun
         PRINT("  isSystem/statfs(" << mountPoint << ") = " << ret << ", type = " << filesystemType << "/" << sfs.f_type);
         if (ret == 0)
         {
-            unsigned long sb_type = static_cast<unsigned long>(sfs.f_type);
+            auto sb_type = static_cast<unsigned long>(sfs.f_type);
 
 
             if (sb_type == 0x9fa0 || // proc

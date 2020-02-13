@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanClient.h"
 #include "datatypes/Print.h"
 
+#include <filewalker/FileWalker.h>
 #include <filewalker/IFileWalkCallbacks.h>
 #include <unixsocket/ScanningClientSocket.h>
 
@@ -74,17 +75,41 @@ namespace
 
 int NamedScanRunner::run()
 {
-    // evaluate mount information
-    // Setup exclusions
+    std::vector<std::shared_ptr<IMountPoint>> includedMountpoints;
 
-    // For each mount point
-    std::unique_ptr<IMountInfo> mountInfo = std::make_unique<Mounts>();
-    std::vector<IMountPoint*> mountpoints = mountInfo->mountPoints();
-    for (std::vector<IMountPoint*>::const_iterator mp = mountpoints.begin();
-         mp != mountpoints.end(); ++mp)
+    // work out which filesystems are included based of config and mount information
+    std::shared_ptr<IMountInfo> mountInfo = std::make_unique<Mounts>();
+    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    for (auto & mp : allMountpoints)
     {
-        const std::string& mountpoint = (*mp)->mountPoint();
-        PRINT("Mount point: " << mountpoint.c_str());
+        if (mp->isHardDisc() && m_config.m_scanHardDisc)
+        {
+            includedMountpoints.push_back(mp);
+            continue;
+        }
+        else if (mp->isNetwork() && m_config.m_scanNetwork)
+        {
+            includedMountpoints.push_back(mp);
+            continue;
+        }
+        else if (mp->isOptical() && m_config.m_scanOptical)
+        {
+            includedMountpoints.push_back(mp);
+            continue;
+        }
+        else if (mp->isRemovable() && m_config.m_scanRemovable)
+        {
+            includedMountpoints.push_back(mp);
+            continue;
+        }
+        else if (mp->isSpecial() )
+        {
+            PRINT("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from the scan");
+        }
+        else
+        {
+            PRINT("Mount point " << mp->mountPoint().c_str() << " is has been excluded from the scan");
+        }
     }
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
@@ -94,9 +119,13 @@ int NamedScanRunner::run()
     ScanClient scanner(socket, scanCallbacks, m_config);
     CallbackImpl callbacks(std::move(scanner), m_config);
 
-    // work out which filesystems are included based of config and mount information
-
     // for each select included mount point call filewalker for that mount point
+    for (auto & mp : includedMountpoints)
+    {
+        std::string mountpointToScan = mp->mountPoint();
+        PRINT("Scanning: " << mountpointToScan);
+        filewalker::walk(mountpointToScan, callbacks);
+    }
 
     return 0;
 }

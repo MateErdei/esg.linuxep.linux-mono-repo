@@ -44,8 +44,8 @@ std::string octalUnescape(const std::string& input)
             for (i = 0; i < 3; i++, ptr++)
             {
                 ch = *ptr;
-                buf = buf + ch; // store characters in case it turns out not to be an octal escape
-                if (ch == 0 || ch < '0' || ch > '7')
+                buf += ch; // store characters in case it turns out not to be an octal escape
+                if (ch < '0' || ch > '7')
                 {
                     break;
                 }
@@ -53,16 +53,16 @@ std::string octalUnescape(const std::string& input)
             }
             if (i == 3) // looks like it was a full octal sequence
             {
-                out = out + (char)val;
+                out += (char)val;
             }
             else // does not look like an octal sequence
             {
-                out = out + buf;
+                out += buf;
             }
         }
         else
         {
-            out = out + ch;
+            out += ch;
         }
     }
 
@@ -75,19 +75,6 @@ std::string octalUnescape(const std::string& input)
 Mounts::Mounts()
 {
     parseProcMounts();
-}
-
-/**
- * destructor
- */
-Mounts::~Mounts()
-{
-    for (std::vector<IMountPoint*>::iterator it = m_devices.begin(); it != m_devices.end(); it++)
-    {
-        delete *it;
-    }
-
-    m_devices.clear();
 }
 
 /**
@@ -113,20 +100,19 @@ void Mounts::parseProcMounts()
 
         std::getline(mountstream, line);
 
-        //DBGOUT("line: " << line);
+        //PRINT("line: " << line);
 
         if (!parseLinuxProcMountsLine(line, device, mountPoint, type))
         {
-            PRINT("Failed to parse: " << line);
             continue;
         }
 
         device = realMountPoint(device);
-        PRINT("dev " << device << " on " << mountPoint << " type " << type);
-        m_devices.push_back(new Drive(device, mountPoint, type));
+        //PRINT("dev " << device << " on " << mountPoint << " type " << type);
+        m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type));
     }
 
-    if (device("/") == "")
+    if (device("/").empty())
     {
         // Check the root device is included, because there's no chance it isn't mounted.
         // FIXME: getfsfile is obsolete - if we really want to have this block getmntent should be used.
@@ -135,63 +121,12 @@ void Mounts::parseProcMounts()
 
         if ((mountpoint != 0) && (mountpoint->fs_spec != 0))
         {
-            m_devices.push_back(new Drive(
+            m_devices.push_back(std::make_shared<Drive>(
                         fixDeviceWithMount(mountpoint->fs_spec),
                         mountpoint->fs_file,
                         mountpoint->fs_type));
         }
     }
-}
-
-/**
- * Returns a list of mounted filesystems.
- */
-std::vector<std::string> Mounts::devices() const
-{
-    std::vector<std::string> result;
-
-    for (std::vector<IMountPoint*>::const_iterator it = m_devices.begin(); it != m_devices.end(); it++)
-    {
-        result.push_back((*it)->device());
-    }
-    return result;
-}
-
-/**
- * Indicates where the device is mounted
- * @return mountpoint for the given device, or an empty string if the device is
- * not mounted.
- *
- * @param device
- */
-std::string Mounts::mountPoint(const std::string& device) const
-{
-    for (std::vector<IMountPoint*>::const_iterator it = m_devices.begin(); it != m_devices.end(); it++)
-    {
-        if ((*it)->device() == device)
-        {
-            return (*it)->mountPoint();
-        }
-    }
-    return "";
-}
-
-/**
- * Indicates the filesystem type for the mounted device
- * @return The filesystem type for the given device
- *
- * @param device
- */
-std::string Mounts::fileSystem(const std::string& device) const
-{
-    for (std::vector<IMountPoint*>::const_iterator it = m_devices.begin(); it != m_devices.end(); it++)
-    {
-        if ((*it)->device() == device)
-        {
-            return (*it)->filesystemType();
-        }
-    }
-    return "";
 }
 
 /**
@@ -201,11 +136,11 @@ std::string Mounts::fileSystem(const std::string& device) const
  */
 std::string Mounts::device(const std::string& mountPoint) const
 {
-    for (std::vector<IMountPoint*>::const_iterator it = m_devices.begin(); it != m_devices.end(); it++)
+    for (auto & it : m_devices)
     {
-        if ((*it)->mountPoint() == mountPoint)
+        if (it->mountPoint() == mountPoint)
         {
-            return (*it)->device();
+            return it->device();
         }
     }
     return "";
@@ -217,13 +152,10 @@ std::string Mounts::device(const std::string& mountPoint) const
  * @param mountPoint
  * @param type
  */
-Mounts::Drive::Drive(const std::string& device, const std::string& mountPoint, const std::string& type)
-        : m_mountPoint(mountPoint), m_device(device), m_fileSystem(type)
-{
-    return;
-}
-
-Mounts::Drive::~Drive()
+Mounts::Drive::Drive(std::string device, std::string mountPoint, std::string type)
+: m_mountPoint(std::move(mountPoint))
+, m_device(std::move(device))
+, m_fileSystem(std::move(type))
 {
 }
 
@@ -235,11 +167,6 @@ std::string Mounts::Drive::mountPoint() const
 std::string Mounts::Drive::device() const
 {
     return m_device;
-}
-
-const std::string& Mounts::Drive::fileSystem() const
-{
-    return m_fileSystem;
 }
 
 /**
@@ -287,13 +214,13 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
                     int index = 0;
 
 
-                    for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
+                    for (auto & it : args)
                     {
-                        argv[index] = new char[it->size() + 1];
-                        memcpy(argv[index], it->c_str(), it->size() + 1);
+                        argv[index] = new char[it.size() + 1];
+                        memcpy(argv[index], it.c_str(), it.size() + 1);
                         index++;
                     }
-                    argv[index] = 0;
+                    argv[index] = nullptr;
 
                     execv(path.c_str(), argv);
                     // never returns
@@ -360,7 +287,6 @@ std::string Mounts::realMountPoint(const std::string& device)
 {
     struct stat st;
 
-
     if (stat(device.c_str(), &st) == -1)
     {
         if (device == "/dev/root" || device == "rootfs")
@@ -397,7 +323,7 @@ bool Mounts::parseLinuxProcMountsLine(const std::string& line, std::string& devi
     device = octalUnescape(device);
     mountpoint = octalUnescape(mountpoint);
 
-    if (device == "" || mountpoint == "" || filesystem == "")
+    if (device.empty() || mountpoint.empty() || filesystem.empty())
     {
         return false;
     }
@@ -422,13 +348,13 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
         if (prefix == "LABEL" || prefix == "UUID")
         {
             std::vector<std::string> args;
-            args.push_back("findfs");
+            args.emplace_back("findfs");
             args.push_back(device);
 
             // result is "" if findfs doesn't exist.
             result = Mounts::scrape("/sbin/findfs", args);
 
-            if (result != "")
+            if (result.empty())
             {
                 // first line only please.
                 equals = result.find('\n');
@@ -440,15 +366,15 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
             else
             {
                 args.clear();
-                args.push_back("mount -f -n -v");
+                args.emplace_back("mount -f -n -v");
                 args.push_back(device);
-                args.push_back("/");
+                args.emplace_back("/");
 
 
                 std::string output = Mounts::scrape("/bin/mount", args);
                 // output is probably going to be "" if user is not root.  But
                 // its worth a shot.
-                if (output != "")
+                if (output.empty())
                 {
                     equals = output.find(' ');
 
@@ -466,7 +392,7 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
 /**
  * Iterator for the list of mount points.
  */
-std::vector<IMountPoint*> Mounts::mountPoints()
+std::vector<std::shared_ptr<IMountPoint>> Mounts::mountPoints()
 {
     return m_devices;
 }

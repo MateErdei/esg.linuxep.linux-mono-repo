@@ -8,6 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IMountInfo.h"
 
+#include <memory>
+
 class Mounts : virtual public IMountInfo
 {
 
@@ -28,27 +30,24 @@ public:
          * @param mountPoint
          * @param type
          */
-        Drive(const std::string& device, const std::string& mountPoint, const std::string& type);
+        Drive(std::string device, std::string mountPoint, std::string type);
 
-        virtual ~Drive();
+        ~Drive() override = default;
 
-        std::string mountPoint() const;
+        std::string mountPoint() const override;
 
+        std::string device() const override;
 
-        std::string device() const;
-
-
-        const std::string& fileSystem() const;
-        virtual std::string filesystemType() const;
-        virtual bool isHardDisc() const;
-        virtual bool isNetwork() const;
-        virtual bool isOptical() const;
-        virtual bool isRemovable() const;
+        std::string filesystemType() const override;
+        bool isHardDisc() const override;
+        bool isNetwork() const override;
+        bool isOptical() const override;
+        bool isRemovable() const override;
         /**
          * @return true if this is a special filesystem mount that we should avoid
          * scanning.
          */
-        virtual bool isSpecial() const;
+        bool isSpecial() const override;
 
     private:
         std::string m_mountPoint;
@@ -58,15 +57,6 @@ public:
     };
 
     /**
-     * Collection of Drive objects
-     * @author William Waghorn
-     * @version 1.0
-     * @updated 04-Feb-2008 15:41:15
-     */
-    typedef std::vector<Drive*> DriveSet;
-
-
-    /**
      * constructor
      */
     Mounts();
@@ -74,31 +64,7 @@ public:
     /**
      * destructor
      */
-    virtual ~Mounts();
-
-    /**
-     * Returns a list of mounted filesystems.
-     */
-    std::vector<std::string> devices() const;
-
-    /**
-     * Indicates where the device is mounted
-     * @return mountpoint for the given device, or an empty string if the device is
-     * not mounted.
-     *
-     * @param device
-     */
-    std::string mountPoint(const std::string& device) const;
-
-
-    /**
-     * Indicates the filesystem type for the mounted device
-     * @return The filesystem type for the given device
-     *
-     * @param device
-     */
-    std::string fileSystem(const std::string& device) const;
-
+    ~Mounts() override = default;
 
     /**
      * Determines which device is mounted on a particular mountpoint.
@@ -122,10 +88,10 @@ public:
     /**
      * Iterator for the list of mount points.
      */
-    virtual std::vector<IMountPoint*> mountPoints();
+    std::vector<std::shared_ptr<IMountPoint> > mountPoints() override;
 
 private:
-    std::vector<IMountPoint*> m_devices;
+    std::vector<std::shared_ptr<IMountPoint> > m_devices;
 
     /**
      * Returns the path to the real mount point for a listing in /proc/mounts
