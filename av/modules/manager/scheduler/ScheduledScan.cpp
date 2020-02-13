@@ -81,6 +81,11 @@ ScheduledScan::ScheduledScan(std::string name)
 {
 }
 
+static bool collectBool(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& entityFullPath)
+{
+    return savPolicy.lookup(entityFullPath).contents() == "true";
+}
+
 ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id)
     : m_name(savPolicy.lookup(id + "/name").contents()),
       m_days(savPolicy, id + "/schedule/daySet/day"),
@@ -90,8 +95,7 @@ ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, con
       m_isScanNow(false),
       m_archiveScanning(false)
 {
-    std::string archiveSetting = savPolicy.lookup(id+"/settings/scanBehaviour/archives").contents();
-    m_archiveScanning = (archiveSetting == "true");
+    m_archiveScanning = collectBool(savPolicy, id+"/settings/scanBehaviour/archives");
 }
 
 time_t ScheduledScan::calculateNextTime(time_t now) const

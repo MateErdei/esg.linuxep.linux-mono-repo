@@ -66,6 +66,15 @@ namespace manager::scheduler
             return m_archiveScanning;
         }
 
+        /**
+         * Should this scan cover local non-removable disks?
+         * @return
+         */
+        [[nodiscard]] bool hardDrives() const
+        {
+            return true;
+        }
+
     private:
         std::string m_name;
         DaySet m_days;

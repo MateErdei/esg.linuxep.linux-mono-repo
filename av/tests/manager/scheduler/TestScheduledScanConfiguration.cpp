@@ -801,3 +801,38 @@ TEST(ScheduledScanConfiguration, extensionInclusion) // NOLINT
     ASSERT_EQ(e.size(), 1);
     EXPECT_EQ(e.at(0), "exe");
 }
+
+TEST(ScheduledScanConfiguration, scanLocalDisks) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <settings>
+          <scanObjectSet>
+            <CDDVDDrives>false</CDDVDDrives>
+            <hardDrives>true</hardDrives>
+            <networkDrives>false</networkDrives>
+            <removableDrives>false</removableDrives>
+          </scanObjectSet>
+        </settings>
+      </scan>
+    </scanSet>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    auto scans = m->scans();
+    ASSERT_EQ(scans.size(), 1);
+    const auto& scan = scans.at(0);
+
+    EXPECT_TRUE(scan.hardDrives());
+//    EXPECT_FALSE(scan.CDDVDDrives());
+//    EXPECT_FALSE(scan.networkDrives());
+//    EXPECT_FALSE(scan.removableDrives());
+}
