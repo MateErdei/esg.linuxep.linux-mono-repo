@@ -12,3 +12,6 @@ PLUGINNAME
 sspl-plugin-mav-build/
 sspl-plugin-anti-virus/
 tapvenv/
+TA/log.html
+TA/output.xml
+TA/report.html

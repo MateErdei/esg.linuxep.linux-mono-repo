@@ -12,7 +12,7 @@ ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 
 *** Test Cases ***
-AV Plugin Can Recieve Actions
+AV Plugin Can Receive Actions
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
 
     Check AV Plugin Installed
@@ -38,3 +38,46 @@ AV plugin Can Send Status
 
     ${result} =   Terminate Process  ${handle}
 
+
+AV Plugin Can Process Scan Now
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+
+    Check AV Plugin Installed
+
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/></config>
+    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
+
+    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Action  av  sav  corr123  ${actionContent}
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  AV Plugin Log Contains  Completed scan scanNow
+
+    AV Plugin Log Contains  Received new Action
+
+    AV Plugin Log Contains  Starting Scan Now scan
+
+    AV Plugin Log Contains  Starting scan scanNow
+
+    ${result} =   Terminate Process  ${handle}
+
+
+AV Plugin Will Fail Scan Now If No Policy
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+
+    Check AV Plugin Installed
+
+    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
+
+    Send Plugin Action  av  sav  corr123  ${actionContent}
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  AV Plugin Log Contains  Refusing to run invalid scan: INVALID
+
+    AV Plugin Log Contains  Received new Action
+
+    AV Plugin Log Contains  Starting Scan Now scan
+
+    ${result} =   Terminate Process  ${handle}
