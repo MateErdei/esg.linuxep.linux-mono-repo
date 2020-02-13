@@ -95,7 +95,8 @@ ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, con
       m_isScanNow(false),
       m_archiveScanning(collectBool(savPolicy, id+"/settings/scanBehaviour/archives")),
       m_scanLocalFixedDisks(collectBool(savPolicy, id+"/settings/scanObjectSet/hardDrives")),
-      m_scanLocalOpticalDisks(collectBool(savPolicy, id+"/settings/scanObjectSet/CDDVDDrives"))
+      m_scanLocalOpticalDisks(collectBool(savPolicy, id+"/settings/scanObjectSet/CDDVDDrives")),
+      m_scanNetworkDrives(collectBool(savPolicy, id+"/settings/scanObjectSet/networkDrives"))
 {
 }
 

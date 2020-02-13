@@ -90,7 +90,7 @@ namespace manager::scheduler
          */
         [[nodiscard]] bool networkDrives() const
         {
-            return m_scanLocalOpticalDisks;
+            return m_scanNetworkDrives;
         }
 
         /**
@@ -113,6 +113,7 @@ namespace manager::scheduler
         bool m_archiveScanning;
         bool m_scanLocalFixedDisks;
         bool m_scanLocalOpticalDisks;
+        bool m_scanNetworkDrives;
     };
 }
 
