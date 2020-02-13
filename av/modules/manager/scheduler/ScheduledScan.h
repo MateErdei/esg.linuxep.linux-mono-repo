@@ -72,8 +72,19 @@ namespace manager::scheduler
          */
         [[nodiscard]] bool hardDrives() const
         {
-            return m_scanLocalDisks;
+            return m_scanLocalFixedDisks;
         }
+
+        /**
+         * Should this scan cover local optical disk?
+         * @return
+         */
+        [[nodiscard]] bool CDDVDDrives() const
+        {
+            return m_scanLocalOpticalDisks;
+        }
+
+
 
     private:
         std::string m_name;
@@ -83,7 +94,8 @@ namespace manager::scheduler
         bool m_valid;
         bool m_isScanNow;
         bool m_archiveScanning;
-        bool m_scanLocalDisks;
+        bool m_scanLocalFixedDisks;
+        bool m_scanLocalOpticalDisks;
     };
 }
 

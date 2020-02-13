@@ -832,7 +832,7 @@ TEST(ScheduledScanConfiguration, scanLocalDisks) // NOLINT
     const auto& scan = scans.at(0);
 
     EXPECT_TRUE(scan.hardDrives());
-//    EXPECT_FALSE(scan.CDDVDDrives());
+    EXPECT_FALSE(scan.CDDVDDrives());
 //    EXPECT_FALSE(scan.networkDrives());
 //    EXPECT_FALSE(scan.removableDrives());
 }
