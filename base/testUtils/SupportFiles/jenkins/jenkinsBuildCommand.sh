@@ -121,7 +121,7 @@ LASTGOODBUILD () {
 [[ ! -z  ${AUDIT_PLUGIN_SOURCE} ]]                 || AUDIT_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-audit/${AUDIT_PLUGIN_BRANCH}" )/sspl-audit/*/output/SDDS-COMPONENT)
 [[ ! -z  ${EVENT_PROCESSOR_SOURCE} ]]              || EVENT_PROCESSOR_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-eventprocessor/${EVENT_PROCESSOR_BRANCH}" )/sspl-eventprocessor/*/output/SDDS-COMPONENT)
 [[ ! -z  ${MDR_PLUGIN_SOURCE} ]]                   || MDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-control-plugin/${MDR_PLUGIN_BRANCH}" )/sspl-mdr-control-plugin/*/output/SDDS-COMPONENT)
-[[ ! -z  ${EDR_PLUGIN_SOURCE} ]]                   || EDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-edr-plugin/${EDR_PLUGIN_BRANCH}" )/sspl-edr-plugin/*/output/SDDS-COMPONENT)
+[[ ! -z  ${EDR_PLUGIN_SOURCE} ]]                   || EDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-plugin-edr-component/${EDR_PLUGIN_BRANCH}" )/sspl-plugin-edr-component/*/output/SDDS-COMPONENT)
 [[ ! -z  ${THININSTALLER_SOURCE} ]]                || THININSTALLER_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-thininstaller/${THININSTALLER_BRANCH}" )/sspl-thininstaller/*/output)
 [[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE} ]]          || MDR_COMPONENT_SUITE_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-componentsuite/${MDR_COMPONENT_SUITE_BRANCH}" )/sspl-mdr-componentsuite/*/output)
 # It is not expected that you will ever override the following locations as they are implied by previously set variables
