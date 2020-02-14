@@ -180,6 +180,9 @@ def locate_package_from_clues(name, branch, version, build, build_type):
         #  not a filer5 package, try filer6, artisan builds take priority
         #  Artisan packages are <name>/<branch>/<build>/<name>-<build-type>/<version>
         filer, package, found_branch, found_build = locate_artisan_package_on_filer6(name, branch, build, build_type, version)
+        
+        print("artisan Filer {}, package {}, found_branch {}, found_build {}".format(filer, package, found_branch, found_build))
+        
         if package:
             commit = found_build.split('-')[1]
             print('Found an Artisan build on filer6')
@@ -187,6 +190,7 @@ def locate_package_from_clues(name, branch, version, build, build_type):
 
         #  Scaffold packages are <branch>/<build>/<name>/<version>
         filer, package, found_build = locate_scaffold_package_on_filer6(branch, build, name, version)
+        print("Scaffold Filer {}, package {}, found_branch {}, found_build {}".format(filer, package, found_branch, found_build))
         if package:
             changelist = found_build.split('-')[1]
             print('Found a Scaffold build on filer6')
