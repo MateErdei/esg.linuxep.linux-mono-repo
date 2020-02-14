@@ -15,7 +15,6 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
-
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
     return branch_name in ('master'
