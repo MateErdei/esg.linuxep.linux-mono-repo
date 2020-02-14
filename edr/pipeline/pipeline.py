@@ -56,10 +56,10 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str = 'no'):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
-        args = ['python', '-u', '-m', 'pytest', tests_dir,
-                # '-o', 'log_cli=true',
-                '--html=/opt/test/results/report.html'
-                ]
+
+        #To run the pytest with additional verbosity add following to arguments
+        # '-o', 'log_cli=true'
+        args = ['python', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
 
         if coverage == 'yes':
             # upload unit test coverage html results to allegro
