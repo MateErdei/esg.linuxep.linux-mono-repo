@@ -116,10 +116,10 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/c
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/jisfreq.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/jpcntx.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/langbulgarianmodel.py
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/langcyrillicmodel.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/langgreekmodel.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/langhebrewmodel.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/langhungarianmodel.py
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/langrussianmodel.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/langthaimodel.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/langturkishmodel.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/latin1prober.py
@@ -127,8 +127,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/c
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/mbcharsetprober.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/mbcsgroupprober.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/mbcssm.py
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/metadata/__init__.py
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/metadata/languages.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/sbcharsetprober.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/sbcsgroupprober.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/sjisprober.py

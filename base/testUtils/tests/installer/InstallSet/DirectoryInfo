@@ -28,7 +28,6 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/certifi
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/cli
-o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/chardet/metadata
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/Crypto
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/Crypto/Cipher
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/Crypto/Hash
