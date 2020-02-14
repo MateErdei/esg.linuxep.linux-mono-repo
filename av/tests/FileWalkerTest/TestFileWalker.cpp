@@ -12,7 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <fstream>
-
+#include <errno.h>
 #include <unistd.h>
 
 namespace fs = sophos_filesystem;
@@ -51,7 +51,16 @@ TEST(TestFileWalker, excludeDirectory) // NOLINT
 TEST(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
 {
     FakeCallbacks callbacks;
-    ASSERT_THROW(filewalker::walk("sandbox", callbacks), fs::filesystem_error);
+    try
+    {
+        filewalker::walk("FileThatDoesNotExist", callbacks);
+    }
+    catch (fs::filesystem_error& e)
+    {
+        EXPECT_EQ(e.what(),
+                std::string("filesystem error: File/Folder does not exist: No such file or directory"));
+        EXPECT_EQ(e.code().value(), ENOENT);
+    }
 }
 
 TEST(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
@@ -86,7 +95,7 @@ TEST(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
     fs::remove_all("TestHugePathFileWalker");
 }
 
-TEST(TestFileWalker, hugeFilePath) // NOLINT
+TEST(TestFileWalker, hugeStartingFilePath) // NOLINT
 {
     const fs::path& startingPath = fs::current_path();
     fs::create_directories("TestHugePathFileWalker");
@@ -101,7 +110,16 @@ TEST(TestFileWalker, hugeFilePath) // NOLINT
     const fs::path& pathToScan = fs::current_path();
     fs::current_path(startingPath);
     FakeCallbacks callbacks;
-    ASSERT_THROW(filewalker::walk(pathToScan, callbacks), fs::filesystem_error);
+
+    try
+    {
+        filewalker::walk(pathToScan, callbacks);
+    }
+    catch (fs::filesystem_error& e)
+    {
+        EXPECT_EQ(e.what(), std::string("filesystem error: Starting Path too long: File name too long"));
+        EXPECT_EQ(e.code().value(), ENAMETOOLONG);
+    }
 
     auto traverse_and_delete_huge_directory = [](const sophos_filesystem::path& startingPath, int targetDirectory)
     {
