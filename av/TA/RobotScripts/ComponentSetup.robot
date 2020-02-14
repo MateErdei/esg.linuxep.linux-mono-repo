@@ -34,8 +34,6 @@ Mock Base Installation
 
 
 Setup Component For Testing
-    Run  pgrep -f sophos | xargs kill
-
     Copy Directory   ${COMPONENT_SDDS}/files/plugins   ${SOPHOS_INSTALL}
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
