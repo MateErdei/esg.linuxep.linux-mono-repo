@@ -43,7 +43,7 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Management Log Contains  Action /opt/sophos-spl/base/mcs/action/SAV_action_${savActionFilename}.xml sent to 1 plugins
+    ...  Management Log Contains  Action /opt/sophos-spl/base/mcs/action/SAV_action sent to 1 plugins
 
     Wait Until Keyword Succeeds
     ...  15 secs
