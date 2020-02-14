@@ -27,7 +27,6 @@ AV plugin Can Start sophos_threat_detector
 
 AV plugin Can ScanNow and (fake) Report To Central
     Mock Scan Now
-    #Wait Until Created  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_scan-now.xml
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
