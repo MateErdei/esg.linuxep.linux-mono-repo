@@ -115,13 +115,13 @@ def locate_scaffold_package_on_filer6(branch, build, name, version):
 def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
     not_found = None, None, None, None
     path = name
-    print("Path name = {}".format(path))
+    print("Path name = {}".format(os.path.join(UPSTREAM_DEV, path)))
     if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
         return not_found
     if not branch:
         branch = 'develop'
     path = os.path.join(path, branch)
-    print("Path name and branch = {}".format(path))
+    print("Path name and branch = {}".format(os.path.join(UPSTREAM_DEV, path)))
     if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
         return not_found
     if not build:
@@ -143,7 +143,7 @@ def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
     else:
         path = os.path.join(path, build, name)
 
-    print("Path build name = {}".format(path))
+    print("Path build name = {}".format(os.path.join(UPSTREAM_DEV, path)))
     if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
         return not_found
     if not version:
@@ -152,7 +152,7 @@ def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
             return not_found
     path = os.path.join(path, version)
 
-    print("path version = {}".format(path))
+    print("path version = {}".format(os.path.join(UPSTREAM_DEV, path)))
 
     return UPSTREAM_DEV, path, branch, build
 
