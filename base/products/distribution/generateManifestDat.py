@@ -91,14 +91,11 @@ def generate_manifest(dist, file_objects):
     previousContents = read(manifest_path)
     newContents = []
 
-    def eb(s):
-        return ensure_bytes(s)
-
     for f in file_objects:
         display_path = b".\\" + ensure_bytes(f.m_path).replace(b"/", b"\\")
         newContents.append(b'"%s" %d %s\n' % (display_path, f.m_length, ensure_bytes(f.m_sha1)))
-        newContents.append(b'#sha256 %s\n' % eb(f.m_sha256))
-        newContents.append(b'#sha384 %s\n' % eb(f.m_sha384))
+        newContents.append(b'#sha256 %s\n' % ensure_bytes(f.m_sha256))
+        newContents.append(b'#sha384 %s\n' % ensure_bytes(f.m_sha384))
 
     newContents = b"".join(newContents)
     if newContents == previousContents:
@@ -118,12 +115,12 @@ def generate_manifest(dist, file_objects):
         signer.testSigning()
 
     sig = signer.encodedSignatureForFile(manifest_path)
-    sig = eb(sig)
+    sig = ensure_bytes(sig)
 
     output = open(manifest_path, "ab")
     output.write(sig)
-    output.write(eb(signer.public_cert()))
-    output.write(eb(signer.ca_cert()))
+    output.write(ensure_bytes(signer.public_cert()))
+    output.write(ensure_bytes(signer.ca_cert()))
     output.close()
     return True
 
