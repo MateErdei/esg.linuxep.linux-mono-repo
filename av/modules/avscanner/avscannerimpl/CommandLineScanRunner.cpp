@@ -75,10 +75,7 @@ CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths)
 int CommandLineScanRunner::run()
 {
     // evaluate mount information
-    // Setup exclusions
     std::vector<std::shared_ptr<IMountPoint>> includedMountpoints;
-
-    // For each mount point
     std::shared_ptr<IMountInfo> mountInfo = std::make_shared<Mounts>();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
     for (auto & mp : allMountpoints)
@@ -100,11 +97,9 @@ int CommandLineScanRunner::run()
     CallbackImpl callbacks(socket, scanCallbacks, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point
-    for (auto & mp : includedMountpoints)
+    for (const auto& path : m_paths)
     {
-        std::string mountpointToScan = mp->mountPoint();
-        PRINT(">>> Scanning mount point: " << mountpointToScan);
-        filewalker::walk(mountpointToScan, callbacks);
+        filewalker::walk(path, callbacks);
     }
 
     return 0;
