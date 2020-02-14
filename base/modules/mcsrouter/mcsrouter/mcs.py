@@ -502,6 +502,8 @@ class MCS:
                                 commands = comms.extract_commands_from_xml(push_command.msg)
                                 commands_to_run.extend(commands)
                             except Exception as exception:
+                                self.stop_push_client(push_client)
+                                force_mcs_server_command_processing = True
                                 LOGGER.error("Failed to process MCS Push commands: {}".format(exception))
 
                     if commands_to_run:
