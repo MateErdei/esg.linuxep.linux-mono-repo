@@ -14,8 +14,6 @@ Suite Teardown  Uninstall And Revert Setup
 Test Setup      No Operation
 Test Teardown   AV And Base Teardown
 
-*** Variables ***
-${SCAN_NOW_XML}       ${RESOURCES_PATH}/SAV_action_scan-now.xml
 
 *** Test Cases ***
 AV plugin Can Start sophos_threat_detector
@@ -25,12 +23,27 @@ AV plugin Can Start sophos_threat_detector
     ...  3 secs
     ...  Check sophos_threat_detector Running
 
-AV plugin Can ScanNow and (fake) Report To Central
-    Mock Scan Now
+AV plugin runs scan now
+    Check AV Plugin Installed With Base
+    Send Sav Policy To Base  SAV_Policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    Send Sav Action To Base  ScanNow_Action.xml
+    Wait Until AV Plugin Log Contains  Completed scan scanNow
+    AV Plugin Log Contains  Starting Scan Now scan
+    AV Plugin Log Contains  Starting scan scanNow
+
+AV plugin fails scan now if no policy
+    Check AV Plugin Installed With Base
+    Send Sav Action To Base  ScanNow_Action.xml
+    AV Plugin Log Does Not Contain  Starting scan scanNow
+    AV Plugin Log Contains  Starting Scan Now scan
+
+AV plugin sends Scan Complete event and (fake) Report To Central
+    Send Sav Action To Base  ScanNow_Action.xml
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Management Log Contains  Action /opt/sophos-spl/base/mcs/action/SAV_action_scan-now.xml sent to 1 plugins
+    ...  Management Log Contains  Action /opt/sophos-spl/base/mcs/action/SAV_action_${savActionFilename}.xml sent to 1 plugins
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -42,22 +55,4 @@ AV plugin Can ScanNow and (fake) Report To Central
     ...  1 secs
     ...  Check For Scan Complete
 
-    ##Verify Event XML
-
-*** Keywords ***
-Mock Scan Complete
-    copy file  ${SOPHOS_INSTALL}/base/mcs/event/*.xml
-
-Mock Scan Now
-    copy file  ${SCAN_NOW_XML}  ${SOPHOS_INSTALL}/base/mcs/action/
-
-Check Scan Now Has Started
-
-Check For Scan Complete
-    List Files In Directory  ${SOPHOS_INSTALL}/base/mcs/event/
-
-Verify Event XML
-    ${SCAN_COMPLETE_XML}  parse xml  ${SOPHOS_INSTALL}/base/mcs/event/SAV_action_scan-now.xml
-    ELEMENT TEXT SHOULD BE  source=${root}  expected=<scanComplete>  xpath=scanComplete
-
-Configure Scan Exclusions Everything Else # Will allow for one directory to be selected during a scan
+    #Verify Sav Event - This will parse the scan complete xml in the events folder and compare it to the one we have in our resouces folder
