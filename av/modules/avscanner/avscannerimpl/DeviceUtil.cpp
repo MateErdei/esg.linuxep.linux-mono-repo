@@ -9,8 +9,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/Print.h"
 
 // Standard C++
-#include <iostream>
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <algorithm>
 #include <cstring>
@@ -22,12 +25,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/sysmacros.h>
 #include <sys/wait.h>
 #include <sys/vfs.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <fstab.h>
 #include <unistd.h>
-#include <limits.h>
-#include <stdlib.h>
 
 extern "C"
 {
@@ -35,6 +35,8 @@ extern "C"
 #include <linux/fd.h>
 #include <linux/hdreg.h>
 }
+
+using namespace avscanner::avscannerimpl;
 
 /**
  * Determine if the device specified is a floppy drive.

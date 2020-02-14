@@ -1,9 +1,11 @@
 include(GoogleTest)
 
 SophosAddTest(TestAVScannerImpl
+        MockMountPoint.h
+        TestDeviceUtil.cpp
+        TestMounts.cpp
         TestNamedScanRunner.cpp
         TestOptions.cpp
-        TestScanClient.cpp
         PROJECTS avscannerimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules

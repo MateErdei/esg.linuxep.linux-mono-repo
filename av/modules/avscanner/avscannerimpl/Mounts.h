@@ -10,109 +10,118 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-class Mounts : virtual public IMountInfo
+namespace avscanner::avscannerimpl
 {
-
-public:
-    /**
-     * Object which represents a mounted device
-     * @author William Waghorn
-     * @version 1.0
-     * @updated 04-Feb-2008 15:41:14
-     */
-    class Drive : virtual public IMountPoint
+    class Mounts : virtual public IMountInfo
     {
 
     public:
         /**
-         *
-         * @param device
-         * @param mountPoint
-         * @param type
+         * Object which represents a mounted device
+         * @author William Waghorn
+         * @version 1.0
+         * @updated 04-Feb-2008 15:41:14
          */
-        Drive(std::string device, std::string mountPoint, std::string type);
+        class Drive : virtual public IMountPoint
+        {
 
-        ~Drive() override = default;
+        public:
+            /**
+             *
+             * @param device
+             * @param mountPoint
+             * @param type
+             */
+            Drive(std::string device, std::string mountPoint, std::string type);
 
-        std::string mountPoint() const override;
+            ~Drive() override = default;
 
-        std::string device() const override;
+            std::string mountPoint() const override;
 
-        std::string filesystemType() const override;
-        bool isHardDisc() const override;
-        bool isNetwork() const override;
-        bool isOptical() const override;
-        bool isRemovable() const override;
+            std::string device() const override;
+
+            std::string filesystemType() const override;
+
+            bool isHardDisc() const override;
+
+            bool isNetwork() const override;
+
+            bool isOptical() const override;
+
+            bool isRemovable() const override;
+
+            /**
+             * @return true if this is a special filesystem mount that we should avoid
+             * scanning.
+             */
+            bool isSpecial() const override;
+
+        private:
+            std::string m_mountPoint;
+            std::string m_device;
+            std::string m_fileSystem;
+
+        };
+
         /**
-         * @return true if this is a special filesystem mount that we should avoid
-         * scanning.
+         * constructor
          */
-        bool isSpecial() const override;
+        Mounts();
+
+        /**
+         * destructor
+         */
+        ~Mounts() override = default;
+
+        /**
+         * Determines which device is mounted on a particular mountpoint.
+         *
+         * @param mountPoint
+         */
+        std::string device(const std::string& mountPoint) const;
+
+
+        /**
+         * Run a command and collect the output.
+         * @return an empty string on error.  This is obviously ambiguous with
+         * successfully running a command which returns no output; however for our needs
+         * that behaviour is equivalent to a failure.
+         *
+         * @param path    Command to run
+         * @param args    arguments.
+         */
+        static std::string scrape(const std::string& path, const std::vector<std::string>& args);
+
+        /**
+         * Iterator for the list of mount points.
+         */
+        std::vector<std::shared_ptr<IMountPoint> > mountPoints() override;
 
     private:
-        std::string m_mountPoint;
-        std::string m_device;
-        std::string m_fileSystem;
+        std::vector<std::shared_ptr<IMountPoint> > m_devices;
 
+        /**
+         * Returns the path to the real mount point for a listing in /proc/mounts
+         * @param device    a line from /proc/mounts.
+         *
+         */
+        static std::string realMountPoint(const std::string& device);
+
+        /**
+         * Use mount -f -n -v to determine the real mount point if the
+         * device begins with 'LABEL=' or 'UUID='.
+         */
+        static std::string fixDeviceWithMount(const std::string& device);
+
+        /**
+         * Parse one line of /proc/mounts on Linux.
+         */
+        static bool parseLinuxProcMountsLine(const std::string& line, std::string& device, std::string& mountpoint,
+                                             std::string& filesystem);
+
+        /**
+         * Try and parse /proc/mounts.
+         */
+        void parseProcMounts();
     };
-
-    /**
-     * constructor
-     */
-    Mounts();
-
-    /**
-     * destructor
-     */
-    ~Mounts() override = default;
-
-    /**
-     * Determines which device is mounted on a particular mountpoint.
-     *
-     * @param mountPoint
-     */
-    std::string device(const std::string& mountPoint) const;
-
-
-    /**
-     * Run a command and collect the output.
-     * @return an empty string on error.  This is obviously ambiguous with
-     * successfully running a command which returns no output; however for our needs
-     * that behaviour is equivalent to a failure.
-     *
-     * @param path    Command to run
-     * @param args    arguments.
-     */
-    static std::string scrape(const std::string& path, const std::vector<std::string>& args);
-
-    /**
-     * Iterator for the list of mount points.
-     */
-    std::vector<std::shared_ptr<IMountPoint> > mountPoints() override;
-
-private:
-    std::vector<std::shared_ptr<IMountPoint> > m_devices;
-
-    /**
-     * Returns the path to the real mount point for a listing in /proc/mounts
-     * @param device    a line from /proc/mounts.
-     *
-     */
-    static std::string realMountPoint(const std::string& device);
-
-    /**
-     * Use mount -f -n -v to determine the real mount point if the
-     * device begins with 'LABEL=' or 'UUID='.
-     */
-    static std::string fixDeviceWithMount(const std::string& device);
-
-    /**
-     * Parse one line of /proc/mounts on Linux.
-     */
-    static bool parseLinuxProcMountsLine(const std::string& line, std::string& device, std::string& mountpoint, std::string& filesystem);
-
-    /**
-     * Try and parse /proc/mounts.
-     */
-    void parseProcMounts();
-};
+}

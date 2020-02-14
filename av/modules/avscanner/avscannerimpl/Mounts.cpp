@@ -10,19 +10,20 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/Print.h"
 
 // Standard C++
+#include <cstdlib>
 #include <sstream>
 #include <fstream>
 
 // Standard C
 #include <fstab.h>
 #include <memory.h>
-#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
+using namespace avscanner::avscannerimpl;
 
 std::string octalUnescape(const std::string& input)
 {
@@ -119,7 +120,7 @@ void Mounts::parseProcMounts()
         struct fstab* mountpoint = getfsfile("/");
 
 
-        if ((mountpoint != 0) && (mountpoint->fs_spec != 0))
+        if ((mountpoint != nullptr) && (mountpoint->fs_spec != nullptr))
         {
             m_devices.push_back(std::make_shared<Drive>(
                         fixDeviceWithMount(mountpoint->fs_spec),

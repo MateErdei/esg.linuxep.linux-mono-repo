@@ -83,34 +83,17 @@ namespace
     };
 }
 
-int NamedScanRunner::run()
+std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoints(std::vector<std::shared_ptr<IMountPoint>> allMountpoints)
 {
     std::vector<std::shared_ptr<IMountPoint>> includedMountpoints;
-
-    // work out which filesystems are included based of config and mount information
-    std::shared_ptr<IMountInfo> mountInfo = std::make_unique<Mounts>();
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
     for (auto & mp : allMountpoints)
     {
-        if (mp->isHardDisc() && m_config.m_scanHardDisc)
+        if ((mp->isHardDisc() && m_config.m_scanHardDisc) ||
+            (mp->isNetwork() && m_config.m_scanNetwork) ||
+            (mp->isOptical() && m_config.m_scanOptical) ||
+            (mp->isRemovable() && m_config.m_scanRemovable))
         {
             includedMountpoints.push_back(mp);
-            continue;
-        }
-        else if (mp->isNetwork() && m_config.m_scanNetwork)
-        {
-            includedMountpoints.push_back(mp);
-            continue;
-        }
-        else if (mp->isOptical() && m_config.m_scanOptical)
-        {
-            includedMountpoints.push_back(mp);
-            continue;
-        }
-        else if (mp->isRemovable() && m_config.m_scanRemovable)
-        {
-            includedMountpoints.push_back(mp);
-            continue;
         }
         else if (mp->isSpecial() )
         {
@@ -121,6 +104,15 @@ int NamedScanRunner::run()
             PRINT("Mount point " << mp->mountPoint().c_str() << " is has been excluded from the scan");
         }
     }
+    return includedMountpoints;
+}
+
+int NamedScanRunner::run()
+{
+    // work out which filesystems are included based of config and mount information
+    std::shared_ptr<IMountInfo> mountInfo = std::make_shared<Mounts>();
+    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    std::vector<std::shared_ptr<IMountPoint>> includedMountpoints = getIncludedMountpoints(allMountpoints);
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
