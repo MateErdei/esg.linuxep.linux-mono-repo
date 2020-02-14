@@ -41,9 +41,9 @@ AV plugin Can ScanNow and (fake) Report To Central
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Check For Scan Complete XML
+    ...  Check For Scan Complete
 
-    Verify Event XML
+    ##Verify Event XML
 
 *** Keywords ***
 Mock Scan Complete
