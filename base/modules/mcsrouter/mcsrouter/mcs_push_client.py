@@ -74,7 +74,12 @@ class MCSPushException(RuntimeError):
 class MCSPushSetting:
     @staticmethod
     def from_config(config, cert):
-        url = config.get_default("pushServer1", None)
+        push_server_url = config.get_default("pushServer1", None)
+        mcs_id = config.get_default("MCSID", None)
+        if push_server_url and mcs_id:
+            url = os.path.join(push_server_url, "push/endpoint/", mcs_id)
+        else:
+            url = None
         expected_ping = config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT")
         certs = cert
         return MCSPushSetting(url, certs, expected_ping)

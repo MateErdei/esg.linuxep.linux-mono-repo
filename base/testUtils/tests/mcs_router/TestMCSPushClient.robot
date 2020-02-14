@@ -11,7 +11,7 @@ Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
 Test Teardown    Test Teardown
 
-Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER
+Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_TESTS
 
 *** Variables ***
 ${MCS_ROUTER_LOG}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log

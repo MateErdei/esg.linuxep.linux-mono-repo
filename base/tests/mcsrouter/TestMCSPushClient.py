@@ -135,6 +135,7 @@ class ConfigWithoutFile( mcsrouter.utils.config.Config):
         mcsrouter.utils.config.Config.__init__(self)
         self.set('pushServer1', 'value')
         self.set('PUSH_SERVER_CONNECTION_TIMEOUT', '10')
+        self.set('MCSID', 'thisendpoint')
 
 class TestMCSPushConfigSettings(unittest.TestCase):
     def test_extract_values_from_config(self):
