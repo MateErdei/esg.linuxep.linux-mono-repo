@@ -22,17 +22,19 @@ ${MCS_ROUTER_LOG}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 
 MCSRouter Can Start And Receive Messages From The Push Client
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
 MCSRouter Can Start and Receive Update Now Action From Push Client
-    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
-    Check Connected To Fake Cloud
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/ALC_full_update_now_command.xml
@@ -48,33 +50,14 @@ MCSRouter Can Start and Receive Update Now Action From Push Client
 
     Check File Content  <?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>  ${MCS_DIR}/action/
 
-MCSRouter Can Start and Receive Live Query From Push Client
-    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TEST
-
+MCSRouter Can Start and Receive Wakeup Command From Push Client
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
-    Register EDR Plugin
-    Check Connected To Fake Cloud
-    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
-    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/LQ_select_users_command.xml
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Mcsrouter Log Contains   Received command from Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  File Should Exist  ${MCS_DIR}/action/LiveQuery_ABC_FakeTime_request.json
-
-    Check File Content  {"type": "sophos.mgt.action.RunLiveQuery", "name": "users", "query": "SELECT * from users"}  ${MCS_DIR}/action/
-
-MCSRouter Can Start and Receive Wakeup Command From Push Client
-    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
-    Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
-
-    Check Connected To Fake Cloud
+    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   <action type="sophos.mgt.action.GetCommands"></action>
@@ -91,17 +74,19 @@ MCSRouter Can Start and Receive Wakeup Command From Push Client
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  Check MCSRouter Log Contains In Order  Received Wakeup from Push Server
-    ...                                             Checking for commands for
-    ...                                             Received Wakeup from Push Server
-    ...                                             Checking for commands for
+    ...  Check MCS Router Log Contains In Order   Received Wakeup from Push Server
+    ...                                           Checking for commands for
+    ...                                           Received Wakeup from Push Server
+    ...                                           Checking for commands for
 
 MCSRouter Safely Logs Invalid XML Action From Push Client And Recovers
-    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
-    Check Connected To Fake Cloud
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   <action type="sophos.mgt.action.Geands"></act>
@@ -118,7 +103,7 @@ MCSRouter Safely Logs Invalid XML Action From Push Client And Recovers
 Push Client informs MCS Client if the connection with Push Server is disconnected and logged to MCSRouter
     Start MCS Push Server
     Configure Push Server To Ping Interval  300
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
@@ -130,12 +115,12 @@ Push Client informs MCS Client if the connection with Push Server is disconnecte
 
 Push Client stops connection to Push server when instructed by the MCS Client
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   <action>validxml</action>
 
-    ${mcs_policy} =    Get File  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    ${mcs_policy} =    Get File  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
     ${changed_ping} =  Replace String  ${mcs_policy}  <pushPingTimeout>10</pushPingTimeout>    <pushPingTimeout>20</pushPingTimeout>
     Send Policy   mcs  ${changed_ping}
 
@@ -153,7 +138,7 @@ Push Client stops connection to Push server when instructed by the MCS Client
 
 Push Client Is Stopped When MCSRouter Stops
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
@@ -171,7 +156,7 @@ Verify Push Client Will Attempt To Connect On Every Command Poll When Push Serve
     #commandPollingDelay default="5"
     Override LogConf File as Global Level  DEBUG
 
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     # expect and check for attempt to connect push_client in every mcs_client poll @ every 5 seconds
     # push client connection failures must not trigger back-off
@@ -200,7 +185,7 @@ Verify When Push Client Is Connected MCS Router Will Command Poll The Server Usi
     [Documentation]  From https://wiki.sophos.net/display/PP/MCS+Push+Endpoint+Requirements
     ...  Poll the server using the pushFallbackPollInterval interval
 
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Wait Until Keyword Succeeds
     ...    6s
@@ -223,10 +208,10 @@ Verify When Push Client Is Connected MCS Router Will Command Poll The Server Usi
     ...  10 secs
     ...  1 secs
     ...  Run Keywords
-    ...  Check Mcsrouter Log Contains   Set command poll interval to 20   AND
+    ...  Check Mcsrouter Log Contains   Set command poll interval to 60   AND
     ...  Check Mcs Envelope Log Contains Regex String N Times   GET \/commands\/applications\/MCS;(\\w;*)+\/endpoint\/   3
 
-    Sleep  15s
+    Sleep  55s
     #checking there is still only three matching lines after 55 seconds
     Check Mcs Envelope Log Contains Regex String N Times   GET \/commands\/applications\/MCS;(\\w;*)+\/endpoint\/   3
 
@@ -241,7 +226,7 @@ Verify MCSRouter Disconnect Push Client When It Loses Its own Connection To MCS 
     ...  If there are errors, disconnect the push server. Since the poll connection is used to send responses there is little to gain in keeping the push server connected
 
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Mark Mcsrouter Log
@@ -265,7 +250,7 @@ Verify MCSRouter Disconnect Push Client When It Loses Its own Connection To MCS 
     ...  10 secs
     ...  1 secs
     ...  Check MCS Router Log Contains In Order
-    ...        Set command poll interval to 20
+    ...        Set command poll interval to 60
     ...        Set command poll interval to 5
 
 Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trigger An Immediate Command Poll
@@ -274,7 +259,7 @@ Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trig
     ...  Trigger an immediate server poll. This will avoid a potentially long poll wait and attempt to reconnect immediately
     Override LogConf File as Global Level  DEBUG
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
@@ -282,7 +267,7 @@ Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trig
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  2 secs
-    ...  Check Mcsrouter Log Contains   Set command poll interval to 20
+    ...  Check Mcsrouter Log Contains   Set command poll interval to 60
 
     Shutdown MCS Push Server
 
@@ -300,7 +285,7 @@ Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trig
     ...  10 secs
     ...  1 secs
     ...  Check MCS Router Log Contains In Order
-    ...        Set command poll interval to 20
+    ...        Set command poll interval to 60
     ...        Set command poll interval to 5
 
 Verify When MCS receives a Command Response Message It Immediately Attempt To Send Regardless Of Any Error Or Backoff
@@ -344,17 +329,6 @@ Send Message To Push Server And Expect It In MCSRouter Log
     ...  1 secs
     ...  Check Mcsrouter Log Contains   Received command: ${message}
 
-Check Connected To Fake Cloud
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
-
 Test Teardown
     Stop Mcsrouter If Running
     Push Server Teardown with MCS Fake Server
-    Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
-
-Register EDR Plugin
-    Copy File  ${SUPPORT_FILES}/base_data/edr.json  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
-
