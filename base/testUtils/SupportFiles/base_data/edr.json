@@ -1,0 +1,26 @@
+{
+  "policyAppIds":[
+    "LiveQuery"
+
+  ],
+  "statusAppIds":[
+    "LiveQuery"
+
+  ],
+  "pluginName":"edr",
+  "executableFullPath":"plugins/edr/bin/edr",
+  "executableArguments":[
+
+
+  ],
+  "environmentVariables":[
+    {
+      "name":"SOPHOS_INSTALL",
+      "value":"/opt/sophos-spl"
+
+    }
+
+  ],
+  "executableUserAndGroup":"root:root",
+  "secondsToShutDown":10
+}

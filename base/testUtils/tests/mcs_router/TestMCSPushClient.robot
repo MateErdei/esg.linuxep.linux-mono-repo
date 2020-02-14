@@ -32,10 +32,7 @@ MCSRouter Can Start and Receive Update Now Action From Push Client
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
 
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
+    Check Connected To Fake Cloud
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/ALC_full_update_now_command.xml
@@ -51,15 +48,33 @@ MCSRouter Can Start and Receive Update Now Action From Push Client
 
     Check File Content  <?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>  ${MCS_DIR}/action/
 
+MCSRouter Can Start and Receive Live Query From Push Client
+    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TEST
+
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Register EDR Plugin
+    Check Connected To Fake Cloud
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/LQ_select_users_command.xml
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains   Received command from Push Server
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  File Should Exist  ${MCS_DIR}/action/LiveQuery_ABC_FakeTime_request.json
+
+    Check File Content  {"type": "sophos.mgt.action.RunLiveQuery", "name": "users", "query": "SELECT * from users"}  ${MCS_DIR}/action/
+
 MCSRouter Can Start and Receive Wakeup Command From Push Client
     [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
 
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
+    Check Connected To Fake Cloud
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   <action type="sophos.mgt.action.GetCommands"></action>
@@ -73,20 +88,20 @@ MCSRouter Can Start and Receive Wakeup Command From Push Client
     ...  1 secs
     ...  Check Mcsrouter Log Contains  Received command from Push Server
 
-    Check MCSRouter Log Contains In Order  Received Wakeup from Push Server
-    ...                                    Checking for commands for
-    ...                                    Received Wakeup from Push Server
-    ...                                    Checking for commands for
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check MCSRouter Log Contains In Order  Received Wakeup from Push Server
+    ...                                             Checking for commands for
+    ...                                             Received Wakeup from Push Server
+    ...                                             Checking for commands for
 
 MCSRouter Safely Logs Invalid XML Action From Push Client And Recovers
     [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
 
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
+    Check Connected To Fake Cloud
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   <action type="sophos.mgt.action.Geands"></act>
@@ -125,6 +140,11 @@ Push Client stops connection to Push server when instructed by the MCS Client
     ${mcs_policy} =    Get File  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
     ${changed_ping} =  Replace String  ${mcs_policy}  <pushPingTimeout>10</pushPingTimeout>    <pushPingTimeout>20</pushPingTimeout>
     Send Policy   mcs  ${changed_ping}
+
+    Wait Until Keyword Succeeds
+    ...   60s
+    ...   2s
+    ...   Check MCS Router Log Contains     ${changed_ping}
 
     Wait Until Keyword Succeeds
     ...   40s
@@ -329,6 +349,16 @@ Send Message To Push Server And Expect It In MCSRouter Log
     ...  1 secs
     ...  Check Mcsrouter Log Contains   Received command: ${message}
 
+Check Connected To Fake Cloud
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
+
 Test Teardown
     Stop Mcsrouter If Running
     Push Server Teardown with MCS Fake Server
+
+Register EDR Plugin
+    Copy File  ${SUPPORT_FILES}/base_data/edr.json  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
+
