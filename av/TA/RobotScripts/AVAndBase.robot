@@ -4,6 +4,8 @@ Documentation    Suite description
 Library         Process
 Library         OperatingSystem
 
+Library         ../libs/BaseInteractionTools/DiagnoseUtils
+
 Resource        AVResources.robot
 Resource        ComponentSetup.robot
 
@@ -35,3 +37,7 @@ AV plugin fails scan now if no policy
     Send Sav Action To Base  ScanNow_Action.xml
     AV Plugin Log Does Not Contain  Starting scan scanNow
     AV Plugin Log Contains  Starting Scan Now scan
+
+Diagnose collects the correct files
+    Check AV Plugin Installed With Base
+    ${retcode} =  Run Diagnose  ${SOPHOS_INSTALL}/bin/  ${TAR_FILE_DIRECTORY}
