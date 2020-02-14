@@ -28,6 +28,7 @@ MCSRouter Can Start And Receive Messages From The Push Client
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
 MCSRouter Can Start and Receive Update Now Action From Push Client
+    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
 
@@ -51,6 +52,7 @@ MCSRouter Can Start and Receive Update Now Action From Push Client
     Check File Content  <?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>  ${MCS_DIR}/action/
 
 MCSRouter Can Start and Receive Wakeup Command From Push Client
+    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
 
@@ -77,6 +79,7 @@ MCSRouter Can Start and Receive Wakeup Command From Push Client
     ...                                    Checking for commands for
 
 MCSRouter Safely Logs Invalid XML Action From Push Client And Recovers
+    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
 
