@@ -140,7 +140,7 @@ class ConfigWithoutFile( mcsrouter.utils.config.Config):
 class TestMCSPushConfigSettings(unittest.TestCase):
     def test_extract_values_from_config(self):
         settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath')
-        self.assertEqual(settings.url, 'value')
+        self.assertEqual(settings.url, 'value/push/endpoint/thisendpoint')
         self.assertEqual(settings.expected_ping,  10)
         self.assertEqual(settings.cert, 'certpath')
 
