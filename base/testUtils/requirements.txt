@@ -2,3 +2,7 @@ pyzmq
 protobuf
 pytest-html
 psutil
+sseclient
+asyncio
+aiohttp
+aiohttp_sse
