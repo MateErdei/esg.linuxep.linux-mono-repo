@@ -20,6 +20,7 @@ namespace avscanner::avscannerimpl
         int run() override;
     private:
         std::vector<std::string> m_paths;
+        int m_returnCode = 0;
     };
 }
 

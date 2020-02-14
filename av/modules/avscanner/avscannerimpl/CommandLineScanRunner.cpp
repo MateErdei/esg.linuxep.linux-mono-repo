@@ -18,6 +18,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace avscanner::avscannerimpl;
 namespace fs = sophos_filesystem;
 
+enum E_ERROR_CODES: int
+{
+    E_CLEAN = 0,
+    E_GENERIC_FAILURE = 1,
+    E_VIRUS_FOUND = 69
+};
+
 namespace
 {
     class ScanCallbackImpl : public IScanCallbacks
@@ -26,10 +33,20 @@ namespace
         void cleanFile(const path&) override
         {
         }
+
         void infectedFile(const path& p, const std::string& threatName) override
         {
             PRINT(p << " is infected with " << threatName);
+            m_returnCode = E_VIRUS_FOUND;
         }
+
+        [[nodiscard]] int returnCode() const
+        {
+            return m_returnCode;
+        }
+
+    private:
+        int m_returnCode = E_CLEAN;
     };
 
     class CallbackImpl : public filewalker::IFileWalkCallbacks
@@ -49,7 +66,7 @@ namespace
             } catch (const std::exception& e)
             {
                 PRINT("Scanner failed to scan: " << p);
-                m_returnCode = 1;
+                m_returnCode = E_GENERIC_FAILURE;
             }
         }
 
@@ -65,7 +82,7 @@ namespace
 
     private:
         ScanClient m_scanner;
-        int m_returnCode = 0;
+        int m_returnCode = E_CLEAN;
     };
 }
 
@@ -89,9 +106,15 @@ int CommandLineScanRunner::run()
             filewalker::walk(path, callbacks);
         }catch (fs::filesystem_error& e)
         {
-            return e.code().value();
+            m_returnCode = e.code().value();
+        }
+
+        // we want virus found to override any other return code
+        if (scanCallbacks->returnCode() == E_VIRUS_FOUND)
+        {
+            m_returnCode = E_VIRUS_FOUND;
         }
     }
 
-    return callbacks.returnCode();
+    return m_returnCode;
 }

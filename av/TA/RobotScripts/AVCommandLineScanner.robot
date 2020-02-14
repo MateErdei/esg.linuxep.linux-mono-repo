@@ -40,23 +40,23 @@ CLS Can Scan Clean File
 CLS Can Scan Infected File
    Start AV
 
-   Create File     ${NORMAL_DIRECTORY}/dirty_eicar    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/dirty_eicar
+   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal  ${rc}  ${0}
+   Should Be Equal  ${rc}  ${69}
 
    Stop AV
 
-CLS Can Scan Non-Existent File
+CLS Will Not Scan Non-Existent File
    Start AV
 
    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/i_do_not_exist
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal  ${rc}  ${0}
+   Should Be Equal  ${rc}  ${2}
 
    Stop AV
 
@@ -94,7 +94,7 @@ CLS Cannot Scan Huge Path
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be Equal  ${rc}  ${0}
+    Should Be Equal  ${rc}  ${36}
 
     Stop AV
 

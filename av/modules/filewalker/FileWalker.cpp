@@ -21,14 +21,14 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
 {
     if(starting_point.string().size() > 4096)
     {
-        PRINT("Path too long, aborting scan");
-        std::error_code ec (1, std::system_category());
-        throw fs::filesystem_error("Path too long", ec);
+        PRINT("Starting path too long, aborting scan");
+        std::error_code ec (ENAMETOOLONG, std::system_category());
+        throw fs::filesystem_error("Starting Path too long", ec);
     }
     else if (!fs::exists(starting_point))
     {
         PRINT("File does not exist");
-        std::error_code ec (404, std::system_category());
+        std::error_code ec (ENOENT, std::system_category());
         throw fs::filesystem_error("File/Folder does not exist", ec);
     }
 
