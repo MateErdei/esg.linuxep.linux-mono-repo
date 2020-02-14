@@ -23,15 +23,16 @@ try{
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     git_branch = "${env.BRANCH_NAME}"
-    if ( params.mode == 'coverage' || git_branch == 'master' || git_branch.endsWith('coverage') )
+    if ( git_branch == 'master' ||
+          params.mode == 'coverage' || git_branch.endsWith('coverage') )
     {
-        parallel Build:
+        parallel release_build:
         {
             echo 'Starting edr master release builds'
             ArtisanBuild(
                 buildAgentTemplate,
                 project_release_xml,
-                'release'
+                'release',
                 version_number,
                 project_builddir)
             echo 'Finished edr master release build'
