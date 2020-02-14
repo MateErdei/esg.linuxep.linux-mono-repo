@@ -541,8 +541,8 @@ class MCS:
                             if mcs_token_before_commands != mcs_token_after_commands:
                                 self.__update_user_agent()
 
-                        # If the push server is not connected, but have received mcs policy settings previously or
-                        # have just changed need to attempt to connect to server.
+                        # If the push server is not connected, but has received mcs policy settings previously or
+                        # If the settings have just changed, we need to attempt to connect to server.
                         if push_client.ensure_push_server_is_connected(self.__m_config, comms.ca_cert()):
                             self.__m_command_check_interval.set_use_fallback_polling_interval(True)
                         else:

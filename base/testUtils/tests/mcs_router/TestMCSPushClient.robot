@@ -20,7 +20,7 @@ ${MCS_ROUTER_LOG}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 
 MCSRouter Can Start And Receive Messages From The Push Client
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
@@ -28,7 +28,7 @@ MCSRouter Can Start And Receive Messages From The Push Client
 Push Client informs MCS Client if the connection with Push Server is disconnected and logged to MCSRouter
     Start MCS Push Server
     Configure Push Server To Ping Interval  300
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
@@ -36,20 +36,23 @@ Push Client informs MCS Client if the connection with Push Server is disconnecte
     Wait Until Keyword Succeeds
     ...     30s
     ...     3s
-    ...     Check MCS Router Log Contains In Order
-    ...         Got pending push_command: Error: No Ping from Server
-    ...         Push Server service reported: No Ping from Server
+    ...     Check MCS Router Log Contains   Push Server service reported: No Ping from Server
 
 Push Client stops connection to Push server when instructed by the MCS Client
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
-    ${mcs_policy} =    Get File  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    ${mcs_policy} =    Get File  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
     ${changed_ping} =  Replace String  ${mcs_policy}  <pushPingTimeout>10</pushPingTimeout>    <pushPingTimeout>20</pushPingTimeout>
     Send Policy   mcs  ${changed_ping}
+
+    Wait Until Keyword Succeeds
+    ...   60s
+    ...   2s
+    ...   Check MCS Router Log Contains     ${changed_ping}
 
     Wait Until Keyword Succeeds
     ...   30s
@@ -60,7 +63,7 @@ Push Client stops connection to Push server when instructed by the MCS Client
 
 Push Client Is Stopped When MCSRouter Stops
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
@@ -107,7 +110,7 @@ Verify When Push Client Is Connected MCS Router Will Command Poll The Server Usi
     [Documentation]  From https://wiki.sophos.net/display/PP/MCS+Push+Endpoint+Requirements
     ...  Poll the server using the pushFallbackPollInterval interval
 
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Wait Until Keyword Succeeds
     ...    6s
@@ -125,7 +128,6 @@ Verify When Push Client Is Connected MCS Router Will Command Poll The Server Usi
 
     Start MCS Push Server
     # Ping interval needs to be less, than the ping timeout set in the policy
-    Configure Push Server To Ping Interval  5
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -135,6 +137,7 @@ Verify When Push Client Is Connected MCS Router Will Command Poll The Server Usi
     ...  Check Mcs Envelope Log Contains Regex String N Times   GET \/commands\/applications\/MCS;(\\w;*)+\/endpoint\/   3
 
     Sleep  55s
+    #checking there is still only three matching lines after 55 seconds
     Check Mcs Envelope Log Contains Regex String N Times   GET \/commands\/applications\/MCS;(\\w;*)+\/endpoint\/   3
 
     Wait Until Keyword Succeeds
@@ -181,15 +184,14 @@ Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trig
     ...  Trigger an immediate server poll. This will avoid a potentially long poll wait and attempt to reconnect immediately
     Override LogConf File as Global Level  DEBUG
     Start MCS Push Server
-    Configure Push Server To Ping Interval  5
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
     Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
+    ...  15 secs
+    ...  2 secs
     ...  Check Mcsrouter Log Contains   Set command poll interval to 60
 
     Shutdown MCS Push Server
@@ -217,7 +219,7 @@ Verify When MCS receives a Command Response Message It Immediately Attempt To Se
     ...   Command response can be any message to send to the MCS Server i.e ALC Status message.
 
     Start MCS Push Server
-    Configure Push Server To Ping Interval  5
+
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_300.xml
 
     Wait Until Keyword Succeeds
@@ -227,11 +229,9 @@ Verify When MCS receives a Command Response Message It Immediately Attempt To Se
 
     Mark Mcsrouter Log
 
-    Send ALC Status    Some ALC Status Message
-    Wait Until Keyword Succeeds
-    ...  1 min
-    ...  5 secs
-    ...  Check Cloud Server Log For ALC Status    Some ALC Status Message
+    ${expected_body} =  Send EDR Response     LiveQuery  f291664d-112a-328b-e3ed-f920012cdea1
+    Check Cloud Server Log For EDR Response Body   LiveQuery  f291664d-112a-328b-e3ed-f920012cdea1  ${expected_body}
+    Cloud Server Log Should Not Contain  Failed to decompress response body content
 
     # Check to ensure the command poll has not run again.
     Check Marked McsRouter Log Contains String N times    Set command poll interval to   0

@@ -15,7 +15,7 @@
         <commandPollingDelay default="5"/>
         <policyChangeServers/>
         <pushServers>
-            <pushServer>https://localhost:4443/mcs/push/endpoint/thisendpoint</pushServer>
+            <pushServer>https://localhost:4443/mcs</pushServer>
         </pushServers>
         <pushPingTimeout>10</pushPingTimeout>
         <pushFallbackPollInterval>300</pushFallbackPollInterval>
