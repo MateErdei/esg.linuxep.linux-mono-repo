@@ -15,7 +15,7 @@ Test Setup      No Operation
 Test Teardown   AV And Base Teardown
 
 *** Variables ***
-${SCAN_NOW_XML}       ../data/scan-now.xml
+${SCAN_NOW_XML}       ${RESOURCES_PATH}/scan-now.xml
 
 *** Test Cases ***
 AV plugin Can Start sophos_threat_detector
@@ -30,7 +30,7 @@ AV plugin Can ScanNow and (fake) Report To Central
     Wait Until Created  ${SOPHOS_INSTALL}/base/mcs/action/scan-now.xml
 
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  45 secs
     ...  1 secs
     ...  AV Plugin Log Contains  Received new Action
 
