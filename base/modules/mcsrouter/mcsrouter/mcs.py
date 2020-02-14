@@ -499,13 +499,8 @@ class MCS:
                         else:
                             LOGGER.debug("Got pending push_command: {}".format(push_command.msg))
                             try:
-                                doc = xml_helper.parseString(push_command.msg)
-                                command_nodes = doc.getElementsByTagName("command")
-                                for node in command_nodes:
-                                    command = mcs_commands.BasicCommand(self.__m_comms, node, push_command.msg)
-                                    commands_to_run.append(command)
-                            except xml.parsers.expat.ExpatError as ex:
-                                LOGGER.error("Failed to parse commands: {}. Error: {}".format(push_command.msg, ex))
+                                commands = comms.extract_commands_from_xml(push_command.msg)
+                                commands_to_run.extend(commands)
                             except Exception as exception:
                                 LOGGER.error("Failed to process MCS Push commands: {}".format(exception))
 

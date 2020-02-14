@@ -30,7 +30,7 @@ MCSRouter Can Start And Receive Messages From The Push Client
 MCSRouter Can Start and Receive Update Now Action From Push Client
     [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Check Connected To Fake Cloud
 
@@ -52,7 +52,7 @@ MCSRouter Can Start and Receive Live Query From Push Client
     [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TEST
 
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
     Register EDR Plugin
     Check Connected To Fake Cloud
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
@@ -72,7 +72,7 @@ MCSRouter Can Start and Receive Live Query From Push Client
 MCSRouter Can Start and Receive Wakeup Command From Push Client
     [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Check Connected To Fake Cloud
 
@@ -99,7 +99,7 @@ MCSRouter Can Start and Receive Wakeup Command From Push Client
 MCSRouter Safely Logs Invalid XML Action From Push Client And Recovers
     [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Check Connected To Fake Cloud
 

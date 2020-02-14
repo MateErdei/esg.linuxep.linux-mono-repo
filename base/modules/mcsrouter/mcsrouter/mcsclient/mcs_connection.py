@@ -982,17 +982,12 @@ class MCSConnection:
                 LOGGER.error("Failed to send response ({} : {}) : {}".format(response.m_app_id, response.m_correlation_id, exception))
 
 
-    def query_commands(self, app_ids=None):
-        """
-        Query any commands the server has for us
-        """
-        assert app_ids is not None
-        commands = self.send_message_with_id(
-            "/commands/applications/{}/endpoint/".format(";".join(app_ids)))
+    def extract_commands_from_xml(self, commands_xml):
+        assert commands_xml is not None
         try:
-            doc = mcsrouter.utils.xml_helper.parseString(commands)
+            doc = mcsrouter.utils.xml_helper.parseString(commands_xml)
         except xml.parsers.expat.ExpatError as ex:
-            LOGGER.error("Failed to parse commands: {}. Error: {}".format(commands, ex))
+            LOGGER.error("Failed to parse commands: {}. Error: {}".format(xml, ex))
             return []
         try:
             command_nodes = doc.getElementsByTagName("command")
@@ -1002,7 +997,7 @@ class MCSConnection:
                 mcsrouter.mcsclient.mcs_commands.BasicCommand(
                     self,
                     node,
-                    commands) for node in command_nodes]
+                    commands_xml) for node in command_nodes]
         except KeyError as key:
             LOGGER.error("Invalid command. Missing required field: {}".format(key))
             return []
@@ -1012,6 +1007,16 @@ class MCSConnection:
         finally:
             doc.unlink()
         return commands
+
+    def query_commands(self, app_ids=None):
+        """
+        Query any commands the server has for us
+        """
+        assert app_ids is not None
+
+        # Get command XML from Central.
+        commands = self.send_message_with_id("/commands/applications/{}/endpoint/".format(";".join(app_ids)))
+        return self.extract_commands_from_xml(commands)
 
     def delete_command(self, command_id):
         """
