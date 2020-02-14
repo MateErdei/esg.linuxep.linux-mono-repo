@@ -1,10 +1,12 @@
 *** Settings ***
 Resource  McsRouterResources.robot
+Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 
-Suite Setup      Setup MCS Tests
-Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
+Suite Setup      Run Keywords  Setup MCS Tests  AND  Start MCS Push Server
+Suite Teardown   Run Keywords  Uninstall SSPL Unless Cleanup Disabled  AND  Server Close
 
-Test Setup       Start Local Cloud Server
+#Test Setup       Start Local Cloud Server
+Test Setup       Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
 Test Teardown    Run Keywords
 ...              Stop Local Cloud Server    AND
 ...              Dump Log   ./tmp/proxy_server.log  AND
@@ -15,6 +17,9 @@ Test Teardown    Run Keywords
 ...              Remove Environment Variable    https_proxy
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
+
+*** Variables ***
+${push_server_address}  localhost:4443
 
 *** Test Case ***
 Disable direct option stops direct connection
@@ -75,6 +80,7 @@ Transient errors keeps same proxies
 
     # This will trigger a back-off and then re-try proxies
     Send Command From Fake Cloud    error
+    Send Command From Fake Cloud    error
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  10 secs
@@ -87,6 +93,7 @@ Transient errors keeps same proxies
     Mark Mcsrouter Log
 
     # This will trigger a back-off and then re-try proxies
+    Send Command From Fake Cloud    error
     Send Command From Fake Cloud    error
     Wait Until Keyword Succeeds
     ...  60 secs
@@ -181,8 +188,10 @@ Policy proxy overrides local proxy
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains   Successfully connected to localhost:4443 via localhost:${Proxy_Port_Two}
+    Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_Two}
 
     Check MCSRouter Log Does Not Contain   Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
+    Check MCSRouter Log Does Not Contain   Push client successfully connected to ${push_server_address} directly
 
     Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='${Proxy_Port_One}' address='localhost' id='${Proxy_Name_One}'/>
 
@@ -196,6 +205,7 @@ Policy proxy overrides local proxy
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
+    Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
 
 
 Fallback to direct connection when policy proxy fails
@@ -232,11 +242,14 @@ Fallback to direct connection when policy proxy fails
     ...  50 secs
     ...  5 secs
     ...  Check Marked MCSRouter Log Contains   Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
+    Check Marked MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
+
     Stop Proxy Server On Port  3346
     Wait Until Keyword Succeeds
     ...  50 secs
     ...  5 secs
     ...  Check Marked MCSRouter Log Contains   Successfully directly connected to localhost:4443
+    Check Marked MCSRouter Log Contains   Push client successfully connected to ${push_server_address} directly
 
 Policy authentication with digest
     [Documentation]  Derived from CLOUD.PROXY.013_policy_authentication.sh
@@ -309,10 +322,13 @@ Policy Basic Auth Proxy Credentials Deobfuscated And Used
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
+    Check MCSRouter Log Contains  Push client successfully connected to ${push_server_address} via localhost:3000
 
     Check MCSRouter Log Does Not Contain  Successfully directly connected to localhost:4443
+    Check MCSRouter Log Does Not Contain  Push client successfully connected to ${push_server_address} directly
 
 Status Sent After Message Relay Changed
+    # TODO - this is broken for mcs push
     [Documentation]  Derived from  CLOUD.MCS.012_status_sent_after_message_relay_changed.sh
     ${Proxy_Port_One} =  Set Variable  3333
     ${Proxy_Port_Two} =  Set Variable  7773
@@ -337,8 +353,10 @@ Status Sent After Message Relay Changed
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains   Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
+    Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
 
     Check MCSRouter Log Does Not Contain   Successfully connected to localhost:4443 via localhost:${Proxy_Port_Two}
+    Check MCSRouter Log Does Not Contain   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_Two}
 
     Check Log Contains    message_relay_address1=localhost          ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config     Mcs_policy_config
     Check Log Contains    message_relay_port1=${Proxy_Port_One}     ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config     Mcs_policy_config
@@ -358,6 +376,7 @@ Status Sent After Message Relay Changed
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:${Proxy_Port_Two}
+    Check MCSRouter Log Contains  Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_Two}
 
 
     Wait Until Keyword Succeeds
@@ -399,16 +418,20 @@ Central Mcs Policy Should Control Proxy Used
     ...  Check MCS Router Running
 
     ${Failed_Connection_Message} =          Set Variable  Failed connection with message relay via localhost:3333 to localhost:4443
+    ${Failed_Push_Connection_Message} =          Set Variable  Failed to connect to ${push_server_address} via localhost:3333
     ${Success_Direct_Connection_Message} =  Set Variable  Successfully directly connected to localhost:4443
+    ${Success_Push_Direct_Connection_Message} =  Set Variable  Push client successfully connected to ${push_server_address} directly
 
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
     ...  Check MCSRouter Log Contains   ${Success_Direct_Connection_Message}
+    Check MCSRouter Log Contains   ${Success_Push_Direct_Connection_Message}
 
     # Check log contains failed connection message only once
     ${MCS_Router_Log} =  Get File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Should Contain X Times  ${MCS_Router_Log}  ${Failed_Connection_Message}          1  Mcs Router Log Doesn't Contain The Following Message Once: ${Failed_Connection_Message}
+    Should Contain X Times  ${MCS_Router_Log}  ${Failed_Push_Connection_Message}          1  Mcs Router Log Doesn't Contain The Following Message Once: ${Failed_Push_Connection_Message}
 
     Send Default Mcs Policy
 
@@ -420,8 +443,18 @@ Central Mcs Policy Should Control Proxy Used
     # New policy received removing proxy info check that there are no failed connections that occur after this
     ${MCS_Router_Log} =  Get File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Should Contain X Times  ${MCS_Router_Log}  ${Failed_Connection_Message}          1  Mcs Router Log Doesn't Contain The Following Message Once: ${Failed_Connection_Message}
+    Should Contain X Times  ${MCS_Router_Log}  ${Failed_Push_Connection_Message}          1  Mcs Router Log Doesn't Contain The Following Message Once: ${Failed_Push_Connection_Message}
 
 *** Keywords ***
+
+MCSRouter And Push Client Log Connection Via Proxy
+    [Arguments]  ${mcs_server}  ${push_server}  ${proxy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Run Keywords
+    ...  Check MCSRouter Log Contains   Successfully connected to ${mcs_server} via ${proxy}  AND
+    ...  Check MCSRouter Log Contains   Push client successfully connected to ${push_server} via localhost:3000
 
 MCSRouter tries direct connection after proxy
     Check MCS Router Log Contains In Order

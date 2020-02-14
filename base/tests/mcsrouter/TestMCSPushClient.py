@@ -6,6 +6,7 @@ import selectors
 import sseclient
 import PathManager
 import mcsrouter.utils.config
+import mcsrouter.sophos_https as sophos_https
 from types import SimpleNamespace
 from mcsrouter.mcs_push_client import MCSPushClientInternal, PipeChannel, MCSPushClient, MCSPushException, MCSPushSetting, PushClientStatus
 
@@ -79,7 +80,7 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
         self.client_internal = None
 
     def get_client(self):
-        self.client_internal = MCSPushClientInternal("url", "cert", 10)
+        self.client_internal = MCSPushClientInternal("url", "cert", 10, [sophos_https.Proxy()])
         return self.client_internal
 
     def tearDown(self) -> None:
@@ -139,17 +140,29 @@ class ConfigWithoutFile( mcsrouter.utils.config.Config):
 
 class TestMCSPushConfigSettings(unittest.TestCase):
     def test_extract_values_from_config(self):
-        settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath')
+        proxy = [sophos_https.Proxy("http://localhost", 4335, "username", "password")]
+        settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy)
         self.assertEqual(settings.url, 'value/push/endpoint/thisendpoint')
         self.assertEqual(settings.expected_ping,  10)
         self.assertEqual(settings.cert, 'certpath')
+        self.assertEqual(settings.proxy_settings[0].host(), 'localhost')
+        self.assertEqual(settings.proxy_settings[0].port(), 4335)
+        self.assertEqual(settings.proxy_settings[0].username(), "username")
+        self.assertEqual(settings.proxy_settings[0].password(), "password")
 
     def test_settings_equality(self):
-        settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath')
-        settings1 = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath')
+        proxy = [sophos_https.Proxy("http://localhost", 4335, "username", "password")]
+        settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy)
+        settings1 = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy)
         self.assertEqual(settings, settings1)
         settings1.url = 'changed'
         self.assertNotEqual(settings, settings1)
+
+        proxy2 = [sophos_https.Proxy("http://localhost", 4335, "username", "changed_password")]
+        settings2 = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy)
+        settings3 = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy2)
+        self.assertEqual(settings, settings2)
+        self.assertNotEqual(settings, settings3)
 
 
 
@@ -163,7 +176,7 @@ class TestMCSPushClient(SharedTestsUtilities):
 
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
     def test_can_restart_twice(self, *mockargs):
-        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath')
+        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()])
         self.push_client._start_service()
         received = self.send_and_receive_message('hello', self.push_client)
         self.assertEqual(received, 'hello')
@@ -174,25 +187,26 @@ class TestMCSPushClient(SharedTestsUtilities):
 
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
     def test_push_client_handle_config_changes(self, *mockargs):
-        self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath'))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()]))
         config = ConfigWithoutFile()
         config.set('pushServer1', 'new url')
-        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath'))
-        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath'))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [sophos_https.Proxy()]))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [sophos_https.Proxy()]))
 
 
     def test_push_client_returns_status_enum_when_applying_server_settings(self):
         # This is the case for when the connection to the Push Server cannot be established
         with mock.patch("sseclient.SSEClient", new_callable=SSEClientSimulateConnectionFailureFactory) as sseclient.SSEClient:
-            self.assertFalse(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath'))
+            self.assertFalse(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()]))
 
         with mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory) as sseclient.SSEClient:
             # this is the case for establishing connection to the push server
-            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath'))
+            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()]))
             # this is the case for a normal connected client without any settings change will just keep connected and nothing changes
-            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath'))
+            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()]))
 
-
+# class TestMCSPushClientProxy(SharedTestsUtilities):
+#     def test_
 
 
 

@@ -9,26 +9,26 @@ import logging
 import threading
 import os
 import errno
+import requests
 import sseclient
-import socket
 import selectors
 from enum import Enum
+from urllib.parse import urlparse
 import mcsrouter.utils.signal_handler
+import mcsrouter.sophos_https
+from . import sophos_https
 
 LOGGER = logging.getLogger(__name__)
-
 
 class MsgType(Enum):
     MCSCommand = 1
     Error = 2
     Wakeup = 3
 
-
 class PushClientStatus(Enum):
     NothingChanged = 1
     Connected = 2
     Error = 3
-
 
 class PushClientCommand:
     def __init__(self, msg_type: MsgType, msg_content: str):
@@ -40,8 +40,10 @@ class PushClientCommand:
             return "Error: {}".format(self.msg)
         return "Command: {}".format(self.msg)
 
-
 class PipeChannel:
+    """
+    Wraps a read and write pipe which can be used for communication between threads
+    """
     def __init__(self):
         self.read, self.write = mcsrouter.utils.signal_handler.create_pipe()
 
@@ -50,6 +52,10 @@ class PipeChannel:
         return self.read
 
     def notify(self):
+        """
+        send an arbitrary message through the pipe to notify the listener
+        :return:
+        """
         os.write(self.write, b'.')
 
     def clear(self):
@@ -60,21 +66,18 @@ class PipeChannel:
             except OSError as err:
                 if err.errno == errno.EAGAIN or err.errno == errno.EWOULDBLOCK:
                     break
-                else:
-                    raise
+                raise
 
     def __del__(self):
         os.close(self.read)
         os.close(self.write)
 
-
 class MCSPushException(RuntimeError):
     pass
 
-
 class MCSPushSetting:
     @staticmethod
-    def from_config(config, cert):
+    def from_config(config, cert, proxy_settings):
         push_server_url = config.get_default("pushServer1", None)
         mcs_id = config.get_default("MCSID", None)
         if push_server_url and mcs_id:
@@ -83,19 +86,21 @@ class MCSPushSetting:
             url = None
         expected_ping = config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT")
         certs = cert
-        return MCSPushSetting(url, certs, expected_ping)
+        return MCSPushSetting(url, certs, expected_ping, proxy_settings)
 
     def as_tuple(self):
-        return self.url, self.cert, self.expected_ping
+        return self.url, self.cert, self.expected_ping, self.proxy_settings
 
     def __eq__(self, other):
-        return self.as_tuple() == other.as_tuple()
+        if isinstance(other, self.__class__):
+            return self.as_tuple() == other.as_tuple()
+        return False
 
-    def __init__(self, url=None, cert=None, expected_ping=None):
+    def __init__(self, url=None, cert=None, expected_ping=None, proxy_settings=None):
         self.url = url
         self.cert = cert
         self.expected_ping = expected_ping
-
+        self.proxy_settings = proxy_settings
 
 class MCSPushClient:
     def __init__(self):
@@ -104,16 +109,16 @@ class MCSPushClient:
         self._settings = MCSPushSetting()
 
     def _start_service(self):
-        """Raise exception if cannot stablish connection with the push server"""
+        """Raise exception if cannot establish connection with the push server"""
 
         self.stop_service()
         try:
             self._notify_mcsrouter_channel.clear()
-            url, cert, expected_ping = self._settings.as_tuple()
+            url, cert, expected_ping, proxy_settings = self._settings.as_tuple()
             LOGGER.debug("Settings for push client: url: {}, ping {} and cert {}".format(url, expected_ping, cert))
             if not url:
                 return
-            self._push_client_impl = MCSPushClientInternal(url, cert, expected_ping, self._notify_mcsrouter_channel)
+            self._push_client_impl = MCSPushClientInternal(url, cert, expected_ping, proxy_settings, self._notify_mcsrouter_channel)
             self._push_client_impl.start()
             LOGGER.info("Established MCS Push Connection")
         except Exception as e:
@@ -140,19 +145,19 @@ class MCSPushClient:
             return False
         return self._push_client_impl.is_alive()
 
-    def ensure_push_server_is_connected(self, config, cert):
+    def ensure_push_server_is_connected(self, config, cert, proxy_settings):
         # retrieve push server url and compare with the current one
-        settings = MCSPushSetting.from_config(config, cert)
-        needStart = False
+        settings = MCSPushSetting.from_config(config, cert, proxy_settings)
+        need_start = False
         try:
             if settings != self._settings:
-                needStart = True
+                need_start = True
                 LOGGER.info("Push Server settings changed. Applying it")
             elif not self.is_service_active() and self._settings.url:
                 LOGGER.info("Trying to re-connect to Push Server")
-                needStart = True
+                need_start = True
 
-            if needStart:
+            if need_start:
                 self._settings = settings
                 self._start_service()
         except Exception as ex:
@@ -162,16 +167,63 @@ class MCSPushClient:
 
 
 class MCSPushClientInternal(threading.Thread):
-    def __init__(self, url: str, cert: str, expected_ping_interval: int, mcsrouter_channel=PipeChannel()):
+    def __init__(self, url: str, cert: str, expected_ping_interval: int, proxy_settings, mcsrouter_channel=PipeChannel()):
         threading.Thread.__init__(self)
         self._url = url
         self._cert = cert
         self._expected_ping_interval = expected_ping_interval
+        self._proxy_settings = proxy_settings
         self._notify_push_client_channel = PipeChannel()
         self._notify_mcsrouter_channel = mcsrouter_channel
         self._pending_commands = []
         self._pending_commands_lock = threading.Lock()
-        self.messages = sseclient.SSEClient(self._url, verify=self._cert)
+        self.messages = self._create_sse_client()
+
+    def _create_sse_client(self):
+        for proxy in self._proxy_settings:
+            self._proxy = proxy
+            LOGGER.info(self.__attempting_connection_message())
+            session = self.get_requests_session()
+            try:
+                messages = sseclient.SSEClient(self._url, session=session)
+                LOGGER.info(self.__successful_connection_message())
+                return messages
+            except Exception as exception:
+                LOGGER.warning("{}: {}".format(self.__failed_connection_message(), str(exception)))
+        else:
+            raise MCSPushException("Failed to connect to {}".format(self.__log_url()))
+
+    def __log_url(self):
+        return urlparse(self._url).netloc
+
+    def __attempting_connection_message(self):
+        if self._proxy.is_configured():
+            return "Trying push connection to {} via {}".format(self.__log_url(), self._proxy.log_address())
+        else:
+            return "Trying push connection directly to {}".format(self.__log_url())
+
+
+    def __successful_connection_message(self):
+        if self._proxy.is_configured():
+            return "Push client successfully connected to {} via {}".format(self.__log_url(), self._proxy.log_address())
+        else:
+            return "Push client successfully connected to {} directly".format(self.__log_url())
+
+    def __failed_connection_message(self):
+        if self._proxy.is_configured():
+            return "Failed to connect to {} via {}".format(self.__log_url(), self._proxy.log_address())
+        else:
+            return "Failed to connect to {} directly".format(self.__log_url())
+
+    def get_requests_session(self):
+        session = requests.Session()
+        session.verify = self._cert
+        if self._proxy.is_configured():
+            session.proxies = {
+                'http': self._proxy.address(),
+                'https': self._proxy.address()
+            }
+        return session
 
     def run(self):
         try:

@@ -9,6 +9,8 @@ import os
 
 from . import path_manager
 
+import logging
+LOGGER = logging.getLogger(__name__)
 
 class Config(object):
     """
@@ -26,6 +28,9 @@ class Config(object):
         self.__user_id = user_id
         self.__m_filename = filename
         self.__m_parent_config = parent_config
+
+    def get_options(self):
+        return self.__m_options
 
     def set(self, key, value):
         """

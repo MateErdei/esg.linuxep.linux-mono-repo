@@ -129,6 +129,27 @@ class Proxy:
         self.m_password = password
         self.m_relay_id = relay_id
 
+    def is_configured(self):
+        if self.m_host:
+            return True
+        return False
+
+    def address(self):
+        if self.m_username and self.m_password:
+            output = "http://{}:{}@{}".format(self.m_username, self.m_password, self.m_host)
+        else:
+            output = "http://{}".format(self.m_host)
+
+        if self.m_port:
+            output = "{}:{}".format(output, self.m_port)
+
+        return output
+
+    def log_address(self):
+        if self.m_port:
+            return "{}:{}".format(self.m_host, self.m_port)
+        return "{}".format(self.m_host)
+
     def host(self):
         """
         host

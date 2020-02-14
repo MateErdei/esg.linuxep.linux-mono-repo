@@ -290,12 +290,7 @@ class MCSConnection:
 
         return self.__m_obfuscation_cache[obfuscated]
 
-    def __create_list_of_proxies(self):
-        """
-        __create_list_of_proxies
-        """
-        proxies = []
-        config = self.__m_config
+    def __get_deobfuscated_creds(self):
         self.__m_policy_proxy_credentials_obfuscated = self.__m_config.get_default(
             "mcs_policy_proxy_credentials", None)
         username = None
@@ -304,6 +299,26 @@ class MCSConnection:
             self.__m_policy_proxy_credentials_obfuscated)
         if creds is not None and ":" in creds:
             username, password = creds.split(":", 1)
+        return username, password
+
+    def get_list_of_proxies_push(self):
+        proxies, _, _, _ = self.__create_list_of_proxies()
+        return proxies
+
+    def __get_list_of_proxies(self):
+        proxies, message_relays, policy_proxy, use_direct = self.__create_list_of_proxies()
+        self.__m_message_relays = message_relays
+        self.__m_policy_proxy = policy_proxy
+        self.__m_use_direct = use_direct
+        return proxies
+
+    def __create_list_of_proxies(self):
+        """
+        __create_list_of_proxies
+        """
+        proxies = []
+        config = self.__m_config
+        username, password = self.__get_deobfuscated_creds()
 
         def add_proxy(
                 proxy_string,
@@ -325,9 +340,9 @@ class MCSConnection:
                 return
             proxies.append(proxy)
 
-        self.__m_message_relays = self.__get_message_relays()
+        message_relays = self.__get_message_relays()
         ordered_message_relay_list = ip_selection.evaluate_address_preference(
-            self.__m_message_relays)
+            message_relays)
         for relay in ordered_message_relay_list:
             add_proxy(
                 relay['hostname'] +
@@ -337,8 +352,8 @@ class MCSConnection:
                 username=username,
                 password=password)
 
-        self.__m_policy_proxy = config.get_default("mcs_policy_proxy", None)
-        add_proxy(self.__m_policy_proxy, username=username, password=password)
+        policy_proxy = config.get_default("mcs_policy_proxy", None)
+        add_proxy(policy_proxy, username=username, password=password)
 
         if config.get_bool("useSystemProxy", True):
             # Saved environment
@@ -349,12 +364,12 @@ class MCSConnection:
             env_proxy = os.environ.get("https_proxy", None)
             add_proxy(env_proxy)
 
-        self.__m_use_direct = self.__get_use_direct()
-        if self.__m_use_direct:
+        use_direct = self.__get_use_direct()
+        if use_direct:
             # Try direct unless useDirect is set to false
             proxies.append(sophos_https.Proxy())
 
-        return proxies
+        return proxies, message_relays, policy_proxy, use_direct
 
     def get_id(self):
         """
@@ -736,7 +751,7 @@ class MCSConnection:
         __try_urls
         """
         # Need to re-connect to Central/MCS
-        proxies = self.__create_list_of_proxies()
+        proxies = self.__get_list_of_proxies()
         urls = self.__get_urls()
         LOGGER.debug("Trying URLs: {}".format(str(urls)))
 
@@ -778,6 +793,7 @@ class MCSConnection:
         """
         __create_connection_and_get_response
         """
+
         response = None
         self.__m_last_seen_http_error = None
         # If we have an existing connection

@@ -311,15 +311,65 @@ Verify When MCS receives a Command Response Message It Immediately Attempt To Se
     # Check to ensure the command poll has not run again.
     Check Marked McsRouter Log Contains String N times    Set command poll interval to   0
 
+MCS Push Client Logs Successfull Connection Via Proxy
+
+    Start Proxy Server With Basic Auth    1235   username   password
+    Start MCS Push Server
+
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+
+    Log File  /opt/sophos-spl/base/etc/mcs.config
+    ${config} =     Catenate    SEPARATOR=\n
+    ...    MCSToken=ThisIsARegToken
+    ...    MCSURL=https://localhost:4443/mcs
+    ...    CAFILE=/vagrant/everest-base/testUtils/SupportFiles/CloudAutomation/root-ca.crt.pem
+    ...    proxy=http://username:password@localhost:1235
+    ...
+    Remove File  /opt/sophos-spl/base/etc/mcs.config
+    Create File  /opt/sophos-spl/base/etc/mcs.config  content=${config}
+    ${r} =  Run Process  chown  root:sophos-spl-group  /opt/sophos-spl/base/etc/mcs.config
+    Log  ${r.stderr}
+    should be equal as strings  0  ${r.rc}
+    ${r} =  Run Process  chmod  640  /opt/sophos-spl/base/etc/mcs.config
+    Log  ${r.stderr}
+    should be equal as strings  0  ${r.rc}
+    Log File  /opt/sophos-spl/base/etc/mcs.config
+
+    Start MCSRouter
+
+    Wait New MCS Policy Downloaded
+    Log File  /opt/sophos-spl/base/etc/mcs.config
+
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy  proxy
+
+    Send Message To Push Server And Expect It In MCSRouter Log   Single Message
+    fail
+
 *** Keywords ***
 
 Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    [Arguments]  ${proxy}=no
+    Run Keyword If  '${proxy}' != 'proxy'
+    ...  Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct  ELSE
+    ...  Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
+
+Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
     Wait Until Keyword Succeeds
     ...          10s
     ...          1s
     ...          Run Keywords
     ...          Check Mcsrouter Log Contains   Push Server settings changed. Applying it    AND
-    ...          Check Mcsrouter Log Contains   Established MCS Push Connection
+    ...          Check Mcsrouter Log Contains   Push client successfully connected to localhost:4443/mcs/push/endpoint/thisendpoint directly
+
+Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
+    Wait Until Keyword Succeeds
+    ...          10s
+    ...          1s
+    ...          Run Keywords
+    ...          Check Mcsrouter Log Contains   Push Server settings changed. Applying it    AND
+    ...          Check Mcsrouter Log Contains   Push client successfully connected to localhost:4443/mcs/push/endpoint/thisendpoint via localhost:1235
 
 Send Message To Push Server And Expect It In MCSRouter Log
     [Arguments]  ${message}
@@ -330,5 +380,6 @@ Send Message To Push Server And Expect It In MCSRouter Log
     ...  Check Mcsrouter Log Contains   Received command: ${message}
 
 Test Teardown
+    Stop Proxy Servers
     Stop Mcsrouter If Running
     Push Server Teardown with MCS Fake Server
