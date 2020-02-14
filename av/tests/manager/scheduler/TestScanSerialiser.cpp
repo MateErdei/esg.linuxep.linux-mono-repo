@@ -76,7 +76,10 @@ TEST(ScanSerialiser, FullScan) // NOLINT
   <onDemandScan>
     <extensions>
       <allFiles>true</allFiles>
-      <excludeSophosDefined><extension>exe</extension></excludeSophosDefined>
+      <excludeSophosDefined>
+        <extension>exe</extension>
+        <extension>com</extension>
+      </excludeSophosDefined>
       <userDefined><extension>png</extension></userDefined>
       <noExtensions>false</noExtensions>
     </extensions>
@@ -109,7 +112,7 @@ TEST(ScanSerialiser, FullScan) // NOLINT
     const auto& scan = scans[0];
 
     auto exclusionsIn = m->sophosExtensionExclusions();
-    ASSERT_EQ(exclusionsIn.size(), 1);
+    ASSERT_EQ(exclusionsIn.size(), 2);
 
     std::string dataAsString = ScanSerialiser::serialiseScan(*m, scan);
 
@@ -127,8 +130,9 @@ TEST(ScanSerialiser, FullScan) // NOLINT
     EXPECT_EQ(exclusions[0], "Exclusion1");
 
     auto extensions = r.requestReader.getSophosExtensionExclusions();
-    ASSERT_EQ(extensions.size(), 1);
+    ASSERT_EQ(extensions.size(), 2);
     EXPECT_EQ(extensions[0], "exe");
+    EXPECT_EQ(extensions[1], "com");
 
     auto inclusions = r.requestReader.getUserDefinedExtensionInclusions();
     ASSERT_EQ(inclusions.size(), 1);
