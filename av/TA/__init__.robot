@@ -27,6 +27,7 @@ Global Setup Tasks
     Set Global Variable  ${COMPONENT_BIN_PATH}      ${COMPONENT_ROOT_PATH}/sbin/${COMPONENT_NAME}
     Set Global variable  ${COMPONENT_LIB64_DIR}     ${COMPONENT_ROOT_PATH}/lib64
     Set Global Variable  ${FAKEMANAGEMENT_AGENT_LOG_PATH}  ${SOPHOS_INSTALL}/tmp/fake_management_agent.log
+    Set Global Variable  ${MANAGEMENT_AGENT_LOG_PATH}  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
 
     Setup Base And Component
 

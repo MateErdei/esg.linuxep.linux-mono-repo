@@ -27,12 +27,11 @@ AV plugin Can Start sophos_threat_detector
 
 AV plugin Can ScanNow and (fake) Report To Central
     Mock Scan Now
-    Wait Until Created  ${SOPHOS_INSTALL}/base/mcs/action/scan-now.xml
-
+    #Wait Until Created  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_scan-now.xml
     Wait Until Keyword Succeeds
-    ...  45 secs
+    ...  15 secs
     ...  1 secs
-    ...  AV Plugin Log Contains  Received new Action
+    ...  Management Log Contains  Action /opt/sophos-spl/base/mcs/action/SAV_action_scan-now.xml sent to 1 plugins
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -56,11 +55,10 @@ Mock Scan Now
 Check Scan Now Has Started
 
 Check For Scan Complete
-    Should Exist  ${SOPHOS_INSTALL}/base/mcs/event/*.xml
     List Files In Directory  ${SOPHOS_INSTALL}/base/mcs/event/
 
 Verify Event XML
-    ${SCAN_COMPLETE_XML}  parse xml  ${SOPHOS_INSTALL}/base/mcs/event/*.xml
+    ${SCAN_COMPLETE_XML}  parse xml  ${SOPHOS_INSTALL}/base/mcs/event/SAV_action_scan-now.xml
     ELEMENT TEXT SHOULD BE  source=${root}  expected=<scanComplete>  xpath=scanComplete
 
 Configure Scan Exclusions Everything Else # Will allow for one directory to be selected during a scan

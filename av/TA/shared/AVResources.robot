@@ -1,7 +1,6 @@
 *** Settings ***
 Library         Process
 Library         OperatingSystem
-Library         String
 Library         ../Libs/FakeManagement.py
 
 Resource    ComponentSetup.robot
@@ -12,7 +11,6 @@ ${COMPONENT_UC}    AV
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
-${SCANNOW_LOG_PATH}  ${AV_PLUGIN_PATH}/log/scanNow.log
 ${BASE_SDDS}       ${TEST_INPUT_PATH}/${COMPONENT}/base-sdds/
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
@@ -38,33 +36,9 @@ File Log Contains
     ${content} =  Get File   ${path}
     Should Contain  ${content}  ${input}
 
-Wait Until File Log Contains
-    [Arguments]  ${logCheck}  ${input}
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  ${logCheck}  ${input}
-
-File Log Does Not Contain
-    [Arguments]  ${logCheck}  ${input}
-    Run Keyword And Expect Error
-    ...  Keyword '${logCheck}' failed after retrying for 15 seconds.*does not contain '${input}'
-    ...  Wait Until Keyword Succeeds
-    ...    15 secs
-    ...    1 secs
-    ...    ${logCheck}  ${input}
-
 AV Plugin Log Contains
     [Arguments]  ${input}
     File Log Contains  ${AV_LOG_PATH}   ${input}
-
-Wait Until AV Plugin Log Contains
-    [Arguments]  ${input}
-    Wait Until File Log Contains  AV Plugin Log Contains   ${input}
-
-AV Plugin Log Does Not Contain
-    [Arguments]  ${input}
-    File Log Does Not Contain  AV Plugin Log Contains  ${input}
 
 Plugin Log Contains
     [Arguments]  ${input}
@@ -76,15 +50,7 @@ FakeManagement Log Contains
 
 Management Log Contains
     [Arguments]  ${input}
-    File Log Contains  ${MANAGEMENT_AGENT_LOG_PATH}   ${input}
-
-Wait Until Management Log Contains
-    [Arguments]  ${input}
-    Wait Until File Log Contains  Management Log Contains   ${input}
-
-Management Log Does Not Contain
-    [Arguments]  ${input}
-    File Log Does Not Contain  Management Log Contains  ${input}
+    File Log Contains  ${MANAGEMENT_AGENT_LOG_PATH}    ${input}
 
 Check Plugin Installed and Running
     File Should Exist   ${PLUGIN_BINARY}
@@ -123,7 +89,7 @@ Uninstall And Revert Setup
 
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
-    Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=600s
+    Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=60s
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install AV Directly from SDDS
@@ -157,15 +123,3 @@ Create Install Options File With Content
     [Arguments]  ${installFlags}
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
     #TODO set permissions
-
-Send Sav Policy To Base
-    [Arguments]  ${policyFile}
-    Copy File  ${RESOURCES_PATH}/${policyFile}  ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
-
-Send Sav Action To Base
-    [Arguments]  ${actionFile}
-    ${savActionFilename}  Generate Random String
-    Copy File  ${RESOURCES_PATH}/${actionFile}  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_${savActionFilename}.xml
-
-Check ScanNow Log Exists
-    File Should Exist  ${SCANNOW_LOG_PATH}
