@@ -295,7 +295,7 @@ Verify When MCS receives a Command Response Message It Immediately Attempt To Se
 
     Start MCS Push Server
 
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_300.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
 
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -316,7 +316,7 @@ MCS Push Client Logs Successfull Connection Via Proxy
     Start Proxy Server With Basic Auth    1235   username   password
     Start MCS Push Server
 
-    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_Push_Server.xml
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_300.xml
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
 
@@ -345,7 +345,6 @@ MCS Push Client Logs Successfull Connection Via Proxy
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy  proxy
 
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
-    fail
 
 *** Keywords ***
 
@@ -361,7 +360,7 @@ Push Client started and connects to Push Server when the MCS Client receives MCS
     ...          1s
     ...          Run Keywords
     ...          Check Mcsrouter Log Contains   Push Server settings changed. Applying it    AND
-    ...          Check Mcsrouter Log Contains   Push client successfully connected to localhost:4443/mcs/push/endpoint/thisendpoint directly
+    ...          Check Mcsrouter Log Contains   Push client successfully connected to localhost:4443 directly
 
 Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
     Wait Until Keyword Succeeds
@@ -369,7 +368,7 @@ Push Client started and connects to Push Server when the MCS Client receives MCS
     ...          1s
     ...          Run Keywords
     ...          Check Mcsrouter Log Contains   Push Server settings changed. Applying it    AND
-    ...          Check Mcsrouter Log Contains   Push client successfully connected to localhost:4443/mcs/push/endpoint/thisendpoint via localhost:1235
+    ...          Check Mcsrouter Log Contains   Push client successfully connected to localhost:4443 via localhost:1235
 
 Send Message To Push Server And Expect It In MCSRouter Log
     [Arguments]  ${message}
