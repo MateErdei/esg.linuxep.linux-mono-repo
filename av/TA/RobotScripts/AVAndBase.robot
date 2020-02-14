@@ -15,7 +15,7 @@ Test Setup      No Operation
 Test Teardown   AV And Base Teardown
 
 *** Variables ***
-${SCAN_NOW_XML}       ${RESOURCES_PATH}/scan-now.xml
+${SCAN_NOW_XML}       ${RESOURCES_PATH}/SAV_action_scan-now.xml
 
 *** Test Cases ***
 AV plugin Can Start sophos_threat_detector
