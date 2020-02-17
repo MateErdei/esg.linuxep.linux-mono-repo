@@ -258,13 +258,13 @@ class LogUtils(object):
         return len(log_occurrences)
 
 
-    def is_regex_in_file(self, file_path, reg_expresion_str):
+    def check_string_matching_regex_in_file(self, file_path, reg_expression_str):
         if not os.path.exists(file_path):
             raise AssertionError("File not found '{}'".format(file_path))
-        if self.get_number_of_occurences_of_regex_in_string(get_log_contents(file_path), reg_expresion_str) < 1:
+        if self.get_number_of_occurences_of_regex_in_string(get_log_contents(file_path), reg_expression_str) < 1:
             self.dump_log(file_path)
             raise AssertionError(
-                "The file: '{}', did not have any lines match the regex: '{}'".format(file_path, reg_expresion_str))
+                "The file: '{}', did not have any lines match the regex: '{}'".format(file_path, reg_expression_str))
 
 
     def mark_expected_error_in_log(self, log_location, error_message):
