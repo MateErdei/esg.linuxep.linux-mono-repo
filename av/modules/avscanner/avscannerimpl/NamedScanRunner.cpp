@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Mounts.h"
 #include "ScanClient.h"
-#include "datatypes/Print.h"
 
 #include <filewalker/FileWalker.h>
 #include <filewalker/IFileWalkCallbacks.h>
@@ -97,11 +96,11 @@ std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoint
         }
         else if (mp->isSpecial() )
         {
-            PRINT("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from the scan");
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from the scan");
         }
         else
         {
-            PRINT("Mount point " << mp->mountPoint().c_str() << " is has been excluded from the scan");
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is has been excluded from the scan");
         }
     }
     return includedMountpoints;
@@ -125,7 +124,7 @@ int NamedScanRunner::run()
     for (auto & mp : includedMountpoints)
     {
         std::string mountpointToScan = mp->mountPoint();
-        PRINT(">>> Scanning mount point: " << mountpointToScan);
+        LOGINFO("Scanning mount point: " << mountpointToScan);
         filewalker::walk(mountpointToScan, callbacks);
     }
 
