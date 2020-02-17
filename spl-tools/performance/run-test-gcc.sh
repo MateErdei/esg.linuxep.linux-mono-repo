@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to run and time GCC build.
+# Script to run and time GCC builds on performance soak test machines.
 # The results are saved in elastic search in the index perf-custom.
 # This script requires the following dir structure:
 # /home/pair/gcc-build-test/gcc-gcc-6_4_0-release (this is the unpacked contents of gcc-gcc-6_4_0-release.tar.gz
