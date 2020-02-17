@@ -1,11 +1,12 @@
 import subprocess
 import os
 
-BASE_PATH = os.path.join('/opt', 'sophosspl')
-DIAGNOSE_PATH = os.path.join(BASE_PATH, 'bin', 'sophos_diagnose')
+BASE_PATH = os.path.join('/opt', 'sophos-spl')
+# DIAGNOSE_PATH = os.path.join(BASE_PATH, 'bin', 'sophos_diagnose')
 
-def run_diagnose(pathTodiagnose, outputfolder):
-    command = [DIAGNOSE_PATH, pathTodiagnose, outputfolder]
+
+def start_diagnose(path_to_diagnose, output_folder):
+    command = [path_to_diagnose, output_folder]
     log_path = os.path.join("/tmp", "diagnose.log")
     log = open(log_path, 'w+')
     process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)

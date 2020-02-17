@@ -1,13 +1,12 @@
 *** Settings ***
 Documentation    Suite description
 
-Library         Process
-Library         OperatingSystem
-
-Library         ../libs/BaseInteractionTools/DiagnoseUtils
-
 Resource        AVResources.robot
-Resource        ComponentSetup.robot
+Resource        BaseResources.robot
+
+Library         OperatingSystem
+Library         Process
+Library         String
 
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
@@ -40,4 +39,7 @@ AV plugin fails scan now if no policy
 
 Diagnose collects the correct files
     Check AV Plugin Installed With Base
-    ${retcode} =  Run Diagnose  ${SOPHOS_INSTALL}/bin/  ${TAR_FILE_DIRECTORY}
+    Run Diagnose
+    Check Diagnose Tar Created
+    Check Diagnose Collects Correct AV Files
+    Check Diagnose Logs
