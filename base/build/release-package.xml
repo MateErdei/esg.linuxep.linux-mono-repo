@@ -89,7 +89,7 @@
         <package name="python-chardet" version="3-0-4-3/218617/chardet" dest="input">
             <include src="python-chardet.tar" dest="."/>
         </package>
-        <package name="python-sseclient" version="0-0-23-18/218621/sseclient" dest="input">
+        <package name="python-sseclient" version="0-0-23-19/218716/sseclient" dest="input">
             <include src="python-sseclient.tar" dest="."/>
         </package>
 
