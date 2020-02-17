@@ -53,6 +53,6 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Check For Scan Complete
-
-    #Verify Sav Event - This will parse the scan complete xml in the events folder and compare it to the one we have in our resouces folder
+    ...  # Check For Scan Complete
+         # This will parse the scan complete xml in the events folder and compare it to the one we have in our resouces folder
+         # Once we can validate xml appearing in the events folder, we can expect this to be sent to Central (In a System Product Test)
