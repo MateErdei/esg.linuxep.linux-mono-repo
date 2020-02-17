@@ -11,6 +11,10 @@ import os
 import errno
 import requests
 import sseclient
+import requests
+import urllib3
+import mcsrouter.digestproxyworkaround as digestproxyworkaround
+urllib3.connectionpool.HTTPSConnectionPool.ConnectionCls = digestproxyworkaround.ReplaceConnection
 import selectors
 from enum import Enum
 from urllib.parse import urlparse
@@ -194,13 +198,18 @@ class MCSPushClientInternal(threading.Thread):
         for proxy in self._proxy_settings:
             self._proxy = proxy
             LOGGER.info(self.__attempting_connection_message())
-            session = self.get_requests_session()
+            session, proxy_username, proxy_password = self.get_requests_session()
+            LOGGER.debug("Try connection to push server via this route: {}".format(session.proxies))
             try:
+                digestproxyworkaround.GLOBALAUTHENTICATION.set(proxy_username, proxy_password)
                 messages = sseclient.SSEClient(self._url, session=session)
                 LOGGER.info(self.__successful_connection_message())
+                LOGGER.debug("success in connecting to push server")
                 return messages
             except Exception as exception:
                 LOGGER.warning("{}: {}".format(self.__failed_connection_message(), str(exception)))
+            finally:
+                digestproxyworkaround.GLOBALAUTHENTICATION.clear()
         else:
             raise MCSPushException("Tried all connection methods and failed to connect to {}".format(self.__log_url()))
 
@@ -234,10 +243,10 @@ class MCSPushClientInternal(threading.Thread):
         session.verify = self._cert
         if self._proxy.is_configured():
             session.proxies = {
-                'http': self._proxy.address(),
-                'https': self._proxy.address()
+                'http': self._proxy.address(with_full_uri=False),
+                'https': self._proxy.address(with_full_uri=False)
             }
-        return session
+        return session, self._proxy.m_username, self._proxy.m_password
 
     def run(self):
         try:

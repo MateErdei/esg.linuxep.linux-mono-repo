@@ -134,8 +134,8 @@ class Proxy:
             return True
         return False
 
-    def address(self):
-        if self.m_username and self.m_password:
+    def address(self, with_full_uri=True):
+        if self.m_username and self.m_password and with_full_uri:
             output = "http://{}:{}@{}".format(self.m_username, self.m_password, self.m_host)
         else:
             output = "http://{}".format(self.m_host)

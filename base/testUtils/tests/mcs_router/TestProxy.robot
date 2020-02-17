@@ -268,7 +268,13 @@ Policy authentication with digest
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains   Successfully connected to localhost:4443 via localhost:3000
+
     Check MCSRouter Does Not Retry Direct Connection
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  5 secs
+        ...  Check MCSRouter Log Contains   Established MCS Push Connection
+    Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:3000
 
 
 Attempt to Connect Via Digest Proxy with Wrong Credentials Produce Correct Error Line
@@ -291,6 +297,15 @@ Attempt to Connect Via Digest Proxy with Wrong Credentials Produce Correct Error
              ...   Trying connection directly to localhost:4443
              ...   Successfully directly connected to localhost:4443
     Check MCSRouter Log Does Not Contain  Successfully connected to localhost:4443 via localhost:3000
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  5 secs
+        ...  Check MCSRouter Log Contains   Established MCS Push Connection
+    Check MCS Router Log Contains In Order
+             ...   Trying push connection to localhost:4443 via localhost:3000
+             ...   Failed to connect to localhost:4443 via localhost:3000
+             ...   Trying push connection directly to localhost:4443
+             ...   Push client successfully connected to localhost:4443 directly
 
 
 Policy authentication with 3DES obfuscation
@@ -327,6 +342,7 @@ Policy Basic Auth Proxy Credentials Deobfuscated And Used
 
     Check MCSRouter Log Does Not Contain  Successfully directly connected to localhost:4443
     Check MCSRouter Log Does Not Contain  Push client successfully connected to ${push_server_address} directly
+
 
 Status Sent After Message Relay Changed
     [Documentation]  Derived from  CLOUD.MCS.012_status_sent_after_message_relay_changed.sh

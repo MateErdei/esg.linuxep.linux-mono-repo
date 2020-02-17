@@ -128,6 +128,11 @@ DUMMY_MCS_POLICY_WITH_PROXY = """<?xml version="1.0"?>
     <randomSkewFactor>1</randomSkewFactor>
     <commandPollingDelay default="20"/>
     <policyChangeServers/>
+        <pushServers>
+            <pushServer>https://localhost:4443/mcs</pushServer>
+        </pushServers>
+        <pushPingTimeout>10</pushPingTimeout>
+        <pushFallbackPollInterval>10</pushFallbackPollInterval>    
     </configuration>
 </policy>"""
 
