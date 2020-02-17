@@ -61,7 +61,7 @@ Install EDR and handle Live Query
     ...  Check Cloud Server Log Contains   cloudServer: LiveQuery response (firstcommand) = {  1
     Check Cloud Server Log Contains    "type": "sophos.mgt.response.RunLiveQuery",  1
 
-    ${fake_cloud_log}=  get_fake_cloud_log_file_path
+    ${fake_cloud_log}=  Get Fake Cloud Log File Path
     Check String Matching Regex In File   ${fake_cloud_log}    \"queryMetaData\": {\"durationMillis\":[0-9]+,\"errorCode\":0,\"errorMessage\":\"OK\",\"rows\":[0-9]+,\"sizeBytes\":[0-9]+},
 
     Check Cloud Server Log Contains    "columnMetaData": [{"name":"name","type":"TEXT"}],  1
