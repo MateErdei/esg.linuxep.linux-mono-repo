@@ -166,7 +166,7 @@ Send Sav Action To Base
     ${savActionFilename}  Generate Random String
     Copy File  ${RESOURCES_PATH}/${actionFile}  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_${savActionFilename}.xml
 
-Check for Scan Complete
+Validate Scan Complete
     [Arguments]  ${XML}
     ${SCAN_COMPLETE_XML}  parse xml  ${SOPHOS_INSTALL}/base/mcs/event/${XML}
     ELEMENT TEXT SHOULD BE  source=${root}  expected=<scanComplete>  xpath=scanComplete
