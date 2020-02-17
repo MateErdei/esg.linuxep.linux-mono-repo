@@ -14,7 +14,6 @@ Suite Teardown  Uninstall And Revert Setup
 Test Setup      No Operation
 Test Teardown   AV And Base Teardown
 
-
 *** Test Cases ***
 AV plugin Can Start sophos_threat_detector
     Check AV Plugin Installed With Base
