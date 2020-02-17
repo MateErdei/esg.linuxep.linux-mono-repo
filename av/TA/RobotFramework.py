@@ -11,7 +11,7 @@ def main():
 
     robot_args = {
         'path':  r'/opt/test/inputs/test_scripts/',
-        'name': 'integration',
+        'name': '',
         'loglevel': 'DEBUG',
         'consolecolors': 'ansi',
         'include': tags['include'],
