@@ -21,7 +21,8 @@ Global Setup Tasks
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
     Set Global Variable  ${TEST_SCRIPTS_PATH}       ${TEST_INPUT_PATH}/test_scripts
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_SCRIPTS_PATH}/RobotScripts
-    Set Global Variable  ${INTEGRATION_SCRIPTS_PATH}  ${ROBOT_SCRIPTS_PATH}/integration
+    Set Global Variable  ${INTEGRATION_TESTS_PATH}  ${ROBOT_SCRIPTS_PATH}/integration
+    Set Global Variable  ${PRODUCT_TESTS_PATH}      ${ROBOT_SCRIPTS_PATH}/product
     Set Global Variable  ${RESOURCES_PATH}          ${ROBOT_SCRIPTS_PATH}/resources
     Set Global Variable  ${COMPONENT_NAME}          av
     Set Global Variable  ${COMPONENT_SDDS}          ${TEST_INPUT_PATH}/${COMPONENT_NAME}/SDDS-COMPONENT
