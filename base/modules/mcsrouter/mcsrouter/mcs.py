@@ -488,6 +488,7 @@ class MCS:
         # pylint: disable=too-many-nested-blocks
         try:
             while running:
+                LOGGER.debug("Re-entered main loop")
                 timeout_compensation = 0
 
                 before_time = time.time()

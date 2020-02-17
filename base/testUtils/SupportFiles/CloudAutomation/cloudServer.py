@@ -1233,10 +1233,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("")
         elif MCSRequestHandler.options.reregister:
             return self.send_401()
-        elif REREGISTER_NEXT:
+        elif REREGISTER_NEXT and not self.path.startswith('/mcs/push/endpoint/'):
             REREGISTER_NEXT = False
             return self.send_401()
-        elif ERROR_NEXT:
+        elif ERROR_NEXT and not self.path.startswith('/mcs/push/endpoint/'):
             ERROR_NEXT = False
             return self.send_error_503()
         elif self.path.startswith("/mcs/commands/applications/"):
