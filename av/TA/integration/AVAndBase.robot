@@ -4,8 +4,8 @@ Documentation    Suite description
 Library         Process
 Library         OperatingSystem
 
-Resource        ../shared/AVResources.robot
-Resource        ../shared/ComponentSetup.robot
+Resource        ../AVResources.robot
+Resource        ../ComponentSetup.robot
 
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
