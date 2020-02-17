@@ -121,7 +121,8 @@ Push Client stops connection to Push server when instructed by the MCS Client
     Send Message To Push Server And Expect It In MCSRouter Log   <action>validxml</action>
 
     ${mcs_policy} =    Get File  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
-    ${changed_ping} =  Replace String  ${mcs_policy}  <pushPingTimeout>10</pushPingTimeout>    <pushPingTimeout>20</pushPingTimeout>
+    ${changed_ping} =  Replace String  ${mcs_policy}  <pushPingTimeout>12</pushPingTimeout>    <pushPingTimeout>20</pushPingTimeout>
+    Should Contain  ${changed_ping}  <pushPingTimeout>20</pushPingTimeout>
     Send Policy   mcs  ${changed_ping}
 
     Wait Until Keyword Succeeds
@@ -208,11 +209,11 @@ Verify When Push Client Is Connected MCS Router Will Command Poll The Server Usi
     ...  10 secs
     ...  1 secs
     ...  Run Keywords
-    ...  Check Mcsrouter Log Contains   Set command poll interval to 60   AND
+    ...  Check Mcsrouter Log Contains   Set command poll interval to 20   AND
     ...  Check Mcs Envelope Log Contains Regex String N Times   GET \/commands\/applications\/MCS;(\\w;*)+\/endpoint\/   3
 
-    Sleep  55s
-    #checking there is still only three matching lines after 55 seconds
+    Sleep  15s
+    #checking there is still only three matching lines after 15 seconds
     Check Mcs Envelope Log Contains Regex String N Times   GET \/commands\/applications\/MCS;(\\w;*)+\/endpoint\/   3
 
     Wait Until Keyword Succeeds
@@ -250,7 +251,7 @@ Verify MCSRouter Disconnect Push Client When It Loses Its own Connection To MCS 
     ...  10 secs
     ...  1 secs
     ...  Check MCS Router Log Contains In Order
-    ...        Set command poll interval to 60
+    ...        Set command poll interval to 20
     ...        Set command poll interval to 5
 
 Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trigger An Immediate Command Poll
@@ -267,7 +268,7 @@ Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trig
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  2 secs
-    ...  Check Mcsrouter Log Contains   Set command poll interval to 60
+    ...  Check Mcsrouter Log Contains   Set command poll interval to 20
 
     Shutdown MCS Push Server
 
@@ -285,7 +286,7 @@ Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trig
     ...  10 secs
     ...  1 secs
     ...  Check MCS Router Log Contains In Order
-    ...        Set command poll interval to 60
+    ...        Set command poll interval to 20
     ...        Set command poll interval to 5
 
 Verify When MCS receives a Command Response Message It Immediately Attempt To Send Regardless Of Any Error Or Backoff
@@ -295,7 +296,7 @@ Verify When MCS receives a Command Response Message It Immediately Attempt To Se
 
     Start MCS Push Server
 
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_60.xml
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_300.xml
 
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -326,7 +327,7 @@ MCS Push Client Logs Successfull Connection Via Proxy
     ...    MCSURL=https://localhost:4443/mcs
     ...    CAFILE=/vagrant/everest-base/testUtils/SupportFiles/CloudAutomation/root-ca.crt.pem
     ...    proxy=http://username:password@localhost:1235
-    ...
+
     Remove File  /opt/sophos-spl/base/etc/mcs.config
     Create File  /opt/sophos-spl/base/etc/mcs.config  content=${config}
     ${r} =  Run Process  chown  root:sophos-spl-group  /opt/sophos-spl/base/etc/mcs.config

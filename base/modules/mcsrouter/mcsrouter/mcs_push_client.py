@@ -117,6 +117,7 @@ class MCSPushClient:
             url, cert, expected_ping, proxy_settings = self._settings.as_tuple()
             LOGGER.debug("Settings for push client: url: {}, ping {} and cert {}".format(url, expected_ping, cert))
             if not url:
+                LOGGER.info("Push client not connecting, no url given")
                 return
             self._push_client_impl = MCSPushClientInternal(url, cert, expected_ping, proxy_settings, self._notify_mcsrouter_channel)
             self._push_client_impl.start()

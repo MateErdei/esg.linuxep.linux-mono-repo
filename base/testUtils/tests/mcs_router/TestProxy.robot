@@ -245,11 +245,15 @@ Fallback to direct connection when policy proxy fails
     Check Marked MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
 
     Stop Proxy Server On Port  3346
+
     Wait Until Keyword Succeeds
     ...  50 secs
     ...  5 secs
     ...  Check Marked MCSRouter Log Contains   Successfully directly connected to localhost:4443
-    Check Marked MCSRouter Log Contains   Push client successfully connected to ${push_server_address} directly
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check Marked MCSRouter Log Contains   Push client successfully connected to ${push_server_address} directly
 
 Policy authentication with digest
     [Documentation]  Derived from CLOUD.PROXY.013_policy_authentication.sh
@@ -328,7 +332,6 @@ Policy Basic Auth Proxy Credentials Deobfuscated And Used
     Check MCSRouter Log Does Not Contain  Push client successfully connected to ${push_server_address} directly
 
 Status Sent After Message Relay Changed
-    # TODO - this is broken for mcs push
     [Documentation]  Derived from  CLOUD.MCS.012_status_sent_after_message_relay_changed.sh
     ${Proxy_Port_One} =  Set Variable  3333
     ${Proxy_Port_Two} =  Set Variable  7773

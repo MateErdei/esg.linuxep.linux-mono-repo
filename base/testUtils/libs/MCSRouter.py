@@ -99,10 +99,10 @@ DUMMY_MCS_POLICY = """<?xml version="1.0"?>
     <commandPollingDelay default="20"/>
     <policyChangeServers/>
     <pushServers>
-        <pushServer>https://localhost:4443/mcs/push/endpoint/thisendpoint</pushServer>
+        <pushServer>https://localhost:4443/mcs</pushServer>
     </pushServers>
-    <pushPingTimeout>10</pushPingTimeout>
-    <pushFallbackPollInterval>60</pushFallbackPollInterval>
+    <pushPingTimeout>12</pushPingTimeout>
+    <pushFallbackPollInterval>20</pushFallbackPollInterval>
     </configuration>
 </policy>"""
 
