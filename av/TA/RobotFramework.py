@@ -10,7 +10,7 @@ def main():
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {
-        'path':  r'/opt/test/inputs/test_scripts/integration',
+        'path':  r'/opt/test/inputs/test_scripts/',
         'name': 'integration',
         'loglevel': 'DEBUG',
         'consolecolors': 'ansi',
