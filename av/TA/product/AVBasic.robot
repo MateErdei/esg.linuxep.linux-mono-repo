@@ -1,10 +1,10 @@
 *** Settings ***
 Library         Process
 Library         OperatingSystem
-Library         ../../Libs/FakeManagement.py
+Library         ../Libs/FakeManagement.py
 
-Resource    ../ComponentSetup.robot
-Resource    ../AVResources.robot
+Resource    ../shared/ComponentSetup.robot
+Resource    ../shared/AVResources.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
