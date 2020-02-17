@@ -2,9 +2,7 @@ Use these robot tests for Component Integration tests as defined in the wiki:
 
 https://wiki.sophos.net/pages/viewpage.action?pageId=317105394
 
-
-
-In order to run these tests in tap do:
+In order to run these tests in TAP do:
  1) activate the tap environment:
     source tapvenv/bin/activate
  2) tap run av_plugin.integration --debug-loop
