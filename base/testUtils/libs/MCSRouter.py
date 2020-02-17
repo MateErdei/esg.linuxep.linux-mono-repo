@@ -1043,6 +1043,8 @@ class MCSRouter(object):
         with open(output_file, 'w') as status_file:
             status_file.write(status_file_contents)
 
+    def get_fake_cloud_log_file_path(self):
+        return self.cloud_server_log
 
 def main(argv):
     r = MCSRouter()
