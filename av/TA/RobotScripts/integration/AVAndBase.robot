@@ -1,12 +1,11 @@
 *** Settings ***
 Documentation    Suite description
 
-Resource        AVResources.robot
-Resource        BaseResources.robot
-
-Library         OperatingSystem
 Library         Process
-Library         String
+Library         OperatingSystem
+
+Resource        ../AVResources.robot
+Resource        ../ComponentSetup.robot
 
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
@@ -36,10 +35,3 @@ AV plugin fails scan now if no policy
     Send Sav Action To Base  ScanNow_Action.xml
     AV Plugin Log Does Not Contain  Starting scan scanNow
     AV Plugin Log Contains  Starting Scan Now scan
-
-Diagnose collects the correct files
-    Check AV Plugin Installed With Base
-    Run Diagnose
-    Check Diagnose Tar Created
-    Check Diagnose Collects Correct AV Files
-    Check Diagnose Logs
