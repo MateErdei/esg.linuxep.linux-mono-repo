@@ -38,6 +38,7 @@ AV plugin fails scan now if no policy
     AV Plugin Log Contains  Starting Scan Now scan
 
 AV plugin sends Scan Complete event and (fake) Report To Central
+    Check AV Plugin Installed With Base
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until Management Log Contains  Action /opt/sophos-spl/base/mcs/action/SAV_action
     Wait Until AV Plugin Log Contains  Starting scan
