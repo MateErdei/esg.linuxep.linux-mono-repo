@@ -3,8 +3,8 @@ Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 
-Resource    ../shared/ComponentSetup.robot
-Resource    ../shared/AVResources.robot
+Resource    ../ComponentSetup.robot
+Resource    ../AVResources.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
