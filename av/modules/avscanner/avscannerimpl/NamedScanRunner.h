@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IRunner.h"
+#include "Logger.h"
 #include "NamedScanConfig.h"
 
 #include "NamedScan.capnp.h"
@@ -25,6 +26,7 @@ namespace avscanner::avscannerimpl
         NamedScanConfig& getConfig();
     private:
         NamedScanConfig m_config;
+        Logger m_logger;
     };
 }
 

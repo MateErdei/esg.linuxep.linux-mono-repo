@@ -2,6 +2,8 @@
 add_library(avscannerimpl SHARED
         CommandLineScanRunner.cpp
         CommandLineScanRunner.h
+        Logger.cpp
+        Logger.h
         IRunner.h
         NamedScanConfig.cpp
         NamedScanConfig.h

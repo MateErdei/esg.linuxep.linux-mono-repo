@@ -24,11 +24,13 @@ using namespace avscanner::avscannerimpl;
 
 NamedScanRunner::NamedScanRunner(const std::string& configPath)
     : m_config(configFromFile(configPath))
+    , m_logger(m_config.m_scanName)
 {
 }
 
 NamedScanRunner::NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedScanConfig)
     : m_config(namedScanConfig)
+    , m_logger(m_config.m_scanName)
 {
 }
 
