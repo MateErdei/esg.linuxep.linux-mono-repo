@@ -1,7 +1,7 @@
 *** Settings ***
 Library         Process
 Library         OperatingSystem
-Library         Libs/FakeManagement.py
+Library         ../Libs/FakeManagement.py
 
 
 *** Keywords ***
