@@ -7,7 +7,7 @@ Test Teardown   Component Test TearDown
 
 
 Library         OperatingSystem
-Resource        ComponentSetup.robot
+Resource        shared/ComponentSetup.robot
 
 Test Timeout    5 minutes
 
