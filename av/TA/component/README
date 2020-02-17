@@ -1,13 +1,9 @@
-The PyTestScripts is the location to add the 'Component' tests as described in the wiki
-https://wiki.sophos.net/pages/viewpage.action?pageId=317105394
-
-
-In order to run these tests in tap do:
+In order to run these tests in TAP do:
  1) activate the tap environment:
     source tap/bin/activate
  2) tap run av_plugin.component --debug-loop
 
-In order to run them in vagrant box:
+In order to run them in Vagrant box:
   1) ssh into vagrant
   2) Setup some links:
     a) mkdir -p /opt/test/inputs
@@ -20,5 +16,3 @@ In order to run them in vagrant box:
   4) pip install -r requirements.txt
   5) python3 -u -m pytest
   6) Result files can be seen at: /var/tmp/pytest-of-vagrant/pytest-current/sophos-splcurrent
-
-For more information, check: https://wiki.sophos.net/display/LD/How+we+can+use+TAP+spike
