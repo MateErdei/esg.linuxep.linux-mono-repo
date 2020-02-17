@@ -251,7 +251,6 @@ bool DeviceUtil::isSystem(const std::string& devicePath, const std::string& moun
 
 
         ret = statfs(mountPoint.c_str(), &sfs);
-        PRINT("  isSystem/statfs(" << mountPoint << ") = " << ret << ", type = " << filesystemType << "/" << sfs.f_type);
         if (ret == 0)
         {
             auto sb_type = static_cast<unsigned long>(sfs.f_type);

@@ -75,20 +75,8 @@ CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths)
 int CommandLineScanRunner::run()
 {
     // evaluate mount information
-    std::vector<std::shared_ptr<IMountPoint>> includedMountpoints;
     std::shared_ptr<IMountInfo> mountInfo = std::make_shared<Mounts>();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
-    for (auto & mp : allMountpoints)
-    {
-        if ( mp->isSpecial() )
-        {
-            PRINT("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from the scan");
-        }
-        else
-        {
-            includedMountpoints.push_back(mp);
-        }
-    }
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 

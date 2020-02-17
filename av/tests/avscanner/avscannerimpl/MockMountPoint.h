@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "avscanner/avscannerimpl/IMountPoint.h"
 
-class MockMountPoint : public IMountPoint
+class MockMountPoint : public avscanner::avscannerimpl::IMountPoint
 {
 public:
     MOCK_CONST_METHOD0(device, std::string());

@@ -13,7 +13,7 @@ namespace avscanner::avscannerimpl
     class DeviceUtil
     {
     public:
-        virtual ~DeviceUtil() = default;
+        DeviceUtil() = delete;
 
         /**
          * Determine if the device specified is a floppy drive.
@@ -86,9 +86,5 @@ namespace avscanner::avscannerimpl
          */
         static bool isSystem(const std::string& devicePath, const std::string& mountPoint = "",
                              const std::string& filesystemType = "");
-
-
-    private:
-        DeviceUtil() = default;
     };
 }
