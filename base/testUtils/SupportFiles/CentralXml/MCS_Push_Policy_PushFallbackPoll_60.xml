@@ -18,6 +18,6 @@
             <pushServer>https://localhost:4443/mcs</pushServer>
         </pushServers>
         <pushPingTimeout>10</pushPingTimeout>
-        <pushFallbackPollInterval>60</pushFallbackPollInterval>
+        <pushFallbackPollInterval>20</pushFallbackPollInterval>
     </configuration>
 </policy>
