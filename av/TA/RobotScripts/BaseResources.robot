@@ -7,14 +7,13 @@ Library         String
 
 ${TAR_FILE_DIRECTORY} =  /tmp/TestOutputDirectory
 ${UNPACK_DIRECTORY} =  /tmp/DiagnoseOutput
+${UNPACKED_DIAGNOSE_PLUGIN_FILES} =  ${UNPACK_DIRECTORY}/PluginFiles
 
 *** Keywords ***
 
 Run Diagnose
     Create Directory  ${TAR_FILE_DIRECTORY}
     ${retcode} =  Start Diagnose  ${SOPHOS_INSTALL}/bin/sophos_diagnose  ${TAR_FILE_DIRECTORY}
-#    ${content} =  Get File   /tmp/diagnose.log
-#    Should Contain  ${content}  absolutenonsense
     Should Be Equal As Integers   ${retcode}  0
 
 Check Diagnose Tar Created
@@ -32,8 +31,8 @@ Check Diagnose Collects Correct AV Files
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
     Should Be Equal As Strings   ${result.rc}  0
 
-    ${PluginFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles
-    ${AVFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/av
+    ${PluginFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}
+    ${AVFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av
 
     Should Contain  ${PluginFiles}  av.log
     Should Contain  ${PluginFiles}  sophos_threat_detector.log
