@@ -8,6 +8,8 @@ FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
+FAILURE_UNIT_TESTS=54
+
 
 source /etc/profile
 set -ex
@@ -350,19 +352,16 @@ function build()
 
 
     htmldir=$BASE/output/coverage_html
-    if (( ${BULLSEYE_UPLOAD} == 1 ))
+    export BASE
+    export htmldir
+    cd "$BASE"
+    if (( BULLSEYE_UPLOAD == 1 ))
     then
         ## Process bullseye output
         ## upload unit tests
-        cd $BASE
-        export BASE
-        export htmldir
         bash -x build/bullseye/uploadResults.sh || exit $?
-    elif (( ${BULLSEYE} == 1 ))
+    elif (( BULLSEYE == 1 ))
     then
-        cd $BASE
-        export BASE
-        export htmldir
         bash -x build/bullseye/generateResults.sh || exit $?
     fi
 
