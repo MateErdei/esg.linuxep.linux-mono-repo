@@ -33,9 +33,9 @@ python3 -m coverage combine || echo 'ignore error'
 [[ -f .coverage ]] && mv .coverage  ${SYSTEM_TEST}/.coverage
 popd
 
-pushd ${SYSTEM_TEST}
+pushd testUtils
 echo 'run system tests'
-TESTS2RUN="-e AMAZON_LINUX -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE ."
+TESTS2RUN="-e AMAZON_LINUX -i SMOKE."
 USER=$(whoami)
 if [[ ${USER} == "jenkins" ]]; then
   BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
