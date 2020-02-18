@@ -46,7 +46,7 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Wait Until AV Plugin Log Contains  Completed scan
     Wait Until AV Plugin Log Contains  Starting scan
     Wait Until AV Plugin Log Contains  Sending scan complete
-    # Validate
+    Validate Scan Complete  ../resources/ScanComplete_Event.xml
     # This will parse the scan complete xml in the events folder and compare it to the one we have in our resouces folder
     # Once we can validate xml appearing in the events folder, we can expect this to be sent to Central (In a System Product Test)
 

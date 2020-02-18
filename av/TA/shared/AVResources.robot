@@ -168,7 +168,7 @@ Send Sav Action To Base
 
 Validate Scan Complete
     [Arguments]  ${XML}
-    ${SCAN_COMPLETE_XML}  parse xml  ${SOPHOS_INSTALL}/base/mcs/event/${XML}
+    ${SCAN_COMPLETE_XML}  parse xml  ${SOPHOS_INSTALL}/base/mcs/event/2_event*
     ELEMENT TEXT SHOULD BE  source=${root}  expected=<scanComplete>  xpath=scanComplete
 
 Configure Scan Exclusions Everything Else # Will allow for one directory to be selected during a scan
