@@ -27,6 +27,7 @@ ${LONG_DIRECTORY}   000000000000000000000000000000000000000000000000000000000000
 *** Test Cases ***
 CLS Can Scan Clean File
     Start AV
+
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_eicar
 
@@ -38,7 +39,7 @@ CLS Can Scan Clean File
 
 CLS Can Scan Infected File
    Start AV
-   sleep  15m
+
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
