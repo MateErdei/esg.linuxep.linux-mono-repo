@@ -18,6 +18,12 @@ def validate_string_as_json(string):
     # Will throw a ValueError if the string is not valid json
     json.loads(string)
 
+def remove_response_file(file_path):
+    if os.path.isfile(file_path):
+        try:
+            os.remove(file_path)
+        except OSError as error:
+            LOGGER.warning("Could not remove response json file \"{}\". Error: {}".format(file_path, str(error)))
 
 def receive():
     """
@@ -37,13 +43,14 @@ def receive():
                 with open(file_path, 'r', encoding='utf-8') as file_to_read:
                     body = file_to_read.read()
                     validate_string_as_json(body)
-                    yield (file_path, app_id, correlation_id, time, body)
+                    yield file_path, app_id, correlation_id, time, body
             except json.JSONDecodeError as error:
                 LOGGER.error("Failed to load response json file \"{}\". Error: {}".format(file_path, str(error)))
-                try:
-                    os.remove(file_path)
-                except OSError as error:
-                    LOGGER.warning("Could not remove response json file \"{}\". Error: {}".format(file_path,
-                                                                                                  str(error)))
+                remove_response_file(file_path)
+            except OSError as error:
+                # OSErrors can happen here due to insufficient permissions or the file is no longer there.
+                # In both situations there is no point attempting to remove the file so just log the error.
+                LOGGER.error("Failed to read response json file \"{}\". Error: {}".format(file_path, str(error)))
         else:
             LOGGER.warning("Malformed response file: %s", response_file)
+            remove_response_file(file_path)
