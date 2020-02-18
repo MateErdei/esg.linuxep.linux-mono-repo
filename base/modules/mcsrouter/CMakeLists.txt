@@ -82,6 +82,8 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Crypto
         # Remove unwanted files.
         COMMAND find ${CMAKE_BINARY_DIR}/Crypto -name "*.pyc" -type f | xargs -r rm -f
         COMMAND find ${CMAKE_BINARY_DIR}/Crypto -name "*.pyo" -type f | xargs -r rm -f
+        COMMAND find ${CMAKE_BINARY_DIR}/Crypto -name "*.pyi" -type f | xargs -r rm -f
+        COMMAND find ${CMAKE_BINARY_DIR}/Crypto/SelfTest -type f | xargs -r rm -f
         )
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/Crypto

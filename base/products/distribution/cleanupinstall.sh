@@ -22,7 +22,7 @@ function generate_manifest_diff()
     fi
 
     #Find all manifest files in WORKING_DIST
-    for CID_MANIFEST_FILE in $(find $WORKING_DIST -name "*manifest.dat")
+    for CID_MANIFEST_FILE in $(find "$WORKING_DIST"/ -name '*manifest.dat')
     do
         local NEW_MANIFEST=${CID_MANIFEST_FILE}
         local BASE_NAME=$(basename ${CID_MANIFEST_FILE})
@@ -46,7 +46,7 @@ function copy_manifests()
     local WORKING_DIST="$1"
     local PRODUCT_RIGID_NAME="$2"
 
-    for CID_MANIFEST_FILE in $(find $WORKING_DIST -name "*manifest.dat")
+    for CID_MANIFEST_FILE in $(find $WORKING_DIST/ -name "*manifest.dat")
     do
         local NEW_MANIFEST=${CID_MANIFEST_FILE}
         local BASE_NAME=$(basename ${CID_MANIFEST_FILE})
@@ -66,7 +66,7 @@ function changed_or_added()
     local PRODUCT_RIGID_NAME="$3"
     local return_value=1
 
-    for CID_MANIFEST_FILE in $(find $WORKING_DIST -name "*manifest.dat")
+    for CID_MANIFEST_FILE in $(find $WORKING_DIST/ -name "*manifest.dat")
     do
         local NEW_MANIFEST=${CID_MANIFEST_FILE}
         local BASE_NAME=$(basename ${CID_MANIFEST_FILE})
@@ -88,7 +88,7 @@ function software_changed()
     local WORKING_DIST="$1"
     local PRODUCT_RIGID_NAME="$2"
 
-    for CID_MANIFEST_FILE in $(find $WORKING_DIST -name "*manifest.dat")
+    for CID_MANIFEST_FILE in $(find $WORKING_DIST/ -name "*manifest.dat")
     do
         local NEW_MANIFEST=${CID_MANIFEST_FILE}
         local BASE_NAME=$(basename ${CID_MANIFEST_FILE})
