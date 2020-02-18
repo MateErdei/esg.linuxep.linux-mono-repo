@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<event xmlns="http://www.sophos.com/EE/EESavEvent" type="sophos.mgt.sav.scanCompleteEvent">
+    <defaultDescription>Scan Completed</defaultDescription>
+    <timestamp>20130403 033843</timestamp>
+    <scanComplete>
+        <scanName>Sophos Cloud Scheduled Scan</scanName>
+    </scanComplete>
+</event>
