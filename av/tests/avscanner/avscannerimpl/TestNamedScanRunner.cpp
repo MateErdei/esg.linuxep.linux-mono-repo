@@ -42,10 +42,10 @@ public:
         {
             exclusions.set(i, expectedExclusions[i]);
         }
-        scanConfigIn.setScanHardDisc(scanHardDisc);
-        scanConfigIn.setScanNetwork(scanNetwork);
-        scanConfigIn.setScanOptical(scanOptical);
-        scanConfigIn.setScanRemovable(scanRemovable);
+        scanConfigIn.setScanHardDrives(scanHardDisc);
+        scanConfigIn.setScanNetworkDrives(scanNetwork);
+        scanConfigIn.setScanCDDVDDrives(scanOptical);
+        scanConfigIn.setScanRemovableDrives(scanRemovable);
 
         Sophos::ssplav::NamedScan::Reader scanConfigOut = message.getRoot<Sophos::ssplav::NamedScan>();
 

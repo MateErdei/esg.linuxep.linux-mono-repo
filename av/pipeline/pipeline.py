@@ -36,7 +36,7 @@ def install_requirements(machine: tap.Machine):
 def robot_task(machine: tap.Machine):
     try:
         install_requirements(machine)
-        machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py')
+        machine.run('sudo', 'python', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
         machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')

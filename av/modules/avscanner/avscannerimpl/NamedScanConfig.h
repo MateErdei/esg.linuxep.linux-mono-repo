@@ -19,7 +19,7 @@ namespace avscanner::avscannerimpl
         explicit NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedScanConfig);
         std::string m_scanName;
         std::vector<std::string> m_excludePaths;
-
+        bool m_scanArchives;
         bool m_scanHardDisc;
         bool m_scanOptical;
         bool m_scanNetwork;

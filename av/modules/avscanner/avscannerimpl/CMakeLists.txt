@@ -4,6 +4,8 @@ add_library(avscannerimpl SHARED
         CommandLineScanRunner.h
         DeviceUtil.cpp
         DeviceUtil.h
+        Logger.cpp
+        Logger.h
         IMountInfo.h
         IMountPoint.h
         IRunner.h
@@ -24,7 +26,7 @@ target_include_directories(avscannerimpl PUBLIC
         "${CAPNPROTO_INCLUDE_DIR}"
         ${CMAKE_BINARY_DIR}/modules/scan_messages)
 
-target_link_libraries(avscannerimpl scanmessages unixsocket filewalker $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
+target_link_libraries(avscannerimpl datatypes scanmessages unixsocket filewalker $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
 
 install(TARGETS avscannerimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

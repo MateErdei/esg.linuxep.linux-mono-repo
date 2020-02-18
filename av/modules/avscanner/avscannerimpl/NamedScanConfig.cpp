@@ -4,41 +4,37 @@
 
 #include "NamedScanConfig.h"
 
-#include <fstream>
+#define AUTO_FD_IMPLICIT_INT
+#include <datatypes/AutoFd.h>
 
-#include <capnp/message.h>
 #include <capnp/serialize.h>
 
+#include <fstream>
+
 #include <fcntl.h>
-#include <unistd.h>
 
 using namespace avscanner::avscannerimpl;
 
 NamedScanConfig::NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedScanConfig)
-    : m_scanHardDisc(true)
-    , m_scanOptical(true)
-    , m_scanNetwork(true)
-    , m_scanRemovable(true)
+    : m_scanName(namedScanConfig.getName())
+    , m_scanArchives(namedScanConfig.getScanArchives())
+    , m_scanHardDisc(namedScanConfig.getScanHardDrives())
+    , m_scanOptical(namedScanConfig.getScanCDDVDDrives())
+    , m_scanNetwork(namedScanConfig.getScanNetworkDrives())
+    , m_scanRemovable(namedScanConfig.getScanRemovableDrives())
 {
-    m_scanName = namedScanConfig.getName();
-
     auto excludePaths = namedScanConfig.getExcludePaths();
     m_excludePaths.reserve(excludePaths.size());
     for (const auto& item : excludePaths)
     {
         m_excludePaths.emplace_back(item);
     }
-
-    m_scanHardDisc = namedScanConfig.getScanHardDisc();
-    m_scanOptical = namedScanConfig.getScanOptical();
-    m_scanNetwork = namedScanConfig.getScanNetwork();
-    m_scanRemovable = namedScanConfig.getScanRemovable();
 }
 
 NamedScanConfig avscanner::avscannerimpl::configFromFile(const std::string& configPath)
 {
-    int fd = open(configPath.c_str(), O_RDONLY);
-    if (fd < 0)
+    datatypes::AutoFd fd(open(configPath.c_str(), O_RDONLY));
+    if (!fd.valid())
     {
         throw std::runtime_error("Failed to open config");
     }
@@ -46,7 +42,7 @@ NamedScanConfig avscanner::avscannerimpl::configFromFile(const std::string& conf
     ::capnp::StreamFdMessageReader message(fd);
 
     NamedScanConfig config(message.getRoot<Sophos::ssplav::NamedScan>());
-    close(fd);
+    fd.close();
 
     return config;
 }

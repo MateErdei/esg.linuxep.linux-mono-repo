@@ -26,11 +26,13 @@ using namespace avscanner::avscannerimpl;
 
 NamedScanRunner::NamedScanRunner(const std::string& configPath)
     : m_config(configFromFile(configPath))
+    , m_logger(m_config.m_scanName)
 {
 }
 
 NamedScanRunner::NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedScanConfig)
     : m_config(namedScanConfig)
+    , m_logger(m_config.m_scanName)
 {
 }
 
@@ -117,8 +119,8 @@ int NamedScanRunner::run()
 
     const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
     unixsocket::ScanningClientSocket socket(unix_socket_path);
-    ScanClient scanner(socket, scanCallbacks);
-    CallbackImpl callbacks(scanner, m_config, allMountpoints);
+    ScanClient scanner(socket, scanCallbacks, m_config);
+    CallbackImpl callbacks(std::move(scanner), m_config, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point
     for (auto & mp : includedMountpoints)
