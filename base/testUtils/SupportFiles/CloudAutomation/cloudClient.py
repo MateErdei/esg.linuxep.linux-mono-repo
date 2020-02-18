@@ -21,10 +21,7 @@ import http.client
 import urllib.request
 from urllib.parse import urlencode
 
-try:
-    from . import SophosHTTPSClient
-except ValueError:
-    import SophosHTTPSClient
+import SophosHTTPSClient
 
 VERBOSE = False
 
@@ -1938,6 +1935,68 @@ class CloudClient(object):
         response = self.retry_request_url(request)
         return json_loads(response)
 
+    #ruby uuid representation swaps nibbles in the java uuid
+    def get_java_id_from_endpoint_id(self, endpoint_id):
+        java_id = ""
+        for part in endpoint_id.split("-"):
+            java_id += ''.join([c[1] + c[0] for c in zip(part[::2], part[1::2])])
+            java_id += "-"
+        return java_id[:-1]
+        
+    def run_live_query(self, query_name, query_string,  hostname=None ):
+        if hostname is None:
+            hostname = self.options.hostname
+
+        server = self.getServerByName(hostname)
+        if server is None:
+            return
+
+        url = self.upe_api + '/v1/live-query/executions'
+        query_json = {"name": query_name, "template": query_string}
+        data = json.dumps({"endpointIds": [self.get_java_id_from_endpoint_id(server['id'])], "adHocQuery": query_json}, separators=(',', ': ')).encode('UTF-8')
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
+        request.get_method = lambda: "POST"
+        response_obj = self.retry_request_url(request)
+
+        return response_obj
+    
+    def wait_for_live_query_response(self, pending_query_response):
+        response_obj = json.loads(pending_query_response)
+        time_out = response_obj["maxDurationInSeconds"]
+        time_out_ms = time_out * 1000
+        query_id = response_obj["id"]
+        url = self.upe_api + '/v1/live-query/executions/{}/endpoints'.format(query_id)
+        ms_taken = 0
+        
+        while ms_taken < time_out_ms:
+            request = urllib.request.Request(url, headers=self.default_headers)
+            response = self.retry_request_url(request)
+            endpoints_doing_query = json.loads(response)
+            if len(endpoints_doing_query["items"]) > 0:
+                still_waiting = False
+                for ep in endpoints_doing_query["items"]:
+                    if ep["status"] != "finished":
+                        still_waiting = True
+                if not still_waiting:
+                    logger.info("Query status: {}".format(ep["result"]))
+                    # url = self.upe_api + '/v1/live-query/executions/{}/result-set'.format(query_id)
+                    break
+                    
+            time.sleep(0.2)
+            ms_taken += 200
+        logger.warning("timed out running".format(query_id))
+
+    def run_live_query_and_wait_for_response(self, query_name, query_string, hostname=None):
+        pending_query_response = self.run_live_query(query_name, query_string, hostname)
+        self.wait_for_live_query_response(pending_query_response)
+
+    def run_multiple_live_queries_and_wait_for_response(self, queries, hostname=None):
+        pending_queries = {}
+        for name, query in queries.items():
+            pending_queries[name] = self.run_live_query(name, query, hostname)
+        
+        for name, peding_response in pending_queries.items():
+            self.wait_for_live_query_response(peding_response)
 
 def deleteServerFromCloud(options, args):
     hostname = host(args[1])
@@ -2079,7 +2138,7 @@ def processArguments(options, args):
     if len(args) > 0:
         command = args[0].replace(" ","")
     else:
-        parser.error("No command given")
+        logger.error("No command given")
         return 1
 
     if options.email is None:
