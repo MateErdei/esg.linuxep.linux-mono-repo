@@ -1967,7 +1967,7 @@ class CloudClient(object):
         query_id = response_obj["id"]
         url = self.upe_api + '/v1/live-query/executions/{}/endpoints'.format(query_id)
         ms_taken = 0
-        
+  
         while ms_taken < time_out_ms:
             request = urllib.request.Request(url, headers=self.default_headers)
             response = self.retry_request_url(request)
@@ -1991,12 +1991,12 @@ class CloudClient(object):
         self.wait_for_live_query_response(pending_query_response)
 
     def run_multiple_live_queries_and_wait_for_response(self, queries, hostname=None):
-        pending_queries = {}
+        pending_query_responses = {}
         for name, query in queries.items():
-            pending_queries[name] = self.run_live_query(name, query, hostname)
+            pending_query_responses[name] = self.run_live_query(name, query, hostname)
         
-        for name, peding_response in pending_queries.items():
-            self.wait_for_live_query_response(peding_response)
+        for pending_response in pending_query_responses.values():
+            self.wait_for_live_query_response(pending_response)
 
 def deleteServerFromCloud(options, args):
     hostname = host(args[1])
