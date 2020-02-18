@@ -353,6 +353,7 @@ Check Connected To Fake Cloud
 Test Teardown
     Stop Mcsrouter If Running
     Push Server Teardown with MCS Fake Server
+    Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
 
 Register EDR Plugin
     Copy File  ${SUPPORT_FILES}/base_data/edr.json  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json

@@ -18,6 +18,7 @@ Default Tags   EDR_PLUGIN   OSTIA  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
 
 
 *** Variables ***
+${BaseAndMtrReleasePolicy}          ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
@@ -28,6 +29,10 @@ ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/Live
 *** Test Cases ***
 Install EDR and handle Live Query
     Install EDR
+
+    Run Shell Process   /opt/sophos-spl/bin/wdctl stop edr     OnError=Failed to stop edr
+    Override LogConf File as Global Level  DEBUG
+    Run Shell Process   /opt/sophos-spl/bin/wdctl start edr    OnError=Failed to start edr
 
     Send Query From Fake Cloud    Test Query Special   select name from processes   command_id=firstcommand
     Wait Until Keyword Succeeds
@@ -128,3 +133,46 @@ EDR Uninstalled When Removed From ALC Policy
     Should Not Exist        ${IPC_FILE}
     File Should Not Exist   ${EDR_STATUS_XML}
     File Should Not Exist   ${CACHED_STATUS_XML}
+
+Install Base And MTR Then Migrate To EDR
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}  real=True
+    Wait For Initial Update To Fail
+
+    # Install MTR
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Should Exist  ${MTR_DIR}
+
+    Check EDR Executable Not Running
+    Should Not Exist  ${EDR_DIR}
+
+    # Install EDR
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  should exist  ${EDR_DIR}
+
+    Wait Until EDR Running
+    Wait Until OSQuery Running
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains    Uninstalling plugin ServerProtectionLinux-Plugin-MDR since it was removed from warehouse
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SophosMTR Executable Not Running
+    # MTR is uninstalled after EDR is installed
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Should Not Exist  ${MTR_DIR}
+    fail
