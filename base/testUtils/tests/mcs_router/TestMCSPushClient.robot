@@ -405,7 +405,6 @@ EDR Push Client Teardown
     Test Teardown
     Deregister EDR Plugin
 
-
 Register EDR Plugin
     Copy File  ${SUPPORT_FILES}/base_data/edr.json  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
 
