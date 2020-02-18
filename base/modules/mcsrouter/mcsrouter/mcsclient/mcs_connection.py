@@ -301,12 +301,12 @@ class MCSConnection:
             username, password = creds.split(":", 1)
         return username, password
 
-    def get_list_of_proxies_push(self):
+    def create_list_of_proxies_for_push_client(self):
         # setting the other return values here to member variables breaks MCSRouter proxy handling. So we don't do that.
         proxies, _, _, _ = self.__create_list_of_proxies()
         return proxies
 
-    def __get_list_of_proxies(self):
+    def __create_list_of_proxies_for_poll(self):
         proxies, message_relays, policy_proxy, use_direct = self.__create_list_of_proxies()
         self.__m_message_relays = message_relays
         self.__m_policy_proxy = policy_proxy
@@ -757,7 +757,7 @@ class MCSConnection:
         __try_urls
         """
         # Need to re-connect to Central/MCS
-        proxies = self.__get_list_of_proxies()
+        proxies = self.__create_list_of_proxies_for_poll()
         urls = self.__get_urls()
         LOGGER.debug("Trying URLs: {}".format(str(urls)))
 

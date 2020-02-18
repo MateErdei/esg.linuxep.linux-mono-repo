@@ -79,8 +79,8 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
     def setUp(self) -> None:
         self.client_internal = None
 
-    def get_client(self):
-        self.client_internal = MCSPushClientInternal("url", "cert", 10, [sophos_https.Proxy()])
+    def get_client(self, proxies=[sophos_https.Proxy()]):
+        self.client_internal = MCSPushClientInternal("url", "cert", 10, proxies)
         return self.client_internal
 
     def tearDown(self) -> None:
@@ -192,6 +192,19 @@ class TestMCSPushClient(SharedTestsUtilities):
         config.set('pushServer1', 'new url')
         self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [sophos_https.Proxy()]))
         self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [sophos_https.Proxy()]))
+
+    @mock.patch("logging.Logger.warning")
+    def test_push_client_with_empty_proxy_list_fails_elegantly(self, *mockargs):
+        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [])
+        self.assertRaises(MCSPushException, self.push_client._start_service)
+        self.assertEqual(logging.Logger.warning.call_args_list[-1], mock.call("No connection methods available."))
+
+    @mock.patch("logging.Logger.warning")
+    @mock.patch("sseclient.SSEClient", side_effect=RuntimeError("failed to connect"))
+    def test_push_client_with_no_good_connection_route_fails_elegantly(self, *mockargs):
+        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy(), sophos_https.Proxy(), sophos_https.Proxy()])
+        self.assertRaises(MCSPushException, self.push_client._start_service)
+        self.assertEqual(logging.Logger.warning.call_args_list[-1], mock.call("Tried all connection methods and failed to connect to push server"))
 
 
     def test_push_client_returns_status_enum_when_applying_server_settings(self):

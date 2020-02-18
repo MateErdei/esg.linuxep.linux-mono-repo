@@ -559,7 +559,7 @@ class MCS:
 
                         # If the push server is not connected, but has received mcs policy settings previously or
                         # If the settings have just changed, we need to attempt to connect to server.
-                        if push_client.ensure_push_server_is_connected(self.__m_config, comms.ca_cert(), comms.get_list_of_proxies_push()):
+                        if push_client.ensure_push_server_is_connected(self.__m_config, comms.ca_cert(), comms.create_list_of_proxies_for_push_client()):
                             self.__m_command_check_interval.set_use_fallback_polling_interval(True)
                         else:
                             self.__m_command_check_interval.set_use_fallback_polling_interval(False)

@@ -78,6 +78,14 @@ class MCSPushException(RuntimeError):
 class MCSPushSetting:
     @staticmethod
     def from_config(config, cert, proxy_settings):
+        """
+
+        :param config: mcs config
+        :param cert: certs to use for connection
+        :param proxy_settings: list of sophos_https.Proxy objects. It is ordered by connection priority and
+        includes a direct connection if applicable
+        :return: MCSPushSetting object
+        """
         push_server_url = config.get_default("pushServer1", None)
         mcs_id = config.get_default("MCSID", None)
         if push_server_url and mcs_id:
@@ -181,6 +189,8 @@ class MCSPushClientInternal(threading.Thread):
         self.messages = self._create_sse_client()
 
     def _create_sse_client(self):
+        if len(self._proxy_settings) == 0:
+            raise MCSPushException("No connection methods available." .format(self.__log_url()))
         for proxy in self._proxy_settings:
             self._proxy = proxy
             LOGGER.info(self.__attempting_connection_message())
@@ -192,10 +202,13 @@ class MCSPushClientInternal(threading.Thread):
             except Exception as exception:
                 LOGGER.warning("{}: {}".format(self.__failed_connection_message(), str(exception)))
         else:
-            raise MCSPushException("Failed to connect to {}".format(self.__log_url()))
+            raise MCSPushException("Tried all connection methods and failed to connect to {}".format(self.__log_url()))
 
     def __log_url(self):
-        return urlparse(self._url).netloc
+        loggable_url = urlparse(self._url).netloc
+        if loggable_url == "":
+            return "push server"
+        return loggable_url
 
     def __attempting_connection_message(self):
         if self._proxy.is_configured():

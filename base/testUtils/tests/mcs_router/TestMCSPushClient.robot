@@ -337,7 +337,6 @@ MCS Push Client Logs Successfull Connection Via Proxy
     ${config} =     Catenate    SEPARATOR=\n
     ...    MCSToken=ThisIsARegToken
     ...    MCSURL=https://localhost:4443/mcs
-    ...    CAFILE=/vagrant/everest-base/testUtils/SupportFiles/CloudAutomation/root-ca.crt.pem
     ...    proxy=http://username:password@localhost:1235
 
     Remove File  /opt/sophos-spl/base/etc/mcs.config
