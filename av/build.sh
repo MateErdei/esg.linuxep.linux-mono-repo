@@ -199,6 +199,7 @@ function untar_input()
     local input=$1
     local tarbase=$2
     local override_tar=$3
+    local optional=$4
     local tar
     if [[ -n $tarbase ]]
     then
@@ -219,7 +220,8 @@ function untar_input()
     then
         echo "untaring ${tar}.gz"
         tar xzf "${tar}.gz" -C "$REDIST"
-    else
+    elif [[ -z $optional ]]
+    then
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
     fi
 }
@@ -250,7 +252,7 @@ function build()
         (( LOCAL_CMAKE == 0 )) && untar_input cmake cmake-3.11.2-linux
         untar_input capnproto
         untar_input $GOOGLETESTTAR
-        untar_input susi
+        untar_input susi "" "" optional
     fi
 
     addpath "$REDIST/cmake/bin"

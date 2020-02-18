@@ -96,24 +96,24 @@ file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*.*.*)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*.*.*)
 
 
-if(NOT DEFINED SUSIPATH)
-    SET( SUSIPATH ${INPUT}/susi_build)
-endif()
-
-set(susi_include ${SUSIPATH}/include)
-set(susi_libdir ${SUSIPATH}/lib)
-
-if(NOT EXISTS ${susi_include})
-    string( APPEND ERRORMESSAGE
-            "Failed to find SUSI includes: ${SUSIPATH}")
-    message( FATAL_ERROR ${ERRORMESSAGE})
-endif()
-
-SET( SUSI_SDDS_PATH ${INPUT}/susi_sdds)
-
-file(GLOB_RECURSE SUSI_FILES LIST_DIRECTORIES false CONFIGURE_DEPENDS "${SUSI_SDDS_PATH}/*")
-#message(NOTICE SUSI_FILES=${SUSI_FILES})
-#message(NOTICE SUSIPATH=${SUSIPATH})
+#if(NOT DEFINED SUSIPATH)
+#    SET( SUSIPATH ${INPUT}/susi_build)
+#endif()
+#
+#set(susi_include ${SUSIPATH}/include)
+#set(susi_libdir ${SUSIPATH}/lib)
+#
+#if(NOT EXISTS ${susi_include})
+#    string( APPEND ERRORMESSAGE
+#            "Failed to find SUSI includes: ${SUSIPATH}")
+#    message( FATAL_ERROR ${ERRORMESSAGE})
+#endif()
+#
+#SET( SUSI_SDDS_PATH ${INPUT}/susi_sdds)
+#
+#file(GLOB_RECURSE SUSI_FILES LIST_DIRECTORIES false CONFIGURE_DEPENDS "${SUSI_SDDS_PATH}/*")
+##message(NOTICE SUSI_FILES=${SUSI_FILES})
+##message(NOTICE SUSIPATH=${SUSIPATH})
 
 INCLUDE(CAPN)
 
