@@ -34,6 +34,7 @@ Mock Base Installation
 
 
 Setup Component For Testing
+    Run  pgrep -f sophos-spl | xargs kill -9
     Copy Directory   ${COMPONENT_SDDS}/files/plugins   ${SOPHOS_INSTALL}
     ## Change permissions for all executables
     Run Process   chmod -R +x ${COMPONENT_ROOT_PATH}/sbin ${COMPONENT_ROOT_PATH}/bin  shell=True
