@@ -21,7 +21,7 @@ import http.client
 import urllib.request
 from urllib.parse import urlencode
 
-import SophosHTTPSClient
+import CloudAutomation.SophosHTTPSClient as SophosHTTPSClient
 
 VERBOSE = False
 
@@ -1997,6 +1997,10 @@ class CloudClient(object):
         
         for pending_response in pending_query_responses.values():
             self.wait_for_live_query_response(pending_response)
+        
+    #parser = cloudClient.add_options()
+    #options, args = parser.parse_args(["-r", "q"])
+    #options.email="darwinperformance@sophos.xmas.testqa.com"
 
 def deleteServerFromCloud(options, args):
     hostname = host(args[1])
@@ -2187,10 +2191,7 @@ def processArguments(options, args):
         return 14
 
 
-
-def process(args):
-    logging.getLogger().setLevel(logging.DEBUG)
-
+def add_options():
     parser = OptionParser(description='Cloud test client for SAV Linux automation')
     parser.add_option('-r', '--region', default='linux', action='store',
                       help="Region where account exists. Eg . p : production, q : QA , sb : sandbox.")
@@ -2208,16 +2209,23 @@ def process(args):
                       dest="wait_for_host",
                       help="When checking policy compliance wait for the machine to appear before checking")
     parser.add_option("--with-on-access", default=False, action="store_true",
-          dest="with_on_access",
-          help="When checking policy compliance also wait for on-access enabled, and on-access enabled in policy")
+                      dest="with_on_access",
+                      help="When checking policy compliance also wait for on-access enabled, and on-access enabled in policy")
     parser.add_option("--without-on-access", default=False, action="store_true",
-          dest="without_on_access",
-          help="When checking policy compliance also wait for on-access disabled, and on-access disabled in policy")
+                      dest="without_on_access",
+                      help="When checking policy compliance also wait for on-access disabled, and on-access disabled in policy")
     parser.add_option("--ignore-missing-host", default=False, action="store_true",
                       dest="ignore_missing_host",
                       help="Ignore the host missing exceptions")
     parser.add_option("--ignore-errors", default=False, action="store_true", dest="ignore_errors",
                       help="Always exit with 0 or 1")
+    return parser
+
+def process(args):
+    logging.getLogger().setLevel(logging.DEBUG)
+
+    parser = add_options()
+
     options, args = parser.parse_args(args)
     return processArguments(options, args)
 
