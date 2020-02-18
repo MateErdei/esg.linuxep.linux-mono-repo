@@ -49,7 +49,7 @@ MCSRouter Can Start and Receive Update Now Action From Push Client
 
 MCSRouter Can Start and Receive Live Query From Push Client
     [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TEST
-
+    [Teardown]  EDR Push Client Teardown
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Register EDR Plugin
@@ -401,6 +401,13 @@ Test Teardown
     Stop Mcsrouter If Running
     Push Server Teardown with MCS Fake Server
 
+EDR Push Client Teardown
+    Test Teardown
+    Deregister EDR Plugin
+
+
 Register EDR Plugin
     Copy File  ${SUPPORT_FILES}/base_data/edr.json  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
 
+Deregister EDR Plugin
+    Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
