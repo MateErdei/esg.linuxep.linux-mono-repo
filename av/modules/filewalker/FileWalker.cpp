@@ -40,20 +40,23 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
 
     std::set<ino_t> seen_symlinks;
     fs::directory_options options = fs::directory_options::none;
+
     if (m_follow_symlinks)
     {
         options |= fs::directory_options::follow_directory_symlink;
     }
+
     for(
         auto iterator = fs::recursive_directory_iterator(starting_point, options);
         iterator != fs::recursive_directory_iterator();
         ++iterator )
     {
         const auto& p = *iterator;
+        bool isRegularFile;
 
         try
         {
-            fs::is_regular_file(p.status());
+           isRegularFile = fs::is_regular_file(p.status());
         }
         catch(fs::filesystem_error& e)
         {
@@ -62,7 +65,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
             continue;
         }
 
-        if (fs::is_regular_file(p.status()))
+        if (isRegularFile)
         {
             m_callback.processFile(p);
         }
