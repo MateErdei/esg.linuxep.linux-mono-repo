@@ -11,6 +11,8 @@ from types import SimpleNamespace
 from mcsrouter.mcs_push_client import MCSPushClientInternal, PipeChannel, MCSPushClient, MCSPushException, MCSPushSetting, PushClientStatus
 
 
+DIRECT_CONNECTION = sophos_https.Proxy()
+
 class ExtendedPipeChannel(PipeChannel):
     def __init__(self):
         PipeChannel.__init__(self)
@@ -79,7 +81,7 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
     def setUp(self) -> None:
         self.client_internal = None
 
-    def get_client(self, proxies=[sophos_https.Proxy()]):
+    def get_client(self, proxies=[DIRECT_CONNECTION]):
         self.client_internal = MCSPushClientInternal("url", "cert", 10, proxies)
         return self.client_internal
 
@@ -176,7 +178,7 @@ class TestMCSPushClient(SharedTestsUtilities):
 
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
     def test_can_restart_twice(self, *mockargs):
-        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()])
+        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION])
         self.push_client._start_service()
         received = self.send_and_receive_message('hello', self.push_client)
         self.assertEqual(received, 'hello')
@@ -187,11 +189,11 @@ class TestMCSPushClient(SharedTestsUtilities):
 
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
     def test_push_client_handle_config_changes(self, *mockargs):
-        self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()]))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION]))
         config = ConfigWithoutFile()
         config.set('pushServer1', 'new url')
-        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [sophos_https.Proxy()]))
-        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [sophos_https.Proxy()]))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [DIRECT_CONNECTION]))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [DIRECT_CONNECTION]))
 
     @mock.patch("logging.Logger.warning")
     def test_push_client_with_empty_proxy_list_fails_elegantly(self, *mockargs):
@@ -202,7 +204,7 @@ class TestMCSPushClient(SharedTestsUtilities):
     @mock.patch("logging.Logger.warning")
     @mock.patch("sseclient.SSEClient", side_effect=RuntimeError("failed to connect"))
     def test_push_client_with_no_good_connection_route_fails_elegantly(self, *mockargs):
-        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy(), sophos_https.Proxy(), sophos_https.Proxy()])
+        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION, DIRECT_CONNECTION, DIRECT_CONNECTION])
         self.assertRaises(MCSPushException, self.push_client._start_service)
         self.assertEqual(logging.Logger.warning.call_args_list[-1], mock.call("Tried all connection methods and failed to connect to push server"))
 
@@ -210,13 +212,13 @@ class TestMCSPushClient(SharedTestsUtilities):
     def test_push_client_returns_status_enum_when_applying_server_settings(self):
         # This is the case for when the connection to the Push Server cannot be established
         with mock.patch("sseclient.SSEClient", new_callable=SSEClientSimulateConnectionFailureFactory) as sseclient.SSEClient:
-            self.assertFalse(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()]))
+            self.assertFalse(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION]))
 
         with mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory) as sseclient.SSEClient:
             # this is the case for establishing connection to the push server
-            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()]))
+            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION]))
             # this is the case for a normal connected client without any settings change will just keep connected and nothing changes
-            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()]))
+            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION]))
 
 
 
