@@ -94,7 +94,7 @@ class ReplaceConnection(OriginalVerifiedHTTPSConnection):
             OriginalVerifiedHTTPSConnection.connect(self)
         except ProxyTunnelException as perr:
             proxy_auth = self._get_digest_header(perr.response)
-            print("{}".format(dict(perr.response.headers)))
+            logger.debug("Handling proxy authentication request. Response headers: {}".format(dict(perr.response.headers)))
             if proxy_auth:
                 self._tunnel_headers['Proxy-authorization'] = proxy_auth
             else:
@@ -102,16 +102,3 @@ class ReplaceConnection(OriginalVerifiedHTTPSConnection):
             logger.info("Handle proxy authentication request")
             OriginalVerifiedHTTPSConnection.connect(self)
 
-
-if __name__=="__main__":
-    cert='/home/pair/gitrepos/sspl-tools/everest-base/testUtils/SupportFiles/CloudAutomation/root-ca.crt.pem'
-    proxy_url='http://localhost:3000'
-    #proxy_url='http://localhost:3000'
-    proxy_port=3000
-    proxy_username='user'
-    proxy_password='pass'
-    url_host='localhost'
-    url_port=8459
-    proxy={'https':proxy_url,'http':proxy_url}
-    # HACK; before and after the connection the GLOBAL AUTHENTICATION will be needed to be able to pass the
-    # proxy authentication to the ReplaceConnection object
