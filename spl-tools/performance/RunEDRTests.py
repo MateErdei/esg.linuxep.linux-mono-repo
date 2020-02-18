@@ -93,10 +93,10 @@ def remove_all_pending_responses():
         p.unlink()
 
 
-def main(argv):
+def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_send):
     global RESPONSE_COUNT
     global SOPHOS_INSTALL
-    number_of_queries = 3
+
     try:
         # We get blacklisted from central if bad live query responses go up
         stop_mcsrouter()
@@ -107,12 +107,12 @@ def main(argv):
         fsw.event_handler.on_created = inc_response_count
         fsw.start_filesystem_watcher()
 
-        for i in range(0, number_of_queries):
-            run_live_query("select * from users;", "perf-query-name")
+        for i in range(0, times_to_send):
+            run_live_query(query_string, query_name)
 
         # Seconds from now.
         timeout = time.time() + 100
-        while RESPONSE_COUNT < number_of_queries and time.time() < timeout:
+        while RESPONSE_COUNT < times_to_send and time.time() < timeout:
             time.sleep(0.01)
 
         fsw.stop_filesystem_watcher()
@@ -123,7 +123,35 @@ def main(argv):
         # Make sure we start mcsrouter up again
         start_mcsrouter()
 
-    return RESPONSE_COUNT == number_of_queries
+    return RESPONSE_COUNT == times_to_send
+
+
+def print_usage_and_exit(script_name):
+    print("Usage: {} <query name> <query string>".format(script_name))
+    print('Example: {} "my test query" "select * from users;"'.format(script_name))
+    print("OR")
+    print("Usage: {} <query name> <query string> <number of times to run query>".format(script_name))
+    print('Example: {} "my test query" "select * from users;" 5'.format(script_name))
+    exit()
+
+
+def main(args):
+    number_of_args = len(args) - 1
+
+    if number_of_args == 1:
+        if args[1] == "--help" or args[1] == "-h":
+            print_usage_and_exit(args[0])
+
+    if number_of_args != 2 and number_of_args != 3:
+        print_usage_and_exit(args[0])
+
+    query_name = args[1]
+    query_string = args[2]
+    times_to_send = 1
+    if number_of_args == 3:
+        times_to_send = int(args[3])
+
+    return run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_send)
 
 
 if __name__ == '__main__':
