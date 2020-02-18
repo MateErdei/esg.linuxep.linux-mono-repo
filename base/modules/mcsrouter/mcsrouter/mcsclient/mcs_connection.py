@@ -302,6 +302,7 @@ class MCSConnection:
         return username, password
 
     def get_list_of_proxies_push(self):
+        # setting the other return values here to member variables breaks MCSRouter proxy handling. So we don't do that.
         proxies, _, _, _ = self.__create_list_of_proxies()
         return proxies
 
@@ -314,7 +315,12 @@ class MCSConnection:
 
     def __create_list_of_proxies(self):
         """
-        __create_list_of_proxies
+
+        :return:
+        Proxies: list of proxies to use
+        message_relays: used to set a member variable of the MCSConnection object after returning
+        policy_proxy: used to set a member variable of the MCSConnection object after returning
+        use_direct: used to set a member variable of the MCSConnection object after returning
         """
         proxies = []
         config = self.__m_config
