@@ -1,11 +1,12 @@
 *** Settings ***
 Documentation    Suite description
 
-Library         Process
 Library         OperatingSystem
+Library         Process
+Library         String
 
 Resource        ../shared/AVResources.robot
-Resource        ../shared/ComponentSetup.robot
+Resource        ../shared/BaseResources.robot
 
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
@@ -35,3 +36,27 @@ AV plugin fails scan now if no policy
     Send Sav Action To Base  ScanNow_Action.xml
     AV Plugin Log Does Not Contain  Starting scan scanNow
     AV Plugin Log Contains  Starting Scan Now scan
+
+Diagnose collects the correct files
+    Check AV Plugin Installed With Base
+    Run Diagnose
+    Check Diagnose Tar Created
+    Check Diagnose Collects Correct AV Files
+    Check Diagnose Logs
+
+AV Plugin uninstalls
+    Check avscanner in /usr/local/bin
+    Run uninstaller
+    Check avscanner not in /usr/local/bin
+
+
+*** Keywords ***
+
+Check avscanner in /usr/local/bin
+    File Should Exist  /usr/local/bin/avscanner
+
+Check avscanner not in /usr/local/bin
+    File Should Not Exist  /usr/local/bin/avscanner
+
+Run uninstaller
+    Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
