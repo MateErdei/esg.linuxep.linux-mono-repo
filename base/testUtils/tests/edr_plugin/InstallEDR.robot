@@ -175,4 +175,3 @@ Install Base And MTR Then Migrate To EDR
     ...  30 secs
     ...  5 secs
     ...  Should Not Exist  ${MTR_DIR}
-    fail
