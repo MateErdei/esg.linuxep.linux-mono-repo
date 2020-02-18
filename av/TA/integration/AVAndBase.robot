@@ -45,6 +45,7 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Wait Until Management Log Contains  Action /opt/sophos-spl/base/mcs/action/SAV_action
     Wait Until AV Plugin Log Contains  Completed scan
     Wait Until AV Plugin Log Contains  Starting scan
+    Wait Until AV Plugin Log Contains  Sending scan complete
     # Validate
     # This will parse the scan complete xml in the events folder and compare it to the one we have in our resouces folder
     # Once we can validate xml appearing in the events folder, we can expect this to be sent to Central (In a System Product Test)
