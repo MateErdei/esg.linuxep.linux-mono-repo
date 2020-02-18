@@ -5,7 +5,6 @@ Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 Suite Setup      Run Keywords  Setup MCS Tests  AND  Start MCS Push Server
 Suite Teardown   Run Keywords  Uninstall SSPL Unless Cleanup Disabled  AND  Server Close
 
-#Test Setup       Start Local Cloud Server
 Test Setup       Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
 Test Teardown    Run Keywords
 ...              Stop Local Cloud Server    AND

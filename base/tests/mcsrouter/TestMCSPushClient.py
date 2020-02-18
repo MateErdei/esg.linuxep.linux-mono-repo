@@ -205,8 +205,6 @@ class TestMCSPushClient(SharedTestsUtilities):
             # this is the case for a normal connected client without any settings change will just keep connected and nothing changes
             self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [sophos_https.Proxy()]))
 
-# class TestMCSPushClientProxy(SharedTestsUtilities):
-#     def test_
 
 
 
