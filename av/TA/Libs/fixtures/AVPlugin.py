@@ -3,6 +3,7 @@ import os
 import time
 import grp
 import pwd
+import glob
 
 import logging
 logger = logging.getLogger("AVPlugin")
@@ -123,4 +124,10 @@ class AVPlugin(object):
         raise AssertionError("File not found after {} seconds. Path={}.\n Files in Directory {} \n Log:\n {}".
                              format(timeout, full_path, files_in_dir, self.log()))
 
+    @staticmethod
+    def get_latest_xml_from_events(relative_path):
+        full_path = os.path.join(_sophos_spl_path(), relative_path)
+        xml_files = glob.iglob(f'{full_path}/*.xml')
+        latest_xml = max(xml_files, key=os.path.getctime)
+        return latest_xml
 
