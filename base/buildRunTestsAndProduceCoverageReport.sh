@@ -6,21 +6,10 @@ function failure() {
 }
 # assumes this is executed from everest-base/
 BASE=$(pwd)
-SYSTEM_TEST=""
-while [[ $# -ge 1 ]]
-do
-    case $1 in
-        --system-test)
-          shift
-          SYSTEM_TEST="$1"
-          ;;
-    esac
-    shift
-done
-[[ -d ${SYSTEM_TEST} ]] || failure "Invalid path for system tests. "
+
 echo 'remove previous coverage results'
 rm -rf modules/.coverage
-echo "build Run Tests and Produce Coverge Report.sh with systemtests: ${SYSTEM_TEST}"
+echo "build Run Tests and Produce Coverge Report.sh with systemtests"
 git checkout build/release-package.xml
 # FIXME LINUXDAR-749: Jenkins fails to find the dev package in filer6.
 sed  -i 's#package buildtype="dev" name="sspl-telemetry-config-dev" version="1.0"#package buildtype="dev" name="sspl-telemetry-config" version="1.0/EES-9377"#' build/release-package.xml
@@ -30,7 +19,7 @@ SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
 pushd modules
 python3 -m coverage combine || echo 'ignore error'
-[[ -f .coverage ]] && mv .coverage  ${SYSTEM_TEST}/.coverage
+[[ -f .coverage ]] && mv .coverage  testUtils/.coverage
 popd
 
 pushd testUtils
