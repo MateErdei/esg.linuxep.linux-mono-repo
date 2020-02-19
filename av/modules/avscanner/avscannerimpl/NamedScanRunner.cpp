@@ -23,6 +23,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 
+enum E_ERROR_CODES: int
+{
+    E_CLEAN = 0,
+    E_GENERIC_FAILURE = 1,
+    E_VIRUS_FOUND = 69
+};
 
 NamedScanRunner::NamedScanRunner(const std::string& configPath)
     : m_config(configFromFile(configPath))
@@ -43,8 +49,19 @@ namespace
     public:
         void cleanFile(const path&) override
         {}
-        void infectedFile(const path&, const std::string&) override
-        {}
+        void infectedFile(const path& p, const std::string& threatName) override
+        {
+            LOGERROR(p << " is infected with " << threatName);
+            m_returnCode = E_VIRUS_FOUND;
+        }
+
+        [[nodiscard]] int returnCode() const
+        {
+            return m_returnCode;
+        }
+
+    private:
+        int m_returnCode = E_CLEAN;
     };
 
     class CallbackImpl : public filewalker::IFileWalkCallbacks
@@ -62,7 +79,14 @@ namespace
 
         void processFile(const sophos_filesystem::path& p) override
         {
-            m_scanner.scan(p);
+            try
+            {
+                m_scanner.scan(p);
+            } catch (const std::exception& e)
+            {
+                LOGERROR("Scanner failed to scan: " << p);
+                m_returnCode = E_GENERIC_FAILURE;
+            }
         }
 
         bool includeDirectory(const sophos_filesystem::path& p) override
@@ -77,14 +101,20 @@ namespace
             return true;
         }
 
+        [[nodiscard]] int returnCode() const
+        {
+            return m_returnCode;
+        }
+
     private:
         ScanClient m_scanner;
         NamedScanConfig& m_config;
         std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
+        int m_returnCode = E_CLEAN;
     };
 }
 
-std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoints(std::vector<std::shared_ptr<IMountPoint>> allMountpoints)
+std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoints(const std::vector<std::shared_ptr<IMountPoint>>& allMountpoints)
 {
     std::vector<std::shared_ptr<IMountPoint>> includedMountpoints;
     for (auto & mp : allMountpoints)
@@ -127,10 +157,23 @@ int NamedScanRunner::run()
     {
         std::string mountpointToScan = mp->mountPoint();
         LOGINFO("Scanning mount point: " << mountpointToScan);
-        filewalker::walk(mountpointToScan, callbacks);
+        try
+        {
+            filewalker::walk(mountpointToScan, callbacks);
+        }
+        catch (sophos_filesystem::filesystem_error& e)
+        {
+            m_returnCode = e.code().value();
+        }
+
+        // we want virus found to override any other return code
+        if (scanCallbacks->returnCode() == E_VIRUS_FOUND)
+        {
+            m_returnCode = E_VIRUS_FOUND;
+        }
     }
 
-    return 0;
+    return m_returnCode;
 }
 
 NamedScanConfig& NamedScanRunner::getConfig()

@@ -48,7 +48,7 @@ void ScanRunner::run()
 {
     announceThreadStarted();
 
-    LOGINFO("Starting scheduled scan "<<m_name);
+    LOGINFO("Starting scan " << m_name);
 
     fs::path config_dir = m_pluginInstall / "var";
     fs::path config_file = config_dir / (m_name + ".config");
@@ -60,11 +60,11 @@ void ScanRunner::run()
     Common::Process::IProcessPtr process(Common::Process::createProcess());
     process->exec(m_scanExecutable, {m_scanExecutable, "--config", config_file});
 
-
     // TODO: Wait for stop request or file walker process exit, which ever comes first
     process->waitUntilProcessEnds();
+    int exitCode = process->exitCode();
 
-    LOGINFO("Completed scheduled scan "<<m_name);
+    LOGINFO("Completed scan " << m_name << " with exit code: " << exitCode);
     process.reset();
     fs::remove(config_file);
 

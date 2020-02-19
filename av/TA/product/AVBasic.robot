@@ -49,6 +49,7 @@ AV Plugin Can Process Scan Now
     Check ScanNow Log Exists
 
     ${result} =   Terminate Process  ${handle}
+    [Teardown]  NONE
 
 
 AV Plugin Will Fail Scan Now If No Policy

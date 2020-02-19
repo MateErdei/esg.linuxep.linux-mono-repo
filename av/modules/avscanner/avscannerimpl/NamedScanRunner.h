@@ -28,10 +28,11 @@ namespace avscanner::avscannerimpl
         int run() override;
         NamedScanConfig& getConfig();
 
-        std::vector<std::shared_ptr<IMountPoint>> getIncludedMountpoints(std::vector<std::shared_ptr<IMountPoint>> allMountpoints);
+        std::vector<std::shared_ptr<IMountPoint>> getIncludedMountpoints(const std::vector<std::shared_ptr<IMountPoint>>& allMountpoints);
     private:
         NamedScanConfig m_config;
         Logger m_logger;
+        int m_returnCode = 0;
     };
 }
 
