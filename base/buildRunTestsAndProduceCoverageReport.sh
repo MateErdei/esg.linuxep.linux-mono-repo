@@ -35,7 +35,7 @@ popd
 
 pushd testUtils
 echo 'run system tests'
-TESTS2RUN="-e AMAZON_LINUX -i SMOKE."
+TESTS2RUN="-e AMAZON_LINUX -i SMOKE"
 USER=$(whoami)
 if [[ ${USER} == "jenkins" ]]; then
   BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
