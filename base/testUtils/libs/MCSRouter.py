@@ -315,7 +315,10 @@ class MCSRouter(object):
             pass
 
         result = Result()
-        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=self.devnull)
+        try:
+            proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=self.devnull)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
         result.stdout, result.stderr = proc.communicate()
         result.stdout_path = None
         result.stderr_path = None
