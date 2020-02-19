@@ -1,0 +1,9 @@
+#!/bin/bash
+
+pushd /home/pair/gcc-build-test || exit 1
+rm -rf ./build
+mkdir build
+cd build
+../gcc-gcc-6_4_0-release/configure --enable-languages=c,c++ --disable-multilib
+make -j4 || exit 1
+popd
