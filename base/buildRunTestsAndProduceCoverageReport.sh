@@ -19,7 +19,7 @@ SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
 pushd modules
 python3 -m coverage combine || echo 'ignore error'
-[[ -f .coverage ]] && mv .coverage  testUtils/.coverage
+[[ -f .coverage ]] && mv .coverage  ../testUtils/.coverage
 popd
 
 pushd testUtils
