@@ -463,20 +463,20 @@ function safermrf()
 ## Replacement for stat -c'%Y'
 function modificationTime()
 {
-    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib bin/ministat "%Y" "$@"
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib /usr/bin/stat --printf="%Y" "$@"
 }
 
 ## Replacement for stat -c"%s"
 function fileSize()
 {
-    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib bin/ministat "%s" "$@"
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib /usr/bin/stat --printf="%s" "$@"
 }
 
 ## Get the of last access to file
 ## Replacement for stat -c"%x"
 function accessTime()
 {
-    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib bin/ministat "%x" "$@"
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib /usr/bin/stat --printf="%x" "$@"
 }
 
 # get the owner name of a file/dir

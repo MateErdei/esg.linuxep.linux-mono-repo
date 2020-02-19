@@ -259,6 +259,8 @@ function build()
         untar_input python-urllib3
         untar_input pycryptodome
         untar_input $GOOGLETESTTAR
+        # below are unpacked for test use only
+        untar_input gcc-8.1.0-linux
 
         mkdir -p ${REDIST}/certificates
         if [[ -f ${INPUT}/ps_rootca.crt ]]
