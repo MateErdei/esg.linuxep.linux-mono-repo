@@ -6,24 +6,20 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "BaseRunner.h"
+#include "IRunner.h"
 
-#include <string>
-#include <vector>
+#include <unixsocket/IScanningClientSocket.h>
+
+#include <memory>
 
 namespace avscanner::avscannerimpl
 {
-    class CommandLineScanRunner : public BaseRunner
+    class BaseRunner : public IRunner
     {
     public:
-        explicit CommandLineScanRunner(std::vector<std::string> paths);
-        int run() override;
+        void setSocket(std::shared_ptr<unixsocket::IScanningClientSocket> ptr) override;
 
-    private:
-        std::vector<std::string> m_paths;
-        int m_returnCode = 0;
+    protected:
+        std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;
     };
 }
-
-
-

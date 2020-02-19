@@ -54,7 +54,7 @@ namespace
     {
     public:
         explicit CallbackImpl(
-                unixsocket::ScanningClientSocket& socket,
+                unixsocket::IScanningClientSocket& socket,
                 std::shared_ptr<IScanCallbacks> callbacks,
                 std::vector<std::shared_ptr<IMountPoint>> allMountPoints
                 )
@@ -112,9 +112,12 @@ int CommandLineScanRunner::run()
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
-    const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
-    unixsocket::ScanningClientSocket socket(unix_socket_path);
-    CallbackImpl callbacks(socket, scanCallbacks, allMountpoints);
+    if (!m_socket)
+    {
+        const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
+        m_socket = std::make_shared<unixsocket::ScanningClientSocket>(unix_socket_path);
+    }
+    CallbackImpl callbacks(*m_socket, scanCallbacks, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point
     for (const auto& path : m_paths)

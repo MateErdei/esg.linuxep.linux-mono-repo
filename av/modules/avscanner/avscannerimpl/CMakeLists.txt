@@ -1,5 +1,7 @@
 
 add_library(avscannerimpl SHARED
+        BaseRunner.cpp
+        BaseRunner.h
         CommandLineScanRunner.cpp
         CommandLineScanRunner.h
         DeviceUtil.cpp

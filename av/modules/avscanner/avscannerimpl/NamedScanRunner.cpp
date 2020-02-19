@@ -147,9 +147,12 @@ int NamedScanRunner::run()
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
-    const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
-    unixsocket::ScanningClientSocket socket(unix_socket_path);
-    ScanClient scanner(socket, scanCallbacks, m_config);
+    if (!m_socket)
+    {
+        const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
+        m_socket = std::make_shared<unixsocket::ScanningClientSocket>(unix_socket_path);
+    }
+    ScanClient scanner(*m_socket, scanCallbacks, m_config);
     CallbackImpl callbacks(std::move(scanner), m_config, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point
