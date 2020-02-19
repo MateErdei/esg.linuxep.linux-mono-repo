@@ -76,6 +76,6 @@ Run uninstaller
 
 Validate latest Event
      ${eventXml}=  get_latest_xml_from_events  base/mcs/event/
-     parse xml  ${SOPHOS_INSTALL}/${eventXml}
-     ELEMENT TEXT SHOULD BE  source=${root}  expected=<scanComplete>  xpath=scanComplete
+     ${parsedXml}=  parse xml  ${SOPHOS_INSTALL}${eventXml}
+     ELEMENT TEXT SHOULD BE  source=${parsedXml}  expected=<scanComplete>  xpath=scanComplete
 
