@@ -7,12 +7,14 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include <filewalker/FileWalker.h>
+#include <datatypes/Print.h>
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
 #include <string>
 #include <fstream>
-#include <errno.h>
+#include <cerrno>
+
 #include <unistd.h>
 
 namespace fs = sophos_filesystem;
@@ -36,7 +38,57 @@ namespace
             return !(filepath.filename() == "b");
         }
     };
+
+    class CollectCallbacks : public filewalker::IFileWalkCallbacks
+    {
+    public:
+        CollectCallbacks() = default;
+        std::vector<fs::path> m_paths;
+        void processFile(const sophos_filesystem::path& filepath) override
+        {
+            m_paths.emplace_back(filepath);
+        }
+
+        bool includeDirectory(const sophos_filesystem::path&) override
+        {
+            return true;
+        }
+
+
+    };
 }
+
+TEST(TestFileWalker, includeFiles) // NOLINT
+{
+    fs::create_directories("sandbox/a/b/d/e");
+    std::ofstream("sandbox/a/b/file1.txt");
+
+    CollectCallbacks callbacks;
+    filewalker::walk("sandbox", callbacks);
+    fs::remove_all("sandbox");
+
+    ASSERT_EQ(callbacks.m_paths.size(), 1);
+    EXPECT_EQ(callbacks.m_paths.at(0), "sandbox/a/b/file1.txt");
+}
+
+
+TEST(TestFileWalker, absoluteIncludePath) // NOLINT
+{
+    fs::create_directories("sandbox/a/b/d/e");
+    std::ofstream("sandbox/a/b/file1.txt");
+
+    fs::path startingpoint = fs::absolute("sandbox");
+
+    CollectCallbacks callbacks;
+    filewalker::walk(startingpoint, callbacks);
+    fs::remove_all("sandbox");
+
+    ASSERT_EQ(callbacks.m_paths.size(), 1);
+    std::string firstPath = callbacks.m_paths.at(0);
+//    PRINT(firstPath);
+    EXPECT_EQ(firstPath, startingpoint / "a/b/file1.txt");
+}
+
 
 TEST(TestFileWalker, excludeDirectory) // NOLINT
 {
@@ -47,6 +99,8 @@ TEST(TestFileWalker, excludeDirectory) // NOLINT
     filewalker::walk("sandbox", callbacks);
     fs::remove_all("sandbox");
 }
+
+
 
 TEST(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
 {
