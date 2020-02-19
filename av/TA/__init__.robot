@@ -1,9 +1,9 @@
 *** Settings ***
 Suite Setup     Global Setup Tasks
-Suite Teardown
+Suite Teardown  Global Teardown Tasks
 
 Test Setup      Component Test Setup
-Test Teardown
+Test Teardown   Component Test TearDown
 
 
 Library         OperatingSystem
