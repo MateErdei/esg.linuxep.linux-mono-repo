@@ -122,7 +122,7 @@ int CommandLineScanRunner::run()
         try
         {
             filewalker::walk(path, callbacks);
-        }catch (fs::filesystem_error& e)
+        } catch (fs::filesystem_error& e)
         {
             m_returnCode = e.code().value();
         }
