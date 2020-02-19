@@ -46,6 +46,7 @@ AV Plugin Can Process Scan Now
     AV Plugin Log Contains  Received new Action
     AV Plugin Log Contains  Starting Scan Now scan
     AV Plugin Log Contains  Starting scan scanNow
+    Check ScanNow Log Exists
 
     ${result} =   Terminate Process  ${handle}
 

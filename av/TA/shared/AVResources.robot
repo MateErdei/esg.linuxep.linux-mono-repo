@@ -12,6 +12,7 @@ ${COMPONENT_UC}    AV
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
+${SCANNOW_LOG_PATH}  ${AV_PLUGIN_PATH}/log/scanNow.log
 ${BASE_SDDS}       ${TEST_INPUT_PATH}/${COMPONENT}/base-sdds/
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
@@ -165,3 +166,6 @@ Send Sav Action To Base
     [Arguments]  ${actionFile}
     ${savActionFilename}  Generate Random String
     Copy File  ${RESOURCES_PATH}/${actionFile}  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_${savActionFilename}.xml
+
+Check ScanNow Log Exists
+    File Should Exist  ${SCANNOW_LOG_PATH}
