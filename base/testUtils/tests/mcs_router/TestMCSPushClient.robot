@@ -113,6 +113,24 @@ MCSRouter Safely Logs Invalid XML Action From Push Client And Recovers
     ...  1 secs
     ...  File Should Exist  ${MCS_DIR}/action/ALC_action_FakeTime.xml
 
+MCSRouter Safely Logs Empty Action From Push Client And Recovers
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+
+    Check Connected To Fake Cloud
+
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    Send Message To Push Server And Expect It In MCSRouter Log   ""
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains  Failed to parse commands
+    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/ALC_full_update_now_command.xml
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  File Should Exist  ${MCS_DIR}/action/ALC_action_FakeTime.xml
+
 Push Client informs MCS Client if the connection with Push Server is disconnected and logged to MCSRouter
     Start MCS Push Server
     Configure Push Server To Ping Interval  300
