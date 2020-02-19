@@ -5,6 +5,7 @@ Library         OperatingSystem
 Library         Process
 Library         String
 Library         XML
+Library         ../Libs/fixtures/AVPlugin.py
 
 Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
@@ -16,6 +17,7 @@ Test Setup      No Operation
 Test Teardown   AV And Base Teardown
 
 *** Test Cases ***
+
 AV plugin Can Start sophos_threat_detector
     Check AV Plugin Installed With Base
     Wait Until Keyword Succeeds
@@ -46,9 +48,7 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Wait Until AV Plugin Log Contains  Completed scan
     Wait Until AV Plugin Log Contains  Starting scan
     Wait Until AV Plugin Log Contains  Sending scan complete
-    Validate Scan Complete  ../resources/ScanComplete_Event.xml
-    # This will parse the scan complete xml in the events folder and compare it to the one we have in our resouces folder
-    # Once we can validate xml appearing in the events folder, we can expect this to be sent to Central (In a System Product Test)
+    Validate latest Event
 
 Diagnose collects the correct files
     Check AV Plugin Installed With Base
@@ -73,3 +73,9 @@ Check avscanner not in /usr/local/bin
 
 Run uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
+
+Validate latest Event
+     ${eventXml}=  get_latest_xml_from_events  base/mcs/event/
+     parse xml  ${SOPHOS_INSTALL}/base/mcs/event/${eventXml}
+     ELEMENT TEXT SHOULD BE  source=${root}  expected=<scanComplete>  xpath=scanComplete
+
