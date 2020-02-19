@@ -75,7 +75,7 @@ Run uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
 
 Validate latest Event
-     ${eventXml}=  get_latest_xml_from_events  base/mcs/event/
+     ${eventXml}=  get_latest_xml_from_events  mcs/event/
      ${parsedXml}=  parse xml  ${eventXml}
      ELEMENT TEXT SHOULD BE  source=${parsedXml}  expected=<scanComplete>  xpath=scanComplete
 
