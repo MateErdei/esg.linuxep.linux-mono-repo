@@ -8,10 +8,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "BaseFileWalkCallbacks.h"
 #include "Mounts.h"
+#include "PathUtils.h"
 #include "ScanClient.h"
 
 #include <filewalker/FileWalker.h>
-#include <filewalker/IFileWalkCallbacks.h>
 #include <unixsocket/ScanningClientSocket.h>
 
 #include <capnp/message.h>
@@ -84,7 +84,7 @@ namespace
         {
             for (auto & mp : m_allMountPoints)
             {
-                if (p.string().rfind(mp->mountPoint(), 0) == 0)
+                if (PathUtils::startswith(p, mp->mountPoint()))
                 {
                     return false;
                 }
