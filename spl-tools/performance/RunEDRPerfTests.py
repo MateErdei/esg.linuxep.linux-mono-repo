@@ -3,54 +3,20 @@ import requests
 import sys
 import time
 import socket
-
 import argparse
 import subprocess
-
-# depending on arguments run: gcc build, local live queries, central live queries via API
-
-# For each of the below tests / tasks one will be run at a time then exit, ensure we time them and then post the results.
-    #Posting from python:
-    # import requests
-    # url = 'https://www.w3schools.com/python/demopage.php'
-    # myobj = {'somekey': 'somevalue'}
-    # x = requests.post(url, data = myobj)
-    # print(x.text)
-
-#Where to post them:
-    # END=$(date +%s)
-    # DURATION=$((END-START))
-    #
-    # # Product details
-    # BUILD_DATE=$(grep BUILD_DATE /opt/sophos-spl/base/VERSION.ini | awk -F"=" '{print $2}'  | sed -e 's/^[[:space:]]*//')
-    # PRODUCT_VERSION=$(grep PRODUCT_VERSION /opt/sophos-spl/base/VERSION.ini | awk -F"=" '{print $2}'  | sed -e 's/^[[:space:]]*//')
-    #
-    # DATETIME=$(env TZ=UTC date "+%Y/%m/%d %H:%M:%S")
-    # echo '{"datetime":"'$DATETIME'", "hostname": "'$HOSTNAME'", "build_date":"'$BUILD_DATE'", "product_version":"'$PRODUCT_VERSION'", "eventname":"GCC Build", "start":'$START', "finish":'$END', "duration":'$DURATION'}' > gcc.json
-    #
-    # curl -X POST "sspl-perf-mon:9200/perf-custom/_doc?pretty" -H 'Content-Type: application/json' -d @gcc.json
+import os
 
 
-#GCC:
-# run this script: run-test-gcc.sh which will be: /root/run-test-gcc.sh
-
-#local live query:
-#python3 RunLiveQuery.py (run this and it will print usage text)
-
-# Run API central live queries:
-#....
-logger = logging.getLogger("EDRPerformance")
 def add_options():
     parser = argparse.ArgumentParser(description='Performance test runner for EDR')
     parser.add_argument('-s', '--suite', default='gcc', action='store',
                         choices=['gcc', 'local-livequery', 'central-livequery'],
                         help="Select which performance test suite to run")
-    parser.add_argument('--test-script-path', default='/root/run-test-gcc.sh', action='store',
-                        help='path to the test script')
-    parser.add_argument('--hostname', default='None', action='store')
+    parser.add_argument('-e', '--email', default='darwinperformance@sophos.xmas.testqa.com', action='store',
+                        help="Central account email address to use to run live queries")
+    parser.add_argument('-p', '--password', action='store', help="Central account password to use to run live queries")
     return parser
-
-
 
 
 def get_part_after_equals(key_value_pair):
@@ -60,19 +26,10 @@ def get_part_after_equals(key_value_pair):
     return ""
 
 
-def run_test(args_list):
-    start_time = int(time.time())
-    print("runnig process")
-    subprocess.run(args_list, timeout=120)
-    end_time = int(time.time())
-
-    duration = end_time - start_time
-    date_time = time.strftime("%Y/%m/%d %H:%M:%S")
+def record_result(event_name, date_time, start_time, end_time):
     hostname = socket.gethostname()
-
     build_date = "unknown"
     product_version = "unknown"
-
     with open("/opt/sophos-spl/base/VERSION.ini", 'r') as version_file:
         for line in version_file:
             if "BUILD_DATE" in line:
@@ -80,27 +37,111 @@ def run_test(args_list):
             if "PRODUCT_VERSION" in line:
                 product_version = get_part_after_equals(line)
 
-    json_data = '{"datetime":"'+date_time+'", "hostname": "'+hostname+'", "build_date":"'+build_date \
-                +'", "product_version":"'+product_version+'", "eventname":"GCC Build", "start":'+ str(start_time) \
-                + ', "finish":'+ str(end_time) +', "duration":'+str(duration) +'}'
-    print(json_data)
-    #r = requests.post('sspl-perf-mon:9200/perf-custom/_doc?pretty', json={"key": "value"})
+    duration = end_time - start_time
 
-def main(argv):
+    result = {"datetime": date_time, "hostname": hostname, "build_date": build_date, "product_version": product_version,
+              "eventname": event_name, "start": str(start_time), "finish": str(end_time), "duration": str(duration)}
+
+    r = requests.post('http://sspl-perf-mon:9200/perf-custom/_doc', json=result)
+    if r.status_code not in [200, 201]:
+        logging.error("Failed to store test result: {}".format(str(result)))
+        logging.error("Status code: {}, text: {}".format(r.status_code, r.text))
+    else:
+        logging.info("Stored result for: {}".format(event_name))
+
+
+def get_current_date_time_string():
+    return time.strftime("%Y/%m/%d %H:%M:%S")
+
+
+def get_current_unix_epoch_in_seconds():
+    return int(time.time())
+
+
+def run_gcc_perf_test():
+    logging.info("Running GCC performance test")
+    # print("Running GCC performance test")
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    build_gcc_script = os.path.join(this_dir, "build-gcc-only.sh")
+
+    date_time = get_current_date_time_string()
+    start_time = get_current_unix_epoch_in_seconds()
+    subprocess.run(['bash', build_gcc_script], timeout=10000)
+    end_time = get_current_unix_epoch_in_seconds()
+
+    record_result("gcc", date_time, start_time, end_time)
+
+
+def run_local_live_query_perf_test():
+    logging.info("Running Local Live Query performance test")
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    local_live_query_script = os.path.join(this_dir, "RunLocalLiveQuery.py")
+
+    queries_to_run = [
+        ("all-processes", "SELECT * FROM processes;", 3),
+        ("all-users", "SELECT * FROM users;", 5)
+    ]
+
+    for name, query, times_to_run in queries_to_run:
+        date_time = get_current_date_time_string()
+        start_time = get_current_unix_epoch_in_seconds()
+        command = ['python3', local_live_query_script, name, query, str(times_to_run)]
+        process_result = subprocess.run(command, timeout=120)
+        if process_result.returncode != 0:
+            logging.error("Running local live query failed. return code: {}, stdout: {}, stderr: {}".format(
+                process_result.returncode, process_result.stdout, process_result.stderr))
+            continue
+        end_time = get_current_unix_epoch_in_seconds()
+        record_result("local-query_{}_x{}".format(name, str(times_to_run)), date_time, start_time, end_time)
+
+
+def run_central_live_query_perf_test(email, password):
+    logging.info("Running Local Live Query performance test")
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    central_live_query_script = os.path.join(this_dir, "cloudClient.py")
+
+    # This machine - this script is intended to run on the test machine.
+    target_machine = socket.gethostname()
+
+    # Make sure we're logged in, no point timing that.
+    subprocess.run(
+        ['python3', central_live_query_script, '--region', 'q', '--email', email, '--password', password, 'login'],
+        timeout=120)
+
+    queries_to_run = [
+        ("all-processes", "SELECT * FROM processes;"),
+        ("all-users", "SELECT * FROM users;")
+    ]
+
+    for name, query in queries_to_run:
+        date_time = get_current_date_time_string()
+        start_time = get_current_unix_epoch_in_seconds()
+        command = ['python3', central_live_query_script, '--region', 'q', '--email', email, '--password', password,
+                   'run_live_query_and_wait_for_response', name, query, target_machine]
+        process_result = subprocess.run(command, timeout=120)
+        if process_result.returncode != 0:
+            logging.error("Running live query through central failed. return code: {}, stdout: {}, stderr: {}".format(
+                process_result.returncode, process_result.stdout, process_result.stderr))
+            continue
+        end_time = get_current_unix_epoch_in_seconds()
+        record_result("central-live-query_{}".format(name), date_time, start_time, end_time)
+
+
+def main():
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
     parser = add_options()
     args = parser.parse_args()
 
-    if args.suite == 'gcc':
-        run_test(['bash', "build_gcc_only.sh"])
-    if args.suite == 'local-livequery':
-        run_test(['python3', 'RunLiveQuery.py', 'basic_query', '"SELECT * FROM processes;"'])
-    if args.suite == 'central-livequery':
-        run_test(['python3', 'cloudClient.py', '-region', 'q', '--email', 'darwin@sophos', '--password',
-                        'DarwinCh1pm0nk', 'run_live_query_and_wait_for_response', 'basic_query2', '"SELECT * FROM processes;"', args.hostname])
+    logging.info("Starting tests")
 
+    if args.suite == 'gcc':
+        run_gcc_perf_test()
+    if args.suite == 'local-livequery':
+        run_local_live_query_perf_test()
+    if args.suite == 'central-livequery':
+        run_central_live_query_perf_test(args.email, args.password)
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(main())

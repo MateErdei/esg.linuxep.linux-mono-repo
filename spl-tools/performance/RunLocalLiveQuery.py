@@ -136,6 +136,7 @@ def print_usage_and_exit(script_name):
 
 
 def main(args):
+    print(args)
     number_of_args = len(args) - 1
 
     if number_of_args == 1:
