@@ -5,13 +5,12 @@
 # The second set of data (custom data) contains certain specific things about the perf tests,
 # e.g. duration, start time and end time.
 
-import sys
-if sys.version_info[0] < 3:
-    raise Exception("Must be using Python 3")
-
 from datetime import datetime
 from elasticsearch import Elasticsearch
-import json
+import sys
+
+if sys.version_info[0] < 3:
+    raise Exception("Must be using Python 3")
 
 try:
     import mysql.connector
@@ -19,7 +18,8 @@ except:
     print("No module named 'mysql', please install it: python3 -m pip install mysql-connector-python")
     exit()
 
-def create_task(task_row):
+
+def create_task(task_row, es):
     task = {}
 
     if "datetime" not in task_row:
@@ -40,6 +40,12 @@ def create_task(task_row):
     if "build_date" not in task_row:
         return None
 
+    if not isinstance(task_row["start"], int):
+        return None
+
+    if not isinstance(task_row["finish"], int):
+        return None
+
     task["name"] = task_row["eventname"]
     task["datetime"] = task_row["datetime"]
     task["start"] = task_row["start"]
@@ -52,72 +58,74 @@ def create_task(task_row):
 
     # return avg_cpu, max_cpu, avg_mem, max_mem, min_mem
 
-    task["avg_cpu"], task["max_cpu"], task["avg_mem"], task["max_mem"], task["min_mem"] = get_metrics(task["hostname"], task["start"], task["finish"])
+    task["avg_cpu"], task["max_cpu"], task["avg_mem"], task["max_mem"], task["min_mem"] = get_metrics(task["hostname"],
+                                                                                                      task["start"],
+                                                                                                      task["finish"],
+                                                                                                      es)
 
-#    print(task)
+    #    print(task)
 
     return task
 
 
-def get_metrics(hostname, from_timestamp, to_timestamp):
-
+def get_metrics(hostname, from_timestamp, to_timestamp, es):
+    print(hostname)
+    print(from_timestamp)
+    print(to_timestamp)
     from_datetime = datetime.utcfromtimestamp(from_timestamp)
     to_datetime = datetime.utcfromtimestamp(to_timestamp)
 
-    #print(from_datetime)
-    #print(to_datetime)
-
+    metrics_index = "metric*"
     res_metrics = es.search(index=metrics_index,
-                    body={
-                        "query": {
-                            "match": {
-                                "agent.hostname": hostname
-                            }
-                        },
-
-                        "aggs": {
-                            "task_time_range": {
-                                "filter": {
-                                    "range": {
-                                        "@timestamp": {
-                                            "gte": from_datetime,
-                                            "lte": to_datetime
-                                        }
+                            body={
+                                "query": {
+                                    "match": {
+                                        "agent.hostname": hostname
                                     }
                                 },
+
                                 "aggs": {
-                                    "avg_cpu": {
-                                        "avg": {
-                                            "field": "system.cpu.total.pct"
-                                        }
-                                    },
-                                    "max_cpu": {
-                                        "max": {
-                                            "field": "system.cpu.total.pct"
-                                        }
-                                    },
-                                    "avg_mem": {
-                                        "avg": {
-                                            "field": "system.memory.used.bytes"
-                                        }
-                                    },
-                                    "max_mem": {
-                                        "max": {
-                                            "field": "system.memory.used.bytes"
-                                        }
-                                    },
-                                    "min_mem": {
-                                        "min": {
-                                            "field": "system.memory.used.bytes"
-                                        }
+                                    "task_time_range": {
+                                        "filter": {
+                                            "range": {
+                                                "@timestamp": {
+                                                    "gte": from_datetime,
+                                                    "lte": to_datetime
+                                                }
+                                            }
+                                        },
+                                        "aggs": {
+                                            "avg_cpu": {
+                                                "avg": {
+                                                    "field": "system.cpu.total.pct"
+                                                }
+                                            },
+                                            "max_cpu": {
+                                                "max": {
+                                                    "field": "system.cpu.total.pct"
+                                                }
+                                            },
+                                            "avg_mem": {
+                                                "avg": {
+                                                    "field": "system.memory.used.bytes"
+                                                }
+                                            },
+                                            "max_mem": {
+                                                "max": {
+                                                    "field": "system.memory.used.bytes"
+                                                }
+                                            },
+                                            "min_mem": {
+                                                "min": {
+                                                    "field": "system.memory.used.bytes"
+                                                }
+                                            }
+                                        },
+
                                     }
-                                },
-
-                            }
-                        }
-                    },
-                    size=100)
-
+                                }
+                            },
+                            size=100)
 
     avg_cpu = res_metrics["aggregations"]["task_time_range"]["avg_cpu"]["value"]
     max_cpu = res_metrics["aggregations"]["task_time_range"]["max_cpu"]["value"]
@@ -129,8 +137,7 @@ def get_metrics(hostname, from_timestamp, to_timestamp):
 
 
 def all_fields_present(to_check):
-
-    fields = ['avg_cpu', 'avg_mem', 'max_cpu', 'max_mem','min_mem', 'duration', 'hostname']
+    fields = ['avg_cpu', 'avg_mem', 'max_cpu', 'max_mem', 'min_mem', 'duration', 'hostname']
 
     for field in fields:
         if field not in to_check:
@@ -141,173 +148,183 @@ def all_fields_present(to_check):
     return True
 
 
+def event_of_interest(event_name):
+    # Any performance tasks / events that start with one of these prefixes will be included in the query.
+    # These should correspond to the event names in the RunEDRPerfTests and in the run_tests.sh
+    event_name_prefixes = ["build_gcc", "copy_files", "local-query_", "central-live-query_"]
+    for prefix in event_name_prefixes:
+        if event_name.startswith(prefix):
+            return True
+    return False
+
+
+def get_results_for_machine(hostname):
+    es = Elasticsearch(["sspl-perf-mon"])
+    perf_index = "perf-custom"
+    es.indices.refresh(index=perf_index)
+
+    res = es.search(index=perf_index, body={"query": {"match": {"hostname": hostname}}}, size=1000)
+
+    task_names = []
+    prod_versions = []
+    tasks = []
+    days = []
+
+    # Build up lists of task names, days etc.
+    for hit in res['hits']['hits']:
+
+        # Skip events / test loads we are not interested in.
+        if not event_of_interest(hit["_source"]["eventname"]):
+            continue
+
+        # Build list of tasks
+        if hit["_source"]["eventname"] not in task_names:
+            task_names.append(hit["_source"]["eventname"])
+
+        # Build list of product versions
+        if hit["_source"]["product_version"] not in prod_versions:
+            prod_versions.append(hit["_source"]["product_version"])
+
+        t = create_task(hit["_source"], es)
+        if not t:
+            continue
+
+        # Build list of days
+        if t["day"] not in days:
+            days.append(t["day"])
+
+        if t is not None:
+            print(t)
+            tasks.append(t)
+
+    result_root = {}
+    for day in days:
+        result_root[day] = {}
+        for product_version in prod_versions:
+            result_root[day][product_version] = {}
+            for task_name in task_names:
+                result_root[day][product_version][task_name] = []
+                for task in tasks:
+                    if task['day'] == day and task['name'] == task_name and task['product_version'] == product_version:
+                        result_root[day][product_version][task_name].append(task)
+
+    summary_root = {}
+    for day in result_root:
+        summary_root[day] = {}
+
+        for version in result_root[day]:
+            summary_root[day][version] = {}
+
+            for task_name in result_root[day][version]:
+                summary_root[day][version][task_name] = {}
+                good_result_count = 0
+                summary_root[day][version][task_name]['avg_cpu'] = 0
+                summary_root[day][version][task_name]['avg_mem'] = 0
+
+                summary_root[day][version][task_name]['max_cpu'] = None
+                summary_root[day][version][task_name]['max_mem'] = None
+                summary_root[day][version][task_name]['min_mem'] = None
+
+                for result in result_root[day][version][task_name]:
+
+                    if all_fields_present(result):
+                        summary_root[day][version][task_name]['duration'] = result['duration']
+                        summary_root[day][version][task_name]['hostname'] = result['hostname']
+                        summary_root[day][version][task_name]['avg_cpu'] += result['avg_cpu']
+                        summary_root[day][version][task_name]['avg_mem'] += result['avg_mem']
+
+                        if summary_root[day][version][task_name]['max_cpu'] is None or result['max_cpu'] > \
+                                summary_root[day][version][task_name]['max_cpu']:
+                            summary_root[day][version][task_name]['max_cpu'] = result['max_cpu']
+
+                        if summary_root[day][version][task_name]['max_mem'] is None or result['max_mem'] > \
+                                summary_root[day][version][task_name]['max_mem']:
+                            summary_root[day][version][task_name]['max_mem'] = result['max_mem']
+
+                        if summary_root[day][version][task_name]['min_mem'] is None or result['min_mem'] < \
+                                summary_root[day][version][task_name]['min_mem']:
+                            summary_root[day][version][task_name]['min_mem'] = result['min_mem']
+
+                        good_result_count += 1
+
+                if good_result_count == 0:
+                    continue
+
+                summary_root[day][version][task_name]['avg_cpu'] /= good_result_count
+                summary_root[day][version][task_name]['avg_mem'] /= good_result_count
+
+                summary_root[day][version][task_name]['avg_cpu'] *= 100
+                summary_root[day][version][task_name]['avg_cpu'] = "{0:.2f}".format(
+                    round(summary_root[day][version][task_name]['avg_cpu'], 2))
+
+                summary_root[day][version][task_name]['max_cpu'] *= 100
+                summary_root[day][version][task_name]['max_cpu'] = "{0:.2f}".format(
+                    round(summary_root[day][version][task_name]['max_cpu'], 2))
+
+                summary_root[day][version][task_name]['avg_mem'] /= 1000000
+                summary_root[day][version][task_name]['avg_mem'] = "{0:.0f}".format(
+                    round(summary_root[day][version][task_name]['avg_mem'], 2))
+
+                summary_root[day][version][task_name]['max_mem'] /= 1000000
+                summary_root[day][version][task_name]['max_mem'] = "{0:.0f}".format(
+                    round(summary_root[day][version][task_name]['max_mem'], 2))
+
+                summary_root[day][version][task_name]['min_mem'] /= 1000000
+                summary_root[day][version][task_name]['min_mem'] = "{0:.0f}".format(
+                    round(summary_root[day][version][task_name]['min_mem'], 2))
+
+    # print(json.dumps(summary_root))
+
+    array_data = []
+
+    for date_key, date_value in summary_root.items():
+        for version_key, version_value in date_value.items():
+            for test_key, test_values in version_value.items():
+                row = {}
+                row["Date"] = date_key
+                row["Version"] = version_key
+                row["Test"] = test_key
+
+                for test_value_key, test_value in test_values.items():
+                    row[test_value_key] = test_value
+
+                array_data.append(row)
+
+    print(array_data)
+
+    # with open('perf-results.json', 'w') as json_file:
+    #     json_file.write(json.dumps(summary_root))
+    #     print("wrote out perf-results.json")
+    #
+    # with open('perf-table.json', 'w') as json_file:
+    #     json_file.write(json.dumps(array_data))
+    #     print("wrote out perf-table.json")
+
+    performance_db = mysql.connector.connect(
+        host="sspl-alex-1",
+        user="inserter",
+        passwd="insert",
+        database="performance"
+    )
+    cursor = performance_db.cursor()
+
+    for row in array_data:
+        print(row)
+
+        try:
+            df_sql = "CALL update_perf_data(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            df_val = (
+                row["Date"], row["Version"], row["Test"], row["avg_cpu"], row["avg_mem"], row["max_cpu"],
+                row["max_mem"], row["min_mem"], row["duration"], row["hostname"])
+            cursor.execute(df_sql, df_val)
+            performance_db.commit()
+            last_id = cursor.lastrowid
+            print("inserted, id:{}".format(last_id))
+        except:
+            print("Exception for: {} ".format(row))
+
 
 # Start
-
-es = Elasticsearch(["sspl-perf-mon"])
-
-perf_index = "perf-custom"
-metrics_index = "metric*"
-
-es.indices.refresh(index=perf_index)
-
-
-# sspl-perform1 - the machine which is running our perf tests.
-res = es.search(index=perf_index, body={"query": {"match": {"hostname": "sspl-perform1"}}}, size=1000)
-
-task_names = []
-prod_versions = []
-tasks = []
-days = []
-
-# TODO update this filter based on slave script
-task_filter = ["build_gcc", "copy_files"]
-
-
-# Build up lists of task names, days etc.
-for hit in res['hits']['hits']:
-
-    # Skip events / test loads we are not interested in.
-    if hit["_source"]["eventname"] not in task_filter:
-        continue
-
-    # Build list of tasks
-    if hit["_source"]["eventname"] not in task_names:
-        task_names.append(hit["_source"]["eventname"])
-
-    # Build list of product versions
-    if hit["_source"]["product_version"] not in prod_versions:
-        prod_versions.append(hit["_source"]["product_version"])
-
-    t = create_task(hit["_source"])
-
-    # Build list of days
-    if t["day"] not in days:
-        days.append(t["day"])
-
-    if t is not None:
-        print(t)
-        tasks.append(t)
-
-
-result_root = {}
-for day in days:
-    result_root[day] = {}
-    for product_version in prod_versions:
-        result_root[day][product_version] = {}
-        for task_name in task_names:
-            result_root[day][product_version][task_name] = []
-            for task in tasks:
-                if task['day'] == day and task['name'] == task_name and task['product_version'] == product_version:
-                    result_root[day][product_version][task_name].append(task)
-
-
-summary_root = {}
-for day in result_root:
-    summary_root[day] = {}
-
-    for version in result_root[day]:
-        summary_root[day][version] = {}
-
-        for task_name in result_root[day][version]:
-            summary_root[day][version][task_name] = {}
-            good_result_count = 0
-            summary_root[day][version][task_name]['avg_cpu'] = 0
-            summary_root[day][version][task_name]['avg_mem'] = 0
-
-            summary_root[day][version][task_name]['max_cpu'] = None
-            summary_root[day][version][task_name]['max_mem'] = None
-            summary_root[day][version][task_name]['min_mem'] = None
-
-            for result in result_root[day][version][task_name]:
-
-                if all_fields_present(result):
-                    summary_root[day][version][task_name]['duration'] = result['duration']
-                    summary_root[day][version][task_name]['hostname'] = result['hostname']
-                    summary_root[day][version][task_name]['avg_cpu'] += result['avg_cpu']
-                    summary_root[day][version][task_name]['avg_mem'] += result['avg_mem']
-
-                    if summary_root[day][version][task_name]['max_cpu'] is None or result['max_cpu'] > summary_root[day][version][task_name]['max_cpu']:
-                        summary_root[day][version][task_name]['max_cpu'] = result['max_cpu']
-
-                    if summary_root[day][version][task_name]['max_mem'] is None or result['max_mem'] > summary_root[day][version][task_name]['max_mem']:
-                        summary_root[day][version][task_name]['max_mem'] = result['max_mem']
-
-                    if summary_root[day][version][task_name]['min_mem'] is None or result['min_mem'] < summary_root[day][version][task_name]['min_mem']:
-                        summary_root[day][version][task_name]['min_mem'] = result['min_mem']
-
-                    good_result_count += 1
-
-            if good_result_count == 0:
-                continue
-
-            summary_root[day][version][task_name]['avg_cpu'] /= good_result_count
-            summary_root[day][version][task_name]['avg_mem'] /= good_result_count
-
-            summary_root[day][version][task_name]['avg_cpu'] *= 100
-            summary_root[day][version][task_name]['avg_cpu'] = "{0:.2f}".format(round(summary_root[day][version][task_name]['avg_cpu'], 2))
-
-            summary_root[day][version][task_name]['max_cpu'] *= 100
-            summary_root[day][version][task_name]['max_cpu'] = "{0:.2f}".format(round(summary_root[day][version][task_name]['max_cpu'], 2))
-
-            summary_root[day][version][task_name]['avg_mem'] /= 1000000
-            summary_root[day][version][task_name]['avg_mem'] = "{0:.0f}".format(round(summary_root[day][version][task_name]['avg_mem'], 2))
-
-            summary_root[day][version][task_name]['max_mem'] /= 1000000
-            summary_root[day][version][task_name]['max_mem'] = "{0:.0f}".format(round(summary_root[day][version][task_name]['max_mem'], 2))
-
-            summary_root[day][version][task_name]['min_mem'] /= 1000000
-            summary_root[day][version][task_name]['min_mem'] = "{0:.0f}".format(round(summary_root[day][version][task_name]['min_mem'], 2))
-
-
-#print(json.dumps(summary_root))
-
-
-array_data = []
-
-for date_key, date_value in summary_root.items():
-    for version_key, version_value in date_value.items():
-        for test_key, test_values in version_value.items():
-            row = {}
-            row["Date"] = date_key
-            row["Version"] = version_key
-            row["Test"] = test_key
-
-            for test_value_key, test_value in test_values.items():
-                row[test_value_key] = test_value
-
-            array_data.append(row)
-
-print(array_data)
-
-# with open('perf-results.json', 'w') as json_file:
-#     json_file.write(json.dumps(summary_root))
-#     print("wrote out perf-results.json")
-#
-# with open('perf-table.json', 'w') as json_file:
-#     json_file.write(json.dumps(array_data))
-#     print("wrote out perf-table.json")
-
-
-performance_db = mysql.connector.connect(
-    host="10.55.36.229",
-    user="inserter",
-    passwd="insert",
-    database="performance"
-)
-cursor = performance_db.cursor()
-
-for row in array_data:
-    print(row)
-
-    try:
-
-        df_sql = "CALL update_perf_data(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        df_val = (row["Date"], row["Version"], row["Test"], row["avg_cpu"], row["avg_mem"], row["max_cpu"], row["max_mem"], row["min_mem"], row["duration"], row["hostname"])
-        cursor.execute(df_sql, df_val)
-        performance_db.commit()
-        last_id = cursor.lastrowid
-        print("inserted, id:{}".format(last_id))
-    except:
-        print("Exception for: {} ".format(row))
-
+performance_machines = ["sspl-perform1", "edr-soak"]
+for machine in performance_machines:
+    get_results_for_machine(machine)

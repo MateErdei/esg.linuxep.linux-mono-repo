@@ -40,7 +40,7 @@ def record_result(event_name, date_time, start_time, end_time):
     duration = end_time - start_time
 
     result = {"datetime": date_time, "hostname": hostname, "build_date": build_date, "product_version": product_version,
-              "eventname": event_name, "start": str(start_time), "finish": str(end_time), "duration": str(duration)}
+              "eventname": event_name, "start": start_time, "finish": end_time, "duration": str(duration)}
 
     r = requests.post('http://sspl-perf-mon:9200/perf-custom/_doc', json=result)
     if r.status_code not in [200, 201]:
@@ -92,7 +92,8 @@ def run_local_live_query_perf_test():
                 process_result.returncode, process_result.stdout, process_result.stderr))
             continue
         end_time = get_current_unix_epoch_in_seconds()
-        record_result("local-query_{}_x{}".format(name, str(times_to_run)), date_time, start_time, end_time)
+        event_name = "local-query_{}_x{}".format(name, str(times_to_run))
+        record_result(event_name, date_time, start_time, end_time)
 
 
 def run_central_live_query_perf_test(email, password):
@@ -124,7 +125,8 @@ def run_central_live_query_perf_test(email, password):
                 process_result.returncode, process_result.stdout, process_result.stderr))
             continue
         end_time = get_current_unix_epoch_in_seconds()
-        record_result("central-live-query_{}".format(name), date_time, start_time, end_time)
+        event_name = "central-live-query_{}".format(name)
+        record_result(event_name, date_time, start_time, end_time)
 
 
 def main():
