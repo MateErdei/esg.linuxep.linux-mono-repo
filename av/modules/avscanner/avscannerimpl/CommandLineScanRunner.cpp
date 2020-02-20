@@ -5,9 +5,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "CommandLineScanRunner.h"
-#include "ScanClient.h"
+
+#include "BaseFileWalkCallbacks.h"
 #include "Mounts.h"
 #include "PathUtils.h"
+#include "ScanClient.h"
 
 #include "datatypes/Print.h"
 #include "filewalker/FileWalker.h"
@@ -51,7 +53,7 @@ namespace
         int m_returnCode = E_CLEAN;
     };
 
-    class CallbackImpl : public filewalker::IFileWalkCallbacks
+    class CallbackImpl : public BaseFileWalkCallbacks
     {
     public:
         explicit CallbackImpl(

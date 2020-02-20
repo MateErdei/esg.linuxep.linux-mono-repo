@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "NamedScanRunner.h"
 
+#include "BaseFileWalkCallbacks.h"
 #include "Mounts.h"
 #include "ScanClient.h"
 
@@ -14,12 +15,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <unixsocket/ScanningClientSocket.h>
 
 #include <capnp/message.h>
-#include <capnp/serialize.h>
 
 #include <fstream>
 
-#include <fcntl.h>
-#include <unistd.h>
 
 using namespace avscanner::avscannerimpl;
 
@@ -64,7 +62,7 @@ namespace
         int m_returnCode = E_CLEAN;
     };
 
-    class CallbackImpl : public filewalker::IFileWalkCallbacks
+    class CallbackImpl : public BaseFileWalkCallbacks
     {
     public:
         explicit CallbackImpl(

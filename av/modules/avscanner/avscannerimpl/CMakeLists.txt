@@ -1,5 +1,7 @@
 
 add_library(avscannerimpl SHARED
+        BaseFileWalkCallbacks.cpp
+        BaseFileWalkCallbacks.h
         BaseRunner.cpp
         BaseRunner.h
         CommandLineScanRunner.cpp
