@@ -60,7 +60,7 @@ namespace
                 ScanClient scanner,
                 std::vector<fs::path> exclusions
                 )
-                : m_scanner(std::move(scanner))
+                : BaseFileWalkCallbacks(std::move(scanner))
                 , m_exclusions(std::move(exclusions))
         {
             m_currentExclusions.reserve(m_exclusions.size());
@@ -111,8 +111,6 @@ namespace
         }
 
     private:
-
-        ScanClient m_scanner;
         std::vector<fs::path> m_exclusions;
         std::vector<fs::path> m_currentExclusions;
         int m_returnCode = E_CLEAN;

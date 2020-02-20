@@ -70,7 +70,7 @@ namespace
                 NamedScanConfig& config,
                 std::vector<std::shared_ptr<IMountPoint>> allMountPoints
                 )
-                : m_scanner(std::move(scanner))
+                : BaseFileWalkCallbacks(std::move(scanner))
                 , m_config(config)
                 , m_allMountPoints(std::move(allMountPoints))
         {}
@@ -105,7 +105,6 @@ namespace
         }
 
     private:
-        ScanClient m_scanner;
         NamedScanConfig& m_config;
         std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
         int m_returnCode = E_CLEAN;
