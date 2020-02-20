@@ -77,5 +77,5 @@ Run uninstaller
 Validate latest Event
      ${eventXml}=  get_latest_xml_from_events  base/mcs/event/
      ${parsedXml}=  parse xml  ${eventXml}
-     ELEMENT TEXT SHOULD BE  source=${parsedXml}  expected=scanComplete  xpath=scanComplete
+     ELEMENT TEXT SHOULD BE  source=${parsedXml}  expected=scanNow  xpath=scanComplete
 
