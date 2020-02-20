@@ -141,18 +141,13 @@ std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoint
 int NamedScanRunner::run()
 {
     // work out which filesystems are included based of config and mount information
-    std::shared_ptr<IMountInfo> mountInfo = std::make_shared<Mounts>();
+    std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
     std::vector<std::shared_ptr<IMountPoint>> includedMountpoints = getIncludedMountpoints(allMountpoints);
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
-    if (!m_socket)
-    {
-        const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
-        m_socket = std::make_shared<unixsocket::ScanningClientSocket>(unix_socket_path);
-    }
-    ScanClient scanner(*m_socket, scanCallbacks, m_config);
+    ScanClient scanner(*getSocket(), scanCallbacks, m_config);
     CallbackImpl callbacks(std::move(scanner), m_config, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point

@@ -140,7 +140,7 @@ CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths)
 int CommandLineScanRunner::run()
 {
     // evaluate mount information
-    std::shared_ptr<IMountInfo> mountInfo = std::make_shared<Mounts>();
+    std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
     std::vector<fs::path> excludedMountPoints;
     excludedMountPoints.reserve(allMountpoints.size());
@@ -154,13 +154,7 @@ int CommandLineScanRunner::run()
     }
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
-
-    if (!m_socket)
-    {
-        const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
-        m_socket = std::make_shared<unixsocket::ScanningClientSocket>(unix_socket_path);
-    }
-    CallbackImpl callbacks(*m_socket, scanCallbacks, excludedMountPoints);
+    CallbackImpl callbacks(*getSocket(), scanCallbacks, excludedMountPoints);
 
     // for each select included mount point call filewalker for that mount point
     for (const auto& path : m_paths)
