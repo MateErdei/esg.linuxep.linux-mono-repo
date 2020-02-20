@@ -77,5 +77,5 @@ Run uninstaller
 Validate latest Event
      ${eventXml}=  get_latest_xml_from_events  base/mcs/event/
      ${parsedXml}=  parse xml  ${eventXml}
-     ELEMENT TEXT SHOULD MATCH  source=${parsedXml}  pattern=The scan has completed!*  normalize_whitespace=True  xpath=ScanComplete
+     ELEMENT TEXT SHOULD MATCH  source=${parsedXml}  pattern=The scan has completed!*  normalize_whitespace=True  xpath=scanComplete
 
