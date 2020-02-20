@@ -92,15 +92,9 @@ namespace
             return true;
         }
 
-        [[nodiscard]] int returnCode() const
-        {
-            return m_returnCode;
-        }
-
     private:
         NamedScanConfig& m_config;
         std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
-        int m_returnCode = E_CLEAN;
     };
 }
 

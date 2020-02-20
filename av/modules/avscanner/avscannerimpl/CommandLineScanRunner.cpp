@@ -84,11 +84,6 @@ namespace
             return true;
         }
 
-        [[nodiscard]] int returnCode() const
-        {
-            return m_returnCode;
-        }
-
         void setCurrentInclude(const fs::path& inclusionPath)
         {
             m_currentExclusions.clear();
@@ -105,7 +100,6 @@ namespace
     private:
         std::vector<fs::path> m_exclusions;
         std::vector<fs::path> m_currentExclusions;
-        int m_returnCode = E_CLEAN;
     };
 }
 

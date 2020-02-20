@@ -23,11 +23,17 @@ namespace avscanner::avscannerimpl
     protected:
         explicit BaseFileWalkCallbacks(ScanClient scanner);
         ScanClient m_scanner;
+        int m_returnCode = E_CLEAN;
 
     public:
         BaseFileWalkCallbacks(const BaseFileWalkCallbacks&) = delete;
         BaseFileWalkCallbacks(BaseFileWalkCallbacks&&) = delete;
         virtual ~BaseFileWalkCallbacks() = default;
+
+        [[nodiscard]] int returnCode() const
+        {
+            return m_returnCode;
+        }
     };
 }
 
