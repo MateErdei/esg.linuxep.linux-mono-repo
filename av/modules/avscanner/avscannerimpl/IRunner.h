@@ -19,6 +19,3 @@ namespace avscanner::avscannerimpl
         virtual void setSocket(std::shared_ptr<unixsocket::IScanningClientSocket>) = 0;
     };
 }
-
-
-
