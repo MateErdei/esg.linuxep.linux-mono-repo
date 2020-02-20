@@ -98,7 +98,6 @@ namespace
 
         void setCurrentInclude(const fs::path& inclusionPath)
         {
-            m_currentIncludePath = inclusionPath;
             m_currentExclusions.clear();
             for (const auto& e : m_exclusions)
             {
@@ -114,7 +113,6 @@ namespace
         std::vector<fs::path> m_exclusions;
         std::vector<fs::path> m_currentExclusions;
         int m_returnCode = E_CLEAN;
-        fs::path m_currentIncludePath;
     };
 }
 
