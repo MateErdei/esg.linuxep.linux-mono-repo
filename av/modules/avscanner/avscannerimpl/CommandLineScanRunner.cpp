@@ -56,11 +56,13 @@ namespace
         explicit CallbackImpl(
                 unixsocket::IScanningClientSocket& socket,
                 std::shared_ptr<IScanCallbacks> callbacks,
-                std::vector<std::shared_ptr<IMountPoint>> allMountPoints
+                std::vector<fs::path> exclusions
                 )
                 : m_scanner(socket, std::move(callbacks), false)
-                , m_allMountPoints(std::move(allMountPoints))
-        {}
+                , m_exclusions(std::move(exclusions))
+        {
+            m_currentExclusions.reserve(m_exclusions.size());
+        }
 
         void processFile(const fs::path& p) override
         {
@@ -77,9 +79,9 @@ namespace
 
         bool includeDirectory(const sophos_filesystem::path& p) override
         {
-            for (auto & mp : m_allMountPoints)
+            for (auto & exclusion : m_currentExclusions)
             {
-                if (p.string().rfind(mp->mountPoint(), 0) == 0)
+                if (startswith(p, exclusion))
                 {
                     return false;
                 }
@@ -92,10 +94,41 @@ namespace
             return m_returnCode;
         }
 
+        void setCurrentInclude(const fs::path& inclusionPath)
+        {
+            m_currentIncludePath = inclusionPath;
+            m_currentExclusions.clear();
+            for (const auto& e : m_exclusions)
+            {
+                if (longer(e, inclusionPath) && startswith(e, inclusionPath))
+                {
+                    m_currentExclusions.emplace_back(e);
+                }
+            }
+        }
+
     private:
+        /**
+         * Return true if a is longer than b.
+         * @param a
+         * @param b
+         * @return
+         */
+        static bool longer(const fs::path& a, const fs::path& b)
+        {
+            return a.string().size() > b.string().size();
+        }
+
+        static bool startswith(const fs::path& p, const fs::path& value)
+        {
+            return p.string().rfind(value.string(), 0) == 0;
+        }
+
         ScanClient m_scanner;
-        std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
+        std::vector<fs::path> m_exclusions;
+        std::vector<fs::path> m_currentExclusions;
         int m_returnCode = E_CLEAN;
+        fs::path m_currentIncludePath;
     };
 }
 
@@ -109,6 +142,16 @@ int CommandLineScanRunner::run()
     // evaluate mount information
     std::shared_ptr<IMountInfo> mountInfo = std::make_shared<Mounts>();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    std::vector<fs::path> excludedMountPoints;
+    excludedMountPoints.reserve(allMountpoints.size());
+    for (const auto& mp : allMountpoints)
+    {
+        if (!mp->isSpecial())
+        {
+            continue;
+        }
+        excludedMountPoints.emplace_back(mp->mountPoint());
+    }
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
@@ -117,23 +160,29 @@ int CommandLineScanRunner::run()
         const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
         m_socket = std::make_shared<unixsocket::ScanningClientSocket>(unix_socket_path);
     }
-    CallbackImpl callbacks(*m_socket, scanCallbacks, allMountpoints);
+    CallbackImpl callbacks(*m_socket, scanCallbacks, excludedMountPoints);
 
     // for each select included mount point call filewalker for that mount point
     for (const auto& path : m_paths)
     {
         try
         {
-            filewalker::walk(path, callbacks);
+            auto p = fs::absolute(path);
+            callbacks.setCurrentInclude(p);
+            filewalker::walk(p, callbacks);
         } catch (fs::filesystem_error& e)
         {
             m_returnCode = e.code().value();
         }
 
         // we want virus found to override any other return code
-        if (scanCallbacks->returnCode() == E_VIRUS_FOUND)
+        if (scanCallbacks->returnCode() != E_CLEAN)
         {
-            m_returnCode = E_VIRUS_FOUND;
+            m_returnCode = scanCallbacks->returnCode();
+        }
+        else if (callbacks.returnCode() != E_CLEAN)
+        {
+            m_returnCode = callbacks.returnCode();
         }
     }
 
