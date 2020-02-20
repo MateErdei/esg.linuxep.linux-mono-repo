@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "CommandLineScanRunner.h"
 #include "ScanClient.h"
 #include "Mounts.h"
+#include "PathUtils.h"
 
 #include "datatypes/Print.h"
 #include "filewalker/FileWalker.h"
@@ -81,7 +82,7 @@ namespace
         {
             for (auto & exclusion : m_currentExclusions)
             {
-                if (startswith(p, exclusion))
+                if (PathUtils::startswith(p, exclusion))
                 {
                     return false;
                 }
@@ -100,7 +101,8 @@ namespace
             m_currentExclusions.clear();
             for (const auto& e : m_exclusions)
             {
-                if (longer(e, inclusionPath) && startswith(e, inclusionPath))
+                if (PathUtils::longer(e, inclusionPath) &&
+                    PathUtils::startswith(e, inclusionPath))
                 {
                     m_currentExclusions.emplace_back(e);
                 }
@@ -108,21 +110,6 @@ namespace
         }
 
     private:
-        /**
-         * Return true if a is longer than b.
-         * @param a
-         * @param b
-         * @return
-         */
-        static bool longer(const fs::path& a, const fs::path& b)
-        {
-            return a.string().size() > b.string().size();
-        }
-
-        static bool startswith(const fs::path& p, const fs::path& value)
-        {
-            return p.string().rfind(value.string(), 0) == 0;
-        }
 
         ScanClient m_scanner;
         std::vector<fs::path> m_exclusions;

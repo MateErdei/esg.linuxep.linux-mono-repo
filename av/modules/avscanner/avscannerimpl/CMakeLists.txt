@@ -19,6 +19,8 @@ add_library(avscannerimpl SHARED
         NamedScanRunner.h
         Options.cpp
         Options.h
+        PathUtils.cpp
+        PathUtils.h
         ScanClient.cpp
         ScanClient.h
         )
