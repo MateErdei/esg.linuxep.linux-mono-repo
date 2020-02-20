@@ -49,6 +49,23 @@ CLS Can Scan Infected File
 
    Stop AV
 
+CLS Can Scan Infected And Clean File With The Same Name
+   Start AV
+
+   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
+   Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+   Should Be Equal  ${rc}  ${69}
+
+   Log To Console  ${NORMAL_DIRECTORY}
+
+   Stop AV
+
+
 CLS Will Not Scan Non-Existent File
    Start AV
 

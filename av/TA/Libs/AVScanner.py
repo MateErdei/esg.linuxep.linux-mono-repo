@@ -3,6 +3,7 @@ import os
 
 
 def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
+    directory_to_return_process_to = os.getcwd()
     os.chdir(root)
 
     try:
@@ -17,4 +18,7 @@ def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
         file.write(file_contents)
         file_path = file.name
 
-    return os.getcwd()
+    directory_to_return = os.getcwd()
+    os.chdir(directory_to_return_process_to)
+
+    return directory_to_return
