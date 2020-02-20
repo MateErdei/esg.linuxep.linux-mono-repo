@@ -62,10 +62,8 @@ TEST(CommandLineScanRunner, scanRelativeDirectory) // NOLINT
     paths.emplace_back("sandbox");
     avscanner::avscannerimpl::CommandLineScanRunner runner(paths);
 
-    std::shared_ptr<RecordingMockSocket> socket;
-    socket.reset(new RecordingMockSocket());
+    auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
-
     runner.run();
 
     fs::remove_all("sandbox");
@@ -86,10 +84,8 @@ TEST(CommandLineScanRunner, scanAbsolutePath) // NOLINT
     paths.emplace_back(startingpoint);
     avscanner::avscannerimpl::CommandLineScanRunner runner(paths);
 
-    std::shared_ptr<RecordingMockSocket> socket;
-    socket.reset(new RecordingMockSocket());
+    auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
-
     runner.run();
 
     fs::remove_all("sandbox");
@@ -172,8 +168,7 @@ TEST(CommandLineScanRunner, excludeSpecialMounts) // NOLINT
     paths.emplace_back(startingpoint);
     avscanner::avscannerimpl::CommandLineScanRunner runner(paths);
 
-    std::shared_ptr<RecordingMockSocket> socket;
-    socket.reset(new RecordingMockSocket());
+    auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
 
     std::shared_ptr<MockMountInfo> mountInfo;
