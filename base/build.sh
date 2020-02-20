@@ -4,9 +4,6 @@ export PRODUCT_NAME="Sophos Server Protection Linux - Base"
 export PRODUCT_LINE_ID="ServerProtectionLinux-Base"
 export DEFAULT_HOME_FOLDER="sspl-base"
 
-cat /proc/meminfo
-free -g
-
 FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
