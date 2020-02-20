@@ -55,11 +55,10 @@ namespace
     {
     public:
         explicit CallbackImpl(
-                unixsocket::IScanningClientSocket& socket,
-                std::shared_ptr<IScanCallbacks> callbacks,
+                ScanClient scanner,
                 std::vector<fs::path> exclusions
                 )
-                : m_scanner(socket, std::move(callbacks), false)
+                : m_scanner(std::move(scanner))
                 , m_exclusions(std::move(exclusions))
         {
             m_currentExclusions.reserve(m_exclusions.size());
@@ -141,7 +140,8 @@ int CommandLineScanRunner::run()
     }
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
-    CallbackImpl callbacks(*getSocket(), scanCallbacks, excludedMountPoints);
+    ScanClient scanner(*getSocket(), scanCallbacks, false);
+    CallbackImpl callbacks(std::move(scanner), excludedMountPoints);
 
     // for each select included mount point call filewalker for that mount point
     for (const auto& path : m_paths)
