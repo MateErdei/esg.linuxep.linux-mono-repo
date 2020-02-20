@@ -21,7 +21,10 @@ import http.client
 import urllib.request
 from urllib.parse import urlencode
 
-import CloudAutomation.SophosHTTPSClient as SophosHTTPSClient
+try:
+    from . import SophosHTTPSClient
+except (ValueError, ImportError):
+    import SophosHTTPSClient
 
 VERBOSE = False
 
@@ -118,6 +121,7 @@ class CloudClient(object):
         credential = base64.b64encode(token.encode("UTF-8"))
 
         TMPROOT = os.environ.get("TMPROOT", "/tmp")
+
         try:
             with open(os.path.join(TMPROOT, "cloud_tokens.txt"), "rb") as infile:
                 session_data = json.load(infile)
@@ -248,6 +252,9 @@ class CloudClient(object):
             'upe_url': self.upe_api,
         }
         TMPROOT = os.environ.get("TMPROOT", "/tmp/PeanutIntegration")
+        if not os.path.exists(TMPROOT):
+            os.makedirs(TMPROOT)
+
         with open(os.path.join(TMPROOT, "cloud_tokens.txt"), "w", encoding="utf8") as outfile:
             json.dump(session_data, outfile)
 
@@ -1212,7 +1219,7 @@ class CloudClient(object):
                 if serverId is not None and alert['data']['endpoint_id'] != serverId:
                     print(json.dumps(alert, indent=2), file=sys.stderr)
                     raise Exception("Incorrect serverId in alert: expected=%s, actual=%s" % (
-                    serverId, alert['data']['endpoint_id']))
+                        serverId, alert['data']['endpoint_id']))
 
                 numberProcessed += 1
                 yield alert
@@ -1220,7 +1227,7 @@ class CloudClient(object):
                 if limit is not None and numberProcessed >= limit:
                     ## consider raising an exception here?
                     print("WARNING: generateAlerts exceeded limit of %d items, fetched %d of %d items" % (
-                    limit, numberProcessed, total), file=sys.stderr)
+                        limit, numberProcessed, total), file=sys.stderr)
                     return
 
             if offset + len(items) == total:
@@ -1942,7 +1949,7 @@ class CloudClient(object):
             java_id += ''.join([c[1] + c[0] for c in zip(part[::2], part[1::2])])
             java_id += "-"
         return java_id[:-1]
-        
+
     def run_live_query(self, query_name, query_string,  hostname=None ):
         if hostname is None:
             hostname = self.options.hostname
@@ -1959,16 +1966,14 @@ class CloudClient(object):
         response_obj = self.retry_request_url(request)
 
         return response_obj
-    
+
     def wait_for_live_query_response(self, pending_query_response):
         response_obj = json.loads(pending_query_response)
-        time_out = response_obj["maxDurationInSeconds"]
-        time_out_ms = time_out * 1000
         query_id = response_obj["id"]
         url = self.upe_api + '/v1/live-query/executions/{}/endpoints'.format(query_id)
-        ms_taken = 0
-  
-        while ms_taken < time_out_ms:
+        timeout = time.time() + response_obj["maxDurationInSeconds"]
+
+        while time.time() < timeout:
             request = urllib.request.Request(url, headers=self.default_headers)
             response = self.retry_request_url(request)
             endpoints_doing_query = json.loads(response)
@@ -1979,11 +1984,9 @@ class CloudClient(object):
                         still_waiting = True
                 if not still_waiting:
                     logger.info("Query status: {}".format(ep["result"]))
-                    # url = self.upe_api + '/v1/live-query/executions/{}/result-set'.format(query_id)
-                    break
-                    
-            time.sleep(0.2)
-            ms_taken += 200
+                    return
+            time.sleep(0.3)
+
         logger.warning("timed out running".format(query_id))
 
     def run_live_query_and_wait_for_response(self, query_name, query_string, hostname=None):
@@ -1994,10 +1997,10 @@ class CloudClient(object):
         pending_query_responses = {}
         for name, query in queries.items():
             pending_query_responses[name] = self.run_live_query(name, query, hostname)
-        
+
         for pending_response in pending_query_responses.values():
             self.wait_for_live_query_response(pending_response)
-        
+
     #parser = cloudClient.add_options()
     #options, args = parser.parse_args(["-r", "q"])
     #options.email="darwinperformance@sophos.xmas.testqa.com"
@@ -2233,6 +2236,7 @@ def process(args):
 def main(argv):
     logging.basicConfig()
     return process(argv[1:])
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
