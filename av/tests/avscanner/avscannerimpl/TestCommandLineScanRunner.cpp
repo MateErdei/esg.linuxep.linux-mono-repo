@@ -71,7 +71,7 @@ TEST(CommandLineScanRunner, scanRelativeDirectory) // NOLINT
     fs::remove_all("sandbox");
 
     ASSERT_EQ(socket->m_paths.size(), 1);
-    EXPECT_EQ(socket->m_paths.at(0), "sandbox/a/b/file1.txt");
+    EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
 
