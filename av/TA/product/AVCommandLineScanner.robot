@@ -98,4 +98,16 @@ CLS Cannot Scan Huge Path
 
     Stop AV
 
+# Huge Path is over 4064 characters long
+CLS Can Scan Normal Path But Not SubFolders With a Huge Path
+    Start AV
 
+    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  clean_file
+    create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  clean_file
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/
+
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
+    Should Be Equal  ${rc}  ${0}
+
+    Stop AV
