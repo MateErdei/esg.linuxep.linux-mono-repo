@@ -22,8 +22,8 @@ python3 -m coverage combine || echo 'ignore error'
 [[ -f .coverage ]] && mv .coverage  ../testUtils/.coverage
 popd
 #setup pycryptodome imports, system python only goes up to 3.6 and we build the product with 3.7
-rm -rf /usr/local/lib64/python3.6/site-packages/Crypto/*
-cp -r redist/pycryptodome/Crypto/*   /usr/local/lib64/python3.6/site-packages/Crypto/
+sudo rm -rf /usr/local/lib64/python3.6/site-packages/Crypto/*
+sudo cp -r redist/pycryptodome/Crypto/*   /usr/local/lib64/python3.6/site-packages/Crypto/
 
 pushd testUtils
 echo 'run system tests'
