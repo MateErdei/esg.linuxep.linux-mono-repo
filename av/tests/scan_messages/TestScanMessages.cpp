@@ -8,9 +8,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
+#include <scan_messages/ThreatDetected.h>
 
 #include "ScanRequest.capnp.h"
 #include "scan_messages/ScanRequest.h"
+
+#include <ctime>
 
 TEST(TestScanMessages, CreateScanRequestSerialisation) // NOLINT
 {
@@ -89,4 +92,23 @@ TEST(TestScanMessages, ReuseScanRequestObject) // NOLINT
     EXPECT_EQ(scanRequest->fd(), -1);
     EXPECT_EQ(scanRequest->path(), "/etc/shadow");
     EXPECT_FALSE(scanRequest->scanInsideArchives());
+}
+
+TEST(TestScanMessages, CreateThreatDetected) //NOLINT
+{
+    scan_messages::ThreatDetected threatDetected;
+    std::time_t testTimeStamp = std::time(nullptr);
+
+    threatDetected.setUserID("TestUser");
+    threatDetected.setDetectionTime(std::to_string(testTimeStamp));
+    threatDetected.setThreatType("1");
+    threatDetected.setScanType("201");
+    threatDetected.setNotificationStatus("300");
+    threatDetected.setThreatID("EICAR-AV-Test");
+    threatDetected.setIDSource("NameFilenameFilepathCIMD5");
+    threatDetected.setFileName("unit-test-eicar");
+    threatDetected.setFilePath("/this/is/a/path");
+    threatDetected.setActionCode("113");
+
+    std::string data = threatDetected.serialise();
 }

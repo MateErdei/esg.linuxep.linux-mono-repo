@@ -11,22 +11,27 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
-void scan_messages::ClientScanRequest::setPath(const std::string& path)
+namespace  scan_messages
 {
-    m_path = path;
+    void ClientScanRequest::setPath(const std::string& path)
+    {
+        m_path = path;
+    }
+
+    std::string ClientScanRequest::serialise() const
+    {
+        ::capnp::MallocMessageBuilder message;
+        Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+                message.initRoot<Sophos::ssplav::FileScanRequest>();
+
+        requestBuilder.setPathname(m_path);
+        requestBuilder.setScanInsideArchives(m_scanInsideArchives);
+
+        kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+        kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+        std::string dataAsString(bytes.begin(), bytes.end());
+        return dataAsString;
+    }
 }
 
-std::string scan_messages::ClientScanRequest::serialise() const
-{
-    ::capnp::MallocMessageBuilder message;
-    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
-            message.initRoot<Sophos::ssplav::FileScanRequest>();
 
-    requestBuilder.setPathname(m_path);
-    requestBuilder.setScanInsideArchives(m_scanInsideArchives);
-
-    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
-    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
-    std::string dataAsString(bytes.begin(), bytes.end());
-    return dataAsString;
-}

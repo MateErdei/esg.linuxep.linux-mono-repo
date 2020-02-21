@@ -1,7 +1,8 @@
 CAPN_GENERATE_CPP(CapNGeneratedFilesSrcs CapNGeneratedFilesHeaders
         ScanRequest.capnp
         ScanResponse.capnp
-        NamedScan.capnp)
+        NamedScan.capnp
+        ThreatDetected.capnp)
 
 add_library(scanmessages SHARED
         ${CapNGeneratedFilesHeaders}
@@ -11,7 +12,9 @@ add_library(scanmessages SHARED
         ScanResponse.cpp
         ScanResponse.h
         ClientScanRequest.cpp
-        ClientScanRequest.h )
+        ClientScanRequest.h
+        ThreatDetected.cpp
+        ThreatDetected.h)
 
 target_include_directories(scanmessages PUBLIC
         "${CAPNPROTO_INCLUDE_DIR}"
