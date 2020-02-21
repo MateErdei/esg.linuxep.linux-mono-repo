@@ -256,7 +256,7 @@ class MCSPolicyHandler:
         servers = self.__get_non_empty_sub_elements(node, "pushServer")
 
         if not servers:
-            LOGGER.error("MCS Policy has no pushServer nodes in PushServers element")
+            LOGGER.info("MCS Policy has no pushServer nodes in PushServers element")
             return False
 
         index = 1
