@@ -4,7 +4,7 @@
 # section of data which is entered in to elastic search by curl commands from performance scripts on the machines.
 # The second set of data (custom data) contains certain specific things about the perf tests,
 # e.g. duration, start time and end time.
-
+import traceback
 from datetime import datetime
 from elasticsearch import Elasticsearch
 import sys
@@ -163,7 +163,7 @@ def get_results_for_machine(hostname):
     perf_index = "perf-custom"
     es.indices.refresh(index=perf_index)
 
-    res = es.search(index=perf_index, body={"query": {"match": {"hostname": hostname}}}, size=1000)
+    res = es.search(index=perf_index, body={"query": {"match": {"hostname": hostname}}, "sort": [{"start": {"order": "desc"}}]}, size=1000)
 
     task_names = []
     prod_versions = []
@@ -175,6 +175,7 @@ def get_results_for_machine(hostname):
 
         # Skip events / test loads we are not interested in.
         if not event_of_interest(hit["_source"]["eventname"]):
+            print("Skipping: {}".format(hit["_source"]))
             continue
 
         # Build list of tasks
@@ -185,17 +186,16 @@ def get_results_for_machine(hostname):
         if hit["_source"]["product_version"] not in prod_versions:
             prod_versions.append(hit["_source"]["product_version"])
 
-        t = create_task(hit["_source"], es)
-        if not t:
+        task = create_task(hit["_source"], es)
+        if not task:
             continue
 
         # Build list of days
-        if t["day"] not in days:
-            days.append(t["day"])
+        if task["day"] not in days:
+            days.append(task["day"])
 
-        if t is not None:
-            print(t)
-            tasks.append(t)
+        print(task)
+        tasks.append(task)
 
     result_root = {}
     for day in days:
@@ -309,8 +309,7 @@ def get_results_for_machine(hostname):
     cursor = performance_db.cursor()
 
     for row in array_data:
-        print(row)
-
+        print("Inserting {}:".format(row))
         try:
             df_sql = "CALL update_perf_data(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             df_val = (
@@ -318,13 +317,16 @@ def get_results_for_machine(hostname):
                 row["max_mem"], row["min_mem"], row["duration"], row["hostname"])
             cursor.execute(df_sql, df_val)
             performance_db.commit()
-            last_id = cursor.lastrowid
-            print("inserted, id:{}".format(last_id))
-        except:
+            #last_id = cursor.lastrowid
+            #print("Inserted-{}".format(last_id))
+        except Exception as ex:
             print("Exception for: {} ".format(row))
+            print("Exception: {} ".format(ex))
+            traceback.print_exc(file=sys.stdout)
 
 
 # Start
 performance_machines = ["sspl-perform1", "edr-soak"]
+performance_machines = ["edr-soak"]
 for machine in performance_machines:
     get_results_for_machine(machine)

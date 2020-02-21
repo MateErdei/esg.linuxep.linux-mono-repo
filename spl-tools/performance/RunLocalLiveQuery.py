@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import time
+import traceback
 from random import randrange
 from pwd import getpwnam
 import subprocess
@@ -54,9 +55,7 @@ def make_file_readable_by_mcs(file_path):
 
 
 def run_live_query(query, name):
-    global TMP_ACTIONS_DIR
-    global BASE_ACTION_DIR
-    random_correlation_id = "correlation-id-{}".format(randrange(10000))
+    random_correlation_id = "correlation-id-{}".format(randrange(10000000))
     query_json = '{"type": "sophos.mgt.action.RunLiveQuery", "name": "' + name + '", "query": "' + query + '"}'
     query_file_name = "LiveQuery_{}_2013-05-02T09:50:08Z_request.json".format(random_correlation_id)
     query_file_path = os.path.join(TMP_ACTIONS_DIR, query_file_name)
@@ -75,19 +74,16 @@ def inc_response_count(event):
 
 
 def stop_mcsrouter():
-    global SOPHOS_INSTALL
     wdct_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
     subprocess.run([wdct_path, "stop", "mcsrouter"])
 
 
 def start_mcsrouter():
-    global SOPHOS_INSTALL
     wdct_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
     subprocess.run([wdct_path, "start", "mcsrouter"])
 
 
 def remove_all_pending_responses():
-    global SOPHOS_INSTALL
     response_dir = os.path.join(SOPHOS_INSTALL, "base", "mcs", "response")
     for p in Path(response_dir).glob("*.json"):
         p.unlink()
@@ -95,7 +91,6 @@ def remove_all_pending_responses():
 
 def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_send):
     global RESPONSE_COUNT
-    global SOPHOS_INSTALL
 
     try:
         # We get blacklisted from central if bad live query responses go up
@@ -119,6 +114,7 @@ def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_
         remove_all_pending_responses()
     except Exception as ex:
         print("Failed: {}".format(ex))
+        traceback.print_exc(file=sys.stdout)
     finally:
         # Make sure we start mcsrouter up again
         start_mcsrouter()
