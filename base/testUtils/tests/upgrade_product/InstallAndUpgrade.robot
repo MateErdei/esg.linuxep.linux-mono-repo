@@ -52,7 +52,7 @@ We Can Install From A Ballista Warehouse
     # ---------------------------------------------------------------------------------------
     #  warehouse creds
     #  SET THESE
-    ${username} =  Set Variable  CSP200219171610
+    ${username} =  Set Variable  username
     ${password} =  Set Variable  password
 
     # ALC Policy Types
