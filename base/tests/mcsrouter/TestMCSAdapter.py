@@ -428,7 +428,7 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertEqual(50, policy_config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT", 0))
         self.assertEqual(20, policy_config.get_int("PUSH_SERVER_CHECK_INTERVAL", 0))
 
-    def testMCSPushFallbaclPollElementsAreLoadedIntoConfig(self):
+    def testMCSPushFallbackPollElementsAreLoadedIntoConfig(self):
         TEST_POLICY="""<?xml version="1.0"?>
 <policy xmlns:csc="com.sophos\msys\csc" type="mcs">
 <configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">

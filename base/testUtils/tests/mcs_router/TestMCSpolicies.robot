@@ -51,6 +51,16 @@ MCS Policy Can Control URL used
 
     Verify That MCS Connection To Central Is Re-established   4444
 
+MCS policy with Pushserver disabled is handled with no errors
+    Install Register And Wait First MCS Policy
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check MCSRouter Log contains  MCS Policy has no pushServer nodes in PushServers element
+    Check MCSRouter Log contains  MCS policy has no element pushPingTimeout
+    Check MCSRouter Log contains  MCS policy has no element pushFallbackPollInterval
+    Check MCSRouter Log does not contain   ERROR
+
 
 # When Central detects two end-points using the same machineid and token it informs one of the end-points to re-register
 # by returning a 401 on the EndPoint interaction with Central.

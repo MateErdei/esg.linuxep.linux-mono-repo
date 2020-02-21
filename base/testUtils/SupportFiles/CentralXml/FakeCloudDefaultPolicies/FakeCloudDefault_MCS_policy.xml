@@ -14,5 +14,6 @@
         <randomSkewFactor>1</randomSkewFactor>
         <commandPollingDelay default="5"/>
         <policyChangeServers/>
+        <pushServers/>
     </configuration>
 </policy>
