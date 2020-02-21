@@ -233,7 +233,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if ( PythonCoverage )
     message(With python coverage)
-    SET(PYTHONPATH \$pythonzip:\$mcsrouterzip:\$BASE_DIR/lib64/:/usr/local/lib/python3.6/dist-packages/:/usr/local/lib64/python3.6/site-packages)
+    SET(PYTHONPATH \$pythonzip:\$BASE_DIR/lib64/:/usr/local/lib/python3.6/dist-packages/:/usr/local/lib64/python3.6/site-packages)
     SET(PYTHON_ARGS_FOR_PROD  "-m coverage run -p" )
     SET(PYTHON_COMMAND ${PYTHON_EXECUTABLE} -m coverage run -p )
     SET(INSTALL_ADJUST "chmod 0750 \"\${SOPHOS_INSTALL}/base/lib64\"\nchown root:\${GROUP_NAME} \"\${SOPHOS_INSTALL}/base/lib64\"\nchown -R root:\${GROUP_NAME} \"\${SOPHOS_INSTALL}/base/lib64/mcsrouter\"\nchmod -R 0750 \"\${SOPHOS_INSTALL}/base/lib64/mcsrouter\"")

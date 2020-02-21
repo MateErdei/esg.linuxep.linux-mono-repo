@@ -21,12 +21,15 @@ pushd modules
 python3 -m coverage combine || echo 'ignore error'
 [[ -f .coverage ]] && mv .coverage  ../testUtils/.coverage
 popd
+#setup pycryptodome imports, system python only goes up to 3.6 and we build the product with 3.7
+rm -rf /usr/local/lib64/python3.6/site-packages/Crypto/*
+cp -r redist/pycryptodome/Crypto/*   /usr/local/lib64/python3.6/site-packages/Crypto/
 
 pushd testUtils
 echo 'run system tests'
-TESTS2RUN="-e AMAZON_LINUX -i SMOKE"
+TESTS2RUN="-e AMAZON_LINUX -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE"
 USER=$(whoami)
-if [[ ${USER} == "pair" ]]; then
+if [[ ${USER} == "jenkins" ]]; then
   BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
   sudo chown ${USER} .coverage
 else
