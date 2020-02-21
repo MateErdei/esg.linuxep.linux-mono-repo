@@ -95,7 +95,7 @@ def run_gcc_perf_test():
     subprocess.run(['bash', build_gcc_script], timeout=10000)
     end_time = get_current_unix_epoch_in_seconds()
 
-    record_result("gcc", date_time, start_time, end_time)
+    record_result("build_gcc", date_time, start_time, end_time)
 
 
 def run_local_live_query_perf_test():
@@ -130,6 +130,13 @@ def run_local_live_query_perf_test():
 
 
 def run_central_live_query_perf_test(email, password):
+    if not email:
+        logging.error("Please enter email, use -h for help.")
+        return
+    if not password:
+        logging.error("Please enter password, use -h for help.")
+        return
+
     logging.info("Running Local Live Query performance test")
     this_dir = os.path.dirname(os.path.realpath(__file__))
     central_live_query_script = os.path.join(this_dir, "cloudClient.py")

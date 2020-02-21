@@ -1,0 +1,13 @@
+# cron tan template to use
+
+# This constantly gathers metrics from the machine and sends them to elastic search.
+@reboot /root/metricbeat-7.1.1-linux-x86_64/metricbeat -c /root/metricbeat-7.1.1-linux-x86_64/metricbeat.yml
+
+# Run gcc build performance test at 3am
+0  3  *  *  *      python3 /home/pair/performance/RunEDRPerfTests.py -s gcc
+
+# Run live queries through central using API at 10am
+0 10  *  *  *      python3 /home/pair/performance/RunEDRPerfTests.py -s central-livequery  -e darwinperformance@sophos.xmas.testqa.com -p <PASSWORD>
+
+# Run local live queries  at 1pm
+0 13  *  *  *      python3 /home/pair/performance/RunEDRPerfTests.py -s local-livequery

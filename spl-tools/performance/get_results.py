@@ -54,24 +54,18 @@ def create_task(task_row, es):
     task["duration"] = task_row["duration"]
     task["product_version"] = task_row["product_version"]
     task["build_date"] = task_row["build_date"]
-    task["day"] = task_row["datetime"].split(' ')[0]
 
-    # return avg_cpu, max_cpu, avg_mem, max_mem, min_mem
+    # This can be uncommented if we wish to go back to averaging out results per day, see date_key.
+    # task["day"] = task_row["datetime"].split(' ')[0]
 
     task["avg_cpu"], task["max_cpu"], task["avg_mem"], task["max_mem"], task["min_mem"] = get_metrics(task["hostname"],
                                                                                                       task["start"],
                                                                                                       task["finish"],
                                                                                                       es)
-
-    #    print(task)
-
     return task
 
 
 def get_metrics(hostname, from_timestamp, to_timestamp, es):
-    print(hostname)
-    print(from_timestamp)
-    print(to_timestamp)
     from_datetime = datetime.utcfromtimestamp(from_timestamp)
     to_datetime = datetime.utcfromtimestamp(to_timestamp)
 
@@ -170,6 +164,13 @@ def get_results_for_machine(hostname):
     tasks = []
     days = []
 
+    # This date_key was changed from "day", previously we would average out any tests of the same name that happened within
+    # the same day. # E.g. 2 tests in a day that built gcc on a machine would be averaged out in terms of duration,
+    # cpu etc. This was done using the day of the test (i.e. no time)
+    # Instead we now use the dull date including the time which means that we generate a unique result per test per day
+    # and do not average them
+    date_key = "datetime"
+
     # Build up lists of task names, days etc.
     for hit in res['hits']['hits']:
 
@@ -191,8 +192,8 @@ def get_results_for_machine(hostname):
             continue
 
         # Build list of days
-        if task["day"] not in days:
-            days.append(task["day"])
+        if task[date_key] not in days:
+            days.append(task[date_key])
 
         print(task)
         tasks.append(task)
@@ -205,7 +206,7 @@ def get_results_for_machine(hostname):
             for task_name in task_names:
                 result_root[day][product_version][task_name] = []
                 for task in tasks:
-                    if task['day'] == day and task['name'] == task_name and task['product_version'] == product_version:
+                    if task[date_key] == day and task['name'] == task_name and task['product_version'] == product_version:
                         result_root[day][product_version][task_name].append(task)
 
     summary_root = {}
@@ -216,6 +217,10 @@ def get_results_for_machine(hostname):
             summary_root[day][version] = {}
 
             for task_name in result_root[day][version]:
+
+                if len(result_root[day][version][task_name]) == 0:
+                    continue
+
                 summary_root[day][version][task_name] = {}
                 good_result_count = 0
                 summary_root[day][version][task_name]['avg_cpu'] = 0
@@ -317,8 +322,6 @@ def get_results_for_machine(hostname):
                 row["max_mem"], row["min_mem"], row["duration"], row["hostname"])
             cursor.execute(df_sql, df_val)
             performance_db.commit()
-            #last_id = cursor.lastrowid
-            #print("Inserted-{}".format(last_id))
         except Exception as ex:
             print("Exception for: {} ".format(row))
             print("Exception: {} ".format(ex))
@@ -327,6 +330,5 @@ def get_results_for_machine(hostname):
 
 # Start
 performance_machines = ["sspl-perform1", "edr-soak"]
-performance_machines = ["edr-soak"]
 for machine in performance_machines:
     get_results_for_machine(machine)
