@@ -233,6 +233,7 @@ class TemplateConfig:
         """
         :param template_file_name: file name for the ALC policy which will be used to generate a new policy file
         based on data stored in the  template_configuration_values dictionary
+        :return path of output policy
 
         """
         self.policy_file_name = template_file_name
@@ -268,6 +269,8 @@ class TemplateConfig:
                     
                     """.format(self.policy_file_name, self.username, self.password, self.get_connection_address(), template_string_with_replaced_values)
                 )
+        return output_policy
+
     def install_sophos_alias_file(self):
         _install_sophos_alias_file(self.get_connection_address())
 
@@ -444,6 +447,22 @@ class WarehouseUtils(object):
                                username, PROD_BUILD_CERTS, BALLISTA_ADDRESS)
         templ.generate_warehouse_policy_from_template(template_name, target_output_file)
 
+    def create_ballista_config_from_template_policy(self, template_policy, username, password):
+
+        env_key = "BALLISTA_CONFIG"
+        generated_ballista_policy_name = "ballista.xml"
+        os.environ[env_key] = "{}:{}".format(username, password)
+        ballista_config = TemplateConfig(env_key, None, PROD_BUILD_CERTS, BALLISTA_ADDRESS)
+
+        if os.path.isabs(template_policy) or os.path.dirname(template_policy):
+            template_policy_name = os.path.basename(template_policy)
+        else:
+            template_policy_name = template_policy
+
+        generated_ballista_policy_path = os.path.join(GENERATED_FILE_DIRECTORY, generated_ballista_policy_name)
+        ballista_config.generate_warehouse_policy_from_template(template_policy_name, proposed_output_path=generated_ballista_policy_path)
+        self.template_configuration_values["template_policy_name"] = ballista_config
+        return generated_ballista_policy_path
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":

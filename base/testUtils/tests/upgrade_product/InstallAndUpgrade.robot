@@ -41,8 +41,52 @@ ${base_removed_files_manifest}              ${SOPHOS_INSTALL}/tmp/ServerProtecti
 ${mtr_removed_files_manifest}               ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
 ${base_files_to_delete}                     ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Base/filestodelete.dat
 ${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Plugin-MDR/filestodelete.dat
+${master_warehouse_env_override}            BASE_AND_MTR_VUT
 
 *** Test Cases ***
+
+We Can Install From A Ballista Warehouse
+    [Tags]  MANUAL
+
+    # SETTINGS
+    # ---------------------------------------------------------------------------------------
+    #  warehouse creds
+    #  SET THESE
+    ${username} =  Set Variable  CSP200219171610
+    ${password} =  Set Variable  password
+
+    # ALC Policy Types
+    ${Base} =  Set Variable         ${GeneratedWarehousePolicies}/base_only_VUT.xml
+    ${BaseMtr} =  Set Variable      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
+    ${BaseEdr} =  Set Variable      ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+    ${BaseEdrMTr} =  Set Variable   ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
+    # CHANGE THIS ONE
+    ${policy_template} =  Set Variable  ${BaseEdrMTr}
+    # Make sure the policy template you picked is appropriate for the warehouse you want to test.
+    # If you can't find one, make one.
+    # ---------------------------------------------------------------------------------------
+    # SETTINGS
+
+    ${ballista_policy} =  Create Ballista Config From Template Policy  ${policy_template}  ${username}  ${password}
+    Log File  ${ballista_policy}
+
+    Start Local Cloud Server  --initial-alc-policy  ${ballista_policy}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${ballista_policy}
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Check Suldownloader Log Contains  Successfully connected to: Sophos at https://dci.sophosupd.com/cloudupdate
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+#    Force A failure If you want to check for anything with the teardown logs
+#    Fail
+
 We Can Upgrade From A Release To Master Without Unexpected Errors
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
