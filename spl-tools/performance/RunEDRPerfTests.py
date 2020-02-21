@@ -103,6 +103,7 @@ def run_local_live_query_perf_test():
     this_dir = os.path.dirname(os.path.realpath(__file__))
     local_live_query_script = os.path.join(this_dir, "RunLocalLiveQuery.py")
 
+    # Queries to run and the number of times to run them, each batch will be timed.
     queries_to_run = [
         (ALL_PROCESSES_QUERY, 1),
         (ALL_USERS_QUERY, 1),
