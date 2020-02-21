@@ -121,7 +121,6 @@ class CloudClient(object):
         credential = base64.b64encode(token.encode("UTF-8"))
 
         TMPROOT = os.environ.get("TMPROOT", "/tmp")
-
         try:
             with open(os.path.join(TMPROOT, "cloud_tokens.txt"), "rb") as infile:
                 session_data = json.load(infile)
