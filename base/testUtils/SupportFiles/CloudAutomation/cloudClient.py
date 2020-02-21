@@ -2000,9 +2000,6 @@ class CloudClient(object):
         for pending_response in pending_query_responses.values():
             self.wait_for_live_query_response(pending_response)
 
-    #parser = cloudClient.add_options()
-    #options, args = parser.parse_args(["-r", "q"])
-    #options.email="darwinperformance@sophos.xmas.testqa.com"
 
 def deleteServerFromCloud(options, args):
     hostname = host(args[1])
