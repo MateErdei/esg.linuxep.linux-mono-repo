@@ -249,6 +249,14 @@ class MCSPolicyHandler:
         """
         load push server urls into policy config
         """
+        # clear the list of push servers in the config before updating with list from policy
+        old_push_server_index = 1
+        while True:
+            key = "pushServer%d" % old_push_server_index
+            if not self.__m_policy_config.remove(key):
+                break
+            old_push_server_index += 1
+
         node = self.__get_element(dom, "pushServers")
         if node is None:
             return False
@@ -264,13 +272,6 @@ class MCSPolicyHandler:
             key = "pushServer%d" % index
             LOGGER.debug("Push Server URL %s = %s", key, server)
             self.__m_policy_config.set(key, server)
-            index += 1
-
-        # removes old servers that are no longer in the policy
-        while True:
-            key = "pushServer%d" % index
-            if not self.__m_policy_config.remove(key):
-                break
             index += 1
         return True
 
