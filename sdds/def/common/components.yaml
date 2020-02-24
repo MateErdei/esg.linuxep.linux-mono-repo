@@ -14,6 +14,13 @@ sspl-edr:
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-EDR
     line-id: ServerProtectionLinux-Plugin-EDR
+sspl-av:
+    build:
+        branch: master
+        name: sspl-plugin-anti-virus
+        output: output\SDDS-COMPONENT
+    canonical-name: ServerProtectionLinuxPlugin-AV
+    line-id: ServerProtectionLinux-Plugin-AV
 ssplmdr-suite:
     build:
         branch: master

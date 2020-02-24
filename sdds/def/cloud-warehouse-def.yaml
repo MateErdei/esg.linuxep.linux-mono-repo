@@ -23,6 +23,15 @@ warehouses:
                 release-tags:
                     - base-version: ""
                       tag: RECOMMENDED
+            sspl-av:
+                import:
+                    description: "Sophos Server Protection for Linux Anti-Virus"
+                    version: "11.0.0"
+                features: [AV]
+                platforms: []
+                release-tags:
+                    - base-version: ""
+                      tag: RECOMMENDED
     ssplmdr-wh:
         components:
             ssplmdr-suite:
