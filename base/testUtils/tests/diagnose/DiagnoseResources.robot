@@ -68,17 +68,27 @@ Check Diagnose Output For Plugin logs
     Should Contain  ${Files}    AuditPlugin.json
     Should Contain  ${Files}    EventProcessor.json
 
+Check Diagnose Output For Additional EDR Plugin File
+    ${EDRLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/
+    ${EDRFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/
+    ${EDRConfFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/etc
+
+    Should Contain  ${EDRLogFiles}    edr.log
+    Should Contain  ${EDRLogFiles}    osqueryd.results.log
+    Should Contain  ${EDRFiles}    VERSION.ini
+    Should Contain  ${EDRConfFiles}    osquery.flags
+    Should Contain  ${EDRConfFiles}    osquery.conf
+
+
 Check Diagnose Output For Additional MDR Plugin File
     [Documentation]  Requires 'Mimic MDR Files' to be executed first
-    ${MDRLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/mtr/dbos/data/logs
-    ${MDRDataFiles} =  List Files In Directory  /tmp/DiagnoseOutput/BaseFiles
+    ${DBOSLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/mtr/dbos/data/logs
     ${MTRVersionFile} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/mtr
     ${MTRDBOSVersionFile} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/mtr/dbos/data/
-    Should Contain  ${MDRLogFiles}    some.log.file
-    Should Contain  ${MDRDataFiles}    osquery.flags
+    Should Contain  ${DBOSLogFiles}    some.log.file
+    Should Contain  ${MTRDBOSVersionFile}    osquery.flags
     Should Contain  ${MTRVersionFile}    VERSION.ini
     Should Contain  ${MTRDBOSVersionFile}    VERSION.ini
-
 
 Check Diagnose Output For System Command Files
     ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/SystemFiles
@@ -135,11 +145,8 @@ Check Diagnose Output For System Files
 
     List Should Contain Sub List  ${Files}    ${ExpectedFilesOnOs}
 
-Mimic MDR Files
-    [Documentation]  Creates directories and files to simulate logs and interesting files created by MDR Plugin
+Mimic MDR Component Files
+    [Documentation]  Creates files to simulate Full MTR plugin being installed
     [Arguments]     ${installLocation}
-    Create Directory  ${installLocation}/plugins/mtr/dbos/data/logs
     Create File  ${installLocation}/plugins/mtr/dbos/data/logs/some.log.file
     Create File  ${installLocation}/plugins/mtr/dbos/data/osquery.flags
-    Create File  ${installLocation}/plugins/mtr/VERSION.ini
-    Create File  ${installLocation}/plugins/mtr/dbos/data/VERSION.ini

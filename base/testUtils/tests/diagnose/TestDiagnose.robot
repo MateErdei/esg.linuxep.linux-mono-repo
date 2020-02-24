@@ -9,6 +9,8 @@ Library     OperatingSystem
 
 Resource    ../management_agent-audit_plugin/AuditPluginResources.robot
 Resource    ../management_agent-event_processor/EventProcessorResources.robot
+Resource    ../mdr_plugin/MDRResources.robot
+Resource    ../edr_plugin/EDRResources.robot
 Resource    DiagnoseResources.robot
 
 Suite Setup  Require Fresh Install
@@ -63,7 +65,8 @@ Diagnose Tool Gathers MDR Logs When Run From Installation
 
     Create Directory  ${TAR_FILE_DIRECTORY}
 
-    Mimic MDR Files   ${SOPHOS_INSTALL}
+    Install Directly From Component Suite
+    Mimic MDR Component Files   ${SOPHOS_INSTALL}
 
     ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
     Should Be Equal As Integers   ${retcode}  0
@@ -83,6 +86,40 @@ Diagnose Tool Gathers MDR Logs When Run From Installation
     Should Be Equal As Strings   ${result.rc}  0
 
     Check Diagnose Output For Additional MDR Plugin File
+    Check Diagnose Output For System Command Files
+    Check Diagnose Output For System Files
+
+    ${contents} =  Get File  /tmp/diagnose.log
+    Should Not Contain  ${contents}  error  ignore_case=True
+    Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
+
+
+Diagnose Tool Gathers EDR Logs When Run From Installation
+    [Tags]  DIAGNOSE  SMOKE  MDR_PLUGIN  TAP_TESTS
+    Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
+
+    Create Directory  ${TAR_FILE_DIRECTORY}
+
+    Install EDR Directly
+    Wait Until Keyword Succeeds
+        ...   10 secs
+        ...   1 secs
+        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+
+    ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
+    Should Be Equal As Integers   ${retcode}  0
+
+    # Check diagnose tar created
+    ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
+    ${fileCount} =    Get length    ${Files}
+    Should Be Equal As Numbers  ${fileCount}  1
+    # Untar diagnose tar to check contents
+    Create Directory  ${UNPACK_DIRECTORY}
+    ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
+    Should Be Equal As Strings   ${result.rc}  0
+
+    log file  /tmp/diagnose.log
+    Check Diagnose Output For Additional EDR Plugin File
     Check Diagnose Output For System Command Files
     Check Diagnose Output For System Files
 
