@@ -21,27 +21,27 @@ class TestThreatDetectedMessages : public ::testing::Test
 public:
     void SetUp() override
     {
-        threatDetected.setUserID(userID);
-        threatDetected.setDetectionTime(testTimeStamp);
-        threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
-        threatDetected.setThreatName(threatName);
-        threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
-        threatDetected.setFilePath(filePath);
-        threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+        m_threatDetected.setUserID(m_userID);
+        m_threatDetected.setDetectionTime(m_testTimeStamp);
+        m_threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+        m_threatDetected.setThreatName(m_threatName);
+        m_threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+        m_threatDetected.setFilePath(m_filePath);
+        m_threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
     }
 
-    std::string userID = "TestUser";
-    std::string threatName = "EICAR";
-    std::string filePath = "/this/is/a/path/to/an/eicar";
+    std::string m_userID = "TestUser";
+    std::string m_threatName = "EICAR";
+    std::string m_filePath = "/this/is/a/path/to/an/eicar";
+    std::time_t m_testTimeStamp = std::time(nullptr);
 
-    scan_messages::ThreatDetected threatDetected;
-    std::time_t testTimeStamp = std::time(nullptr);
+    scan_messages::ThreatDetected m_threatDetected;
 };
 
 
 TEST_F(TestThreatDetectedMessages, CreateThreatDetected) //NOLINT
 {
-    std::string dataAsString = threatDetected.serialise();
+    std::string dataAsString = m_threatDetected.serialise();
 
     const kj::ArrayPtr<const capnp::word> view(
             reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
@@ -51,12 +51,12 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected) //NOLINT
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
             messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    EXPECT_EQ(deSerialisedData.getUserID(), userID);
-    EXPECT_EQ(deSerialisedData.getDetectionTime(), testTimeStamp);
+    EXPECT_EQ(deSerialisedData.getUserID(), m_userID);
+    EXPECT_EQ(deSerialisedData.getDetectionTime(), m_testTimeStamp);
     EXPECT_EQ(deSerialisedData.getThreatType(), E_VIRUS_THREAT_TYPE);
-    EXPECT_EQ(deSerialisedData.getThreatName(), threatName);
+    EXPECT_EQ(deSerialisedData.getThreatName(), m_threatName);
     EXPECT_EQ(deSerialisedData.getScanType(), E_SCAN_TYPE_ON_ACCESS);
     EXPECT_EQ(deSerialisedData.getNotificationStatus(), E_NOTIFICATION_STATUS_CLEANED_UP);
-    EXPECT_EQ(deSerialisedData.getFilePath(), filePath);
+    EXPECT_EQ(deSerialisedData.getFilePath(), m_filePath);
     EXPECT_EQ(deSerialisedData.getActionCode(), E_SMT_THREAT_ACTION_SHRED);
 }
