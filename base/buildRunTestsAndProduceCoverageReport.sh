@@ -42,7 +42,7 @@ sed -i "s/py.0/py/g" .coverage
 sed -i "s_/opt/sophos-spl/base/lib_${SDDS_COMPONENT}/files/base/lib_g" .coverage
 
 # create the xml report that is used by jenkins
-python3 -m coverage xml -i  --omit="*python3.7*,*site-packages*"
+python3 -m coverage xml -i  --omit="*python3.7*,*site-packages*,*build64*,*tests"
 # publish the report to filer 6
 
 if [[ ${USER} == "jenkins" ]]; then
