@@ -134,7 +134,7 @@ class CommandCheckInterval:
         """
         if not self.__use_fallback_polling_interval:
             if val is None:
-                val = self.__m_command_check_base_retry_delay
+                val = 0
             val = max(val, self.__get_minimum())
             val = min(val, self.__get_maximum())
             self.__m_command_check_interval = val
@@ -157,7 +157,7 @@ class CommandCheckInterval:
         else:
             LOGGER.debug("increasing interval")
             interval = self.__m_command_check_interval + val
-        self.set(interval)
+        self.__m_command_check_interval = interval
 
     def set_on_error(self, error_count, transient=True):
         """
@@ -569,11 +569,9 @@ class MCS:
 
                         if commands:
                             LOGGER.debug("Got commands")
-                            self.__m_command_check_interval.set()
-                        else:
-                            LOGGER.debug("No commands")
-                            self.__m_command_check_interval.increment()
+
                         error_count = 0
+                        self.__m_command_check_interval.set()
 
                         LOGGER.debug(
                             "Next command check in %.2f s",
@@ -717,16 +715,34 @@ class MCS:
 
                 # Avoid busy looping and negative timeouts
                 timeout = max(0.5, timeout)
-
+                # flush pipe so that even during backff the pip is cleared very four hours at miniumum
+                while True:
+                    try:
+                        if os.read(
+                                notify_pipe_file_descriptor,
+                                1024) is None:
+                            break
+                    except OSError as err:
+                        if err.errno == errno.EAGAIN or err.errno == errno.EWOULDBLOCK:
+                            break
                 try:
                     before = time.time()
                     # pylint: disable=unused-variable
-                    ready_to_read, ready_to_write, in_error = \
-                        select.select(
-                            [signal_handler.sig_term_pipe[0], notify_pipe_file_descriptor, push_notification_pipe_file_descriptor],
-                            [],
-                            [],
-                            timeout)
+                    if error_count > 0:
+                        # Do not break back off for events or statuses being generated
+                        ready_to_read, ready_to_write, in_error = \
+                            select.select(
+                                [signal_handler.sig_term_pipe[0], push_notification_pipe_file_descriptor],
+                                [],
+                                [],
+                                timeout)
+                    else:
+                        ready_to_read, ready_to_write, in_error = \
+                            select.select(
+                                [signal_handler.sig_term_pipe[0], notify_pipe_file_descriptor, push_notification_pipe_file_descriptor],
+                                [],
+                                [],
+                                timeout)
                     # pylint: enable=unused-variable
                     after = time.time()
                 except select.error as exception:

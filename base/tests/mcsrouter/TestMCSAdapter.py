@@ -290,7 +290,29 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertTrue(command.m_complete)
 
         self.assertEqual(123, policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM", 0))
-        self.assertEqual(123, policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", 0))
+
+    def testFlagsPollingIntervalTag(self):
+        TEST_POLICY="""<?xml version="1.0"?>
+<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+<configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">
+    <csc:Comp RevID="5" policyType="25"/>
+    <commandPollingDelay default="123"/>
+    <flagsPollingInterval default="155"/>
+</configuration>
+</policy>"""
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
+
+        policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
+        policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
+
+        adapter = createAdapter(policy_config)
+
+        command = FakePolicyCommand(TEST_POLICY)
+        adapter.process_command(command)
+        self.assertTrue(command.m_complete)
+
+        self.assertEqual(123, policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM", 0))
+        self.assertEqual(155, policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", 0))
 
     def testNoAttributeInPollingElement(self):
         TEST_POLICY="""<?xml version="1.0"?>

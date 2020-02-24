@@ -180,10 +180,9 @@ class MCSPolicyHandler:
         min_poll_value = str(self.__get_default_int_value(dom, "commandPollingDelay",
                                                           default_values.get_default_command_poll()))
 
-        #TODO LINUXDAR-1412 set COMMAND_CHECK_INTERVAL_MAXIMUM to flagsPollingInterval
-        #max_poll_value = str(self.__get_default_int_value(dom, "flagsPollingInterval"
-        # , default_values.get_default_flags_poll()))
-        max_poll_value = min_poll_value
+        max_poll_value = str(self.__get_default_int_value(dom, "flagsPollingInterval",
+                                                          default_values.get_default_flags_poll()))
+
 
         ping_timeout = str(self.__get_int_value(dom, "pushPingTimeout",
                                                 default_values.get_default_push_ping_timeout()))
