@@ -319,6 +319,6 @@ def get_results_for_machine(hostname):
 
 
 # Start
-performance_machines = ["sspl-perform1", "edr-soak"]
+performance_machines = ["sspl-perform1", "sspl-edr-perform1"]
 for machine in performance_machines:
     get_results_for_machine(machine)
