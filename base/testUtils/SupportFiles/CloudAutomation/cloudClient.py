@@ -1971,7 +1971,7 @@ class CloudClient(object):
         query_id = response_obj["id"]
         url = self.upe_api + '/v1/live-query/executions/{}/endpoints'.format(query_id)
         timeout = time.time() + response_obj["maxDurationInSeconds"]
-
+        results = []
         while time.time() < timeout:
             request = urllib.request.Request(url, headers=self.default_headers)
             response = self.retry_request_url(request)
@@ -1983,22 +1983,35 @@ class CloudClient(object):
                         still_waiting = True
                 if not still_waiting:
                     logger.info("Query status: {}".format(ep["result"]))
-                    return
+                    results.append(self.get_live_query_results(pending_query_response))
+                    return results
             time.sleep(0.3)
 
         logger.warning("timed out running".format(query_id))
+        return None
+
+    def get_live_query_results(self, pending_query_response):
+        response_obj = json.loads(pending_query_response)
+        query_id = response_obj["id"]
+        url = self.upe_api + '/v1/live-query/executions/{}/result-set'.format(query_id)
+        request = urllib.request.Request(url, headers=self.default_headers)
+        response = self.retry_request_url(request)
+        results = json.loads(response)
+
+        # Example response:
+        # {"executionStatus":null,
+        # "requestParams":{"executionId":"bc0a205e-60b6-4eef-afba-0f7845c97c87","sort":[]},
+        # "pages":{"current":1,"items":null,"total":null,"size":50,"maxSize":500,"prevLink":"","nextLink":""},
+        # "itemMetaData":[{"name":"epId","type":"TEXT","hideInUi":true},{"name":"epName","type":"TEXT","hideInUi":false},{"name":"hostname","type":"TEXT","hideInUi":false},{"name":"local_hostname","type":"TEXT","hideInUi":false}],
+        # "items":[["d45f4823-3f17-4049-a4e7-9941a8cec6b6","sspl-edr-perform1","sspl-edr-perform1.eng.sophos","sspl-edr-perform1.eng.sophos"]]}
+
+        if "items" in results:
+            return results["items"]
+        return None
 
     def run_live_query_and_wait_for_response(self, query_name, query_string, hostname=None):
         pending_query_response = self.run_live_query(query_name, query_string, hostname)
-        self.wait_for_live_query_response(pending_query_response)
-
-    def run_multiple_live_queries_and_wait_for_response(self, queries, hostname=None):
-        pending_query_responses = {}
-        for name, query in queries.items():
-            pending_query_responses[name] = self.run_live_query(name, query, hostname)
-
-        for pending_response in pending_query_responses.values():
-            self.wait_for_live_query_response(pending_response)
+        return self.wait_for_live_query_response(pending_query_response)
 
 
 def deleteServerFromCloud(options, args):
