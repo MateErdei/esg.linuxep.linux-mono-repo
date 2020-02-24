@@ -117,18 +117,18 @@ TEST(TestScanMessages, CreateThreatDetected) //NOLINT
             reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
 
     capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSeriealisedData =
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
             messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
-    EXPECT_EQ(deSeriealisedData.getUserID(), "TestUser");
-    EXPECT_EQ(deSeriealisedData.getDetectionTime(), std::to_string(testTimeStamp));
-    EXPECT_EQ(deSeriealisedData.getThreatType(), "1");
-    EXPECT_EQ(deSeriealisedData.getScanType(), "201");
-    EXPECT_EQ(deSeriealisedData.getNotificationStatus(), "300");
-    EXPECT_EQ(deSeriealisedData.getThreatID(), "EICAR-AV-Test");
-    EXPECT_EQ(deSeriealisedData.getIdSource(), "NameFilenameFilepathCIMD5");
-    EXPECT_EQ(deSeriealisedData.getFileName(), "unit-test-eicar");
-    EXPECT_EQ(deSeriealisedData.getFilePath(), "/this/is/a/path");
-    EXPECT_EQ(deSeriealisedData.getActionCode(), "113");
+    EXPECT_EQ(deSerialisedData.getUserID(), "TestUser");
+    EXPECT_EQ(deSerialisedData.getDetectionTime(), std::to_string(testTimeStamp));
+    EXPECT_EQ(deSerialisedData.getThreatType(), "1");
+    EXPECT_EQ(deSerialisedData.getScanType(), "201");
+    EXPECT_EQ(deSerialisedData.getNotificationStatus(), "300");
+    EXPECT_EQ(deSerialisedData.getThreatID(), "EICAR-AV-Test");
+    EXPECT_EQ(deSerialisedData.getIdSource(), "NameFilenameFilepathCIMD5");
+    EXPECT_EQ(deSerialisedData.getFileName(), "unit-test-eicar");
+    EXPECT_EQ(deSerialisedData.getFilePath(), "/this/is/a/path");
+    EXPECT_EQ(deSerialisedData.getActionCode(), "113");
 }
 
 TEST(TestScanMessages, CreateThreatDetectedWithCustomIdAndThreatType) //NOLINT
@@ -160,11 +160,11 @@ TEST(TestScanMessages, CreateThreatDetectedWithCustomIdAndThreatType) //NOLINT
     EXPECT_EQ(deSerialisedData.getUserID(), "TestUser");
     EXPECT_EQ(deSerialisedData.getDetectionTime(), std::to_string(testTimeStamp));
     EXPECT_EQ(deSerialisedData.getThreatType(), "5");
-    EXPECT_EQ(deSeriealisedData.getScanType(), "201");
-    EXPECT_EQ(deSeriealisedData.getNotificationStatus(), "300");
-    EXPECT_EQ(deSeriealisedData.getThreatID(), "EICAR-AV-Test");
-    EXPECT_EQ(deSeriealisedData.getIdSource(), "CustomIdSource");
-    EXPECT_EQ(deSeriealisedData.getFileName(), "unit-test-eicar");
-    EXPECT_EQ(deSeriealisedData.getFilePath(), "/this/is/a/path");
-    EXPECT_EQ(deSeriealisedData.getActionCode(), "113");
+    EXPECT_EQ(deSerialisedData.getScanType(), "201");
+    EXPECT_EQ(deSerialisedData.getNotificationStatus(), "300");
+    EXPECT_EQ(deSerialisedData.getThreatID(), "EICAR-AV-Test");
+    EXPECT_EQ(deSerialisedData.getIdSource(), "CustomIdSource");
+    EXPECT_EQ(deSerialisedData.getFileName(), "unit-test-eicar");
+    EXPECT_EQ(deSerialisedData.getFilePath(), "/this/is/a/path");
+    EXPECT_EQ(deSerialisedData.getActionCode(), "113");
 }
