@@ -3,6 +3,8 @@
 #
 #------------------------------------------------------------------------------
 
+# For more information on what each field means check: LINUXDAR-1472
+
 @0xc889ef5d8e672583;
 
 using Cxx = import "capnp/c++.capnp";
