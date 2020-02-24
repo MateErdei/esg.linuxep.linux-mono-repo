@@ -13,44 +13,40 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace scan_messages;
 
+
+ThreatDetected::ThreatDetected()
+        : m_threatType(E_VIRUS_THREAT_TYPE)
+{
+}
+
 void ThreatDetected::setUserID(const std::string& userID)
 {
     m_userID = userID;
 }
 
-void ThreatDetected::setDetectionTime(const std::string& detectionTime)
+void ThreatDetected::setDetectionTime(const std::int64_t & detectionTime)
 {
     m_detectionTime = detectionTime;
 }
 
-void ThreatDetected::setThreatType(const std::string& threatType)
+void ThreatDetected::setThreatName(const std::string &threatName)
+{
+    m_threatName = threatName;
+}
+
+void ThreatDetected::setThreatType(E_THREAT_TYPE threatType)
 {
     m_threatType = threatType;
 }
 
-void ThreatDetected::setScanType(const std::string& scanType)
+void ThreatDetected::setScanType(E_SCAN_TYPE scanType)
 {
     m_scanType = scanType;
 }
 
-void ThreatDetected::setNotificationStatus(const std::string& notificationStatus)
+void ThreatDetected::setNotificationStatus(E_NOTIFCATION_STATUS notificationStatus)
 {
     m_notificationStatus = notificationStatus;
-}
-
-void ThreatDetected:: setThreatID(const std::string& threatID)
-{
-    m_threatID = threatID;
-}
-
-void ThreatDetected::setIdSource(const std::string& idSource)
-{
-    m_idSource = idSource;
-}
-
-void ThreatDetected::setFileName(const std::string& fileName)
-{
-    m_fileName = fileName;
 }
 
 void ThreatDetected::setFilePath(const std::string& filePath)
@@ -58,7 +54,7 @@ void ThreatDetected::setFilePath(const std::string& filePath)
     m_filePath = filePath;
 }
 
-void ThreatDetected::setActionCode(const std::string& actionCode)
+void ThreatDetected::setActionCode(E_ACTION_CODE actionCode)
 {
     m_actionCode = actionCode;
 }
@@ -72,11 +68,9 @@ std::string ThreatDetected::serialise() const
     threatDetectedBuilder.setUserID(m_userID);
     threatDetectedBuilder.setDetectionTime(m_detectionTime);
     threatDetectedBuilder.setThreatType(m_threatType);
+    threatDetectedBuilder.setThreatName(m_threatName);
     threatDetectedBuilder.setScanType(m_scanType);
     threatDetectedBuilder.setNotificationStatus(m_notificationStatus);
-    threatDetectedBuilder.setThreatID(m_threatID);
-    threatDetectedBuilder.setIdSource(m_idSource);
-    threatDetectedBuilder.setFileName(m_fileName);
     threatDetectedBuilder.setFilePath(m_filePath);
     threatDetectedBuilder.setActionCode(m_actionCode);
 

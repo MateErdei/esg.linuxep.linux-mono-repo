@@ -3,6 +3,7 @@ include(GoogleTest)
 
 SophosAddTest(TestScanMessages
         TestScanMessages.cpp
+        TestThreatDetectedMessages.cpp
         PROJECTS scanmessages
         LIBS
         "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"

@@ -3,7 +3,7 @@
 #
 #------------------------------------------------------------------------------
 
-@0xf72baf069c614aa7;
+@0xc889ef5d8e672583;
 
 using Cxx = import "capnp/c++.capnp";
 
@@ -11,15 +11,13 @@ $Cxx.namespace("Sophos::ssplav");
 
 struct ThreatDetected {
     userID                          @0  :Text;
-    detectionTime                   @1  :Text;
-    threatType                      @2  :Text;
-    scanType                        @3  :Text;
-    notificationStatus              @4  :Text;
-    threatID                        @5  :Text;
-    idSource                        @6  :Text;
-    fileName                        @7  :Text;
-    filePath                        @8  :Text;
-    actionCode                      @9  :Text;
+    detectionTime                   @1  :Int64;
+    threatType                      @2  :Int64;
+    threatName                      @3  :Text;
+    scanType                        @4  :Int64;
+    notificationStatus              @5  :Int64;
+    filePath                        @6  :Text;
+    actionCode                      @7  :Int64;
 }
 
 
