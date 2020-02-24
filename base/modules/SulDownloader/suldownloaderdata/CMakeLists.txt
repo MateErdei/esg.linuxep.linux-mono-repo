@@ -3,6 +3,8 @@ include(proto/CMakeLists.txt)
 add_library(suldownloaderdata SHARED
         ConfigurationData.cpp
         ConfigurationData.h
+        ConfigurationDataUtil.h
+        ConfigurationDataUtil.cpp
         Credentials.cpp
         Credentials.h
         Proxy.cpp

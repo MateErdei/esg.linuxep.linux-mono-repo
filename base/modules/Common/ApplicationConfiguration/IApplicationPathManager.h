@@ -74,6 +74,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getMachineIdFilePath() const = 0;
         virtual std::string getVersionFilePath() const = 0;
         virtual std::string getMcsConfigFilePath() const = 0;
+        virtual std::string getPreviousUpdateConfigFileName() const = 0;
 
         /**
          * @brief the sophos_alias.txt file is a file containing a url override for connecting to a

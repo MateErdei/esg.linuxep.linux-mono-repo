@@ -30,6 +30,7 @@ namespace SulDownloader
      *
      *
      * @param configurationData which contains the full settings to SULDownloader to execute its jobs.
+     * @param previousConfigurationData which may contain the full previous settings for SULDownloader to check for product additions.
      * @param previousDownloadReport if one exists (if not it will be null or empty
      * @return DownloadReport which in case of failure will conatain description of the problem,
      *         and usually also contain the list of products installed with relevant information for each product.
@@ -38,12 +39,14 @@ namespace SulDownloader
      */
     suldownloaderdata::DownloadReport runSULDownloader(
         const suldownloaderdata::ConfigurationData& configurationData,
+        const suldownloaderdata::ConfigurationData& previousConfigurationData,
         const suldownloaderdata::DownloadReport& previousDownloadReport);
 
     /**
      * Run ::runSULDownloader whilst handling serialization of ::DownloadReport and ::ConfigurationData.
      *
      * @param settingsString serialized (json) version of SulDownloaderProto::ConfigurationSettings.
+     * @param previousSettingString serialized (json) version of SulDownloaderProto::ConfigurationSettings.
      * @param previousReportData serialized (json) version of SulDownloaderProto::DownloadReport.
      * @return Pair containing the exit code and the serialized (json) version of
      * SulDownloaderProto::DownloadStatusReport The exit code follows the convention of 0 for success, otherwise failure
@@ -53,6 +56,7 @@ namespace SulDownloader
      */
     std::tuple<int, std::string> configAndRunDownloader(
         const std::string& settingsString,
+        const std::string& previousSettingString,
         const std::string& previousReportData);
 
     /**

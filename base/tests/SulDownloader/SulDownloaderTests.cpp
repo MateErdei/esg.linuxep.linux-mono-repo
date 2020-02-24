@@ -110,7 +110,7 @@ public:
         settings.mutable_proxy()->mutable_credential()->set_password("");
         auto proto_subscription = settings.mutable_primarysubscription();
         proto_subscription->set_rigidname("Everest-Base");
-        proto_subscription->set_baseversion("10");
+        proto_subscription->set_baseversion("");
         proto_subscription->set_tag("RECOMMMENDED");
         proto_subscription->set_fixedversion("");
         settings.add_features("CORE");
@@ -121,6 +121,64 @@ public:
 
         return settings;
     }
+
+
+    ConfigurationSettings newFeatureSettings()
+    {
+        ConfigurationSettings settings = defaultSettings();
+        settings.add_features("SOME_FEATURE");
+        return settings;
+    }
+
+    ConfigurationSettings newDifferentFeatureSettings()
+    {
+        ConfigurationSettings settings = defaultSettings();
+        settings.add_features("DIFF_FEATURE");
+        return settings;
+    }
+
+
+    ConfigurationSettings newSubscriptionSettings()
+    {
+        ConfigurationSettings settings = defaultSettings();
+        auto proto_subscriptions = settings.mutable_products();
+
+        SulDownloaderProto::ConfigurationSettings_Subscription proto_subscription;
+
+        proto_subscription.set_rigidname("Plugin_1");
+        proto_subscription.set_baseversion("");
+        proto_subscription.set_tag("RECOMMMENDED");
+        proto_subscription.set_fixedversion("");
+
+
+        proto_subscriptions->Add(
+                dynamic_cast<SulDownloaderProto::ConfigurationSettings_Subscription &&>(proto_subscription));
+
+        return settings;
+    }
+
+    ConfigurationSettings newDifferentSubscriptionSettings()
+    {
+        ConfigurationSettings settings = defaultSettings();
+        auto proto_subscriptions = settings.mutable_products();
+
+        SulDownloaderProto::ConfigurationSettings_Subscription proto_subscription;
+
+        proto_subscription.set_rigidname("Plugin_2");
+        proto_subscription.set_baseversion("");
+        proto_subscription.set_tag("RECOMMMENDED");
+        proto_subscription.set_fixedversion("");
+
+
+        proto_subscriptions->Add(
+                dynamic_cast<SulDownloaderProto::ConfigurationSettings_Subscription &&>(proto_subscription));
+
+        return settings;
+    }
+
+
+
+
 
     std::string jsonSettings(const ConfigurationSettings& configSettings)
     {
@@ -207,13 +265,13 @@ public:
         return *m_mockptr;
     }
 
-    MockFileSystem& setupFileSystemAndGetMock()
+    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount=1)
     {
         auto filesystemMock = new StrictMock<MockFileSystem>();
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).Times(expectCallCount).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primarywarehouse"))
-            .WillOnce(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary")).WillOnce(Return(true));
+            .Times(expectCallCount).WillRepeatedly(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary")).Times(expectCallCount).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
         // FIXME: LINUXDAR-715 Remove Upgrade from EAP special code after GA
         EXPECT_CALL(*filesystemMock, exists(::testing::HasSubstr("base/update/var/upgrade_from_eap_sd.mark")))
@@ -369,6 +427,7 @@ TEST_F( // NOLINT
     // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(emptyFileList));
@@ -411,6 +470,8 @@ TEST_F( // NOLINT
         }
     });
 
+    EXPECT_CALL(fileSystemMock, copyFile("/dir/input.json", "/dir/previous_update_config.json")).Times(1);
+
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
@@ -442,6 +503,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
 
@@ -455,6 +517,8 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    EXPECT_CALL(fileSystemMock, copyFile("/dir/input.json", "/dir/previous_update_config.json")).Times(1);
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
@@ -493,6 +557,7 @@ TEST_F( // NOLINT
     // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
 
@@ -506,6 +571,8 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    EXPECT_CALL(fileSystemMock, copyFile("/dir/input.json", "/dir/previous_update_config.json")).Times(1);
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
@@ -551,6 +618,7 @@ TEST_F( // NOLINT
     // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, removeFileOrDirectory(_)).Times(1);
@@ -574,6 +642,8 @@ TEST_F( // NOLINT
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
+
+    EXPECT_CALL(fileSystemMock, copyFile("/dir/input.json", "/dir/previous_update_config.json")).Times(1);
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
@@ -612,6 +682,7 @@ TEST_F( // NOLINT
     // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
 
@@ -669,9 +740,10 @@ TEST_F( // NOLINT
     auto settings = defaultSettings();
     settings.clear_sophosurls(); // no sophos urls, the system can not connect to warehouses
     std::string settingsString = jsonSettings(settings);
+    std::string previousSettingString("");
     std::string previousReportData;
 
-    std::tie(exitCode, reportContent) = SulDownloader::configAndRunDownloader(settingsString, previousReportData);
+    std::tie(exitCode, reportContent) = SulDownloader::configAndRunDownloader(settingsString, previousSettingString, previousReportData);
 
     EXPECT_NE(exitCode, 0);
     EXPECT_THAT(
@@ -704,14 +776,15 @@ TEST_F( // NOLINT
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
-    auto configurationData = configData(defaultSettings());
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
     EXPECT_PRED_FORMAT2(
         downloadReportSimilar,
         expectedDownloadReport,
-        SulDownloader::runSULDownloader(configurationData, previousDownloadReport));
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 TEST_F( // NOLINT
@@ -737,14 +810,15 @@ TEST_F( // NOLINT
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
-    auto configurationData = configData(defaultSettings());
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
     EXPECT_PRED_FORMAT2(
         downloadReportSimilar,
         expectedDownloadReport,
-        SulDownloader::runSULDownloader(configurationData, previousDownloadReport));
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 /**
@@ -787,14 +861,15 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
 
-    auto configurationData = configData(defaultSettings());
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
     EXPECT_PRED_FORMAT2(
         downloadReportSimilar,
         expectedDownloadReport,
-        SulDownloader::runSULDownloader(configurationData, previousDownloadReport));
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 TEST_F( // NOLINT
@@ -830,7 +905,8 @@ TEST_F( // NOLINT
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    auto configurationData = configData(defaultSettings());
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
 
     TimeTracker timeTracker;
@@ -842,7 +918,7 @@ TEST_F( // NOLINT
     EXPECT_PRED_FORMAT2(
         downloadReportSimilar,
         expectedDownloadReport,
-        SulDownloader::runSULDownloader(configurationData, previousDownloadReport));
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 /**
  * Simulate invalid signature
@@ -855,7 +931,8 @@ TEST_F( // NOLINT
     setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
 
-    auto configurationData = configData(defaultSettings());
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
 
     DownloadedProductVector products = defaultProducts();
@@ -906,7 +983,7 @@ TEST_F( // NOLINT
 
     expectedDownloadReport.Products[1].errorDescription = "Product Everest-Plugins-A failed signature verification";
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
-    auto result = SulDownloader::runSULDownloader(configurationData, previousDownloadReport);
+    auto result = SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
     EXPECT_PRED_FORMAT2(downloadReportSimilar, expectedDownloadReport, result);
 }
 
@@ -988,14 +1065,15 @@ TEST_F( // NOLINT
                                                      false,
                                                      productsInfo({ products[0], products[1] }) };
 
-    auto configurationData = configData(defaultSettings());
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
     EXPECT_PRED_FORMAT2(
         downloadReportSimilar,
         expectedDownloadReport,
-        SulDownloader::runSULDownloader(configurationData, previousDownloadReport));
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 /**
@@ -1072,15 +1150,573 @@ TEST_F( // NOLINT
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    auto configurationData = configData(defaultSettings());
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
     EXPECT_PRED_FORMAT2(
         downloadReportSimilar,
         expectedDownloadReport,
-        SulDownloader::runSULDownloader(configurationData, previousDownloadReport));
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
+
+
+//**********************************************
+
+TEST_F( // NOLINT
+        SULDownloaderTest,
+        runSULDownloader_ListOfSubscriptionListSizeDiffernceResultsInFullSuccessfulUpdate)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    MockWarehouseRepository& mock = warehouseMocked();
+
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(false);
+    }
+
+    std::string everest_installer = "/installroot/base/update/cache/primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/base/update/cache/primary/everest-plugin-a/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+        if (counter++ == 0)
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+        else
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+    });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData previousConfigurationData = configData(defaultSettings());
+    ConfigurationData configurationData = configData(newSubscriptionSettings());
+
+    configurationData.verifySettingsAreValid();
+    previousConfigurationData.verifySettingsAreValid();
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(0));
+    timeTracker.setFinishedTime(std::time_t(0));
+
+    DownloadReport previousDownloadReport =
+            DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    EXPECT_PRED_FORMAT2(
+            downloadReportSimilar,
+            expectedDownloadReport,
+            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+
+}
+
+TEST_F( // NOLINT
+        SULDownloaderTest,
+        runSULDownloader_ListOfFeatureListSizeDiffernceResultsInFullSuccessfulUpdate)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    MockWarehouseRepository& mock = warehouseMocked();
+
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(false);
+    }
+
+    std::string everest_installer = "/installroot/base/update/cache/primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/base/update/cache/primary/everest-plugin-a/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+        if (counter++ == 0)
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+        else
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+    });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData previousConfigurationData = configData(defaultSettings());
+    ConfigurationData configurationData = configData(newFeatureSettings());
+
+    configurationData.verifySettingsAreValid();
+    previousConfigurationData.verifySettingsAreValid();
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(0));
+    timeTracker.setFinishedTime(std::time_t(0));
+
+    DownloadReport previousDownloadReport =
+            DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    EXPECT_PRED_FORMAT2(
+            downloadReportSimilar,
+            expectedDownloadReport,
+            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+
+}
+
+TEST_F( // NOLINT
+        SULDownloaderTest,
+        runSULDownloader_ListOfSubscriptionsWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    MockWarehouseRepository& mock = warehouseMocked();
+
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(false);
+    }
+
+    std::string everest_installer = "/installroot/base/update/cache/primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/base/update/cache/primary/everest-plugin-a/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+        if (counter++ == 0)
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+        else
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+    });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData previousConfigurationData = configData(newSubscriptionSettings());
+    ConfigurationData configurationData = configData(newDifferentSubscriptionSettings());
+
+    configurationData.verifySettingsAreValid();
+    previousConfigurationData.verifySettingsAreValid();
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(0));
+    timeTracker.setFinishedTime(std::time_t(0));
+
+    DownloadReport previousDownloadReport =
+            DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    EXPECT_PRED_FORMAT2(
+            downloadReportSimilar,
+            expectedDownloadReport,
+            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+
+}
+
+TEST_F( // NOLINT
+        SULDownloaderTest,
+        runSULDownloader_ListOfFeaturesWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    MockWarehouseRepository& mock = warehouseMocked();
+
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(false);
+    }
+
+    std::string everest_installer = "/installroot/base/update/cache/primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/base/update/cache/primary/everest-plugin-a/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+        if (counter++ == 0)
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+        else
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+    });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData previousConfigurationData = configData(newFeatureSettings());
+    ConfigurationData configurationData = configData(newDifferentFeatureSettings());
+
+    configurationData.verifySettingsAreValid();
+    previousConfigurationData.verifySettingsAreValid();
+
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(0));
+    timeTracker.setFinishedTime(std::time_t(0));
+
+    DownloadReport previousDownloadReport =
+            DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    EXPECT_PRED_FORMAT2(
+            downloadReportSimilar,
+            expectedDownloadReport,
+            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+
+}
+
+TEST_F( // NOLINT
+        SULDownloaderTest,
+        runSULDownloader_UninstalledProductThatIsListedInTheSubscriptionShouldResultInASuccessfulUpdate)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    MockWarehouseRepository& mock = warehouseMocked();
+
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(false);
+    }
+
+    std::string everest_installer = "/installroot/base/update/cache/primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/base/update/cache/primary/everest-plugin-a/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).Times(2).WillRepeatedly(Return(emptyFileList));
+
+
+    EXPECT_CALL(fileSystemMock, exists("Plugin_1.sh")).WillOnce(Return(false));
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+        if (counter++ == 0)
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+        else
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+    });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData previousConfigurationData = configData(newSubscriptionSettings());
+    ConfigurationData configurationData = configData(newSubscriptionSettings());
+
+    configurationData.verifySettingsAreValid();
+    previousConfigurationData.verifySettingsAreValid();
+
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(0));
+    timeTracker.setFinishedTime(std::time_t(0));
+
+    DownloadReport previousDownloadReport =
+            DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    EXPECT_PRED_FORMAT2(
+            downloadReportSimilar,
+            expectedDownloadReport,
+            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+TEST_F( // NOLINT
+        SULDownloaderTest,
+        runSULDownloader_previousProductChangesShouldResultInSuccessfulFullUpdateAndProduceValidSuccessReport)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock(1);
+    MockWarehouseRepository& mock = warehouseMocked();
+
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(false);
+    }
+
+    std::string everest_installer = "/installroot/base/update/cache/primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/base/update/cache/primary/everest-plugin-a/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+        if (counter++ == 0)
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+        else
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+    });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    //ConfigurationData previousConfigurationData = configData(previousFeatureSettings());
+    ConfigurationData previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+    previousConfigurationData.verifySettingsAreValid();
+    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    EXPECT_PRED_FORMAT2(
+            downloadReportSimilar,
+            expectedDownloadReport,
+            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+}
+
+
+
+
+
 
 TEST_F( // NOLINT
     SULDownloaderTest,
@@ -1096,9 +1732,10 @@ TEST_F( // NOLINT
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::VERBOSE);
     suldownloaderdata::ConfigurationData configurationData = configData(settings);
+    suldownloaderdata::ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
-    auto downloadReport = SulDownloader::runSULDownloader(configurationData, previousDownloadReport);
+    auto downloadReport = SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
     std::string output = testing::internal::GetCapturedStdout();
     std::string errStd = testing::internal::GetCapturedStderr();
     ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to connect to the warehouse"));
@@ -1119,9 +1756,10 @@ TEST_F( // NOLINT
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::NORMAL);
     ConfigurationData configurationData = configData(settings);
+    ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
-    auto downloadReport = SulDownloader::runSULDownloader(configurationData, previousDownloadReport);
+    auto downloadReport = SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
     std::string output = testing::internal::GetCapturedStdout();
     std::string errStd = testing::internal::GetCapturedStderr();
     ASSERT_THAT(output, ::testing::Not(::testing::HasSubstr("Proxy used was")));

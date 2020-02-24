@@ -63,6 +63,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getMachineIdFilePath() const override;
         std::string getVersionFilePath() const override;
         std::string getMcsConfigFilePath() const override;
+        std::string getPreviousUpdateConfigFileName() const override;
 
     private:
         std::string socketPath(const std::string& relative) const;

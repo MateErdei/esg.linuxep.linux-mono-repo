@@ -20,6 +20,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
@@ -93,6 +94,7 @@ namespace SulDownloader
 
     DownloadReport runSULDownloader(
         const ConfigurationData& configurationData,
+        const ConfigurationData& previousConfigurationData,
         const DownloadReport& previousDownloadReport)
     {
         SULInit init;
@@ -129,7 +131,10 @@ namespace SulDownloader
         std::string sourceURL = warehouseRepository->getSourceURL();
 
         // Mark which products need to be forced to re/install.
-        bool forceReinstallAllProducts = configurationData.getForceReinstallAllProducts();
+        bool forceReinstallAllProducts =
+                SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+                        configurationData, previousConfigurationData, false);
+
         for (auto& product : products)
         {
             bool forceReinstallThisProduct = forceInstallOfProduct(product, previousDownloadReport);
@@ -199,11 +204,24 @@ namespace SulDownloader
 
     std::tuple<int, std::string> configAndRunDownloader(
         const std::string& settingsString,
+        const std::string& previousSettingString,
         const std::string& previousReportData)
     {
         try
         {
             ConfigurationData configurationData = ConfigurationData::fromJsonSettings(settingsString);
+
+            ConfigurationData previousConfigurationData;
+
+            if(!previousSettingString.empty())
+            {
+                previousConfigurationData = ConfigurationData::fromJsonSettings(previousSettingString);
+                if(!previousConfigurationData.verifySettingsAreValid())
+                {
+                    LOGDEBUG("No previous configuration data provided");
+                }
+            }
+
 
             if (!configurationData.verifySettingsAreValid())
             {
@@ -228,7 +246,7 @@ namespace SulDownloader
                 LOGSUPPORT(ex.what());
             }
 
-            auto report = runSULDownloader(configurationData, previousDownloadReport);
+            auto report = runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
 
             return DownloadReport::CodeAndSerialize(report);
         }
@@ -270,7 +288,22 @@ namespace SulDownloader
     {
         auto fileSystem = Common::FileSystem::fileSystem();
 
+        // previous setting data will be based on location of inputFilePath.
+        Path previousSettingFilePath =
+                Common::FileSystem::join(
+                        Common::FileSystem::dirName(inputFilePath),
+                        Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
+
+
         std::string settingsString = fileSystem->readFile(inputFilePath);
+
+        std::string previousSettingsString("");
+
+        if (fileSystem->isFile(previousSettingFilePath))
+        {
+            previousSettingsString = fileSystem->readFile(previousSettingFilePath);
+        }
+
 
         // check can create the output
         if (fileSystem->isDirectory(outputFilePath))
@@ -289,11 +322,12 @@ namespace SulDownloader
         std::string previousReportData = getPreviousDownloadReportData(outputParentPath);
         int exitCode;
         std::string jsonReport;
-        std::tie(exitCode, jsonReport) = configAndRunDownloader(settingsString, previousReportData);
+        std::tie(exitCode, jsonReport) = configAndRunDownloader(settingsString, previousSettingsString, previousReportData);
 
         if (exitCode == 0)
         {
             LOGINFO("Update success");
+            fileSystem->copyFile(inputFilePath, previousSettingFilePath);
         }
         else
         {

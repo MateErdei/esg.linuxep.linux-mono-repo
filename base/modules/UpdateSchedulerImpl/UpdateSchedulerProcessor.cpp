@@ -22,6 +22,8 @@ Copyright 2018-2019 Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
+#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 #include <UpdateSchedulerImpl/runnerModule/AsyncSulDownloaderRunner.h>
 #include <UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h>
@@ -230,6 +232,15 @@ namespace UpdateSchedulerImpl
             }
 
             writeConfigurationData(settingsHolder.configurationData);
+
+            SulDownloader::suldownloaderdata::ConfigurationData previousConfigurationData = getPreviousConfigurationData();
+
+            if(SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+                    settingsHolder.configurationData,
+                    previousConfigurationData))
+            {
+                m_pendingUpdate = true;
+            }
 
             if (!m_policyReceived)
             {
@@ -467,6 +478,34 @@ namespace UpdateSchedulerImpl
             SulDownloader::suldownloaderdata::ConfigurationData::toJsonSettings(configurationData);
         Common::FileSystem::fileSystem()->writeFile(m_configfilePath, serializedConfigData);
     }
+
+    SulDownloader::suldownloaderdata::ConfigurationData UpdateSchedulerProcessor::getPreviousConfigurationData()
+    {
+        Path previousConfigFilePath = Common::FileSystem::join(
+                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath(),
+                Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
+
+        std::string previousConfigSettings;
+        SulDownloader::suldownloaderdata::ConfigurationData previousConfigurationData;
+
+        if(Common::FileSystem::fileSystem()->isFile(previousConfigFilePath)) {
+            previousConfigSettings = Common::FileSystem::fileSystem()->readFile(previousConfigFilePath);
+
+            try
+            {
+                previousConfigurationData =
+                        SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(previousConfigSettings);
+                previousConfigurationData.verifySettingsAreValid();
+            }
+            catch(SulDownloader::suldownloaderdata::SulDownloaderException& ex)
+            {
+                LOGWARN("Failed to load previous configuration settings from : " << previousConfigFilePath);
+            }
+        }
+
+        return previousConfigurationData;
+    }
+
 
     void UpdateSchedulerProcessor::safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const
     {

@@ -64,4 +64,7 @@ public:
     MOCK_CONST_METHOD0(getVersionFilePath, std::string(void));
     MOCK_CONST_METHOD0(getMcsConfigFilePath, std::string(void));
 
+    MOCK_CONST_METHOD0(getInstalledProductPath, std::string (void));
+    MOCK_CONST_METHOD0(getPreviousUpdateConfigFileName, std::string (void));
+
 };

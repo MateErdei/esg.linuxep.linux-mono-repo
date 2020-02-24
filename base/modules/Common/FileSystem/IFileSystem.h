@@ -156,7 +156,7 @@ namespace Common
             /**
              * Provide the fullPath of the files under the directoryPath given.
              *
-             * @note Only regular files are listed, directories or special file system entries will not be listed.
+             * @note Only regular files and symlinks are listed, directories or special file system entries will not be listed.
              *
              * @param directoryPath
              * @return List of the full path of files under the directoryPath.

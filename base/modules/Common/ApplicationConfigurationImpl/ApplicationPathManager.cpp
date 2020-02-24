@@ -234,6 +234,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/etc/sophosspl/mcs.config");
         }
 
+        std::string ApplicationPathManager::getPreviousUpdateConfigFileName() const
+        {
+            return "previous_update_config.json";
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration
