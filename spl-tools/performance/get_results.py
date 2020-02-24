@@ -164,9 +164,9 @@ def get_results_for_machine(hostname):
     tasks = []
     days = []
 
-    # This date_key was changed from "day", previously we would average out any tests of the same name that happened within
-    # the same day. # E.g. 2 tests in a day that built gcc on a machine would be averaged out in terms of duration,
-    # cpu etc. This was done using the day of the test (i.e. no time)
+    # This date_key was changed from "day", previously we would average out any tests of the same name that happened
+    # within the same day. E.g. 2 tests in a day that built gcc on a machine would be averaged out in terms of
+    # duration and cpu use etc. This was done using the day of the test (i.e. no time)
     # Instead we now use the dull date including the time which means that we generate a unique result per test per day
     # and do not average them
     date_key = "datetime"
@@ -278,8 +278,6 @@ def get_results_for_machine(hostname):
                 summary_root[day][version][task_name]['min_mem'] = "{0:.0f}".format(
                     round(summary_root[day][version][task_name]['min_mem'], 2))
 
-    # print(json.dumps(summary_root))
-
     array_data = []
 
     for date_key, date_value in summary_root.items():
@@ -296,14 +294,6 @@ def get_results_for_machine(hostname):
                 array_data.append(row)
 
     print(array_data)
-
-    # with open('perf-results.json', 'w') as json_file:
-    #     json_file.write(json.dumps(summary_root))
-    #     print("wrote out perf-results.json")
-    #
-    # with open('perf-table.json', 'w') as json_file:
-    #     json_file.write(json.dumps(array_data))
-    #     print("wrote out perf-table.json")
 
     performance_db = mysql.connector.connect(
         host="sspl-alex-1",
