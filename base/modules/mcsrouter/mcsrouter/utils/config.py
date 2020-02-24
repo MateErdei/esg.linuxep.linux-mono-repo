@@ -6,6 +6,7 @@ config Module
 """
 
 import os
+import time
 
 from . import path_manager
 
@@ -115,15 +116,27 @@ class Config(object):
         """
         load
         """
-        if filename is None:
+        if not filename:
             return
 
         if not os.path.isfile(filename):
             return
 
-        file_to_read = open(filename)
-        lines = file_to_read.readlines()
-        file_to_read.close()
+        successful_read = False
+        for iteration in range(5):
+            try:
+                with open(filename, 'r') as file_to_read:
+                    lines = file_to_read.readlines()
+                successful_read = True
+            except OSError as error:
+                LOGGER.info("Could not read config file {} after {} attempt(s): {}".format(
+                    filename,
+                    iteration+1,
+                    error))
+                time.sleep(0.5)
+
+        if not successful_read:
+            raise OSError("Failed to read config file {} after 5 attempts".format(filename))
 
         for line in lines:
             line = line.strip()
