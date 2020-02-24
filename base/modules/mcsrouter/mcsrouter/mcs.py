@@ -599,53 +599,49 @@ class MCS:
                         add_response(file_path, app_id, correlation_id, timestamp.timestamp(
                             response_time), response_body)
 
-                    # send status
-                    if error_count > 0:
-                        pass  # Not sending status while in error state
-                    elif self.__m_status_timer.send_status():
-                        status_event = status_event_module.StatusEvent()
-                        changed = self.__m_computer.fill_status_event(status_event)
-                        if changed:
-                            LOGGER.debug("Sending status")
-                            try:
-                                comms.send_status_event(status_event)
+                    # send statuses, events and responses only if not in error state
+                    if not error_count > 0:
+
+                        if self.__m_status_timer.send_status():
+                            status_event = status_event_module.StatusEvent()
+                            changed = self.__m_computer.fill_status_event(status_event)
+                            if changed:
+                                LOGGER.debug("Sending status")
+                                try:
+                                    comms.send_status_event(status_event)
+                                    self.__m_status_timer.status_sent()
+                                except Exception:
+                                    self.__m_status_timer.error_sending_status()
+                                    raise
+                            else:
+                                LOGGER.debug(
+                                    "Not sending status as nothing changed")
+                                # Don't actually need to send status
                                 self.__m_status_timer.status_sent()
-                            except Exception:
-                                self.__m_status_timer.error_sending_status()
-                                raise
-                        else:
+
                             LOGGER.debug(
-                                "Not sending status as nothing changed")
-                            # Don't actually need to send status
-                            self.__m_status_timer.status_sent()
+                                "Next status update in %.2f s",
+                                self.__m_status_timer.relative_time())
 
-                        LOGGER.debug(
-                            "Next status update in %.2f s",
-                            self.__m_status_timer.relative_time())
 
-                    # send events
-                    if error_count > 0:
-                        pass  # Not sending events while in error state
-                    elif events_timer.send_events():
-                        LOGGER.debug("Sending events")
-                        try:
-                            comms.send_events(events)
-                            events_timer.events_sent()
-                            events.reset()
-                        except Exception:
-                            events_timer.error_sending_events()
-                            raise
+                        if events_timer.send_events():
+                            LOGGER.debug("Sending events")
+                            try:
+                                comms.send_events(events)
+                                events_timer.events_sent()
+                                events.reset()
+                            except Exception:
+                                events_timer.error_sending_events()
+                                raise
 
-                    # send responses
-                    if error_count > 0:
-                        pass  # Not sending responses while in error state
-                    elif responses.has_responses():
-                        LOGGER.debug("Sending responses")
-                        try:
-                            comms.send_responses(responses.get_responses())
-                            responses.reset()
-                        except Exception as exception:
-                            LOGGER.error("Failed to send responses: {}".format(str(exception)))
+
+                        if responses.has_responses():
+                            LOGGER.debug("Sending responses")
+                            try:
+                                comms.send_responses(responses.get_responses())
+                                responses.reset()
+                            except Exception as exception:
+                                LOGGER.error("Failed to send responses: {}".format(str(exception)))
 
                     # reset command poll
                 except socket.error:
