@@ -47,7 +47,7 @@
 </buildcommands>
 
   <publish>
-    <publishbranches>master,develop,feature,bugfix</publishbranches>
+    <publishbranches>master,develop,feature,bugfix,ssplav</publishbranches>
     <workingdir>warehouse</workingdir>
     <destdir>warehouse</destdir>
     <buildoutputs>
