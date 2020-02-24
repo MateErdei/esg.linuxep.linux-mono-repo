@@ -152,7 +152,7 @@ void ScanScheduler::findNextTime(timespec& timespec)
         {
             continue;
         }
-        if (nextTime < next)
+        if (next == INVALID_TIME || nextTime < next)
         {
             m_nextScheduledScan = scan;
             next = nextTime;

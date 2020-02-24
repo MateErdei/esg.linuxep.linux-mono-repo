@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanClient.h"
 
 #include <filewalker/FileWalker.h>
-#include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
+#include <unixsocket/ScanningClientSocket.h>
 
 #include <capnp/message.h>
 
@@ -72,7 +72,6 @@ namespace
         {
             try
             {
-                LOGINFO(">>> Scanning: " << p);
                 m_scanner.scan(p);
             }
             catch (const std::exception& e)
@@ -89,15 +88,6 @@ namespace
                 if (!PathUtils::longer(p, mp->mountPoint()) &&
                     PathUtils::startswith(p, mp->mountPoint()))
                 {
-                    LOGINFO(">>> Excluding mount: " << p);
-                    return false;
-                }
-            }
-            for (auto & exclusion : m_config.m_excludePaths)
-            {
-                if (PathUtils::startswith(p, exclusion))
-                {
-                    LOGINFO(">>> Excluding dir: " << p);
                     return false;
                 }
             }

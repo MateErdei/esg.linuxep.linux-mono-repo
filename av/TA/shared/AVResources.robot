@@ -2,7 +2,6 @@
 Library         Process
 Library         OperatingSystem
 Library         String
-Library         ../Libs/AVScanner.py
 Library         ../Libs/FakeManagement.py
 
 Resource    ComponentSetup.robot
@@ -13,10 +12,13 @@ ${COMPONENT_UC}    AV
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
+${SCANNOW_LOG_PATH}  ${AV_PLUGIN_PATH}/log/scanNow.log
 ${BASE_SDDS}       ${TEST_INPUT_PATH}/${COMPONENT}/base-sdds/
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
+${EXPORT_FILE}     /etc/exports
+${EICAR_STRING}     X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 
 *** Keywords ***
 Run Shell Process
@@ -38,10 +40,15 @@ File Log Contains
     ${content} =  Get File   ${path}
     Should Contain  ${content}  ${input}
 
+File Log Should Not Contain
+    [Arguments]  ${path}  ${input}
+    ${content} =  Get File   ${path}
+    Should Not Contain  ${content}  ${input}
+
 Wait Until File Log Contains
-    [Arguments]  ${logCheck}  ${input}
+    [Arguments]  ${logCheck}  ${input}  ${timeout}=15
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  ${timeout} secs
     ...  1 secs
     ...  ${logCheck}  ${input}
 
@@ -59,8 +66,8 @@ AV Plugin Log Contains
     File Log Contains  ${AV_LOG_PATH}   ${input}
 
 Wait Until AV Plugin Log Contains
-    [Arguments]  ${input}
-    Wait Until File Log Contains  AV Plugin Log Contains   ${input}
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  AV Plugin Log Contains   ${input}   timeout=${timeout}
 
 AV Plugin Log Does Not Contain
     [Arguments]  ${input}
@@ -123,7 +130,7 @@ Uninstall And Revert Setup
 
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
-    Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=60s
+    Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=600s
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install AV Directly from SDDS
@@ -167,9 +174,22 @@ Send Sav Action To Base
     ${savActionFilename}  Generate Random String
     Copy File  ${RESOURCES_PATH}/${actionFile}  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_${savActionFilename}.xml
 
+Check ScanNow Log Exists
+    File Should Exist  ${SCANNOW_LOG_PATH}
 
-Configure Scan Exclusions Everything Else
-    [Arguments]  ${inclusion}
-    ${exclusions} =  exclusions for everything else  ${inclusion}
-    [return]  <onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan>
+Configure Scan Exclusions Everything Else # Will allow for one directory to be selected during a scan
+#TODO implementation required
 
+Create Local NFS Share
+    [Arguments]  ${source}  ${destination}
+    Copy File  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
+    Append To File  ${EXPORT_FILE}  ${source} localhost(rw,sync,no_subtree_check)\n
+    Run Shell Process   systemctl restart nfs-server            OnError=Failed to restart NFS server
+    Run Shell Process   mount -t nfs localhost:${source} ${destination}   OnError=Failed to mount local NFS share
+
+Remove Local NFS Share
+    [Arguments]  ${source}  ${destination}
+    Run Shell Process   umount ${destination}   OnError=Failed to unmount local NFS share
+    Move File  ${EXPORT_FILE}_bkp  ${EXPORT_FILE}
+    Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
+    Remove Directory    ${source}  recursive=True
