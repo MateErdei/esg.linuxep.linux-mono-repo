@@ -13,6 +13,16 @@ except:
     import logging
     logger = logging.getLogger(__name__)
 
+class RequestsSessionAllowRedirectWithAuth(requests.Session):
+    def __init__(self):
+        """
+        see mcs_push_client.py:
+        """
+        requests.Session.__init__(self)
+
+    def should_strip_auth(self, old_url, new_url):
+        return False
+
 
 class PushServerUtils:
     """Utilities to verify the MCS Push Service Requirements that can be used with the Robot Framework.
@@ -71,7 +81,7 @@ class PushServerUtils:
         if r.status_code != 200:
             raise AssertionError("Send message to close connections failed with code {} and Text {}".format(r.status_code, r.text))
 
-    def start_sse_client(self, timeout=100, authorization="", via_cloud_server=False):
+    def start_sse_client(self, timeout=100, authorization="DefaultAuthorization", via_cloud_server=False):
         """
         Start the Server Sent Event Client that will connect to the push server and receive messages from it.
 
@@ -83,12 +93,18 @@ class PushServerUtils:
 
         """
         sse_args = {'verify': self._cert, 'retry': 0,
-                    'timeout': timeout}
-        if authorization:
-            sse_args['headers'] = {'Authorization': authorization}
+                    'timeout': timeout,
+                    'headers': {'Authorization': authorization}
+                    }
 
         if via_cloud_server:
+            # it has been found that in order to work the redirect must deal with striping authorization.
             url = self.push_url_pattern.format(4443)
+            session = RequestsSessionAllowRedirectWithAuth()
+            session.headers['Authorization'] = authorization
+            session.verify = self._cert
+            copy_args = {'session': session, 'retry': 0, 'timeout': timeout}
+            sse_args = copy_args
         else:
             url = self.push_url_pattern.format(self._port)
 

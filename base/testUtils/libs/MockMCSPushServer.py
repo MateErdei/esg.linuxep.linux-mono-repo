@@ -86,7 +86,10 @@ async def subscribe_endpoint(request):
     LOGGER.info("EndpointId Connected with Authorization: {}.".format(authorization))
     if require_auth and require_auth != authorization:
         LOGGER.warning("Rejecting connection due to authentication. Expected {}, received: {}".format(require_auth, authorization))
-        raise web.HTTPUnauthorized()
+        raise web.HTTPUnauthorized(reason="Authentication header provided but different from expected")
+    if authorization.strip() == "":
+        LOGGER.warning("Missing Authorization header. By default it must be provided")
+        raise web.HTTPUnauthorized(reason="No Authentication header provided")
 
     async with sse_response(request) as resp:
         app = request.app

@@ -171,6 +171,7 @@ Mcs Router reregisters after only getting one 401 error
 
 
 Policy proxy overrides local proxy
+    [Tags]  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_TESTS
     [Documentation]  Derived from CLOUD.PROXY.004_policy_proxy.sh
     ${Proxy_Port_One} =  Set Variable  3333
     ${Proxy_Port_Two} =  Set Variable  7773
@@ -206,6 +207,7 @@ Policy proxy overrides local proxy
 
 
 Fallback to direct connection when policy proxy fails
+    [Tags]  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_TESTS
     [Documentation]  Derived from CLOUD.PROXY.005_fallback_to_direct_after_policy_proxy_fails.sh
     ${Proxy_Port_One} =  Set Variable  3346
     ${Proxy_Name_One} =  Set Variable  deadbeef-feedbeef
@@ -253,6 +255,7 @@ Fallback to direct connection when policy proxy fails
     ...  Check Marked MCSRouter Log Contains   Push client successfully connected to ${push_server_address} directly
 
 Policy authentication with digest
+    [Tags]  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_TESTS
     [Documentation]  Derived from CLOUD.PROXY.013_policy_authentication.sh
     ${username} =  Set Variable  username
     ${password} =  Set Variable  password
