@@ -150,6 +150,15 @@ def run_central_live_query_perf_test(email, password):
         ['python3', central_live_query_script, '--region', 'q', '--email', email, '--password', password, 'login'],
         timeout=120)
 
+    # Check hostname query response is expected as a sanity check before kicking off tests.
+    command = ['python3', central_live_query_script, '--region', 'q', '--email', email, '--password', password,
+               'run_live_query_and_wait_for_response', "hostname-result-check",
+               'SELECT system_info.hostname, system_info.local_hostname FROM system_info;', target_machine]
+    results = subprocess.check_output(command, timeout=120).decode("utf-8")
+    if target_machine not in results:
+        logging.error("Did not get the expected response from Central when querying hostname via live query, stopping.")
+        return
+
     queries_to_run = [
         ALL_PROCESSES_QUERY,
         ALL_USERS_QUERY,
