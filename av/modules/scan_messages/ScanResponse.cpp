@@ -11,37 +11,37 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
-namespace  scan_messages
+using namespace scan_messages;
+
+ScanResponse::ScanResponse()
+        : m_clean(false)
 {
-    ScanResponse::ScanResponse()
-            : m_clean(false)
-    {
-    }
-
-    std::string ScanResponse::serialise() const
-    {
-        ::capnp::MallocMessageBuilder message;
-        Sophos::ssplav::FileScanResponse::Builder responseBuilder =
-                message.initRoot<Sophos::ssplav::FileScanResponse>();
-
-        responseBuilder.setClean(m_clean);
-        responseBuilder.setThreatName(m_threatName);
-
-        kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
-        kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
-        std::string dataAsString(bytes.begin(), bytes.end());
-        return dataAsString;
-    }
-
-    void ScanResponse::setClean(bool b)
-    {
-        m_clean = b;
-    }
-
-    void ScanResponse::setThreatName(std::string threatName)
-    {
-        m_threatName = std::move(threatName);
-
-    }
 }
+
+std::string ScanResponse::serialise() const
+{
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::FileScanResponse::Builder responseBuilder =
+            message.initRoot<Sophos::ssplav::FileScanResponse>();
+
+    responseBuilder.setClean(m_clean);
+    responseBuilder.setThreatName(m_threatName);
+
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+    return dataAsString;
+}
+
+void ScanResponse::setClean(bool b)
+{
+    m_clean = b;
+}
+
+void ScanResponse::setThreatName(std::string threatName)
+{
+    m_threatName = std::move(threatName);
+
+}
+
 
