@@ -30,6 +30,15 @@
     </Identity>
     <Identity>
       <Label>
+        <Token>ServerProtectionLinux-Plugin-AV</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Plugin Anti-Virus</LongDesc>
+          <ShortDesc>SSPL Plugin AV</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
         <Token>ServerProtectionLinux-MDR-Control-Component</Token>
         <Language lang="en">
           <LongDesc>Server Protection for Linux MTR Control Component</LongDesc>
