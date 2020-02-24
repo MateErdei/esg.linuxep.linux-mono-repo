@@ -167,7 +167,7 @@ namespace
         EXPECT_NO_THROW(futureReplier.get()); // NOLINT
     }
 
-    TEST_F(ReqRepReliabilityTests, requesterShouldRecoverAReplierFailure) // NOLINT
+    TEST_F(ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierFailure) // NOLINT
     {
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
@@ -209,7 +209,7 @@ namespace
 
     }
 
-    TEST_F(ReqRepReliabilityTests, requesterShouldRecoverAReplierSendingBrokenMessage) // NOLINT
+    TEST_F(ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierSendingBrokenMessage) // NOLINT
     {
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);

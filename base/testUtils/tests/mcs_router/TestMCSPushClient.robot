@@ -48,7 +48,6 @@ MCSRouter Can Start and Receive Update Now Action From Push Client
     Check File Content  <?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>  ${MCS_DIR}/action/
 
 MCSRouter Can Start and Receive Live Query From Push Client
-    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TEST
     [Teardown]  EDR Push Client Teardown
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
@@ -69,7 +68,6 @@ MCSRouter Can Start and Receive Live Query From Push Client
     Check File Content  {"type": "sophos.mgt.action.RunLiveQuery", "name": "users", "query": "SELECT * from users"}  ${MCS_DIR}/action/
 
 MCSRouter Can Start and Receive Wakeup Command From Push Client
-    [Tags]    FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
 

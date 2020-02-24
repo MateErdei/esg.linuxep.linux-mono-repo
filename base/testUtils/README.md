@@ -31,6 +31,12 @@ $ robot --test CommandPollSent .
 $ robot --exclude manual .
 ```
 
+It is also possible to run the tests in tap. 
+
+```python
+tap run sspl_base.integration --debug-loop
+```
+
 The following tags can be used to select which tests can be run, using the include or exclude arguments.
 * AUDIT_PLUGIN - Test cases which test sspl-audit
 * AMAZON_LINUX - Test cases which will run on Amazon Linux only

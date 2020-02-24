@@ -138,7 +138,7 @@ TEST_F(PubSubTests, PubSendsDataReceiverReceives) // NOLINT
     EXPECT_EQ(trackAfter->trackReceivedData.size(), 1);
 }
 
-TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications) // NOLINT
+TEST_F(PubSubTests, DISABLED_WhenSubscriberReconnectItShouldContinueToReceivePublications) // NOLINT
 {
     PluginResourceManagement pluginResourceManagement;
     Common::EventTypes::PortScanningEvent portevent = createDefaultPortScanningEvent();
