@@ -120,6 +120,15 @@
     </Features>
     <Features>
       <Label>
+        <Token>AV</Token>
+        <Language lang="en">
+          <ShortDesc>SSPL AV Plugin</ShortDesc>
+          <LongDesc>SSPL AV Plugin</LongDesc>
+        </Language>
+      </Label>
+    </Features>
+    <Features>
+      <Label>
         <Token>MDR</Token>
         <Language lang="en">
           <ShortDesc>SSPL MTR Plugin</ShortDesc>
