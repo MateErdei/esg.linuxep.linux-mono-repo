@@ -9,9 +9,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <scan_messages/ThreatDetected.h>
+#include <scan_messages/ScanRequest.h>
 
 #include "ScanRequest.capnp.h"
-#include "scan_messages/ScanRequest.h"
+#include "ThreatDetected.capnp.h"
+
 
 #include <ctime>
 
@@ -101,14 +103,68 @@ TEST(TestScanMessages, CreateThreatDetected) //NOLINT
 
     threatDetected.setUserID("TestUser");
     threatDetected.setDetectionTime(std::to_string(testTimeStamp));
-    threatDetected.setThreatType("1");
     threatDetected.setScanType("201");
     threatDetected.setNotificationStatus("300");
     threatDetected.setThreatID("EICAR-AV-Test");
-    threatDetected.setIDSource("NameFilenameFilepathCIMD5");
     threatDetected.setFileName("unit-test-eicar");
     threatDetected.setFilePath("/this/is/a/path");
     threatDetected.setActionCode("113");
 
-    std::string data = threatDetected.serialise();
+    std::string dataAsString = threatDetected.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::ThreatDetected::Reader deSeriealisedData =
+            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    EXPECT_EQ(deSeriealisedData.getUserID(), "TestUser");
+    EXPECT_EQ(deSeriealisedData.getDetectionTime(), std::to_string(testTimeStamp));
+    EXPECT_EQ(deSeriealisedData.getThreatType(), "1");
+    EXPECT_EQ(deSeriealisedData.getScanType(), "201");
+    EXPECT_EQ(deSeriealisedData.getNotificationStatus(), "300");
+    EXPECT_EQ(deSeriealisedData.getThreatID(), "EICAR-AV-Test");
+    EXPECT_EQ(deSeriealisedData.getIdSource(), "NameFilenameFilepathCIMD5");
+    EXPECT_EQ(deSeriealisedData.getFileName(), "unit-test-eicar");
+    EXPECT_EQ(deSeriealisedData.getFilePath(), "/this/is/a/path");
+    EXPECT_EQ(deSeriealisedData.getActionCode(), "113");
+}
+
+TEST(TestScanMessages, CreateThreatDetectedWithCustomIdAndThreatType) //NOLINT
+{
+    scan_messages::ThreatDetected threatDetected;
+    std::time_t testTimeStamp = std::time(nullptr);
+
+    threatDetected.setUserID("TestUser");
+    threatDetected.setDetectionTime(std::to_string(testTimeStamp));
+    threatDetected.setThreatType("5");
+    threatDetected.setScanType("201");
+    threatDetected.setNotificationStatus("300");
+    threatDetected.setThreatID("EICAR-AV-Test");
+    threatDetected.setIdSource("CustomIdSource");
+    threatDetected.setFileName("unit-test-eicar");
+    threatDetected.setFilePath("/this/is/a/path");
+    threatDetected.setActionCode("113");
+
+    std::string dataAsString = threatDetected.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
+            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+
+    EXPECT_EQ(deSerialisedData.getUserID(), "TestUser");
+    EXPECT_EQ(deSerialisedData.getDetectionTime(), std::to_string(testTimeStamp));
+    EXPECT_EQ(deSerialisedData.getThreatType(), "5");
+    EXPECT_EQ(deSeriealisedData.getScanType(), "201");
+    EXPECT_EQ(deSeriealisedData.getNotificationStatus(), "300");
+    EXPECT_EQ(deSeriealisedData.getThreatID(), "EICAR-AV-Test");
+    EXPECT_EQ(deSeriealisedData.getIdSource(), "CustomIdSource");
+    EXPECT_EQ(deSeriealisedData.getFileName(), "unit-test-eicar");
+    EXPECT_EQ(deSeriealisedData.getFilePath(), "/this/is/a/path");
+    EXPECT_EQ(deSeriealisedData.getActionCode(), "113");
 }

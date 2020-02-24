@@ -22,7 +22,7 @@ namespace scan_messages
         void setScanType(const std::string& scanType);
         void setNotificationStatus(const std::string& notificationStatus);
         void setThreatID(const std::string& threatID);
-        void setIDSource(const std::string& idSource);
+        void setIdSource(const std::string& idSource);
         void setFileName(const std::string& fileName);
         void setFilePath(const std::string& filePath);
         void setActionCode(const std::string& actionCode);
@@ -32,11 +32,13 @@ namespace scan_messages
     protected:
         std::string m_userID;
         std::string m_detectionTime;
-        std::string m_threatType;
+        // SAV Linux always returns this value it means "virus"
+        std::string m_threatType = "1";
         std::string m_scanType;
         std::string m_notificationStatus;
         std::string m_threatID;
-        std::string m_idSource;
+        // SAV Linux seems to be using this value all the time
+        std::string m_idSource = "NameFilenameFilepathCIMD5";
         std::string m_fileName;
         std::string m_filePath;
         std::string m_actionCode;

@@ -43,7 +43,7 @@ namespace scan_messages
         m_threatID = threatID;
     }
 
-    void ThreatDetected::setIDSource(const std::string& idSource)
+    void ThreatDetected::setIdSource(const std::string& idSource)
     {
         m_idSource = idSource;
     }
