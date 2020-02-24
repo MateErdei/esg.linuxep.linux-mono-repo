@@ -2,6 +2,7 @@
 Documentation    Port tests related to mcs policies and fake cloud that were originally present for SAV. [LINUXEP-7787]
 
 Library   String
+Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 
 Resource  McsRouterResources.robot
 
@@ -171,3 +172,19 @@ Malformed MCS Policy Missing RevID is Rejected By The Endpoint
         ...  30 secs
         ...  5 secs
         ...  Check MCSRouter Log Contains   MCS policy did not contain revID
+
+MCS policy without Pushserver Updates MCS Policy Config Correctly
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+
+    Wait Until Keyword Succeeds
+        ...  5 secs
+        ...  1 secs
+        ...  Check MCS Policy Config Contains   pushServer1=https://localhost:4443/mcs
+
+    #send policy without push server url
+    Send Policy File   mcs   ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MCS_policy.xml
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  5 secs
+        ...  Check MCS Policy Config Does Not Contain   pushServer1=https://localhost:4443/mcs
