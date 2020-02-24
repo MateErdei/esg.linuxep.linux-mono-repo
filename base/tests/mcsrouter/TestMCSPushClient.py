@@ -81,8 +81,11 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
     def setUp(self) -> None:
         self.client_internal = None
 
+
     def get_client(self, proxies=[DIRECT_CONNECTION]):
-        self.client_internal = MCSPushClientInternal("url", "cert", 10, proxies)
+        sett= MCSPushSetting(url="url", cert="cert", expected_ping=10,
+                       proxy_settings=proxies, authorization=('user','pass'))
+        self.client_internal = MCSPushClientInternal(sett)
         return self.client_internal
 
     def tearDown(self) -> None:
@@ -141,9 +144,12 @@ class ConfigWithoutFile( mcsrouter.utils.config.Config):
         self.set('MCSID', 'thisendpoint')
 
 class TestMCSPushConfigSettings(unittest.TestCase):
-    def test_extract_values_from_config(self):
+    def default_push_settings_args(self):
         proxy = [sophos_https.Proxy("http://localhost", 4335, "username", "password")]
-        settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy)
+        return ['certpath', proxy, ('user','pass')]
+
+    def test_extract_values_from_config(self):
+        settings = MCSPushSetting.from_config(ConfigWithoutFile(), *self.default_push_settings_args())
         self.assertEqual(settings.url, 'value/push/endpoint/thisendpoint')
         self.assertEqual(settings.expected_ping,  10)
         self.assertEqual(settings.cert, 'certpath')
@@ -153,18 +159,25 @@ class TestMCSPushConfigSettings(unittest.TestCase):
         self.assertEqual(settings.proxy_settings[0].password(), "password")
 
     def test_settings_equality(self):
-        proxy = [sophos_https.Proxy("http://localhost", 4335, "username", "password")]
-        settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy)
-        settings1 = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy)
+        settings = MCSPushSetting.from_config(ConfigWithoutFile(), *self.default_push_settings_args())
+        settings1 = MCSPushSetting.from_config(ConfigWithoutFile(), *self.default_push_settings_args())
         self.assertEqual(settings, settings1)
         settings1.url = 'changed'
         self.assertNotEqual(settings, settings1)
 
         proxy2 = [sophos_https.Proxy("http://localhost", 4335, "username", "changed_password")]
-        settings2 = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy)
-        settings3 = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy2)
+        settings2 = MCSPushSetting.from_config(ConfigWithoutFile(), *self.default_push_settings_args())
+        settings3 = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', proxy2, ('user', 'pass'))
         self.assertEqual(settings, settings2)
         self.assertNotEqual(settings, settings3)
+
+    def test_change_authorization_is_detected_as_settings_changed(self):
+        settings = MCSPushSetting.from_config(ConfigWithoutFile(), *self.default_push_settings_args())
+        settings1 = MCSPushSetting.from_config(ConfigWithoutFile(), *self.default_push_settings_args())
+        settings1.authorization = ('user','newpass')
+        self.assertNotEqual(settings, settings1)
+
+
 
 
 
@@ -172,13 +185,14 @@ class TestMCSPushClient(SharedTestsUtilities):
 
     def setUp(self):
         self.push_client = MCSPushClient()
+        self.args = ['certpath', [DIRECT_CONNECTION], ('user','pass')]
 
     def tearDown(self):
         self.push_client.stop_service()
 
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
     def test_can_restart_twice(self, *mockargs):
-        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION])
+        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), *self.args)
         self.push_client._start_service()
         received = self.send_and_receive_message('hello', self.push_client)
         self.assertEqual(received, 'hello')
@@ -189,22 +203,22 @@ class TestMCSPushClient(SharedTestsUtilities):
 
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
     def test_push_client_handle_config_changes(self, *mockargs):
-        self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION]))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), *self.args))
         config = ConfigWithoutFile()
         config.set('pushServer1', 'new url')
-        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [DIRECT_CONNECTION]))
-        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, 'certpath', [DIRECT_CONNECTION]))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, *self.args))
+        self.assertTrue(self.push_client.ensure_push_server_is_connected(config, *self.args))
 
     @mock.patch("logging.Logger.warning")
     def test_push_client_with_empty_proxy_list_fails_elegantly(self, *mockargs):
-        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [])
+        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [], ('user','pass'))
         self.assertRaises(MCSPushException, self.push_client._start_service)
         self.assertEqual(logging.Logger.warning.call_args_list[-1], mock.call("No connection methods available."))
 
     @mock.patch("logging.Logger.warning")
     @mock.patch("sseclient.SSEClient", side_effect=RuntimeError("failed to connect"))
     def test_push_client_with_no_good_connection_route_fails_elegantly(self, *mockargs):
-        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION, DIRECT_CONNECTION, DIRECT_CONNECTION])
+        self.push_client._settings = MCSPushSetting.from_config(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION, DIRECT_CONNECTION, DIRECT_CONNECTION], ('user', 'pass'))
         self.assertRaises(MCSPushException, self.push_client._start_service)
         self.assertEqual(logging.Logger.warning.call_args_list[-1], mock.call("Tried all connection methods and failed to connect to push server"))
 
@@ -212,17 +226,13 @@ class TestMCSPushClient(SharedTestsUtilities):
     def test_push_client_returns_status_enum_when_applying_server_settings(self):
         # This is the case for when the connection to the Push Server cannot be established
         with mock.patch("sseclient.SSEClient", new_callable=SSEClientSimulateConnectionFailureFactory) as sseclient.SSEClient:
-            self.assertFalse(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION]))
+            self.assertFalse(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), *self.args))
 
         with mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory) as sseclient.SSEClient:
             # this is the case for establishing connection to the push server
-            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION]))
+            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), *self.args))
             # this is the case for a normal connected client without any settings change will just keep connected and nothing changes
-            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), 'certpath', [DIRECT_CONNECTION]))
-
-
-
-
+            self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), *self.args))
 
 
 if __name__ == '__main__':

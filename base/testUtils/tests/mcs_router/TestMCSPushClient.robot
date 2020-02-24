@@ -21,7 +21,7 @@ ${MCS_ROUTER_LOG}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 *** Test Case ***
 
 MCSRouter Can Start And Receive Messages From The Push Client
-    Start MCS Push Server
+    Start MCS Push Server  authorization=Basic VGhpc0lzQW5NQ1NJRCsxMDAxOlRoaXNJc1RoZVBhc3N3b3Jk
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy

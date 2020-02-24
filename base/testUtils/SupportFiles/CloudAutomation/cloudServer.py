@@ -1137,7 +1137,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("Unknown policy", code=500)
 
     def push_redirect(self):
-        logger.info("Push redirect requested")
+        logger.info("Push redirect requested. headers received: {}".format(dict(self.headers)))
         return self.ret(code=307, extra_header={'Location': 'https://localhost:8459{}'.format(self.path)})
 
     def send_401(self):

@@ -129,7 +129,7 @@ class PushServerUtils:
         if redirect_url != url_pattern.format(self._port):
             raise AssertionError("Location differs from the expected. Given Location {}".format(redirect_url))
 
-    def start_mcs_push_server(self):
+    def start_mcs_push_server(self, authorization=None):
         """Utility function to simplify starting the mcs push server. It executes MockMCSPushServer.py """
         server_path = os.path.join(os.path.dirname(__file__), 'MockMCSPushServer.py')
         args= [ sys.executable,
@@ -139,6 +139,8 @@ class PushServerUtils:
         ]
         self._server = subprocess.Popen(args)
         time.sleep(1)
+        if authorization:
+            self.configure_push_server_to_require_auth(authorization=authorization)
 
     def mcs_push_server_log(self):
         """

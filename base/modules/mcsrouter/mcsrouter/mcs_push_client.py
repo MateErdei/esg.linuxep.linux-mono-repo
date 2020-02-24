@@ -81,12 +81,13 @@ class MCSPushException(RuntimeError):
 
 class MCSPushSetting:
     @staticmethod
-    def from_config(config, cert, proxy_settings):
+    def from_config(config, cert, proxy_settings, authorization):
         """
 
         :param config: mcs config
         :param cert: certs to use for connection
         :param proxy_settings: list of sophos_https.Proxy objects. It is ordered by connection priority and
+        :param authorization: tuple with (username, password) to be used to get authorization
         includes a direct connection if applicable
         :return: MCSPushSetting object
         """
@@ -98,21 +99,26 @@ class MCSPushSetting:
             url = None
         expected_ping = config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT")
         certs = cert
-        return MCSPushSetting(url, certs, expected_ping, proxy_settings)
+        return MCSPushSetting(url, certs, expected_ping, proxy_settings, authorization)
 
     def as_tuple(self):
-        return self.url, self.cert, self.expected_ping, self.proxy_settings
+        return self.url, self.cert, self.expected_ping, self.proxy_settings, self.authorization
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.as_tuple() == other.as_tuple()
         return False
 
-    def __init__(self, url=None, cert=None, expected_ping=None, proxy_settings=None):
+    def __str__(self):
+        return "url {}, ping {} and cert {}".format(self.url, self.expected_ping, self.cert)
+
+    def __init__(self, url=None, cert=None, expected_ping=None, proxy_settings=None, authorization=None):
         self.url = url
         self.cert = cert
         self.expected_ping = expected_ping
         self.proxy_settings = proxy_settings
+        self.authorization = authorization
+
 
 class MCSPushClient:
     def __init__(self):
@@ -126,12 +132,12 @@ class MCSPushClient:
         self.stop_service()
         try:
             self._notify_mcsrouter_channel.clear()
-            url, cert, expected_ping, proxy_settings = self._settings.as_tuple()
-            LOGGER.debug("Settings for push client: url: {}, ping {} and cert {}".format(url, expected_ping, cert))
-            if not url:
+            LOGGER.debug("Settings for push client: {}".format(self._settings))
+            if not self._settings.url:
                 LOGGER.info("Push client not connecting, no url given")
                 return
-            self._push_client_impl = MCSPushClientInternal(url, cert, expected_ping, proxy_settings, self._notify_mcsrouter_channel)
+            self._push_client_impl = MCSPushClientInternal(self._settings,
+                                                           self._notify_mcsrouter_channel)
             self._push_client_impl.start()
             LOGGER.info("Established MCS Push Connection")
         except Exception as e:
@@ -158,9 +164,9 @@ class MCSPushClient:
             return False
         return self._push_client_impl.is_alive()
 
-    def ensure_push_server_is_connected(self, config, cert, proxy_settings):
+    def ensure_push_server_is_connected(self, config, cert, proxy_settings, authorization):
         # retrieve push server url and compare with the current one
-        settings = MCSPushSetting.from_config(config, cert, proxy_settings)
+        settings = MCSPushSetting.from_config(config, cert, proxy_settings, authorization)
         need_start = False
         try:
             if settings != self._settings:
@@ -179,26 +185,47 @@ class MCSPushClient:
         return self.is_service_active()
 
 
+class RequestsSessionAllowRedirectWithAuth(requests.Session):
+    def __init__(self):
+        """
+        Handle should_strip_auth
+
+        By default, requests will try to prevent leaking authorization on a redirect.
+        https://requests.readthedocs.io/en/master/api/#requests.Session.rebuild_auth
+        But, the way that the push is configured, the load balancer will always redirect the call
+        and the final push server requires the authentication.
+        Hence, this class override the should_strip_auth to allow the authorization to go to the
+        final push server.
+        https://wiki.sophos.net/display/SophosCloud/EMP%3A+command+push
+        """
+        requests.Session.__init__(self)
+
+    def should_strip_auth(self, old_url, new_url):
+        LOGGER.debug("Allow redirect with authorization from {} to {}".format(old_url, new_url))
+        return False
+
+
 class MCSPushClientInternal(threading.Thread):
-    def __init__(self, url: str, cert: str, expected_ping_interval: int, proxy_settings, mcsrouter_channel=PipeChannel()):
+    def __init__(self, settings: MCSPushSetting,
+                 mcsrouter_channel=PipeChannel()):
         threading.Thread.__init__(self)
-        self._url = url
-        self._cert = cert
-        self._expected_ping_interval = expected_ping_interval
-        self._proxy_settings = proxy_settings
+        self._url = settings.url
+        self._cert = settings.cert
+        self._expected_ping_interval = settings.expected_ping
+        self._proxy_settings = settings.proxy_settings
         self._notify_push_client_channel = PipeChannel()
         self._notify_mcsrouter_channel = mcsrouter_channel
         self._pending_commands = []
         self._pending_commands_lock = threading.Lock()
-        self.messages = self._create_sse_client()
+        self.messages = self._create_sse_client(settings.authorization)
 
-    def _create_sse_client(self):
+    def _create_sse_client(self, authorization):
         if len(self._proxy_settings) == 0:
             raise MCSPushException("No connection methods available." .format(self.__log_url()))
         for proxy in self._proxy_settings:
             self._proxy = proxy
             LOGGER.info(self.__attempting_connection_message())
-            session, proxy_username, proxy_password = self.get_requests_session()
+            session, proxy_username, proxy_password = self.get_requests_session(authorization)
             LOGGER.debug("Try connection to push server via this route: {}".format(session.proxies))
             try:
                 digestproxyworkaround.GLOBALAUTHENTICATION.set(proxy_username, proxy_password)
@@ -238,9 +265,11 @@ class MCSPushClientInternal(threading.Thread):
         else:
             return "Failed to connect to {} directly".format(self.__log_url())
 
-    def get_requests_session(self):
-        session = requests.Session()
+    def get_requests_session(self, authorization):
+        session = RequestsSessionAllowRedirectWithAuth()
         session.verify = self._cert
+        session.auth = authorization
+        LOGGER.info( "Set the authorization to the session: {}".format(session.auth))
         if self._proxy.is_configured():
             session.proxies = {
                 'http': self._proxy.address(with_full_uri=False),
