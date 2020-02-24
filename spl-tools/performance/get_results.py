@@ -157,7 +157,7 @@ def get_results_for_machine(hostname):
     perf_index = "perf-custom"
     es.indices.refresh(index=perf_index)
 
-    res = es.search(index=perf_index, body={"query": {"match": {"hostname": hostname}}, "sort": [{"start": {"order": "desc"}}]}, size=1000)
+    res = es.search(index=perf_index, body={"query": {"match": {"hostname": hostname}}, "sort": [{"start": {"order": "desc"}}]}, size=100)
 
     task_names = []
     prod_versions = []
