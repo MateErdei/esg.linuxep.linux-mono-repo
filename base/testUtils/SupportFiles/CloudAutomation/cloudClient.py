@@ -1998,13 +1998,6 @@ class CloudClient(object):
         response = self.retry_request_url(request)
         results = json.loads(response)
 
-        # Example response:
-        # {"executionStatus":null,
-        # "requestParams":{"executionId":"bc0a205e-60b6-4eef-afba-0f7845c97c87","sort":[]},
-        # "pages":{"current":1,"items":null,"total":null,"size":50,"maxSize":500,"prevLink":"","nextLink":""},
-        # "itemMetaData":[{"name":"epId","type":"TEXT","hideInUi":true},{"name":"epName","type":"TEXT","hideInUi":false},{"name":"hostname","type":"TEXT","hideInUi":false},{"name":"local_hostname","type":"TEXT","hideInUi":false}],
-        # "items":[["d45f4823-3f17-4049-a4e7-9941a8cec6b6","sspl-edr-perform1","sspl-edr-perform1.eng.sophos","sspl-edr-perform1.eng.sophos"]]}
-
         if "items" in results:
             return results["items"]
         return None
