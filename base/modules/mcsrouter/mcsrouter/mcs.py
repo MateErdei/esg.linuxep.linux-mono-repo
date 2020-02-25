@@ -716,8 +716,9 @@ class MCS:
 
                 # Avoid busy looping and negative timeouts
                 timeout = max(0.5, timeout)
-                # flush pipe so that even during backoff the pip is cleared very four hours at miniumum
+
                 if error_count > 0:
+                    # if during backoff flush pipe so that the pipe is cleared every four hours at miniumum
                     while True:
                         try:
                             if os.read(
