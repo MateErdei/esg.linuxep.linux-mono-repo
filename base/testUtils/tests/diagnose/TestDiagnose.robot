@@ -7,8 +7,6 @@ Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     Process
 Library     OperatingSystem
 
-Resource    ../management_agent-audit_plugin/AuditPluginResources.robot
-Resource    ../management_agent-event_processor/EventProcessorResources.robot
 Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../edr_plugin/EDRResources.robot
 Resource    DiagnoseResources.robot
@@ -24,7 +22,7 @@ Default Tags  DIAGNOSE
 *** Test Cases ***
 
 Diagnose Tool Gathers Logs When Run From Installation
-    [Tags]  EVENT_PLUGIN  AUDIT_PLUGIN  DIAGNOSE
+    [Tags]  DIAGNOSE  TAP_TESTS  SMOKE
     Install Audit Plugin Directly
     Install EventProcessor Plugin Directly
 
@@ -32,7 +30,7 @@ Diagnose Tool Gathers Logs When Run From Installation
 
     Create Directory  ${TAR_FILE_DIRECTORY}
     ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
-    LogUtils.Dump Log    /tmp/diagnose.log
+
     Should Be Equal As Integers   ${retcode}  0
 
     # Check diagnose tar created
@@ -50,7 +48,6 @@ Diagnose Tool Gathers Logs When Run From Installation
     Should Be Equal As Strings   ${result.rc}  0
 
     Check Diagnose Base Output
-    Check Diagnose Output For Plugin logs
     Check Diagnose Output For System Command Files
     Check Diagnose Output For System Files
 
@@ -60,7 +57,7 @@ Diagnose Tool Gathers Logs When Run From Installation
 
 
 Diagnose Tool Gathers MDR Logs When Run From Installation
-    [Tags]  DIAGNOSE  SMOKE  MDR_PLUGIN  TAP_TESTS
+    [Tags]  DIAGNOSE  MDR_PLUGIN
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
     Create Directory  ${TAR_FILE_DIRECTORY}
@@ -95,7 +92,7 @@ Diagnose Tool Gathers MDR Logs When Run From Installation
 
 
 Diagnose Tool Gathers EDR Logs When Run From Installation
-    [Tags]  DIAGNOSE  SMOKE  MDR_PLUGIN  TAP_TESTS
+    [Tags]  DIAGNOSE  EDR_PLUGIN
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
     Create Directory  ${TAR_FILE_DIRECTORY}
