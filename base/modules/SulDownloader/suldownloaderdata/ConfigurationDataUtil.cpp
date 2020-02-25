@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include "Logger.h"
 
 #include <algorithm>
 
@@ -17,10 +18,13 @@ namespace SulDownloader
     {
         bool ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(const ConfigurationData configurationData,
                                                                          const ConfigurationData previousConfigurationData,
-                                                                         bool onlyCompareSubscriptionsAndFeatures) {
+                                                                         bool onlyCompareSubscriptionsAndFeatures)
+        {
+            LOGDEBUG("Checking if should force install on all products");
             if (!previousConfigurationData.isVerified())
             {
                 // if Configuration data is not verified no previous configuration data provided
+                LOGDEBUG("Previous update configuration data has not been set or verified, (force update = false)");
                 return false;
             }
 
@@ -29,6 +33,7 @@ namespace SulDownloader
                  previousConfigurationData.getProductsSubscription().size()) ||
                 (configurationData.getFeatures().size() != previousConfigurationData.getFeatures().size()))
             {
+                LOGDEBUG("Found new subscription or features in update configuration, (force update = true).");
                 return true;
             }
 
@@ -63,6 +68,7 @@ namespace SulDownloader
 
             if (newSortedRigidNames != previousSortedRigidNames)
             {
+                LOGDEBUG("Feature list in update configuration has changed, (force update = true).");
                 return true;
             }
 
@@ -71,6 +77,7 @@ namespace SulDownloader
 
             if (newSortedFeatures != previousSortedFeatures)
             {
+                LOGDEBUG("Subscription list in update configuration has changed, (force update = true).");
                 return true;
             }
 
@@ -86,11 +93,13 @@ namespace SulDownloader
                 {
                     if (!fileSystem->exists(rigidName + ".sh"))
                     {
+                        LOGDEBUG("Component has been previously removed (force update = true)");
                         return true;
                     }
                 }
             }
 
+            LOGDEBUG("No difference between new update config and previous update config (force update = false)");
             return false;
         }
     }

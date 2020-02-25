@@ -489,7 +489,9 @@ namespace UpdateSchedulerImpl
         std::string previousConfigSettings;
         SulDownloader::suldownloaderdata::ConfigurationData previousConfigurationData;
 
-        if(Common::FileSystem::fileSystem()->isFile(previousConfigFilePath)) {
+        if(Common::FileSystem::fileSystem()->isFile(previousConfigFilePath))
+        {
+            LOGDEBUG("Previous update configuration file found.");
             previousConfigSettings = Common::FileSystem::fileSystem()->readFile(previousConfigFilePath);
 
             try
