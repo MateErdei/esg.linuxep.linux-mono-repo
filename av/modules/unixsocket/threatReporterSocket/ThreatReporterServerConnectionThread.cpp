@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ThreatReporterServerConnectionThread.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
-#include "ScanRequest.capnp.h"
+#include "ThreatDetected.capnp.h"
 
 #include "datatypes/Print.h"
 #include <capnp/serialize.h>
@@ -51,7 +51,7 @@ void unixsocket::ThreatReporterServerConnectionThread::notifyTerminate()
 //}
 
 /**
- * Parse a request.
+ * Parse a detection.
  *
  * Placed in a function to ensure the MessageReader and view are deleted before the buffer might become invalid.
  *
@@ -59,15 +59,15 @@ void unixsocket::ThreatReporterServerConnectionThread::notifyTerminate()
  * @param bytes_read
  * @return
  */
-static std::string parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
+static  Sophos::ssplav::ThreatDetected::Reader parseDetection(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
 {
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
     capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::FileScanRequest::Reader requestReader =
-            messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
+    Sophos::ssplav::ThreatDetected::Reader requestReader =
+            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    return requestReader.getPathname();
+    return requestReader;
 }
 
 void unixsocket::ThreatReporterServerConnectionThread::run()
@@ -110,10 +110,14 @@ void unixsocket::ThreatReporterServerConnectionThread::run()
         }
 
         PRINT("Read capn of " << bytes_read);
-        std::string pathname = parseRequest(proto_buffer, bytes_read);
-
+        Sophos::ssplav::ThreatDetected::Reader detectionReader = parseDetection(proto_buffer, bytes_read);
         // TO DO WRITE SERVER FUNCTIONALITY
+        // call an AVP manager method/callback that generates the XML
+        // pass the arguments needed to generate the XML in the callback/method
+        // so that the AVP wont have to deal with capnp objects
 
-        // TO DO HANDLE ANY ERRORS
+        // do that so I can build
+        detectionReader.getUserID();
+        // TO DO: HANDLE ANY SOCKET ERRORS
     }
 }
