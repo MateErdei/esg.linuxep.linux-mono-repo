@@ -175,3 +175,25 @@ Install Base And MTR Then Migrate To EDR
     ...  30 secs
     ...  5 secs
     ...  Should Not Exist  ${MTR_DIR}
+
+Install Base And EDR Then Migrate To BASE
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
+    Install EDR
+
+    # Uninstall EDR
+    Send ALC Policy And Prepare For Upgrade  ${BaseVUTPolicy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  should Not exist  ${EDR_DIR}
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains    Uninstalling plugin ServerProtectionLinux-Plugin-EDR since it was removed from warehouse
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  EDR Plugin Is Not Running

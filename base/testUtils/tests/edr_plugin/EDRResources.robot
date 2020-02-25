@@ -18,6 +18,10 @@ EDR Plugin Is Running
     ${result} =    Run Process  pgrep  edr
     Should Be Equal As Integers    ${result.rc}    0
 
+EDR Plugin Is Not Running
+    ${result} =    Run Process  pgrep  edr
+    Should Not Be Equal As Integers    ${result.rc}    0   EDR PLugin still running
+
 Install EDR
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
     Log File  /etc/hosts
