@@ -39,7 +39,7 @@ warehouses:
                     -   base-version: ""
                         tag: RECOMMENDED
                     -   base-version: ""
-                        tag: RECOMMENDED
+                        tag: BETA
                 subcomponents:
                     ssplmdr-control-component:
                     ssplmdr-dbos-component:
