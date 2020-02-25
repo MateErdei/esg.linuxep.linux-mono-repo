@@ -100,8 +100,11 @@ Diagnose Tool Gathers EDR Logs When Run From Installation
     Wait Until Keyword Succeeds
         ...   10 secs
         ...   1 secs
-        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-
+        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
+    Wait Until Keyword Succeeds
+        ...   10 secs
+        ...   1 secs
+        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.results.log
     ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
     Should Be Equal As Integers   ${retcode}  0
 
