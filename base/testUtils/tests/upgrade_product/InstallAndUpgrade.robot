@@ -41,7 +41,6 @@ ${base_removed_files_manifest}              ${SOPHOS_INSTALL}/tmp/ServerProtecti
 ${mtr_removed_files_manifest}               ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
 ${base_files_to_delete}                     ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Base/filestodelete.dat
 ${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Plugin-MDR/filestodelete.dat
-${master_warehouse_env_override}            BASE_AND_MTR_VUT
 
 *** Test Cases ***
 
