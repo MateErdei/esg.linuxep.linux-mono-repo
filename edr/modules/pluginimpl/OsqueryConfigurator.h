@@ -14,6 +14,7 @@ namespace Plugin {
         void prepareSystemForPlugin();
 
     private:
+        bool retrieveDisableAuditFlagFromSettingsFile() const;
         void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection);
         void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
     };

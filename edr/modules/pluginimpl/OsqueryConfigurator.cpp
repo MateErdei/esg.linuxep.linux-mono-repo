@@ -108,6 +108,15 @@ namespace Plugin{
 
     void OsqueryConfigurator::prepareSystemForPlugin()
     {
+        bool disableAuditD = retrieveDisableAuditFlagFromSettingsFile();
+
+        SystemConfigurator::setupOSForAudit(disableAuditD);
+
+        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditD);
+        regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
+    }
+
+    bool OsqueryConfigurator::retrieveDisableAuditFlagFromSettingsFile() const {
         auto fileSystem = Common::FileSystem::fileSystem();
         bool disableAuditD = true;
 
@@ -130,10 +139,6 @@ namespace Plugin{
                     "Could not find EDR Plugin config file: " << Plugin::edrConfigFilePath()
                                                               << ", using disable_auditd default value");
         }
-
-        SystemConfigurator::setupOSForAudit(disableAuditD);
-
-        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditD);
-        regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
+        return disableAuditD;
     }
 }
