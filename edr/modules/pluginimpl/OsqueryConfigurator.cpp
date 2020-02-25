@@ -9,7 +9,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/Process/IProcess.h>
+#include <Common/XmlUtilities/AttributesMap.h>
 
 #include <thread>
 
@@ -141,4 +141,20 @@ namespace Plugin{
         }
         return disableAuditD;
     }
+
+    bool OsqueryConfigurator::ALCContainsMTRFeature(const std::string & alcPolicyXMl) {
+        using namespace Common::XmlUtilities;
+        try {
+            AttributesMap attributesMap = parseXml(alcPolicyXMl);
+            const std::string expectedMTRFeaturePath{"AUConfigurations/Features/Feature#MDR"};
+            Attributes attributes = attributesMap.lookup(expectedMTRFeaturePath);
+            return !attributes.empty();
+        }
+        catch (XmlUtilitiesException &ex) {
+            std::string reason = ex.what();
+            LOGWARN("Failed to parse ALC policy: " << reason);
+        }
+        return false;
+    }
+
 }

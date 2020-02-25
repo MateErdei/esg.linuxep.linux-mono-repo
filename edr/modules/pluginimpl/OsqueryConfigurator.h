@@ -11,6 +11,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 namespace Plugin {
     class OsqueryConfigurator {
     public:
+        static bool ALCContainsMTRFeature(const std::string & alcPolicyXMl);
         void prepareSystemForPlugin();
 
     private:
