@@ -10,6 +10,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "PluginCallback.h"
 #include "QueueTask.h"
 #include "OsqueryDataManager.h"
+#include "OsqueryConfigurator.h"
 #include <livequery/IQueryProcessor.h>
 
 #include <livequery/IResponseDispatcher.h>
@@ -49,20 +50,10 @@ namespace Plugin
         void stopOsquery();
         void cleanUpOldOsqueryFiles();
         void databasePurge();
-        void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection);
-        void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
-        bool checkIfServiceActive(const std::string& serviceName);
-        void stopAndDisableSystemService(const std::string& serviceName);
-        void initialiseTelemetry();
-        void prepareSystemForPlugin();
-        std::tuple<int, std::string> runSystemCtlCommand(const std::string& command, const std::string& target);
-        bool checkIfJournaldLinkedToAuditSubsystem();
-        void maskJournald();
 
-        void breakLinkBetweenJournaldAndAuditSubsystem();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
-
         unsigned int m_timesOsqueryProcessFailedToStart;
+        OsqueryConfigurator m_osqueryConfigurator;
     };
 } // namespace Plugin
