@@ -12,11 +12,24 @@ namespace Plugin {
     class OsqueryConfigurator {
     public:
         static bool ALCContainsMTRFeature(const std::string & alcPolicyXMl);
+
+        bool enableAuditDataCollection() const;
+
+        void loadALCPolicy(const std::string & alcPolicy);
         void prepareSystemForPlugin();
 
-    private:
-        bool retrieveDisableAuditFlagFromSettingsFile() const;
+    protected:
+        bool MTRBoundEnabled() const;
+        bool disableAuditFlag() const;
         void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection);
+
+    private:
+        // make it virtual to allow for not using it in tests as they require file access.
+        virtual bool retrieveDisableAuditFlagFromSettingsFile() const;
+
+
         void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
+
+        bool m_mtrboundEnabled = true;
     };
 }

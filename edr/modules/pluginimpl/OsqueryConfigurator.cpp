@@ -108,7 +108,7 @@ namespace Plugin{
 
     void OsqueryConfigurator::prepareSystemForPlugin()
     {
-        bool disableAuditD = retrieveDisableAuditFlagFromSettingsFile();
+        bool disableAuditD =  !enableAuditDataCollection();
 
         SystemConfigurator::setupOSForAudit(disableAuditD);
 
@@ -155,6 +155,30 @@ namespace Plugin{
             LOGWARN("Failed to parse ALC policy: " << reason);
         }
         return false;
+    }
+
+    bool OsqueryConfigurator::enableAuditDataCollection() const {
+        return !disableAuditFlag() and !MTRBoundEnabled();
+    }
+
+    void OsqueryConfigurator::loadALCPolicy(const std::string &alcPolicy) {
+        m_mtrboundEnabled = ALCContainsMTRFeature(alcPolicy);
+        if (m_mtrboundEnabled)
+        {
+            LOGINFO("Detected MTR is enabled");
+        }
+        else
+        {
+            LOGINFO("No MTR Detected");
+        }
+    }
+
+    bool OsqueryConfigurator::MTRBoundEnabled() const {
+        return m_mtrboundEnabled;
+    }
+
+    bool OsqueryConfigurator::disableAuditFlag() const {
+        return retrieveDisableAuditFlagFromSettingsFile();
     }
 
 }
