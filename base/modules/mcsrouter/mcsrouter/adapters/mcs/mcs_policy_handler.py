@@ -358,27 +358,26 @@ class MCSPolicyHandler:
         cleanup_proxy()
 
         proxies = get_sub_element(policy_dom=dom, element="proxies", sub_element="proxy")
-        if not proxies:
+        if proxies:
+            if len(proxies) > 1:
+                LOGGER.warning("Multiple MCS proxies in MCS policy")
+
+            LOGGER.debug("MCS policy proxy = %s", proxies[0])
+            self.__m_policy_config.set("mcs_policy_proxy", proxies[0])
+        else:
             LOGGER.error("MCS Policy has no proxy nodes in proxies element")
             return False
 
-        if len(proxies) > 1:
-            LOGGER.warning("Multiple MCS proxies in MCS policy")
-
-        LOGGER.debug("MCS policy proxy = %s", proxies[0])
-        self.__m_policy_config.set("mcs_policy_proxy", proxies[0])
-
         credentials = get_sub_element(policy_dom=dom, element="proxyCredentials", sub_element="credentials")
-        if not credentials:
-            return False
+        if credentials:
+            if len(credentials) > 1:
+                LOGGER.warning("Multiple MCS proxy credentials in MCS policy")
 
-        if len(credentials) > 1:
-            LOGGER.warning("Multiple MCS proxy credentials in MCS policy")
+            LOGGER.debug("MCS policy proxy credential = %s", credentials[0])
+            self.__m_policy_config.set(
+                "mcs_policy_proxy_credentials",
+                credentials[0])
 
-        LOGGER.debug("MCS policy proxy credential = %s", credentials[0])
-        self.__m_policy_config.set(
-            "mcs_policy_proxy_credentials",
-            credentials[0])
         return True
 
     def __apply_policy(self, policy_age, save):
