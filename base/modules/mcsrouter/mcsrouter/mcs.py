@@ -134,7 +134,8 @@ class CommandCheckInterval:
         """
         if not self.__use_fallback_polling_interval:
             if val is None:
-                val = 0
+                # this is the minimum we should ever set the command poll to
+                val = 5
             val = max(val, self.__get_minimum())
             val = min(val, self.__get_maximum())
             self.__m_command_check_interval = val
