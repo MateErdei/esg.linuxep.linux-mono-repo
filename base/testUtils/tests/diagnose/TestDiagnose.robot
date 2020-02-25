@@ -6,6 +6,7 @@ Library     ${LIBS_DIRECTORY}/OSUtils.py
 
 Library     Process
 Library     OperatingSystem
+Library     Collections
 
 Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../edr_plugin/EDRResources.robot
@@ -23,8 +24,6 @@ Default Tags  DIAGNOSE
 
 Diagnose Tool Gathers Logs When Run From Installation
     [Tags]  DIAGNOSE  TAP_TESTS  SMOKE
-    Install Audit Plugin Directly
-    Install EventProcessor Plugin Directly
 
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
