@@ -599,7 +599,7 @@ class MCS:
                             response_time), response_body)
 
                     # send statuses, events and responses only if not in error state
-                    if not error_count > 0:
+                    if error_count == 0:
 
                         if self.__m_status_timer.send_status():
                             status_event = status_event_module.StatusEvent()
@@ -716,16 +716,18 @@ class MCS:
 
                 # Avoid busy looping and negative timeouts
                 timeout = max(0.5, timeout)
-                # flush pipe so that even during backff the pip is cleared very four hours at miniumum
-                while True:
-                    try:
-                        if os.read(
-                                notify_pipe_file_descriptor,
-                                1024) is None:
-                            break
-                    except OSError as err:
-                        if err.errno == errno.EAGAIN or err.errno == errno.EWOULDBLOCK:
-                            break
+                # flush pipe so that even during backoff the pip is cleared very four hours at miniumum
+                if error_count > 0:
+                    while True:
+                        try:
+                            if os.read(
+                                    notify_pipe_file_descriptor,
+                                    1024) is None:
+                                break
+                        except OSError as err:
+                            if err.errno == errno.EAGAIN or err.errno == errno.EWOULDBLOCK:
+                                break
+
                 try:
                     before = time.time()
                     # pylint: disable=unused-variable

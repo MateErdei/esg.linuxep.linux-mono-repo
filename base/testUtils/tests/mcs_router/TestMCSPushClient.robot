@@ -260,13 +260,12 @@ Verify MCSRouter Disconnect Push Client When It Loses Its own Connection To MCS 
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Mark Mcsrouter Log
 
-    # This will trigger a back-off and then re-try proxies
-    Send Command From Fake Cloud    error
+    Shutdown MCS Push Server
     #    Wait EndPoint Report Broken Connection To Central
     Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  10 secs
-    ...  Check Marked Mcsrouter Log Contains   HTTP Service Unavailable (503): HTTP Service Unavailable
+    ...  20 secs
+    ...  5 secs
+    ...  Check Marked Mcsrouter Log Contains   Failed to establish a new connection: [Errno 111] Connection refused'))
 
     Wait Until Keyword Succeeds
     ...   30s
@@ -281,6 +280,16 @@ Verify MCSRouter Disconnect Push Client When It Loses Its own Connection To MCS 
     ...  Check MCS Router Log Contains In Order
     ...        Set command poll interval to 20
     ...        Set command poll interval to 5
+
+    Start MCS Push Server
+
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check MCS Router Log Contains In Order
+    ...        Set command poll interval to 20
+    ...        Set command poll interval to 5
+    ...        Set command poll interval to 20
 
 Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trigger An Immediate Command Poll
     [Documentation]  From https://wiki.sophos.net/display/PP/MCS+Push+Endpoint+Requirements
