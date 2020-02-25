@@ -344,23 +344,22 @@ class MCSPolicyHandler:
         """
         __apply_proxy_options
         """
-        proxies_node = self.__get_element(dom, "proxies")
-
         def cleanup_proxy():
             self.__m_policy_config.remove("mcs_policy_proxy")
             self.__m_policy_config.remove("mcs_policy_proxy_credentials")
 
-        if proxies_node is None:
-            ## Remove any existing proxy configuration
-            cleanup_proxy()
-            return False
+        def get_sub_element(policy_dom, element, sub_element):
+            proxies_node = self.__get_element(policy_dom, element)
+            if proxies_node:
+                return self.__get_non_empty_sub_elements(proxies_node, sub_element)
+            return None
 
-        proxies = self.__get_non_empty_sub_elements(proxies_node, "proxy")
+        ## Remove any existing proxy configuration
+        cleanup_proxy()
 
+        proxies = get_sub_element(policy_dom=dom, element="proxies", sub_element="proxy")
         if not proxies:
             LOGGER.error("MCS Policy has no proxy nodes in proxies element")
-            ## Remove any existing proxy configuration
-            cleanup_proxy()
             return False
 
         if len(proxies) > 1:
@@ -369,13 +368,7 @@ class MCSPolicyHandler:
         LOGGER.debug("MCS policy proxy = %s", proxies[0])
         self.__m_policy_config.set("mcs_policy_proxy", proxies[0])
 
-        credentials_node = self.__get_element(dom, "proxyCredentials")
-        if credentials_node is None:
-            return False
-
-        credentials = self.__get_non_empty_sub_elements(
-            credentials_node, "credentials")
-
+        credentials = get_sub_element(policy_dom=dom, element="proxyCredentials", sub_element="credentials")
         if not credentials:
             return False
 
