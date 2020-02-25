@@ -282,6 +282,56 @@ class LogUtils(object):
         with open(log_location, "w") as log:
             log.write(contents)
 
+    def mcs_router_log(self):
+        return os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
+
+    def dump_mcsrouter_log(self):
+        mcsrouter_log = self.mcs_router_log()
+        self.dump_log(mcsrouter_log)
+
+    def check_mcsrouter_log_contains_in_order(self, *args):
+        log_contains_in_order(self.mcs_router_log(), "MCS Router", args)
+
+    def mark_mcsrouter_log(self):
+        mcsrouter_log = self.mcs_router_log()
+        contents = get_log_contents(mcsrouter_log)
+        self.marked_mcsrouter_logs = len(contents)
+
+    def check_marked_mcsrouter_log_contains(self, string_to_contain):
+        mcsrouter_log = self.mcs_router_log()
+        contents = get_log_contents(mcsrouter_log)
+
+        contents = contents[self.marked_mcsrouter_logs:]
+
+        if string_to_contain not in contents:
+            self.dump_mcsrouter_log()
+            raise AssertionError("MCS Router log did not contain: " + string_to_contain)
+
+    def check_marked_mcsrouter_log_contains_string_n_times(self, string_to_contain, expected_occurence):
+        mcsrouter_log = os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
+        contents = get_log_contents(mcsrouter_log)
+
+        contents = contents[self.marked_mcsrouter_logs:]
+
+        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain)
+        if num_occurences != int(expected_occurence):
+            raise AssertionError(
+                "McsRouter Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain,
+                                                                                              num_occurences,
+                                                                                              expected_occurence))
+    def check_mcsrouter_log_contains(self, string_to_contain):
+        mcsrouter_log = self.mcs_router_log()
+        self.check_log_contains(string_to_contain, mcsrouter_log, "MCS Router")
+        logger.info(mcsrouter_log)
+
+    def check_mcsrouter_log_does_not_contain(self, string_to_not_contain):
+        mcsrouter_log = self.mcs_router_log()
+        self.check_log_does_not_contain(string_to_not_contain, mcsrouter_log, "MCS Router")
+
+    def check_mcsrouter_does_not_contain_critical_exceptions(self):
+        if os.path.exists(self.mcs_router_log()):
+            self.check_log_does_not_contain("Caught exception at top-level;", self.mcs_router_log(), "MCS router")
+
     def dump_thininstaller_log(self):
         self.dump_log(self.thin_install_log)
 
@@ -320,15 +370,9 @@ class LogUtils(object):
     def check_suldownloader_log_contains_in_order(self, *args):
         log_contains_in_order(self.suldownloader_log, "Suldownloader", args)
 
-    def check_mcsrouter_log_contains_in_order(self, *args):
-        log_contains_in_order(self.mcs_router_log(), "MCS Router", args)
 
     def check_log_contains_in_order(self, log_path, *args):
         log_contains_in_order(log_path, log_path, args)
-
-    def check_mcsrouter_does_not_contain_critical_exceptions(self):
-        if os.path.exists(self.mcs_router_log()):
-            self.check_log_does_not_contain("Caught exception at top-level;", self.mcs_router_log(), "MCS router")
 
     def dump_warehouse_log(self):
         server_log = os.path.join(self.tmp_path, "warehouseGenerator.log")
@@ -360,9 +404,6 @@ class LogUtils(object):
     def check_mdr_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.mdr_log, "MDR")
 
-    def mcs_router_log(self):
-        return os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
-
     def mcs_envelope_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "mcs_envelope.log")
 
@@ -371,10 +412,6 @@ class LogUtils(object):
 
     def managementagent_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "sophos_managementagent.log")
-
-    def dump_mcsrouter_log(self):
-        mcsrouter_log = self.mcs_router_log()
-        self.dump_log(mcsrouter_log)
 
     def dump_mcs_envelope_log(self):
         mcs_envelope_log = self.mcs_envelope_log()
@@ -392,11 +429,6 @@ class LogUtils(object):
         mcs_envelope_log = self.mcs_envelope_log()
         contents = get_log_contents(mcs_envelope_log)
         self.marked_mcs_envelope_logs = len(contents)
-
-    def mark_mcsrouter_log(self):
-        mcsrouter_log = self.mcs_router_log()
-        contents = get_log_contents(mcsrouter_log)
-        self.marked_mcsrouter_logs = len(contents)
 
     def mark_watchdog_log(self):
         watchdog_log = self.watchdog_log()
@@ -418,16 +450,6 @@ class LogUtils(object):
             self.dump_mcs_envelope_log()
             raise AssertionError("MCS Envelope log did not contain: " + string_to_contain)
 
-    def check_marked_mcsrouter_log_contains(self, string_to_contain):
-        mcsrouter_log = self.mcs_router_log()
-        contents = get_log_contents(mcsrouter_log)
-
-        contents = contents[self.marked_mcsrouter_logs:]
-
-        if string_to_contain not in contents:
-            self.dump_mcsrouter_log()
-            raise AssertionError("MCS Router log did not contain: " + string_to_contain)
-
     def check_marked_watchdog_log_contains(self, string_to_contain):
         watchdog_log = self.watchdog_log()
         contents = get_log_contents(watchdog_log)
@@ -447,19 +469,6 @@ class LogUtils(object):
         if string_to_contain not in contents:
             self.dump_managementagent_log()
             raise AssertionError("Marked managementagent log did not contain: " + string_to_contain)
-
-    def check_marked_mcsrouter_log_contains_string_n_times(self, string_to_contain, expected_occurence):
-        mcsrouter_log = os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
-        contents = get_log_contents(mcsrouter_log)
-
-        contents = contents[self.marked_mcsrouter_logs:]
-
-        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain)
-        if num_occurences != int(expected_occurence):
-            raise AssertionError(
-                "McsRouter Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain,
-                                                                                              num_occurences,
-                                                                                              expected_occurence))
 
     def check_log_contains_string_n_times(self, log_path, log_name, string_to_contain, expected_occurence):
         contents = get_log_contents(log_path)
@@ -489,14 +498,7 @@ class LogUtils(object):
         self.check_log_contains(string_to_contain, updatescheduler_log, "UpdateScheduler")
         logger.info(updatescheduler_log)
 
-    def check_mcsrouter_log_contains(self, string_to_contain):
-        mcsrouter_log = self.mcs_router_log()
-        self.check_log_contains(string_to_contain, mcsrouter_log, "MCS Router")
-        logger.info(mcsrouter_log)
 
-    def check_mcsrouter_log_does_not_contain(self, string_to_not_contain):
-        mcsrouter_log = self.mcs_router_log()
-        self.check_log_does_not_contain(string_to_not_contain, mcsrouter_log, "MCS Router")
 
     def check_watchdog_log_does_not_contain(self, string_to_not_contain):
         watchdog_log = self.watchdog_log()
