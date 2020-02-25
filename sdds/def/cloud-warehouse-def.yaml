@@ -14,6 +14,8 @@ warehouses:
                 release-tags:
                     -   base-version: ""
                         tag: RECOMMENDED
+                    -   base-version: ""
+                        tag: BETA
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
@@ -23,19 +25,36 @@ warehouses:
                 release-tags:
                     - base-version: ""
                       tag: RECOMMENDED
-            sspl-av:
+                    - base-version: ""
+                      tag: BETA
+    ssplmdr-wh:
+        components:
+            ssplmdr-suite:
                 import:
-                    description: "Sophos Server Protection for Linux Anti-Virus"
-                    version: "11.0.0"
-                features: [AV]
+                    description: "Sophos Server Protection for Linux MTR"
+                    version: "1.0.0"
+                features: [MDR]
                 platforms: []
                 release-tags:
-                    - base-version: ""
-                      tag: RECOMMENDED
+                    -   base-version: ""
+                        tag: RECOMMENDED
+                    -   base-version: ""
+                        tag: RECOMMENDED
+                subcomponents:
+                    ssplmdr-control-component:
+                    ssplmdr-dbos-component:
+                    ssplmdr-osquery-component:
 
 customer-files:
     -   warehouse: sspl-wh
-        user: av_user_vut
+        user: base_user_vut
         password: password
         split-warehouses:
             - warehouse: sspl-wh
+
+    -   warehouse: sspl-wh
+        user: mtr_user_vut
+        password: password
+        split-warehouses:
+            - warehouse: sspl-wh
+            - warehouse: ssplmdr-wh
