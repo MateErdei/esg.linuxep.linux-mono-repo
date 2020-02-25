@@ -239,6 +239,7 @@ namespace UpdateSchedulerImpl
                     settingsHolder.configurationData,
                     previousConfigurationData))
             {
+                LOGINFO("Detected product configuration change, forcing update.");
                 m_pendingUpdate = true;
             }
 
