@@ -141,7 +141,7 @@ class CommandCheckInterval:
             LOGGER.debug("Set command poll interval to {}".format(val))
         else:
             self.__m_command_check_interval = self.__get_push_poll_interval()
-            LOGGER.debug("Set command poll interval to {}".format(self.__m_command_check_interval))
+            LOGGER.debug("Using push poll interval. Set command poll interval to {}".format(self.__m_command_check_interval))
         return self.__m_command_check_interval
 
     def increment(self, val=None):

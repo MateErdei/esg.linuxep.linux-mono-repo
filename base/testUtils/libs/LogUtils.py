@@ -1,6 +1,7 @@
 import os
 import glob
 import subprocess
+import dateutil.parser
 from robot.api import logger
 import robot.libraries.BuiltIn
 
@@ -266,6 +267,32 @@ class LogUtils(object):
             raise AssertionError(
                 "The file: '{}', did not have any lines match the regex: '{}'".format(file_path, reg_expression_str))
 
+    def get_log_line(self,string_to_contain, path_to_log):
+        if not (os.path.isfile(path_to_log)):
+            raise AssertionError("Log file {} does not exist ".format(path_to_log))
+
+        with open(path_to_log, "r") as log:
+            contents = log.readlines()
+
+        for line in contents:
+            if string_to_contain in line:
+                return line
+
+        raise AssertionError("Log at \"{}\" does not contain: {}".format(path_to_log, string_to_contain))
+
+    def get_timestamp_of_log_line(self,string_to_contain, path_to_log):
+        line = self.get_log_line(string_to_contain, path_to_log)
+        timestamp = line.split("[")[1].split("]")[0]
+
+        return dateutil.parser.isoparse(timestamp)
+
+    def get_time_difference_between_two_log_lines(self, string_to_contain1, string_to_contain2, path_to_log):
+        timestamp1 = self.get_timestamp_of_log_line(string_to_contain1, path_to_log)
+        timestamp2 = self.get_timestamp_of_log_line(string_to_contain2, path_to_log)
+
+        difference = timestamp2 - timestamp1
+
+        return difference.total_seconds()
 
     def mark_expected_error_in_log(self, log_location, error_message):
         error_string = "ERROR"

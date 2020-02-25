@@ -45,8 +45,12 @@ Test Connection Retry Backoff Period Is Set Correctly
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
-    start_system_watchdog
-    stop_local_cloud_server
+    Start System Watchdog
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Default Policies Exist
+    Stop Local Cloud Server
 
     Start Update Scheduler
 
@@ -81,3 +85,9 @@ Test Connection Retry Backoff Period Is Set Correctly
     ...   waiting up to 20.000000s after 1 failures
     ...   waiting up to 40.000000s after 2 failures
     ...   waiting up to 80.000000s after 3 failures
+
+    ${timestamp1} =  Get Time Difference Between Two Log Lines   waiting up to 20.000000s after 1 failures   waiting up to 40.000000s after 2 failures     ${MCSRouterLog}
+    Run Keyword Unless  10 < ${timestamp1} < 20  Fail
+
+    ${timestamp2} =  Get Time Difference Between Two Log Lines   waiting up to 40.000000s after 2 failures   waiting up to 80.000000s after 3 failures     ${MCSRouterLog}
+    Run Keyword Unless  20 < ${timestamp2} < 40  Fail
