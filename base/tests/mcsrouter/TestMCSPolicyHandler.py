@@ -126,8 +126,7 @@ MCS_POLICY_NO_PROXY = """<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
     <servers>
       <server>https://mcs2-cloudstation.sophos.com/sophos/management/ep</server>
     </servers>
-    <proxies>
-    </proxies>
+    <proxies/>
     <messageRelays/>
     <useSystemProxy>true</useSystemProxy>
     <useAutomaticProxy>true</useAutomaticProxy>
@@ -141,7 +140,6 @@ MCS_POLICY_NO_PROXY = """<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
       <credentials>CredsPart1/CredsPart2=</credentials>
     </presignedUrlService>
     <pushServers>
-      <pushServer>https://mcs-push-server/ps</pushServer>
     </pushServers>
     <pushPingTimeout>60</pushPingTimeout>
     <pushFallbackPollInterval>90</pushFallbackPollInterval>
@@ -159,6 +157,7 @@ class TestMCSPolicyHandler(unittest.TestCase):
 
         handler.process(MCS_POLICY_WITH_PROXY_AND_CREDS)
 
+        #verify credentials are populated at the beginning
         self.assertEqual(policy_config.get_default("pushFallbackPollInterval",None),'90')
         self.assertEqual(policy_config.get_default("COMMAND_CHECK_INTERVAL_MINIMUM",None),'20')
         self.assertEqual(policy_config.get_default("COMMAND_CHECK_INTERVAL_MAXIMUM",None),'20')
@@ -183,7 +182,6 @@ class TestMCSPolicyHandler(unittest.TestCase):
 
         handler.process(MCS_POLICY_WITH_PROXY_AND_CREDS)
 
-        #verify credentials are populated at the beginning
         self.assertEqual(policy_config.get_default("mcs_policy_proxy",None),"http://192.168.36.37:3129")
         self.assertEqual(policy_config.get_default("mcs_policy_proxy_credentials",None),"Creds=part1/Creds=part2")
 
@@ -194,7 +192,7 @@ class TestMCSPolicyHandler(unittest.TestCase):
         self.assertEqual(policy_config.get_default("mcs_policy_proxy",None),"http://192.168.36.37:3129")
         self.assertEqual(policy_config.get_default("mcs_policy_proxy_credentials",None),None)
 
-    def test_handler_process_policy_no_proxy_and_no_sub_element_without_exception(self):
+    def test_handler_process_policy_will_remove_any_keys_not_in_new_policy(self):
         policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
         handler = policy_handler.MCSPolicyHandler(
@@ -202,14 +200,14 @@ class TestMCSPolicyHandler(unittest.TestCase):
 
         handler.process(MCS_POLICY_WITH_PROXY_AND_CREDS)
 
-        #verify credentials are populated at the beginning
+        self.assertEqual(policy_config.get_default("pushServer1",None),"https://mcs-push-server/ps")
         self.assertEqual(policy_config.get_default("mcs_policy_proxy",None),"http://192.168.36.37:3129")
         self.assertEqual(policy_config.get_default("mcs_policy_proxy_credentials",None),"Creds=part1/Creds=part2")
 
         handler.process(MCS_POLICY_NO_PROXY)
 
         self.assertEqual(policy_config.get_default("mcs_policy_url1",None),"https://mcs2-cloudstation.sophos.com/sophos/management/ep")
-        self.assertEqual(policy_config.get_default("pushServer1",None),"https://mcs-push-server/ps")
+        self.assertEqual(policy_config.get_default("pushServer1",None), None)
         self.assertEqual(policy_config.get_default("mcs_policy_proxy",None),None)
         self.assertEqual(policy_config.get_default("mcs_policy_proxy_credentials",None),None)
 
