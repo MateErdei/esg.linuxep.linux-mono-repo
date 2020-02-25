@@ -6,8 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SophosThreatDetectorMain.h"
 #include "Logger.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
-#include "unixsocket/ScanningServerSocket.h"
 #include <datatypes/Print.h>
 
 #include <string>

@@ -5,7 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanningClientSocket.h"
-#include "SocketUtils.h"
+#include "unixsocket/SocketUtils.h"
 
 #include "datatypes/Print.h"
 #include "scan_messages/ClientScanRequest.h"
@@ -29,8 +29,6 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket
 {
     m_socket_fd.reset(socket(AF_UNIX, SOCK_STREAM, 0));
     assert(m_socket_fd >= 0);
-
-    const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
 
     struct sockaddr_un addr = {};
 

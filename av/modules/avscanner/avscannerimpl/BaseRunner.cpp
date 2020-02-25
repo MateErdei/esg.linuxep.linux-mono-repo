@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "BaseRunner.h"
 #include "Mounts.h"
 
-#include <unixsocket/ScanningClientSocket.h>
+#include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
 
 using namespace avscanner::avscannerimpl;
 

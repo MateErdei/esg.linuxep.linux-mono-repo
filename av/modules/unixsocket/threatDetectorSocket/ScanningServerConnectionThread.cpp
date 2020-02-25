@@ -5,8 +5,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanningServerConnectionThread.h"
-#include "Logger.h"
-#include "SocketUtils.h"
+#include "unixsocket/Logger.h"
+#include "unixsocket/SocketUtils.h"
 #include "ScanRequest.capnp.h"
 
 #include "datatypes/Print.h"

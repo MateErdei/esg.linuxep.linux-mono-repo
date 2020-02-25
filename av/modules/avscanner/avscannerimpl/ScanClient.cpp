@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanClient.h"
 
-#include "unixsocket/ScanningClientSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Print.h"
 

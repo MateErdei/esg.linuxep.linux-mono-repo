@@ -4,8 +4,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "ScanningServerSocket.h"
-#include "ScanningServerConnectionThread.h"
+#include "BaseServerSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h"
 
 #include <stdexcept>
 
@@ -33,7 +33,7 @@ static void throwIfBadFd(int fd, const std::string& message)
     throw std::runtime_error(message);
 }
 
-unixsocket::ScanningServerSocket::ScanningServerSocket(const std::string& path)
+unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");
@@ -52,8 +52,7 @@ unixsocket::ScanningServerSocket::ScanningServerSocket(const std::string& path)
     ::chmod(path.c_str(), 0777);
 }
 
-
-void unixsocket::ScanningServerSocket::run()
+void unixsocket::BaseServerSocket::run()
 {
     listen(m_socket_fd, 2);
 
@@ -75,12 +74,4 @@ void unixsocket::ScanningServerSocket::run()
 
     m_socket_fd.reset();
 }
-
-bool unixsocket::ScanningServerSocket::handleConnection(int fd)
-{
-    ScanningServerConnectionThread thread(fd);
-    thread.run();
-    return false;
-}
-
 

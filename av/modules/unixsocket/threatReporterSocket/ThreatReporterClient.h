@@ -6,6 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "scan_messages/ThreatDetected.h"
+
 #define AUTO_FD_IMPLICIT_INT
 #include "datatypes/AutoFd.h"
 
@@ -13,19 +15,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace unixsocket
 {
-    class ScanningServerSocket
+    class ThreatReporterClientSocket
     {
     public:
-        ScanningServerSocket(const ScanningServerSocket&) = delete;
-        ScanningServerSocket& operator=(const ScanningServerSocket&) = delete;
-        explicit ScanningServerSocket(const std::string& path);
-
-        void run();
+        ThreatReporterClientSocket& operator=(const ThreatReporterClientSocket&) = delete;
+        ThreatReporterClientSocket(const ThreatReporterClientSocket&) = delete;
+        explicit ThreatReporterClientSocket(const std::string& socket_path);
+        ~ThreatReporterClientSocket() = default;
 
     private:
         datatypes::AutoFd m_socket_fd;
-        bool handleConnection(int fd);
-
     };
 }
-

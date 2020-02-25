@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "NamedScanConfig.h"
 
-#include "unixsocket/IScanningClientSocket.h"
+#include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 #include "datatypes/sophos_filesystem.h"
 
 namespace avscanner::avscannerimpl

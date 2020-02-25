@@ -8,11 +8,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 // Created by Douglas Leeder on 19/12/2019.
 //
 
-#include "unixsocket/ScanningServerSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include <string>
 #include <unistd.h>
 #include <sys/stat.h>
+
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 

@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IMountInfo.h"
 
-#include <unixsocket/IScanningClientSocket.h>
+#include <unixsocket/threatDetectorSocket/IScanningClientSocket.h>
 
 #include <memory>
 

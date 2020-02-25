@@ -1,18 +1,25 @@
-
 add_library(unixsocket SHARED
-        IScanningClientSocket.h
         Logger.cpp
         Logger.h
-        ScanningServerSocket.cpp
-        ScanningServerSocket.h
-        ScanningClientSocket.cpp
-        ScanningClientSocket.h
-        ScanningServerConnectionThread.cpp
-        ScanningServerConnectionThread.h
+        BaseServerSocket.cpp
+        BaseServerSocket.h
         SocketUtils.cpp
         SocketUtils.h
         SocketUtilsImpl.cpp
-        SocketUtilsImpl.h)
+        SocketUtilsImpl.h
+        threatDetectorSocket/ScanningClientSocket.cpp
+        threatDetectorSocket/ScanningClientSocket.h
+        threatDetectorSocket/ScanningServerConnectionThread.cpp
+        threatDetectorSocket/ScanningServerConnectionThread.h
+        threatDetectorSocket/ScanningServerSocket.cpp
+        threatDetectorSocket/ScanningServerSocket.h
+        threatDetectorSocket/IScanningClientSocket.h
+        threatReporterSocket/ThreatReporterServerSocket.cpp
+        threatReporterSocket/ThreatReporterServerSocket.h
+        threatReporterSocket/ThreatReporterServerConnectionThread.cpp
+        threatReporterSocket/ThreatReporterServerConnectionThread.h
+        threatReporterSocket/ThreatReporterClient.cpp
+        threatReporterSocket/ThreatReporterClient.h)
 
 target_link_libraries(unixsocket  PUBLIC
         scanmessages

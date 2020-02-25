@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanClient.h"
 
 #include <filewalker/FileWalker.h>
-#include <unixsocket/ScanningClientSocket.h>
+#include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
 
 #include <capnp/message.h>
 

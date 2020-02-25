@@ -4,7 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <unixsocket/ScanningClientSocket.h>
+#include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
 
 #include <string>
 #include <cassert>
