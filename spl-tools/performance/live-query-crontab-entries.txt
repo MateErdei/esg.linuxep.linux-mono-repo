@@ -1,4 +1,4 @@
-# cron tan template to use
+# crontab template to use
 
 # This constantly gathers metrics from the machine and sends them to elastic search.
 @reboot /root/metricbeat-7.1.1-linux-x86_64/metricbeat -c /root/metricbeat-7.1.1-linux-x86_64/metricbeat.yml

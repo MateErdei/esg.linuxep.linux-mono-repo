@@ -280,20 +280,16 @@ def get_results_for_machine(hostname):
 
     array_data = []
 
-    for date_key, date_value in summary_root.items():
-        for version_key, version_value in date_value.items():
+    for datetime_key, datetime_value in summary_root.items():
+        for version_key, version_value in datetime_value.items():
             for test_key, test_values in version_value.items():
                 row = {}
-                row["Date"] = date_key
+                row["Date"] = datetime_key
                 row["Version"] = version_key
                 row["Test"] = test_key
-
                 for test_value_key, test_value in test_values.items():
                     row[test_value_key] = test_value
-
                 array_data.append(row)
-
-    print(array_data)
 
     performance_db = mysql.connector.connect(
         host="sspl-alex-1",
