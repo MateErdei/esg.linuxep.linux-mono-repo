@@ -610,7 +610,8 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertTrue(command.m_complete)
 
         self.assertEqual(policy_config.get_default("mcs_policy_proxy",None),"http://1.proxy.sophos:8080")
-        self.assertEqual(policy_config.get_default("mcs_policy_proxy_credentials",None),"FOOBAR")
+        #credentials will be updated accordig to values in policy from "FOOBAR" to key not set
+        self.assertEqual(policy_config.get_default("mcs_policy_proxy_credentials",None), None)
 
     def testMultipleCredentialsInProxyCredentialsElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
