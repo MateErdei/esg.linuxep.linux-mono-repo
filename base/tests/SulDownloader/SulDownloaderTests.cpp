@@ -470,7 +470,7 @@ TEST_F( // NOLINT
         }
     });
 
-    EXPECT_CALL(fileSystemMock, copyFile("/dir/input.json", "/dir/previous_update_config.json")).Times(1);
+    EXPECT_CALL(fileSystemMock, copyFileAndSetPermissions("/dir/input.json", "/dir/previous_update_config.json", _, _, _)).Times(1);
 
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
@@ -518,7 +518,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
-    EXPECT_CALL(fileSystemMock, copyFile("/dir/input.json", "/dir/previous_update_config.json")).Times(1);
+    EXPECT_CALL(fileSystemMock, copyFileAndSetPermissions("/dir/input.json", "/dir/previous_update_config.json", _, _, _)).Times(1);
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
@@ -572,7 +572,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
-    EXPECT_CALL(fileSystemMock, copyFile("/dir/input.json", "/dir/previous_update_config.json")).Times(1);
+    EXPECT_CALL(fileSystemMock, copyFileAndSetPermissions("/dir/input.json", "/dir/previous_update_config.json", _, _, _)).Times(1);
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
@@ -643,7 +643,7 @@ TEST_F( // NOLINT
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
 
-    EXPECT_CALL(fileSystemMock, copyFile("/dir/input.json", "/dir/previous_update_config.json")).Times(1);
+    EXPECT_CALL(fileSystemMock, copyFileAndSetPermissions("/dir/input.json", "/dir/previous_update_config.json", _, _, _)).Times(1);
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 

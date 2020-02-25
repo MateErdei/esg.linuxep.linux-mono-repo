@@ -327,7 +327,8 @@ namespace SulDownloader
         if (exitCode == 0)
         {
             LOGINFO("Update success");
-            fileSystem->copyFile(inputFilePath, previousSettingFilePath);
+            mode_t permissions = S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP;
+            fileSystem->copyFileAndSetPermissions(inputFilePath, previousSettingFilePath, permissions, "sophos-spl-user", "sophos-spl-group");
         }
         else
         {
