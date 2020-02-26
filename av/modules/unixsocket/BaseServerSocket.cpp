@@ -129,7 +129,7 @@ void unixsocket::BaseServerSocket::run()
         }
     }
 
-    ::unlink(m_path.c_str());
+    ::unlink(m_socketPath.c_str());
     m_socket_fd.reset();
     killThreads();
 }
