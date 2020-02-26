@@ -110,7 +110,7 @@ class MCSPolicyHandler:
     def __get_default_int_value(self, dom, element_name, default_value):
         node = self.__get_element(dom, element_name)
         if node is None:
-            LOGGER.error(
+            LOGGER.warning(
                 "MCS policy has no element {}".format(element_name))
             return default_value
 

@@ -53,6 +53,7 @@ MCS Policy Can Control URL used
     Verify That MCS Connection To Central Is Re-established   4444
 
 MCS policy with Pushserver disabled is handled with no errors
+    [Tags]  SMOKE  MCS_ROUTER  FAKE_CLOUD  MCS
     Install Register And Wait First MCS Policy
     Wait Until Keyword Succeeds
     ...  10 secs
