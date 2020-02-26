@@ -90,6 +90,26 @@ AV Handles Scheduled Scan With Badly Configured Time
     Wait Until AV Plugin Log Contains  Days: Monday
     Wait Until AV Plugin Log Contains  Times: 00:00:00
 
+AV Reconfigures Scans Correctly
+    Check AV Plugin Installed With Base
+    Send Complete Sav Policy
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    AV Plugin Log Contains  No of Scheduled Scans Configured: 1
+    Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan
+    Wait Until AV Plugin Log Contains  Days: Monday
+    Wait Until AV Plugin Log Contains  Times: 11:00:00
+    Send Sav Policy With Multiple Scheduled Scans
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    Wait Until AV Plugin Log Contains  No of Scheduled Scans Configured: 2
+    Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan One
+    Wait Until AV Plugin Log Contains  Days: Tuesday Saturday
+    Wait Until AV Plugin Log Contains  Times: 04:00:00 16:00:00
+    Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan Two
+    Wait Until AV Plugin Log Contains  Days: Monday Thursday
+    Wait Until AV Plugin Log Contains  Times: 11:00:00 23:00:00
+
 Diagnose collects the correct files
     Check AV Plugin Installed With Base
     Check scan now
