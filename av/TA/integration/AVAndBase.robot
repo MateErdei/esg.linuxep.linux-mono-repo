@@ -78,7 +78,7 @@ AV Handles Scheduled Scan With Badly Configured Day
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
     Wait Until AV Plugin Log Contains  Invalid day from policy: blernsday
     Wait Until AV Plugin Log Contains  No of Scheduled Scans Configured: 1
-    Wait Until AV Plugin Log Contains  Days: invalid
+    Wait Until AV Plugin Log Contains  Days: INVALID
     Wait Until AV Plugin Log Contains  Times: 11:00:00
 
 AV Handles Scheduled Scan With Badly Configured Time
