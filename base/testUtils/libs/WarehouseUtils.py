@@ -53,6 +53,8 @@ OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(
 OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone"
 # A version with mocked libraries (to test file removal on upgrade)
 OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-version-0-6-0-warehouse"
+# a version with edr 9.99.9 for downgrade tests
+OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-edr-999"
 # A warehouse containing 3 base versions for paused updating tests
 OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PAUSED_OVERRIDE"
 OSTIA_PAUSED_ADDRESS_BRANCH = os.environ.get(OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE, "feature-paused-updating")
@@ -63,7 +65,8 @@ OSTIA_ADDRESSES = {
                     OSTIA_PREV_ADDRESS: "3233",
                     OSTIA_0_6_0_ADDRESS: "4233",
                     OSTIA_GA_ADDRESS: "5233",
-                    OSTIA_PAUSED_ADDRESS: "6233"
+                    OSTIA_PAUSED_ADDRESS: "6233",
+                    OSTIA_EDR_999_ADDRESS: "7233"
                    }
 
 BALLISTA_ADDRESS = "https://dci.sophosupd.com/cloudupdate"
@@ -183,7 +186,7 @@ class TemplateConfig:
             self.warehouse_domain = "*.sophosupd.*:443"
 
     def _set_local_connection_address_to_use_local_customer_address_if_using_local_ostia_warehouses(self):
-        # If we have local copies of the ostia warehouses, we want to set the connection adress to use
+        # If we have local copies of the ostia warehouses, we want to set the connection address to use
         # the localhost:2233 address which customer file update servers will use
         if self.use_local_warehouses:
             self.local_customer_file_port = OSTIA_ADDRESSES[self.remote_connection_address]
@@ -289,6 +292,7 @@ class WarehouseUtils(object):
 
     template_configuration_values = {
         "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
+        "base_and_edr_999.xml": TemplateConfig("BASE_AND_EDR_999", "edr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
         "base_and_mtr_VUT.xml": TemplateConfig("BASE_AND_MTR_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut-1", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_and_mtr_GA.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_mtr_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),

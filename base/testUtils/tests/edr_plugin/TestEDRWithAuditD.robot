@@ -30,25 +30,7 @@ EDR Disables Auditd After Install With Auditd Running Default Behaviour
 
     Check AuditD Executable Running
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
-    Wait For Initial Update To Fail
-
-    Override LogConf File as Global Level  DEBUG
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Trigger Update Now
-
-    # Waiting for 2nd because the 1st is a guaranteed failure
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    Should Exist  ${EDR_DIR}
-    Wait Until EDR Running
-    Wait Until OSQuery Running
+    Install EDR  ${BaseAndEdrVUTPolicy}
 
     ${EDR_CONFIG_CONTENT}=  Get File  ${EDR_DIR}/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   disable_auditd=1
@@ -61,25 +43,7 @@ EDR Disables Auditd After Install With Auditd Running Default Behaviour
 EDR Disables Auditd After Install With Auditd Running With Disable Flag
     Check AuditD Executable Running
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}  args=--disable-auditd
-    Wait For Initial Update To Fail
-
-    Override LogConf File as Global Level  DEBUG
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Trigger Update Now
-
-    # Waiting for 2nd because the 1st is a guaranteed failure
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    Should Exist  ${EDR_DIR}
-    Wait Until EDR Running
-    Wait Until OSQuery Running
+    Install EDR  ${BaseAndEdrVUTPolicy}
 
     ${INSTALL_OPTIONS_CONTENT}=  Get File  ${SOPHOS_INSTALL}/base/etc/install_options
     Should Contain  ${INSTALL_OPTIONS_CONTENT}   --disable-auditd
@@ -92,25 +56,7 @@ EDR Disables Auditd After Install With Auditd Running With Disable Flag
 EDR Does Not Disable Auditd After Install With Auditd Running With Do Not Disable Flag
     Check AuditD Executable Running
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}  args=--do-not-disable-auditd
-    Wait For Initial Update To Fail
-
-    Override LogConf File as Global Level  DEBUG
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Trigger Update Now
-
-    # Waiting for 2nd because the 1st is a guaranteed failure
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    Should Exist  ${EDR_DIR}
-    Wait Until EDR Running
-    Wait Until OSQuery Running
+    Install EDR  ${BaseAndEdrVUTPolicy}
 
     ${INSTALL_OPTIONS_CONTENT}=  Get File  ${SOPHOS_INSTALL}/base/etc/install_options
     Should Contain  ${INSTALL_OPTIONS_CONTENT}   --do-not-disable-auditd
@@ -124,25 +70,7 @@ EDR Does Not Disable Auditd After Install With Auditd Running With Do Not Disabl
 EDR Does Disable Auditd After Manual Change To Config
     Check AuditD Executable Running
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}  args=--do-not-disable-auditd
-    Wait For Initial Update To Fail
-
-    Override LogConf File as Global Level  DEBUG
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Trigger Update Now
-
-    # Waiting for 2nd because the 1st is a guaranteed failure
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    Should Exist  ${EDR_DIR}
-    Wait Until EDR Running
-    Wait Until OSQuery Running
+    Install EDR  ${BaseAndEdrVUTPolicy}
 
     ${INSTALL_OPTIONS_CONTENT}=  Get File  ${SOPHOS_INSTALL}/base/etc/install_options
     Should Contain  ${INSTALL_OPTIONS_CONTENT}   --do-not-disable-auditd

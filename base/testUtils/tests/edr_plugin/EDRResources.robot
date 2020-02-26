@@ -23,12 +23,12 @@ EDR Plugin Is Not Running
     Should Not Be Equal As Integers    ${result.rc}    0   EDR PLugin still running
 
 Install EDR
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
+    [Arguments]  ${policy}
+    Start Local Cloud Server  --initial-alc-policy  ${policy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}
     Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Send ALC Policy And Prepare For Upgrade  ${policy}
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...   120 secs

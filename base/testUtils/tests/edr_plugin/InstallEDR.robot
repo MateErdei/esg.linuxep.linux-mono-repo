@@ -20,6 +20,7 @@ Default Tags   EDR_PLUGIN   OSTIA  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
 *** Variables ***
 ${BaseAndMtrReleasePolicy}          ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+${BaseAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_and_edr_999.xml
 ${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
 ${EDR_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/edr
@@ -28,7 +29,7 @@ ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/Live
 
 *** Test Cases ***
 Install EDR and handle Live Query
-    Install EDR
+    Install EDR  ${BaseAndEdrVUTPolicy}
 
     Run Shell Process   /opt/sophos-spl/bin/wdctl stop edr     OnError=Failed to stop edr
     Override LogConf File as Global Level  DEBUG
@@ -73,7 +74,7 @@ Install EDR and handle Live Query
     Check Cloud Server Log Contains    "columnData": [["systemd"],  1
 
 Install EDR And Get Historic Event Data
-    Install EDR
+    Install EDR  ${BaseAndEdrVUTPolicy}
 
     Run Shell Process   /opt/sophos-spl/bin/wdctl stop edr     OnError=Failed to stop edr
     Override LogConf File as Global Level  DEBUG
@@ -88,7 +89,7 @@ Install EDR And Get Historic Event Data
 
 EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not Running
     [Teardown]  EDR Uninstall Teardown
-    Install EDR
+    Install EDR  ${BaseAndEdrVUTPolicy}
     ${systemctlResult} =  Run Process   systemctl stop sophos-spl   shell=yes
     Check Watchdog Not Running
     Should Be Equal As Strings  ${systemctlResult.rc}  0
@@ -116,7 +117,7 @@ EDR Removes Ipc And Status Files When Uninstalled
     File Should Not Exist   ${CACHED_STATUS_XML}
 
 EDR Uninstalled When Removed From ALC Policy
-    Install EDR
+    Install EDR  ${BaseAndEdrVUTPolicy}
     Wait Until OSQuery Running
 
     Send ALC Policy And Prepare For Upgrade  ${BaseVUTPolicy}
@@ -178,7 +179,7 @@ Install Base And MTR Then Migrate To EDR
 
 Install Base And EDR Then Migrate To BASE
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
-    Install EDR
+    Install EDR  ${BaseAndEdrVUTPolicy}
 
     # Uninstall EDR
     Send ALC Policy And Prepare For Upgrade  ${BaseVUTPolicy}
@@ -197,3 +198,17 @@ Install Base And EDR Then Migrate To BASE
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Not Running
+
+Install base and edr 999 then downgrade to current master
+    Install EDR  ${BaseAndEdr999Policy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  EDR Plugin Is Running
