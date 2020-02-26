@@ -55,6 +55,8 @@ OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-mi
 OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-version-0-6-0-warehouse"
 # a version with edr 9.99.9 for downgrade tests
 OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-edr-999"
+OSTIA_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-mdr-999"
+OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-edr-999-mdr-999"
 # A warehouse containing 3 base versions for paused updating tests
 OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PAUSED_OVERRIDE"
 OSTIA_PAUSED_ADDRESS_BRANCH = os.environ.get(OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE, "feature-paused-updating")
@@ -66,7 +68,9 @@ OSTIA_ADDRESSES = {
                     OSTIA_0_6_0_ADDRESS: "4233",
                     OSTIA_GA_ADDRESS: "5233",
                     OSTIA_PAUSED_ADDRESS: "6233",
-                    OSTIA_EDR_999_ADDRESS: "7233"
+                    OSTIA_EDR_999_ADDRESS: "7233",
+                    OSTIA_MTR_999_ADDRESS: "7237",
+                    OSTIA_EDR_AND_MTR_999_ADDRESS: "7240"
                    }
 
 BALLISTA_ADDRESS = "https://dci.sophosupd.com/cloudupdate"
@@ -293,6 +297,9 @@ class WarehouseUtils(object):
     template_configuration_values = {
         "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
         "base_and_edr_999.xml": TemplateConfig("BASE_AND_EDR_999", "edr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
+        "base_edr_vut_and_mtr_999.xml": TemplateConfig("BASE_EDR_AND_MTR_999", "edr_user_999", DEV_BUILD_CERTS, OSTIA_MTR_999_ADDRESS ),
+        "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "mtr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
+        "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
         "base_and_mtr_VUT.xml": TemplateConfig("BASE_AND_MTR_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut-1", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_and_mtr_GA.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_mtr_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
