@@ -11,6 +11,7 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
 Resource    ../upgrade_product/UpgradeResources.robot
+Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    EDRResources.robot
 
@@ -237,6 +238,8 @@ Install base and edr 999 then downgrade to current master
 Install base and edr and mtr then downgrade to just base and mtr
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
+    #truncate log so that check mdr plugin installed works correctly later in the test
+    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -258,6 +261,8 @@ Install base and edr and mtr then downgrade to just base and mtr
     ...  30 secs
     ...  5 secs
     ...  Should Exist  ${MTR_DIR}
+
+    Check MDR Plugin Installed
 
     Wait Until Keyword Succeeds
     ...   200 secs
