@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "BaseServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h"
+#include "Logger.h"
 
 #include <stdexcept>
 
@@ -33,6 +34,24 @@ static void throwIfBadFd(int fd, const std::string& message)
     throw std::runtime_error(message);
 }
 
+static inline bool fd_isset(int fd, fd_set* fds)
+{
+    assert(fd >= 0);
+    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
+}
+
+static inline void internal_fd_set(int fd, fd_set* fds)
+{
+    assert(fd >= 0);
+    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
+}
+
+static int addFD(fd_set* fds, int fd, int currentMax)
+{
+    internal_fd_set(fd, fds);
+    return std::max(fd, currentMax);
+}
+
 unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
@@ -54,21 +73,53 @@ unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
 
 void unixsocket::BaseServerSocket::run()
 {
+    announceThreadStarted();
+
+    int exitFD = m_notifyPipe.readFd();
+
+    fd_set readFDs;
+    FD_ZERO(&readFDs);
+    int max = -1;
+    max = addFD(&readFDs, exitFD, max);
+    max = addFD(&readFDs, m_socket_fd, max);
+
     listen(m_socket_fd, 2);
 
     bool terminate = false;
 
     while (!terminate)
     {
-        int fd = ::accept(m_socket_fd, nullptr, nullptr);
-        if (fd < 0)
+        fd_set tempRead = readFDs;
+
+        //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+
+        if (activity < 0)
         {
-            perror("Failed to accept connection");
-            terminate = true;
+            // handle error
+            LOGERROR("Socket failed: " << errno);
+            break;
         }
-        else
+
+        if (fd_isset(exitFD, &tempRead))
         {
-            terminate = handleConnection(fd);
+            LOGINFO("Closing socket");
+            break;
+        }
+
+        if(fd_isset(m_socket_fd, &tempRead))
+        {
+            int socket = ::accept(m_socket_fd, nullptr, nullptr);
+
+            if (socket < 0)
+            {
+                perror("Failed to accept connection");
+                terminate = true;
+            }
+            else
+            {
+                terminate = handleConnection(socket);
+            }
         }
     }
 

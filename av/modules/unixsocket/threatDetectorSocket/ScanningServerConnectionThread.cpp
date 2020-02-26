@@ -21,24 +21,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(int fd)
-    : m_finished(false), m_fd(fd)
+    : m_fd(fd)
 {
 }
 
-bool unixsocket::ScanningServerConnectionThread::finished()
-{
-    return m_finished;
-}
-
-void unixsocket::ScanningServerConnectionThread::start()
-{
-
-}
-
-void unixsocket::ScanningServerConnectionThread::notifyTerminate()
-{
-
-}
 //
 //static void throwOnError(int ret, const std::string& message)
 //{
@@ -49,6 +35,24 @@ void unixsocket::ScanningServerConnectionThread::notifyTerminate()
 //    perror(message.c_str());
 //    throw std::runtime_error(message);
 //}
+
+static inline bool fd_isset(int fd, fd_set* fds)
+{
+    assert(fd >= 0);
+    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
+}
+
+static inline void internal_fd_set(int fd, fd_set* fds)
+{
+    assert(fd >= 0);
+    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
+}
+
+static int addFD(fd_set* fds, int fd, int currentMax)
+{
+    internal_fd_set(fd, fds);
+    return std::max(fd, currentMax);
+}
 
 /**
  * Receive a single file descriptor from a unix socket
@@ -108,68 +112,97 @@ static std::string parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& b
 
 void unixsocket::ScanningServerConnectionThread::run()
 {
+    announceThreadStarted();
+
     datatypes::AutoFd socket_fd(std::move(m_fd));
     PRINT("Got connection " << socket_fd.fd());
     LOGDEBUG("Got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
+    int exitFD = m_notifyPipe.readFd();
+
+    fd_set readFDs;
+    FD_ZERO(&readFDs);
+    int max = -1;
+    max = addFD(&readFDs, exitFD, max);
+    max = addFD(&readFDs, socket_fd, max);
+
     while (true)
     {
-        // read length
-        int32_t length = unixsocket::readLength(socket_fd);
-        if (length < 0)
+        fd_set tempRead = readFDs;
+
+        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+
+        if (activity < 0)
         {
-            PRINT("Aborting connection: failed to read length");
-            return;
+            LOGERROR("Socket failed: " << errno);
+            break;
         }
 
-        PRINT("Read a length of " << length);
-        if (length == 0)
+        if (fd_isset(exitFD, &tempRead))
         {
-            PRINT("Ignoring length of zero");
-            continue;
+            LOGINFO("Closing scanning socket thread");
+            break;
         }
 
-        // read capn proto
-        if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
+        if(fd_isset(socket_fd, &tempRead))
         {
-            buffer_size = 1 + length / sizeof(capnp::word);
-            proto_buffer = kj::heapArray<capnp::word>(buffer_size);
-        }
+            // read length
+            int32_t length = unixsocket::readLength(socket_fd);
+            if (length < 0)
+            {
+                PRINT("Aborting connection: failed to read length");
+                return;
+            }
 
-        ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
-        if (bytes_read != length)
-        {
-            PRINT("Aborting connection: failed to read capn proto");
-            return;
-        }
+            PRINT("Read a length of " << length);
+            if (length == 0)
+            {
+                PRINT("Ignoring length of zero");
+                continue;
+            }
 
-        PRINT("Read capn of " << bytes_read);
+            // read capn proto
+            if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
+            {
+                buffer_size = 1 + length / sizeof(capnp::word);
+                proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+            }
 
-        std::string pathname = parseRequest(proto_buffer, bytes_read);
+            ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
+            if (bytes_read != length)
+            {
+                PRINT("Aborting connection: failed to read capn proto");
+                return;
+            }
 
-        PRINT("Scan requested of " << pathname);
+            PRINT("Read capn of " << bytes_read);
 
-        // read fd
-        int file_fd = recv_fd(socket_fd);
-        if (file_fd < 0)
-        {
-            PRINT("Aborting connection: failed to read fd");
-            return;
-        }
-        PRINT("Managed to get file descriptor: " << file_fd);
+            std::string pathname = parseRequest(proto_buffer, bytes_read);
 
-        datatypes::AutoFd file_fd_manager(file_fd);
+            PRINT("Scan requested of " << pathname);
 
-        auto result = scan(file_fd_manager, pathname);
-        file_fd_manager.reset();
+            // read fd
+            int file_fd = recv_fd(socket_fd);
+            if (file_fd < 0)
+            {
+                PRINT("Aborting connection: failed to read fd");
+                return;
+            }
+            PRINT("Managed to get file descriptor: " << file_fd);
 
-        std::string serialised_result = result.serialise();
+            datatypes::AutoFd file_fd_manager(file_fd);
 
-        if (! writeLengthAndBuffer(socket_fd, serialised_result))
-        {
-            PRINT("Failed to write result to unix socket");
+            auto result = scan(file_fd_manager, pathname);
+            file_fd_manager.reset();
+
+            std::string serialised_result = result.serialise();
+
+            if (!writeLengthAndBuffer(socket_fd, serialised_result))
+            {
+                PRINT("Failed to write result to unix socket");
+            }
         }
     }
 }

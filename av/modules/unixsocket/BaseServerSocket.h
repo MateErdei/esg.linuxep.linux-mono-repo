@@ -8,12 +8,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #define AUTO_FD_IMPLICIT_INT
 #include "datatypes/AutoFd.h"
+#include "Common/Threads/AbstractThread.h"
 
 #include <string>
 
 namespace unixsocket
 {
-    class BaseServerSocket
+    class BaseServerSocket  : public Common::Threads::AbstractThread
     {
 
     public:
@@ -22,7 +23,7 @@ namespace unixsocket
 
         explicit BaseServerSocket(const std::string& path);
 
-        void run();
+        void run() override;
 
     protected:
         /**
@@ -32,7 +33,6 @@ namespace unixsocket
          */
         virtual bool handleConnection(int fd) = 0;
         datatypes::AutoFd m_socket_fd;
-
     };
 
 
@@ -41,6 +41,7 @@ namespace unixsocket
     {
     public:
         using BaseServerSocket::BaseServerSocket;
+
     protected:
         bool handleConnection(int fd) override
         {

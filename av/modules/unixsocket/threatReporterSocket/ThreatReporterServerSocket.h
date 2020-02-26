@@ -11,5 +11,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace unixsocket
 {
-    using ThreatReportrServerSocket = ImplServerSocket<ThreatReporterServerConnectionThread>;
+    using ThreatReporterServerSocket = ImplServerSocket<ThreatReporterServerConnectionThread>;
 }
+

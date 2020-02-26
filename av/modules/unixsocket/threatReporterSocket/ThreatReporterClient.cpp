@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/SocketUtils.h"
 
 #include "datatypes/Print.h"
-#include "scan_messages/ClientScanRequest.h"
+#include "scan_messages/ThreatDetected.h"
 #include <ScanResponse.capnp.h>
 
 #include <capnp/serialize.h>
@@ -45,4 +45,30 @@ unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(const std::st
     }
 }
 
-// TO DO WRITE CLIENT FUNCTIONALITY
+void unixsocket::ThreatReporterClientSocket::sendThreatDetection(scan_messages::ThreatDetected detection)
+{
+    assert(m_socket_fd >= 0);
+    std::string dataAsString = detection.serialise();
+
+    if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
+    {
+        handle_error("Failed to write capn buffer to unix socket");
+    }
+
+    int32_t length = unixsocket::readLength(m_socket_fd);
+    if (length < 0)
+    {
+        PRINT("Aborting connection: failed to read length");
+        handle_error ("Failed to read length");
+    }
+
+    uint32_t buffer_size = 1 + length / sizeof(capnp::word);
+    auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+
+    ssize_t bytes_read = ::read(m_socket_fd, proto_buffer.begin(), length);
+    if (bytes_read != length)
+    {
+        PRINT("Aborting connection: failed to read capn proto");
+        handle_error ("Failed to read capn proto");
+    }
+}
