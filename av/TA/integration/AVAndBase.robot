@@ -45,6 +45,13 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Wait Until AV Plugin Log Contains  Sending scan complete
     Validate latest Event
 
+AV Configures No Scheduled Scan Correctly
+    Check AV Plugin Installed With Base
+    Send Sav Policy With No Scheduled Scans
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    Wait Until AV Plugin Log Contains  No of Scheduled Scans Configured: 0
+
 AV Configures Single Scheduled Scan Correctly
     Check AV Plugin Installed With Base
     Send Complete Sav Policy
@@ -109,6 +116,20 @@ AV Reconfigures Scans Correctly
     Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan Two
     Wait Until AV Plugin Log Contains  Days: Monday Thursday
     Wait Until AV Plugin Log Contains  Times: 11:00:00 23:00:00
+
+AV Deletes Scan Correctly
+    Check AV Plugin Installed With Base
+    Send Complete Sav Policy
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    AV Plugin Log Contains  No of Scheduled Scans Configured: 1
+    Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan
+    Wait Until AV Plugin Log Contains  Days: Monday
+    Wait Until AV Plugin Log Contains  Times: 11:00:00
+    Send Sav Policy With No Scheduled Scans
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    Wait Until AV Plugin Log Contains  No of Scheduled Scans Configured: 0
 
 Diagnose collects the correct files
     Check AV Plugin Installed With Base
