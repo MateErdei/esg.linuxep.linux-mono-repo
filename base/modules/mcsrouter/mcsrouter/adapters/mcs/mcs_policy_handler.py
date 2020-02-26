@@ -365,7 +365,7 @@ class MCSPolicyHandler:
             LOGGER.debug("MCS policy proxy = %s", proxies[0])
             self.__m_policy_config.set("mcs_policy_proxy", proxies[0])
         else:
-            LOGGER.error("MCS Policy has no proxy nodes in proxies element")
+            LOGGER.info("MCS Policy has no proxy nodes in proxies element")
             return False
 
         credentials = get_sub_element(policy_dom=dom, element="proxyCredentials", sub_element="credentials")
