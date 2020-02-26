@@ -81,7 +81,9 @@ namespace Plugin
     void PluginAdapter::mainLoop()
     {
         LOGINFO("Entering the main loop");
-        m_osqueryConfigurator.prepareSystemForPlugin();
+
+        std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask,std::chrono::seconds(5), 5);
+        processALCPolicy(alcPolicy, true);
         cleanUpOldOsqueryFiles();
         setUpOsqueryMonitor();
 
@@ -115,7 +117,7 @@ namespace Plugin
                             new WaitUpTo(std::chrono::seconds(10), [this]() { this->m_queueTask->pushRestartOsquery(); }));
                         break;
                     case Task::TaskType::Policy:
-                        LOGWARN("No policy expected for EDR plugin");
+                        processALCPolicy(task.m_content, false);
                         break;
                     case Task::TaskType::Query:
                         processQuery(task.m_content, task.m_correlationId);
@@ -184,6 +186,7 @@ namespace Plugin
 
     void PluginAdapter::setUpOsqueryMonitor()
     {
+        m_osqueryConfigurator.prepareSystemForPlugin();
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
@@ -258,6 +261,54 @@ namespace Plugin
     void PluginAdapter::processQuery(const std::string& queryJson, const std::string& correlationId)
     {
         livequery::processQuery(*m_queryProcessor, *m_responseDispatcher, queryJson, correlationId);
+    }
+
+
+    void PluginAdapter::processALCPolicy(const std::string & policy, bool firstTime) {
+        m_osqueryConfigurator.loadALCPolicy(policy);
+        bool current_enabled = m_osqueryConfigurator.enableAuditDataCollection();
+        if (firstTime) {
+            m_collectAuditEnabled = current_enabled;
+            return;
+        }
+
+        if ( current_enabled != m_collectAuditEnabled)
+        {
+            m_collectAuditEnabled = current_enabled;
+            LOGINFO("Option to enable audit collection changed to " << current_enabled << ". Scheduling osquery restart");
+            m_queueTask->pushRestartOsquery();
+        }
+
+    }
+
+    std::string PluginAdapter::waitForTheFirstALCPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold)
+    {
+        std::vector<Plugin::Task> nonPolicyTasks;
+        std::string policyContent;
+        for(int i = 0; i< maxTasksThreshold; i++)
+        {
+            Plugin::Task task;
+            if( !queueTask.pop(task, timeoutInS.count()))
+            {
+                // timeout.
+                break;
+            }
+            if ( task.m_taskType == Plugin::Task::TaskType::Policy)
+            {
+                policyContent = task.m_content;
+                break;
+            }
+            nonPolicyTasks.push_back(task);
+        }
+        for( auto task: nonPolicyTasks)
+        {
+            queueTask.push(task);
+        }
+        return policyContent;
+    }
+
+    OsqueryConfigurator &PluginAdapter::osqueryConfigurator() {
+        return m_osqueryConfigurator;
     }
 
 } // namespace Plugin

@@ -3,6 +3,9 @@ SophosAddTest(TestPlugin
         TestQueueTask.cpp
         TestOsqueryDataManager.cpp
         TestOsqueryConfigurator.cpp
+        TestPluginAdapter.cpp
+        ALCPoliciesExample.h
+        ALCPoliciesExample.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}

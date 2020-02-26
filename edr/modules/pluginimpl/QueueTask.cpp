@@ -55,4 +55,10 @@ namespace Plugin
         Task stopTask{ .m_taskType = Task::TaskType::RESTARTOSQUERY, .m_content = "" };
         push(stopTask);
     }
+
+    void QueueTask::pushPolicy(std::string policyXMl)
+    {
+        Task task{ .m_taskType = Task::TaskType::Policy, .m_content = std::move(policyXMl) };
+        push(task);
+    }
 } // namespace Plugin

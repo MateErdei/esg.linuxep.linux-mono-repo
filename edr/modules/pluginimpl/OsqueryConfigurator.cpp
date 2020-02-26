@@ -119,7 +119,7 @@ namespace Plugin{
     bool OsqueryConfigurator::retrieveDisableAuditFlagFromSettingsFile() const {
         auto fileSystem = Common::FileSystem::fileSystem();
         bool disableAuditD = true;
-
+        std::string configpath = Plugin::edrConfigFilePath();
         if (fileSystem->isFile(Plugin::edrConfigFilePath()))
         {
             try
@@ -144,6 +144,10 @@ namespace Plugin{
 
     bool OsqueryConfigurator::ALCContainsMTRFeature(const std::string & alcPolicyXMl) {
         using namespace Common::XmlUtilities;
+        if (alcPolicyXMl.empty())
+        {
+            return false;
+        }
         try {
             AttributesMap attributesMap = parseXml(alcPolicyXMl);
             const std::string expectedMTRFeaturePath{"AUConfigurations/Features/Feature#MDR"};
