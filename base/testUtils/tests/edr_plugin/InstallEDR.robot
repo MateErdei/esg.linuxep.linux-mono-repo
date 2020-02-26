@@ -11,7 +11,6 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
 Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    EDRResources.robot
 
@@ -23,6 +22,9 @@ ${BaseAndMtrReleasePolicy}          ${GeneratedWarehousePolicies}/base_and_mtr_V
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${BaseAndEdrAndMtrVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_and_edr_999.xml
+${BaseEdrAndMtr999Policy}              ${GeneratedWarehousePolicies}/base_edr_vut_and_mtr_999.xml
+${BaseMtrAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_mtr_vut_and_edr_999.xml
+${BaseAndMTREdr999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_999.xml
 ${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
 ${EDR_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/edr
@@ -204,16 +206,9 @@ Install Base And EDR Then Migrate To BASE
     ...  5 secs
     ...  EDR Plugin Is Not Running
 
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
-
 Install base and edr 999 then downgrade to current master
     Install EDR  ${BaseAndEdr999Policy}
     Wait Until OSQuery Running
-    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Trigger Update Now
 
@@ -226,20 +221,9 @@ Install base and edr 999 then downgrade to current master
     ...  5 secs
     ...  EDR Plugin Is Running
 
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
-
-    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
-
-
 Install base and edr and mtr then downgrade to just base and mtr
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
-    #truncate log so that check mdr plugin installed works correctly later in the test
-    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -252,20 +236,53 @@ Install base and edr and mtr then downgrade to just base and mtr
     ...  5 secs
     ...  EDR Plugin Is Not Running
 
+
+Install master of base and edr and mtr and upgrade to mtr 999
+    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtr999Policy}
+    Trigger Update Now
+
     Wait Until Keyword Succeeds
-    ...  100 secs
+    ...  60 secs
     ...  5 secs
-    ...  Should Not Exist  ${EDR_DIR}
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
 
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  Should Exist  ${MTR_DIR}
+    ...  EDR Plugin Is Running
 
-    Check MDR Plugin Installed
+
+Install master of base and edr and mtr and upgrade to edr 999
+    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
+    Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...  60 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
 
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  EDR Plugin Is Running
+
+
+Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
+    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  EDR Plugin Is Running
