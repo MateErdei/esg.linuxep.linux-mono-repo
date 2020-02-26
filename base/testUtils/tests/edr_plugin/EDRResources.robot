@@ -38,7 +38,7 @@ Install EDR
     Wait For EDR to be Installed
 
     Should Exist  ${EDR_DIR}
-    Wait Until OSQuery Running
+
 
 Run Query Until It Gives Expected Results
     [Arguments]  ${query}  ${expectedResponseJson}

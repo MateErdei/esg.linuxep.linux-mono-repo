@@ -31,6 +31,7 @@ ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/Live
 *** Test Cases ***
 Install EDR and handle Live Query
     Install EDR  ${BaseAndEdrVUTPolicy}
+    Wait Until OSQuery Running
 
     Run Shell Process   /opt/sophos-spl/bin/wdctl stop edr     OnError=Failed to stop edr
     Override LogConf File as Global Level  DEBUG
@@ -76,7 +77,7 @@ Install EDR and handle Live Query
 
 Install EDR And Get Historic Event Data
     Install EDR  ${BaseAndEdrVUTPolicy}
-
+    Wait Until OSQuery Running
     Run Shell Process   /opt/sophos-spl/bin/wdctl stop edr     OnError=Failed to stop edr
     Override LogConf File as Global Level  DEBUG
     Run Shell Process   /opt/sophos-spl/bin/wdctl start edr    OnError=Failed to start edr
@@ -91,6 +92,7 @@ Install EDR And Get Historic Event Data
 EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not Running
     [Teardown]  EDR Uninstall Teardown
     Install EDR  ${BaseAndEdrVUTPolicy}
+    Wait Until OSQuery Running
     ${systemctlResult} =  Run Process   systemctl stop sophos-spl   shell=yes
     Check Watchdog Not Running
     Should Be Equal As Strings  ${systemctlResult.rc}  0
@@ -101,6 +103,7 @@ EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not 
 EDR Removes Ipc And Status Files When Uninstalled
     Run Full Installer
     Install EDR Directly
+    Wait Until OSQuery Running
     Stop Management Agent Via WDCTL
     Start Management Agent Via WDCTL
     Wait for EDR Status
@@ -181,7 +184,7 @@ Install Base And MTR Then Migrate To EDR
 Install Base And EDR Then Migrate To BASE
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
     Install EDR  ${BaseAndEdrVUTPolicy}
-
+    Wait Until OSQuery Running
     # Uninstall EDR
     Send ALC Policy And Prepare For Upgrade  ${BaseVUTPolicy}
     Trigger Update Now
@@ -202,6 +205,7 @@ Install Base And EDR Then Migrate To BASE
 
 Install base and edr 999 then downgrade to current master
     Install EDR  ${BaseAndEdr999Policy}
+    Wait Until OSQuery Running
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Trigger Update Now
 
@@ -221,10 +225,11 @@ Install base and edr and mtr then downgrade to just base and mtr
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  60 secs
     ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
+    ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-EDR since it was removed from warehouse
+
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  EDR Plugin Is Running
+    ...  EDR Plugin Is Not Running
