@@ -240,6 +240,8 @@ Install base and edr and mtr then downgrade to just base and mtr
 Install master of base and edr and mtr and upgrade to mtr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtr999Policy}
+    #truncate log so that check mdr plugin installed works correctly later in the test
+    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -251,6 +253,18 @@ Install master of base and edr and mtr and upgrade to mtr 999
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Running
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    Check MDR Plugin Installed
+
+    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+
+    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
 
 
 Install master of base and edr and mtr and upgrade to edr 999
@@ -268,10 +282,22 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  5 secs
     ...  EDR Plugin Is Running
 
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+
+    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
 
 Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
+    #truncate log so that check mdr plugin installed works correctly later in the test
+    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -286,3 +312,14 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Running
+
+    Check MDR Plugin Installed
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
