@@ -16,7 +16,7 @@ namespace manager::scheduler
     {
     public:
         explicit Time(const std::string& time);
-        std::string str();
+        std::string str() const;
         [[nodiscard]] int hour() const { return m_hour;}
         [[nodiscard]] int minute() const { return m_minute;}
         bool operator<(const Time& rhs) const;

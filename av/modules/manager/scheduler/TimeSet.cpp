@@ -35,7 +35,7 @@ Time::Time(const std::string& time)
     m_second = time_buffer.tm_sec;
 }
 
-std::string Time::str()
+std::string Time::str() const
 {
     return std::to_string(m_hour) + ":" + std::to_string(m_minute) + ":" + std::to_string(m_second);
 }
@@ -97,9 +97,9 @@ Time TimeSet::getNextTime(const struct tm& now, bool& forceTomorrow) const
 std::string TimeSet::str() const
 {
     std::string returnString = "Times: ";
-    for (auto time = m_times.begin(); time != m_times.end(); ++time)
+    for (const auto& time : m_times)
     {
-        returnString += time.base()->str() + " ";
+        returnString += time.str() + " ";
     }
     return returnString;
 }
