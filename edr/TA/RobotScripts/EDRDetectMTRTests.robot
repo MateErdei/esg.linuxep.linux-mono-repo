@@ -3,12 +3,13 @@ Documentation    Tests to handle how EDR changes the configuration for Osquery w
 
 Library         Process
 Library         OperatingSystem
+Library         String
 Library         ../Libs/FakeManagement.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
 
-Suite Setup     Install With Base SDDS  enableAuditConfig=True
+Suite Setup     Install With Base SDDS  enableAuditConfig=True  preInstallALCPolicy=True
 Suite Teardown  Uninstall And Revert Setup
 
 Test Setup      No Operation
@@ -28,19 +29,63 @@ EDR Does Not Configure Audit If MTR Is Supposed To Be Installed
 
 EDR configures osquery to collect audit data if MTR is removed
     Check MTR in ALC Policy Forces Disable Audit Data Collection
-    ${alc} =  Get File  ${EXAMPLE_DATA_PATH}/ALC_policy_with_mtr_example.xml
-#After installation, sends ALC policy containing EDR and MTR. Verify that the configuration for the live query disables audit data acquisition. Sends a new ALC policy without MTR. Verify that EDR will replace the configuration to enable audit collection of data.
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  5 secs
+    ...  Check Running Instance of Osquery Configured To Not Collect Audit Data
+
+    ${alc} =  Get ALC Policy Without MTR
+    Install ALC Policy   ${alc}
+
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Osquery Configured To Collect Audit Data
+
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  5 secs
+    ...  Check Running Instance of Osquery Configured To Collect Audit Data
+
 
 *** Keywords ***
 Check MTR in ALC Policy Forces Disable Audit Data Collection
     Check EDR Plugin Installed With Base
     ${alc} =  Get File  ${EXAMPLE_DATA_PATH}/ALC_policy_with_mtr_example.xml
-    Send Plugin Policy  edr   ALC  ${alc}
+    Install ALC Policy   ${alc}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
     ...  Check Osquery Configured To Not Collect Audit Data
 
+Check Running Instance of Osquery Configured To Collect Audit Data
+    ${response} =  Run Live Query and Return Result
+    Should Contain  ${response}  "columnMetaData": [{"name":"name","type":"TEXT"},{"name":"value","type":"TEXT"}]
+    Should Contain  ${response}  "columnData": [["disable_audit","false"]]
+
+
+Check Running Instance of Osquery Configured To Not Collect Audit Data
+    ${response} =  Run Live Query and Return Result
+    Should Contain  ${response}  "columnMetaData": [{"name":"name","type":"TEXT"},{"name":"value","type":"TEXT"}]
+    Should Contain  ${response}  "columnData": [["disable_audit","true"]]
+
+
+Run Live Query and Return Result
+    [Arguments]  ${query}=SELECT name,value from osquery_flags where name == 'disable_audit'
+    ${query_template} =  Get File  ${EXAMPLE_DATA_PATH}/GenericQuery.json
+    ${query_json} =  Replace String  ${query_template}  %QUERY%  ${query}
+    Log  ${query_json}
+    Create File  ${EXAMPLE_DATA_PATH}/temp.json  ${query_json}
+    ${response}=  Set Variable  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_123-4_response.json
+    Simulate Live Query  temp.json
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  File Should Exist    ${response}
+    ${response} =  Get File  ${response}
+    Remove File  ${response}
+    Remove File  ${EXAMPLE_DATA_PATH}/temp.json
+    [Return]  ${response}
 
 Check Osquery Configured To Collect Audit Data
     ${osqueryConf} =   Get File  ${COMPONENT_ROOT_PATH}/etc/osquery.flags

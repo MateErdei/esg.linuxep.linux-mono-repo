@@ -58,11 +58,13 @@ Simulate Live Query
     Move File    ${SOPHOS_INSTALL}/tmp/${name}  ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_${correlation}_FakeTime_request.json
 
 Install With Base SDDS
-    [Arguments]  ${enableAuditConfig}=False
+    [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
     Remove Directory   ${SOPHOS_INSTALL}   recursive=True
     Directory Should Not Exist  ${SOPHOS_INSTALL}
     Install Base For Component Tests
     Run Keyword If  ${enableAuditConfig}  Create Install Options File With Content  --disable-auditd
+    ${ALCContent}=  Get ALC Policy Without MTR
+    Run Keyword If  ${preInstallALCPolicy}  Install ALC Policy   ALCContent
     Install EDR Directly from SDDS
 
 Uninstall All
@@ -95,6 +97,21 @@ Check EDR Plugin Installed With Base
     ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  edr <> Entering the main loop
+
+
+Get ALC Policy Without MTR
+    ${alc} =  Get File  ${EXAMPLE_DATA_PATH}/ALC_policy_with_mtr_example.xml
+    ${alc_without_mtr} =  Replace String  ${alc}  <Feature id="MDR"/>   ${EMPTY}
+    [Return]  ${alc_without_mtr}
+
+
+Install ALC Policy
+  [Arguments]  ${ALCContent}
+  ${file_path}=  Set Variable  ${SOPHOS_INSTALL}/tmp/ALC-1_policy.xml
+  Create File   ${file_path}  ${ALCContent}
+  Run Process  chown sophos-spl-user:sophos-spl-group ${file_path}  shell=True
+  Move File   ${file_path}      ${SOPHOS_INSTALL}/base/mcs/policy
+
 
 Check Osquery Running
     Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd   OnError=osquery not running
