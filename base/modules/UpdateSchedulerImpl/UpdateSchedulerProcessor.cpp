@@ -233,13 +233,13 @@ namespace UpdateSchedulerImpl
 
             writeConfigurationData(settingsHolder.configurationData);
 
-            SulDownloader::suldownloaderdata::ConfigurationData previousConfigurationData = getPreviousConfigurationData();
+            std::tuple<bool, SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData = getPreviousConfigurationData();
 
-            if(SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+            if(std::get<0>(previousConfigurationData) && SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
                     settingsHolder.configurationData,
-                    previousConfigurationData))
+                    std::get<1>(previousConfigurationData)))
             {
-                LOGINFO("Detected product configuration change, forcing update.");
+                LOGINFO("Detected product configuration change, triggering update.");
                 m_pendingUpdate = true;
             }
 
@@ -480,7 +480,7 @@ namespace UpdateSchedulerImpl
         Common::FileSystem::fileSystem()->writeFile(m_configfilePath, serializedConfigData);
     }
 
-    SulDownloader::suldownloaderdata::ConfigurationData UpdateSchedulerProcessor::getPreviousConfigurationData()
+    std::tuple<bool, SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerProcessor::getPreviousConfigurationData()
     {
         Path previousConfigFilePath = Common::FileSystem::join(
                 Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath(),
@@ -488,6 +488,8 @@ namespace UpdateSchedulerImpl
 
         std::string previousConfigSettings;
         SulDownloader::suldownloaderdata::ConfigurationData previousConfigurationData;
+
+        bool result = false;
 
         if(Common::FileSystem::fileSystem()->isFile(previousConfigFilePath))
         {
@@ -498,7 +500,7 @@ namespace UpdateSchedulerImpl
             {
                 previousConfigurationData =
                         SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(previousConfigSettings);
-                previousConfigurationData.verifySettingsAreValid();
+                result = true;
             }
             catch(SulDownloader::suldownloaderdata::SulDownloaderException& ex)
             {
@@ -506,7 +508,7 @@ namespace UpdateSchedulerImpl
             }
         }
 
-        return previousConfigurationData;
+        return std::make_tuple(result, previousConfigurationData);
     }
 
 

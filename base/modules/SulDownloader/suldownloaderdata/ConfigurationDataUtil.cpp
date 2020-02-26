@@ -16,15 +16,24 @@ namespace SulDownloader
 {
     namespace suldownloaderdata
     {
-        bool ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(const ConfigurationData configurationData,
-                                                                         const ConfigurationData previousConfigurationData,
+        bool ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(const ConfigurationData& configurationData,
+                                                                         const ConfigurationData& previousConfigurationData,
                                                                          bool onlyCompareSubscriptionsAndFeatures)
         {
+            /*
+             * This function will be called from UpdateScheduler and SulDownloadeder.
+             * When called from UpdateScheduler the Subscriptions and Features will be compared.
+             * The UpdateScheduler can also to invoke the ConfigurationData verify process due to permissions,
+             * therefore this check is also skipped.
+             *
+             * When called from SulDownloader all checks are performed.
+             */
+
             LOGDEBUG("Checking if should force install on all products");
-            if (!previousConfigurationData.isVerified())
+            if (!onlyCompareSubscriptionsAndFeatures && !previousConfigurationData.isVerified())
             {
                 // if Configuration data is not verified no previous configuration data provided
-                LOGDEBUG("Previous update configuration data has not been set or verified, (force update = false)");
+                LOGDEBUG("Previous update configuration data has not been set or verified.");
                 return false;
             }
 
@@ -33,7 +42,7 @@ namespace SulDownloader
                  previousConfigurationData.getProductsSubscription().size()) ||
                 (configurationData.getFeatures().size() != previousConfigurationData.getFeatures().size()))
             {
-                LOGDEBUG("Found new subscription or features in update configuration, (force update = true).");
+                LOGDEBUG("Found new subscription or features in update configuration.");
                 return true;
             }
 
@@ -68,7 +77,7 @@ namespace SulDownloader
 
             if (newSortedRigidNames != previousSortedRigidNames)
             {
-                LOGDEBUG("Feature list in update configuration has changed, (force update = true).");
+                LOGDEBUG("Feature list in update configuration has changed.");
                 return true;
             }
 
@@ -77,7 +86,7 @@ namespace SulDownloader
 
             if (newSortedFeatures != previousSortedFeatures)
             {
-                LOGDEBUG("Subscription list in update configuration has changed, (force update = true).");
+                LOGDEBUG("Subscription list in update configuration has changed.");
                 return true;
             }
 
@@ -93,13 +102,13 @@ namespace SulDownloader
                 {
                     if (!fileSystem->exists(rigidName + ".sh"))
                     {
-                        LOGDEBUG("Component has been previously removed (force update = true)");
+                        LOGDEBUG("Component in subscription list has been previously removed, or has not been installed.");
                         return true;
                     }
                 }
             }
 
-            LOGDEBUG("No difference between new update config and previous update config (force update = false)");
+            LOGDEBUG("No difference between new update config and previous update config.");
             return false;
         }
     }
