@@ -11,6 +11,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "manager/scheduler/ScanScheduler.h"
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
+#include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include <Common/PluginApi/IBaseServiceApi.h>
 
@@ -23,6 +24,7 @@ namespace Plugin
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
         manager::scheduler::ScanScheduler m_scanScheduler;
+        unixsocket::ThreatReporterServerSocket m_threatReporterServer;
         std::unique_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_sophosThreadDetector;
 
     public:

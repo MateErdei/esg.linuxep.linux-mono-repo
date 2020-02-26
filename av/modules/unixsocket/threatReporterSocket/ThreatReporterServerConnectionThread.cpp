@@ -21,24 +21,28 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 unixsocket::ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(int fd)
-        : m_finished(false), m_fd(fd)
+        : m_fd(fd)
 {
 }
 
-bool unixsocket::ThreatReporterServerConnectionThread::finished()
+static inline bool fd_isset(int fd, fd_set* fds)
 {
-    return m_finished;
+    assert(fd >= 0);
+    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
 }
 
-void unixsocket::ThreatReporterServerConnectionThread::start()
+static inline void internal_fd_set(int fd, fd_set* fds)
 {
-
+    assert(fd >= 0);
+    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
 }
 
-void unixsocket::ThreatReporterServerConnectionThread::notifyTerminate()
+static int addFD(fd_set* fds, int fd, int currentMax)
 {
-
+    internal_fd_set(fd, fds);
+    return std::max(fd, currentMax);
 }
+
 //
 //static void throwOnError(int ret, const std::string& message)
 //{
@@ -72,52 +76,82 @@ static  Sophos::ssplav::ThreatDetected::Reader parseDetection(kj::Array<capnp::w
 
 void unixsocket::ThreatReporterServerConnectionThread::run()
 {
+    announceThreadStarted();
+
     datatypes::AutoFd socket_fd(std::move(m_fd));
     PRINT("Got connection " << socket_fd.fd());
     LOGDEBUG("Got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
+    int exitFD = m_notifyPipe.readFd();
+
+    fd_set readFDs;
+    FD_ZERO(&readFDs);
+    int max = -1;
+    max = addFD(&readFDs, exitFD, max);
+    max = addFD(&readFDs, socket_fd, max);
+
     while (true)
     {
-        // read length
-        int32_t length = unixsocket::readLength(socket_fd);
-        if (length < 0)
+        fd_set tempRead = readFDs;
+
+        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+
+        if (activity < 0)
         {
-            PRINT("Aborting connection: failed to read length");
-            return;
+            LOGERROR("Socket failed: " << errno);
+            break;
         }
 
-        PRINT("Read a length of " << length);
-        if (length == 0)
+        if (fd_isset(exitFD, &tempRead))
         {
-            PRINT("Ignoring length of zero");
-            continue;
+            LOGINFO("Closing scanning socket thread");
+            break;
         }
 
-        // read capn proto
-        if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
+        if (fd_isset(socket_fd, &tempRead))
         {
-            buffer_size = 1 + length / sizeof(capnp::word);
-            proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+
+            // read length
+            int32_t length = unixsocket::readLength(socket_fd);
+            if (length < 0)
+            {
+                PRINT("Aborting connection: failed to read length");
+                return;
+            }
+
+            PRINT("Read a length of " << length);
+            if (length == 0)
+            {
+                PRINT("Ignoring length of zero");
+                continue;
+            }
+
+            // read capn proto
+            if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
+            {
+                buffer_size = 1 + length / sizeof(capnp::word);
+                proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+            }
+
+            ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
+            if (bytes_read != length)
+            {
+                PRINT("Aborting connection: failed to read capn proto");
+                return;
+            }
+
+            PRINT("Read capn of " << bytes_read);
+            Sophos::ssplav::ThreatDetected::Reader detectionReader = parseDetection(proto_buffer, bytes_read);
+            // TO DO WRITE SERVER FUNCTIONALITY
+            // call an AVP manager method/callback that generates the XML
+            // pass the arguments needed to generate the XML in the callback/method
+            // so that the AVP wont have to deal with capnp objects
+
+            // do that so I can build
+            detectionReader.getUserID();
+            // TO DO: HANDLE ANY SOCKET ERRORS
         }
-
-        ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
-        if (bytes_read != length)
-        {
-            PRINT("Aborting connection: failed to read capn proto");
-            return;
-        }
-
-        PRINT("Read capn of " << bytes_read);
-        Sophos::ssplav::ThreatDetected::Reader detectionReader = parseDetection(proto_buffer, bytes_read);
-        // TO DO WRITE SERVER FUNCTIONALITY
-        // call an AVP manager method/callback that generates the XML
-        // pass the arguments needed to generate the XML in the callback/method
-        // so that the AVP wont have to deal with capnp objects
-
-        // do that so I can build
-        detectionReader.getUserID();
-        // TO DO: HANDLE ANY SOCKET ERRORS
     }
 }

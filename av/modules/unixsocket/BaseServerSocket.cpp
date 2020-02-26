@@ -53,6 +53,7 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 }
 
 unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
+    : m_path(path)
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");
@@ -69,6 +70,11 @@ unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
     throwOnError(ret, "Failed to bind to unix socket path");
 
     ::chmod(path.c_str(), 0777);
+}
+
+unixsocket::BaseServerSocket::~BaseServerSocket()
+{
+    ::unlink(m_path.c_str());
 }
 
 void unixsocket::BaseServerSocket::run()
@@ -123,6 +129,7 @@ void unixsocket::BaseServerSocket::run()
         }
     }
 
+    ::unlink(m_path.c_str());
     m_socket_fd.reset();
+    killThreads();
 }
-

@@ -146,6 +146,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             break;
         }
 
+        // TO DO: EXTRACT METHODS
         if(fd_isset(socket_fd, &tempRead))
         {
             // read length
@@ -156,6 +157,7 @@ void unixsocket::ScanningServerConnectionThread::run()
                 return;
             }
 
+            // Do we need this?
             PRINT("Read a length of " << length);
             if (length == 0)
             {

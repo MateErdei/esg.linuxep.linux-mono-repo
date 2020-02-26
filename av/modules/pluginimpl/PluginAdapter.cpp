@@ -16,25 +16,24 @@ namespace fs = sophos_filesystem;
 
 using namespace Plugin;
 
-PluginAdapter::PluginAdapter(
-        std::shared_ptr<QueueTask> queueTask,
-        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-        std::shared_ptr<PluginCallback> callback) :
-        m_queueTask(std::move(queueTask)),
-        m_baseService(std::move(baseService)),
-        m_callback(std::move(callback)),
-        m_scanScheduler(*this)
-{
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    fs::path sophos_threat_detector_path = appConfig.getData("PLUGIN_INSTALL");
-    sophos_threat_detector_path /= "sbin/sophos_threat_detector_launcher";
-    m_sophosThreadDetector = std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
-            sophos_threat_detector_path
-    );
-}
-
 namespace
 {
+    fs::path pluginInstall()
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        return appConfig.getData("PLUGIN_INSTALL");
+    }
+
+    fs::path threat_reporter_socket()
+    {
+        return pluginInstall() / "chroot/threat_report_socket";
+    }
+
+    fs::path sophos_threat_detector_launcher()
+    {
+        return pluginInstall() /  "sbin/sophos_threat_detector_launcher";
+    }
+
     class ThreadRunner
     {
     public:
@@ -59,10 +58,27 @@ namespace
     };
 }
 
+PluginAdapter::PluginAdapter(
+        std::shared_ptr<QueueTask> queueTask,
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
+        std::shared_ptr<PluginCallback> callback) :
+        m_queueTask(std::move(queueTask)),
+        m_baseService(std::move(baseService)),
+        m_callback(std::move(callback)),
+        m_scanScheduler(*this),
+        m_threatReporterServer(threat_reporter_socket())
+{
+
+    m_sophosThreadDetector = std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
+            sophos_threat_detector_launcher()
+    );
+}
+
 void PluginAdapter::mainLoop()
 {
     LOGINFO("Entering the main loop");
     ThreadRunner scheduler(m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
+    ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
     ThreadRunner sophos_thread_detector(*m_sophosThreadDetector, "threatDetector");
     innerLoop();
 }
