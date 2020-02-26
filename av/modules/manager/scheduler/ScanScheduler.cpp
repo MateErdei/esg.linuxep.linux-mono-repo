@@ -76,6 +76,15 @@ void manager::scheduler::ScanScheduler::run()
             if (fd_isset(configFD, &tempRead))
             {
                 LOGINFO("Updating scheduled scan configuration");
+                LOGINFO("No of Scheduled Scans Configured: " << m_config.scans().size());
+                for (const auto& scan : m_config.scans() )
+                {
+                    LOGINFO(scan.str());
+                }
+                LOGINFO("No of Exclusions Configured: " << m_config.exclusions().size());
+                LOGINFO("No of Sophos Defined Extension Exclusions Configured: " << m_config.sophosExtensionExclusions().size());
+                LOGINFO("No of User Defined Extension Exclusions Configured: " << m_config.userDefinedExtensionInclusions().size());
+
                 while (m_updateConfigurationPipe.notified())
                 {
                     // Clear updateConfigurationPipe

@@ -153,3 +153,8 @@ time_t ScheduledScan::calculateNextTime(time_t now) const
 
     return ::mktime(&now_struct);;
 }
+
+std::string ScheduledScan::str() const
+{
+    return "Scheduled Scan: " + m_name + "\n";// + m_days.str() + "\n" + m_times.str();
+}
