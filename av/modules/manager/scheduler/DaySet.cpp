@@ -59,33 +59,33 @@ namespace
     {
         if (day == MONDAY)
         {
-            return "monday";
+            return "Monday";
         }
         if (day == TUESDAY)
         {
-            return "tuesday";
+            return "Tuesday";
         }
         if (day == WEDNESDAY)
         {
-            return "wednesday";
+            return "Wednesday";
         }
         if (day == THURSDAY)
         {
-            return "thursday";
+            return "Thursday";
         }
         if (day == FRIDAY)
         {
-            return "friday";
+            return "Friday";
         }
         if (day == SATURDAY)
         {
-            return "saturday";
+            return "Saturday";
         }
         if (day == SUNDAY)
         {
-            return "sunday";
+            return "Sunday";
         }
-        return "invalid";
+        return "INVALID";
     }
 }
 

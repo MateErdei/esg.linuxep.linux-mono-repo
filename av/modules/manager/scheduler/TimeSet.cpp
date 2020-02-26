@@ -37,7 +37,11 @@ Time::Time(const std::string& time)
 
 std::string Time::str() const
 {
-    return std::to_string(m_hour) + ":" + std::to_string(m_minute) + ":" + std::to_string(m_second);
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << std::to_string(m_hour) << ':'
+    << std::setw(2) << std::setfill('0') << std::to_string(m_minute) << ':'
+    << std::setw(2) << std::setfill('0') << std::to_string(m_second);
+    return ss.str();
 }
 
 bool Time::operator<(const Time& rhs) const
