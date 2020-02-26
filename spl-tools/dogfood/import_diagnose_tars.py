@@ -62,7 +62,7 @@ def get_time_string_from_log_line(line):
     return t
 
 
-def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id, product_base_version):
+def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id, product_base_version, product_edr_version, product_mtr_version):
     line = line.strip()
 
     # Empty lines means a blank line is in the log file, so add one here.
@@ -90,8 +90,8 @@ def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id, 
             print("Not inserting log line we have already seen from: {}".format(extracted_time))
             return last_id
 
-        df_sql = "INSERT INTO dogfood_logs (log_time, log_msg, log_path, log_name, hostname, ip, base_version) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        df_val = (extracted_time, line, "diagnose", os.path.basename(log_path), hostname, ip, product_base_version)
+        df_sql = "INSERT INTO dogfood_logs (log_time, log_msg, log_path, log_name, hostname, ip, base_version, edr_version, mtr_version) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        df_val = (extracted_time, line, "diagnose", os.path.basename(log_path), hostname, ip, product_base_version, product_edr_version, product_mtr_version)
         cursor.execute(df_sql, df_val)
         db.commit()
         last_id = cursor.lastrowid
@@ -225,6 +225,21 @@ def extract_base_version(extracted_tar_path):
     return "unknown"
 
 
+def extract_plugin_version(extracted_tar_path, plugin_name):
+    try:
+        with open(os.path.join(extracted_tar_path, "PluginFiles", plugin_name, "VERSION.ini"), 'r') as version_file:
+            for line in version_file:
+                line = line.strip()
+                if "PRODUCT_VERSION = " in line:
+                    tag_and_version = line.split("PRODUCT_VERSION = ")
+                    if len(tag_and_version) > 1:
+                        return tag_and_version[1]
+    except:
+        print("could not extract version from VERSION.ini file")
+
+    return "unknown"
+
+
 def process_diagnose_file(tar_path):
     global g_extract_dir
 
@@ -288,10 +303,14 @@ def process_diagnose_file(tar_path):
 
     ip = extract_ip(sub_dir)
     product_base_version = extract_base_version(sub_dir)
+    product_edr_version = extract_plugin_version(sub_dir, "edr")
+    product_mtr_version = extract_plugin_version(sub_dir, "mtr")
 
     print("Hostname: {}".format(hostname))
     print("IP: {}".format(ip))
     print("Version: {}".format(product_base_version))
+    print("EDR Version: {}".format(product_edr_version))
+    print("MTR Version: {}".format(product_mtr_version))
     time.sleep(3)
 
     # This account has only insert privileges (not even select) so it is safe to include here.
@@ -306,7 +325,7 @@ def process_diagnose_file(tar_path):
     # Improvements recorded in https://wiki.sophos.net/display/LD/SSPL+Dogfood+System
     # When importing don't do it one log line at a time do it in bulk.
     for log in logs:
-        process_log_file(hostname, dogfood_db, ip, log, product_base_version)
+        process_log_file(hostname, dogfood_db, ip, log, product_base_version, product_edr_version, product_mtr_version)
 
     # CURRENTLY DISABLED, need to speed this up and then we can re-enable it.
     # TODO LINUXDAR-1402
@@ -335,7 +354,7 @@ def get_latest_log_time_from_db(hostname, db, log_name):
     return datetime.datetime(min_time.year, min_time.month, min_time.day)
 
 
-def process_log_file(hostname, db, ip, log_file_path, product_base_version):
+def process_log_file(hostname, db, ip, log_file_path, product_base_version, product_edr_version, product_mtr_version):
     print("Processing log:{} {}".format(hostname, log_file_path))
     if 'text' not in magic.from_file(log_file_path):
         print("Log file is not a text file, skipping it.")
@@ -348,7 +367,7 @@ def process_log_file(hostname, db, ip, log_file_path, product_base_version):
 
     with io.open(log_file_path, mode="r", encoding="utf-8") as log:
         for line in log:
-            last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, latest_time, last_id, product_base_version)
+            last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, latest_time, last_id, product_base_version, product_edr_version, product_mtr_version)
 
 
 def process_system_file(hostname, db, ip, sys_file_path):

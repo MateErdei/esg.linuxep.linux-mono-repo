@@ -11,3 +11,7 @@
 
 # Run local live queries  at 1pm
 0 13  *  *  *      python3 /home/pair/performance/RunEDRPerfTests.py -s local-livequery
+
+# For measuring osquery DB files
+*/5 * * * *  bash /home/pair/performance/save-osquery-db-file-count.sh
+
