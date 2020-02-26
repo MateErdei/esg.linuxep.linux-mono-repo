@@ -45,6 +45,51 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Wait Until AV Plugin Log Contains  Sending scan complete
     Validate latest Event
 
+AV Configures Single Scheduled Scan Correctly
+    Check AV Plugin Installed With Base
+    Send Complete Sav Policy
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    Wait Until AV Plugin Log Contains  No of Scheduled Scans Configured: 1
+    Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan
+    Wait Until AV Plugin Log Contains  Days: Monday
+    Wait Until AV Plugin Log Contains  Times: 11:00:00
+    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 2
+    Wait Until AV Plugin Log Contains  No of Sophos Defined Extension Exclusions Configured: 3
+    Wait Until AV Plugin Log Contains  No of User Defined Extension Exclusions Configured: 4
+
+AV Configures Multiple Scheduled Scans Correctly
+    Check AV Plugin Installed With Base
+    Send Sav Policy With Multiple Scheduled Scans
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    Wait Until AV Plugin Log Contains  No of Scheduled Scans Configured: 2
+    Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan One
+    Wait Until AV Plugin Log Contains  Days: Tuesday Saturday
+    Wait Until AV Plugin Log Contains  Times: 04:00:00 16:00:00
+    Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan Two
+    Wait Until AV Plugin Log Contains  Days: Monday Thursday
+    Wait Until AV Plugin Log Contains  Times: 11:00:00 23:00:00
+
+AV Handles Scheduled Scan With Badly Configured Day
+    Check AV Plugin Installed With Base
+    Send Sav Policy With Invalid Scan Day
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    Wait Until AV Plugin Log Contains  Invalid day from policy: blernsday
+    Wait Until AV Plugin Log Contains  No of Scheduled Scans Configured: 1
+    Wait Until AV Plugin Log Contains  Days: invalid
+    Wait Until AV Plugin Log Contains  Times: 11:00:00
+
+AV Handles Scheduled Scan With Badly Configured Time
+    Check AV Plugin Installed With Base
+    Send Sav Policy With Invalid Scan Time
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    AV Plugin Log Contains  No of Scheduled Scans Configured: 1
+    Wait Until AV Plugin Log Contains  Days: Monday
+    Wait Until AV Plugin Log Contains  Times: 00:00:00
+
 Diagnose collects the correct files
     Check AV Plugin Installed With Base
     Check scan now
@@ -71,7 +116,7 @@ Run uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
 
 Check scan now
-    Send Sav Policy To Base  SAV_Policy.xml
+    Send Sav Policy To Base  SAV_Policy_Scan_Now.xml
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until AV Plugin Log Contains  Completed scan scanNow

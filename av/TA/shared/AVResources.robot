@@ -143,8 +143,8 @@ Check AV Plugin Installed With Base
 Display All SSPL Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
+    BuiltIn.Log  ${result.stdout}
+    Builtin.Log  ${result.stderr}
 
 AV And Base Teardown
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
@@ -164,15 +164,6 @@ Create Install Options File With Content
     [Arguments]  ${installFlags}
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
     #TODO set permissions
-
-Send Sav Policy To Base
-    [Arguments]  ${policyFile}
-    Copy File  ${RESOURCES_PATH}/${policyFile}  ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
-
-Send Sav Action To Base
-    [Arguments]  ${actionFile}
-    ${savActionFilename}  Generate Random String
-    Copy File  ${RESOURCES_PATH}/${actionFile}  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_${savActionFilename}.xml
 
 Check ScanNow Log Exists
     File Should Exist  ${SCANNOW_LOG_PATH}

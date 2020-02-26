@@ -1,13 +1,16 @@
 *** Settings ***
 
 Library         ../Libs/BaseInteractionTools/DiagnoseUtils.py
+Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         String
+Library         DateTime
 
 *** Variables ***
 
 ${TAR_FILE_DIRECTORY} =  /tmp/TestOutputDirectory
 ${UNPACK_DIRECTORY} =  /tmp/DiagnoseOutput
 ${UNPACKED_DIAGNOSE_PLUGIN_FILES} =  ${UNPACK_DIRECTORY}/PluginFiles
+${TEMP_SAV_POLICY_FILENAME} =  TempSAVpolicy.xml
 
 *** Keywords ***
 
@@ -47,3 +50,32 @@ Check Diagnose Logs
     ${contents} =  Get File  /tmp/diagnose.log
     Should Not Contain  ${contents}  error  ignore_case=True
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
+
+Send Sav Policy With Imminent Scheduled Scan To Base
+    ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
+    Create Sav Policy With Scheduled Scan  ${time}  ${TEMP_SAV_POLICY_FILENAME}
+    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
+
+Send Sav Policy With Invalid Scan Time
+    Create Badly Configured Sav Policy Time  ${TEMP_SAV_POLICY_FILENAME}
+    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
+
+Send Sav Policy With Invalid Scan Day
+    Create Badly Configured Sav Policy Day  ${TEMP_SAV_POLICY_FILENAME}
+    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
+
+Send Sav Policy With Multiple Scheduled Scans
+    Send Sav Policy To Base  SAV_Policy_multiple_scans.xml
+
+Send Complete Sav Policy
+    Create Complete Sav Policy  ${TEMP_SAV_POLICY_FILENAME}
+    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
+
+Send Sav Policy To Base
+    [Arguments]  ${policyFile}
+    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/SAV-2_policy.xml
+
+Send Sav Action To Base
+    [Arguments]  ${actionFile}
+    ${savActionFilename}  Generate Random String
+    Copy File  ${RESOURCES_PATH}/${actionFile}  ${MCS_PATH}/action/SAV_action_${savActionFilename}.xml

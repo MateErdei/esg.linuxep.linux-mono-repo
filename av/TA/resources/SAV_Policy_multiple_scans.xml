@@ -57,42 +57,17 @@
     </onAccessScan>
     <onDemandScan>
         <extensions>
-            <allFiles>{{allFiles}}</allFiles>
-            <excludeSophosDefined>{{excludeSophosDefined}}</excludeSophosDefined>
-            <userDefined>{{excludeUserDefined}}</userDefined>
-            <noExtensions>{{noExtensions}}</noExtensions>
+            <allFiles>false</allFiles>
+            <excludeSophosDefined/>
+            <userDefined/>
+            <noExtensions>true</noExtensions>
         </extensions>
         <exclusions>
             <filePathSet>{{exclusions}}</filePathSet>
             <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
         </exclusions>
         <posixExclusions>
-            <filePathSet>
-                <filePath>/bin</filePath>
-                <filePath>/boot</filePath>
-                <filePath>/dev</filePath>
-                <filePath>/etc</filePath>
-                <filePath>/home</filePath>
-                <filePath>/lib32</filePath>
-                <filePath>/lib64</filePath>
-                <filePath>/lib</filePath>
-                <filePath>/lost+found</filePath>
-                <filePath>/media</filePath>
-                <filePath>/mnt</filePath>
-                <filePath>/oldTarFiles</filePath>
-                <filePath>/opt</filePath>
-                <filePath>/proc</filePath>
-                <filePath>/redist</filePath>
-                <filePath>/root</filePath>
-                <filePath>/run</filePath>
-                <filePath>/sbin</filePath>
-                <filePath>/snap</filePath>
-                <filePath>/srv</filePath>
-                <filePath>/sys</filePath>
-                <filePath>/usr</filePath>
-                <filePath>/vagrant</filePath>
-                <filePath>/var</filePath>
-            </filePathSet>
+            <filePathSet>{{posixExclusions}}</filePathSet>
             <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
         </posixExclusions>
         <macExclusions>
@@ -102,14 +77,58 @@
         <scanSet>
             <!-- if {{scheduledScanEnabled}} -->
             <scan>
-                <name>Sophos Cloud Scheduled Scan</name>
+                <name>Sophos Cloud Scheduled Scan One</name>
                 <schedule>
                     <daySet>
-                        <!-- for day in {{scheduledScanDays}} -->
-                        <day>{{day}}</day>
+                        <day>tuesday</day>
+                        <day>saturday</day>
                     </daySet>
                     <timeSet>
-                        <time>{{scheduledScanTime}}</time>
+                        <time>04:00:00</time>
+                        <time>16:00:00</time>
+                    </timeSet>
+                </schedule>
+                <settings>
+                    <scanObjectSet>
+                        <CDDVDDrives>false</CDDVDDrives>
+                        <hardDrives>true</hardDrives>
+                        <networkDrives>false</networkDrives>
+                        <removableDrives>false</removableDrives>
+                        <kernelMemory>true</kernelMemory>
+                    </scanObjectSet>
+                    <scanBehaviour>
+                        <level>normal</level>
+                        <archives>{{scheduledScanArchives}}</archives>
+                        <pua>true</pua>
+                        <suspiciousFileDetection>false</suspiciousFileDetection>
+                        <scanForMacViruses>false</scanForMacViruses>
+                        <anti-rootkits>true</anti-rootkits>
+                    </scanBehaviour>
+                    <actions>
+                        <disinfect>true</disinfect>
+                        <puaRemoval>false</puaRemoval>
+                        <fileAction>doNothing</fileAction>
+                        <destination/>
+                        <suspiciousFiles>
+                            <fileAction>doNothing</fileAction>
+                            <destination/>
+                        </suspiciousFiles>
+                    </actions>
+                    <on-demand-options>
+                        <minimise-scan-impact>true</minimise-scan-impact>
+                    </on-demand-options>
+                </settings>
+            </scan>
+            <scan>
+                <name>Sophos Cloud Scheduled Scan Two</name>
+                <schedule>
+                    <daySet>
+                        <day>monday</day>
+                        <day>thursday</day>
+                    </daySet>
+                    <timeSet>
+                        <time>11:00:00</time>
+                        <time>23:00:00</time>
                     </timeSet>
                 </schedule>
                 <settings>
