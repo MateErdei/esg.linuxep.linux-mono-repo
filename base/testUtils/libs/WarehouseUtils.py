@@ -306,7 +306,9 @@ class WarehouseUtils(object):
         "base_paused_update_VUT-1.xml": TemplateConfig("BASE_PAUSED_VUT_PREV", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
         "base_paused_update_VUT.xml": TemplateConfig("BASE_PAUSED_VUT", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
         "base_paused_update_999.xml": TemplateConfig("BASE_PAUSED_999", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
+        "base_only_VUT_without_SDU_Feature.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
     }
+
 
     update_server = UpdateServer.UpdateServer("ostia_update_server.log")
 

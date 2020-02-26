@@ -1161,9 +1161,6 @@ TEST_F( // NOLINT
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
-
-//**********************************************
-
 TEST_F( // NOLINT
         SULDownloaderTest,
         runSULDownloader_ListOfSubscriptionListSizeDiffernceResultsInFullSuccessfulUpdate)
@@ -1522,7 +1519,6 @@ TEST_F( // NOLINT
             downloadReportSimilar,
             expectedDownloadReport,
             SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
-
 }
 
 TEST_F( // NOLINT
@@ -1619,17 +1615,6 @@ TEST_F( // NOLINT
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
 TEST_F( // NOLINT
         SULDownloaderTest,
         runSULDownloader_previousProductChangesShouldResultInSuccessfulFullUpdateAndProduceValidSuccessReport)
@@ -1712,11 +1697,6 @@ TEST_F( // NOLINT
             expectedDownloadReport,
             SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
-
-
-
-
-
 
 TEST_F( // NOLINT
     SULDownloaderTest,

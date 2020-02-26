@@ -8,7 +8,10 @@ Library    OperatingSystem
 
 *** Keywords ***
 Dump All Logs
+    # Old location
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/updatescheduler.log
+    # new location
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/wdctl.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/watchdog.log
 

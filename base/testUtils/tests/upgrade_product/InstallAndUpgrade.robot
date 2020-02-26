@@ -35,12 +35,18 @@ ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_a
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
 ${BaseAndEdrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+${BaseOnlyVUTPolicy}                        ${GeneratedWarehousePolicies}/base_only_VUT.xml
+${BaseOnlyVUT_Without_SDU_Policy}           ${GeneratedWarehousePolicies}/base_only_VUT_without_SDU_Feature.xml
+
 ${LocalWarehouseDir}                        ./local_warehouses
 ${Testpolicy}                               ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_and_mtr_VUT.xml
 ${base_removed_files_manifest}              ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
 ${mtr_removed_files_manifest}               ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
 ${base_files_to_delete}                     ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Base/filestodelete.dat
 ${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Plugin-MDR/filestodelete.dat
+${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+${EDR_DIR}                                  ${SOPHOS_INSTALL}/plugins/edr
 
 *** Test Cases ***
 
@@ -392,6 +398,148 @@ Version Copy Versions All Changed Files When Upgrading
 
     Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestBase}       ${AfterManifestBase}        ${combinedBaseChanges}
     Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestPluginMdr}  ${AfterManifestPluginMdr}   ${combinedPluginMdrChanges}
+
+
+Update Will Be Forced When Feature List Changes Without Unexpected Errors
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUT_Without_SDU_Policy}
+
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUT_Without_SDU_Policy}
+    Wait For Initial Update To Fail
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseOnlyVUT_Without_SDU_Policy}
+
+    Trigger Update Now
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    Log File  /opt/sophos-spl/base/update/var/update_config.json
+
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseOnlyVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseOnlyVUTPolicy}
+
+    Log File  /opt/sophos-spl/base/update/var/update_config.json
+    Log File  /opt/sophos-spl/base/update/var/previous_update_config.json
+
+    # Update should be automatically invoke due to policy
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
+
+
+Update Will Be Forced When Subscription List Changes Without Unexpected Errors
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
+    Wait For Initial Update To Fail
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseOnlyVUTPolicy}
+    Trigger Update Now
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
+
+    Log File  /opt/sophos-spl/base/update/var/update_config.json
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
+
+    Log File  /opt/sophos-spl/base/update/var/update_config.json
+    Log File  /opt/sophos-spl/base/update/var/previous_update_config.json
+
+     # Update should be automatically invoke due to policy
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
+
+
+Update Will Be Forced When Component Has Been Unintalled Without Unexpected Errors
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
+    Wait For Initial Update To Fail
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Trigger Update Now
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    Log File  /opt/sophos-spl/base/update/var/update_config.json
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
+
+    Log File  /opt/sophos-spl/base/update/var/update_config.json
+    Log File  /opt/sophos-spl/base/update/var/previous_update_config.json
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Plugin-EDR   1
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Plugin-EDR    1
+
+    Should Exist  ${EDR_DIR}
+
+    ${result}=  Run Process    ${EDR_DIR}/bin/uninstall.sh   shell=True
+    Log  ${result.stdout}
+
+    Should Not Exist  ${EDR_DIR}
+
+    #Check Log Contains String N Times   ${UpdateSchedulerLog}   UpdateScheduler Log   Detected product configuration change, forcing update.    1
+
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Plugin-EDR   2
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Plugin-EDR    2
+
+    Should Exist  ${EDR_DIR}
+
 
 *** Keywords ***
 

@@ -1,0 +1,41 @@
+{
+  "sophosURLs": [
+    "https://ostia.eng.sophos/latest/sspl-warehouse/develop-abelard",
+    "http://dci.sophosupd.com/update",
+    "http://dci.sophosupd.net/update"
+  ],
+  "credential": {
+    "username": "c071bb1cc186531a72e200467a61b321",
+    "password": "c071bb1cc186531a72e200467a61b321"
+  },
+  "proxy": {
+    "url": "",
+    "credential": {
+      "username": "",
+      "password": "",
+      "proxyType": ""
+    }
+  },
+  "certificatePath": "/opt/sophos-spl/base/update/certs",
+  "installationRootPath": "/opt/sophos-spl",
+  "systemSslPath": ":system:",
+  "cacheUpdateSslPath": "",
+  "installArguments": [
+    "--instdir",
+    "/opt/sophos-spl"
+  ],
+  "logLevel": "VERBOSE",
+  "manifestNames": [
+    "manifest.dat"
+  ],
+  "primarySubscription": {
+    "rigidName": "ServerProtectionLinux-Base",
+    "baseVersion": "",
+    "tag": "RECOMMENDED",
+    "fixedVersion": ""
+  },
+  "features": [
+    "CORE",
+    "SENSORS"
+  ]
+}

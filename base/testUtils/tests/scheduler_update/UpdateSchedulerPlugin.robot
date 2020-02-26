@@ -298,6 +298,61 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     Run Keyword Unless  -60 < ${TimeDiff} < 600  Fail
 
 
+UpdateScheduler Performs Update After Receiving Policy With Different Features
+    [Setup]  Setup Current Update Scheduler Environment Without Policy
+    Copy File  /etc/hosts  /etc/hosts.bk
+    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
+    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+    Remove File  ${statusPath}
+    Remove File  ${sulConfigPath}
+    Start Update Scheduler
+    Start Management Agent Via WDCTL
+    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Check Status and Events Are Created
+    ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
+    Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
+
+    # Now we know we are in a good state simulate previous update state for the test
+    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_CORE_SENSORS_featues_and_base_only.json   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    Run Process  chown  sophos-spl-user:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+
+    # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
+    Send Policy To UpdateScheduler  ALC_policy_direct_with_sdu_feature.xml
+    ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
+    Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
+
+
+UpdateScheduler Performs Update After Receiving Policy With Different Subscriptions
+    [Setup]  Setup Current Update Scheduler Environment Without Policy
+    Copy File  /etc/hosts  /etc/hosts.bk
+    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
+    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+    Remove File  ${statusPath}
+    Remove File  ${sulConfigPath}
+    Start Update Scheduler
+    Start Management Agent Via WDCTL
+    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Check Status and Events Are Created
+    ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
+    Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
+
+    # Now we know we are in a good state simulate previous update state for the test
+    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_subscription_only.json   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    Run Process  chown  sophos-spl-user:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+
+    # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
+    Send Policy To UpdateScheduler  ALC_policy_direct_base_and_example_plugin.xml
+    ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
+    Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
+
+
+
 *** Keywords ***
 
 Check Event Source
