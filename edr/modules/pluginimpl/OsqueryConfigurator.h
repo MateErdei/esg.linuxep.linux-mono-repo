@@ -20,7 +20,7 @@ namespace Plugin {
 
     protected:
         bool MTRBoundEnabled() const;
-        bool disableAuditFlag() const;
+        bool disableSystemAuditDAndTakeOwnershipOfNetlink() const;
         void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection);
 
     private:

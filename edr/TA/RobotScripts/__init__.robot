@@ -20,12 +20,15 @@ Global Setup Tasks
     Set Environment Variable  SOPHOS_INSTALL        ${SOPHOS_INSTALL}
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotScripts
+    Set Global Variable  ${EXAMPLE_DATA_PATH}       ${ROBOT_SCRIPTS_PATH}/data
     Set Global Variable  ${COMPONENT_NAME}          edr
     Set Global Variable  ${COMPONENT_SDDS}          ${TEST_INPUT_PATH}/${COMPONENT_NAME}/SDDS-COMPONENT
     Set Global Variable  ${COMPONENT_ROOT_PATH}     ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}
     Set Global Variable  ${COMPONENT_BIN_PATH}      ${COMPONENT_ROOT_PATH}/bin/${COMPONENT_NAME}
     Set Global variable  ${COMPONENT_LIB64_DIR}     ${COMPONENT_ROOT_PATH}/lib64
     Set Global Variable  ${FAKEMANAGEMENT_AGENT_LOG_PATH}  ${SOPHOS_INSTALL}/tmp/fake_management_agent.log
+
+    directory should exist  ${ROBOT_SCRIPTS_PATH}
 
     Setup Base And Component
 

@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+    <csc:Comp RevID="33d0b9b082a8d987ab3834f1a0e849ecb18e8e088145a12b84355808fb4c390e" policyType="1"/>
+    <AUConfig platform="Linux">
+        <sophos_address address="http://es-web.sophos.com/update"/>
+        <primary_location>
+            <server BandwidthLimit="0" AutoDial="false" Algorithm="AES256" UserPassword="CCCenq8ekGbAWCY8u5r/SfnshGdsYUbmLm++Q/Yzf9pD3CEcpOkm+4Jx+t4zX64ZAu4=" UserName="W2YJXI6FED" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
+            <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+        </primary_location>
+        <secondary_location>
+            <server BandwidthLimit="0" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+            <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+        </secondary_location>
+        <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
+        <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
+        <bootstrap Location="" UsePrimaryServerAddress="true"/>
+        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+        <cloud_subscriptions>
+            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+            <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/>
+            <subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/>
+        </cloud_subscriptions>
+        <delay_supplements enabled="false"/>
+    </AUConfig>
+    <Features>
+        <Feature id="CORE"/>
+        <Feature id="MDR"/>
+        <Feature id="LIVEQUERY"/>
+        <Feature id="SDU"/>
+    </Features>
+    <automatic_sdu_submission Enabled="true"/>
+    <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+    <update_cache>
+        <intermediate_certificates>
+            <intermediate_certificate id="cfe086255488e4a45ebe10956bb3606c7ab5dc6a.crt">-----BEGIN CERTIFICATE-----
+                MIIDxTCCAq2gAwIBAgIRAPdkQfcE6vmok+XaALuyHZQwDQYJKoZIhvcNAQELBQAw&#13;
+                YTELMAkGA1UEBhMCR0IxDzANBgNVBAcMBk94Zm9yZDEPMA0GA1UECgwGU29waG9z&#13;
+                MRIwEAYDVQQLDAlIZWFydGJlYXQxHDAaBgNVBAMME0hlYXJ0YmVhdC1ldS13ZXN0&#13;
+                LTEwHhcNMTkxMDE0MDgzMDA5WhcNMjExMDE3MDgzMDA5WjCBsjELMAkGA1UEBhMC&#13;
+                R0IxDzANBgNVBAcMBk94Zm9yZDEPMA0GA1UECgwGU29waG9zMRIwEAYDVQQLDAlI&#13;
+                ZWFydGJlYXQxGDAWBgNVBAMMD1Byb2R1Y3QgTGljZW5zZTE4MDYGA1UEAwwvQ3Vz&#13;
+                dG9tZXJJRDo0YjRjYTNiYS1jMTQ0LTQ0NDctODA1MC02Yzk2YTcxMDRjMTExGTAX&#13;
+                BgNVBAMMEFNvcGhvcyBIZWFydGJlYXQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw&#13;
+                ggEKAoIBAQCUEl8JqDrHT0QUFCPH/Iu2evlITcLyj6DP5MjG8H9gxvBWD66Yhuro&#13;
+                USU+0gURnFmbLViLGn64/ka16142qZtMRqkjXNZyLsUA3FyZpqu+FwhnnR4kBixf&#13;
+                nwRA73WHdih62MK4NJxriQfLT89rNjEXEC58d9HgS+SgDDpDKGTG5DZwhyPBcnEw&#13;
+                0o8I6ozfbtyTjL2wNWBFQ6Jw3t/b9DsY9bGPdzod8RuOOPer4YcvK+p8HWPS/Qws&#13;
+                JzlP9cMxmqTYA5e6MdSSBSJavs+Ymnhi1adqXlQ7T7CvKSQSEq+jXhtDJusDCpDK&#13;
+                3sPzZvDbvW1fqHGxv8WJ3G4z/AWMIZGDAgMBAAGjJjAkMBIGA1UdEwEB/wQIMAYB&#13;
+                Af8CAQAwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3DQEBCwUAA4IBAQCSdbk98450&#13;
+                fqhdEWeBAlYOFCsZ/UfQrskw8WamV36KQ4jXuxAR4YhqKsvV1EnW2LsG6tyc9hl7&#13;
+                PgbLHTKL75rVbe74Z7n56087KkH8cylFpqmpjHnbcwjf8izaTHqcsWJaFyO3SgNJ&#13;
+                QlkXpLGdSjtMquNZkcwpIOlU8X3hZdAB30MRc2Na3JY+nQCfWBDujHvjEDmGp46R&#13;
+                jo81vhiNFXPXlfFE8f/Q+1N9JWR6u4rh5c/+XKT/BGnJcXR5ZwBwL6fn/pPR3lgR&#13;
+                QLGxpUjRvd/fVia5ClSJzO3MiKYXSaQIcKMiXhZqygLNCe4Sl1qfqIwVFS7xzJ5t&#13;
+                UxX0DDNJq8An&#13;
+
+                -----END CERTIFICATE-----</intermediate_certificate>
+            <intermediate_certificate id="230d7f14e899d07cd0581d150cbda05826b59bef.crt">-----BEGIN CERTIFICATE-----
+                MIIDnTCCAoWgAwIBAgIBAjANBgkqhkiG9w0BAQsFADB/MQswCQYDVQQGEwJHQjEP&#13;
+                MA0GA1UEBwwGT3hmb3JkMQ8wDQYDVQQKDAZTb3Bob3MxFDASBgNVBAsMC0VuZ2lu&#13;
+                ZWVyaW5nMTgwNgYDVQQDDC9Tb3Bob3MgSGVhcnRiZWF0IE5vdC1Gb3ItUmVsZWFz&#13;
+                ZSBSb290IEF1dGhvcml0eTAeFw0xNTA2MDQyMTQyMTNaFw0zNTA2MDQyMTQyMTNa&#13;
+                MGExCzAJBgNVBAYTAkdCMQ8wDQYDVQQHDAZPeGZvcmQxDzANBgNVBAoMBlNvcGhv&#13;
+                czESMBAGA1UECwwJSGVhcnRiZWF0MRwwGgYDVQQDDBNIZWFydGJlYXQtZXUtd2Vz&#13;
+                dC0xMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlJSxtUjPwyFrldV4&#13;
+                5TJlhP0Kmko3NyHyRqI9xsMRzJ6ZYgJWx1gpPkoT0L4EU+ZStdKbuizL5lhZfBQj&#13;
+                FmxMBLss+tD3WUIE1LQY2Ge+XzbhpTv2QPEslf/nX6T7uEKf3Sb7nsq6JbV3wOjV&#13;
+                R4rsehbUT5tPb0QZAXBu3Cej5ppQrEeQMLeVdU9js8pAKK1HhHJPXcQEjw2SPRGa&#13;
+                S8UnXkK5nd+myQYAgrCtplD0Ul35U2Kc0lRsyVeQsupHlNN5we7HfSI4TrPHox7B&#13;
+                rjAEmQ77c9uP6PbXqY8buo8TlT33eoUYJwFd9ivXutFRf0l8QO2u6Jg+W7eCQqp9&#13;
+                uNYHYwIDAQABo0IwQDAdBgNVHQ4EFgQUrv/9VM4ZJ2TRU4LJ6n3u0YPY8bEwDwYD&#13;
+                VR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQELBQADggEB&#13;
+                ALIoFNI+pvj57lL83AS1rZX2V6CvGjCiFpR0YfJXlKCMFX9QOm1zT8OKkaLdMAsm&#13;
+                BQZuwhL2k3byk5b8gHYn9IcVE55RC5F2WUsdwke27BIalSSPNitc5sIxKBoc4BLS&#13;
+                2pkhIDwqjTqX9HM31IVT/GlnYqubh1kigqgdOQOIRfCKpb17TZoRQHbC7N5gOoa7&#13;
+                xNwKx/Z1lc6IsUFSFuevVRIhlY0FL0xBIKveMYIBJFgZGY+hRCevqIu1sR0OYNHg&#13;
+                nJwgZ6PRCYPMsEntjoFEy5IoVheP/1yHCC/1seH9nhtGe7xzjuUJHwfPm9kBOpCU&#13;
+                zJqTw7msuYhp6kd4xCw7ccc=&#13;
+
+                -----END CERTIFICATE-----</intermediate_certificate>
+            <intermediate_certificate id="33d6a435957397fc9336c8633445aa33e1774500.crt">-----BEGIN CERTIFICATE-----
+                MIIDuzCCAqOgAwIBAgIBATANBgkqhkiG9w0BAQsFADB/MQswCQYDVQQGEwJHQjEP&#13;
+                MA0GA1UEBwwGT3hmb3JkMQ8wDQYDVQQKDAZTb3Bob3MxFDASBgNVBAsMC0VuZ2lu&#13;
+                ZWVyaW5nMTgwNgYDVQQDDC9Tb3Bob3MgSGVhcnRiZWF0IE5vdC1Gb3ItUmVsZWFz&#13;
+                ZSBSb290IEF1dGhvcml0eTAeFw0xNTA2MDQyMTQyMDJaFw0zNTA2MDQyMTQyMDJa&#13;
+                MH8xCzAJBgNVBAYTAkdCMQ8wDQYDVQQHDAZPeGZvcmQxDzANBgNVBAoMBlNvcGhv&#13;
+                czEUMBIGA1UECwwLRW5naW5lZXJpbmcxODA2BgNVBAMML1NvcGhvcyBIZWFydGJl&#13;
+                YXQgTm90LUZvci1SZWxlYXNlIFJvb3QgQXV0aG9yaXR5MIIBIjANBgkqhkiG9w0B&#13;
+                AQEFAAOCAQ8AMIIBCgKCAQEAtQqlMqhJNYlTp/4zElmB7WOEsFUCLVD+Kzneh733&#13;
+                JbpL+RgRQ9qn76+J9vcFPG+eA5zf8M8Mbmb7IBEuLMmD5erT00AwoH8Vr4UP9Wb4&#13;
+                wPn8QzI+WO5oO3NjGvVGD/cufjBH9zqi8oiQwYELrz8fHXTxkCAJHcLp4tM86SQc&#13;
+                QnkWQv9TEWbGgrhJnMg3DAY8pERdLBhjVHPK15ZwyvMlqISBVOm9k8c81fwx4pfG&#13;
+                b4O+1CylPUKqreUXw7T6HB85+ym3TAkq9eeiJA1BkjdhWdpewIII5U955eaWJXaA&#13;
+                ra1jdNb21JAbrwy67Vp4v3uQ+62pOkubThlaQ+qIajJsHwIDAQABo0IwQDAdBgNV&#13;
+                HQ4EFgQUI6jNsBYvHqSsWqJfTrCMizzCHx0wDwYDVR0TAQH/BAUwAwEB/zAOBgNV&#13;
+                HQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQELBQADggEBAE4EtR6dARf1ZqnfQlbjKubN&#13;
+                GGrDVv3GOmPenAH4AcCrXNe6ObIadJFVKWRYMvvMdb4GxxEts29OZdHnFK+Vvrqh&#13;
+                yUV0o4It14BBNjLIApo9eddShyDEZKGusQ33S9XYCIG6Yan59jOo2rvsntwi829v&#13;
+                B5yoGhSoxOaXlExk9YAGXaGmoaJ228iF2vuwmgSHJVxUy02AwiqqEwUy/MGL8877&#13;
+                wFkMtR8hrPVLP0hcHuzWN2cBmrl0C6TeKufqbZBqb/MPn2LWzKcvF44xs3k7uP/H&#13;
+                JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
+
+                -----END CERTIFICATE-----</intermediate_certificate>
+        </intermediate_certificates>
+        <locations>
+            <location hostname="maineng2.eng.sophos:8191" priority="0" id="d4739ed5-b66a-4a21-9218-4fd0dfe4dcbd"/>
+            <location hostname="w2k8r2-std-en-df.eng.sophos:8191" priority="0" id="0e1e598b-d6d6-4e4b-9425-9fefd277a353"/>
+        </locations>
+    </update_cache>
+    <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
+</AUConfigurations>

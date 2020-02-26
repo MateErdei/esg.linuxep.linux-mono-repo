@@ -51,16 +51,18 @@ Check EDR Plugin Installed
 
 Simulate Live Query
     [Arguments]  ${name}  ${correlation}=123-4
-    ${requestFile} =  Set Variable  ${ROBOT_SCRIPTS_PATH}/data/${name}
+    ${requestFile} =  Set Variable  ${EXAMPLE_DATA_PATH}/${name}
     File Should Exist  ${requestFile}
     Copy File   ${requestFile}  ${SOPHOS_INSTALL}/tmp
     Run Shell Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/${name}  OnError=Failed to change ownership
     Move File    ${SOPHOS_INSTALL}/tmp/${name}  ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_${correlation}_FakeTime_request.json
 
 Install With Base SDDS
+    [Arguments]  ${enableAuditConfig}=False
     Remove Directory   ${SOPHOS_INSTALL}   recursive=True
     Directory Should Not Exist  ${SOPHOS_INSTALL}
     Install Base For Component Tests
+    Run Keyword If  ${enableAuditConfig}  Create Install Options File With Content  --disable-auditd
     Install EDR Directly from SDDS
 
 Uninstall All
@@ -108,6 +110,7 @@ EDR And Base Teardown
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Run Keyword If Test Failed   Display All SSPL Files Installed
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
     Wait Until Keyword Succeeds

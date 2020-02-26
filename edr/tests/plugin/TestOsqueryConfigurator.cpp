@@ -17,19 +17,19 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace Plugin;
 class TestableOsqueryConfigurator : public  OsqueryConfigurator
 {
-    bool m_disableAuditFlag;
+    bool m_disableSystemAuditDAndTakeOwnershipOfNetlink;
 public:
-    TestableOsqueryConfigurator( bool disableAuditFlag ): OsqueryConfigurator()
+    TestableOsqueryConfigurator( bool disableSystemAuditDAndTakeOwnershipOfNetlink ): OsqueryConfigurator()
     {
-        m_disableAuditFlag = disableAuditFlag;
+        m_disableSystemAuditDAndTakeOwnershipOfNetlink = disableSystemAuditDAndTakeOwnershipOfNetlink;
     }
     bool MTRBoundEnabled() const
     {
         return OsqueryConfigurator::MTRBoundEnabled();
     }
-    bool disableAuditFlag() const
+    bool disableSystemAuditDAndTakeOwnershipOfNetlink() const
     {
-        return OsqueryConfigurator::disableAuditFlag();
+        return OsqueryConfigurator::disableSystemAuditDAndTakeOwnershipOfNetlink();
     }
 
     std::string regenerateOSQueryFlagsFile(bool enableAuditEventCollection)
@@ -51,7 +51,7 @@ public:
 
 private:
     bool retrieveDisableAuditFlagFromSettingsFile() const override {
-        return m_disableAuditFlag;
+        return m_disableSystemAuditDAndTakeOwnershipOfNetlink;
     }
 
 };
@@ -89,7 +89,7 @@ TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeature) //NOL
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
-    TestableOsqueryConfigurator enabledOption(false);
+    TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithMTRFeature());
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Detected MTR is enabled"));
@@ -99,7 +99,7 @@ TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNot
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
-    TestableOsqueryConfigurator enabledOption(false);
+    TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO No MTR Detected"));
@@ -107,14 +107,14 @@ TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNot
 
 TEST(TestOsqueryConfigurator, BeforALCPolicyIsGivenOsQueryConfiguratorShouldConsideredToBeMTRBounded) //NOLINT
 {
-    TestableOsqueryConfigurator disabledOption(true);
-    EXPECT_TRUE(disabledOption.disableAuditFlag());
+    TestableOsqueryConfigurator disabledOption(false);
+    EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     // true because no alc policy was given
     EXPECT_TRUE(disabledOption.MTRBoundEnabled());
     EXPECT_FALSE(disabledOption.enableAuditDataCollection());
 
-    TestableOsqueryConfigurator enabledOption(false);
-    EXPECT_FALSE(enabledOption.disableAuditFlag());
+    TestableOsqueryConfigurator enabledOption(true);
+    EXPECT_TRUE(enabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     // true because no alc policy was given
     EXPECT_TRUE(enabledOption.MTRBoundEnabled());
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
@@ -122,38 +122,38 @@ TEST(TestOsqueryConfigurator, BeforALCPolicyIsGivenOsQueryConfiguratorShouldCons
 
 TEST(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShouldControlAuditConfiguration) //NOLINT
 {
-    TestableOsqueryConfigurator disabledOption(true);
+    TestableOsqueryConfigurator disabledOption(false);
     disabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
 
-    EXPECT_TRUE(disabledOption.disableAuditFlag());
+    EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     // false as the alc policy does not refer to mtr feature
     EXPECT_FALSE(disabledOption.MTRBoundEnabled());
-    // audit collection is disabled because of disableAuditFlag
+    // audit collection is not enabled because of disableSystemAuditDAndTakeOwnershipOfNetlink set to false means system auditd should be enabled.
     EXPECT_FALSE(disabledOption.enableAuditDataCollection());
 
 
-    TestableOsqueryConfigurator enabledOption(false);
+    TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
-    EXPECT_FALSE(enabledOption.disableAuditFlag());
+    EXPECT_TRUE(enabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     // false as the alc policy does not refer to mtr feature
     EXPECT_FALSE(enabledOption.MTRBoundEnabled());
-    // audit collection is enabled because of Audit Flag.
+    // audit collection is enabled because of it has permission to take ownership of audit link
     EXPECT_TRUE(enabledOption.enableAuditDataCollection());
 }
 
 TEST(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConfigured) //NOLINT
 {
-    TestableOsqueryConfigurator disabledOption(true);
+    TestableOsqueryConfigurator disabledOption(false);
     disabledOption.loadALCPolicy(PolicyWithMTRFeature());
 
-    EXPECT_TRUE(disabledOption.disableAuditFlag());
+    EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     EXPECT_TRUE(disabledOption.MTRBoundEnabled());
     EXPECT_FALSE(disabledOption.enableAuditDataCollection());
 
 
-    TestableOsqueryConfigurator enabledOption(false);
+    TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithMTRFeature());
-    EXPECT_FALSE(enabledOption.disableAuditFlag());
+    EXPECT_TRUE(enabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     EXPECT_TRUE(enabledOption.MTRBoundEnabled());
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
 }
@@ -161,13 +161,13 @@ TEST(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConfig
 
 TEST(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataCollection) //NOLINT
 {
-    TestableOsqueryConfigurator enabledOption(false);
+    TestableOsqueryConfigurator enabledOption(true);
 
     std::string osqueryFlags = enabledOption.regenerateOSQueryFlagsFile(true);
 
     EXPECT_THAT(osqueryFlags, ::testing::HasSubstr("--disable_audit=false"));
 
-    TestableOsqueryConfigurator disabledOption(true);
+    TestableOsqueryConfigurator disabledOption(false);
     osqueryFlags = disabledOption.regenerateOSQueryFlagsFile(false);
 
     EXPECT_THAT(osqueryFlags, ::testing::HasSubstr("--disable_audit=true"));

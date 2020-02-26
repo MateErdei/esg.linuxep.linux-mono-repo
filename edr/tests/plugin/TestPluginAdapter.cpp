@@ -63,7 +63,7 @@ public:
 TEST(TestPluginAdapter,  processALCPolicyShouldInstructRestartOnChangePolicy) { // NOLINT
     Tests::TempDir tempDir("/tmp");
     // set the config file to enable audit by default. Hence, the rest is configured by policy.
-    tempDir.createFile("plugins/edr/etc/plugin.conf", "disable_auditd=0\n");
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "disable_auditd=1\n");
     Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
     auto queueTask = std::make_shared<Plugin::QueueTask>();

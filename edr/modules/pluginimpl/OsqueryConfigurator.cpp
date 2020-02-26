@@ -108,7 +108,14 @@ namespace Plugin{
 
     void OsqueryConfigurator::prepareSystemForPlugin()
     {
-        bool disableAuditD =  !enableAuditDataCollection();
+        bool disableAuditD =  enableAuditDataCollection();
+        if (disableAuditD)
+        {
+            LOGINFO("Configuring Osquery and the System to collect audit data");
+        }
+        else{
+            LOGINFO("Configuring Osquery and the System to not collect audit data");
+        }
 
         SystemConfigurator::setupOSForAudit(disableAuditD);
 
@@ -162,7 +169,7 @@ namespace Plugin{
     }
 
     bool OsqueryConfigurator::enableAuditDataCollection() const {
-        return !disableAuditFlag() and !MTRBoundEnabled();
+        return disableSystemAuditDAndTakeOwnershipOfNetlink() and !MTRBoundEnabled();
     }
 
     void OsqueryConfigurator::loadALCPolicy(const std::string &alcPolicy) {
@@ -178,11 +185,23 @@ namespace Plugin{
     }
 
     bool OsqueryConfigurator::MTRBoundEnabled() const {
+        if (m_mtrboundEnabled)
+        {
+            LOGDEBUG( "Detected MTR hence should not collect audit data");
+        } else{
+            LOGDEBUG( "MTR not detected, hence, it will apply the plugin.conf disable-audit option");
+        }
         return m_mtrboundEnabled;
     }
 
-    bool OsqueryConfigurator::disableAuditFlag() const {
-        return retrieveDisableAuditFlagFromSettingsFile();
+    bool OsqueryConfigurator::disableSystemAuditDAndTakeOwnershipOfNetlink() const {
+        if (retrieveDisableAuditFlagFromSettingsFile())
+        {
+            LOGINFO("plugins.conf configured to collect audit data from osquery");
+            return true;
+        }
+        LOGINFO("plugins.conf configured to not collect audit data from osquery");
+        return false;
     }
 
 }

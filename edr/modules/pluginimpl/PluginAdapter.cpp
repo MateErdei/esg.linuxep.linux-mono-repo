@@ -83,8 +83,11 @@ namespace Plugin
         LOGINFO("Entering the main loop");
 
         std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask,std::chrono::seconds(5), 5);
+        LOGINFO("Processing ALC Policy");
         processALCPolicy(alcPolicy, true);
+        LOGINFO("Cleanup Old Osquery Files");
         cleanUpOldOsqueryFiles();
+        LOGINFO("Start Osquery");
         setUpOsqueryMonitor();
 
         std::unique_ptr<WaitUpTo> m_delayedRestart;
@@ -186,6 +189,7 @@ namespace Plugin
 
     void PluginAdapter::setUpOsqueryMonitor()
     {
+        LOGINFO("Prepare system for Running osquery");
         m_osqueryConfigurator.prepareSystemForPlugin();
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
@@ -196,6 +200,7 @@ namespace Plugin
         m_monitor = std::async(std::launch::async, [queue, osqueryProcess, &osqueryStarted]() {
             try
             {
+                LOGINFO("Start Osquery");
                 osqueryProcess->keepOsqueryRunning(osqueryStarted);
             }
             catch (Plugin::IOsqueryCrashed&)
