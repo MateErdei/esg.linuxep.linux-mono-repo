@@ -28,7 +28,7 @@ namespace unixsocket
         void run() override;
 
     private:
-        std::string m_path;
+        std::string m_socketPath;
 
     protected:
         /**

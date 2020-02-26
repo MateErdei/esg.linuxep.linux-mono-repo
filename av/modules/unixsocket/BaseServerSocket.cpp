@@ -53,7 +53,7 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 }
 
 unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
-    : m_path(path)
+    : m_socketPath(path)
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");
@@ -74,7 +74,7 @@ unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
 
 unixsocket::BaseServerSocket::~BaseServerSocket()
 {
-    ::unlink(m_path.c_str());
+    ::unlink(m_socketPath.c_str());
 }
 
 void unixsocket::BaseServerSocket::run()
