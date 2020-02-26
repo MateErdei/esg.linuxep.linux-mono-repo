@@ -203,9 +203,16 @@ Install Base And EDR Then Migrate To BASE
     ...  5 secs
     ...  EDR Plugin Is Not Running
 
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
 Install base and edr 999 then downgrade to current master
     Install EDR  ${BaseAndEdr999Policy}
     Wait Until OSQuery Running
+    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Trigger Update Now
 
@@ -217,6 +224,14 @@ Install base and edr 999 then downgrade to current master
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Running
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
 
 
 Install base and edr and mtr then downgrade to just base and mtr
@@ -233,3 +248,19 @@ Install base and edr and mtr then downgrade to just base and mtr
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Not Running
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Should Not Exist  ${EDR_DIR}
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Should Exist  ${MTR_DIR}
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
