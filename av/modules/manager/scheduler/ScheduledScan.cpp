@@ -156,5 +156,5 @@ time_t ScheduledScan::calculateNextTime(time_t now) const
 
 std::string ScheduledScan::str() const
 {
-    return "Scheduled Scan: " + m_name + "\n";// + m_days.str() + "\n" + m_times.str();
+    return "Scheduled Scan: " + m_name + "\n" + m_days.str() + "\n" + m_times.str();
 }
