@@ -16,6 +16,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 namespace Plugin{
     void OsqueryConfigurator::regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath)
     {
+        LOGINFO("Creating osquery scheduled pack");
         auto fileSystem = Common::FileSystem::fileSystem();
         if (fileSystem->isFile(osqueryConfigFilePath))
         {
@@ -54,6 +55,7 @@ namespace Plugin{
 
     void OsqueryConfigurator::regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection)
     {
+        LOGINFO("Creating osquery flags file");
         auto fileSystem = Common::FileSystem::fileSystem();
 
         if (fileSystem->isFile(osqueryFlagsFilePath))

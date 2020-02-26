@@ -15,7 +15,7 @@ namespace Plugin
 {
     struct Task
     {
-        enum class TaskType
+        enum class TaskType : int
         {
             RESTARTOSQUERY,
             OSQUERYPROCESSFINISHED,

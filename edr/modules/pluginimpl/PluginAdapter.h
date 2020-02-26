@@ -21,6 +21,11 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
+class DetectRequestToStop : public std::runtime_error
+{
+public:
+    using std::runtime_error::runtime_error;
+};
     class PluginAdapter
     {
         std::shared_ptr<QueueTask> m_queueTask;
@@ -80,6 +85,7 @@ namespace Plugin
 
         OsqueryConfigurator& osqueryConfigurator();
     private:
+        void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 3600;

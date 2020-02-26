@@ -1,6 +1,8 @@
 *** Settings ***
 Library         Process
 Library         OperatingSystem
+Library         String
+
 Library         ../Libs/FakeManagement.py
 
 Resource    ComponentSetup.robot

@@ -12,9 +12,10 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "TelemetryConsts.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/Proc/ProcUtilities.h>
-#include <Common/FileSystem/IFileSystemException.h>
+
 #include <cmath>
 
 // helper class that allow to schedule a task.
@@ -80,14 +81,26 @@ namespace Plugin
 
     void PluginAdapter::mainLoop()
     {
+        try
+        {
+            innerMainLoop();
+        }
+        catch (DetectRequestToStop& ex)
+        {
+            LOGINFO("Early request to stop found.");
+        }
+    }
+
+    void PluginAdapter::innerMainLoop()
+    {
         LOGINFO("Entering the main loop");
 
-        std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask,std::chrono::seconds(5), 5);
-        LOGINFO("Processing ALC Policy");
+        std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask, std::chrono::seconds(5), 5);
+        LOGSUPPORT("Processing ALC Policy");
         processALCPolicy(alcPolicy, true);
-        LOGINFO("Cleanup Old Osquery Files");
+        LOGSUPPORT("Cleanup Old Osquery Files");
         cleanUpOldOsqueryFiles();
-        LOGINFO("Start Osquery");
+        LOGSUPPORT("Start Osquery");
         setUpOsqueryMonitor();
 
         std::unique_ptr<WaitUpTo> m_delayedRestart;
@@ -96,6 +109,7 @@ namespace Plugin
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
+                LOGINFO("No activity for " << QUEUE_TIMEOUT << " seconds. Checking files");
                 cleanUpOldOsqueryFiles();
             }
             else
@@ -115,29 +129,35 @@ namespace Plugin
                         LOGDEBUG("Process task OSQUERYPROCESSFINISHED");
                         m_timesOsqueryProcessFailedToStart = 0;
                         LOGDEBUG("osquery stopped. Scheduling its restart in 10 seconds.");
-                        Common::Telemetry::TelemetryHelper::getInstance().increment(plugin::telemetryOsqueryRestarts, 1UL);
+                        Common::Telemetry::TelemetryHelper::getInstance().increment(
+                            plugin::telemetryOsqueryRestarts, 1UL);
                         m_delayedRestart.reset( // NOLINT
-                            new WaitUpTo(std::chrono::seconds(10), [this]() { this->m_queueTask->pushRestartOsquery(); }));
+                            new WaitUpTo(
+                                std::chrono::seconds(10), [this]() { this->m_queueTask->pushRestartOsquery(); }));
                         break;
                     case Task::TaskType::Policy:
+                        LOGDEBUG("Process task Policy");
                         processALCPolicy(task.m_content, false);
                         break;
                     case Task::TaskType::Query:
+                        LOGDEBUG("Process task Query");
                         processQuery(task.m_content, task.m_correlationId);
                         break;
                     case Task::TaskType::OSQUERYPROCESSFAILEDTOSTART:
+                        LOGDEBUG("Process task OsqueryProcessFailedToStart");
                         static unsigned int baseDelay = 10;
                         static unsigned int growthBase = 2;
                         static unsigned int maxTime = 320;
 
-                        auto delay =
-                            static_cast<unsigned int>(baseDelay * ::pow(growthBase, m_timesOsqueryProcessFailedToStart));
+                        auto delay = static_cast<unsigned int>(
+                            baseDelay * ::pow(growthBase, m_timesOsqueryProcessFailedToStart));
                         if (delay < maxTime)
                         {
                             m_timesOsqueryProcessFailedToStart++;
                         }
                         LOGWARN("The osquery process failed to start. Scheduling a retry in " << delay << " seconds.");
-                        Common::Telemetry::TelemetryHelper::getInstance().increment(plugin::telemetryOsqueryRestarts, 1UL);
+                        Common::Telemetry::TelemetryHelper::getInstance().increment(
+                            plugin::telemetryOsqueryRestarts, 1UL);
                         m_delayedRestart.reset( // NOLINT
                             new WaitUpTo(
                                 std::chrono::seconds(delay), [this]() { this->m_queueTask->pushRestartOsquery(); }));
@@ -163,11 +183,12 @@ namespace Plugin
             {
                 std::vector<std::string> paths = ifileSystem->listFiles(databasePath);
 
-                if (paths.size() > MAX_THRESHOLD) {
+                if (paths.size() > MAX_THRESHOLD)
+                {
                     LOGINFO("Purging Database");
                     stopOsquery();
 
-                    for (const auto &filepath : paths)
+                    for (const auto& filepath : paths)
                     {
                         ifileSystem->removeFile(filepath);
                     }
@@ -268,51 +289,64 @@ namespace Plugin
         livequery::processQuery(*m_queryProcessor, *m_responseDispatcher, queryJson, correlationId);
     }
 
-
-    void PluginAdapter::processALCPolicy(const std::string & policy, bool firstTime) {
+    void PluginAdapter::processALCPolicy(const std::string& policy, bool firstTime)
+    {
         m_osqueryConfigurator.loadALCPolicy(policy);
         bool current_enabled = m_osqueryConfigurator.enableAuditDataCollection();
-        if (firstTime) {
+        if (firstTime)
+        {
             m_collectAuditEnabled = current_enabled;
             return;
         }
 
-        if ( current_enabled != m_collectAuditEnabled)
+        if (current_enabled != m_collectAuditEnabled)
         {
             m_collectAuditEnabled = current_enabled;
-            LOGINFO("Option to enable audit collection changed to " << current_enabled << ". Scheduling osquery restart");
+            LOGINFO(
+                "Option to enable audit collection changed to " << current_enabled << ". Scheduling osquery restart");
             m_queueTask->pushRestartOsquery();
         }
-
     }
 
-    std::string PluginAdapter::waitForTheFirstALCPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold)
+    std::string PluginAdapter::waitForTheFirstALCPolicy(
+        QueueTask& queueTask,
+        std::chrono::seconds timeoutInS,
+        int maxTasksThreshold)
     {
         std::vector<Plugin::Task> nonPolicyTasks;
         std::string policyContent;
-        for(int i = 0; i< maxTasksThreshold; i++)
+        for (int i = 0; i < maxTasksThreshold; i++)
         {
             Plugin::Task task;
-            if( !queueTask.pop(task, timeoutInS.count()))
+            if (!queueTask.pop(task, timeoutInS.count()))
             {
-                // timeout.
+                LOGINFO("Policy has not been sent to the plugin");
                 break;
             }
-            if ( task.m_taskType == Plugin::Task::TaskType::Policy)
+            if (task.m_taskType == Plugin::Task::TaskType::Policy)
             {
                 policyContent = task.m_content;
+                LOGINFO("First Policy received.");
                 break;
             }
+            LOGSUPPORT("Keep task: " << static_cast<int>(task.m_taskType));
             nonPolicyTasks.push_back(task);
+            if (task.m_taskType == Plugin::Task::TaskType::STOP)
+            {
+                LOGINFO("Abort waiting for the first policy as Stop signal received.");
+                throw DetectRequestToStop("");
+            }
         }
-        for( auto task: nonPolicyTasks)
+        LOGDEBUG("Return from WaitForTheFirstALCPolicy ");
+        for (auto task : nonPolicyTasks)
         {
             queueTask.push(task);
         }
         return policyContent;
     }
 
-    OsqueryConfigurator &PluginAdapter::osqueryConfigurator() {
+    OsqueryConfigurator& PluginAdapter::osqueryConfigurator()
+    {
         return m_osqueryConfigurator;
     }
 
