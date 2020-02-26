@@ -132,7 +132,7 @@ std::string DaySet::str() const
     std::string returnString = "Days: ";
     for (const auto& day : m_days)
     {
-        returnString += convertToString(*day.base()) + " ";
+        returnString += convertToString(day) + " ";
     }
     return returnString;
 }
