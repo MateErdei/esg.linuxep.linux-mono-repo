@@ -299,6 +299,7 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
 
 
 UpdateScheduler Performs Update After Receiving Policy With Different Features
+    [Tags]  UPDATE_SCHEDULER
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Copy File  /etc/hosts  /etc/hosts.bk
     Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
@@ -326,6 +327,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Features
 
 
 UpdateScheduler Performs Update After Receiving Policy With Different Subscriptions
+    [Tags]  UPDATE_SCHEDULER
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Copy File  /etc/hosts  /etc/hosts.bk
     Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
