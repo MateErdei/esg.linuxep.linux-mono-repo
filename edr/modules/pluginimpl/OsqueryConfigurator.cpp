@@ -116,14 +116,6 @@ namespace Plugin
     void OsqueryConfigurator::prepareSystemForPlugin()
     {
         bool disableAuditD = enableAuditDataCollection();
-        if (disableAuditD)
-        {
-            LOGINFO("Configuring Osquery and the System to collect audit data");
-        }
-        else
-        {
-            LOGINFO("Configuring Osquery and the System to not collect audit data");
-        }
 
         SystemConfigurator::setupOSForAudit(disableAuditD);
 
