@@ -121,7 +121,6 @@ void unixsocket::ThreatReporterServerConnectionThread::run()
                 return;
             }
 
-            PRINT("Read a length of " << length);
             if (length == 0)
             {
                 PRINT("Ignoring length of zero");

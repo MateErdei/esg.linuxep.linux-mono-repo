@@ -157,8 +157,6 @@ void unixsocket::ScanningServerConnectionThread::run()
                 return;
             }
 
-            // Do we need this?
-            PRINT("Read a length of " << length);
             if (length == 0)
             {
                 PRINT("Ignoring length of zero");
