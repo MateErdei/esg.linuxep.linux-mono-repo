@@ -174,7 +174,7 @@ namespace Plugin
 
     bool OsqueryConfigurator::enableAuditDataCollection() const
     {
-        return disableSystemAuditDAndTakeOwnershipOfNetlink() and !MTRBoundEnabled();
+        return disableSystemAuditDAndTakeOwnershipOfNetlink() && !MTRBoundEnabled();
     }
 
     void OsqueryConfigurator::loadALCPolicy(const std::string& alcPolicy)
