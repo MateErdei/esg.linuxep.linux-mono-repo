@@ -210,7 +210,7 @@ namespace Plugin
 
     void PluginAdapter::setUpOsqueryMonitor()
     {
-        LOGINFO("Prepare system for Running osquery");
+        LOGINFO("Prepare system for running osquery");
         m_osqueryConfigurator.prepareSystemForPlugin();
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
@@ -221,7 +221,6 @@ namespace Plugin
         m_monitor = std::async(std::launch::async, [queue, osqueryProcess, &osqueryStarted]() {
             try
             {
-                LOGINFO("Start Osquery");
                 osqueryProcess->keepOsqueryRunning(osqueryStarted);
             }
             catch (Plugin::IOsqueryCrashed&)

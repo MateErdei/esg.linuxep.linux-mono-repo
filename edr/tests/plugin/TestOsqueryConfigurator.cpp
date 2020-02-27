@@ -107,7 +107,7 @@ TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNot
     EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO No MTR Detected"));
 }
 
-TEST(TestOsqueryConfigurator, BeforALCPolicyIsGivenOsQueryConfiguratorShouldConsideredToBeMTRBounded) // NOLINT
+TEST(TestOsqueryConfigurator, BeforeALCPolicyIsGivenOsQueryConfiguratorShouldConsideredToBeMTRBounded) // NOLINT
 {
     TestableOsqueryConfigurator disabledOption(false);
     EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());

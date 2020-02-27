@@ -36,12 +36,12 @@ namespace Plugin
 
     public:
         /* Keeps track of all the tasks sent to the queue
-         * till it finds the ALC policy. It then reinsert the other tasks into the queue.
+         * till it finds the ALC policy. It then reinserts the other tasks into the queue.
          * This method is meant to allow for waiting for the ALC policy that must be
          * sent on the initialization of the plugin, while also dealing with edge cases where
          * this message may not come.
          * This also simplifies component tests so that they are not required to send ALC policy.
-         * Parsing the ALC policy for the sign of MTR is also a temporary gap to smooth transition
+         * Parsing the ALC policy for the signs of MTR is also a temporary gap to smooth transition
          * to the EDR with scheduled capability. Hence, this method will also go away soon.
          * For this reason, some simplifications are to be accepted for this method:
          *
@@ -52,11 +52,11 @@ namespace Plugin
          *   T1, T2, T3
          *   or
          *   T3, T1, T2.
-         * It is likely to always be the first option, as it is unlikely to receive TASKS in a way faster that
+         * It is likely to always be the first option, as it is unlikely to receive TASKS in a way faster than
          * the waitForTheFirstALCPolicy will be able to process them.
-         * Also, there is not promise that the method will not go beyond the timeoutInMs. In fact, the timeout will be
+         * Also, there is not a promise that the method will not go beyond the timeoutInMs. In fact, the timeout will be
          * restored whenever a new task is received up to maxTasksThreshold tasks.
-         * The method has been made static public to simplify test.
+         * The method has been made static public to simplify tests.
          * */
 
         static std::string waitForTheFirstALCPolicy(

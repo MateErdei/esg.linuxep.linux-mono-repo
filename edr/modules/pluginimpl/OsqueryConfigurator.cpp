@@ -200,14 +200,6 @@ namespace Plugin
 
     bool OsqueryConfigurator::MTRBoundEnabled() const
     {
-        if (m_mtrboundEnabled)
-        {
-            LOGDEBUG("Detected MTR hence should not collect audit data");
-        }
-        else
-        {
-            LOGDEBUG("MTR not detected, hence, it will apply the plugin.conf disable-audit option");
-        }
         return m_mtrboundEnabled;
     }
 
