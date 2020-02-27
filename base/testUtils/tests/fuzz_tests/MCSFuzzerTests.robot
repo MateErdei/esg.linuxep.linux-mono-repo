@@ -25,9 +25,9 @@ Test Teardown   Run Keywords
 ...             Stop Local Cloud Server  AND
 ...             MCSRouter Default Test Teardown  AND
 ...             Dump Kittylogs Dir Contents  AND
-...             Stop System Watchdog  AND
+...             Stop System Watchdog
 
-Test Timeout  210 minutes
+Test Timeout  150 minutes
 
 
 *** Variables ***
@@ -36,7 +36,7 @@ ${MCS_FUZZER_PATH}   ${SUPPORT_FILES}/fuzz_tests/mcs_fuzz_test_runner.py
 *** Test Cases ***
 
 Test MCS Policy Fuzzer
-    Run MCS Router Fuzzer   mcs  4
+    Run MCS Router Fuzzer   mcs  8
 
 Test MDR Policy Fuzzer
     Start Watchdog
@@ -45,11 +45,12 @@ Test MDR Policy Fuzzer
     Run MCS Router Fuzzer   mdr  2
 
 Test ALC Policy Fuzzer
-    Run MCS Router Fuzzer  alc  6
+    Run MCS Router Fuzzer  alc  9
 
 *** Keywords ***
 Run MCS Router Fuzzer
     [Arguments]   ${Suite}  ${MutationsToTestRatio}
     Start Mcs Fuzzer   ${MCS_FUZZER_PATH}   ${Suite}  ${MutationsToTestRatio}
     Start Fuzzed Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/Cloud_MCS_policy_ShortCmdPollingDelay.xml
-    Wait For Mcs Fuzzer
+    #wait just less than the default timeout
+    Wait For Mcs Fuzzer   7200

@@ -173,8 +173,8 @@ class FuzzerSupport( object):
             raise AssertionError("Failed to start fuzzed fake cloud server {}.\n Stdout: {}".format(
                 poll_return, logs))
 
-    def wait_for_mcs_fuzzer(self):
-        self.mcs_fuzz_runner_process.wait()
+    def wait_for_mcs_fuzzer(self, timeout=600):
+        self.mcs_fuzz_runner_process.wait(timeout=int(timeout))
         if self.mcs_fuzz_runner_process.returncode != 0:
             logs = self.mcs_fuzz_logs()
             raise AssertionError("MCS Fuzzer found errors: {}".format(logs))
