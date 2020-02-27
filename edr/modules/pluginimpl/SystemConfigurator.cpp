@@ -4,15 +4,18 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "SystemConfigurator.h"
+
 #include "ApplicationPaths.h"
 #include "Logger.h"
+
 #include <Common/Process/IProcess.h>
 
 #include <thread>
 
-namespace Plugin{
-
-    void SystemConfigurator::setupOSForAudit(bool disableAuditD) {
+namespace Plugin
+{
+    void SystemConfigurator::setupOSForAudit(bool disableAuditD)
+    {
         std::string auditdServiceName("auditd");
         if (disableAuditD)
         {
@@ -42,7 +45,6 @@ namespace Plugin{
                 LOGWARN("AuditD is running, it will not be possible to obtain event data.");
             }
         }
-
     }
 
     bool SystemConfigurator::checkIfServiceActive(const std::string& serviceName)
@@ -84,7 +86,9 @@ namespace Plugin{
         }
     }
 
-    std::tuple<int, std::string> SystemConfigurator::runSystemCtlCommand(const std::string& command, const std::string& target)
+    std::tuple<int, std::string> SystemConfigurator::runSystemCtlCommand(
+        const std::string& command,
+        const std::string& target)
     {
         auto process = Common::Process::createProcess();
         process->exec(Plugin::systemctlPath(), { command, target });
@@ -103,7 +107,8 @@ namespace Plugin{
         if (maskExitCode != 0)
         {
             std::stringstream ss;
-            ss << "Masking systemd-journald-audit.socket failed, exit code: " << maskExitCode << ", output: " << maskOutput;
+            ss << "Masking systemd-journald-audit.socket failed, exit code: " << maskExitCode
+               << ", output: " << maskOutput;
             throw std::runtime_error(ss.str());
         }
 
@@ -135,13 +140,17 @@ namespace Plugin{
                 auto [stopJournaldExitCode, stopJournaldOutput] = runSystemCtlCommand("stop", "systemd-journald");
                 if (stopJournaldExitCode != 0)
                 {
-                    LOGERROR("Failed to stop systemd-journald, exit code: " << stopJournaldExitCode << ", output: " << stopJournaldOutput);
+                    LOGERROR(
+                        "Failed to stop systemd-journald, exit code: " << stopJournaldExitCode
+                                                                       << ", output: " << stopJournaldOutput);
                 }
 
                 auto [startJournaldExitCode, startJournaldOutput] = runSystemCtlCommand("start", "systemd-journald");
                 if (startJournaldExitCode != 0)
                 {
-                    LOGERROR("Failed to start systemd-journald, exit code: " << startJournaldExitCode << ", output: " << startJournaldOutput);
+                    LOGERROR(
+                        "Failed to start systemd-journald, exit code: " << startJournaldExitCode
+                                                                        << ", output: " << startJournaldOutput);
                 }
             }
             catch (std::exception& ex)
@@ -155,4 +164,4 @@ namespace Plugin{
         }
     }
 
-}
+} // namespace Plugin

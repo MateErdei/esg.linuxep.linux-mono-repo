@@ -7,25 +7,25 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IOsqueryProcess.h"
+#include "OsqueryConfigurator.h"
+#include "OsqueryDataManager.h"
 #include "PluginCallback.h"
 #include "QueueTask.h"
-#include "OsqueryDataManager.h"
-#include "OsqueryConfigurator.h"
-#include <livequery/IQueryProcessor.h>
 
-#include <livequery/IResponseDispatcher.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/Process/IProcess.h>
+#include <livequery/IQueryProcessor.h>
+#include <livequery/IResponseDispatcher.h>
 
 #include <future>
 
 namespace Plugin
 {
-class DetectRequestToStop : public std::runtime_error
-{
-public:
-    using std::runtime_error::runtime_error;
-};
+    class DetectRequestToStop : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
     class PluginAdapter
     {
         std::shared_ptr<QueueTask> m_queueTask;
@@ -59,8 +59,10 @@ public:
          * The method has been made static public to simplify test.
          * */
 
-        static std::string waitForTheFirstALCPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold);
-
+        static std::string waitForTheFirstALCPolicy(
+            QueueTask& queueTask,
+            std::chrono::seconds timeoutInS,
+            int maxTasksThreshold);
 
         PluginAdapter(
             std::shared_ptr<QueueTask> queueTask,
@@ -73,7 +75,6 @@ public:
         ~PluginAdapter();
 
     protected:
-
         /*
          * Process ALC policies received given that the plugin subscribes to ALC policy.
          * It will pass the policy to the OsqueryConfigurator and detect if Osquery needs to be restarted or not.
@@ -81,15 +82,16 @@ public:
          * be started, hence, it will not update the queue with a require restart.
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
-        void processALCPolicy(const std::string &, bool firstTime);
+        void processALCPolicy(const std::string&, bool firstTime);
 
         OsqueryConfigurator& osqueryConfigurator();
+
     private:
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 3600;
-        void processQuery(const std::string & query, const std::string & correlationId);
+        void processQuery(const std::string& query, const std::string& correlationId);
         void setUpOsqueryMonitor();
         void stopOsquery();
         void cleanUpOldOsqueryFiles();

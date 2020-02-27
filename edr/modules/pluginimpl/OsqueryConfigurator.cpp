@@ -4,16 +4,19 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "OsqueryConfigurator.h"
+
 #include "ApplicationPaths.h"
 #include "Logger.h"
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/XmlUtilities/AttributesMap.h>
+#include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <thread>
 
-namespace Plugin{
+namespace Plugin
+{
     void OsqueryConfigurator::regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath)
     {
         LOGINFO("Creating osquery scheduled pack");
@@ -53,7 +56,9 @@ namespace Plugin{
         fileSystem->writeFile(osqueryConfigFilePath, osqueryConfiguration.str());
     }
 
-    void OsqueryConfigurator::regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection)
+    void OsqueryConfigurator::regenerateOSQueryFlagsFile(
+        const std::string& osqueryFlagsFilePath,
+        bool enableAuditEventCollection)
     {
         LOGINFO("Creating osquery flags file");
         auto fileSystem = Common::FileSystem::fileSystem();
@@ -99,7 +104,7 @@ namespace Plugin{
         flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
         flags.push_back("--logger_path=" + Plugin::osQueryLogPath());
 
-        std::string disableAuditFlagValue = enableAuditEventCollection ? "false":"true";
+        std::string disableAuditFlagValue = enableAuditEventCollection ? "false" : "true";
         flags.push_back("--disable_audit=" + disableAuditFlagValue);
 
         std::ostringstream flagsAsString;
@@ -110,12 +115,13 @@ namespace Plugin{
 
     void OsqueryConfigurator::prepareSystemForPlugin()
     {
-        bool disableAuditD =  enableAuditDataCollection();
+        bool disableAuditD = enableAuditDataCollection();
         if (disableAuditD)
         {
             LOGINFO("Configuring Osquery and the System to collect audit data");
         }
-        else{
+        else
+        {
             LOGINFO("Configuring Osquery and the System to not collect audit data");
         }
 
@@ -125,7 +131,8 @@ namespace Plugin{
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
     }
 
-    bool OsqueryConfigurator::retrieveDisableAuditFlagFromSettingsFile() const {
+    bool OsqueryConfigurator::retrieveDisableAuditFlagFromSettingsFile() const
+    {
         auto fileSystem = Common::FileSystem::fileSystem();
         bool disableAuditD = true;
         std::string configpath = Plugin::edrConfigFilePath();
@@ -145,36 +152,41 @@ namespace Plugin{
         else
         {
             LOGWARN(
-                    "Could not find EDR Plugin config file: " << Plugin::edrConfigFilePath()
-                                                              << ", using disable_auditd default value");
+                "Could not find EDR Plugin config file: " << Plugin::edrConfigFilePath()
+                                                          << ", using disable_auditd default value");
         }
         return disableAuditD;
     }
 
-    bool OsqueryConfigurator::ALCContainsMTRFeature(const std::string & alcPolicyXMl) {
+    bool OsqueryConfigurator::ALCContainsMTRFeature(const std::string& alcPolicyXMl)
+    {
         using namespace Common::XmlUtilities;
         if (alcPolicyXMl.empty())
         {
             return false;
         }
-        try {
+        try
+        {
             AttributesMap attributesMap = parseXml(alcPolicyXMl);
-            const std::string expectedMTRFeaturePath{"AUConfigurations/Features/Feature#MDR"};
+            const std::string expectedMTRFeaturePath { "AUConfigurations/Features/Feature#MDR" };
             Attributes attributes = attributesMap.lookup(expectedMTRFeaturePath);
             return !attributes.empty();
         }
-        catch (XmlUtilitiesException &ex) {
+        catch (XmlUtilitiesException& ex)
+        {
             std::string reason = ex.what();
             LOGWARN("Failed to parse ALC policy: " << reason);
         }
         return false;
     }
 
-    bool OsqueryConfigurator::enableAuditDataCollection() const {
+    bool OsqueryConfigurator::enableAuditDataCollection() const
+    {
         return disableSystemAuditDAndTakeOwnershipOfNetlink() and !MTRBoundEnabled();
     }
 
-    void OsqueryConfigurator::loadALCPolicy(const std::string &alcPolicy) {
+    void OsqueryConfigurator::loadALCPolicy(const std::string& alcPolicy)
+    {
         m_mtrboundEnabled = ALCContainsMTRFeature(alcPolicy);
         if (m_mtrboundEnabled)
         {
@@ -186,17 +198,21 @@ namespace Plugin{
         }
     }
 
-    bool OsqueryConfigurator::MTRBoundEnabled() const {
+    bool OsqueryConfigurator::MTRBoundEnabled() const
+    {
         if (m_mtrboundEnabled)
         {
-            LOGDEBUG( "Detected MTR hence should not collect audit data");
-        } else{
-            LOGDEBUG( "MTR not detected, hence, it will apply the plugin.conf disable-audit option");
+            LOGDEBUG("Detected MTR hence should not collect audit data");
+        }
+        else
+        {
+            LOGDEBUG("MTR not detected, hence, it will apply the plugin.conf disable-audit option");
         }
         return m_mtrboundEnabled;
     }
 
-    bool OsqueryConfigurator::disableSystemAuditDAndTakeOwnershipOfNetlink() const {
+    bool OsqueryConfigurator::disableSystemAuditDAndTakeOwnershipOfNetlink() const
+    {
         if (retrieveDisableAuditFlagFromSettingsFile())
         {
             LOGINFO("plugins.conf configured to collect audit data from osquery");
@@ -206,4 +222,4 @@ namespace Plugin{
         return false;
     }
 
-}
+} // namespace Plugin

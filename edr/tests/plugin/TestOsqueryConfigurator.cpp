@@ -4,22 +4,23 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ALCPoliciesExample.h"
-#include <modules/pluginimpl/OsqueryConfigurator.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/MockFileSystem.h>
-
-#include <gtest/gtest.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <modules/pluginimpl/OsqueryConfigurator.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
+#include <gtest/gtest.h>
 
 using namespace Plugin;
-class TestableOsqueryConfigurator : public  OsqueryConfigurator
+class TestableOsqueryConfigurator : public OsqueryConfigurator
 {
     bool m_disableSystemAuditDAndTakeOwnershipOfNetlink;
+
 public:
-    TestableOsqueryConfigurator( bool disableSystemAuditDAndTakeOwnershipOfNetlink ): OsqueryConfigurator()
+    TestableOsqueryConfigurator(bool disableSystemAuditDAndTakeOwnershipOfNetlink) : OsqueryConfigurator()
     {
         m_disableSystemAuditDAndTakeOwnershipOfNetlink = disableSystemAuditDAndTakeOwnershipOfNetlink;
     }
@@ -38,10 +39,11 @@ public:
         std::string fileContent;
         auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
         EXPECT_CALL(*mockFileSystem, isFile(filepath)).WillOnce(Return(false));
-        EXPECT_CALL(*mockFileSystem, writeFile(filepath, _)).WillOnce(Invoke(
-                [&fileContent](const std::string&, const std::string & content){fileContent = content; }));
+        EXPECT_CALL(*mockFileSystem, writeFile(filepath, _))
+            .WillOnce(
+                Invoke([&fileContent](const std::string&, const std::string& content) { fileContent = content; }));
 
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
         OsqueryConfigurator::regenerateOSQueryFlagsFile(filepath, enableAuditEventCollection);
 
@@ -50,42 +52,42 @@ public:
     }
 
 private:
-    bool retrieveDisableAuditFlagFromSettingsFile() const override {
+    bool retrieveDisableAuditFlagFromSettingsFile() const override
+    {
         return m_disableSystemAuditDAndTakeOwnershipOfNetlink;
     }
-
 };
 
-TEST(TestOsqueryConfigurator, ALCContainsMTRFeatureShouldDetectPresenceOFMTR) { // NOLINT
+TEST(TestOsqueryConfigurator, ALCContainsMTRFeatureShouldDetectPresenceOFMTR)
+{ // NOLINT
     EXPECT_TRUE(OsqueryConfigurator::ALCContainsMTRFeature(PolicyWithMTRFeature()));
     EXPECT_FALSE(OsqueryConfigurator::ALCContainsMTRFeature(PolicyWithoutMTRFeatureButWithSubscription()));
     EXPECT_FALSE(OsqueryConfigurator::ALCContainsMTRFeature(PolicyWithoutMTRFeatureOrSubscription()));
 }
 
-TEST(TestOsqueryConfigurator, ALCContainsMTRFeatureSpecialCaseForEmptyStringShouldReturnFalse) { // NOLINT
+TEST(TestOsqueryConfigurator, ALCContainsMTRFeatureSpecialCaseForEmptyStringShouldReturnFalse)
+{ // NOLINT
     // empty string should be considered no MTR feature without any warning log
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
     EXPECT_FALSE(OsqueryConfigurator::ALCContainsMTRFeature(""));
     std::string logMessage = testing::internal::GetCapturedStderr();
 
-    EXPECT_THAT(logMessage,  ::testing::Not(::testing::HasSubstr("WARN Failed to parse ALC policy")));
-
+    EXPECT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("WARN Failed to parse ALC policy")));
 }
 
-
-TEST(TestOsqueryConfigurator, InvalidALCPolicyShouldBeConsideredToHaveNoMTRFeatureAndWarningShouldBeLogged) //NOLINT
+TEST(TestOsqueryConfigurator, InvalidALCPolicyShouldBeConsideredToHaveNoMTRFeatureAndWarningShouldBeLogged) // NOLINT
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
 
-    EXPECT_FALSE( OsqueryConfigurator::ALCContainsMTRFeature("Not even a valid policy") );
+    EXPECT_FALSE(OsqueryConfigurator::ALCContainsMTRFeature("Not even a valid policy"));
     std::string logMessage = testing::internal::GetCapturedStderr();
 
     EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN Failed to parse ALC policy"));
 }
 
-TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeature) //NOLINT
+TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeature) // NOLINT
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
@@ -95,7 +97,7 @@ TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeature) //NOL
     EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Detected MTR is enabled"));
 }
 
-TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNotPresent) //NOLINT
+TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNotPresent) // NOLINT
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
@@ -105,7 +107,7 @@ TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNot
     EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO No MTR Detected"));
 }
 
-TEST(TestOsqueryConfigurator, BeforALCPolicyIsGivenOsQueryConfiguratorShouldConsideredToBeMTRBounded) //NOLINT
+TEST(TestOsqueryConfigurator, BeforALCPolicyIsGivenOsQueryConfiguratorShouldConsideredToBeMTRBounded) // NOLINT
 {
     TestableOsqueryConfigurator disabledOption(false);
     EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
@@ -120,7 +122,7 @@ TEST(TestOsqueryConfigurator, BeforALCPolicyIsGivenOsQueryConfiguratorShouldCons
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
 }
 
-TEST(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShouldControlAuditConfiguration) //NOLINT
+TEST(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShouldControlAuditConfiguration) // NOLINT
 {
     TestableOsqueryConfigurator disabledOption(false);
     disabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
@@ -128,9 +130,9 @@ TEST(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShouldC
     EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     // false as the alc policy does not refer to mtr feature
     EXPECT_FALSE(disabledOption.MTRBoundEnabled());
-    // audit collection is not enabled because of disableSystemAuditDAndTakeOwnershipOfNetlink set to false means system auditd should be enabled.
+    // audit collection is not enabled because of disableSystemAuditDAndTakeOwnershipOfNetlink set to false means system
+    // auditd should be enabled.
     EXPECT_FALSE(disabledOption.enableAuditDataCollection());
-
 
     TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
@@ -141,7 +143,7 @@ TEST(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShouldC
     EXPECT_TRUE(enabledOption.enableAuditDataCollection());
 }
 
-TEST(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConfigured) //NOLINT
+TEST(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConfigured) // NOLINT
 {
     TestableOsqueryConfigurator disabledOption(false);
     disabledOption.loadALCPolicy(PolicyWithMTRFeature());
@@ -150,7 +152,6 @@ TEST(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConfig
     EXPECT_TRUE(disabledOption.MTRBoundEnabled());
     EXPECT_FALSE(disabledOption.enableAuditDataCollection());
 
-
     TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithMTRFeature());
     EXPECT_TRUE(enabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
@@ -158,8 +159,7 @@ TEST(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConfig
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
 }
 
-
-TEST(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataCollection) //NOLINT
+TEST(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataCollection) // NOLINT
 {
     TestableOsqueryConfigurator enabledOption(true);
 
@@ -172,9 +172,3 @@ TEST(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataCol
 
     EXPECT_THAT(osqueryFlags, ::testing::HasSubstr("--disable_audit=true"));
 }
-
-
-
-
-
-
