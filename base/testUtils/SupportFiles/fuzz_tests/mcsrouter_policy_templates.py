@@ -47,25 +47,35 @@ mdr_policy_fuzzed = Template(fields=[declaration_static, newline_static, mdr_pol
 ### mcs policy ###
 # actively fuzz the whole policy and its attributes
 config_element = \
-    XmlElement(name="config_element", element_name="configuration",
-               attributes=[
-                   XmlAttribute(name="xmlns", attribute="xmlns",
-                                value="http://www.sophos.com/xml/msys/mcspolicy.xsd", fuzz_attribute=True,
-                                fuzz_value=True),
-                   # fuzz_attribute=False/True, fuzz_value=True/False
-                   XmlAttribute(name="auto-nsl", attribute="xmlns:auto-ns1",
-                                value="com.sophos\mansys\policy", fuzz_attribute=True, fuzz_value=True)
-               ],
-               content=[
-                   XmlElement(name="reg_token", element_name="registrationToken", content="PolicyRegToken",
-                              delimiter="\n", fuzz_name=True, fuzz_content=False),
-                   XmlElement(name="servers", element_name="servers", content=[
-                       XmlElement(name="server", element_name="server",
-                                  content="https://localhost:4443/mcs", fuzz_name=True, fuzz_content=False,
-                                  delimiter="\n")
-                   ], fuzz_name=True, fuzz_content=False, delimiter="\n"),
-                   XmlElement(name="msg_relays", element_name="messageRelays", fuzz_name=True,
-                              fuzz_content=False, delimiter="\n"),
+    XmlElement(name="config_element", attributes=[
+        XmlAttribute(name="xmlns", attribute="xmlns",
+                     value="http://www.sophos.com/xml/msys/mcspolicy.xsd", fuzz_attribute=True,
+                     fuzz_value=True),
+        XmlAttribute(name="auto-nsl", attribute="xmlns:auto-ns1",
+                     value="com.sophos\mansys\policy", fuzz_attribute=True, fuzz_value=True)],
+               element_name="configuration",content=[
+            XmlElement(name="reg_token", element_name="registrationToken", content="PolicyRegToken",
+                       delimiter="\n", fuzz_name=True, fuzz_content=False),
+            XmlElement(name="customer_id", element_name="customerId", content="999ff111-2a49-e452-7676-3105612ba3a3",
+                       delimiter="\n", fuzz_name=True, fuzz_content=False),
+            XmlElement(name="servers", element_name="servers", content=[
+                XmlElement(name="server", element_name="server",
+                           content="https://localhost:4443/mcs", fuzz_name=True, fuzz_content=False,
+                           delimiter="\n")], fuzz_name=True, fuzz_content=False, delimiter="\n"),
+
+            XmlElement(name="proxies", element_name="proxies", content=[
+                XmlElement(name="proxy", element_name="proxy",
+                           content="http://192.168.36.37:3129",
+                           fuzz_name=True, fuzz_content=False, delimiter="\n")],
+                       fuzz_name=True, fuzz_content=True, delimiter="\n"),
+            XmlElement(name="msg_relays", element_name="messageRelays", fuzz_name=True,
+                       fuzz_content=False, delimiter="\n"),
+            XmlElement(name="proxy_credentials", element_name="proxyCredentials", content=[
+                XmlElement(name="credentials", element_name="credentials",
+                           content="KHDFWN27975-FKDNDD+JFJ/REI7235-OJ=",
+                           fuzz_name=True, fuzz_content=False, delimiter="\n")],
+                       fuzz_name=True, fuzz_content=True, delimiter="\n"),
+
                    XmlElement(name="use_sys_proxy", element_name="useSystemProxy", content="true",
                               fuzz_name=True, fuzz_content=True, delimiter="\n"),
                    XmlElement(name="use_auto_proxy", element_name="useAutomaticProxy", content="true",
@@ -78,8 +88,29 @@ config_element = \
                        XmlAttribute(name="default", attribute="default", value="1", fuzz_attribute=False,
                                     fuzz_value=False)],
                               fuzz_name=True, fuzz_content=True, delimiter="\n"),
+
+                   XmlElement(name="flags_polling_interval", element_name="flagsPollingInterval", attributes=[
+                        XmlAttribute(name="default", attribute="default", value="14400", fuzz_attribute=True,
+                                     fuzz_value=True)],
+                               fuzz_name=True, fuzz_content=True, delimiter="\n"),
+
                    XmlElement(name="policy_change_servers", element_name="policyChangeServers",
                               fuzz_name=True, fuzz_content=True, delimiter="\n"),
+                   XmlElement(name="presigned_url_service", element_name="presignedUrlService", content=[
+                       XmlElement(name="url", element_name="url", content="https://localhost:4443/mcs/sophos/management/ep/presignedurls",
+                                  fuzz_name=True, fuzz_content=False, delimiter="\n"),
+                       XmlElement(name="credentials", element_name="credentials", content="KHDFWN27975-FKDNDD+JFJ/REI7235-OJ=",
+                                  fuzz_name=True, fuzz_content=False, delimiter="\n")],
+                              fuzz_name=True, fuzz_content=True, delimiter="\n"),
+
+                   XmlElement(name="push_servers", element_name="pushServers", content=[
+                       XmlElement(name="push_server", element_name="push_server", content="https://localhost:4443/mcs",
+                                  fuzz_name=True, fuzz_content=False, delimiter="\n")],
+                              fuzz_name=True, fuzz_content=True, delimiter="\n"),
+                   XmlElement(name="push_ping_timeout", element_name="pushPingTimeout",
+                              content=12, fuzz_name=True, fuzz_content=False, delimiter="\n"),
+                   XmlElement(name="push_fallback_poll_interval", element_name="pushFallbackPollInterval", content=1,
+                              fuzz_name=True, fuzz_content=False, delimiter="\n")
                ], fuzz_name=True, fuzz_content=True, delimiter="\n")
 
 mcs_inner_elements = \

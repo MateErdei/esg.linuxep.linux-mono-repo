@@ -21,11 +21,11 @@ Suite Teardown  Run Keywords
 
 Test Setup      Setup MCS Tests
 Test Teardown   Run Keywords
-...             Kill MCS Fuzzer
-...             Stop Local Cloud Server
-...             MCSRouter Default Test Teardown
-...             Dump Kittylogs Dir Contents
-...             Stop System Watchdog
+...             Kill MCS Fuzzer  AND
+...             Stop Local Cloud Server  AND
+...             MCSRouter Default Test Teardown  AND
+...             Dump Kittylogs Dir Contents  AND
+...             Stop System Watchdog  AND
 
 Test Timeout  210 minutes
 
@@ -36,16 +36,16 @@ ${MCS_FUZZER_PATH}   ${SUPPORT_FILES}/fuzz_tests/mcs_fuzz_test_runner.py
 *** Test Cases ***
 
 Test MCS Policy Fuzzer
-    Run MCS Router Fuzzer   mcs  2
+    Run MCS Router Fuzzer   mcs  4
 
 Test MDR Policy Fuzzer
     Start Watchdog
     Install MTR From Fake Component Suite
     Stop System Watchdog
-    Run MCS Router Fuzzer   mdr  1
+    Run MCS Router Fuzzer   mdr  2
 
 Test ALC Policy Fuzzer
-    Run MCS Router Fuzzer  alc  5
+    Run MCS Router Fuzzer  alc  6
 
 *** Keywords ***
 Run MCS Router Fuzzer
