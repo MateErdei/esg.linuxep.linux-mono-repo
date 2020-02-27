@@ -46,14 +46,6 @@ Client Should Detect Push Server Not Pinging Any More
     Start SSE Client  timeout=1
     Run Keyword and Expect Error   STARTS: timeout:  Next SSE Message
 
-MCS Push Server Can Handle Authorization
-    Start MCS Push Server
-    Configure Push Server To Require Auth   Basic XCnos9s
-    Check Client Not Authorized     Basic With Different Creds
-    Start SSE Client    authorization=Basic XCnos9s
-    Check MCS Push Message Sent    Single Message
-
-
 MCSPushServer Can Control The Ping Interval
     Start MCS Push Server
     Configure Push Server To Ping Interval  3

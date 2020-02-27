@@ -185,26 +185,6 @@ class MCSPushClient:
         return self.is_service_active()
 
 
-class RequestsSessionAllowRedirectWithAuth(requests.Session):
-    def __init__(self):
-        """
-        Handle should_strip_auth
-
-        By default, requests will try to prevent leaking authorization on a redirect.
-        https://requests.readthedocs.io/en/master/api/#requests.Session.rebuild_auth
-        But, the way that the push is configured, the load balancer will always redirect the call
-        and the final push server requires the authentication.
-        Hence, this class override the should_strip_auth to allow the authorization to go to the
-        final push server.
-        https://wiki.sophos.net/display/SophosCloud/EMP%3A+command+push
-        """
-        requests.Session.__init__(self)
-
-    def should_strip_auth(self, old_url, new_url):
-        LOGGER.debug("Allow redirect with authorization from {} to {}".format(old_url, new_url))
-        return False
-
-
 class MCSPushClientInternal(threading.Thread):
     def __init__(self, settings: MCSPushSetting,
                  mcsrouter_channel=PipeChannel()):
@@ -266,7 +246,7 @@ class MCSPushClientInternal(threading.Thread):
             return "Failed to connect to {} directly".format(self.__log_url())
 
     def get_requests_session(self, authorization):
-        session = RequestsSessionAllowRedirectWithAuth()
+        session = requests.Session()
         session.verify = self._cert
         session.auth = authorization
         LOGGER.info( "Set the authorization to the session: {}".format(session.auth))

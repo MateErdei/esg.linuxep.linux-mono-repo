@@ -1138,6 +1138,11 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
     def push_redirect(self):
         logger.info("Push redirect requested. headers received: {}".format(dict(self.headers)))
+        auth = self.headers['Authorization']
+        logger.info("Value for auth: {}".format(auth))
+        if 'Basic' not in auth:
+            logger.info("Refusing to redirect as unauthorized")
+            return self.ret("Unauthorized access to push server", code=401)
         return self.ret(code=307, extra_header={'Location': 'https://localhost:8459{}'.format(self.path)})
 
     def send_401(self):

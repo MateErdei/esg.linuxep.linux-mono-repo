@@ -37,11 +37,9 @@ class ServerState:
 class ServerConfig:
     """Configurations to be applied for the Push Server.
     Currently, they are:
-    auth: Define the Authorization Header that must be presented to be a valid request
     ping_time: Control the Keep alive interval message that Server send to clients.
     """
     def __init__(self):
-        self.auth = None
         self.ping_time = 1
 
 
@@ -57,8 +55,6 @@ async def subscribe_endpoint(request):
     curl 'https://localhost:8459/mcs/push/endpoint/me'  --cacert SupportFiles/CloudAutomation/root-ca.crt.pem
 
     See ::send_this to check how to send a message to the client above.
-
-    This handler may reject the request if configured to verify Authorization ( see : set_auth)
 
     If the connection is accepted, the server will either:
       - Send message to subscribers as instructed ( see ::send_this)
@@ -78,18 +74,9 @@ async def subscribe_endpoint(request):
     :param request: default requests.request type given by the python aiohttp.web framework.
     :return:
     """
-    require_auth = request.app['config'].auth
     ping_time = request.app['config'].ping_time
-    authorization = request.headers.get('Authorization', '')
     all_headers = dict(request.headers)
     LOGGER.info("EndpointId Connected with headers: {}.".format(all_headers))
-    LOGGER.info("EndpointId Connected with Authorization: {}.".format(authorization))
-    if require_auth and require_auth != authorization:
-        LOGGER.warning("Rejecting connection due to authentication. Expected {}, received: {}".format(require_auth, authorization))
-        raise web.HTTPUnauthorized(reason="Authentication header provided but different from expected")
-    if authorization.strip() == "":
-        LOGGER.warning("Missing Authorization header. By default it must be provided")
-        raise web.HTTPUnauthorized(reason="No Authentication header provided")
 
     async with sse_response(request) as resp:
         app = request.app
@@ -161,17 +148,6 @@ async def send_this(request):
     return Response()
 
 
-async def set_auth(request):
-    """Configure the Push Server to validate the Authorization Header and reject if not set to the same value
-    Example:
-    curl -X PUT -d'Basic xxxocnso' 'https://localhost:8459/mcs/push/authorization' -H "Content-Type: application/text" --cacert SupportFiles/CloudAutomation/root-ca.crt.pem
-    """
-    text = await request.text()
-    request.app['config'].auth = text
-    LOGGER.info("Configuring Required Authorization to {}".format(text))
-    return Response()
-
-
 async def set_ping_interval(request):
     """Update the Ping Interval for the Push Server to send the Keep alive message.
     Example:
@@ -192,7 +168,6 @@ def get_app(certfile, ping_time):
     app.router.add_route('GET', '/mcs/push/endpoint/{endpoint_id}', subscribe_endpoint)
     app.router.add_route('GET', '/', index)
     app.router.add_route('POST', '/mcs/push/sendmessage', send_this)
-    app.router.add_route('PUT', '/mcs/push/authorization', set_auth)
     app.router.add_route('PUT', '/mcs/push/ping_interval', set_ping_interval)
     if certfile:
         LOGGER.info("Launching https server")

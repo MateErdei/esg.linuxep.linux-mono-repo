@@ -13,17 +13,6 @@ except:
     import logging
     logger = logging.getLogger(__name__)
 
-class RequestsSessionAllowRedirectWithAuth(requests.Session):
-    def __init__(self):
-        """
-        see mcs_push_client.py:
-        """
-        requests.Session.__init__(self)
-
-    def should_strip_auth(self, old_url, new_url):
-        return False
-
-
 class PushServerUtils:
     """Utilities to verify the MCS Push Service Requirements that can be used with the Robot Framework.
        For examples, see TestMCSPushServer
@@ -62,12 +51,6 @@ class PushServerUtils:
                 message = file_handle.read()
                 self.send_message_to_push_server(message)
 
-    def configure_push_server_to_require_auth(self, authorization):
-        """Configure the Push Server to validate the Authorization Header"""
-        r = requests.put('https://localhost:{}/mcs/push/authorization'.format(self._port), data=authorization, verify=self._cert)
-        if r.status_code != 200:
-            raise AssertionError("Send message Failed with code {} and Text {}".format(r.status_code, r.text))
-
     def configure_push_server_to_ping_interval(self, ping_time):
         """Configure the Push Server Keep Alive Ping Interval.
            The parameter must be integer or a string that can be set to  v = int(ping_time)
@@ -81,27 +64,24 @@ class PushServerUtils:
         if r.status_code != 200:
             raise AssertionError("Send message to close connections failed with code {} and Text {}".format(r.status_code, r.text))
 
-    def start_sse_client(self, timeout=100, authorization="DefaultAuthorization", via_cloud_server=False):
+    def start_sse_client(self, timeout=100, via_cloud_server=False):
         """
         Start the Server Sent Event Client that will connect to the push server and receive messages from it.
 
         :param timeout: Defines the expected ping_time interval and it will detect server non-responsive (timeout) if the server does not keep sending a keep alive message in that interval.
-        :param authorization:  Defines the Authorization header to be used if not empty string. Otherwise no Authorization Header is sent.
         :param via_cloud_server: Define the route to connect to the server. If via_cloud_server is true, it will connect to the mcs fake server which will redirect to the push server.
 
         After start_sse_client is correctly executed, new messages can be received with the command: next_sse_message
 
         """
         sse_args = {'verify': self._cert, 'retry': 0,
-                    'timeout': timeout,
-                    'headers': {'Authorization': authorization}
+                    'timeout': timeout
                     }
 
         if via_cloud_server:
-            # it has been found that in order to work the redirect must deal with striping authorization.
             url = self.push_url_pattern.format(4443)
-            session = RequestsSessionAllowRedirectWithAuth()
-            session.headers['Authorization'] = authorization
+            session = requests.Session()
+            session.auth = ("user", "password")
             session.verify = self._cert
             copy_args = {'session': session, 'retry': 0, 'timeout': timeout}
             sse_args = copy_args
@@ -137,7 +117,7 @@ class PushServerUtils:
         :return:
         """
         url_pattern = self.push_url_pattern
-        r = requests.get(url_pattern.format(4443), allow_redirects=False, verify=self._cert)
+        r = requests.get(url_pattern.format(4443), allow_redirects=False, verify=self._cert, headers={"Authorization":"Basic allow me"})
         if r.status_code != 307:
             raise AssertionError("VerifyCloudServerRedirect failed code {} and Text {}".format(r.status_code, r.text))
         print(dict(r.headers))
@@ -145,7 +125,7 @@ class PushServerUtils:
         if redirect_url != url_pattern.format(self._port):
             raise AssertionError("Location differs from the expected. Given Location {}".format(redirect_url))
 
-    def start_mcs_push_server(self, authorization=None):
+    def start_mcs_push_server(self):
         """Utility function to simplify starting the mcs push server. It executes MockMCSPushServer.py """
         server_path = os.path.join(os.path.dirname(__file__), 'MockMCSPushServer.py')
         args= [ sys.executable,
@@ -155,8 +135,6 @@ class PushServerUtils:
         ]
         self._server = subprocess.Popen(args)
         time.sleep(1)
-        if authorization:
-            self.configure_push_server_to_require_auth(authorization=authorization)
 
     def mcs_push_server_log(self):
         """
@@ -214,17 +192,6 @@ class PushServerUtils:
         client_received_message = unescaped_client_received_message.replace('\\n', '\n')
         if client_received_message != message:
             raise AssertionError("Message differ. Expected {}.\nReceived {}".format(message, client_received_message))
-
-    def check_client_not_authorized(self, authorization):
-        """Verify that if MCS Push Server is configured to check Authorization header it will reject connections
-        that does not present the valid authorization"""
-        try:
-            self.start_sse_client(authorization=authorization)
-            raise AssertionError("Client connected with the authorization set to {}".format(authorization))
-        except requests.exceptions.HTTPError as ex:
-            if ex.response.status_code == 401:
-                return
-            raise AssertionError("Client failed for a different reason. Ex={}".format(ex))
 
     def shutdown_mcs_push_server(self):
         """Shutdown the Push Server and the Client cleanly to be used in TearDown to avoid"""
