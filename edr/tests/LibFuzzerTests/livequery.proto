@@ -1,0 +1,18 @@
+syntax = "proto2";
+package LiveQueryProto;
+
+message TestCase {
+    optional string payload = 1;
+    enum FunctionTarget
+    {
+        enforceUTF8 = 1;
+        jsonToMap = 2;
+        regexUtility = 3;
+        base64 = 4;
+        deobfuscate = 5;
+        md5 = 6;
+        splitString = 7;
+        telemetryConfig = 8;
+    }
+    required FunctionTarget functionTarget = 2;
+}

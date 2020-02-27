@@ -227,6 +227,7 @@ function build()
         untar_input boost
         untar_input osquerysdk
         untar_input openssl
+        untar_input protobuf
 
         mkdir -p "$REDIST"/osquery
         tar xzf ${INPUT}/osquery-4.0.2_1.linux_x86_64.tar.gz -C "$REDIST"/osquery

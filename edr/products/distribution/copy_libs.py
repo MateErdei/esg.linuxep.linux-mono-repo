@@ -30,7 +30,10 @@ def safe_delete(p):
 
 def safe_hardlink(source, target):
     safe_delete(target)
-    os.link(source, target)
+    try:
+        os.link(source, target)
+    except OSError:
+        shutil.copy(source, target)
 
 
 def main(argv):

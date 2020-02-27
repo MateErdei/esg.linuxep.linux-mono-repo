@@ -13,34 +13,33 @@
 
 function(sophos_add_library TARGET  )
     set(multiValueArgs EXTRA_PROJECTS EXTRA_LIBS EXTRA_INCLUDES )
-    set(librayKindOptions SHARED OBJECT)
+    set(libraryKindOptions SHARED OBJECT)
     if (ARGC LESS 1)
         message(FATAL_ERROR "No arguments supplied to sophos_add_library()")
     endif()
 
-    cmake_parse_arguments(Args "${librayKindOptions}" ""
+    cmake_parse_arguments(Args "${libraryKindOptions}" ""
             "${multiValueArgs}" ${ARGN} )
 
-    set( OptionArg )
-    if ( Args_SHARED )
-        set( OptionArg "SHARED")
-    elseif( Args_OBJECT)
-        set( OptionArg "OBJECT")
+    set(OptionArg)
+    if (Args_SHARED)
+        set(OptionArg "SHARED")
+    elseif(Args_OBJECT)
+        set(OptionArg "OBJECT")
     endif()
 
-    if ( NOT OptionArg )
+    if (NOT OptionArg)
         message(FATAL_ERROR "Invalid library option.")
     endif()
 
-    if( NOT Args_UNPARSED_ARGUMENTS )
+    if(NOT Args_UNPARSED_ARGUMENTS )
             message(FATAL_ERROR "No target supplied to sophos_add_library()")
     endif()
 
-    set( INPUTFILES ${Args_UNPARSED_ARGUMENTS})
+    set(INPUTFILES ${Args_UNPARSED_ARGUMENTS})
 
     add_library(${TARGET} SHARED
-            ${INPUTFILES}
-    )
+                ${INPUTFILES})
 
     target_include_directories(${TARGET} PUBLIC ${pluginapiinclude}  ${CMAKE_SOURCE_DIR} ${Args_EXTRA_INCLUDES})
 
@@ -49,11 +48,46 @@ function(sophos_add_library TARGET  )
 
     add_dependencies(${TARGET} copy_libs)
 
-    SET_TARGET_PROPERTIES( ${TARGET}
+    SET_TARGET_PROPERTIES(${TARGET}
             PROPERTIES
             INSTALL_RPATH "$ORIGIN"
             BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs")
 
     install(TARGETS ${TARGET}
             LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
+endfunction()
+
+function(sophos_add_exe TARGET  )
+    set(multiValueArgs EXTRA_PROJECTS EXTRA_LIBS EXTRA_INCLUDES )
+    set(libraryKindOptions SHARED OBJECT)
+    if (ARGC LESS 1)
+        message(FATAL_ERROR "No arguments supplied to sophos_add_exe()")
+    endif()
+
+    cmake_parse_arguments(Args "${libraryKindOptions}" ""
+            "${multiValueArgs}" ${ARGN} )
+
+    if(NOT Args_UNPARSED_ARGUMENTS )
+        message(FATAL_ERROR "No target supplied to sophos_add_exe()")
+    endif()
+
+    set(INPUTFILES ${Args_UNPARSED_ARGUMENTS})
+
+    add_executable(${TARGET} ${INPUTFILES})
+
+    target_include_directories(${TARGET} PUBLIC ${pluginapiinclude}  ${CMAKE_SOURCE_DIR} ${Args_EXTRA_INCLUDES})
+
+
+    target_link_libraries(${TARGET}  PUBLIC ${Args_EXTRA_PROJECTS} ${pluginapilib} ${Args_EXTRA_LIBS})
+
+    add_dependencies(${TARGET} copy_libs)
+
+    SET_TARGET_PROPERTIES(${TARGET}
+            PROPERTIES
+            INSTALL_RPATH "$ORIGIN"
+            BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs")
+
+    install(TARGETS ${TARGET}
+            DESTINATION files/plugins/${PLUGIN_NAME}/bin
+            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE  GROUP_READ GROUP_EXECUTE)
 endfunction()
