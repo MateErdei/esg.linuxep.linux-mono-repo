@@ -298,12 +298,17 @@ namespace Plugin
             return;
         }
 
+        std::string option{current_enabled?"true":"false"};
         if (current_enabled != m_collectAuditEnabled)
         {
             m_collectAuditEnabled = current_enabled;
             LOGINFO(
-                "Option to enable audit collection changed to " << current_enabled << ". Scheduling osquery restart");
+                "Option to enable audit collection changed to " << option << ". Scheduling osquery restart");
             m_queueTask->pushRestartOsquery();
+        }
+        else
+        {
+            LOGDEBUG("Option to enable audit collection remains "<< option);
         }
     }
 

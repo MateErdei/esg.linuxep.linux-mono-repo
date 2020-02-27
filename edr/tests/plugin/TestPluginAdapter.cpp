@@ -58,6 +58,9 @@ public:
 
 TEST(TestPluginAdapter, processALCPolicyShouldInstructRestartOnChangePolicy)
 { // NOLINT
+    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
+    testing::internal::CaptureStderr();
+
     Tests::TempDir tempDir("/tmp");
     // set the config file to enable audit by default. Hence, the rest is configured by policy.
     tempDir.createFile("plugins/edr/etc/plugin.conf", "disable_auditd=1\n");
@@ -76,12 +79,14 @@ TEST(TestPluginAdapter, processALCPolicyShouldInstructRestartOnChangePolicy)
     Plugin::Task task;
     EXPECT_TRUE(queueTask->pop(task, 2));
     EXPECT_EQ(task.m_taskType, Plugin::Task::TaskType::RESTARTOSQUERY);
+    std::string detectFirstChange{"INFO Option to enable audit collection changed to false"};
 
     // new policy without MTR feature, toggle the enableAuditDataCollection and instruct restart query
     pluginAdapter.processALCPolicy(PolicyWithoutMTRFeatureOrSubscription(), false);
     EXPECT_TRUE(pluginAdapter.osqueryConfigurator().enableAuditDataCollection());
     EXPECT_TRUE(queueTask->pop(task, 2));
     EXPECT_EQ(task.m_taskType, Plugin::Task::TaskType::RESTARTOSQUERY);
+    std::string detectSecondChange{"INFO Option to enable audit collection changed to true"};
 
     // another policy without MTR feature does not toggle the enableAuditDataCollection and hence, should not restart
     // query
@@ -89,6 +94,14 @@ TEST(TestPluginAdapter, processALCPolicyShouldInstructRestartOnChangePolicy)
     EXPECT_TRUE(pluginAdapter.osqueryConfigurator().enableAuditDataCollection());
     // timeout as there is no entry in the queue
     EXPECT_FALSE(queueTask->pop(task, 1));
+    std::string detectNoChange{"DEBUG Option to enable audit collection remains true"};
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr(detectFirstChange));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr(detectSecondChange));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr(detectNoChange));
+    EXPECT_LT( logMessage.find(detectFirstChange), logMessage.find(detectSecondChange) );
+    EXPECT_LT( logMessage.find(detectSecondChange), logMessage.find(detectNoChange) );
 }
 
 Plugin::Task defaultQueryTask()
