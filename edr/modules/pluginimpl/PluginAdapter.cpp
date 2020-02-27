@@ -16,7 +16,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <modules/Proc/ProcUtilities.h>
-#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 
 #include <cmath>
@@ -84,6 +83,7 @@ namespace Plugin
     void PluginAdapter::mainLoop()
     {
         LOGINFO("Entering the main loop");
+        initialiseTelemetry();
         prepareSystemForPlugin();
         cleanUpOldOsqueryFiles();
         setUpOsqueryMonitor();
@@ -169,6 +169,9 @@ namespace Plugin
                     {
                         ifileSystem->removeFile(filepath);
                     }
+
+                    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+                    telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 1L);
 
                     LOGDEBUG("Purging Done");
                     setUpOsqueryMonitor();
@@ -344,7 +347,7 @@ namespace Plugin
         flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
         flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
-        flags.push_back("--logger_path=" + Plugin::osQueryLogPath());
+        flags.push_back("--logger_path=" + Plugin::osQueryLogDirectoryPath());
 
         std::string disableAuditFlagValue = enableAuditEventCollection ? "false":"true";
         flags.push_back("--disable_audit=" + disableAuditFlagValue);
@@ -522,6 +525,15 @@ namespace Plugin
         {
             LOGDEBUG("Journald audit socket is already masked");
         }
+    }
+
+    void PluginAdapter::initialiseTelemetry()
+    {
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        telemetry.set(plugin::telemetryOsqueryRestarts, 0L);
+        telemetry.set(plugin::telemetryOSQueryRestartsCPU, 0L);
+        telemetry.set(plugin::telemetryOSQueryRestartsMemory, 0L);
+        telemetry.set(plugin::telemetryOSQueryDatabasePurges, 0L);
     }
 
 } // namespace Plugin

@@ -7,16 +7,38 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 #include "ApplicationPaths.h"
 #include "Logger.h"
+#include "TelemetryConsts.h"
+#include "OsqueryLogger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <modules/Proc/ProcUtilities.h>
 
 #include <iterator>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 
 namespace
 {
-    constexpr int OUTPUT_BUFFER_LIMIT_KB = 1024;
+    constexpr int OUTPUT_BUFFER_LIMIT_BYTES = 50;
+
+    void ingestOutput(const std::string& output)
+    {
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        std::vector<std::string> logLines = Common::UtilityImpl::StringUtils::splitString(output,"\n");
+        for (auto& line : logLines)
+        {
+            LOGINFO_OSQUERY(line);
+            if (Common::UtilityImpl::StringUtils::isSubstring(line, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
+            {
+                telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
+            }
+            else if (Common::UtilityImpl::StringUtils::isSubstring(line, "stopping: Memory limits exceeded:"))
+            {
+                telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
+            }
+        }
+    }
 } // namespace
 
 namespace
@@ -169,20 +191,8 @@ namespace Plugin
     {
         std::lock_guard lock { m_processMonitorSharedResource };
         m_processMonitorPtr = Common::Process::createProcess();
-        m_processMonitorPtr->setOutputLimit(OUTPUT_BUFFER_LIMIT_KB);
-
-        m_processMonitorPtr->setOutputTrimmedCallback(
-            [](const std::string& overflowOutput) {
-              if (getPluginLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
-              {
-                  LOGDEBUG("osquery logs: " << overflowOutput);
-              }
-              else
-              {
-                  LOGERROR("Non expected logs from osquery: " << overflowOutput);
-              }
-            });
-
+        m_processMonitorPtr->setOutputLimit(OUTPUT_BUFFER_LIMIT_BYTES);
+        m_processMonitorPtr->setOutputTrimmedCallback(ingestOutput);
         m_processMonitorPtr->exec(processPath, arguments, {});
     }
 

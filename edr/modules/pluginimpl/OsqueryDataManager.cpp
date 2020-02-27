@@ -46,7 +46,7 @@ void OsqueryDataManager::removeOldWarningFiles()
 {
     LOGDEBUG("Checking for osquery INFO/WARNING files");
     auto* ifileSystem = Common::FileSystem::fileSystem();
-    std::vector<std::string> files = ifileSystem->listFiles(Plugin::osQueryLogPath());
+    std::vector<std::string> files = ifileSystem->listFiles(Plugin::osQueryLogDirectoryPath());
     std::vector<std::string> warningFiles;
     std::vector<std::string> infoFiles;
     try

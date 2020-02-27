@@ -31,7 +31,7 @@ std::string Plugin::lockFilePath()
     return fromRelative("var/edr.lock");
 }
 
-std::string Plugin::getEdrVersionIniFilePath()
+std::string Plugin::getVersionIniFilePath()
 {
     return fromRelative("VERSION.ini");
 }
@@ -60,7 +60,7 @@ std::string Plugin::syslogPipe()
     return fromRelative("var/syslog_pipe");
 }
 
-std::string Plugin::osQueryLogPath()
+std::string Plugin::osQueryLogDirectoryPath()
 {
     return fromRelative("log");
 }

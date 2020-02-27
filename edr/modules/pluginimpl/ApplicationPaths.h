@@ -16,12 +16,11 @@ namespace Plugin
     std::string lockFilePath();
     std::string osqueryPidFile();
     std::string syslogPipe();
-    std::string osQueryLogPath();
+    std::string osQueryLogDirectoryPath();
     std::string osQueryResultsLogPath();
     std::string osQueryDataBasePath();
     std::string edrConfigFilePath();
-    std::string getEdrVersionIniFilePath();
+    std::string getVersionIniFilePath();
     std::string systemctlPath();
     std::string servicePath();
-
 } // namespace Plugin

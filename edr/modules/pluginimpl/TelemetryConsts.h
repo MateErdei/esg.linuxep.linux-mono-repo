@@ -4,8 +4,13 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+
+// todo make this a bit nicer...
 namespace plugin
 {
-    constexpr char telemetryOsqueryRestarts[] = "osquery-restarts";
-    constexpr char version[] = "version";
+    const char* const telemetryOsqueryRestarts = "osquery-restarts";
+    const char* const version = "version";
+    const char* const telemetryOSQueryRestartsCPU = "osquery-restarts-cpu";
+    const char* const telemetryOSQueryRestartsMemory = "osquery-restarts-memory";
+    const char* const telemetryOSQueryDatabasePurges = "osquery-database-purges";
 }

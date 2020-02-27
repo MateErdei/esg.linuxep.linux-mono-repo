@@ -53,14 +53,16 @@ namespace Plugin
         void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
         bool checkIfServiceActive(const std::string& serviceName);
         void stopAndDisableSystemService(const std::string& serviceName);
+        void initialiseTelemetry();
         void prepareSystemForPlugin();
         std::tuple<int, std::string> runSystemCtlCommand(const std::string& command, const std::string& target);
         bool checkIfJournaldLinkedToAuditSubsystem();
         void maskJournald();
-        void breakLinkBetweenJournaldAndAuditSubsystem();
 
+        void breakLinkBetweenJournaldAndAuditSubsystem();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
+
         unsigned int m_timesOsqueryProcessFailedToStart;
     };
 } // namespace Plugin

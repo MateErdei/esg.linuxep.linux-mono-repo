@@ -4,10 +4,13 @@ Copyright 2018-2019 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include "PluginCallback.h"
 
 #include "Logger.h"
 #include "Telemetry.h"
+#include "TelemetryConsts.h"
+//#include "TelemetryConsts.h"
 
 namespace Plugin
 {
@@ -58,10 +61,42 @@ namespace Plugin
 
     std::string PluginCallback::getTelemetry()
     {
+//        LOGSUPPORT("Received get telemetry request");
+//        auto& telemetry = Telemetry::instance();
+//        std::string telemetryJson = telemetry.getJson();
+//        telemetry.clear();
+//        return telemetryJson;
+
+
         LOGSUPPORT("Received get telemetry request");
-        auto& telemetry = Telemetry::instance();
-        std::string telemetryJson = telemetry.getJson();
-        telemetry.clear();
+        auto & telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+
+//        telemetry.increment(plugin::telemetrySophosMTRRestarts, 0UL);
+        std::optional<std::string> version = plugin::getVersion();
+        if (version)
+        {
+            telemetry.set(plugin::version, version.value());
+        }
+//        std::optional<unsigned long> restartsCPU = plugin::getNumberOfOsqueryRestartsDueToCPU();
+//        if (restartsCPU)
+//        {
+//            telemetry.set(plugin::telemetryOSQueryRestartsCPU, restartsCPU.value());
+//        }
+//        std::optional<unsigned long> restartsMemory = plugin::getNumberOfOsqueryRestartsDueToMemory();
+//        if (restartsMemory)
+//        {
+//            telemetry.set(plugin::telemetryOSQueryRestartsMemory, restartsMemory.value());
+//        }
+//        std::optional<unsigned long> purges = plugin::getNumberOfDatabasePurges();
+//        if (purges)
+//        {
+//            telemetry.set(plugin::telemetryOSQueryDatabasePurges, purges.value());
+//        }
+
+
+        std::string telemetryJson = telemetry.serialiseAndReset();
+        LOGDEBUG("Got telemetry JSON data: "  << telemetryJson);
         return telemetryJson;
+
     }
 } // namespace Plugin
