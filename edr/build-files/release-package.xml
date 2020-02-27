@@ -63,7 +63,7 @@
         <!--<command buildtype="dev">>
             <program>/bin/bash</program>
             <args>./build.sh - -clean - -debug - -name mtr</args> 'When put back remove spaces between hyphens'
-            <workingdir>sspl-edr-plugin-build</workingdir>
+            <workingdir>sspl-plugin-edr-component-build</workingdir>
         </command> -->
     </buildcommands>
     <publish>

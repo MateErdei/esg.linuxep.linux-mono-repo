@@ -103,7 +103,7 @@ SRC_TEST_DIR=${SRC_DIR}/tests
 exclude \!../..${SRC_DIR}/build/
 exclude \!../..${SRC_DIR}/build64/
 exclude \!../..${SRC_DIR}/redist/
-exclude \!../..${SRC_DIR}/sspl-edr-plugin-build/
+exclude \!../..${SRC_DIR}/sspl-plugin-edr-component-build/
 exclude \!../..${SRC_TEST_DIR}/
 exclude \!../..${SRC_DIR}/log/
 exclude \!../..${SRC_DIR}/TA/

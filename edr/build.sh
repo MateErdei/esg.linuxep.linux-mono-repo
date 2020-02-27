@@ -161,9 +161,9 @@ INPUT=$BASE/input
 
 if [[ ! -d "$INPUT" ]]
 then
-    if [[ -d "$BASE/sspl-edr-plugin-build" ]]
+    if [[ -d "$BASE/sspl-plugin-edr-component-build" ]]
     then
-        INPUT="$BASE/sspl-edr-plugin-build/input"
+        INPUT="$BASE/sspl-plugin-edr-component-build/input"
     else
         MESSAGE_PART1="You need to run the following to setup your input folder: "
         MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"

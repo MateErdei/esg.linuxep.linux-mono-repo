@@ -1,7 +1,7 @@
 #!/bin/bash
 
 STARTINGDIR=${BASE}
-EDR_PLUGIN="$STARTINGDIR"/sspl-edr-plugin-build
+EDR_PLUGIN="$STARTINGDIR"/sspl-plugin-edr-component-build
 EDR_PLUGIN_REDIST="$EDR_PLUGIN"/redist
 
 cd "$EDR_PLUGIN"
