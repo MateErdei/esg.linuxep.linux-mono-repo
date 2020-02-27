@@ -59,6 +59,7 @@ namespace UpdateSchedulerImpl
         m_reportfilePath(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath()),
         m_configfilePath(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath()),
+        m_previousConfigFilePath(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath()),
         m_formattedTime(),
         m_policyReceived(false),
         m_pendingUpdate(false)
@@ -233,11 +234,11 @@ namespace UpdateSchedulerImpl
 
             writeConfigurationData(settingsHolder.configurationData);
 
-            std::tuple<bool, SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData = getPreviousConfigurationData();
+            std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData = getPreviousConfigurationData();
 
-            if(std::get<0>(previousConfigurationData) && SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+            if(previousConfigurationData.has_value() && SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
                     settingsHolder.configurationData,
-                    std::get<1>(previousConfigurationData)))
+                    previousConfigurationData.value()))
             {
                 LOGINFO("Detected product configuration change, triggering update.");
                 m_pendingUpdate = true;
@@ -434,6 +435,18 @@ namespace UpdateSchedulerImpl
             Common::Telemetry::TelemetryHelper::getInstance().set(
                 "successful-update-time", duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
 
+            // on successful update copy the current update configuration to previous update configuration
+            // the previous configuration file will be used on the next policy change and by suldownloader
+            // to force an update when subscriptions and features change.
+            try
+            {
+                iFileSystem->copyFile(m_configfilePath, m_previousConfigFilePath);
+            }
+            catch(Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to create previous configuration file at : " << m_previousConfigFilePath << ", with error, " << ex.what());
+            }
+
             return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;
         }
 
@@ -480,7 +493,7 @@ namespace UpdateSchedulerImpl
         Common::FileSystem::fileSystem()->writeFile(m_configfilePath, serializedConfigData);
     }
 
-    std::tuple<bool, SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerProcessor::getPreviousConfigurationData()
+    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerProcessor::getPreviousConfigurationData()
     {
         Path previousConfigFilePath = Common::FileSystem::join(
                 Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath(),
@@ -489,26 +502,29 @@ namespace UpdateSchedulerImpl
         std::string previousConfigSettings;
         SulDownloader::suldownloaderdata::ConfigurationData previousConfigurationData;
 
-        bool result = false;
-
         if(Common::FileSystem::fileSystem()->isFile(previousConfigFilePath))
         {
             LOGDEBUG("Previous update configuration file found.");
-            previousConfigSettings = Common::FileSystem::fileSystem()->readFile(previousConfigFilePath);
-
             try
             {
+                previousConfigSettings = Common::FileSystem::fileSystem()->readFile(previousConfigFilePath);
+
                 previousConfigurationData =
                         SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(previousConfigSettings);
-                result = true;
+                return std::optional<SulDownloader::suldownloaderdata::ConfigurationData>{previousConfigurationData};
+
             }
             catch(SulDownloader::suldownloaderdata::SulDownloaderException& ex)
             {
                 LOGWARN("Failed to load previous configuration settings from : " << previousConfigFilePath);
             }
+            catch(Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to read previous configuration file : " << previousConfigFilePath);
+            }
         }
 
-        return std::make_tuple(result, previousConfigurationData);
+        return std::nullopt;
     }
 
 

@@ -470,8 +470,6 @@ TEST_F( // NOLINT
         }
     });
 
-    EXPECT_CALL(fileSystemMock, copyFileAndSetPermissions("/dir/input.json", "/dir/previous_update_config.json", _, _, _)).Times(1);
-
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
@@ -517,8 +515,6 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
-
-    EXPECT_CALL(fileSystemMock, copyFileAndSetPermissions("/dir/input.json", "/dir/previous_update_config.json", _, _, _)).Times(1);
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
@@ -571,8 +567,6 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
-
-    EXPECT_CALL(fileSystemMock, copyFileAndSetPermissions("/dir/input.json", "/dir/previous_update_config.json", _, _, _)).Times(1);
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
@@ -642,8 +636,6 @@ TEST_F( // NOLINT
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
-
-    EXPECT_CALL(fileSystemMock, copyFileAndSetPermissions("/dir/input.json", "/dir/previous_update_config.json", _, _, _)).Times(1);
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
@@ -1163,7 +1155,7 @@ TEST_F( // NOLINT
 
 TEST_F( // NOLINT
         SULDownloaderTest,
-        runSULDownloader_ListOfSubscriptionListSizeDiffernceResultsInFullSuccessfulUpdate)
+        runSULDownloader_ListOfSubscriptionListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2);
     MockWarehouseRepository& mock = warehouseMocked();
@@ -1253,7 +1245,7 @@ TEST_F( // NOLINT
 
 TEST_F( // NOLINT
         SULDownloaderTest,
-        runSULDownloader_ListOfFeatureListSizeDiffernceResultsInFullSuccessfulUpdate)
+        runSULDownloader_ListOfFeatureListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2);
     MockWarehouseRepository& mock = warehouseMocked();

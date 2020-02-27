@@ -301,9 +301,15 @@ namespace SulDownloader
 
         if (fileSystem->isFile(previousSettingFilePath))
         {
-            previousSettingsString = fileSystem->readFile(previousSettingFilePath);
+            try
+            {
+                previousSettingsString = fileSystem->readFile(previousSettingFilePath);
+            }
+            catch(Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to read previous update configuration file.");
+            }
         }
-
 
         // check can create the output
         if (fileSystem->isDirectory(outputFilePath))
@@ -324,16 +330,6 @@ namespace SulDownloader
         std::string jsonReport;
         std::tie(exitCode, jsonReport) = configAndRunDownloader(settingsString, previousSettingsString, previousReportData);
 
-        if (exitCode == 0)
-        {
-            LOGINFO("Update success");
-            mode_t permissions = S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP;
-            fileSystem->copyFileAndSetPermissions(inputFilePath, previousSettingFilePath, permissions, "sophos-spl-user", "sophos-spl-group");
-        }
-        else
-        {
-            LOGWARN("Update failed, with code: " << exitCode);
-        }
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         LOGINFO("Generating the report file in: " << outputParentPath);
 

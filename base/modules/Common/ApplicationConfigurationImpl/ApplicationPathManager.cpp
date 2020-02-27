@@ -239,6 +239,11 @@ namespace Common
             return "previous_update_config.json";
         }
 
+        std::string ApplicationPathManager::getSulDownloaderPreviousConfigFilePath() const
+        {
+            return Common::FileSystem::join(getSulDownloaderReportPath(), getPreviousUpdateConfigFileName());
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

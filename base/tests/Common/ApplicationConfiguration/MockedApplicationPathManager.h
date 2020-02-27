@@ -66,5 +66,6 @@ public:
 
     MOCK_CONST_METHOD0(getInstalledProductPath, std::string (void));
     MOCK_CONST_METHOD0(getPreviousUpdateConfigFileName, std::string (void));
+    MOCK_CONST_METHOD0(getSulDownloaderPreviousConfigFilePath, std::string (void));
 
 };
