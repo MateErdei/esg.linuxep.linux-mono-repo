@@ -62,7 +62,7 @@ TEST(TestThreatReposterSocket, TestSendThreatReport) // NOLINT
     //TO DO: check that a callback to the avpmanager is called [LINUXDAR-1473 LINUXDAR-1470]
     //follow test scan client example
     //communication to the socket takes some time this makes sure we don't kill the socket too fast
-    //when the TO DO will be implemented a timeout will be put in place instead of the sleep
+    //when the TO DO will get implemented a timeout will be put in place instead of the sleep
     usleep(100000);
     threatReporterServer.requestStop();
     threatReporterServer.join();
