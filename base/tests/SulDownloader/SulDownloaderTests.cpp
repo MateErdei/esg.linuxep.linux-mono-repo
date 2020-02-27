@@ -1691,6 +1691,55 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
+        SULDownloaderTest,
+        runSULDownloader_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    MockWarehouseRepository& mock = warehouseMocked();
+    DownloadedProductVector products = defaultProducts();
+    ProductReportVector productReports = defaultProductReports();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(false);
+    }
+
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData = configData(defaultSettings());
+    configurationData.verifySettingsAreValid();
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(0));
+    timeTracker.setFinishedTime(std::time_t(0));
+    DownloadReport previousDownloadReport =
+            DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    EXPECT_PRED_FORMAT2(
+            downloadReportSimilar,
+            expectedDownloadReport,
+            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+}
+
+TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_checkLogVerbosityVERBOSE)
 {

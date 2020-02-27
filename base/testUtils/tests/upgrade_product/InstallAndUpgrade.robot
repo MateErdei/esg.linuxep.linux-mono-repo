@@ -46,7 +46,6 @@ ${base_files_to_delete}                     ${SOPHOS_INSTALL}/base/update/cache/
 ${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Plugin-MDR/filestodelete.dat
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-${EDR_DIR}                                  ${SOPHOS_INSTALL}/plugins/edr
 
 *** Test Cases ***
 
@@ -401,7 +400,7 @@ Version Copy Versions All Changed Files When Upgrading
 
 
 Update Will Be Forced When Feature List Changes Without Unexpected Errors
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUT_Without_SDU_Policy}
 
@@ -445,7 +444,7 @@ Update Will Be Forced When Feature List Changes Without Unexpected Errors
 
 
 Update Will Be Forced When Subscription List Changes Without Unexpected Errors
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
 
@@ -486,7 +485,7 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
 
 
 Update Will Be Forced When Component Has Been Unintalled Without Unexpected Errors
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
 

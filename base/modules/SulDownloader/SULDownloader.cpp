@@ -330,6 +330,15 @@ namespace SulDownloader
         std::string jsonReport;
         std::tie(exitCode, jsonReport) = configAndRunDownloader(settingsString, previousSettingsString, previousReportData);
 
+        if (exitCode == 0)
+        {
+            LOGINFO("Update success");
+        }
+        else
+        {
+            LOGWARN("Update failed, with code: " << exitCode);
+        }
+
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         LOGINFO("Generating the report file in: " << outputParentPath);
 
