@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "NamedScanConfig.h"
 
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
+#include "unixsocket/threatReporterSocket/ThreatReporterClient.h"
 #include "datatypes/sophos_filesystem.h"
 
 namespace avscanner::avscannerimpl
@@ -37,7 +38,7 @@ namespace avscanner::avscannerimpl
          * @param p Path to open and scan
          * @return Scan response
          */
-        scan_messages::ScanResponse scan(const path& p);
+        scan_messages::ScanResponse scan(const path& fileToScanPath);
 
     private:
         unixsocket::IScanningClientSocket& m_socket;

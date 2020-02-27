@@ -23,7 +23,7 @@ namespace unixsocket
         explicit ThreatReporterClientSocket(const std::string& socket_path);
         ~ThreatReporterClientSocket() = default;
 
-        void sendThreatDetection(scan_messages::ThreatDetected detection);
+        void sendThreatDetection(const scan_messages::ThreatDetected& detection);
     private:
         datatypes::AutoFd m_socket_fd;
 

@@ -9,7 +9,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "avscanner/avscannerimpl/ScanClient.h"
 
+#include <fstream>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <unixsocket/threatReporterSocket/ThreatReporterServerSocket.h>
+
+#define BASE "/tmp/TestPluginAdapter"
+
 using namespace avscanner::avscannerimpl;
+
+namespace fs = sophos_filesystem;
 
 namespace
 {
@@ -32,6 +40,19 @@ namespace
 }
 
 using ::testing::StrictMock;
+
+void setupFakeSophosThreatReporterConfig()
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", BASE);
+    fs::path f = BASE;
+    fs::create_directories(f / "chroot");
+    f /= "sbin";
+    fs::create_directories(f);
+    f /= "sophos_threat_detector_launcher";
+    std::ofstream ost(f);
+    ost.close();
+}
 
 TEST(TestScanClient, TestConstruction) // NOLINT
 {
@@ -117,8 +138,16 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     EXPECT_CALL(*mock_callbacks, infectedFile(Eq("/etc/passwd"), Eq(THREAT)))
             .Times(1);
 
+    setupFakeSophosThreatReporterConfig();
+    unixsocket::ThreatReporterServerSocket threatReporterServer(
+            "/tmp/TestPluginAdapter/chroot/threat_report_socket"
+            );
+
+    threatReporterServer.start();
     ScanClient s(mock_socket, mock_callbacks, false);
     auto result = s.scan("/etc/passwd");
+    threatReporterServer.requestStop();
+    threatReporterServer.join();
     EXPECT_FALSE(result.clean());
     EXPECT_EQ(result.threatName(), THREAT);
 }

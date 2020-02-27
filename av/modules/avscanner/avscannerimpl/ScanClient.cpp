@@ -12,8 +12,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <iostream>
 #include <fcntl.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 using namespace avscanner::avscannerimpl;
+using namespace scan_messages;
+namespace fs = sophos_filesystem;
 
 ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
                        std::shared_ptr<IScanCallbacks> callbacks,
@@ -29,17 +32,45 @@ ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
 {
 }
 
-scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& p)
+static fs::path pluginInstall()
 {
-    datatypes::AutoFd file_fd(::open(p.c_str(), O_RDONLY));
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    return appConfig.getData("PLUGIN_INSTALL");
+}
+
+static fs::path threat_reporter_socket()
+{
+    return pluginInstall() / "chroot/threat_report_socket";
+}
+
+static void sendThreatReport(const fs::path& threatPath, const std::string& threatName)
+{
+    unixsocket::ThreatReporterClientSocket threatReporterSocket(threat_reporter_socket());
+    std::time_t detectionTimeStamp = std::time(nullptr);
+
+    scan_messages::ThreatDetected threatDetected;
+    threatDetected.setUserID(std::getenv("USER"));
+    threatDetected.setDetectionTime(detectionTimeStamp);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setThreatName(threatName);
+    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+    threatDetected.setFilePath(threatPath);
+    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+
+    threatReporterSocket.sendThreatDetection(threatDetected);
+}
+
+scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& fileToScanPath)
+{
+    datatypes::AutoFd file_fd(::open(fileToScanPath.c_str(), O_RDONLY));
     if (!file_fd.valid())
     {
-        PRINT("Unable to open "<<p);
+        PRINT("Unable to open "<< fileToScanPath);
         return scan_messages::ScanResponse();
     }
 
     scan_messages::ClientScanRequest request;
-    request.setPath(p);
+    request.setPath(fileToScanPath);
     request.setScanInsideArchives(m_scanInArchives);
 
     auto response = m_socket.scan(file_fd, request);
@@ -48,11 +79,12 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& p)
     {
         if (response.clean())
         {
-            m_callbacks->cleanFile(p);
+            m_callbacks->cleanFile(fileToScanPath);
         }
         else
         {
-            m_callbacks->infectedFile(p, response.threatName());
+            sendThreatReport(fileToScanPath, response.threatName());
+            m_callbacks->infectedFile(fileToScanPath, response.threatName());
         }
     }
     return response;

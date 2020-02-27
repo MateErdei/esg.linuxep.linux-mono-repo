@@ -3,7 +3,8 @@ include(GoogleTest)
 
 SophosAddTest(TestSocketUtils
         TestSocketUtils.cpp
-        PROJECTS unixsocket
+        TestThreatReporterSocket.cpp
+        PROJECTS unixsocket avscannerimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
         )
