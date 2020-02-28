@@ -38,7 +38,7 @@ Check Diagnose Collects Correct AV Files
     ${AVFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av
 
     Should Contain  ${PluginFiles}  av.log
-    Should Contain  ${PluginFiles}  scanNow.log
+    Should Contain  ${PluginFiles}  Scan Now.log
     Should Contain  ${PluginFiles}  sophos_threat_detector.log
 
     Should Contain  ${AVFiles}  VERSION.ini
