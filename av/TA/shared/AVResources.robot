@@ -143,8 +143,8 @@ Check AV Plugin Installed With Base
 Display All SSPL Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    BuiltIn.Log  ${result.stdout}
-    Builtin.Log  ${result.stderr}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
 
 AV And Base Teardown
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log

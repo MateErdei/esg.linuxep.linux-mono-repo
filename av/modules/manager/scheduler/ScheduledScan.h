@@ -29,7 +29,7 @@ namespace manager::scheduler
          */
         ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id);
 
-        std::string str() const;
+        [[nodiscard]] std::string str() const;
 
         [[nodiscard]] std::string name() const
         {

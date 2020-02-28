@@ -16,7 +16,7 @@ namespace manager::scheduler
     {
     public:
         explicit Time(const std::string& time);
-        std::string str() const;
+        [[nodiscard]] std::string str() const;
         [[nodiscard]] int hour() const { return m_hour;}
         [[nodiscard]] int minute() const { return m_minute;}
         bool operator<(const Time& rhs) const;
@@ -44,7 +44,7 @@ namespace manager::scheduler
 
         Time getNextTime(const struct tm& now, bool& forceTomorrow) const;
 
-        std::string str() const;
+        [[nodiscard]] std::string str() const;
 
     private:
         std::vector<Time> m_times;

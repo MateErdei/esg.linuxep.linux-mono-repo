@@ -75,14 +75,14 @@ class AVPlugin(object):
                 self._proc.wait(15)
             except subprocess.TimeoutExpired:
                 logger.fatal("Timeout attempting to terminate av plugin")
-                logger.fatal("Log: %s", self.log())
+                logger.fatal("Log: %s", self.get_log())
                 self._proc.kill()
                 self._proc.wait()
 
             self._proc = None
         if self._failed:
             print("Report on Failure:")
-            print(self.log())
+            print(self.get_log())
         logger.debug("Finish stop_av")
 
     def kill_av(self):
@@ -95,14 +95,14 @@ class AVPlugin(object):
             self._proc = None
 
     # Will return empty string if log doesn't exist
-    def log(self):
+    def get_log(self):
         log_path = _plugin_log_path()
         if not os.path.exists(log_path):
             return ""
         return _file_content(log_path)
 
     def log_contains(self, content):
-        log_content = self.log()
+        log_content = self.get_log()
         return content in log_content
 
     def wait_log_contains(self, content, timeout=10):
@@ -111,7 +111,7 @@ class AVPlugin(object):
             if self.log_contains(content):
                 return True
             time.sleep(1)
-        raise AssertionError("Log does not contain {}.\nFull log: {}".format(content, self.log()))
+        raise AssertionError("Log does not contain {}.\nFull log: {}".format(content, self.get_log()))
 
     def wait_file(self, relative_path, timeout=10):
         full_path = os.path.join(_sophos_spl_path(), relative_path)
@@ -122,7 +122,7 @@ class AVPlugin(object):
         dir_path = os.path.dirname(full_path)
         files_in_dir = os.listdir(dir_path)
         raise AssertionError("File not found after {} seconds. Path={}.\n Files in Directory {} \n Log:\n {}".
-                             format(timeout, full_path, files_in_dir, self.log()))
+                             format(timeout, full_path, files_in_dir, self.get_log()))
 
     @staticmethod
     def get_latest_xml_from_events(relative_path):

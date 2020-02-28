@@ -40,7 +40,7 @@ namespace manager::scheduler
 
         int getNextDay(struct tm now, bool forceTomorrow) const;
 
-        std::string str() const;
+        [[nodiscard]] std::string str() const;
 
     private:
         std::vector<Day> m_days;
