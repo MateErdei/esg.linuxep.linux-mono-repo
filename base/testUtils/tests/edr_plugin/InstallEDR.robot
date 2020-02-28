@@ -30,6 +30,7 @@ ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_
 ${EDR_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/edr
 ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
+${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 *** Test Cases ***
 Install EDR and handle Live Query
@@ -239,6 +240,10 @@ Install base and edr and mtr then downgrade to just base and mtr
 
 Install master of base and edr and mtr and upgrade to mtr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
+    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader):
+
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
@@ -260,15 +265,19 @@ Install master of base and edr and mtr and upgrade to mtr 999
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
     Check MDR Plugin Installed
 
-    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
 
-    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should not contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
 
 
 Install master of base and edr and mtr and upgrade to edr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
+    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader):
+
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
     Trigger Update Now
 
@@ -287,14 +296,21 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
-    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
 
-    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should not contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
+
 
 Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
+    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader):
+    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader):
+
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
@@ -319,7 +335,7 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
-    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
-    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
+    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9

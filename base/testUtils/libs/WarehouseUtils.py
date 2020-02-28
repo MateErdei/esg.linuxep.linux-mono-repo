@@ -297,8 +297,8 @@ class WarehouseUtils(object):
     template_configuration_values = {
         "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
         "base_and_edr_999.xml": TemplateConfig("BASE_AND_EDR_999", "edr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
-        "base_edr_vut_and_mtr_999.xml": TemplateConfig("BASE_EDR_AND_MTR_999", "edr_user_999", DEV_BUILD_CERTS, OSTIA_MTR_999_ADDRESS ),
-        "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "mtr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
+        "base_edr_vut_and_mtr_999.xml": TemplateConfig("BASE_EDR_AND_MTR_999", "mtr_user_999", DEV_BUILD_CERTS, OSTIA_MTR_999_ADDRESS ),
+        "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "user_mtr_vut_edr_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
         "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
         "base_and_mtr_VUT.xml": TemplateConfig("BASE_AND_MTR_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut-1", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
