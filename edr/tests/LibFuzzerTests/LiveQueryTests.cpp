@@ -50,6 +50,31 @@ namespace livequery
 
 } // namespace livequery
 
+class OsqueryOutputErrorDetector {
+    char lastChar = '\n';
+public:
+    void operator()(std::string output) {
+        if (output.empty()) {
+            return;
+        }
+
+        if (lastChar == '\n' && output[0] == 'E') {
+            // detected error...
+            std::cerr << "Error detected: " << output << std::endl;
+            std::terminate();
+        }
+
+        auto pos = output.find("\nE");
+        if ( pos != std::string::npos) {
+            // detected error...
+            std::cerr << "Error detected: " << output << std::endl;
+            std::terminate();
+        }
+
+        lastChar = output[output.size()-1];
+    }
+};
+
 class OsqueryRunnerSingleton
         {
 public:
@@ -76,7 +101,8 @@ public:
 
         // add if you want more information from osquery
         //arguments.push_back("--verbose");
-
+        m_osqueryProc->setOutputLimit(10);
+        m_osqueryProc->setOutputTrimmedCallback(OsqueryOutputErrorDetector{});
         m_osqueryProc->exec(getOsqueryPath(), arguments, {});
         std::this_thread::sleep_for(std::chrono::seconds(2));
         m_osqueryProcessor = std::unique_ptr<osqueryclient::OsqueryProcessor>(new osqueryclient::OsqueryProcessor{Plugin::osquerySocket()});
