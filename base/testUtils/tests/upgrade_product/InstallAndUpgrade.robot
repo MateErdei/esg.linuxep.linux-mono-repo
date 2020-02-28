@@ -404,7 +404,6 @@ Update Will Be Forced When Feature List Changes Without Unexpected Errors
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUT_Without_SDU_Policy}
 
-
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUT_Without_SDU_Policy}
     Wait For Initial Update To Fail
@@ -418,20 +417,16 @@ Update Will Be Forced When Feature List Changes Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
-    Log File  /opt/sophos-spl/base/update/var/update_config.json
-
-
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
+
+    Simulate Previous Scheduled Update Success
 
     Send ALC Policy And Prepare For Upgrade  ${BaseOnlyVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
     ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseOnlyVUTPolicy}
-
-    Log File  /opt/sophos-spl/base/update/var/update_config.json
-    Log File  /opt/sophos-spl/base/update/var/previous_update_config.json
 
     # Update should be automatically invoke due to policy
     Wait Until Keyword Succeeds
@@ -463,16 +458,13 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
 
-    Log File  /opt/sophos-spl/base/update/var/update_config.json
+    Simulate Previous Scheduled Update Success
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
     ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
-
-    Log File  /opt/sophos-spl/base/update/var/update_config.json
-    Log File  /opt/sophos-spl/base/update/var/previous_update_config.json
 
      # Update should be automatically invoke due to policy
     Wait Until Keyword Succeeds
@@ -501,16 +493,13 @@ Update Will Be Forced When Component Has Been Unintalled Without Unexpected Erro
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
-    Log File  /opt/sophos-spl/base/update/var/update_config.json
+    Simulate Previous Scheduled Update Success
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
     ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
-
-    Log File  /opt/sophos-spl/base/update/var/update_config.json
-    Log File  /opt/sophos-spl/base/update/var/previous_update_config.json
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
@@ -541,6 +530,12 @@ Update Will Be Forced When Component Has Been Unintalled Without Unexpected Erro
 
 
 *** Keywords ***
+
+Simulate Previous Scheduled Update Success
+    # Trigger updating via Central Update Scheduler which will create the previous_update_config.json file only when
+    # update scheduler process expected current reports rather than unprocessed old reports
+    Run Process   cp  ${SOPHOS_INSTALL}/base/update/var/update_config.json  ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    Run Process   chown  sophos-spl-user:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
 
 Check for Management Agent Failing To Send Message To MTR And Check Recovery
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data
