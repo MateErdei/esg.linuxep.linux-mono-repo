@@ -199,5 +199,5 @@ Check Configuration File is Correct
     [Arguments]  ${binaryFileName}  ${expectedScanName}
     CapnpHelper.setup
 #    ${result} =  Check Named Scan Name  ${binaryFileName}  ${expectedScanName}
-    ${result} =  Check Named Scan Name  ${binaryFileName}  ${expectedScanName}
+    ${result} =  CapnpHelper.check  ${binaryFileName}  ${expectedScanName}
     Should Be True  ${result}

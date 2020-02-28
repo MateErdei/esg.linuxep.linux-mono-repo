@@ -12,7 +12,7 @@ def setup():
     CapnpHelper.setup()
 
 
-def check_named_scan_name(object_filename, scan_name):
+def check(object_filename, scan_name):
     named_scan = CapnpHelper.get_capnp_object(object_filename, CapnpSchemas.NamedScan)
     return named_scan.name == scan_name
 
