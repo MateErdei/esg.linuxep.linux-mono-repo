@@ -13,6 +13,6 @@ function pip_install()
 }
 
 # install dependencies
-for python_package in sseclient  aiohttp aiohttp_sse asyncio; do
+for python_package in sseclient  aiohttp aiohttp_sse asyncio python-dateutil; do
   pip_install ${python_package}
 done
