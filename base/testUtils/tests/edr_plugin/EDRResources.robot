@@ -23,9 +23,9 @@ EDR Plugin Is Not Running
     Should Not Be Equal As Integers    ${result.rc}    0   EDR PLugin still running
 
 Install EDR
-    [Arguments]  ${policy}
+    [Arguments]  ${policy}  ${args}=${None}
     Start Local Cloud Server  --initial-alc-policy  ${policy}
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}  args=${args}
     Wait For Initial Update To Fail
 
     Send ALC Policy And Prepare For Upgrade  ${policy}

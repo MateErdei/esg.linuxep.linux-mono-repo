@@ -43,7 +43,7 @@ EDR Disables Auditd After Install With Auditd Running Default Behaviour
 EDR Disables Auditd After Install With Auditd Running With Disable Flag
     Check AuditD Executable Running
 
-    Install EDR  ${BaseAndEdrVUTPolicy}
+    Install EDR  ${BaseAndEdrVUTPolicy}  args=--disable-auditd
 
     ${INSTALL_OPTIONS_CONTENT}=  Get File  ${SOPHOS_INSTALL}/base/etc/install_options
     Should Contain  ${INSTALL_OPTIONS_CONTENT}   --disable-auditd
@@ -56,7 +56,8 @@ EDR Disables Auditd After Install With Auditd Running With Disable Flag
 EDR Does Not Disable Auditd After Install With Auditd Running With Do Not Disable Flag
     Check AuditD Executable Running
 
-    Install EDR  ${BaseAndEdrVUTPolicy}
+    Install EDR  ${BaseAndEdrVUTPolicy}  args=--do-not-disable-auditd
+
 
     ${INSTALL_OPTIONS_CONTENT}=  Get File  ${SOPHOS_INSTALL}/base/etc/install_options
     Should Contain  ${INSTALL_OPTIONS_CONTENT}   --do-not-disable-auditd
@@ -70,7 +71,8 @@ EDR Does Not Disable Auditd After Install With Auditd Running With Do Not Disabl
 EDR Does Disable Auditd After Manual Change To Config
     Check AuditD Executable Running
 
-    Install EDR  ${BaseAndEdrVUTPolicy}
+    Install EDR  ${BaseAndEdrVUTPolicy}  args=--do-not-disable-auditd
+
 
     ${INSTALL_OPTIONS_CONTENT}=  Get File  ${SOPHOS_INSTALL}/base/etc/install_options
     Should Contain  ${INSTALL_OPTIONS_CONTENT}   --do-not-disable-auditd
