@@ -29,16 +29,13 @@ target_include_directories(fuzzer-proto PUBLIC
 target_link_libraries(fuzzer-proto PUBLIC ${Protobuf_LIBRARIES})
 
 
-# The different path for BUILD_FUZZ_TESTS and not is to enable developers running on machines without clang
-# to be able to use the IDE. It will build a ManagementAgentApiTest without the fuzzer but capable of running
-# a single input.
-if (BUILD_FUZZ_TESTS )
+if (BUILD_FOR_DEVELOPER_DEBUG )
+    target_compile_options(fuzzer-proto PUBLIC  -Wno-unused-value -Wno-unused-parameter)
+    target_include_directories(fuzzer-proto PUBLIC ${pluginapiinclude})
+else()
     target_compile_options(fuzzer-proto PUBLIC -DHasLibFuzzer -Wno-unused-value -Wno-unused-parameter)
     target_link_libraries(fuzzer-proto PUBLIC ${MutatorLibs})
     target_include_directories(fuzzer-proto PUBLIC ${MutatorInclude} ${MutatorInclude}/libprotobuf-mutator  ${pluginapiinclude})
-else()
-    target_compile_options(fuzzer-proto PUBLIC  -Wno-unused-value -Wno-unused-parameter)
-    target_include_directories(fuzzer-proto PUBLIC ${pluginapiinclude})
 endif()
 
 
