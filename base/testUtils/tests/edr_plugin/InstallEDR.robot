@@ -20,19 +20,15 @@ Default Tags   EDR_PLUGIN   OSTIA  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
 
 *** Variables ***
 ${BaseAndMtrReleasePolicy}          ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
+${BaseAndMtrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${BaseAndEdrAndMtrVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_and_edr_999.xml
-${BaseEdrAndMtr999Policy}              ${GeneratedWarehousePolicies}/base_edr_vut_and_mtr_999.xml
-${BaseMtrAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_mtr_vut_and_edr_999.xml
-${BaseAndMTREdr999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_999.xml
 ${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
 ${EDR_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/edr
 ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
-${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-${WDCTL_LOG_PATH}                   ${SOPHOS_INSTALL}/logs/base/wdctl.log
 
 *** Test Cases ***
 Install EDR and handle Live Query
@@ -217,9 +213,6 @@ Install Base And EDR Then Migrate To BASE
 Install base and edr 999 then downgrade to current master
     Install EDR  ${BaseAndEdr999Policy}
     Wait Until OSQuery Running
-
-    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
-
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
@@ -242,15 +235,8 @@ Install base and edr 999 then downgrade to current master
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
 
-    # Ensure EDR was restarted during upgrade.
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop edr
-    ...  wdctl <> start edr
 
-Install base and edr and mtr then downgrade to current release base and mtr
-    [Tags]  TESTFAILURE
-    #TODO LINUXDAR-1196 remove testfailure tag when we next release
+Install base and edr and mtr then downgrade to just base and mtr
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
     #truncate log so that check mdr plugin installed works correctly later in the test
@@ -263,7 +249,7 @@ Install base and edr and mtr then downgrade to current release base and mtr
     ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-EDR since it was removed from warehouse
 
     Wait Until Keyword Succeeds
-    ...  60 secs
+    ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Not Running
 
@@ -285,120 +271,170 @@ Install base and edr and mtr then downgrade to current release base and mtr
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
 
-Install master of base and edr and mtr and upgrade to mtr 999
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
+    Wait For Initial Update To Fail
 
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+    # Install MTR
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Should Exist  ${MTR_DIR}
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtr999Policy}
-    #truncate log so that check mdr plugin installed works correctly later in the test
-    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
+    Wait Until SophosMTR Executable Running
+    Check EDR Executable Not Running
+
+    Should Not Exist  ${EDR_DIR}
+
+    # Install EDR
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  should exist  ${EDR_DIR}
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Should Exist  ${MTR_DIR}
+
+    Wait Until EDR Running
+    Wait Until OSQuery Running
+    Wait Until SophosMTR Executable Running
+
+Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
+    Wait For Initial Update To Fail
+
+    # Install EDR
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Should Exist  ${EDR_DIR}
+
+    Wait Until EDR Running
+    Check MDR Plugin Not Running
+
+    Should Not Exist  ${MTR_DIR}
+
+    # Install EDR
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  should exist  ${EDR_DIR}
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Should Exist  ${MTR_DIR}
+
+    Wait Until EDR Running
+    Wait Until OSQuery Running
+    Wait Until SophosMTR Executable Running
+
+Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrAndMtrVUTPolicy}
+    Wait For Initial Update To Fail
+
+    # Install EDR And MTR
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Should Exist  ${EDR_DIR}
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Should Exist  ${MTR_DIR}
+
+    Wait Until EDR Running
+    Wait Until SophosMTR Executable Running
+
+    # Transition to MTR Only
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
     Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
+    ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-EDR since it was removed from warehouse
 
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  EDR Plugin Is Running
+    ...  Should Exist  ${MTR_DIR}
+
+    Should Not Exist  ${EDR_DIR}
+
+    Wait Until OSQuery Running
+    Wait Until SophosMTR Executable Running
+    Check EDR Executable Not Running
+
+Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrAndMtrVUTPolicy}
+    Wait For Initial Update To Fail
+
+    # Install EDR And MTR
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Should Exist  ${EDR_DIR}
 
     Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
-    Check MDR Plugin Installed
+    ...  30 secs
+    ...  1 secs
+    ...  Should Exist  ${MTR_DIR}
 
-    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
+    Wait Until EDR Running
+    Wait Until SophosMTR Executable Running
 
-    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should not contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-
-Install master of base and edr and mtr and upgrade to edr 999
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
-
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-
-    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
+    # Transition to MTR Only
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
+    ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-MDR since it was removed from warehouse
 
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  EDR Plugin Is Running
+    ...  Should Not Exist  ${MTR_DIR}
 
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    Should Exist  ${EDR_DIR}
 
-    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should not contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-    # Ensure EDR was restarted during upgrade.
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop edr
-    ...  wdctl <> start edr
-
-
-
-Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
-
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-
-    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
-    #truncate log so that check mdr plugin installed works correctly later in the test
-    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  EDR Plugin Is Running
-
-    Check MDR Plugin Installed
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
-
-    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop edr
-    ...  wdctl <> start edr
+    Wait Until OSQuery Running
+    Wait Until EDR Running
+    Check MDR Plugin Not Running
