@@ -146,6 +146,7 @@ class FuzzerSupport:
         try:
             environment = os.environ.copy()
             environment['ASAN_OPTIONS'] = 'detect_odr_violation=0'
+            environment['REDIST'] = os.path.join(self._edr_path, 'redist')
             logger.info("Running: {}".format(args))
             popen = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                              env=environment, cwd=self._tmp_dir)

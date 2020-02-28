@@ -20,17 +20,15 @@ namespace Plugin
 
         void loadALCPolicy(const std::string& alcPolicy);
         void prepareSystemForPlugin();
+        static void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection);
+        static void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
 
     protected:
         bool MTRBoundEnabled() const;
         bool disableSystemAuditDAndTakeOwnershipOfNetlink() const;
-        void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection);
-
     private:
         // make it virtual to allow for not using it in tests as they require file access.
         virtual bool retrieveDisableAuditFlagFromSettingsFile() const;
-
-        void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
 
         bool m_mtrboundEnabled = true;
     };

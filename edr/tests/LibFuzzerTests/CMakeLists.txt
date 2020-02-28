@@ -41,7 +41,7 @@ endif()
 
 sophos_add_exe(LiveQueryTests
         LiveQueryTests.cpp
-        EXTRA_PROJECTS fuzzer-proto osqueryclient livequeryimpl
-        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude}
-        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} ${expatlib} ${zlib}
+        EXTRA_PROJECTS fuzzer-proto osqueryclient livequeryimpl pluginimpl
+        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude}  ${testhelpersinclude}
+        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} ${expatlib} ${zlib}  ${testhelperslib}
         )
