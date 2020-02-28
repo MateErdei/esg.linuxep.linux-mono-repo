@@ -39,15 +39,14 @@ AV plugin Can Send Status
 AV Plugin Can Process Scan Now
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
-    ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp/
-    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Policy  av  sav  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains  Completed scan scanNow
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=360
     AV Plugin Log Contains  Received new Action
     AV Plugin Log Contains  Starting Scan Now scan
-    AV Plugin Log Contains  Starting scan scanNow
+    AV Plugin Log Contains  Starting scan Scan Now
     Check ScanNow Log Exists
 
     ${result} =   Terminate Process  ${handle}
@@ -68,80 +67,25 @@ AV Plugin Will Fail Scan Now If No Policy
 AV Plugin Can Disable Scanning Of Remote File Systems
     ${source} =       Set Variable  /tmp/nfsshare
     ${destination} =  Set Variable  /mnt/nfsshare
-    ${remoteFSscanningDisabled} =   Set Variable  remoteFSscanningDisabled
-    ${remoteFSscanningEnabled} =    Set Variable  remoteFSscanningEnabled
-    ${remoteFSscanningDisabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningDisabled}.log
-    ${remoteFSscanningEnabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningEnabled}.log
+    ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/MyScan.log
     Create Directory  ${source}
     Create File       ${source}/eicar.com    ${EICAR_STRING}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
     [Teardown]    Remove Local NFS Share   ${source}   ${destination}
 
-    ${allButTmp} =  Configure Scan Exclusions Everything Else  /mnt/
-    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
-
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
 
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
-    ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
-    ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=false
-    ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
-    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningDisabled}  timeout=120
-    AV Plugin Log Contains  Starting scan ${remoteFSscanningDisabled}
-    File Should Exist  ${remoteFSscanningDisabled_log}
-    File Log Should Not Contain  ${remoteFSscanningDisabled_log}  "${destination}/eicar.com" is infected with EICAR
-
-    ${currentTime} =  Get Current Date
-    ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
-    ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
-    ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=true
-    ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningEnabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
-    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningEnabled}  timeout=120
-    AV Plugin Log Contains  Starting scan ${remoteFSscanningEnabled}
-    File Should Exist  ${remoteFSscanningEnabled_log}
-    File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR
-
-    ${result} =   Terminate Process  ${handle}
-
-
-AV Plugin Can Exclude Filepaths From Scheduled Scans
-    ${eicar_path1} =  Set Variable  /tmp/eicar.com
-    ${eicar_path2} =  Set Variable  /tmp/eicar.1
-    ${eicar_path3} =  Set Variable  /tmp/eicar.txt
-    ${eicar_path4} =  Set Variable  /tmp/eicarStr
-    ${eicar_path5} =  Set Variable  /tmp/eicar
-    Create File      ${eicar_path1}    ${EICAR_STRING}
-    Create File      ${eicar_path2}    ${EICAR_STRING}
-    Create File      ${eicar_path3}    ${EICAR_STRING}
-    Create File      ${eicar_path4}    ${EICAR_STRING}
-    Create File      ${eicar_path5}    ${EICAR_STRING}
-    ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/MyScan.log
-
-    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
-    Check AV Plugin Installed
-
-    ${currentTime} =  Get Current Date
-    ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
-    ${schedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
-    ${allButTmp} =  Configure Scan Exclusions Everything Else  /tmp/
-    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>${eicar_path1}</filePath><filePath>/tmp/eicar.?</filePath><filePath>/tmp/*.txt</filePath><filePath>eicarStr</filePath></filePathSet></posixExclusions>
-    ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
+    ${scedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
+    ${scanSet} =  Set Variable  <onDemandScan><scanSet><scan><name>MyScan</name>${scedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>false</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=120
     AV Plugin Log Contains  Starting scan MyScan
     File Should Exist  ${myscan_log}
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path1}" is infected with EICAR
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path2}" is infected with EICAR
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path3}" is infected with EICAR
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path4}" is infected with EICAR
-    File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR
+    File Log Should Not Contain  ${myscan_log}  "${destination}" is infected with EICAR
 
     ${result} =   Terminate Process  ${handle}
