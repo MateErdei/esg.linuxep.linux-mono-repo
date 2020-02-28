@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanClient.h"
 
 #include <filewalker/FileWalker.h>
-#include <unixsocket/ScanningClientSocket.h>
+#include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
 
 #include <capnp/message.h>
 
@@ -87,6 +87,13 @@ namespace
             {
                 if (!PathUtils::longer(p, mp->mountPoint()) &&
                     PathUtils::startswith(p, mp->mountPoint()))
+                {
+                    return false;
+                }
+            }
+            for (auto & exclusion : m_config.m_excludePaths)
+            {
+                if (PathUtils::startswith(p, exclusion))
                 {
                     return false;
                 }
