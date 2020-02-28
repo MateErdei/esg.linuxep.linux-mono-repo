@@ -5,6 +5,7 @@
 
 from enum import Enum
 import capnp
+import NamedScan_capnp
 
 
 def setup():
@@ -26,7 +27,6 @@ class CapnpHelper:
     @staticmethod
     def setup():
         # set up map of schemas
-        import NamedScan_capnp
         named_scan_schema = NamedScan_capnp.NamedScan
         CapnpHelper.schema_map = {CapnpSchemas.NamedScan: named_scan_schema}
 
