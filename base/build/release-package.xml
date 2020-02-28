@@ -59,7 +59,7 @@
         <package name="python-pathtools" version="0-1-1-9/216281/pathtools" dest="input">
             <include src="python-pathtools.tar" dest="." />
         </package>
-        <package name="pycryptodome" version="3-9-0-11/217515/pycryptodome" dest="input">
+        <package name="pycryptodomelinux11" version="3-9-0-4/218828/pycryptodome" dest="input">
             <include src="pycryptodome.tar" dest="." />
         </package>
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
