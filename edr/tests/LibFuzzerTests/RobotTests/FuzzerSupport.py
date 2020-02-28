@@ -206,7 +206,9 @@ class FuzzerSupport:
 
     def setup_base_build(self):
         logger.info("Setting up build")
-
+        if os.path.exists("/vagrant"):
+            logger.info("Not doing setup base build on vagrant as packages should be fetched on host machine")
+            return
         try:
             output = subprocess.check_output([sys.executable,
                                               "-m",
