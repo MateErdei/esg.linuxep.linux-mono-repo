@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include "MockMountPoint.h"
+#include "RecordingMockSocket.h"
 
 #include "avscanner/avscannerimpl/NamedScanRunner.h"
 
@@ -17,36 +18,6 @@ using namespace avscanner::avscannerimpl;
 using ::testing::Return;
 using ::testing::StrictMock;
 
-namespace
-{
-    class ScanPathAccessor : public scan_messages::ClientScanRequest
-    {
-    public:
-        ScanPathAccessor(const ClientScanRequest& other) // NOLINT
-                : scan_messages::ClientScanRequest(other)
-        {}
-
-        operator std::string() const // NOLINT
-        {
-            return m_path;
-        }
-    };
-
-    class RecordingMockSocket : public unixsocket::IScanningClientSocket {
-    public:
-        scan_messages::ScanResponse
-        scan(datatypes::AutoFd &, const scan_messages::ClientScanRequest &request) override {
-            std::string p = ScanPathAccessor(request);
-            m_paths.emplace_back(p);
-//            PRINT("Scanning " << p);
-            scan_messages::ScanResponse response;
-            response.setClean(true);
-            return response;
-        }
-
-        std::vector <std::string> m_paths;
-    };
-}
 
 class TestNamedScanRunner : public ::testing::Test
 {
