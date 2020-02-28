@@ -15,6 +15,12 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
+
+def package_install(machine: tap.Machine, *install_args: str):
+    machine.run('apt-get', '-y', 'install', *install_args,
+                log_mode=tap.LoggingMode.ON_ERROR)
+
+
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
     return branch_name in ('master'
@@ -35,6 +41,7 @@ def install_requirements(machine: tap.Machine):
 
 def robot_task(machine: tap.Machine):
     try:
+        package_install(machine, 'nfs-kernel-server')
         install_requirements(machine)
         machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
