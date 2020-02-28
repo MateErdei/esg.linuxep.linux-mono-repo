@@ -42,7 +42,7 @@ def install_requirements(machine: tap.Machine):
 def robot_task(machine: tap.Machine):
     try:
         package_install(machine, 'nfs-kernel-server')
-        package_instal(machine, 'python3.7-dev')
+        package_install(machine, 'python3.7-dev')
         install_requirements(machine)
         machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
