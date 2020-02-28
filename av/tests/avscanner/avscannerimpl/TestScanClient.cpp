@@ -142,12 +142,14 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     unixsocket::ThreatReporterServerSocket threatReporterServer(
             "/tmp/TestPluginAdapter/chroot/threat_report_socket"
             );
-
     threatReporterServer.start();
+
     ScanClient s(mock_socket, mock_callbacks, false);
     auto result = s.scan("/etc/passwd");
+
     threatReporterServer.requestStop();
     threatReporterServer.join();
+
     EXPECT_FALSE(result.clean());
     EXPECT_EQ(result.threatName(), THREAT);
 }

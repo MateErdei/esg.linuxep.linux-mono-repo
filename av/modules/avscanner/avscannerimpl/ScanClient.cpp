@@ -35,7 +35,15 @@ ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
 static fs::path pluginInstall()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    return appConfig.getData("PLUGIN_INSTALL");
+    try
+    {
+        return appConfig.getData("PLUGIN_INSTALL");
+    }
+    catch (const std::out_of_range&)
+    {
+        return "/opt/sophos-spl/plugins/av";
+    }
+
 }
 
 static fs::path threat_reporter_socket()

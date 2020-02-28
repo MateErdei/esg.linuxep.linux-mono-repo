@@ -40,7 +40,7 @@ namespace
         explicit ThreadRunner(Common::Threads::AbstractThread& thread, std::string name)
                 : m_thread(thread), m_name(std::move(name))
         {
-            LOGINFO("Starting " << name);
+            LOGINFO("Starting " << m_name);
             m_thread.start();
         }
 

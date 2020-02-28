@@ -13,8 +13,8 @@ using namespace scan_messages;
 
 int main()
 {
-    std::string threatName = "unit-test-eicar";
-    std::string threatPath = "/path/to/unit-test-eicar";
+    std::string threatName = "test-eicar";
+    std::string threatPath = "/path/to/test-eicar";
     std::time_t detectionTimeStamp = std::time(nullptr);
     std::string userID = std::getenv("USER");
 
