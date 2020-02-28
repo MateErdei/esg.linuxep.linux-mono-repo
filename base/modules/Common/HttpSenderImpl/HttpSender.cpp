@@ -9,12 +9,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <openssl/crypto.h>
-#include <openssl/ssl.h>
 
 #include <curl.h>
 #include <map>
 #include <sstream>
+#include <variant>
 
 namespace
 {
@@ -75,7 +74,7 @@ namespace Common::HttpSenderImpl
     {
         curl_slist* headers = nullptr;
 
-        std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
+        std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>> > curlOptions;
 
         CURL* curl = m_curlWrapper->curlEasyInit();
 
@@ -95,6 +94,8 @@ namespace Common::HttpSenderImpl
         LOGINFO("Creating HTTPS " << requestConfig.getRequestTypeAsString() << " Request to " << uri);
 
         curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri);
+        curlOptions.emplace_back("Specify preferred TLS/SSL version",CURLOPT_SSLVERSION,
+                CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_TLSv1_3);
         std::string certPath = requestConfig.getCertPath();
 
         if (certPath.empty())

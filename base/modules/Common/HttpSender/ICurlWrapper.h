@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <curl.h>
 #include <string>
+#include <variant>
 
 namespace Common::HttpSender
 {
@@ -21,7 +22,7 @@ namespace Common::HttpSender
 
         virtual CURLcode curlEasySetOptHeaders(CURL* handle, curl_slist* headers) = 0;
 
-        virtual CURLcode curlEasySetOpt(CURL* handle, CURLoption option, const std::string& parameter) = 0;
+        virtual CURLcode curlEasySetOpt(CURL* handle, CURLoption option, const  std::variant<std::string, long> parameter) = 0;
 
         virtual struct curl_slist* curlSlistAppend(curl_slist* list, const std::string& value) = 0;
 

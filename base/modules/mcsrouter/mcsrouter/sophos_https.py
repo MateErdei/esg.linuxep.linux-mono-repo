@@ -326,7 +326,9 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
 
             hostname = hostname.split(':', 0)[0]
 
-            context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+            #set the minimum to TLSv1_2 python37
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+            context.minimum_version = ssl.TLSVersion.TLSv1_2
             context.verify_mode = self.cert_reqs
             if self.cert_reqs in (ssl.CERT_REQUIRED, ssl.CERT_OPTIONAL):
                 context.check_hostname = True

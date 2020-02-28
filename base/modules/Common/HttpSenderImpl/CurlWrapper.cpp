@@ -12,9 +12,21 @@ namespace Common::HttpSenderImpl
 
     CURL* CurlWrapper::curlEasyInit() { return curl_easy_init(); }
 
-    CURLcode CurlWrapper::curlEasySetOpt(CURL* handle, CURLoption option, const std::string& parameter)
+    CURLcode CurlWrapper::curlEasySetOptHeaders(CURL* handle, curl_slist* headers)
     {
-        return curl_easy_setopt(handle, option, parameter.c_str());
+        return curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
+    }
+
+    CURLcode CurlWrapper::curlEasySetOpt(CURL* handle, CURLoption option, std::variant<std::string, long> parameter)
+    {
+        if (std::holds_alternative<std::string>(parameter))
+        {
+            return curl_easy_setopt(handle, option, std::get<std::string>(parameter).c_str());
+        }
+        else
+        {
+            return curl_easy_setopt(handle, option, std::get<long>(parameter));
+        }
     }
 
     curl_slist* CurlWrapper::curlSlistAppend(curl_slist* list, const std::string& value)

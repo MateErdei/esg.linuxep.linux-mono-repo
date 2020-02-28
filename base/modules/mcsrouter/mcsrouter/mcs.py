@@ -15,9 +15,8 @@ import random
 import select
 import socket
 import time
-import xml
 
-from . import computer, sophos_https
+from . import computer
 from . import mcs_push_client
 from .adapters import agent_adapter
 from .adapters import app_proxy_adapter
@@ -43,7 +42,7 @@ from .utils import default_values
 from .utils import plugin_registry
 from .utils import signal_handler
 from .utils import timestamp
-from .utils import xml_helper
+
 from .utils.get_ids import get_gid, get_uid
 
 LOGGER = logging.getLogger(__name__)
