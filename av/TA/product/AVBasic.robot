@@ -3,7 +3,7 @@ Library         DateTime
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
-Library         ../Libs/CapnpHelpers/CapnpHelper.py
+Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
