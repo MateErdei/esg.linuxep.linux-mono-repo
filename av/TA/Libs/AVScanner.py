@@ -22,3 +22,15 @@ def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
     os.chdir(directory_to_return_process_to)
 
     return directory_to_return
+
+
+def exclusions_for_everything_else(inclusion):
+    inclusion = inclusion.rstrip('/')
+    exclusions = []
+    for item in os.listdir('/'):
+        path = os.path.join('/', item)
+        if os.path.isdir(path) and not path.startswith(inclusion):
+            exclusions.append(path)
+    exclusions.sort()
+
+    return ','.join(exclusions)

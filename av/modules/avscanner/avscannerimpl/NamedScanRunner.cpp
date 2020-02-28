@@ -72,8 +72,10 @@ namespace
         {
             try
             {
+                LOGINFO(">>> Scanning: " << p);
                 m_scanner.scan(p);
-            } catch (const std::exception& e)
+            }
+            catch (const std::exception& e)
             {
                 LOGERROR("Scanner failed to scan: " << p);
                 m_returnCode = E_GENERIC_FAILURE;
@@ -84,8 +86,18 @@ namespace
         {
             for (auto & mp : m_allMountPoints)
             {
-                if (PathUtils::startswith(p, mp->mountPoint()))
+                if (!PathUtils::longer(p, mp->mountPoint()) &&
+                    PathUtils::startswith(p, mp->mountPoint()))
                 {
+                    LOGINFO(">>> Excluding mount: " << p);
+                    return false;
+                }
+            }
+            for (auto & exclusion : m_config.m_excludePaths)
+            {
+                if (PathUtils::startswith(p, exclusion))
+                {
+                    LOGINFO(">>> Excluding dir: " << p);
                     return false;
                 }
             }

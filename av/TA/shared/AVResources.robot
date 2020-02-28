@@ -2,6 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         String
+Library         ../Libs/AVScanner.py
 Library         ../Libs/FakeManagement.py
 
 Resource    ComponentSetup.robot
@@ -167,5 +168,8 @@ Send Sav Action To Base
     Copy File  ${RESOURCES_PATH}/${actionFile}  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_${savActionFilename}.xml
 
 
-Configure Scan Exclusions Everything Else # Will allow for one directory to be selected during a scan
-#TODO implementation required
+Configure Scan Exclusions Everything Else
+    [Arguments]  ${inclusion}
+    ${exclusions} =  exclusions for everything else  ${inclusion}
+    [return]  <onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan>
+

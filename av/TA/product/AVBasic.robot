@@ -38,7 +38,8 @@ AV plugin Can Send Status
 AV Plugin Can Process Scan Now
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
-    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/></config>
+    ${onDemand} =  Configure Scan Exclusions Everything Else  /tmp/
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${onDemand}</config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Policy  av  sav  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
