@@ -2,8 +2,8 @@
 Library         Process
 Library         OperatingSystem
 Library         String
-Library         ../Libs/AVScanner.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/CapnpHelpers/CapnpHelper.py
 
 Resource    ComponentSetup.robot
 
@@ -20,7 +20,6 @@ ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
 ${EXPORT_FILE}     /etc/exports
 ${EICAR_STRING}     X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
-${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 
 *** Keywords ***
 Run Shell Process
@@ -179,10 +178,8 @@ Send Sav Action To Base
 Check ScanNow Log Exists
     File Should Exist  ${SCANNOW_LOG_PATH}
 
-Configure Scan Exclusions Everything Else
-    [Arguments]  ${inclusion}
-    ${exclusions} =  exclusions for everything else  ${inclusion}
-    [return]  ${exclusions}
+Configure Scan Exclusions Everything Else # Will allow for one directory to be selected during a scan
+#TODO implementation required
 
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
@@ -198,6 +195,8 @@ Remove Local NFS Share
     Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
     Remove Directory    ${source}  recursive=True
 
-Policy Fragment FS Types
-    [Arguments]  ${CDDVDDrives}=false  ${hardDrives}=false  ${networkDrives}=false  ${removableDrives}=false
-    [return]    <scanObjectSet><CDDVDDrives>${CDDVDDrives}</CDDVDDrives><hardDrives>${hardDrives}</hardDrives><networkDrives>${networkDrives}</networkDrives><removableDrives>${removableDrives}</removableDrives></scanObjectSet>
+Check Configuration File is Correct
+    [Arguments]  ${binaryFileName}  ${expectedScanName}
+    CapnpHelper.setup
+    ${result} =  Check Named Scan Name  ${binaryFileName}  ${expectedScanName}
+    Should Be True  ${result}

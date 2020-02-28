@@ -5,7 +5,16 @@
 
 from enum import Enum
 import capnp
-import NamedScan_capnp
+
+
+def setup():
+    CapnpHelper.setup()
+
+
+def check_named_scan_name(object_filename, scan_name):
+    named_scan = CapnpHelper.get_capnp_object(object_filename, CapnpSchemas.NamedScan)
+    return named_scan.name == scan_name
+
 
 class CapnpSchemas(Enum):
     NamedScan = "namedscan"
@@ -17,9 +26,9 @@ class CapnpHelper:
     @staticmethod
     def setup():
         # set up map of schemas
+        import NamedScan_capnp
         named_scan_schema = NamedScan_capnp.NamedScan
         CapnpHelper.schema_map = {CapnpSchemas.NamedScan: named_scan_schema}
-        pass
 
     @staticmethod
     def get_capnp_object(object_filename, schema_enum):

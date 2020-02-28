@@ -3,6 +3,7 @@ Library         DateTime
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/CapnpHelpers/CapnpHelper.py
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
@@ -52,6 +53,24 @@ AV Plugin Can Process Scan Now
     ${result} =   Terminate Process  ${handle}
 
 
+Scan Now Configuration Is Correct
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/></config>
+    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
+    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Action  av  sav  corr123  ${actionContent}
+
+    ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Scan_Now.config
+    ${expectedScanName} =  Set Variable  Scan Now
+    Wait Until Keyword Succeeds
+        ...    15 secs
+        ...    1 secs
+        ...    File Exists  ${configFilename}
+    Check Configuration File is Correct  ${configFilename}  ${expectedScanName}
+
+    ${result} =   Terminate Process  ${handle}
+
 AV Plugin Will Fail Scan Now If No Policy
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
@@ -79,8 +98,8 @@ AV Plugin Can Disable Scanning Of Remote File Systems
 
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
-    ${scedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
-    ${scanSet} =  Set Variable  <onDemandScan><scanSet><scan><name>MyScan</name>${scedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>false</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
+    ${schedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
+    ${scanSet} =  Set Variable  <onDemandScan><scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>false</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=120
