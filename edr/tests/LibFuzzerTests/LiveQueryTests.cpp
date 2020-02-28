@@ -1,13 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
- SimpleFunctionTests make it easier to create new fuzz targets for simple functions where simple function is
- a function that receives a single string and 'do-something'. It would be usefull for parsing, checking, etc...
-
- In order to add a function, append a new FunctionTarget to the simplefunction.proto.
- Add a new case to the switch function in mainTest
- Add test cases to the systemtests folder: SupportFiles/base_data/fuzz/SimpleFunctionTests
+Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -36,12 +29,10 @@ DEFINE_PROTO_FUZZER(const LiveQueryProto::TestCase& testCase)
 void mainTest(const LiveQueryProto::TestCase& testCase)
 {
 #endif
-    if (testCase.functiontarget() ==  testCase.splitString)
+    std::string query = testCase.query();
+    if ( query.find("additionalNon") != std::string::npos)
     {
-        if ( testCase.payload().find("additionalNon") != std::string::npos)
-        {
-            ::abort();
-        }
+        ::abort();
     }
 }
 
