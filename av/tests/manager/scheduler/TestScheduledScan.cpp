@@ -27,7 +27,7 @@ TEST(ScheduledScan, TestConstructionInvalid) //NOLINT
 
 TEST(ScheduledScan, TestConstructionScanNow) //NOLINT
 {
-    std::string name = "scanNow";
+    std::string name = "Scan Now";
     auto scanNowScan = ScheduledScan(name);
 
     EXPECT_TRUE(scanNowScan.valid());

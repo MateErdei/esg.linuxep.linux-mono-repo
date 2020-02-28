@@ -43,10 +43,10 @@ TEST(TestScanScheduler, scanNow) //NOLINT
     do {
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
         count++;
-    } while(buffer.str().find("INFO Completed scan scanNow") == std::string::npos && count < 200);
+    } while(buffer.str().find("INFO Completed scan Scan Now") == std::string::npos && count < 200);
 
-    EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Starting scan scanNow"));
-    EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Completed scan scanNow"));
+    EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Starting scan Scan Now"));
+    EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Completed scan Scan Now"));
 
     scheduler.requestStop();
     scheduler.join();

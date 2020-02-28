@@ -19,6 +19,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 // C++ std
 #include <fstream>
 #include <ctime>
+#include <algorithm>
 // C std
 
 namespace fs = sophos_filesystem;
@@ -32,6 +33,11 @@ ScanRunner::ScanRunner(std::string name, std::string scan, IScanComplete& comple
       m_scanCompleted(false)
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+
+    m_configFilename = m_name;
+    replace(m_configFilename.begin(), m_configFilename.end(), ' ', '_');
+    m_configFilename.append(".config");
+
     try
     {
         m_pluginInstall = appConfig.getData("PLUGIN_INSTALL");
@@ -51,7 +57,7 @@ void ScanRunner::run()
     LOGINFO("Starting scan " << m_name);
 
     fs::path config_dir = m_pluginInstall / "var";
-    fs::path config_file = config_dir / (m_name + ".config");
+    fs::path config_file = config_dir / (m_configFilename);
     std::ofstream configWriter(config_file);
     configWriter << m_scan;
     configWriter.close();
