@@ -66,7 +66,7 @@ Scan Now Configuration Is Correct
     Wait Until Keyword Succeeds
         ...    15 secs
         ...    1 secs
-        ...    File Exists  ${configFilename}
+        ...    File Should Exist  ${configFilename}
     Check Configuration File is Correct  ${configFilename}  ${expectedScanName}
 
     ${result} =   Terminate Process  ${handle}
