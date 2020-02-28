@@ -5,30 +5,33 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "FuzzerUtils.h"
-
-#include "google/protobuf/text_format.h"
 #include <livequery.pb.h>
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
 #    include <libprotobuf-mutator/src/mutator.h>
 #endif
-#include <Common/Logging/PluginLoggingSetup.h>
-#include <Common/FileSystem/IFileSystem.h>
 
-#include <osquery/flagalias.h>
-#include <Common/Process/IProcess.h>
-#include <redist/pluginapi/tests/include/Common/Helpers/TempDir.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFilePermissions.h>
+#include <livequery/IQueryProcessor.h>
 #include <modules/pluginimpl/OsqueryConfigurator.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <thirdparty/nlohmann-json/json.hpp>
-#include <livequery/IQueryProcessor.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
 
-namespace osquery{
+#include <Common/Helpers/TempDir.h>
+#include <Common/Process/IProcess.h>
+#include <Common/Logging/PluginLoggingSetup.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFilePermissions.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
+#include <thirdparty/nlohmann-json/json.hpp>
+#include "google/protobuf/text_format.h"
+#include <osquery/flagalias.h>
+
+#include <future>
+
+namespace osquery
+{
     FLAG(bool, decorations_top_level, false, "test");
 }
 namespace livequery
@@ -39,25 +42,28 @@ namespace livequery
         void sendResponse(const std::string& /*correlationId*/, const QueryResponse& response) override
         {
             auto content = serializeToJson(response);
-            nlohmann::json jsoncontent = nlohmann::json::parse(content);
+            nlohmann::json jsonContent = nlohmann::json::parse(content);
             // uncomment to see the response from osquery
-            //std::cout << jsoncontent.dump(2) << std::endl;
+            //std::cout << jsonContent.dump(2) << std::endl;
         }
     };
 
 } // namespace livequery
-class OsqueryRunnerSingleton{
+
+class OsqueryRunnerSingleton
+        {
 public:
     OsqueryRunnerSingleton(): m_tempDir("/tmp")
     {
         Common::ApplicationConfiguration::applicationConfiguration().setData(
-                Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir.dirPath()
-                );
-        std::vector<std::string> relativePaths;
-        for( std::string dirname : std::vector<std::string>{{"etc"},{"log"},{"var"}}) {
-            relativePaths.push_back("plugins/edr/" + dirname);
+                Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir.dirPath());
 
+        std::vector<std::string> relativePaths;
+        for(std::string dirname : std::vector<std::string>{{"etc"},{"log"},{"var"}})
+        {
+            relativePaths.push_back("plugins/edr/" + dirname);
         }
+
         m_tempDir.makeDirs(relativePaths);
         m_tempDir.createFile("base/etc/logger.conf", "[global]\nVERBOSITY=INFO\n");
         m_loggingSetup.reset(new Common::Logging::PluginLoggingSetup("edr"));
@@ -71,27 +77,29 @@ public:
         // add if you want more information from osquery
         //arguments.push_back("--verbose");
 
-        m_osqueryProc->exec(getOsqueryPath(), arguments, {} );
+        m_osqueryProc->exec(getOsqueryPath(), arguments, {});
         std::this_thread::sleep_for(std::chrono::seconds(2));
-        m_osqueryProcessor = std::unique_ptr<osqueryclient::OsqueryProcessor>(new osqueryclient::OsqueryProcessor{ Plugin::osquerySocket() });
+        m_osqueryProcessor = std::unique_ptr<osqueryclient::OsqueryProcessor>(new osqueryclient::OsqueryProcessor{Plugin::osquerySocket()});
 
     }
+
     ~OsqueryRunnerSingleton()
     {
         m_osqueryProc->kill(5);
         std::cout << m_osqueryProc->output() << std::endl;
         std::string syslogpipe = m_tempDir.absPath("./plugins/edr/var/syslog_pipe");
-        if( unlink(syslogpipe.c_str())== -1 ) {
-            int err = errno;
 
+        if (unlink(syslogpipe.c_str())== -1)
+        {
+            int err = errno;
             std::cerr << "Failed to unlink: " << strerror(err) << std::endl;
         }
         m_loggingSetup.reset();
 
         // add if you want to see the full log file.
         //std::cout << Common::FileSystem::fileSystem()->readFile( m_tempDir.absPath("plugins/edr/log/edr.log") ) << std::endl;
-
     }
+
     std::string getRedistOsqueryPath()
     {
         const char * redist = getenv("REDIST");
@@ -101,14 +109,21 @@ public:
         }
         return Common::FileSystem::join(redist,"osquery/usr/bin/osqueryd") ;
     }
+
     std::string getOsqueryPath()
     {
         return m_tempDir.absPath("fuzz/bin/osqueryd");
     }
-    livequery::IQueryProcessor & queryProcessor() {
+
+    livequery::IQueryProcessor & queryProcessor()
+    {
         return *m_osqueryProcessor;
     }
 
+    bool isRunning() const
+    {
+        return m_osqueryProc->getStatus() == Common::Process::ProcessStatus::RUNNING;
+    }
 
 private:
     void setupForTest()
@@ -124,10 +139,9 @@ private:
         Plugin::OsqueryConfigurator::regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
 
         std::string fileContents = Common::FileSystem::fileSystem()->readFile( Plugin::osqueryFlagsFilePath());
-        std::string updatedFileContents = Common::UtilityImpl::StringUtils::replaceAll
-                (fileContents,"--disable_watchdog=false","--disable_watchdog=true");
+        std::string updatedFileContents = Common::UtilityImpl::StringUtils::replaceAll(
+                fileContents,"--disable_watchdog=false","--disable_watchdog=true");
         Common::FileSystem::fileSystem()->writeFile(Plugin::osqueryFlagsFilePath(),updatedFileContents);
-
     }
 
     Tests::TempDir m_tempDir;
@@ -146,11 +160,7 @@ void mainTest(const LiveQueryProto::TestCase& testCase)
 #endif
     static OsqueryRunnerSingleton osqueryRunnerSingleton;
 
-    assert( Common::FileSystem::fileSystem()->isFile(osqueryRunnerSingleton.getOsqueryPath()));
-    assert( Common::FileSystem::fileSystem()->isExecutable(osqueryRunnerSingleton.getOsqueryPath()));
-
     std::string query = testCase.query();
-
     nlohmann::json queryJson;
 
     queryJson["type"] = "sophos.mgt.action.RunLiveQuery";
@@ -158,12 +168,31 @@ void mainTest(const LiveQueryProto::TestCase& testCase)
     queryJson["query"] = "%QUERY%";
     std::string serializedQuery = Common::UtilityImpl::StringUtils::replaceAll(queryJson.dump(), "%QUERY%", query);
 
-    livequery::DummyDispatcher dummyDispatcher;
+    std::promise<void> promise;
+    std::future<void> queryFinishedFuture = promise.get_future();
+    livequery::IQueryProcessor& proc = osqueryRunnerSingleton.queryProcessor();
 
+    // launch in a separate thread as we disabled the watchdog so we need to be able to detect when osquery has hung
+    auto fut = std::async(std::launch::async, [&proc, &serializedQuery, &promise] {
+        livequery::DummyDispatcher dummyDispatcher;
+        livequery::processQuery(osqueryRunnerSingleton.queryProcessor(), dummyDispatcher , serializedQuery, "2322-2323");
+        promise.set_value();
+    });
 
-    livequery::processQuery(osqueryRunnerSingleton.queryProcessor(), dummyDispatcher , serializedQuery, "2322-2323");
+    // query should timeout after 10 seconds so if the thread is still running after 10 secs then osquery is hanging
+    if (queryFinishedFuture.wait_for(std::chrono::seconds(11)) == std::future_status::timeout)
+    {
+        // detected that osquery is hanging...
+        // cannot only throw exception as the fut above will hang. Only way to finish is to call abort.
+        std::terminate();
+    }
+
+    if (!osqueryRunnerSingleton.isRunning())
+    {
+        // throw instead of abort to allow destructor of osqueryRunnerSingleton to complete
+        throw std::runtime_error("Osquery crashed");
+    }
 }
-
 
 
 /**
