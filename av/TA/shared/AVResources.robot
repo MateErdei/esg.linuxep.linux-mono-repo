@@ -3,7 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/FakeManagement.py
-Library         ../Libs/CapnpHelpers/CapnpHelper.py
+Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ComponentSetup.robot
 
