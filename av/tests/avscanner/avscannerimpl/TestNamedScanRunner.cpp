@@ -17,6 +17,37 @@ using namespace avscanner::avscannerimpl;
 using ::testing::Return;
 using ::testing::StrictMock;
 
+namespace
+{
+    class ScanPathAccessor : public scan_messages::ClientScanRequest
+    {
+    public:
+        ScanPathAccessor(const ClientScanRequest& other) // NOLINT
+                : scan_messages::ClientScanRequest(other)
+        {}
+
+        operator std::string() const // NOLINT
+        {
+            return m_path;
+        }
+    };
+
+    class RecordingMockSocket : public unixsocket::IScanningClientSocket {
+    public:
+        scan_messages::ScanResponse
+        scan(datatypes::AutoFd &, const scan_messages::ClientScanRequest &request) override {
+            std::string p = ScanPathAccessor(request);
+            m_paths.emplace_back(p);
+//            PRINT("Scanning " << p);
+            scan_messages::ScanResponse response;
+            response.setClean(true);
+            return response;
+        }
+
+        std::vector <std::string> m_paths;
+    };
+}
+
 class TestNamedScanRunner : public ::testing::Test
 {
 public:
@@ -135,4 +166,73 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
     NamedScanRunner runner(scanConfigOut);
 
     EXPECT_EQ(runner.getIncludedMountpoints(allMountpoints).size(), 4);
+}
+
+TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
+{
+    bool scanHardDisc = true;
+    bool scanNetwork = true;
+    bool scanOptical = true;
+    bool scanRemovable = true;
+
+    std::vector<std::string> expectedExclusions;
+    expectedExclusions.push_back("/bin");
+    expectedExclusions.push_back("/boot");
+    expectedExclusions.push_back("/dev");
+    expectedExclusions.push_back("/etc");
+    expectedExclusions.push_back("/home");
+    expectedExclusions.push_back("/lib32");
+    expectedExclusions.push_back("/lib64");
+    expectedExclusions.push_back("/lib");
+    expectedExclusions.push_back("/lost+found");
+    expectedExclusions.push_back("/media");
+    expectedExclusions.push_back("/mnt");
+    expectedExclusions.push_back("/oldTarFiles");
+    expectedExclusions.push_back("/opt");
+    expectedExclusions.push_back("/proc");
+    expectedExclusions.push_back("/redist");
+    expectedExclusions.push_back("/root");
+    expectedExclusions.push_back("/run");
+    expectedExclusions.push_back("/sbin");
+    expectedExclusions.push_back("/snap");
+    expectedExclusions.push_back("/srv");
+    expectedExclusions.push_back("/sys");
+    expectedExclusions.push_back("/usr");
+    expectedExclusions.push_back("/vagrant");
+    expectedExclusions.push_back("/var");
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
+            message,
+            expectedExclusions,
+            scanHardDisc,
+            scanNetwork,
+            scanOptical,
+            scanRemovable);
+
+    NamedScanRunner runner(scanConfigOut);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    int origNumPaths = socket->m_paths.size();
+
+    expectedExclusions.push_back("/tmp");
+    Sophos::ssplav::NamedScan::Reader scanConfigOut2 = createNamedScanConfig(
+            message,
+            expectedExclusions,
+            scanHardDisc,
+            scanNetwork,
+            scanOptical,
+            scanRemovable);
+
+    NamedScanRunner runner2(scanConfigOut2);
+
+    auto socket2 = std::make_shared<RecordingMockSocket>();
+    runner2.setSocket(socket2);
+    runner2.run();
+
+    int newNumPaths = socket2->m_paths.size();
+    EXPECT_LT(newNumPaths, origNumPaths);
 }
