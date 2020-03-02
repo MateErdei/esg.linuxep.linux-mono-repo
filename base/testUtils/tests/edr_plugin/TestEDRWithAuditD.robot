@@ -50,7 +50,7 @@ EDR Disables Auditd After Install With Auditd Running With Disable Flag
     ${EDR_CONFIG_CONTENT}=  Get File  ${EDR_DIR}/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   disable_auditd=1
 
-    Check EDR Log Shows AuditD Has Been Disabled
+    Wait Keyword Succeed  Check EDR Log Shows AuditD Has Been Disabled
     Check AuditD Executable Not Running
 
 EDR Does Not Disable Auditd After Install With Auditd Running With Do Not Disable Flag
@@ -64,7 +64,7 @@ EDR Does Not Disable Auditd After Install With Auditd Running With Do Not Disabl
     ${EDR_CONFIG_CONTENT}=  Get File  ${EDR_DIR}/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   disable_auditd=0
 
-    Check EDR Log Shows AuditD Has Not Been Disabled
+    Wait Keyword Succeed  Check EDR Log Shows AuditD Has Not Been Disabled
     Check AuditD Executable Running
 
 
@@ -78,7 +78,7 @@ EDR Does Disable Auditd After Manual Change To Config
     Should Contain  ${INSTALL_OPTIONS_CONTENT}   --do-not-disable-auditd
     ${EDR_CONFIG_CONTENT}=  Get File  ${EDR_DIR}/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   disable_auditd=0
-    Check EDR Log Shows AuditD Has Not Been Disabled
+    Wait Keyword Succeed  Check EDR Log Shows AuditD Has Not Been Disabled
     Check AuditD Executable Running
 
     Run Shell Process  echo disable_auditd=1 > ${EDR_DIR}/etc/plugin.conf   OnError=failed to set EDR config to disable auditd
@@ -87,10 +87,7 @@ EDR Does Disable Auditd After Manual Change To Config
     ${EDR_CONFIG_CONTENT}=  Get File  ${EDR_DIR}/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   disable_auditd=1
 
-     Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   1 secs
-    ...   Check EDR Log Shows AuditD Has Been Disabled
+    Wait Keyword Succeed  Check EDR Log Shows AuditD Has Been Disabled
 
     Check AuditD Executable Not Running
 

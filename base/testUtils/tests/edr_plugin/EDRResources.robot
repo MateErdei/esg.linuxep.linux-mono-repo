@@ -82,6 +82,13 @@ Check EDR Log Shows AuditD Has Not Been Disabled
     Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to not disable AuditD
     Should Contain  ${EDR_LOG_CONTENT}   AuditD is running, it will not be possible to obtain event data.
 
+Wait Keyword Succeed
+    [Arguments]  ${keyword}
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  ${keyword}
+
 Install And Enable AuditD If Required
     ${Result}=  Is Ubuntu
     Run Keyword If   ${Result}==${True}
