@@ -1,5 +1,5 @@
 pyzmq
 protobuf
 pytest-html
-cython
+Cython
 pycapnp
