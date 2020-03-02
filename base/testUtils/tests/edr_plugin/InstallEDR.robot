@@ -310,9 +310,15 @@ Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
 
     # ensure Plugins are running after update
     Check MDR Plugin Running
-    Check MTR Osquery Executable Running
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check MTR Osquery Executable Running
     EDR Plugin Is Running
-    Check EDR Osquery Executable Running
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check EDR Osquery Executable Running
 
 Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
@@ -349,13 +355,19 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     ...  1 secs
     ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   2
 
-    Wait Unitl MDR Installed
+    Wait Until MDR Installed
 
     # ensure Plugins are running after update
     Check MDR Plugin Running
-    Check MTR Osquery Executable Running
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check MTR Osquery Executable Running
     EDR Plugin Is Running
-    Check EDR Osquery Executable Running
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check EDR Osquery Executable Running
 
 
 Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
@@ -374,7 +386,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
     ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
 
     # ensure initial plugins are installed and running
-    Wait Unitl MDR Installed
+    Wait Until MDR Installed
     Wait For EDR to be Installed
 
     # Transition to MTR Only
@@ -395,7 +407,10 @@ Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
 
     # ensure MTR still running after update
     Check MDR Plugin Running
-    Check MTR Osquery Executable Running
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check MTR Osquery Executable Running
 
 
 Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
@@ -414,7 +429,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
 
     # ensure initial plugins are installed and running
-    Wait Unitl MDR Installed
+    Wait Until MDR Installed
     Wait For EDR to be Installed
 
     # Transition to EDR Only
@@ -435,7 +450,10 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
 
     # ensure EDR still running after update
     EDR Plugin Is Running
-    Check EDR Osquery Executable Running
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check EDR Osquery Executable Running
 
 
 

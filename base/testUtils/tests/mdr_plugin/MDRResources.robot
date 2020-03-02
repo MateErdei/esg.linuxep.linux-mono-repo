@@ -264,7 +264,7 @@ Check MDR Component Suite Installed Correctly
 Check SSPL Installed
     Should Exist    ${SOPHOS_INSTALL}
 
-Wait Unitl MDR Installed
+Wait Until MDR Installed
     Wait Until Keyword Succeeds
     ...  60
     ...  1
