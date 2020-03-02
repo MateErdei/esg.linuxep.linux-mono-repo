@@ -1,0 +1,1 @@
+query: "SELECT uid, gid, username, description, directory, shell FROM users;"

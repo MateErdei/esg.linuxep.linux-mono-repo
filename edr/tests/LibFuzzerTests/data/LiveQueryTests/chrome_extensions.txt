@@ -1,0 +1,1 @@
+query: "SELECT DISTINCT ce.uid, ce.name, ce.identifier, ce.version, ce.author, ce.path, ce.update_url FROM chrome_extensions AS ce JOIN logged_in_users AS liu ON liu.user=u.username JOIN users AS u ON u.uid=ce.uid;"

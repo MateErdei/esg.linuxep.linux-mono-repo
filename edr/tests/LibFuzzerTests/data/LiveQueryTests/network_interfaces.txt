@@ -1,0 +1,1 @@
+query: "SELECT interface_details.mtu, interface_details.interface, interface_details.mac, interface_addresses.mask, interface_addresses.address, interface_addresses.broadcast, interface_details.ibytes, interface_details.obytes FROM interface_addresses JOIN interface_details ON interface_addresses.interface = interface_details.interface;"

@@ -1,0 +1,1 @@
+query: "SELECT target_path as path, action, uid, gid, mode, size, atime, mtime, ctime, sha1, sha256 from file_events where path like '% ' and action != 'DELETED';"

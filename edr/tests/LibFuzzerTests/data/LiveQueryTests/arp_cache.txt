@@ -1,0 +1,1 @@
+query: "SELECT address,mac,interface FROM arp_cache WHERE address LIKE '192.%' OR address LIKE '172.%' OR address LIKE '10.%';"

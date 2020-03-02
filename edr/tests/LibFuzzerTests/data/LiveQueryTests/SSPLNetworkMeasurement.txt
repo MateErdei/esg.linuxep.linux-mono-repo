@@ -1,0 +1,1 @@
+query: "select count (interface),sum (opackets),sum (obytes) from interface_details where interface_details.interface !='lo';"

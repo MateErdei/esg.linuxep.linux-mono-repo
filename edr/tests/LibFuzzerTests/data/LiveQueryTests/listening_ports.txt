@@ -1,0 +1,1 @@
+query: "SELECT DISTINCT processes.name, listening_ports.address, listening_ports.port, processes.pid, processes.path FROM listening_ports JOIN processes USING (pid) WHERE listening_ports.address NOT LIKE '127%' AND listening_ports.protocol = 6;"

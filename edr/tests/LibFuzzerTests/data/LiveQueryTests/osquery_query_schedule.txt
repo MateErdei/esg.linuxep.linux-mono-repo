@@ -1,0 +1,1 @@
+query: "SELECT name, interval, executions,blacklisted, output_size, wall_time,user_time, system_time, average_memory,(user_time + system_time)/executions as average_timeFROM osquery_schedule;"

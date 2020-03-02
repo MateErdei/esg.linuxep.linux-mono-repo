@@ -1,0 +1,1 @@
+query: "SELECT name, version, arch, revision FROM deb_packages;"

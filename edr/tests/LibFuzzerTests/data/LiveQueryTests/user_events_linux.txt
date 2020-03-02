@@ -1,0 +1,1 @@
+query: "SELECT uid, pid, message, type, path, address, terminal, time FROM user_events WHERE terminal != 'cron' AND pid != 1;"

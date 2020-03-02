@@ -1,0 +1,1 @@
+query: "WITH files (  number_of_files,  total_size,  mb) AS (  SELECT count(*) AS number_of_files,  SUM(size) AS total_size,  SUM(size)/1024/1024 AS mb  FROM file  WHERE path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%')SELECT  number_of_files,  total_size,  mbFROM filesWHERE mb > 50;"
