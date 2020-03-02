@@ -5,49 +5,47 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include <gtest/gtest.h>
 
+#include "unixsocket/threatReporterSocket/ThreatReporterClient.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+
+#include "tests/common/Common.h"
 #include "datatypes/sophos_filesystem.h"
 
-#include <fstream>
-
-#include <unixsocket/threatReporterSocket/ThreatReporterClient.h>
+#include <unistd.h>
 
 #define BASE "/tmp/TestPluginAdapter"
 
 using namespace scan_messages;
 namespace fs = sophos_filesystem;
 
-void setupFakeSophosThreatReporterConfig()
+class TestThreatReposterSocket : public ::testing::Test
 {
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("PLUGIN_INSTALL", BASE);
-    fs::path f = BASE;
-    fs::create_directories(f / "chroot");
-    f /= "sbin";
-    fs::create_directories(f);
-    f /= "sophos_threat_detector_launcher";
-    std::ofstream ost(f);
-    ost.close();
-}
-#include <unistd.h>
+public:
+    void SetUp() override
+    {
+        setupFakeSophosThreatReporterConfig();
+    }
 
-TEST(TestThreatReposterSocket, TestSendThreatReport) // NOLINT
+    void TearDown() override
+    {
+        fs::remove_all("/tmp/TestPluginAdapter/");
+    }
+
+};
+
+TEST_F(TestThreatReposterSocket, TestSendThreatReport) // NOLINT
 {
-    setupFakeSophosThreatReporterConfig();
-
+    std::string socketPath = "/tmp/TestPluginAdapter/chroot/threat_report_socket";
     std::string threatName = "unit-test-eicar";
     std::string threatPath = "/path/to/unit-test-eicar";
     std::time_t detectionTimeStamp = std::time(nullptr);
     std::string userID = std::getenv("USER");
-    unixsocket::ThreatReporterServerSocket threatReporterServer(
-            "/tmp/TestPluginAdapter/chroot/threat_report_socket"
-    );
+    unixsocket::ThreatReporterServerSocket threatReporterServer(socketPath);
 
     threatReporterServer.start();
 
     // connect after we start
-    unixsocket::ThreatReporterClientSocket threatReporterSocket("/tmp/TestPluginAdapter/chroot/threat_report_socket");
+    unixsocket::ThreatReporterClientSocket threatReporterSocket(socketPath);
 
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);

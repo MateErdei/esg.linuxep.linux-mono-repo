@@ -8,10 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 
 #include "avscanner/avscannerimpl/ScanClient.h"
-
-#include <fstream>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <unixsocket/threatReporterSocket/ThreatReporterServerSocket.h>
+#include "tests/common/Common.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #define BASE "/tmp/TestPluginAdapter"
 
@@ -40,19 +39,6 @@ namespace
 }
 
 using ::testing::StrictMock;
-
-void setupFakeSophosThreatReporterConfig()
-{
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("PLUGIN_INSTALL", BASE);
-    fs::path f = BASE;
-    fs::create_directories(f / "chroot");
-    f /= "sbin";
-    fs::create_directories(f);
-    f /= "sophos_threat_detector_launcher";
-    std::ofstream ost(f);
-    ost.close();
-}
 
 TEST(TestScanClient, TestConstruction) // NOLINT
 {
@@ -152,4 +138,5 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
 
     EXPECT_FALSE(result.clean());
     EXPECT_EQ(result.threatName(), THREAT);
+    fs::remove_all("/tmp/TestPluginAdapter/");
 }

@@ -67,8 +67,7 @@ namespace
                 m_scanner.scan(p);
             } catch (const std::exception& e)
             {
-                PRINT("Scanner failed to scan: " << p);
-                PRINT("Expeption message" << e.what());
+                PRINT("Scanner failed to scan: " << p << " [" << e.what() << "]");
 
                 m_returnCode = E_GENERIC_FAILURE;
             }
