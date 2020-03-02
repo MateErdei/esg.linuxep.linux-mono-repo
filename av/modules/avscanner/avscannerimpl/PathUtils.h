@@ -30,6 +30,18 @@ namespace avscanner::avscannerimpl
         {
             return p.string().rfind(value.string(), 0) == 0;
         }
+
+        static bool startswithany(const std::vector<std::string>& paths, const fs::path& p)
+        {
+            for (auto & exclusion : paths)
+            {
+                if (PathUtils::startswith(p, exclusion))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     };
 }
 

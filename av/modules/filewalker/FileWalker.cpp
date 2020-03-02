@@ -39,7 +39,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     }
 
     std::set<ino_t> seen_symlinks;
-    fs::directory_options options = fs::directory_options::none;
+    fs::directory_options options = fs::directory_options::skip_permission_denied;
 
     if (m_follow_symlinks)
     {

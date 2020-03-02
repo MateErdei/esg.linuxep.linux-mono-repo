@@ -36,19 +36,19 @@ namespace avscanner::avscannerimpl
 
             ~Drive() override = default;
 
-            std::string mountPoint() const override;
+            [[nodiscard]] std::string mountPoint() const override;
 
-            std::string device() const override;
+            [[nodiscard]] std::string device() const override;
 
-            std::string filesystemType() const override;
+            [[nodiscard]] std::string filesystemType() const override;
 
-            bool isHardDisc() const override;
+            [[nodiscard]] bool isHardDisc() const override;
 
-            bool isNetwork() const override;
+            [[nodiscard]] bool isNetwork() const override;
 
-            bool isOptical() const override;
+            [[nodiscard]] bool isOptical() const override;
 
-            bool isRemovable() const override;
+            [[nodiscard]] bool isRemovable() const override;
 
             /**
              * @return true if this is a special filesystem mount that we should avoid

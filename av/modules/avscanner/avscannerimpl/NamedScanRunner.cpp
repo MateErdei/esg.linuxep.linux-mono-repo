@@ -70,6 +70,10 @@ namespace
 
         void processFile(const sophos_filesystem::path& p) override
         {
+            if (PathUtils::startswithany(m_config.m_excludePaths, p))
+            {
+                return;
+            }
             try
             {
                 m_scanner.scan(p);
@@ -91,12 +95,9 @@ namespace
                     return false;
                 }
             }
-            for (auto & exclusion : m_config.m_excludePaths)
+            if (PathUtils::startswithany(m_config.m_excludePaths, p)) //NOLINT
             {
-                if (PathUtils::startswith(p, exclusion))
-                {
-                    return false;
-                }
+                return false;
             }
             return true;
         }
@@ -125,7 +126,7 @@ std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoint
         }
         else
         {
-            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is has been excluded from the scan");
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded from the scan");
         }
     }
     return includedMountpoints;
