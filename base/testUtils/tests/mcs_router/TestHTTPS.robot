@@ -18,16 +18,22 @@ Fail Register with TLS1_2 Bad Certificate
     Unset CA Environment Variable
     Fail Register With HTTPS Server Certificate Verify Failed
 
-Fail Register If TLS1_0
+Test Register With TLS Below Minimum Accepted of TLSv1_2 Fails
     Start HTTPS Server    --tls1
-    Fail Register With HTTPS Server Version Mismatch
+    Fail Register With HTTPS Server   [SSL: UNSUPPORTED_PROTOCOL]
     
 Fail Register If TLS1_1
     Start HTTPS Server    --tls1_1
-    Fail Register With HTTPS Server Version Mismatch
+    Fail Register With HTTPS Server   [SSL: UNSUPPORTED_PROTOCOL]
 
 Register with TLS1_2
     Start HTTPS Server    --tls1_2
+    Set Local CA Environment Variable
+    # Connection was successful in terms of TLS handshake
+    Fail Register With HTTPS Server Gateway Error
+
+Register With Server At Defualt Value PROTOCOL_TLS Will Resolve To TLSv1_2 Plus
+    Start HTTPS Server   --tls
     Set Local CA Environment Variable
     # Connection was successful in terms of TLS handshake
     Fail Register With HTTPS Server Gateway Error

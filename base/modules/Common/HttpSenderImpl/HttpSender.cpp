@@ -94,8 +94,7 @@ namespace Common::HttpSenderImpl
         LOGINFO("Creating HTTPS " << requestConfig.getRequestTypeAsString() << " Request to " << uri);
 
         curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri);
-        curlOptions.emplace_back("Specify preferred TLS/SSL version",CURLOPT_SSLVERSION,
-                CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_TLSv1_3);
+        curlOptions.emplace_back("Specify preferred TLS/SSL version", CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
         std::string certPath = requestConfig.getCertPath();
 
         if (certPath.empty())

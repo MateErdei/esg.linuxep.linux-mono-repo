@@ -73,11 +73,11 @@ class UpdateServer(object):
         subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "clean"], env=env, stdout=subprocess.PIPE)
         subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "all"], env=env, stdout=subprocess.PIPE)
 
-    def start_update_server(self, port, directory):
+    def start_update_server(self, port, directory, protocol="--tls1_2"):
         if not os.path.isdir(directory):
             raise AssertionError("Trying to serve a non-existent directory: {}".format(directory))
         command = [sys.executable, os.path.join(self.server_path, "cidServer.py"), str(port), directory, "--loggingOn",
-                   "--tls1_2", "--secure={}".format(self.private_pem)]
+                   protocol, "--secure={}".format(self.private_pem)]
         print("Start Update Server: command: " + str(command))
         process = subprocess.Popen(command, stdout=self.server_log, stderr=subprocess.STDOUT)
         self.server_processes.append(process)

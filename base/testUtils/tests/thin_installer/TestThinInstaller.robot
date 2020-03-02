@@ -19,12 +19,13 @@ Default Tags  THIN_INSTALLER
 
 *** Keywords ***
 Setup Warehouse
+    [Arguments]    ${customer_file_protocol}=--tls1_2   ${warehouse_protocol}=--tls1_2
     Clear Warehouse Config
     Generate Install File In Directory     ./tmp/TestInstallFiles/${BASE_RIGID_NAME}
     Add Component Warehouse Config   ${BASE_RIGID_NAME}   ./tmp/TestInstallFiles/    ./tmp/temp_warehouse/
     Generate Warehouse
-    Start Update Server    1233    ./tmp/temp_warehouse/customer_files/
-    Start Update Server    1234    ./tmp/temp_warehouse/warehouses/sophosmain/
+    Start Update Server    1233    ./tmp/temp_warehouse/customer_files/   ${customer_file_protocol}
+    Start Update Server    1234    ./tmp/temp_warehouse/warehouses/sophosmain/   ${warehouse_protocol}
     Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
     Can Curl Url    https://localhost:1233
 
@@ -44,6 +45,7 @@ Teardown
     Teardown Reset Original Path
     Uninstall SAV
     Run Keyword If Test Failed    Dump Thininstaller Log
+    Remove Thininstaller Log
     Cleanup Files
     Require Uninstalled
     Remove Environment Variable  SOPHOS_INSTALL
@@ -276,3 +278,21 @@ Thin Installer Falls Back From Bad Env Proxy To Direct
     Run Default Thininstaller   expected_return_code=0  mcsurl=https://localhost:1233  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com
     Check Thininstaller Log Contains  INSTALLER EXECUTED
     Check Thininstaller Log Contains  WARN: Could not connect using proxy
+
+Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
+    [Tags]  SMOKE  THIN_INSTALLER
+    Setup Warehouse   --tls1_1   --tls1_2
+    Run Default Thininstaller    3    https://localhost:1233
+    Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:1233 (cURL error is [SSL connect error]). Please check your firewall rules
+
+Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS below TLSv1_2
+    [Tags]  SMOKE  THIN_INSTALLER
+    Setup Warehouse   --tls1_2   --tls1_1
+    Run Default Thininstaller    10    https://localhost:1233
+    Check Thininstaller Log Contains    Failed to download the base installer! (Error code = 46)
+
+Thin Installer And SUL Library Will Successfully Connect With Server Running TLSv1_2
+    [Tags]  SMOKE  THIN_INSTALLER
+    Setup Warehouse   --tls1_2   --tls1_2
+    Run Default Thininstaller    0    https://localhost:1233
+    Check Thininstaller Log Contains    INSTALLER EXECUTED

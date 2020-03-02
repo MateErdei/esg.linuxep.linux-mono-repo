@@ -135,7 +135,7 @@ class DigestAuthentication(Authentication):
             #                              ":" unq(qop-value)
             #                              ":" H(A2)
             #                      ) <">
-            return self.KD(self.H(self.A1()), \
+            return self.KD(self.H(self.A1()),
                            self.params["nonce"]
                            + ":" + self.params["nc"]
                            + ":" + self.params["cnonce"]
@@ -146,7 +146,7 @@ class DigestAuthentication(Authentication):
             # for compatibility with RFC 2069):
             # request-digest  =
             #         <"> < KD ( H(A1), unq(nonce-value) ":" H(A2) ) > <">
-            return self.KD(self.H(self.A1()), \
+            return self.KD(self.H(self.A1()),
                            self.params["nonce"] + ":" + self.H(self.A2()))
 
     def _parseHeader(self, authheader):
@@ -493,6 +493,8 @@ def addOptions(parser):
                       help="Force TLS 1.0",default=False)
     parser.add_option("--tls1_1",action="store_true", dest="tls1_1",
                       help="Force TLS 1.1",default=False)
+    parser.add_option("--tls",action="store_true", dest="tls",
+                      help="Select 'SSL' and 'TLS'",default=False)
     parser.add_option("--tls1_2",action="store_true", dest="tls1_2",
                       help="Force TLS 1.2",default=False)
     parser.add_option("--bad_ciphers","--ciphers_not_in_restricted_list",action="store_true", dest="bad_ciphers",
@@ -643,6 +645,8 @@ def main(argv):
             protocol = ssl.PROTOCOL_TLSv1_1
         elif options.tls1_2:
             protocol = ssl.PROTOCOL_TLSv1_2
+        elif options.tls:
+            protocol = ssl.PROTOCOL_TLS
         else:
             protocol = ssl.PROTOCOL_SSLv23
 

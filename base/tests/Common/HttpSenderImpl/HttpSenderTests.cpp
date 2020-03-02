@@ -61,7 +61,7 @@ TEST_F(HttpSenderTest, getRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, _, _)).Times(2).WillRepeatedly(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, CURLOPT_SSLVERSION,
-            {CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_TLSv1_3})).WillOnce(Return(m_succeededResult));
+            {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
@@ -77,7 +77,7 @@ TEST_F(HttpSenderTest, postRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, _, _)).Times(3).WillRepeatedly(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, CURLOPT_SSLVERSION,
-            {CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_TLSv1_3})).WillOnce(Return(m_succeededResult));
+            {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
@@ -93,7 +93,7 @@ TEST_F(HttpSenderTest, putRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, _, _)).Times(4).WillRepeatedly(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, CURLOPT_SSLVERSION,
-            {CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_TLSv1_3})).WillOnce(Return(m_succeededResult));
+            {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
@@ -114,7 +114,7 @@ TEST_F(HttpSenderTest, putRequestWithImplicitCertPath) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, _, _)).Times(4).WillRepeatedly(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, CURLOPT_SSLVERSION,
-            {CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_TLSv1_3})).WillOnce(Return(m_succeededResult));
+            {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
@@ -211,7 +211,7 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillDoesGlobalCleanup) /
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, _, _)).WillRepeatedly(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, CURLOPT_SSLVERSION,
-            {CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_TLSv1_3})).WillOnce(Return(m_failedResult));
+            {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_failedResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).WillOnce(Return(m_strerror.c_str()));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
