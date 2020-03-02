@@ -193,10 +193,15 @@ class FuzzerSupport:
         input_folder = os.path.join(self._tmp_dir, 'input')
         os.mkdir(input_folder)
         max_time = self._get_max_time()
-        self._run_fuzzer(expected_fuzzer_path, [input_folder,
-                            expected_fuzzer_input,
-                            '-max_total_time=' + str(max_time),
-                            '-print_final_stats=1'])
+        args = [input_folder,
+                expected_fuzzer_input,
+                '-max_total_time=' + str(max_time),
+                '-print_final_stats=1']
+        dict_file_path = os.path.join(self._edr_path, 'tests/LibFuzzerTests/',target_name + '.dict')
+        if os.path.exists(dict_file_path):
+            args.append('-dict={}'.format(dict_file_path))
+
+        self._run_fuzzer(expected_fuzzer_path, args)
 
         failures = self._check_and_convict_run_directory(expected_fuzzer_path)
         if failures:

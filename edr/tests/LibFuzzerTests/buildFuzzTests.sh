@@ -88,6 +88,10 @@ for TARGET in ${TARGETS}; do
 ScriptDir=${CMAKE_BUILD_FULL_PATH}/tests/${FUZZ_TEST_DIR_NAME}
 ScriptName=runFuzzer${TARGET}.sh
 ScriptPath=${ScriptDir}/${ScriptName}
+EXTRA_ARGS=""
+if [ -f ${FUZZ_TEST_DIR}/${TARGET}.dict ];then
+EXTRA_ARGS="-dict=${FUZZ_TEST_DIR}/${TARGET}.dict"
+fi
 echo "#!/bin/bash
 # Run this script from locally.
 # You may extend the examples for the start execution in
@@ -95,7 +99,7 @@ echo "#!/bin/bash
 
 mkdir -p queue
 # The detect_odr_violation is removed because the protobuf message is defined twice due to the way that it was imported.
-ASAN_OPTIONS=detect_odr_violation=0 ./${TARGET} queue ${FUZZ_TESTCASE_ROOT_DIR}/${TARGET}
+ASAN_OPTIONS=detect_odr_violation=0 ./${TARGET} ${EXTRA_ARGS} queue ${FUZZ_TESTCASE_ROOT_DIR}/${TARGET}
 
 # If you wish to run a single target file:
 # ASAN_OPTIONS=detect_odr_violation=0 ./${TARGET} <target_file_name>
