@@ -197,7 +197,8 @@ Remove Local NFS Share
 
 Check Configuration File is Correct
     [Arguments]  ${binaryFileName}  ${expectedScanName}
-    setupcapnp
+    CapnpHelper.setupcapnp
+    Log to console  Got past setup
 #    ${result} =  Check Named Scan Name  ${binaryFileName}  ${expectedScanName}
-    ${result} =  checkcapnp  ${binaryFileName}  ${expectedScanName}
+    ${result} =  CapnpHelper.checkcapnp  ${binaryFileName}  ${expectedScanName}
     Should Be True  ${result}

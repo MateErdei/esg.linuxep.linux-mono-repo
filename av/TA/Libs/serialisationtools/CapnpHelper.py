@@ -7,22 +7,21 @@ from enum import Enum
 import capnp
 import NamedScan_capnp
 
-
-def setupcapnp():
-    CapnpHelper.setup()
-
-
-def checkcapnp(object_filename, scan_name):
-    named_scan = CapnpHelper.get_capnp_object(object_filename, CapnpSchemas.NamedScan)
-    return named_scan.name == scan_name
-
-
 class CapnpSchemas(Enum):
     NamedScan = "namedscan"
 
 
 class CapnpHelper:
     schema_map = {}
+
+    @staticmethod
+    def setupcapnp():
+        CapnpHelper.setup()
+
+    @staticmethod
+    def checkcapnp(object_filename, scan_name):
+        named_scan = CapnpHelper.get_capnp_object(object_filename, CapnpSchemas.NamedScan)
+        return named_scan.name == scan_name
 
     @staticmethod
     def setup():
