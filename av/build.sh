@@ -57,6 +57,16 @@ LOCAL_CMAKE=0
 while [[ $# -ge 1 ]]
 do
     case $1 in
+        --ci)
+            BULLSEYE=0
+            LOCAL_CMAKE=0
+            LOCAL_GCC=0
+            NO_BUILD=0
+            NO_UNPACK=0
+            VALGRIND=0
+            CMAKE_BUILD_TYPE=RelWithDebInfo
+            export ENABLE_STRIP=1
+            ;;
         --build-type)
             shift
             CMAKE_BUILD_TYPE="$1"
@@ -128,6 +138,9 @@ do
             ;;
         --no-clean|--noclean)
             CLEAN=0
+            ;;
+        --clean-log)
+            : >$LOG
             ;;
         --unit-test|--unittest)
             UNITTEST=1
