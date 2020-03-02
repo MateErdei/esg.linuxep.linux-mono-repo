@@ -11,6 +11,7 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
 Resource    ../upgrade_product/UpgradeResources.robot
+Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    EDRResources.robot
 
@@ -31,6 +32,7 @@ ${EDR_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/edr
 ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
 ${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+${WDCTL_LOG_PATH}                   ${SOPHOS_INSTALL}/logs/base/wdctl.log
 
 *** Test Cases ***
 Install EDR and handle Live Query
@@ -207,9 +209,19 @@ Install Base And EDR Then Migrate To BASE
     ...  5 secs
     ...  EDR Plugin Is Not Running
 
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
 Install base and edr 999 then downgrade to current master
     Install EDR  ${BaseAndEdr999Policy}
     Wait Until OSQuery Running
+
+    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
+
+    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Trigger Update Now
 
@@ -222,9 +234,25 @@ Install base and edr 999 then downgrade to current master
     ...  5 secs
     ...  EDR Plugin Is Running
 
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+
+    # Ensure EDR was restarted during upgrade.
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop edr
+    ...  wdctl <> start edr
+
 Install base and edr and mtr then downgrade to just base and mtr
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
+    #truncate log so that check mdr plugin installed works correctly later in the test
+    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -233,16 +261,33 @@ Install base and edr and mtr then downgrade to just base and mtr
     ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-EDR since it was removed from warehouse
 
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  60 secs
     ...  5 secs
     ...  EDR Plugin Is Not Running
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Should Not Exist  ${EDR_DIR}
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Should Exist  ${MTR_DIR}
+
+    Check MDR Plugin Installed
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
 
 Install master of base and edr and mtr and upgrade to mtr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader):
+    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
 
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
@@ -276,7 +321,9 @@ Install master of base and edr and mtr and upgrade to edr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader):
+    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+
+    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
     Trigger Update Now
@@ -302,14 +349,23 @@ Install master of base and edr and mtr and upgrade to edr 999
     ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
     Should not contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
 
+    # Ensure EDR was restarted during upgrade.
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop edr
+    ...  wdctl <> start edr
+
+
 
 Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader):
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader):
+    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+
+    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
@@ -339,3 +395,8 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
     ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
     Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
+
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop edr
+    ...  wdctl <> start edr
