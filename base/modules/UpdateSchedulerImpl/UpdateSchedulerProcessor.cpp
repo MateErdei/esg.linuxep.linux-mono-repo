@@ -82,43 +82,6 @@ namespace UpdateSchedulerImpl
 
         waitForSulDownloaderToFinish(600);
 
-        // handle upgrade from EAP
-        // FIXME: LINUXDAR-715 Remove Upgrade from EAP special code after GA
-        std::string eapMarkFileFromInstaller = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
-            "base/update/var/upgrade_from_eap.mark");
-        if (Common::FileSystem::fileSystem()->exists(eapMarkFileFromInstaller))
-        {
-            std::string eapMarkFileForSulDownloader = Common::FileSystem::join(
-                Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
-                "base/update/var/upgrade_from_eap_sd.mark");
-
-            Common::FileSystem::fileSystem()->removeFile(eapMarkFileFromInstaller);
-            Common::FileSystem::fileSystem()->writeFile(eapMarkFileForSulDownloader, "");
-            LOGINFO("Detected upgrade from EAP. Trigger SulDownloader again to fix file permission");
-
-            std::shared_ptr<SchedulerTaskQueue> queueTask = std::make_shared<SchedulerTaskQueue>();
-            std::string dirPath =
-                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
-            std::unique_ptr<IAsyncSulDownloaderRunner> runner = std::unique_ptr<IAsyncSulDownloaderRunner>(
-                new runnerModule::AsyncSulDownloaderRunner(queueTask, dirPath));
-            runner->triggerSulDownloader();
-
-            // wait either for SulDownloader to finish or 5 seconds (which ever is first)
-            std::promise<void> promise;
-            auto futurePromised = promise.get_future();
-            auto syncWait = std::async(std::launch::async, [&futurePromised, &runner]() {
-                if (futurePromised.wait_for(std::chrono::seconds(5)) == std::future_status::timeout)
-                {
-                    runner->triggerAbort();
-                }
-            });
-            queueTask->pop();    // sent by AsyncSulDownloaderRunner either on end or on abort.
-            promise.set_value(); // release the async task
-            syncWait.get();
-            LOGINFO("Upgrade from EAP handled.");
-        }
-
         m_cronThread->start();
 
         // Request policy on startup

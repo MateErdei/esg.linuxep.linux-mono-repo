@@ -279,29 +279,6 @@ makedir 770 "${SOPHOS_INSTALL}/base/update"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
 makedir 770 "${SOPHOS_INSTALL}/base/update/certs"
-# detect Upgrade from EAP
-function ownerAndGroupDirIsRoot()
-{
-        local DirPath="$1"
-        if [[ ! -d ${DirPath} ]]; then
-                return 1
-        fi
-
-        ownergroup=$(ls -ld "${DirPath}")
-        pattern=".*root\s+root.*"
-        if [[ "${ownergroup}" =~ ${pattern} ]]; then
-                return 0
-        else
-                return 1
-        fi
-}
-
-if ownerAndGroupDirIsRoot "${SOPHOS_INSTALL}/base/update/var"
-then
-    echo "Upgrading from EAP"
-    touch "${SOPHOS_INSTALL}/base/update/var/upgrade_from_eap.mark"
-fi
-
 makedir 770 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update"

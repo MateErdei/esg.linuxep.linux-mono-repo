@@ -374,28 +374,6 @@ namespace SulDownloader
         std::string inputPath = argv[1];
         std::string outputPath = argv[2];
 
-        // handle upgrade from EAP: replace ownership of the report file to allow it to be consumed
-        // by UpdateScheduler
-        // FIXME: LINUXDAR-715 Remove Upgrade from EAP special code after GA
-        std::string eapMarkFileForSulDownloader = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
-            "base/update/var/upgrade_from_eap_sd.mark");
-        if (Common::FileSystem::fileSystem()->exists(eapMarkFileForSulDownloader))
-        {
-            if (Common::FileSystem::fileSystem()->exists(outputPath))
-            {
-                LOGINFO("Detected upgrade from EAP. Replacing ownership of report file");
-                Common::FileSystem::fileSystem()->removeFile(eapMarkFileForSulDownloader);
-                Common::FileSystem::filePermissions()->chown(outputPath, sophos::user(), sophos::group());
-                std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-                std::string destPath = Common::FileSystem::join(tempDir, Common::FileSystem::basename(outputPath));
-                // the way to detect that Suldownloader has finished is by the file being moved to the directory.
-                Common::FileSystem::fileSystem()->moveFile(outputPath, destPath);
-                Common::FileSystem::fileSystem()->moveFile(destPath, outputPath);
-                return 0;
-            }
-        }
-
         try
         {
             return fileEntriesAndRunDownloader(inputPath, outputPath);

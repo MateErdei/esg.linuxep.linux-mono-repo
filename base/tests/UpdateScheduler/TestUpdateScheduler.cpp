@@ -316,8 +316,6 @@ public:
         EXPECT_CALL(*pointer, isDirectory("/installroot/base/update/cache/primarywarehouse"))
             .WillRepeatedly(Return(true));
         EXPECT_CALL(*pointer, isDirectory("/installroot/base/update/cache/primary")).WillRepeatedly(Return(true));
-        // FIXME: LINUXDAR-715 Remove Upgrade from EAP special code after GA
-        EXPECT_CALL(*pointer, exists("/installroot/base/update/var/upgrade_from_eap.mark")).WillOnce(Return(false));
 
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs")).WillRepeatedly(Return(true));
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs/rootca.crt")).WillRepeatedly(Return(true));
