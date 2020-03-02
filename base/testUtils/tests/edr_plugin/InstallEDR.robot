@@ -280,15 +280,17 @@ Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
     # Install MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
     Trigger Update Now
+
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
-    ...  Should Exist  ${MTR_DIR}
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
 
-    Wait Until SophosMTR Executable Running
-    Check EDR Executable Not Running
+    # ensure MTR plugin is installed and running
+    Wait For MDR To Be Installed
 
-    Should Not Exist  ${EDR_DIR}
+    # ensure EDR is not installed.
+    Wait Until EDR Uninstalled
 
     # Install EDR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
@@ -300,18 +302,17 @@ Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  should exist  ${EDR_DIR}
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   2
 
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Should Exist  ${MTR_DIR}
+    Wait For EDR to be Installed
 
-    Wait Until EDR Running
-    Wait Until OSQuery Running
-    Wait Until SophosMTR Executable Running
+    # ensure Plugins are running after update
+    Check MDR Plugin Running
+    Check MTR Osquery Executable Running
+    EDR Plugin Is Running
+    Check EDR Osquery Executable Running
 
 Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
@@ -322,17 +323,19 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     # Install EDR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Trigger Update Now
+
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
-    ...  Should Exist  ${EDR_DIR}
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
 
-    Wait Until EDR Running
-    Check MDR Plugin Not Running
+    # ensure EDR plugin is installed and running
+    Wait For EDR to be Installed
 
-    Should Not Exist  ${MTR_DIR}
+    # ensure MTR is not installed.
+    Wait Until MDR Uninstalled
 
-    # Install EDR
+    # Install MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
     Trigger Update Now
 
@@ -342,18 +345,18 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  should exist  ${EDR_DIR}
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   2
 
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Should Exist  ${MTR_DIR}
+    Wait Unitl MDR Installed
 
-    Wait Until EDR Running
-    Wait Until OSQuery Running
-    Wait Until SophosMTR Executable Running
+    # ensure Plugins are running after update
+    Check MDR Plugin Running
+    Check MTR Osquery Executable Running
+    EDR Plugin Is Running
+    Check EDR Osquery Executable Running
+
 
 Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
@@ -364,18 +367,15 @@ Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
     # Install EDR And MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
     Trigger Update Now
+
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
-    ...  Should Exist  ${EDR_DIR}
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
 
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Should Exist  ${MTR_DIR}
-
-    Wait Until EDR Running
-    Wait Until SophosMTR Executable Running
+    # ensure initial plugins are installed and running
+    Wait Unitl MDR Installed
+    Wait For EDR to be Installed
 
     # Transition to MTR Only
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
@@ -387,15 +387,16 @@ Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
     ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-EDR since it was removed from warehouse
 
     Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Should Exist  ${MTR_DIR}
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   2
 
-    Should Not Exist  ${EDR_DIR}
+    Wait Until EDR Uninstalled
 
-    Wait Until OSQuery Running
-    Wait Until SophosMTR Executable Running
-    Check EDR Executable Not Running
+    # ensure MTR still running after update
+    Check MDR Plugin Running
+    Check MTR Osquery Executable Running
+
 
 Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
@@ -406,20 +407,17 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     # Install EDR And MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
     Trigger Update Now
+
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
-    ...  Should Exist  ${EDR_DIR}
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
 
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Should Exist  ${MTR_DIR}
+    # ensure initial plugins are installed and running
+    Wait Unitl MDR Installed
+    Wait For EDR to be Installed
 
-    Wait Until EDR Running
-    Wait Until SophosMTR Executable Running
-
-    # Transition to MTR Only
+    # Transition to EDR Only
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Trigger Update Now
 
@@ -428,13 +426,16 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     ...  5 secs
     ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-MDR since it was removed from warehouse
 
+    Wait Until MDR Uninstalled
+
     Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Should Not Exist  ${MTR_DIR}
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   2
 
-    Should Exist  ${EDR_DIR}
+    # ensure EDR still running after update
+    EDR Plugin Is Running
+    Check EDR Osquery Executable Running
 
-    Wait Until OSQuery Running
-    Wait Until EDR Running
-    Check MDR Plugin Not Running
+
+

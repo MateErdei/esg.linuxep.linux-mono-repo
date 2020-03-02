@@ -79,7 +79,7 @@ Check MDR Plugin Uninstalled
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Check Osquery Executable Not Running
+    ...  Check MTR Osquery Executable Not Running
 
 
 Check MDR Plugin Running
@@ -128,6 +128,16 @@ Check Osquery Executable Running
     #Check both osquery instances are running
     ${result} =    Run Process  pgrep osquery | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\n err: ${result.stderr}"
+
+Check MTR Osquery Executable Running
+    #Check both osquery instances are running
+    ${result} =    Run Process  pgrep -a osquery | grep plugins/mtr | wc -l  shell=true
+    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\n err: ${result.stderr}"
+
+Check MTR Osquery Executable Not Running
+    ${result} =    Run Process  pgrep  -a  osquery | grep plugins/mtr
+    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\n err: ${result.stderr}"
 
 Check Osquery Executable Not Running
     ${result} =    Run Process  pgrep  -a  osquery
@@ -253,6 +263,12 @@ Check MDR Component Suite Installed Correctly
 
 Check SSPL Installed
     Should Exist    ${SOPHOS_INSTALL}
+
+Wait Unitl MDR Installed
+    Wait Until Keyword Succeeds
+    ...  60
+    ...  1
+    ...  Check MDR Component Suite Installed Correctly
 
 Wait Until MDR Uninstalled
     Wait Until Keyword Succeeds

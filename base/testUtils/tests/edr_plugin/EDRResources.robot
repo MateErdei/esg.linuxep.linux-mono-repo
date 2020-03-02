@@ -8,11 +8,17 @@ Wait For EDR to be Installed
     ...   10 secs
     ...   File Should exist    ${SOPHOS_INSTALL}/plugins/edr/bin/edr
 
-
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   2 secs
     ...   EDR Plugin Is Running
+
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   Check EDR Osquery Executable Running
+
+
 
 EDR Plugin Is Running
     ${result} =    Run Process  pgrep  edr
@@ -156,3 +162,24 @@ Install EDR Directly
     Log  ${result.stdout}
     Log  ${result.stderr}
     Wait For EDR to be Installed
+
+Check EDR Osquery Executable Running
+    #Check both osquery instances are running
+    ${result} =    Run Process  pgrep -a osquery | grep plugins/edr | wc -l  shell=true
+    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\n err: ${result.stderr}"
+
+Check EDR Osquery Executable Not Running
+    ${result} =    Run Process  pgrep  -a  osquery | grep plugins/edr
+    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\n err: ${result.stderr}"
+
+Check EDR Plugin Uninstalled
+    EDR Plugin Is Not Running
+    Check EDR Osquery Executable Not Running
+    Should Not Exist  ${EDR_DIR}
+
+Wait Until EDR Uninstalled
+    Wait Until Keyword Succeeds
+    ...  60
+    ...  1
+    ...  Check EDR Plugin Uninstalled
