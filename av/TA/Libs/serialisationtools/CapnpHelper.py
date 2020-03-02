@@ -8,11 +8,11 @@ import capnp
 import NamedScan_capnp
 
 
-def setup():
+def setupcapnp():
     CapnpHelper.setup()
 
 
-def check(object_filename, scan_name):
+def checkcapnp(object_filename, scan_name):
     named_scan = CapnpHelper.get_capnp_object(object_filename, CapnpSchemas.NamedScan)
     return named_scan.name == scan_name
 
