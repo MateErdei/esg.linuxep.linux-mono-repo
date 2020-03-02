@@ -249,7 +249,6 @@ class MCSPushClientInternal(threading.Thread):
         session = requests.Session()
         session.verify = self._cert
         session.auth = authorization
-        LOGGER.info( "Set the authorization to the session: {}".format(session.auth))
         if self._proxy.is_configured():
             session.proxies = {
                 'http': self._proxy.address(with_full_uri=False),
