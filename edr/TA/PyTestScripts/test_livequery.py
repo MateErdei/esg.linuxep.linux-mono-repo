@@ -175,7 +175,9 @@ select * from osquery_flags cross join (select x from cnt);"""
                                 {"name":"x","type":"TEXT"}]
             }
 """
-    send_and_receive_query_and_verify(exceed_10mb_query, sspl_mock.management, edr_plugin_instance, exceed_10mb_query_response)
+    send_and_receive_query_and_verify(exceed_10mb_query, sspl_mock.management,
+                                      edr_plugin_instance, exceed_10mb_query_response,
+                                      response_timeout=15)
 
 @detect_failure
 def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
