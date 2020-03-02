@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define AUTO_FD_IMPLICIT_INT
 #include "datatypes/AutoFd.h"
 #include "Common/Threads/AbstractThread.h"
+#include "IMessageCallback.h"
 
 #include <string>
 #include <vector>
@@ -22,7 +23,7 @@ namespace unixsocket
         BaseServerSocket(const BaseServerSocket&) = delete;
         BaseServerSocket& operator=(const BaseServerSocket&) = delete;
 
-        explicit BaseServerSocket(const std::string& path);
+        explicit BaseServerSocket(const std::string& path, std::shared_ptr<IMessageCallback> callback);
         ~BaseServerSocket() override;
 
         void run() override;
@@ -41,6 +42,7 @@ namespace unixsocket
         virtual void killThreads() = 0;
 
         datatypes::AutoFd m_socket_fd;
+        std::shared_ptr<IMessageCallback> m_callback;
     };
 
 
@@ -55,7 +57,7 @@ namespace unixsocket
 
         bool handleConnection(int fd) override
         {
-            auto thread = std::make_unique<T>(fd);
+            auto thread = std::make_unique<T>(fd, m_callback);
             thread->start();
             m_threadVector.emplace_back(std::move(thread));
             return false;
@@ -74,7 +76,7 @@ namespace unixsocket
             m_threadVector.clear();
         }
 
-    private:
+    protected:
         std::vector<TPtr> m_threadVector;
     };
 }

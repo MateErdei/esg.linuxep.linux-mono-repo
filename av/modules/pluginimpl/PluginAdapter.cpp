@@ -56,6 +56,23 @@ namespace
         Common::Threads::AbstractThread& m_thread;
         std::string m_name;
     };
+
+    class ThreatReportCallbacks : public IMessageCallback
+    {
+    public:
+        explicit ThreatReportCallbacks(PluginAdapter& adapter)
+                :m_adapter(adapter)
+        {
+
+        }
+
+        void processMessage(const std::string& threatXML) override
+        {
+            m_adapter.processThreatReport(threatXML);
+        }
+    private:
+        PluginAdapter& m_adapter;
+    };
 }
 
 PluginAdapter::PluginAdapter(
@@ -66,7 +83,7 @@ PluginAdapter::PluginAdapter(
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
-        m_threatReporterServer(threat_reporter_socket())
+        m_threatReporterServer(threat_reporter_socket(),  std::make_shared<ThreatReportCallbacks>(*this))
 {
 
     m_sophosThreadDetector = std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
@@ -101,7 +118,12 @@ void PluginAdapter::innerLoop()
                 processAction(task.Content);
                 break;
 
-            case Task::TaskType::ScanComplete:
+            case Task::TaskType::ScanComplete: //NOLINT
+                m_baseService->sendEvent("2", task.Content);
+                break;
+
+            case Task::TaskType::ThreatDetected:
+                // TO DO: check if 2 should get changed to sav
                 m_baseService->sendEvent("2", task.Content);
                 break;
         }
@@ -133,4 +155,11 @@ void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
     LOGDEBUG("Sending scan complete notification to central " << scanCompletedXml);
 
     m_queueTask->push(Task{.taskType=Task::TaskType::ScanComplete, scanCompletedXml});
+}
+
+void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
+{
+    LOGDEBUG("Sending threat detection notification to central " << threatDetectedXML);
+
+    m_queueTask->push(Task{.taskType=Task::TaskType::ScanComplete, threatDetectedXML});
 }

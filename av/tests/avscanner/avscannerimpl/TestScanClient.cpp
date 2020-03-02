@@ -8,9 +8,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 
 #include "avscanner/avscannerimpl/ScanClient.h"
-#include "tests/common/Common.h"
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
+
+#include <fstream>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <unixsocket/threatReporterSocket/ThreatReporterServerSocket.h>
+#include <tests/common/WaitForEvent.h>
 
 #define BASE "/tmp/TestPluginAdapter"
 
@@ -36,9 +38,28 @@ namespace
         MOCK_METHOD1(cleanFile, void(const path&));
         MOCK_METHOD2(infectedFile, void(const path&, const std::string&));
     };
+
+    class MockIThreatReportCallbacks : public IMessageCallback
+    {
+    public:
+        MOCK_METHOD1(processMessage, void(const std::string& threatDetectedXML));
+    };
 }
 
 using ::testing::StrictMock;
+
+void setupFakeSophosThreatReporterConfig()
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", BASE);
+    fs::path f = BASE;
+    fs::create_directories(f / "chroot");
+    f /= "sbin";
+    fs::create_directories(f);
+    f /= "sophos_threat_detector_launcher";
+    std::ofstream ost(f);
+    ost.close();
+}
 
 TEST(TestScanClient, TestConstruction) // NOLINT
 {
@@ -109,32 +130,43 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     static const char* THREAT = "THREAT";
 
     StrictMock<MockIScanningClientSocket> mock_socket;
+    WaitForEvent serverWaitGuard;
     scan_messages::ScanResponse response;
     response.setClean(false);
     response.setThreatName(THREAT);
+
+    std::shared_ptr<StrictMock<MockIThreatReportCallbacks> > mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+
+    EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
+            InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
     EXPECT_CALL(mock_socket, scan(_, _))
             .Times(1)
             .WillOnce(Return(response));
 
-    auto mock_callbacks = std::make_shared<StrictMock<MockIScanCallbacks> >();
+    setupFakeSophosThreatReporterConfig();
+    unixsocket::ThreatReporterServerSocket threatReporterServer(
+            "/tmp/TestPluginAdapter/chroot/threat_report_socket",
+            mock_callback
+    );
+
+    threatReporterServer.start();
+
+
+    std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
+            new StrictMock<MockIScanCallbacks>()
+    );
 
     EXPECT_CALL(*mock_callbacks, infectedFile(Eq("/etc/passwd"), Eq(THREAT)))
             .Times(1);
 
-    setupFakeSophosThreatReporterConfig();
-    unixsocket::ThreatReporterServerSocket threatReporterServer(
-            "/tmp/TestPluginAdapter/chroot/threat_report_socket"
-            );
-    threatReporterServer.start();
-
     ScanClient s(mock_socket, mock_callbacks, false);
     auto result = s.scan("/etc/passwd");
 
+    serverWaitGuard.wait();
     threatReporterServer.requestStop();
     threatReporterServer.join();
 
     EXPECT_FALSE(result.clean());
     EXPECT_EQ(result.threatName(), THREAT);
-    fs::remove_all("/tmp/TestPluginAdapter/");
 }

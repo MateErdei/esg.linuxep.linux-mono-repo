@@ -19,6 +19,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace sspl::sophosthreatdetectorimpl;
 
+class MessageCallbacks : public IMessageCallback
+{
+    void processMessage(const std::string& message) override
+    {
+        LOGDEBUG("scanning: " << message);
+    }
+};
+
 
 static int inner_main()
 {
@@ -33,7 +41,8 @@ static int inner_main()
 
     const std::string path = "/unix_socket";
 
-    unixsocket::ScanningServerSocket server(path);
+    std::shared_ptr<IMessageCallback> callback = std::make_shared<MessageCallbacks>();
+    unixsocket::ScanningServerSocket server(path, callback);
     server.run();
 
     return 0;

@@ -14,14 +14,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <stdexcept>
 #include <iostream>
+#include <utility>
 
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
 #include <sys/stat.h>
 
-unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(int fd)
+unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
+        int fd,
+        std::shared_ptr<IMessageCallback> callback)
     : m_fd(fd)
+    , m_callback(std::move(callback))
 {
 }
 
@@ -195,6 +199,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             datatypes::AutoFd file_fd_manager(file_fd);
 
             auto result = scan(file_fd_manager, pathname);
+            m_callback->processMessage(pathname);
             file_fd_manager.reset();
 
             std::string serialised_result = result.serialise();

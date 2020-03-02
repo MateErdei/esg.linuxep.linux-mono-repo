@@ -34,6 +34,7 @@ namespace Plugin
             std::shared_ptr<PluginCallback> callback);
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml) override;
+        void processThreatReport(const std::string& threatDetectedXML);
 
     private:
         void processPolicy(const std::string& policyXml);

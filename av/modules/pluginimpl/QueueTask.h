@@ -20,7 +20,8 @@ namespace Plugin
             Policy,
             Stop,
             Action,
-            ScanComplete
+            ScanComplete,
+            ThreatDetected
         };
         TaskType taskType;
         std::string Content;

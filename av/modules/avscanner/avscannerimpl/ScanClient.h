@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/threatReporterSocket/ThreatReporterClient.h"
 #include "datatypes/sophos_filesystem.h"
 
+using namespace scan_messages;
 namespace avscanner::avscannerimpl
 {
     using path = sophos_filesystem::path;
@@ -41,9 +42,12 @@ namespace avscanner::avscannerimpl
         scan_messages::ScanResponse scan(const path& fileToScanPath);
 
     private:
+        void sendThreatReport(const path& threatPath, const std::string& threatName);
+
         unixsocket::IScanningClientSocket& m_socket;
         std::shared_ptr<IScanCallbacks> m_callbacks;
         bool m_scanInArchives;
+        E_SCAN_TYPE m_scanType;
     };
 }
 

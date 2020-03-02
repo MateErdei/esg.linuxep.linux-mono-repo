@@ -18,7 +18,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <fcntl.h>
 
 using namespace avscanner::avscannerimpl;
-using namespace scan_messages;
 namespace fs = sophos_filesystem;
 
 ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
@@ -26,6 +25,7 @@ ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
                        NamedScanConfig& config)
        : ScanClient(socket, std::move(callbacks), config.m_scanArchives)
 {
+    m_scanType = E_SCAN_TYPE_SCHEDULED;
 }
 
 ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
@@ -33,6 +33,7 @@ ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
                        bool scanInArchives)
         : m_socket(socket), m_callbacks(std::move(callbacks)), m_scanInArchives(scanInArchives)
 {
+    m_scanType = E_SCAN_TYPE_ON_DEMAND;
 }
 
 static fs::path pluginInstall()
@@ -54,7 +55,7 @@ static fs::path threat_reporter_socket()
     return pluginInstall() / "chroot/threat_report_socket";
 }
 
-static void sendThreatReport(const fs::path& threatPath, const std::string& threatName)
+void ScanClient::sendThreatReport(const fs::path& threatPath, const std::string& threatName)
 {
     fs::path threatReporterSocketPath = threat_reporter_socket();
     LOGDEBUG("Threat reporter path " << threatReporterSocketPath);
@@ -64,7 +65,7 @@ static void sendThreatReport(const fs::path& threatPath, const std::string& thre
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(std::getenv("USER"));
     threatDetected.setDetectionTime(detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(m_scanType);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(threatPath);

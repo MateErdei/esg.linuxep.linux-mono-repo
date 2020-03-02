@@ -3,6 +3,7 @@ add_library(unixsocket SHARED
         Logger.h
         BaseServerSocket.cpp
         BaseServerSocket.h
+        IMessageCallback.h
         SocketUtils.cpp
         SocketUtils.h
         SocketUtilsImpl.cpp

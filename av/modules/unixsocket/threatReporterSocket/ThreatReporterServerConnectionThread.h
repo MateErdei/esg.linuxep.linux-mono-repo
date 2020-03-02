@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <cstdint>
 #include <string>
+#include <unixsocket/IMessageCallback.h>
 
 namespace unixsocket
 {
@@ -22,11 +23,12 @@ namespace unixsocket
     public:
         ThreatReporterServerConnectionThread(const ThreatReporterServerConnectionThread&) = delete;
         ThreatReporterServerConnectionThread& operator=(const ThreatReporterServerConnectionThread&) = delete;
-        explicit ThreatReporterServerConnectionThread(int fd);
+        explicit ThreatReporterServerConnectionThread(int fd, std::shared_ptr<IMessageCallback> callback);
         void run() override;
 
     private:
         datatypes::AutoFd m_fd;
+        std::shared_ptr<IMessageCallback> m_callback;
     };
 }
 

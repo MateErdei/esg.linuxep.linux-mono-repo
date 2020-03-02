@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <cstdint>
 #include <string>
+#include <unixsocket/IMessageCallback.h>
 
 namespace unixsocket
 {
@@ -21,12 +22,13 @@ namespace unixsocket
     public:
         ScanningServerConnectionThread(const ScanningServerConnectionThread&) = delete;
         ScanningServerConnectionThread& operator=(const ScanningServerConnectionThread&) = delete;
-        explicit ScanningServerConnectionThread(int fd);
+        explicit ScanningServerConnectionThread(int fd, std::shared_ptr<IMessageCallback> callback);
         void run() override;
 
     private:
         datatypes::AutoFd m_fd;
         scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path);
+        std::shared_ptr<IMessageCallback> m_callback;
     };
 }
 

@@ -9,13 +9,24 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 //
 
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
-
+#include "datatypes/Print.h"
 #include <string>
 #include <unistd.h>
 #include <sys/stat.h>
 
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
+namespace
+{
+    class MessageCallbacks : public IMessageCallback
+    {
+    public:
+        void processMessage(const std::string& message) override
+        {
+            PRINT(message);
+        }
+    };
+}
 
 int main()
 {
@@ -32,8 +43,8 @@ int main()
     static_cast<void>(ret); // ignore
 
     const std::string path = "/tmp/unix_socket";
-
-    unixsocket::ScanningServerSocket server(path);
+    std::shared_ptr<IMessageCallback> callback = std::make_shared<MessageCallbacks>();
+    unixsocket::ScanningServerSocket server(path, callback);
     server.run();
 
     return 0;
