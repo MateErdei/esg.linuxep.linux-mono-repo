@@ -1,7 +1,11 @@
 from datetime import datetime
 from datetime import timedelta
 import calendar
+import os
 
+RESOURCES_DIR = "/opt/test/inputs/test_scripts/resources"
+SAV_POLICY_FILENAME = "SAV_Policy.xml"
+SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
 
 def create_sav_policy_with_scheduled_scan(filename, timestamp):
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
@@ -15,19 +19,19 @@ def create_sav_policy_with_scheduled_scan(filename, timestamp):
     sav_policy_builder.send_sav_policy()
 
 def create_badly_configured_sav_policy_time(filename):
-    sav_policy_builder = _SavPolicyBuilder("/opt/test/inputs/test_scripts/resources/SAV_Policy.xml", filename)
+    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day("monday")
     sav_policy_builder.set_scheduled_scan_time("36:00:00")
     sav_policy_builder.send_sav_policy()
 
 def create_badly_configured_sav_policy_day(filename):
-    sav_policy_builder = _SavPolicyBuilder("/opt/test/inputs/test_scripts/resources/SAV_Policy.xml", filename)
+    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day("blernsday")
     sav_policy_builder.set_scheduled_scan_time("11:00:00")
     sav_policy_builder.send_sav_policy()
 
 def create_complete_sav_policy(filename):
-    sav_policy_builder = _SavPolicyBuilder("/opt/test/inputs/test_scripts/resources/SAV_Policy.xml", filename)
+    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day("monday")
     sav_policy_builder.set_scheduled_scan_time("11:00:00")
     sav_policy_builder.set_posix_exclusions(["exclusion1", "exclusion2"])
