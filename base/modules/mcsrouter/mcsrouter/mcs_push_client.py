@@ -282,6 +282,8 @@ class MCSPushClientInternal(threading.Thread):
                     elif key.data == 'stop':
                         LOGGER.info("MCS Push Client main loop finished")
                         return
+        except StopIteration as stop_iteration_exception:
+            self._append_command(MsgType.Error, 'Push client lost connection to server : sseclient raised StopIteration exception')
         except Exception as ex:
             self._append_command(MsgType.Error, 'Push client Failure : {}'.format(ex))
 

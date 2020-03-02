@@ -27,6 +27,24 @@ MCSRouter Can Start And Receive Messages From The Push Client
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
+MCS Push Client handles server breaking connection
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    Send Message To Push Server And Expect It In MCSRouter Log   Single Message
+    instruct_push_server_to_close_connections
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check MCSRouter Log Contains In Order
+    # We catch the stop iteration exception, meaning the connection has broken
+    ...  Push client lost connection to server : sseclient raised StopIteration exception
+    # Try to reconnect
+    ...  Trying to re-connect to Push Server
+    # Successfully connect
+    ...  Push client successfully connected to localhost:4443 directly
+
 MCSRouter Can Start and Receive Update Now Action From Push Client
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
@@ -313,7 +331,7 @@ Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trig
     ...   30s
     ...   3s
     ...   Check MCS Router Log Contains In Order
-    ...          Push Server service reported: Push client Failure
+    ...          Push Server service reported: Push client lost connection to server
     ...          Requesting MCS Push client to stop
     ...          MCS push client stopped
     ...          Checking for commands for ['MCS', 'ALC', 'APPSPROXY', 'AGENT']
