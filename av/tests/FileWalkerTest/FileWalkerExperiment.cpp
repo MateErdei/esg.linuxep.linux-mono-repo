@@ -2,6 +2,8 @@
 // Created by pair on 19/12/2019.
 //
 
+#include "Common/Logging/ConsoleLoggingSetup.h"
+
 #include "filewalker/FileWalker.h"
 #include <iostream>
 
@@ -13,10 +15,11 @@ public:
     CallbackImpl() = default;
     void processFile(const sophos_filesystem::path& p) override
     {
-        std::cout << p << '\n';
+        std::cout << "FILE:" << p << '\n';
     }
-    bool includeDirectory(const sophos_filesystem::path&) override
+    bool includeDirectory(const sophos_filesystem::path& p) override
     {
+        std::cout << "DIR:" << p << '\n';
         return true;
     }
 
@@ -24,6 +27,7 @@ public:
 
 int main(int argc, char* argv[])
 {
+    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
     CallbackImpl callbacks;
     for(int i=1; i < argc; i++)
     {
