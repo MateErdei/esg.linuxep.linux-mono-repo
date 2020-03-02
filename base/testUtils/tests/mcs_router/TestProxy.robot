@@ -305,10 +305,10 @@ Attempt to Connect Via Digest Proxy with Wrong Credentials Produce Correct Error
         ...  5 secs
         ...  Check MCSRouter Log Contains   Established MCS Push Connection
     Check MCS Router Log Contains In Order
-    ...   Trying push connection to localhost:4443 via localhost:3000
-    ...   Failed to connect to localhost:4443 via localhost:3000
-    ...   Trying push connection directly to localhost:4443
-    ...   Push client successfully connected to localhost:4443 directly
+             ...   Trying push connection to localhost:4443 via localhost:3000
+             ...   Failed to connect to localhost:4443 via localhost:3000
+             ...   Trying push connection directly to localhost:4443
+             ...   Push client successfully connected to localhost:4443 directly
 
 
 Policy authentication with 3DES obfuscation
