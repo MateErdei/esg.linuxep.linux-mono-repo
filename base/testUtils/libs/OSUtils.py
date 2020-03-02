@@ -137,47 +137,6 @@ def remove_files_in_directory(directory_path):
             except IOError:
                 pass
 
-def check_files_have_not_been_removed(install_directory, removed_file_list, root_directory_to_check, files_to_ignore_in_check):
-    # function used to check that files have not been removed by the installation cleanup processes even if
-    # the files are listed in the remove_files_list created by the manifest diff
-    # when the files listed are outside of the realm of the component file set.
-
-    #install_directory: location of sophos-spl
-    #removed_file_list: file path of the file created by the manifest diff named removedFiles_manifest files in this list should be prevented from being deleted
-    #root_directory_to_check: component root direcotry
-    #files_to_ignore_in_check: file path to the files to delete dat file.  These files will be correctly deteted by the correct component
-    #   For example if test is checking plugin does not delete base files, the filestodelete.dat file should be the one for base.
-
-    if os.path.isfile(removed_file_list):
-
-        path_to_remove = "files/"
-
-        with open(removed_file_list, "r") as removed_input_file:
-            for removed_input_line in removed_input_file:
-                removed_input_line =  removed_input_line.strip()
-                if root_directory_to_check in removed_input_line:
-                    full_path = os.path.join(install_directory, removed_input_line[len(path_to_remove):])
-
-                    if not removed_input_line.startswith(path_to_remove):
-                        full_path = os.path.join(install_directory, removed_input_line)
-
-                    if os.path.exists(full_path):
-                        continue
-                    else:
-                        with open(files_to_ignore_in_check, "r") as files_to_ignore_in_check_file:
-                            ignore_file = False
-                            for ignore_input_line in files_to_ignore_in_check_file:
-                                ignore_input_line = ignore_input_line.strip()
-                                ignore_input_line = ignore_input_line.replace('*', '')
-                                if ignore_input_line in full_path:
-                                    ignore_file = True
-                                    break
-                            if ignore_file == False:
-                                raise AssertionError("A file has been removed that should have been prevented from being deleted: {}".format(full_path))
-
-
-
-
 def Create_Symlink(target, destination):
     os.symlink(target, destination)
 
