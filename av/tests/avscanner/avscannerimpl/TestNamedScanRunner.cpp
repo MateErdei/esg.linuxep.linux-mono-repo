@@ -149,9 +149,9 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
 TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
 {
     bool scanHardDisc = true;
-    bool scanNetwork = true;
-    bool scanOptical = true;
-    bool scanRemovable = true;
+    bool scanNetwork = false;
+    bool scanOptical = false;
+    bool scanRemovable = false;
 
     std::vector<std::string> expectedExclusions;
     expectedExclusions.emplace_back("/bin/");
@@ -173,6 +173,7 @@ TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
     expectedExclusions.emplace_back("/run/");
     expectedExclusions.emplace_back("/sbin/");
     expectedExclusions.emplace_back("/snap/");
+    expectedExclusions.emplace_back("/space/");
     expectedExclusions.emplace_back("/srv/");
     expectedExclusions.emplace_back("/sys/");
     expectedExclusions.emplace_back("/usr/");
