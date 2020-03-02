@@ -55,6 +55,18 @@ namespace
         int m_returnCode = E_CLEAN;
     };
 
+    bool startwithany(const std::vector<std::string>& paths, const std::string& p)
+    {
+        for (auto & exclusion : paths)
+        {
+            if (PathUtils::startswith(p, exclusion))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     class CallbackImpl : public BaseFileWalkCallbacks
     {
     public:
@@ -70,12 +82,9 @@ namespace
 
         void processFile(const sophos_filesystem::path& p) override
         {
-            for (const auto& exclusion : m_config.m_excludePaths)
+            if (startwithany(m_config.m_excludePaths, p))
             {
-                if (exclusion.appliesToPath(p))
-                {
-                    return;
-                }
+                return;
             }
             try
             {
@@ -83,14 +92,14 @@ namespace
             }
             catch (const std::exception& e)
             {
-                LOGERROR("Scanner failed to scan: " << p << " [" << e.what() << "]");
+                LOGERROR("Scanner failed to scan: " << p);
                 m_returnCode = E_GENERIC_FAILURE;
             }
         }
 
         bool includeDirectory(const sophos_filesystem::path& p) override
         {
-            for (const auto& mp : m_allMountPoints)
+            for (auto & mp : m_allMountPoints)
             {
                 if (!PathUtils::longer(p, mp->mountPoint()) &&
                     PathUtils::startswith(p, mp->mountPoint()))
@@ -98,12 +107,9 @@ namespace
                     return false;
                 }
             }
-            for (const auto& exclusion : m_config.m_excludePaths)
+            if (startwithany(m_config.m_excludePaths, p)) //NOLINT
             {
-                if (exclusion.appliesToPath(p) && exclusion.type() != FILENAME)
-                {
-                    return false;
-                }
+                return false;
             }
             return true;
         }
@@ -132,10 +138,15 @@ std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoint
         }
         else
         {
-            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded from the scan");
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is has been excluded from the scan");
         }
     }
     return includedMountpoints;
+}
+
+static bool contains(std::vector<std::string>& paths, const std::string& p)
+{
+    return std::find(paths.begin(), paths.end(), p) != paths.end();
 }
 
 int NamedScanRunner::run()
@@ -143,17 +154,26 @@ int NamedScanRunner::run()
     // work out which filesystems are included based of config and mount information
     std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    LOGINFO("Found "<< allMountpoints.size() << " mount points");
     std::vector<std::shared_ptr<IMountPoint>> includedMountpoints = getIncludedMountpoints(allMountpoints);
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
-    ScanClient scanner(*getSocket(), scanCallbacks, m_config.m_scanArchives, E_SCAN_TYPE_SCHEDULED);
+    ScanClient scanner(*getSocket(), scanCallbacks, m_config);
     CallbackImpl callbacks(std::move(scanner), m_config, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point
     for (auto & mp : includedMountpoints)
     {
         std::string mountpointToScan = mp->mountPoint();
+        auto mpSlash = mountpointToScan + "/";
+
+        if (contains(m_config.m_excludePaths, mpSlash) or startwithany(m_config.m_excludePaths, mpSlash))
+        {
+            LOGINFO("Excluding mount point: " << mountpointToScan);
+            continue;
+        }
+
         LOGINFO("Scanning mount point: " << mountpointToScan);
         try
         {
