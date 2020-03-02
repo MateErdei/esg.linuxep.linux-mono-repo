@@ -54,7 +54,7 @@ namespace avscanner::avscannerimpl
              * @return true if this is a special filesystem mount that we should avoid
              * scanning.
              */
-            bool isSpecial() const override;
+            [[nodiscard]] bool isSpecial() const override;
 
         private:
             std::string m_mountPoint;
@@ -78,7 +78,7 @@ namespace avscanner::avscannerimpl
          *
          * @param mountPoint
          */
-        std::string device(const std::string& mountPoint) const;
+        [[nodiscard]] std::string device(const std::string& mountPoint) const;
 
 
         /**
