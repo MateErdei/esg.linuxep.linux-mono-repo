@@ -7,34 +7,36 @@ from enum import Enum
 import capnp
 import NamedScan_capnp
 
+from .NamedScanHelper import NamedScanComparator
+
+
 class CapnpSchemas(Enum):
     NamedScan = "namedscan"
 
 
 class CapnpHelper:
-    schema_map = {}
-
-    @staticmethod
-    def setup():
+    def __init__(self):
         # set up map of schemas
         named_scan_schema = NamedScan_capnp.NamedScan
-        CapnpHelper.schema_map = {CapnpSchemas.NamedScan: named_scan_schema}
+        self.schema_map = {CapnpSchemas.NamedScan: named_scan_schema}
 
-
-    @staticmethod
-    def check_named_scan_name(object_filename, scan_name):
-        named_scan = CapnpHelper._get_capnp_object(object_filename, CapnpSchemas.NamedScan)
+    def check_named_scan_name(self, object_filename, scan_name):
+        named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.NamedScan)
         return named_scan.name == scan_name
 
-    @staticmethod
-    def _get_capnp_object(object_filename, schema_enum):
+    def check_named_scan_object(self, object_filename, **kwargs):
+        actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.NamedScan)
+        test_object = NamedScanComparator(actual_named_scan, kwargs)
+        test_object.assert_equal()
+        return True
+
+    def _get_capnp_object(self, object_filename, schema_enum):
         # takes object and loads it with the specified schema
         with open(object_filename, 'rb') as f:
-            capnp_object = CapnpHelper.schema_map[schema_enum].read(f)
+            capnp_object = self.schema_map[schema_enum].read(f)
         return capnp_object
 
-    @staticmethod
-    def _create_namedscan_capnp_object():
-        message = CapnpHelper.schema_map[CapnpSchemas.NamedScan].new_message()
+    def _create_namedscan_capnp_object(self):
+        message = self.schema_map[CapnpSchemas.NamedScan].new_message()
         with open('/tmp/namedscan.bin', 'w+b') as f:
             message.write(f)

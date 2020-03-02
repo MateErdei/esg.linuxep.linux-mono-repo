@@ -195,8 +195,17 @@ Remove Local NFS Share
     Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
     Remove Directory    ${source}  recursive=True
 
+Check Scan Now Configuration File is Correct
+    ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Scan_Now.config
+    ${expectedValues} =  Create Dictionary  name=Scan Now
+    Wait Until Keyword Succeeds
+        ...    15 secs
+        ...    1 secs
+        ...    File Should Exist  ${configFilename}
+    ${result} =  CapnpHelper.check object   ${configFilename}  ${expectedValues}
+    Should Be True  ${result}
+
 Check Configuration File is Correct
     [Arguments]  ${binaryFileName}  ${expectedScanName}
-    CapnpHelper.setup
     ${result} =  CapnpHelper.check named scan name   ${binaryFileName}  ${expectedScanName}
     Should Be True  ${result}
