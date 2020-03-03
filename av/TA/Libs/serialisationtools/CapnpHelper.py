@@ -31,24 +31,46 @@ class CapnpHelper:
                                   CapnpSchemas.ScanResponse: scan_response_schema,
                                   CapnpSchemas.ThreatDetected: threat_detected_schema}
 
-    def check_named_scan_object(self, object_filename, **kwargs):
+    def check_named_scan_object(self, object_filename,
+                                name: str = None,
+                                scan_archives: bool = None,
+                                scan_all_files: bool = None,
+                                exclude_paths: list = None,
+                                sophos_extension_exclusions: list = None,
+                                user_defined_extension_inclusions: list = None,
+                                scan_files_with_no_extensions: bool = None,
+                                scan_hard_drives: bool = None,
+                                scan_cd_dvd_drives: bool = None,
+                                scan_network_drives: bool = None,
+                                scan_removable_drives: bool = None):
+
         actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.NamedScan)
-        self.assert_schema_equal(actual_named_scan, kwargs)
+
+        expected_values = {"name": name,
+                           "excludePaths": exclude_paths,
+                           "sophosExtensionExclusions": sophos_extension_exclusions,
+                           "userDefinedExtensionInclusions": user_defined_extension_inclusions,
+                           "scanArchives": scan_archives,
+                           "scanAllFiles": scan_all_files,
+                           "scanFilesWithNoExtensions": scan_files_with_no_extensions,
+                           "scanHardDrives": scan_hard_drives,
+                           "scanCDDVDDrives": scan_cd_dvd_drives,
+                           "scanNetworkDrives": scan_network_drives,
+                           "scanRemovableDrives": scan_removable_drives}
+
+        self.assert_schema_equal(CapnpSchemas.NamedScan,
+                                 actual_named_scan,
+                                 CapnpHelper._remove_none_values_from_dictionary(expected_values))
         return True
 
-    def assert_schema_equal(self, actual, expected_scan_dictionary):
-        actual_object = actual.to_dict()
-        if not all(elem in expected_scan_dictionary.keys() for elem in actual_object.keys()):
-            raise AssertionError(f"Object is not as expected\n"
-                                 f"Actual: {actual_object}\n"
-                                 f"Expected values: {expected_scan_dictionary}")
+    def assert_schema_equal(self, schema, actual, expected_scan_dictionary):
+        expected = self.schema_object_map[schema].new_message(**expected_scan_dictionary)
 
-        for entry in expected_scan_dictionary.items():
-            if actual_object[entry[0]] != entry[1]:
+        for key in expected_scan_dictionary.keys():
+            if not getattr(actual, key).__eq__(getattr(expected, key)):
                 raise AssertionError(f"Object is not as expected\n"
-                                     f"Actual: {actual_object}\n"
-                                     f"Expected values: {expected_scan_dictionary}")
-        pass
+                                     f"Actual: {actual}\n"
+                                     f"Expected values: {expected}")
 
     def _get_capnp_object(self, object_filename, schema_enum):
         # takes object and loads it with the specified schema
@@ -60,3 +82,11 @@ class CapnpHelper:
         message = self.schema_object_map[CapnpSchemas.NamedScan].new_message()
         with open('/tmp/namedscan.bin', 'w+b') as f:
             message.write(f)
+
+    @staticmethod
+    def _remove_none_values_from_dictionary(dictionary):
+        return {
+            key: value
+            for key, value in dictionary.items()
+            if value is not None
+        }
