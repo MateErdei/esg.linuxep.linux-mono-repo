@@ -112,8 +112,14 @@ namespace Common
              * @param limit
              */
             virtual void setOutputLimit(size_t limit) = 0;
-            virtual void setFlushBufferOnNewLine(bool flushOnNewLine) = 0;
             virtual void setOutputTrimmedCallback(std::function<void(std::string)>) = 0;
+
+            /*
+             * Set whether the buffer of the process should be flushed to the callback set by setOutputTrimmedCallback.
+             * Default is disabled.
+             * @param flushOnNewLine flush on new line or not.
+             */
+            virtual void setFlushBufferOnNewLine(bool flushOnNewLine) = 0;
 
             /**
              * Set a callback function that will be triggered when the executed process is detected to have finished
