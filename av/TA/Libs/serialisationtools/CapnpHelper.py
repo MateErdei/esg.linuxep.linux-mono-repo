@@ -6,12 +6,14 @@
 from enum import Enum
 import capnp
 import NamedScan_capnp
-
-from TA.Libs.serialisationtools.NamedScanHelper import NamedScanComparator
+import NamedScanHelper
 
 
 class CapnpSchemas(Enum):
     NamedScan = "namedscan"
+    ScanRequest = "scanrequest"
+    ScanResponse = "scanresponse"
+    ThreatDetected = "threatdetected"
 
 
 class CapnpHelper:
@@ -26,7 +28,7 @@ class CapnpHelper:
 
     def check_named_scan_object(self, object_filename, **kwargs):
         actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.NamedScan)
-        test_object = NamedScanComparator(actual_named_scan, kwargs)
+        test_object = NamedScanHelper.NamedScanComparator(actual_named_scan, kwargs)
         test_object.assert_equal()
         return True
 

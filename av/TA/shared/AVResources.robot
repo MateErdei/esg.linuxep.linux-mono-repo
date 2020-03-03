@@ -197,12 +197,11 @@ Remove Local NFS Share
 
 Check Scan Now Configuration File is Correct
     ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Scan_Now.config
-    ${expectedValues} =  Create Dictionary  name=Scan Now
     Wait Until Keyword Succeeds
         ...    15 secs
         ...    1 secs
         ...    File Should Exist  ${configFilename}
-    ${result} =  CapnpHelper.check object   ${configFilename}  ${expectedValues}
+    ${result} =  CapnpHelper.check named scan object   ${configFilename}  name=Scan Now  nonsense=Ignored
     Should Be True  ${result}
 
 Check Configuration File is Correct

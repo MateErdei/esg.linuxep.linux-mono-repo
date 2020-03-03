@@ -15,6 +15,7 @@ if __name__ == '__main__':
     #   read
     #   replace
     #   write (in place)
+
     capnp_files_dir = "/opt/test/inputs/test_scripts/resources/capnp-files"
     import_pattern = \
         re.compile(r"using\s+Cxx\s*=\s*import\s+\"capnp/c\+\+\.capnp\";\s*\$Cxx\.namespace\(\".*::.*\"\);")
