@@ -23,8 +23,6 @@ Suite Teardown   EDR Telemetry Suite Teardown
 Default Tags   EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
 
 *** Variables ***
-${OSQUERY_RESTART_MEMORY} =  Aug 08 22:14:48 osquery: osqueryd worker (15319) stopping: Memory limits exceeded: 272292000
-${OSQUERY_RESTART_CPU} =  Aug 08 22:12:25 osquery: osqueryd worker (28137) stopping: Maximum sustainable CPU utilization limit exceeded: 12
 ${COMPONENT_TEMP_DIR}  /tmp/edr_component
 ${CRASH_QUERY} =  WITH RECURSIVE counting (curr, next) AS ( SELECT 1,1 UNION ALL SELECT next, curr+1 FROM counting LIMIT 10000000000 ) SELECT group_concat(curr) FROM counting;
 
