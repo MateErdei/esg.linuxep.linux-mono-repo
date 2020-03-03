@@ -98,6 +98,7 @@ Check EDR Log Shows AuditD Has Been Disabled
     Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to disable AuditD
     Should Contain  ${EDR_LOG_CONTENT}   Successfully stopped service: auditd
     Should Contain  ${EDR_LOG_CONTENT}   Successfully disabled service: auditd
+    Should Not Contain  ${EDR_LOG_CONTENT}   Failed to mask journald audit socket
 
 Check EDR Log Shows AuditD Has Not Been Disabled
     ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
