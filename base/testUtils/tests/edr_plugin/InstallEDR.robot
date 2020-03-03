@@ -248,7 +248,9 @@ Install base and edr 999 then downgrade to current master
     ...  wdctl <> stop edr
     ...  wdctl <> start edr
 
-Install base and edr and mtr then downgrade to just base and mtr
+Install base and edr and mtr then downgrade to current release base and mtr
+    [Tags]  TESTFAILURE
+    #TODO LINUXDAR-1196 remove testfailure tag when we next release
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
     #truncate log so that check mdr plugin installed works correctly later in the test
