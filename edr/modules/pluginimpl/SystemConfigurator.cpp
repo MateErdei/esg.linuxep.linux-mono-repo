@@ -97,7 +97,9 @@ namespace Plugin
 
     bool SystemConfigurator::checkIfJournaldLinkedToAuditSubsystem()
     {
-        return std::get<1>(runSystemCtlCommand("is-enabled", "systemd-journald-audit.socket")) != "masked";
+        auto [errorCode, output] = runSystemCtlCommand("is-enabled", "systemd-journald-audit.socket");
+        LOGSUPPORT("journal-audit.socket is enabled returned (code:" << errorCode << ") " << output);
+        return output.find("masked") != 0;
     }
 
     void SystemConfigurator::maskJournald()
