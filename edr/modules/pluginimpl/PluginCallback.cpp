@@ -73,6 +73,12 @@ namespace Plugin
             telemetry.set(plugin::version, version.value());
         }
 
+        std::optional<unsigned long> osqueryDatabaseSize = plugin::getOsqueryDatabaseSize();
+        if (osqueryDatabaseSize)
+        {
+            telemetry.set(plugin::telemetryOSQueryDatabaseSize, osqueryDatabaseSize.value());
+        }
+
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 

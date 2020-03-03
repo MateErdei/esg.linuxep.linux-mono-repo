@@ -14,4 +14,5 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 namespace plugin
 {
     std::optional<std::string> getVersion();
+    std::optional<unsigned long> getOsqueryDatabaseSize();
 } // namespace Plugin

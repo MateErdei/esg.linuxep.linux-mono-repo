@@ -11,4 +11,5 @@ namespace plugin
     const char* const telemetryOSQueryRestartsCPU = "osquery-restarts-cpu";
     const char* const telemetryOSQueryRestartsMemory = "osquery-restarts-memory";
     const char* const telemetryOSQueryDatabasePurges = "osquery-database-purges";
+    const char* const telemetryOSQueryDatabaseSize = "osquery-database-size";
 }

@@ -43,4 +43,24 @@ namespace plugin
         }
     }
 
+    std::optional<unsigned long> getOsqueryDatabaseSize()
+    {
+        try
+        {
+           auto fs = Common::FileSystem::fileSystem();
+           auto files = fs->listFiles(Plugin::osQueryDataBasePath());
+           unsigned long size = 0;
+           for (auto& file : files)
+            {
+               size += fs->fileSize(file);
+            }
+           return size;
+        }
+        catch (std::exception& ex)
+        {
+            LOGERROR("Telemetry cannot get size of osquery database files");
+            return std::nullopt;
+        }
+    }
+
 } // namespace plugin
