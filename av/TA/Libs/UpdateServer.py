@@ -12,7 +12,10 @@ import shutil
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 import robot.api.logger as logger
 
-from . import PathManager
+try:
+    from . import PathManager
+except ImportError as ex:
+    import PathManager
 
 
 LOCALHOSTS = """dci.sophosupd.com 127.0.0.1
@@ -25,6 +28,7 @@ d2.sophosupd.net 127.0.0.1
 d3.sophosupd.net 127.0.0.1
 """
 
+
 def get_variable(varName, defaultValue=None):
     try:
         return BuiltIn().get_variable_value("${}".format(varName))
@@ -34,19 +38,16 @@ def get_variable(varName, defaultValue=None):
 
 class UpdateServer(object):
     def __init__(self, server_log="update_server.log"):
-        self.server_path = PathManager.get_support_file_path()
+        self.__m_server_log_name = server_log
+        self.server_path = PathManager.get_resources_path()
         self.private_pem = os.path.join(self.server_path, "https", "server-private.pem")
         self.server_processes = []
         self.proxy_processes = {}
 
-        tmp_path = os.path.join(".", "tmp")
-        if not os.path.exists(tmp_path):
-            os.makedirs(tmp_path)
-
-        self.server_log = open(os.path.join(tmp_path, server_log), 'w+')
-        self.__m_proxy_log_path = os.path.join(tmp_path, "proxy_server.log")
-        self.proxy_log = open(self.__m_proxy_log_path, 'w+')
-        self.devnull = open(os.devnull, 'w')
+        self.server_log = None
+        self.__m_proxy_log_path = None
+        self.proxy_log = None
+        self.devnull = None
 
     def __del__(self):
         # fail-safe cleanup. Tests should be doing their own cleanup, rather than relying on this.
@@ -79,6 +80,19 @@ class UpdateServer(object):
         subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "all"], env=env, stdout=subprocess.PIPE)
 
     def start_update_server(self, port, directory):
+        tmp_path = os.path.join(".", "tmp")
+        if not os.path.exists(tmp_path):
+            os.makedirs(tmp_path)
+
+        if self.server_log is None:
+            self.server_log = open(os.path.join(tmp_path, self.__m_server_log_name), 'w+')
+        if self.__m_proxy_log_path is None:
+            self.__m_proxy_log_path = os.path.join(tmp_path, "proxy_server.log")
+        if self.proxy_log is None:
+            self.proxy_log = open(self.__m_proxy_log_path, 'w+')
+        if self.devnull is None:
+            self.devnull = open(os.devnull, 'w')
+
         if not os.path.isdir(directory):
             raise AssertionError("Trying to serve a non-existent directory: {}".format(directory))
         command = [sys.executable, os.path.join(self.server_path, "cidServer.py"), str(port), directory, "--loggingOn",

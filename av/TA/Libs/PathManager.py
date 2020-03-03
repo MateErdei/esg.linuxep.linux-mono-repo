@@ -39,8 +39,7 @@ def find_local_component_dir_path(component_dirname):
     #loops until "component_dirname" is in directory pointed to by dir_path
     while not are_basenames_in_directory(dir_path, [component_dirname]):
         dir_path = os.path.dirname(dir_path)
-        print(dir_path)
-        if dir_path ==  "/":
+        if dir_path == "/":
             logger.info("Failed to find {} dir, recursed till reached root".format(component_dirname))
             return None
     return os.path.join(dir_path, component_dirname)
@@ -49,40 +48,37 @@ def find_local_component_dir_path(component_dirname):
 def find_local_base_dir_path():
     return find_local_component_dir_path("everest-base")
 
-def find_local_mtr_dir_path():
-    return find_local_component_dir_path("sspl-plugin-mdr-component")
-    
-
 
 def libs_supportfiles_and_tests_are_here(dir_path):
-    return are_basenames_in_directory(dir_path, ["libs", "SupportFiles", "tests", "testUtilsMarker"])
+    return are_basenames_in_directory(dir_path, ["Libs", "component", "integration", "resources"])
 
-def get_testUtils_dir():
+
+def get_TA_dir():
     dir_path = os.path.dirname(THIS_FILE_PATH)
     # go up the directory structure until we have the right directory
     while not libs_supportfiles_and_tests_are_here(dir_path):
         dir_path = os.path.dirname(dir_path)
-        if dir_path ==  "/":
-            raise AssertionError("Failed to find testUtils dir, recursed till reached root")
+        if dir_path == "/":
+            raise AssertionError("Failed to find TA dir, recursed till reached root")
     return dir_path
 
-ROBOT_ROOT_PATH = get_testUtils_dir()
+
+ROBOT_ROOT_PATH = get_TA_dir()
+
 
 REPO_ROOT_PATH = os.path.dirname(ROBOT_ROOT_PATH)
 def get_repo_root_path():
     return REPO_ROOT_PATH
 
-SUPPORTFILEPATH = os.path.join(ROBOT_ROOT_PATH, "SupportFiles")
-def get_support_file_path():
-    return SUPPORTFILEPATH
-
-LIBS_PATH = os.path.join(ROBOT_ROOT_PATH, "libs")
+LIBS_PATH = os.path.join(ROBOT_ROOT_PATH, "Libs")
 def get_libs_path():
     return LIBS_PATH
 
-ROBOT_TESTS_PATH = os.path.join(ROBOT_ROOT_PATH, "tests")
-def get_robot_tests_path():
-    return ROBOT_TESTS_PATH
+
+RESOURCES_PATH = os.path.join(ROBOT_ROOT_PATH, "resources")
+def get_resources_path():
+    return RESOURCES_PATH
+
 
 def addPathToSysPath(p):
     p = os.path.normpath(p)

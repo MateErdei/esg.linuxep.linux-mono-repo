@@ -19,7 +19,7 @@ Global Setup Tasks
     Set Global Variable  ${SOPHOS_INSTALL}          ${placeholder}
     Set Environment Variable  SOPHOS_INSTALL        ${SOPHOS_INSTALL}
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
-    Set Global Variable  ${TEST_SCRIPTS_PATH}       ${TEST_INPUT_PATH}/test_scripts
+    Set Global Variable  ${TEST_SCRIPTS_PATH}       ${TEST_INPUT_PATH}/TA
     Set Global Variable  ${INTEGRATION_TESTS_PATH}  ${TEST_SCRIPTS_PATH}/integration
     Set Global Variable  ${PRODUCT_TESTS_PATH}      ${TEST_SCRIPTS_PATH}/product
     Set Global Variable  ${RESOURCES_PATH}          ${TEST_SCRIPTS_PATH}/resources

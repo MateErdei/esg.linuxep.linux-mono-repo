@@ -6,20 +6,27 @@
 import os
 import shutil
 import hashlib
-from . import UpdateServer
+
+try:
+    from . import UpdateServer
+    from . import PathManager
+except ImportError as ex:
+    import UpdateServer
+    import PathManager
+
 import robot.api.logger as logger
 from robot.libraries.BuiltIn import BuiltIn
 
-from . import PathManager
 
 THIS_FILE = os.path.realpath(__file__)
 LIBS_DIR = PathManager.get_libs_path()
-PRODUCT_TEST_ROOT_DIRECTORY = PathManager.get_testUtils_dir()
+PRODUCT_TEST_ROOT_DIRECTORY = PathManager.get_TA_dir()
 
-SUPPORT_FILE_PATH = PathManager.get_support_file_path()
-REAL_WAREHOUSE_DIRECTORY = os.path.join(SUPPORT_FILE_PATH, "CentralXml", "RealWarehousePolicies")
-TEMPLATE_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "templates")
-GENERATED_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "GeneratedAlcPolicies")
+RESOURCES_DIR = PathManager.get_resources_path()
+
+ALC_POLICY_DIR = os.path.join(RESOURCES_DIR, "alc_policy")
+ALC_TEMPLATE_DIR = os.path.join(ALC_POLICY_DIR, "template")
+GENERATED_FILE_DIRECTORY = os.path.join(ALC_POLICY_DIR, "locally_generated")
 
 FILER_6_DIRECTORY = os.path.join("/", "mnt", "filer6", "bfr", "sspl-warehouse")
 LOCAL_WAREHOUSES_ROOT = os.path.join(PRODUCT_TEST_ROOT_DIRECTORY, "local_warehouses")
@@ -42,35 +49,38 @@ DEV_BUILD_CERTS = "dev"
 # You must run the robot command from inside the vagrant box
 # The version under test, usually master dev builds
 OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE = "OSTIA_VUT_OVERRIDE"
-OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "master")
+OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "ssplav")
 OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_VUT_ADDRESS_BRANCH)
-# Usually the previous release
-OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PREV_OVERRIDE"
-OSTIA_PREV_ADDRESS_BRANCH = os.environ.get(OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE, "feature-prod-warehouse")
-OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_PREV_ADDRESS_BRANCH)
-# The GA Release
-OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone"
-# A version with mocked libraries (to test file removal on upgrade)
-OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-version-0-6-0-warehouse"
-# A warehouse containing 3 base versions for paused updating tests
-OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PAUSED_OVERRIDE"
-OSTIA_PAUSED_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "feature-paused-updating")
-OSTIA_PAUSED_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_PAUSED_ADDRESS_BRANCH)
-# dictionary of ostia addresses against the ports that should be used to serve their customer files locally
+
+# # Usually the previous release
+# OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PREV_OVERRIDE"
+# OSTIA_PREV_ADDRESS_BRANCH = os.environ.get(OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE, "feature-prod-warehouse")
+# OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_PREV_ADDRESS_BRANCH)
+# # The GA Release
+# OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone"
+# # A version with mocked libraries (to test file removal on upgrade)
+# OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-version-0-6-0-warehouse"
+# # A warehouse containing 3 base versions for paused updating tests
+# OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PAUSED_OVERRIDE"
+# OSTIA_PAUSED_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "feature-paused-updating")
+# OSTIA_PAUSED_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_PAUSED_ADDRESS_BRANCH)
+# # dictionary of ostia addresses against the ports that should be used to serve their customer files locally
 OSTIA_ADDRESSES = {
     OSTIA_VUT_ADDRESS: "2233",
-    OSTIA_PREV_ADDRESS: "3233",
-    OSTIA_0_6_0_ADDRESS: "4233",
-    OSTIA_GA_ADDRESS: "5233",
-    OSTIA_PAUSED_ADDRESS: "6233"
+    # OSTIA_PREV_ADDRESS: "3233",
+    # OSTIA_0_6_0_ADDRESS: "4233",
+    # OSTIA_GA_ADDRESS: "5233",
+    # OSTIA_PAUSED_ADDRESS: "6233"
 }
 
 BALLISTA_ADDRESS = "https://dci.sophosupd.com/cloudupdate"
 
-DEV_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "rootca.crt")
-DEV_PS_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "ps_rootca.crt")
-PROD_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "prod_certs", "rootca.crt")
-PROD_PS_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "prod_certs", "ps_rootca.crt")
+CERT_DIR = os.path.join(RESOURCES_DIR, "sophos_certs")
+
+DEV_ROOT_CA = os.path.join(CERT_DIR, "dev_certs", "rootca.crt")
+DEV_PS_ROOT_CA = os.path.join(CERT_DIR, "dev_certs", "ps_rootca.crt")
+PROD_ROOT_CA = os.path.join(CERT_DIR, "prod_certs", "rootca.crt")
+PROD_PS_ROOT_CA = os.path.join(CERT_DIR, "prod_certs", "ps_rootca.crt")
 
 ROOT_CA_INSTALLATION_EXTENSION = os.path.join("base", "update", "certs", "rootca.crt")
 PS_ROOT_CA_INSTALLATION_EXTENSION = os.path.join("base", "update", "certs", "ps_rootca.crt")
@@ -128,14 +138,14 @@ def _remove_sophos_alias_file():
     os.remove(sophos_alias_file_path)
 
 
-def calculate_hashed_creds(username, password):
+def _calculate_hashed_creds(username, password):
     credentials_as_string = "{}:{}".format(username, password)
-    hash = hashlib.md5(credentials_as_string.encode("utf-8"))
-    logger.info(credentials_as_string)
-    return hash.hexdigest()
+    hashed_credentials = hashlib.md5(credentials_as_string.encode("utf-8"))
+    logger.info("Hashing credentials: %s", credentials_as_string)
+    return hashed_credentials.hexdigest()
 
 
-class TemplateConfig:
+class TemplateConfig(object):
 
     use_local_warehouses = os.path.isdir(LOCAL_WAREHOUSES)
 
@@ -205,7 +215,7 @@ class TemplateConfig:
                 self.env_key, PROD_BUILD_CERTS, DEV_BUILD_CERTS, self.build_type))
 
     def _define_hashed_creds(self):
-        self.hashed_credentials = calculate_hashed_creds(self.username, self.password)
+        self.hashed_credentials = _calculate_hashed_creds(self.username, self.password)
         logger.info(self.hashed_credentials)
 
     def _define_valid_update_certs(self):
@@ -228,19 +238,9 @@ class TemplateConfig:
 
         _install_upgrade_certs(root_ca, ps_root_ca)
 
-    def generate_warehouse_policy_from_template(self, template_file_name, proposed_output_path = None):
-        """
-        :param template_file_name: file name for the ALC policy which will be used to generate a new policy file
-        based on data stored in the  template_configuration_values dictionary
-
-        """
+    def get_warehouse_policy_from_template(self, template_file_name):
         self.policy_file_name = template_file_name
-        template_policy = os.path.join(TEMPLATE_FILE_DIRECTORY, template_file_name)
-        if proposed_output_path is None:
-            output_policy = os.path.join(GENERATED_FILE_DIRECTORY, template_file_name)
-        else:
-            logger.info("ALC policy will be placed at: {}".format(proposed_output_path))
-            output_policy = proposed_output_path
+        template_policy = os.path.join(ALC_TEMPLATE_DIR, template_file_name)
 
         if not os.path.isfile(template_policy):
             raise OSError("{} does not exist".format(template_policy))
@@ -251,22 +251,44 @@ class TemplateConfig:
 
         with open(template_policy) as template_file:
             template_string = template_file.read()
-            template_string_with_replaced_values = template_string.replace(password_marker, self.password) \
-                .replace(username_marker, self.username) \
-                .replace(connection_address_marker, self.get_connection_address())
-            with open(output_policy, "w+") as output_file:  # replaces existing file if exists
-                output_file.write(template_string_with_replaced_values)
-                logger.info(
-                    """
-                    Wrote real warehouse policy \"{}\" with:
-                    username: {}
-                    password: {}
-                    connection address: {}
-                    full contents:
-                    {}
-                    
-                    """.format(self.policy_file_name, self.username, self.password, self.get_connection_address(), template_string_with_replaced_values)
-                )
+
+        template_string_with_replaced_values = template_string \
+            .replace(password_marker, self.password) \
+            .replace(username_marker, self.username) \
+            .replace(connection_address_marker, self.get_connection_address())
+
+        return template_string_with_replaced_values
+
+    def generate_warehouse_policy_from_template(self, template_file_name, proposed_output_path=None):
+        """
+        :param proposed_output_path:
+        :param template_file_name: file name for the ALC policy which will be used to generate a new policy file
+        based on data stored in the  template_configuration_values dictionary
+
+        """
+        template_string_with_replaced_values = self.get_warehouse_policy_from_template(template_file_name)
+
+        if proposed_output_path is None:
+            output_policy = os.path.join(GENERATED_FILE_DIRECTORY, template_file_name)
+        else:
+            logger.info("ALC policy will be placed at: {}".format(proposed_output_path))
+            output_policy = proposed_output_path
+
+        with open(output_policy, "w+") as output_file:  # replaces existing file if exists
+            output_file.write(template_string_with_replaced_values)
+            logger.info(
+                """
+                Wrote real warehouse policy \"{}\" with:
+                username: {}
+                password: {}
+                connection address: {}
+                full contents:
+                {}
+                
+                """.format(self.policy_file_name, self.username, self.password, self.get_connection_address(),
+                           template_string_with_replaced_values)
+            )
+
     def install_sophos_alias_file(self):
         _install_sophos_alias_file(self.get_connection_address())
 
@@ -284,19 +306,19 @@ class WarehouseUtils(object):
     ROBOT_LISTENER_API_VERSION = 2
 
     template_configuration_values = {
-        "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
-        "base_and_mtr_VUT.xml": TemplateConfig("BASE_AND_MTR_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut-1", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-        "base_and_mtr_GA.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_mtr_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
-        "base_and_edr_VUT.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_0_6_0.xml": TemplateConfig("BASE_ONLY_0_6_0", "base_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
-        "base_only_VUT.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_VUT-1.xml": TemplateConfig("BASE_ONLY_VUT_PREV", "base_user_vut-1", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-        "base_only_GA.xml": TemplateConfig("BASE_ONLY_GA", "ga_base_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
-        "base_VUT_and_fake_plugins.xml": TemplateConfig("BASE_VUT_AND_FAKE_PLUGINS", "fake_plugin_user", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_paused_update_VUT-1.xml": TemplateConfig("BASE_PAUSED_VUT_PREV", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
-        "base_paused_update_VUT.xml": TemplateConfig("BASE_PAUSED_VUT", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
-        "base_paused_update_999.xml": TemplateConfig("BASE_PAUSED_999", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
+        "base_and_av_VUT.xml": TemplateConfig("BASE_AND_AV_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        # "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
+        # "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut-1", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
+        # "base_and_mtr_GA.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_mtr_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
+        # "base_and_edr_VUT.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        # "base_only_0_6_0.xml": TemplateConfig("BASE_ONLY_0_6_0", "base_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
+        # "base_only_VUT.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        # "base_only_VUT-1.xml": TemplateConfig("BASE_ONLY_VUT_PREV", "base_user_vut-1", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
+        # "base_only_GA.xml": TemplateConfig("BASE_ONLY_GA", "ga_base_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
+        # "base_VUT_and_fake_plugins.xml": TemplateConfig("BASE_VUT_AND_FAKE_PLUGINS", "fake_plugin_user", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        # "base_paused_update_VUT-1.xml": TemplateConfig("BASE_PAUSED_VUT_PREV", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
+        # "base_paused_update_VUT.xml": TemplateConfig("BASE_PAUSED_VUT", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
+        # "base_paused_update_999.xml": TemplateConfig("BASE_PAUSED_999", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
     }
 
     update_server = UpdateServer.UpdateServer("ostia_update_server.log")
@@ -389,7 +411,6 @@ class WarehouseUtils(object):
         """
         _remove_sophos_alias_file()
 
-
     def get_customer_file_domain_for_policy(self, policy_path):
         template_config = self._get_template_config_from_dictionary_using_path(policy_path)
         return template_config.customer_file_domain
@@ -442,6 +463,10 @@ class WarehouseUtils(object):
         templ = TemplateConfig('HopefullyNoEnvironmentVariableWillHaveThisName',
                                username, PROD_BUILD_CERTS, BALLISTA_ADDRESS)
         templ.generate_warehouse_policy_from_template(template_name, target_output_file)
+
+    def get_warehouse_policy_from_template(self, policy_path):
+        template_config = self._get_template_config_from_dictionary_using_path(policy_path)
+        return template_config.get_warehouse_policy_from_template(policy_path)
 
 
 # If ran directly, file sets up local warehouse directory from filer6

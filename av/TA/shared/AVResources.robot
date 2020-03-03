@@ -4,7 +4,6 @@ Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
 Library         ../Libs/FakeManagement.py
-Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ComponentSetup.robot
 
@@ -14,14 +13,13 @@ ${COMPONENT_UC}    AV
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
-${SCANNOW_LOG_PATH}  ${AV_PLUGIN_PATH}/log/Scan Now.log
+${SCANNOW_LOG_PATH}  ${AV_PLUGIN_PATH}/log/scanNow.log
 ${BASE_SDDS}       ${TEST_INPUT_PATH}/${COMPONENT}/base-sdds/
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
 ${EXPORT_FILE}     /etc/exports
 ${EICAR_STRING}     X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
-${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 
 *** Keywords ***
 Run Shell Process
@@ -152,8 +150,7 @@ Display All SSPL Files Installed
 AV And Base Teardown
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
-    Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/av/log/av.log
-    Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log
+    Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed   Display All SSPL Files Installed
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
     Wait Until Keyword Succeeds
@@ -162,7 +159,6 @@ AV And Base Teardown
     ...  Plugin Log Contains      av <> Plugin Finished
     Run Keyword If Test Failed   Log File   ${AV_LOG_PATH}
     Remove File    ${AV_LOG_PATH}
-    Empty Directory  /opt/sophos-spl/base/mcs/event/
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
 
 Create Install Options File With Content
@@ -170,13 +166,22 @@ Create Install Options File With Content
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
     #TODO set permissions
 
+Send Sav Policy To Base
+    [Arguments]  ${policyFile}
+    Copy File  ${RESOURCES_PATH}/${policyFile}  ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
+
+Send Sav Action To Base
+    [Arguments]  ${actionFile}
+    ${savActionFilename}  Generate Random String
+    Copy File  ${RESOURCES_PATH}/${actionFile}  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_${savActionFilename}.xml
+
 Check ScanNow Log Exists
     File Should Exist  ${SCANNOW_LOG_PATH}
 
 Configure Scan Exclusions Everything Else
     [Arguments]  ${inclusion}
     ${exclusions} =  exclusions for everything else  ${inclusion}
-    [return]  ${exclusions}
+    [Return]  <onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan>
 
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
@@ -191,47 +196,3 @@ Remove Local NFS Share
     Move File  ${EXPORT_FILE}_bkp  ${EXPORT_FILE}
     Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
     Remove Directory    ${source}  recursive=True
-
-Check Scan Now Configuration File is Correct
-    ${configFilename} =  Set Variable  /tmp/config-files-test/Scan_Now.config
-    Wait Until Keyword Succeeds
-        ...    15 secs
-        ...    1 secs
-        ...    File Should Exist  ${configFilename}
-    CapnpHelper.check named scan object   ${configFilename}
-        ...     name=Scan Now
-        ...     exclude_paths=["/bin/", "/boot/", "/dev/", "/etc/", "/home/", "/lib32/", "/lib64/", "/lib/", "/lost+found/", "/media/", "/mnt/", "/oldTarFiles/", "/opt/", "/proc/", "/redist/", "/root/", "/run/", "/sbin/", "/snap/", "/srv/", "/sys/", "/usr/", "/vagrant/", "/var/", "*.glob", "globExample?.txt", "/stemexample/*"]
-        ...     sophos_extension_exclusions=["exclusion1", "exclusion2", "exclusion3"]
-        ...     user_defined_extension_inclusions=["exclusion1", "exclusion2", "exclusion3", "exclusion4"]
-        ...     scan_archives=False
-        ...     scan_all_files=False
-        ...     scan_files_with_no_extensions=True
-        ...     scan_hard_drives=True
-        ...     scan_cd_dvd_drives=True
-        ...     scan_network_drives=False
-        ...     scan_removable_drives=True
-
-Check Scheduled Scan Configuration File is Correct
-    ${configFilename} =  Set Variable  /tmp/config-files-test/Sophos_Cloud_Scheduled_Scan.config
-    Wait Until Keyword Succeeds
-        ...    120 secs
-        ...    1 secs
-        ...    File Should Exist  ${configFilename}
-    # TODO LINUXDAR-1482 Update this to check all the configuration is correct - run the test and see what's outputted first
-    # TODO LINUXDAR-1482 Make the check more complicated so we check the list attributes
-    CapnpHelper.check named scan object   ${configFilename}
-        ...     name=Sophos Cloud Scheduled Scan
-        ...     exclude_paths=["/bin/", "/boot/", "/dev/", "/etc/", "/home/", "/lib32/", "/lib64/", "/lib/", "/lost+found/", "/media/", "/mnt/", "/oldTarFiles/", "/opt/", "/proc/", "/redist/", "/root/", "/run/", "/sbin/", "/snap/", "/srv/", "/sys/", "/usr/", "/vagrant/", "/var/"]
-        ...     sophos_extension_exclusions=[]
-        ...     user_defined_extension_inclusions=[]
-        ...     scan_archives=False
-        ...     scan_all_files=False
-        ...     scan_files_with_no_extensions=True
-        ...     scan_hard_drives=True
-        ...     scan_cd_dvd_drives=False
-        ...     scan_network_drives=False
-        ...     scan_removable_drives=False
-
-Policy Fragment FS Types
-    [Arguments]  ${CDDVDDrives}=false  ${hardDrives}=false  ${networkDrives}=false  ${removableDrives}=false
-    [return]    <scanObjectSet><CDDVDDrives>${CDDVDDrives}</CDDVDDrives><hardDrives>${hardDrives}</hardDrives><networkDrives>${networkDrives}</networkDrives><removableDrives>${removableDrives}</removableDrives></scanObjectSet>
