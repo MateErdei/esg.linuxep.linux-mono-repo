@@ -96,9 +96,9 @@ namespace Plugin
         void stopOsquery();
         void cleanUpOldOsqueryFiles();
         void databasePurge();
-
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
+
         unsigned int m_timesOsqueryProcessFailedToStart;
         OsqueryConfigurator m_osqueryConfigurator;
         bool m_collectAuditEnabled = false;

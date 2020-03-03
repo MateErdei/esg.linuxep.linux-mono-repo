@@ -31,5 +31,6 @@ namespace Plugin
         void setStatus(Common::PluginApi::StatusInfo statusInfo);
 
         std::string getTelemetry() override;
+        void initialiseTelemetry();
     };
 }; // namespace Plugin

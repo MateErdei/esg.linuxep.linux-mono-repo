@@ -75,6 +75,17 @@ namespace Plugin
 
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
+
+        initialiseTelemetry();
         return telemetryJson;
+    }
+
+    void PluginCallback::initialiseTelemetry()
+    {
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        telemetry.set(plugin::telemetryOsqueryRestarts, 0L);
+        telemetry.set(plugin::telemetryOSQueryRestartsCPU, 0L);
+        telemetry.set(plugin::telemetryOSQueryRestartsMemory, 0L);
+        telemetry.set(plugin::telemetryOSQueryDatabasePurges, 0L);
     }
 } // namespace Plugin

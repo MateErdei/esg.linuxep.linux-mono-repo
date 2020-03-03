@@ -95,7 +95,7 @@ namespace Plugin
     void PluginAdapter::innerMainLoop()
     {
         LOGINFO("Entering the main loop");
-        initialiseTelemetry();
+        m_callback->initialiseTelemetry();
 
         std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask, std::chrono::seconds(5), 5);
         LOGSUPPORT("Processing ALC Policy");
@@ -358,14 +358,4 @@ namespace Plugin
     {
         return m_osqueryConfigurator;
     }
-
-    void PluginAdapter::initialiseTelemetry()
-    {
-        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        telemetry.set(plugin::telemetryOsqueryRestarts, 0L);
-        telemetry.set(plugin::telemetryOSQueryRestartsCPU, 0L);
-        telemetry.set(plugin::telemetryOSQueryRestartsMemory, 0L);
-        telemetry.set(plugin::telemetryOSQueryDatabasePurges, 0L);
-    }
-
 } // namespace Plugin
