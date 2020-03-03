@@ -9,13 +9,6 @@ import re
 
 if __name__ == '__main__':
     # TODO Read & Process capnp files
-    # if (/resources/capnp-files) doesn't exist
-    #   Raise an error
-    # for each capnp file in /capnp-files
-    #   read
-    #   replace
-    #   write (in place)
-
     capnp_files_dir = "/opt/test/inputs/test_scripts/resources/capnp-files"
     import_pattern = \
         re.compile(r"using\s+Cxx\s*=\s*import\s+\"capnp/c\+\+\.capnp\";\s*\$Cxx\.namespace\(\".*::.*\"\);")
@@ -30,8 +23,6 @@ if __name__ == '__main__':
         with open(capnp_file, 'r') as f:
             contents = f.read()
         new_contents = import_pattern.sub(repl="", string=contents, count=1)
-        print(new_contents)
-        # TODO Write Capnp Files (to a resources folder)
         with open(capnp_file, 'w') as f:
             f.write(new_contents)
 

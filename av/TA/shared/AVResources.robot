@@ -201,8 +201,13 @@ Check Scan Now Configuration File is Correct
         ...    15 secs
         ...    1 secs
         ...    File Should Exist  ${configFilename}
-    ${result} =  CapnpHelper.check named scan object   ${configFilename}  name=Scan Now  nonsense=Ignored
-    Should Be True  ${result}
+    CapnpHelper.check named scan object   ${configFilename}
+        ...     name=Scan Now
+#        ...     scanArchives=False
+#        ...     scanAllFiles=False
+#        ...     excludePaths=[]
+#        ...     sophosExtensionExclusions=[]
+#        ...     userDefinedExtensionInclusions=[]
 
 Check Configuration File is Correct
     [Arguments]  ${binaryFileName}  ${expectedScanName}
