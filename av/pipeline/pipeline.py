@@ -44,6 +44,7 @@ def robot_task(machine: tap.Machine):
     try:
         package_install(machine, 'nfs-kernel-server')
         install_requirements(machine)
+        machine.run('python', machine.inputs.test_scripts / 'process_capnp_files.py')
         machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
         machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
