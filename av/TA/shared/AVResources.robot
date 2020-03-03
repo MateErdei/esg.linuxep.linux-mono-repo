@@ -2,6 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         String
+Library         ../Libs/AVScanner.py
 Library         ../Libs/FakeManagement.py
 
 Resource    ComponentSetup.robot
@@ -165,11 +166,22 @@ Create Install Options File With Content
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
     #TODO set permissions
 
+Send Sav Policy To Base
+    [Arguments]  ${policyFile}
+    Copy File  ${RESOURCES_PATH}/${policyFile}  ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
+
+Send Sav Action To Base
+    [Arguments]  ${actionFile}
+    ${savActionFilename}  Generate Random String
+    Copy File  ${RESOURCES_PATH}/${actionFile}  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_${savActionFilename}.xml
+
 Check ScanNow Log Exists
     File Should Exist  ${SCANNOW_LOG_PATH}
 
-Configure Scan Exclusions Everything Else # Will allow for one directory to be selected during a scan
-#TODO implementation required
+Configure Scan Exclusions Everything Else
+    [Arguments]  ${inclusion}
+    ${exclusions} =  exclusions for everything else  ${inclusion}
+    [return]  ${exclusions}
 
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
