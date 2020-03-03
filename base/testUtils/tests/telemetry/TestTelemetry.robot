@@ -140,24 +140,6 @@ Telemetry Executable Creates HTTP PUT Request
     [Documentation]    Telemetry Executable Creates HTTP PUT Request With Collected Telemetry Content
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
 
-Telemetry Executable Will Do A Successful HTTP PUT Request When Server Run TLSv1_2
-    [Documentation]    Telemetry Executable Creates HTTP PUT Request With Collected Telemetry Content
-    Cleanup Telemetry Server
-    Prepare To Run Telemetry Executable With HTTPS Protocol   TLSv1_2
-    Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
-
-
-Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less Than TLSv1_2
-    [Documentation]    Telemetry Executable Creates HTTP PUT Request With Collected Telemetry Content
-    Cleanup Telemetry Server
-    Prepare To Run Telemetry Executable With HTTPS Protocol   TLSv1_1
-    Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${FAILED}   checkResult=0
-
-    Wait Until Keyword Succeeds
-    ...     5 seconds
-    ...     1 seconds
-    ...     Check Log Contains   Error: HTTP request failed with CURL result 35   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
-
 Telemetry Executable Generates System Telemetry Without Cpu Cores
     [Documentation]    Telemetry Executable Generates System Telemetry when /usr/bin/lscpu fails to execute
     [Tags]  FAULTINJECTION  TELEMETRY
@@ -305,3 +287,22 @@ Telemetry Executable Generates Watchdog Telemetry That Increments When Plugins D
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     log  ${telemetryFileContents}
     Check Watchdog Telemetry Json Is Correct  ${telemetryFileContents}  1
+
+
+Telemetry Executable Will Do A Successful HTTP PUT Request When Server Run TLSv1_2
+    [Documentation]    Telemetry Executable Creates HTTP PUT Request With Collected Telemetry Content
+    Cleanup Telemetry Server
+    Prepare To Run Telemetry Executable With HTTPS Protocol   tlsv1_2
+    Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
+
+
+Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less Than TLSv1_2
+    [Documentation]    Telemetry Executable Creates HTTP PUT Request With Collected Telemetry Content
+    Cleanup Telemetry Server
+    Prepare To Run Telemetry Executable With HTTPS Protocol   tlsv1_1
+    Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${FAILED}   checkResult=0
+
+    Wait Until Keyword Succeeds
+    ...     5 seconds
+    ...     1 seconds
+    ...     Check Log Contains   Error: HTTP request failed with CURL result 35   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog

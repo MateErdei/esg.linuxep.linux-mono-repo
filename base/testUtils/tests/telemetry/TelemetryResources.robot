@@ -58,7 +58,7 @@ Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol
 
 Prepare To Run Telemetry Executable With HTTPS Protocol
-    [Arguments]  ${TLSProtocol}=TLSv1_2
+    [Arguments]  ${TLSProtocol}=tlsv1_2
     HttpsServer.Start Https Server  ${CERT_PATH}   ${TLSProtocol}
     Wait Until Keyword Succeeds  10 seconds  1.0 seconds  File Should Exist  ${MACHINE_ID_FILE}
     Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}  ${USERNAME}

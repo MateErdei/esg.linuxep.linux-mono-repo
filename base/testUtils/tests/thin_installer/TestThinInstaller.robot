@@ -9,6 +9,7 @@ Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
+Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     Process
 Library     OperatingSystem
 
@@ -38,10 +39,12 @@ Setup Thininstaller Test
     Build Default Creds Thininstaller From Sections
     Create Fake Savscan In Tmp
 
+
 Teardown
     General Test Teardown
     Stop Update Server
     Stop Proxy Servers
+    Stop Local Cloud Server
     Teardown Reset Original Path
     Uninstall SAV
     Run Keyword If Test Failed    Dump Thininstaller Log
@@ -281,18 +284,21 @@ Thin Installer Falls Back From Bad Env Proxy To Direct
 
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
-    Setup Warehouse   --tls1_1   --tls1_2
-    Run Default Thininstaller    3    https://localhost:1233
-    Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:1233 (cURL error is [SSL connect error]). Please check your firewall rules
+    Setup Warehouse   --tls1_2   --tls1_2
+    Start Local Cloud Server   --tls   tlsv1_1
+    Run Default Thininstaller    3    https://localhost:4443
+    Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules
 
 Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
     Setup Warehouse   --tls1_2   --tls1_1
-    Run Default Thininstaller    10    https://localhost:1233
+    Start Local Cloud Server   --tls   tlsv1_2
+    Run Default Thininstaller    10    https://localhost:4443
     Check Thininstaller Log Contains    Failed to download the base installer! (Error code = 46)
 
 Thin Installer And SUL Library Will Successfully Connect With Server Running TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
     Setup Warehouse   --tls1_2   --tls1_2
-    Run Default Thininstaller    0    https://localhost:1233
+    Start Local Cloud Server   --tls   tlsv1_2
+    Run Default Thininstaller    0    https://localhost:4443
     Check Thininstaller Log Contains    INSTALLER EXECUTED

@@ -7,6 +7,7 @@ Library    ${LIBS_DIRECTORY}/OSUtils.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 Resource   ./ThinInstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
+Resource  ../mcs_router/McsRouterResources.robot
 
 Suite Setup      Setup Update Tests
 Suite Teardown   Cleanup Update Tests
@@ -21,6 +22,8 @@ Setup Update Tests
     Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
     Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
     Uninstall SAV
+    Regenerate Certificates
+    Set Local CA Environment Variable
 
 ### Cleanup
 Cleanup Update Tests

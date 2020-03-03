@@ -10,6 +10,8 @@ import threading
 
 import http.server
 
+from ArgParserUtils import tls_from_string
+
 
 class HttpsHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server):
@@ -56,7 +58,7 @@ class HttpsServer(object):
 
         httpd = http.server.HTTPServer(('', port), HttpsHandler)
 
-        protocol = self._tls_from_string(protocol_string)
+        protocol = tls_from_string(protocol_string)
         if not protocol:
             protocol = ssl.PROTOCOL_TLS
 
@@ -69,25 +71,6 @@ class HttpsServer(object):
         self.thread = threading.Thread(target=httpd.handle_request)
         self.thread.daemon = True
         self.thread.start()
-
-    def _tls_from_string(self, tls_version_string):
-        tls_string_lower_case = tls_version_string.lower()
-
-        tls_version = None
-        if tls_string_lower_case == "TLSv1_2".lower():
-            tls_version = ssl.PROTOCOL_TLSv1_2
-        elif tls_string_lower_case == "TLSv1_1".lower():
-            tls_version = ssl.PROTOCOL_TLSv1_1
-        elif tls_version_string.lower() == "TLSv1_0".lower():
-            tls_version = ssl.PROTOCOL_TLSv1
-        elif tls_string_lower_case == "SSLv3".lower():
-            tls_version = ssl.PROTOCOL_SSLv3
-        elif tls_string_lower_case == "SSLv23".lower():
-            tls_version = ssl.PROTOCOL_SSLv23
-        elif tls_string_lower_case == "SSLv2".lower():
-            tls_version = ssl.PROTOCOL_SSLv2
-
-        return tls_version
 
     def stop_https_server(self):
         if self.thread:

@@ -1617,7 +1617,11 @@ def runServer(options):
     httpd = http.server.HTTPServer(('localhost', port), MCSRequestHandler)
     certfile = getServerCert()
     logger.info("Cert path: %s", certfile)
-    httpd.socket = ssl.wrap_socket(httpd.socket, certfile=certfile, server_side=True)
+    protocol = ssl.PROTOCOL_TLS
+    if options.tls:
+        protocol = options.tls
+    logger.info("SSL version: %s", options.tls)
+    httpd.socket = ssl.wrap_socket(httpd.socket, certfile=certfile, server_side=True, ssl_version=protocol)
     if options.daemon:
         daemonise()
 
