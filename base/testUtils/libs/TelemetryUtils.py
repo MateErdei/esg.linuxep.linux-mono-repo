@@ -306,6 +306,10 @@ class TelemetryUtils:
             expected_edr_telemetry_dict.pop(mem_restarts_key, None)
             actual_edr_telemetry_dict.pop(mem_restarts_key, None)
 
+        osquery_db_size_key = "osquery-database-size"
+        if actual_edr_telemetry_dict[osquery_db_size_key] < 1:
+            raise AssertionError("EDR telemetry doesn't contain a valid osquery database size field")
+        actual_edr_telemetry_dict.pop(osquery_db_size_key, None)
 
         if actual_edr_telemetry_dict != expected_edr_telemetry_dict:
             raise AssertionError(
