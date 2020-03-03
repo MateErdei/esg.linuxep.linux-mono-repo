@@ -5,7 +5,7 @@
 
 import os
 from robot.api import logger
-from robot.libraries.BuiltIn import BuiltIn
+from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 import xml.dom.minidom
 
 
@@ -79,3 +79,11 @@ def _get_endpoint_id():
     mcs_config_location = os.path.join(BuiltIn().get_variable_value("${SOPHOS_INSTALL}"), "base", "etc", "sophosspl", "mcs.config")
     return get_value_from_ini_file(mcs_config_location, "MCSID")
 
+def get_install():
+    try:
+        return format(BuiltIn().get_variable_value("${SOPHOS_INSTALL}"))
+    except RobotNotRunningError:
+        try:
+            return os.environ.get("SOPHOS_INSTALL", "/opt/sophos-spl")
+        except KeyError:
+            return "/opt/sophos-spl"

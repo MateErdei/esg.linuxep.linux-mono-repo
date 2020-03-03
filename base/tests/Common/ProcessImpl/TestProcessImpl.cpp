@@ -245,6 +245,7 @@ sleep 10000
         EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("started")));
         // the time to kill and the ammount of bytes written to output are not 'deterministic', hence, only requiring
         // not empty.
+        std::cout << "out: " << out << std::endl;
         EXPECT_FALSE(out.empty());
         EXPECT_THAT(captureout, ::testing::HasSubstr("started"));
         fut.get();

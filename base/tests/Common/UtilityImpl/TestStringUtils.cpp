@@ -27,8 +27,7 @@ TEST(TestStringUtils, splitString) // NOLINT
 {
     std::vector<std::pair<std::string, std::vector<std::string>>> expectedResults{ { "a;b;c", { "a", "b", "c" } },
                                                                                    { "a;b;c;", { "a", "b", "c", "" } },
-                                                                                   { "pear;apple",
-                                                                                     { "pear", "apple" } },
+                                                                                   { "pear;apple", { "pear", "apple" } },
                                                                                    { "pear apple", { "pear apple" } },
                                                                                    { "", { "" } } };
 

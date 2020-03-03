@@ -104,10 +104,11 @@ namespace Common{
         };
 
         ProcessImpl::ProcessImpl() :
-                m_pid{-1},
+            m_pid{-1},
             m_outputLimit(0),
+            m_flushOnNewLine(false),
             m_callback{ []() {} },
-        m_notifyTrimmed{ [](std::string) {} }
+            m_notifyTrimmed{ [](std::string) {} }
         {
             m_d = std::make_shared<NoExecCalled>();
         }
@@ -149,8 +150,8 @@ namespace Common{
             m_pid = -1;
             try
             {
-                m_d = std::make_shared<BoostProcessHolder>(path, arguments, extraEnvironment, uid, gid, m_callback, m_notifyTrimmed,
-                                               m_outputLimit);
+                m_d = std::make_shared<BoostProcessHolder>(path, arguments, extraEnvironment, uid, gid, m_callback,
+                        m_notifyTrimmed, m_outputLimit, m_flushOnNewLine);
                 m_pid = m_d->pid();
             }
             catch (Common::Process::IProcessException& ex)
@@ -222,6 +223,11 @@ namespace Common{
         void ProcessImpl::setOutputLimit(size_t limit)
         {
             m_outputLimit = limit;
+        }
+
+        void ProcessImpl::setFlushBufferOnNewLine(bool flushOnNewLine)
+        {
+            m_flushOnNewLine = flushOnNewLine;
         }
 
         void ProcessImpl::setNotifyProcessFinishedCallBack(Process::IProcess::functor callback)

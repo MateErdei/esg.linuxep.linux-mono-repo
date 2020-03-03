@@ -1,5 +1,6 @@
 *** Settings ***
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Resource  ../upgrade_product/UpgradeResources.robot
 
 *** Keywords ***
 Wait For EDR to be Installed
@@ -8,17 +9,11 @@ Wait For EDR to be Installed
     ...   10 secs
     ...   File Should exist    ${SOPHOS_INSTALL}/plugins/edr/bin/edr
 
+
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   2 secs
     ...   EDR Plugin Is Running
-
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   2 secs
-    ...   Check EDR Osquery Executable Running
-
-
 
 EDR Plugin Is Running
     ${result} =    Run Process  pgrep  edr
@@ -28,10 +23,14 @@ EDR Plugin Is Not Running
     ${result} =    Run Process  pgrep  edr
     Should Not Be Equal As Integers    ${result.rc}    0   EDR PLugin still running
 
+Restart EDR Plugin
+    Wdctl Stop Plugin  edr
+    Wdctl Start Plugin  edr
+
 Install EDR
-    [Arguments]  ${policy}  ${args}=${None}
+    [Arguments]  ${policy}
     Start Local Cloud Server  --initial-alc-policy  ${policy}
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}  args=${args}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}
     Wait For Initial Update To Fail
 
     Send ALC Policy And Prepare For Upgrade  ${policy}
@@ -88,12 +87,10 @@ Check EDR Log Shows AuditD Has Not Been Disabled
     Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to not disable AuditD
     Should Contain  ${EDR_LOG_CONTENT}   AuditD is running, it will not be possible to obtain event data.
 
-Wait Keyword Succeed
-    [Arguments]  ${keyword}
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  5 secs
-    ...  ${keyword}
+Check EDR Log Contains
+    [Arguments]  ${string_to_contain}
+    ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
+    Should Contain  ${EDR_LOG_CONTENT}   ${string_to_contain}
 
 Install And Enable AuditD If Required
     ${Result}=  Is Ubuntu
@@ -162,24 +159,3 @@ Install EDR Directly
     Log  ${result.stdout}
     Log  ${result.stderr}
     Wait For EDR to be Installed
-
-Check EDR Osquery Executable Running
-    #Check both osquery instances are running
-    ${result} =    Run Process  pgrep -a osquery | grep plugins/edr | wc -l  shell=true
-    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\n err: ${result.stderr}"
-
-Check EDR Osquery Executable Not Running
-    ${result} =    Run Process  pgrep  -a  osquery | grep plugins/edr
-    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
-    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\n err: ${result.stderr}"
-
-Check EDR Plugin Uninstalled
-    EDR Plugin Is Not Running
-    Check EDR Osquery Executable Not Running
-    Should Not Exist  ${EDR_DIR}
-
-Wait Until EDR Uninstalled
-    Wait Until Keyword Succeeds
-    ...  60
-    ...  1
-    ...  Check EDR Plugin Uninstalled

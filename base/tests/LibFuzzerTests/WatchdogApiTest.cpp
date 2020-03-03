@@ -157,6 +157,7 @@ public:
     };
     Common::Process::ProcessStatus getStatus() override { return m_status; };
     void setOutputLimit(size_t limit) override{};
+    void setFlushBufferOnNewLine(bool flushOnNewLine) override{};
     void setOutputTrimmedCallback(std::function<void(std::string)>) override{};
     void setNotifyProcessFinishedCallBack(functor) override{};
     void waitUntilProcessEnds() override{};

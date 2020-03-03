@@ -47,7 +47,8 @@ namespace Common
                     gid_t gid,
                     Process::IProcess::functor callback,
                     std::function<void(std::string)> notifyTrimmed,
-                    size_t outputLimit);
+                    size_t outputLimit,
+                    bool flushOnNewLine);
             ~BoostProcessHolder();
              int pid() override;
 
@@ -68,6 +69,8 @@ namespace Common
         private:
             void armAsyncReaderForChildStdOutput();
             void handleMessage(const boost::system::error_code& ec, std::size_t size);
+            std::size_t completionCondition(const boost::system::error_code& ec, std::size_t size);
+            bool shouldBufferBeFlushed(std::size_t size);
             ProcessResult waitChildProcessToFinish();
             std::future<ProcessResult> asyncWaitChildProcessToFinish();
             void cacheResult();
@@ -79,7 +82,7 @@ namespace Common
             std::shared_future<ProcessResult> m_result;
 
             std::string m_path;
-            std::vector<char> bufferForIOService;
+            std::vector<char> m_bufferForIOService;
             std::string m_output;
             boost::asio::io_service asioIOService;
             boost::process::async_pipe asyncPipe;
@@ -92,8 +95,7 @@ namespace Common
             std::atomic<bool> m_finished;
 
             ProcessResult m_cached;
-
-
+            bool m_enableBufferFlushOnNewLine;
 
         };
     }

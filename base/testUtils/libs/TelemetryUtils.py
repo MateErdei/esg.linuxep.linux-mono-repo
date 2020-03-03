@@ -4,19 +4,20 @@
 # All rights reserved.
 
 
-
 import json
 import os
 import pwd
 import shutil
 import time
 
-import SystemInfo as system_info
-import BaseInfo as base_info
-from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 import robot.api.logger as logger
-from MDRUtils import get_mtr_version
+from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
+
+import BaseInfo as base_info
 import PathManager
+import SystemInfo as system_info
+from MDRUtils import get_mtr_version
+from PluginUtils import get_plugin_version
 
 
 class TelemetryUtils:
@@ -37,9 +38,9 @@ class TelemetryUtils:
             "verb": "PUT"
         }
 
-        self.telemetry_status_filepath = os.path.join(self.get_install(), 'base/telemetry/var/tscheduler-status.json')
-        self.telemetry_supplementary_filepath = os.path.join(self.get_install(), 'base/etc/telemetry-config.json')
-        self.telemetry_exe_config_filepath = os.path.join(self.get_install(), 'base/telemetry/var/telemetry-exe.json')
+        self.telemetry_status_filepath = os.path.join(base_info.get_install(), 'base/telemetry/var/tscheduler-status.json')
+        self.telemetry_supplementary_filepath = os.path.join(base_info.get_install(), 'base/etc/telemetry-config.json')
+        self.telemetry_exe_config_filepath = os.path.join(base_info.get_install(), 'base/telemetry/var/telemetry-exe.json')
 
     def generate_system_telemetry_dict(self):
         def update_system_telemetry_dict(telemetry_dict, key, getfunc):
@@ -48,7 +49,8 @@ class TelemetryUtils:
                 if value is not None:
                     telemetry_dict[key] = value
             except Exception as getTelemetryExcept:
-                logger.warn("Failed to get expected telemetry value for key : {}. Error: {}".format(key, str(getTelemetryExcept)))
+                logger.warn("Failed to get expected telemetry value for key : {}. Error: {}".format(key, str(
+                    getTelemetryExcept)))
 
         telemetry = dict()
         update_system_telemetry_dict(telemetry, "cpu-cores", system_info.get_number_of_cpu_cores),
@@ -73,7 +75,6 @@ class TelemetryUtils:
             "updatescheduler-unexpected-restarts": int(expected_times)
         }
         return telemetry
-
 
     def generate_system_telemetry_json(self):
         return json.dumps(self.generate_system_telemetry_dict())
@@ -100,7 +101,8 @@ class TelemetryUtils:
 
         return telemetry
 
-    def generate_mtr_telemetry_dict(self, num_SophosMTR_restarts, num_database_purges, num_osquery_restarts_cpu, num_osquery_restarts_memory):
+    def generate_mtr_telemetry_dict(self, num_SophosMTR_restarts, num_database_purges, num_osquery_restarts_cpu,
+                                    num_osquery_restarts_memory):
         version = get_mtr_version()
         telemetry = {
             "sophosmtr-restarts": int(num_SophosMTR_restarts),
@@ -114,10 +116,26 @@ class TelemetryUtils:
 
         return telemetry
 
+    def generate_edr_telemetry_dict(self, num_osquery_restarts, num_database_purges, num_osquery_restarts_cpu,
+                                    num_osquery_restarts_memory):
+        version = get_plugin_version("edr")
+        telemetry = {
+            "osquery-restarts": int(num_osquery_restarts),
+            "version": version,
+            "osquery-database-purges": int(num_database_purges)
+        }
+        if int(num_osquery_restarts_cpu) > -1:
+            telemetry["osquery-restarts-cpu"] = int(num_osquery_restarts_cpu)
+        if int(num_osquery_restarts_memory) > -1:
+            telemetry["osquery-restarts-memory"] = int(num_osquery_restarts_memory)
+
+        return telemetry
+
     def generate_base_telemetry_json(self):
         return json.dumps(self.generate_base_telemetry_dict())
 
-    def generate_update_scheduler_telemetry(self, number_failed_updates, most_recent_update_successful, successful_update_time, fixed_version, sddsid):
+    def generate_update_scheduler_telemetry(self, number_failed_updates, most_recent_update_successful,
+                                            successful_update_time, fixed_version, sddsid):
         telemetry = {
             "failed-update-count": int(number_failed_updates),
             "failed-downloader-count": 0
@@ -129,8 +147,9 @@ class TelemetryUtils:
         if successful_update_time is not None:
             telemetry["successful-update-time"] = int(successful_update_time)
 
-        subscriptions = [{"fixedversion": fixed_version, "rigidname": "ServerProtectionLinux-Base"}, {"fixedversion": fixed_version, "rigidname": "ServerProtectionLinux-Plugin-MDR"}]
-                        
+        subscriptions = [{"fixedversion": fixed_version, "rigidname": "ServerProtectionLinux-Base"},
+                         {"fixedversion": fixed_version, "rigidname": "ServerProtectionLinux-Plugin-MDR"}]
+
         warehouse = {"sddsid": sddsid, "subscriptions": subscriptions}
 
         telemetry["warehouse"] = warehouse
@@ -146,7 +165,8 @@ class TelemetryUtils:
     def check_system_telemetry_json_is_correct(self, json_string, missing_key=None):
         expected_system_telemetry_dict = self.generate_system_telemetry_dict()
         actual_system_telemetry_dict = json.loads(json_string)["system-telemetry"]
-        self.check_system_telemetry_is_correct(actual_system_telemetry_dict, expected_system_telemetry_dict, missing_key)
+        self.check_system_telemetry_is_correct(actual_system_telemetry_dict, expected_system_telemetry_dict,
+                                               missing_key)
 
     def check_system_telemetry_is_correct(self, actual_dict, expected_dict, missing_key):
         if missing_key is not None:
@@ -177,15 +197,22 @@ class TelemetryUtils:
         actual_watchdog_telemetry_dict = json.loads(json_string)["watchdogservice"]
         self.check_watchdog_telemetry_is_correct(actual_watchdog_telemetry_dict, expected_watchdog_telemetry_dict)
 
-
     def check_watchdog_telemetry_is_correct(self, actual_dict, expected_dict):
-        assert actual_dict == expected_dict, "actual watchdog telemetry: \n\t{}\n did not match expected: \n\t{}".format(actual_dict, expected_dict)
+        assert actual_dict == expected_dict, "actual watchdog telemetry: \n\t{}\n did not match expected: \n\t{}".format(
+            actual_dict, expected_dict)
 
-    def check_update_scheduler_telemetry_json_is_correct(self, json_string, number_failed_updates, most_recent_update_successful=None, successful_update_time=None, timing_tolerance=10, fixed_version="", sddsid=""):
-        expected_update_scheduler_telemetry_dict = self.generate_update_scheduler_telemetry(number_failed_updates, most_recent_update_successful, successful_update_time, fixed_version, sddsid)
+    def check_update_scheduler_telemetry_json_is_correct(self, json_string, number_failed_updates,
+                                                         most_recent_update_successful=None,
+                                                         successful_update_time=None, timing_tolerance=10,
+                                                         fixed_version="", sddsid=""):
+        expected_update_scheduler_telemetry_dict = self.generate_update_scheduler_telemetry(number_failed_updates,
+                                                                                            most_recent_update_successful,
+                                                                                            successful_update_time,
+                                                                                            fixed_version, sddsid)
         actual_update_scheduler_telemetry_dict = json.loads(json_string)["updatescheduler"]
-        
-        self.check_update_scheduler_telemetry_is_correct(actual_update_scheduler_telemetry_dict, expected_update_scheduler_telemetry_dict, timing_tolerance)
+
+        self.check_update_scheduler_telemetry_is_correct(actual_update_scheduler_telemetry_dict,
+                                                         expected_update_scheduler_telemetry_dict, timing_tolerance)
 
     def check_update_scheduler_telemetry_is_correct(self, actual_dict, expected_dict, timing_tolerance):
         expected_successful_update_time = expected_dict.pop("successful-update-time", None)
@@ -195,17 +222,21 @@ class TelemetryUtils:
             time_difference = abs(expected_successful_update_time - actual_successful_update_time)
 
             if time_difference > timing_tolerance:
-                raise AssertionError("Update scheduler telemetry generated by product doesn't match telemetry expected by test.\n"
-                                     "Expected successful update time: {}\nActual successful update time: {}".format(expected_successful_update_time, actual_successful_update_time))
+                raise AssertionError(
+                    "Update scheduler telemetry generated by product doesn't match telemetry expected by test.\n"
+                    "Expected successful update time: {}\nActual successful update time: {}".format(
+                        expected_successful_update_time, actual_successful_update_time))
 
         if expected_dict != actual_dict:
-            raise AssertionError("Update scheduler telemetry generated by product doesn't match telemetry expected by test.\n"
-                                 "Expected telemetry: {}\nActual telemetry: {}".format(expected_dict, actual_dict))
+            raise AssertionError(
+                "Update scheduler telemetry generated by product doesn't match telemetry expected by test.\n"
+                "Expected telemetry: {}\nActual telemetry: {}".format(expected_dict, actual_dict))
 
     def check_base_telemetry_json_is_correct(self, json_string, expected_missing_keys=None):
         expected_base_telemetry_dict = self.generate_base_telemetry_dict()
         actual_base_telemetry_dict = json.loads(json_string)["base-telemetry"]
-        self.check_base_telemetry_is_correct(actual_base_telemetry_dict, expected_base_telemetry_dict, expected_missing_keys)
+        self.check_base_telemetry_is_correct(actual_base_telemetry_dict, expected_base_telemetry_dict,
+                                             expected_missing_keys)
 
     def check_base_telemetry_is_correct(self, actual_dict, expected_dict, expected_missing_keys=None):
         # check key is there before piopping
@@ -221,16 +252,20 @@ class TelemetryUtils:
                 logger.info("Popped key from expected: {}".format(expected_missing_keys))
 
         if actual_dict != expected_dict:
-            raise AssertionError("Base telemetry generated by product doesn't match telemetry expected by test. expected: {}, actual: {}".format(expected_dict, actual_dict))
+            raise AssertionError(
+                "Base telemetry generated by product doesn't match telemetry expected by test. expected: {}, actual: {}".format(
+                    expected_dict, actual_dict))
 
     def check_mtr_telemetry_json_is_correct(self, json_string,
-                                            num_sophos_mtr_restarts = 0,
-                                            num_database_purges = 0,
-                                            num_osquery_restarts_cpu = 0,
-                                            num_osquery_restarts_memory = 0,
+                                            num_sophos_mtr_restarts=0,
+                                            num_database_purges=0,
+                                            num_osquery_restarts_cpu=0,
+                                            num_osquery_restarts_memory=0,
                                             ignore_cpu_restarts=False,
                                             ignore_memory_restarts=False):
-        expected_mtr_telemetry_dict = self.generate_mtr_telemetry_dict(num_sophos_mtr_restarts, num_database_purges, num_osquery_restarts_cpu, num_osquery_restarts_memory)
+        expected_mtr_telemetry_dict = self.generate_mtr_telemetry_dict(num_sophos_mtr_restarts, num_database_purges,
+                                                                       num_osquery_restarts_cpu,
+                                                                       num_osquery_restarts_memory)
         actual_mtr_telemetry_dict = json.loads(json_string)["mtr"]
 
         if ignore_cpu_restarts:
@@ -243,11 +278,39 @@ class TelemetryUtils:
             expected_mtr_telemetry_dict.pop(mem_restarts_key, None)
             actual_mtr_telemetry_dict.pop(mem_restarts_key, None)
 
-        self.check_mtr_telemetry_is_correct(actual_mtr_telemetry_dict, expected_mtr_telemetry_dict)
+        if actual_mtr_telemetry_dict != expected_mtr_telemetry_dict:
+            raise AssertionError(
+                "MTR telemetry doesn't match telemetry expected by test. expected: {}, actual: {}".format(
+                    expected_mtr_telemetry_dict, actual_mtr_telemetry_dict))
 
-    def check_mtr_telemetry_is_correct(self, actual_dict, expected_dict):
-        if actual_dict != expected_dict:
-            raise AssertionError("MTR telemetry generated by product doesn't match telemetry expected by test. expected: {}, actual: {}".format(expected_dict, actual_dict))
+    def check_edr_telemetry_json_is_correct(self, json_string,
+                                            num_osquery_restarts=0,
+                                            num_database_purges=0,
+                                            num_osquery_restarts_cpu=0,
+                                            num_osquery_restarts_memory=0,
+                                            ignore_cpu_restarts=False,
+                                            ignore_memory_restarts=False):
+        expected_edr_telemetry_dict = self.generate_edr_telemetry_dict(num_osquery_restarts,
+                                                                       num_database_purges,
+                                                                       num_osquery_restarts_cpu,
+                                                                       num_osquery_restarts_memory)
+        actual_edr_telemetry_dict = json.loads(json_string)["edr"]
+
+        if ignore_cpu_restarts:
+            cpu_restarts_key = "osquery-restarts-cpu"
+            expected_edr_telemetry_dict.pop(cpu_restarts_key, None)
+            actual_edr_telemetry_dict.pop(cpu_restarts_key, None)
+
+        if ignore_memory_restarts:
+            mem_restarts_key = "osquery-restarts-memory"
+            expected_edr_telemetry_dict.pop(mem_restarts_key, None)
+            actual_edr_telemetry_dict.pop(mem_restarts_key, None)
+
+
+        if actual_edr_telemetry_dict != expected_edr_telemetry_dict:
+            raise AssertionError(
+                "EDR telemetry doesn't match telemetry expected by test. expected: {}, actual: {}".format(
+                    expected_edr_telemetry_dict, actual_edr_telemetry_dict))
 
     def move_file_from_expected_path(self, command_path):
         new_command_path = command_path + self._moved_suffix
@@ -302,7 +365,8 @@ class TelemetryUtils:
         shutil.copyfile(root_file, command_path)
         os.chmod(command_path, 0o744)
 
-    def create_test_telemetry_config_file(self, telemetry_config_file_path, certificate_path, username, requestType="PUT"):
+    def create_test_telemetry_config_file(self, telemetry_config_file_path, certificate_path, username,
+                                          requestType="PUT"):
         self._default_telemetry_config["telemetryServerCertificatePath"] = certificate_path
         self._default_telemetry_config["verb"] = requestType
         with open(telemetry_config_file_path, 'w') as tcf:
@@ -366,7 +430,7 @@ class TelemetryUtils:
                 supplFile.write(json.dumps(config))
                 supplFile.truncate()
 
-    def verify_scheduled_time_is_expected(self, scheduled_time, expected_time, seconds_tolerance = 30):
+    def verify_scheduled_time_is_expected(self, scheduled_time, expected_time, seconds_tolerance=30):
         scheduled = int(scheduled_time)
         expected = int(expected_time)
         tolerance = int(seconds_tolerance)

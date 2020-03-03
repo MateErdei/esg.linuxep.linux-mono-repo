@@ -112,6 +112,7 @@ namespace Common
              * @param limit
              */
             virtual void setOutputLimit(size_t limit) = 0;
+            virtual void setFlushBufferOnNewLine(bool flushOnNewLine) = 0;
             virtual void setOutputTrimmedCallback(std::function<void(std::string)>) = 0;
 
             /**

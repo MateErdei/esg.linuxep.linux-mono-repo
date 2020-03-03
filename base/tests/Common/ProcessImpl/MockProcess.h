@@ -40,6 +40,7 @@ public:
     MOCK_METHOD0(output, std::string(void));
     MOCK_METHOD0(getStatus, Common::Process::ProcessStatus(void));
     MOCK_METHOD1(setOutputLimit, void(size_t));
+    MOCK_METHOD1(setFlushBufferOnNewLine, void(bool));
     MOCK_METHOD0(waitUntilProcessEnds, void(void));
     MOCK_METHOD1(setOutputTrimmedCallback, void(std::function<void(std::string)>));
 

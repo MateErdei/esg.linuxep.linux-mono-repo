@@ -1,5 +1,18 @@
 import json
+import os
+import grp
+import shutil
+from pwd import getpwnam
+from random import randrange
 
+import BaseInfo as base_info
+
+import robot.api.logger as logger
+from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
+
+TMP_ACTIONS_DIR = os.path.join("/tmp", "actions")
+BASE_ACTION_DIR = os.path.join(base_info.get_install(), "base", "mcs", "action")
+os.makedirs(TMP_ACTIONS_DIR, exist_ok=True)
 
 def verify_livequery_request_has_the_expected_fields(filepath, **kwargs):
     with open(filepath, 'r') as query_file:
@@ -23,3 +36,20 @@ Json File Content: {}""".format(
                 raise AssertionError(
                    "Value differ for key {}. Expected {}. In json file: {}\n. Json File Content: {}".format(
                       key, kwarg_value, json_value, query_dict))
+
+def make_file_readable_by_mcs(file_path):
+    uid = getpwnam('sophos-spl-user').pw_uid
+    gid = grp.getgrnam('sophos-spl-group')[2]
+    os.chown(file_path, uid, gid)
+
+def run_live_query(query, name):
+    random_correlation_id = "correlation-id-{}".format(randrange(10000000))
+    query_json = '{"type": "sophos.mgt.action.RunLiveQuery", "name": "' + name + '", "query": "' + query + '"}'
+    query_file_name = "LiveQuery_{}_2013-05-02T09:50:08Z_request.json".format(random_correlation_id)
+    query_file_path = os.path.join(TMP_ACTIONS_DIR, query_file_name)
+    with open(query_file_path, 'w') as action_file:
+        action_file.write(query_json)
+        make_file_readable_by_mcs(query_file_path)
+
+    # Move query file into mcs action dir to be picked up by management agent
+    shutil.move(query_file_path, BASE_ACTION_DIR)

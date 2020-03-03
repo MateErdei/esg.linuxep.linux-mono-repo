@@ -6,6 +6,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "BoostProcessHolder.h"
 #include "IProcessException.h"
 #include "Logger.h"
+#include "../UtilityImpl/StringUtils.h"
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-result"
@@ -103,7 +105,10 @@ namespace Common
         {
             boost::asio::async_read(
                 asyncPipe,
-                boost::asio::buffer(bufferForIOService),
+                boost::asio::buffer(m_bufferForIOService),
+                [this](const boost::system::error_code& ec, std::size_t size) -> std::size_t {
+                    return this->completionCondition(ec, size);
+                },
                 [this](const boost::system::error_code& ec, std::size_t size) {
                     return this->handleMessage(ec, size);
                 });
@@ -129,7 +134,7 @@ namespace Common
                 // buffer, hence, the output is just updated.
                 if (size > 0)
                 {
-                    m_output += std::string(this->bufferForIOService.begin(), this->bufferForIOService.begin() + size);
+                    m_output += std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
                 }
             }
             else
@@ -140,8 +145,7 @@ namespace Common
                     // if m_outputLimit was set to 0 or not as it will require the execution of notified trimmed
                     if (m_outputLimit == 0)
                     {
-                        m_output +=
-                            std::string(this->bufferForIOService.begin(), this->bufferForIOService.begin() + size);
+                        m_output += std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
                     }
                     else
                     {
@@ -162,9 +166,15 @@ namespace Common
                             }
                         }
                         // notice the absence of += the output has been assigned the latest value in the
-                        // bufferForIOService.
+                        // m_bufferForIOService.
                         m_output =
-                            std::string(this->bufferForIOService.begin(), this->bufferForIOService.begin() + size);
+                            std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
+
+                        if (shouldBufferBeFlushed(size))
+                        {
+                            m_notifyTrimmed(m_output);
+                            m_output = "";
+                        }
                     }
                 }
                 // boost asio requires that async_read is armed again when the buffer has already been used.
@@ -264,6 +274,28 @@ namespace Common
 
         }
 
+        std::size_t BoostProcessHolder::completionCondition(const boost::system::error_code& ec, std::size_t size)
+        {
+            std::string bufferSoFar = std::string(m_bufferForIOService.begin(),  m_bufferForIOService.begin()+size);
+
+            if (ec.value() != 0)
+            {
+                return 0;
+            }
+
+            if (size==0)
+            {
+                return m_outputLimit == 0 ? m_bufferForIOService.size() : m_outputLimit;
+            }
+
+            if (shouldBufferBeFlushed(size))
+            {
+                return  0;
+            }
+
+            return m_outputLimit == 0 ? m_bufferForIOService.size() : m_outputLimit;
+        }
+
 
         BoostProcessHolder::BoostProcessHolder(
             const std::string& path,
@@ -273,15 +305,17 @@ namespace Common
             gid_t gid,
             Process::IProcess::functor callback,
             std::function<void(std::string)> notifyTrimmed,
-            size_t outputLimit) :
-            m_callback(std::move(callback)),
-            m_notifyTrimmed(std::move(notifyTrimmed)),
-            m_path(path),
-            bufferForIOService(outputLimit == 0 ? 4096 : outputLimit),
-            asyncPipe(asioIOService),
-            m_status{Process::ProcessStatus::NOTSTARTED},
-            m_outputLimit(outputLimit),
-            m_finished(false)
+            size_t outputLimit,
+            bool flushOnNewLine) :
+                m_callback(std::move(callback)),
+                m_notifyTrimmed(std::move(notifyTrimmed)),
+                m_path(path),
+                m_bufferForIOService(outputLimit == 0 ? 4096 : outputLimit),
+                asyncPipe(asioIOService),
+                m_status{Process::ProcessStatus::NOTSTARTED},
+                m_outputLimit(outputLimit),
+                m_finished(false),
+                m_enableBufferFlushOnNewLine(flushOnNewLine)
         {
             // the creation of child involves fork and must be serialized (no data race should occur at that time).
             // this is the reason for the static mutex around here.
@@ -401,6 +435,15 @@ namespace Common
             LOGSUPPORT("Killing process " << m_pid);
             m_child->terminate();
             cacheResult();
+        }
+
+        bool BoostProcessHolder::shouldBufferBeFlushed(std::size_t size)
+        {
+            if (m_enableBufferFlushOnNewLine)
+            {
+                return std::find(m_bufferForIOService.begin(), m_bufferForIOService.begin() + size, '\n') != m_bufferForIOService.end();
+            }
+            return false;
         }
 
     } // namespace ProcessImpl

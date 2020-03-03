@@ -46,6 +46,7 @@ namespace Common
             Process::ProcessStatus getStatus() override;
 
             void setOutputLimit(size_t limit) override;
+            void setFlushBufferOnNewLine(bool flushOnNewLine) override;
             void setOutputTrimmedCallback(std::function<void(std::string)>) override;
             void setNotifyProcessFinishedCallBack(Process::IProcess::functor) override;
 
@@ -53,6 +54,7 @@ namespace Common
             std::mutex m_protectImplOnBoost;
             std::atomic<int> m_pid;
             size_t m_outputLimit;
+            bool m_flushOnNewLine;
             Process::IProcess::functor m_callback;
             std::function<void(std::string)> m_notifyTrimmed;
             // in order to protect for data race, this pointer will
