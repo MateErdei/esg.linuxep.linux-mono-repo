@@ -7,22 +7,26 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 #include "ApplicationPaths.h"
 #include "Logger.h"
-#include "TelemetryConsts.h"
 #include "OsqueryLogger.h"
+#include "TelemetryConsts.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <modules/Proc/ProcUtilities.h>
 
 #include <iterator>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/StringUtils.h>
 
 namespace
 {
-    class AnounceStartedOnEndOfScope{
-        Plugin::OsqueryStarted & m_osqueryStarted;
-    public :
-        explicit AnounceStartedOnEndOfScope(Plugin::OsqueryStarted & osqueryStarted): m_osqueryStarted(osqueryStarted){}
+    class AnounceStartedOnEndOfScope
+    {
+        Plugin::OsqueryStarted& m_osqueryStarted;
+
+    public:
+        explicit AnounceStartedOnEndOfScope(Plugin::OsqueryStarted& osqueryStarted) : m_osqueryStarted(osqueryStarted)
+        {
+        }
         ~AnounceStartedOnEndOfScope()
         {
             m_osqueryStarted.announce_started();
@@ -66,7 +70,6 @@ Plugin::IOsqueryProcessPtr Plugin::createOsqueryProcess()
 
 namespace Plugin
 {
-
     constexpr int OUTPUT_BUFFER_LIMIT_BYTES = 4096;
 
     /// Logging
@@ -85,7 +88,8 @@ namespace Plugin
         // This means we can assume that if we do not get an empty string as the last line in the result then we have a
         // line of text which is only partial, based on the assumption all log lines from osquery end with a new line.
         // If we have a partial line then we need to store that part in previousSection to prepend onto the next.
-        std::vector<std::string> logLines = Common::UtilityImpl::StringUtils::splitString(previousSection + output,"\n");
+        std::vector<std::string> logLines =
+            Common::UtilityImpl::StringUtils::splitString(previousSection + output, "\n");
         if (!logLines.back().empty())
         {
             previousSection = logLines.back();
@@ -99,10 +103,11 @@ namespace Plugin
         }
     }
 
-    void processOsqueryLogLineForTelemetry(std::string &logLine)
+    void processOsqueryLogLineForTelemetry(std::string& logLine)
     {
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
+        if (Common::UtilityImpl::StringUtils::isSubstring(
+                logLine, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
         {
             LOGDEBUG_OSQUERY("Increment telemetry: " << plugin::telemetryOSQueryRestartsCPU);
             telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
