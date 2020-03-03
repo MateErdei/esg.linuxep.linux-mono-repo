@@ -33,6 +33,7 @@ Resource    UpgradeResources.robot
 *** Variables ***
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
+${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
 ${BaseAndEdrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${BaseOnlyVUTPolicy}                        ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${BaseOnlyVUT_Without_SDU_Policy}           ${GeneratedWarehousePolicies}/base_only_VUT_without_SDU_Feature.xml
@@ -222,6 +223,99 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
+
+Verify Upgrading Will Remove Files Which Are No Longer Required
+    [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Timeout]   10 minutes
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
+
+    Should Not Exist    ${SOPHOS_INSTALL}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}  real=True
+    Wait For Initial Update To Fail
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrWithFakeLibs}
+    Trigger Update Now
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    Check Files Before Upgrade
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
+
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  320 secs
+    ...  5 secs
+    ...  Check Files After Upgrade
+
+
+
+Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
+    [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Timeout]   10 minutes
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
+
+    Should Not Exist    ${SOPHOS_INSTALL}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}  real=True
+    Wait For Initial Update To Fail
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrWithFakeLibs}
+    Trigger Update Now
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
+
+    # Swap old manifest files around, this will make the cleanup process mark files for delete which should not be
+    # deleted, because the files are outside of the components realm
+
+    Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat  /tmp/base-manifest.dat
+    Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat  /tmp/MDR-manifest.dat
+
+    Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
+    Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
+
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+    # ensure that the list of files to remove contains files which are outside of the components realm
+    ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
+    Should Contain  ${BASE_REMOVE_FILE_CONTENT}  plugins/mtr
+
+    ${MTR_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
+    Should Contain  ${MTR_REMOVE_FILE_CONTENT}  base
+
+    # ensure that the cleanup process is prevented from deleting files which are not stored in the component realm
+    # note files listed in the components filestodelete.dat file, will be deleted by that compoent, so these files need to be
+    # filtered out.
+
+    Check Files Have Not Been Removed  ${SOPHOS_INSTALL}  ${base_removed_files_manifest}  plugins/mtr  ${mtr_files_to_delete}
+    Check Files Have Not Been Removed  ${SOPHOS_INSTALL}  ${mtr_removed_files_manifest}  base   ${base_files_to_delete}
 
 
 Version Copy Versions All Changed Files When Upgrading
@@ -576,3 +670,84 @@ Check Installed Correctly
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
+
+Check Files Before Upgrade
+    # This is a selection of files from Base product, based on the version initialy installed
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999.0
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999.0
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999.0
+
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999.0
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999.0
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999.0
+
+Check Files After Upgrade
+    # This is a selection of removed files from Base product, based on the version initialy installed
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999.0
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999.0
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999.0
+
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999.0
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999.0
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999.0
+
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/addedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/changedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
+
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/addedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/changedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
+
+    File Should Exist   ${SOPHOS_INSTALL}/base/update/var/update_config.json
+    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat

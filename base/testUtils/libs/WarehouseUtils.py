@@ -51,6 +51,8 @@ OSTIA_PREV_ADDRESS_BRANCH = os.environ.get(OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE, "
 OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_PREV_ADDRESS_BRANCH)
 # The GA Release
 OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone"
+# A version with mocked libraries (to test file removal on upgrade)
+OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-version-0-6-0-warehouse"
 # a version with edr 9.99.9 for downgrade tests
 OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-edr-999"
 OSTIA_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-mdr-999"
@@ -63,6 +65,7 @@ OSTIA_PAUSED_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".forma
 OSTIA_ADDRESSES = {
                     OSTIA_VUT_ADDRESS: "2233",
                     OSTIA_PREV_ADDRESS: "3233",
+                    OSTIA_0_6_0_ADDRESS: "4233",
                     OSTIA_GA_ADDRESS: "5233",
                     OSTIA_PAUSED_ADDRESS: "6233",
                     OSTIA_EDR_999_ADDRESS: "7233",
@@ -290,7 +293,9 @@ class WarehouseUtils(object):
 
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LISTENER_API_VERSION = 2
+
     template_configuration_values = {
+        "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
         "base_and_edr_999.xml": TemplateConfig("BASE_AND_EDR_999", "edr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
         "base_edr_vut_and_mtr_999.xml": TemplateConfig("BASE_EDR_AND_MTR_999", "mtr_user_999", DEV_BUILD_CERTS, OSTIA_MTR_999_ADDRESS ),
         "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "user_mtr_vut_edr_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
@@ -300,6 +305,7 @@ class WarehouseUtils(object):
         "base_and_mtr_GA.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_mtr_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
         "base_and_edr_VUT.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_edr_and_mtr.xml": TemplateConfig("BASE_ONLY_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_only_0_6_0.xml": TemplateConfig("BASE_ONLY_0_6_0", "base_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
         "base_only_VUT.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_VUT-1.xml": TemplateConfig("BASE_ONLY_VUT_PREV", "base_user_vut-1", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_only_GA.xml": TemplateConfig("BASE_ONLY_GA", "ga_base_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
