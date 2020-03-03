@@ -104,10 +104,12 @@ namespace Plugin
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
         if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
         {
+            LOGDEBUG_OSQUERY("Increment telemetry: " << plugin::telemetryOSQueryRestartsCPU);
             telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
         }
         else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Memory limits exceeded:"))
         {
+            LOGDEBUG_OSQUERY("Increment telemetry: " << plugin::telemetryOSQueryRestartsMemory);
             telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
         }
     }
