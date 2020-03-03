@@ -14,6 +14,9 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
+    void processOsqueryLogLineForTelemetry(std::string &logLine);
+    void ingestOutput(const std::string& output);
+
     class OsqueryProcessImpl : public Plugin::IOsqueryProcess
     {
     public:

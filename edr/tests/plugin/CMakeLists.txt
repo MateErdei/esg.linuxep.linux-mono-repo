@@ -6,6 +6,7 @@ SophosAddTest(TestPlugin
         TestPluginAdapter.cpp
         ALCPoliciesExample.h
         ALCPoliciesExample.cpp
+        OsqueryTelemetryTests.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}

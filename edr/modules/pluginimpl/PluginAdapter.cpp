@@ -15,6 +15,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/Proc/ProcUtilities.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
 #include <cmath>
 
@@ -94,6 +95,7 @@ namespace Plugin
     void PluginAdapter::innerMainLoop()
     {
         LOGINFO("Entering the main loop");
+        initialiseTelemetry();
 
         std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask, std::chrono::seconds(5), 5);
         LOGSUPPORT("Processing ALC Policy");
@@ -192,6 +194,9 @@ namespace Plugin
                     {
                         ifileSystem->removeFile(filepath);
                     }
+
+                    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+                    telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 1L);
 
                     LOGDEBUG("Purging Done");
                     setUpOsqueryMonitor();
@@ -352,6 +357,15 @@ namespace Plugin
     OsqueryConfigurator& PluginAdapter::osqueryConfigurator()
     {
         return m_osqueryConfigurator;
+    }
+
+    void PluginAdapter::initialiseTelemetry()
+    {
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        telemetry.set(plugin::telemetryOsqueryRestarts, 0L);
+        telemetry.set(plugin::telemetryOSQueryRestartsCPU, 0L);
+        telemetry.set(plugin::telemetryOSQueryRestartsMemory, 0L);
+        telemetry.set(plugin::telemetryOSQueryDatabasePurges, 0L);
     }
 
 } // namespace Plugin

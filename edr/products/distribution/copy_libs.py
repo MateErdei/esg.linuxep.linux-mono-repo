@@ -40,6 +40,7 @@ def main(argv):
     touchedFiles = []
 
     for t in targets:
+        print("Target: {}".format(t))
         assert os.path.isfile(t)
         base = os.path.basename(t)
         target_dest = os.path.join(dest, base)
@@ -64,6 +65,7 @@ def main(argv):
             os.unlink(full)
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

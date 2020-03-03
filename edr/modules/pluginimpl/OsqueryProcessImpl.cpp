@@ -17,30 +17,6 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
-
-namespace
-{
-    constexpr int OUTPUT_BUFFER_LIMIT_BYTES = 50;
-
-    void ingestOutput(const std::string& output)
-    {
-        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        std::vector<std::string> logLines = Common::UtilityImpl::StringUtils::splitString(output,"\n");
-        for (auto& line : logLines)
-        {
-            LOGINFO_OSQUERY(line);
-            if (Common::UtilityImpl::StringUtils::isSubstring(line, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
-            {
-                telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
-            }
-            else if (Common::UtilityImpl::StringUtils::isSubstring(line, "stopping: Memory limits exceeded:"))
-            {
-                telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
-            }
-        }
-    }
-} // namespace
-
 namespace
 {
     class AnounceStartedOnEndOfScope{
@@ -82,6 +58,7 @@ namespace
     };
 
 } // namespace
+
 Plugin::IOsqueryProcessPtr Plugin::createOsqueryProcess()
 {
     return OsqueryProcessFactory::instance().createOsquery();
@@ -89,6 +66,52 @@ Plugin::IOsqueryProcessPtr Plugin::createOsqueryProcess()
 
 namespace Plugin
 {
+
+    constexpr int OUTPUT_BUFFER_LIMIT_BYTES = 4096;
+
+    /// Logging
+    ///   Takes in OUTPUT_BUFFER_LIMIT_BYTES number of bytes from the output of the osquery watchdog which
+    ///   doesn't seem to have an option to log to a file. For every line it receives it logs the line in the EDR log
+    ///   using the separate osquery logger so we can distinguish between EDR log lines and osqueryd log lines.
+    /// Telemetry
+    ///   The output from osquery is used to check for osquery restarts due to CPU and memory.
+    /// \param output OUTPUT_BUFFER_LIMIT_BYTES number of bytes from osquery output.
+    void ingestOutput(const std::string& output)
+    {
+        static std::string previousSection;
+
+        // splitString always returns an empty string if the last char is the deliminator, i.e. a new line in this case.
+        // "a;b;c;" -> { "a", "b", "c", "" }
+        // This means we can assume that if we do not get an empty string as the last line in the result then we have a
+        // line of text which is only partial, based on the assumption all log lines from osquery end with a new line.
+        // If we have a partial line then we need to store that part in previousSection to prepend onto the next.
+        std::vector<std::string> logLines = Common::UtilityImpl::StringUtils::splitString(previousSection + output,"\n");
+        if (!logLines.back().empty())
+        {
+            previousSection = logLines.back();
+            logLines.pop_back();
+        }
+
+        for (auto& line : logLines)
+        {
+            LOGINFO_OSQUERY(line);
+            processOsqueryLogLineForTelemetry(line);
+        }
+    }
+
+    void processOsqueryLogLineForTelemetry(std::string &logLine)
+    {
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
+        {
+            telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
+        }
+        else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Memory limits exceeded:"))
+        {
+            telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
+        }
+    }
+
     ScopedReplaceOsqueryProcessCreator::ScopedReplaceOsqueryProcessCreator(std::function<IOsqueryProcessPtr()> creator)
     {
         OsqueryProcessFactory::instance().replaceCreator(creator);
@@ -193,6 +216,7 @@ namespace Plugin
         m_processMonitorPtr = Common::Process::createProcess();
         m_processMonitorPtr->setOutputLimit(OUTPUT_BUFFER_LIMIT_BYTES);
         m_processMonitorPtr->setOutputTrimmedCallback(ingestOutput);
+        m_processMonitorPtr->setFlushBufferOnNewLine(true);
         m_processMonitorPtr->exec(processPath, arguments, {});
     }
 
