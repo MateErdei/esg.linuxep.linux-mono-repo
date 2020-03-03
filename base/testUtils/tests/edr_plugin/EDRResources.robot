@@ -24,7 +24,9 @@ EDR Plugin Is Not Running
     Should Not Be Equal As Integers    ${result.rc}    0   EDR PLugin still running
 
 Restart EDR Plugin
+    [Arguments]  ${clearLog}=False
     Wdctl Stop Plugin  edr
+    Run Keyword If   ${clearLog}   Remove File  ${EDR_DIR}/log/edr.log
     Wdctl Start Plugin  edr
 
 Install EDR

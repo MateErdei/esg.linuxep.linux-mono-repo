@@ -37,13 +37,13 @@ EDR Plugin Produces Telemetry With OSQueryD Output Log File Not Containing Resta
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0
 
 EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
-    Prepare To Run Telemetry Executable
     Wait Until OSQuery Running  20
     Kill OSQuery
     Wait Until OSQuery Running  20
     Kill OSQuery
     Wait Until OSQuery Running  20
 
+    Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0
@@ -69,7 +69,6 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Wait Until OSQuery Running  20
 
     Run Live Query  ${CRASH_QUERY}  Crash
-
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  2 secs
@@ -102,7 +101,7 @@ EDR Telemetry Suite Teardown
 
 EDR Telemetry Test Setup
     Require Installed
-    Restart EDR Plugin
+    Restart EDR Plugin  True
     Create Directory   ${COMPONENT_TEMP_DIR}
     Wait Until OSQuery Running  20
 
