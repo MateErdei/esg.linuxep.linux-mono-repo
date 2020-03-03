@@ -276,8 +276,6 @@ namespace Common
 
         std::size_t BoostProcessHolder::completionCondition(const boost::system::error_code& ec, std::size_t size)
         {
-            std::string bufferSoFar = std::string(m_bufferForIOService.begin(),  m_bufferForIOService.begin()+size);
-
             if (ec.value() != 0)
             {
                 return 0;
