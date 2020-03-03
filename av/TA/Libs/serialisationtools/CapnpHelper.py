@@ -7,7 +7,7 @@ from enum import Enum
 import capnp
 import NamedScan_capnp
 
-from .NamedScanHelper import NamedScanComparator
+from TA.Libs.serialisationtools.NamedScanHelper import NamedScanComparator
 
 
 class CapnpSchemas(Enum):
