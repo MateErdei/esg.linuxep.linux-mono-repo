@@ -372,6 +372,30 @@ sleep 10000
         ASSERT_EQ(process->output(), content);
     }
 
+    TEST(ProcessImpl, SupportOutputWithMultipleLinesWithFlushBufferEnabled) // NOLINT
+    {
+        auto process = createProcess();
+        std::string out1;
+        std::string out2;
+        process->setOutputTrimmedCallback([&out1, &out2](std::string out) {
+            if (out1.empty())
+            {
+                out1 = out;
+                return;
+            }
+                out2 = out;
+        });
+        process->setOutputLimit(100);
+        process->setFlushBufferOnNewLine(true);
+
+        process->exec("/bin/bash", { "-c", "echo -n 'first'; sleep 1; echo -ne 'abc\ndef'"  });
+
+        std::string output = process->output();
+
+        ASSERT_EQ(out1, "first");
+        ASSERT_EQ(out2, "abc\ndef");
+    }
+
     TEST(ProcessImpl, OutputCannotBeCalledBeforeExec) // NOLINT
     {
         auto process = createProcess();
