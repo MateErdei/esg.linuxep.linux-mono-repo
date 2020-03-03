@@ -4,6 +4,7 @@ SophosAddTest(TestAVScannerImpl
         MockMountPoint.h
         TestCommandLineScanRunner.cpp
         TestDeviceUtil.cpp
+        TestExclusion.cpp
         TestMounts.cpp
         TestNamedScanRunner.cpp
         TestOptions.cpp

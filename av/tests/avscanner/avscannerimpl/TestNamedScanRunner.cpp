@@ -102,7 +102,18 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
 
     NamedScanConfig config = runner.getConfig();
     EXPECT_EQ(config.m_scanName, m_expectedScanName);
-    EXPECT_EQ(config.m_excludePaths, m_expectedExclusions);
+    for (const auto& excl : config.m_excludePaths)
+    {
+        bool matchingExclusion = false;
+        for (const auto& expectedExcl : m_expectedExclusions)
+        {
+            if (excl.path().compare(expectedExcl) == 0)
+            {
+                matchingExclusion = true;
+            }
+        }
+        EXPECT_TRUE(matchingExclusion);
+    }
     EXPECT_EQ(config.m_scanHardDisc, scanHardDisc);
     EXPECT_EQ(config.m_scanNetwork, scanNetwork);
     EXPECT_EQ(config.m_scanOptical, scanOptical);
@@ -206,4 +217,86 @@ TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
 
     int newNumPaths = socket2->m_paths.size();
     EXPECT_LT(newNumPaths, origNumPaths);
+}
+
+TEST_F(TestNamedScanRunner, TestExcludeByFullPath) // NOLINT
+{
+    fs::path testDir = "/tmp/TestExcludeByFullPath";
+    fs::path fullPathExcludedFile = testDir / "foo";
+    fs::path fullPathIncludedFile = testDir / "foobar";
+
+    fs::create_directory(testDir);
+    std::ofstream excludedFile(fullPathExcludedFile);
+    excludedFile << "This file will be excluded from the scan.";
+    std::ofstream includedFile(fullPathIncludedFile);
+    includedFile << "This file will be included in the scan.";
+
+    bool scanHardDisc = true;
+    bool scanNetwork = false;
+    bool scanOptical = false;
+    bool scanRemovable = false;
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
+            message,
+            m_expectedExclusions,
+            scanHardDisc,
+            scanNetwork,
+            scanOptical,
+            scanRemovable);
+
+    NamedScanRunner runner(scanConfigOut);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    bool excludedFileFoundBeforeExcluding = false;
+    bool includedFileFoundBeforeExcluding = false;
+    for (const auto& p : socket->m_paths)
+    {
+        if (p == fullPathExcludedFile)
+        {
+            excludedFileFoundBeforeExcluding = true;
+        }
+        if (p == fullPathIncludedFile)
+        {
+            includedFileFoundBeforeExcluding = true;
+        }
+    }
+    EXPECT_TRUE(excludedFileFoundBeforeExcluding);
+    EXPECT_TRUE(includedFileFoundBeforeExcluding);
+
+    m_expectedExclusions.push_back(fullPathExcludedFile);
+    Sophos::ssplav::NamedScan::Reader scanConfigOut2 = createNamedScanConfig(
+            message,
+            m_expectedExclusions,
+            scanHardDisc,
+            scanNetwork,
+            scanOptical,
+            scanRemovable);
+
+    NamedScanRunner runner2(scanConfigOut2);
+
+    auto socket2 = std::make_shared<RecordingMockSocket>();
+    runner2.setSocket(socket2);
+    runner2.run();
+
+    bool excludedFileFoundAfterExcluding = false;
+    bool includedFileFoundAfterExcluding = false;
+    for (const auto& p : socket2->m_paths)
+    {
+        if (p == fullPathExcludedFile)
+        {
+            excludedFileFoundAfterExcluding = true;
+        }
+        if (p == fullPathIncludedFile)
+        {
+            includedFileFoundAfterExcluding = true;
+        }
+    }
+    EXPECT_FALSE(excludedFileFoundAfterExcluding);
+    EXPECT_TRUE(includedFileFoundAfterExcluding);
+
+    fs::remove_all(testDir);
 }

@@ -8,6 +8,8 @@ add_library(avscannerimpl SHARED
         CommandLineScanRunner.h
         DeviceUtil.cpp
         DeviceUtil.h
+        Exclusion.cpp
+        Exclusion.h
         Logger.cpp
         Logger.h
         IMountInfo.h

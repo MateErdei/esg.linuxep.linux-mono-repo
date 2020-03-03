@@ -1,6 +1,8 @@
-//
-// Created by pair on 11/02/20.
-//
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "NamedScanConfig.h"
 
@@ -27,7 +29,7 @@ NamedScanConfig::NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedS
     m_excludePaths.reserve(excludePaths.size());
     for (const auto& item : excludePaths)
     {
-        m_excludePaths.emplace_back(item);
+        m_excludePaths.emplace_back(Exclusion(item));
     }
 }
 

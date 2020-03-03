@@ -70,9 +70,12 @@ namespace
 
         void processFile(const sophos_filesystem::path& p) override
         {
-            if (PathUtils::startswithany(m_config.m_excludePaths, p))
+            for (auto & exclusion : m_config.m_excludePaths)
             {
-                return;
+                if (exclusion.appliesToPath(p))
+                {
+                    return;
+                }
             }
             try
             {
@@ -95,9 +98,12 @@ namespace
                     return false;
                 }
             }
-            if (PathUtils::startswithany(m_config.m_excludePaths, p)) //NOLINT
+            for (auto & exclusion : m_config.m_excludePaths)
             {
-                return false;
+                if (exclusion.appliesToPath(p))
+                {
+                    return false;
+                }
             }
             return true;
         }
