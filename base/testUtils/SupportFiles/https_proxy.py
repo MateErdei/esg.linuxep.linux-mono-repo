@@ -508,7 +508,8 @@ def test(HandlerClass=ProxyRequestHandler, ServerClass=ThreadingHTTPServer, prot
         help="Run with tls 1.1")
     parser.add_option("--tls1",dest="tls1", default=False, action="store_true",
         help="Run with tls 1.0")
-
+    parser.add_option("--tls",dest="tls", default=False, action="store_true",
+                      help="Run with protocol_tls accepts ssl and tls ")
     (options, args) = parser.parse_args()
 
     if len(args) > 0:
@@ -539,14 +540,16 @@ def test(HandlerClass=ProxyRequestHandler, ServerClass=ThreadingHTTPServer, prot
     if httpd is None:
         logger.fatal("Failed to serve!")
         return 1
-    
+
     protocol = None
     if options.tls1:
         protocol=ssl.PROTOCOL_TLSv1
-    if options.tls1_1:
+    elif options.tls1_1:
         protocol=ssl.PROTOCOL_TLSv1_1
-    if options.tls1_2:
+    elif options.tls1_2:
         protocol=ssl.PROTOCOL_TLSv1_2
+    elif options.tls:
+        protocol=ssl.PROTOCOL_TLS
         
     if protocol:
         if not options.certfile:
