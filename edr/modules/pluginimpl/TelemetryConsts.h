@@ -4,8 +4,6 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
-// todo make this a bit nicer...
 namespace plugin
 {
     const char* const telemetryOsqueryRestarts = "osquery-restarts";
