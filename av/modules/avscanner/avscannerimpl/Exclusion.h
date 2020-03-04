@@ -24,9 +24,9 @@ namespace avscanner::avscannerimpl
     public:
         explicit Exclusion(const std::string& path);
 
-        bool appliesToPath(const std::string& path) const;
-        std::string path() const;
-        ExclusionType type() const;
+        [[nodiscard]] bool appliesToPath(const std::string& path) const;
+        [[nodiscard]] std::string path() const;
+        [[nodiscard]] ExclusionType type() const;
 
     private:
         std::string m_exclusionPath;

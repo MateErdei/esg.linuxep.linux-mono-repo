@@ -70,7 +70,7 @@ namespace
 
         void processFile(const sophos_filesystem::path& p) override
         {
-            for (auto & exclusion : m_config.m_excludePaths)
+            for (const auto& exclusion : m_config.m_excludePaths)
             {
                 if (exclusion.appliesToPath(p))
                 {
@@ -90,7 +90,7 @@ namespace
 
         bool includeDirectory(const sophos_filesystem::path& p) override
         {
-            for (auto & mp : m_allMountPoints)
+            for (const auto& mp : m_allMountPoints)
             {
                 if (!PathUtils::longer(p, mp->mountPoint()) &&
                     PathUtils::startswith(p, mp->mountPoint()))
@@ -98,7 +98,7 @@ namespace
                     return false;
                 }
             }
-            for (auto & exclusion : m_config.m_excludePaths)
+            for (const auto& exclusion : m_config.m_excludePaths)
             {
                 if (exclusion.appliesToPath(p))
                 {

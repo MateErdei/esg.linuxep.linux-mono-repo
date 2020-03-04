@@ -29,7 +29,7 @@ NamedScanConfig::NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedS
     m_excludePaths.reserve(excludePaths.size());
     for (const auto& item : excludePaths)
     {
-        m_excludePaths.emplace_back(Exclusion(item));
+        m_excludePaths.emplace_back(item);
     }
 }
 
