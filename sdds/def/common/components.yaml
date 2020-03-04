@@ -16,7 +16,7 @@ sspl-edr:
     line-id: ServerProtectionLinux-Plugin-EDR
 sspl-av:
     build:
-        branch: feature/LINUXDAR-1479_ostia_experiment
+        branch: feature-LINUXDAR-1479_ostia_experiment
         name: sspl-plugin-anti-virus
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-AV
