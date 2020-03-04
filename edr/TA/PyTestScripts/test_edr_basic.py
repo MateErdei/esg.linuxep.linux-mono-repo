@@ -25,5 +25,5 @@ def test_edr_can_send_status(sspl_mock, edr_plugin_instance):
     status = agent.get_plugin_status('edr', 'LiveQuery')
     assert "RevID" in status
     edr_telemetry = agent.get_plugin_telemetry('edr')
-    assert "Number of Scans" in edr_telemetry
+    assert "osquery-database-purges" in edr_telemetry
 
