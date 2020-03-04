@@ -9,10 +9,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "datatypes/sophos_filesystem.h"
+#include "tests/common/Common.h"
 #include "tests/common/WaitForEvent.h"
 
-#include <fstream>
-#include <unistd.h>
 #include <unixsocket/threatReporterSocket/ThreatReporterClient.h>
 
 #define BASE "/tmp/TestPluginAdapter"
@@ -23,6 +22,29 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
+    class TestThreatReposterSocket : public ::testing::Test
+    {
+    public:
+        void SetUp() override
+        {
+            setupFakeSophosThreatReporterConfig();
+            m_socketPath = "/tmp/TestPluginAdapter/chroot/threat_report_socket";
+            m_userID = std::getenv("USER");
+            m_threatName = "unit-test-eicar";
+            m_threatPath = "/path/to/unit-test-eicar";
+        }
+
+        void TearDown() override
+        {
+            fs::remove_all("/tmp/TestPluginAdapter/");
+        }
+
+        std::string m_threatPath;
+        std::string m_threatName;
+        std::string m_userID;
+        std::string m_socketPath;
+    };
+
     class MockIThreatReportCallbacks : public IMessageCallback
     {
     public:
@@ -30,51 +52,33 @@ namespace
     };
 }
 
-void setupFakeSophosThreatReporterConfig()
-{
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("PLUGIN_INSTALL", BASE);
-    fs::path f = BASE;
-    fs::create_directories(f / "chroot");
-    f /= "sbin";
-    fs::create_directories(f);
-    f /= "sophos_threat_detector_launcher";
-    std::ofstream ost(f);
-    ost.close();
-}
-
-TEST(TestThreatReposterSocket, TestSendThreatReport) // NOLINT
+TEST_F(TestThreatReposterSocket, TestSendThreatReport) // NOLINT
 {
     setupFakeSophosThreatReporterConfig();
     WaitForEvent serverWaitGuard;
 
-    std::string threatName = "unit-test-eicar";
-    std::string threatPath = "/path/to/unit-test-eicar";
-    std::time_t detectionTimeStamp = std::time(nullptr);
-    std::string userID = std::getenv("USER");
 
-    std::shared_ptr<StrictMock<MockIThreatReportCallbacks> > mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+    std::time_t detectionTimeStamp = std::time(nullptr);
+
+    auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
     EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
             InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));;
 
-    unixsocket::ThreatReporterServerSocket threatReporterServer(
-            "/tmp/TestPluginAdapter/chroot/threat_report_socket",
-            mock_callback);
+    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, mock_callback);
 
     threatReporterServer.start();
 
     // connect after we start
-    unixsocket::ThreatReporterClientSocket threatReporterSocket(
-            "/tmp/TestPluginAdapter/chroot/threat_report_socket");
+    unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath);
 
     scan_messages::ThreatDetected threatDetected;
-    threatDetected.setUserID(userID);
+    threatDetected.setUserID(m_userID);
     threatDetected.setDetectionTime(detectionTimeStamp);
     threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
-    threatDetected.setThreatName(threatName);
+    threatDetected.setThreatName(m_threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
-    threatDetected.setFilePath(threatPath);
+    threatDetected.setFilePath(m_threatPath);
     threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
 
     threatReporterSocket.sendThreatDetection(threatDetected);
