@@ -216,6 +216,7 @@ Check Scan Now Configuration File is Correct
 
 Check Scheduled Scan Configuration File is Correct
     ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Sophos_Cloud_Scheduled_Scan.config
+    sleep  10m
     Wait Until Keyword Succeeds
         ...    120 secs
         ...    1 secs
@@ -224,9 +225,9 @@ Check Scheduled Scan Configuration File is Correct
     # TODO LINUXDAR-1482 Make the check more complicated so we check the list attributes
     CapnpHelper.check named scan object   ${configFilename}
         ...     name=Sophos Cloud Scheduled Scan
-        ...     exclude_paths=[]
-        ...     sophos_extension_exclusions=[]
-        ...     user_defined_extension_inclusions=[]
+        ...     exclude_paths=['/proc', '/dev']
+        ...     sophos_extension_exclusions=['.tmp']
+        ...     user_defined_extension_inclusions=['/usr/clean-file']
         ...     scan_archives=False
         ...     scan_all_files=False
         ...     scan_files_with_no_extensions=False
