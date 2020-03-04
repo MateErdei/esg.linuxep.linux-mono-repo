@@ -32,21 +32,6 @@ warehouses:
                 release-tags:
                     - base-version: ""
                       tag: RECOMMENDED
-    ssplmdr-wh:
-        components:
-            ssplmdr-suite:
-                import:
-                    description: "Sophos Server Protection for Linux MTR"
-                    version: "1.0.0"
-                features: [MDR]
-                platforms: []
-                release-tags:
-                    -   base-version: ""
-                        tag: RECOMMENDED
-                subcomponents:
-                    ssplmdr-control-component:
-                    ssplmdr-dbos-component:
-                    ssplmdr-osquery-component:
 
 customer-files:
     -   warehouse: sspl-wh
