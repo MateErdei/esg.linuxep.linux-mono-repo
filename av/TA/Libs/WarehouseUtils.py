@@ -306,7 +306,7 @@ class WarehouseUtils(object):
     ROBOT_LISTENER_API_VERSION = 2
 
     template_configuration_values = {
-        "base_and_av_VUT.xml": TemplateConfig("BASE_AND_AV_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_and_av_VUT.xml": TemplateConfig("BASE_AND_AV_VUT", "av_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         # "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
         # "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut-1", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         # "base_and_mtr_GA.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_mtr_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),

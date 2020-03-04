@@ -142,6 +142,6 @@ Update from Ostia
     ...   10 secs
     ...   check_suldownloader_log_contains   suldownloaderdata <> SUL Last Result: 0
 
-#    Verify AV installed
+    Verify AV installed
 
 
