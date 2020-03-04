@@ -58,12 +58,66 @@ class CapnpHelper:
                            "scanNetworkDrives": scan_network_drives,
                            "scanRemovableDrives": scan_removable_drives}
 
-        self.assert_schema_equal(CapnpSchemas.NamedScan,
-                                 actual_named_scan,
-                                 CapnpHelper._remove_none_values_from_dictionary(expected_values))
+        self._assert_schema_equal(CapnpSchemas.NamedScan,
+                                  actual_named_scan,
+                                  CapnpHelper._remove_none_values_from_dictionary(expected_values))
         return True
 
-    def assert_schema_equal(self, schema, actual, expected_scan_dictionary):
+    def check_scan_request_object(self, object_filename, pathname: str = None, scan_inside_archives: bool = None):
+
+        actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.ScanRequest)
+
+        expected_values = {"pathname": pathname,
+                           "scanInsideArchives": scan_inside_archives}
+
+        self._assert_schema_equal(CapnpSchemas.ScanRequest,
+                                  actual_named_scan,
+                                  CapnpHelper._remove_none_values_from_dictionary(expected_values))
+        return True
+
+    def check_scan_response_object(self, object_filename,
+                                   clean: bool = None,
+                                   threat_name: str = None,
+                                   full_scan_result: str = None):
+
+        actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.ScanResponse)
+
+        expected_values = {"clean": clean,
+                           "threatName": threat_name,
+                           "fullScanResult": full_scan_result}
+
+        self._assert_schema_equal(CapnpSchemas.ScanResponse,
+                                  actual_named_scan,
+                                  CapnpHelper._remove_none_values_from_dictionary(expected_values))
+        return True
+
+    def check_threat_detected_object(self, object_filename,
+                                     user_id: str = None,
+                                     detection_time: int = None,
+                                     threat_type: int = None,
+                                     threat_name: str = None,
+                                     scan_type: int = None,
+                                     notification_status: int = None,
+                                     file_path: str = None,
+                                     action_code: int = None):
+
+        actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.ThreatDetected)
+
+        expected_values = {"userID": user_id,
+                           "detectionTime": detection_time,
+                           "threatType": threat_type,
+                           "threatName": threat_name,
+                           "scanType": scan_type,
+                           "notificationStatus": notification_status,
+                           "filePath": file_path,
+                           "actionCode": action_code}
+
+        self._assert_schema_equal(CapnpSchemas.ThreatDetected,
+                                  actual_named_scan,
+                                  CapnpHelper._remove_none_values_from_dictionary(expected_values))
+        return True
+
+    def _assert_schema_equal(self, schema, actual, expected_scan_dictionary):
         expected = self.schema_object_map[schema].new_message(**expected_scan_dictionary)
 
         for key in expected_scan_dictionary.keys():

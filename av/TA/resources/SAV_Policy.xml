@@ -103,7 +103,7 @@
         <scanSet>
             <!-- if {{scheduledScanEnabled}} -->
             <scan>
-                <name>Sophos Cloud Scheduled Scan</name>
+                <name>c</name>
                 <schedule>
                     <daySet>
                         <!-- for day in {{scheduledScanDays}} -->

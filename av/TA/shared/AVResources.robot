@@ -214,6 +214,27 @@ Check Scan Now Configuration File is Correct
         ...     scan_network_drives=False
         ...     scan_removable_drives=True
 
+Check Scheduled Scan Configuration File is Correct
+    ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Scan_Now.config
+    Wait Until Keyword Succeeds
+        ...    15 secs
+        ...    1 secs
+        ...    File Should Exist  ${configFilename}
+    # TODO LINUXDAR-1482 Update this to check all the configuration is correct - run the test and see what's outputted first
+    # TODO LINUXDAR-1482 Make the check more complicated so we check the list attributes
+    CapnpHelper.check named scan object   ${configFilename}
+        ...     name=Sophos Cloud Scheduled Scan
+        ...     exclude_paths=[]
+        ...     sophos_extension_exclusions=[]
+        ...     user_defined_extension_inclusions=[]
+        ...     scan_archives=False
+        ...     scan_all_files=False
+        ...     scan_files_with_no_extensions=False
+        ...     scan_hard_drives=True
+        ...     scan_cd_dvd_drives=True
+        ...     scan_network_drives=False
+        ...     scan_removable_drives=True
+
 Check Configuration File is Correct
     [Arguments]  ${binaryFileName}  ${expectedScanName}
     ${result} =  CapnpHelper.check named scan name   ${binaryFileName}  ${expectedScanName}

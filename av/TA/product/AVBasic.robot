@@ -7,6 +7,7 @@ Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
+Resource    ../shared/BaseResources.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
@@ -61,6 +62,18 @@ Scan Now Configuration Is Correct
     Send Plugin Policy  av  sav  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Check Scan Now Configuration File is Correct
+
+    ${result} =   Terminate Process  ${handle}
+
+
+Scheduled Scan Configuration Is Correct
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/></config>
+    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
+    # TODO LINUXDAR-1482 Change Send Sav Policy With Imminent Scheduled Scan To Base (see comment in method)
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    Check Scheduled Scan Configuration File is Correct
 
     ${result} =   Terminate Process  ${handle}
 

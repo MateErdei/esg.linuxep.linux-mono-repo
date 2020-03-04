@@ -12,7 +12,7 @@ def create_sav_policy_with_scheduled_scan(filename, timestamp):
     day = calendar.day_name[parsed_timestamp.weekday()]
     parsed_timestamp = (parsed_timestamp + timedelta(minutes=1)).strftime("%H:%M:%S")
 
-    sav_policy_builder = _SavPolicyBuilder("/opt/test/inputs/test_scripts/resources/short_SAV_Policy.xml", filename)
+    sav_policy_builder = _SavPolicyBuilder("/opt/test/inputs/test_scripts/resources/SAV_Policy.xml", filename)
     sav_policy_builder \
         .set_scheduled_scan_day(day) \
         .set_scheduled_scan_time(parsed_timestamp)
