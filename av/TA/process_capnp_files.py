@@ -3,21 +3,28 @@
 # Copyright (C) 2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import shutil
 import os
 import glob
 import re
 
 if __name__ == '__main__':
     # TODO Read & Process capnp files
-    capnp_files_dir = "/opt/test/inputs/test_scripts/resources/capnp-files"
+    capnp_build_files = '../modules/scan_messages'
+    capnp_build_files_dest = 'resources/capnp-files'
+    os.mkdir(capnp_build_files_dest)
+    for capnp_file in glob.glob(os.path.join(capnp_build_files, '*.capnp')):
+        shutil.copy(src=capnp_file, dst=capnp_build_files_dest)
+
+    capnp_files_test_machine_dir = "/opt/test/inputs/test_scripts/resources/capnp-files"
     import_pattern = \
         re.compile(r"using\s+Cxx\s*=\s*import\s+\"capnp/c\+\+\.capnp\";\s*\$Cxx\.namespace\(\".*::.*\"\);")
 
-    if not os.path.isdir(capnp_files_dir):
+    if not os.path.isdir(capnp_files_test_machine_dir):
         # TODO Make nice error message if this build hasn't run
-        raise FileNotFoundError(f"{capnp_files_dir} does not exist, please run build.sh")
+        raise FileNotFoundError(f"{capnp_files_test_machine_dir} does not exist, please run build.sh")
 
-    capnp_filenames = glob.iglob(f"{capnp_files_dir}/*.capnp")
+    capnp_filenames = glob.iglob(f"{capnp_files_test_machine_dir}/*.capnp")
 
     for capnp_file in capnp_filenames:
         with open(capnp_file, 'r') as f:
