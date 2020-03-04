@@ -54,7 +54,7 @@ Check Diagnose Logs
 Send Sav Policy With Imminent Scheduled Scan To Base
     # TODO LINUXDAR-1482 Change this so it can configure more than just the time
     ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
-    Create Sav Policy With Scheduled Scan  ${time}  ${TEMP_SAV_POLICY_FILENAME}
+    Create Sav Policy With Scheduled Scan  ${TEMP_SAV_POLICY_FILENAME}  ${time}
     Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
 
 Send Sav Policy With Invalid Scan Time
