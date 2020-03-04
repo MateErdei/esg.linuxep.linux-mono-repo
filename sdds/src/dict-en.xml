@@ -32,7 +32,7 @@
       <Label>
         <Token>ServerProtectionLinux-Plugin-AV</Token>
         <Language lang="en">
-          <LongDesc>Server Protection for Linux Plugin Anti-Virus</LongDesc>
+          <LongDesc>Server Protection for Linux Plugin AV</LongDesc>
           <ShortDesc>SSPL Plugin AV</ShortDesc>
         </Language>
       </Label>
