@@ -8,6 +8,8 @@ add_library(unixsocket SHARED
         SocketUtils.h
         SocketUtilsImpl.cpp
         SocketUtilsImpl.h
+        StringUtils.cpp
+        StringUtils.h
         threatDetectorSocket/ScanningClientSocket.cpp
         threatDetectorSocket/ScanningClientSocket.h
         threatDetectorSocket/ScanningServerConnectionThread.cpp

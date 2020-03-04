@@ -3,6 +3,7 @@ include(GoogleTest)
 
 SophosAddTest(TestSocketUtils
         TestSocketUtils.cpp
+        TestStringUtils.cpp
         TestThreatReporterSocket.cpp
         PROJECTS unixsocket avscannerimpl
         INC_DIRS
