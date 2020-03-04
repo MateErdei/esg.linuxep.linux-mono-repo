@@ -3,7 +3,6 @@
 # Copyright (C) 2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-import os
 import glob
 import re
 
