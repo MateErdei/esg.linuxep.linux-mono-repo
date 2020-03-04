@@ -15,8 +15,8 @@ Component Test Setup
 Component Test TearDown
     Stop Fake Management
     Terminate All Processes  kill=True
-    Run Keyword And Ignore Error  Run Keyword If Test Failed   Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
-    Run Keyword And Ignore Error  Run Keyword If Test Failed   Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
+    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
+    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
 
 Setup Base And Component
     Mock Base Installation
