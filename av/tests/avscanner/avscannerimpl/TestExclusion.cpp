@@ -48,7 +48,7 @@ TEST(Exclusion, TestGlobTypes) // NOLINT
 TEST(Exclusion, TestSuffixTypes) // NOLINT
 {
     Exclusion suffixExcl("foo.txt");
-    EXPECT_EQ(suffixExcl.type(), SUFFIX);
+    EXPECT_EQ(suffixExcl.type(), FILENAME);
     EXPECT_EQ(suffixExcl.path(), "/foo.txt");
 }
 

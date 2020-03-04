@@ -53,7 +53,7 @@ Exclusion::Exclusion(const std::string& path)
     {
         if (path.find('/') == std::string::npos)
         {
-            m_type = SUFFIX;
+            m_type = FILENAME;
             m_exclusionPath = "/" + path;
         }
         else

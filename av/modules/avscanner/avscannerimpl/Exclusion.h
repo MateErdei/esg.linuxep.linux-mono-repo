@@ -13,7 +13,7 @@ enum ExclusionType
     STEM,
     FULLPATH,
     GLOB,
-    SUFFIX,
+    FILENAME,
     INVALID
 };
 
