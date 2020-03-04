@@ -4,21 +4,21 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-
 #include <pluginimpl/PluginAdapter.h>
 #include <pluginimpl/PluginAdapter.cpp>
 #include "datatypes/sophos_filesystem.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
+
+#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <fstream>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
+using namespace testing;
 using namespace Plugin;
-
-using namespace ::testing;
 
 namespace fs = sophos_filesystem;
 
@@ -36,29 +36,51 @@ void setupFakeSophosThreatDetectorConfig()
     std::ofstream ost(f);
     ost.close();
 }
-
-TEST(TestPluginAdapter, testConstruction) //NOLINT
+namespace
 {
-    std::shared_ptr<Plugin::QueueTask> queueTask;
-    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
-    std::shared_ptr<Plugin::PluginCallback> callback;
+    class TestPluginAdapter : public ::testing::Test
+    {
+    public:
+        void SetUp() override
+        {
+            Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
+            testing::internal::CaptureStderr();
 
-    setupFakeSophosThreatDetectorConfig();
+            m_queueTask = std::make_shared<QueueTask>();
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), callback);
+            setupFakeSophosThreatDetectorConfig();
+        }
+
+        void TearDown() override
+        {
+            fs::remove_all("/tmp/TestPluginAdapter/");
+        }
+
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
+        std::shared_ptr<QueueTask> m_queueTask;
+        std::shared_ptr<Plugin::PluginCallback> m_callback;
+    };
+
+    class MockBase : public Common::PluginApi::IBaseServiceApi
+    {
+    public:
+        MOCK_CONST_METHOD1(requestPolicies, void(const std::string& appId));
+        MOCK_CONST_METHOD2(sendEvent, void(const std::string& appId, const std::string& eventXml));
+        MOCK_CONST_METHOD3(sendStatus, void(
+        const std::string& appId,
+        const std::string& statusXml,
+        const std::string& statusWithoutTimestampsXml));
+    };
 }
 
-TEST(TestPluginAdapter, testProcessPolicy) //NOLINT
+TEST_F(TestPluginAdapter, testConstruction) //NOLINT
 {
-    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
-    testing::internal::CaptureStderr();
-    std::shared_ptr<QueueTask> queueTask = std::make_shared<QueueTask>();
-    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
-    std::shared_ptr<Plugin::PluginCallback> callback;
+    PluginAdapter pluginAdapter(m_queueTask, std::move(m_baseService), m_callback);
+}
 
-    setupFakeSophosThreatDetectorConfig();
-
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), callback);
+TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
+{
+    PluginAdapter pluginAdapter(m_queueTask, std::move(m_baseService), m_callback);
 
     std::string policyXml =
             R"MULTILINE(<?xml version="1.0"?>
@@ -71,8 +93,8 @@ TEST(TestPluginAdapter, testProcessPolicy) //NOLINT
                        policyXml};
     Task stopTask = {Task::TaskType::Stop, ""};
 
-    queueTask->push(actionTask);
-    queueTask->push(stopTask);
+    m_queueTask->push(actionTask);
+    m_queueTask->push(stopTask);
 
     pluginAdapter.mainLoop();
     std::string expectedLog = "Process policy: ";
@@ -84,17 +106,9 @@ TEST(TestPluginAdapter, testProcessPolicy) //NOLINT
 }
 
 
-TEST(TestPluginAdapter, testProcessAction) //NOLINT
+TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
 {
-    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
-    testing::internal::CaptureStderr();
-    std::shared_ptr<QueueTask> queueTask = std::make_shared<QueueTask>();
-    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
-    std::shared_ptr<Plugin::PluginCallback> callback;
-
-    setupFakeSophosThreatDetectorConfig();
-
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(m_baseService), m_callback);
 
     std::string actionXml =
             R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
@@ -103,8 +117,8 @@ TEST(TestPluginAdapter, testProcessAction) //NOLINT
                        actionXml};
     Task stopTask = {Task::TaskType::Stop, ""};
 
-    queueTask->push(actionTask);
-    queueTask->push(stopTask);
+    m_queueTask->push(actionTask);
+    m_queueTask->push(stopTask);
 
     pluginAdapter.mainLoop();
     std::string expectedLog = "Process action: ";
@@ -115,17 +129,9 @@ TEST(TestPluginAdapter, testProcessAction) //NOLINT
     EXPECT_THAT(logs, HasSubstr("Starting Scan Now scan"));
 }
 
-TEST(TestPluginAdapter, testProcessActionMalformed) //NOLINT
+TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
 {
-    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
-    testing::internal::CaptureStderr();
-    std::shared_ptr<QueueTask> queueTask = std::make_shared<QueueTask>();
-    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
-    std::shared_ptr<Plugin::PluginCallback> callback;
-
-    setupFakeSophosThreatDetectorConfig();
-
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(m_baseService), m_callback);
 
     std::string actionXml =
             R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="NONE" id="" subtype="MALFORMED" replyRequired="0"/>)";
@@ -134,8 +140,8 @@ TEST(TestPluginAdapter, testProcessActionMalformed) //NOLINT
                        actionXml};
     Task stopTask = {Task::TaskType::Stop, ""};
 
-    queueTask->push(actionTask);
-    queueTask->push(stopTask);
+    m_queueTask->push(actionTask);
+    m_queueTask->push(stopTask);
 
     pluginAdapter.mainLoop();
     std::string expectedLog = "Process action: ";
@@ -144,4 +150,47 @@ TEST(TestPluginAdapter, testProcessActionMalformed) //NOLINT
 
     EXPECT_THAT(logs, HasSubstr(expectedLog));
     EXPECT_THAT(logs, Not(HasSubstr("Starting Scan Now scan")));
+}
+
+TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    std::string threatDetectedXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                     <notification xmlns="http://www.sophos.com/EE/Event"
+                               description="Virus/spyware @@THREAT_NAME@@ has been detected in @@THREAT_PATH@@"
+                               type="sophos.mgt.msg.event.threat"
+                               timestamp="@@DETECTION_TIME@@">
+
+                     <user userId="@@USER@@"
+                               domain="local"/>
+                     <threat  type="@@THREAT_TYPE@@"
+                               name="@@THREAT_NAME@@"
+                               scanType="@@SMT_SCAN_TYPE@@"
+                               status="@@NOTIFICATION_STATUS@@"
+                               id="@@THREAT_ID@@"
+                               idSource="@@ID_SOURCE@@">
+
+                               <item file="@@THREAT_NAME@@"
+                                      path="@@THREAT_PATH@@"/>
+                               <action action="@@SMT_ACTION_CODES@@"/>
+                     </threat>
+                     </notification>
+            )sophos";
+
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("2", threatDetectedXML));
+
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    pluginAdapter.processThreatReport(threatDetectedXML);
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_queueTask->push(stopTask);
+
+    pluginAdapter.mainLoop();
+    std::string expectedLog = "Sending threat detection notification to central: ";
+    expectedLog.append(threatDetectedXML);
+    std::string logs = testing::internal::GetCapturedStderr();
+
+    EXPECT_THAT(logs, HasSubstr(expectedLog));
 }
