@@ -46,7 +46,7 @@ endif()
 
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
-set(FEATURE_LIST "")
+set(FEATURE_LIST "AV")
 
 
 set(CMAKE_CXX_STANDARD 17)
