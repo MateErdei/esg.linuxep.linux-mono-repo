@@ -36,14 +36,10 @@ warehouses:
                 features: [AV]
                 platforms: []
                 release-tags:
-                    -   base-version: ""
-                        tag: RECOMMENDED
-                    -   base-version: ""
-                        tag: BETA
-                subcomponents:
-                    ssplmdr-control-component:
-                    ssplmdr-dbos-component:
-                    ssplmdr-osquery-component:
+                    - base-version: ""
+                      tag: RECOMMENDED
+                    - base-version: ""
+                      tag: BETA
 
 customer-files:
     -   warehouse: sspl-wh
