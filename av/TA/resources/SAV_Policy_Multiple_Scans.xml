@@ -89,6 +89,7 @@
                 <filePath>/snap/</filePath>
                 <filePath>/srv/</filePath>
                 <filePath>/sys/</filePath>
+                <filePath>/tmp/</filePath>
                 <filePath>/usr/</filePath>
                 <filePath>/vagrant/</filePath>
                 <filePath>/var/</filePath>
