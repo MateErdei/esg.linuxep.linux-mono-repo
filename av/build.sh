@@ -347,13 +347,6 @@ function build()
         cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
 
-    # Copy capnp files for product and integration tests
-    CAPNP_FILES_PATH="$BASE/modules/scan_messages"
-    CAPNP_COPY_FILES_DIRECTORY="$BASE/TA/resources/capnp-files"
-    mkdir -p "$CAPNP_COPY_FILES_DIRECTORY"
-    for file in $CAPNP_FILES_PATH/*.capnp; do cp "$file" "$CAPNP_COPY_FILES_DIRECTORY";done || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy capnp files"
-#    cp "$CAPNP_FILES_PATH/*.capnp" "$CAPNP_COPY_FILES_DIRECTORY"   || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy capnp files"
-
     if [[ -d build${BITS}/symbols ]]
     then
         cp -a build${BITS}/symbols output/
