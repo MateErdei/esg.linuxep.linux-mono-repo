@@ -70,6 +70,6 @@
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
-        <publishbranches>master,bugfix/get_coverage_builds_working</publishbranches>
+        <publishbranches>master,feature/LINUXDAR-1479_ostia_experiment</publishbranches>
     </publish>
 </package>
