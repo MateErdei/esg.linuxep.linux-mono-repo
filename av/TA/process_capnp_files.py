@@ -10,12 +10,6 @@ import re
 
 if __name__ == '__main__':
     # TODO Read & Process capnp files
-    capnp_build_files = '../modules/scan_messages'
-    capnp_build_files_dest = 'resources/capnp-files'
-    os.mkdir(capnp_build_files_dest)
-    for capnp_file in glob.glob(os.path.join(capnp_build_files, '*.capnp')):
-        shutil.copy(src=capnp_file, dst=capnp_build_files_dest)
-
     capnp_files_test_machine_dir = "/opt/test/inputs/test_scripts/resources/capnp-files"
     import_pattern = \
         re.compile(r"using\s+Cxx\s*=\s*import\s+\"capnp/c\+\+\.capnp\";\s*\$Cxx\.namespace\(\".*::.*\"\);")
