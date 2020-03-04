@@ -20,6 +20,7 @@ ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
 ${EXPORT_FILE}     /etc/exports
 ${EICAR_STRING}     X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 
 *** Keywords ***
 Run Shell Process
@@ -196,3 +197,7 @@ Remove Local NFS Share
     Move File  ${EXPORT_FILE}_bkp  ${EXPORT_FILE}
     Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
     Remove Directory    ${source}  recursive=True
+
+Policy Fragment FS Types
+    [Arguments]  ${CDDVDDrives}=false  ${hardDrives}=false  ${networkDrives}=false  ${removableDrives}=false
+    [return]    <scanObjectSet><CDDVDDrives>${CDDVDDrives}</CDDVDDrives><hardDrives>${hardDrives}</hardDrives><networkDrives>${networkDrives}</networkDrives><removableDrives>${removableDrives}</removableDrives></scanObjectSet>

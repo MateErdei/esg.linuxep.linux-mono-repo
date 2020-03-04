@@ -68,26 +68,45 @@ AV Plugin Will Fail Scan Now If No Policy
 AV Plugin Can Disable Scanning Of Remote File Systems
     ${source} =       Set Variable  /tmp/nfsshare
     ${destination} =  Set Variable  /mnt/nfsshare
-    ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/MyScan.log
+    ${remoteFSscanningDisabled} =   Set Variable  remoteFSscanningDisabled
+    ${remoteFSscanningEnabled} =    Set Variable  remoteFSscanningEnabled
+    ${remoteFSscanningDisabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningDisabled}.log
+    ${remoteFSscanningEnabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningEnabled}.log
     Create Directory  ${source}
     Create File       ${source}/eicar.com    ${EICAR_STRING}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
     [Teardown]    Remove Local NFS Share   ${source}   ${destination}
 
+    ${allButTmp} =  Configure Scan Exclusions Everything Else  /mnt/
+    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
+
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
 
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
-    ${schedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
-    ${scanSet} =  Set Variable  <onDemandScan><scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>false</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
+    ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
+    ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=false
+    ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=120
-    AV Plugin Log Contains  Starting scan MyScan
-    File Should Exist  ${myscan_log}
-    File Log Should Not Contain  ${myscan_log}  "${destination}" is infected with EICAR
+    Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningDisabled}  timeout=120
+    AV Plugin Log Contains  Starting scan ${remoteFSscanningDisabled}
+    File Should Exist  ${remoteFSscanningDisabled_log}
+    File Log Should Not Contain  ${remoteFSscanningDisabled_log}  "${destination}" is infected with EICAR
+
+    ${currentTime} =  Get Current Date
+    ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
+    ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
+    ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=true
+    ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningEnabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningEnabled}  timeout=120
+    AV Plugin Log Contains  Starting scan ${remoteFSscanningEnabled}
+    File Should Exist  ${remoteFSscanningEnabled_log}
+    File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}" is infected with EICAR
 
     ${result} =   Terminate Process  ${handle}
 
