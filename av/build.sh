@@ -9,7 +9,6 @@ FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
 FAILURE_UNIT_TESTS=54
-FAILURE_OUPTUT_NOT_AVAILABLE=55
 
 
 source /etc/profile
@@ -346,6 +345,7 @@ function build()
     then
         cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
+
 
     if [[ -d build${BITS}/symbols ]]
     then
