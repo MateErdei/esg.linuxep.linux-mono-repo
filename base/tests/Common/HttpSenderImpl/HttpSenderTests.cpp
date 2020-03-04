@@ -226,31 +226,33 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillDoesGlobalCleanup) /
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
-//
-//TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillFreesAllHeaders) // NOLINT
-//{
-//    EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
-//    EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_, _)).WillOnce(Return(&m_headers));
-//    EXPECT_CALL(*m_curlWrapper, curlEasySetOptHeaders(_, _)).WillOnce(Return(m_succeededResult));
-//    EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, _, "uri").WillRepeatedly(Return(m_succeededResult));
-//    EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_failedResult));
-//    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
-//    EXPECT_CALL(*m_curlWrapper, curlSlistFreeAll(_));
-//    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
-//    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
-//
-//    m_additionalHeaders.emplace_back("testHeader");
-//
-//    RequestConfig getRequestConfig(
-//        RequestType::GET,
-//        m_additionalHeaders,
-//        m_defaultServer,
-//        m_defaultPort,
-//        m_defaultCertPath,
-//        m_defaultResourceRoot);
-//
-//    EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
-//}
+
+TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillFreesAllHeaders) // NOLINT
+{
+    EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
+    EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_, _)).WillOnce(Return(&m_headers));
+    EXPECT_CALL(*m_curlWrapper, curlEasySetOptHeaders(_, _)).WillOnce(Return(m_succeededResult));
+    EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, _, _)).WillRepeatedly(Return(m_succeededResult));
+    EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_, CURLOPT_SSLVERSION,
+                                               {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_succeededResult));
+    EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_failedResult));
+    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
+    EXPECT_CALL(*m_curlWrapper, curlSlistFreeAll(_));
+    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
+
+    m_additionalHeaders.emplace_back("testHeader");
+
+    RequestConfig getRequestConfig(
+        RequestType::GET,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        m_defaultCertPath,
+        m_defaultResourceRoot);
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
+}
 
 TEST_F(HttpSenderTest, getRequest_curlSlistAppendReturnsNullThrowsException) // NOLINT
 {

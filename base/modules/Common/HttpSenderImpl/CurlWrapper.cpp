@@ -23,10 +23,7 @@ namespace Common::HttpSenderImpl
         {
             return curl_easy_setopt(handle, option, std::get<std::string>(parameter).c_str());
         }
-        else
-        {
-            return curl_easy_setopt(handle, option, std::get<long>(parameter));
-        }
+        return curl_easy_setopt(handle, option, std::get<long>(parameter));
     }
 
     curl_slist* CurlWrapper::curlSlistAppend(curl_slist* list, const std::string& value)
