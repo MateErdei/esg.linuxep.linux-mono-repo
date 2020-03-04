@@ -29,11 +29,6 @@ class LiveQueryAdapter(generic_adapter.GenericAdapter):
         LOGGER.debug("{} received an action".format(app_id))
 
         body = command.get("body")
-        max_bytes_size = 1024 * 1024
-        if len(body) > max_bytes_size:
-            LOGGER.error("Rejecting the query because it exceeds maximum allowed size. Query size ({}) bytes. "
-                         "Allowed ({}) bytes.".format(len(body), max_bytes_size))
-            return []
         correlation_id = command.get("id")
         try:
             timestamp = command.get("creationTime")

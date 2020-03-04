@@ -121,8 +121,8 @@ class TestLiveQueryAdapter(unittest.TestCase):
                 with mock.patch('datetime.datetime') as mock_date:
                     mock_date.now.return_value = fixed_datetime
                     livequery_adapter.process_command(live_query_command)
-        mock_i.assert_not_called()
-        self._log_contains(logs.output, 'ERROR:mcsrouter.adapters.livequery_adapter:Rejecting the query because it exceeds maximum allowed size. Query size (5242880) bytes. Allowed (1048576) bytes.')
+        mock_i.assert_called()
+        self._log_contains(logs.output, 'DEBUG:mcsrouter.adapters.livequery_adapter:Query saved to path')
 
 
 
