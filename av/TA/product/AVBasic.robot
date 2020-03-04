@@ -94,7 +94,7 @@ AV Plugin Can Disable Scanning Of Remote File Systems
     Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningDisabled}  timeout=120
     AV Plugin Log Contains  Starting scan ${remoteFSscanningDisabled}
     File Should Exist  ${remoteFSscanningDisabled_log}
-    File Log Should Not Contain  ${remoteFSscanningDisabled_log}  "${destination}" is infected with EICAR
+    File Log Should Not Contain  ${remoteFSscanningDisabled_log}  "${destination}/eicar.com" is infected with EICAR
 
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
@@ -106,7 +106,7 @@ AV Plugin Can Disable Scanning Of Remote File Systems
     Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningEnabled}  timeout=120
     AV Plugin Log Contains  Starting scan ${remoteFSscanningEnabled}
     File Should Exist  ${remoteFSscanningEnabled_log}
-    File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}" is infected with EICAR
+    File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR
 
     ${result} =   Terminate Process  ${handle}
 
