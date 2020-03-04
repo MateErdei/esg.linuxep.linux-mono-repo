@@ -34,7 +34,7 @@ def create_complete_sav_policy(filename):
     sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day("monday")
     sav_policy_builder.set_scheduled_scan_time("11:00:00")
-    sav_policy_builder.set_posix_exclusions(["exclusion1", "exclusion2"])
+    sav_policy_builder.set_posix_exclusions(["*.glob", "globExample?.txt", "/stemexample/*"])
     sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
     sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
     sav_policy_builder.send_sav_policy()
