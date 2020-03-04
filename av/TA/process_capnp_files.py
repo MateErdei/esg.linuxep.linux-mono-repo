@@ -13,10 +13,6 @@ if __name__ == '__main__':
     import_pattern = \
         re.compile(r"using\s+Cxx\s*=\s*import\s+\"capnp/c\+\+\.capnp\";\s*\$Cxx\.namespace\(\".*::.*\"\);")
 
-    if not os.path.isdir(capnp_files_test_machine_dir):
-        # TODO Make nice error message if this build hasn't run
-        raise FileNotFoundError(f"{capnp_files_test_machine_dir} does not exist, please run build.sh")
-
     capnp_filenames = glob.iglob(f"{capnp_files_test_machine_dir}/*.capnp")
 
     for capnp_file in capnp_filenames:
