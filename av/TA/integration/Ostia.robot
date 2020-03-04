@@ -3,11 +3,12 @@ Documentation    Updating from Ostia
 
 Library         ../Libs/WarehouseUtils.py
 Library         ../Libs/LogUtils.py
+Library         ../Libs/OSUtils.py
 Library         OperatingSystem
 Library         String
 
 Resource        ../shared/AVResources.robot
-Resource        ../shared/BaseResources.robot
+# Resource        ../shared/BaseResources.robot
 
 
 Test Setup      No Operation
@@ -61,6 +62,7 @@ Trigger Update
 
 Verify AV installed
     Log  Verify AV installed
+    Should Exist  ${COMPONENT_ROOT_PATH}
 
 Install Ostia SSL Certs To System
     Install System Ca Cert  ${RESOURCES_PATH}/sophos_certs/OstiaCA.crt
@@ -104,6 +106,8 @@ Restart Management Agent
 *** Test Cases ***
 
 Update from Ostia
+    Install Ostia SSL Certs To System
+
     Install Just Base
 
     Configure Debug logging
@@ -115,8 +119,11 @@ Update from Ostia
     ...  2 secs
     ...  check_marked_managementagent_log_contains  managementagent <> Management Agent running.
 
-    ${policy} =  Create Policy For Updating From Ostia  ${RESOURCES_PATH}/alc_policy/template/base_and_av_VUT.xml
+    ${policy_name} =  Set Variable  base_and_av_VUT.xml
+
+    ${policy} =  Create Policy For Updating From Ostia  ${RESOURCES_PATH}/alc_policy/template/${policy_name}
     Apply Policy to Base  ${policy}
+    install_upgrade_certs_for_policy  ${RESOURCES_PATH}/alc_policy/template/${policy_name}
 
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -130,11 +137,11 @@ Update from Ostia
     ...  3 secs
     ...  check_marked_managementagent_log_contains  Action ${SOPHOS_INSTALL}/base/mcs/action/
 
-#    Wait Until Keyword Succeeds
-#    ...   60 secs
-#    ...   10 secs
-#    ...   check_suldownloader_log_contains   FOOBAR
-#
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   check_suldownloader_log_contains   suldownloaderdata <> SUL Last Result: 0
+
 #    Verify AV installed
 
 

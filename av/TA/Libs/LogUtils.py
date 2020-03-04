@@ -564,6 +564,8 @@ class LogUtils(object):
 
     def dump_all_mcs_events(self):
         mcs_events_dir = os.path.join(self.install_path, "base/mcs/event")
+        if not os.path.isdir(mcs_events_dir):
+            return
         for filename in os.listdir(mcs_events_dir):
             fullpath = os.path.join(mcs_events_dir, filename)
             self.dump_log(fullpath)
