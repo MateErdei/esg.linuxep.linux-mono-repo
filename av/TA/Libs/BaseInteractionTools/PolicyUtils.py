@@ -13,9 +13,8 @@ def create_sav_policy_with_scheduled_scan(filename, timestamp):
     parsed_timestamp = (parsed_timestamp + timedelta(minutes=1)).strftime("%H:%M:%S")
 
     sav_policy_builder = _SavPolicyBuilder("/opt/test/inputs/test_scripts/resources/SAV_Policy.xml", filename)
-    sav_policy_builder \
-        .set_scheduled_scan_day(day) \
-        .set_scheduled_scan_time(parsed_timestamp)
+    sav_policy_builder.set_scheduled_scan_day(day)
+    sav_policy_builder.set_scheduled_scan_time(parsed_timestamp)
     sav_policy_builder.send_sav_policy()
 
 def create_badly_configured_sav_policy_time(filename):

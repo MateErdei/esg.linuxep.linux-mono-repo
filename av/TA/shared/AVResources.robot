@@ -215,9 +215,9 @@ Check Scan Now Configuration File is Correct
         ...     scan_removable_drives=True
 
 Check Scheduled Scan Configuration File is Correct
-    ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Scan_Now.config
+    ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Sophos_Cloud_Scheduled_Scan.config
     Wait Until Keyword Succeeds
-        ...    15 secs
+        ...    120 secs
         ...    1 secs
         ...    File Should Exist  ${configFilename}
     # TODO LINUXDAR-1482 Update this to check all the configuration is correct - run the test and see what's outputted first
