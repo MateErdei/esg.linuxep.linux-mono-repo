@@ -8,7 +8,6 @@ import glob
 import re
 
 if __name__ == '__main__':
-    # TODO Read & Process capnp files
     capnp_files_test_machine_dir = "/opt/test/inputs/test_scripts/resources/capnp-files"
     import_pattern = \
         re.compile(r"using\s+Cxx\s*=\s*import\s+\"capnp/c\+\+\.capnp\";\s*\$Cxx\.namespace\(\".*::.*\"\);")
