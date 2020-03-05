@@ -12,9 +12,9 @@ namespace plugin
     const char* const telemetryOSQueryRestartsMemory = "osquery-restarts-memory";
     const char* const telemetryOSQueryDatabasePurges = "osquery-database-purges";
     const char* const telemetryOSQueryDatabaseSize = "osquery-database-size";
-    const char* const telemetrySuccessfulQueries = "livequery-successful-queries";
-    const char* const telemetryFailedQueriesOsqueryError = "livequery-failed-osquery-error";
-    const char* const telemetryFailedQueriesLimitExceeded = "livequery-failed-limit-exceeded";
-    const char* const telemetryFailedQueriesOsqueryDied = "livequery-failed-osquery-died";
-    const char* const telemetryFailedQueriesUnexpected = "livequery-failed-unexpected";
+    const char* const telemetrySuccessfulQueries = "successful-count";
+    const char* const telemetryFailedQueriesOsqueryError = "failed-osquery-error-count";
+    const char* const telemetryFailedQueriesLimitExceeded = "failed-exceed-limit-count";
+    const char* const telemetryFailedQueriesOsqueryDied = "failed-osquery-died-count";
+    const char* const telemetryFailedQueriesUnexpected = "failed-unexpected-error-count";
 }

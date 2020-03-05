@@ -7,6 +7,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <modules/pluginimpl/TelemetryConsts.h>
 
 void livequery::Telemetry::processLiveQueryResponseStats(const livequery::QueryResponse& response, long queryDuration)
 {
@@ -19,21 +20,21 @@ void livequery::Telemetry::processLiveQueryResponseStats(const livequery::QueryR
     switch (response.status().errorCode())
     {
         case livequery::ErrorCode::SUCCESS:
-            telemetry.increment(livequeryKey + ".successful-count", 1L);
+            telemetry.increment(livequeryKey + "." + plugin::telemetrySuccessfulQueries, 1L);
             telemetry.appendStat(livequeryKey + ".duration", queryDuration);
             telemetry.appendStat(livequeryKey + ".rowcount", response.data().columnData().size());
             break;
         case livequery::ErrorCode::EXTENSIONEXITEDWHILERUNNING:
-            telemetry.increment(livequeryKey + ".failed-osquery-died-count", 1L);
+            telemetry.increment(livequeryKey + "." + plugin::telemetryFailedQueriesOsqueryDied, 1L);
             break;
         case livequery::ErrorCode::OSQUERYERROR:
-            telemetry.increment(livequeryKey + ".failed-osquery-error-count", 1L);
+            telemetry.increment(livequeryKey + "." + plugin::telemetryFailedQueriesOsqueryError, 1L);
             break;
         case livequery::ErrorCode::RESPONSEEXCEEDLIMIT:
-            telemetry.increment(livequeryKey + ".failed-exceed-limit-count", 1L);
+            telemetry.increment(livequeryKey + "." + plugin::telemetryFailedQueriesLimitExceeded, 1L);
             break;
         case livequery::ErrorCode::UNEXPECTEDERROR:
-            telemetry.increment(livequeryKey + ".failed-unexpected-error-count", 1L);
+            telemetry.increment(livequeryKey + "." + plugin::telemetryFailedQueriesUnexpected, 1L);
             break;
     }
 }
