@@ -36,10 +36,10 @@ ${MCS_FUZZER_PATH}   ${SUPPORT_FILES}/push_fuzzer/runner.py
 
 *** Test Cases ***
 Test Push Livequery Command Fuzz
-    Run MCS Router Fuzzer   livequery   50
+    Run MCS Router Fuzzer   livequery
 
 Test Push Wakeup Command Fuzz
-    Run MCS Router Fuzzer   wakeup   20
+    Run MCS Router Fuzzer   wakeup
 
 *** Keywords ***
 Run MCS Router Fuzzer
