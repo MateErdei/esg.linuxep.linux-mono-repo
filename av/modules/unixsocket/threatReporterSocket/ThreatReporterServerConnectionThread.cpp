@@ -18,9 +18,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <utility>
 
 #include <sys/socket.h>
-#include <sys/un.h>
 #include <unistd.h>
-#include <sys/stat.h>
+#include <unixsocket/StringUtils.h>
 
 using namespace unixsocket;
 
@@ -59,47 +58,6 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 //    perror(message.c_str());
 //    throw std::runtime_error(message);
 //}
-
-static std::string generateThreatDetectedXml(const Sophos::ssplav::ThreatDetected::Reader& detection)
-{
-    std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
-            R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-                     <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware @@THREAT_NAME@@ has been detected in @@THREAT_PATH@@"
-                               type="sophos.mgt.msg.event.threat"
-                               timestamp="@@DETECTION_TIME@@">
-
-                     <user userId="@@USER@@"
-                               domain="local"/>
-                     <threat  type="@@THREAT_TYPE@@"
-                               name="@@THREAT_NAME@@"
-                               scanType="@@SMT_SCAN_TYPE@@"
-                               status="@@NOTIFICATION_STATUS@@"
-                               id="@@THREAT_ID@@"
-                               idSource="@@ID_SOURCE@@">
-
-                               <item file="@@THREAT_NAME@@"
-                                      path="@@THREAT_PATH@@"/>
-                               <action action="@@SMT_ACTION_CODES@@"/>
-                     </threat>
-                     </notification>
-            )sophos",{
-                    {"@@THREAT_NAME@@", detection.getThreatName()},
-                    {"@@THREAT_PATH@@", detection.getFilePath()},
-                    {"@@DETECTION_TIME@@", std::to_string(detection.getDetectionTime())},
-                    {"@@USER@@", detection.getUserID()},
-                    {"@@THREAT_TYPE@@",  std::to_string(detection.getThreatType())},
-                    {"@@SMT_SCAN_TYPE@@",  std::to_string(detection.getScanType())},
-                    {"@@NOTIFICATION_STATUS@@", std::to_string(detection.getNotificationStatus())},
-                    // TO DO: at the moment we don't store THREAT_ID  and ID_SOURCE in the capnp object
-                    // cause there is no way to retrieve this information
-                    {"@@THREAT_ID@@", std::to_string(detection.getActionCode())},
-                    {"@@ID_SOURCE@@", std::to_string(detection.getDetectionTime())},
-                    {"@@SMT_ACTION_CODES@@", std::to_string(detection.getActionCode())}
-            });
-
-    return result;
-}
 
 /**
  * Parse a detection.

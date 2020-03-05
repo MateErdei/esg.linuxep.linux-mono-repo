@@ -7,8 +7,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
+#include <ThreatDetected.capnp.h>
 
 namespace unixsocket
 {
-    void xmlEscape(std::string& text);
+    void escapeControlCharacters(std::string& text);
+
+    std::string generateThreatDetectedXml(const Sophos::ssplav::ThreatDetected::Reader& detection);
 }

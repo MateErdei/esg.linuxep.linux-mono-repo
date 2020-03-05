@@ -66,6 +66,8 @@ void ScanClient::sendThreatReport(const fs::path& threatPath, const std::string&
     threatDetected.setUserID(std::getenv("USER"));
     threatDetected.setDetectionTime(detectionTimeStamp);
     threatDetected.setScanType(m_scanType);
+    //For now this is always 1 (Virus)
+    threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(threatPath);
