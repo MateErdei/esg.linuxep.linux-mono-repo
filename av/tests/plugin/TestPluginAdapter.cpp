@@ -159,22 +159,22 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
 
     std::string threatDetectedXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                      <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware @@THREAT_NAME@@ has been detected in @@THREAT_PATH@@"
+                               description="Virus/spyware eicar has been detected in path/to/threat"
                                type="sophos.mgt.msg.event.threat"
-                               timestamp="@@DETECTION_TIME@@">
+                               timestamp="123">
 
-                     <user userId="@@USER@@"
+                     <user userId="User"
                                domain="local"/>
-                     <threat  type="@@THREAT_TYPE@@"
-                               name="@@THREAT_NAME@@"
-                               scanType="@@SMT_SCAN_TYPE@@"
-                               status="@@NOTIFICATION_STATUS@@"
-                               id="@@THREAT_ID@@"
-                               idSource="@@ID_SOURCE@@">
+                     <threat  type="1"
+                               name="eicar"
+                               scanType="201"
+                               status="50"
+                               id="1"
+                               idSource="1">
 
-                               <item file="@@THREAT_NAME@@"
-                                      path="@@THREAT_PATH@@"/>
-                               <action action="@@SMT_ACTION_CODES@@"/>
+                               <item file="threat"
+                                      path="path/to/threat"/>
+                               <action action="104"/>
                      </threat>
                      </notification>
             )sophos";
