@@ -22,11 +22,25 @@ TEST(TestStringUtils, TestXMLEscape) // NOLINT
     EXPECT_EQ(threatPath, "abc \\1 \\2 \\3 \\4 \\5 \\6 \\ abc \\a \\b \\t \\n \\v \\f \\r abc");
 }
 
+TEST(TestStringUtils, TestXMLEscapeNotEqualResult) // NOLINT
+{
+    std::string threatPath = "abc \1 \2 \3 \4 \5 \6 \\ abc \a \b \t \n \v \f \r abc";
+    escapeControlCharacters(threatPath);
+    EXPECT_NE(threatPath, "abc \\1 \\2 \\3 \\4 \\5 \\6 \\ abc \\\a \\b \\t \\n \\v \\f \\r abc");
+}
+
 TEST(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharacters) // NOLINT
 {
     std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
     escapeControlCharacters(threatPath);
     EXPECT_EQ(threatPath, "ありったけの夢をかき集め \\1 \\2 \\3 \\4 \\5 \\6 \\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
+}
+
+TEST(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharactersNotEqualResult) // NOLINT
+{
+    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
+    escapeControlCharacters(threatPath);
+    EXPECT_NE(threatPath, "ありったけの夢をかき集め \\1 \\2 \\\3 \\4 \\5 \\6 \\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
 }
 
 namespace
@@ -112,7 +126,7 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlats) // NOLINT
     EXPECT_EQ(result, m_umlatsXML);
 }
 
-TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlatsNotEqual) // NOLINT
+TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlatsNotEqualResult) // NOLINT
 {
     std::string threatName = "Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ";
     std::string threatPath = "πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·";
@@ -148,7 +162,7 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharacters) // N
     std::string threatName = "ありったけの夢をかき集め";
     std::string threatPath = "捜し物を探しに行くのさ ONE PIECE";
     std::string userID = "羅針盤なんて 渋滞のもと";
-    
+
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
@@ -173,7 +187,7 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharacters) // N
     EXPECT_EQ(result, m_japaneseXML);
 }
 
-TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharactersNotEquals) // NOLINT
+TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharactersNotEqualResult) // NOLINT
 {
     std::string threatName = "ありったけの夢をかき集め";
     std::string threatPath = "捜し物を探しに行くのさ ONE PIECE";
