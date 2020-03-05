@@ -72,7 +72,6 @@ void ScanRunner::run()
 
     LOGINFO("Completed scan " << m_name << " with exit code: " << exitCode);
     process.reset();
-    fs::remove(config_file);
 
     LOGINFO("Sending scan complete event to Central");
     std::string scanCompletedXml = generateScanCompleteXml(m_name);
