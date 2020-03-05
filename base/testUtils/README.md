@@ -75,3 +75,5 @@ The following tags can be used to select which tests can be run, using the inclu
 * FAULTINJECTION - Tests that deliberately introduces faults to the normal installation
 * MDR_REGRESSION_TESTS - End to end tests related to MTR feature
 * TAP_TESTS - Tests to be executed in Tap environment
+* EXCLUDE_RHEL8  excludes the test from running on rhel 8
+* EXCLUDE_CENTOS8 excludes the test from running on centos 8

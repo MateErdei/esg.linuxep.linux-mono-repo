@@ -290,7 +290,7 @@ Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules
 
 Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS below TLSv1_2
-    [Tags]  SMOKE  THIN_INSTALLER
+    [Tags]  SMOKE  THIN_INSTALLER  EXCLUDE_RHEL8  EXCLUDE_CENTOS8
     Setup Warehouse   --tls1_2   --tls1_1
     Start Local Cloud Server   --tls   tlsv1_2
     Run Default Thininstaller    10    https://localhost:4443
