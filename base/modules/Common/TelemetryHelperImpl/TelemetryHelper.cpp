@@ -15,10 +15,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Common::Telemetry
 {
     void TelemetryHelper::set(const std::string& key, long value) { setInternal(key, value, false); }
-
     void TelemetryHelper::set(const std::string& key, unsigned long value) { setInternal(key, value, false); }
-    void TelemetryHelper::set(const std::string& key, const std::string& value) { setInternal(key, value, false); }
 
+    void TelemetryHelper::set(const std::string& key, double value) { setInternal(key, value, false); }
+
+    void TelemetryHelper::set(const std::string& key, const std::string& value) { setInternal(key, value, false); }
     void TelemetryHelper::set(const std::string& key, const char* value) { setInternal(key, value, false); }
 
     void TelemetryHelper::set(const std::string& key, bool value) { setInternal(key, value, false); }
@@ -30,6 +31,11 @@ namespace Common::Telemetry
     void TelemetryHelper::appendValue(const std::string& arrayKey, long value) { appendValueInternal(arrayKey, value); }
 
     void TelemetryHelper::appendValue(const std::string& arrayKey, unsigned long value)
+    {
+        appendValueInternal(arrayKey, value);
+    }
+
+    void TelemetryHelper::appendValue(const std::string& arrayKey, double value)
     {
         appendValueInternal(arrayKey, value);
     }
@@ -67,6 +73,11 @@ namespace Common::Telemetry
     }
 
     void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, unsigned long value)
+    {
+        appendObjectInternal(arrayKey, key, value);
+    }
+
+    void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, double value)
     {
         appendObjectInternal(arrayKey, key, value);
     }
@@ -135,6 +146,7 @@ namespace Common::Telemetry
     }
     void TelemetryHelper::locked_reset()
     {
+        m_statsCollection = {};
         TelemetryHelper another;
         another.m_root = m_resetToThis;
         for (const auto& callback_entry : m_callbacks)
@@ -184,6 +196,69 @@ namespace Common::Telemetry
         }
     }
 
+    void TelemetryHelper::appendStat(const std::string& statsKey, double value)
+    {
+        m_statsCollection[statsKey].push_back(value);
+    }
 
+    double TelemetryHelper::getStatAverage(const std::string& statsKey)
+    {
+        if (m_statsCollection[statsKey].empty())
+        {
+            return 0;
+        }
+
+        double sumation = 0;
+        for (auto& stat : m_statsCollection[statsKey])
+        {
+            sumation += stat;
+        }
+
+        return sumation / m_statsCollection[statsKey].size();
+    }
+
+    double TelemetryHelper::getStatMin(const std::string& statsKey)
+    {
+        return *std::min_element(m_statsCollection[statsKey].begin(), m_statsCollection[statsKey].end());
+    }
+
+    double TelemetryHelper::getStatMax(const std::string& statsKey)
+    {
+        return *std::max_element(m_statsCollection[statsKey].begin(), m_statsCollection[statsKey].end());
+    }
+
+    void TelemetryHelper::updateTelemetryWithStats()
+    {
+        updateTelemetryWithAllAverageStats();
+        updateTelemetryWithAllMinStats();
+        updateTelemetryWithAllMaxStats();
+    }
+
+    void TelemetryHelper::updateTelemetryWithAllAverageStats()
+    {
+        std::map<std::string, double> averages;
+        for (const auto& keyValuePair : m_statsCollection)
+        {
+            set(keyValuePair.first + "-avg", getStatAverage(keyValuePair.first));
+        }
+    }
+
+    void TelemetryHelper::updateTelemetryWithAllMinStats()
+    {
+        std::map<std::string, double> minValues;
+        for (const auto& keyValuePair : m_statsCollection)
+        {
+            set(keyValuePair.first + "-min", getStatMin(keyValuePair.first));
+        }
+    }
+
+    void TelemetryHelper::updateTelemetryWithAllMaxStats()
+    {
+        std::map<std::string, double> maxValues;
+        for (const auto& keyValuePair : m_statsCollection)
+        {
+            set(keyValuePair.first + "-max",getStatMax(keyValuePair.first));
+        }
+    }
 
 } // namespace Common::Telemetry

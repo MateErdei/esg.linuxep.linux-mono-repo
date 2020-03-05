@@ -29,6 +29,7 @@ namespace Common::Telemetry
 
         void set(const std::string& key, long value);
         void set(const std::string& key, unsigned long value);
+        void set(const std::string& key, double value);
         void set(const std::string& key, const std::string& value);
         void set(const std::string& key, const char* value);
         void set(const std::string& key, bool value);
@@ -39,6 +40,7 @@ namespace Common::Telemetry
 
         void appendValue(const std::string& arrayKey, long value);
         void appendValue(const std::string& arrayKey, unsigned long value);
+        void appendValue(const std::string& arrayKey, double value);
         void appendValue(const std::string& arrayKey, const std::string& value);
         void appendValue(const std::string& arrayKey, const char* value);
         void appendValue(const std::string& arrayKey, bool value);
@@ -46,9 +48,20 @@ namespace Common::Telemetry
         void appendObject(const std::string& arrayKey, const TelemetryObject& object);
         void appendObject(const std::string& arrayKey, const std::string& key, long value);
         void appendObject(const std::string& arrayKey, const std::string& key, unsigned long value);
+        void appendObject(const std::string& arrayKey, const std::string& key, double value);
         void appendObject(const std::string& arrayKey, const std::string& key, const std::string& value);
         void appendObject(const std::string& arrayKey, const std::string& key, const char* value);
         void appendObject(const std::string& arrayKey, const std::string& key, bool value);
+
+        void appendStat(const std::string& statsKey, double value);
+        void updateTelemetryWithStats();
+
+        double getStatAverage(const std::string& statsKey);
+        double getStatMin(const std::string& statsKey);
+        double getStatMax(const std::string& statsKey);
+        void updateTelemetryWithAllAverageStats();
+        void updateTelemetryWithAllMinStats();
+        void updateTelemetryWithAllMaxStats();
 
         void mergeJsonIn(const std::string& key, const std::string& json);
         void registerResetCallback(std::string cookie, std::function<void(TelemetryHelper&)> function);
@@ -68,6 +81,7 @@ namespace Common::Telemetry
         std::mutex m_dataLock;
         std::mutex m_callbackLock;
         std::map<std::string, std::function<void(TelemetryHelper&)>> m_callbacks;
+        std::map<std::string, std::vector<double>> m_statsCollection;
 
         void locked_reset();
 
