@@ -29,6 +29,9 @@ namespace avscanner::avscannerimpl
         [[nodiscard]] ExclusionType type() const;
 
     private:
+        std::string convertGlobToRegex(const std::string& glob);
+        void escapeRegexMetaCharacters(std::string& text);
+
         std::string m_exclusionPath;
         ExclusionType m_type;
     };

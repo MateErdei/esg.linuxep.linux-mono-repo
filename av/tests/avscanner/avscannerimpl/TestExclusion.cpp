@@ -37,12 +37,26 @@ TEST(Exclusion, TestGlobTypes) // NOLINT
 {
     Exclusion globExclAsterix("/tmp/foo*");
     EXPECT_EQ(globExclAsterix.type(), GLOB);
+    EXPECT_TRUE(globExclAsterix.appliesToPath("/tmp/foobar"));
+    EXPECT_TRUE(globExclAsterix.appliesToPath("/tmp/foo"));
+    EXPECT_FALSE(globExclAsterix.appliesToPath("/tmp/fo"));
 
     Exclusion globExclQuestionMark("/var/log/syslog.?");
     EXPECT_EQ(globExclQuestionMark.type(), GLOB);
+    EXPECT_TRUE(globExclQuestionMark.appliesToPath("/var/log/syslog.1"));
+    EXPECT_FALSE(globExclQuestionMark.appliesToPath("/var/log/syslog."));
 
     Exclusion doubleGlobExcl("/tmp*/foo/*");
     EXPECT_EQ(doubleGlobExcl.type(), GLOB);
+    EXPECT_TRUE(doubleGlobExcl.appliesToPath("/tmp/foo/bar"));
+    EXPECT_TRUE(doubleGlobExcl.appliesToPath("/tmp/bar/foo/"));
+    EXPECT_FALSE(doubleGlobExcl.appliesToPath("/home/dev/tmp/bar/foo/"));
+
+    Exclusion regexMetaCharExcl("/tmp/regex[^\\\\]+$filename*");
+    EXPECT_EQ(regexMetaCharExcl.type(), GLOB);
+    EXPECT_TRUE(regexMetaCharExcl.appliesToPath("/tmp/regex[^\\\\]+$filename"));
+    EXPECT_TRUE(regexMetaCharExcl.appliesToPath("/tmp/regex[^\\\\]+$filename.txt"));
+    EXPECT_FALSE(regexMetaCharExcl.appliesToPath("/tmp/regex[^\\\\+$filename.txt"));
 }
 
 TEST(Exclusion, TestSuffixTypes) // NOLINT
