@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Common/UtilityImpl/StringUtils.h"
 #include "datatypes/Print.h"
-#include "capnp/serialize.h"
+#include <capnp/serialize.h>
 
 #include <stdexcept>
 #include <iostream>

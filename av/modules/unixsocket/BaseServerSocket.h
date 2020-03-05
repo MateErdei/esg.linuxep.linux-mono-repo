@@ -76,7 +76,6 @@ namespace unixsocket
             m_threadVector.clear();
         }
 
-    protected:
         std::vector<TPtr> m_threadVector;
     };
 }

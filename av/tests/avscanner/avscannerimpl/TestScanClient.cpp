@@ -8,10 +8,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 
 #include "avscanner/avscannerimpl/ScanClient.h"
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <unixsocket/threatReporterSocket/ThreatReporterServerSocket.h>
-#include <tests/common/WaitForEvent.h>
-#include <tests/common/Common.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
+#include "tests/common/WaitForEvent.h"
+#include "tests/common/Common.h"
 
 #define BASE "/tmp/TestPluginAdapter"
 
