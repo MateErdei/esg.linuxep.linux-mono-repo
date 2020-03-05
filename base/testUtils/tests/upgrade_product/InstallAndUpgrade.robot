@@ -233,7 +233,7 @@ Verify Upgrading Will Remove Files Which Are No Longer Required
     Should Not Exist    ${SOPHOS_INSTALL}
 
     Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}  real=True
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
     Wait For Initial Update To Fail
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrWithFakeLibs}
@@ -270,7 +270,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     Should Not Exist    ${SOPHOS_INSTALL}
 
     Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}  real=True
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
     Wait For Initial Update To Fail
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrWithFakeLibs}
