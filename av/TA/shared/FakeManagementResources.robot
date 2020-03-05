@@ -23,7 +23,6 @@ Run Scheduled Scan
     ${policy_contents} =  Get File  resources/${TEMP_SAV_POLICY_FILENAME}
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration  timeout=240
-#    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=240
 
 Run Scan Now Scan
     Create Complete Sav Policy  ${TEMP_SAV_POLICY_FILENAME}

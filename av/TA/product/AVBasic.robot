@@ -55,22 +55,11 @@ AV Plugin Can Process Scan Now
 
     ${result} =   Terminate Process  ${handle}
 
-
 Scan Now Configuration Is Correct
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
     Run Scan Now
     Check Scan Now Configuration File is Correct
-
-    ${result} =   Terminate Process  ${handle}
-
-
-Scheduled Scan Configuration Is Correct
-    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
-    Check AV Plugin Installed
-    # TODO LINUXDAR-1482 Change Send Sav Policy With Imminent Scheduled Scan To Base (see comment in method)
-    Run Scheduled Scan
-    Check Scheduled Scan Configuration File is Correct
 
     ${result} =   Terminate Process  ${handle}
 

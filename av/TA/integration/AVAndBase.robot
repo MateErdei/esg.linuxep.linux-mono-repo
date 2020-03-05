@@ -160,14 +160,9 @@ Check scan now
     Send Sav Policy To Base  SAV_Policy_Scan_Now.xml
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=360
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now
     AV Plugin Log Contains  Starting Scan Now scan
     AV Plugin Log Contains  Starting scan Scan Now
-
-Check scheduled scan
-    Send Sav Policy With Imminent Scheduled Scan To Base
-    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
-    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=240
 
 Validate latest Event
      ${eventXml}=  get_latest_xml_from_events  base/mcs/event/
