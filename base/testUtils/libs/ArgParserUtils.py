@@ -12,10 +12,7 @@ def add_common_test_args(parser):
     return NotImplementedError
 
 
-def add_mcsrouter_fuzz_tests_args(parser):
-    parser.add_argument("--suite", default='mcs', type=str, \
-                        help="Specify policy to fuzz", choices=['alc', 'mcs', 'mdr'])
-
+def add_mcs_fuzz_tests_args(parser):
     parser.add_argument("--web-port", help="Web UI port", default=26001, type=int)
     parser.add_argument("--kitty-cmd-line", help="The command line to pass through to Kitty")
     parser.add_argument("--delay-between-tests", help="Delay (in seconds) between each test", default=1.0, type=float)
@@ -30,9 +27,14 @@ def add_mcsrouter_fuzz_tests_args(parser):
 
     parser.add_argument("--shutdown-web-ui", help="When the fuzz testing is done, close the web ui and exit",
                         action="store_true", default=False)
+
+def add_mcsrouter_fuzz_tests_args(parser):
+    parser.add_argument("--suite", default='mcs', type=str, \
+                        help="Specify policy to fuzz", choices=['alc', 'mcs', 'mdr'])
     parser.add_argument("--using-python",
                         help="specify is test is ran using python './mcs_fuzz_test_runner.py' or via robot or not",
                         action="store_true", default=False)
+    add_mcs_fuzz_tests_args(parser)
 
 def tls_from_string(tls_string=""):
     tls_string_lower_case = tls_string.lower()

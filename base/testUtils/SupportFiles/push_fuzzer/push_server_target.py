@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# coding=utf-8
+import time
+
 from kitty.targets.server import  ServerTarget
 import os
 import sys
@@ -25,8 +29,16 @@ class PushServerTarget(ServerTarget):
         self._push_server_utils = PushServerUtils()
         self._push_server_utils.start_mcs_push_server()
 
+    def __del__(self):
+        self._push_server_utils.shutdown_mcs_push_server()
+
     def _send_to_target(self, payload):
-        self._push_server_utils.send_message_to_push_server(payload)
+        self.logger.info("Sending payload")
+        self.logger.info("%s" % payload)
+        try:
+            self._push_server_utils.send_message_to_push_server(payload)
+        except:
+            pass
 
     def _receive_from_target(self):
         self.not_implemented('receive_from_target')

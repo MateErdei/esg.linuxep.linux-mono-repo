@@ -4,7 +4,7 @@ Documentation    Fuzzer tests for MCS
 Default Tags  MCS_FUZZ
 
 Library    Process
-#Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
 
@@ -23,6 +23,7 @@ Test Setup      Setup MCS Tests
 Test Teardown   Run Keywords
 ...             Kill Push Fuzzer  AND
 ...             Stop Local Cloud Server  AND
+...             Check Mcsrouter Log Does Not Contain   Failed to write an action to:   AND
 ...             MCSRouter Default Test Teardown  AND
 ...             Dump Kittylogs Dir Contents  AND
 ...             Stop System Watchdog

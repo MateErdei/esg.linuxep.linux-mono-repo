@@ -71,6 +71,10 @@ class LogUtils(object):
         server_log = self.cloud_server_log
         self.dump_log(server_log)
 
+    def dump_push_server_log(self):
+        server_log = os.path.join(self.tmp_path, "push_server_log.log")
+        self.dump_log(server_log)
+
     def check_log_contains(self, string_to_contain, pathToLog, log_name):
         if not (os.path.isfile(pathToLog)):
             raise AssertionError("Log file {} at location {} does not exist ".format(log_name, pathToLog))

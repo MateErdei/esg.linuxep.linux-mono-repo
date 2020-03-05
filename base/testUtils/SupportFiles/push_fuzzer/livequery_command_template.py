@@ -42,4 +42,11 @@ declaration_static = Static("<?xml version='1.0'?>", name="declaration")
 declaration_fuzz = String("<?xml version='1.0'?>", name="declaration")
 newline_static = Static("\n", name="newline")
 
-livequery_command= Template(fields=[declaration_static, newline_static, live_query], name="livequery_command_fuzz")
+livequery_command = Template(fields=[declaration_static, newline_static, live_query], name="livequery_command_fuzz")
+
+### wake-up command ###
+wake_up = XmlElement(name="wake_up", element_name="action",
+                     attributes=[ XmlAttribute(name="type", attribute="type", value="sophos.mgt.action.GetCommands",
+                                               fuzz_attribute=True, fuzz_value=True)])
+wake_up_command = Template(fields=[declaration_static, newline_static, wake_up], name="wake_up_command_fuzz")
+
