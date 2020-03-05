@@ -26,6 +26,7 @@ Test Teardown   Run Keywords
 ...             Check Mcsrouter Log Does Not Contain   Failed to write an action to:   AND
 ...             MCSRouter Default Test Teardown  AND
 ...             Dump Kittylogs Dir Contents  AND
+...             Dump Push Server Log   AND
 ...             Stop System Watchdog
 
 Test Timeout  100 minutes
@@ -56,5 +57,5 @@ Kill Push Fuzzer
     Run Process  pgrep runner.py | xargs kill -9  shell=true
 
 Set Timeout
-    ${placeholder} =  Get Environment Variable   MCSFUZZ_TIMEOUT  default=6000
+    ${placeholder} =  Get Environment Variable   MCSFUZZ_TIMEOUT  default=3000
     Set Suite Variable  ${MCS_FUZZER_TIMEOUT}  ${placeholder}
