@@ -30,3 +30,4 @@ class PushServerTarget(ServerTarget):
 
     def _receive_from_target(self):
         self.not_implemented('receive_from_target')
+
