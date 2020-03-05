@@ -3,21 +3,11 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#ifndef SRC_COMMON_INCLUDE_TEST_WAITFOREVENT_H_
-#define SRC_COMMON_INCLUDE_TEST_WAITFOREVENT_H_
-
 #include <chrono>
 #include <future>
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:6011 6326 28182)
-#endif
 #include <gmock/gmock.h>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#pragma warning(disable:6326)
-#endif
+
 class WaitForEvent
 {
 public:
@@ -52,4 +42,3 @@ private:
     std::promise<bool> m_promise;
     std::future<bool> m_future;
 };
-#endif /* SRC_COMMON_INCLUDE_TEST_WAITFOREVENT_H_ */
