@@ -25,6 +25,9 @@ Default Tags   EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
 *** Variables ***
 ${COMPONENT_TEMP_DIR}  /tmp/edr_component
 ${CRASH_QUERY} =  WITH RECURSIVE counting (curr, next) AS ( SELECT 1,1 UNION ALL SELECT next, curr+1 FROM counting LIMIT 10000000000 ) SELECT group_concat(curr) FROM counting;
+${SIMPLE_QUERY_1_ROW} =  SELECT * from users limit 1;
+${SIMPLE_QUERY_2_ROW} =  SELECT * from users limit 2;
+${SIMPLE_QUERY_4_ROW} =  SELECT * from users limit 4;
 
 
 *** Test Cases ***
@@ -57,7 +60,34 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  1  0
+
+    ${query}=  Set Variable  {"name":"Crash", "failed-osquery-died-count":1}
+    @{queries}=  create list   ${query}
+
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  1  0  queries=@{queries}
+
+
+EDR Plugin Reports Telemetry Correctly For Live Query
+    Run Live Query  ${SIMPLE_QUERY_1_ROW}   simple
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  2 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Successfully executed query with name: simple  1
+
+    Run Live Query  ${SIMPLE_QUERY_4_ROW}   simple
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  2 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Successfully executed query with name: simple  2
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+
+    # ignoreing duration as it will vary too much to reliably test - it's covered in unit tests.
+    ${query1}=  Set Variable  {"name":"simple", "rowcount-avg":2.5, "rowcount-min":1, "rowcount-max":4, "successful-count":2}
+    @{queries}=  create list   ${query1}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  queries=@{queries}
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by EDR Plugin
     Wait Until OSQuery Running  20
@@ -75,7 +105,11 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  1  0
+
+    ${query}=  Set Variable  {"name":"Crash", "failed-osquery-died-count":1, "osquery-restarts":2}
+    @{queries}=  create list   ${query}
+
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  1  0  queries=@{queries}
 
 EDR Plugin Counts Osquery Database Purges
     Prepare To Run Telemetry Executable

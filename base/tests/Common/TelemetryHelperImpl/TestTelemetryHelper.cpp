@@ -521,3 +521,18 @@ TEST(TestTelemetryHelper, dataNotLostDuringMultiThreadedUse) // NOLINT
 
     ASSERT_EQ(numberOfItemsInArray, array1size + array2size + array3size);
 }
+
+TEST(TestTelemetryHelper, telemtryStatSerialisedCorrectly) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.appendStat("statName", 1);
+    helper.appendStat("statName", 6);
+    helper.appendStat("statName", 10);
+    helper.updateTelemetryWithStats();
+
+    //std::string a = helper.serialise();
+
+    ASSERT_EQ(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
+}
+

@@ -117,7 +117,7 @@ class TelemetryUtils:
         return telemetry
 
     def generate_edr_telemetry_dict(self, num_osquery_restarts, num_database_purges, num_osquery_restarts_cpu,
-                                    num_osquery_restarts_memory):
+                                    num_osquery_restarts_memory, queries):
         version = get_plugin_version("edr")
         telemetry = {
             "osquery-restarts": int(num_osquery_restarts),
@@ -128,6 +128,33 @@ class TelemetryUtils:
             telemetry["osquery-restarts-cpu"] = int(num_osquery_restarts_cpu)
         if int(num_osquery_restarts_memory) > -1:
             telemetry["osquery-restarts-memory"] = int(num_osquery_restarts_memory)
+
+        if queries:
+            telemetry["live-query"] = {}
+            for query in queries:
+                # because robot can't seem to pass dictionaries in parse string to dict here.
+                query = json.loads(query)
+                print(type(query))
+                print(query)
+                queryName = query["name"]
+                telemetry["live-query"][queryName] = {}
+                if "successful-count" in query:
+                    telemetry["live-query"][query["name"]]["rowcount-avg"] = query["rowcount-avg"]
+                    telemetry["live-query"][query["name"]]["rowcount-min"] = query["rowcount-min"]
+                    telemetry["live-query"][query["name"]]["rowcount-max"] = query["rowcount-max"]
+                    telemetry["live-query"][query["name"]]["successful-count"] = query["successful-count"]
+
+                if "failed-exceed-limit-count" in query:
+                    telemetry["live-query"][query["name"]]["failed-exceed-limit-count"] = query["failed-exceed-limit-count"]
+                if "failed-osquery-died-count" in query:
+                    telemetry["live-query"][query["name"]]["failed-osquery-died-count"] = query["failed-osquery-died-count"]
+                if "failed-osquery-error-count" in query:
+                    telemetry["live-query"][query["name"]]["failed-osquery-error-count"] = query["failed-osquery-error-count"]
+                if "failed-unexpected-error-count" in query:
+                    telemetry["live-query"][query["name"]]["failed-unexpected-error-count"] = query["failed-unexpected-error-count"]
+
+
+
 
         return telemetry
 
@@ -289,11 +316,13 @@ class TelemetryUtils:
                                             num_osquery_restarts_cpu=0,
                                             num_osquery_restarts_memory=0,
                                             ignore_cpu_restarts=False,
-                                            ignore_memory_restarts=False):
+                                            ignore_memory_restarts=False,
+                                            queries=None):
         expected_edr_telemetry_dict = self.generate_edr_telemetry_dict(num_osquery_restarts,
                                                                        num_database_purges,
                                                                        num_osquery_restarts_cpu,
-                                                                       num_osquery_restarts_memory)
+                                                                       num_osquery_restarts_memory,
+                                                                       queries)
         actual_edr_telemetry_dict = json.loads(json_string)["edr"]
 
         if ignore_cpu_restarts:
@@ -310,6 +339,15 @@ class TelemetryUtils:
         if actual_edr_telemetry_dict[osquery_db_size_key] < 1:
             raise AssertionError("EDR telemetry doesn't contain a valid osquery database size field")
         actual_edr_telemetry_dict.pop(osquery_db_size_key, None)
+
+        if "live-query" in actual_edr_telemetry_dict:
+            # pop all durations from actual query because these values will change, so they need to be removed for tests.
+            # Duration values are tested in unit tests.
+            for (queryName, queryData) in actual_edr_telemetry_dict["live-query"].items():
+                if "duration-avg" in queryData:
+                    queryData.pop("duration-avg")
+                    queryData.pop("duration-min")
+                    queryData.pop("duration-max")
 
         if actual_edr_telemetry_dict != expected_edr_telemetry_dict:
             raise AssertionError(
