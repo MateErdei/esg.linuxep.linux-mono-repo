@@ -31,16 +31,13 @@ namespace avscanner::avscannerimpl
             return p.string().rfind(value.string(), 0) == 0;
         }
 
-        static bool startswithany(const std::vector<std::string>& paths, const fs::path& p)
+        static bool endswith(const fs::path& p, const fs::path& value)
         {
-            for (auto & exclusion : paths)
-            {
-                if (PathUtils::startswith(p, exclusion))
-                {
-                    return true;
-                }
+            if (p.string().length() >= value.string().length()) {
+                return (0 == p.string().compare(p.string().length() - value.string().length(), value.string().length(), value));
+            } else {
+                return false;
             }
-            return false;
         }
     };
 }

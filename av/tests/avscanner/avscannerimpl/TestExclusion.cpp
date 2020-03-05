@@ -71,11 +71,13 @@ TEST(Exclusion, TestGlobTypes) // NOLINT
     EXPECT_FALSE(regexMetaCharExcl.appliesToPath("/tmp/regex[^\\\\+$filename.txt"));
 }
 
-TEST(Exclusion, TestSuffixTypes) // NOLINT
+TEST(Exclusion, TestFilenameTypes) // NOLINT
 {
     Exclusion suffixExcl("foo.txt");
     EXPECT_EQ(suffixExcl.type(), FILENAME);
     EXPECT_EQ(suffixExcl.path(), "/foo.txt");
+    EXPECT_TRUE(suffixExcl.appliesToPath("/tmp/bar/foo.txt"));
+    EXPECT_FALSE(suffixExcl.appliesToPath("/tmp/bar/foo.txt.backup"));
 }
 
 TEST(Exclusion, TestInvalidTypes) // NOLINT
