@@ -254,6 +254,7 @@ class MCSPushClientInternal(threading.Thread):
                 'http': self._proxy.address(with_full_uri=False),
                 'https': self._proxy.address(with_full_uri=False)
             }
+        session.trust_env = False
         return session, self._proxy.m_username, self._proxy.m_password
 
     def run(self):

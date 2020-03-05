@@ -368,31 +368,33 @@ Verify When MCS receives a Command Response Message It Immediately Attempt To Se
     Check Marked McsRouter Log Contains String N times    Set command poll interval to   0
 
 Connection is lost between endpoint and proxy
-     Start MCS Push Server
-     Start Proxy Server With Basic Auth    1235   username   password
-     Set Environment Variable  https_proxy   http://username:password@localhost:1235
-     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_300.xml
+    [Teardown]  Test Teardown With Env Proxy
+    Start MCS Push Server
+    Start Proxy Server With Basic Auth    1235   username   password
+    Set Environment Variable  https_proxy   http://username:password@localhost:1235
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_300_no_direct.xml
 
-     Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
-     Send Message To Push Server And Expect It In MCSRouter Log  First Message
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
+    Send Message To Push Server And Expect It In MCSRouter Log  First Message
 
-     Stop Proxy Server On Port  1235
-     Wait Until Keyword Succeeds
-      ...  10 secs
-      ...  1 secs
-      ...  Check Mcsrouter Log Contains   Push Server service reported: Push client lost connection to server
+    Stop Proxy Server On Port  1235
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains   Push Server service reported: Push client lost connection to server
 
-     Start Proxy Server With Basic Auth    1235   username   password
+    Start Proxy Server With Basic Auth    1235   username   password
 
-     Mark Mcsrouter Log
-     Wait Until Keyword Succeeds
-     ...          10s
-     ...          1s
-     ...          Check marked Mcsrouter Log Contains   Push client successfully connected to localhost:4443 via localhost:1235
+    Mark Mcsrouter Log
+    Wait Until Keyword Succeeds
+    ...          30s
+    ...          3s
+    ...          Check marked Mcsrouter Log Contains   Push client successfully connected to localhost:4443 via localhost:1235
 
-     Send Message To Push Server And Expect It In MCSRouter Log  Second Message
+    Send Message To Push Server And Expect It In MCSRouter Log  Second Message
 
 Try connection via proxy with bad authentication
+    [Teardown]  Test Teardown With Env Proxy
     Start MCS Push Server
     Start Proxy Server With Basic Auth    1235   username   password
     Set Environment Variable  https_proxy   http://badusername:badpassword@localhost:1235
@@ -405,7 +407,7 @@ Try connection via proxy with bad authentication
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  2 secs
-    ...  Check MCSRouter Log Contains  Trying push connection directly to localhost:4443
+    ...  Check MCSRouter Log Contains  Push client successfully connected to localhost:4443 directly
 
 MCS Push Client Logs Successfull Connection Via Proxy
 
@@ -484,6 +486,10 @@ Test Teardown
     Stop Proxy Servers
     Stop Mcsrouter If Running
     Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
+
+Test Teardown With Env Proxy
+    Test Teardown
+    Remove Environment Variable    https_proxy
 
 EDR Push Client Teardown
     Test Teardown
