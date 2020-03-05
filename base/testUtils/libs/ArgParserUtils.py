@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2019 Sophos Plc, Oxford, England.
 # All rights reserved.
-import argparse
 import os
-import ssl
-
 import PathManager
 
 def add_common_test_args(parser):
@@ -36,27 +33,6 @@ def add_mcsrouter_fuzz_tests_args(parser):
                         action="store_true", default=False)
     add_mcs_fuzz_tests_args(parser)
 
-def tls_from_string(tls_string=""):
-    tls_string_lower_case = tls_string.lower()
-    if tls_string_lower_case == "tlsv1_2":
-        return ssl.PROTOCOL_TLSv1_2
-    elif tls_string_lower_case == "tlsv1_1":
-        return ssl.PROTOCOL_TLSv1_1
-    elif tls_string_lower_case == "tlsv1":
-        return ssl.PROTOCOL_TLSv1
-    elif tls_string_lower_case == "sslv3":
-        return ssl.PROTOCOL_SSLv3
-    elif tls_string_lower_case == "sslv2":
-        return ssl.PROTOCOL_SSLv2
-    elif tls_string_lower_case == "sslv23":
-        return ssl.PROTOCOL_TLS
-    else:
-        return None
-
-class store_ssl_tls(argparse.Action):
-    def __call__(self, parser, namespace, tls_version_string, option_string=None):
-        tls_version = tls_from_string(tls_version_string)
-        setattr(namespace, self.dest, tls_version)
 
 def add_cloudserver_args(parser):
     # 'Cloud test server for SSPL Linux automation'
@@ -80,5 +56,3 @@ def add_cloudserver_args(parser):
     parser.add_argument("--initial-mcs-policy", help="define the initial mcs policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MCS_policy.xml"), dest="INITIAL_MCS_POLICY")
     parser.add_argument("--initial-sav-policy", help="define the initial sav policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_SAV_policy.xml"), dest="INITIAL_SAV_POLICY")
     parser.add_argument("--initial-mdr-policy", help="define the initial mdr policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MDR_policy.xml"), dest="INITIAL_MDR_POLICY")
-    parser.add_argument("--tls", dest="tls", default=ssl.PROTOCOL_SSLv23, action=store_ssl_tls, help="Set tls option", \
-                        choices=["tlsv1", "tlsv1_1", "tlsv1_2", "sslv2", "sslv3", "sslv23"])
