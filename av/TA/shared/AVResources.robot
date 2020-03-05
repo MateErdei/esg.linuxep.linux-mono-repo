@@ -2,6 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         String
+Library         ../Libs/AVScanner.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
@@ -20,6 +21,7 @@ ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
 ${EXPORT_FILE}     /etc/exports
 ${EICAR_STRING}     X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 
 *** Keywords ***
 Run Shell Process
@@ -166,20 +168,13 @@ Create Install Options File With Content
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
     #TODO set permissions
 
-Send Sav Policy To Base
-    [Arguments]  ${policyFile}
-    Copy File  ${RESOURCES_PATH}/${policyFile}  ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
-
-Send Sav Action To Base
-    [Arguments]  ${actionFile}
-    ${savActionFilename}  Generate Random String
-    Copy File  ${RESOURCES_PATH}/${actionFile}  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_${savActionFilename}.xml
-
 Check ScanNow Log Exists
     File Should Exist  ${SCANNOW_LOG_PATH}
 
-Configure Scan Exclusions Everything Else # Will allow for one directory to be selected during a scan
-#TODO implementation required
+Configure Scan Exclusions Everything Else
+    [Arguments]  ${inclusion}
+    ${exclusions} =  exclusions for everything else  ${inclusion}
+    [return]  ${exclusions}
 
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
@@ -214,7 +209,6 @@ Check Scan Now Configuration File is Correct
         ...     scan_network_drives=False
         ...     scan_removable_drives=True
 
-Check Configuration File is Correct
-    [Arguments]  ${binaryFileName}  ${expectedScanName}
-    ${result} =  CapnpHelper.check named scan name   ${binaryFileName}  ${expectedScanName}
-    Should Be True  ${result}
+Policy Fragment FS Types
+    [Arguments]  ${CDDVDDrives}=false  ${hardDrives}=false  ${networkDrives}=false  ${removableDrives}=false
+    [return]    <scanObjectSet><CDDVDDrives>${CDDVDDrives}</CDDVDDrives><hardDrives>${hardDrives}</hardDrives><networkDrives>${networkDrives}</networkDrives><removableDrives>${removableDrives}</removableDrives></scanObjectSet>
