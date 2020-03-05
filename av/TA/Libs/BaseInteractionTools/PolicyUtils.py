@@ -9,7 +9,7 @@ SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
 
 def create_sav_policy_with_scheduled_scan(filename, timestamp):
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
-    day = calendar.day_name[parsed_timestamp.weekday()]
+    day = calendar.day_name[parsed_timestamp.weekday()].lower()
     parsed_timestamp = (parsed_timestamp + timedelta(minutes=1)).strftime("%H:%M:%S")
 
     sav_policy_builder = _SavPolicyBuilder("/opt/test/inputs/test_scripts/resources/SAV_Policy.xml", filename)

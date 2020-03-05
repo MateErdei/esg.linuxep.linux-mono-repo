@@ -5,15 +5,25 @@
 
 import glob
 import re
+import shutil
 
 if __name__ == '__main__':
-    capnp_files_test_machine_dir = "/opt/test/inputs/test_scripts/resources/capnp-files"
-    import_pattern = \
-        re.compile(r"using\s+Cxx\s*=\s*import\s+\"capnp/c\+\+\.capnp\";\s*\$Cxx\.namespace\(\".*::.*\"\);")
 
-    capnp_filenames = glob.iglob(f"{capnp_files_test_machine_dir}/*.capnp")
+    capnp_files_origin_dir = "modules/scan_messages"
+    capnp_files_target_dir = "TA/resources/capnp-files"
 
-    for capnp_file in capnp_filenames:
+    # Copy capnp files
+    capnp_origin_filenames = glob.iglob(f"{capnp_files_origin_dir}/*.capnp")
+
+    for capnp_file in capnp_origin_filenames:
+        shutil.copy(capnp_file, capnp_files_target_dir)
+
+    # Remove namespacing
+    import_pattern = re.compile(r"using\s+Cxx\s*=\s*import\s+\"capnp/c\+\+\.capnp\";\s*\$Cxx\.namespace\(\".*::.*\"\);")
+
+    capnp_target_filenames = glob.iglob(f"{capnp_files_target_dir}/*.capnp")
+
+    for capnp_file in capnp_target_filenames:
         with open(capnp_file, 'r') as f:
             contents = f.read()
         new_contents = import_pattern.sub(repl="", string=contents, count=1)

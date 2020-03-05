@@ -4,9 +4,7 @@
 #------------------------------------------------------------------------------
 @0x8bf3416dfec66ed9;
 
-using Cxx = import "capnp/c++.capnp";
 
-$Cxx.namespace("Sophos::ssplav");
 
 struct NamedScan {
     # The data required for a scan to run

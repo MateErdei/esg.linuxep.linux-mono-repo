@@ -7,9 +7,7 @@
 
 @0xc889ef5d8e672583;
 
-using Cxx = import "capnp/c++.capnp";
 
-$Cxx.namespace("Sophos::ssplav");
 
 struct ThreatDetected {
     userID                          @0  :Text;

@@ -144,9 +144,6 @@ AV Plugin uninstalls
     Run uninstaller
     Check avscanner not in /usr/local/bin
 
-TEMPORARY test
-    Check scheduled scan
-
 
 *** Keywords ***
 
@@ -170,10 +167,7 @@ Check scan now
 Check scheduled scan
     Send Sav Policy With Imminent Scheduled Scan To Base
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
-    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  250
-
-
-
+    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=240
 
 Validate latest Event
      ${eventXml}=  get_latest_xml_from_events  base/mcs/event/

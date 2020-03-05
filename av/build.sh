@@ -346,6 +346,7 @@ function build()
         cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
 
+    python3 TA/process_capnp_files.py
 
     if [[ -d build${BITS}/symbols ]]
     then

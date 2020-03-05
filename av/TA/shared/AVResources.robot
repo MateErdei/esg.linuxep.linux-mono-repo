@@ -215,8 +215,8 @@ Check Scan Now Configuration File is Correct
         ...     scan_removable_drives=True
 
 Check Scheduled Scan Configuration File is Correct
-    ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Sophos_Cloud_Scheduled_Scan.config
-    sleep  10m
+    ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Sophos Cloud Scheduled Scan.config
+#    sleep  10m
     Wait Until Keyword Succeeds
         ...    120 secs
         ...    1 secs
