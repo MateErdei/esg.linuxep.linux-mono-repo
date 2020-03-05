@@ -203,12 +203,12 @@ Check Scan Now Configuration File is Correct
         ...    File Should Exist  ${configFilename}
     CapnpHelper.check named scan object   ${configFilename}
         ...     name=Scan Now
-        ...     exclude_paths=[]
-        ...     sophos_extension_exclusions=[]
-        ...     user_defined_extension_inclusions=[]
+        ...     exclude_paths=["/bin/", "/boot/", "/dev/", "/etc/", "/home/", "/lib32/", "/lib64/", "/lib/", "/lost+found/", "/media/", "/mnt/", "/oldTarFiles/", "/opt/", "/proc/", "/redist/", "/root/", "/run/", "/sbin/", "/snap/", "/srv/", "/sys/", "/usr/", "/vagrant/", "/var/", "*.glob", "globExample?.txt", "/stemexample/*"]
+        ...     sophos_extension_exclusions=["exclusion1", "exclusion2", "exclusion3"]
+        ...     user_defined_extension_inclusions=["exclusion1", "exclusion2", "exclusion3", "exclusion4"]
         ...     scan_archives=False
         ...     scan_all_files=False
-        ...     scan_files_with_no_extensions=False
+        ...     scan_files_with_no_extensions=True
         ...     scan_hard_drives=True
         ...     scan_cd_dvd_drives=True
         ...     scan_network_drives=False

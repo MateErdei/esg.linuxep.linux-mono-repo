@@ -58,7 +58,7 @@ AV Plugin Can Process Scan Now
 Scan Now Configuration Is Correct
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
-    Run Scan Now
+    Run Scan Now Scan
     Check Scan Now Configuration File is Correct
 
     ${result} =   Terminate Process  ${handle}
