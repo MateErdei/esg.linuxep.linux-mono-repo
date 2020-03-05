@@ -48,6 +48,28 @@ namespace
     class TestStringUtilsXML : public ::testing::Test
     {
     public:
+        std::string m_englishsXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                     <notification xmlns="http://www.sophos.com/EE/Event"
+                               description="Virus/spyware eicar has been detected in path/to/threat"
+                               type="sophos.mgt.msg.event.threat"
+                               timestamp="123">
+
+                     <user userId="User"
+                               domain="local"/>
+                     <threat  type="1"
+                               name="eicar"
+                               scanType="201"
+                               status="50"
+                               id="1"
+                               idSource="1">
+
+                               <item file="threat"
+                                      path="path/to/threat"/>
+                               <action action="104"/>
+                     </threat>
+                     </notification>
+            )sophos";
+
         std::string m_umlatsXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                      <notification xmlns="http://www.sophos.com/EE/Event"
                                description="Virus/spyware Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ has been detected in πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·"
@@ -63,7 +85,7 @@ namespace
                                id="1"
                                idSource="1">
 
-                               <item file="Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ"
+                               <item file="πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·"
                                       path="πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·"/>
                                <action action="104"/>
                      </threat>
@@ -85,7 +107,7 @@ namespace
                                id="1"
                                idSource="1">
 
-                               <item file="ありったけの夢をかき集め"
+                               <item file="捜し物を探しに行くのさ ONE PIECE"
                                       path="捜し物を探しに行くのさ ONE PIECE"/>
                                <action action="104"/>
                      </threat>
@@ -93,6 +115,69 @@ namespace
             )sophos";
     };
     std::time_t m_detectionTimeStamp = 123;
+}
+
+TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXml) // NOLINT
+{
+    std::string threatName = "eicar";
+    std::string threatPath = "path/to/threat";
+    std::string userID = "User";
+
+    scan_messages::ThreatDetected threatDetected;
+    threatDetected.setUserID(userID);
+    threatDetected.setDetectionTime(m_detectionTimeStamp);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
+    threatDetected.setThreatName(threatName);
+    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+    threatDetected.setFilePath(threatPath);
+    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+
+    std::string dataAsString = threatDetected.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
+            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+
+    std::string result = generateThreatDetectedXml(deSerialisedData);
+
+    EXPECT_EQ(result, m_englishsXML);
+}
+
+TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlNotEqualResult) // NOLINT
+{
+    std::string threatName = "eicar";
+    std::string threatPath = "path/to/threat";
+    std::string userID = "User";
+
+    scan_messages::ThreatDetected threatDetected;
+    threatDetected.setUserID(userID);
+    threatDetected.setDetectionTime(m_detectionTimeStamp);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
+    threatDetected.setThreatName(threatName);
+    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+    threatDetected.setFilePath(threatPath);
+    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+
+    std::string dataAsString = threatDetected.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
+            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+
+
+    std::string result = generateThreatDetectedXml(deSerialisedData);
+
+    EXPECT_NE(result, m_englishsXML.append("this is unexpected"));
 }
 
 TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlats) // NOLINT
