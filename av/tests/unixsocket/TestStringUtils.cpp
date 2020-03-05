@@ -22,25 +22,11 @@ TEST(TestStringUtils, TestXMLEscape) // NOLINT
     EXPECT_EQ(threatPath, "abc \\1 \\2 \\3 \\4 \\5 \\6 \\ abc \\a \\b \\t \\n \\v \\f \\r abc");
 }
 
-TEST(TestStringUtils, TestXMLEscapeNotEqualResult) // NOLINT
-{
-    std::string threatPath = "abc \1 \2 \3 \4 \5 \6 \\ abc \a \b \t \n \v \f \r abc";
-    escapeControlCharacters(threatPath);
-    EXPECT_NE(threatPath, "abc \\1 \\2 \\3 \\4 \\5 \\6 \\ abc \\\a \\b \\t \\n \\v \\f \\r abc");
-}
-
 TEST(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharacters) // NOLINT
 {
     std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
     escapeControlCharacters(threatPath);
     EXPECT_EQ(threatPath, "ありったけの夢をかき集め \\1 \\2 \\3 \\4 \\5 \\6 \\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
-}
-
-TEST(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharactersNotEqualResult) // NOLINT
-{
-    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
-    escapeControlCharacters(threatPath);
-    EXPECT_NE(threatPath, "ありったけの夢をかき集め \\1 \\2 \\\3 \\4 \\5 \\6 \\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
 }
 
 namespace
@@ -148,38 +134,6 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXml) // NOLINT
     EXPECT_EQ(result, m_englishsXML);
 }
 
-TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlNotEqualResult) // NOLINT
-{
-    std::string threatName = "eicar";
-    std::string threatPath = "path/to/threat";
-    std::string userID = "User";
-
-    scan_messages::ThreatDetected threatDetected;
-    threatDetected.setUserID(userID);
-    threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
-    threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
-    threatDetected.setThreatName(threatName);
-    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
-    threatDetected.setFilePath(threatPath);
-    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
-
-    std::string dataAsString = threatDetected.serialise();
-
-    const kj::ArrayPtr<const capnp::word> view(
-            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
-            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
-
-    capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
-            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
-
-
-    std::string result = generateThreatDetectedXml(deSerialisedData);
-
-    EXPECT_NE(result, m_englishsXML.append("this is unexpected"));
-}
-
 TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlats) // NOLINT
 {
     std::string threatName = "Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ";
@@ -211,37 +165,6 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlats) // NOLINT
     EXPECT_EQ(result, m_umlatsXML);
 }
 
-TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlatsNotEqualResult) // NOLINT
-{
-    std::string threatName = "Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ";
-    std::string threatPath = "πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·";
-    std::string userID = "πολλῶν δ’ ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω,, German umlats: Ä Ö Ü ß";
-
-    scan_messages::ThreatDetected threatDetected;
-    threatDetected.setUserID(userID);
-    threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
-    threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
-    threatDetected.setThreatName(threatName);
-    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
-    threatDetected.setFilePath(threatPath);
-    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
-
-    std::string dataAsString = threatDetected.serialise();
-
-    const kj::ArrayPtr<const capnp::word> view(
-            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
-            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
-
-    capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
-            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
-
-    std::string result = generateThreatDetectedXml(deSerialisedData);
-
-    EXPECT_NE(result, m_umlatsXML.append("this is unexpected"));
-}
-
 TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharacters) // NOLINT
 {
     std::string threatName = "ありったけの夢をかき集め";
@@ -270,35 +193,4 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharacters) // N
     std::string result = generateThreatDetectedXml(deSerialisedData);
 
     EXPECT_EQ(result, m_japaneseXML);
-}
-
-TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharactersNotEqualResult) // NOLINT
-{
-    std::string threatName = "ありったけの夢をかき集め";
-    std::string threatPath = "捜し物を探しに行くのさ ONE PIECE";
-    std::string userID = "羅針盤なんて 渋滞のもと";
-
-
-    scan_messages::ThreatDetected threatDetected;
-    threatDetected.setUserID(userID);
-    threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
-    threatDetected.setThreatName(threatName);
-    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
-    threatDetected.setFilePath(threatPath);
-    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
-
-    std::string dataAsString = threatDetected.serialise();
-
-    const kj::ArrayPtr<const capnp::word> view(
-            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
-            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
-
-    capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
-            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
-
-    std::string result = generateThreatDetectedXml(deSerialisedData);
-
-    EXPECT_NE(result, m_japaneseXML.append("this is unexpected"));
 }
