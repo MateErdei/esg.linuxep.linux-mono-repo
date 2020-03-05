@@ -15,7 +15,5 @@ sophos_add_library(livequeryimpl SHARED
         Logger.cpp
         Telemetry.h
         Telemetry.cpp
-        QueryTelemetryStats.h
-        QueryTelemetryStats.cpp
         EXTRA_LIBS ${log4cpluslib}
         )

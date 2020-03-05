@@ -10,7 +10,6 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 void livequery::Telemetry::processLiveQueryResponseStats(const livequery::QueryResponse& response, long queryDuration)
 {
-    QueryTelemetryStats queryStats = m_queryStats[response.metaData().getQueryName()];
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
     std::string strippedQueryName =
