@@ -33,28 +33,27 @@ Test Timeout  100 minutes
 ${MCS_FUZZER_PATH}   ${SUPPORT_FILES}/push_fuzzer/runner.py
 
 *** Test Cases ***
+Test Push Livequery Command Fuzz
+    Run MCS Router Fuzzer   livequery
 
-Test Push Fuzzer
-    Run MCS Router Fuzzer
-
+Test Push Wakeup Command Fuzz
+    Run MCS Router Fuzzer   wakeup
 
 *** Keywords ***
 Run MCS Router Fuzzer
-    ${handle} =  Start Process   /usr/bin/python3   ${MCS_FUZZER_PATH}   alias=push_fuzzer
+    [Arguments]   ${Suite}   ${MutationsToTestRatio}=1
+    Start Mcs Fuzzer   ${MCS_FUZZER_PATH}   ${Suite}  ${MutationsToTestRatio}
+
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Should Exist  ${REGISTER_CENTRAL}
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
-    #wait just less than the default timeout
-    ${result} =    Wait For Process    push_fuzzer  timeout=${MCS_FUZZER_TIMEOUT} s  on_timeout=kill
-    Log    "stdout = ${result.stdout}"
-    Log    "stderr = ${result.stderr}"
-    Should Be Equal As Integers   ${result.rc}       -9      failed with error
+
+    Wait For Mcs Fuzzer   ${MCS_FUZZER_TIMEOUT}
 
 Kill Push Fuzzer
     Run Process  pgrep runner.py | xargs kill -9  shell=true
 
 Set Timeout
-    ${placeholder} =  Get Environment Variable   MCSFUZZ_TIMEOUT  default=300
-
+    ${placeholder} =  Get Environment Variable   MCSFUZZ_TIMEOUT  default=6000
     Set Suite Variable  ${MCS_FUZZER_TIMEOUT}  ${placeholder}
