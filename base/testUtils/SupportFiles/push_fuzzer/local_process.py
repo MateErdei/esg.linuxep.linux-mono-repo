@@ -13,7 +13,7 @@ class LocalProcessController(BaseController):
           controller = LocalProcessController('PyHttpServer', '/usr/bin/python', ['-m', 'SimpleHttpServer', '1234'])
   '''
 
-  def __init__(self, name, process_path, process_args, log_file_path, delay_after_start=None, start_each_test=False, logger=None):
+  def __init__(self, name, process_path, process_args, delay_after_start=None, start_each_test=False, logger=None):
     '''
     :param name: name of the object
     :param process_path: path to the target executable. note that it requires the actual path, not only executable name
@@ -30,7 +30,6 @@ class LocalProcessController(BaseController):
     self._process = None
     self._delay_after_start = delay_after_start
     self._start_each_test = start_each_test
-    self.push_fuzzer_logfile = log_file_path
 
   def pre_test(self, test_number):
     '''start the victim'''
@@ -39,9 +38,8 @@ class LocalProcessController(BaseController):
       if self._process:
         self._stop_process()
 
-      self.push_fuzzer_logger = open(self.push_fuzzer_logfile, 'w')
       cmd = [self._process_path] + self._process_args
-      self._process = Popen(cmd, stdout= self.push_fuzzer_logger, stderr= self.push_fuzzer_logger)
+      self._process = Popen(cmd, stdout=PIPE, stderr=PIPE)
 
       if self._delay_after_start:
         time.sleep(self._delay_after_start)

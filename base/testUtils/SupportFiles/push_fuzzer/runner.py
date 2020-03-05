@@ -40,7 +40,7 @@ def run_push_fuzz_test(testsuite=None):
 
     mcs_router = MCSRouter()
     logs_path = os.path.join(mcs_router.tmp_path, "mcs_router.log")
-    controller = LocalProcessController('PushClientController', mcs_router.router_path, ["--no-daemon", "--console", "-v"], log_file_path=logs_path)
+    controller = LocalProcessController('PushClientController', mcs_router.router_path, ["--no-daemon", "--console", "-v"])
     time.sleep(2)
 
     target.set_controller(controller)
@@ -52,8 +52,10 @@ def run_push_fuzz_test(testsuite=None):
     fuzzer.logger.info("Setting up mcs fuzzer for suite = " + suite)
     if suite == "livequery":
         model.connect(lq_template.livequery_command)
+    elif suite == "wakeup":
+        model.connect(lq_template.wakeup_command)
     else:
-        raise AssertionError("Unknown suite name only 'mcs', 'mdr' 'alc' 'livequery' are valid. Given suite {}".format(suite))
+        raise AssertionError("Unknown suite name only 'livequery', 'wakeup' are valid. Given suite {}".format(suite))
 
     fuzzer.set_model(model)
     fuzzer.set_range(end_index=model.num_mutations() / fuzzer_args.range)
