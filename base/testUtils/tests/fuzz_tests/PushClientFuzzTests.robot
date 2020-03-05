@@ -13,7 +13,8 @@ Resource   ../GeneralTeardownResource.robot
 Resource  ../mcs_router/McsRouterResources.robot
 
 Suite Setup     Run Keywords
-...             Regenerate Certificates
+...             Regenerate Certificates  AND
+...             Set Timeout
 
 Suite Teardown  Run Keywords
 ...             Cleanup Certificates
@@ -26,7 +27,7 @@ Test Teardown   Run Keywords
 ...             Dump Kittylogs Dir Contents  AND
 ...             Stop System Watchdog
 
-Test Timeout  5 minutes
+Test Timeout  100 minutes
 
 *** Variables ***
 ${MCS_FUZZER_PATH}   ${SUPPORT_FILES}/push_fuzzer/runner.py
@@ -45,7 +46,15 @@ Run MCS Router Fuzzer
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     #wait just less than the default timeout
-    ${result} =    Wait For Process    push_fuzzer  timeout=30 s  on_timeout=terminate
+    ${result} =    Wait For Process    push_fuzzer  timeout=${MCS_FUZZER_TIMEOUT} s  on_timeout=kill
+    Log    "stdout = ${result.stdout}"
+    Log    "stderr = ${result.stderr}"
+    Should Be Equal As Integers   ${result.rc}       -9      failed with error
 
 Kill Push Fuzzer
     Run Process  pgrep runner.py | xargs kill -9  shell=true
+
+Set Timeout
+    ${placeholder} =  Get Environment Variable   MCSFUZZ_TIMEOUT  default=300
+
+    Set Suite Variable  ${MCS_FUZZER_TIMEOUT}  ${placeholder}
