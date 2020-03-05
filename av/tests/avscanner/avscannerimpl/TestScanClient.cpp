@@ -16,7 +16,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define BASE "/tmp/TestPluginAdapter"
 
 using namespace avscanner::avscannerimpl;
-using namespace ::testing;
+using ::testing::_;
+using ::testing::Eq;
+using ::testing::Return;
 using ::testing::StrictMock;
 
 namespace fs = sophos_filesystem;
@@ -54,7 +56,7 @@ TEST(TestScanClient, TestConstruction) // NOLINT
             new StrictMock<MockIScanCallbacks>()
     );
 
-    ScanClient s(mock_socket, mock_callbacks, false);
+    ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
 }
 
 TEST(TestScanClient, TestConstructionWithoutCallbacks) // NOLINT
@@ -62,7 +64,7 @@ TEST(TestScanClient, TestConstructionWithoutCallbacks) // NOLINT
     StrictMock<MockIScanningClientSocket> mock_socket;
     std::shared_ptr<avscanner::avscannerimpl::IScanCallbacks> mock_callbacks;
 
-    ScanClient s(mock_socket, mock_callbacks, false);
+    ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
 }
 
 TEST(TestScanClient, TestScanEtcPasswd) // NOLINT
@@ -82,7 +84,7 @@ TEST(TestScanClient, TestScanEtcPasswd) // NOLINT
     EXPECT_CALL(*mock_callbacks, cleanFile(Eq("/etc/passwd")))
         .Times(1);
 
-    ScanClient s(mock_socket, mock_callbacks, false);
+    ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
     EXPECT_TRUE(result.clean());
 }
@@ -102,7 +104,7 @@ TEST(TestScanClient, TestScanInfectedNoCallback) // NOLINT
             .WillOnce(Return(response));
 
     std::shared_ptr<avscanner::avscannerimpl::IScanCallbacks> mock_callbacks;
-    ScanClient s(mock_socket, mock_callbacks, false);
+    ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
     EXPECT_FALSE(result.clean());
     EXPECT_EQ(result.threatName(), THREAT);
@@ -144,7 +146,7 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     EXPECT_CALL(*mock_callbacks, infectedFile(Eq("/etc/passwd"), Eq(THREAT)))
             .Times(1);
 
-    ScanClient s(mock_socket, mock_callbacks, false);
+    ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
 
     serverWaitGuard.wait();

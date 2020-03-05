@@ -147,7 +147,7 @@ int NamedScanRunner::run()
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
-    ScanClient scanner(*getSocket(), scanCallbacks, m_config);
+    ScanClient scanner(*getSocket(), scanCallbacks, m_config.m_scanArchives, E_SCAN_TYPE_SCHEDULED);
     CallbackImpl callbacks(std::move(scanner), m_config, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point

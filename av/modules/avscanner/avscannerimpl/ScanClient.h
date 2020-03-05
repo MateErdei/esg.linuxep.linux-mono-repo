@@ -29,8 +29,10 @@ namespace avscanner::avscannerimpl
     public:
         ScanClient(const ScanClient&) = delete;
         ScanClient(ScanClient&&) = default;
-        explicit ScanClient(unixsocket::IScanningClientSocket& socket, std::shared_ptr<IScanCallbacks> callbacks, NamedScanConfig& config);
-        explicit ScanClient(unixsocket::IScanningClientSocket& socket, std::shared_ptr<IScanCallbacks> callbacks, bool scanInArchives);
+        explicit ScanClient(unixsocket::IScanningClientSocket& socket,
+                std::shared_ptr<IScanCallbacks> callbacks,
+                bool scanInArchives,
+                E_SCAN_TYPE scanType);
 
         /**
          *

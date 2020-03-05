@@ -22,18 +22,13 @@ namespace fs = sophos_filesystem;
 
 ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
                        std::shared_ptr<IScanCallbacks> callbacks,
-                       NamedScanConfig& config)
-       : ScanClient(socket, std::move(callbacks), config.m_scanArchives)
+                       bool scanInArchives,
+                       E_SCAN_TYPE scanType)
+        : m_socket(socket)
+        , m_callbacks(std::move(callbacks))
+        , m_scanInArchives(scanInArchives)
+        , m_scanType(scanType)
 {
-    m_scanType = E_SCAN_TYPE_SCHEDULED;
-}
-
-ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
-                       std::shared_ptr<IScanCallbacks> callbacks,
-                       bool scanInArchives)
-        : m_socket(socket), m_callbacks(std::move(callbacks)), m_scanInArchives(scanInArchives)
-{
-    m_scanType = E_SCAN_TYPE_ON_DEMAND;
 }
 
 static fs::path pluginInstall()
