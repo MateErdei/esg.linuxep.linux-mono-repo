@@ -134,8 +134,6 @@ class TelemetryUtils:
             for query in queries:
                 # because robot can't seem to pass dictionaries in parse string to dict here.
                 query = json.loads(query)
-                print(type(query))
-                print(query)
                 queryName = query["name"]
                 telemetry["live-query"][queryName] = {}
                 if "successful-count" in query:

@@ -531,8 +531,6 @@ TEST(TestTelemetryHelper, telemtryStatSerialisedCorrectly) // NOLINT
     helper.appendStat("statName", 10);
     helper.updateTelemetryWithStats();
 
-    //std::string a = helper.serialise();
-
     ASSERT_EQ(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
 }
 

@@ -84,7 +84,7 @@ EDR Plugin Reports Telemetry Correctly For Live Query
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
-    # ignoreing duration as it will vary too much to reliably test - it's covered in unit tests.
+    # ignoring duration as it will vary too much to reliably test - it's covered in unit tests.
     ${query1}=  Set Variable  {"name":"simple", "rowcount-avg":2.5, "rowcount-min":1, "rowcount-max":4, "successful-count":2}
     @{queries}=  create list   ${query1}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  queries=@{queries}
