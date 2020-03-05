@@ -112,8 +112,12 @@ AV Plugin Can Disable Scanning Of Remote File Systems
 
 
 AV Plugin Can Exclude Filepaths From Scheduled Scans
-    ${eicar_path} =  Set Variable  /tmp/eicar.com
-    Create File      ${eicar_path}    ${EICAR_STRING}
+    ${eicar_path1} =  Set Variable  /tmp/eicar.com
+    ${eicar_path2} =  Set Variable  /tmp/eicar.1
+    ${eicar_path3} =  Set Variable  /tmp/eicar.txt
+    Create File      ${eicar_path1}    ${EICAR_STRING}
+    Create File      ${eicar_path2}    ${EICAR_STRING}
+    Create File      ${eicar_path3}    ${EICAR_STRING}
     ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/MyScan.log
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
@@ -123,13 +127,15 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
     ${allButTmp} =  Configure Scan Exclusions Everything Else  /tmp/
-    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>${eicar_path}</filePath></filePathSet></posixExclusions>
+    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>${eicar_path1}</filePath><filePath>/tmp/eicar.?</filePath><filePath>/tmp/*.txt</filePath></filePathSet></posixExclusions>
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=120
     AV Plugin Log Contains  Starting scan MyScan
     File Should Exist  ${myscan_log}
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path}" is infected with EICAR
+    File Log Should Not Contain  ${myscan_log}  "${eicar_path1}" is infected with EICAR
+    File Log Should Not Contain  ${myscan_log}  "${eicar_path2}" is infected with EICAR
+    File Log Should Not Contain  ${myscan_log}  "${eicar_path3}" is infected with EICAR
 
     ${result} =   Terminate Process  ${handle}
