@@ -16,8 +16,10 @@ namespace livequery
         ResponseMetaData(long queryStart);
         long getQueryStart() const;
         long getMillisSinceStarted() const;
-
+        void setQueryName(const std::string& queryName);
+        std::string getQueryName() const;
     private:
         long m_queryStartMillisEpoch = 0;
+        std::string m_queryName;
     };
 } // namespace livequery

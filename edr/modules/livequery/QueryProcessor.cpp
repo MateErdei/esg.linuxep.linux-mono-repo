@@ -81,6 +81,12 @@ void livequery::processQuery(
         LOGDEBUG(query);
 
         livequery::QueryResponse response = iQueryProcessor.query(query);
+
+        // Set name of query in metadata.
+        ResponseMetaData responseMetaData = response.metaData();
+        responseMetaData.setQueryName(queryNameIter->second.getString());
+        response.setMetaData(responseMetaData);
+
         if (response.status().errorCode() == livequery::ErrorCode::SUCCESS)
         {
             LOGINFO("Successfully executed query with " << queryDetails);

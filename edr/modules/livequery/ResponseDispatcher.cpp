@@ -79,7 +79,7 @@ namespace
         livequery::ResponseData::ValueType m_valueType;
     };
 
-    std::string queryMetaDataObject(const livequery::QueryResponse& queryResponse, size_t sizeInBytes, bool exceededLimit)
+    nlohmann::json queryMetaDataObject(const livequery::QueryResponse& queryResponse, size_t sizeInBytes, bool exceededLimit)
     {
         nlohmann::json queryMetaData;
 
@@ -107,7 +107,7 @@ namespace
             queryMetaData["errorMessage"] = queryResponse.status().errorDescription();
         }
 
-        return queryMetaData.dump();
+        return queryMetaData;
     }
 
     std::string columnMetaDataObject(const livequery::QueryResponse& queryResponse)
@@ -191,7 +191,7 @@ namespace livequery
      * @return  The content of the serialized json.
      * @exceptions Will throw std::exception if it fails serialize the response
      */
-    std::string ResponseDispatcher::serializeToJson(const QueryResponse& response)
+    std::string ResponseDispatcher::serializeToJson(const QueryResponse&  response)
     {
         std::string columnDataObjectSerialized;
         bool limitExceeded = false;
@@ -208,11 +208,14 @@ namespace livequery
         }
 
         std::stringstream serializedJson;
+
         serializedJson << R"({
 "type": "sophos.mgt.response.RunLiveQuery")";
 
+
+        auto queryMetaData = queryMetaDataObject(response, sizeBytes, limitExceeded);
         serializedJson << R"(,
-"queryMetaData": )" << queryMetaDataObject(response, sizeBytes, limitExceeded);
+"queryMetaData": )" << queryMetaData.dump();
 
         if (response.data().hasHeaders())
         {
@@ -232,6 +235,9 @@ namespace livequery
         }
         serializedJson << R"(
 })";
+
+        m_telemetryHandler.processLiveQueryResponseStats(response, queryMetaData.value("durationMillis",0));
+
         return serializedJson.str();
     }
 } // namespace livequery

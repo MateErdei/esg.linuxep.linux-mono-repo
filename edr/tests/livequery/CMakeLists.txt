@@ -3,6 +3,7 @@ SophosAddTest(TestLiveQuery
         TestQueryProcessor.cpp
         TestResponseData.cpp
         TestResponseDispatcher.cpp
+        TestLiveQueryTelemetry.cpp
         MockQueryProcessor.h
         PROJECTS livequeryimpl
         LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest

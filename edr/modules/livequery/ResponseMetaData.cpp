@@ -26,4 +26,12 @@ namespace livequery
             .count();
         return nowMilliEpoch - getQueryStart();
     }
+    void ResponseMetaData::setQueryName(const std::string& queryName)
+    {
+        m_queryName = queryName;
+    }
+    std::string ResponseMetaData::getQueryName() const
+    {
+        return m_queryName;
+    }
 }
