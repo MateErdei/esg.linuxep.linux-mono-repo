@@ -7,11 +7,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <pluginimpl/PluginAdapter.h>
 #include <pluginimpl/PluginAdapter.cpp>
 #include "datatypes/sophos_filesystem.h"
-
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
-
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

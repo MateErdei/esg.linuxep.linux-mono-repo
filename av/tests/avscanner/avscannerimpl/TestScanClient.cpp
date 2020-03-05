@@ -8,15 +8,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 
 #include "avscanner/avscannerimpl/ScanClient.h"
-
-#include <fstream>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <unixsocket/threatReporterSocket/ThreatReporterServerSocket.h>
 #include <tests/common/WaitForEvent.h>
+#include <tests/common/Common.h>
 
 #define BASE "/tmp/TestPluginAdapter"
 
 using namespace avscanner::avscannerimpl;
+using namespace ::testing;
+using ::testing::StrictMock;
 
 namespace fs = sophos_filesystem;
 
@@ -46,21 +47,6 @@ namespace
     };
 }
 
-using ::testing::StrictMock;
-
-void setupFakeSophosThreatReporterConfig()
-{
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("PLUGIN_INSTALL", BASE);
-    fs::path f = BASE;
-    fs::create_directories(f / "chroot");
-    f /= "sbin";
-    fs::create_directories(f);
-    f /= "sophos_threat_detector_launcher";
-    std::ofstream ost(f);
-    ost.close();
-}
-
 TEST(TestScanClient, TestConstruction) // NOLINT
 {
     StrictMock<MockIScanningClientSocket> mock_socket;
@@ -81,8 +67,6 @@ TEST(TestScanClient, TestConstructionWithoutCallbacks) // NOLINT
 
 TEST(TestScanClient, TestScanEtcPasswd) // NOLINT
 {
-    using namespace ::testing;
-
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
     response.setClean(true);

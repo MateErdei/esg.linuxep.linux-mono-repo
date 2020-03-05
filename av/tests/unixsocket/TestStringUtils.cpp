@@ -148,8 +148,7 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharacters) // N
     std::string threatName = "ありったけの夢をかき集め";
     std::string threatPath = "捜し物を探しに行くのさ ONE PIECE";
     std::string userID = "羅針盤なんて 渋滞のもと";
-
-
+    
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
