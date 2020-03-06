@@ -18,7 +18,7 @@
             <include src="pluginapi.tar.gz" dest="."/>
              <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
-        <package name="boostlinux11" version="1-70-0-13/218115/output" dest="input">
+        <package name="boostlinux11" version="1-72-0-22/218898//output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
@@ -33,7 +33,7 @@
         <package name="osquery-linux" version="4-0-2-1/EES-15942" dest="input">
             <include src="osquery-4.0.2_1.linux_x86_64.tar.gz" dest="."/>
         </package>
-        <package name="osquerysdklinux11" version="1-0-0-32/218249/output" dest="input">
+        <package name="osquerysdklinux11" version="1-0-0-39/218907/output" dest="input">
             <include src="osquerysdk.tar" dest="."/>
         </package>
         <package name="openssllinux11" version="1-1-1d-10/217518/output" dest="input">
