@@ -35,16 +35,28 @@ TEST(Exclusion, TestFullpathTypes) // NOLINT
 
 TEST(Exclusion, TestGlobTypes) // NOLINT
 {
-    Exclusion globExclAsterix("/tmp/foo*");
-    EXPECT_EQ(globExclAsterix.type(), GLOB);
-    EXPECT_TRUE(globExclAsterix.appliesToPath("/tmp/foobar"));
-    EXPECT_TRUE(globExclAsterix.appliesToPath("/tmp/foo"));
-    EXPECT_FALSE(globExclAsterix.appliesToPath("/tmp/fo"));
+    Exclusion globExclAsteriskEnd("/tmp/foo*");
+    EXPECT_EQ(globExclAsteriskEnd.type(), GLOB);
+    EXPECT_TRUE(globExclAsteriskEnd.appliesToPath("/tmp/foobar"));
+    EXPECT_TRUE(globExclAsteriskEnd.appliesToPath("/tmp/foo"));
+    EXPECT_FALSE(globExclAsteriskEnd.appliesToPath("/tmp/fo"));
 
-    Exclusion globExclQuestionMark("/var/log/syslog.?");
-    EXPECT_EQ(globExclQuestionMark.type(), GLOB);
-    EXPECT_TRUE(globExclQuestionMark.appliesToPath("/var/log/syslog.1"));
-    EXPECT_FALSE(globExclQuestionMark.appliesToPath("/var/log/syslog."));
+    Exclusion globExclAsteriskBeginning("*/foo");
+    EXPECT_EQ(globExclAsteriskBeginning.type(), GLOB);
+    EXPECT_TRUE(globExclAsteriskBeginning.appliesToPath("/tmp/foo"));
+    EXPECT_TRUE(globExclAsteriskBeginning.appliesToPath("/tmp/bar/foo"));
+    EXPECT_FALSE(globExclAsteriskBeginning.appliesToPath("/tmp/foo/bar"));
+
+    Exclusion globExclQuestionMarkEnd("/var/log/syslog.?");
+    EXPECT_EQ(globExclQuestionMarkEnd.type(), GLOB);
+    EXPECT_TRUE(globExclQuestionMarkEnd.appliesToPath("/var/log/syslog.1"));
+    EXPECT_FALSE(globExclQuestionMarkEnd.appliesToPath("/var/log/syslog."));
+
+    Exclusion globExclQuestionMarkMiddle("/tmp/sh?t/happens");
+    EXPECT_EQ(globExclQuestionMarkMiddle.type(), GLOB);
+    EXPECT_TRUE(globExclQuestionMarkMiddle.appliesToPath("/tmp/shut/happens"));
+    EXPECT_TRUE(globExclQuestionMarkMiddle.appliesToPath("/tmp/shot/happens"));
+    EXPECT_FALSE(globExclQuestionMarkMiddle.appliesToPath("/tmp/spit/happens"));
 
     Exclusion doubleGlobExcl("/tmp*/foo/*");
     EXPECT_EQ(doubleGlobExcl.type(), GLOB);
