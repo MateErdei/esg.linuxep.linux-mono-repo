@@ -15,7 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace unixsocket;
 using namespace scan_messages;
 
-TEST(TestStringUtils, TestXMLEscape) // NOLINT
+TEST(TestStringUtils, TestXMLEscapeEscapesControlCharacters) // NOLINT
 {
     std::string threatPath = "abc \1 \2 \3 \4 \5 \6 \\ abc \a \b \t \n \v \f \r abc";
     escapeControlCharacters(threatPath);
