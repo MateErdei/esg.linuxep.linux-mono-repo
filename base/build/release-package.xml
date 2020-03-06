@@ -26,7 +26,7 @@
         <package name="sullinux11" version="1-0-0-20/218896/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
-        <package name="boostlinux11" version="1-72-0-19/218888/output" dest="input">
+        <package name="boostlinux11" version="1-72-0-22/218898/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="expatlinux11" version="2-2-9-1/217514/output" dest="input">
