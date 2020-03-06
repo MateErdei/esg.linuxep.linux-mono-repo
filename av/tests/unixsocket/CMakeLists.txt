@@ -17,10 +17,16 @@ SET_TARGET_PROPERTIES(TestSocketUtils
 
 add_executable(threatReporterClientExecutable
         ../unixsocket/ThreatReporterTestExecutable/threatReporterClient.cpp)
-target_link_libraries(threatReporterClientExecutable  PUBLIC unixsocket stdc++fs)
+target_link_libraries(threatReporterClientExecutable  PUBLIC
+        unixsocket
+        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+        )
 target_include_directories(threatReporterClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 add_executable(threatReporterServerExecutable
         ../unixsocket/ThreatReporterTestExecutable/threatReporterServer.cpp)
-target_link_libraries(threatReporterServerExecutable  PUBLIC unixsocket stdc++fs)
+target_link_libraries(threatReporterServerExecutable  PUBLIC
+        unixsocket
+        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+        )
 target_include_directories(threatReporterServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
