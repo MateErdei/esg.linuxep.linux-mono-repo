@@ -23,7 +23,7 @@
         <package name="curllinux11" version="7-66-0-15/217541/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-20/218896/output" dest="input">
+        <package name="sullinux11" version="1-0-0-25/218912/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
         <package name="boostlinux11" version="1-72-0-22/218898/output" dest="input">
