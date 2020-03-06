@@ -18,6 +18,7 @@ xml = {"naugthyEicarThreatReport": [
     '''path="/home/vagrant/this/is/a/directory/for/scanning/"/>''',
     '''<action action="104"/>''']}
 
+
 def check_threat_event_recieved_by_base(number_of_expected_events, event_type):
     actual_number_of_events = len(next(os.walk(base_mcs_directory))[2])
 
@@ -25,15 +26,16 @@ def check_threat_event_recieved_by_base(number_of_expected_events, event_type):
         print("*WARN*: {}".format(actual_number_of_events))
         return 0
 
-    matching_lines = 0
+    actual_matching_lines = 0
     for filename in os.listdir(base_mcs_directory):
         with open(os.path.join(base_mcs_directory, filename), "r") as file:
             for line in file:
                 for xml_part in xml.get(event_type):
                     if xml_part in line:
-                        matching_lines += 1
+                        actual_matching_lines += 1
 
-    if matching_lines is len(xml.get(event_type)):
+    expected_matching_lines = len(xml.get(event_type))
+    if actual_matching_lines is expected_matching_lines:
         return 1
     else:
         return 0
