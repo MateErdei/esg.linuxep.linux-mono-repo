@@ -107,6 +107,7 @@ Restart Management Agent
 *** Test Cases ***
 
 Update from Ostia
+    [Timeout]  30min
     Install Ostia SSL Certs To System
 
     Install Just Base
@@ -148,6 +149,11 @@ Update from Ostia
     ...   10 secs
     ...   check_suldownloader_log_contains   suldownloaderdata <> Product will be downloaded: ServerProtectionLinux-Plugin-AV
 
+    Wait Until Keyword Succeeds
+    ...   3 mins
+    ...   10 secs
+    ...   check_suldownloader_log_contains   suldownloaderdata <> Update success
+
     Verify AV installed
 
-
+    dump_suldownloader_log
