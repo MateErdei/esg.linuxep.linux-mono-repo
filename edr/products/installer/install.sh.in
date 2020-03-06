@@ -72,6 +72,7 @@ generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr etc dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr log dir"
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions  || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr extensions dir"
 
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
 #chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/osquery/bin/"*

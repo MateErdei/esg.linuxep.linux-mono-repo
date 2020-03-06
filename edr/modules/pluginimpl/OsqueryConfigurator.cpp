@@ -96,13 +96,14 @@ namespace Plugin
                                          "--force=true",
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false",
-                                         "--events_max=20000" };
+                                         "--events_max=250000" };
 
         flags.push_back("--syslog_pipe_path=" + Plugin::syslogPipe());
         flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
         flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
         flags.push_back("--logger_path=" + Plugin::osQueryLogDirectoryPath());
+        flags.push_back("--extensions_autoload=" + Plugin::osQueryExtensionsPath());
 
         std::string disableAuditFlagValue = enableAuditEventCollection ? "false" : "true";
         flags.push_back("--disable_audit=" + disableAuditFlagValue);
