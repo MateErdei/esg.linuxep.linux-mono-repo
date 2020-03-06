@@ -73,11 +73,17 @@ TEST(Exclusion, TestGlobTypes) // NOLINT
 
 TEST(Exclusion, TestFilenameTypes) // NOLINT
 {
-    Exclusion suffixExcl("foo.txt");
-    EXPECT_EQ(suffixExcl.type(), FILENAME);
-    EXPECT_EQ(suffixExcl.path(), "/foo.txt");
-    EXPECT_TRUE(suffixExcl.appliesToPath("/tmp/bar/foo.txt"));
-    EXPECT_FALSE(suffixExcl.appliesToPath("/tmp/bar/foo.txt.backup"));
+    Exclusion filenameExcl("foo.txt");
+    EXPECT_EQ(filenameExcl.type(), FILENAME);
+    EXPECT_EQ(filenameExcl.path(), "/foo.txt");
+    EXPECT_TRUE(filenameExcl.appliesToPath("/tmp/bar/foo.txt"));
+    EXPECT_FALSE(filenameExcl.appliesToPath("/tmp/bar/foo.txt.backup"));
+
+    Exclusion filename2Excl("foo");
+    EXPECT_EQ(filename2Excl.type(), FILENAME);
+    EXPECT_EQ(filename2Excl.path(), "/foo");
+    EXPECT_TRUE(filename2Excl.appliesToPath("/tmp/bar/foo"));
+    EXPECT_FALSE(filename2Excl.appliesToPath("/tmp/foo/bar"));
 }
 
 TEST(Exclusion, TestInvalidTypes) // NOLINT

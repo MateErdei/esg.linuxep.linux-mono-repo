@@ -100,7 +100,7 @@ namespace
             }
             for (const auto& exclusion : m_config.m_excludePaths)
             {
-                if (exclusion.appliesToPath(p))
+                if (exclusion.appliesToPath(p) && exclusion.type() != FILENAME)
                 {
                     return false;
                 }

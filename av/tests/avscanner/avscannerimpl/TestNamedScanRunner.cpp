@@ -10,7 +10,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "RecordingMockSocket.h"
 
 #include "avscanner/avscannerimpl/NamedScanRunner.h"
-#include "datatypes/Print.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -460,7 +459,6 @@ TEST_F(TestNamedScanRunner, TestExcludeByFilename) // NOLINT
     bool includedFileFoundAfterExcluding = false;
     for (const auto& p : socket2->m_paths)
     {
-        PRINT(">>> " << p);
         if (p == filenameExcludedFile)
         {
             excludedFileFoundAfterExcluding = true;
