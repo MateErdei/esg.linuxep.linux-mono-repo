@@ -127,3 +127,29 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
     Should Be Equal  ${rc}  ${0}
 
     Stop AV
+
+CLS Creates Threat Report
+   Start AV
+
+   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+   Should Be Equal  ${rc}  ${69}
+
+   Wait Until AV Plugin Log Contains  Sending threat detection notification to central
+   AV Plugin Log Contains  description="Virus/spyware EICAR has been detected in ${NORMAL_DIRECTORY}/naugthy_eicar
+   AV Plugin Log Contains  type="sophos.mgt.msg.event.threat"
+   AV Plugin Log Contains  domain="local"/>
+   AV Plugin Log Contains  type="1"
+   AV Plugin Log Contains  name="EICAR"
+   AV Plugin Log Contains  scanType="203"
+   AV Plugin Log Contains  status="50"
+   AV Plugin Log Contains  id="1"
+   AV Plugin Log Contains  idSource="1"
+   AV Plugin Log Contains  <item file="naugthy_eicar"
+   AV Plugin Log Contains  path="${NORMAL_DIRECTORY}/"/>
+   AV Plugin Log Contains  <action action="104"/>
+
+   Stop AV

@@ -6,6 +6,7 @@ Library         Process
 Library         String
 Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
+Library         ../Libs/ThreatReportUtils.py
 
 Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
@@ -138,6 +139,18 @@ Diagnose collects the correct files
     Check Diagnose Tar Created
     Check Diagnose Collects Correct AV Files
     Check Diagnose Logs
+
+AV Plugin Reports Threat XML To Base
+   Check AV Plugin Installed With Base
+   ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
+
+   Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+   ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/naugthy_eicar
+
+   Should Be Equal  ${rc}  ${69}
+
+   ${rc} =   check threat event recieved by base  1   naugthyEicarThreatReport
+   Should Be Equal  ${rc}  ${1}
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin
