@@ -57,7 +57,7 @@ void ScanRunner::run()
     LOGINFO("Starting scan " << m_name);
 
     fs::path config_dir = m_pluginInstall / "var";
-    fs::path config_file = config_dir / (m_configFilename);
+    fs::path config_file = config_dir / m_configFilename;
     std::ofstream configWriter(config_file);
     configWriter << m_scan;
     configWriter.close();

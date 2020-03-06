@@ -4,13 +4,16 @@
 # All rights reserved.
 
 import glob
+import os
 import re
 import shutil
 
 if __name__ == '__main__':
 
     capnp_files_origin_dir = "modules/scan_messages"
-    capnp_files_target_dir = "TA/resources/capnp-files"
+    capnp_files_target_dir = "output/test-resources/capnp-files"
+
+    os.makedirs(capnp_files_target_dir)
 
     # Copy capnp files
     capnp_origin_filenames = glob.iglob(f"{capnp_files_origin_dir}/*.capnp")
@@ -29,7 +32,3 @@ if __name__ == '__main__':
         new_contents = import_pattern.sub(repl="", string=contents, count=1)
         with open(capnp_file, 'w') as f:
             f.write(new_contents)
-
-    # TODO Update readme
-    # TODO DOCUMENTATION OF WHERE CAPNP FILES ARE COPIED FROM
-    #  (IN THE TESTS, SO IF SOMEONE GOES TO THE TESTS, THEY KNOW WHERE THEY'VE GONE WRONG)

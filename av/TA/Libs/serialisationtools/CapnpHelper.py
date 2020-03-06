@@ -7,7 +7,8 @@ from enum import Enum
 import capnp
 import os
 
-CAPNP_FILE_PATHS = "/opt/test/inputs/test_scripts/resources/capnp-files/"
+ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+CAPNP_DIR = "/opt/test/inputs/av/test-resources/capnp-files"
 
 
 class CapnpSchemas(Enum):
@@ -22,10 +23,10 @@ class CapnpHelper:
         capnp.remove_import_hook()
 
         # set up map of schemas to the capnp object
-        named_scan_schema = capnp.load(f"{CAPNP_FILE_PATHS}NamedScan.capnp").NamedScan
-        scan_request_schema = capnp.load(f"{CAPNP_FILE_PATHS}ScanRequest.capnp").FileScanRequest
-        scan_response_schema = capnp.load(f"{CAPNP_FILE_PATHS}ScanResponse.capnp").FileScanResponse
-        threat_detected_schema = capnp.load(f"{CAPNP_FILE_PATHS}ThreatDetected.capnp").ThreatDetected
+        named_scan_schema = capnp.load(f"{CAPNP_DIR}/NamedScan.capnp").NamedScan
+        scan_request_schema = capnp.load(f"{CAPNP_DIR}/ScanRequest.capnp").FileScanRequest
+        scan_response_schema = capnp.load(f"{CAPNP_DIR}/ScanResponse.capnp").FileScanResponse
+        threat_detected_schema = capnp.load(f"{CAPNP_DIR}/ThreatDetected.capnp").ThreatDetected
         self.schema_object_map = {CapnpSchemas.NamedScan: named_scan_schema,
                                   CapnpSchemas.ScanRequest: scan_request_schema,
                                   CapnpSchemas.ScanResponse: scan_response_schema,
