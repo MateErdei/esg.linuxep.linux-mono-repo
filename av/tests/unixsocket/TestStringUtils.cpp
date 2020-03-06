@@ -36,7 +36,7 @@ namespace
     public:
         std::string m_englishsXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                      <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware eicar has been detected in path/to/threat"
+                               description="Virus/spyware eicar has been detected in path/to/"
                                type="sophos.mgt.msg.event.threat"
                                timestamp="123">
 
@@ -50,7 +50,7 @@ namespace
                                idSource="1">
 
                                <item file="threat"
-                                      path="path/to/threat"/>
+                                      path="path/to/"/>
                                <action action="104"/>
                      </threat>
                      </notification>
@@ -58,7 +58,7 @@ namespace
 
         std::string m_umlatsXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                      <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ has been detected in πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·"
+                               description="Virus/spyware Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ has been detected in /"
                                type="sophos.mgt.msg.event.threat"
                                timestamp="123">
 
@@ -72,7 +72,7 @@ namespace
                                idSource="1">
 
                                <item file="πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·"
-                                      path="πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·"/>
+                                      path="/"/>
                                <action action="104"/>
                      </threat>
                      </notification>
@@ -80,7 +80,7 @@ namespace
 
         std::string m_japaneseXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                      <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware ありったけの夢をかき集め has been detected in 捜し物を探しに行くのさ ONE PIECE"
+                               description="Virus/spyware ありったけの夢をかき集め has been detected in /"
                                type="sophos.mgt.msg.event.threat"
                                timestamp="123">
 
@@ -94,7 +94,7 @@ namespace
                                idSource="1">
 
                                <item file="捜し物を探しに行くのさ ONE PIECE"
-                                      path="捜し物を探しに行くのさ ONE PIECE"/>
+                                      path="/"/>
                                <action action="104"/>
                      </threat>
                      </notification>
@@ -137,7 +137,7 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXml) // NOLINT
 TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlats) // NOLINT
 {
     std::string threatName = "Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ";
-    std::string threatPath = "πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·";
+    std::string threatPath = "/πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·";
     std::string userID = "πολλῶν δ’ ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω,, German umlats: Ä Ö Ü ß";
 
     scan_messages::ThreatDetected threatDetected;
@@ -168,7 +168,7 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlats) // NOLINT
 TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharacters) // NOLINT
 {
     std::string threatName = "ありったけの夢をかき集め";
-    std::string threatPath = "捜し物を探しに行くのさ ONE PIECE";
+    std::string threatPath = "/捜し物を探しに行くのさ ONE PIECE";
     std::string userID = "羅針盤なんて 渋滞のもと";
 
     scan_messages::ThreatDetected threatDetected;

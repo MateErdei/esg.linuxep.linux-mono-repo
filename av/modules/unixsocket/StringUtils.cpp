@@ -41,9 +41,12 @@ void unixsocket::escapeControlCharacters(std::string& text)
 std::string unixsocket::generateThreatDetectedXml(const Sophos::ssplav::ThreatDetected::Reader& detection)
 {
     std::string path = detection.getFilePath();
-    std::string threatName =  detection.getThreatName();
-    //TO DO: convert to unicode first before escaping characters
+    //TODO: convert to unicode first before escaping characters
     escapeControlCharacters(path);
+    std::string fileName = fs::path(path).filename();
+    path = fs::path(path).remove_filename();
+    std::string threatName =  detection.getThreatName();
+
     std::locale loc("");
 
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
@@ -76,11 +79,11 @@ std::string unixsocket::generateThreatDetectedXml(const Sophos::ssplav::ThreatDe
                     {"@@THREAT_NAME@@",threatName},
                     {"@@SMT_SCAN_TYPE@@",  std::to_string(detection.getScanType())},
                     {"@@NOTIFICATION_STATUS@@", std::to_string(detection.getNotificationStatus())},
-                    // TO DO: at the moment we don't store THREAT_ID  and ID_SOURCE in the capnp object
+                    // TODO: at the moment we don't store THREAT_ID  and ID_SOURCE in the capnp object
                     // cause there is no way to retrieve this information
                     {"@@THREAT_ID@@", "1"},
                     {"@@ID_SOURCE@@", "1"},
-                    {"@@FILE_NAME@@", fs::path(path).filename()},
+                    {"@@FILE_NAME@@", fileName},
                     {"@@THREAT_PATH@@", path},
                     {"@@SMT_ACTION_CODES@@", std::to_string(detection.getActionCode())}
             });
