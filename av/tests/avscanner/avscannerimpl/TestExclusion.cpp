@@ -84,6 +84,7 @@ TEST(Exclusion, TestFilenameTypes) // NOLINT
     EXPECT_EQ(filename2Excl.path(), "/foo");
     EXPECT_TRUE(filename2Excl.appliesToPath("/tmp/bar/foo"));
     EXPECT_FALSE(filename2Excl.appliesToPath("/tmp/foo/bar"));
+    EXPECT_FALSE(filename2Excl.appliesToPath("/tmp/barfoo"));
 }
 
 TEST(Exclusion, TestInvalidTypes) // NOLINT

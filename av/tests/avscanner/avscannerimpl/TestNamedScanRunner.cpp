@@ -80,23 +80,27 @@ public:
 
     std::string m_expectedScanName = "testScan";
     std::vector<std::string> m_expectedExclusions;
+    bool m_scanHardDisc = true;
+    bool m_scanNetwork = false;
+    bool m_scanOptical = false;
+    bool m_scanRemovable = false;
 };
 
 TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
 {
-    bool scanHardDisc = false;
-    bool scanNetwork = true;
-    bool scanOptical = false;
-    bool scanRemovable = true;
+    m_scanHardDisc = false;
+    m_scanNetwork = true;
+    m_scanOptical = false;
+    m_scanRemovable = true;
 
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner(scanConfigOut);
 
@@ -114,18 +118,18 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
         }
         EXPECT_TRUE(matchingExclusion);
     }
-    EXPECT_EQ(config.m_scanHardDisc, scanHardDisc);
-    EXPECT_EQ(config.m_scanNetwork, scanNetwork);
-    EXPECT_EQ(config.m_scanOptical, scanOptical);
-    EXPECT_EQ(config.m_scanRemovable, scanRemovable);
+    EXPECT_EQ(config.m_scanHardDisc, m_scanHardDisc);
+    EXPECT_EQ(config.m_scanNetwork, m_scanNetwork);
+    EXPECT_EQ(config.m_scanOptical, m_scanOptical);
+    EXPECT_EQ(config.m_scanRemovable, m_scanRemovable);
 }
 
 TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
 {
-    bool scanHardDisc = true;
-    bool scanNetwork = true;
-    bool scanOptical = true;
-    bool scanRemovable = true;
+    m_scanHardDisc = true;
+    m_scanNetwork = true;
+    m_scanOptical = true;
+    m_scanRemovable = true;
 
     std::shared_ptr<::testing::StrictMock<MockMountPoint>> localFixedDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
     EXPECT_CALL(*localFixedDevice, isHardDisc()).WillOnce(Return(true));
@@ -164,10 +168,10 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner(scanConfigOut);
 
@@ -178,19 +182,14 @@ TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
 {
     std::string stemExclusion = "/tmp";
 
-    bool scanHardDisc = true;
-    bool scanNetwork = false;
-    bool scanOptical = false;
-    bool scanRemovable = false;
-
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner(scanConfigOut);
 
@@ -204,10 +203,10 @@ TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
     Sophos::ssplav::NamedScan::Reader scanConfigOut2 = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner2(scanConfigOut2);
 
@@ -231,19 +230,14 @@ TEST_F(TestNamedScanRunner, TestExcludeByFullPath) // NOLINT
     std::ofstream includedFile(fullPathIncludedFile);
     includedFile << "This file will be included in the scan.";
 
-    bool scanHardDisc = true;
-    bool scanNetwork = false;
-    bool scanOptical = false;
-    bool scanRemovable = false;
-
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner(scanConfigOut);
 
@@ -271,10 +265,10 @@ TEST_F(TestNamedScanRunner, TestExcludeByFullPath) // NOLINT
     Sophos::ssplav::NamedScan::Reader scanConfigOut2 = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner2(scanConfigOut2);
 
@@ -319,19 +313,14 @@ TEST_F(TestNamedScanRunner, TestExcludeByGlob) // NOLINT
     std::ofstream includedFile2(globIncludedFile2);
     includedFile2 << "This file will be included in the scan.";
 
-    bool scanHardDisc = true;
-    bool scanNetwork = false;
-    bool scanOptical = false;
-    bool scanRemovable = false;
-
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner(scanConfigOut);
 
@@ -360,10 +349,10 @@ TEST_F(TestNamedScanRunner, TestExcludeByGlob) // NOLINT
     Sophos::ssplav::NamedScan::Reader scanConfigOut2 = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner2(scanConfigOut2);
 
@@ -404,19 +393,14 @@ TEST_F(TestNamedScanRunner, TestExcludeByFilename) // NOLINT
     std::ofstream includedFile(filenameIncludedFile);
     includedFile << "This file will be included in the scan.";
 
-    bool scanHardDisc = true;
-    bool scanNetwork = false;
-    bool scanOptical = false;
-    bool scanRemovable = false;
-
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner(scanConfigOut);
 
@@ -444,10 +428,10 @@ TEST_F(TestNamedScanRunner, TestExcludeByFilename) // NOLINT
     Sophos::ssplav::NamedScan::Reader scanConfigOut2 = createNamedScanConfig(
             message,
             m_expectedExclusions,
-            scanHardDisc,
-            scanNetwork,
-            scanOptical,
-            scanRemovable);
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
 
     NamedScanRunner runner2(scanConfigOut2);
 
