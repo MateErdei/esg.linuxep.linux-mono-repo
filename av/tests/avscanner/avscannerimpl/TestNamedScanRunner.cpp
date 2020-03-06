@@ -39,14 +39,14 @@ public:
         Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, fs::current_path() );
     }
 
-    std::vector<std::string> getAllOtherDirs(std::string includedDir)
+    static std::vector<std::string> getAllOtherDirs(const std::string& includedDir)
     {
         std::vector<std::string> allOtherDirs;
         for(const auto& p: fs::directory_iterator("/"))
         {
             if (p != includedDir)
             {
-                allOtherDirs.push_back(p.path());
+                allOtherDirs.push_back(p.path().string() + "/");
 
             }
         }
@@ -176,7 +176,7 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
 
 TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
 {
-    std::string stemExclusion = "/tmp";
+    std::string stemExclusion = "/tmp/";
 
     bool scanHardDisc = true;
     bool scanNetwork = false;

@@ -79,8 +79,6 @@ unixsocket::BaseServerSocket::~BaseServerSocket()
 
 void unixsocket::BaseServerSocket::run()
 {
-    announceThreadStarted();
-
     int exitFD = m_notifyPipe.readFd();
 
     fd_set readFDs;
@@ -92,6 +90,9 @@ void unixsocket::BaseServerSocket::run()
     listen(m_socket_fd, 2);
 
     bool terminate = false;
+
+    // Announce after we have started listening
+    announceThreadStarted();
 
     while (!terminate)
     {

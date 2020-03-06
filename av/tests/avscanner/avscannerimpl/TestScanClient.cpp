@@ -117,9 +117,7 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
             .Times(1)
             .WillOnce(Return(response));
 
-    std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
-            new StrictMock<MockIScanCallbacks>()
-    );
+    auto mock_callbacks = std::make_shared<StrictMock<MockIScanCallbacks> >();
 
     EXPECT_CALL(*mock_callbacks, infectedFile(Eq("/etc/passwd"), Eq(THREAT)))
             .Times(1);

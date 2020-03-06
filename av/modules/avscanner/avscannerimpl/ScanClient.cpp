@@ -6,13 +6,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanClient.h"
 
+#include "Logger.h"
+
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Print.h"
 
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+
 #include <iostream>
 #include <fcntl.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 using namespace avscanner::avscannerimpl;
 using namespace scan_messages;
@@ -53,7 +56,9 @@ static fs::path threat_reporter_socket()
 
 static void sendThreatReport(const fs::path& threatPath, const std::string& threatName)
 {
-    unixsocket::ThreatReporterClientSocket threatReporterSocket(threat_reporter_socket());
+    fs::path threatReporterSocketPath = threat_reporter_socket();
+    LOGDEBUG("Threat reporter path " << threatReporterSocketPath);
+    unixsocket::ThreatReporterClientSocket threatReporterSocket(threatReporterSocketPath);
     std::time_t detectionTimeStamp = std::time(nullptr);
 
     scan_messages::ThreatDetected threatDetected;
@@ -73,7 +78,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     datatypes::AutoFd file_fd(::open(fileToScanPath.c_str(), O_RDONLY));
     if (!file_fd.valid())
     {
-        PRINT("Unable to open "<< fileToScanPath);
+        LOGERROR("Unable to open "<< fileToScanPath);
         return scan_messages::ScanResponse();
     }
 

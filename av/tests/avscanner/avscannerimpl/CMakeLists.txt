@@ -2,6 +2,7 @@ include(GoogleTest)
 
 SophosAddTest(TestAVScannerImpl
         MockMountPoint.h
+        SetupLogging.cpp
         TestCommandLineScanRunner.cpp
         TestDeviceUtil.cpp
         TestExclusion.cpp
