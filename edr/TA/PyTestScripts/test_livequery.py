@@ -129,7 +129,7 @@ def test_edr_plugin_expected_responses_to_livequery(sspl_mock, edr_plugin_instan
     """)
 
     send_and_receive_query_and_verify(crash_query, sspl_mock.management, edr_plugin_instance,
-                                      crash_query_response, response_timeout=100)
+                                      crash_query_response, response_timeout=150)
 
     # demonstrate that after a 'osquery crash' it is still possible to get normal and good answers
     send_and_receive_query_and_verify(top_2_processes_query, sspl_mock.management, edr_plugin_instance, top_2_processes_response)
@@ -150,7 +150,7 @@ def test_edr_plugin_responses_to_queued_livequeries(sspl_mock, edr_plugin_instan
 
     #verify responses
     for key, response in expected_response_dict.items():
-        actual_response = get_query_response(response_paths[key], edr_plugin_instance, response_timeout=100)
+        actual_response = get_query_response(response_paths[key], edr_plugin_instance, response_timeout=150)
         check_responses_are_equivalent(actual_response, response)
 
 

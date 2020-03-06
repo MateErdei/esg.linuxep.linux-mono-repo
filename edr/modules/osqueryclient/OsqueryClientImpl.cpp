@@ -20,10 +20,10 @@ namespace osquery
             try
             {
                 // set socket and the timeout (to be 10 seconds). Which means that a single query has to be resolved in
-                // up to 10 seconds. A current limitation of this client is that it can not automatically detect that
-                // osquery dies. Hence, it means that when osquery worker dies, this will be detected in up to 10
-                // seconds.
-                return std::make_unique<osquery::ExtensionManagerClient>(socket, 10000);
+                // a minute. A current limitation of this client is that it can not automatically detect that
+                // osquery dies. Hence, it means that when osquery worker dies, this will be detected in a minute.
+                // FIXME: this is to be changed to 90 minutes LINUXDAR-1504.
+                return std::make_unique<osquery::ExtensionManagerClient>(socket, 60000);
             }
             catch (apache::thrift::transport::TTransportException& ex)
             {
