@@ -11,7 +11,7 @@ import shutil
 if __name__ == '__main__':
 
     capnp_files_origin_dir = "modules/scan_messages"
-    capnp_files_target_dir = "output/test-resources/capnp-files"
+    capnp_files_target_dir = "output/test-resources/capnp-files/"
 
     os.makedirs(capnp_files_target_dir)
 
