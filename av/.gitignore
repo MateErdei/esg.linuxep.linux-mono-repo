@@ -15,3 +15,4 @@ tapvenv/
 TA/log.html
 TA/output.xml
 TA/report.html
+TA/resources/TempSAVpolicy.xml

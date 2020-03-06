@@ -41,3 +41,11 @@ Setup Component For Testing
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot
     Create Directory  ${COMPONENT_ROOT_PATH}/var
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
+
+Use Fake AVScanner
+    Run  mv ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher_bkp
+    Copy File  ${RESOURCES_PATH}/copyScanConfigFilesToTmp.sh  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
+
+Undo Use Fake AVScanner
+    Run  rm ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
+    Run  mv ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher_bkp ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher

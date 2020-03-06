@@ -192,7 +192,7 @@ Remove Local NFS Share
     Remove Directory    ${source}  recursive=True
 
 Check Scan Now Configuration File is Correct
-    ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Scan_Now.config
+    ${configFilename} =  Set Variable  /tmp/config-files-test/Scan_Now.config
     Wait Until Keyword Succeeds
         ...    15 secs
         ...    1 secs
@@ -211,8 +211,7 @@ Check Scan Now Configuration File is Correct
         ...     scan_removable_drives=True
 
 Check Scheduled Scan Configuration File is Correct
-    ${configFilename} =  Set Variable  ${COMPONENT_VAR_DIR}/Sophos_Cloud_Scheduled_Scan.config
-#    sleep  10m
+    ${configFilename} =  Set Variable  /tmp/config-files-test/Sophos_Cloud_Scheduled_Scan.config
     Wait Until Keyword Succeeds
         ...    120 secs
         ...    1 secs
