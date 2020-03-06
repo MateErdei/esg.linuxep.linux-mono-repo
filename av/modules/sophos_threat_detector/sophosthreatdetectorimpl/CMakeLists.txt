@@ -9,7 +9,6 @@ target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         unixsocket
         datatypes
         cap
-        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         )
 
 target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
