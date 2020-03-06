@@ -246,8 +246,12 @@ namespace boost { namespace process { namespace detail { namespace posix {
                             if ((err != EAGAIN ) && (err != EINTR))
                                 set_error(std::error_code(err, std::system_category()), "Error read pipe");
                         }
+
                         if (count == 0)
-                            return  ;
+                        {
+                            ::close(source);
+                            return;
+                        }
 
                         std::error_code ec(data[0], std::system_category());
                         std::string msg(data[1], ' ');

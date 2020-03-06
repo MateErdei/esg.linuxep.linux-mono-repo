@@ -231,7 +231,7 @@ function build()
         untar_input curl
         untar_input SUL
         untar_input boost
-        # FIXME LINUXDAR-850: remove the patching when the related issue is incorporated into the released version of boost
+        # TODO LINUXDAR-1506: remove the patching when the related issue is incorporated into the released version of boost
         # https://github.com/boostorg/process/issues/62
         BOOST_PROCESS_TARGET=${REDIST}/boost/include/boost/process/detail/posix/executor.hpp
         diff -u patched_boost_executor.hpp ${BOOST_PROCESS_TARGET} && DIFFERS=0 || DIFFERS=1
