@@ -44,7 +44,6 @@ std::string unixsocket::generateThreatDetectedXml(const Sophos::ssplav::ThreatDe
     //TODO: convert to unicode first before escaping characters
     escapeControlCharacters(path);
     std::string fileName = fs::path(path).filename();
-    path = fs::path(path).remove_filename();
     std::string threatName =  detection.getThreatName();
 
     std::locale loc("");
@@ -84,7 +83,7 @@ std::string unixsocket::generateThreatDetectedXml(const Sophos::ssplav::ThreatDe
                     {"@@THREAT_ID@@", "1"},
                     {"@@ID_SOURCE@@", "1"},
                     {"@@FILE_NAME@@", fileName},
-                    {"@@THREAT_PATH@@", path},
+                    {"@@THREAT_PATH@@", fs::path(path).remove_filename()},
                     {"@@SMT_ACTION_CODES@@", std::to_string(detection.getActionCode())}
             });
 

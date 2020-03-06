@@ -36,7 +36,7 @@ namespace
     public:
         std::string m_englishsXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                      <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware eicar has been detected in path/to/"
+                               description="Virus/spyware eicar has been detected in path/to/threat"
                                type="sophos.mgt.msg.event.threat"
                                timestamp="123">
 
@@ -58,7 +58,7 @@ namespace
 
         std::string m_umlatsXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                      <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ has been detected in /"
+                               description="Virus/spyware Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ has been detected in /πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·"
                                type="sophos.mgt.msg.event.threat"
                                timestamp="123">
 
@@ -80,7 +80,7 @@ namespace
 
         std::string m_japaneseXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                      <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware ありったけの夢をかき集め has been detected in /"
+                               description="Virus/spyware ありったけの夢をかき集め has been detected in /捜し物を探しに行くのさ ONE PIECE"
                                type="sophos.mgt.msg.event.threat"
                                timestamp="123">
 
