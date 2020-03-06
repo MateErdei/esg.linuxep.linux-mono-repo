@@ -36,6 +36,8 @@ def _get_sophos_install():
 
 
 class LogUtils(object):
+    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+
     def __init__(self):
         self.tmp_path = os.path.join(".", "tmp")
 

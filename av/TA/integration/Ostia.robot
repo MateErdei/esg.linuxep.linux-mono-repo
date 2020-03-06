@@ -62,7 +62,8 @@ Trigger Update
 
 Verify AV installed
     Log  Verify AV installed
-    Should Exist  ${COMPONENT_ROOT_PATH}
+    Wait Until Created  ${COMPONENT_ROOT_PATH}  2m
+    Directory Should Exist  ${COMPONENT_ROOT_PATH}
 
 Install Ostia SSL Certs To System
     Install System Ca Cert  ${RESOURCES_PATH}/sophos_certs/OstiaCA.crt
@@ -141,6 +142,11 @@ Update from Ostia
     ...   60 secs
     ...   10 secs
     ...   check_suldownloader_log_contains   suldownloaderdata <> SUL Last Result: 0
+
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   check_suldownloader_log_contains   suldownloaderdata <> Product will be downloaded: ServerProtectionLinux-Plugin-AV
 
     Verify AV installed
 
