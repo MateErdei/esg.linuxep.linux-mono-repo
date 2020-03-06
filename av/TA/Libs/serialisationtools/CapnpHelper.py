@@ -7,7 +7,6 @@ from enum import Enum
 import capnp
 import os
 
-ROBOT_LIBRARY_SCOPE = 'GLOBAL'
 CAPNP_DIR = "/opt/test/inputs/av/test-resources/capnp-files"
 
 
@@ -19,6 +18,8 @@ class CapnpSchemas(Enum):
 
 
 class CapnpHelper:
+    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+    
     def __init__(self):
         capnp.remove_import_hook()
 
