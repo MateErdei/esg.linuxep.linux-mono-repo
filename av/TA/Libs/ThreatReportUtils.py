@@ -4,7 +4,7 @@ import os
 base_mcs_directory = "/opt/sophos-spl/base/mcs/event/"
 
 xml = {"naugthyEicarThreatReport": [
-    '''description="Virus/spyware EICAR has been detected in /home/vagrant/this/is/a/directory/for/scanning/"''',
+    '''description="Virus/spyware EICAR has been detected in /home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar"''',
     '''type="sophos.mgt.msg.event.threat"''',
     '''<user userId="root"''',
     '''domain="local"/>''',

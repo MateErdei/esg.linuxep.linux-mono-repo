@@ -161,6 +161,7 @@ AV And Base Teardown
     ...  Plugin Log Contains      av <> Plugin Finished
     Run Keyword If Test Failed   Log File   ${AV_LOG_PATH}
     Remove File    ${AV_LOG_PATH}
+    Empty Directory  /opt/sophos-spl/base/mcs/event/
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
 
 Create Install Options File With Content
