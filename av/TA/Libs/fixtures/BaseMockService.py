@@ -44,10 +44,9 @@ def sdds():
 
 
 def base_sdds():
-    OUTPUT = output()
     return (
         os.environ.get("SSPL_BASE_SDDS", None) or
-        os.path.join(OUTPUT, "base-sdds")
+        os.path.join(output(), "base-sdds")
     )
 
 
@@ -112,17 +111,19 @@ def install_base(sophos_install):
 
     write_file(os.path.join(sophos_install, 'base/etc/logger.conf'), "VERBOSITY=DEBUG")
 
-    # base_sdds_dir = base_sdds()
-    # base_files = os.path.join(base_sdds_dir, "files")
-    # base_libs = os.path.join(base_files, "base", "lib64")
-    # dest_libs = os.path.join(sophos_install, "base", "lib64")
+    base_sdds_dir = base_sdds()
+    base_files = os.path.join(base_sdds_dir, "files")
+    base_libs = os.path.join(base_files, "base", "lib64")
+
+    dest_libs = os.path.join(sophos_install, "base", "lib64")
+
+    def copy_lib(lib_glob):
+        src = glob.glob(os.path.join(base_libs, lib_glob))[0]
+        dest = os.path.join(dest_libs, os.path.basename(src))
+        shutil.copy(src, dest)
+        create_library_symlinks(dest)
     #
-    # def copy_lib(lib_glob):
-    #     src = glob.glob(os.path.join(base_libs, lib_glob))[0]
-    #     dest = os.path.join(dest_libs, os.path.basename(src))
-    #     shutil.copy(src, dest)
-    #     create_library_symlinks(dest)
-    #
+    copy_lib("libstdc++.so.6.*")
     # copy_lib("liblog4cplus-2.0.so.*")
     # copy_lib("libprotobuf.so.*")
     # copy_lib("libzmq.so.*")
