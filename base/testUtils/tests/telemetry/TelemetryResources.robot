@@ -147,7 +147,7 @@ Check Scheduled Time Against Telemetry Config Interval
 
 Cleanup Telemetry Server
     Stop Https Server
-    Run Keyword If Test Failed   Log  ${HTTPS_LOG_FILE_PATH}
+    Log  ${HTTPS_LOG_FILE_PATH}
     Remove File  ${HTTPS_LOG_FILE_PATH}
 
 Copy Telemetry Config File in To Place
