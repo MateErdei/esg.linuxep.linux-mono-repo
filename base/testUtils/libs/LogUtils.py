@@ -384,7 +384,7 @@ class LogUtils(object):
     def check_thininstaller_log_contains_in_order(self, *args):
         log_contains_in_order(self.thin_install_log, "Thin installer", args)
 
-    def cloud_server_log_should_contain_multi_line(self, string_to_contain):
+    def cloud_server_log_should_contain(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.cloud_server_log, "cloud server log")
 
     def cloud_server_log_should_not_contain(self, string_to_contain):

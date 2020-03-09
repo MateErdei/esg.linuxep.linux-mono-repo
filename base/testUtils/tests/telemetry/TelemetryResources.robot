@@ -58,7 +58,7 @@ Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol
 
 Prepare To Run Telemetry Executable With HTTPS Protocol
-    [Arguments]  ${TLSProtocol}=--tls1_2
+    [Arguments]  ${TLSProtocol}=tlsv1_2
     HttpsServer.Start Https Server  ${CERT_PATH}   ${TLSProtocol}
     Wait Until Keyword Succeeds  10 seconds  1.0 seconds  File Should Exist  ${MACHINE_ID_FILE}
     Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}  ${USERNAME}
@@ -147,6 +147,7 @@ Check Scheduled Time Against Telemetry Config Interval
 
 Cleanup Telemetry Server
     Stop Https Server
+    Run Keyword If Test Failed   Log  ${HTTPS_LOG_FILE_PATH}
     Remove File  ${HTTPS_LOG_FILE_PATH}
 
 Copy Telemetry Config File in To Place

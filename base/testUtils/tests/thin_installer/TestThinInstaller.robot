@@ -44,6 +44,7 @@ Teardown
     General Test Teardown
     Stop Update Server
     Stop Proxy Servers
+    Run Keyword If Test Failed   Dump Cloud Server Log
     Stop Local Cloud Server
     Teardown Reset Original Path
     Uninstall SAV
@@ -286,6 +287,7 @@ Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
     Setup Warehouse   --tls1_2   --tls1_2
     Start Local Cloud Server   --tls   tlsv1_1
+    Cloud Server Log Should Contain      SSL version: _SSLMethod.PROTOCOL_TLSv1_1
     Run Default Thininstaller    3    https://localhost:4443
     Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules
 

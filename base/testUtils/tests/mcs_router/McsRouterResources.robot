@@ -112,7 +112,7 @@ Check Cloud Server Log For EDR Response Body
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
-    ...  Cloud Server Log Should Contain Multi Line  ${app_id} response (${correlation_id}) = ${expected_body}
+    ...  Cloud Server Log Should Contain  ${app_id} response (${correlation_id}) = ${expected_body}
 
 Check Cloud Server Log for Command Poll
     [Arguments]    ${occurrence}=1

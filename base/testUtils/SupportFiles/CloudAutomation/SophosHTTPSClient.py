@@ -33,18 +33,6 @@ import http.client
 from http.cookiejar import LWPCookieJar
 
 def wrap_ssl_socket(hostname=None):
-    ## monkey patch to prevent sslv2 usage
-
-    from functools import wraps
-    def sslwrap(func, hostname=None):
-        @wraps(func)
-        def bar(*args, **kw):
-            kw['ssl_version'] = ssl.PROTOCOL_TLSv1
-
-            return func(*args, **kw)
-        return bar
-
-    ssl.wrap_socket = sslwrap(ssl.wrap_socket, hostname)
     ssl._create_default_https_context = ssl._create_unverified_context
 
 def host(hostname=None):
