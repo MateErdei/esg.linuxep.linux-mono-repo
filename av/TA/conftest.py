@@ -52,26 +52,19 @@ def install_component_setup(tmpdir_factory):
 
 
 @pytest.fixture(scope="class")
-def sspl_mock(install_component_setup, request):
+def sspl_mock(install_component_setup):
     sophos_install = install_component_setup
     component_test_setup(sophos_install)
     component = BaseMockService(sophos_install)
+    yield component
+    component.cleanup()
 
-    def fin():
-        component.cleanup()
-
-    request.addfinalizer(fin)
-    return component
 
 @pytest.fixture(scope="class")
-def av_plugin_instance(request):
+def av_plugin_instance():
     av = AVPlugin()
-
-    def fin():
-        av.stop_av()
-
-    request.addfinalizer(fin)
-    return av
+    yield av
+    av.stop_av()
 
 
 def collect_logs(test_name):
