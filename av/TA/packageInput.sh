@@ -28,10 +28,10 @@ INPUTS=${TEST_DIR}/inputs
 AV=$INPUTS/av
 mkdir -p $AV
 
-rsync -va "$BASE/../TA/"            "$INPUTS/test_scripts"
-rsync -va "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
-rsync -va "${BASE_OUTPUT}/"         "$AV/base-sdds"
-rsync -va "$OUTPUT/test-resources"  "$AV/"
+rsync -va --delete  "$BASE/../TA/"            "$INPUTS/test_scripts"
+rsync -va --delete "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
+rsync -va --delete "${BASE_OUTPUT}/"         "$AV/base-sdds"
+rsync -va --delete "$OUTPUT/test-resources"  "$AV/"
 exec tar cjf /tmp/inputs.tar.bz2 -C ${DEST_BASE} ${TEST_DIR_NAME}
 
 ## To unpack:

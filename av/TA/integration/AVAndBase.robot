@@ -62,7 +62,7 @@ AV Configures Single Scheduled Scan Correctly
     Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan
     Wait Until AV Plugin Log Contains  Days: Monday
     Wait Until AV Plugin Log Contains  Times: 11:00:00
-    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 2
+    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 27
     Wait Until AV Plugin Log Contains  No of Sophos Defined Extension Exclusions Configured: 3
     Wait Until AV Plugin Log Contains  No of User Defined Extension Exclusions Configured: 4
 
@@ -78,6 +78,9 @@ AV Configures Multiple Scheduled Scans Correctly
     Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan Two
     Wait Until AV Plugin Log Contains  Days: Monday Thursday
     Wait Until AV Plugin Log Contains  Times: 11:00:00 23:00:00
+    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 24
+    Wait Until AV Plugin Log Contains  No of Sophos Defined Extension Exclusions Configured: 0
+    Wait Until AV Plugin Log Contains  No of User Defined Extension Exclusions Configured: 0
 
 AV Handles Scheduled Scan With Badly Configured Day
     Check AV Plugin Installed With Base
@@ -107,6 +110,9 @@ AV Reconfigures Scans Correctly
     Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan
     Wait Until AV Plugin Log Contains  Days: Monday
     Wait Until AV Plugin Log Contains  Times: 11:00:00
+    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 27
+    Wait Until AV Plugin Log Contains  No of Sophos Defined Extension Exclusions Configured: 3
+    Wait Until AV Plugin Log Contains  No of User Defined Extension Exclusions Configured: 4
     Send Sav Policy With Multiple Scheduled Scans
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
@@ -117,6 +123,9 @@ AV Reconfigures Scans Correctly
     Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan Two
     Wait Until AV Plugin Log Contains  Days: Monday Thursday
     Wait Until AV Plugin Log Contains  Times: 11:00:00 23:00:00
+    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 24
+    Wait Until AV Plugin Log Contains  No of Sophos Defined Extension Exclusions Configured: 0
+    Wait Until AV Plugin Log Contains  No of User Defined Extension Exclusions Configured: 0
 
 AV Deletes Scan Correctly
     Check AV Plugin Installed With Base
@@ -148,10 +157,10 @@ AV Plugin Reports Threat XML To Base
    Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
    ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/naugthy_eicar
 
-   Should Be Equal  ${rc}  ${69}
+   Should Be Equal As Integers  ${rc}  ${69}
 
-   ${rc} =   check threat event received by base  1   naugthyEicarThreatReport
-   Should Be Equal  ${rc}  ${1}
+   ${rc} =   check threat event recieved by base  1   naugthyEicarThreatReport
+   Should Be Equal As Integers  ${rc}  ${1}
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin

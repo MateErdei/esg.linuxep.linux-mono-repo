@@ -16,13 +16,15 @@ ${TEMP_SAV_POLICY_FILENAME} =  TempSAVpolicy.xml
 
 Run Diagnose
     Create Directory  ${TAR_FILE_DIRECTORY}
+    Empty Directory  ${TAR_FILE_DIRECTORY}
+    Directory Should Be Empty  ${TAR_FILE_DIRECTORY}
     ${retcode} =  Start Diagnose  ${SOPHOS_INSTALL}/bin/sophos_diagnose  ${TAR_FILE_DIRECTORY}
     Should Be Equal As Integers   ${retcode}  0
 
 Check Diagnose Tar Created
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
     ${fileCount} =    Get length    ${Files}
-    Should Be Equal As Numbers  ${fileCount}  1
+    Should Be Equal As Integers  ${fileCount}  1
     Should Contain    ${Files[0]}    sspl-diagnose
     Should Not Contain   ${Files}  BaseFiles
     Should Not Contain   ${Files}  SystemFiles
@@ -32,7 +34,7 @@ Check Diagnose Collects Correct AV Files
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
-    Should Be Equal As Strings   ${result.rc}  0
+    Should Be Equal As Integers  ${result.rc}  0
 
     ${PluginFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}
     ${AVFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av
