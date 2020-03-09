@@ -5,6 +5,8 @@
 
 from enum import Enum
 import capnp
+import os
+from robot.api import logger
 
 CAPNP_DIR = "/opt/test/inputs/av/test-resources/capnp-files"
 
@@ -22,15 +24,19 @@ class CapnpHelper:
     def __init__(self):
         capnp.remove_import_hook()
 
-        # set up map of schemas to the capnp object
-        named_scan_schema = capnp.load(f"{CAPNP_DIR}/NamedScan.capnp").NamedScan
-        scan_request_schema = capnp.load(f"{CAPNP_DIR}/ScanRequest.capnp").FileScanRequest
-        scan_response_schema = capnp.load(f"{CAPNP_DIR}/ScanResponse.capnp").FileScanResponse
-        threat_detected_schema = capnp.load(f"{CAPNP_DIR}/ThreatDetected.capnp").ThreatDetected
-        self.schema_object_map = {CapnpSchemas.NamedScan: named_scan_schema,
-                                  CapnpSchemas.ScanRequest: scan_request_schema,
-                                  CapnpSchemas.ScanResponse: scan_response_schema,
-                                  CapnpSchemas.ThreatDetected: threat_detected_schema}
+        try:
+            # set up map of schemas to the capnp object
+            named_scan_schema = capnp.load(f"{CAPNP_DIR}/NamedScan.capnp").NamedScan
+            scan_request_schema = capnp.load(f"{CAPNP_DIR}/ScanRequest.capnp").FileScanRequest
+            scan_response_schema = capnp.load(f"{CAPNP_DIR}/ScanResponse.capnp").FileScanResponse
+            threat_detected_schema = capnp.load(f"{CAPNP_DIR}/ThreatDetected.capnp").ThreatDetected
+            self.schema_object_map = {CapnpSchemas.NamedScan: named_scan_schema,
+                                      CapnpSchemas.ScanRequest: scan_request_schema,
+                                      CapnpSchemas.ScanResponse: scan_response_schema,
+                                      CapnpSchemas.ThreatDetected: threat_detected_schema}
+        except OSError:
+            logger.error("Unable to load canpnp definitions")
+            self.schema_object_map = {}
 
     def check_named_scan_object(self, object_filename,
                                 name: str = None,
