@@ -45,7 +45,9 @@ Setup Component For Testing
 Use Fake AVScanner
     Run  mv ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher_bkp
     Copy File  ${RESOURCES_PATH}/copyScanConfigFilesToTmp.sh  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
+    Run  chmod +x ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
 
 Undo Use Fake AVScanner
     Run  rm ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
     Run  mv ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher_bkp ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
+    Run  rm -rf /tmp/config-files-test/
