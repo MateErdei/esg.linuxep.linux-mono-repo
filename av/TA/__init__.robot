@@ -33,6 +33,9 @@ Global Setup Tasks
     Set Global Variable  ${FAKEMANAGEMENT_AGENT_LOG_PATH}  ${SOPHOS_INSTALL}/tmp/fake_management_agent.log
     Set Global Variable  ${MANAGEMENT_AGENT_LOG_PATH}  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
 
+    Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}            UsingFakeAvScanner
+    Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false
+
     Setup Base And Component
 
 

@@ -10,6 +10,8 @@ Resource    ../shared/AVResources.robot
 Resource    ../shared/BaseResources.robot
 Resource    ../shared/FakeManagementResources.robot
 
+Test Teardown  Product Test Teardown
+
 *** Variables ***
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
@@ -63,7 +65,6 @@ Scan Now Configuration Is Correct
     Check Scan Now Configuration File is Correct
 
     ${result} =   Terminate Process  ${handle}
-    Undo Use Fake AVScanner
 
 
 Scheduled Scan Configuration Is Correct
@@ -75,7 +76,6 @@ Scheduled Scan Configuration Is Correct
     Check Scheduled Scan Configuration File is Correct
 
     ${result} =   Terminate Process  ${handle}
-    Undo Use Fake AVScanner
 
 AV Plugin Will Fail Scan Now If No Policy
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
@@ -114,3 +114,9 @@ AV Plugin Can Disable Scanning Of Remote File Systems
     File Log Should Not Contain  ${myscan_log}  "${destination}" is infected with EICAR
 
     ${result} =   Terminate Process  ${handle}
+
+*** Keywords ***
+
+Product Test Teardown
+    ${usingFakeAVScanner} =  Get Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}
+    Run Keyword If  '${usingFakeAVScanner}'=='true'  Undo Use Fake AVScanner

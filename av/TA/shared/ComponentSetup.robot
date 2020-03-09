@@ -43,11 +43,13 @@ Setup Component For Testing
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
 
 Use Fake AVScanner
+    Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  true
     Move File  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher_bkp
     Copy File  ${RESOURCES_PATH}/copyScanConfigFilesToTmp.sh   ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
     Run  chmod +x ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
 
 Undo Use Fake AVScanner
+    Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false
     Remove File  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
     Move File  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher_bkp  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
     Remove Directory  /tmp/config-files-test/  recursive=true
