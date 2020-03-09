@@ -12,12 +12,29 @@ then
     OUTPUT=$BASE/../output
 fi
 
-INPUTS=/tmp/inputs
+BASE_OUTPUT=$2
+if [[ -z $BASE_OUTPUT ]]
+then
+    BASE_OUTPUT=$OUTPUT/base-sdds
+else
+    BASE_OUTPUT=$BASE_OUTPUT/SDDS-COMPONENT
+fi
+
+
+DEST_BASE=/tmp
+TEST_DIR_NAME=test
+TEST_DIR=${DEST_BASE}/${TEST_DIR_NAME}
+INPUTS=${TEST_DIR}/inputs
 AV=$INPUTS/av
 mkdir -p $AV
 
-rsync -va "$BASE/../TA/" $INPUTS/TA
+rsync -va "$BASE/../TA/"            "$INPUTS/test_scripts"
 rsync -va "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
-rsync -va "$OUTPUT/base-sdds/"      "$AV/base-sdds"
-rsync -va "$OUTPUT/test-resources"  "$AV/test-resources"
-exec tar cjf /tmp/inputs.tar.bz2 -C /tmp inputs
+rsync -va "${BASE_OUTPUT}/"         "$AV/base-sdds"
+rsync -va "$OUTPUT/test-resources"  "$AV/"
+exec tar cjf /tmp/inputs.tar.bz2 -C ${DEST_BASE} ${TEST_DIR_NAME}
+
+## To unpack:
+# copy /tmp/inputs.tar.bz2 to test machine
+# cd /opt
+# tar xjf <tarfile>
