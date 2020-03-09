@@ -65,6 +65,12 @@ Verify AV installed
     Wait Until Created  ${COMPONENT_ROOT_PATH}  2m
     Directory Should Exist  ${COMPONENT_ROOT_PATH}
 
+    Check AV Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  3 secs
+    ...  Check sophos_threat_detector Running
+
 Install Ostia SSL Certs To System
     Install System Ca Cert  ${RESOURCES_PATH}/sophos_certs/OstiaCA.crt
 
