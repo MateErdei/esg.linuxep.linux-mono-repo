@@ -155,7 +155,7 @@ AV Plugin Reports Threat XML To Base
    ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
 
    Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/naugthy_eicar
+   ${rc}   ${output} =    Run And Return Rc And Output   /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naugthy_eicar
 
    Should Be Equal As Integers  ${rc}  ${69}
 
