@@ -142,6 +142,8 @@ Diagnose collects the correct files
 
 AV Plugin Reports Threat XML To Base
    Check AV Plugin Installed With Base
+   Empty Directory  /opt/sophos-spl/base/mcs/event/
+
    ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
 
    Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}

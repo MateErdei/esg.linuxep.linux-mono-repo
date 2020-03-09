@@ -23,7 +23,7 @@ def check_threat_event_recieved_by_base(number_of_expected_events, event_type):
     actual_number_of_events = len(next(os.walk(base_mcs_directory))[2])
 
     if actual_number_of_events is not int(number_of_expected_events):
-        print("*WARN*: {}".format(actual_number_of_events))
+        print("*WARN*: Number of actual events {} is not equals to the number of expected events  {}".format(actual_number_of_events, number_of_expected_events))
         return 0
 
     actual_matching_lines = 0
@@ -38,4 +38,5 @@ def check_threat_event_recieved_by_base(number_of_expected_events, event_type):
     if actual_matching_lines is expected_matching_lines:
         return 1
     else:
+        print("*WARN*: actual matching lines {} expected matching lines {}".format(actual_matching_lines, expected_matching_lines))
         return 0
