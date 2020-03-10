@@ -33,7 +33,6 @@ Teardown
     Stop Proxy Servers
     Stop Local Cloud Server
     Teardown Reset Original Path
-    Uninstall SAV
     Run Keyword If Test Failed    Dump Thininstaller Log
     Cleanup Files
     Clear Environment Proxy

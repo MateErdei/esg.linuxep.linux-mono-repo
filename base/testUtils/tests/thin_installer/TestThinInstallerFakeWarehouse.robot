@@ -63,7 +63,6 @@ Teardown
     Stop Proxy If Running
     Stop Local Cloud Server
     Teardown Reset Original Path
-    Uninstall SAV
     Run Keyword If Test Failed    Dump Thininstaller Log
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
     Cleanup Files

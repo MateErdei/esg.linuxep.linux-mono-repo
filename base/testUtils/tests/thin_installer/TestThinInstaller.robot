@@ -32,7 +32,6 @@ Setup Warehouse
 
 Setup Thininstaller Test
     Require Uninstalled
-    Uninstall SAV
     Set Environment Variable  CORRUPTINSTALL  no
     Get Thininstaller
     Create Default Credentials File
@@ -47,7 +46,6 @@ Teardown
     Run Keyword If Test Failed   Dump Cloud Server Log
     Stop Local Cloud Server
     Teardown Reset Original Path
-    Uninstall SAV
     Run Keyword If Test Failed    Dump Thininstaller Log
     Remove Thininstaller Log
     Cleanup Files
@@ -55,10 +53,17 @@ Teardown
     Remove Environment Variable  SOPHOS_INSTALL
     Remove Directory  ${CUSTOM_DIR_BASE}  recursive=$true
     Remove Fake Savscan In Tmp
+    Cleanup Temporary Folders
+
+Remove SAV files
+    Uninstall SAV
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/bin
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/local/bin/
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /bin
-    Cleanup Temporary Folders
+
+SAV Teardown
+    Teardown
+    Remove SAV files
 
 Cert Test Teardown
     Teardown
@@ -170,12 +175,14 @@ Thin Installer fails to install to a custom location with a path 51 Or Greater C
 
 Thin Installer fails to install alongside SAV
     [Tags]  SAV  THIN_INSTALLER
+    [Teardown]  SAV Teardown
     Get And Install Sav
     Run Default Thininstaller    8
     Check Thininstaller Log Contains     This product cannot be run alongside Sophos Anti-Virus
 
 Thin Installer fails to install alongside SAV with non-standard PATH
     [Tags]  SAV  THIN_INSTALLER
+    [Teardown]  SAV Teardown
     ${path} =  Get System Path
     Get And Install Sav
     ## Change symlinks
@@ -227,6 +234,8 @@ Thin Installer Does Not Tell Us About Which Sweep
     Check Thininstaller Log Does Not Contain    which: no sweep in
 
 Thin Installer Detects Sweep And Cancels Installation
+    [Tags]  SAV  THIN_INSTALLER
+    [Teardown]  SAV Teardown
     Create Fake Sweep Symlink    /usr/bin
     Run Default Thininstaller    8
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
