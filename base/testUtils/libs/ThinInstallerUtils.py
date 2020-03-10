@@ -406,7 +406,7 @@ class ThinInstallerUtils(object):
         os.system("tar -xvf ./{} -C {} > /dev/null".format(sav_tar_file_name, self.tmp_path))
 
         sav_install_sh = os.path.join(self.tmp_path, "sophos-av", "install.sh")
-        sav_log_path = os.path.join(self.tmp_path, "sav-install.log")
+        sav_log_path = self.get_sav_log()
         cmd = "{} --acceptlicence --automatic --ignore-existing-directory --instdir /opt/sophos-av --enableOnAccess=False > {}"\
             .format(sav_install_sh, sav_log_path)
 
@@ -421,6 +421,10 @@ class ThinInstallerUtils(object):
                 raise AssertionError("Could not uninstall SAV")
         if os.path.isdir(sav_dir):
             shutil.rmtree(sav_dir)
+
+    def get_sav_log(self):
+        sav_log_path = os.path.join(self.tmp_path, "sav-install.log")
+        return sav_log_path
 
     def get_main_installer_temp_location(self):
         list_of_files = glob.glob(os.path.join("/tmp", "SophosCentralInstall_*"))

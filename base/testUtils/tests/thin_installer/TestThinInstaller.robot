@@ -56,6 +56,8 @@ Teardown
     Cleanup Temporary Folders
 
 Remove SAV files
+    ${SAV_LOG} =  Get Sav Log
+    Run Keyword If Test Failed   LogUtils.Dump Log   ${SAV_LOG}
     Uninstall SAV
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/bin
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/local/bin/
