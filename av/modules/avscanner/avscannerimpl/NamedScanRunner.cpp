@@ -83,7 +83,7 @@ namespace
             }
             catch (const std::exception& e)
             {
-                LOGERROR("Scanner failed to scan: " << p);
+                LOGERROR("Scanner failed to scan: " << p << " [" << e.what() << "]");
                 m_returnCode = E_GENERIC_FAILURE;
             }
         }

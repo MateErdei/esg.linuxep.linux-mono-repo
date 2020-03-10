@@ -58,7 +58,8 @@ void ScanClient::sendThreatReport(const fs::path& threatPath, const std::string&
     std::time_t detectionTimeStamp = std::time(nullptr);
 
     scan_messages::ThreatDetected threatDetected;
-    threatDetected.setUserID(std::getenv("USER"));
+    const char* user = std::getenv("USER");
+    threatDetected.setUserID(user ? user : "root");
     threatDetected.setDetectionTime(detectionTimeStamp);
     threatDetected.setScanType(m_scanType);
     //For now this is always 1 (Virus)
