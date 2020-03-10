@@ -103,7 +103,7 @@ AV Plugin Can Disable Scanning Of Remote File Systems
     [Teardown]    Remove Local NFS Share   ${source}   ${destination}
 
     ${allButTmp} =  Configure Scan Exclusions Everything Else  /mnt/
-    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>/mnt/filer6/linux/</filePath><filePath>/uk-filer5/prodro/</filePath></filePathSet></posixExclusions>
+    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed

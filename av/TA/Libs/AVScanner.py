@@ -31,6 +31,8 @@ def exclusions_for_everything_else(inclusion):
         path = os.path.join('/', item)
         if os.path.isdir(path) and not path.startswith(inclusion):
             exclusions.append("<filePath>{}/</filePath>".format(path))
+    exclusions.append("<filePath>/mnt/filer6/linux/</filePath>")
+    exclusions.append("<filePath>/uk-filer5</filePath>")
     exclusions.sort()
 
     return ''.join(exclusions)
