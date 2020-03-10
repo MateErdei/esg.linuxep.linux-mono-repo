@@ -2,7 +2,6 @@
 set -ex
 
 STARTINGDIR=$(pwd)
-
 cd ${0%/*}
 BASE=$(pwd)
 
