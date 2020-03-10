@@ -420,7 +420,7 @@ class ThinInstallerUtils(object):
             if os.system(sav_uninstaller + " --force > /dev/null") != 0:
                 raise AssertionError("Could not uninstall SAV")
         if os.path.isdir(sav_dir):
-            os.remove(sav_dir)
+            shutil.rmtree(sav_dir)
 
     def get_main_installer_temp_location(self):
         list_of_files = glob.glob(os.path.join("/tmp", "SophosCentralInstall_*"))
