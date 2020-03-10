@@ -3,4 +3,3 @@ protobuf
 pytest-html
 Cython
 pycapnp
-robot-framework
