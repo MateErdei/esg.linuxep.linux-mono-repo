@@ -64,8 +64,8 @@ Remove SAV files
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /bin
 
 SAV Teardown
-    Teardown
     Remove SAV files
+    Teardown
 
 Cert Test Teardown
     Teardown
