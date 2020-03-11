@@ -1,5 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (C) 2020 Sophos Plc, Oxford, England.
+# All rights reserved.
+
 import sys
 import os
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 
 def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
