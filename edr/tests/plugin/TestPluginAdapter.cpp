@@ -27,10 +27,13 @@ public:
 };
 class DummyQuery : public livequery::IQueryProcessor
 {
-    livequery::QueryResponse query(const std::string&)
+    livequery::QueryResponse query(const std::string&) override
     {
         throw std::runtime_error("not implemented");
     };
+    std::unique_ptr<livequery::IQueryProcessor> clone() override {
+        return std::unique_ptr<livequery::IQueryProcessor>(new DummyQuery{});
+    }
 };
 
 class TestablePluginAdapter : public Plugin::PluginAdapter

@@ -14,6 +14,7 @@ namespace osqueryclient
     public:
         explicit OsqueryProcessor(std::string socketPath);
         livequery::QueryResponse query(const std::string& query) override;
+        virtual std::unique_ptr<IQueryProcessor> clone() override ;
 
     private:
         std::string m_socketPath;

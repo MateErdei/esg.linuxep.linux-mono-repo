@@ -73,8 +73,7 @@ namespace Plugin
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
-        m_queryProcessor { std::move(queryProcessor) },
-        m_responseDispatcher { std::move(responseDispatcher) },
+        m_parallelQueryProcessor{std::move(queryProcessor), std::move(responseDispatcher)},
         m_timesOsqueryProcessFailedToStart(0),
         m_osqueryConfigurator()
     {
@@ -295,7 +294,7 @@ namespace Plugin
 
     void PluginAdapter::processQuery(const std::string& queryJson, const std::string& correlationId)
     {
-        livequery::processQuery(*m_queryProcessor, *m_responseDispatcher, queryJson, correlationId);
+        m_parallelQueryProcessor.addJob(queryJson, correlationId);
     }
 
     void PluginAdapter::processALCPolicy(const std::string& policy, bool firstTime)

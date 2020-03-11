@@ -7,6 +7,7 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 #include "QueryResponse.h"
 #include "ResponseDispatcher.h"
+#include <memory>
 
 namespace livequery
 {
@@ -15,6 +16,7 @@ namespace livequery
     public:
         virtual ~IQueryProcessor() = default;
         virtual QueryResponse query(const std::string& query) = 0;
+        virtual std::unique_ptr<IQueryProcessor> clone() = 0;
     };
 
     void processQuery(

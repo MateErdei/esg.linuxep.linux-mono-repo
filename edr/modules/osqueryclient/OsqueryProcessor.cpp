@@ -129,4 +129,8 @@ namespace osqueryclient
         }
     }
 
+    std::unique_ptr<livequery::IQueryProcessor> OsqueryProcessor::clone() {
+        return std::unique_ptr<livequery::IQueryProcessor>(new OsqueryProcessor(m_socketPath));
+    }
+
 } // namespace osqueryclient

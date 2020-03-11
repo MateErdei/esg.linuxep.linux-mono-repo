@@ -14,4 +14,5 @@ class MockResponseDispatcher : public virtual livequery::IResponseDispatcher
 {
 public:
     MOCK_METHOD2(sendResponse, void(const std::string&, const livequery::QueryResponse& ));
+    MOCK_METHOD0(clone, std::unique_ptr<livequery::IResponseDispatcher>());
 };

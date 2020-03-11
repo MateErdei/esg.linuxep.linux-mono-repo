@@ -245,4 +245,8 @@ namespace livequery
 
         return serializedJson.str();
     }
+
+    std::unique_ptr<IResponseDispatcher> ResponseDispatcher::clone() {
+        return std::unique_ptr<IResponseDispatcher>(new ResponseDispatcher{});
+    }
 } // namespace livequery
