@@ -12,10 +12,10 @@ warehouses:
                 features: [CORE]
                 platforms: []
                 release-tags:
-                    - base-version: ""
-                      tag: RECOMMENDED
-                    - base-version: ""
-                      tag: BETA
+                    -   base-version: ""
+                        tag: RECOMMENDED
+                    -   base-version: ""
+                        tag: BETA
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
@@ -25,8 +25,8 @@ warehouses:
                 release-tags:
                     - base-version: ""
                       tag: RECOMMENDED
-                    - base-version: ""
-                      tag: BETA
+                    -   base-version: ""
+                        tag: BETA
     ssplmdr-wh:
         components:
             ssplmdr-suite:
@@ -36,10 +36,10 @@ warehouses:
                 features: [MDR]
                 platforms: []
                 release-tags:
-                    - base-version: ""
-                      tag: RECOMMENDED
-                    - base-version: ""
-                      tag: BETA
+                    -   base-version: ""
+                        tag: RECOMMENDED
+                    -   base-version: ""
+                        tag: BETA
                 subcomponents:
                     ssplmdr-control-component:
                     ssplmdr-dbos-component:
