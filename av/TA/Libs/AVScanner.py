@@ -35,12 +35,37 @@ def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
 def exclusions_for_everything_else(inclusion):
     inclusion = inclusion.rstrip('/')
     exclusions = []
-    for item in os.listdir('/'):
-        path = os.path.join('/', item)
-        if os.path.isdir(path) and not path.startswith(inclusion):
-            exclusions.append("<filePath>{}/</filePath>".format(path))
-    exclusions.append("<filePath>/mnt/filer6/linux/</filePath>")
-    exclusions.append("<filePath>/uk-filer5</filePath>")
-    exclusions.sort()
+    for dir_path, dirs, files in os.walk('/'):
+        if dir_path.startswith(inclusion):
+            dirs[:] = []
+            continue
 
+        to_remove = []
+        for dir_name in dirs:
+            full_path = os.path.join(dir_path, dir_name)
+            if inclusion.startswith(full_path):
+                # We want to exclude things in this directory, but not this directory
+                LOGGER.info('INCLUDE:', dir_name)
+                pass
+            else:
+                LOGGER.info('exclude', full_path)
+                to_remove.append(dir_name)
+                exclusions.append(f'<filePath>{full_path}</filePath>')
+        for d in to_remove:
+            try:
+                dirs.remove(d)
+            except ValueError:
+                LOGGER.error(f'Failed to remove {d} from {dirs}')
+                raise
+
+        for file_name in files:
+            full_path = os.path.join(dir_path, file_name)
+            if inclusion.startswith(full_path):
+                LOGGER.info("INCLUDE:", file_name)
+                pass
+            else:
+                LOGGER.info("exclude:", full_path)
+                exclusions.append(f'<filePath>{full_path}</filePath>')
+
+    exclusions.sort()
     return ''.join(exclusions)
