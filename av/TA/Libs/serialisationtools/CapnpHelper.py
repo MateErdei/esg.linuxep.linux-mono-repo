@@ -5,7 +5,6 @@
 
 from enum import Enum
 import capnp
-import os
 
 CAPNP_DIR = "/opt/test/inputs/av/test-resources/capnp-files"
 
