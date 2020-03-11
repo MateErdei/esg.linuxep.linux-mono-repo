@@ -4,6 +4,8 @@ add_library(datatypes SHARED
         AutoFd.h
         Print.h
         sophos_filesystem.h
+        Time.cpp
+        Time.h
         )
 
 install(TARGETS datatypes
