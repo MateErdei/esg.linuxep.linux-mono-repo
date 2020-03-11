@@ -179,7 +179,7 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
                      </notification>
             )sophos";
 
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("2", threatDetectedXML));
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
     pluginAdapter.processThreatReport(threatDetectedXML);

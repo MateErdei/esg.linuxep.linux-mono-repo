@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ThreatDetected.capnp.h"
 #include "StringUtils.h"
 #include "datatypes/sophos_filesystem.h"
+#include "datatypes/Time.h"
 
 namespace fs = sophos_filesystem;
 
@@ -49,39 +50,24 @@ std::string unixsocket::generateThreatDetectedXml(const Sophos::ssplav::ThreatDe
     std::locale loc("");
 
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
-            R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-                     <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware @@THREAT_NAME@@ has been detected in @@THREAT_PATH@@"
-                               type="sophos.mgt.msg.event.threat"
-                               timestamp="@@DETECTION_TIME@@">
-
-                     <user userId="@@USER@@"
-                               domain="local"/>
-                     <threat  type="@@THREAT_TYPE@@"
-                               name="@@THREAT_NAME@@"
-                               scanType="@@SMT_SCAN_TYPE@@"
-                               status="@@NOTIFICATION_STATUS@@"
-                               id="@@THREAT_ID@@"
-                               idSource="@@ID_SOURCE@@">
-
-                               <item file="@@FILE_NAME@@"
-                                      path="@@THREAT_PATH@@"/>
-                               <action action="@@SMT_ACTION_CODES@@"/>
-                     </threat>
-                     </notification>
-            )sophos",{
+            R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<notification description="Found '@@THREAT_NAME@@' in '@@THREAT_PATH@@'" timestamp="@@DETECTION_TIME@@" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
+  <user domain="local" userId="@@USER@@"/>
+  <threat id="@@THREAT_ID@@" idSource="@@ID_SOURCE@@" name="@@THREAT_NAME@@" scanType="@@SMT_SCAN_TYPE@@" status="@@NOTIFICATION_STATUS@@" type="@@THREAT_TYPE@@">
+    <item file="@@FILE_NAME@@" path="@@THREAT_PATH@@"/>
+    <action action="@@SMT_ACTION_CODES@@"/>
+  </threat>
+</notification>)sophos",{
                     {"@@THREAT_NAME@@", threatName},
                     {"@@THREAT_PATH@@", path},
-                    {"@@DETECTION_TIME@@", std::to_string(detection.getDetectionTime())},
+                    {"@@DETECTION_TIME@@", datatypes::Time::epochToCentralTime(detection.getDetectionTime())},
                     {"@@USER@@", detection.getUserID()},
-                    {"@@THREAT_TYPE@@",  std::to_string(detection.getThreatType())},
+                    {"@@THREAT_ID@@", "1"},
+                    {"@@ID_SOURCE@@", "1"},
                     {"@@THREAT_NAME@@",threatName},
                     {"@@SMT_SCAN_TYPE@@",  std::to_string(detection.getScanType())},
                     {"@@NOTIFICATION_STATUS@@", std::to_string(detection.getNotificationStatus())},
-                    // TODO: at the moment we don't store THREAT_ID  and ID_SOURCE in the capnp object
-                    // cause there is no way to retrieve this information
-                    {"@@THREAT_ID@@", "1"},
-                    {"@@ID_SOURCE@@", "1"},
+                    {"@@THREAT_TYPE@@",  std::to_string(detection.getThreatType())},
                     {"@@FILE_NAME@@", fileName},
                     {"@@THREAT_PATH@@", fs::path(path).remove_filename()},
                     {"@@SMT_ACTION_CODES@@", std::to_string(detection.getActionCode())}

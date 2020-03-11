@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 // Product
 #include "datatypes/Print.h"
 #include "datatypes/sophos_filesystem.h"
+#include "datatypes/Time.h"
 // Base
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/Process/IProcess.h>
@@ -94,36 +95,7 @@ std::string manager::scheduler::generateScanCompleteXml(const std::string& name)
           </scanComplete>
           <entity></entity>
         </event>)sophos",{
-                {"@@TIMESTAMP@@", generateTimeStamp()},
+                {"@@TIMESTAMP@@", datatypes::Time::currentToCentralTime()},
                 {"@@SCANNAME@@", name }
             });
-}
-
-std::string manager::scheduler:: generateTimeStamp()
-{
-    time_t rawtime;
-    time(&rawtime);
-    struct tm timeinfo{};
-    struct tm* result = localtime_r(&rawtime, &timeinfo);
-    if (result == nullptr)
-    {
-        throw std::runtime_error("Failed to get localtime");
-    }
-
-    char timebuffer[128];
-    int timesize = ::strftime(timebuffer, sizeof(timebuffer), "%Y-%m-%dT%H:%M:%S.", &timeinfo);
-    if (timesize == 0)
-    {
-        throw std::runtime_error("Failed to format timestamp");
-    }
-
-    struct timespec tp{};
-    int ret = clock_gettime(CLOCK_REALTIME, &tp);
-    if (ret == -1)
-    {
-        throw std::runtime_error("Failed to get nanoseconds");
-    }
-    std::ostringstream timestamp;
-    timestamp << timebuffer << tp.tv_nsec << "Z";
-    return timestamp.str();
 }

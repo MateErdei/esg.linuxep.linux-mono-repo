@@ -118,13 +118,13 @@ void PluginAdapter::innerLoop()
                 processAction(task.Content);
                 break;
 
-            case Task::TaskType::ScanComplete: //NOLINT
-                m_baseService->sendEvent("2", task.Content);
+            case Task::TaskType::ScanComplete:
+                m_baseService->sendEvent("SAV", task.Content);
                 break;
 
             case Task::TaskType::ThreatDetected:
                 // TO DO: check if 2 should get changed to sav
-                m_baseService->sendEvent("2", task.Content);
+                m_baseService->sendEvent("SAV", task.Content);
                 break;
         }
     }
@@ -152,14 +152,14 @@ void PluginAdapter::processAction(const std::string& actionXml)
 
 void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
 {
-    LOGDEBUG("Sending scan complete notification to central " << scanCompletedXml);
+    LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
 
     m_queueTask->push(Task{.taskType=Task::TaskType::ScanComplete, scanCompletedXml});
 }
 
 void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
 {
-    LOGDEBUG("Sending threat detection notification to central " << threatDetectedXML);
+    LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
 
-    m_queueTask->push(Task{.taskType=Task::TaskType::ScanComplete, threatDetectedXML});
+    m_queueTask->push(Task{.taskType=Task::TaskType::ThreatDetected, threatDetectedXML});
 }
