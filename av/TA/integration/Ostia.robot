@@ -113,6 +113,7 @@ Restart Management Agent
 *** Test Cases ***
 
 Update from Ostia
+    [Tags]  OSTIA
     [Timeout]  30min
     Install Ostia SSL Certs To System
 
