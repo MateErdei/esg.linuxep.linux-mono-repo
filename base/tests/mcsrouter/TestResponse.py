@@ -135,7 +135,7 @@ class TestResponse(unittest.TestCase):
     @mock.patch("os.remove")
     def test_prune_old_responses_removes_old_response(self, *mockargs):
         responses = mcsrouter.mcsclient.responses.Responses()
-        responses.add_response(DUMMY_PATH, "app_id", "correlation_id", timestamp.timestamp(time.time() - 35), EXAMPLE_BODY)
+        responses.add_response(DUMMY_PATH, "app_id", "correlation_id", timestamp.timestamp(time.time() - 305), EXAMPLE_BODY)
         self.assertFalse(responses.has_responses())
         self.assertEqual([], responses.get_responses())
         self.assertEqual(os.path.isfile.call_count, 1)
@@ -146,15 +146,15 @@ class TestResponse(unittest.TestCase):
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     def test_prune_old_responses_does_not_remove_current_response(self, *mockargs):
         responses = mcsrouter.mcsclient.responses.Responses()
-        responses.add_response(DUMMY_PATH, "app_id", "correlation_id", timestamp.timestamp(time.time() - 25), EXAMPLE_BODY)
+        responses.add_response(DUMMY_PATH, "app_id", "correlation_id", timestamp.timestamp(time.time() - 295), EXAMPLE_BODY)
         self.assertTrue(responses.has_responses())
         self.assertEqual(1, len(responses.get_responses()))
 
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     def test_prune_old_responses_only_removes_old_response(self, *mockargs):
         responses = mcsrouter.mcsclient.responses.Responses()
-        responses.add_response(DUMMY_PATH, "app_id", "correlation_id", timestamp.timestamp(time.time() - 25), EXAMPLE_BODY)
-        responses.add_response(DUMMY_PATH, "app_id", "correlation_id", timestamp.timestamp(time.time() - 35), EXAMPLE_BODY)
+        responses.add_response(DUMMY_PATH, "app_id", "correlation_id", timestamp.timestamp(time.time() - 295), EXAMPLE_BODY)
+        responses.add_response(DUMMY_PATH, "app_id", "correlation_id", timestamp.timestamp(time.time() - 305), EXAMPLE_BODY)
         self.assertEqual(2, len(responses.get_responses()))
         self.assertTrue(responses.has_responses())
         self.assertEqual(1, len(responses.get_responses()))

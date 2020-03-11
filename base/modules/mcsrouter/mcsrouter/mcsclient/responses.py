@@ -65,7 +65,7 @@ class Responses(object):
         __init__
         """
         self.__m_responses = []
-        self.__m_time_to_live = 30  # in seconds
+        self.__m_time_to_live = 300  # in seconds
 
     def add_response(self, file_path, app_id, correlation_id, creation_time, body):
         """
