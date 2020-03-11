@@ -59,7 +59,7 @@ namespace UpdateSchedulerImpl
         m_reportfilePath(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath()),
         m_configfilePath(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath()),
-        m_previousConfigFilePath(Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName()),
+        m_previousConfigFilePath(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath()),
         m_formattedTime(),
         m_policyReceived(false),
         m_pendingUpdate(false)
