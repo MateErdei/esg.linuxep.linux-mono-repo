@@ -150,7 +150,7 @@ AV Plugin Reports Threat XML To Base
 
    Should Be Equal  ${rc}  ${69}
 
-   ${rc} =   check threat event recieved by base  1   naugthyEicarThreatReport
+   ${rc} =   check threat event received by base  1   naugthyEicarThreatReport
    Should Be Equal  ${rc}  ${1}
 
 AV Plugin uninstalls
