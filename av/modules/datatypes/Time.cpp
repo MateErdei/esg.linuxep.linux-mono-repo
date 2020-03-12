@@ -13,10 +13,10 @@ using namespace datatypes;
 std::string Time::epochToCentralTime(const std::time_t& rawtime)
 {
     struct tm timeinfo{};
-    struct tm* result = localtime_r(&rawtime, &timeinfo);
+    struct tm* result = gmtime_r(&rawtime, &timeinfo);
     if (result == nullptr)
     {
-        throw std::runtime_error("Failed to get localtime");
+        throw std::runtime_error("Failed to convert timestamp to UTC");
     }
 
     char timebuffer[16];
