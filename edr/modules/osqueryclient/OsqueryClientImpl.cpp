@@ -20,7 +20,7 @@ namespace osquery
             try
             {
                 // set a maximum time that a query can be take. Set to 90 minutes.
-                constexpr int Timeout=90*60*60;
+                constexpr int Timeout=90*60;
                 return std::make_unique<osquery::ExtensionManagerClient>(socket, Timeout);
             }
             catch (apache::thrift::transport::TTransportException& ex)
