@@ -90,6 +90,7 @@ AV Plugin Will Fail Scan Now If No Policy
 
 
 AV Plugin Can Disable Scanning Of Remote File Systems
+    [Tags]  NFS
     ${source} =       Set Variable  /tmp/nfsshare
     ${destination} =  Set Variable  /mnt/nfsshare
     ${remoteFSscanningDisabled} =   Set Variable  remoteFSscanningDisabled

@@ -159,8 +159,8 @@ AV Plugin Reports Threat XML To Base
 
    Should Be Equal As Integers  ${rc}  ${69}
 
-   ${rc} =   check threat event recieved by base  1   naugthyEicarThreatReport
-   Should Be Equal As Integers  ${rc}  ${1}
+   ${rc} =   check threat event received by base  1   naugthyEicarThreatReport
+   Should Be Equal  ${rc}  ${1}
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin
