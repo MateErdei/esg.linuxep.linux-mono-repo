@@ -4,7 +4,7 @@ import os
 base_mcs_directory = "/opt/sophos-spl/base/mcs/event/"
 
 xml = {"naugthyEicarThreatReport": [
-    '''description="Found \'EICAR\' in \'/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar\'''',
+    '''description="Found 'EICAR' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar''',
     '''type="sophos.mgt.msg.event.threat"''',
     '''userId="root"''',
     '''domain="local"''',
@@ -13,7 +13,7 @@ xml = {"naugthyEicarThreatReport": [
     '''scanType="203"''',
     '''status="50"''',
     '''id="1"''',
-    '''idSource="1">''',
+    '''idSource="1"''',
     '''file="naugthy_eicar"''',
     '''path="/home/vagrant/this/is/a/directory/for/scanning/"/>''',
     '''action="104"''']}
