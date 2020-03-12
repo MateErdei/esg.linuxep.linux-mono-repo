@@ -139,9 +139,9 @@ CLS Creates Threat Report
    Should Be Equal  ${rc}  ${69}
 
    Wait Until AV Plugin Log Contains  Sending threat detection notification to central
-   AV Plugin Log Contains  description="Virus/spyware EICAR has been detected in ${NORMAL_DIRECTORY}/naugthy_eicar
+   AV Plugin Log Contains  description="Found 'EICAR' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
    AV Plugin Log Contains  type="sophos.mgt.msg.event.threat"
-   AV Plugin Log Contains  domain="local"/>
+   AV Plugin Log Contains  domain="local"
    AV Plugin Log Contains  type="1"
    AV Plugin Log Contains  name="EICAR"
    AV Plugin Log Contains  scanType="203"
