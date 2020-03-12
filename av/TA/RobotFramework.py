@@ -6,7 +6,9 @@ from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 
 def main():
-    tags = {'include': [], 'exclude': []}
+    # Exclude OSTIA on TAP, since we are testing builds immediately, before they have a chance to be put in warehouses
+
+    tags = {'include': [], 'exclude': ['OSTIA']}
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {

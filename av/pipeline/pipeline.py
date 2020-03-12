@@ -92,10 +92,10 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext):
     else:
         machine_bullseye_test = None
 
-    with stage.group('integration'):
-        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
     with stage.group('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
         if has_coverage:
             stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test)
 
+    with stage.group('integration'):
+        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
