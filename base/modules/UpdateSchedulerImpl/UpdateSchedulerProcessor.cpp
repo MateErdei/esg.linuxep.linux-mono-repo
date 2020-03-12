@@ -405,6 +405,18 @@ namespace UpdateSchedulerImpl
             try
             {
                 iFileSystem->copyFile(m_configfilePath, m_previousConfigFilePath);
+                LOGINFO("Created previous update config file at :" << m_previousConfigFilePath);
+                LOGINFO("From update config file at :" << m_configfilePath);
+
+                if (iFileSystem->isFile(m_previousConfigFilePath))
+                {
+                    LOGINFO("Previous update config file created successfully");
+                }
+                else
+                {
+                    LOGINFO("Failed to create previous update config file.");
+                }
+
             }
             catch(Common::FileSystem::IFileSystemException& ex)
             {
