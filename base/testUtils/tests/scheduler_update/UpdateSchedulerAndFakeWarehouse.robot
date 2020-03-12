@@ -37,6 +37,8 @@ UpdateScheduler Update Against Ostia
 
     Check Event Report Success  ${eventPath}
 
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+
 UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
     Register Current Sul Downloader Config Time
     Simulate Send Policy   ALC_policy_invalid.xml
@@ -67,6 +69,9 @@ UpdateScheduler Status No Longer Contains Deprecated Fields
     Should Not Contain  ${StatusContent}  <lastResult>
 
     Check Event Report Success  ${eventPath}
+
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+
 
 UpdateScheduler Report Failure On Versig Error
     [Tags]  UPDATE_SCHEDULER

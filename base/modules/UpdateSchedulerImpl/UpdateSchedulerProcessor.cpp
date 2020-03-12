@@ -394,7 +394,6 @@ namespace UpdateSchedulerImpl
 
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
-            LOGINFO("Latest Report shows Update Succeeded");
             Common::Telemetry::TelemetryHelper::getInstance().set("latest-update-succeeded", true);
             Common::Telemetry::TelemetryHelper::getInstance().set(
                 "successful-update-time", duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
@@ -405,8 +404,6 @@ namespace UpdateSchedulerImpl
             try
             {
                 iFileSystem->copyFile(m_configfilePath, m_previousConfigFilePath);
-                LOGINFO("Created previous update config file at :" << m_previousConfigFilePath);
-                LOGINFO("From update config file at :" << m_configfilePath);
             }
             catch(Common::FileSystem::IFileSystemException& ex)
             {
@@ -414,10 +411,6 @@ namespace UpdateSchedulerImpl
             }
 
             return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;
-        }
-        else
-        {
-            LOGINFO("Latest Report shows Update did not Succeed");
         }
 
         Common::Telemetry::TelemetryHelper::getInstance().set("latest-update-succeeded", false);
