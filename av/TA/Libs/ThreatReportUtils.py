@@ -4,22 +4,21 @@ import os
 base_mcs_directory = "/opt/sophos-spl/base/mcs/event/"
 
 xml = {"naugthyEicarThreatReport": [
-    '''description="Virus/spyware EICAR has been detected in /home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar"''',
+    '''description="Found \'EICAR\' in \'/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar\'''',
     '''type="sophos.mgt.msg.event.threat"''',
-    '''<user userId="root"''',
-    '''domain="local"/>''',
-    '''<threat  type="1"''',
+    '''userId="root"''',
+    '''domain="local"''',
+    '''type="1"''',
     '''name="EICAR"''',
     '''scanType="203"''',
     '''status="50"''',
     '''id="1"''',
     '''idSource="1">''',
-    '''<item file="naugthy_eicar"''',
+    '''file="naugthy_eicar"''',
     '''path="/home/vagrant/this/is/a/directory/for/scanning/"/>''',
-    '''<action action="104"/>''']}
+    '''action="104"''']}
 
-
-def check_threat_event_recieved_by_base(number_of_expected_events, event_type):
+def check_threat_event_received_by_base(number_of_expected_events, event_type):
     actual_number_of_events = len(next(os.walk(base_mcs_directory))[2])
 
     if actual_number_of_events is not int(number_of_expected_events):

@@ -151,7 +151,7 @@ AV Plugin Reports Threat XML To Base
    Should Be Equal  ${rc}  ${69}
 
    ${rc} =   check threat event recieved by base  1   naugthyEicarThreatReport
-   Should Be Equal  ${rc}  ${0}
+   Should Be Equal  ${rc}  ${1}
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin
