@@ -33,7 +33,7 @@ def process_iter():
 
 def _wait_for_osquery_to_run():
     times_run = 0
-    while times_run < 10:
+    while times_run < 20:
         times_run += 1
         for p in process_iter():
             if p.name() == "osqueryd":
@@ -44,7 +44,7 @@ def _wait_for_osquery_to_run():
 
 def _wait_for_osquery_to_stop(pid):
     times_run = 0
-    while times_run < 10:
+    while times_run < 20:
         times_run += 1
         pids = []
         for p in process_iter():
@@ -54,7 +54,7 @@ def _wait_for_osquery_to_stop(pid):
             time.sleep(1)
             continue
         return
-    with open('/proc/{}/status') as handler:
+    with open('/proc/{}/status'.format(pid)) as handler:
         content = handler.read()
     raise AssertionError("osqueryd failed to stop. Information {}".format(content))
 

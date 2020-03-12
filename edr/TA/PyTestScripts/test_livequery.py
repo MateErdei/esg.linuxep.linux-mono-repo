@@ -2,7 +2,10 @@ import os
 import subprocess
 import json
 import logging
-
+import glob
+import shutil
+import time
+from .test_edr_basic import detect_failure
 logger = logging.getLogger(__name__)
 
 
@@ -12,6 +15,13 @@ top_2_processes_query = """{
     "name": "Top 2 Processes",
     "query": "SELECT name, value FROM osquery_flags where name=='logger_stderr'"
     }"""
+
+controlled_delay = """{
+    "type": "sophos.mgt.action.RunLiveQuery",
+    "name": "Managed delay",
+    "query": "select start,stop,delay from delaytable where delay==DELAYTIME"
+}"""
+
 top_2_processes_response = """{
         "type": "sophos.mgt.response.RunLiveQuery",
         "queryMetaData": {"errorCode":0,"errorMessage":"OK","rows":1},
@@ -41,20 +51,9 @@ crash_query_response = """{
     """
 
 
-def detect_failure(func):
-    def wrapper_function(sspl_mock, edr_plugin_instance):
-        try:
-            v = func(sspl_mock, edr_plugin_instance)
-            return v
-        except:
-            edr_plugin_instance.set_failed()
-            raise
-    return wrapper_function
-
-
 def check_responses_are_equivalent(actual_response, expected_response):
     try:
-        print("Size of actual response: {}".format(len(actual_response)))
+        logger.info("Size of actual response: {}".format(len(actual_response)))
         response_dict = json.loads(actual_response)
         expected_response_dict = json.loads(expected_response)
 
@@ -70,8 +69,8 @@ def check_responses_are_equivalent(actual_response, expected_response):
         assert expected_response_dict['queryMetaData']["errorCode"] == response_dict['queryMetaData']["errorCode"]
         assert expected_response_dict['queryMetaData']["errorMessage"] == response_dict['queryMetaData']["errorMessage"]
     except:
-        print("Test live query failed.")
-        print(actual_response[:1000])
+        logger.info("Test live query failed.")
+        logger.info(actual_response[:1000])
         raise
 
 def send_query( query_to_send, mock_management_agent):
@@ -199,29 +198,66 @@ def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin
     try:
         assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
     except:
-        print("Test live query failed.")
-        print(file_content)
+        logger.info("Test live query failed.")
+        logger.info(file_content)
         raise
 
-@detect_failure
-def test_successful_query_that_gives_column_data_gives_column_meta_data_also(sspl_mock, edr_plugin_instance):
-    edr_plugin_instance.start_edr()
-    large_query = """DROP TABLE system_info"""
 
-    query_dict = {'type':"sophos.mgt.action.RunLiveQuery", 'name':"", 'query': large_query}
-    query_json = json.dumps(query_dict)
-    response = """ {
-    "type": "sophos.mgt.response.RunLiveQuery",
-    "queryMetaData": {
-        "errorCode": 0,
-        "errorMessage": "OK",
-        "sizeBytes" : 0
-    },
-    "columnMetaData":[],
-    "columnData":[]
-    }
-"""
-    send_and_receive_query_and_verify(query_json, sspl_mock.management,
-                                      edr_plugin_instance, response,
-                                      response_timeout=15)
+@detect_failure
+def test_edr_plugin_run_tests_in_parallel(sspl_mock, edr_plugin_instance):
+    def response_file(id):
+        return os.path.join(sspl_mock.sspl, "base/mcs/response/LiveQuery_{}_response.json".format(id))
+    def retrieve_result_for_id(id):
+        file_path = response_file(id)
+        with open(file_path) as fp:
+            entries = json.load(fp)
+        return entries['columnData'][0]
+
+    edr_plugin_instance.start_edr()
+    DELAYCONTROLLEDNAME = 'DelayControlledTable'
+    extensions_path = os.path.join(sspl_mock.sspl, 'plugins/edr/extensions')
+    delay_table_exec = os.path.join(extensions_path, DELAYCONTROLLEDNAME)
+    sock_path = os.path.join(sspl_mock.sspl, 'plugins/edr/var/osquery.sock')
+    # it needs to wait for the osquery to be really launched.
+    edr_plugin_instance.wait_log_contains("osquery initialized", 10)
+    popen = subprocess.Popen([delay_table_exec, '--socket', sock_path])
+    #give a small time for the extension to be launched and communicate with osquery
+    time.sleep(1)
+    try:
+        for i in range(10, 0, -1):
+            delay = controlled_delay.replace('DELAYTIME', str(i))
+            sspl_mock.management.send_plugin_action('edr', 'LiveQuery', str(i), delay)
+
+        # wait till the expected last response
+        response_filepath = response_file(10)
+        for i in range(20):
+            if os.path.exists(response_filepath):
+                break
+            time.sleep(1)
+        if not os.path.exists(response_filepath):
+            response_dir=os.path.join(sspl_mock.sspl, "base/mcs/response/*")
+            files = ", ".join(glob.glob(response_dir))
+            raise AssertionError("No response found for the scheduled query: {} ".format(files))
+
+        results = [retrieve_result_for_id(i) for i in range(1, 11)]
+
+        start_time = [e[0] for e in results]
+        stop_time = [e[1] for e in results]
+        delay_time = [e[2] for e in results]
+
+        assert delay_time == list(range(1, 11))
+        # the first one triggered was delay=10, the last delay=1, hence, the start time is start_time[9] < start_time[0]
+        for before, after in zip(range(1, 9), range(2, 10)):
+            assert start_time[before] >= start_time[after]
+
+        # because they were executed in parallel, and the delay is correspondent to the number,
+        # the stop time is reversed
+        for before, after in zip(range(1, 9), range(2, 10)):
+            assert stop_time[before] <= stop_time[after]
+
+    finally:
+        popen.kill()
+        output, error = popen.communicate()
+        print(output)
+        print(error)
 
