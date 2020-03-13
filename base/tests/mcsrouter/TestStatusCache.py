@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-
-
 import unittest
 import sys
 import time
@@ -10,7 +8,7 @@ import mock
 import json
 #import logging
 #logger = logging.getLogger("TestStatusCache")
-
+from mock import patch, mock_open
 import PathManager
 
 
@@ -209,6 +207,22 @@ class TestStatusCache(unittest.TestCase):
         with mock.patch("builtins.open", mocked_open_read_function):
             ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T19:43:10.74112&quot; MyStatus')
             self.assertFalse(ret)
+
+    @patch('os.path.isfile')
+    def testEmptyStatusCacheOnDiskDoesNotCrash(self, mock_isfile):
+        cache = createCache()
+        mock_isfile.return_value = True
+        with patch("builtins.open", mock_open(read_data="")) as mock_file:
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T15:43:10.74112&quot;')
+            self.assertTrue(ret)
+
+    @patch('os.path.isfile')
+    def testInvalidStatusCacheOnDiskDoesNotCrash(self, mock_isfile):
+        cache = createCache()
+        mock_isfile.return_value = True
+        with patch("builtins.open", mock_open(read_data="not json")) as mock_file:
+            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T15:43:10.74112&quot;')
+            self.assertTrue(ret)
 
 
 # except ImportError:

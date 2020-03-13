@@ -75,9 +75,9 @@ class StatusCache:
                     if app_id_data:
                         cached_status_file_time_stamp = app_id_data['timestamp']
                         cached_status_hash = app_id_data['status_hash']
-            except IOError:
+            except (IOError, json.decoder.JSONDecodeError):
                 LOGGER.warning("Failed to read status cache file, resetting")
-                self.clear_cache(path_manager.status_cache_dir())
+                self.clear_cache()
 
         if hashed_adapter_status_xml == cached_status_hash and (
                 now - cached_status_file_time_stamp) < MAX_STATUS_DELAY:
