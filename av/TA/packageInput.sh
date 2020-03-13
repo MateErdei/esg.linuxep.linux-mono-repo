@@ -28,6 +28,7 @@ AV=$INPUTS/av
 mkdir -p $AV
 
 rsync -va --delete  "$BASE/../TA/"            "$INPUTS/test_scripts"
+ln -snf test_scripts "$INPUTS/TA"
 rsync -va --delete "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
 rsync -va --delete "${BASE_OUTPUT}/"         "$AV/base-sdds"
 rsync -va --delete "$OUTPUT/test-resources"  "$AV/"
