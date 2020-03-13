@@ -141,7 +141,10 @@ function build()
     rm -rf $BASE/output
     rm -rf $BASE/installer
     mkdir -p ${BASE}/build
-
+#   Required for build scripts to run on dev machines
+    export LIBRARY_PATH=/build/input/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
+    export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
+    export CPATH=/build/input/gcc/include/:${CPATH}
     installer_dir=$BASE/installer
     output=$BASE/output
     pushd ${BASE}/build
