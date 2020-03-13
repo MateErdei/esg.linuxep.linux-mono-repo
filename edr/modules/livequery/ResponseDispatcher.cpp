@@ -222,7 +222,12 @@ namespace livequery
             serializedJson << R"(,
 "columnMetaData": )" << columnMetaDataObject(response);
         }
-
+        // if we have somehow ran a successful query that doesn't have headers, we need to give an emoty columnMetaData entry
+        else if (response.status().errorCode() == livequery::ErrorCode::SUCCESS && !response.data().hasHeaders())
+        {
+            serializedJson << R"(,
+"columnMetaData":[])";
+        }
         if ( !limitExceeded && !columnDataObjectSerialized.empty())
         {
             serializedJson << R"(,

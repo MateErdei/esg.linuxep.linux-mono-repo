@@ -127,6 +127,30 @@ TEST(TestResponseDispatcher, emptyResponseWhereNotRowWasSelectedShouldReturnExpe
     EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))<< "\nCalculated: "<< calculated;
 }
 
+TEST(TestResponseDispatcher, jake)
+{
+    ResponseData::ColumnHeaders  empty_headers {};
+
+
+    QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
+                           ResponseData{empty_headers, ResponseData::ColumnData{}},
+                           ResponseMetaData()};
+
+    std::string expected = R"({
+    "type": "sophos.mgt.response.RunLiveQuery",
+    "queryMetaData": {
+        "errorCode": 0,
+        "errorMessage": "OK",
+        "sizeBytes" : 0
+    },
+    "columnMetaData":[],
+    "columnData":[]
+})";
+    ResponseDispatcher dispatcher;
+    std::string calculated = dispatcher.serializeToJson(response);
+    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))<< "\nCalculated: "<< calculated << "\nExpected: "<< expected;
+}
+
 TEST(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJson)
 {
     //create response data given a real osquery response as below
