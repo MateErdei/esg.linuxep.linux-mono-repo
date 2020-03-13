@@ -127,7 +127,7 @@ TEST(TestResponseDispatcher, emptyResponseWhereNotRowWasSelectedShouldReturnExpe
     EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))<< "\nCalculated: "<< calculated;
 }
 
-TEST(TestResponseDispatcher, jake)
+TEST(TestResponseDispatcher, testColumnMetaDataIsPresentWhenNoHeadersAndColumnDataFieldIsPresent)
 {
     ResponseData::ColumnHeaders  empty_headers {};
 
