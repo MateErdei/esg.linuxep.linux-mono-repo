@@ -50,7 +50,7 @@ def exclusions_for_everything_else(inclusion):
             else:
                 LOGGER.info('exclude', full_path)
                 to_remove.append(dir_name)
-                exclusions.append(f'<filePath>{full_path}</filePath>')
+                exclusions.append(f'<filePath>{full_path}/</filePath>')
         for d in to_remove:
             try:
                 dirs.remove(d)
