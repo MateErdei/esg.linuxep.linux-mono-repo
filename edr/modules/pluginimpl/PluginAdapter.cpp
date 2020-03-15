@@ -94,7 +94,7 @@ namespace Plugin
 
     void PluginAdapter::innerMainLoop()
     {
-        LOGINFO("Entering the main loop");
+        LOGINFO("Entering the main loop Wellington");
         m_callback->initialiseTelemetry();
 
         std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask, std::chrono::seconds(5), 5);
@@ -124,11 +124,11 @@ namespace Plugin
                         return;
                     case Task::TaskType::RESTARTOSQUERY:
                         LOGDEBUG("Process task RESTARTOSQUERY");
-                        LOGINFO("Restarting osquery");
+                        LOGINFO("Restarting osquery Wellington");
                         setUpOsqueryMonitor();
                         break;
                     case Task::TaskType::OSQUERYPROCESSFINISHED:
-                        LOGDEBUG("Process task OSQUERYPROCESSFINISHED");
+                        LOGDEBUG("Process task OSQUERYPROCESSFINISHED Wellington");
                         m_timesOsqueryProcessFailedToStart = 0;
                         LOGDEBUG("osquery stopped. Scheduling its restart in 10 seconds.");
                         Common::Telemetry::TelemetryHelper::getInstance().increment(
@@ -255,12 +255,12 @@ namespace Plugin
         {
             while (m_osqueryProcess && m_monitor.valid())
             {
-                LOGINFO("Issue request to stop to osquery.");
+                LOGINFO("Issue request to stop to osquery. Wellington");
                 m_osqueryProcess->requestStop();
 
                 if (m_monitor.wait_for(std::chrono::seconds(2)) == std::future_status::timeout)
                 {
-                    LOGWARN("Timeout while waiting for osquery monitoring to finish.");
+                    LOGWARN("Timeout while waiting for osquery monitoring to finish. Wellington");
                     continue;
                 }
                 m_monitor.get(); // ensure that IOsqueryProcess::keepOsqueryRunning has finished.
@@ -308,12 +308,12 @@ namespace Plugin
         {
             m_collectAuditEnabled = current_enabled;
             LOGINFO(
-                "Option to enable audit collection changed to " << option << ". Scheduling osquery restart");
+                "Option to enable audit collection changed to " << option << ". Scheduling osquery STOP");
             stopOsquery();
         }
         else
         {
-            LOGDEBUG("Option to enable audit collection remains "<< option);
+            LOGDEBUG("Option to enable audit collection remains "<< option << " Wellington");
         }
     }
 

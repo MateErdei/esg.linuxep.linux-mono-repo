@@ -32,6 +32,11 @@ EDR Plugin Log Contains
     [Arguments]  ${input}
     File Log Contains  ${EDR_LOG_PATH}   ${input}
 
+EDR Plugin Log Contains X Times
+    [Arguments]  ${input}   ${xtimes}
+    ${content} =  Get File   ${EDR_LOG_PATH}
+    Should Contain X Times  ${content}  ${input}  ${xtimes}
+
 FakeManagement Log Contains
     [Arguments]  ${input}
     File Log Contains  ${FAKEMANAGEMENT_AGENT_LOG_PATH}   ${input}

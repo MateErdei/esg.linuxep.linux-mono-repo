@@ -24,29 +24,39 @@ EDR By Default Will Configure Audit Option
     ...  1 secs
     ...  Check Osquery Configured To Collect Audit Data
 
-EDR Does Not Configure Audit If MTR Is Supposed To Be Installed
-    Check MTR in ALC Policy Forces Disable Audit Data Collection
+    Wait For EDR Log   edr <> No MTR Detected
+    Wait For EDR Log   edr <> Run osquery process
 
-EDR configures osquery to collect audit data if MTR is removed
+    #give edr time to run
+    Sleep  20 secs
+
     Check MTR in ALC Policy Forces Disable Audit Data Collection
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  5 secs
     ...  Check Running Instance of Osquery Configured To Not Collect Audit Data
 
-    ${alc} =  Get ALC Policy Without MTR
-    Install ALC Policy   ${alc}
+    Wait For EDR Log  edr <> Detected MTR is enabled
+    Wait For EDR Log  edr <> Restarting osquery
+    Wait For EDR Log  Issue request to stop to osquery
 
+
+    Sleep  15 secs
+    #Run Keyword And Expect Error   GLOB
+
+    #wait for the expected restart
+    Wait For EDR Log  edr <> Restarting osquery
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Check Osquery Configured To Collect Audit Data
+    ...  EDR Plugin Log Contains X Times   edr <> Run osquery process   2
 
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  5 secs
-    ...  Check Running Instance of Osquery Configured To Collect Audit Data
+    Sleep  60 secs
+    #wait to ensure there is not second scheduled restart
 
+    Run Keyword And Expect Error   *
+    ...   Wait EDR Plugin Log Contains X Times  edr <> Restarting osquery  2
+    Fail
 
 *** Keywords ***
 Check MTR in ALC Policy Forces Disable Audit Data Collection
@@ -95,3 +105,17 @@ Check Osquery Configured To Collect Audit Data
 Check Osquery Configured To Not Collect Audit Data
     ${osqueryConf} =   Get File  ${COMPONENT_ROOT_PATH}/etc/osquery.flags
     Should Contain  ${osqueryConf}  --disable_audit=true
+
+Wait for EDR Log
+    [Arguments]  ${log}
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains      ${log}
+
+Wait EDR Plugin Log Contains X Times
+    [Arguments]  ${log}  ${xtimes}
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains X Times  ${log}  ${xtimes}
