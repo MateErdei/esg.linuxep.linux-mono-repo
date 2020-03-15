@@ -315,7 +315,8 @@ namespace Plugin
             m_collectAuditEnabled = current_enabled;
             LOGINFO(
                 "Option to enable audit collection changed to " << option << ". Scheduling osquery STOP");
-            stopOsquery();
+            //stopOsquery();
+            m_queueTask->pushRestartOsquery();
         }
         else
         {
