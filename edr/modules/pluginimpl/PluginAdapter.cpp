@@ -217,6 +217,12 @@ namespace Plugin
     {
         LOGINFO("Prepare system for running osquery");
         m_osqueryConfigurator.prepareSystemForPlugin();
+        if(m_monitor.valid())
+        {
+            LOGINFO( "Monitor future is still pending!!!");
+        } else{
+            LOGINFO("Monitor is a done, Process is alreay stopped before request to stop!!!");
+        }
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
