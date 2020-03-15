@@ -27,8 +27,8 @@ EDR By Default Will Configure Audit Option
     Wait For EDR Log   edr <> No MTR Detected
     Wait For EDR Log   edr <> Run osquery process
 
-    #give edr time to run
-    Sleep  20 secs
+    #give osquery time to run
+    Sleep  5 secs
 
     Check MTR in ALC Policy Forces Disable Audit Data Collection
     Wait Until Keyword Succeeds
@@ -40,23 +40,17 @@ EDR By Default Will Configure Audit Option
     Wait For EDR Log  edr <> Restarting osquery
     Wait For EDR Log  Issue request to stop to osquery
 
-
-    Sleep  15 secs
-    #Run Keyword And Expect Error   GLOB
-
-    #wait for the expected restart
-    Wait For EDR Log  edr <> Restarting osquery
+    #wait for osquery to start running with new configs
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains X Times   edr <> Run osquery process   2
 
-    Sleep  60 secs
-    #wait to ensure there is not second scheduled restart
-
+    #Ensure there is only one restart
     Run Keyword And Expect Error   *
     ...   Wait EDR Plugin Log Contains X Times  edr <> Restarting osquery  2
-    Fail
+    #verify the expected single restart
+    EDR Plugin Log Contains X Times   edr <> Restarting osquery   1
 
 *** Keywords ***
 Check MTR in ALC Policy Forces Disable Audit Data Collection
@@ -114,8 +108,8 @@ Wait for EDR Log
         ...  EDR Plugin Log Contains      ${log}
 
 Wait EDR Plugin Log Contains X Times
-    [Arguments]  ${log}  ${xtimes}
+    [Arguments]  ${log}  ${xtimes}  ${waitSeconds}=25
     Wait Until Keyword Succeeds
-        ...  15 secs
-        ...  1 secs
+        ...  ${waitSeconds} secs
+        ...  2 secs
         ...  EDR Plugin Log Contains X Times  ${log}  ${xtimes}

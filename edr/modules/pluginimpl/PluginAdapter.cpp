@@ -94,7 +94,7 @@ namespace Plugin
 
     void PluginAdapter::innerMainLoop()
     {
-        LOGINFO("Entering the main loop Wellington");
+        LOGINFO("Entering the main loop");
         m_callback->initialiseTelemetry();
 
         std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask, std::chrono::seconds(5), 5);
@@ -124,19 +124,24 @@ namespace Plugin
                         return;
                     case Task::TaskType::RESTARTOSQUERY:
                         LOGDEBUG("Process task RESTARTOSQUERY");
-                        LOGINFO("Restarting osquery Wellington");
+                        LOGINFO("Restarting osquery");
                         setUpOsqueryMonitor();
                         break;
                     case Task::TaskType::OSQUERYPROCESSFINISHED:
-                        LOGDEBUG("Process task OSQUERYPROCESSFINISHED Wellington");
+                    {
+                        LOGDEBUG("Process task OSQUERYPROCESSFINISHED");
                         m_timesOsqueryProcessFailedToStart = 0;
-                        LOGDEBUG("osquery stopped. Scheduling its restart in 10 seconds.");
                         Common::Telemetry::TelemetryHelper::getInstance().increment(
                             plugin::telemetryOsqueryRestarts, 1UL);
+
+                        int64_t delay = m_restartNoDelay ? 0 : 10;
+                        m_restartNoDelay = false;
+                        LOGINFO("osquery stopped. Scheduling its restart in " << delay <<" seconds.");
                         m_delayedRestart.reset( // NOLINT
                             new WaitUpTo(
                                 std::chrono::seconds(10), [this]() { this->m_queueTask->pushRestartOsquery(); }));
                         break;
+                    }
                     case Task::TaskType::Policy:
                         LOGDEBUG("Process task Policy");
                         processALCPolicy(task.m_content, false);
@@ -217,12 +222,6 @@ namespace Plugin
     {
         LOGINFO("Prepare system for running osquery");
         m_osqueryConfigurator.prepareSystemForPlugin();
-        if(m_monitor.valid())
-        {
-            LOGINFO( "Monitor future is still pending!!!");
-        } else{
-            LOGINFO("Monitor is a done, Process is alreay stopped before request to stop!!!");
-        }
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
@@ -261,12 +260,12 @@ namespace Plugin
         {
             while (m_osqueryProcess && m_monitor.valid())
             {
-                LOGINFO("Issue request to stop to osquery. Wellington");
+                LOGINFO("Issue request to stop to osquery.");
                 m_osqueryProcess->requestStop();
 
                 if (m_monitor.wait_for(std::chrono::seconds(2)) == std::future_status::timeout)
                 {
-                    LOGWARN("Timeout while waiting for osquery monitoring to finish. Wellington");
+                    LOGWARN("Timeout while waiting for osquery monitoring to finish.");
                     continue;
                 }
                 m_monitor.get(); // ensure that IOsqueryProcess::keepOsqueryRunning has finished.
@@ -315,12 +314,12 @@ namespace Plugin
             m_collectAuditEnabled = current_enabled;
             LOGINFO(
                 "Option to enable audit collection changed to " << option << ". Scheduling osquery STOP");
-            //stopOsquery();
-            m_queueTask->pushRestartOsquery();
+            m_restartNoDelay = true;
+            stopOsquery();
         }
         else
         {
-            LOGDEBUG("Option to enable audit collection remains "<< option << " Wellington");
+            LOGDEBUG("Option to enable audit collection remains "<< option);
         }
     }
 

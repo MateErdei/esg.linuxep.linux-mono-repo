@@ -95,7 +95,7 @@ namespace Plugin
                 std::string errorMessage = "Executable does not exist at: " + osqueryPath;
                 throw Plugin::IOsqueryCannotBeExecuted(errorMessage);
             }
-            LOGINFO("Run osquery process Wellington");
+            LOGINFO("Run osquery process");
             std::string osquerySocket = Plugin::osquerySocket();
 
             if (fileSystem->exists(osquerySocket))
@@ -117,7 +117,7 @@ namespace Plugin
         }
 
         m_processMonitorPtr->waitUntilProcessEnds();
-        LOGINFO("The osquery process finished Wellington");
+        LOGINFO("The osquery process finished");
         int exitcode = m_processMonitorPtr->exitCode();
         std::string output = m_processMonitorPtr->output();
         LOGDEBUG("The osquery process output and exit code retrieved");
@@ -157,8 +157,6 @@ namespace Plugin
             case EACCES:
                 throw Plugin::IOsqueryCannotBeExecuted("Permission denied when executing " + osqueryPath);
             default:
-                LOGINFO("Exitcode is: " << exitcode);
-                LOGDEBUG("Osquery logs: " << output);
                 return;
         }
     }

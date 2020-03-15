@@ -102,5 +102,6 @@ namespace Plugin
         unsigned int m_timesOsqueryProcessFailedToStart;
         OsqueryConfigurator m_osqueryConfigurator;
         bool m_collectAuditEnabled = false;
+        bool m_restartNoDelay = false;
     };
 } // namespace Plugin
