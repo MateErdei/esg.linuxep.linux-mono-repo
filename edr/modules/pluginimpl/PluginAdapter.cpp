@@ -139,7 +139,7 @@ namespace Plugin
                         LOGINFO("osquery stopped. Scheduling its restart in " << delay <<" seconds.");
                         m_delayedRestart.reset( // NOLINT
                             new WaitUpTo(
-                                std::chrono::seconds(10), [this]() { this->m_queueTask->pushRestartOsquery(); }));
+                                std::chrono::seconds(delay), [this]() { this->m_queueTask->pushRestartOsquery(); }));
                         break;
                     }
                     case Task::TaskType::Policy:
