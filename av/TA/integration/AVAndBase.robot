@@ -157,10 +157,11 @@ AV Plugin Reports Threat XML To Base
    Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
    ${rc}   ${output} =    Run And Return Rc And Output   /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naugthy_eicar
 
+   Log  ${output}
+
    Should Be Equal As Integers  ${rc}  ${69}
 
-   ${rc} =   check threat event received by base  1   naugthyEicarThreatReport
-   Should Be Equal As Integers  ${rc}  ${1}
+   check threat event received by base  1   naugthyEicarThreatReport
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin

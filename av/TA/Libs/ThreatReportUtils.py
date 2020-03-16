@@ -19,12 +19,12 @@ GL_EXPECTED_CONTENTS = {
         '''type="1"''',
         '''name="EICAR"''',
         '''scanType="203"''',
-        '''status="50"''',
+        '''status="200"''',
         '''id="1"''',
         '''idSource="1"''',
         '''file="naugthy_eicar"''',
         '''path="/home/vagrant/this/is/a/directory/for/scanning/"/>''',
-        '''action="104"'''
+        '''action="101"'''
     ]
 }
 

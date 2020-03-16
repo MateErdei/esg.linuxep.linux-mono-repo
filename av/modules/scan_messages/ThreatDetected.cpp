@@ -62,10 +62,6 @@ void ThreatDetected::setFilePath(const std::string& filePath)
     {
         PRINT("ERROR: Attempting to set threat report with empty path");
     }
-    else
-    {
-        PRINT("DEBUG: setFilePath with "<<filePath);
-    }
 
     m_filePath = filePath;
 }
@@ -94,14 +90,16 @@ std::string ThreatDetected::serialise() const
     {
         PRINT("ERROR: Attempting to serialise threat report with empty path");
     }
-    else
-    {
-        PRINT("DEBUG: serialise with "<<m_filePath);
-    }
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
     kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
     std::string dataAsString(bytes.begin(), bytes.end());
+
+    auto reader = threatDetectedBuilder.asReader();
+    if (!reader.hasThreatName())
+    {
+        PRINT("ERROR: as reader has not got threat name!");
+    }
 
     return dataAsString;
 }

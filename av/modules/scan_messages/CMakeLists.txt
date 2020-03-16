@@ -15,8 +15,10 @@ add_library(scanmessages SHARED
         ScanResponse.h
         ClientScanRequest.cpp
         ClientScanRequest.h
+        ServerThreatDetected.cpp
+        ServerThreatDetected.h
         ThreatDetected.cpp
-        ThreatDetected.h )
+        ThreatDetected.h)
 
 target_include_directories(scanmessages PUBLIC
         "${CAPNPROTO_INCLUDE_DIR}"

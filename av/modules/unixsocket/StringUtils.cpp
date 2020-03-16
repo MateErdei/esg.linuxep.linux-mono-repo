@@ -45,7 +45,7 @@ void unixsocket::escapeControlCharacters(std::string& text)
 }
 
 //TO DO: maybe move it in a XMLUtils file?
-std::string unixsocket::generateThreatDetectedXml(const Sophos::ssplav::ThreatDetected::Reader& detection)
+std::string unixsocket::generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection)
 {
     std::string path = detection.getFilePath();
     if (path.size() == 0)

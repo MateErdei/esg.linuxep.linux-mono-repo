@@ -90,7 +90,9 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXml) // NOLINT
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
             messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    std::string result = generateThreatDetectedXml(deSerialisedData);
+    scan_messages::ServerThreatDetected serverThreatDetectedMessage(deSerialisedData);
+
+    std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
 
     EXPECT_EQ(result, m_englishsXML);
 }
@@ -121,7 +123,8 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlats) // NOLINT
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
             messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    std::string result = generateThreatDetectedXml(deSerialisedData);
+    scan_messages::ServerThreatDetected serverThreatDetectedMessage(deSerialisedData);
+    std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
 
     EXPECT_EQ(result, m_umlatsXML);
 }
@@ -151,7 +154,8 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharacters) // N
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
             messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    std::string result = generateThreatDetectedXml(deSerialisedData);
+    scan_messages::ServerThreatDetected serverThreatDetectedMessage(deSerialisedData);
+    std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
 
     EXPECT_EQ(result, m_japaneseXML);
 }

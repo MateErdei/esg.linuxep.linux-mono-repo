@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ThreatReporterClient.h"
+
 #include "unixsocket/SocketUtils.h"
 
 #include "datatypes/Print.h"

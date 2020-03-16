@@ -6,12 +6,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 //TO DO: move this somewhere common
 #pragma once
 
+#include "scan_messages/ServerThreatDetected.h"
+
 #include <string>
-#include <ThreatDetected.capnp.h>
+
 
 namespace unixsocket
 {
     void escapeControlCharacters(std::string& text);
 
-    std::string generateThreatDetectedXml(const Sophos::ssplav::ThreatDetected::Reader& detection);
+    std::string generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection);
 }
