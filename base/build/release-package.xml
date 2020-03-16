@@ -23,16 +23,16 @@
         <package name="curllinux11" version="7-66-0-15/217541/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-25/218912/output" dest="input">
+        <package name="sullinux11" version="1-0-0-28/219013/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
-        <package name="boostlinux11" version="1-72-0-22/218898/output" dest="input">
+        <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
-        <package name="expatlinux11" version="2-2-9-1/217514/output" dest="input">
+        <package name="expatlinux11" version="2-2-9-6/219009/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
-        <package name="protobuflinux11" version="3-9-1-10/217398/output" dest="input">
+        <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
         <package name="zeromqlinux11" version="4-3-2-22/217397/output" dest="input">
