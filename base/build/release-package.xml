@@ -50,7 +50,7 @@
         <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
-        <package name="pythonlinux11" version="3-7-4-16/217537/output" dest="input">
+        <package name="pythonlinux11" version="3-7-4-20/219008/output" dest="input">
             <include src="python.tar" dest="." />
         </package>
         <package name="python-watchdog" version="0-10-2-2/218866/watchdog" dest="input">
