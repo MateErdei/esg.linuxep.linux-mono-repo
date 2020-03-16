@@ -52,6 +52,11 @@ static fs::path threat_reporter_socket()
 
 void ScanClient::sendThreatReport(const fs::path& threatPath, const std::string& threatName)
 {
+    if (threatPath.empty())
+    {
+        PRINT("ERROR: sendThreatReport with empty path!");
+    }
+
     fs::path threatReporterSocketPath = threat_reporter_socket();
     LOGDEBUG("Threat reporter path " << threatReporterSocketPath);
     unixsocket::ThreatReporterClientSocket threatReporterSocket(threatReporterSocketPath);
@@ -65,9 +70,9 @@ void ScanClient::sendThreatReport(const fs::path& threatPath, const std::string&
     //For now this is always 1 (Virus)
     threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
     threatDetected.setThreatName(threatName);
-    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
     threatDetected.setFilePath(threatPath);
-    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+    threatDetected.setActionCode(E_SMT_THREAT_ACTION_NONE);
 
     threatReporterSocket.sendThreatDetection(threatDetected);
 }

@@ -7,6 +7,8 @@ CAPN_GENERATE_CPP(CapNGeneratedFilesSrcs CapNGeneratedFilesHeaders
 add_library(scanmessages SHARED
         ${CapNGeneratedFilesHeaders}
         ${CapNGeneratedFilesSrcs}
+        Logger.cpp
+        Logger.h
         ScanRequest.cpp
         ScanRequest.h
         ScanResponse.cpp
@@ -14,15 +16,16 @@ add_library(scanmessages SHARED
         ClientScanRequest.cpp
         ClientScanRequest.h
         ThreatDetected.cpp
-        ThreatDetected.h)
+        ThreatDetected.h )
 
 target_include_directories(scanmessages PUBLIC
         "${CAPNPROTO_INCLUDE_DIR}"
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_SOURCE_DIR}/modules
+        ${pluginapiinclude}
         )
 
-target_link_libraries(scanmessages datatypes)
+target_link_libraries(scanmessages datatypes ${log4cpluslib} ${pluginapilib})
 
 SET_TARGET_PROPERTIES(scanmessages
         PROPERTIES

@@ -7,15 +7,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ThreatDetected.h"
 
 #include "ThreatDetected.capnp.h"
+#include "Logger.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
+#include <datatypes/Print.h>
 
 using namespace scan_messages;
 
 
 ThreatDetected::ThreatDetected()
-        : m_threatType(E_VIRUS_THREAT_TYPE)
+        :
+          m_detectionTime(0),
+          m_threatType(E_VIRUS_THREAT_TYPE),
+          m_scanType(E_SCAN_TYPE_UNKNOWN),
+          m_notificationStatus(E_NOTIFICATION_STATUS_NOT_CLEANUPABLE),
+          m_actionCode(E_SMT_THREAT_ACTION_UNKNOWN)
 {
 }
 
@@ -51,6 +58,15 @@ void ThreatDetected::setNotificationStatus(E_NOTIFCATION_STATUS notificationStat
 
 void ThreatDetected::setFilePath(const std::string& filePath)
 {
+    if (filePath.empty())
+    {
+        PRINT("ERROR: Attempting to set threat report with empty path");
+    }
+    else
+    {
+        PRINT("DEBUG: setFilePath with "<<filePath);
+    }
+
     m_filePath = filePath;
 }
 
@@ -73,6 +89,15 @@ std::string ThreatDetected::serialise() const
     threatDetectedBuilder.setNotificationStatus(m_notificationStatus);
     threatDetectedBuilder.setFilePath(m_filePath);
     threatDetectedBuilder.setActionCode(m_actionCode);
+
+    if (m_filePath.empty())
+    {
+        PRINT("ERROR: Attempting to serialise threat report with empty path");
+    }
+    else
+    {
+        PRINT("DEBUG: serialise with "<<m_filePath);
+    }
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
     kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
