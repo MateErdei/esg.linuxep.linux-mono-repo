@@ -153,6 +153,7 @@ AV And Base Teardown
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/av/log/av.log
+    Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log
     Run Keyword If Test Failed   Display All SSPL Files Installed
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
     Wait Until Keyword Succeeds

@@ -4,6 +4,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "LogSetup.h"
+
 #include "avscanner/avscannerimpl/Options.h"
 #include <avscanner/avscannerimpl/CommandLineScanRunner.h>
 #include <avscanner/avscannerimpl/NamedScanRunner.h>
@@ -14,6 +16,8 @@ using namespace avscanner::avscannerimpl;
 
 int main(int argc, char* argv[])
 {
+    LogSetup logging;
+
     Options options(argc, argv);
     auto config = options.config();
 
