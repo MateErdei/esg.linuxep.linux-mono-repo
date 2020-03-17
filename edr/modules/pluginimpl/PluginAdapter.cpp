@@ -19,6 +19,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include <cmath>
 #include <unistd.h>
+#include <fstream>
 
 // helper class that allow to schedule a task.
 // but it also has some capability of interrupting the scheduler at any point
@@ -62,8 +63,6 @@ public:
 #include "Telemetry.h"
 
 #include <livequery/ResponseDispatcher.h>
-
-#include <fstream>
 
 namespace Plugin
 {
