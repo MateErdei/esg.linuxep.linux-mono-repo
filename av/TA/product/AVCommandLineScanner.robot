@@ -146,8 +146,8 @@ CLS Creates Threat Report
    AV Plugin Log Contains  name="EICAR"
    AV Plugin Log Contains  scanType="203"
    AV Plugin Log Contains  status="200"
-   AV Plugin Log Contains  id="1"
-   AV Plugin Log Contains  idSource="1"
+   AV Plugin Log Contains  id="T2614dba1b04efcdaf6d31f57e0a6ce2eae55477b7831899263afc4d8ea82eb68"
+   AV Plugin Log Contains  idSource="Tsha256(path,name)"
    AV Plugin Log Contains  <item file="naugthy_eicar"
    AV Plugin Log Contains  path="${NORMAL_DIRECTORY}/"/>
    AV Plugin Log Contains  <action action="101"/>
