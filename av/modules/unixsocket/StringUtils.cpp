@@ -9,6 +9,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Time.h"
 
+#include <openssl/sha.h>
+#include <iomanip>
+
 namespace fs = sophos_filesystem;
 
 void unixsocket::escapeControlCharacters(std::string& text)
@@ -38,6 +41,21 @@ void unixsocket::escapeControlCharacters(std::string& text)
     text.swap(buffer);
 }
 
+std::string sha256_hash(const std::string& str)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
+    std::stringstream ss;
+    for(const auto& ch : hash)
+    {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int)ch;
+    }
+    return ss.str();
+}
+
 //TO DO: maybe move it in a XMLUtils file?
 std::string unixsocket::generateThreatDetectedXml(const Sophos::ssplav::ThreatDetected::Reader& detection)
 {
@@ -46,6 +64,9 @@ std::string unixsocket::generateThreatDetectedXml(const Sophos::ssplav::ThreatDe
     escapeControlCharacters(path);
     std::string fileName = fs::path(path).filename();
     std::string threatName =  detection.getThreatName();
+
+    std::string idSourceInput = path + threatName;
+    std::string idSource = sha256_hash(idSourceInput);
 
     std::locale loc("");
 
@@ -63,7 +84,7 @@ std::string unixsocket::generateThreatDetectedXml(const Sophos::ssplav::ThreatDe
                     {"@@DETECTION_TIME@@", datatypes::Time::epochToCentralTime(detection.getDetectionTime())},
                     {"@@USER@@", detection.getUserID()},
                     {"@@THREAT_ID@@", "1"},
-                    {"@@ID_SOURCE@@", "1"},
+                    {"@@ID_SOURCE@@", idSource},
                     {"@@THREAT_NAME@@",threatName},
                     {"@@SMT_SCAN_TYPE@@",  std::to_string(detection.getScanType())},
                     {"@@NOTIFICATION_STATUS@@", std::to_string(detection.getNotificationStatus())},

@@ -28,9 +28,11 @@ target_link_libraries(unixsocket  PUBLIC
         scanmessages
         datatypes
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
-        ${pluginapilib})
+        ${pluginapilib}
+        ${CRYPTO_LIBRARY}
+        )
 
-target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${OPENSSL_INCLUDE_DIR})
 
 install(TARGETS unixsocket
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

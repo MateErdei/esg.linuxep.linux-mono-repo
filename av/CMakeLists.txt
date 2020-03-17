@@ -127,6 +127,14 @@ set( ENV{LD_LIBRARY_PATH} ${CAPNPROTO_LD_LIBRARY_PATH} )
 
 message(NOTICE CAPNPROTO_LD_LIBRARY_PATH=${CAPNPROTO_LD_LIBRARY_PATH})
 
+set(OPENSSL_INPUT ${INPUT}/openssl)
+set(OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
+find_library(CRYPTO_LIBRARY
+        NAMES crypto
+        PATHS ${OPENSSL_INPUT}/lib64
+        NO_DEFAULT_PATH
+        )
+
 add_subdirectory(modules)
 add_subdirectory(products)
 add_subdirectory(tests)

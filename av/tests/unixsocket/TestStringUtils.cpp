@@ -37,7 +37,7 @@ namespace
         std::string m_englishsXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <notification description="Found 'eicar' in 'path/to/threat'" timestamp="19700101 000203" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
   <user domain="local" userId="User"/>
-  <threat id="1" idSource="1" name="eicar" scanType="201" status="50" type="1">
+  <threat id="1" idSource="c1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" name="eicar" scanType="201" status="50" type="1">
     <item file="threat" path="path/to/"/>
     <action action="104"/>
   </threat>
@@ -46,7 +46,7 @@ namespace
         std::string m_umlatsXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <notification description="Found 'Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ' in '/πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·'" timestamp="19700101 000203" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
   <user domain="local" userId="πολλῶν δ’ ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω,, German umlats: Ä Ö Ü ß"/>
-  <threat id="1" idSource="1" name="Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ" scanType="201" status="50" type="1">
+  <threat id="1" idSource="590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b" name="Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ" scanType="201" status="50" type="1">
     <item file="πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·" path="/"/>
     <action action="104"/>
   </threat>
@@ -55,7 +55,7 @@ namespace
         std::string m_japaneseXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <notification description="Found 'ありったけの夢をかき集め' in '/捜し物を探しに行くのさ ONE PIECE'" timestamp="19700101 000203" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
   <user domain="local" userId="羅針盤なんて 渋滞のもと"/>
-  <threat id="1" idSource="1" name="ありったけの夢をかき集め" scanType="201" status="50" type="1">
+  <threat id="1" idSource="a50f89d5f6f9fd7a2034384f51d969dd08e54fce3a575d21eb78489d524f3f4b" name="ありったけの夢をかき集め" scanType="201" status="50" type="1">
     <item file="捜し物を探しに行くのさ ONE PIECE" path="/"/>
     <action action="104"/>
   </threat>

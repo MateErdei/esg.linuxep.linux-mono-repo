@@ -253,6 +253,7 @@ function build()
         untar_input capnproto
         untar_input $GOOGLETESTTAR
         untar_input susi "" "" optional
+        untar_input openssl
     fi
 
     addpath "$REDIST/cmake/bin"
