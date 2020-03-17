@@ -19,7 +19,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:directorywatcherimplobject>
         )
 
-target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf expat -L${EXPAT_LIBRARY} -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
+target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf expat -L${EXPAT_INPUT}/lib64 -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
         "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
         "${CAPNPROTO_LIBRARY_DIR}/libcapnp-rpc.a"
         "${CAPNPROTO_LIBRARY_DIR}/libcapnp.a"
