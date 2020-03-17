@@ -183,6 +183,10 @@ Check avscanner in /usr/local/bin
 Check avscanner not in /usr/local/bin
     File Should Not Exist  /usr/local/bin/avscanner
 
+Check avscanner not installed
+    Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}
+    File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
+
 Run uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
 
