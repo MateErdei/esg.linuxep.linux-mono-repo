@@ -117,7 +117,7 @@ namespace Plugin
                 cleanUpOldOsqueryFiles();
                 if (pluginMemoryAboveThreshold())
                 {
-                    LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1024 << "kB");
+                    LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
                     stopOsquery();
                     return;
                 }
