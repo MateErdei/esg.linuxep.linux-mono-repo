@@ -10,7 +10,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 #include "datatypes/sophos_filesystem.h"
-#include "datatypes/Print.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
@@ -54,7 +53,7 @@ void ScanClient::sendThreatReport(const fs::path& threatPath, const std::string&
 {
     if (threatPath.empty())
     {
-        PRINT("ERROR: sendThreatReport with empty path!");
+        LOGERROR("ERROR: sendThreatReport with empty path!");
     }
 
     fs::path threatReporterSocketPath = threat_reporter_socket();
