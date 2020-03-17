@@ -168,6 +168,8 @@ AV Plugin uninstalls
     Check avscanner in /usr/local/bin
     Run uninstaller
     Check avscanner not in /usr/local/bin
+    Check avscanner not installed
+    [Teardown]   Install AV Directly from SDDS
 
 
 *** Keywords ***
