@@ -14,7 +14,7 @@ Resource        ../shared/BaseResources.robot
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
 
-Test Setup      No Operation
+Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
 
 *** Test Cases ***
@@ -148,6 +148,7 @@ Diagnose collects the correct files
     Check Diagnose Tar Created
     Check Diagnose Collects Correct AV Files
     Check Diagnose Logs
+    Remove Directory  /tmp/DiagnoseOutput  true
 
 AV Plugin Reports Threat XML To Base
    Check AV Plugin Installed With Base
@@ -170,6 +171,9 @@ AV Plugin uninstalls
 
 
 *** Keywords ***
+
+AV and Base Setup
+    Remove Directory  /tmp/DiagnoseOutput  true
 
 Check avscanner in /usr/local/bin
     File Should Exist  /usr/local/bin/avscanner
