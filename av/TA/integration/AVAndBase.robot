@@ -168,7 +168,7 @@ AV Plugin uninstalls
     Check avscanner in /usr/local/bin
     Run uninstaller
     Check avscanner not in /usr/local/bin
-    Check avscanner not installed
+    Check AV Plugin Not Installed
     [Teardown]   Install AV Directly from SDDS
 
 
@@ -183,7 +183,7 @@ Check avscanner in /usr/local/bin
 Check avscanner not in /usr/local/bin
     File Should Not Exist  /usr/local/bin/avscanner
 
-Check avscanner not installed
+Check AV Plugin Not Installed
     Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}
     File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
 
