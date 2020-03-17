@@ -45,9 +45,13 @@ def check_threat_event_received_by_base(number_of_expected_events, event_type):
                         format(actual_number_of_events, number_of_expected_events))
 
     expected_strings = GL_EXPECTED_CONTENTS[event_type]
-    expected_map = {s: 0 for s in expected_strings}
+    # Dictionary mapping each expected string to how many times we've seen it.
+    expected_map = {}
 
     for filename in events_list:
+        for s in expected_strings:
+            expected_map[s] = 0
+
         with open(os.path.join(GL_MCS_EVENTS_DIRECTORY, filename), "r") as file:
             contents = file.read()
             for line in contents.splitlines():
@@ -55,8 +59,12 @@ def check_threat_event_received_by_base(number_of_expected_events, event_type):
                     if xml_part in line:
                         expected_map[xml_part] += 1
 
-        unmatched_strings = [ s for s in expected_map.keys() if expected_map[s] == 0 ]
-        expected_matching_lines = len(expected_strings)
+        # Work out which strings haven't been matched already
+        unmatched_strings = []
+        for s, count in expected_map.items():
+            if count == 0:
+                unmatched_strings.append(s)
+
         if len(unmatched_strings) > 0:
             logger.error(f"Missing string from message {filename}, expecting: {unmatched_strings}")
             logger.error(f"Actual contents: {contents}")
