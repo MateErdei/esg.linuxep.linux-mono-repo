@@ -495,7 +495,7 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libhttpsenderimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblog4cplus-2.0.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblog4cplus-2.0.so.3
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblog4cplus-2.0.so.3.4
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblog4cplus-2.0.so.3.4.3
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblog4cplus-2.0.so.3.4.5
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblog4cplus.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblogging.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentimpl.so

@@ -47,7 +47,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libexpat.so.1.6.11.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libfilesystemimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libgcc_s.so.1.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libhttpsenderimpl.so.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblog4cplus-2.0.so.3.4.3.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblog4cplus-2.0.so.3.4.5.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblogging.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentloggerimpl.so.0
