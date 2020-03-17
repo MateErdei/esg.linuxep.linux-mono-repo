@@ -14,7 +14,7 @@ Resource        ../shared/BaseResources.robot
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
 
-Test Setup      AV And Base Setup
+Test Setup      No Operation
 Test Teardown   AV And Base Teardown
 
 *** Test Cases ***
@@ -28,15 +28,7 @@ AV plugin Can Start sophos_threat_detector
 
 AV plugin runs scan now
     Check AV Plugin Installed With Base
-    Configure scan now
     Check scan now
-
-AV plugin runs scan now twice
-    Check AV Plugin Installed With Base
-    Configure scan now
-    Check scan now
-    Remove File    ${AV_LOG_PATH}
-    Check scan now 2
 
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
@@ -156,7 +148,6 @@ Diagnose collects the correct files
     Check Diagnose Tar Created
     Check Diagnose Collects Correct AV Files
     Check Diagnose Logs
-    Remove Directory  /tmp/DiagnoseOutput  true
 
 AV Plugin Reports Threat XML To Base
    Check AV Plugin Installed With Base
@@ -174,16 +165,11 @@ AV Plugin Reports Threat XML To Base
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin
-    Run uninstaller
+    Run plugin uninstaller
     Check avscanner not in /usr/local/bin
-    Check AV Plugin Not Installed
-    [Teardown]   Install AV Directly from SDDS
 
 
 *** Keywords ***
-
-AV and Base Setup
-    Remove Directory  /tmp/DiagnoseOutput  true
 
 Check avscanner in /usr/local/bin
     File Should Exist  /usr/local/bin/avscanner
@@ -191,25 +177,13 @@ Check avscanner in /usr/local/bin
 Check avscanner not in /usr/local/bin
     File Should Not Exist  /usr/local/bin/avscanner
 
-Check AV Plugin Not Installed
-    Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}
-    File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
-
-Run uninstaller
+Run plugin uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
 
-Configure scan now
+Check scan now
     Send Sav Policy To Base  SAV_Policy_Scan_Now.xml
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
-
-Check scan now
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now
-    AV Plugin Log Contains  Starting Scan Now scan
-    AV Plugin Log Contains  Starting scan Scan Now
-
-Check scan now 2
-    Send Sav Action To Base  ScanNow_Action_2.xml
     Wait Until AV Plugin Log Contains  Completed scan Scan Now
     AV Plugin Log Contains  Starting Scan Now scan
     AV Plugin Log Contains  Starting scan Scan Now
