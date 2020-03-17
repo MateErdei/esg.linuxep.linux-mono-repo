@@ -168,7 +168,7 @@ AV Plugin Reports Threat XML To Base
 
    Log  ${output}
 
-   Should Be Equal As Integers  ${rc}  ${69}
+   Should Be Equal As Integers  ${rc}  69
 
    check threat event received by base  1   naugthyEicarThreatReport
 

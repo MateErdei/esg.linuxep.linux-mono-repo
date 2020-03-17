@@ -32,7 +32,7 @@ CLS Can Scan Clean File
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be Equal  ${rc}  ${0}
+    Should Be Equal As Integers  ${rc}  0
 
     Stop AV
 
@@ -44,7 +44,7 @@ CLS Can Scan Infected File
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal  ${rc}  ${69}
+   Should Be Equal As Integers  ${rc}  69
 
    Stop AV
 
@@ -58,7 +58,7 @@ CLS Can Scan Infected And Clean File With The Same Name
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal  ${rc}  ${69}
+   Should Be Equal As Integers  ${rc}  69
 
    Log To Console  ${NORMAL_DIRECTORY}
 
@@ -72,7 +72,7 @@ CLS Will Not Scan Non-Existent File
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal  ${rc}  ${2}
+   Should Be Equal As Integers  ${rc}  2
 
    Stop AV
 
@@ -84,7 +84,7 @@ CLS Can Scan Zero Byte File
 
      Log To Console  return code is ${rc}
      Log To Console  output is ${output}
-     Should Be Equal  ${rc}  ${0}
+     Should Be Equal As Integers  ${rc}  0
 
      Stop AV
 
@@ -97,7 +97,7 @@ CLS Can Scan Long Path
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be Equal  ${rc}  ${0}
+    Should Be Equal As Integers  ${rc}  0
 
     Stop AV
 
@@ -110,7 +110,7 @@ CLS Cannot Scan Huge Path
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be Equal  ${rc}  ${36}
+    Should Be Equal As Integers  ${rc}  36
 
     Stop AV
 
@@ -124,7 +124,7 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be Equal  ${rc}  ${0}
+    Should Be Equal As Integers  ${rc}  0
 
     Stop AV
 
@@ -136,7 +136,7 @@ CLS Creates Threat Report
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal  ${rc}  ${69}
+   Should Be Equal As Integers  ${rc}  69
 
    Wait Until AV Plugin Log Contains  Sending threat detection notification to central
    AV Plugin Log Contains  description="Found 'EICAR' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
