@@ -24,9 +24,7 @@ Ostia Cleanup
     Run Keyword If Test Failed  dump_suldownloader_log
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}
     Run Keyword And Ignore Error  Remove File    ${AV_LOG_PATH}
-    Uninstall All
-
-
+    Uninstall and full reinstall
 
 Setup Ostia Warehouse Environment
     Generate Local Ssl Certs If They Dont Exist

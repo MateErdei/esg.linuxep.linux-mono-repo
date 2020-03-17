@@ -131,6 +131,10 @@ Uninstall And Revert Setup
     Uninstall All
     Setup Base And Component
 
+Uninstall and full reinstall
+    Uninstall All
+    Install With Base SDDS
+
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
     Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=600s
