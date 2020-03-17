@@ -90,12 +90,17 @@ namespace Plugin
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
-        int QUEUE_TIMEOUT = 3600;
+        int QUEUE_TIMEOUT = 600;
+
+        // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
+        static const int MAX_PLUGIN_MEM_BYTES = 100000000;
+
         void processQuery(const std::string& query, const std::string& correlationId);
         void setUpOsqueryMonitor();
         void stopOsquery();
         void cleanUpOldOsqueryFiles();
         void databasePurge();
+        static bool pluginMemoryAboveThreshold();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
 

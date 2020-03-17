@@ -18,6 +18,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 
 #include <cmath>
+#include <unistd.h>
 
 // helper class that allow to schedule a task.
 // but it also has some capability of interrupting the scheduler at any point
@@ -61,6 +62,8 @@ public:
 #include "Telemetry.h"
 
 #include <livequery/ResponseDispatcher.h>
+
+#include <fstream>
 
 namespace Plugin
 {
@@ -112,6 +115,12 @@ namespace Plugin
             {
                 LOGINFO("No activity for " << QUEUE_TIMEOUT << " seconds. Checking files");
                 cleanUpOldOsqueryFiles();
+                if (pluginMemoryAboveThreshold())
+                {
+                    LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1024 << "kB");
+                    stopOsquery();
+                    return;
+                }
             }
             else
             {
@@ -362,5 +371,24 @@ namespace Plugin
     OsqueryConfigurator& PluginAdapter::osqueryConfigurator()
     {
         return m_osqueryConfigurator;
+    }
+
+    bool PluginAdapter::pluginMemoryAboveThreshold()
+    {
+        try
+        {
+            std::ifstream statStream {"/proc/self/statm", std::fstream::in};
+            unsigned long vsize;
+            unsigned long rssPages;
+            statStream >> vsize >> rssPages;
+            unsigned long rssBytes = rssPages * getpagesize();
+            LOGDEBUG("Plugin memory usage: " << rssBytes/1024 << "kB");
+            return rssBytes > MAX_PLUGIN_MEM_BYTES;
+        }
+        catch (std::exception& exception)
+        {
+            LOGERROR("Could not read plugin memory usage");
+        }
+        return false;
     }
 } // namespace Plugin
