@@ -121,8 +121,8 @@ Install With Base SDDS
     Install AV Directly from SDDS
 
 Uninstall All
-    Log File    /tmp/installer.log
-    Log File   ${AV_LOG_PATH}
+    Run Keyword And Ignore Error  Log File    /tmp/installer.log
+    Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}
     Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\n stdout: \n${result.stdout}\n. stderr: \n {result.stderr}"
