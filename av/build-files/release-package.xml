@@ -49,12 +49,12 @@
     <buildcommands>
         <command mode="release">
             <program>/bin/bash</program>
-            <args>./build.sh --name av</args>
+            <args>./build.sh --ci --name av</args>
             <workingdir>sspl-plugin-anti-virus</workingdir>
         </command>
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --name av --esg-ci-coverage</args>
+            <args>./build.sh --ci --name av --esg-ci-coverage</args>
             <workingdir>sspl-plugin-anti-virus</workingdir>
         </command>
     </buildcommands>
