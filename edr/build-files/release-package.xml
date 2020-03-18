@@ -33,7 +33,7 @@
         <package name="osquery-linux" version="4-0-2-1/EES-15942" dest="input">
             <include src="osquery-4.0.2_1.linux_x86_64.tar.gz" dest="."/>
         </package>
-        <package name="osquerysdklinux11" version="1-0-0-44/219063/output" dest="input">
+        <package name="osquerysdklinux11" version="1-0-0-45/219073/output" dest="input">
             <include src="osquerysdk.tar" dest="."/>
         </package>
         <package name="osquerysdklinux11" version="sophos-linux-sdk-master/%LASTGOODCOMPONENTBUILD%/osquerysdklinux11/1.0.0/output" dest="input" buildtype="dev">
