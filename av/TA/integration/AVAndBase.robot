@@ -36,7 +36,7 @@ AV plugin runs scan now twice
     Configure scan now
     Check scan now
     Remove File    ${AV_LOG_PATH}
-    Check scan now
+    Check scan now 2
 
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
@@ -198,10 +198,18 @@ Check AV Plugin Not Installed
 Run uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
 
-Check scan now
+Configure scan now
     Send Sav Policy To Base  SAV_Policy_Scan_Now.xml
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+
+Check scan now
     Send Sav Action To Base  ScanNow_Action.xml
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now
+    AV Plugin Log Contains  Starting Scan Now scan
+    AV Plugin Log Contains  Starting scan Scan Now
+
+Check scan now 2
+    Send Sav Action To Base  ScanNow_Action_2.xml
     Wait Until AV Plugin Log Contains  Completed scan Scan Now
     AV Plugin Log Contains  Starting Scan Now scan
     AV Plugin Log Contains  Starting scan Scan Now

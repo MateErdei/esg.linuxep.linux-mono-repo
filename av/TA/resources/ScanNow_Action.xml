@@ -1,1 +1,1 @@
-<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
+<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="1" subtype="ScanMyComputer" replyRequired="1"/>
