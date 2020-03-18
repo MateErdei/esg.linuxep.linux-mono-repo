@@ -62,7 +62,7 @@ do
             LOCAL_CMAKE=0
             LOCAL_GCC=0
             NO_BUILD=0
-            NO_UNPACK=0
+            NO_UNPACK=
             VALGRIND=0
             CMAKE_BUILD_TYPE=RelWithDebInfo
             export ENABLE_STRIP=1
