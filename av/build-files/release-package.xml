@@ -9,7 +9,7 @@
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
         <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.0/output" dest="input" buildtype="dev">
-            <include src="pluginapi.tar.gz" dest="."/>
+        <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
         <!--Plugin Api Production Build - Change values below to match the latest production build of base.
@@ -17,6 +17,9 @@
         <package name="sspl-base" version="1-0-2-619/218757/output" dest="input" buildtype="prod">
             <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
+        </package>
+        <package name="boostlinux11" version="1-70-0-27/219058/output" dest="input">
+            <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>

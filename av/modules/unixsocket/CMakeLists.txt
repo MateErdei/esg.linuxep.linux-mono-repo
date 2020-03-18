@@ -1,8 +1,6 @@
 add_library(unixsocket SHARED
         Logger.cpp
         Logger.h
-        BaseServerConnectionThread.cpp
-        BaseServerConnectionThread.h
         BaseServerSocket.cpp
         BaseServerSocket.h
         IMessageCallback.h
@@ -26,15 +24,22 @@ add_library(unixsocket SHARED
         threatReporterSocket/ThreatReporterClient.cpp
         threatReporterSocket/ThreatReporterClient.h)
 
+SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
+SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
+SET (BOOST_ROOT ${BOOSTPATH}/boost)
+
+find_package( Boost REQUIRED COMPONENTS locale)
+
 target_link_libraries(unixsocket  PUBLIC
         scanmessages
         datatypes
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         ${pluginapilib}
-        ${CRYPTO_LIBRARY}
+        ${Boost_LIBRARIES}
         )
 
-target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${OPENSSL_INCLUDE_DIR})
+target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(unixsocket SYSTEM PRIVATE ${BOOSTPATH})
 
 install(TARGETS unixsocket
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

@@ -266,6 +266,7 @@ function build()
         python3 "$BASE"/build-files/create_library_links.py $REDIST
         (( LOCAL_CMAKE == 0 )) && untar_input cmake cmake-3.11.2-linux
         untar_input capnproto
+        untar_input boost
         untar_input $GOOGLETESTTAR
         untar_input susi "" "" optional
         untar_input openssl
