@@ -14,7 +14,7 @@
         </package>
         <!--Plugin Api Production Build - Change values below to match the latest production build of base.
             On release, make sure you build a production build of base first before building any production builds of plugins-->
-        <package name="sspl-base" version="1-1-0-79/219050/output" dest="input" buildtype="prod">
+        <package name="sspl-base" version="1-1-0-85/219064/output" dest="input" buildtype="prod">
             <include src="pluginapi.tar.gz" dest="."/>
              <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
@@ -33,7 +33,7 @@
         <package name="osquery-linux" version="4-0-2-1/EES-15942" dest="input">
             <include src="osquery-4.0.2_1.linux_x86_64.tar.gz" dest="."/>
         </package>
-        <package name="osquerysdklinux11" version="1-0-0-42/219031/output" dest="input">
+        <package name="osquerysdklinux11" version="1-0-0-44/219063/output" dest="input">
             <include src="osquerysdk.tar" dest="."/>
         </package>
         <package name="osquerysdklinux11" version="sophos-linux-sdk-master/%LASTGOODCOMPONENTBUILD%/osquerysdklinux11/1.0.0/output" dest="input" buildtype="dev">
