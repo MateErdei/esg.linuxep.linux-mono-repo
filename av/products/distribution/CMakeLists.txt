@@ -16,6 +16,26 @@ string(STRIP "${libgcc_s_path}" libgcc_s_path )
 
 set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${pluginapilib} ${zmqlib} ${log4cpluslib} ${protobuflib})
 
+function(FindLibraryFullPath FULLPATH LIBNAME LIBRARY_PATH)
+    set(FOUND_LIB ${LIBNAME}-NOTFOUND)
+    FIND_LIBRARY(FOUND_LIB
+            NAMES ${LIBNAME}
+            PATHS ${LIBRARY_PATH}
+            NO_DEFAULT_PATH
+            )
+    GET_FILENAME_COMPONENT(FOUND_LIB_ABSOLUTE ${FOUND_LIB} REALPATH)
+    set(${FULLPATH} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
+endfunction(FindLibraryFullPath)
+
+function(add_boost_library LIB LIBRARY_PATH)
+    FindLibraryFullPath(FOUND_LIB_ABSOLUTE ${LIB} ${LIBRARY_PATH})
+    set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
+endfunction(add_boost_library)
+
+foreach (LIB boost_locale boost_system)
+    add_boost_library(${LIB} ${BOOSTPATH}/boost/lib64)
+endforeach(LIB)
+
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
