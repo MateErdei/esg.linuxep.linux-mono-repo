@@ -165,9 +165,11 @@ do
             VALGRIND=1
             ;;
         --get-input)
+            rm -rf ${BUILD_DIR}/input
             python3 -m build_scripts.artisan_fetch build-files/release-package.xml
             ;;
         --setup)
+            rm -rf ${BUILD_DIR}/input
             python3 -m build_scripts.artisan_fetch build-files/release-package.xml
             rm -f ${BUILD_DIR}/input/gcc-*-linux.tar.gz
             NO_BUILD=1
