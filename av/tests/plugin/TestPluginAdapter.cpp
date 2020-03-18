@@ -72,6 +72,10 @@ namespace
     };
 }
 
+ACTION_P(QueueStopTask, taskQueue) {
+    taskQueue->pushStop();
+}
+
 TEST_F(TestPluginAdapter, testConstruction) //NOLINT
 {
     PluginAdapter pluginAdapter(m_queueTask, std::move(m_baseService), m_callback);
@@ -79,21 +83,43 @@ TEST_F(TestPluginAdapter, testConstruction) //NOLINT
 
 TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 {
-    PluginAdapter pluginAdapter(m_queueTask, std::move(m_baseService), m_callback);
+    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
     std::string policyXml =
             R"MULTILINE(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="123" policyType="2"/>
 </config>
 )MULTILINE";
 
-    Task actionTask = {Task::TaskType::Policy,
-                       policyXml};
-    Task stopTask = {Task::TaskType::Stop, ""};
+    std::string statusXml =
+            R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
+<status xmlns="http://www.sophos.com/EE/EESavStatus">
+  <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="Same" RevID="123" policyType="2"/>
+  <upToDateState>1</upToDateState>
+  <vdl-info>
+    <virus-engine-version>N/A</virus-engine-version>
+    <virus-data-version>N/A</virus-data-version>
+    <idelist>
+    </idelist>
+    <ideChecksum>N/A</ideChecksum>
+  </vdl-info>
+  <on-access>false</on-access>
+  <entity>
+    <productId>SSPL-AV</productId>
+    <product-version>N/A</product-version>
+    <entityInfo>SSPL-AV</entityInfo>
+  </entity>
+</status>)MULTILINE";
 
-    m_queueTask->push(actionTask);
-    m_queueTask->push(stopTask);
+    Task policyTask = {Task::TaskType::Policy, policyXml};
+    m_queueTask->push(policyTask);
+
+    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", statusXml, statusXml)).WillOnce(QueueStopTask(m_queueTask));
 
     pluginAdapter.mainLoop();
     std::string expectedLog = "Process policy: ";
@@ -102,6 +128,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 
     EXPECT_THAT(logs, HasSubstr(expectedLog));
     EXPECT_THAT(logs, HasSubstr("Updating scheduled scan configuration"));
+    EXPECT_THAT(logs, HasSubstr("Received new policy with revision ID: 123"));
 }
 
 

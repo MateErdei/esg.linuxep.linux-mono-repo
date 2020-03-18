@@ -21,7 +21,8 @@ namespace Plugin
             Stop,
             Action,
             ScanComplete,
-            ThreatDetected
+            ThreatDetected,
+            SendStatus
         };
         TaskType taskType;
         std::string Content;

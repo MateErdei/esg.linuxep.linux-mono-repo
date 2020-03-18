@@ -10,6 +10,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "Telemetry.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include "datatypes/sophos_filesystem.h"
 
 namespace fs = sophos_filesystem;
@@ -83,7 +84,8 @@ PluginAdapter::PluginAdapter(
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
-        m_threatReporterServer(threat_reporter_socket(),  std::make_shared<ThreatReportCallbacks>(*this))
+        m_threatReporterServer(threat_reporter_socket(),  std::make_shared<ThreatReportCallbacks>(*this)),
+        m_lastPolicyRevID("noPolicyReceived")
 {
 
     m_sophosThreadDetector = std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
@@ -123,11 +125,41 @@ void PluginAdapter::innerLoop()
                 break;
 
             case Task::TaskType::ThreatDetected:
-                // TO DO: check if 2 should get changed to sav
                 m_baseService->sendEvent("SAV", task.Content);
+                break;
+
+            case Task::TaskType::SendStatus:
+                m_baseService->sendStatus("SAV", task.Content, task.Content);
                 break;
         }
     }
+}
+
+std::string PluginAdapter::generateSAVStatusXML(const std::string& revID)
+{
+    std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
+            R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<status xmlns="http://www.sophos.com/EE/EESavStatus">
+  <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="Same" RevID="@@REV_ID@@" policyType="2"/>
+  <upToDateState>1</upToDateState>
+  <vdl-info>
+    <virus-engine-version>N/A</virus-engine-version>
+    <virus-data-version>N/A</virus-data-version>
+    <idelist>
+    </idelist>
+    <ideChecksum>N/A</ideChecksum>
+  </vdl-info>
+  <on-access>false</on-access>
+  <entity>
+    <productId>SSPL-AV</productId>
+    <product-version>N/A</product-version>
+    <entityInfo>SSPL-AV</entityInfo>
+  </entity>
+</status>)sophos",{
+                    {"@@REV_ID@@", revID}
+            });
+
+    return result;
 }
 
 void PluginAdapter::processPolicy(const std::string& policyXml)
@@ -136,6 +168,14 @@ void PluginAdapter::processPolicy(const std::string& policyXml)
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+
+    std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
+    if (revID != m_lastPolicyRevID)
+    {
+        LOGDEBUG("Received new policy with revision ID: " << revID);
+        m_queueTask->push(Task{.taskType=Task::TaskType::SendStatus, generateSAVStatusXML(revID)});
+        m_lastPolicyRevID = revID;
+    }
 }
 
 void PluginAdapter::processAction(const std::string& actionXml)
