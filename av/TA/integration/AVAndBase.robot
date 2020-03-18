@@ -28,6 +28,14 @@ AV plugin Can Start sophos_threat_detector
 
 AV plugin runs scan now
     Check AV Plugin Installed With Base
+    Configure scan now
+    Check scan now
+
+AV plugin runs scan now twice
+    Check AV Plugin Installed With Base
+    Configure scan now
+    Check scan now
+    Remove File    ${AV_LOG_PATH}
     Check scan now
 
 AV plugin fails scan now if no policy
