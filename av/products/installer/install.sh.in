@@ -14,6 +14,7 @@ EXIT_FAIL_FIND_GETENT=15
 EXIT_FAIL_WDCTL_FAILED_TO_COPY=16
 EXIT_FAIL_WDCTL_FAILED_TO_START=17
 EXIT_FAIL_VERSIONEDCOPY=20
+EXIT_FAIL_INSTALL_PACKAGE=21
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -79,6 +80,21 @@ mkdir -p "$CHROOT"
 chmod 0711 "$CHROOT"
 
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+
+if [[ ! -x $(which setcap) ]]
+then
+    echo "Installing setcap"
+    if [[ -x $(which apt) ]]
+    then
+        apt install -y libcap2-bin || failure ${EXIT_FAIL_INSTALL_PACKAGE} "Failed to install libcap2-bin"
+    elif [[ -x $(which yum) ]]
+    then
+        failure ${EXIT_FAIL_INSTALL_PACKAGE} "Unable to install setcap using yum"
+    else
+        failure ${EXIT_FAIL_INSTALL_PACKAGE} "Unable to install setcap"
+    fi
+fi
+
 
 pushd "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
 THREAT_DETECTOR="sophos_threat_detector_launcher"
