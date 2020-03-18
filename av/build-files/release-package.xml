@@ -18,7 +18,7 @@
             <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
-        <package name="boostlinux11" version="1-70-0-27/219058/output" dest="input">
+        <package name="boostlinux11" version="1-72-0-27/219058/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
