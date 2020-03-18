@@ -23,7 +23,7 @@ class MessageCallbacks : public IMessageCallback
 {
     void processMessage(const std::string& message) override
     {
-        LOGDEBUG("scanning: " << message);
+        LOGTRACE("scanning: " << message);
     }
 };
 

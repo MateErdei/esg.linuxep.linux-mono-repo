@@ -15,3 +15,4 @@ log4cplus::Logger& getSophosThreadDetectorImplLogger();
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getSophosThreadDetectorImplLogger(), x) // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getSophosThreadDetectorImplLogger(), x)    // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getSophosThreadDetectorImplLogger(), x)  // NOLINT
+#define LOGTRACE(x) LOG4CPLUS_TRACE(getSophosThreadDetectorImplLogger(), x)  // NOLINT
