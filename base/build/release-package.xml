@@ -35,7 +35,7 @@
         <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
-        <package name="zeromqlinux11" version="4-3-2-22/217397/output" dest="input">
+        <package name="zeromqlinux11" version="4-3-2-27/219061/output" dest="input">
             <include src="zeromq.tar" dest="."/>
         </package>
         <package name="log4cpluslinux11" version="2-0-5-17/219045/output" dest="input">
