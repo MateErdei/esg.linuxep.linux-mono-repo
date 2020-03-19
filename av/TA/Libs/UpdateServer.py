@@ -10,7 +10,13 @@ import os
 import socket
 import shutil
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
-import robot.api.logger as logger
+
+try:
+    from robot.api import logger
+    logger.warning = logger.warn
+except ImportError:
+    import logging
+    logger = logging.getLogger("UpdateServer")
 
 try:
     from . import PathManager

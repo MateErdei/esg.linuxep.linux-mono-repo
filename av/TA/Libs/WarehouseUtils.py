@@ -6,6 +6,8 @@
 import os
 import shutil
 import hashlib
+import logging
+import sys
 
 try:
     from . import UpdateServer
@@ -14,7 +16,14 @@ except ImportError as ex:
     import UpdateServer
     import PathManager
 
-import robot.api.logger as logger
+try:
+    from robot.api import logger
+    logger.warning = logger.warn
+except ImportError:
+    logger = logging.getLogger("WarehouseUtils")
+
+GL_LOGGER = logger
+
 from robot.libraries.BuiltIn import BuiltIn
 
 
@@ -35,7 +44,7 @@ WAREHOUSE_LOCAL_SERVER_PORT = 443
 # newline is important in the redirect below
 OSTIA_HOST_REDIRECT = """127.0.0.1  ostia.eng.sophos
 """
-OSTIA_HOSTS_BACKUP_FILENAME="ostia_hosts.bk"
+OSTIA_HOSTS_BACKUP_FILENAME = "ostia_hosts.bk"
 
 USERNAME = "username"
 PASSWORD = "password"
@@ -89,13 +98,14 @@ SOPHOS_ALIAS_EXTENSION = os.path.join("base", "update", "var", "sophos_alias.txt
 def _make_local_copy_of_warehouse():
     branch_directories = []
     for address in OSTIA_ADDRESSES:
+        GL_LOGGER.info("Handling %s", address)
         branch_name = os.path.basename(address)
         branch_directories.append(branch_name)
 
         filer_branch_path = os.path.join(FILER_6_DIRECTORY, branch_name)
         local_branch_path = os.path.join(LOCAL_WAREHOUSES, branch_name)
         os.makedirs(local_branch_path)
-        logger.info("made branch path")
+        GL_LOGGER.debug("Made branch path: %s", local_branch_path)
         with open(os.path.join(filer_branch_path, "lastgoodbuild.txt"), "r") as last_good_build:
             latest_good_build = last_good_build.read()
             latest_path = os.path.join(filer_branch_path, latest_good_build, "warehouse", "1.0.0")
@@ -116,8 +126,8 @@ def _get_sophos_install_path():
 
 def _install_upgrade_certs(root_ca, ps_root_ca):
     sophos_install_path = _get_sophos_install_path()
-    logger.info("root_ca:  {}".format(root_ca))
-    logger.info("ps_root_ca:  {}".format(ps_root_ca))
+    GL_LOGGER.info("root_ca:  {}".format(root_ca))
+    GL_LOGGER.info("ps_root_ca:  {}".format(ps_root_ca))
     shutil.copy(root_ca, os.path.join(sophos_install_path, ROOT_CA_INSTALLATION_EXTENSION))
     shutil.copy(ps_root_ca, os.path.join(sophos_install_path, PS_ROOT_CA_INSTALLATION_EXTENSION))
 
@@ -125,12 +135,12 @@ def _install_sophos_alias_file(url):
     sophos_install_path = _get_sophos_install_path()
     sophos_alias_file_path = os.path.join(sophos_install_path, SOPHOS_ALIAS_EXTENSION)
     base_update_var_directory = os.path.dirname(sophos_alias_file_path)
-    logger.info("Sophos alias URL: {}".format(url))
+    GL_LOGGER.info("Sophos alias URL: {}".format(url))
     if not os.path.isdir(base_update_var_directory):
         raise OSError("cannot create sophos alias file as \"{}\" does not exist".format(base_update_var_directory))
     with open(sophos_alias_file_path, "w") as sophos_alias_file:
         sophos_alias_file.write(url)
-        logger.info("wrote alias '{}' to '{}'".format(url, sophos_alias_file_path))
+        GL_LOGGER.info("wrote alias '{}' to '{}'".format(url, sophos_alias_file_path))
 
 def _remove_sophos_alias_file():
     sophos_install_path = _get_sophos_install_path()
@@ -141,7 +151,7 @@ def _remove_sophos_alias_file():
 def _calculate_hashed_creds(username, password):
     credentials_as_string = "{}:{}".format(username, password)
     hashed_credentials = hashlib.md5(credentials_as_string.encode("utf-8"))
-    logger.info("Hashing credentials: %s", credentials_as_string)
+    GL_LOGGER.info("Hashing credentials: %s", credentials_as_string)
     return hashed_credentials.hexdigest()
 
 
@@ -197,16 +207,16 @@ class TemplateConfig(object):
         if self.use_local_warehouses:
             self.local_customer_file_port = OSTIA_ADDRESSES[self.remote_connection_address]
             self.local_connection_address = "https://localhost:{}".format(self.local_customer_file_port)
-            logger.info("setting {} local connection address to {} as local warehouse directory was found".format(
+            GL_LOGGER.info("setting {} local connection address to {} as local warehouse directory was found".format(
                 self.remote_connection_address, self.local_connection_address
             ))
 
     def get_connection_address(self):
         if self.local_connection_address:
-            logger.info("returning '{}' as connection address".format(self.local_connection_address))
+            GL_LOGGER.info("returning '{}' as connection address".format(self.local_connection_address))
             return self.local_connection_address
         else:
-            logger.info("returning '{}' as connection address".format(self.remote_connection_address))
+            GL_LOGGER.info("returning '{}' as connection address".format(self.remote_connection_address))
             return self.remote_connection_address
 
     def _validate_values(self):
@@ -216,7 +226,7 @@ class TemplateConfig(object):
 
     def _define_hashed_creds(self):
         self.hashed_credentials = _calculate_hashed_creds(self.username, self.password)
-        logger.info(self.hashed_credentials)
+        GL_LOGGER.info(self.hashed_credentials)
 
     def _define_valid_update_certs(self):
 
@@ -271,12 +281,12 @@ class TemplateConfig(object):
         if proposed_output_path is None:
             output_policy = os.path.join(GENERATED_FILE_DIRECTORY, template_file_name)
         else:
-            logger.info("ALC policy will be placed at: {}".format(proposed_output_path))
+            GL_LOGGER.info("ALC policy will be placed at: {}".format(proposed_output_path))
             output_policy = proposed_output_path
 
         with open(output_policy, "w+") as output_file:  # replaces existing file if exists
             output_file.write(template_string_with_replaced_values)
-            logger.info(
+            GL_LOGGER.info(
                 """
                 Wrote real warehouse policy \"{}\" with:
                 username: {}
@@ -436,17 +446,17 @@ class WarehouseUtils(object):
             branch_name = os.path.basename(address)
             local_warehouse_branch = os.path.join(LOCAL_WAREHOUSES, branch_name)
             list_of_files = os.listdir(local_warehouse_branch)
-            logger.info(list_of_files)
+            GL_LOGGER.info(list_of_files)
             assert len(list_of_files) == 1, "Error, couldn't get local warehouse timestamp for {}".format(address)
             timestamp = list_of_files[0]
             customer_directory = os.path.join(local_warehouse_branch, timestamp, "customer")
 
             self.update_server.start_update_server(port, customer_directory)
-            logger.info("started local warehouse customer file server on localhost:{} for {}".format(port, branch_name))
+            GL_LOGGER.info("started local warehouse customer file server on localhost:{} for {}".format(port, branch_name))
             self.update_server.can_curl_url("https://localhost:{}".format(port))
 
         self.update_server.start_update_server(WAREHOUSE_LOCAL_SERVER_PORT, LOCAL_WAREHOUSES_ROOT)
-        logger.info("started local warehouse catalogue server on localhost:{}".format(WAREHOUSE_LOCAL_SERVER_PORT))
+        GL_LOGGER.info("started local warehouse catalogue server on localhost:{}".format(WAREHOUSE_LOCAL_SERVER_PORT))
         self.update_server.can_curl_url("https://localhost:{}".format(WAREHOUSE_LOCAL_SERVER_PORT))
 
     def setup_local_warehouses_if_needed(self):
@@ -469,6 +479,18 @@ class WarehouseUtils(object):
         return template_config.get_warehouse_policy_from_template(policy_path)
 
 
+def main(argv):
+    """If ran directly, file sets up local warehouse directory from filer6
+    """
+    global GL_LOGGER
+    logging.basicConfig(level=logging.DEBUG)
+    GL_LOGGER = logging.getLogger("WarehouseUtils")
+    GL_LOGGER.info("Starting _make_local_copy_of_warehouse")
+    _make_local_copy_of_warehouse()
+    GL_LOGGER.info("Finished _make_local_copy_of_warehouse")
+    return 0
+
+
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":
-    _make_local_copy_of_warehouse()
+    sys.exit(main(sys.argv))

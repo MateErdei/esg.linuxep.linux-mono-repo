@@ -156,8 +156,8 @@ Update from Ostia
     ...   check_suldownloader_log_contains   suldownloaderdata <> Product will be downloaded: ServerProtectionLinux-Plugin-AV
 
     Wait Until Keyword Succeeds
-    ...   3 mins
-    ...   10 secs
+    ...   10 mins
+    ...   15 secs
     ...   check_suldownloader_log_contains   suldownloaderdata <> Update success
 
     Verify AV installed
