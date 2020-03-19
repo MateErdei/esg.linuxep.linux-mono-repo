@@ -65,9 +65,29 @@ std::string sha256_hash(const std::string& str)
 
 std::string unixsocket::toUtf8(const std::string& str)
 {
-    std::locale localLocale("");
-    std::locale conversionInformation = boost::locale::util::create_info(localLocale, localLocale.name());
-    return boost::locale::conv::to_utf<char>(str, conversionInformation);
+    try
+    {
+        return boost::locale::conv::to_utf<char>(str, "UTF-8", boost::locale::conv::stop);
+    }catch(const boost::locale::conv::conversion_error& e)
+    {
+        LOGERROR("Could not convert from: " << "UTF-8");
+    }
+
+    std::vector<std::string> encodings{"EUC-JP", "SJIS", "Latin1"};
+    for (const auto& encoding : encodings)
+    {
+        try
+        {
+            std::string encoding_info = " (" + encoding + ")";
+            return boost::locale::conv::to_utf<char>(str, encoding, boost::locale::conv::stop).append(encoding_info);
+        }catch(const boost::locale::conv::conversion_error& e)
+        {
+            LOGERROR("Could not convert from: " << encoding);
+            continue;
+        }
+    }
+
+    throw std::runtime_error(std::string("Failed to convert string to utf8: ") + str);
 }
 
 //TO DO: maybe move it in a XMLUtils file?
