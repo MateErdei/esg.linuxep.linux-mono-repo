@@ -403,6 +403,7 @@ namespace Common
 
         void FileSystemImpl::copyFile(const Path& src, const Path& dest) const
         {
+            char copyBuffer[65537];
             auto* fileSystem = FileSystem::fileSystem();
             if (!fileSystem->exists(src))
             {
@@ -410,7 +411,9 @@ namespace Common
                     "Failed to copy file: '" + src + "' to '" + dest + "', source file does not exist.");
             }
             {
-                std::ifstream ifs(src, std::ios::binary);
+                std::ifstream ifs;
+                ifs.rdbuf()->pubsetbuf(copyBuffer, sizeof copyBuffer);
+                ifs.open(src, std::ios::binary);
                 if (!ifs.good())
                 {
                     throw IFileSystemException(
