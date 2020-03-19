@@ -14,9 +14,6 @@ namespace Plugin
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
-        std::shared_ptr<QueueTask> m_task;
-        Common::PluginApi::StatusInfo m_statusInfo;
-
     public:
         explicit PluginCallback(std::shared_ptr<QueueTask> task);
 
@@ -29,5 +26,14 @@ namespace Plugin
         void setStatus(Common::PluginApi::StatusInfo statusInfo);
 
         std::string getTelemetry() override;
+
+        void sendStatus(const std::string& revID);
+
+    private:
+        std::string generateSAVStatusXML();
+
+        std::shared_ptr<QueueTask> m_task;
+        Common::PluginApi::StatusInfo m_statusInfo;
+        std::string m_revID;
     };
 }; // namespace Plugin

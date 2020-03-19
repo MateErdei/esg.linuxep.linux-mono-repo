@@ -26,7 +26,6 @@ namespace Plugin
         manager::scheduler::ScanScheduler m_scanScheduler;
         unixsocket::ThreatReporterServerSocket m_threatReporterServer;
         std::unique_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_sophosThreadDetector;
-        std::string m_lastPolicyRevID;
 
     public:
         PluginAdapter(
@@ -41,7 +40,6 @@ namespace Plugin
         void processPolicy(const std::string& policyXml);
         void processAction(const std::string& actionXml);
         void innerLoop();
-        std::string generateSAVStatusXML(const std::string& revID);
 
     };
 } // namespace Plugin

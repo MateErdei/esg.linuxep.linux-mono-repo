@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 #include <gtest/gtest.h>
@@ -46,6 +47,7 @@ namespace
             testing::internal::CaptureStderr();
 
             m_queueTask = std::make_shared<QueueTask>();
+            m_callback = std::make_shared<Plugin::PluginCallback>(m_queueTask);
 
             setupFakeSophosThreatDetectorConfig();
         }
@@ -135,10 +137,13 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     m_queueTask->push(policy1Task);
     m_queueTask->push(policy2Task);
 
-    std::string status1Xml = generateStatusXML("NoRef", policy1revID);
+    std::string initialStatusXml = generateStatusXML("NoRef", "");
+    std::string status1Xml = generateStatusXML("Same", policy1revID);
     std::string status2Xml = generateStatusXML("Same", policy2revID);
     EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status1Xml, status1Xml)).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status2Xml, status2Xml)).WillOnce(QueueStopTask(m_queueTask));
+
+    EXPECT_EQ(m_callback->getStatus("AV").statusXml, initialStatusXml);
 
     pluginAdapter.mainLoop();
     std::string logs = testing::internal::GetCapturedStderr();
