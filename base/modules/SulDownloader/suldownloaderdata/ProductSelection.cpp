@@ -28,7 +28,7 @@ namespace
     public:
         explicit StableSetIndex(size_t capacity) : m_trackIndexes(capacity, false), m_indexes() {}
 
-        bool hasIndex(size_t index) const
+        [[nodiscard]] bool hasIndex(size_t index) const
         {
             assert(index < m_trackIndexes.size());
             return m_trackIndexes[index];
@@ -50,25 +50,35 @@ namespace
             }
         }
 
-        const std::vector<size_t>& values() const { return m_indexes; }
+        [[nodiscard]] const std::vector<size_t>& values() const { return m_indexes; }
     };
 
-} // namespace
+    class SubscriptionSelector : public virtual ISingleProductSelector
+    {
+    public:
+        explicit SubscriptionSelector(ProductSubscription productSubscription);
+        [[nodiscard]] std::string targetProductName() const override;
 
-namespace SulDownloader
-{
+        [[nodiscard]] bool keepProduct(const SulDownloader::suldownloaderdata::ProductMetadata&) const override;
+
+        [[nodiscard]] bool isProductRequired() const override;
+
+    private:
+        ProductSubscription m_productSubscription;
+    };
+
     // Subscription Selector
 
-    SubscriptionSelector::SubscriptionSelector(const ProductSubscription& productSubscription) :
-        m_productSubscription(productSubscription)
+    SubscriptionSelector::SubscriptionSelector(ProductSubscription productSubscription) :
+            m_productSubscription(std::move(productSubscription))
     {
     }
 
     std::string SubscriptionSelector::targetProductName() const { return m_productSubscription.rigidName(); }
 
-    bool SubscriptionSelector::keepProduct(const suldownloaderdata::ProductMetadata& productInformation) const
+    bool SubscriptionSelector::keepProduct(const SulDownloader::suldownloaderdata::ProductMetadata& productInformation) const
     {
-        // the selection is based on the following algorith.
+        // the selection is based on the following algorithm.
 
         // It has to match rigid name.
         // If the subscription has fixed version, it has precedence to tags and the fixedversion must match.
@@ -98,6 +108,10 @@ namespace SulDownloader
 
     bool SubscriptionSelector::isProductRequired() const { return true; }
 
+} // namespace
+
+namespace SulDownloader
+{
     // Product Selection
 
     ProductSelection ProductSelection::CreateProductSelection(const ConfigurationData& configurationData)
@@ -106,13 +120,12 @@ namespace SulDownloader
 
         auto& primary = configurationData.getPrimarySubscription();
         LOGSUPPORT("Product Selector: " << primary.toString() << ". Primary.");
-        productSelection.appendSelector(std::unique_ptr<ISingleProductSelector>(new SubscriptionSelector(primary)));
+        productSelection.appendSelector(std::make_unique<SubscriptionSelector>(primary));
 
-        for (auto subscription : configurationData.getProductsSubscription())
+        for (const auto& subscription : configurationData.getProductsSubscription())
         {
             LOGSUPPORT("Product Selector: " << subscription.toString());
-            productSelection.appendSelector(
-                std::unique_ptr<ISingleProductSelector>(new SubscriptionSelector(subscription)));
+            productSelection.appendSelector(std::make_unique<SubscriptionSelector>(subscription));
         }
 
         productSelection.m_features.setEntries(configurationData.getFeatures());
@@ -144,9 +157,10 @@ namespace SulDownloader
                 selectedProductsIndex.addIndexes(selectedIndexes);
             }
         }
+        LOGDEBUG("Selected "<< selectedProductsIndex.values().size() << " products total");
 
         StableSetIndex secondSelection(warehouseProducts.size());
-        bool atLeastOnHasCore = false;
+        bool atLeastOneHasCore = false;
         auto hasCore = [](const std::vector<std::string>& features) {
             return std::find(features.begin(), features.end(), "CORE") != features.end();
         };
@@ -159,15 +173,16 @@ namespace SulDownloader
                 secondSelection.addIndex(index);
                 if (hasCore(warehouseProduct.getFeatures()))
                 {
-                    atLeastOnHasCore = true;
+                    atLeastOneHasCore = true;
                 }
             }
         }
-        if (!atLeastOnHasCore && selection.missing.empty())
+        if (!atLeastOneHasCore && selection.missing.empty())
         {
             selection.missing.push_back(MissingCoreProduct());
         }
         selectedProductsIndex = secondSelection;
+        LOGDEBUG("Filtered "<< selectedProductsIndex.values().size() << " products total");
 
         selection.selected = selectedProductsIndex.values();
 
@@ -191,6 +206,7 @@ namespace SulDownloader
         {
             if (selector.keepProduct(warehouseProducts[i]))
             {
+                LOGDEBUG("Keeping "<<i);
                 set.addIndex(i);
             }
         }

@@ -147,7 +147,9 @@ namespace
     {
         displayProductTags(
             product,
-            { "Line",
+            {
+              "Line",
+              "R_Line",
               "VersionId",
               "Name",
               "PublicationTime",
@@ -269,9 +271,10 @@ namespace SulDownloader
             productInformationList.emplace_back(product, productInformation);
         }
         std::vector<ProductMetadata> productMetadataList;
+        productMetadataList.reserve(productInformationList.size());
         for (const auto& pInfoPair : productInformationList)
         {
-            productMetadataList.push_back(pInfoPair.second);
+            productMetadataList.emplace_back(pInfoPair.second);
         }
 
         SelectedResultsIndexes selectedIndexes = selection.selectProducts(productMetadataList);

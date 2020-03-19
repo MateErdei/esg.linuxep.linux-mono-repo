@@ -177,7 +177,7 @@ public:
     };
 
     std::vector<SulDownloader::suldownloaderdata::ProductMetadata> simulateWarehouseContent(
-        std::vector<ProductIdForDev> products)
+        const std::vector<ProductIdForDev>& products)
     {
         std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
         for (auto productID : products)

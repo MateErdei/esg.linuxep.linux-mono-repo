@@ -30,20 +30,6 @@ namespace SulDownloader
             virtual ~ISingleProductSelector() = default;
         };
 
-        class SubscriptionSelector : public virtual ISingleProductSelector
-        {
-        public:
-            SubscriptionSelector(const ProductSubscription& productSubscription);
-            std::string targetProductName() const override;
-
-            bool keepProduct(const suldownloaderdata::ProductMetadata&) const override;
-
-            bool isProductRequired() const override;
-
-        private:
-            ProductSubscription m_productSubscription;
-        };
-
         struct SelectedResultsIndexes
         {
             std::vector<size_t> selected;
