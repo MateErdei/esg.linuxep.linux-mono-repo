@@ -17,6 +17,8 @@ namespace fs = sophos_filesystem;
 
 using namespace Plugin;
 
+#define INITIAL_REV_ID "noPolicyReceived"
+
 namespace
 {
     fs::path pluginInstall()
@@ -85,7 +87,7 @@ PluginAdapter::PluginAdapter(
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
         m_threatReporterServer(threat_reporter_socket(),  std::make_shared<ThreatReportCallbacks>(*this)),
-        m_lastPolicyRevID("noPolicyReceived")
+        m_lastPolicyRevID(INITIAL_REV_ID)
 {
 
     m_sophosThreadDetector = std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
@@ -137,10 +139,12 @@ void PluginAdapter::innerLoop()
 
 std::string PluginAdapter::generateSAVStatusXML(const std::string& revID)
 {
+    std::string policyCompliance = m_lastPolicyRevID == INITIAL_REV_ID ? "NoRef" : "Same";
+    m_lastPolicyRevID = revID;
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
             R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <status xmlns="http://www.sophos.com/EE/EESavStatus">
-  <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="Same" RevID="@@REV_ID@@" policyType="2"/>
+  <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="@@POLICY_COMPLIANCE@@" RevID="@@REV_ID@@" policyType="2"/>
   <upToDateState>1</upToDateState>
   <vdl-info>
     <virus-engine-version>N/A</virus-engine-version>
@@ -156,6 +160,7 @@ std::string PluginAdapter::generateSAVStatusXML(const std::string& revID)
     <entityInfo>SSPL-AV</entityInfo>
   </entity>
 </status>)sophos",{
+                    {"@@POLICY_COMPLIANCE@@", policyCompliance},
                     {"@@REV_ID@@", revID}
             });
 
@@ -174,7 +179,6 @@ void PluginAdapter::processPolicy(const std::string& policyXml)
     {
         LOGDEBUG("Received new policy with revision ID: " << revID);
         m_queueTask->push(Task{.taskType=Task::TaskType::SendStatus, generateSAVStatusXML(revID)});
-        m_lastPolicyRevID = revID;
     }
 }
 

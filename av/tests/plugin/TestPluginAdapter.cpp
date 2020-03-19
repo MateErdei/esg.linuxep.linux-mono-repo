@@ -55,6 +55,42 @@ namespace
             fs::remove_all("/tmp/TestPluginAdapter/");
         }
 
+        std::string generatePolicyXML(const std::string& revID)
+        {
+            return Common::UtilityImpl::StringUtils::orderedStringReplace(
+                    R"sophos(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="@@REV_ID@@" policyType="2"/>
+</config>
+)sophos", {{"@@REV_ID@@", revID}});
+        }
+
+        std::string generateStatusXML(const std::string& res, const std::string& revID)
+        {
+            return Common::UtilityImpl::StringUtils::orderedStringReplace(
+                    R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<status xmlns="http://www.sophos.com/EE/EESavStatus">
+  <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="@@POLICY_COMPLIANCE@@" RevID="@@REV_ID@@" policyType="2"/>
+  <upToDateState>1</upToDateState>
+  <vdl-info>
+    <virus-engine-version>N/A</virus-engine-version>
+    <virus-data-version>N/A</virus-data-version>
+    <idelist>
+    </idelist>
+    <ideChecksum>N/A</ideChecksum>
+  </vdl-info>
+  <on-access>false</on-access>
+  <entity>
+    <productId>SSPL-AV</productId>
+    <product-version>N/A</product-version>
+    <entityInfo>SSPL-AV</entityInfo>
+  </entity>
+</status>)sophos", {
+                        {"@@POLICY_COMPLIANCE@@", res},
+                        {"@@REV_ID@@", revID}
+                    });
+        }
+
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<QueueTask> m_queueTask;
         std::shared_ptr<Plugin::PluginCallback> m_callback;
@@ -89,45 +125,26 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
-    std::string policyXml =
-            R"MULTILINE(<?xml version="1.0"?>
-<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="123" policyType="2"/>
-</config>
-)MULTILINE";
+    std::string policy1revID = "12345678901";
+    std::string policy2revID = "12345678902";
+    std::string policy1Xml = generatePolicyXML(policy1revID);
+    std::string policy2Xml = generatePolicyXML(policy2revID);
 
-    std::string statusXml =
-            R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
-<status xmlns="http://www.sophos.com/EE/EESavStatus">
-  <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="Same" RevID="123" policyType="2"/>
-  <upToDateState>1</upToDateState>
-  <vdl-info>
-    <virus-engine-version>N/A</virus-engine-version>
-    <virus-data-version>N/A</virus-data-version>
-    <idelist>
-    </idelist>
-    <ideChecksum>N/A</ideChecksum>
-  </vdl-info>
-  <on-access>false</on-access>
-  <entity>
-    <productId>SSPL-AV</productId>
-    <product-version>N/A</product-version>
-    <entityInfo>SSPL-AV</entityInfo>
-  </entity>
-</status>)MULTILINE";
+    Task policy1Task = {Task::TaskType::Policy, policy1Xml};
+    Task policy2Task = {Task::TaskType::Policy, policy2Xml};
+    m_queueTask->push(policy1Task);
+    m_queueTask->push(policy2Task);
 
-    Task policyTask = {Task::TaskType::Policy, policyXml};
-    m_queueTask->push(policyTask);
-
-    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", statusXml, statusXml)).WillOnce(QueueStopTask(m_queueTask));
+    std::string status1Xml = generateStatusXML("NoRef", policy1revID);
+    std::string status2Xml = generateStatusXML("Same", policy2revID);
+    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status1Xml, status1Xml)).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status2Xml, status2Xml)).WillOnce(QueueStopTask(m_queueTask));
 
     pluginAdapter.mainLoop();
-    std::string expectedLog = "Process policy: ";
-    expectedLog.append(policyXml);
     std::string logs = testing::internal::GetCapturedStderr();
 
-    EXPECT_THAT(logs, HasSubstr(expectedLog));
-    EXPECT_THAT(logs, HasSubstr("Updating scheduled scan configuration"));
+    EXPECT_THAT(logs, HasSubstr("Process policy: " + policy1Xml));
+    EXPECT_THAT(logs, HasSubstr("Process policy: " + policy2Xml));
     EXPECT_THAT(logs, HasSubstr("Received new policy with revision ID: 123"));
 }
 
