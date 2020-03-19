@@ -143,7 +143,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status1Xml, status1Xml)).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status2Xml, status2Xml)).WillOnce(QueueStopTask(m_queueTask));
 
-    EXPECT_EQ(m_callback->getStatus("AV").statusXml, initialStatusXml);
+    EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
     pluginAdapter.mainLoop();
     std::string logs = testing::internal::GetCapturedStderr();

@@ -40,11 +40,14 @@ namespace Plugin
         m_task->pushStop();
     }
 
-    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /* appId */)
+    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& appId)
     {
         LOGSUPPORT("Received get status request");
-        std::string noPolicySetStatus = generateSAVStatusXML();
-        m_statusInfo = { noPolicySetStatus, noPolicySetStatus, "SAV" };
+        assert(appId.compare("SAV") == 0);
+        (void)appId;
+
+        std::string status = generateSAVStatusXML();
+        m_statusInfo = { status, status, "SAV" };
         return m_statusInfo;
     }
 
