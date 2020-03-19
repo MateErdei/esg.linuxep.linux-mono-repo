@@ -180,6 +180,17 @@ AV Plugin Reports Threat XML To Base
 
    check threat event received by base  1   naugthyEicarThreatReport
 
+AV Plugin Reports encoded eicars To Base
+   Check AV Plugin Installed With Base
+
+   Run Process  Libs/bashScripts/createEncodingEicars.sh
+   Wait Until Keyword Succeeds
+      ...  15 secs
+      ...  3 secs
+      ...  Run Process    /usr/local/bin/avscanner  /tmp/encoded_eicars/
+
+   check threat event received by base  58   encoded_eicars
+
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin
     Run plugin uninstaller

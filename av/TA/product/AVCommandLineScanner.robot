@@ -155,3 +155,21 @@ CLS Creates Threat Report
    AV Plugin Log Contains  <action action="101"/>
 
    Stop AV
+
+CLS Encoded Eicars
+   Start AV
+
+   Run Process  Libs/bashScripts/createEncodingEicars.sh
+   Wait Until Keyword Succeeds
+       ...  15 secs
+       ...  3 secs
+       ...  Run Process    ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/
+
+   AV Plugin Log Contains  Sending threat detection notification to central
+
+   ${FILE_CONTENT}=    Get File  Libs/supportFiles/list_of_expected_encoded_eicars
+   @{eicar_names_list}=    Split to lines  ${FILE_CONTENT}
+   :FOR    ${item}  IN  @{eicar_names_list}
+   \   AV Plugin Log Contains  ${item}
+
+   Stop AV
