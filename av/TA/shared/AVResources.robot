@@ -6,6 +6,7 @@ Library         ../Libs/AVScanner.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
+Resource    GlobalSetup.robot
 Resource    ComponentSetup.robot
 
 *** Variables ***

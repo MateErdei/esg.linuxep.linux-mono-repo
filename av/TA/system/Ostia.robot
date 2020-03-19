@@ -7,9 +7,11 @@ Library         ../Libs/OSUtils.py
 Library         OperatingSystem
 Library         String
 
+Resource        ../shared/GlobalSetup.robot
 Resource        ../shared/AVResources.robot
-# Resource        ../shared/BaseResources.robot
 
+Suite Setup     No Operation
+Suite Teardown  Global Teardown Tasks
 
 Test Setup      No Operation
 Test Teardown   Ostia Cleanup
