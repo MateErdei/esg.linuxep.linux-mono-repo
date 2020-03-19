@@ -118,7 +118,7 @@ std::string unixsocket::generateThreatDetectedXml(const scan_messages::ServerThr
   </threat>
 </notification>)sophos",{
                     {"@@THREAT_NAME@@", threatName},
-                    {"@@THREAT_PATH@@", path},
+                    {"@@THREAT_PATH@@", utf8Path},
                     {"@@DETECTION_TIME@@", datatypes::Time::epochToCentralTime(detection.getDetectionTime())},
                     {"@@USER@@", detection.getUserID()},
                     {"@@THREAT_ID@@", threatID},
