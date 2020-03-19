@@ -14,9 +14,40 @@ sspl-edr:
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-EDR
     line-id: ServerProtectionLinux-Plugin-EDR
+ssplmdr-suite:
+    build:
+        branch: master
+        name: sspl-mdr-componentsuite
+        output: output\SDDS-SSPL-MDR-COMPONENT-SUITE
+    canonical-name: ServerProtectionLinuxPlugin-MDR
+    line-id: ServerProtectionLinux-Plugin-MDR
+ssplmdr-control-component:
+    build:
+        branch: master
+        name: sspl-mdr-componentsuite
+        output: output\SDDS-SSPL-MDR-COMPONENT
+    canonical-name: ServerProtectionLinux-MDR-Control-Component
+    line-id: ServerProtectionLinux-MDR-Control-Component
+    mountpoint: .
+ssplmdr-dbos-component:
+    build:
+        branch: master
+        name: sspl-mdr-componentsuite
+        output: output\SDDS-SSPL-DBOS-COMPONENT
+    canonical-name: ServerProtectionLinux-MDR-DBOS-Component
+    line-id: ServerProtectionLinux-MDR-DBOS-Component
+    mountpoint: .
+ssplmdr-osquery-component:
+    build:
+        branch: master
+        name: sspl-mdr-componentsuite
+        output: output\SDDS-SSPL-OSQUERY-COMPONENT
+    canonical-name: ServerProtectionLinux-MDR-osquery-Component
+    line-id: ServerProtectionLinux-MDR-osquery-Component
+    mountpoint: .
 sspl-av:
     build:
-        branch: feature-LINUXDAR-1479_ostia_experiment
+        branch: master
         name: sspl-plugin-anti-virus
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-AV
