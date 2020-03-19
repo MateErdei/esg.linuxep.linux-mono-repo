@@ -206,7 +206,6 @@ namespace SulDownloader
         {
             if (selector.keepProduct(warehouseProducts[i]))
             {
-                LOGDEBUG("Keeping "<<i);
                 set.addIndex(i);
             }
         }
