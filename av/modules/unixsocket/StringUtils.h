@@ -16,4 +16,6 @@ namespace unixsocket
     void escapeControlCharacters(std::string& text);
 
     std::string generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection);
+
+    std::string toUtf8(const std::string& str);
 }

@@ -29,6 +29,20 @@ TEST(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharacters) // NOLINT
     EXPECT_EQ(threatPath, "ありったけの夢をかき集め \\1 \\2 \\3 \\4 \\5 \\6 \\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
 }
 
+TEST(TestStringUtils, TestToUtf8) // NOLINT
+{
+    std::string threatPath = "abc  \1 \2 \3 \4 \5 \6 \\ efg \a \b \t \n \v \f \r hik";
+    std::string utf8Path = toUtf8(threatPath);
+    EXPECT_EQ(utf8Path, threatPath);
+}
+
+TEST(TestStringUtils, TestToUtf8WeirdCharacters) // NOLINT
+{
+    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
+    std::string utf8Path = toUtf8(threatPath);
+    EXPECT_EQ(utf8Path, threatPath);
+}
+
 namespace
 {
     class TestStringUtilsXML : public ::testing::Test

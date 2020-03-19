@@ -63,7 +63,7 @@ std::string sha256_hash(const std::string& str)
     return ss.str();
 }
 
-std::string toUtf8(const std::string& str)
+std::string unixsocket::toUtf8(const std::string& str)
 {
     std::locale localLocale("");
     std::locale conversionInformation = boost::locale::util::create_info(localLocale, localLocale.name());
