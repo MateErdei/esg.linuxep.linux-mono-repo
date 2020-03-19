@@ -28,6 +28,7 @@ LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
 PythonCoverage="OFF"
+STRACE_SUPPORT="OFF"
 CLEAN=0
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
@@ -140,6 +141,9 @@ do
             ;;
         --no-unittest|--no-unittests)
             UNIT_TESTS=0
+            ;;
+        --strace|--strace-support)
+            STRACE_SUPPORT="ON"
             ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
@@ -349,6 +353,7 @@ function build()
         -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
         -DNO_GCOV="true" \
         -DPythonCoverage="${PythonCoverage}" \
+        -DSTRACE_SUPPORT="${STRACE_SUPPORT}" \
         .. \
         || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} copy_libs || exitFailure 15 "Failed to build $PRODUCT"
