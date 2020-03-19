@@ -16,8 +16,6 @@ namespace fs = sophos_filesystem;
 
 using namespace Plugin;
 
-#define INITIAL_REV_ID "noPolicyReceived"
-
 namespace
 {
     fs::path pluginInstall()
