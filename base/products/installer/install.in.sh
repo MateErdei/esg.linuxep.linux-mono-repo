@@ -327,10 +327,7 @@ CLEAN_INSTALL=1
 
 generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
-for F in $(find "$DIST/files" -type f)
-do
-    "$DIST/files/base/bin/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
-done
+find "$DIST/files" -type f -print0 | xargs -0 "$DIST/files/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 

@@ -168,8 +168,16 @@ namespace
         const std::string DIST = getEnv("DIST", ".");
         const std::string INST = getEnv("SOPHOS_INSTALL", "/opt/sophos-spl");
 
-        std::string filename = argv.at(1);
-        return Installer::VersionedCopy::VersionedCopy::versionedCopy(filename, DIST, INST);
+        int ret = 0;
+        for (const auto& filename : argv)
+        {
+            ret = Installer::VersionedCopy::VersionedCopy::versionedCopy(filename, DIST, INST);
+            if (ret > 0)
+            {
+                return ret;
+            }
+        }
+        return ret;
     }
 } // namespace
 
