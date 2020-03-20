@@ -174,6 +174,7 @@ namespace
             ret = Installer::VersionedCopy::VersionedCopy::versionedCopy(filename, DIST, INST);
             if (ret > 0)
             {
+                std::cerr << "Failed to copy "<< filename << " to installation\n";
                 return ret;
             }
         }
