@@ -33,7 +33,15 @@ AV plugin Can Send Status
     Check AV Plugin Installed
 
     ${status}=  Get Plugin Status  av  sav
-    Should Contain  ${status}   RevID
+    Should Contain  ${status}   RevID=""
+    Should Contain  ${status}   Res="NoRef"
+
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="123" policyType="2"/></config>
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    ${status}=  Get Plugin Status  av  sav
+    Should Contain  ${status}   RevID="123"
+    Should Contain  ${status}   Res="Same"
 
     ${telemetry}=  Get Plugin Telemetry  av
     Should Contain  ${telemetry}   Number of Scans

@@ -36,6 +36,12 @@ AV plugin fails scan now if no policy
     AV Plugin Log Does Not Contain  Starting scan scanNow
     AV Plugin Log Contains  Starting Scan Now scan
 
+AV plugin SAV Status contains revision ID of policy
+    Check AV Plugin Installed With Base
+    Send Sav Policy To Base  SAV_Policy.xml
+    Wait Until SAV Status XML Contains  Res="Same"  timeout=60
+    SAV Status XML Contains  RevID="ac9eaa2f09914ce947cfb14f1326b802ef0b9a86eca7f6c77557564e36dbff9a"
+
 AV plugin sends Scan Complete event and (fake) Report To Central
     Check AV Plugin Installed With Base
     Send Sav Policy To Base  SAV_Policy.xml

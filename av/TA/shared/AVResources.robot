@@ -22,6 +22,7 @@ ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
 ${EXPORT_FILE}     /etc/exports
 ${EICAR_STRING}     X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 ${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
+${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml
 
 *** Keywords ***
 Run Shell Process
@@ -95,6 +96,14 @@ Wait Until Management Log Contains
 Management Log Does Not Contain
     [Arguments]  ${input}
     File Log Does Not Contain  Management Log Contains  ${input}
+
+SAV Status XML Contains
+    [Arguments]  ${input}
+    File Log Contains  ${STATUS_XML}   ${input}
+
+Wait Until SAV Status XML Contains
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  SAV Status XML Contains   ${input}   timeout=${timeout}
 
 Check Plugin Installed and Running
     File Should Exist   ${PLUGIN_BINARY}
