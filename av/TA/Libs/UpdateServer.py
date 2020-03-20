@@ -45,7 +45,7 @@ def get_variable(varName, defaultValue=None):
 class UpdateServer(object):
     def __init__(self, server_log="update_server.log"):
         self.__m_server_log_name = server_log
-        self.server_path = PathManager.get_resources_path()
+        self.server_path = os.path.join(PathManager.get_resources_path(), "alc")
         self.private_pem = os.path.join(PathManager.get_local_https_cert_path(), "server-private.pem")
         self.server_processes = []
         self.proxy_processes = {}
@@ -105,7 +105,10 @@ class UpdateServer(object):
 
         if not os.path.isdir(directory):
             raise AssertionError("Trying to serve a non-existent directory: {}".format(directory))
-        command = [sys.executable, os.path.join(self.server_path, "cidServer.py"), str(port), directory, "--loggingOn",
+        cid_server = os.path.join(self.server_path, "cidServer.py")
+        if not os.path.isfile(cid_server):
+            raise AssertionError("Can't find cidServer.py to serve updates: {}".format(cid_server))
+        command = [sys.executable, cid_server, str(port), directory, "--loggingOn",
                    "--tls1_2", "--secure={}".format(self.private_pem)]
         print("Start Update Server: command: " + str(command))
         process = subprocess.Popen(command, stdout=self.server_log, stderr=subprocess.STDOUT)
@@ -119,7 +122,7 @@ class UpdateServer(object):
         self.server_processes = []
 
     @staticmethod
-    def modify_host_file_for_local_updating(self, new_hosts_file_content=LOCALHOSTS, backup_filename="hosts.bk"):
+    def modify_host_file_for_local_updating(new_hosts_file_content=LOCALHOSTS, backup_filename="hosts.bk"):
         logger.info("adding '{}' to hosts file".format(new_hosts_file_content))
         host_file_backup = os.path.join("/etc", backup_filename)
         host_file = os.path.join("/etc", "hosts")
@@ -128,7 +131,7 @@ class UpdateServer(object):
             f.write(new_hosts_file_content)
 
     @staticmethod
-    def restore_host_file(self, backup_filename="hosts.bk"):
+    def restore_host_file(backup_filename="hosts.bk"):
         host_file_backup = os.path.join("/etc", backup_filename)
         host_file = os.path.join("/etc", "hosts")
         if os.path.exists(host_file_backup):
@@ -168,7 +171,7 @@ class UpdateServer(object):
         self.proxy_processes = {}
 
     @staticmethod
-    def is_proxy_up(self, port):
+    def is_proxy_up(port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect(("localhost", int(port)))
@@ -194,22 +197,23 @@ class UpdateServer(object):
 
     def wait_for_server_up(self, url, port):
         tries = 0
-        while self.curl_url(url + ":" + port) != 0 and tries < 100:
+        while tries < 50:
             tries += 1
-            time.sleep(0.1)
-        if tries == 100:
-            # run curl in verbose mode, this produces output that will be displayed in robot logs.
-            self.verbose_curl_url(url + ":" + port)
+            time.sleep(0.2)
+            if self.curl_url(url + ":" + port) == 0:
+                return
+
+        # run curl in verbose mode, this produces output that will be displayed in robot logs.
+        self.verbose_curl_url(url + ":" + port)
+        try:
+            content = open(self.__m_proxy_log_path, 'r').read()
+        except EnvironmentError:
             content = ""
-            try:
-                content = open(self.__m_proxy_log_path, 'r').read()
-            except:
-                pass
-            return_codes = ["Processes code: " + str(popen.poll()) for popen in self.server_processes]
-            raise AssertionError("No server running on: " + str(url) + ":" + str(port) + '\n'
-                                 + '\n'.join(return_codes)
-                                 + '\nLogOutput: ' + content
-                                 )
+        return_codes = ["Processes code: " + str(popen.poll()) for popen in self.server_processes]
+        raise AssertionError("No server running on: " + str(url) + ":" + str(port) + '\n'
+                             + '\n'.join(return_codes)
+                             + '\nLogOutput: ' + content
+                             )
 
     def verbose_curl_url(self, url):
         command = "LD_LIBRARY_PATH='' curl -s --verbose -4 --capath " + str(os.path.join(self.server_path, "https", "ca")) + " " + str(url)
@@ -229,7 +233,7 @@ class UpdateServer(object):
             raise AssertionError("cannot reach url: {}".format(url))
 
     @staticmethod
-    def unpack_openssl(self, tmp_path="/tmp"):
+    def unpack_openssl(tmp_path="/tmp"):
         openssl_input = get_variable("OPENSSL_INPUT")
         if openssl_input is None:
             raise AssertionError("Required env variable 'OPENSSL_INPUT' is not specified")
