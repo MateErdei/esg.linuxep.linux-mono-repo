@@ -520,6 +520,25 @@ namespace
         EXPECT_EQ(content, "FOOBAR");
     }
 
+    TEST_F(FileSystemImplTest, copyLargeFile) // NOLINT
+    {
+        Tests::TempDir tempdir("", "FileSystemImplTest_copyLargeFile");
+        Path A = tempdir.absPath("A");
+        Path B = tempdir.absPath("B");
+        const int SIZE = 100000; // file size
+        std::ostringstream large_string_stream;
+        for (int i=0; i < SIZE / 10; ++i)
+        {
+            large_string_stream << "0123456789";
+        }
+        std::string expected_contents = large_string_stream.str();
+        tempdir.createFile("A", expected_contents);
+        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B)); // NOLINT
+        EXPECT_TRUE(m_fileSystem->exists(B));
+        std::string content = m_fileSystem->readFile(B);
+        EXPECT_EQ(content, expected_contents);
+    }
+
     TEST_F(FileSystemImplTest, copyFileDoesNotExist) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
