@@ -3,7 +3,9 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/BaseUtils.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    GlobalSetup.robot
@@ -133,9 +135,8 @@ Install With Base SDDS
 Uninstall All
     Run Keyword And Ignore Error  Log File    /tmp/installer.log
     Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}
-    Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
-    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\n stdout: \n${result.stdout}\n. stderr: \n {result.stderr}"
+    LogUtils.dump_watchdog_log
+    BaseUtils.uninstall_sspl_if_installed
 
 Uninstall And Revert Setup
     Uninstall All

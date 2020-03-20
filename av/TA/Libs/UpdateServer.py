@@ -37,7 +37,7 @@ d3.sophosupd.net 127.0.0.1
 
 def get_variable(varName, defaultValue=None):
     try:
-        return BuiltIn().get_variable_value("${}".format(varName))
+        return BuiltIn().get_variable_value("${}".format(varName), defaultValue)
     except RobotNotRunningError:
         return os.environ.get(varName, defaultValue)
 
@@ -46,7 +46,7 @@ class UpdateServer(object):
     def __init__(self, server_log="update_server.log"):
         self.__m_server_log_name = server_log
         self.server_path = PathManager.get_resources_path()
-        self.private_pem = os.path.join(self.server_path, "https", "server-private.pem")
+        self.private_pem = os.path.join(PathManager.get_local_https_cert_path(), "server-private.pem")
         self.server_processes = []
         self.proxy_processes = {}
 
@@ -73,17 +73,21 @@ class UpdateServer(object):
                 # certificate is less than 12h old
                 return
 
-        openssl_bin_path = get_variable("OPENSSL_BIN_PATH")
-        openssl_lib_path = get_variable("OPENSSL_LIB_PATH")
+        openssl_bin_path = get_variable("OPENSSL_BIN_PATH", "/usr/bin")
+        openssl_lib_path = get_variable("OPENSSL_LIB_PATH", "/usr/lib")
         if openssl_bin_path is None or openssl_lib_path is None:
             raise AssertionError("openssl environment variables not set OPENSSL_BIN_PATH={}, OPENSSL_LIB_PATH={}".format(openssl_bin_path, openssl_lib_path))
 
-        env=os.environ.copy()
+        if not os.path.isfile(os.path.join(openssl_bin_path, "openssl")):
+            raise AssertionError("Can't find openssl binary in {}".format(openssl_bin_path))
+
+        env = os.environ.copy()
         env["PATH"] = openssl_bin_path + ":" + env["PATH"]
         env["LD_LIBRARY_PATH"] = openssl_lib_path
 
-        subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "clean"], env=env, stdout=subprocess.PIPE)
-        subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "all"], env=env, stdout=subprocess.PIPE)
+        https_cert_path = PathManager.get_local_https_cert_path()
+        subprocess.check_call(["make", "-C", https_cert_path, "clean"], env=env, stdout=subprocess.PIPE)
+        subprocess.check_call(["make", "-C", https_cert_path, "all"], env=env, stdout=subprocess.PIPE)
 
     def start_update_server(self, port, directory):
         tmp_path = os.path.join(".", "tmp")

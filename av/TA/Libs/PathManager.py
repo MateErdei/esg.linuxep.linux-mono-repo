@@ -80,6 +80,11 @@ def get_resources_path():
     return RESOURCES_PATH
 
 
+LOCAL_HTTPS_CERT_PATH = os.path.join(RESOURCES_PATH, "sophos_certs", "local_certs", "https")
+def get_local_https_cert_path():
+    return LOCAL_HTTPS_CERT_PATH
+
+
 def addPathToSysPath(p):
     p = os.path.normpath(p)
     if p not in sys.path:

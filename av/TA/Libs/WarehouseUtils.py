@@ -465,7 +465,7 @@ class WarehouseUtils(object):
             self.modify_host_file_for_local_ostia_warehouses()
 
     def generate_local_ssl_certs_if_they_dont_exist(self):
-        server_https_cert = os.path.join(SUPPORT_FILE_PATH, "https", "ca", "root-ca.crt.pem")
+        server_https_cert = os.path.join(PathManager.get_local_https_cert_path(), "ca", "root-ca.crt.pem")
         if not os.path.isfile(server_https_cert):
             self.update_server.generate_update_certs()
 
