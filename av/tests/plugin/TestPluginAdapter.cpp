@@ -46,6 +46,11 @@ namespace
             Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
             testing::internal::CaptureStderr();
 
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
+            fs::path pluginInstall = sophosInstall / "plugins" / "av";
+            appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+
             m_queueTask = std::make_shared<QueueTask>();
             m_callback = std::make_shared<Plugin::PluginCallback>(m_queueTask);
 
@@ -84,7 +89,7 @@ namespace
   <on-access>false</on-access>
   <entity>
     <productId>SSPL-AV</productId>
-    <product-version>N/A</product-version>
+    <product-version>Not Found</product-version>
     <entityInfo>SSPL-AV</entityInfo>
   </entity>
 </status>)sophos", {

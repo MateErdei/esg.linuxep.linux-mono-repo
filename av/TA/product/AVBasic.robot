@@ -3,6 +3,7 @@ Library         DateTime
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ../shared/ComponentSetup.robot
@@ -31,10 +32,12 @@ AV Plugin Can Receive Actions
 AV plugin Can Send Status
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
+    ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
 
     ${status}=  Get Plugin Status  av  sav
     Should Contain  ${status}   RevID=""
     Should Contain  ${status}   Res="NoRef"
+    Should Contain  ${status}   <product-version>${version}</product-version>
 
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="123" policyType="2"/></config>
     Send Plugin Policy  av  sav  ${policyContent}
@@ -42,6 +45,7 @@ AV plugin Can Send Status
     ${status}=  Get Plugin Status  av  sav
     Should Contain  ${status}   RevID="123"
     Should Contain  ${status}   Res="Same"
+    Should Contain  ${status}   <product-version>${version}</product-version>
 
     ${telemetry}=  Get Plugin Telemetry  av
     Should Contain  ${telemetry}   Number of Scans

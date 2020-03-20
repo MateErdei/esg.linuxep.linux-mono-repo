@@ -6,6 +6,7 @@ Library         Process
 Library         String
 Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/ThreatReportUtils.py
 
 Resource        ../shared/AVResources.robot
@@ -38,9 +39,11 @@ AV plugin fails scan now if no policy
 
 AV plugin SAV Status contains revision ID of policy
     Check AV Plugin Installed With Base
+    ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
     Send Sav Policy To Base  SAV_Policy.xml
     Wait Until SAV Status XML Contains  Res="Same"  timeout=60
     SAV Status XML Contains  RevID="ac9eaa2f09914ce947cfb14f1326b802ef0b9a86eca7f6c77557564e36dbff9a"
+    SAV Status XML Contains  <product-version>${version}</product-version>
 
 AV plugin sends Scan Complete event and (fake) Report To Central
     Check AV Plugin Installed With Base

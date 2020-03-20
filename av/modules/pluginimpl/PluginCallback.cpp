@@ -8,8 +8,14 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "Telemetry.h"
+#include "datatypes/sophos_filesystem.h"
 
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/UtilityImpl/StringUtils.h>
+
+#include <fstream>
+
+namespace fs = sophos_filesystem;
 
 namespace Plugin
 {
@@ -43,7 +49,7 @@ namespace Plugin
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& appId)
     {
         LOGSUPPORT("Received get status request");
-        assert(appId.compare("SAV") == 0);
+        assert(appId == "SAV");
         (void)appId;
 
         std::string status = generateSAVStatusXML();
@@ -66,6 +72,30 @@ namespace Plugin
         return telemetryJson;
     }
 
+    std::string PluginCallback::getPluginVersion()
+    {
+        std::string pluginVersion = "Not Found";
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        fs::path versionFile(appConfig.getData("PLUGIN_INSTALL"));
+        versionFile /= "VERSION.ini";
+
+        if (fs::exists(versionFile))
+        {
+            std::string versionKeyword("PRODUCT_VERSION = ");
+            std::ifstream versionFileHandle(versionFile);
+            std::string line;
+            while (std::getline(versionFileHandle, line))
+            {
+
+                if (line.rfind(versionKeyword, 0) == 0)
+                {
+                    pluginVersion = line.substr(versionKeyword.size(), line.size());
+                }
+            }
+        }
+        return pluginVersion;
+    }
+
     std::string PluginCallback::generateSAVStatusXML()
     {
         std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
@@ -83,12 +113,13 @@ namespace Plugin
   <on-access>false</on-access>
   <entity>
     <productId>SSPL-AV</productId>
-    <product-version>N/A</product-version>
+    <product-version>@@PLUGIN_VERSION@@</product-version>
     <entityInfo>SSPL-AV</entityInfo>
   </entity>
 </status>)sophos",{
                         {"@@POLICY_COMPLIANCE@@", m_revID.empty() ? "NoRef" : "Same"},
-                        {"@@REV_ID@@", m_revID}
+                        {"@@REV_ID@@", m_revID},
+                        {"@@PLUGIN_VERSION@@", getPluginVersion()}
                 });
 
         return result;
