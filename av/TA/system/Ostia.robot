@@ -4,6 +4,7 @@ Documentation    Updating from Ostia
 Library         ../Libs/WarehouseUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OSUtils.py
+Library         ../Libs/PathManager.py
 Library         OperatingSystem
 Library         String
 
@@ -27,6 +28,11 @@ Ostia Cleanup
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}
     Run Keyword And Ignore Error  Remove File    ${AV_LOG_PATH}
     Uninstall All
+
+Install Local SSL Server Cert To System
+    ${LOCAL_HTTPS_CERT_PATH} =  PathManager.get_local_https_cert_path
+    Copy File   ${LOCAL_HTTPS_CERT_PATH}/ca/root-ca.crt.pem    ${LOCAL_HTTPS_CERT_PATH}/ca/root-ca.crt
+    Install System Ca Cert  ${LOCAL_HTTPS_CERT_PATH}/ca/root-ca.crt
 
 Setup Ostia Warehouse Environment
     Generate Local Ssl Certs If They Dont Exist

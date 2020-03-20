@@ -126,11 +126,14 @@ server-fullchain.pem : localhost.cert.pem root-ca.crt.pem
 server-private-chain.pem : localhost.privkey.pem localhost.cert.pem root-ca.crt.pem
 	cat $^ >$@
 
+ca/root-ca.crt : ca/root-ca.crt.pem
+	cp $< $@
+
 ca/root-ca.crt.pem : root-ca.crt.pem
 	@mkdir -p ca
 	cp $< $@
 
-ca : ca/root-ca.crt.pem
+ca : ca/root-ca.crt.pem ca/root-ca.crt
 	python c_rehash.py ca || c_rehash ca
 
 .PHONY : ca

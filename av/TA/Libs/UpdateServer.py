@@ -118,6 +118,7 @@ class UpdateServer(object):
             process.kill()
         self.server_processes = []
 
+    @staticmethod
     def modify_host_file_for_local_updating(self, new_hosts_file_content=LOCALHOSTS, backup_filename="hosts.bk"):
         logger.info("adding '{}' to hosts file".format(new_hosts_file_content))
         host_file_backup = os.path.join("/etc", backup_filename)
@@ -126,6 +127,7 @@ class UpdateServer(object):
         with open(host_file, "a") as f:
             f.write(new_hosts_file_content)
 
+    @staticmethod
     def restore_host_file(self, backup_filename="hosts.bk"):
         host_file_backup = os.path.join("/etc", backup_filename)
         host_file = os.path.join("/etc", "hosts")
@@ -165,6 +167,7 @@ class UpdateServer(object):
             proxy.kill()
         self.proxy_processes = {}
 
+    @staticmethod
     def is_proxy_up(self, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -181,11 +184,13 @@ class UpdateServer(object):
             if self.is_proxy_up(port):
                 return True
             if proxyProcess.poll() is not None:
-                raise AssertionError("Proxy has exited while waiting for it to be up port={}, pid={}, exit={}".format(port, proxyProcess.pid, proxyProcess.returncode))
+                raise AssertionError(
+                    "Proxy has exited while waiting for it to be up port={}, pid={}, exit={}".format(port,
+                                                                                                     proxyProcess.pid,
+                                                                                                     proxyProcess.returncode))
             tries -= 1
             time.sleep(0.1)
         return AssertionError("Proxy hasn't started up after 10 seconds port={}, pid={}".format(port, proxyProcess.pid))
-
 
     def wait_for_server_up(self, url, port):
         tries = 0
@@ -193,7 +198,7 @@ class UpdateServer(object):
             tries += 1
             time.sleep(0.1)
         if tries == 100:
-            #run curl in verbose mode, this produces output that will be displayed in robot logs.
+            # run curl in verbose mode, this produces output that will be displayed in robot logs.
             self.verbose_curl_url(url + ":" + port)
             content = ""
             try:
@@ -212,8 +217,6 @@ class UpdateServer(object):
         print(("Run: " + command))
         return os.system(command)
 
-
-
     def curl_url(self, url):
         print(("Trying to curl {}".format(url)))
         # use the system curl with its library
@@ -225,7 +228,8 @@ class UpdateServer(object):
         if self.curl_url(url) != 0:
             raise AssertionError("cannot reach url: {}".format(url))
 
-    def unpack_openssl(self, tmp_path = "/tmp"):
+    @staticmethod
+    def unpack_openssl(self, tmp_path="/tmp"):
         openssl_input = get_variable("OPENSSL_INPUT")
         if openssl_input is None:
             raise AssertionError("Required env variable 'OPENSSL_INPUT' is not specified")
@@ -233,7 +237,6 @@ class UpdateServer(object):
         if os.path.isdir(openssl_input):
             if not os.path.isdir(target_path):
                 shutil.copytree(openssl_input, target_path)
-
 
         openssl_tar = os.path.join(openssl_input, "openssl.tar")
         os.system("tar -xvf {} -C {} > /dev/null".format(openssl_tar, tmp_path))
