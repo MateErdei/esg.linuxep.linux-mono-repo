@@ -87,3 +87,45 @@ TEST_F(TestThreatReposterSocket, TestSendThreatReport) // NOLINT
     threatReporterServer.requestStop();
     threatReporterServer.join();
 }
+
+TEST_F(TestThreatReposterSocket, TestSendTwoThreatReports) // NOLINT
+{
+    setupFakeSophosThreatReporterConfig();
+    WaitForEvent serverWaitGuard;
+    WaitForEvent serverWaitGuard2;
+
+
+    std::time_t detectionTimeStamp = std::time(nullptr);
+
+    auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+
+    EXPECT_CALL(*mock_callback, processMessage(_)).Times(2).WillOnce(
+            InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs)).WillOnce(
+            InvokeWithoutArgs(&serverWaitGuard2, &WaitForEvent::onEventNoArgs));;
+
+
+    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, mock_callback);
+
+    threatReporterServer.start();
+
+    // connect after we start
+    unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath);
+
+    scan_messages::ThreatDetected threatDetected;
+    threatDetected.setUserID(m_userID);
+    threatDetected.setDetectionTime(detectionTimeStamp);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setThreatName(m_threatName);
+    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+    threatDetected.setFilePath(m_threatPath);
+    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+
+    threatReporterSocket.sendThreatDetection(threatDetected);
+    serverWaitGuard.wait();
+
+    threatReporterSocket.sendThreatDetection(threatDetected);
+    serverWaitGuard2.wait();
+
+    threatReporterServer.requestStop();
+    threatReporterServer.join();
+}
