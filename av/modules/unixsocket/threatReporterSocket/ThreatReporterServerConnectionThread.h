@@ -15,10 +15,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cstdint>
 #include <string>
 #include <unixsocket/IMessageCallback.h>
+#include "unixsocket/BaseServerConnectionThread.h"
 
 namespace unixsocket
 {
-    class ThreatReporterServerConnectionThread : public Common::Threads::AbstractThread
+    class ThreatReporterServerConnectionThread : public BaseServerConnectionThread
     {
     public:
         ThreatReporterServerConnectionThread(const ThreatReporterServerConnectionThread&) = delete;

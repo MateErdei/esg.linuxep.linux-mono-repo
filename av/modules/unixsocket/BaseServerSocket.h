@@ -57,6 +57,21 @@ namespace unixsocket
 
         bool handleConnection(int fd) override
         {
+            // first, tidy up any stale threads
+            for (auto it = m_threadVector.begin(); it != m_threadVector.end(); )
+            {
+                TPtr& thread = *it;
+                if ( ! thread->isRunning() )
+                {
+                    thread->join();
+                    it = m_threadVector.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+
             auto thread = std::make_unique<T>(fd, m_callback);
             thread->start();
             m_threadVector.emplace_back(std::move(thread));

@@ -14,10 +14,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cstdint>
 #include <string>
 #include <unixsocket/IMessageCallback.h>
+#include "unixsocket/BaseServerConnectionThread.h"
 
 namespace unixsocket
 {
-    class ScanningServerConnectionThread : public Common::Threads::AbstractThread
+    class ScanningServerConnectionThread : public BaseServerConnectionThread
     {
     public:
         ScanningServerConnectionThread(const ScanningServerConnectionThread&) = delete;

@@ -116,6 +116,7 @@ static std::string parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& b
 
 void unixsocket::ScanningServerConnectionThread::run()
 {
+    m_isRunning = true;
     announceThreadStarted();
 
     datatypes::AutoFd socket_fd(std::move(m_fd));
@@ -158,7 +159,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             if (length < 0)
             {
                 PRINT("Aborting connection: failed to read length");
-                return;
+                break;
             }
 
             if (length == 0)
@@ -178,7 +179,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             if (bytes_read != length)
             {
                 PRINT("Aborting connection: failed to read capn proto");
-                return;
+                break;
             }
 
             PRINT("Read capn of " << bytes_read);
@@ -192,7 +193,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             if (file_fd < 0)
             {
                 PRINT("Aborting connection: failed to read fd");
-                return;
+                break;
             }
             PRINT("Managed to get file descriptor: " << file_fd);
 
@@ -210,6 +211,8 @@ void unixsocket::ScanningServerConnectionThread::run()
             }
         }
     }
+
+    m_isRunning = false;
 }
 
 scan_messages::ScanResponse
