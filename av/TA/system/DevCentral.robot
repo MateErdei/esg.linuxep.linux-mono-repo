@@ -19,6 +19,9 @@ Install Base And Plugin Without Register
     Install With Base SDDS
     ## MCS router stopped
 
+Create Eicar
+    [Arguments]  ${path}
+    Create File      ${path}    ${EICAR_STRING}
 
 *** Test Cases ***
 
