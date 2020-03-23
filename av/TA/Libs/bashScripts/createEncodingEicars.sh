@@ -159,6 +159,7 @@ if [ -x "$XXD" ] ; then
     echo "${path}"
     echoEicar > "${path}"
 
+
 else
     echo "*** No xxd" >&2
 fi
