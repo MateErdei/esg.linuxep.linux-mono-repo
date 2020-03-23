@@ -105,7 +105,7 @@ class CentralConnector(object):
 
         TMPROOT = self.__tmp_root()
         try:
-            with open(os.path.join(TMPROOT, "cloud_tokens.txt"), "rb") as infile:
+            with open(os.path.join(TMPROOT, "cloud_tokens.txt"), "r") as infile:
                 session_data = json.load(infile)
             if session_data['host'] == self.__m_url and session_data['credential'] == credential:
                 self.default_headers['X-Hammer-Token'] = session_data['hammer_token']
@@ -228,13 +228,14 @@ class CentralConnector(object):
         ## save the pertinent session data for reuse by subsequent cloudClient calls
         session_data = {
             'host': self.host,
-            'credential': credential,
+            'credential': credential.decode("UTF-8"),
             'hammer_token': hammer_token,
             'csrf_token': csrf_token,
             'upe_url': self.upe_api,
         }
+        logger.debug("session_data: {}".format(repr(session_data)))
         TMPROOT = self.__tmp_root()
-        with open(os.path.join(TMPROOT, "cloud_tokens.txt"), "wb") as outfile:
+        with open(os.path.join(TMPROOT, "cloud_tokens.txt"), "w") as outfile:
             json.dump(session_data, outfile)
 
         #~ logger.debug(session_data)
@@ -257,6 +258,10 @@ class CentralConnector(object):
         return version
 
     def getRegistrationCommand(self):
+        if self.upe_api is None:
+            self.login()
+
+        assert self.upe_api is not None
         #https://amzn-eu-west-1-f9b7.api-upe.d.hmr.sophos.com/frontend/api/deployment/agent/locations?transports=endpoint_mcs
         url = self.upe_api + "/deployment/agent/locations?transports=endpoint_mcs"
         request = urllib.request.Request(url, headers=self.default_headers)
@@ -269,6 +274,9 @@ class CentralConnector(object):
 
     def get_token_and_url_for_registration(self):
         command = self.getRegistrationCommand()
+        logger.info("Registration command: {}".format(command))
         parts = command.split(" ")
         assert len(parts) > 2
-        return parts[-2], parts[-1]
+        token = parts[-2]
+        logger.info("Token: {}".format(token))
+        return token, parts[-1]

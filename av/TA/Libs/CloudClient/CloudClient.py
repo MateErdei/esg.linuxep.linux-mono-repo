@@ -4,6 +4,7 @@
 # All rights reserved.
 
 import os
+import shutil
 import subprocess
 
 try:
@@ -14,12 +15,21 @@ except ImportError:
     import SophosRobotSupport
 
 try:
+    from .. import PathManager
+except ImportError:
+    from Libs import PathManager
+
+try:
     from robot.api import logger
     logger.warning = logger.warn
 except ImportError:
     import logging
     logger = logging.getLogger(__name__)
 
+
+DEV = "DEV"
+QA = "QA"
+PROD = "PROD"
 
 class CloudClient(object):
     def __init__(self):
@@ -48,6 +58,19 @@ class CloudClient(object):
         logger.info("Central Version {}".format(v))
         return v
 
+    def __install_certificate_for_region(self, SOPHOS_INSTALL):
+        OVERRIDE_FLAG_FILE = os.path.join(SOPHOS_INSTALL, "base/mcs/certs/ca_env_override_flag")
+        open(OVERRIDE_FLAG_FILE, "w").close()
+        resources = PathManager.get_resources_path()
+        cert = None
+        if self.__m_region == DEV:
+            cert = os.path.join(resources, "certs/hmr-dev-sha1.pem")
+
+        if cert is not None:
+            dest = os.path.join(SOPHOS_INSTALL, "test-mcs-ca.pem")
+            shutil.copy(cert, dest)
+            os.environ['MCS_CA'] = dest
+
     def register_in_central(self, token=None, url=None):
         """
         exec ${SOPHOS_INSTALL}/base/bin/registerCentral "${MCS_TOKEN}" "${MCS_URL}"
@@ -61,7 +84,18 @@ class CloudClient(object):
         if token is None:
             token, url = self.__m_connector.get_token_and_url_for_registration()
 
-        SOPHOS_INSTALL = SophosRobotSupport.get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
-        register_central = os.path.join(SOPHOS_INSTALL, "base", "bin", "registerCentral")
-        subprocess.check_call([register_central, token, url])
+        assert token is not None
+        assert url is not None
 
+        SOPHOS_INSTALL = SophosRobotSupport.get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
+        assert SOPHOS_INSTALL is not None
+        register_central = os.path.join(SOPHOS_INSTALL, "base", "bin", "registerCentral")
+
+        self.__install_certificate_for_region(SOPHOS_INSTALL)
+
+        # subprocess.run added in python 3.5, rework if we need to support an older version
+        result = subprocess.run([register_central, token, url], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if result.returncode != 0:
+            logger.error("register_central failed: return={}".format(result.returncode))
+            logger.error("output: {}".format(result.stdout))
+        result.check_returncode()  # throws if the command failed

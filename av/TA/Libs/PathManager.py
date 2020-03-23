@@ -34,29 +34,15 @@ def are_basenames_in_directory(directory_to_check, basenames, callback_to_verify
                 raise AssertionError("{} exists but did not return true when passed to {}".format(path_to_check, callback_to_verify_paths))
     return True
 
-def find_local_component_dir_path(component_dirname):
-    dir_path = os.path.dirname(THIS_FILE_PATH)
-    #loops until "component_dirname" is in directory pointed to by dir_path
-    while not are_basenames_in_directory(dir_path, [component_dirname]):
-        dir_path = os.path.dirname(dir_path)
-        if dir_path == "/":
-            logger.info("Failed to find {} dir, recursed till reached root".format(component_dirname))
-            return None
-    return os.path.join(dir_path, component_dirname)
-    
 
-def find_local_base_dir_path():
-    return find_local_component_dir_path("everest-base")
-
-
-def libs_supportfiles_and_tests_are_here(dir_path):
+def _expected_directories_are_here(dir_path):
     return are_basenames_in_directory(dir_path, ["Libs", "component", "integration", "resources"])
 
 
 def get_TA_dir():
     dir_path = os.path.dirname(THIS_FILE_PATH)
     # go up the directory structure until we have the right directory
-    while not libs_supportfiles_and_tests_are_here(dir_path):
+    while not _expected_directories_are_here(dir_path):
         dir_path = os.path.dirname(dir_path)
         if dir_path == "/":
             raise AssertionError("Failed to find TA dir, recursed till reached root")
