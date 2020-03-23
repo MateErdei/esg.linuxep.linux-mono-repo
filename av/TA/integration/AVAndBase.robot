@@ -29,6 +29,14 @@ AV plugin Can Start sophos_threat_detector
 
 AV plugin runs scan now
     Check AV Plugin Installed With Base
+    Configure scan now
+    Check scan now
+
+Av plugin runs scan now twice
+    Check AV Plugin Installed With Base
+    Configure scan now
+    Check scan now
+    Mark AV Log
     Check scan now
 
 AV plugin fails scan now if no policy
@@ -189,9 +197,11 @@ Check avscanner not in /usr/local/bin
 Run plugin uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
 
-Check scan now
+Configure scan now
     Send Sav Policy To Base  SAV_Policy_Scan_Now.xml
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+
+Check scan now
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until AV Plugin Log Contains  Completed scan Scan Now
     AV Plugin Log Contains  Starting Scan Now scan

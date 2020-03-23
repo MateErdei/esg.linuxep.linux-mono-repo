@@ -42,9 +42,27 @@ Check sophos_threat_detector Running
 Check AV Plugin Running
     Check Plugin Running
 
-File Log Contains
-    [Arguments]  ${path}  ${input}
+Count File Log Lines
+    [Arguments]  ${path}
     ${content} =  Get File   ${path}
+    ${count} =  Get Line Count   ${content}
+    [Return]   ${count}
+
+Count AV Log Lines
+    ${count} =  Count File Log Lines   ${AV_LOG_PATH}
+    [Return]   ${count}
+
+Mark AV Log
+    ${count} =  Count AV Log Lines
+    Set Test Variable   ${AV_LOG_MARK}  ${count}
+    Log  "AV LOG MARK = ${AV_LOG_MARK}"
+
+File Log Contains
+    [Arguments]  ${path}  ${input}  ${offset}=0
+    ${content} =  Get File   ${path}
+    Log   "Skipping ${offset} lines"
+    @{lines} =  Split To Lines   ${content}  ${offset}
+    ${content} =  Catenate  SEPARATOR=\n  @{lines}
     Should Contain  ${content}  ${input}
 
 File Log Should Not Contain
@@ -70,7 +88,8 @@ File Log Does Not Contain
 
 AV Plugin Log Contains
     [Arguments]  ${input}
-    File Log Contains  ${AV_LOG_PATH}   ${input}
+    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
+    File Log Contains  ${AV_LOG_PATH}   ${input}   offset=${offset}
 
 Wait Until AV Plugin Log Contains
     [Arguments]  ${input}  ${timeout}=15
