@@ -9,20 +9,20 @@ import six
 
 PY2 = sys.version_info[0] == 2
 
-PY2_7_9_PLUS = ( sys.version_info[0] == 2 and
-                    ( sys.version_info[1] > 7
-                     or
-                      ( sys.version_info[1] == 7 and sys.version_info[2] >= 9 ) ) )
+PY2_7_9_PLUS = (sys.version_info[0] == 2 and
+                (sys.version_info[1] > 7
+                 or
+                 (sys.version_info[1] == 7 and sys.version_info[2] >= 9)))
 
 PY3 = sys.version_info[0] >= 3
 
-VERBOSE=False
+VERBOSE = False
 
 DEFAULT_CIPHERS = (
- 'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:'
- 'ECDH+HIGH:DH+HIGH:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+HIGH:'
- 'RSA+3DES:ECDH+RC4:DH+RC4:RSA+RC4:-aNULL:-eNULL:-EXP:-MD5:RSA+RC4+MD5'
- )
+    'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:'
+    'ECDH+HIGH:DH+HIGH:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+HIGH:'
+    'RSA+3DES:ECDH+RC4:DH+RC4:RSA+RC4:-aNULL:-eNULL:-EXP:-MD5:RSA+RC4+MD5'
+)
 
 import os
 import json
@@ -35,14 +35,21 @@ except ImportError:
     import SophosRobotSupport
 
 try:
-	# for Python 3
-	import urllib.parse as urlparse
+    # for Python 3
+    import urllib.parse as urlparse
 except ImportError:
-	# for Python 2
-	import urlparse
+    # for Python 2
+    import urlparse
 
 import logging
-logger = logging.getLogger(__name__)
+
+try:
+    from robot.api import logger
+
+    logger.warning = logger.warn
+except ImportError:
+    logger = logging.getLogger(__name__)
+
 log = logging.getLogger('Patch')
 
 socket.setdefaulttimeout(60)
@@ -59,6 +66,7 @@ try:
 except ImportError:
     pass
 
+
 def wrap_ssl_socket(hostname=None):
     ## monkey patch to prevent sslv2 usage
 
@@ -66,21 +74,23 @@ def wrap_ssl_socket(hostname=None):
     def sslwrap(func, hostname=None):
         @wraps(func)
         def bar(*args, **kw):
-            print("in sslwrap() host=",hostname, file=sys.stderr)
+            print("in sslwrap() host=", hostname, file=sys.stderr)
             if PY2_7_9_PLUS:
                 kw['ssl_version'] = ssl.PROTOCOL_TLSv1_2
             else:
                 kw['ssl_version'] = ssl.PROTOCOL_TLSv1
-            #~ print
-            #~ kw['server_hostname'] = hostname
+            # ~ print
+            # ~ kw['server_hostname'] = hostname
             return func(*args, **kw)
+
         return bar
 
-    #~ print("wrap_ssl_socket hostname=%s"%str(hostname), file=sys.stderr)
+    # ~ print("wrap_ssl_socket hostname=%s"%str(hostname), file=sys.stderr)
     ssl.wrap_socket = sslwrap(ssl.wrap_socket, hostname)
 
     if PY2:
         ssl._create_default_https_context = ssl._create_unverified_context
+
 
 def host(hostname=None):
     if hostname is None:
@@ -88,19 +98,22 @@ def host(hostname=None):
 
     return hostname.split(".")[0]
 
+
 cloud_urllib2_opener = None
-URLLIB2_HANDLERS=[]
+URLLIB2_HANDLERS = []
+
 
 def _add_handler(handler):
     global URLLIB2_HANDLERS
     global cloud_urllib2_opener
 
-    URLLIB2_HANDLERS.append( handler )
-    #~ handlers.sort(key=lambda h: h.handler_order)
+    URLLIB2_HANDLERS.append(handler)
+    # ~ handlers.sort(key=lambda h: h.handler_order)
     URLLIB2_HANDLERS.sort()
     cloud_urllib2_opener = six.moves.urllib.request.build_opener(*URLLIB2_HANDLERS)
     six.moves.urllib.request.install_opener(cloud_urllib2_opener)
     return cloud_urllib2_opener
+
 
 class SophosPasswordManager(six.moves.urllib.request.HTTPPasswordMgr):
     def setUserPassword(self, user, password):
@@ -108,15 +121,16 @@ class SophosPasswordManager(six.moves.urllib.request.HTTPPasswordMgr):
         self.m_password = password
 
     def find_user_password(self, realm, authuri):
-        return self.m_user,self.m_password
+        return self.m_user, self.m_password
 
-class SophosProxyDigestAuthHandler(six.moves.urllib.request.BaseHandler, six.moves.urllib.request.AbstractDigestAuthHandler):
 
+class SophosProxyDigestAuthHandler(six.moves.urllib.request.BaseHandler,
+                                   six.moves.urllib.request.AbstractDigestAuthHandler):
     auth_header = 'Proxy-Authorization'
     handler_order = 490  # before Basic auth
 
     def http_error_407(self, req, fp, code, msg, headers):
-        #~ logger.debug("DIGEST http_error_407 %d",code)
+        # ~ logger.debug("DIGEST http_error_407 %d",code)
         host = req.get_host()
         retry = self.http_error_auth_reqed('proxy-authenticate',
                                            host, req, headers)
@@ -188,19 +202,20 @@ class SophosProxyDigestAuthHandler(six.moves.urllib.request.BaseHandler, six.mov
             base += ', qop=auth, nc=%s, cnonce="%s"' % (ncvalue, cnonce)
         return base
 
-class SophosProxyBasicAuthHandler(six.moves.urllib.request.AbstractBasicAuthHandler, six.moves.urllib.request.BaseHandler):
 
+class SophosProxyBasicAuthHandler(six.moves.urllib.request.AbstractBasicAuthHandler,
+                                  six.moves.urllib.request.BaseHandler):
     auth_header = 'Proxy-authorization'
 
     def http_error_407(self, req, fp, code, msg, headers):
-        #~ logger.debug("BASIC http_error_407 %d",code)
+        # ~ logger.debug("BASIC http_error_407 %d",code)
         # http_error_auth_reqed requires that there is no userinfo component in
         # authority.  Assume there isn't one, since urllib2 does not (and
         # should not, RFC 3986 s. 3.2.1) support requests for URLs containing
         # userinfo.
         authority = req.get_host()
         response = self.http_error_auth_reqed('proxy-authenticate',
-                                          authority, req, headers)
+                                              authority, req, headers)
         return response
 
 
@@ -210,7 +225,8 @@ class ProxyTunnelError(six.moves.http_client.HTTPException):
 
     def __str__(self):
         return "ProxyTunnelError(HTTPResponse(code=%d, reason=%s))" % (
-                self.response.status, self.response.reason)
+            self.response.status, self.response.reason)
+
 
 def set_proxy(proxy=None, username=None, password=None):
     if proxy == "":
@@ -222,101 +238,107 @@ def set_proxy(proxy=None, username=None, password=None):
     if proxy is None:
         return
 
-    logger.debug('proxy: %s',proxy)
-    _add_handler( six.moves.urllib.request.ProxyHandler({"http":proxy, "https":proxy}) )
+    logger.debug('proxy: %s', proxy)
+    _add_handler(six.moves.urllib.request.ProxyHandler({"http": proxy, "https": proxy}))
 
     if username is None:
         parts = six.moves.urllib.parse.urlparse(proxy)
-        #~ logger.critical("%s",parts.netloc)
+        # ~ logger.critical("%s",parts.netloc)
         if "@" in parts.netloc:
-            #~ logger.critical("2 %s",parts.netloc)
-            usernamepassword = parts.netloc.split("@",1)[0]
-            #~ logger.critical("%s",usernamepassword)
+            # ~ logger.critical("2 %s",parts.netloc)
+            usernamepassword = parts.netloc.split("@", 1)[0]
+            # ~ logger.critical("%s",usernamepassword)
             if ":" in usernamepassword:
-                #~ logger.critical("2 %s",usernamepassword)
-                username,password = usernamepassword.split(":",1)
+                # ~ logger.critical("2 %s",usernamepassword)
+                username, password = usernamepassword.split(":", 1)
             else:
                 username = usernamepassword
                 password = ""
 
     if username is not None:
-        logger.debug("Using proxy authentication: %s password=%s",username,password)
+        logger.debug("Using proxy authentication: %s password=%s", username, password)
         passwordManager = SophosPasswordManager()
-        passwordManager.setUserPassword(username,password)
-        _add_handler( SophosProxyBasicAuthHandler(passwordManager) )
-        cloud_urllib2_opener = _add_handler( SophosProxyDigestAuthHandler(passwordManager) )
-        #~ logger.debug("%s",str(cloud_urllib2_opener))
-        #~ logger.debug("%s",str(cloud_urllib2_opener.handlers))
+        passwordManager.setUserPassword(username, password)
+        _add_handler(SophosProxyBasicAuthHandler(passwordManager))
+        cloud_urllib2_opener = _add_handler(SophosProxyDigestAuthHandler(passwordManager))
+        # ~ logger.debug("%s",str(cloud_urllib2_opener))
+        # ~ logger.debug("%s",str(cloud_urllib2_opener.handlers))
+
 
 class SophosSSLContext(ssl.SSLContext):
     def wrap_socket(self, sock, server_side=False,
                     do_handshake_on_connect=True,
                     suppress_ragged_eofs=True,
                     server_hostname=None):
-        #~ print("SophosSSLContext.wrap_socket sock=%s server_side=%s \n do_handshake_on_connect=%s suppress_ragged_eofs=%s server_hostname=%s"%(
-                #~ str(sock),
-                #~ str(server_side),
-                #~ str(do_handshake_on_connect),
-                #~ str(suppress_ragged_eofs),
-                #~ str(server_hostname)
-            #~ ), file=sys.stderr)
-        #~ import pdb; pdb.set_trace()
-        s = super(SophosSSLContext,self).wrap_socket(sock, server_side,
-                    False,
-                    suppress_ragged_eofs,
-                    server_hostname)
+        # ~ print("SophosSSLContext.wrap_socket sock=%s server_side=%s \n do_handshake_on_connect=%s suppress_ragged_eofs=%s server_hostname=%s"%(
+        # ~ str(sock),
+        # ~ str(server_side),
+        # ~ str(do_handshake_on_connect),
+        # ~ str(suppress_ragged_eofs),
+        # ~ str(server_hostname)
+        # ~ ), file=sys.stderr)
+        # ~ import pdb; pdb.set_trace()
+        s = super(SophosSSLContext, self).wrap_socket(sock, server_side,
+                                                      False,
+                                                      suppress_ragged_eofs,
+                                                      server_hostname)
         if do_handshake_on_connect:
             try:
                 s.do_handshake()
             except Exception as e:
-                print("Exception=",e,type(e),file=sys.stderr)
+                print("Exception=", e, type(e), file=sys.stderr)
                 raise
         return s
 
+
 G_SSL_CONTEXT = SophosSSLContext(ssl.PROTOCOL_TLSv1)
+
 
 def getDefaultCAfile():
     TMPROOT = SophosRobotSupport.TMPROOT()
-    PLATFORM=os.environ.get("PLATFORM", "linux")
+    PLATFORM = os.environ.get("PLATFORM", "linux")
 
-    DISTDIR=os.environ.get("DISTDIR",TMPROOT+"/sophos-av")
+    DISTDIR = os.environ.get("DISTDIR", TMPROOT + "/sophos-av")
     platform = PLATFORM
-    ca_file = os.path.join(DISTDIR,"sav-%s"%(platform),"common", "engine","mcs_rootca.crt")
+    ca_file = os.path.join(DISTDIR, "sav-%s" % (platform), "common", "engine", "mcs_rootca.crt")
     if os.path.isfile(ca_file):
         return ca_file
     return None
 
+
 def loadCA(context):
     context.load_default_certs()
-    ca_file = os.environ.get("CAFILE",getDefaultCAfile())
+    ca_file = os.environ.get("CAFILE", getDefaultCAfile())
     if ca_file is not None and os.path.isfile(ca_file):
         context.load_verify_locations(cafile=ca_file)
         if VERBOSE:
-            print("Loading ca_file=%s"%ca_file, file=sys.stderr)
+            print("Loading ca_file=%s" % ca_file, file=sys.stderr)
         return True
     else:
-        print("Not loading ca_file=%s"%ca_file, file=sys.stderr)
+        print("Not loading ca_file=%s" % ca_file, file=sys.stderr)
         return False
+
 
 class CloudHTTPSHandler(six.moves.urllib.request.HTTPSHandler):
     def https_open(self, req):
-        #~ print("CloudHTTPSHandler.https_open(%s)"%str(req),file=sys.stderr)
+        # ~ print("CloudHTTPSHandler.https_open(%s)"%str(req),file=sys.stderr)
         try:
             return self.do_open(six.moves.http_client.HTTPSConnection, req)
         except ProxyTunnelError as e:
-            #~ logger.exception("ProxyTunnelError %s",str(e.response.status))
+            # ~ logger.exception("ProxyTunnelError %s",str(e.response.status))
             if e.response.status == 407:
                 fp = socket._fileobject(e.response, close=True)
                 resp = six.moves.urllib.response.addinfourl(fp,
-                                         e.response.msg,
-                                         req.get_full_url())
+                                                            e.response.msg,
+                                                            req.get_full_url())
                 return self.parent.error('https', req, resp,
-                        e.response.status, e.response.reason,
-                        resp.info())
+                                         e.response.status, e.response.reason,
+                                         resp.info())
             else:
                 raise six.moves.urllib.error.HTTPError(req.get_full_url(),
-                        e.response.status, e.response.reason,
-                        e.response.msg, e.response.fp)
+                                                       e.response.status, e.response.reason,
+                                                       e.response.msg, e.response.fp)
+
 
 ##########################################################################################
 
@@ -324,14 +346,15 @@ if PY2:
 
     _MAXLINE = six.moves.http_client._MAXLINE
 
+
     def _tunnel(self):
         connect = ["CONNECT %s:%d HTTP/1.0\r\n" % (self._tunnel_host, self._tunnel_port)]
         for header, value in six.iteritems(self._tunnel_headers):
             connect.append("%s: %s\r\n" % (header, value))
         connect.append("\r\n")
         self.send("".join(connect))
-        response = self.response_class(self.sock, strict = self.strict,
-                                       method = self._method)
+        response = self.response_class(self.sock, strict=self.strict,
+                                       method=self._method)
 
         response.begin()
 
@@ -347,9 +370,11 @@ if PY2:
             raise socket.error("Tunnel connection failed: %d %s" % (response.status,
                                                                     response.reason))
 
+
     six.moves.http_client.HTTPConnection._tunnel = _tunnel
 
-    #~ pass
+    # ~ pass
+
 
 ##########################################################################################
 ##########################################################################################
@@ -358,11 +383,11 @@ if PY2:
 def set_ssl_context(verify=True):
     global G_SSL_CONTEXT
     context = G_SSL_CONTEXT
-    context.set_ciphers(DEFAULT_CIPHERS) ## Allow MD5
+    context.set_ciphers(DEFAULT_CIPHERS)  ## Allow MD5
 
     if ssl.HAS_SNI and verify:
         context.verify_mode = ssl.CERT_REQUIRED
-        #~ context.verify_mode = ssl.CERT_OPTIONAL
+        # ~ context.verify_mode = ssl.CERT_OPTIONAL
         context.check_hostname = True
 
     else:
@@ -375,9 +400,10 @@ def set_ssl_context(verify=True):
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE
 
-    #~ print("context=%s"%(str(dir(context))), file=sys.stderr)
+    # ~ print("context=%s"%(str(dir(context))), file=sys.stderr)
     ##  debuglevel=2,
-    _add_handler( CloudHTTPSHandler(context=context ) )
+    _add_handler(CloudHTTPSHandler(context=context))
+
 
 def getRequestData(request):
     try:
@@ -385,26 +411,29 @@ def getRequestData(request):
     except AttributeError:
         return request.get_data()
 
+
 def json_loads(text):
     assert text is not None, "Trying to load None as Json"
 
     try:
         return json.loads(text)
     except ValueError as e:
-        print("Failed to decode text as json: "+str(e),file=sys.stderr)
-        print("Head to text:"+text[:1000],file=sys.stderr)
-        print("Tail to text:"+text[-1000:],file=sys.stderr)
+        print("Failed to decode text as json: " + str(e), file=sys.stderr)
+        print("Head to text:" + text[:1000], file=sys.stderr)
+        print("Tail to text:" + text[-1000:], file=sys.stderr)
         raise
     except TypeError as e:
-        print("Failed to decode text as json: "+str(e),file=sys.stderr)
+        print("Failed to decode text as json: " + str(e), file=sys.stderr)
         raise
 
+
 GL_COOKIE_JAR = None
+
 
 def getCookies():
     global GL_COOKIE_JAR
 
-    TMPROOT=SophosRobotSupport.TMPROOT()
+    TMPROOT = SophosRobotSupport.TMPROOT()
     GL_COOKIE_JAR = LWPCookieJar(os.path.join(TMPROOT, "cloud_cookies.txt"))
     try:
         GL_COOKIE_JAR.load(ignore_discard=True)
@@ -413,16 +442,18 @@ def getCookies():
         GL_COOKIE_JAR.save()
     _add_handler(six.moves.urllib.request.HTTPCookieProcessor(GL_COOKIE_JAR))
 
+
 getCookies()
+
 
 def raw_request_url(request, verbose=True):
     try:
         if VERBOSE or verbose:
-            print("{method}ing {url}".format(url=request.get_full_url(), method=request.get_method()),file=sys.stderr)
-            #~ print("%s %s"%(str(request),str(dir(request))),file=sys.stderr)
-            #~ GL_COOKIE_JAR.add_cookie_header(request) ## include a Cookie: header in the dump
-            #~ for (name,value) in request.header_items():
-                #~ print("\t%s : %s"%(name,value),file=sys.stderr)
+            logger.debug("{method}ing {url}".format(url=request.get_full_url(), method=request.get_method()))
+            # ~ print("%s %s"%(str(request),str(dir(request))),file=sys.stderr)
+            # ~ GL_COOKIE_JAR.add_cookie_header(request) ## include a Cookie: header in the dump
+            # ~ for (name,value) in request.header_items():
+            # ~ print("\t%s : %s"%(name,value),file=sys.stderr)
         data = getRequestData(request)
         if data is not None:
             try:
@@ -431,38 +462,41 @@ def raw_request_url(request, verbose=True):
             except ValueError:
                 pass
             if VERBOSE or verbose:
-                print("data: {}".format(data),file=sys.stderr)
+                logger.debug("data: {}".format(data))
         response = cloud_urllib2_opener.open(request)
         return response
     except six.moves.urllib.error.HTTPError as e:
         body = e.read()
-        print('HTTP Error {code}: {reason}'.format(code=e.code, reason=e.reason),file=sys.stderr)
-        print("Body: {body}".format(body=body),file=sys.stderr)
+        print('HTTP Error {code}: {reason}'.format(code=e.code, reason=e.reason), file=sys.stderr)
+        print("Body: {body}".format(body=body), file=sys.stderr)
         e.body = body
         raise
     except six.moves.urllib.error.URLError as e:
-        print('URL Error {reason}'.format(reason=e.reason),file=sys.stderr)
+        print('URL Error {reason}'.format(reason=e.reason), file=sys.stderr)
         raise
     except ssl.SSLError as e:
-        print('SSL Error {reason}'.format(reason=str(e)),file=sys.stderr)
+        print('SSL Error {reason}'.format(reason=str(e)), file=sys.stderr)
         raise
     except socket.error as e:
-        print('Socket Error {reason}'.format(reason=str(e)),file=sys.stderr)
+        print('Socket Error {reason}'.format(reason=str(e)), file=sys.stderr)
         raise
     except EnvironmentError as e:
-        print('EnvironmentError {reason}'.format(reason=str(e)),file=sys.stderr)
+        print('EnvironmentError {reason}'.format(reason=str(e)), file=sys.stderr)
         raise
     finally:
         ## can we get updated cookies from a 4xx response?
         GL_COOKIE_JAR.save(ignore_discard=True)
+
 
 def request_url(request, verbose=True):
     response = raw_request_url(request, verbose)
     body = response.read().decode('UTF-8')
     return body
 
+
 def main(argv):
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

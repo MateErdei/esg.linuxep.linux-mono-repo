@@ -3,10 +3,15 @@
 # Copyright (C) 2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import os
+import subprocess
+
 try:
     from . import CentralConnector
+    from . import SophosRobotSupport
 except ImportError:
     import CentralConnector
+    import SophosRobotSupport
 
 try:
     from robot.api import logger
@@ -42,3 +47,21 @@ class CloudClient(object):
         v = self.__m_connector.getCloudVersion()
         logger.info("Central Version {}".format(v))
         return v
+
+    def register_in_central(self, token=None, url=None):
+        """
+        exec ${SOPHOS_INSTALL}/base/bin/registerCentral "${MCS_TOKEN}" "${MCS_URL}"
+        :param token: None means get from Central
+        :param url:
+        :return:
+        """
+        if url is None and token is not None:
+            raise Exception("Inconsistent arguments, token not None and url is None")
+
+        if token is None:
+            token, url = self.__m_connector.get_token_and_url_for_registration()
+
+        SOPHOS_INSTALL = SophosRobotSupport.get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
+        register_central = os.path.join(SOPHOS_INSTALL, "base", "bin", "registerCentral")
+        subprocess.check_call([register_central, token, url])
+

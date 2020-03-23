@@ -5,6 +5,8 @@ Library         ../Libs/CloudClient/CloudClient.py
 Library         OperatingSystem
 Library         String
 
+Resource        ../shared/AVResources.robot
+
 Suite Setup     No Operation
 Suite Teardown  No Operation
 
@@ -13,13 +15,18 @@ Test Teardown   No Operation
 
 *** Keywords ***
 
+Install Base And Plugin Without Register
+    Install With Base SDDS
+    ## MCS router stopped
+
+
 *** Test Cases ***
 
 Scan now from Central and Verify Scan Completed and Eicar Detected
     Select Central Region  DEV
     get central version
     Install Base And Plugin Without Register
-    Register With Central
+    Register In Central
     Configure exclusions in Central
     Create Eicar
     Wait For exclusion configuration on endpoint

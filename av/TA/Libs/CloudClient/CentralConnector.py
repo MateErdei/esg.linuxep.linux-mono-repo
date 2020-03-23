@@ -75,8 +75,10 @@ class HostMissingException(CloudClientException):
 class Options(object):
     pass
 
+
 class CentralConnector(object):
     def __init__(self, region):
+        self.upe_api = None
         self.__m_region = region
         self.__m_url = _getUrl(region)
         self.__m_username = _getUsername(region)
@@ -84,7 +86,7 @@ class CentralConnector(object):
         self.default_headers = {}
         self.__m_my_hostname = _get_my_hostname()
 
-        ## To match regression suite cloudClient.py
+        # To match regression suite cloudClient.py
         self.options = Options()
         self.options.email = self.__m_username
         self.options.password = self.__m_password
@@ -253,3 +255,20 @@ class CentralConnector(object):
         if not version:
             raise Exception("Sophos Central Version not found in markup at /dashboard")
         return version
+
+    def getRegistrationCommand(self):
+        #https://amzn-eu-west-1-f9b7.api-upe.d.hmr.sophos.com/frontend/api/deployment/agent/locations?transports=endpoint_mcs
+        url = self.upe_api + "/deployment/agent/locations?transports=endpoint_mcs"
+        request = urllib.request.Request(url, headers=self.default_headers)
+        response = self.__retry_request_url(request)
+        response = json_loads(response)
+        for platform in response:
+            if platform['platform'] == "Linux" and platform['command'] is not None:
+                return platform['command']
+        raise Exception("Failed to find command for Linux registration")
+
+    def get_token_and_url_for_registration(self):
+        command = self.getRegistrationCommand()
+        parts = command.split(" ")
+        assert len(parts) > 2
+        return parts[-2], parts[-1]
