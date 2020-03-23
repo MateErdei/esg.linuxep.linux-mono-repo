@@ -42,14 +42,7 @@ except ImportError:
     import urlparse
 
 import logging
-
-try:
-    from robot.api import logger
-
-    logger.warning = logger.warn
-except ImportError:
-    logger = logging.getLogger(__name__)
-
+logger = logging.getLogger(__name__)
 log = logging.getLogger('Patch')
 
 socket.setdefaulttimeout(60)
@@ -441,6 +434,7 @@ def getCookies():
         # no cookie file, create a new one
         GL_COOKIE_JAR.save()
     _add_handler(six.moves.urllib.request.HTTPCookieProcessor(GL_COOKIE_JAR))
+    logger.debug("Added cookie handler")
 
 
 getCookies()
@@ -467,21 +461,21 @@ def raw_request_url(request, verbose=True):
         return response
     except six.moves.urllib.error.HTTPError as e:
         body = e.read()
-        print('HTTP Error {code}: {reason}'.format(code=e.code, reason=e.reason), file=sys.stderr)
-        print("Body: {body}".format(body=body), file=sys.stderr)
+        logger.error('HTTP Error {code}: {reason}'.format(code=e.code, reason=e.reason))
+        logger.error("Body: {body}".format(body=body))
         e.body = body
         raise
     except six.moves.urllib.error.URLError as e:
-        print('URL Error {reason}'.format(reason=e.reason), file=sys.stderr)
+        logger.error('URL Error {reason}'.format(reason=e.reason))
         raise
     except ssl.SSLError as e:
-        print('SSL Error {reason}'.format(reason=str(e)), file=sys.stderr)
+        logger.error('SSL Error {reason}'.format(reason=str(e)))
         raise
     except socket.error as e:
-        print('Socket Error {reason}'.format(reason=str(e)), file=sys.stderr)
+        logger.error('Socket Error {reason}'.format(reason=str(e)))
         raise
     except EnvironmentError as e:
-        print('EnvironmentError {reason}'.format(reason=str(e)), file=sys.stderr)
+        logger.error('EnvironmentError {reason}'.format(reason=str(e)))
         raise
     finally:
         ## can we get updated cookies from a 4xx response?

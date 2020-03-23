@@ -16,15 +16,14 @@ except ImportError:
 
 try:
     from .. import PathManager
+    from .. import AVScanner
 except ImportError:
     from Libs import PathManager
+    from Libs import AVScanner
 
-try:
-    from robot.api import logger
-    logger.warning = logger.warn
-except ImportError:
-    import logging
-    logger = logging.getLogger(__name__)
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 DEV = "DEV"
@@ -99,3 +98,11 @@ class CloudClient(object):
             logger.error("register_central failed: return={}".format(result.returncode))
             logger.error("output: {}".format(result.stdout))
         result.check_returncode()  # throws if the command failed
+
+    def configure_exclude_everything_else_in_central(self, includeDirectory):
+        exclusions = AVScanner.get_exclusion_list_for_everything_else(includeDirectory)
+        assert isinstance(exclusions, list)
+        return self.__m_connector.configure_exclusions(exclusions)
+
+    def ensure_av_policy_exists(self):
+        return self.__m_connector.ensure_av_policy_exists()

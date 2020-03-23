@@ -13,6 +13,7 @@ import time
 
 import urllib.error
 import urllib.request
+import urllib.parse
 
 try:
     from robot.api import logger
@@ -20,6 +21,8 @@ try:
 except ImportError:
     import logging
     logger = logging.getLogger(__name__)
+
+string_type = str
 
 try:
     from . import SophosHTTPSClient
@@ -30,7 +33,6 @@ except ImportError:
 
 wrap_ssl_socket = SophosHTTPSClient.wrap_ssl_socket
 set_ssl_context = SophosHTTPSClient.set_ssl_context
-_add_handler = SophosHTTPSClient._add_handler
 set_proxy = SophosHTTPSClient.set_proxy
 raw_request_url = SophosHTTPSClient.raw_request_url
 request_url = SophosHTTPSClient.request_url
@@ -139,23 +141,33 @@ class CentralConnector(object):
                 reason = e.reason
                 if e.code == 403:
                     if attempts > 1:
-                        print("403 from request - logging in", file=sys.stderr)
+                        logger.info("403 from request - logging in")
                         self.login(request)
                     else:
-                        print("403 from request - retrying", file=sys.stderr)
+                        logger.info("403 from request - retrying")
                 elif e.code == 401:
-                    print("401 from request - Cached session timed out - logging in", file=sys.stderr)
+                    logger.warning("401 from request - Cached session timed out - logging in")
                     self.login(request)
+                elif e.code == 400:
+                    logger.error("400 Error from request")
+                    logger.error("Request headers: %s" % (repr(request.headers)))
+                    logger.error("Response headers: %s" % (e.headers.as_string()))
+                    raise
+                elif e.code == 500:
+                    logger.error("500 Error from request")
+                    logger.error("Request headers: %s" % (repr(request.headers)))
+                    logger.error("Response headers: %s" % (e.headers.as_string()))
+                    raise
                 else:
                     raise
             except urllib.error.URLError as e:
                 reason = e.reason
-                print("urllib.error.URLError - retrying", file=sys.stderr)
+                logger.error("urllib.error.URLError - retrying")
                 if e.errno == errno.ECONNREFUSED:
                     delay += 5 ## Increase the delay to handle a connection refused
             except ssl.SSLError as e:
                 reason = str(e)
-                print("ssl.SSLError - retrying", file=sys.stderr)
+                logger.error("ssl.SSLError - retrying")
 
             time.sleep(delay)
             delay += 1
@@ -204,7 +216,7 @@ class CentralConnector(object):
         self.upe_api = json_response['apis']['upe']['ng_url']
         hammer_token = json_response['token']
 
-        csrf_token = json_response.get("csrf",None)
+        csrf_token = json_response.get("csrf", None)
 
         dashboard_response = None
         if csrf_token is None:
@@ -257,13 +269,15 @@ class CentralConnector(object):
             raise Exception("Sophos Central Version not found in markup at /dashboard")
         return version
 
-    def getRegistrationCommand(self):
+    def get_upe_api(self, *paths):
         if self.upe_api is None:
             self.login()
-
         assert self.upe_api is not None
+        return self.upe_api + "".join(paths)
+
+    def getRegistrationCommand(self):
         #https://amzn-eu-west-1-f9b7.api-upe.d.hmr.sophos.com/frontend/api/deployment/agent/locations?transports=endpoint_mcs
-        url = self.upe_api + "/deployment/agent/locations?transports=endpoint_mcs"
+        url = self.get_upe_api("/deployment/agent/locations?transports=endpoint_mcs")
         request = urllib.request.Request(url, headers=self.default_headers)
         response = self.__retry_request_url(request)
         response = json_loads(response)
@@ -280,3 +294,208 @@ class CentralConnector(object):
         token = parts[-2]
         logger.info("Token: {}".format(token))
         return token, parts[-1]
+
+    def __getServerPolicies(self, limit=None, offset=None, q=None):
+        url = self.get_upe_api() + "/v1/policies"
+        query = {"target": "servers"}
+        if limit is not None:
+            query["limit"] = limit
+        if offset is not None:
+            query["offset"] = offset
+        if q is not None:
+            query["q"] = q
+        if any(query):
+            url += "?" + urllib.parse.urlencode(query)
+
+        request = urllib.request.Request(url, headers=self.default_headers)
+        response = self.__retry_request_url(request)
+
+        return json_loads(response)
+
+    def __getItems(self, response):
+        return json_loads(response)["items"]
+
+    def __getServers(self, limit=None, offset=None, q=None):
+        url = self.get_upe_api() + "/servers"
+        query = {}
+        if limit is not None:
+            query["limit"] = limit
+        if offset is not None:
+            query["offset"] = offset
+        if q is not None:
+            query["q"] = q
+        if any(query):
+            url += "?" + urllib.parse.urlencode(query)
+
+        request = urllib.request.Request(url, headers=self.default_headers)
+        response = self.__retry_request_url(request)
+
+        return self.__getItems(response)
+
+    def __deletePolicy(self, policy):
+        """
+        https://api.linux.cloud.sandbox/api/policies/servers/547b186930045d1e6a9dee36
+        """
+        if isinstance(policy, string_type):
+            policyid = policy
+        else:
+            policyid = policy['id']
+
+        url = self.get_upe_api() + "/policies/servers/" + policyid
+        request = urllib.request.Request(url, headers=self.default_headers)
+        request.get_method = lambda: 'DELETE'
+        return self.__retry_request_url(request)
+
+    def __deleteDisabledOrUnappliedPoliciesAndReturnGoodOne(self, policies):
+        """
+        Iterates through policies, deleting any that are disabled, or have no endpoints assigned to them.
+        If only one remains then we return it.
+        Otherwise we throw an exception
+        """
+        goodPolicy = None
+        for policy in policies:
+            if not policy['enabled'] or \
+                    len(policy['applies_to']['endpoints']) == 0:
+                self.__deletePolicy(policy)
+                continue
+
+            logger.debug("Policy:", policy['id'], policy['category'], policy['applies_to']['endpoints'], policy)
+
+            if goodPolicy is None:
+                goodPolicy = policy
+            #~ else:
+            #~ print("Policy1:",goodPolicy['id'],goodPolicy['enabled'],goodPolicy['applies_to']['endpoints'],goodPolicy,file=sys.stderr)
+            #~ raise Exception("Multiple assigned, enabled policies of name %s found"%(policy['name']))
+
+        return goodPolicy
+
+    def __getServerPolicyByName(self, name, category="threat_protection"):
+        policies = self.__getServerPolicies(q=name)
+        logger.debug("Found %d policies: %s" %( len (policies), repr([ p['name'] for p in policies ])))
+        if len(policies) > 1:
+            policies = [ p for p in policies if p['name'] == name ]
+        if len(policies) > 1:
+            policies = [ p for p in policies if p.get("category", category) == category ]
+
+        if len(policies) == 0:
+            return None
+
+        if len(policies) > 1:
+            # Delete all policies which manage no computers
+            return self.__deleteDisabledOrUnappliedPoliciesAndReturnGoodOne(policies)
+
+        return policies[0]
+
+    def __cloneServerPolicy(self, originalname, newname, category="threat_protection"):
+        original = self.__getServerPolicyByName(originalname, category=category)
+        assert original is not None
+
+        url = self.get_upe_api() + "/v1/policies/" + original['id'] + "/clones"
+        logger.debug("Clone url: {}".format(url))
+
+        original['name'] = newname
+        original.pop("customer_id", None)
+        original.pop("last_modified", None)
+        original['expiry']['expires_at'] = "1970-01-01T00:00:00.000Z"
+
+        new_policy = {'name': newname}
+
+        data = json.dumps(original).encode('UTF-8')  # Name is ignored by server
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
+        request.add_header("content-type", "application/json;chatset=UTF-8")
+        request.add_header("accept", "application/json")
+        logger.error(repr(request.headers))
+        response = self.__retry_request_url(request)
+        return json_loads(response)
+
+    def __getServerId(self, hostname=None, expect_missing=False):
+        hostname = _get_my_hostname(hostname)
+        servers = self.__getServers(q=hostname)
+        # Below line is required if one hostname is a subset of another
+        # e.g. abelard, abelardRHEL67vm
+        servers = [ s for s in servers if s['name'] == hostname ]
+
+        if len(servers) == 0:
+            serverList = []
+            for s in self.__getServers():  # Check all servers just in case
+                serverList.append(s['name'])
+                if s['name'] == hostname:
+                    return s['id']
+            if not expect_missing:
+                logger.error("No server found with name %s, Found: [%s]" % (hostname, str(serverList)))
+            return None
+
+        if len(servers) > 1:
+            # dump all of the servers found
+            logger.error(json.dumps(servers, indent=2, sort_keys=True))
+            raise Exception("Multiple servers of name %s found: %d" % (hostname, len(servers)))
+
+        serverId = servers[0]['id']
+        return serverId
+
+    def ensure_av_policy_exists(self, hostname=None, category="threat_protection"):
+        hostname = _get_my_hostname(hostname)
+        policyname = "av"+hostname
+        policy = self.__getServerPolicyByName(policyname, category=category)
+        if policy is None or policy['name'] != policyname:
+            policy = self.__cloneServerPolicy("Base Policy", policyname, category=category)
+            assert policy is not None
+
+        return policy
+
+
+    def __ensureServerPolicy(self, hostname=None, category="threat_protection", expect_missing=False):
+        """
+        Get the server policy, and ensure it exists
+        """
+        hostname = _get_my_hostname(hostname)
+        endpointid = self.__getServerId(hostname, expect_missing=expect_missing)
+        if endpointid is None:
+            raise HostMissingException()
+
+        policyname = "av"+hostname
+        policy = self.ensure_av_policy_exists(hostname, category=category)
+        assert policy is not None
+
+        # rename and enable the new policy
+        policy['name'] = policyname
+        policy['enabled'] = True
+        policy['base'] = False
+        policy['applies_to']['endpoints'] = [endpointid]
+        policy['applies_to']['groups'] = []
+        policy['applies_to']['users'] = []
+        policy['applies_to']['domains'] = []
+        policy['category'] = category
+        policy.pop("customer_id", None)
+        policy.pop("last_modified", None)
+        policy.setdefault('expiry', {})['expires_at'] = "1970-01-01T00:00:00.000Z"
+
+        return policy
+
+    def __setServerPolicy(self, policy):
+        if 'id' in policy:
+            method = "PUT"
+            url = self.get_upe_api() + "/v1/policies/"+policy['id']
+        else:
+            method = "POST"
+            url = self.get_upe_api() + "/v1/policies"
+
+        data = json.dumps(policy).encode('UTF-8')
+        logger.info("Applying policy: %s" % data)
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
+        request.add_header("content-type", "application/json;chatset=UTF-8")
+        request.add_header("accept", "application/json")
+        request.get_method = lambda: method
+        response = self.__retry_request_url(request)
+        return json_loads(response)
+
+    def configure_exclusions(self, exclusions):
+        hostname = _get_my_hostname()
+
+        policy = self.__ensureServerPolicy(hostname)
+        assert policy is not None
+
+        path = "malware/scheduled/"
+        policy['settings'][path + "exclusions_enabled"] = len(exclusions) > 0
+        policy['settings'][path + "posix_exclusions"] = exclusions
+        return self.__setServerPolicy(policy)

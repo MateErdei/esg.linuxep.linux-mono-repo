@@ -25,10 +25,11 @@ Install Base And Plugin Without Register
 Scan now from Central and Verify Scan Completed and Eicar Detected
     Select Central Region  DEV
     get central version
+    Ensure AV Policy Exists
     Install Base And Plugin Without Register
     Register In Central
-    Configure exclusions in Central
-    Create Eicar
+    Configure Exclude everything else in Central  /tmp/testeicar/
+    Create Eicar  /tmp/testeicar/eicar.com
     Wait For exclusion configuration on endpoint
     send scan now in central
     Wait For Scan Now to start
