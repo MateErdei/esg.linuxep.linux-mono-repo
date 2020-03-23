@@ -189,7 +189,7 @@ AV Plugin Reports encoded eicars To Base
       ...  3 secs
       ...  Run Process    /usr/local/bin/avscanner  /tmp/encoded_eicars/
 
-   check_multiple_different_threat_events  55   encoded_eicars
+   check_multiple_different_threat_events  56   encoded_eicars
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin

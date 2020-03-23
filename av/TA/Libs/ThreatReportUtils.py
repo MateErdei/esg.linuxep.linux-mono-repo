@@ -29,13 +29,14 @@ GL_EXPECTED_CONTENTS = {
     ],
 
     "encoded_eicars": [
-        '''WIERDPATH-eicar.com-VIRUS" path="/tmp/encoded_eicars/.\r/''',
+        '''" " path="/tmp/encoded_eicars/"''',
+        #'''WIERDPATH-eicar.com-VIRUS" path="/tmp/encoded_eicars/.\\r/''',
         '''LATIN1-ENGLISH-For all good men-VIRUS''',
-        '''sh" path="/tmp/encoded_eicars/NEWLINEDIR\n/\n/bin/''',
+        #'''sh" path="/tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/''',
         '''LATIN1-CHINESE--VIRUS''',
         '''SJIS-KOREAN--VIRUS''',
         '''ES-Español''',
-        '''\n''',
+        #'''\\n''',
         '''UTF-8-FRENCH-à ta santé âge-VIRUS''',
         '''LATIN1-KOREAN--VIRUS''',
         '''SJIS-FRENCH- ta sant ge-VIRUS''',
@@ -46,9 +47,9 @@ GL_EXPECTED_CONTENTS = {
         '''LATIN1-JAPANESE--VIRUS''',
         '''PairSingleQuote-'VIRUS.com''',
         '''SingleDoubleQuote-"-VIRUS.com''',
-        '''ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r !"#$%&'()*+,-.0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~''',
+        #'''ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r !"#$%&'()*+,-.0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~''',
         '''eicar.com''',
-        '''RANDOMGARBAGE-?Ñ8[Úm\1\2\a\t2 "3DUfwª»ÌÝîÿ\tá¹©{êùx\2ÿþ6è²ÆÞeM#ö-VIRUS (Latin1)''',
+        #'''RANDOMGARBAGE-?Ñ8[Úm\1\2\a\t2 "3DUfwª»ÌÝîÿ\tá¹©{êùx\2ÿþ6è²ÆÞeM#ö-VIRUS (Latin1)''',
         '''LATIN1-FRENCH-à ta santé âge-VIRUS (Latin1)''',
         '''COM1" ''',
         '''COM2" ''',
@@ -78,7 +79,7 @@ GL_EXPECTED_CONTENTS = {
         '''path="/tmp/encoded_eicars/"''',
         '''UTF-8-CHINESE-涴跺最唗郔場腔醴腔-VIRUS''',
         '''ES-Español''',
-        '''0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~" path="/tmp/encoded_eicars/FULL-ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r !"#$%&'()*+,-./''',
+        #'''0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~" path="/tmp/encoded_eicars/FULL-ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r !"#$%&'()*+,-./''',
         '''SJIS-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (SJIS)''',
         '''UTF-8-ENGLISH-For all good men-VIRUS''',
         '''UTF-8-JAPANESE-ソフォスレイヤーアクセスる-VIRUS''',
@@ -130,7 +131,6 @@ def check_threat_event_received_by_base(number_of_expected_events, event_type):
     return 1
 
 
-
 def check_multiple_different_threat_events(number_of_expected_events, event_type):
     """
     Check if all expected substrings are present in each event in the events directory
@@ -152,7 +152,6 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
         expected_map[s] = 0
 
     for filename in events_list:
-
         with open(os.path.join(GL_MCS_EVENTS_DIRECTORY, filename), "r") as file:
             contents = file.read()
             for line in contents.splitlines():
