@@ -22,7 +22,7 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class TestThreatReposterSocket : public ::testing::Test
+    class TestThreatReporterSocket : public ::testing::Test
     {
     public:
         void SetUp() override
@@ -52,7 +52,7 @@ namespace
     };
 }
 
-TEST_F(TestThreatReposterSocket, TestSendThreatReport) // NOLINT
+TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
 {
     setupFakeSophosThreatReporterConfig();
     WaitForEvent serverWaitGuard;
@@ -88,7 +88,7 @@ TEST_F(TestThreatReposterSocket, TestSendThreatReport) // NOLINT
     threatReporterServer.join();
 }
 
-TEST_F(TestThreatReposterSocket, TestSendTwoThreatReports) // NOLINT
+TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
 {
     setupFakeSophosThreatReporterConfig();
     WaitForEvent serverWaitGuard;
