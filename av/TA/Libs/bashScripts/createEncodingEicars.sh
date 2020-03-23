@@ -159,17 +159,6 @@ if [ -x "$XXD" ] ; then
     echo "${path}"
     echoEicar > "${path}"
 
-    ## Using right to left override
-    PATH_HEX="6569636172e280ae7478742e636f6d"
-    path=`echo "$PATH_HEX" | xxd -r -ps`
-    echo "${path}"
-    echoEicar > "${path}"
-
-    ## Using right to left override annexe.jpg -> anngpj.exe
-    PATH_HEX="616e6ee280ae67706a2e657865"
-    path=`echo "$PATH_HEX" | xxd -r -ps`
-    echo "${path}"
-    echoEicar > "${path}"
 else
     echo "*** No xxd" >&2
 fi
