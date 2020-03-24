@@ -40,18 +40,6 @@ class CloudClient(object):
         self.__m_region = region
         self.__m_connector = CentralConnector.CentralConnector(region)
 
-    def check_machine_present_in_central(self):
-        raise AssertionError("Not implemented")
-
-    def send_scan_now_in_central(self):
-        raise AssertionError("Not implemented")
-
-    def clear_alerts_in_central(self):
-        raise AssertionError("Not implemented")
-
-    def check_eicar_reported_in_central(self):
-        raise AssertionError("Not implemented")
-
     def get_central_version(self):
         v = self.__m_connector.getCloudVersion()
         logger.info("Central Version {}".format(v))
@@ -112,3 +100,12 @@ class CloudClient(object):
 
     def assign_antivirus_product_to_endpoint_in_central(self):
         return self.__m_connector.assign_antivirus_product_to_endpoint_in_central()
+
+    def send_scan_now_in_central(self):
+        return self.__m_connector.scanNow()
+
+    def clear_alerts_in_central(self):
+        raise AssertionError("clear_alerts_in_central Not implemented")
+
+    def check_eicar_reported_in_central(self):
+        raise AssertionError("check_eicar_reported_in_central Not implemented")

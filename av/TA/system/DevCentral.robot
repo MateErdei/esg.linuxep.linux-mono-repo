@@ -38,6 +38,14 @@ Wait For File With Particular Contents
 
 Wait For exclusion configuration on endpoint
     Wait For File With Particular Contents  /boot/  ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+
+Wait For Scan Now to start
+    Wait Until AV Plugin Log Contains  Starting Scan Now scan   120
+    Wait Until AV Plugin Log Contains  Starting scan Scan Now
+
+Wait For Scan Now to complete
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now
 
 *** Test Cases ***
 

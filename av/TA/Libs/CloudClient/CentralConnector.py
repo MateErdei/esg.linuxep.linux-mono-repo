@@ -546,3 +546,14 @@ class CentralConnector(object):
         if len(response) == 0:
             return None
         return json_loads(response)
+
+    def scanNow(self, hostname=None):
+        hostname = _get_my_hostname(hostname)
+        url = self.get_upe_api() + "/action/scan_now"
+        endpointid = self.__getServerId(hostname)
+        if endpointid is None:
+            raise HostMissingException()
+        data = json.dumps({"endpoint_id": endpointid }).encode('UTF-8')
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
+        response = self.__retry_request_url(request)
+        return response
