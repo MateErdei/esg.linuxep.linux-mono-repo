@@ -29,13 +29,11 @@ AV plugin Can Start sophos_threat_detector
 
 AV plugin runs scan now
     Check AV Plugin Installed With Base
-    Configure scan now
-    Check scan now
+    Configure and check scan now
 
 Av plugin runs scan now twice
     Check AV Plugin Installed With Base
-    Configure scan now
-    Check scan now
+    Configure and check scan now
     Mark AV Log
     Check scan now
 
@@ -160,7 +158,7 @@ AV Deletes Scan Correctly
 
 Diagnose collects the correct files
     Check AV Plugin Installed With Base
-    Check scan now
+    Configure and check scan now
     Run Diagnose
     Check Diagnose Tar Created
     Check Diagnose Collects Correct AV Files
@@ -196,6 +194,10 @@ Check avscanner not in /usr/local/bin
 
 Run plugin uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
+
+Configure and check scan now
+    Configure scan now
+    Check scan now
 
 Configure scan now
     Send Sav Policy To Base  SAV_Policy_Scan_Now.xml
