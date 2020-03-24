@@ -290,6 +290,13 @@ class ThinInstallerUtils(object):
                                certs_dir=certs_dir,
                                proxy=proxy)
 
+    def run_default_thininstaller_with_different_name(self, new_filename, *args, **kwargs):
+        new_filepath = os.path.join(os.path.dirname(self.default_installsh_path), new_filename)
+        logger.info("new thin installer file path: {}".format(new_filepath))
+        shutil.move(self.default_installsh_path, new_filepath)
+        self.default_installsh_path = new_filepath 
+        self.run_default_thininstaller(*args, **kwargs)
+
     def run_real_thininstaller(self):
         cwd = os.getcwd()
         certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs", "prod_certs")

@@ -315,3 +315,8 @@ Thin Installer And SUL Library Will Successfully Connect With Server Running TLS
     Start Local Cloud Server   --tls   tlsv1_2
     Run Default Thininstaller    0    https://localhost:4443
     Check Thininstaller Log Contains    INSTALLER EXECUTED
+
+Thin Installer With Space In Name Works
+    Setup Warehouse
+    Run Default Thininstaller With Different Name    SophosSetup (1).sh    0    https://localhost:1233
+    Check Thininstaller Log Contains    INSTALLER EXECUTED
