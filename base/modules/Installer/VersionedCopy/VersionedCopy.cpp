@@ -156,7 +156,11 @@ namespace
             }
             // digits is just numbers so continue
             //        PRINT(fullDest << " -> " << target << "(digits="<<digits<<")");
-
+            auto fileSystem = Common::FileSystem::fileSystem();
+            if (fileSystem->isSymlink(fullDest))
+            {
+                fileSystem->removeFile(fullDest);
+            }
             createSymbolicLink(target, fullDest);
 
             temp = dest;
