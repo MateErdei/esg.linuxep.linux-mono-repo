@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 umask 077
 
 echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited"
@@ -7,7 +7,7 @@ echo "This software is governed by the terms and conditions of a licence agreeme
 args="$*"
 VERSION=@PRODUCT_VERSION_REPLACEMENT_STRING@
 PRODUCT_NAME="Sophos Linux Protection"
-
+INSTALL_FILE=$0
 # Display help
 if [ "x$args" = "x--help" ] || [ "x$args" = "x-h" ]
 then
@@ -348,9 +348,9 @@ echo "exit 0" > "$SOPHOS_TEMP_DIRECTORY/exectest" && chmod +x "$SOPHOS_TEMP_DIRE
 $SOPHOS_TEMP_DIRECTORY/exectest || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within $TMPDIR directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
 
 # Get line numbers for the each of the sections
-MIDDLEBIT=`awk '/^__MIDDLE_BIT__/ {print NR + 1; exit 0; }' $0`
-UC_CERTS=`awk '/^__UPDATE_CACHE_CERTS__/ {print NR + 1; exit 0; }' $0`
-ARCHIVE=`awk '/^__ARCHIVE_BELOW__/ {print NR + 1; exit 0; }' $0`
+MIDDLEBIT=`awk '/^__MIDDLE_BIT__/ {print NR + 1; exit 0; }' "${INSTALL_FILE}"`
+UC_CERTS=`awk '/^__UPDATE_CACHE_CERTS__/ {print NR + 1; exit 0; }' "${INSTALL_FILE}"`
+ARCHIVE=`awk '/^__ARCHIVE_BELOW__/ {print NR + 1; exit 0; }' "${INSTALL_FILE}"`
 
 # If we have __UPDATE_CACHE_CERTS__ section then the middle section ends there, else it ends at the ARCHIVE marker.
 if [ -n "$UC_CERTS" ]
@@ -359,13 +359,13 @@ then
     UPDATE_CACHE_CERT="${SOPHOS_TEMP_DIRECTORY}/installer/uc_certs.crt"
     MIDDLEBIT_SIZE=`expr ${UC_CERTS} - ${MIDDLEBIT} - 1`
     UC_CERTS_SIZE=`expr ${ARCHIVE} - ${UC_CERTS} - 1`
-    tail -n+${UC_CERTS} $0 | head -${UC_CERTS_SIZE}  | tr -d '\r' | tr -s '\n' > ${UPDATE_CACHE_CERT}
+    tail -n+${UC_CERTS} "${INSTALL_FILE}" | head -${UC_CERTS_SIZE}  | tr -d '\r' | tr -s '\n' > ${UPDATE_CACHE_CERT}
 else
     MIDDLEBIT_SIZE=`expr $ARCHIVE - $MIDDLEBIT - 1`
 fi
 
-tail -n+${MIDDLEBIT} $0 | head -${MIDDLEBIT_SIZE} > ${SOPHOS_TEMP_DIRECTORY}/credentials.txt
-tail -n+${ARCHIVE} $0 > ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
+tail -n+${MIDDLEBIT} "${INSTALL_FILE}" | head -${MIDDLEBIT_SIZE} > ${SOPHOS_TEMP_DIRECTORY}/credentials.txt
+tail -n+${ARCHIVE} "${INSTALL_FILE}" > ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
 
 cd ${SOPHOS_TEMP_DIRECTORY}
 
