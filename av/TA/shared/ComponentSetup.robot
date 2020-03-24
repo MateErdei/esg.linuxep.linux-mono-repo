@@ -37,7 +37,8 @@ Setup Component For Testing
     Run  pgrep -f sophos-spl | xargs kill -9
     Copy Directory   ${COMPONENT_SDDS}/files/plugins   ${SOPHOS_INSTALL}
     ## Change permissions for all executables
-    Run Process   chmod -R +x ${COMPONENT_ROOT_PATH}/sbin ${COMPONENT_ROOT_PATH}/bin  shell=True
+    Run Process   chmod  -R  +x  ${COMPONENT_ROOT_PATH}/sbin  ${COMPONENT_ROOT_PATH}/bin  ${BASH_SCRIPTS_PATH}/  shell=True
+    Run Process  chmod  +x  /opt/test/inputs/test_scripts/resources/sophos_certs/InstallCertificateToSystem.sh
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot
     Create Directory  ${COMPONENT_ROOT_PATH}/var
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True

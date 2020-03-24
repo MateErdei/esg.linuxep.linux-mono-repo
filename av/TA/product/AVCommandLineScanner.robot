@@ -159,7 +159,7 @@ CLS Creates Threat Report
 CLS Encoded Eicars
    Start AV
 
-   Run Process  Libs/bashScripts/createEncodingEicars.sh
+   Run Process  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
    Wait Until Keyword Succeeds
        ...  15 secs
        ...  3 secs
@@ -167,9 +167,10 @@ CLS Encoded Eicars
 
    AV Plugin Log Contains  Sending threat detection notification to central
 
-   ${FILE_CONTENT}=    Get File  Libs/supportFiles/list_of_expected_encoded_eicars
+   ${FILE_CONTENT}=    Get File  ${SUPPORT_FILES_PATH}/list_of_expected_encoded_eicars
    @{eicar_names_list}=    Split to lines  ${FILE_CONTENT}
    :FOR    ${item}  IN  @{eicar_names_list}
    \   AV Plugin Log Contains  ${item}
-
+   Run  rm ${MCS_PATH}/event/*
+   Run  rm -r /tmp/*
    Stop AV

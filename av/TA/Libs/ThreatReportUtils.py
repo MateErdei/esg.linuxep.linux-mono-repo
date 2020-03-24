@@ -30,13 +30,13 @@ GL_EXPECTED_CONTENTS = {
 
     "encoded_eicars": [
         '''" " path="/tmp/encoded_eicars/"''',
-        #'''WIERDPATH-eicar.com-VIRUS" path="/tmp/encoded_eicars/.\\r/''',
+        r'''WIERDPATH-eicar.com-VIRUS" path="/tmp/encoded_eicars/.\r/''',
         '''LATIN1-ENGLISH-For all good men-VIRUS''',
-        #'''sh" path="/tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/''',
+        r'''sh" path="/tmp/encoded_eicars/NEWLINEDIR\n/\n/bin/''',
         '''LATIN1-CHINESE--VIRUS''',
         '''SJIS-KOREAN--VIRUS''',
         '''ES-Español''',
-        #'''\\n''',
+        r'''\n''',
         '''UTF-8-FRENCH-à ta santé âge-VIRUS''',
         '''LATIN1-KOREAN--VIRUS''',
         '''SJIS-FRENCH- ta sant ge-VIRUS''',
@@ -47,13 +47,13 @@ GL_EXPECTED_CONTENTS = {
         '''LATIN1-JAPANESE--VIRUS''',
         '''PairSingleQuote-'VIRUS.com''',
         '''SingleDoubleQuote-"-VIRUS.com''',
-        #'''ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r !"#$%&'()*+,-.0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~''',
+        r'''ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !"#$%&'()*+,-.0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177''',
         '''eicar.com''',
-        #'''RANDOMGARBAGE-?Ñ8[Úm\1\2\a\t2 "3DUfwª»ÌÝîÿ\tá¹©{êùx\2ÿþ6è²ÆÞeM#ö-VIRUS (Latin1)''',
+        r'''RANDOMGARBAGE-?Ñ8[Úm\025\1\2\a\t2\020\023 "3DUfwª»ÌÝîÿ\tá¹©{êùx\2ÿþ6è\035²ÆÞeM#ö-VIRUS (Latin1)''',
         '''LATIN1-FRENCH-à ta santé âge-VIRUS (Latin1)''',
         '''COM1" ''',
         '''COM2" ''',
-        ''' \[]:;|=.*?. " ''',
+        '''\[]:;|=.*?. "''',
         '''NUL" ''',
         '''LPT2" ''',
         '''LPT1" ''',
@@ -79,7 +79,7 @@ GL_EXPECTED_CONTENTS = {
         '''path="/tmp/encoded_eicars/"''',
         '''UTF-8-CHINESE-涴跺最唗郔場腔醴腔-VIRUS''',
         '''ES-Español''',
-        #'''0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~" path="/tmp/encoded_eicars/FULL-ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r !"#$%&'()*+,-./''',
+        r'''0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177" path="/tmp/encoded_eicars/FULL-ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !"#$%&'()*+,-./''',
         '''SJIS-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (SJIS)''',
         '''UTF-8-ENGLISH-For all good men-VIRUS''',
         '''UTF-8-JAPANESE-ソフォスレイヤーアクセスる-VIRUS''',
@@ -167,7 +167,6 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
 
     if len(unmatched_strings) > 0:
         logger.error(f"Missing string expecting: {unmatched_strings}")
-        logger.error(f"Actual contents: {contents}")
         raise Exception(f"Missing string expecting: {unmatched_strings}")
 
     return 1

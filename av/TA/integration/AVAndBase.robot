@@ -183,13 +183,15 @@ AV Plugin Reports Threat XML To Base
 AV Plugin Reports encoded eicars To Base
    Check AV Plugin Installed With Base
 
-   Run Process  Libs/bashScripts/createEncodingEicars.sh
+   Run Process  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
    Wait Until Keyword Succeeds
       ...  15 secs
       ...  3 secs
       ...  Run Process    /usr/local/bin/avscanner  /tmp/encoded_eicars/
 
    check_multiple_different_threat_events  56   encoded_eicars
+   Run  rm ${MCS_PATH}/event/*
+   Run  rm -r /tmp/*
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin
