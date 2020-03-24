@@ -280,10 +280,13 @@ class ThinInstallerUtils(object):
                                   override_location="https://localhost:1233",
                                   certs_dir=None,
                                   no_connection_address_override=False,
-                                  proxy=None):
+                                  proxy=None,
+                                  installsh_path=None):
         if no_connection_address_override:
             override_location = None
-        self.run_thininstaller([self.default_installsh_path],
+        if not installsh_path:
+            installsh_path = self.default_installsh_path
+        self.run_thininstaller([installsh_path],
                                expected_return_code,
                                mcsurl,
                                override_location=override_location,
@@ -294,8 +297,7 @@ class ThinInstallerUtils(object):
         new_filepath = os.path.join(os.path.dirname(self.default_installsh_path), new_filename)
         logger.info("new thin installer file path: {}".format(new_filepath))
         shutil.move(self.default_installsh_path, new_filepath)
-        self.default_installsh_path = new_filepath 
-        self.run_default_thininstaller(*args, **kwargs)
+        self.run_default_thininstaller(*args, installsh_path=new_filepath, **kwargs)
 
     def run_real_thininstaller(self):
         cwd = os.getcwd()
