@@ -106,3 +106,9 @@ class CloudClient(object):
 
     def ensure_av_policy_exists(self):
         return self.__m_connector.ensure_av_policy_exists()
+
+    def wait_for_computer_to_appear_in_central(self):
+        return self.__m_connector.waitForServerInCloud()
+
+    def assign_antivirus_product_to_endpoint_in_central(self):
+        return self.__m_connector.assign_antivirus_product_to_endpoint_in_central()

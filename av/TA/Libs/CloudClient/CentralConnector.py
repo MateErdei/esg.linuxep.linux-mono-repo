@@ -85,7 +85,10 @@ class CentralConnector(object):
         self.__m_url = _getUrl(region)
         self.__m_username = _getUsername(region)
         self.__m_password = _getPassword(region)
-        self.default_headers = {}
+        self.default_headers = {
+            "content-type": "application/json;chatset=UTF-8",
+            "accept": "application/json"
+        }
         self.__m_my_hostname = _get_my_hostname()
 
         # To match regression suite cloudClient.py
@@ -117,7 +120,7 @@ class CentralConnector(object):
         except IOError:
             pass
 
-    def __retry_request_url(self, request):
+    def __retry_request_url(self, request, send_and_receive_json=True):
         if self.upe_api is None:
             self.login(request)
 
@@ -129,6 +132,10 @@ class CentralConnector(object):
         assert request.has_header('X-hammer-token') ## urllib2 title cases the header
         assert request.has_header('X-csrf-token') ## urllib2 title cases the header
         assert self.upe_api is not None
+
+        if send_and_receive_json:
+            request.add_header("content-type", "application/json;chatset=UTF-8")
+            request.add_header("accept", "application/json")
 
         attempts = 0
         delay = 0.5
@@ -499,3 +506,43 @@ class CentralConnector(object):
         policy['settings'][path + "exclusions_enabled"] = len(exclusions) > 0
         policy['settings'][path + "posix_exclusions"] = exclusions
         return self.__setServerPolicy(policy)
+
+    def waitForServerInCloud(self, wait_time=60):
+        hostname = _get_my_hostname()
+        start = time.time()
+        delay = 1
+        while time.time() < start + wait_time:
+            if self.__getServerId(hostname, expect_missing=True) is not None:
+                return 0
+            time.sleep(delay)
+            delay += 1
+
+        # Log errors
+        if self.__getServerId(hostname) is not None:
+            return 0
+        return 1
+
+    def assign_antivirus_product_to_endpoint_in_central(self, hostname=None):
+        hostname = _get_my_hostname(hostname)
+        endpointid = self.__getServerId(hostname)
+        if endpointid is None:
+            raise HostMissingException()
+
+        # https://dzr-api-amzn-eu-west-1-f9b7.api-upe.d.hmr.sophos.com/api/product-assignment
+        url = self.get_upe_api() + "/product-assignment"
+        # {"assigned_product":"antivirus","assigned_ids":["d2bed399-e0b8-0482-1b93-bf361d7ac2ae"],"removed_ids":[]}
+        contents = {
+            "assigned_product": "antivirus",
+            "assigned_ids": [endpointid],
+            "removed_ids": []
+        }
+
+        method = "POST"
+        data = json.dumps(contents).encode('UTF-8')
+        logger.info("Applying policy: %s" % data)
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
+        request.get_method = lambda: method
+        response = self.__retry_request_url(request)
+        if len(response) == 0:
+            return None
+        return json_loads(response)

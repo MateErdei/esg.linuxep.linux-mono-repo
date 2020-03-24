@@ -23,6 +23,22 @@ Create Eicar
     [Arguments]  ${path}
     Create File      ${path}    ${EICAR_STRING}
 
+Check Specific File Content
+    [Arguments]     ${expectedContent}  ${filePath}
+    ${FileContents} =  Get File  ${filePath}
+    Should Contain    ${FileContents}   ${expectedContent}
+
+Wait For File With Particular Contents
+    [Arguments]     ${expectedContent}  ${filePath}
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check Specific File Content  ${expectedContent}  ${filePath}
+    Log File  ${filePath}
+
+Wait For exclusion configuration on endpoint
+    Wait For File With Particular Contents  /boot/  ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
+
 *** Test Cases ***
 
 Scan now from Central and Verify Scan Completed and Eicar Detected
@@ -31,6 +47,8 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     Ensure AV Policy Exists
     Install Base And Plugin Without Register
     Register In Central
+    Wait for computer to appear in Central
+    Assign AntiVirus Product to Endpoint in Central
     Configure Exclude everything else in Central  /tmp/testeicar/
     Create Eicar  /tmp/testeicar/eicar.com
     Wait For exclusion configuration on endpoint
