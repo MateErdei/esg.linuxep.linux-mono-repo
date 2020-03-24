@@ -182,6 +182,9 @@ AV Plugin Reports Threat XML To Base
 
 AV Plugin Reports encoded eicars To Base
    Check AV Plugin Installed With Base
+   ${rc}   ${output} =  Run And Return Rc And Output  id
+
+   Log  ${output}
 
    Run Process  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
    Wait Until Keyword Succeeds
