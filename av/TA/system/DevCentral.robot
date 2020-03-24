@@ -53,7 +53,8 @@ Wait For Scan Now to complete
 Scan now from Central and Verify Scan Completed and Eicar Detected
     Select Central Region  DEV
     get central version
-    log_central_events
+    log central events
+    clear alerts in central
     Ensure AV Policy Exists
     Install Base And Plugin Without Register
     Register In Central
