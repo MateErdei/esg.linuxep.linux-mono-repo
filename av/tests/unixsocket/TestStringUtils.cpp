@@ -17,16 +17,16 @@ using namespace scan_messages;
 
 TEST(TestStringUtils, TestXMLEscapeEscapesControlCharacters) // NOLINT
 {
-    std::string threatPath = "abc \1 \2 \3 \4 \5 \6 \\ abc \a \b \t \n \v \f \r abc";
+    std::string threatPath = "\x80 abc \1 \2 \3 \4 \5 \6 \016 \017 \020 \021 \022 \023 \024 \025 \026 \027 \030 \031 \032 \033 \034 \035 \036 \037 \177 \\ abc \a \b \t \n \v \f \r abc";
     escapeControlCharacters(threatPath);
-    EXPECT_EQ(threatPath, "abc \\1 \\2 \\3 \\4 \\5 \\6 \\ abc \\a \\b \\t \\n \\v \\f \\r abc");
+    EXPECT_EQ(threatPath, "\\200 abc \\1 \\2 \\3 \\4 \\5 \\6 \\016 \\017 \\020 \\021 \\022 \\023 \\024 \\025 \\026 \\027 \\030 \\031 \\032 \\033 \\034 \\035 \\036 \\037 \\177 \\\\ abc \\a \\b \\t \\n \\v \\f \\r abc");
 }
 
 TEST(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharacters) // NOLINT
 {
-    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
+    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \016 \017 \020 \021 \022 \023 \024 \025 \026 \027 \030 \031 \032 \033 \034 \035 \036 \037 \177 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
     escapeControlCharacters(threatPath);
-    EXPECT_EQ(threatPath, "ありったけの夢をかき集め \\1 \\2 \\3 \\4 \\5 \\6 \\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
+    EXPECT_EQ(threatPath, "ありったけの夢をかき集め \\1 \\2 \\3 \\4 \\5 \\6 \\016 \\017 \\020 \\021 \\022 \\023 \\024 \\025 \\026 \\027 \\030 \\031 \\032 \\033 \\034 \\035 \\036 \\037 \\177 \\\\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
 }
 
 TEST(TestStringUtils, TestToUtf8) // NOLINT

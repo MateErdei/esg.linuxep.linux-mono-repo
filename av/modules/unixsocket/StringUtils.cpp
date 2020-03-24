@@ -40,8 +40,25 @@ void unixsocket::escapeControlCharacters(std::string& text)
             case '\v': buffer.append("\\v");           break;
             case '\f': buffer.append("\\f");           break;
             case '\r': buffer.append("\\r");           break;
-            case '\\': buffer.append("\\");            break;
-            default: buffer.push_back(text[pos]);         break;
+            case '\\': buffer.append("\\\\");          break;
+            default:
+                auto character = static_cast<unsigned>(text[pos]);
+                if (character <= 31 || character == 127)
+                {
+                    std::ostringstream escaped;
+                    escaped << '\\'
+                            << std::oct
+                            << std::setfill('0')
+                            << std::setw(3)
+                            << character
+                            ;
+                    buffer.append(escaped.str());
+                }
+                else
+                {
+                    buffer.push_back(text[pos]);
+                }
+                break;
         }
     }
 
