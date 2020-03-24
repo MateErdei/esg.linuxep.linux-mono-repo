@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 umask 077
 
 echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited"
