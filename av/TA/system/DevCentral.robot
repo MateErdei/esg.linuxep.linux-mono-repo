@@ -2,6 +2,7 @@
 Documentation    Prove end-to-end management from Central
 
 Library         ../Libs/CloudClient/CloudClient.py
+Library         DateTime
 Library         OperatingSystem
 Library         String
 
@@ -52,6 +53,7 @@ Wait For Scan Now to complete
 Scan now from Central and Verify Scan Completed and Eicar Detected
     Select Central Region  DEV
     get central version
+    log_central_events
     Ensure AV Policy Exists
     Install Base And Plugin Without Register
     Register In Central
@@ -60,8 +62,9 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     Configure Exclude everything else in Central  /tmp/testeicar/
     Create Eicar  /tmp/testeicar/eicar.com
     Wait For exclusion configuration on endpoint
+    ${currentTime} =  Get Current Date  UTC  result_format=epoch
     send scan now in central
     Wait For Scan Now to start
     Wait For Scan Now to complete
-    Wait For Scan Completion in central
-    Wait For Eicar Detection in central
+    Wait For Scan Completion in central  ${currentTime}
+    Wait For Eicar Detection in central  /tmp/testeicar/eicar.com  ${currentTime}

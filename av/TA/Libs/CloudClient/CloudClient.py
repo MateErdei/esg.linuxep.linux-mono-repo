@@ -6,6 +6,7 @@
 import os
 import shutil
 import subprocess
+import time
 
 try:
     from . import CentralConnector
@@ -104,8 +105,58 @@ class CloudClient(object):
     def send_scan_now_in_central(self):
         return self.__m_connector.scanNow()
 
-    def clear_alerts_in_central(self):
-        raise AssertionError("clear_alerts_in_central Not implemented")
+    def log_central_events(self):
+        events = self.__m_connector.getEvents("ScanComplete", time.time() - 3600)
+        logger.debug(repr(events))
 
-    def check_eicar_reported_in_central(self):
-        raise AssertionError("check_eicar_reported_in_central Not implemented")
+    def wait_for_scan_completion_in_central(self, start_time):
+        # Request URL: https://dzr-api-amzn-eu-west-1-f9b7.api-upe.d.hmr.sophos.com/api/events?
+        #           endpoint=d2bed399-e0b8-0482-1b93-bf361d7ac2ae&
+        #           from=2020-03-24T00:00:00.000Z&
+        #           limit=50&offset=0&to=2020-03-24T11:24:36.505Z
+        timeout = 30
+        timelimit = time.time() + timeout
+        events = None
+        while time.time() < timelimit:
+            events = self.__m_connector.getEvents("ScanComplete", start_time)
+            items = events['items']
+            if len(items) > 0:
+                logger.debug("Got scan completion")
+                return True
+            time.sleep(5)
+        logger.info("Available events: "+repr(events))
+        raise Exception("Failed to detect scan completion")
+
+    def clear_alerts_in_central(self):
+        self.__m_connector.clearAllAlerts()
+
+    def __check_eicar_reported_in_central(self, location, start_time):
+        threatName = "EICAR"
+        start_time_str = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(start_time))
+        expected_description = f"Manual cleanup required: '{threatName}' at '{location}'"
+        for event in self.__m_connector.generateAlerts():
+            logger.info(repr(event))
+            when = event['when']
+            if when < start_time_str:
+                logger.debug("Too early")
+                continue
+
+            # "Manual cleanup required: 'EICAR' at '/tmp/testeicar/eicar.com'"
+            actual_description = event['description']
+            if actual_description != expected_description:
+                logger.debug("Wrong description: "+actual_description)
+                continue
+
+            return True
+
+        return False
+
+    def wait_for_eicar_detection_in_central(self, location, start_time, timeout=30):
+        timelimit = time.time() + timeout
+        events = None
+        while time.time() < timelimit:
+            if self.__check_eicar_reported_in_central(location, start_time):
+                return True
+            time.sleep(5)
+        logger.info("Available events: "+repr(events))
+        raise Exception("Failed to detect eicar report")

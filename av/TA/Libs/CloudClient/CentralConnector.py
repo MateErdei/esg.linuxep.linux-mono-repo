@@ -15,6 +15,8 @@ import urllib.error
 import urllib.request
 import urllib.parse
 
+urlencode = urllib.parse.urlencode
+
 try:
     from robot.api import logger
     logger.warning = logger.warn
@@ -46,6 +48,7 @@ GL_REGION_URL = {
     'linux': 'https://linux.cloud.sandbox',
 }
 
+GL_ENSURE_EVENTS_READY = False
 
 def _getUrl(region):
     return GL_REGION_URL[region]
@@ -557,3 +560,192 @@ class CentralConnector(object):
         request = urllib.request.Request(url, data=data, headers=self.default_headers)
         response = self.__retry_request_url(request)
         return response
+
+    def __ensureEventsReady(self):
+        """
+        ## https://api.sandbox.sophos/api/events?endpoint=<endpointID>
+        ## Since release/2018.37 of Central, getEvents cannot be called without first visiting the above URL.
+        ## This occurs only when pulsar/nova is first deployed. Once you visit this URL, the getEvents request
+        ## is fixed for every customer until the backend is deployed again.
+        """
+        global GL_ENSURE_EVENTS_READY
+        if GL_ENSURE_EVENTS_READY:
+            return
+        GL_ENSURE_EVENTS_READY = True
+        hostname = _get_my_hostname()
+        endpointid = self.__getServerId(hostname)
+        if endpointid is None:
+            print("Could not get endpoint id")
+            return
+
+        url = self.get_upe_api() + "/events"
+
+        query = {
+            'endpoint': endpointid,
+            'limit': 1,
+        }
+        url += "?" + urlencode(query, doseq=True)
+
+        request = urllib.request.Request(url, headers=self.default_headers)
+        response = self.__retry_request_url(request)
+
+    def getEvents(self, eventType, starttime, endtime=None):
+        """
+        ## https://api.linux.cloud.sandbox/api/reports/events?from=2014-09-10T00:00:00.000Z&limit=25
+        ##  &offset=0&to=2014-12-09T00:00:00.000Z&types=Event::Endpoint::OutOfDate&
+        ##  types=Event::Endpoint::UpdateSuccess&types=Event::Endpoint::UpdateFailure&
+        ## types=Event::Endpoint::UpdateRebootRequired&types=Event::Endpoint::UpdateRebootUrgentlyRequired
+
+        ## https://api.linux.cloud.sandbox/api/reports/events?
+        ## from=2014-09-10T00:00:00.000Z&limit=25&offset=0&search=abelard&to=2014-12-09T00:00:00.000Z&types=Event::Endpoint::UpdateRebootRequired
+
+        ## https://api.linux.cloud.sandbox/api/reports/events?
+        ## from=2014-12-07T00:00:00.000Z&limit=25&offset=0&search=abelard&to=2014-12-09T00:00:00.000Z&types=Event::Endpoint::UpdateRebootRequired
+
+        ## https://api.linux.cloud.sandbox/api/reports/events?
+        ## search=abelard&from=2014-12-09T14:22:16.000Z&to=2014-12-09T14:38:56.000Z&limit=100&offset=0&types=Event::Endpoint::UpdateRebootRequired
+
+        """
+        endtime = endtime or time.time()
+
+        # Call ensureEventsReady first to avoid NPEs in Pulsar and Nova
+        self.__ensureEventsReady()
+
+        hostname = _get_my_hostname()
+        starttime = int(starttime)
+        endtime = float(endtime)
+
+        types = []
+
+        if eventType is not None:
+            for t in eventType.split(";"):
+                types.append({
+                                 "UpdateSuccess": "Event::Endpoint::UpdateSuccess",
+                                 "UpdateReboot": 'Event::Endpoint::UpdateRebootRequired',
+                                 "UpdateFailure": "Event::Endpoint::UpdateFailure",
+                                 "ScanComplete": "Event::Endpoint::SavScanComplete",
+                             }.get(t, t))
+
+        target = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(starttime))
+        logger.debug(f"Start/From time: {target}")
+        end = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(endtime))
+
+        url = self.get_upe_api() + "/reports/events"
+
+        #~ url = url.replace("%3A",":")
+
+        #~ url = "https://api.linux.cloud.sandbox/api/reports/events?from=2014-12-09T15:00:00.000Z&limit=25&offset=0&search=abelard&to=2014-12-10T00:00:00.000Z&types=Event::Endpoint::UpdateRebootRequired"
+        #~ url = "https://api.linux.cloud.sandbox/api/reports/events?from=2014-12-09T15:00:00.000Z&limit=25&offset=0&search=abelard&types=Event::Endpoint::UpdateRebootRequired"
+
+        query = {
+            'from': target,
+            'to': end,
+            'limit': 25,
+            'offset': 0,
+            'search': hostname,
+            'includeTypes': 'true',
+        }
+        if len(types) > 0:
+            query['types'] = types
+
+        url += "?" + urlencode(query, doseq=True)
+
+        request = urllib.request.Request(url, headers=self.default_headers)
+        response = self.__retry_request_url(request)
+
+        ## We get items outside the from/to fields so do our own filtering
+        ## Rely on ISO dates being directly comparable as strings
+        response = json_loads(response)
+        items = response["items"]
+        response["items"] = []
+        for item in items:
+            if item['type'] not in types:
+                logger.error("item type %s not expected (from %s)" % (item['type'], str(types)))
+            elif target <= item['when'] <= end:
+                response["items"].append(item)
+            else:
+                #~ print("Ignoring event outside target time %s < %s < %s"%(target,item['when'],end),file=sys.stderr)
+                pass
+
+        return response
+
+    def generateAlerts(self, hostname=None, serverId=None, limit=None, batchLimit=100, quietLimit=None):
+        """
+        @param quietLimit - return after processing N items, but don't warn if there are more pending
+
+        https://api.sandbox.sophos/api/alerts/endpoint/bbed18a9-4750-043e-d8a8-598da763f76c?limit=0&offset=0
+        https://api.sandbox.sophos/api/alerts/endpoint/bbed18a9-4750-043e-d8a8-598da763f76c?endpointId=bbed18a9-4750-043e-d8a8-598da763f76c&limit=3&offset=0
+        """
+        hostname = _get_my_hostname(hostname)
+        if hostname is not None and serverId is None:
+            serverId = self.__getServerId(hostname)
+
+        offset = 0
+        numberProcessed = 0
+
+        if quietLimit is not None:
+            batchLimit = min(batchLimit, quietLimit+1)
+
+        while True:
+            if serverId:
+                url = self.get_upe_api() + "/alerts/endpoint/%s?limit=%d&offset=%d" % (serverId, batchLimit, offset)
+            else:
+                url = self.get_upe_api() + "/alerts?limit=%d&offset=%d" % (batchLimit, offset)
+            request = urllib.request.Request(url, headers=self.default_headers)
+            response = self.__retry_request_url(request)
+            response = json_loads(response)
+            total = response['total']
+            items = response["items"]
+
+            if len(items) == 0:
+                return
+
+            logger.debug("Got items %d to %d of %d items"%(offset + 1, offset + len(items), total))
+
+            for alert in items:
+                if hostname is not None and alert['location'] != hostname:
+                    if serverId is not None:
+                        logger.error(json.dumps(alert, indent=2))
+                        raise Exception("Incorrect hostname in alert: expected=%s, actual=%s"%(hostname,alert['location']))
+                    else:
+                        ## Can't expect to only have our alerts if we don't have a serverId
+                        continue
+
+                if serverId is not None and alert['data']['endpoint_id'] != serverId:
+                    logger.error(json.dumps(alert, indent=2))
+                    raise Exception("Incorrect serverId in alert: expected=%s, actual=%s"%(serverId,alert['data']['endpoint_id']))
+
+                numberProcessed += 1
+                yield alert
+
+                if limit is not None and numberProcessed >= limit:
+                    ## consider raising an exception here?
+                    logger.info("WARNING: generateAlerts exceeded limit of %d items, fetched %d of %d items" % (limit, numberProcessed, total))
+                    return
+
+                if quietLimit is not None and numberProcessed >= quietLimit:
+                    ## Quiet Limit reached
+                    return
+
+            offset += len(items)
+            if offset >= total:
+                return
+
+    def clearAllAlerts(self, hostname=None):
+        hostname = _get_my_hostname(hostname)
+        serverId = self.__getServerId(hostname)
+        logger.info("clearAllAlerts hostname=%s serverId=%s" % (hostname, serverId))
+        url = self.get_upe_api() + "/alerts/actions/clear"
+        for iteration in range(20):
+            alerts = self.generateAlerts(serverId=serverId, hostname=hostname)
+            alert_ids = [ a['id'] for a in alerts ]
+            if len(alert_ids) == 0:
+                return
+            alert_ids = alert_ids[:100]
+            logger.debug("Clearing %d alerts" % (len(alert_ids)))
+
+            data = json.dumps({'ids': alert_ids}).encode('UTF-8')
+            request = urllib.request.Request(url, data=data, headers=self.default_headers)
+            response = self.__retry_request_url(request)
+
+        raise Exception("clearAllAlerts failed to clear alerts")
