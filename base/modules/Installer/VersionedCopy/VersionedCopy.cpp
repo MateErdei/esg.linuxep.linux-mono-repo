@@ -156,11 +156,7 @@ namespace
             }
             // digits is just numbers so continue
             //        PRINT(fullDest << " -> " << target << "(digits="<<digits<<")");
-            auto fileSystem = Common::FileSystem::fileSystem();
-            if (fileSystem->isSymlink(fullDest))
-            {
-                fileSystem->removeFile(fullDest);
-            }
+
             createSymbolicLink(target, fullDest);
 
             temp = dest;
@@ -286,6 +282,7 @@ int VersionedCopy::versionedCopy(const Path& filename, const Path& DIST, const P
     // Don't continue if the files are the same
     if (same(filename, fullInstallFilename))
     {
+        createLibrarySymlinks(fullInstallFilename);
         return 0;
     }
 
