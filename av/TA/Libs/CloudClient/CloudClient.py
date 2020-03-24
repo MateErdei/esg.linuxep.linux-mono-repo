@@ -3,6 +3,7 @@
 # Copyright (C) 2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import datetime
 import os
 import shutil
 import subprocess
@@ -11,9 +12,11 @@ import time
 try:
     from . import CentralConnector
     from . import SophosRobotSupport
+    from . import NextScanTime
 except ImportError:
     import CentralConnector
     import SophosRobotSupport
+    import NextScanTime
 
 try:
     from .. import PathManager
@@ -161,3 +164,18 @@ class CloudClient(object):
             time.sleep(5)
         logger.info("Available events: "+repr(events))
         raise Exception("Failed to detect eicar report")
+
+    @staticmethod
+    def _get_next_scan_time(self):
+        now = datetime.datetime.now()
+        if now.minute < 30:
+            now = now.replace(minute=30, second=0, microsecond=0)
+        else:
+            now = now.replace(minute=0, second=0, microsecond=0)
+            now += datetime.timedelta(hours=1)
+        return now
+
+    def configure_next_available_scheduled_scan_in_central(self):
+        scan_time = self._get_next_scan_time()
+        logger.info("Scheduling scan for {}".format(scan_time.isoformat()))
+        raise Exception("Configure next available scheduled Scan in Central not implemented")

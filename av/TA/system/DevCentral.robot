@@ -70,3 +70,25 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     Wait For Scan Now to complete
     Wait For Scan Completion in central  ${currentTime}
     Wait For Eicar Detection in central  /tmp/testeicar/eicar.com  ${currentTime}
+
+Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
+    [Tags]  DEVMCS  MANUAL
+    Select Central Region  DEV
+    get central version
+    log central events
+    clear alerts in central
+    Ensure AV Policy Exists
+    Install Base And Plugin Without Register
+    Register In Central
+    Wait for computer to appear in Central
+    Assign AntiVirus Product to Endpoint in Central
+    Create Eicar  /tmp/testeicar/eicar.com
+    Configure Exclude everything else in Central  /tmp/testeicar/
+    Configure next available scheduled Scan in Central
+    ${currentTime} =  Get Current Date  UTC  result_format=epoch
+    Wait For exclusion configuration on endpoint
+    # Wait up to 30 minutes:
+    Wait For Central Scheduled Scan to start
+    Wait For Central Scheduled Scan to complete
+    Wait For Scheduled Scan Completion in central  ${currentTime}
+    Wait For Eicar Detection in central  /tmp/testeicar/eicar.com  ${currentTime}
