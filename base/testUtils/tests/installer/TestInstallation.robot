@@ -177,11 +177,45 @@ Installer Succeeds If The System Has A Libc Version Greater Than That Of The Bui
     Should Be Equal As Strings  ${SystemGlibcVersion}  ${HighGlibcVersion}
     ${consoleOutput} =  Run Full Installer Expecting Code  0
 
+Version Copy Correctly Set Links
+    [Teardown]  VersionCopy Teardown
+    Require Installed
+    ${VersionCopy} =  Set Variable  ${SOPHOS_INSTALL}/base/bin/versionedcopy
+    File Should Exist   ${VersionCopy}
+    Create Directory  /tmp/testVersionCopy/files
+    Create File    /tmp/testVersionCopy/files/liba.so.1.2.3  123
+    Create File    /tmp/testVersionCopy/files/liba.so.1.2.4  124
+    Run Process  ${VersionCopy} files/liba.so.1.2.3  shell=True  cwd=/tmp/testVersionCopy  env:SOPHOS_INSTALL=/tmp/target
+    ${lib123} =  Get File  /tmp/target/liba.so
+    Should Be Equal  ${lib123}  123
+
+    Run Process  ${VersionCopy} files/liba.so.1.2.4  shell=True  cwd=/tmp/testVersionCopy  env:SOPHOS_INSTALL=/tmp/target
+    ${lib124} =  Get File  /tmp/target/liba.so
+    Should Be Equal  ${lib124}  124
+
+  
+    Run Process  ${VersionCopy} files/liba.so.1.2.3  shell=True  cwd=/tmp/testVersionCopy  env:SOPHOS_INSTALL=/tmp/target
+    ${lib123} =  Get File  /tmp/target/liba.so
+    Should Be Equal  ${lib123}  123
+
+
+
 *** Keywords ***
 Save Current InstalledFiles To Local Path
     Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/FileInfo  ${FileInfo}
     Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/DirectoryInfo  ${DirectoryInfo}
     Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
+
+Display List Files Dash L in Directory 
+   [Arguments]  ${DirPath}
+   ${result}=    Run Process  ls -l ${DirPath}  shell=True
+   Log  ${result.stdout}
+
+VersionCopy Teardown
+    Run Keyword If Test Failed   Display List Files Dash L In Directory   /tmp/testVersionCopy/files
+    Run Keyword If Test Failed   Display List Files Dash L In Directory   /tmp/target
+    Remove Directory  /tmp/target    recursive=True
+    Remove Directory  /tmp/testVersionCopy  recursive=True
 
 Install Tests Teardown
     General Test Teardown
