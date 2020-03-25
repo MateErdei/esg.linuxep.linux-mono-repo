@@ -79,7 +79,7 @@ class FuzzerSupport( object):
                 raise AssertionError(error_message)
         except subprocess.CalledProcessError as ex:
             logger.error("Failed to build target")
-            logger.warn(ex.output)
+            logger.warning(ex.output)
             raise AssertionError(error_message)
 
     def _get_max_time(self):
@@ -135,11 +135,11 @@ class FuzzerSupport( object):
         for filename in os.listdir(self._tmp_dir):
             atleastOne = True
             if filename.startswith("crash") or filename.startswith("slow") or filename.startswith("timeout"):
-                logger.warn("DoubleChecking Fuzzer {} output File : {}".format(fuzzer, filename))
+                logger.warning("DoubleChecking Fuzzer {} output File : {}".format(fuzzer, filename))
                 full_path = os.path.join(self._tmp_dir, filename)
                 self._log_binary_file(full_path)
                 if not self._check_and_convict_input_file(full_path, fuzzer):
-                    logger.warn("Confirmed file failed: {}".format(filename))
+                    logger.warning("Confirmed file failed: {}".format(filename))
                     failures.append(full_path)
                 else:
                     logger.info("File not convicted: {}".format(filename))
@@ -149,8 +149,7 @@ class FuzzerSupport( object):
 
     def mcs_fuzz_logs(self):
         with open(self._mcs_fuzz_logger_path(), 'r') as file_handler:
-            return file_handler.read().decode()[:-10000]
-        return ""
+            return file_handler.read()[:-10000]
 
     def start_mcs_fuzzer(self, mcs_fuzzer_path, suite, range = 1):
         #range == 1 will run all mutations produced by fuzzer
@@ -213,7 +212,7 @@ class FuzzerSupport( object):
 
         except Exception as ex:
             failed = True
-            logger.warn("Fuzzer reported error {}".format(str(ex)))
+            logger.warning("Fuzzer reported error {}".format(str(ex)))
             output = str(ex)
         return failed, output
 
@@ -287,7 +286,7 @@ class FuzzerSupport( object):
             logger.debug(output2)
         except subprocess.CalledProcessError as ex:
             logger.error("Failed to build target")
-            logger.warn(ex.output)
+            logger.warning(ex.output)
 
             raise AssertionError("Failed to setup for build")
 
@@ -307,7 +306,7 @@ class FuzzerSupport( object):
                 raise AssertionError(error_message)
         except subprocess.CalledProcessError as ex:
             logger.error("Failed to build target")
-            logger.warn(ex.output)
+            logger.warning(ex.output)
             raise AssertionError(error_message)
 
     def run_alf_fuzzer_by_name(self, target_name):
@@ -370,7 +369,7 @@ class FuzzerSupport( object):
             return 0
 
         except Exception as ex:
-            logger.warn("Fuzzer reported error {}".format(str(ex)))
+            logger.warning("Fuzzer reported error {}".format(str(ex)))
             return 2
  
 
@@ -381,7 +380,7 @@ class FuzzerSupport( object):
         crash_dir = os.path.join(finding_dir,"crashes")
         hangs_dir = os.path.join(finding_dir,"hangs")
         if not os.path.exists(crash_dir) and not os.path.exists(hangs_dir) and os.path.exists(finding_dir):
-            logger.warn("Neither crash nor hangs folder was created. Check if alf has really executed. ")
+            logger.warning("Neither crash nor hangs folder was created. Check if alf has really executed. ")
             return[]
 
         failures = []
@@ -394,7 +393,7 @@ class FuzzerSupport( object):
             self._log_binary_file(full_path)
 
             if not self._check_and_convict_afl_input_file(full_path, fuzzer_path):
-                logger.warn("Confirmed file failed: {}".format(filename))
+                logger.warning("Confirmed file failed: {}".format(filename))
                 failures.append(full_path)
 
         for filename in os.listdir(hangs_dir):
@@ -404,7 +403,7 @@ class FuzzerSupport( object):
             self._log_binary_file(full_path)
 
             if not self._check_and_convict_afl_input_file(full_path, fuzzer_path):
-                logger.warn("Confirmed file failed: {}".format(filename))
+                logger.warning("Confirmed file failed: {}".format(filename))
                 failures.append(full_path)
 
         if not atleastOne:
@@ -437,7 +436,7 @@ class FuzzerSupport( object):
 
         except Exception as ex:
             failed = True
-            logger.warn("Fuzzer reported error {}".format(str(ex)))
+            logger.warning("Fuzzer reported error {}".format(str(ex)))
             output = str(ex)
             logger.debug(output)
 

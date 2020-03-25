@@ -208,6 +208,7 @@ class MCSRouter(object):
         self.mcs_router_runtime_folders = [os.path.join(self.mcs_dir, "action"),
                                            os.path.join(self.mcs_dir, "event"),
                                            os.path.join(self.mcs_dir, "policy"),
+                                           os.path.join(self.mcs_dir, "response"),
                                            os.path.join(self.mcs_dir, "status"),
                                            os.path.join(self.mcs_dir, "status", "cache"),
                                            os.path.join(self.sophos_install, "base", "etc"),
@@ -238,11 +239,12 @@ class MCSRouter(object):
                 continue
             for filename in os.listdir(folder):
                 filepath = os.path.join(folder, filename)
-                if os.path.isfile(filepath):
-                    logger.info(filepath)
-                    logger.info(open(filepath, 'r').read())
-
-
+                try:
+                    if os.path.isfile(filepath):
+                        logger.info(filepath)
+                        logger.info(open(filepath, 'r').read())
+                except:
+                    pass
 
     def dump_python_processes(self):
         p = subprocess.Popen(["ps", "-C", "python"], stdout=subprocess.PIPE)

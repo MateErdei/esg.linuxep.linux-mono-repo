@@ -11,6 +11,7 @@ Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
 
 Resource   ../GeneralTeardownResource.robot
 Resource  ../mcs_router/McsRouterResources.robot
+Resource  ../watchdog/LogControlResources.robot
 
 Suite Setup     Run Keywords
 ...             Regenerate Certificates  AND
@@ -40,6 +41,13 @@ Test Push Livequery Command Fuzz
 
 Test Push Wakeup Command Fuzz
     Run MCS Router Fuzzer   wakeup
+
+Test Push Livequery Response Fuzz
+    #Force logging of response sent to central in cloudServer.log
+    Override LogConf File as Global Level  DEBUG
+    Run MCS Router Fuzzer   response  10
+    # check no response file left in response directory
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/response
 
 *** Keywords ***
 Run MCS Router Fuzzer

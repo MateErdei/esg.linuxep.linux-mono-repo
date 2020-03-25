@@ -5,3 +5,5 @@ from types import *
 StringTypes=(str,bytes)
 ListType=list
 IntType=int
+BooleanType=bool
+DictionaryType=dict
