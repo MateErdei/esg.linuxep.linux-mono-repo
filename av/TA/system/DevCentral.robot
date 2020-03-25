@@ -66,8 +66,8 @@ Wait For Central Scheduled Scan to complete
 *** Test Cases ***
 
 Scan now from Central and Verify Scan Completed and Eicar Detected
-    [Tags]  DEVMCS
-    Select Central Region  DEV
+    [Tags]  SYSTEM  QAMCS
+    Select Central Region  QA
     log central events
     clear alerts in central
     Ensure AV Policy Exists
@@ -86,13 +86,15 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     Wait For Eicar Detection in central  /tmp/testeicar/eicar.com  ${currentTime}
 
 Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
-    [Tags]  DEVMCS  MANUAL
+    [Tags]  SYSTEM  QAMCS  MANUAL
     [Timeout]    40min
     Select Central Region  QA
     log central events
     clear alerts in central
     Ensure AV Policy Exists
     Install Base And Plugin Without Register
+    # Base will uninstall SSPL-AV if it does an update
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
     Register In Central
     Wait for computer to appear in Central
     Assign AntiVirus Product to Endpoint in Central

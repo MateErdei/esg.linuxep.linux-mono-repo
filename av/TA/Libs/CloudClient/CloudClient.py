@@ -141,6 +141,20 @@ class CloudClient(object):
         logger.info("Available events: "+repr(events))
         raise Exception("Failed to detect scan completion")
 
+    def wait_for_scheduled_scan_completion_in_central(self, start_time):
+        timeout = 30
+        timelimit = time.time() + timeout
+        events = None
+        while time.time() < timelimit:
+            events = self.__m_connector.getEvents("ScanComplete", start_time)
+            items = events['items']
+            if len(items) > 0:
+                logger.debug("Got scan completion: "+repr(items))
+                return True
+            time.sleep(5)
+        logger.info("Available events: "+repr(events))
+        raise Exception("Failed to detect scan completion")
+
     def clear_alerts_in_central(self):
         self.__m_connector.clearAllAlerts()
 
