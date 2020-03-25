@@ -40,10 +40,12 @@ raw_request_url = SophosHTTPSClient.raw_request_url
 request_url = SophosHTTPSClient.request_url
 json_loads = SophosHTTPSClient.json_loads
 
+DEV="DEV"
+
 GL_REGION_URL = {
     'p': 'https://cloud.sophos.com',
     'q': 'https://p0.q.hmr.sophos.com',
-    'DEV': 'https://p0.d.hmr.sophos.com',
+    DEV: 'https://p0.d.hmr.sophos.com',
     'sb': 'https://fe.sandbox.sophos',
     'linux': 'https://linux.cloud.sandbox',
 }
@@ -55,11 +57,15 @@ def _getUrl(region):
 
 
 def _getUsername(region):
-    return "douglas.leeder@sophos.com"
+    if region == DEV:
+        return "ssplavtest@sophos.com"
+    raise Exception("Unknown region: "+region)
 
 
 def _getPassword(region):
-    return "Ch1pm0nk"
+    if region == DEV:
+        return "k_*:J73-XCCi5UaYA&yW"
+    raise Exception("Unknown region: "+region)
 
 
 def _get_my_hostname(hostname=None):
