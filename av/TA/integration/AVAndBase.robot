@@ -37,12 +37,13 @@ AV plugin runs scan now twice
     Mark AV Log
     Check scan now
 
-AV plugin runs scan now twice (STRESS TEST)
+AV plugin runs scan now and completes (STRESS TEST)
      Create EICAR files  1000  /tmp/stress
      Check AV Plugin Installed With Base
      Configure and check scan now
-     sleep  2m
-     [Teardown]  remove directory  /tmp/stress  True
+     AV Plugin Log Contains  Completed scan Scan Now
+     [Teardown]  Remove Directory  /tmp/stress  True
+
 
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
