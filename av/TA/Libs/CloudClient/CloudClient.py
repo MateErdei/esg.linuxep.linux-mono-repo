@@ -38,7 +38,6 @@ class CloudClient(object):
     def __init__(self):
         self.__m_region = None
         self.__m_connector = None
-        self.select_central_region("DEV")
 
     def select_central_region(self, region="DEV"):
         self.__m_region = region
@@ -165,17 +164,10 @@ class CloudClient(object):
         logger.info("Available events: "+repr(events))
         raise Exception("Failed to detect eicar report")
 
-    @staticmethod
-    def _get_next_scan_time(self):
-        now = datetime.datetime.now()
-        if now.minute < 30:
-            now = now.replace(minute=30, second=0, microsecond=0)
-        else:
-            now = now.replace(minute=0, second=0, microsecond=0)
-            now += datetime.timedelta(hours=1)
-        return now
-
-    def configure_next_available_scheduled_scan_in_central(self):
-        scan_time = self._get_next_scan_time()
-        logger.info("Scheduling scan for {}".format(scan_time.isoformat()))
-        raise Exception("Configure next available scheduled Scan in Central not implemented")
+    def configure_next_available_scheduled_scan_in_central(self, includeDirectory):
+        scan_time = NextScanTime.get_next_scan_time()
+        logger.info("Scheduling scan for {}".format(scan_time.strftime("%H:%M")))
+        exclusions = AVScanner.get_exclusion_list_for_everything_else(includeDirectory)
+        assert isinstance(exclusions, list)
+        self.__m_connector.configure_scheduled_scan_time(scan_time, exclusions)
+        return scan_time.strftime("%H:%M")

@@ -4,6 +4,7 @@
 # All rights reserved.
 
 import base64
+import datetime
 import errno
 import json
 import os
@@ -553,6 +554,19 @@ class CentralConnector(object):
         assert policy is not None
 
         path = "malware/scheduled/"
+        policy['settings'][path + "exclusions_enabled"] = len(exclusions) > 0
+        policy['settings'][path + "posix_exclusions"] = exclusions
+        return self.__setServerPolicy(policy)
+
+    def configure_scheduled_scan_time(self, scan_time: datetime.datetime, exclusions):
+        hostname = _get_my_hostname()
+        policy = self.__ensureServerPolicy(hostname)
+        assert policy is not None
+        path = "malware/scheduled/"
+        policy['settings'][path + "enabled"] = True
+        policy['settings'][path + "scan_archives"] = False
+        policy['settings'][path + "time"] = scan_time.strftime("%H:%M")
+        policy['settings'][path + "days"] = [0, 1, 2, 3, 4, 5, 6]  # Every day
         policy['settings'][path + "exclusions_enabled"] = len(exclusions) > 0
         policy['settings'][path + "posix_exclusions"] = exclusions
         return self.__setServerPolicy(policy)
