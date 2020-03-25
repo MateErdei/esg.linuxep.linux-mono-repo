@@ -30,7 +30,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-DEV = "DEV"
+DEV = CentralConnector.DEV  # "DEV"
 QA = "QA"
 PROD = "PROD"
 
@@ -39,14 +39,20 @@ class CloudClient(object):
         self.__m_region = None
         self.__m_connector = None
 
+    def __connector(self):
+        assert self.__m_region is not None
+        if self.__m_connector is None:
+            self.__m_connector = CentralConnector.CentralConnector(self.__m_region)
+        return self.__m_connector
+
     def select_central_region(self, region="DEV"):
         self.__m_region = region
-        self.__m_connector = CentralConnector.CentralConnector(region)
-        self.__m_connector.setFlagsOnce('server.sspl.antivirus.enabled')
+        version = self.get_central_version()
+        logger.info(f"Connecting to Central Region {region} version {version}")
+        self.__connector().setFlagsOnce('server.sspl.antivirus.enabled')
 
     def get_central_version(self):
-        v = self.__m_connector.getCloudVersion()
-        logger.info("Central Version {}".format(v))
+        v = self.__connector().getCloudVersion()
         return v
 
     def __install_certificate_for_region(self, SOPHOS_INSTALL):
