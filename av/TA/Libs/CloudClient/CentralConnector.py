@@ -18,12 +18,8 @@ import urllib.parse
 
 urlencode = urllib.parse.urlencode
 
-try:
-    from robot.api import logger
-    logger.warning = logger.warn
-except ImportError:
-    import logging
-    logger = logging.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 string_type = str
 
@@ -41,18 +37,21 @@ raw_request_url = SophosHTTPSClient.raw_request_url
 request_url = SophosHTTPSClient.request_url
 json_loads = SophosHTTPSClient.json_loads
 
-DEV="DEV"
+DEV = "DEV"
+QA =  "QA"
 
 GL_REGION_URL = {
     'p': 'https://cloud.sophos.com',
+    QA:  'https://p0.q.hmr.sophos.com',
     'q': 'https://p0.q.hmr.sophos.com',
     DEV: 'https://p0.d.hmr.sophos.com',
+    'd': 'https://p0.d.hmr.sophos.com',
     'sb': 'https://fe.sandbox.sophos',
     'linux': 'https://linux.cloud.sandbox',
 }
 
-GL_ENSURE_EVENTS_READY = False
-GL_FLAGS_SET = False
+GL_ENSURE_EVENTS_READY = {}
+GL_FLAGS_SET = {}
 
 def _getUrl(region):
     return GL_REGION_URL[region]
@@ -61,12 +60,16 @@ def _getUrl(region):
 def _getUsername(region):
     if region == DEV:
         return "ssplavtest@sophos.com"
+    elif region == QA:
+        return "ssplavtest@sophos.com"
     raise Exception("Unknown region: "+region)
 
 
 def _getPassword(region):
     if region == DEV:
         return "k_*:J73-XCCi5UaYA&yW"
+    elif region == QA:
+        return "Ch1pm0nk"
     raise Exception("Unknown region: "+region)
 
 
@@ -303,7 +306,7 @@ class CentralConnector(object):
 
     def setFlagsOnce(self, *flags):
         global GL_FLAGS_SET
-        if GL_FLAGS_SET:
+        if GL_FLAGS_SET.get(self.__m_region, False):
             return
         logger.debug("Setting flags")
         res = {}
@@ -317,7 +320,7 @@ class CentralConnector(object):
                 logger.debug("flag %s already set to %s" % (flag, str(value)))
             else:
                 res = self.setFlag(flag, value)
-        GL_FLAGS_SET = True
+        GL_FLAGS_SET[self.__m_region] = True
         return res
 
     def trySetFlagsOnce(self, *flags):
@@ -501,7 +504,6 @@ class CentralConnector(object):
 
         return policy
 
-
     def __ensureServerPolicy(self, hostname=None, category="threat_protection", expect_missing=False):
         """
         Get the server policy, and ensure it exists
@@ -630,9 +632,8 @@ class CentralConnector(object):
         ## is fixed for every customer until the backend is deployed again.
         """
         global GL_ENSURE_EVENTS_READY
-        if GL_ENSURE_EVENTS_READY:
+        if GL_ENSURE_EVENTS_READY.get(self.__m_region, False):
             return
-        GL_ENSURE_EVENTS_READY = True
         hostname = _get_my_hostname()
         endpointid = self.__getServerId(hostname)
         if endpointid is None:
@@ -649,6 +650,7 @@ class CentralConnector(object):
 
         request = urllib.request.Request(url, headers=self.default_headers)
         response = self.__retry_request_url(request)
+        GL_ENSURE_EVENTS_READY[self.__m_region] = True
 
     def getEvents(self, eventType, starttime, endtime=None):
         """

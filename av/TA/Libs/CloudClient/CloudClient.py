@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 DEV = CentralConnector.DEV  # "DEV"
-QA = "QA"
+QA = CentralConnector.QA    # "QA"
 PROD = "PROD"
 
 class CloudClient(object):
@@ -56,14 +56,19 @@ class CloudClient(object):
         return v
 
     def __install_certificate_for_region(self, SOPHOS_INSTALL):
-        OVERRIDE_FLAG_FILE = os.path.join(SOPHOS_INSTALL, "base/mcs/certs/ca_env_override_flag")
-        open(OVERRIDE_FLAG_FILE, "w").close()
         resources = PathManager.get_resources_path()
+        certs_dir = os.path.join(resources, "certs")
         cert = None
         if self.__m_region == DEV:
-            cert = os.path.join(resources, "certs/hmr-dev-sha1.pem")
+            cert = os.path.join(certs_dir, "hmr-dev-sha1.pem")
+        elif self.__m_region == QA:
+            cert = os.path.join(certs_dir, "hmr-qa-sha1.pem")
+        else:
+            logger.debug("No override certificate required/available")
 
         if cert is not None:
+            OVERRIDE_FLAG_FILE = os.path.join(SOPHOS_INSTALL, "base/mcs/certs/ca_env_override_flag")
+            open(OVERRIDE_FLAG_FILE, "w").close()
             dest = os.path.join(SOPHOS_INSTALL, "test-mcs-ca.pem")
             shutil.copy(cert, dest)
             os.environ['MCS_CA'] = dest

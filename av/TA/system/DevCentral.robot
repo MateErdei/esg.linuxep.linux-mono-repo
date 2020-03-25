@@ -88,7 +88,7 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
 Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
     [Tags]  DEVMCS  MANUAL
     [Timeout]    40min
-    Select Central Region  DEV
+    Select Central Region  QA
     log central events
     clear alerts in central
     Ensure AV Policy Exists
