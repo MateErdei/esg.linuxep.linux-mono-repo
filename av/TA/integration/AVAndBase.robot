@@ -31,11 +31,18 @@ AV plugin runs scan now
     Check AV Plugin Installed With Base
     Configure and check scan now
 
-Av plugin runs scan now twice
+AV plugin runs scan now twice
     Check AV Plugin Installed With Base
     Configure and check scan now
     Mark AV Log
     Check scan now
+
+AV plugin runs scan now twice (STRESS TEST)
+     Create EICAR files  1000  /tmp/stress
+     Check AV Plugin Installed With Base
+     Configure and check scan now
+     sleep  2m
+     [Teardown]  remove directory  /tmp/stress  True
 
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
