@@ -40,6 +40,7 @@ class CloudClient(object):
     def select_central_region(self, region="DEV"):
         self.__m_region = region
         self.__m_connector = CentralConnector.CentralConnector(region)
+        self.__m_connector.setFlagsOnce('server.sspl.antivirus.enabled')
 
     def get_central_version(self):
         v = self.__m_connector.getCloudVersion()

@@ -51,6 +51,7 @@ GL_REGION_URL = {
 }
 
 GL_ENSURE_EVENTS_READY = False
+GL_FLAGS_SET = False
 
 def _getUrl(region):
     return GL_REGION_URL[region]
@@ -284,6 +285,46 @@ class CentralConnector(object):
         if not version:
             raise Exception("Sophos Central Version not found in markup at /dashboard")
         return version
+
+    def setFlag(self, flag, value):
+        url = self.host + "/api/customer/flags"
+
+        value = {
+            "1": True,
+        }.get(value, value)
+
+        data = json.dumps({'key': flag, "value": value}).encode('UTF-8')
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
+        response = self.__retry_request_url(request)
+        response = json_loads(response)
+        logger.debug("Set %s to %s" % ( flag, str(value)))
+        return response
+
+    def setFlagsOnce(self, *flags):
+        global GL_FLAGS_SET
+        if GL_FLAGS_SET:
+            return
+        logger.debug("Setting flags")
+        res = {}
+        for flag in flags:
+            if '=' in flag:
+                flag, value = flag.split('=', 1)
+            else:
+                value = True
+
+            if res.get(flag) == value:
+                logger.debug("flag %s already set to %s" % (flag, str(value)))
+            else:
+                res = self.setFlag(flag, value)
+        GL_FLAGS_SET = True
+        return res
+
+    def trySetFlagsOnce(self, *flags):
+        try:
+            return self.setFlagsOnce(*flags)
+        except urllib.error.HTTPError as ex:
+            logger.info("HTTPError setting flags:" + str(ex))
+            return 1
 
     def get_upe_api(self, *paths):
         if self.upe_api is None:
