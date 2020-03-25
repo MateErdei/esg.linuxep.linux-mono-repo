@@ -85,7 +85,8 @@ std::string unixsocket::toUtf8(const std::string& str)
     try
     {
         return boost::locale::conv::to_utf<char>(str, "UTF-8", boost::locale::conv::stop);
-    }catch(const boost::locale::conv::conversion_error& e)
+    }
+    catch(const boost::locale::conv::conversion_error& e)
     {
         LOGERROR("Could not convert from: " << "UTF-8");
     }
@@ -97,7 +98,8 @@ std::string unixsocket::toUtf8(const std::string& str)
         {
             std::string encoding_info = " (" + encoding + ")";
             return boost::locale::conv::to_utf<char>(str, encoding, boost::locale::conv::stop).append(encoding_info);
-        }catch(const boost::locale::conv::conversion_error& e)
+        }
+        catch(const boost::locale::conv::conversion_error& e)
         {
             LOGERROR("Could not convert from: " << encoding);
             continue;
