@@ -73,5 +73,5 @@ def get_exclusion_list_for_everything_else(inclusion):
 
 def exclusions_for_everything_else(inclusion):
     exclusions = get_exclusion_list_for_everything_else(inclusion)
-    exclusions = [ '<filePath>{}<filePath>'.format(f) for f in exclusions ]
+    exclusions = [ '<filePath>{}</filePath>'.format(f) for f in exclusions ]
     return ''.join(exclusions)
