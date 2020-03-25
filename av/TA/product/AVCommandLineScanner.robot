@@ -171,6 +171,8 @@ CLS Encoded Eicars
    @{eicar_names_list}=    Split to lines  ${FILE_CONTENT}
    :FOR    ${item}  IN  @{eicar_names_list}
    \   AV Plugin Log Contains  ${item}
-   Run  rm ${MCS_PATH}/event/*
-   Run  rm -r /tmp/*
+
+   Empty Directory  ${MCS_PATH}/event/
+   Remove Directory  /tmp/encoded_eicars  true
+
    Stop AV

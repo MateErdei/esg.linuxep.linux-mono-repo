@@ -133,7 +133,7 @@ def check_threat_event_received_by_base(number_of_expected_events, event_type):
 
 def check_multiple_different_threat_events(number_of_expected_events, event_type):
     """
-    Check if all expected substrings are present in each event in the events directory
+    Check if all expected substrings are present in at least one of the events in the events directory
     :param number_of_expected_events:
     :param event_type:
     :return: throw Exception on failure. 1 for success

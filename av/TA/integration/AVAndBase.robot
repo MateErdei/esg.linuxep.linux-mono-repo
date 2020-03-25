@@ -193,8 +193,8 @@ AV Plugin Reports encoded eicars To Base
       ...  Run Process    /usr/local/bin/avscanner  /tmp/encoded_eicars/
 
    check_multiple_different_threat_events  56   encoded_eicars
-   Run  rm ${MCS_PATH}/event/*
-   Run  rm -r /tmp/*
+   Empty Directory  ${MCS_PATH}/event/
+   Remove Directory  /tmp/encoded_eicars  true
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin
