@@ -192,7 +192,14 @@ AV Plugin Reports encoded eicars To Base
       ...  3 secs
       ...  Run Process    /usr/local/bin/avscanner  /tmp/encoded_eicars/
 
+   #make sure base has generated all events before checking
+   Wait Until Keyword Succeeds
+         ...  15 secs
+         ...  3 secs
+         ...  check_number_of_events_matches  56
+
    check_multiple_different_threat_events  56   encoded_eicars
+
    Empty Directory  ${MCS_PATH}/event/
    Remove Directory  /tmp/encoded_eicars  true
 

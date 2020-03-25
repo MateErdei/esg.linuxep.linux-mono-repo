@@ -89,6 +89,18 @@ GL_EXPECTED_CONTENTS = {
 }
 
 
+def check_number_of_events_matches(number_of_expected_events):
+    number_of_expected_events = int(number_of_expected_events)
+    events_list = os.listdir(GL_MCS_EVENTS_DIRECTORY)
+    actual_number_of_events = len(events_list)
+
+    if actual_number_of_events != number_of_expected_events:
+        raise Exception("Number of actual events {} is not equals to the number of expected events  {}".
+                        format(actual_number_of_events, number_of_expected_events))
+
+    return actual_number_of_events, events_list, number_of_expected_events
+
+
 def check_threat_event_received_by_base(number_of_expected_events, event_type):
     """
     Check if all expected substrings are present in each event in the events directory
@@ -96,11 +108,8 @@ def check_threat_event_received_by_base(number_of_expected_events, event_type):
     :param event_type:
     :return: throw Exception on failure. 1 for success
     """
-    number_of_expected_events = int(number_of_expected_events)
-    events_list = os.listdir(GL_MCS_EVENTS_DIRECTORY)
-    actual_number_of_events = len(events_list)
-
-    check_number_of_events_matches(actual_number_of_events, number_of_expected_events)
+    actual_number_of_events, events_list, number_of_expected_events = check_number_of_events_matches(
+        number_of_expected_events)
 
     expected_strings = GL_EXPECTED_CONTENTS[event_type]
     # Dictionary mapping each expected string to how many times we've seen it.
@@ -138,11 +147,8 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
     :param event_type:
     :return: throw Exception on failure. 1 for success
     """
-    number_of_expected_events = int(number_of_expected_events)
-    events_list = os.listdir(GL_MCS_EVENTS_DIRECTORY)
-    actual_number_of_events = len(events_list)
-
-    check_number_of_events_matches(actual_number_of_events, number_of_expected_events)
+    actual_number_of_events, events_list, number_of_expected_events = check_number_of_events_matches(
+        number_of_expected_events)
 
     expected_strings = GL_EXPECTED_CONTENTS[event_type]
     # Dictionary mapping each expected string to how many times we've seen it.
@@ -170,9 +176,3 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
         raise Exception(f"Missing string expecting: {unmatched_strings}")
 
     return 1
-
-
-def check_number_of_events_matches(actual_number_of_events, number_of_expected_events):
-    if actual_number_of_events != number_of_expected_events:
-        raise Exception("Number of actual events {} is not equals to the number of expected events  {}".
-                        format(actual_number_of_events, number_of_expected_events))
