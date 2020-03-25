@@ -208,7 +208,9 @@ Check ScanNow Log Exists
 
 Configure Scan Exclusions Everything Else
     [Arguments]  ${inclusion}
-    ${exclusions} =  exclusions for everything else  ${inclusion}
+    ${exclusions} =  exclusions_for_everything_else  ${inclusion}
+    Log  ${inclusion}
+    Log  ${exclusions}
     [return]  ${exclusions}
 
 Create Local NFS Share
