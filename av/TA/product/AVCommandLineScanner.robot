@@ -172,7 +172,6 @@ CLS Encoded Eicars
    :FOR    ${item}  IN  @{eicar_names_list}
    \   AV Plugin Log Contains  ${item}
 
-   Empty Directory  ${MCS_PATH}/event/
    Remove Directory  /tmp/encoded_eicars  true
 
    Stop AV
