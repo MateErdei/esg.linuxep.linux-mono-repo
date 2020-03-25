@@ -17,7 +17,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/serialize.h>
 
 #include <stdexcept>
-#include <iostream>
 #include <utility>
 
 #include <sys/socket.h>
@@ -88,6 +87,7 @@ static scan_messages::ServerThreatDetected parseDetection(kj::Array<capnp::word>
 
 void ThreatReporterServerConnectionThread::run()
 {
+    m_isRunning = true;
     announceThreadStarted();
 
     datatypes::AutoFd socket_fd(std::move(m_fd));
@@ -128,8 +128,8 @@ void ThreatReporterServerConnectionThread::run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length < 0)
             {
-                LOGDEBUG("ThreatReporter aborting connection: failed to read length: " << length);
-                return;
+                LOGERROR("ThreatReporter aborting/closing connection: failed to read length: " << length);
+                break;
             }
 
             if (length == 0)
@@ -149,7 +149,7 @@ void ThreatReporterServerConnectionThread::run()
             if (bytes_read != length)
             {
                 LOGERROR("Aborting connection: failed to read capn proto");
-                return;
+                break;
             }
 
             LOGDEBUG("Read capn of " << bytes_read);
@@ -168,4 +168,6 @@ void ThreatReporterServerConnectionThread::run()
             // TO DO: HANDLE ANY SOCKET ERRORS
         }
     }
+
+    m_isRunning = false;
 }
