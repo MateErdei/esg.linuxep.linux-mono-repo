@@ -3,11 +3,12 @@
 # Copyright (C) 2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import datetime
 import time
 
 import NextScanTime
 
 while True:
     scan_time = NextScanTime.get_next_scan_time()
-    print(scan_time.isoformat())
+    print(datetime.datetime.now().isoformat(), "=>", scan_time.isoformat())
     time.sleep(119)
