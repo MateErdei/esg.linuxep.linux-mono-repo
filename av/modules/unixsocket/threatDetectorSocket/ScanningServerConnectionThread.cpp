@@ -8,8 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "ScanRequest.capnp.h"
-#include "susi_scanner/SusiScanner.h"
-
+#include "susi_scanner/SusiScannerFactory.h"
 #include "datatypes/Print.h"
 #include <capnp/serialize.h>
 

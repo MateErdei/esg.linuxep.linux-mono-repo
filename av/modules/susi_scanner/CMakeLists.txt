@@ -1,6 +1,9 @@
 add_library(susi_scanner SHARED
-            SusiScanner.cpp
-            SusiScanner.h)
+        ISusiScanner.h
+        SusiScanner.cpp
+        SusiScanner.h
+        SusiScannerFactory.cpp
+        SusiScannerFactory.h)
 
 target_link_libraries(susi_scanner  PUBLIC
         scanmessages
