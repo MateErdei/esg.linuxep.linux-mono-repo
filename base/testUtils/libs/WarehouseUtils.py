@@ -45,6 +45,8 @@ DEV_BUILD_CERTS = "dev"
 OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE = "OSTIA_VUT_OVERRIDE"
 OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "master")
 OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_VUT_ADDRESS_BRANCH)
+# Warehouse without RECOMMENDED tag
+OSTIA_BETA_ONLY_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-only-beta"
 # Usually the previous release
 OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PREV_OVERRIDE"
 OSTIA_PREV_ADDRESS_BRANCH = os.environ.get(OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE, "feature-prod-warehouse")
@@ -70,7 +72,8 @@ OSTIA_ADDRESSES = {
                     OSTIA_PAUSED_ADDRESS: "6233",
                     OSTIA_EDR_999_ADDRESS: "7233",
                     OSTIA_MTR_999_ADDRESS: "7237",
-                    OSTIA_EDR_AND_MTR_999_ADDRESS: "7240"
+                    OSTIA_EDR_AND_MTR_999_ADDRESS: "7240",
+                    OSTIA_BETA_ONLY_ADDRESS: "7244"
                    }
 
 BALLISTA_ADDRESS = "https://dci.sophosupd.com/cloudupdate"
@@ -314,6 +317,7 @@ class WarehouseUtils(object):
         "base_paused_update_VUT.xml": TemplateConfig("BASE_PAUSED_VUT", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
         "base_paused_update_999.xml": TemplateConfig("BASE_PAUSED_999", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
         "base_only_VUT_without_SDU_Feature.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_beta_only.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_BETA_ONLY_ADDRESS)
     }
 
 
