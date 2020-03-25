@@ -19,6 +19,7 @@ static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
 
 static const char* g_Guid = "ServerProtectionLinux-Base";
+static const char* g_ReleaseTag = "RECOMMENDED";
 
 // Used to check if an env proxy is in use.
 const char* g_httpsProxy = getenv("https_proxy");
@@ -518,7 +519,11 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
                 queryProductMetadata(product, "ReleaseTagsTag");
                 printf("\n");
             }
-            if (!strcmp(SU_queryProductMetadata(product, "Line", 0), g_Guid))
+
+            // We only ever expect there to be up to 2 tags for a single component. If there is more this should be updated
+            if (!strcmp(SU_queryProductMetadata(product, "Line", 0), g_Guid) && (
+                    !strcmp(SU_queryProductMetadata(product, "ReleaseTagsTag", 0), g_ReleaseTag) ||
+                            !strcmp(SU_queryProductMetadata(product, "ReleaseTagsTag", 1), g_ReleaseTag)))
             {
                 g_Product = product;
             }
