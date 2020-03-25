@@ -221,9 +221,3 @@ Validate latest Event
      ${eventXml}=  get_latest_xml_from_events  base/mcs/event/
      ${parsedXml}=  parse xml  ${eventXml}
      ELEMENT TEXT SHOULD MATCH  source=${parsedXml}  pattern=Scan Now  normalize_whitespace=True  xpath=scanComplete
-
-Create EICAR files
-    [Arguments]  ${eicar_files_to_create}  ${dir_name}
-     : FOR    ${INDEX}    IN RANGE    1    ${eicar_files_to_create}
-        \    ${eicar_file}=    create file    /tmp/${dir_name}/eicar${INDEX}
-

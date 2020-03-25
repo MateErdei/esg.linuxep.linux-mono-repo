@@ -268,3 +268,8 @@ Check Scheduled Scan Configuration File is Correct
 Policy Fragment FS Types
     [Arguments]  ${CDDVDDrives}=false  ${hardDrives}=false  ${networkDrives}=false  ${removableDrives}=false
     [return]    <scanObjectSet><CDDVDDrives>${CDDVDDrives}</CDDVDDrives><hardDrives>${hardDrives}</hardDrives><networkDrives>${networkDrives}</networkDrives><removableDrives>${removableDrives}</removableDrives></scanObjectSet>
+
+Create EICAR files
+    [Arguments]  ${eicar_files_to_create}  ${dir_name}
+     : FOR    ${INDEX}    IN RANGE    1    ${eicar_files_to_create}
+        \    ${eicar_file}=    create file  ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
