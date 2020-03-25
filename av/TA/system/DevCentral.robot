@@ -51,6 +51,7 @@ Wait For Scan Now to complete
 *** Test Cases ***
 
 Scan now from Central and Verify Scan Completed and Eicar Detected
+    [Tags]  DEVMCS
     Select Central Region  DEV
     get central version
     log central events
