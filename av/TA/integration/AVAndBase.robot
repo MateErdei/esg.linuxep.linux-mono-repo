@@ -41,7 +41,8 @@ AV plugin runs scan now and completes (STRESS TEST)
      Create EICAR files  1000  /tmp/stress
      Check AV Plugin Installed With Base
      Configure and check scan now
-     AV Plugin Log Contains  Completed scan Scan Now
+     ${result} =  Count AV Log Lines
+     Should be true  ${result} > 1000
      [Teardown]  Remove Directory  /tmp/stress  True
 
 
