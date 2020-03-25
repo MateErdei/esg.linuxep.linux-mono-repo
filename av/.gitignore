@@ -16,3 +16,15 @@ TA/log.html
 TA/output.xml
 TA/report.html
 TA/resources/TempSAVpolicy.xml
+TA/resources/sophos_certs/local_certs/https/ca/
+TA/resources/sophos_certs/local_certs/https/newcerts/
+TA/resources/sophos_certs/local_certs/https/private/
+TA/resources/sophos_certs/local_certs/https/index.*
+TA/resources/sophos_certs/local_certs/https/InternalServerCA.cer
+TA/resources/sophos_certs/local_certs/https/localhost*
+TA/resources/sophos_certs/local_certs/https/root-ca.crt.*
+TA/resources/sophos_certs/local_certs/https/serial*
+TA/resources/sophos_certs/local_certs/https/server*
+TA/resources/sophos_certs/local_certs/https/*.pem
+TA/local_warehouses/
+TA/tmp/
