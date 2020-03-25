@@ -28,7 +28,6 @@ namespace unixsocket
 
     private:
         datatypes::AutoFd m_fd;
-        scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path);
         std::shared_ptr<IMessageCallback> m_callback;
     };
 }

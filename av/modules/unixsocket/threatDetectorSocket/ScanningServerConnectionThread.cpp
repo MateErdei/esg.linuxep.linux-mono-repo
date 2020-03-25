@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "ScanRequest.capnp.h"
+#include "susi_scanner/SusiScanner.h"
 
 #include "datatypes/Print.h"
 #include <capnp/serialize.h>
@@ -199,7 +200,8 @@ void unixsocket::ScanningServerConnectionThread::run()
 
             datatypes::AutoFd file_fd_manager(file_fd);
 
-            auto result = scan(file_fd_manager, pathname);
+            auto scanner = std::make_unique<susi_scanner::SusiScanner>();
+            auto result = scanner->scan(file_fd_manager, pathname);
             m_callback->processMessage(pathname);
             file_fd_manager.reset();
 
@@ -213,31 +215,4 @@ void unixsocket::ScanningServerConnectionThread::run()
     }
 
     m_isRunning = false;
-}
-
-scan_messages::ScanResponse
-unixsocket::ScanningServerConnectionThread::scan(datatypes::AutoFd& fd, const std::string& file_path)
-{
-    char buffer[512];
-
-    // Test reading the file
-    ssize_t bytesRead = read(fd.get(), buffer, sizeof(buffer) - 1);
-    buffer[bytesRead] = 0;
-    std::cout << "Read " << bytesRead << " from " << file_path << '\n';
-
-    // Test stat the file
-    struct stat statbuf = {};
-    ::fstat(fd.get(), &statbuf);
-    std::cout << "size:" << statbuf.st_size << '\n';
-
-    scan_messages::ScanResponse response;
-    std::string contents(buffer);
-    bool clean = (contents.find("EICAR") == std::string::npos);
-    response.setClean(clean);
-    if (!clean)
-    {
-        response.setThreatName("EICAR");
-    }
-
-    return response;
 }
