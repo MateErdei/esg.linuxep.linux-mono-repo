@@ -72,7 +72,10 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     clear alerts in central
     Ensure AV Policy Exists
     Install Base And Plugin Without Register
+    # Base will uninstall SSPL-AV if it does an update
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
     Register In Central
+    Wait Until AV Plugin Log Contains  Starting scanScheduler
     Wait for computer to appear in Central
     Assign AntiVirus Product to Endpoint in Central
     Configure Exclude everything else in Central  /tmp/testeicar/
