@@ -13,11 +13,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace susi_scanner
 {
-    class ISusiScanner
+    class IThreatScanner
     {
         public:
             virtual scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path) = 0;
     };
 
-    using ISusiScannerPtr = std::unique_ptr<ISusiScanner>;
+    using ISusiScannerPtr = std::unique_ptr<IThreatScanner>;
 }

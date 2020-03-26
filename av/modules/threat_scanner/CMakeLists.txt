@@ -1,5 +1,5 @@
 add_library(susi_scanner SHARED
-        ISusiScanner.h
+        IThreatScanner.h
         ISusiScannerFactory.h
         SusiScanner.cpp
         SusiScanner.h
