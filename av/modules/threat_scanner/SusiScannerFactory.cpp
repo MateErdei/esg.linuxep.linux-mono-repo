@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace susi_scanner;
 
-ISusiScannerPtr SusiScannerFactory::createScanner()
+IThreatScannerPtr SusiScannerFactory::createScanner()
 {
     return std::make_unique<SusiScanner>();
 }

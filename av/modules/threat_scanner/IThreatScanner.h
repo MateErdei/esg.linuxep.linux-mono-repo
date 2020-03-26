@@ -19,5 +19,5 @@ namespace susi_scanner
             virtual scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path) = 0;
     };
 
-    using ISusiScannerPtr = std::unique_ptr<IThreatScanner>;
+    using IThreatScannerPtr = std::unique_ptr<IThreatScanner>;
 }

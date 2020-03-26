@@ -13,6 +13,6 @@ namespace susi_scanner
     class ISusiScannerFactory
     {
     public:
-        virtual ISusiScannerPtr createScanner() = 0;
+        virtual IThreatScannerPtr createScanner() = 0;
     };
 }
