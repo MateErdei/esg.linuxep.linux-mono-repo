@@ -13,7 +13,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace unixsocket
 {
-    class ScanningServerSocket : public ImplServerSocket<ScanningServerConnectionThread>
+    using ScanningServerSocketBase = ImplServerSocket<ScanningServerConnectionThread>;
+
+    class ScanningServerSocket : public ScanningServerSocketBase
     {
     public:
         ScanningServerSocket(const std::string& path, std::shared_ptr<IMessageCallback> callback);

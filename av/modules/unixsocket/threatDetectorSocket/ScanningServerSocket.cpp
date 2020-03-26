@@ -11,7 +11,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 unixsocket::ScanningServerSocket::ScanningServerSocket(const std::string& path,
                                                        std::shared_ptr<IMessageCallback> callback)
-        : ImplServerSocket<ScanningServerConnectionThread>(path, std::move(callback)),
-        m_scannerFactory(new threat_scanner::SusiScannerFactory)
+        : ImplServerSocket<ScanningServerConnectionThread>(path, std::move(callback))
 {
+    if (m_scannerFactory.get() == nullptr)
+    {
+        m_scannerFactory.reset(new threat_scanner::SusiScannerFactory);
+    }
 }
