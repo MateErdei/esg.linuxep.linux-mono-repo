@@ -70,7 +70,7 @@ SET_TARGET_PROPERTIES( DelayControlledTable
 install(TARGETS DelayControlledTable
         DESTINATION ../componenttests)
 
-###
+
 add_executable(BinaryDataTable
         BinaryDataTable.cpp
         )
@@ -95,7 +95,7 @@ target_include_directories(BinaryDataTable PUBLIC
         ${BOOST_INCLUDE_DIR}
         )
 
-SET_TARGET_PROPERTIES( BinaryDataTable
+SET_TARGET_PROPERTIES(BinaryDataTable
         PROPERTIES
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"

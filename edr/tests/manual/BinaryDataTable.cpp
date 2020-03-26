@@ -26,13 +26,13 @@ namespace osquery{
             return {
 
                     std::make_tuple("data", TEXT_TYPE, ColumnOptions::REQUIRED),
-                    std::make_tuple("count", INTEGER_TYPE, ColumnOptions::REQUIRED)
+                    std::make_tuple("size", INTEGER_TYPE, ColumnOptions::REQUIRED)
             };
         }
 
         TableRows generate(QueryContext& request) override {
             TableRows results;
-            std::set<std::string> paths = request.constraints["count"].getAll(EQUALS);
+            std::set<std::string> paths = request.constraints["size"].getAll(EQUALS);
             if (paths.empty())
             {
                 return results;
@@ -47,10 +47,10 @@ namespace osquery{
             // copies all data into buffer
             std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
             std::string data;
-            int iterator =0;
+            int iterator = 0;
             for (auto character : buffer)
             {
-                if (iterator>countv)
+                if (iterator > countv)
                 {
                     break;
                 }
@@ -59,12 +59,12 @@ namespace osquery{
                 iterator += 1;
             }
             r["data"] = data;
-            r["count"] = countv;
+            r["size"] = countv;
             results.push_back(std::move(r));
             return results;
         }
     };
-    REGISTER_EXTERNAL(BinaryDataTablePlugin, "table", "binarydatatable");
+    REGISTER_EXTERNAL(BinaryDataTablePlugin, "table", "binary_data");
 }
 
 // Note 3: Use REGISTER_EXTERNAL to define your plugin or table.
@@ -72,8 +72,9 @@ using namespace osquery;
 int main(int argc, char* argv[]) {
   osquery::Initializer runner(argc, argv, ToolType::EXTENSION);
 
-  auto status = startExtension("binarydatatable", "0.0.1");
-  if (!status.ok()) {
+  auto status = startExtension("binary_data", "0.0.1");
+  if (!status.ok())
+  {
     LOG(ERROR) << status.getMessage();
     runner.requestShutdown(status.getCode());
   }

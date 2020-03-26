@@ -25,7 +25,7 @@ controlled_delay = """{
 get_binary_data = """{
     "type": "sophos.mgt.action.RunLiveQuery",
     "name": "Get Contents of binary file",
-    "query": "select data from binarydatatable where count==100"
+    "query": "select data from binary_data where size==100"
 }"""
 
 top_2_processes_response = """{
