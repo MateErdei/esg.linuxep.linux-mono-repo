@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace susi_scanner
 {
-    class ISusiScannerFactory
+    class IThreatScannerFactory
     {
     public:
         virtual IThreatScannerPtr createScanner() = 0;

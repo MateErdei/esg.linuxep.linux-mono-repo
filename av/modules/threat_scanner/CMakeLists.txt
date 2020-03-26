@@ -1,6 +1,6 @@
 add_library(susi_scanner SHARED
         IThreatScanner.h
-        ISusiScannerFactory.h
+        IThreatScannerFactory.h
         SusiScanner.cpp
         SusiScanner.h
         SusiScannerFactory.cpp
