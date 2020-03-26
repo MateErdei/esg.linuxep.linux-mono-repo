@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <scan_messages/ScanResponse.h>
 #include <datatypes/AutoFd.h>
 
-namespace susi_scanner
+namespace threat_scanner
 {
     class SusiScanner : public IThreatScanner
     {

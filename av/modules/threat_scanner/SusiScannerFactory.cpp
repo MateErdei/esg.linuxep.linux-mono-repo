@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SusiScanner.h"
 
-using namespace susi_scanner;
+using namespace threat_scanner;
 
 IThreatScannerPtr SusiScannerFactory::createScanner()
 {

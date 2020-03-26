@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IThreatScanner.h"
 
-namespace susi_scanner
+namespace threat_scanner
 {
     class IThreatScannerFactory
     {

@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "ScanRequest.capnp.h"
-#include "susi_scanner/SusiScannerFactory.h"
 #include "datatypes/Print.h"
 #include <capnp/serialize.h>
 
@@ -24,7 +23,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         int fd,
         std::shared_ptr<IMessageCallback> callback,
-        std::shared_ptr<susi_scanner::ISusiScannerFactory> scannerFactory)
+        std::shared_ptr<threat_scanner::IThreatScannerFactory> scannerFactory)
     : m_fd(fd)
     , m_callback(std::move(callback))
     , m_scannerFactory(std::move(scannerFactory))

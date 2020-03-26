@@ -1,4 +1,4 @@
-add_library(susi_scanner SHARED
+add_library(threat_scanner SHARED
         IThreatScanner.h
         IThreatScannerFactory.h
         SusiScanner.cpp
@@ -7,17 +7,17 @@ add_library(susi_scanner SHARED
         SusiScannerFactory.h
         )
 
-target_link_libraries(susi_scanner  PUBLIC
+target_link_libraries(threat_scanner  PUBLIC
         scanmessages
         datatypes
         )
 
-target_include_directories(susi_scanner PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(threat_scanner PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
-install(TARGETS susi_scanner
+install(TARGETS threat_scanner
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
-SET_TARGET_PROPERTIES(susi_scanner
+SET_TARGET_PROPERTIES(threat_scanner
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"

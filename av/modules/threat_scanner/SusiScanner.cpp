@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <sys/stat.h>
 
-using namespace susi_scanner;
+using namespace threat_scanner;
 
 scan_messages::ScanResponse
 SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
