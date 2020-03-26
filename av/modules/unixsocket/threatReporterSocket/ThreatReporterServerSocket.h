@@ -11,6 +11,19 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace unixsocket
 {
-    using ThreatReporterServerSocket = ImplServerSocket<ThreatReporterServerConnectionThread>;
+    using ThreatReporterServerSocketBase = ImplServerSocket<ThreatReporterServerConnectionThread>;
+
+    class ThreatReporterServerSocket : public ThreatReporterServerSocketBase
+    {
+    public:
+
+        using ThreatReporterServerSocketBase::ImplServerSocket;
+
+    protected:
+        TPtr makeThread(int fd, std::shared_ptr<IMessageCallback> callback) override
+        {
+            return std::make_unique<connection_thread_t>(fd, callback);
+        }
+    };
 }
 

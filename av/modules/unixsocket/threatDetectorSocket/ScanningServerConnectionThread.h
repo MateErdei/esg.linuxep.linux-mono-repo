@@ -27,15 +27,16 @@ namespace unixsocket
     public:
         ScanningServerConnectionThread(const ScanningServerConnectionThread&) = delete;
         ScanningServerConnectionThread& operator=(const ScanningServerConnectionThread&) = delete;
-        explicit ScanningServerConnectionThread(int fd,
+        explicit ScanningServerConnectionThread(
+                int fd,
                 std::shared_ptr<IMessageCallback> callback,
-                std::shared_ptr<threat_scanner::IThreatScannerFactory> scannerFactory);
+                threat_scanner::IThreatScannerFactorySharedPtr scannerFactory);
         void run() override;
 
     private:
         datatypes::AutoFd m_fd;
         std::shared_ptr<IMessageCallback> m_callback;
-        std::shared_ptr<threat_scanner::IThreatScannerFactory> m_scannerFactory;
+        threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
     };
 }
 

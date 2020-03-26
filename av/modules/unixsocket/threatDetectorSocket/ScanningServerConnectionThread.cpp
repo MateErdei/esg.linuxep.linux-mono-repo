@@ -23,7 +23,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         int fd,
         std::shared_ptr<IMessageCallback> callback,
-        std::shared_ptr<threat_scanner::IThreatScannerFactory> scannerFactory)
+        threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
     : m_fd(fd)
     , m_callback(std::move(callback))
     , m_scannerFactory(std::move(scannerFactory))

@@ -15,4 +15,5 @@ namespace threat_scanner
     public:
         virtual IThreatScannerPtr createScanner() = 0;
     };
+    using IThreatScannerFactorySharedPtr = std::shared_ptr<IThreatScannerFactory>;
 }

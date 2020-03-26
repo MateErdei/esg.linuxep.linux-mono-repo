@@ -54,7 +54,10 @@ namespace unixsocket
         using BaseServerSocket::BaseServerSocket;
 
     protected:
+        using connection_thread_t = T;
         using TPtr = std::unique_ptr<T>;
+
+        virtual TPtr makeThread(int fd, std::shared_ptr<IMessageCallback> callback) = 0;
 
         bool handleConnection(int fd) override
         {
@@ -73,7 +76,7 @@ namespace unixsocket
                 }
             }
 
-            auto thread = std::make_unique<T>(fd, m_callback);
+            auto thread = makeThread(fd, m_callback);
             thread->start();
             m_threadVector.emplace_back(std::move(thread));
             return false;
