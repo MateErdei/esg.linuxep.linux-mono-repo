@@ -26,6 +26,7 @@ target_link_libraries(threatReporterServerExecutable  PUBLIC unixsocket)
 target_include_directories(threatReporterServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 SophosAddTest(TestThreatDetectorSocket
+        TestScanningServerConnectionThread.cpp
         TestThreatDetectorSocket.cpp
         PROJECTS unixsocket
         INC_DIRS

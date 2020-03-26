@@ -26,6 +26,15 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
     : m_fd(fd)
     , m_scannerFactory(std::move(scannerFactory))
 {
+    if (m_fd < 0)
+    {
+        throw std::runtime_error("Attempting to construct ScanningServerConnectionThread with invalid socket fd");
+    }
+
+    if (m_scannerFactory.get() == nullptr)
+    {
+        throw std::runtime_error("Attempting to construct ScanningServerConnectionThread with null scanner factory");
+    }
 }
 
 //
