@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    Suite description
+Documentation    Integration tests for AVP and Base
 
 Library         OperatingSystem
 Library         Process
