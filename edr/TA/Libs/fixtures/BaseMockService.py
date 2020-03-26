@@ -58,7 +58,8 @@ def install_component(sophos_install):
     extensions_dir = os.path.join(sophos_install, 'plugins/edr/extensions/')
     DelayTable = 'DelayControlledTable'
     shutil.copy( os.path.join(component_tests_dir, DelayTable), os.path.join(extensions_dir, DelayTable))
-
+    BinaryData = 'BinaryDataTable'
+    shutil.copy( os.path.join(component_tests_dir, BinaryData), os.path.join(extensions_dir, BinaryData))
 
     run_shell(['ldconfig', '-lN', '*.so.*'], cwd=plugin_lib64_path)
     run_shell(['chmod', '+x', plugin_executable])

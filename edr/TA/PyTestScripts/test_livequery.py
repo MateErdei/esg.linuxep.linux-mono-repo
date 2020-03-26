@@ -22,6 +22,12 @@ controlled_delay = """{
     "query": "select start,stop,delay from delaytable where delay==DELAYTIME"
 }"""
 
+get_binary_data = """{
+    "type": "sophos.mgt.action.RunLiveQuery",
+    "name": "Get Contents of binary file",
+    "query": "select data from binarydatatable "
+}"""
+
 top_2_processes_response = """{
         "type": "sophos.mgt.response.RunLiveQuery",
         "queryMetaData": {"errorCode":0,"errorMessage":"OK","rows":1},
@@ -189,6 +195,24 @@ def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin
     """
 
     file_content = send_and_receive_query(query, sspl_mock.management, edr_plugin_instance)
+
+    typePos = file_content.find('type')
+    metaDataPos = file_content.find("queryMetaData")
+    columnMetaDataPos = file_content.find("columnMetaData")
+    columnDataPos = file_content.find("columnData")
+    # demonstrate expected order of the main key values
+    try:
+        assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
+    except:
+        logger.info("Test live query failed.")
+        logger.info(file_content)
+        raise
+@detect_failure
+def test_edr_plugin_receives_binary_data_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
+    edr_plugin_instance.start_edr()
+
+
+    file_content = send_and_receive_query(get_binary_data, sspl_mock.management, edr_plugin_instance)
 
     typePos = file_content.find('type')
     metaDataPos = file_content.find("queryMetaData")
