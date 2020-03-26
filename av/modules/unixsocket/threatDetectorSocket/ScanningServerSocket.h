@@ -19,7 +19,6 @@ namespace unixsocket
     public:
         ScanningServerSocket(
                 const std::string& path,
-                std::shared_ptr<IMessageCallback> callback,
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
                 );
     protected:

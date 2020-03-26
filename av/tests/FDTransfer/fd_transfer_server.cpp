@@ -20,14 +20,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 namespace
 {
-    class MessageCallbacks : public IMessageCallback
-    {
-    public:
-        void processMessage(const std::string& message) override
-        {
-            PRINT(message);
-        }
-    };
 }
 
 int main()
@@ -45,10 +37,9 @@ int main()
     static_cast<void>(ret); // ignore
 
     const std::string path = "/tmp/unix_socket";
-    std::shared_ptr<IMessageCallback> callback = std::make_shared<MessageCallbacks>();
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
             = std::make_shared<threat_scanner::SusiScannerFactory>();
-    unixsocket::ScanningServerSocket server(path, callback, scannerFactory);
+    unixsocket::ScanningServerSocket server(path, scannerFactory);
     server.run();
 
     return 0;

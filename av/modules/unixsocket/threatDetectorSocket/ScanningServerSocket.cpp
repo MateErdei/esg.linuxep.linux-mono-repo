@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 unixsocket::ScanningServerSocket::ScanningServerSocket(
         const std::string& path,
-        std::shared_ptr<IMessageCallback>,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
         : ImplServerSocket<ScanningServerConnectionThread>(path),
                 m_scannerFactory(std::move(scannerFactory))

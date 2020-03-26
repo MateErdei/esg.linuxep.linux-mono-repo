@@ -20,15 +20,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace sspl::sophosthreatdetectorimpl;
 
-class MessageCallbacks : public IMessageCallback
-{
-    void processMessage(const std::string& message) override
-    {
-        LOGTRACE("scanning: " << message);
-    }
-};
-
-
 static int inner_main()
 {
     int ret;
@@ -42,10 +33,9 @@ static int inner_main()
 
     const std::string path = "/unix_socket";
 
-    std::shared_ptr<IMessageCallback> callback = std::make_shared<MessageCallbacks>();
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
         = std::make_shared<threat_scanner::SusiScannerFactory>();
-    unixsocket::ScanningServerSocket server(path, callback, scannerFactory);
+    unixsocket::ScanningServerSocket server(path, scannerFactory);
     server.run();
 
     return 0;
