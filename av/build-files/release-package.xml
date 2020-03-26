@@ -36,14 +36,11 @@
         </package>
 
         <!-- SUSI imports -->
-        <!--
-
         <package name="sspl-plugin-av-susi-component"
                  version="master/%LASTGOODCOMPONENTBUILD%/sspl-plugin-av-susi-component/0.5.0/output"
                  dest="input" buildtype="dev">
             <include src="susi.tar" dest="."/>
         </package>
-        -->
 
     </inputs>
     <buildcommands>

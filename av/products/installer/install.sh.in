@@ -76,7 +76,6 @@ mkdir -p "$VAR"
 chmod 0700 "$VAR"
 
 CHROOT="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/chroot"
-mkdir -p "$CHROOT"
 chmod 0711 "$CHROOT"
 
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
