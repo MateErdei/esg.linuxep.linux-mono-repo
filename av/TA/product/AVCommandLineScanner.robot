@@ -1,5 +1,6 @@
 *** Settings ***
 Documentation   Product tests for AVP Command line scanner
+Default Tags    PRODUCT
 Library         Process
 Library         Collections
 Library         OperatingSystem

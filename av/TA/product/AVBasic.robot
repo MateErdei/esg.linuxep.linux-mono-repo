@@ -1,5 +1,6 @@
 *** Settings ***
 Documentation   Product tests for AVP
+Default Tags    PRODUCT
 Library         DateTime
 Library         Process
 Library         OperatingSystem

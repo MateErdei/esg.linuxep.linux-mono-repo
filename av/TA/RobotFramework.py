@@ -9,12 +9,12 @@ def main():
     # Exclude OSTIA on TAP, since we are testing builds immediately, before they have a chance to be put in warehouses
     # Exclude STRESS on TAP; as some of the tests here will not be appropriate
 
-    tags = {'include': [], 'exclude': ['OSTIA', 'STRESS']}
+    tags = {'include': ['INTEGRATION', 'PRODUCT'], 'exclude': ['OSTIA', 'STRESS']}
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {
         'path':  r'/opt/test/inputs/test_scripts/',
-        'name': '',
+        'name': 'SSPLAV',
         'loglevel': 'DEBUG',
         'consolecolors': 'ansi',
         'include': tags['include'],
