@@ -20,6 +20,23 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 namespace
 {
+    class FakeScanner : public threat_scanner::IThreatScanner
+    {
+        scan_messages::ScanResponse scan(datatypes::AutoFd&, const std::string& file_path) override
+        {
+            PRINT(file_path);
+            scan_messages::ScanResponse response;
+            response.setClean(true);
+            return response;
+        }
+    };
+    class FakeScannerFactory : public threat_scanner::IThreatScannerFactory
+    {
+        threat_scanner::IThreatScannerPtr createScanner() override
+        {
+            return std::make_unique<FakeScanner>();
+        }
+    };
 }
 
 int main()
@@ -37,8 +54,7 @@ int main()
     static_cast<void>(ret); // ignore
 
     const std::string path = "/tmp/unix_socket";
-    threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
-            = std::make_shared<threat_scanner::SusiScannerFactory>();
+    auto scannerFactory = std::make_shared<FakeScannerFactory>();
     unixsocket::ScanningServerSocket server(path, scannerFactory);
     server.run();
 
