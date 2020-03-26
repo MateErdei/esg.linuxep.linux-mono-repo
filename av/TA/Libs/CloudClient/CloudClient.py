@@ -45,7 +45,9 @@ class CloudClient(object):
             self.__m_connector = CentralConnector.CentralConnector(self.__m_region)
         return self.__m_connector
 
-    def select_central_region(self, region="DEV"):
+    def select_central_region(self, region="AUTO"):
+        if region == "AUTO":
+            region = os.environ.get("MCS_REGION", "QA")
         self.__m_region = region
         version = self.get_central_version()
         logger.info(f"Connecting to Central Region {region} version {version}")

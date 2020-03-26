@@ -66,8 +66,8 @@ Wait For Central Scheduled Scan to complete
 *** Test Cases ***
 
 Scan now from Central and Verify Scan Completed and Eicar Detected
-    [Tags]  SYSTEM  QAMCS
-    Select Central Region  QA
+    [Tags]  SYSTEM  CENTRAL
+    Select Central Region
     log central events
     clear alerts in central
     Ensure AV Policy Exists
@@ -86,9 +86,9 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     Wait For Eicar Detection in central  /tmp/testeicar/eicar.com  ${currentTime}
 
 Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
-    [Tags]  SYSTEM  QAMCS  MANUAL
+    [Tags]  SYSTEM  CENTRAL  MANUAL
     [Timeout]    40min
-    Select Central Region  QA
+    Select Central Region
     log central events
     clear alerts in central
     Ensure AV Policy Exists
