@@ -23,9 +23,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         int fd,
-        std::shared_ptr<IMessageCallback> callback)
+        std::shared_ptr<IMessageCallback> callback,
+        std::shared_ptr<susi_scanner::ISusiScannerFactory> scannerFactory)
     : m_fd(fd)
     , m_callback(std::move(callback))
+    , m_scannerFactory(std::move(scannerFactory))
 {
 }
 
@@ -199,7 +201,7 @@ void unixsocket::ScanningServerConnectionThread::run()
 
             datatypes::AutoFd file_fd_manager(file_fd);
 
-            auto scanner = std::make_unique<susi_scanner::SusiScanner>();
+            auto scanner = m_scannerFactory->createScanner();
             auto result = scanner->scan(file_fd_manager, pathname);
             m_callback->processMessage(pathname);
             file_fd_manager.reset();

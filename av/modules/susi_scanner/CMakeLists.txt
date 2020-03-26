@@ -2,6 +2,7 @@ add_library(susi_scanner SHARED
         ISusiScanner.h
         SusiScanner.cpp
         SusiScanner.h
+        ISusiScannerFactory.h
         SusiScannerFactory.cpp
         SusiScannerFactory.h)
 

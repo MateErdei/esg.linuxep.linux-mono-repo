@@ -11,6 +11,6 @@ namespace susi_scanner
     class ISusiScanner
     {
         public:
-            virtual scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path);
+            virtual scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path) = 0;
     };
 }

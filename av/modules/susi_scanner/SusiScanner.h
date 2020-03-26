@@ -11,5 +11,7 @@ namespace susi_scanner
 {
     class SusiScanner : public ISusiScanner
     {
+        public:
+            scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path) override;
     };
 }
