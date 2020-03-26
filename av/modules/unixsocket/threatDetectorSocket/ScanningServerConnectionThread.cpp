@@ -134,6 +134,7 @@ void unixsocket::ScanningServerConnectionThread::run()
     max = addFD(&readFDs, exitFD, max);
     max = addFD(&readFDs, socket_fd, max);
 
+    auto scanner = m_scannerFactory->createScanner();
     while (true)
     {
         fd_set tempRead = readFDs;
@@ -200,7 +201,6 @@ void unixsocket::ScanningServerConnectionThread::run()
 
             datatypes::AutoFd file_fd_manager(file_fd);
 
-            auto scanner = m_scannerFactory->createScanner();
             auto result = scanner->scan(file_fd_manager, pathname);
             m_callback->processMessage(pathname);
             file_fd_manager.reset();
