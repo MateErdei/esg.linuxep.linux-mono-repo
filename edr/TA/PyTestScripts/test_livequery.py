@@ -25,7 +25,7 @@ controlled_delay = """{
 get_binary_data = """{
     "type": "sophos.mgt.action.RunLiveQuery",
     "name": "Get Contents of binary file",
-    "query": "select data from binarydatatable "
+    "query": "select data from binarydatatable where count==100"
 }"""
 
 top_2_processes_response = """{
@@ -207,13 +207,26 @@ def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin
         logger.info("Test live query failed.")
         logger.info(file_content)
         raise
+
 @detect_failure
 def test_edr_plugin_receives_binary_data_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
-
-
-    file_content = send_and_receive_query(get_binary_data, sspl_mock.management, edr_plugin_instance)
-
+    BINARYDATANAME = 'BinaryDataTable'
+    extensions_path = os.path.join(sspl_mock.sspl, 'plugins/edr/extensions')
+    binary_table_exec = os.path.join(extensions_path, BINARYDATANAME)
+    sock_path = os.path.join(sspl_mock.sspl, 'plugins/edr/var/osquery.sock')
+    # it needs to wait for the osquery to be really launched.
+    edr_plugin_instance.wait_log_contains("osquery initialized", 10)
+    popen = subprocess.Popen([binary_table_exec, '--socket', sock_path])
+    #give a small time for the extension to be launched and communicate with osquery
+    time.sleep(5)
+    try:
+        file_content = send_and_receive_query(get_binary_data, sspl_mock.management, edr_plugin_instance)
+    finally:
+        popen.kill()
+        output, error = popen.communicate()
+        print(output)
+        print(error)
     typePos = file_content.find('type')
     metaDataPos = file_content.find("queryMetaData")
     columnMetaDataPos = file_content.find("columnMetaData")

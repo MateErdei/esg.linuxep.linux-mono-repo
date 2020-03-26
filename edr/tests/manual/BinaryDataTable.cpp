@@ -25,29 +25,41 @@ namespace osquery{
         TableColumns columns() const override {
             return {
 
-                    std::make_tuple("data", TEXT_TYPE, ColumnOptions::REQUIRED)
+                    std::make_tuple("data", TEXT_TYPE, ColumnOptions::REQUIRED),
+                    std::make_tuple("count", INTEGER_TYPE, ColumnOptions::REQUIRED)
             };
         }
 
         TableRows generate(QueryContext& request) override {
             TableRows results;
-            std::set<std::string> paths = request.constraints["path"].getAll(EQUALS);
+            std::set<std::string> paths = request.constraints["count"].getAll(EQUALS);
             if (paths.empty())
             {
                 return results;
             }
 
+            std::stringstream count{*paths.begin()};
+            int countv{0};
+            count >> countv;
             auto r = osquery::make_table_row();
             std::ifstream input( "/usr/bin/touch", std::ios::binary );
 
             // copies all data into buffer
             std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
-            std::string data ;
+            std::string data;
+            int iterator =0;
             for (auto character : buffer)
             {
+                if (iterator>countv)
+                {
+                    break;
+                }
+
                 data += character;
+                iterator += 1;
             }
             r["data"] = data;
+            r["count"] = countv;
             results.push_back(std::move(r));
             return results;
         }
