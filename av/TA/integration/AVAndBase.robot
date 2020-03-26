@@ -38,15 +38,6 @@ AV plugin runs scan now twice
     Mark AV Log
     Check scan now
 
-AV plugin runs scan now and completes (STRESS TEST)
-     Create EICAR files  1000  /tmp/stress
-     Check AV Plugin Installed With Base
-     Configure and check scan now
-     ${result} =  Count AV Log Lines
-     Should be true  ${result} > 1000
-     [Teardown]  Remove Directory  /tmp/stress  True
-
-
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
     Send Sav Action To Base  ScanNow_Action.xml
