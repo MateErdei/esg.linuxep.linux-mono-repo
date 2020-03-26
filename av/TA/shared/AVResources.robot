@@ -57,12 +57,17 @@ Mark AV Log
     Set Test Variable   ${AV_LOG_MARK}  ${count}
     Log  "AV LOG MARK = ${AV_LOG_MARK}"
 
-File Log Contains
+File Log Contains With Offset
     [Arguments]  ${path}  ${input}  ${offset}=0
     ${content} =  Get File   ${path}
     Log   "Skipping ${offset} lines"
     @{lines} =  Split To Lines   ${content}  ${offset}
     ${content} =  Catenate  SEPARATOR=\n  @{lines}
+    Should Contain  ${content}  ${input}
+
+File Log Contains
+    [Arguments]  ${path}  ${input}
+    ${content} =  Get File   ${path}
     Should Contain  ${content}  ${input}
 
 File Log Should Not Contain
@@ -86,10 +91,18 @@ File Log Does Not Contain
     ...    1 secs
     ...    ${logCheck}  ${input}
 
-AV Plugin Log Contains
+AV Plugin Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Contains  ${AV_LOG_PATH}   ${input}   offset=${offset}
+    File Log Contains With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
+
+AV Plugin Log Contains
+    [Arguments]  ${input}
+    File Log Contains  ${AV_LOG_PATH}   ${input}
+
+Wait Until AV Plugin Log Contains With Offset
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}
 
 Wait Until AV Plugin Log Contains
     [Arguments]  ${input}  ${timeout}=15
