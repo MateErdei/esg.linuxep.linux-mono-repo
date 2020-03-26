@@ -7,6 +7,7 @@ add_library(sophosthreatdetectorimpl SHARED
         Logger.h)
 
 target_link_libraries(sophosthreatdetectorimpl  PUBLIC
+        threat_scanner
         unixsocket
         datatypes
         cap

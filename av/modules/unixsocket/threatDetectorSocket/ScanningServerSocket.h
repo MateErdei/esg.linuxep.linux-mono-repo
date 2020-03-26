@@ -22,7 +22,6 @@ namespace unixsocket
                 const std::string& path,
                 std::shared_ptr<IMessageCallback> callback,
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
-                            = threat_scanner::IThreatScannerFactorySharedPtr()
                 );
     protected:
 

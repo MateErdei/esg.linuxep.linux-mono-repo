@@ -8,17 +8,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
-#include "common/Define.h"
 #include <datatypes/Print.h>
-#include "datatypes/sophos_filesystem.h"
-
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 #include <string>
 #include <unistd.h>
+#include <threat_scanner/SusiScannerFactory.h>
+
+#define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
+
+#define CHROOT "/opt/sophos-spl/plugins/av/chroot"
 
 using namespace sspl::sophosthreatdetectorimpl;
-namespace fs = sophos_filesystem;
 
 class MessageCallbacks : public IMessageCallback
 {
@@ -31,24 +31,21 @@ class MessageCallbacks : public IMessageCallback
 
 static int inner_main()
 {
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-    fs::path chrootPath = pluginInstall / "chroot";
-#ifdef USE_CHROOT
-    int ret = ::chroot(chrootPath.c_str());
+    int ret;
+
+    ret = ::chroot(CHROOT);
     if (ret != 0)
     {
-        LOGERROR("Failed to chroot to " << chrootPath);
-        exit(EXIT_FAILURE);
+        handle_error("Failed to chroot to "
+                             CHROOT);
     }
 
-    fs::path scanningSocketPath = "/scanning_socket";
-#else
-    fs::path scanningSocketPath = chrootPath / "scanning_socket";
-#endif
+    const std::string path = "/unix_socket";
 
     std::shared_ptr<IMessageCallback> callback = std::make_shared<MessageCallbacks>();
-    unixsocket::ScanningServerSocket server(scanningSocketPath, callback);
+    threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+        = std::make_shared<threat_scanner::SusiScannerFactory>();
+    unixsocket::ScanningServerSocket server(path, callback, scannerFactory);
     server.run();
 
     return 0;

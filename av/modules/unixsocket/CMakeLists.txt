@@ -29,7 +29,6 @@ add_library(unixsocket SHARED
 target_link_libraries(unixsocket  PUBLIC
         datatypes
         scanmessages
-        threat_scanner
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         ${pluginapilib}
         ${CRYPTO_LIBRARY}

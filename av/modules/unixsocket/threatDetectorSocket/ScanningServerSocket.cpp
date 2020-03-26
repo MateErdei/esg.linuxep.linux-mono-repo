@@ -7,7 +7,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanningServerSocket.h"
 
 #include <threat_scanner/IThreatScannerFactory.h>
-#include <threat_scanner/SusiScannerFactory.h>
 
 unixsocket::ScanningServerSocket::ScanningServerSocket(
         const std::string& path,
@@ -18,6 +17,6 @@ unixsocket::ScanningServerSocket::ScanningServerSocket(
 {
     if (m_scannerFactory.get() == nullptr)
     {
-        m_scannerFactory.reset(new threat_scanner::SusiScannerFactory);
+        throw std::runtime_error("Attempting to create ScanningServerSocket without scanner factory");
     }
 }

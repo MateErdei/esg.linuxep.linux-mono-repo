@@ -8,7 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 // Created by Douglas Leeder on 19/12/2019.
 //
 
+#include "threat_scanner/SusiScannerFactory.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
+
 #include "datatypes/Print.h"
 #include <string>
 #include <unistd.h>
@@ -44,7 +46,9 @@ int main()
 
     const std::string path = "/tmp/unix_socket";
     std::shared_ptr<IMessageCallback> callback = std::make_shared<MessageCallbacks>();
-    unixsocket::ScanningServerSocket server(path, callback);
+    threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+            = std::make_shared<threat_scanner::SusiScannerFactory>();
+    unixsocket::ScanningServerSocket server(path, callback, scannerFactory);
     server.run();
 
     return 0;
