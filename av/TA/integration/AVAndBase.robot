@@ -11,6 +11,7 @@ Library         ../Libs/ThreatReportUtils.py
 
 Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
+Resource        ../shared/AVAndBaseResources.robot
 
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
