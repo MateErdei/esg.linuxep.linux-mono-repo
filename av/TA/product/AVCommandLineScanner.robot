@@ -1,4 +1,5 @@
 *** Settings ***
+Documentation   Product tests for AVP Command line scanner
 Library         Process
 Library         Collections
 Library         OperatingSystem

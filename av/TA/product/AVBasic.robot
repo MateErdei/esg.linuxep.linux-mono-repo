@@ -1,4 +1,5 @@
 *** Settings ***
+Documentation   Product tests for AVP
 Library         DateTime
 Library         Process
 Library         OperatingSystem
