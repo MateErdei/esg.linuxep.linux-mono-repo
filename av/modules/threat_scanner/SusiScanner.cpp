@@ -11,8 +11,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <sys/stat.h>
 
+using namespace susi_scanner;
+
 scan_messages::ScanResponse
-susi_scanner::SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
+SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
 {
     char buffer[512];
 

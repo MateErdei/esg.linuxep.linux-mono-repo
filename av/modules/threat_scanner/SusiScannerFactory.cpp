@@ -6,7 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SusiScannerFactory.h"
 
-std::unique_ptr<susi_scanner::SusiScanner> susi_scanner::SusiScannerFactory::createScanner()
+#include "SusiScanner.h"
+
+using namespace susi_scanner;
+
+ISusiScannerPtr SusiScannerFactory::createScanner()
 {
-    return std::make_unique<susi_scanner::SusiScanner>();
+    return std::make_unique<SusiScanner>();
 }

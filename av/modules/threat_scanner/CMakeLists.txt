@@ -1,15 +1,15 @@
 add_library(susi_scanner SHARED
         ISusiScanner.h
+        ISusiScannerFactory.h
         SusiScanner.cpp
         SusiScanner.h
-        ISusiScannerFactory.h
         SusiScannerFactory.cpp
-        SusiScannerFactory.h)
+        SusiScannerFactory.h
+        )
 
 target_link_libraries(susi_scanner  PUBLIC
         scanmessages
         datatypes
-        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         )
 
 target_include_directories(susi_scanner PUBLIC ${CMAKE_SOURCE_DIR}/modules)
