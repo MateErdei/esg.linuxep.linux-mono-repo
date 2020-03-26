@@ -6,13 +6,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SophosThreatDetectorMain.h"
 #include "Logger.h"
+#include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include <datatypes/Print.h>
 
 #include <string>
 #include <unistd.h>
-#include <threat_scanner/SusiScannerFactory.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 

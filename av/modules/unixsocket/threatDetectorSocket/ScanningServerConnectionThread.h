@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "datatypes/AutoFd.h"
 #include "scan_messages/ScanResponse.h"
-#include "threat_scanner/IThreatScannerFactory.h"
+#include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
 
 #include "unixsocket/BaseServerConnectionThread.h"
 #include "unixsocket/IMessageCallback.h"

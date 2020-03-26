@@ -6,8 +6,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanningServerSocket.h"
 
-#include <threat_scanner/IThreatScannerFactory.h>
-
 unixsocket::ScanningServerSocket::ScanningServerSocket(
         const std::string& path,
         std::shared_ptr<IMessageCallback> callback,

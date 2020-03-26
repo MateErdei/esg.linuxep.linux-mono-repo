@@ -10,7 +10,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/BaseServerSocket.h"
 
-
 namespace unixsocket
 {
     using ScanningServerSocketBase = ImplServerSocket<ScanningServerConnectionThread>;
