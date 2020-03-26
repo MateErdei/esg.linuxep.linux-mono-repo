@@ -52,9 +52,8 @@ static int addFD(fd_set* fds, int fd, int currentMax)
     return std::max(fd, currentMax);
 }
 
-unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, std::shared_ptr<IMessageCallback> callback)
+unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
     : m_socketPath(path)
-    , m_callback(std::move(callback))
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");

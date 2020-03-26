@@ -24,9 +24,9 @@ namespace unixsocket
                 );
     protected:
 
-        TPtr makeThread(int fd, std::shared_ptr<IMessageCallback> callback) override
+        TPtr makeThread(int fd) override
         {
-            return std::make_unique<ScanningServerConnectionThread>(fd, callback, m_scannerFactory);
+            return std::make_unique<ScanningServerConnectionThread>(fd, m_scannerFactory);
         }
 
     private:

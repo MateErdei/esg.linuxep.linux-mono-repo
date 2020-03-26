@@ -29,13 +29,11 @@ namespace unixsocket
         ScanningServerConnectionThread& operator=(const ScanningServerConnectionThread&) = delete;
         explicit ScanningServerConnectionThread(
                 int fd,
-                std::shared_ptr<IMessageCallback> callback,
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory);
         void run() override;
 
     private:
         datatypes::AutoFd m_fd;
-        std::shared_ptr<IMessageCallback> m_callback;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
     };
 }

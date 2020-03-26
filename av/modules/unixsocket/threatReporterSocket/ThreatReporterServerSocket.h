@@ -16,14 +16,16 @@ namespace unixsocket
     class ThreatReporterServerSocket : public ThreatReporterServerSocketBase
     {
     public:
-
-        using ThreatReporterServerSocketBase::ImplServerSocket;
+        ThreatReporterServerSocket(const std::string& path, std::shared_ptr<IMessageCallback> callback);
 
     protected:
-        TPtr makeThread(int fd, std::shared_ptr<IMessageCallback> callback) override
+        TPtr makeThread(int fd) override
         {
-            return std::make_unique<connection_thread_t>(fd, callback);
+            return std::make_unique<connection_thread_t>(fd, m_callback);
         }
+    private:
+
+        std::shared_ptr<IMessageCallback> m_callback;
     };
 }
 
