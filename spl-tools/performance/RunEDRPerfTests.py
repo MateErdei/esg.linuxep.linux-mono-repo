@@ -53,21 +53,40 @@ def get_part_after_equals(key_value_pair):
     return ""
 
 
-def record_result(event_name, date_time, start_time, end_time):
-    hostname = socket.gethostname()
-    build_date = "unknown"
-    product_version = "unknown"
-    with open("/opt/sophos-spl/base/VERSION.ini", 'r') as version_file:
+def get_build_date_and_version(path):
+    build_date="none"
+    product_version="none"
+    with open(path, 'r') as version_file:
         for line in version_file:
             if "BUILD_DATE" in line:
                 build_date = get_part_after_equals(line)
             if "PRODUCT_VERSION" in line:
                 product_version = get_part_after_equals(line)
+    return build_date, product_version
+
+def record_result(event_name, date_time, start_time, end_time):
+    hostname = socket.gethostname()
+    base_build_date, base_product_version = get_build_date_and_version("/opt/sophos-spl/base/VERSION.ini")
+    edr_build_date, edr_product_version = get_build_date_and_version("/opt/sophos-spl/plugins/edr/VERSION.ini")
+    mtr_build_date, mtr_product_version = get_build_date_and_version("/opt/sophos-spl/plugins/mtr/VERSION.ini")
+
+    #echo '{"datetime":"'$DATETIME'", "hostname": "'$HOSTNAME'", "build_date":"'$BUILD_DATE'", "product_version":"'$PRODUCT_VERSION'", "edr_version":"'$EDR_VERSION'", "mtr_version":"'$MTR_VERSION'", "eventname":"GCC Build", "start":'$START', "finish":'$END', "duration":'$DURATION'}' > gcc.json
 
     duration = end_time - start_time
 
-    result = {"datetime": date_time, "hostname": hostname, "build_date": build_date, "product_version": product_version,
-              "eventname": event_name, "start": start_time, "finish": end_time, "duration": str(duration)}
+    result = {
+        "datetime": date_time,
+        "hostname": hostname,
+        "build_date": base_build_date,
+        "product_version": base_product_version,
+        "edr_build_date": edr_build_date,
+        "edr_product_version": edr_product_version,
+        "mtr_build_date": mtr_build_date,
+        "mtr_product_version": mtr_product_version,
+        "eventname": event_name,
+        "start": start_time,
+        "finish": end_time,
+        "duration": str(duration)}
 
     r = requests.post('http://sspl-perf-mon:9200/perf-custom/_doc', json=result)
     if r.status_code not in [200, 201]:
