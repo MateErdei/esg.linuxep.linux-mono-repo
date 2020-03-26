@@ -18,7 +18,12 @@ namespace unixsocket
     class ScanningServerSocket : public ScanningServerSocketBase
     {
     public:
-        ScanningServerSocket(const std::string& path, std::shared_ptr<IMessageCallback> callback);
+        ScanningServerSocket(
+                const std::string& path,
+                std::shared_ptr<IMessageCallback> callback,
+                threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+                            = threat_scanner::IThreatScannerFactorySharedPtr()
+                );
     protected:
 
         TPtr makeThread(int fd, std::shared_ptr<IMessageCallback> callback) override

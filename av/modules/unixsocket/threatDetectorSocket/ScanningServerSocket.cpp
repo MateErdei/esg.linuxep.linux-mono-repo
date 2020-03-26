@@ -9,9 +9,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <threat_scanner/IThreatScannerFactory.h>
 #include <threat_scanner/SusiScannerFactory.h>
 
-unixsocket::ScanningServerSocket::ScanningServerSocket(const std::string& path,
-                                                       std::shared_ptr<IMessageCallback> callback)
-        : ImplServerSocket<ScanningServerConnectionThread>(path, std::move(callback))
+unixsocket::ScanningServerSocket::ScanningServerSocket(
+        const std::string& path,
+        std::shared_ptr<IMessageCallback> callback,
+        threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
+        : ImplServerSocket<ScanningServerConnectionThread>(path, std::move(callback)),
+                m_scannerFactory(std::move(scannerFactory))
 {
     if (m_scannerFactory.get() == nullptr)
     {
