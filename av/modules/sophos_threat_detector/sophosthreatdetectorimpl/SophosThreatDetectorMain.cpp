@@ -17,8 +17,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <unistd.h>
 
-#define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
-
 using namespace sspl::sophosthreatdetectorimpl;
 namespace fs = sophos_filesystem;
 
@@ -37,12 +35,11 @@ static int inner_main()
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
     fs::path chrootPath = pluginInstall / "chroot";
 #ifdef USE_CHROOT
-    int ret;
-
-    ret = ::chroot(chrootPath.string());
+    int ret = ::chroot(chrootPath.c_str());
     if (ret != 0)
     {
-        handle_error("Failed to chroot to " chrootPath);
+        LOGERROR("Failed to chroot to " << chrootPath);
+        exit(EXIT_FAILURE);
     }
 
     fs::path scanningSocketPath = "/scanning_socket";
