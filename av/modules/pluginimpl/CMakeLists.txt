@@ -1,5 +1,3 @@
-configure_file(config.h.in config.h )
-
 sophos_add_library(pluginimpl SHARED
         PluginCallback.cpp
         PluginCallback.h
@@ -13,7 +11,7 @@ sophos_add_library(pluginimpl SHARED
         StringReplace.h
         Telemetry.cpp
         Telemetry.h
-        config.h
+        ../common/config.h
         ../manager/scanprocessmonitor/ScanProcessMonitor.cpp
         ../manager/scanprocessmonitor/ScanProcessMonitor.h
         ../manager/scanprocessmonitor/Logger.cpp
@@ -21,3 +19,5 @@ sophos_add_library(pluginimpl SHARED
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} scanscheduler unixsocket
 )
+
+target_include_directories(pluginimpl PUBLIC ${CMAKE_CURRENT_BINARY_DIR})

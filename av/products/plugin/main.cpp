@@ -4,7 +4,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "config.h"
+#include "../common/config.h"
 
 #include "modules/datatypes/sophos_filesystem.h"
 

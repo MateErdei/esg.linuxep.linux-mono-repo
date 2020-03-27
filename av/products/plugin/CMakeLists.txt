@@ -3,6 +3,7 @@
 add_executable(${plugin_name}
         main.cpp)
 target_link_libraries(${plugin_name} PUBLIC pluginimpl)
+target_include_directories(${plugin_name} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 SET_TARGET_PROPERTIES( ${plugin_name}
        PROPERTIES

@@ -7,6 +7,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "BaseRunner.h"
 #include "Mounts.h"
 
+#include "common/Define.h"
+
 #include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
 
 using namespace avscanner::avscannerimpl;
@@ -20,7 +22,11 @@ std::shared_ptr<unixsocket::IScanningClientSocket> BaseRunner::getSocket()
 {
     if (!m_socket)
     {
+#ifdef USE_CHROOT
         const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/scanning_socket";
+#else
+        const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/var/scanning_socket";
+#endif
         m_socket = std::make_shared<unixsocket::ScanningClientSocket>(unix_socket_path);
     }
     return m_socket;

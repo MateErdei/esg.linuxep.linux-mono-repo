@@ -1,4 +1,5 @@
 add_subdirectory(avscanner)
+add_subdirectory(common)
 add_subdirectory(datatypes)
 add_subdirectory(filewalker)
 add_subdirectory(lockedqueue)
