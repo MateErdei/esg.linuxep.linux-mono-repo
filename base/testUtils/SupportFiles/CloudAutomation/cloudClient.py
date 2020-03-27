@@ -2015,11 +2015,10 @@ class CloudClient(object):
             return
 
         url = self.upe_api + '/eap/join/batch/NEW_SERVER_FEATURES'
-        json_request_string = '{"ids":["'+server['id']+'"]}'
-        request = urllib.request.Request(url, data=json_request_string, headers=self.default_headers)
+        data = json.dumps({"ids": [server['id']]}, separators=(',', ': ')).encode('UTF-8')
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
         request.get_method = lambda: "POST"
         response_obj = self.retry_request_url(request)
-
         return response_obj
 
 
