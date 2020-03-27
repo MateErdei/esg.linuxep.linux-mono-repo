@@ -211,9 +211,9 @@ def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin
 @detect_failure
 def test_edr_plugin_receives_binary_data_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
-    BINARYDATANAME = 'BinaryDataTable'
+    binary_data_name = 'BinaryDataTable'
     extensions_path = os.path.join(sspl_mock.sspl, 'plugins/edr/extensions')
-    binary_table_exec = os.path.join(extensions_path, BINARYDATANAME)
+    binary_table_exec = os.path.join(extensions_path, binary_data_name)
     sock_path = os.path.join(sspl_mock.sspl, 'plugins/edr/var/osquery.sock')
     # it needs to wait for the osquery to be really launched.
     edr_plugin_instance.wait_log_contains("osquery initialized", 10)
@@ -225,8 +225,8 @@ def test_edr_plugin_receives_binary_data_livequery_and_produces_answer(sspl_mock
     finally:
         popen.kill()
         output, error = popen.communicate()
-        print(output)
-        print(error)
+        logger.info(output)
+        logger.info(error)
     typePos = file_content.find('type')
     metaDataPos = file_content.find("queryMetaData")
     columnMetaDataPos = file_content.find("columnMetaData")
@@ -251,9 +251,9 @@ def test_edr_plugin_run_tests_in_parallel(sspl_mock, edr_plugin_instance):
         return entries['columnData'][0]
 
     edr_plugin_instance.start_edr()
-    DELAYCONTROLLEDNAME = 'DelayControlledTable'
+    delay_controlled_name = 'DelayControlledTable'
     extensions_path = os.path.join(sspl_mock.sspl, 'plugins/edr/extensions')
-    delay_table_exec = os.path.join(extensions_path, DELAYCONTROLLEDNAME)
+    delay_table_exec = os.path.join(extensions_path, delay_controlled_name)
     sock_path = os.path.join(sspl_mock.sspl, 'plugins/edr/var/osquery.sock')
     # it needs to wait for the osquery to be really launched.
     edr_plugin_instance.wait_log_contains("osquery initialized", 10)
@@ -295,6 +295,6 @@ def test_edr_plugin_run_tests_in_parallel(sspl_mock, edr_plugin_instance):
     finally:
         popen.kill()
         output, error = popen.communicate()
-        print(output)
-        print(error)
+        logger.info(output)
+        logger.info(error)
 
