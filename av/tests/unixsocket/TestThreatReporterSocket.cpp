@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "common/Define.h"
 #include "datatypes/sophos_filesystem.h"
 #include "tests/common/Common.h"
 #include "tests/common/WaitForEvent.h"
