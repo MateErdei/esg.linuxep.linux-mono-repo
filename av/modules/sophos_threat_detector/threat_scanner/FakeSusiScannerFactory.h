@@ -4,13 +4,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "SusiScannerFactory.h"
+#pragma once
 
-#include "SusiScanner.h"
+#include "IThreatScannerFactory.h"
 
-using namespace threat_scanner;
-
-IThreatScannerPtr SusiScannerFactory::createScanner()
+namespace threat_scanner
 {
-    return std::make_unique<SusiScanner>();
+    class FakeSusiScannerFactory : public IThreatScannerFactory
+    {
+    public:
+        IThreatScannerPtr createScanner() override;
+    };
 }

@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 // Created by Douglas Leeder on 19/12/2019.
 //
 
-#include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
+#include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include "datatypes/Print.h"

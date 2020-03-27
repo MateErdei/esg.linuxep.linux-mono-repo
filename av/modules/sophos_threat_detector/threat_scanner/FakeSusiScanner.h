@@ -13,7 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace threat_scanner
 {
-    class SusiScanner : public IThreatScanner
+    class FakeSusiScanner : public IThreatScanner
     {
         public:
             scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path) override;

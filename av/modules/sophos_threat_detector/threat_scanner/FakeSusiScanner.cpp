@@ -4,17 +4,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "SusiScanner.h"
+#include "FakeSusiScanner.h"
 
+#include <iostream>
 #include <string>
 #include <unistd.h>
-#include <iostream>
+
 #include <sys/stat.h>
 
 using namespace threat_scanner;
 
 scan_messages::ScanResponse
-SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
+FakeSusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
 {
     char buffer[512];
 

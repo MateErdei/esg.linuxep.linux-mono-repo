@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SophosThreatDetectorMain.h"
 #include "Logger.h"
-#include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
+#include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include <datatypes/Print.h>
@@ -34,7 +34,7 @@ static int inner_main()
     const std::string path = "/unix_socket";
 
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
-        = std::make_shared<threat_scanner::SusiScannerFactory>();
+        = std::make_shared<threat_scanner::FakeSusiScannerFactory>();
     unixsocket::ScanningServerSocket server(path, scannerFactory);
     server.run();
 

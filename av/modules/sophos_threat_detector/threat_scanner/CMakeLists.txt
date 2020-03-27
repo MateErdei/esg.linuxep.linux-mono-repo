@@ -1,10 +1,10 @@
 add_library(threat_scanner SHARED
         IThreatScanner.h
         IThreatScannerFactory.h
-        SusiScanner.cpp
-        SusiScanner.h
-        SusiScannerFactory.cpp
-        SusiScannerFactory.h
+        FakeSusiScanner.cpp
+        FakeSusiScanner.h
+        FakeSusiScannerFactory.cpp
+        FakeSusiScannerFactory.h
         )
 
 target_link_libraries(threat_scanner  PUBLIC
