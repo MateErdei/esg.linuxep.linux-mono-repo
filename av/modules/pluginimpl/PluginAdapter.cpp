@@ -9,7 +9,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "Telemetry.h"
 
-#include "common/Define.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -28,11 +27,7 @@ namespace
 
     fs::path threat_reporter_socket()
     {
-#ifdef USE_CHROOT
         return pluginInstall() / "chroot/threat_report_socket";
-#else
-        return pluginInstall() / "var/threat_report_socket";
-#endif
     }
 
     fs::path sophos_threat_detector_launcher()

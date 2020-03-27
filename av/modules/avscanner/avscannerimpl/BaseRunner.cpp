@@ -7,11 +7,28 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "BaseRunner.h"
 #include "Mounts.h"
 
-#include "common/Define.h"
+#include "datatypes/sophos_filesystem.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
-#include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 using namespace avscanner::avscannerimpl;
+
+namespace fs = sophos_filesystem;
+
+static fs::path pluginInstall()
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    try
+    {
+        return appConfig.getData("PLUGIN_INSTALL");
+    }
+    catch (const std::out_of_range&)
+    {
+        return "/opt/sophos-spl/plugins/av";
+    }
+
+}
 
 void BaseRunner::setSocket(std::shared_ptr<unixsocket::IScanningClientSocket> ptr)
 {
@@ -22,11 +39,7 @@ std::shared_ptr<unixsocket::IScanningClientSocket> BaseRunner::getSocket()
 {
     if (!m_socket)
     {
-#ifdef USE_CHROOT
-        const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/scanning_socket";
-#else
-        const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/var/scanning_socket";
-#endif
+        const std::string unix_socket_path = pluginInstall() / "chroot/scanning_socket";
         m_socket = std::make_shared<unixsocket::ScanningClientSocket>(unix_socket_path);
     }
     return m_socket;

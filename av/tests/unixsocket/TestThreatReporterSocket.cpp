@@ -29,11 +29,7 @@ namespace
         void SetUp() override
         {
             setupFakeSophosThreatDetectorConfig();
-#ifdef USE_CHROOT
             m_socketPath = "/tmp/TestPluginAdapter/chroot/threat_report_socket";
-#else
-            m_socketPath = "/tmp/TestPluginAdapter/var/threat_report_socket";
-#endif
             m_userID = std::getenv("USER");
             m_threatName = "unit-test-eicar";
             m_threatPath = "/path/to/unit-test-eicar";

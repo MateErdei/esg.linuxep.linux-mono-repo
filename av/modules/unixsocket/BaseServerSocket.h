@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #define AUTO_FD_IMPLICIT_INT
 #include "datatypes/AutoFd.h"
+#include "datatypes/sophos_filesystem.h"
 #include "Common/Threads/AbstractThread.h"
 #include "IMessageCallback.h"
 
@@ -23,7 +24,7 @@ namespace unixsocket
         BaseServerSocket(const BaseServerSocket&) = delete;
         BaseServerSocket& operator=(const BaseServerSocket&) = delete;
 
-        explicit BaseServerSocket(const std::string& path, std::shared_ptr<IMessageCallback> callback);
+        explicit BaseServerSocket(const sophos_filesystem::path& path, std::shared_ptr<IMessageCallback> callback);
         ~BaseServerSocket() override;
 
         void run() override;
