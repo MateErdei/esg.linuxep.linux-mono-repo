@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "common/Define.h"
 #include "datatypes/sophos_filesystem.h"
 #include "tests/common/Common.h"
 #include "tests/common/WaitForEvent.h"
@@ -27,8 +28,12 @@ namespace
     public:
         void SetUp() override
         {
-            setupFakeSophosThreatReporterConfig();
+            setupFakeSophosThreatDetectorConfig();
+#ifdef USE_CHROOT
             m_socketPath = "/tmp/TestPluginAdapter/chroot/threat_report_socket";
+#else
+            m_socketPath = "/tmp/TestPluginAdapter/var/threat_report_socket";
+#endif
             m_userID = std::getenv("USER");
             m_threatName = "unit-test-eicar";
             m_threatPath = "/path/to/unit-test-eicar";
@@ -54,7 +59,7 @@ namespace
 
 TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
 {
-    setupFakeSophosThreatReporterConfig();
+    setupFakeSophosThreatDetectorConfig();
     WaitForEvent serverWaitGuard;
 
 
@@ -90,7 +95,7 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
 
 TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
 {
-    setupFakeSophosThreatReporterConfig();
+    setupFakeSophosThreatDetectorConfig();
     WaitForEvent serverWaitGuard;
     WaitForEvent serverWaitGuard2;
 

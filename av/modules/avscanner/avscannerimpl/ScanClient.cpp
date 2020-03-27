@@ -8,8 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
+#include "common/Define.h"
 #include "datatypes/sophos_filesystem.h"
+#include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
@@ -46,7 +47,11 @@ static fs::path pluginInstall()
 
 static fs::path threat_reporter_socket()
 {
+#ifdef USE_CHROOT
     return pluginInstall() / "chroot/threat_report_socket";
+#else
+    return pluginInstall() / "var/threat_report_socket";
+#endif
 }
 
 void ScanClient::sendThreatReport(const fs::path& threatPath, const std::string& threatName)

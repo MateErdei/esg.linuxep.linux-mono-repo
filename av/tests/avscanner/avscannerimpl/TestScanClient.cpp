@@ -130,9 +130,14 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
             .Times(1)
             .WillOnce(Return(response));
 
-    setupFakeSophosThreatReporterConfig();
+    setupFakeSophosThreatDetectorConfig();
+#ifdef USE_CHROOT
+    std::string socketPath = "/tmp/TestPluginAdapter/chroot/threat_report_socket";
+#else
+    std::string socketPath = "/tmp/TestPluginAdapter/var/threat_report_socket";
+#endif
     unixsocket::ThreatReporterServerSocket threatReporterServer(
-            "/tmp/TestPluginAdapter/chroot/threat_report_socket",
+            socketPath,
             mock_callback
     );
 

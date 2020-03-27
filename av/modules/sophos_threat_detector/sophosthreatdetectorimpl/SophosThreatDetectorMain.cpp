@@ -8,7 +8,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
+#include "common/Define.h"
 #include <datatypes/Print.h>
+#include "datatypes/sophos_filesystem.h"
+
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 #include <string>
 #include <unistd.h>
@@ -18,6 +22,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define CHROOT "/opt/sophos-spl/plugins/av/chroot"
 
 using namespace sspl::sophosthreatdetectorimpl;
+namespace fs = sophos_filesystem;
 
 class MessageCallbacks : public IMessageCallback
 {
@@ -30,6 +35,7 @@ class MessageCallbacks : public IMessageCallback
 
 static int inner_main()
 {
+#ifdef USE_CHROOT
     int ret;
 
     ret = ::chroot(CHROOT);
@@ -39,10 +45,15 @@ static int inner_main()
                              CHROOT);
     }
 
-    const std::string path = "/unix_socket";
+    const std::string scanningSocketPath = "/scanning_socket";
+#else
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
+    fs::path scanningSocketPath = pluginInstall / "var" / "scanning_socket";
+#endif
 
     std::shared_ptr<IMessageCallback> callback = std::make_shared<MessageCallbacks>();
-    unixsocket::ScanningServerSocket server(path, callback);
+    unixsocket::ScanningServerSocket server(scanningSocketPath, callback);
     server.run();
 
     return 0;

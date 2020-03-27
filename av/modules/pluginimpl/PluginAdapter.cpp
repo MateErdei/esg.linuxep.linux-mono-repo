@@ -9,8 +9,10 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "Telemetry.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include "common/Define.h"
 #include "datatypes/sophos_filesystem.h"
+
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 namespace fs = sophos_filesystem;
 
@@ -26,7 +28,11 @@ namespace
 
     fs::path threat_reporter_socket()
     {
+#ifdef USE_CHROOT
         return pluginInstall() / "chroot/threat_report_socket";
+#else
+        return pluginInstall() / "var/threat_report_socket";
+#endif
     }
 
     fs::path sophos_threat_detector_launcher()
@@ -120,9 +126,6 @@ void PluginAdapter::innerLoop()
                 break;
 
             case Task::TaskType::ScanComplete:
-                m_baseService->sendEvent("SAV", task.Content);
-                break;
-
             case Task::TaskType::ThreatDetected:
                 m_baseService->sendEvent("SAV", task.Content);
                 break;

@@ -20,7 +20,7 @@ std::shared_ptr<unixsocket::IScanningClientSocket> BaseRunner::getSocket()
 {
     if (!m_socket)
     {
-        const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/unix_socket";
+        const std::string unix_socket_path = "/opt/sophos-spl/plugins/av/chroot/scanning_socket";
         m_socket = std::make_shared<unixsocket::ScanningClientSocket>(unix_socket_path);
     }
     return m_socket;
