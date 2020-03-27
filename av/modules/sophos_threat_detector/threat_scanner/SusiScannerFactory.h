@@ -6,7 +6,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IThreatScanner.h"
 #include "IThreatScannerFactory.h"
 
 namespace threat_scanner
