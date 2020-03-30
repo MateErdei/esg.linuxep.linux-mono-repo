@@ -68,6 +68,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str = 'no'):
 
             # publish unit test coverage file and results to artifactory results/coverage
             coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
+            machine.run('rm', '-r', coverage_results_dir)
             machine.run('mkdir', coverage_results_dir)
             machine.run('mv', unitest_htmldir, coverage_results_dir)
             machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
@@ -77,14 +78,11 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str = 'no'):
             machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
 
             # generate combined coverage html results and upload to allegro
-            # TODO LINUXDAR-1435 enable this step when the TAP test template with Bullseye is fixed
-            #  #Workaround is to download the coverage file from artifactory and view on a machine with Bullseye license
-            #combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
-            #machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'BULLSEYE_UPLOAD': 1, 'htmldir': combined_htmldir})
+            combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
+            machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': '1', 'htmldir': combined_htmldir})
 
             # publish combined html results and coverage file to artifactory
-            # TODO LINUXDAR-1435 enable this step when the TAP test template with Bullseye is fixed
-            #machine.run('mv', unitest_htmldir, coverage_results_dir)
+            machine.run('mv', unitest_htmldir, coverage_results_dir)
             machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
         else:
             machine.run(*args)

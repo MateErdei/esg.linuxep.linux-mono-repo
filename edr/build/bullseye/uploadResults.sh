@@ -27,12 +27,22 @@ chmod 600 ${PRIVATE_KEY}
 
 if [[ -z ${UPLOAD_ONLY} ]]
 then
-  BULLSEYE_DIR=/opt/BullseyeCoverage
-  [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
-  [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+  # tap template bullseye is installed to /usr/local/bin,
+  # jenkins job template installs to either /opt/BullseyeCoverage or /usr/local/bullseye
+  if [[ -f /opt/BullseyeCoverage/bin/covselect ]]
+  then
+    BULLSEYE_DIR=/opt/BullseyeCoverage
+  elif [[ -f /usr/local/bin/covselect ]]
+  then
+    BULLSEYE_DIR=/usr/local
+  elif [[ -f /usr/local/bullseye/bin/covselect ]]
+  then
+      BULLSEYE_DIR=/usr/local/bullseye
+  else
+    exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+  fi
 
-  [[ -n ${COVFILE} ]] || COVFILE="/tmp/root/sspl-edr-combined.cov"
-  [[ -f ${COVFILE} ]] || exitFailure 2 "There is no COVFILE is this path"
+  echo "Bullseye location: $BULLSEYE_DIR"
 
   echo "Exclusions:"
   $BULLSEYE_DIR/bin/covselect --list --no-banner --file "$COVFILE"
@@ -45,7 +55,7 @@ then
       --verbose             \
       "$htmldir"            \
       </dev/null            \
-      || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+      || exitFailure $FAILURE_BULLSEYE "Failed to generate bullseye html"
 else
   #upload results
   BULLSEYE_UPLOAD=1
