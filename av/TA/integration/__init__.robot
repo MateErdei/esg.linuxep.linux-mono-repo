@@ -7,5 +7,5 @@ Suite Teardown  Global Teardown Tasks
 *** Keywords ***
 
 Product Test Setup Tasks
-    Setup Component For Testing
+    No Operation
 

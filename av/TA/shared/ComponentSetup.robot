@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 
+Resource    GlobalSetup.robot
 
 *** Keywords ***
 
@@ -26,6 +27,8 @@ Setup Base And Component
 Mock Base Installation
     Remove Directory   ${SOPHOS_INSTALL}   recursive=True
     Create Directory   ${SOPHOS_INSTALL}
+    Create Directory   ${SOPHOS_INSTALL}/base/lib64
+    Copy File  ${BASE_SDDS}/files/base/lib64/libcrypto.so.1.1  ${SOPHOS_INSTALL}/base/lib64/
     Create Directory   ${SOPHOS_INSTALL}/tmp
     Create Directory   ${SOPHOS_INSTALL}/var/ipc
     Create Directory   ${SOPHOS_INSTALL}/var/ipc/plugins
@@ -41,6 +44,7 @@ Setup Component For Testing
     Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/sophos_certs/InstallCertificateToSystem.sh
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot
     Create Directory  ${COMPONENT_ROOT_PATH}/var
+    Create Directory  ${COMPONENT_ROOT_PATH}/log
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
 
 Use Fake AVScanner

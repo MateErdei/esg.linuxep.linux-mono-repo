@@ -3,18 +3,25 @@
 Library         OperatingSystem
 Resource        ComponentSetup.robot
 
+*** Variables ***
+${COMPONENT}        av
+${COMPONENT_NAME}   ${COMPONENT}
+${COMPONENT_UC}     AV
+${TEST_INPUT_PATH}  /opt/test/inputs
+${BASE_SDDS}        ${TEST_INPUT_PATH}/${COMPONENT}/base-sdds/
+
 *** Keywords ***
 Global Setup Tasks
     # SOPHOS_INSTALL
     ${placeholder} =  Get Environment Variable              SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}                  ${placeholder}
     Set Environment Variable  SOPHOS_INSTALL                ${SOPHOS_INSTALL}
-    Set Global Variable  ${TEST_INPUT_PATH}                 /opt/test/inputs
+    Set Global Variable  ${TEST_INPUT_PATH}                 ${TEST_INPUT_PATH}
     Set Global Variable  ${TEST_SCRIPTS_PATH}               ${TEST_INPUT_PATH}/test_scripts
     Set Global Variable  ${INTEGRATION_TESTS_PATH}          ${TEST_SCRIPTS_PATH}/integration
     Set Global Variable  ${PRODUCT_TESTS_PATH}              ${TEST_SCRIPTS_PATH}/product
     Set Global Variable  ${RESOURCES_PATH}                  ${TEST_SCRIPTS_PATH}/resources
-    Set Global Variable  ${COMPONENT_NAME}                  av
+    Set Global Variable  ${COMPONENT_NAME}                  ${COMPONENT_NAME}
     Set Global Variable  ${COMPONENT_SDDS}                  ${TEST_INPUT_PATH}/${COMPONENT_NAME}/SDDS-COMPONENT
     Set Global Variable  ${COMPONENT_ROOT_PATH}             ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}
     Set Global Variable  ${COMPONENT_SBIN_DIR}              ${COMPONENT_ROOT_PATH}/sbin
