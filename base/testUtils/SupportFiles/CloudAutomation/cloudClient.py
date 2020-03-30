@@ -1994,12 +1994,17 @@ class CloudClient(object):
         response_obj = json.loads(pending_query_response)
         query_id = response_obj["id"]
         url = self.upe_api + '/v1/live-query/executions/{}/result-set'.format(query_id)
-        request = urllib.request.Request(url, headers=self.default_headers)
-        response = self.retry_request_url(request)
-        results = json.loads(response)
 
-        if "items" in results:
-            return results["items"]
+        timeout = time.time() + 5
+        while time.time() < timeout:
+            request = urllib.request.Request(url, headers=self.default_headers)
+            response = self.retry_request_url(request)
+            results = json.loads(response)
+            if "items" in results:
+                items = results["items"] 
+                if items and len(items) > 0:
+                    return items 
+            time.sleep(0.5)
         return None
 
     def run_live_query_and_wait_for_response(self, query_name, query_string, hostname=None):
