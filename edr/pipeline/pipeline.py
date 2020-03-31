@@ -52,41 +52,56 @@ def robot_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/results', 'results')
 
 
-def pytest_task(machine: tap.Machine, branch: str, coverage: str = 'no'):
+def bullseye_coverage_task(machine: tap.Machine):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
 
-        #To run the pytest with additional verbosity add following to arguments
-        # '-o', 'log_cli=true'
         args = ['python', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
 
-        if coverage == 'yes':
-            # upload unit test coverage html results to allegro
-            unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
-            machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
+        # upload unit test coverage html results to allegro
+        unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
+        machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
-            # publish unit test coverage file and results to artifactory results/coverage
-            coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
-            machine.run('rm', '-rf', coverage_results_dir)
-            machine.run('mkdir', coverage_results_dir)
-            machine.run('mv', unitest_htmldir, coverage_results_dir)
-            machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
+        # publish unit test coverage file and results to artifactory results/coverage
+        coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
+        machine.run('rm', '-rf', coverage_results_dir)
+        machine.run('mkdir', coverage_results_dir)
+        machine.run('mv', unitest_htmldir, coverage_results_dir)
+        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
-            # run component tests with coverage file to get combined coverage
-            machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
-            machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
+        # run component pytests and integration robot tests with coverage file to get combined coverage
+        machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
+        machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
+        try:
+            pass
+            machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py',
+                        environment={'COVFILE': COVFILE_COMBINED})
+        finally:
+            machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
 
-            # generate combined coverage html results and upload to allegro
-            combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
-            machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': '1', 'htmldir': combined_htmldir})
+        # generate combined coverage html results and upload to allegro
+        combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
+        machine.run('bash', '-x', UPLOAD_SCRIPT,
+                    environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': '1', 'htmldir': combined_htmldir})
 
-            # publish combined html results and coverage file to artifactory
-            machine.run('mv', combined_htmldir, coverage_results_dir)
-            machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
-        else:
-            machine.run(*args)
+        # publish combined html results and coverage file to artifactory
+        machine.run('mv', combined_htmldir, coverage_results_dir)
+        machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
+    finally:
+        machine.output_artifact('/opt/test/results', 'results')
+        machine.output_artifact('/opt/test/logs', 'logs')
 
+
+def pytest_task(machine: tap.Machine):
+    try:
+        install_requirements(machine)
+        tests_dir = str(machine.inputs.test_scripts)
+
+        # To run the pytest with additional verbosity add following to arguments
+        # '-o', 'log_cli=true'
+        args = ['python', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
+        machine.run(*args)
         machine.run('ls', '/opt/test/logs')
     finally:
         machine.output_artifact('/opt/test/results', 'results')
@@ -109,15 +124,15 @@ def get_inputs(context: tap.PipelineContext, coverage_inputs: str = 'no'):
 
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
-    with stage.group('integration'):
-        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
+    machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+    with stage.parallel('component'):
+        stage.task(task_name='ubuntu1804_x64_pytest', func=pytest_task, machine=machine)
+        stage.task(task_name='ubuntu1804_x64_robot', func=robot_task, machine=machine)
 
     branch_name = context.branch
-    with stage.group('component'):
-        stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine, branch=branch_name, coverage='no')
+    with stage.parallel('coverage'):
         if parameters.coverage == 'yes' or has_coverage_build(branch_name):
-            machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, coverage_inputs='yes'),
+            machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
+                                                inputs=get_inputs(context, coverage_inputs='yes'),
                                                 platform=tap.Platform.Linux)
-            stage.task(task_name='ubuntu1804_x64_coverage', func=pytest_task, machine=machine_bullseye_test,
-                       branch=branch_name, coverage='yes')
+            stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)
