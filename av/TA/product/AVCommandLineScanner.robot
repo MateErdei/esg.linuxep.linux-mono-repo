@@ -159,7 +159,7 @@ CLS Creates Threat Report
 CLS Encoded Eicars
    Start AV
 
-   Run Process  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
+   Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
    Wait Until Keyword Succeeds
        ...  15 secs
        ...  3 secs
