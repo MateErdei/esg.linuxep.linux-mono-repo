@@ -31,7 +31,6 @@ using namespace ::testing;
 TEST(TestScanningServerSocket, test_construction) //NOLINT
 {
     std::string path = "TestThreatDetectorSocket_socket";
-    auto scannerFactory
-            = std::make_shared<StrictMock<MockScannerFactory> >();
-    unixsocket::ScanningServerSocket server(path, scannerFactory);
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    EXPECT_NO_THROW(unixsocket::ScanningServerSocket server(path, scannerFactory));
 }

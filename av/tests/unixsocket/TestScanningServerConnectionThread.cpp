@@ -34,16 +34,14 @@ using namespace ::testing;
 
 TEST(TestScanningServerConnectionThread, successful_construction) //NOLINT
 {
-    auto scannerFactory
-            = std::make_shared<StrictMock<MockScannerFactory> >();
-    unixsocket::ScanningServerConnectionThread connectionThread(2, scannerFactory);
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    EXPECT_NO_THROW(unixsocket::ScanningServerConnectionThread connectionThread(2, scannerFactory));
 }
 
 TEST(TestScanningServerConnectionThread, fail_construction_with_bad_fd) //NOLINT
 {
     using namespace unixsocket;
-    auto scannerFactory
-            = std::make_shared<StrictMock<MockScannerFactory> >();
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     ASSERT_THROW(ScanningServerConnectionThread(-1, scannerFactory), std::runtime_error);
 }
 
@@ -52,12 +50,3 @@ TEST(TestScanningServerConnectionThread, fail_construction_with_null_factory) //
     using namespace unixsocket;
     ASSERT_THROW(ScanningServerConnectionThread(2, nullptr), std::runtime_error);
 }
-
-//TEST(TestScanningServerConnectionThread, test_construction) //NOLINT
-//{
-//    std::string path = "TestThreatDetectorSocket_socket";
-//    auto scannerFactory
-//            = std::make_shared<StrictMock<MockScannerFactory> >();
-//    unixsocket::ScanningServerConnectionThread connectionThread(-1, scannerFactory);
-//}
-
