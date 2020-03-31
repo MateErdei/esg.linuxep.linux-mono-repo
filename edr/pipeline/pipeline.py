@@ -68,7 +68,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str = 'no'):
 
             # publish unit test coverage file and results to artifactory results/coverage
             coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
-            machine.run('rm', '-r', coverage_results_dir)
+            machine.run('rm', '-rf', coverage_results_dir)
             machine.run('mkdir', coverage_results_dir)
             machine.run('mv', unitest_htmldir, coverage_results_dir)
             machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
