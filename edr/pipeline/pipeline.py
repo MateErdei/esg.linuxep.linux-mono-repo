@@ -82,7 +82,7 @@ def pytest_task(machine: tap.Machine, branch: str, coverage: str = 'no'):
             machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': '1', 'htmldir': combined_htmldir})
 
             # publish combined html results and coverage file to artifactory
-            machine.run('mv', unitest_htmldir, coverage_results_dir)
+            machine.run('mv', combined_htmldir, coverage_results_dir)
             machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
         else:
             machine.run(*args)
