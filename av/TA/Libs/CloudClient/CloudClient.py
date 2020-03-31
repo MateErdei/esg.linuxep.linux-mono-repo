@@ -130,6 +130,7 @@ class CloudClient(object):
         #           endpoint=d2bed399-e0b8-0482-1b93-bf361d7ac2ae&
         #           from=2020-03-24T00:00:00.000Z&
         #           limit=50&offset=0&to=2020-03-24T11:24:36.505Z
+        assert start_time <= time.time(), f"start_time {start_time} is after now"
         timeout = 30
         timelimit = time.time() + timeout
         events = None
@@ -140,7 +141,7 @@ class CloudClient(object):
                 logger.debug("Got scan completion")
                 return True
             time.sleep(5)
-        logger.info("Available events: "+repr(events))
+        logger.error("Failed to fond scan completion: Available events: "+repr(events))
         raise Exception("Failed to detect scan completion")
 
     def wait_for_scheduled_scan_completion_in_central(self, start_time):
@@ -198,3 +199,32 @@ class CloudClient(object):
         assert isinstance(exclusions, list)
         self.__m_connector.configure_scheduled_scan_time(scan_time, exclusions)
         return scan_time.strftime("%H:%M")
+
+    @staticmethod
+    def evaluate_time_sources(utc_epoch, local_epoch, utc_formatted, local_formatted):
+        """
+        Investigating "Get Current Date" UTC result_format=epoch
+        Found https://github.com/robotframework/robotframework/issues/3306
+        DateTime: `Get Current Date` with epoch format and timezone UTC return wrong value
+        :param utc_epoch:
+        :param local_epoch:
+        :param utc_formatted:
+        :param local_formatted:
+        :return:
+        """
+        now = time.time()
+        logger.info(f"Robot get current date  UTC    epoch = {utc_epoch}")
+        logger.info(f"Robot get current date  local  epoch = {local_epoch}")
+        logger.info(f"Python                         epoch = {now}")
+
+        logger.info(f"Robot  UTC   Robot             formatted: {utc_formatted}")
+        logger.info(f"Python UTC  python gmtime      formatted: "+time.strftime("%Y-%m-%d %H:%M:%S.%f", time.gmtime(now)))
+        logger.info(f"Robot  UTC  python gmtime      formatted: "+time.strftime("%Y-%m-%d %H:%M:%S.%f", time.gmtime(utc_epoch)))
+        logger.info(f"Robot  UTC  python localtime   formatted: "+time.strftime("%Y-%m-%d %H:%M:%S.%f", time.localtime(utc_epoch)))
+        logger.info(f"Robot  local                   formatted: {local_formatted}")
+        logger.info(f"Python local                   formatted: "+time.strftime("%Y-%m-%d %H:%M:%S.%f", time.localtime(now)))
+        logger.info(f"Robot  local  python gmtime    formatted: "+time.strftime("%Y-%m-%d %H:%M:%S.%f", time.gmtime(local_epoch)))
+        logger.info(f"Robot  local  python localtime formatted: "+time.strftime("%Y-%m-%d %H:%M:%S.%f", time.localtime(local_epoch)))
+
+        assert (now - utc_epoch) < 1
+

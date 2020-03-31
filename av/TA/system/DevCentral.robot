@@ -65,8 +65,18 @@ Wait For Central Scheduled Scan to complete
 
 *** Test Cases ***
 
+Test Time sources
+    [Tags]  MANUAL
+    [Documentation]  Investigate Get Current Date - see https://github.com/robotframework/robotframework/issues/3306
+    ${epoch_utc} =  Get Current Date  UTC  result_format=epoch
+    ${epoch_local} =  Get Current Date  result_format=epoch
+    ${current_utc} =  Get Current Date  UTC
+    ${current_local} =  Get Current Date
+    Evaluate Time Sources  ${epoch_utc}  ${epoch_local}  ${current_utc}  ${current_local}
+
 Scan now from Central and Verify Scan Completed and Eicar Detected
     [Tags]  SYSTEM  CENTRAL
+    [Documentation]  Test that we can perform a scan now from Central (Dev/QA regions)
     Select Central Region
     log central events
     clear alerts in central
@@ -81,7 +91,8 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     Configure Exclude everything else in Central  /tmp/testeicar/
     Create Eicar  /tmp/testeicar/eicar.com
     Wait For exclusion configuration on endpoint
-    ${currentTime} =  Get Current Date  UTC  result_format=epoch
+    # See https://github.com/robotframework/robotframework/issues/3306
+    ${currentTime} =  Get Current Date  result_format=epoch
     send scan now in central
     Wait For Scan Now to start
     Wait For Scan Now to complete

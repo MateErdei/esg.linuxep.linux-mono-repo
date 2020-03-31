@@ -579,12 +579,14 @@ class CentralConnector(object):
         delay = 1
         while time.time() < start + wait_time:
             if self.__getServerId(hostname, expect_missing=True) is not None:
+                logger.info(f"{hostname} found in Central: {self.__m_region} account: {self.__m_username}")
                 return 0
             time.sleep(delay)
             delay += 1
 
         # Log errors
         if self.__getServerId(hostname) is not None:
+            logger.info(f"{hostname} found in Central: {self.__m_region} account: {self.__m_username}")
             return 0
         return 1
 
@@ -670,6 +672,7 @@ class CentralConnector(object):
 
         """
         endtime = endtime or time.time()
+        assert starttime <= endtime, f"Starttime {starttime} after endtime {endtime}!"
 
         # Call ensureEventsReady first to avoid NPEs in Pulsar and Nova
         self.__ensureEventsReady()
@@ -677,6 +680,7 @@ class CentralConnector(object):
         hostname = _get_my_hostname()
         starttime = int(starttime)
         endtime = float(endtime)
+        assert starttime <= endtime
 
         types = []
 
@@ -692,6 +696,7 @@ class CentralConnector(object):
         target = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(starttime))
         logger.debug(f"Start/From time: {target}")
         end = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(endtime))
+        assert target <= end
 
         url = self.get_upe_api() + "/reports/events"
 
@@ -727,8 +732,12 @@ class CentralConnector(object):
             elif target <= item['when'] <= end:
                 response["items"].append(item)
             else:
-                #~ print("Ignoring event outside target time %s < %s < %s"%(target,item['when'],end),file=sys.stderr)
+                # Central don't filter properly so don't always report this
+                logger.debug("Ignoring target event outside target time %s < %s < %s" % (target, item['when'], end))
                 pass
+
+        if len(items) != len(response['items']):
+            logger.debug("Had to exclude items from response as not matching requirements")
 
         return response
 
