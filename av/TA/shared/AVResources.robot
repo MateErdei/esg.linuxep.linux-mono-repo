@@ -41,7 +41,7 @@ Check AV Plugin Running
 
 Count File Log Lines
     [Arguments]  ${path}
-    ${content} =  Get File   ${path}
+    ${content} =  Get File   ${path}  encoding_errors=replace
     ${count} =  Get Line Count   ${content}
     [Return]   ${count}
 
@@ -56,7 +56,7 @@ Mark AV Log
 
 File Log Contains With Offset
     [Arguments]  ${path}  ${input}  ${offset}=0
-    ${content} =  Get File   ${path}
+    ${content} =  Get File   ${path}  encoding_errors=replace
     Log   "Skipping ${offset} lines"
     @{lines} =  Split To Lines   ${content}  ${offset}
     ${content} =  Catenate  SEPARATOR=\n  @{lines}
@@ -64,12 +64,12 @@ File Log Contains With Offset
 
 File Log Contains
     [Arguments]  ${path}  ${input}
-    ${content} =  Get File   ${path}
+    ${content} =  Get File   ${path}  encoding_errors=replace
     Should Contain  ${content}  ${input}
 
 File Log Should Not Contain
     [Arguments]  ${path}  ${input}
-    ${content} =  Get File   ${path}
+    ${content} =  Get File   ${path}  encoding_errors=replace
     Should Not Contain  ${content}  ${input}
 
 Wait Until File Log Contains
