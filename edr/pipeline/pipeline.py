@@ -125,9 +125,13 @@ def get_inputs(context: tap.PipelineContext, coverage_inputs: str = 'no'):
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+    with stage.parallel('integration'):
+        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
+        #add other distros here
+
     with stage.parallel('component'):
-        stage.task(task_name='ubuntu1804_x64_pytest', func=pytest_task, machine=machine)
-        stage.task(task_name='ubuntu1804_x64_robot', func=robot_task, machine=machine)
+        stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
+        #add other distros here
 
     branch_name = context.branch
     with stage.parallel('coverage'):
