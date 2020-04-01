@@ -29,8 +29,8 @@ fi
 CLEAN=0
 if [[ ! -f ${COVFILE} ]]
 then
-    mkdir -p "$(dirname ${COVFILE})"
-    chmod 777 "$(dirname ${COVFILE})"
+    mkdir -p $(dirname ${COVFILE})
+    chmod 777 $(dirname ${COVFILE})
     covmgr -l -c
     cov01 -1
 
@@ -68,7 +68,7 @@ COVDIR="${COVFILE%/*}"
 ## Need to get between these dirs
 currentDir="../..$BASE_DIR"
 
-SCRIPT_DIR=$('cd "${0%/*}"'; echo "$PWD")
+SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 BUILD_SRC_DIR="${SCRIPT_DIR%/*}"
 SRC_DIR="${BUILD_SRC_DIR%/*}"
 
@@ -83,7 +83,7 @@ echo "rel path = $currentDir"
 function exclude()
 {
     echo "covselect --add $*"
-    covselect --add '$@ || failure 3 "Failed to add exclusion $*"'
+    covselect --add $@ || failure 3 "Failed to add exclusion $*"
 }
 
 echo "Excluding \!../../redist/"
