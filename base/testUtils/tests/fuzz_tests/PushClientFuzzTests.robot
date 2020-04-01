@@ -42,8 +42,8 @@ Test Push Livequery Command Fuzz
 Test Push Wakeup Command Fuzz
     Run MCS Router Fuzzer   wakeup
 
-# Todo LINUXDAR-1602 McsRouter crashes if response file json contains special characters
-# Todo uncomment test when LINUXDAR-1602 is fixed
+# Todo LINUXDAR-1614 End point MCS communication is being temprarily suspended by central, frequently while processesing queries.
+# Todo uncomment test when LINUXDAR-1614 is fixed
 #Test Push Livequery Response Fuzz
 #    #Force logging of response sent to central in cloudServer.log
 #    Override LogConf File as Global Level  DEBUG
