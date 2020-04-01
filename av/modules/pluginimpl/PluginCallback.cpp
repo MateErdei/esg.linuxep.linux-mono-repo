@@ -122,6 +122,8 @@ namespace Plugin
                         {"@@PLUGIN_VERSION@@", getPluginVersion()}
                 });
 
+        LOGDEBUG("Generated status XML for revId:" << m_revID);
+
         return result;
     }
 
