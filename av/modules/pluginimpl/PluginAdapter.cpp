@@ -139,6 +139,12 @@ void PluginAdapter::processPolicy(const std::string& policyXml)
     LOGDEBUG("Process policy: " << policyXml);
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    std::string policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
+    if ( policyType != "2")
+    {
+        LOGDEBUG("Ignoring policy of incorrect type");
+        return;
+    }
     m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
     std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
