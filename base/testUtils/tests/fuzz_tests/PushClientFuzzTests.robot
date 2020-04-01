@@ -42,14 +42,14 @@ Test Push Livequery Command Fuzz
 Test Push Wakeup Command Fuzz
     Run MCS Router Fuzzer   wakeup
 
-# Todo LINUXDAR-1602 McsRouter crashes if response file json contains special characters
-# Todo uncomment test when LINUXDAR-1602 is fixed
-#Test Push Livequery Response Fuzz
-#    #Force logging of response sent to central in cloudServer.log
-#    Override LogConf File as Global Level  DEBUG
-#    Run MCS Router Fuzzer   response  10
-#    # check no response file left in response directory
-#    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/response
+Test Push Livequery Response Fuzz
+    [Tags]  TESTFAILURE
+    #TODO remove TESTFAILURE tag after LINUXDAR-1602 is fixed (McsRouter crashes if response file json contains special characters)
+    #Force logging of response sent to central in cloudServer.log
+    Override LogConf File as Global Level  DEBUG
+    Run MCS Router Fuzzer   response  10
+    # check no response file left in response directory
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/response
 
 *** Keywords ***
 Run MCS Router Fuzzer
