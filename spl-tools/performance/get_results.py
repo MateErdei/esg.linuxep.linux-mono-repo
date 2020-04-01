@@ -173,7 +173,7 @@ def get_results_for_machine(hostname):
 
     res = es.search(
         index=perf_index,
-        body={"query": {"match": {"hostname.keyword": hostname}}, "sort": [{"start": {"order": "desc"}}]}, size=20)
+        body={"query": {"match": {"hostname.keyword": hostname}}, "sort": [{"start": {"order": "desc"}}]}, size=200)
 
     task_names = []
     prod_versions = []
