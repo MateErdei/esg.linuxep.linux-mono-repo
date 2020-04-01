@@ -34,6 +34,7 @@ def create_task(task_row, es):
     if "eventname" not in task_row:
         return None
 
+    # base version and build date
     if "product_version" not in task_row:
         return None
 
@@ -52,8 +53,14 @@ def create_task(task_row, es):
     task["finish"] = task_row["finish"]
     task["hostname"] = task_row["hostname"]
     task["duration"] = task_row["duration"]
-    task["product_version"] = task_row["product_version"]
-    task["build_date"] = task_row["build_date"]
+
+    # convert None to none string if needed, e.g. base or plugins may not be installed so the versions can be none
+    keys = ["product_version", "build_date", "edr_product_version", "edr_build_date", "mtr_product_version", "mtr_build_date"]
+    for key in keys:
+        if key in task_row and task_row[key]:
+            task[key] = task_row[key]
+        else:
+            task[key] = "none"
 
     # This can be uncommented if we wish to go back to averaging out results per day, see date_key.
     # task["day"] = task_row["datetime"].split(' ')[0]
@@ -145,11 +152,18 @@ def all_fields_present(to_check):
 def event_of_interest(event_name):
     # Any performance tasks / events that start with one of these prefixes will be included in the query.
     # These should correspond to the event names in the RunEDRPerfTests and in the run_tests.sh
-    event_name_prefixes = ["build_gcc", "copy_files", "local-query_", "central-live-query_"]
+    event_name_prefixes = ["build_gcc", "copy_files", "local-query_", "central-live-query_", "GCC"]
     for prefix in event_name_prefixes:
         if event_name.startswith(prefix):
             return True
     return False
+
+
+def get_version_combo_id(task):
+    if "product_version" not in task or "edr_product_version" not in task or "mtr_product_version" not in task:
+        print(task)
+        exit(1)
+    return str(task["product_version"]) + "-" + str(task["edr_product_version"]) + "-" + str(task["mtr_product_version"])
 
 
 def get_results_for_machine(hostname):
@@ -157,7 +171,9 @@ def get_results_for_machine(hostname):
     perf_index = "perf-custom"
     es.indices.refresh(index=perf_index)
 
-    res = es.search(index=perf_index, body={"query": {"match": {"hostname": hostname}}, "sort": [{"start": {"order": "desc"}}]}, size=100)
+    res = es.search(
+        index=perf_index,
+        body={"query": {"match": {"hostname.keyword": hostname}}, "sort": [{"start": {"order": "desc"}}]}, size=20)
 
     task_names = []
     prod_versions = []
@@ -179,23 +195,23 @@ def get_results_for_machine(hostname):
             print("Skipping: {}".format(hit["_source"]))
             continue
 
-        # Build list of tasks
-        if hit["_source"]["eventname"] not in task_names:
-            task_names.append(hit["_source"]["eventname"])
-
-        # Build list of product versions
-        if hit["_source"]["product_version"] not in prod_versions:
-            prod_versions.append(hit["_source"]["product_version"])
-
         task = create_task(hit["_source"], es)
         if not task:
             continue
+
+        # Build list of tasks
+        if hit["_source"]["eventname"] not in task_names:
+            task_names.append(task["name"])
+
+        # Build list of product version combinations, e.g. edr+mtr, edr, none
+        version_combo_id = get_version_combo_id(task)
+        if version_combo_id not in prod_versions:
+            prod_versions.append(version_combo_id)
 
         # Build list of days
         if task[date_key] not in days:
             days.append(task[date_key])
 
-        print(task)
         tasks.append(task)
 
     result_root = {}
@@ -206,7 +222,7 @@ def get_results_for_machine(hostname):
             for task_name in task_names:
                 result_root[day][product_version][task_name] = []
                 for task in tasks:
-                    if task[date_key] == day and task['name'] == task_name and task['product_version'] == product_version:
+                    if task[date_key] == day and task['name'] == task_name and get_version_combo_id(task) == product_version:
                         result_root[day][product_version][task_name].append(task)
 
     summary_root = {}
@@ -235,6 +251,9 @@ def get_results_for_machine(hostname):
                     if all_fields_present(result):
                         summary_root[day][version][task_name]['duration'] = result['duration']
                         summary_root[day][version][task_name]['hostname'] = result['hostname']
+                        summary_root[day][version][task_name]['base_version'] = result['product_version']
+                        summary_root[day][version][task_name]['edr_version'] = result['edr_product_version']
+                        summary_root[day][version][task_name]['mtr_version'] = result['mtr_product_version']
                         summary_root[day][version][task_name]['avg_cpu'] += result['avg_cpu']
                         summary_root[day][version][task_name]['avg_mem'] += result['avg_mem']
 
@@ -302,10 +321,11 @@ def get_results_for_machine(hostname):
     for row in array_data:
         print("Inserting {}:".format(row))
         try:
-            df_sql = "CALL update_perf_data(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            df_sql = "CALL update_perf_data(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             df_val = (
-                row["Date"], row["Version"], row["Test"], row["avg_cpu"], row["avg_mem"], row["max_cpu"],
-                row["max_mem"], row["min_mem"], row["duration"], row["hostname"])
+                row["Date"], row["base_version"], row["Test"], row["avg_cpu"], row["avg_mem"], row["max_cpu"],
+                row["max_mem"], row["min_mem"], row["duration"], row["hostname"], row["edr_version"],
+                row['mtr_version'])
             cursor.execute(df_sql, df_val)
             performance_db.commit()
         except Exception as ex:
@@ -315,6 +335,6 @@ def get_results_for_machine(hostname):
 
 
 # Start
-performance_machines = ["sspl-perform1", "sspl-edr-perform1"]
+performance_machines = ["sspl-perf-load", "sspl-perf-edr", "sspl-perf-edrmtr", "sspl-perf-stress"]
 for machine in performance_machines:
     get_results_for_machine(machine)

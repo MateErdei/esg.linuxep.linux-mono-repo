@@ -25,7 +25,17 @@ else
     tar -xzf gcc-gcc-6_4_0-release.tar.gz || failure "Could not untar gcc source"
   popd
   pushd /root/gcc-build-test/build
-    ../gcc-gcc-6_4_0-release/configure --enable-languages=c,c++ --disable-multilib  || failure "Could not configure gcc build, try running /root/gcc-build-test/gcc-gcc-6_4_0-release/contrib/download_prerequisites"
+    ../gcc-gcc-6_4_0-release/configure --enable-languages=c,c++ --disable-multilib  || echo "Could not configure gcc build will patch and try running /root/gcc-build-test/gcc-gcc-6_4_0-release/contrib/download_prerequisites"
+    sleep 3
+
+    echo "Patching ftp to http as the files are not available via ftp"
+    sed -i 's/ftp:/http:/g' /root/gcc-build-test/gcc-gcc-6_4_0-release/contrib/download_prerequisites || failure "Could not patch download_prerequisites"
+    sleep 3
+
+    pushd /root/gcc-build-test/gcc-gcc-6_4_0-release
+      ./contrib/download_prerequisites || failure "Could not download prerequisites for gcc"
+    popd
+    ../gcc-gcc-6_4_0-release/configure --enable-languages=c,c++ --disable-multilib  || failure "Could not configure gcc build"
   popd
 fi
 
@@ -37,22 +47,22 @@ echo "Copying MCS certs to /root"
 cp -r /mnt/filer6/linux/SSPL/tools/setup_sspl/certs /root/
 
 echo "Installing needed python3 modules"
-python3 -m pip install requests
+python3 -m pip install requests || failure "Could not install requests"
 
 echo ""
 echo "Some example crontab entries:"
 echo ""
 echo "# Run gcc build timed test every 2 hours"
-echo "0 */2 * * * /root/performance/run-test-gcc.sh"
+echo "0 */2 * * * python3 /root/performance/RunEDRPerfTests.py -s gcc"
 echo ""
 echo "# Install EDR at  8am, run tests and then remove it at 4pm"
 echo "0 8 * * * /root/performance/install-edr.sh"
-echo "*/30 08-16  * * *  python3 /root/performance/RunEDRPerfTests.py -s central-livequery  -e darwinperformance@sophos.xmas.testqa.com -p <PASSWORD>"
+echo "*/30 08-16  * * *  python3 /root/performance/RunEDRPerfTests.py -s central-livequery -e testEUCentral-perf@savlinux.xmas.testqa.com -p <PASSWORD>"
 echo "0 16 * * * /root/ssplDogfoodFeedback.sh && /opt/sophos-spl/bin/uninstall.sh --force"
 echo ""
 echo "# Install EDR and MTR at  4pm, run tests and then remove it at 12am"
 echo "0 16 * * * /root/performance/install-edr-mtr.sh <CENTRAL_ACCOUNT_PASSWORD>"
-echo "*/30 16-22  * * *  python3 /root/performance/RunEDRPerfTests.py -s central-livequery  -e darwinperformance@sophos.xmas.testqa.com -p <PASSWORD>"
+echo "*/30 16-22  * * *  python3 /root/performance/RunEDRPerfTests.py -s central-livequery -e testEUCentral-Perf-MTR@savlinux.xmas.testqa.com -p <PASSWORD>"
 echo "0 0 * * * /root/ssplDogfoodFeedback.sh && /opt/sophos-spl/bin/uninstall.sh --force"
 echo ""
 echo "# Run local live queries at 10am"

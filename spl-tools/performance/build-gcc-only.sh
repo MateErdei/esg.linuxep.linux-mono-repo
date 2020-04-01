@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pushd /home/pair/gcc-build-test || exit 1
+pushd /root/gcc-build-test || exit 1
 rm -rf ./build
 mkdir build
 cd build || exit 1

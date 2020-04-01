@@ -54,15 +54,21 @@ def get_part_after_equals(key_value_pair):
 
 
 def get_build_date_and_version(path):
-    build_date="none"
-    product_version="none"
-    with open(path, 'r') as version_file:
-        for line in version_file:
-            if "BUILD_DATE" in line:
-                build_date = get_part_after_equals(line)
-            if "PRODUCT_VERSION" in line:
-                product_version = get_part_after_equals(line)
+    build_date = None
+    product_version = None
+    try:
+        with open(path, 'r') as version_file:
+            for line in version_file:
+                if "BUILD_DATE" in line:
+                    build_date = get_part_after_equals(line)
+                if "PRODUCT_VERSION" in line:
+                    product_version = get_part_after_equals(line)
+    except Exception as ex:
+        logging.warning("Could not read version file for: {}".format(path))
+        logging.warning(ex)
+        pass
     return build_date, product_version
+
 
 def record_result(event_name, date_time, start_time, end_time):
     hostname = socket.gethostname()
@@ -79,14 +85,18 @@ def record_result(event_name, date_time, start_time, end_time):
         "hostname": hostname,
         "build_date": base_build_date,
         "product_version": base_product_version,
-        "edr_build_date": edr_build_date,
-        "edr_product_version": edr_product_version,
-        "mtr_build_date": mtr_build_date,
-        "mtr_product_version": mtr_product_version,
         "eventname": event_name,
         "start": start_time,
         "finish": end_time,
         "duration": str(duration)}
+
+    if edr_product_version and edr_build_date:
+        result["edr_product_version"] = edr_product_version
+        result["edr_build_date"] = edr_build_date
+
+    if mtr_product_version and mtr_build_date:
+        result["mtr_product_version"] = mtr_product_version
+        result["mtr_build_date"] = mtr_build_date
 
     r = requests.post('http://sspl-perf-mon:9200/perf-custom/_doc', json=result)
     if r.status_code not in [200, 201]:
@@ -94,6 +104,7 @@ def record_result(event_name, date_time, start_time, end_time):
         logging.error("Status code: {}, text: {}".format(r.status_code, r.text))
     else:
         logging.info("Stored result for: {}".format(event_name))
+        logging.info("Content: {}".format(result))
 
 
 def get_current_date_time_string():
@@ -114,7 +125,7 @@ def run_gcc_perf_test():
     subprocess.run(['bash', build_gcc_script], timeout=10000)
     end_time = get_current_unix_epoch_in_seconds()
 
-    record_result("build_gcc", date_time, start_time, end_time)
+    record_result("GCC Build", date_time, start_time, end_time)
 
 
 def run_local_live_query_perf_test():
@@ -176,6 +187,7 @@ def run_central_live_query_perf_test(email, password):
     results = subprocess.check_output(command, timeout=120).decode("utf-8")
     if target_machine not in results:
         logging.error("Did not get the expected response from Central when querying hostname via live query, stopping.")
+        logging.error("Got: {}, expected: {}".format(str(results), target_machine))
         return
 
     queries_to_run = [

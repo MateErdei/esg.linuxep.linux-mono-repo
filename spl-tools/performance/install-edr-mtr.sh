@@ -16,9 +16,12 @@ chmod a+r $MCS_CA
 /root/performance/edr-mtr-installer.sh --allow-override-mcs-ca
 #touch /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
 #/root/performance/edr-mtr-installer.sh --allow-override-mcs-ca
-CENTRAL_PASSWORD=$1
-python3 ./cloudClient.py --region q --email darwinperformance@sophos.xmas.testqa.com --password "$CENTRAL_PASSWORD" move_machine_to_edr_eap "$HOSTNAME"
 
-# re-register to get correct policy as there is a bug in Central.
-sleep 10
-/root/performance/edr-mtr-installer.sh --allow-override-mcs-ca
+# even though you've registered central takes some time to sort itself out before you can move the machine into the EAP
+sleep 60
+CENTRAL_PASSWORD=$1
+python3 /root/performance/cloudClient.py --region q --email testEUCentral-Perf-MTR@savlinux.xmas.testqa.com --password "$CENTRAL_PASSWORD" move_machine_to_edr_eap "$HOSTNAME"
+
+## re-register to get correct policy as there is a bug in Central.
+#sleep 10
+#/root/performance/edr-mtr-installer.sh --allow-override-mcs-ca

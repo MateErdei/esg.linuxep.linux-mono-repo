@@ -37,6 +37,7 @@ fi
 [[ -d $PERF_DIR ]] || failure "Could not access: $PERF_DIR"
 
 copy_file run-test-gcc.sh
+copy_file build-gcc-only.sh
 copy_file RunEDRPerfTests.py
 copy_file RunLocalLiveQuery.py
 copy_file save-osquery-db-file-count.sh
