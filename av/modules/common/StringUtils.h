@@ -1,8 +1,16 @@
-//
-// Created by pair on 02/04/2020.
-//
+/******************************************************************************************************
 
-#ifndef SSPL_PLUGIN_MAV_STRINGUTILS_H
-#define SSPL_PLUGIN_MAV_STRINGUTILS_H
+Copyright 2020, Sophos Limited.  All rights reserved.
 
-#endif //SSPL_PLUGIN_MAV_STRINGUTILS_H
+******************************************************************************************************/
+
+#pragma once
+
+#include <string>
+
+namespace common
+{
+    void escapeControlCharacters(std::string& text);
+    std::string sha256_hash(const std::string& str);
+    std::string toUtf8(const std::string& str);
+}

@@ -33,6 +33,7 @@ find_package( Boost REQUIRED COMPONENTS locale)
 target_link_libraries(unixsocket  PUBLIC
         scanmessages
         datatypes
+        common
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         ${pluginapilib}
         ${Boost_LIBRARIES}
