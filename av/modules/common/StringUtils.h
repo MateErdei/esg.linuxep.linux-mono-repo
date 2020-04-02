@@ -1,0 +1,8 @@
+//
+// Created by pair on 02/04/2020.
+//
+
+#ifndef SSPL_PLUGIN_MAV_STRINGUTILS_H
+#define SSPL_PLUGIN_MAV_STRINGUTILS_H
+
+#endif //SSPL_PLUGIN_MAV_STRINGUTILS_H
