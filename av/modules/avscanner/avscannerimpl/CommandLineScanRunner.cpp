@@ -13,7 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "datatypes/Print.h"
 #include "filewalker/FileWalker.h"
-#include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
+#include <common/StringUtils.h>
 
 #include <memory>
 #include <utility>
@@ -33,7 +33,9 @@ namespace
 
         void infectedFile(const path& p, const std::string& threatName) override
         {
-            PRINT(p << " is infected with " << threatName);
+            std::string escapedPath(p);
+            common::escapeControlCharacters(escapedPath);
+            PRINT(escapedPath << " is infected with " << threatName);
             m_returnCode = E_VIRUS_FOUND;
         }
 
@@ -61,13 +63,15 @@ namespace
 
         void processFile(const fs::path& p) override
         {
-            PRINT("Scanning " << p);
+            std::string escapedPath(p);
+            common::escapeControlCharacters(escapedPath);
+            PRINT("Scanning " << escapedPath);
             try
             {
                 m_scanner.scan(p);
             } catch (const std::exception& e)
             {
-                PRINT("Scanner failed to scan: " << p << " [" << e.what() << "]");
+                PRINT("Scanner failed to scan: " << escapedPath << " [" << e.what() << "]");
 
                 m_returnCode = E_GENERIC_FAILURE;
             }
