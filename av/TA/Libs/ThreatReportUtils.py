@@ -43,13 +43,13 @@ GL_EXPECTED_CONTENTS = {
         '''.‌.''',
         '''bash" path="/tmp/encoded_eicars/..‌/..‌/bin/''',
         '''SJIS-CHINESE-最場腔醴腔-VIRUS (SJIS)''',
-        '''PairDoubleQuote-"VIRUS.com"''',
+        '''PairDoubleQuote-&quot;VIRUS.com&quot;''',
         '''LATIN1-JAPANESE--VIRUS''',
-        '''PairSingleQuote-'VIRUS.com''',
-        '''SingleDoubleQuote-"-VIRUS.com''',
-        r'''ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !"#$%&'()*+,-.0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177''',
+        '''PairSingleQuote-&apos;VIRUS.com''',
+        '''SingleDoubleQuote-&quot;-VIRUS.com''',
+        r'''ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !&quot;#$%&amp;&apos;()*+,-.0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177''',
         '''eicar.com''',
-        r'''RANDOMGARBAGE-?Ñ8[Úm\025\1\2\a\t2\020\023 "3DUfwª»ÌÝîÿ\tá¹©{êùx\2ÿþ6è\035²ÆÞeM#ö-VIRUS (Latin1)''',
+        r'''RANDOMGARBAGE-?Ñ8[Úm\025\1\2\a\t2\020\023 &quot;3DUfwª»ÌÝîÿ\tá¹©{êùx\2ÿþ6è\035²ÆÞeM#ö-VIRUS (Latin1)''',
         '''LATIN1-FRENCH-à ta santé âge-VIRUS (Latin1)''',
         '''COM1" ''',
         '''COM2" ''',
@@ -65,7 +65,7 @@ GL_EXPECTED_CONTENTS = {
         '''cantendwith." ''',
         '''COM4"''',
         '''EUC-JP-ENGLISH-For all good men-VIRUS''',
-        '''SingleSingleQuote-'-VIRUS.com''',
+        '''SingleSingleQuote-&apos;-VIRUS.com''',
         '''EUC-JP-FRENCH-à ta santé âge-VIRUS (EUC-JP)''',
         '''SJIS-ENGLISH-For all good men-VIRUS''',
         '''EUC-JP-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (EUC-JP)''',
@@ -79,12 +79,12 @@ GL_EXPECTED_CONTENTS = {
         '''path="/tmp/encoded_eicars/"''',
         '''UTF-8-CHINESE-涴跺最唗郔場腔醴腔-VIRUS''',
         '''ES-Español''',
-        r'''0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177" path="/tmp/encoded_eicars/FULL-ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !"#$%&'()*+,-./''',
+        r'''0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177" path="/tmp/encoded_eicars/FULL-ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !&quot;#$%&amp;&apos;()*+,-./''',
         '''SJIS-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (SJIS)''',
         '''UTF-8-ENGLISH-For all good men-VIRUS''',
         '''UTF-8-JAPANESE-ソフォスレイヤーアクセスる-VIRUS''',
         '''...''',
-        '''HTML-<bold>BOLD<font size=+5>THIS IS SOME BIGGER TEXT-VIRUS'''
+        '''HTML-&lt;bold&gt;BOLD&lt;font size=+5&gt;THIS IS SOME BIGGER TEXT-VIRUS'''
     ]
 }
 
