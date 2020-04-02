@@ -240,7 +240,8 @@ bool DeviceUtil::isSystem(const std::string& devicePath, const std::string& moun
         filesystemType == "fusectl" ||
         filesystemType == "pipefs" ||
         filesystemType == "sockfs" ||
-        filesystemType == "usbfs")
+        filesystemType == "usbfs" ||
+        filesystemType == "tracefs")
     {
         return true;
     }
@@ -274,7 +275,8 @@ bool DeviceUtil::isSystem(const std::string& devicePath, const std::string& moun
                 sb_type == 0x63677270 || // cgroup2
                 sb_type == 0x67596969 || // rpc_pipefs
                 sb_type == 0x958458f6 || // hugetlbfs
-                sb_type == 0x1373) // devfs
+                sb_type == 0x1373 || // devfs
+                sb_type == 0x74726163) // tracefs
             {
                 return true;
             }
