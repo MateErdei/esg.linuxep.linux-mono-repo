@@ -17,6 +17,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/message.h>
 
 #include <fstream>
+#include <common/StringUtils.h>
 
 
 using namespace avscanner::avscannerimpl;
