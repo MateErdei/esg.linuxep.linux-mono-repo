@@ -1,3 +1,4 @@
+configure_file(config.h.in config.h )
 
 add_library(avscannerimpl SHARED
         BaseFileWalkCallbacks.cpp
@@ -27,12 +28,14 @@ add_library(avscannerimpl SHARED
         PathUtils.h
         ScanClient.cpp
         ScanClient.h
+        config.h
         )
 
 target_include_directories(avscannerimpl PUBLIC
         ${CMAKE_SOURCE_DIR}/modules
         "${CAPNPROTO_INCLUDE_DIR}"
-        ${CMAKE_BINARY_DIR}/modules/scan_messages)
+        ${CMAKE_BINARY_DIR}/modules/scan_messages
+        ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(avscannerimpl
         datatypes

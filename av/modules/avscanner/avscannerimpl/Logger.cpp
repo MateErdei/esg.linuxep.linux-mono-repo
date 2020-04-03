@@ -6,6 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
+#include "config.h"
+
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Logging/ConsoleFileLoggingSetup.h"
 #include "Common/Logging/FileLoggingSetup.h"
@@ -37,6 +39,7 @@ Logger::Logger(const std::string& scanName)
         Common::Logging::ConsoleFileLoggingSetup::setupConsoleFileLoggingWithPath(logfilepath);
         GL_CONSOLE_LOGGING_SETUP = true;
     }
+    Common::Logging::applyGeneralConfig(PLUGIN_NAME);
 }
 
 Logger::~Logger()
