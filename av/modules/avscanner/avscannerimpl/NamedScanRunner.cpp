@@ -42,7 +42,7 @@ namespace
         {}
         void infectedFile(const path& p, const std::string& threatName) override
         {
-            LOGINFO(p << " is infected with " << threatName);
+            LOGWARN(p << " is infected with " << threatName);
             m_returnCode = E_VIRUS_FOUND;
         }
 
