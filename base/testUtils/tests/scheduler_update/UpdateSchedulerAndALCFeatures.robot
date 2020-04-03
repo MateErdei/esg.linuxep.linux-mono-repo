@@ -25,6 +25,7 @@ Default Tags   SULDOWNLOADER  UPDATE_SCHEDULER
 ${MDR_RIGID_NAME}   ServerProtectionLinux-Plugin-MDR
 ${MDR_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_and_mtr_VUT.xml
 ${BASE_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_only_VUT.xml
+${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 *** Test Cases ***
 
@@ -72,3 +73,30 @@ UpdateScheduler Install Base and MDR With the ALC Policy With MDR
     Send Policy With Host Redirection And Run Update And Check Success     add_features=MDR   remove_subscriptions=SENSORS
     Check MDR Installed
     Check ALC Status Sent To Central Contains MDR Subscription
+
+
+UpdateScheduler Update That Has no Change Does Not ReInstall The Product
+    [Tags]  UPDATE_SCHEDULER
+    [Setup]  Setup For Test With Warehouse Containing Base
+    Send Policy With Host Redirection And Run Update And Check Success     remove_subscriptions=SENSORS MDR
+
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   1
+   
+    Override LogConf File as Global Level  DEBUG   
+    Replace Sophos URLS to Localhost
+    Simulate Update Now
+
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   2
+
+    Run Keyword And Expect Error   *1 times not the requested 2 times*   Upgrade Installs Product Twice
+
+
+*** Keywords ***
+Upgrade Installs Product Twice   
+    Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log    Installing product: ServerProtectionLinux-Base   2
