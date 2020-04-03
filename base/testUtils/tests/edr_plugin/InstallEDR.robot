@@ -341,8 +341,6 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
 
     Check MDR Plugin Installed
 
-    Fail
-
 
 Install master of base and edr and mtr and upgrade to edr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
