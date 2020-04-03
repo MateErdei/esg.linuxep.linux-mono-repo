@@ -15,7 +15,7 @@ Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
 
 *** Test Cases ***
 
-changed of actions folder to block sophos-spl user from writing
+Actions Folder Without Permissions Does Not Cause A Crash
     Check Cloud Server Log For Command Poll
     Chmod  550  /opt/sophos-spl/base/mcs/action
 
@@ -29,7 +29,7 @@ changed of actions folder to block sophos-spl user from writing
     Check Action In Atomic Files
 
 
-Overwriting action file
+Overwriting Action File Doesn't Cause Crash
     Chmod  550  /opt/sophos-spl/base/mcs/action
 
     Trigger Update Now
@@ -55,7 +55,7 @@ Overwriting action file
     ...  Check Managementagent Log Contains  Action /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml sent to 1 plugins
     Check UpdateScheduler Log Contains  Unexpected action xml received: fakecontents
 
-Repeatedly writing the same file into the action folder Doesnt Cause A Crash
+Repeatedly writing the same file into the action folder Does Not Cause A Crash
 
     sleep  2
     Stop MCSRouter
@@ -90,7 +90,7 @@ Repeatedly writing the same file into the action folder Doesnt Cause A Crash
     Check All Product Logs Do Not Contain Critical
 
 
-actions is out of space
+Actions Folder Out Of Space Does Not Crash MCSRouter
     [Teardown]  Test Teardown With Mount Removal
 
     Check Cloud Server Log For Command Poll
