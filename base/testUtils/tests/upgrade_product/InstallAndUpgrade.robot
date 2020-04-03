@@ -476,60 +476,6 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
 
-
-Update Will Be Forced When Component Has Been Unintalled Without Unexpected Errors
-    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
-
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
-    Wait For Initial Update To Fail
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Trigger Update Now
-    # waiting for 2nd because the 1st is a guaranteed failure
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    Simulate Previous Scheduled Update Success
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
-
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Plugin-EDR   1
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Plugin-EDR    1
-
-    Should Exist  ${EDR_DIR}
-
-    ${result}=  Run Process    ${EDR_DIR}/bin/uninstall.sh   shell=True
-    Log  ${result.stdout}
-
-    Should Not Exist  ${EDR_DIR}
-
-    #Check Log Contains String N Times   ${UpdateSchedulerLog}   UpdateScheduler Log   Detected product configuration change, forcing update.    1
-
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
-
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Plugin-EDR   2
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Plugin-EDR    2
-
-    Should Exist  ${EDR_DIR}
-
-
 *** Keywords ***
 
 Simulate Previous Scheduled Update Success
