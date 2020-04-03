@@ -382,6 +382,14 @@ def get_interface_mac_addresses():
                 break
     return mac_addresses
 
+def get_dirname_of_path(path, require_exists=False):
+    directory_path = os.path.dirname(path)
+    if require_exists:
+        assert os.path.exists(path), "path \"{}\" does not exist".format(directory_path)
+    return directory_path
+
+def get_basename_of_path(path):
+    return os.path.basename(path)
 
 def copy_file_if_exists(src, dest):
     if os.path.isfile(src):

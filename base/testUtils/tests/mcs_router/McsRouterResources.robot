@@ -240,3 +240,9 @@ Install Register And Wait First MCS Policy With MCS Policy
     Override LogConf File as Global Level  DEBUG
     Start MCSRouter
     Wait New MCS Policy Downloaded
+
+Register With Fake Cloud
+    Should Exist  ${REGISTER_CENTRAL}
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter

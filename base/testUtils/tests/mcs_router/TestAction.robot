@@ -90,12 +90,6 @@ Action Applied After Policies
 
 *** Keywords ***
 
-Register With Fake Cloud
-    Should Exist  ${REGISTER_CENTRAL}
-    Register With Local Cloud Server
-    Check Correct MCS Password And ID For Local Cloud Saved
-    Start MCSRouter
-
 Check Cloud Server Log For Command Poll
     [Arguments]    ${occurrence}=1
     Wait Until Keyword Succeeds

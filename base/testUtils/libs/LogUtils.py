@@ -512,6 +512,24 @@ class LogUtils(object):
                                                                                    num_occurences,
                                                                                    expected_occurence))
 
+    def check_managementagent_log_contains_string_n_times(self, string_to_contain, expected_occurence):
+
+        managementagent_log = self.managementagent_log()
+        contents = get_log_contents(managementagent_log)
+
+        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain, use_regex=False)
+        if num_occurences != int(expected_occurence):
+            raise AssertionError("managementagent_log Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain, num_occurences, expected_occurence))
+
+    def check_updatescheduler_log_contains_string_n_times(self, string_to_contain, expected_occurence):
+
+        updatescheduler_log = self.update_scheduler_log
+        contents = get_log_contents(updatescheduler_log)
+
+        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain, use_regex=False)
+        if num_occurences != int(expected_occurence):
+            raise AssertionError("updatescheduler_log Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain, num_occurences, expected_occurence))
+
 
     def check_mcs_envelope_log_contains_regex_string_n_times(self, string_to_contain, expected_occurence):
         self.check_mcs_envelope_log_contains_string_n_times(string_to_contain, expected_occurence, True)

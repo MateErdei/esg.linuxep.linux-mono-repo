@@ -866,6 +866,7 @@ class MCSRouter(object):
     def check_action_file_exists(self, filename):
         action_dir = os.path.join(self.mcs_dir, "action")
         action_file_path = os.path.join(action_dir, filename)
+        logger.info(action_file_path)
         if not self.check_file_exists(action_file_path):
             list_of_files = ', '.join(os.listdir(action_dir))
             raise AssertionError("Action file does not exist at {}. Current files: {}".format(action_file_path, list_of_files))
@@ -901,18 +902,29 @@ class MCSRouter(object):
             raise AssertionError("Event folder doesn't exist.")
     
     def check_temp_folder_doesnt_contain_atomic_files(self, base=None):
+        atomic_files = self.get_atomic_files_in_temp_folder()
+        assert len(atomic_files) == 0, "found atomic files in tmpdir: {}".format(atomic_files)
+
+    def check_action_in_atomic_files(self):
+        atomic_files = self.get_atomic_files_in_temp_folder()
+        assert len(atomic_files) == 1, "found atomic files in tmpdir: {}".format(atomic_files)
+
+        file_path = atomic_files[0]
+        file_name = os.path.basename(file_path)
+        assert file_name.endswith("_ALC_action_FakeTime.xml")
+        return file_path
+
+    def get_atomic_files_in_temp_folder(self):
         tmp_dir = os.path.join(self.sophos_install, "tmp")
-        dir_contents = os.listdir(tmp_dir)
+        atomic_files = []
+        for root_path, directories, files in os.walk(tmp_dir):
+            # we don't care about files in directories that start with this
+            if os.path.basename(root_path).startswith("ServerProtectionLinux"):
+                continue
+            for file in files:
+                atomic_files.append(os.path.join(root_path, file))
+        return atomic_files
 
-        # Filter out files we expect in tmp from installer
-        if base is None:
-            dir_contents = [ f for f in dir_contents if f not in ("addedFiles", "removedFiles", "changedFiles", "policy")]
-        else:
-            dir_contents = [ f for f in dir_contents if f.startswith(base)]
-        only_files = [f for f in dir_contents if os.path.isfile(os.path.join(tmp_dir, f))]
-
-        if len(only_files) != 0:
-            raise AssertionError("Temp folder is not empty! {}".format(only_files))
 
     def check_temp_policy_folder_doesnt_contain_policies(self, base=None):
         dir_contents = os.listdir(os.path.join(self.sophos_install, "tmp", "policy"))
