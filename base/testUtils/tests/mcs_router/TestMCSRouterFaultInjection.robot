@@ -168,8 +168,8 @@ Stop MCSRouter
 
 Copy File And Send It To MCS Actions folder
     [Arguments]  ${file}
-    ${directory} =  get_dirname_of_path  ${file}
-    ${basename} =  get_basename_of_path  ${file}
+    ${directory} =  Get Dirname Of Path  ${file}
+    ${basename} =  Get Basename Of Path  ${file}
 
     Copy File  ${file}    ${directory}/${basename}-copy
     ${r} =  Run Process  chown  sophos-spl-user:sophos-spl-group  ${directory}/${basename}-copy
@@ -207,7 +207,7 @@ Test Teardown
     Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     # ensure no other msc router is running even those not created by this test.
     Kill Mcsrouter
-    Unset_CA_Environment_Variable
+    Unset CA Environment Variable
 
 Test Teardown With Mount Removal
     Cleanup mount
