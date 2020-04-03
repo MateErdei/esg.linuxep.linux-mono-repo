@@ -35,7 +35,7 @@ namespace
         {
             std::string escapedPath(p);
             common::escapeControlCharacters(escapedPath);
-            PRINT(escapedPath << " is infected with " << threatName);
+            PRINT("\"" << escapedPath << "\" is infected with " << threatName);
             m_returnCode = E_VIRUS_FOUND;
         }
 
