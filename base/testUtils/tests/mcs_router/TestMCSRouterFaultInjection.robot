@@ -57,6 +57,7 @@ Overwriting Action File Doesn't Cause Crash
 
 Repeatedly writing the same file into the action folder Does Not Cause A Crash
 
+    #This sleep is to let mcs settle down
     sleep  2
     Stop MCSRouter
 
