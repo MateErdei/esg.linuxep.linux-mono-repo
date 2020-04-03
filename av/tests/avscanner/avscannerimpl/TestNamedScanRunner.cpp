@@ -123,7 +123,6 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
     EXPECT_CALL(*specialDevice, isOptical()).WillOnce(Return(false));
     EXPECT_CALL(*specialDevice, isRemovable()).WillOnce(Return(false));
     EXPECT_CALL(*specialDevice, isSpecial()).WillOnce(Return(true));
-    EXPECT_CALL(*specialDevice, mountPoint()).WillOnce(Return("/proc"));
 
     ::capnp::MallocMessageBuilder message;
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints;
