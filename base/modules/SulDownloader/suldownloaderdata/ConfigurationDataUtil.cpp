@@ -46,10 +46,6 @@ namespace SulDownloader
              * record of the past component installs / uninstalls, and does not know the state of the local warehouse, and if it is in sync with
              * the remote warehouse.
              *
-             * Finally as a catch all, the final check is to ensure that any components which are not currently installed will be (re)installed.
-             * However if we get here, then the subscription has not changed, therefore any missing component should be missing because
-             * it has been wrongly uninstalled.  This is a safety net to ensure all components that are required to be installed will be installed.
-             *
              */
 
             LOGDEBUG("Checking if should force install on all products");
@@ -111,24 +107,6 @@ namespace SulDownloader
             {
                 LOGDEBUG("Subscription list in update configuration has changed.");
                 return true;
-            }
-
-
-            if (!onlyCompareSubscriptionsAndFeatures)
-            {
-                auto fileSystem = Common::FileSystem::fileSystem();
-
-                std::vector <Path> installedFiles = fileSystem->listFiles(
-                        Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath());
-
-                for (auto &rigidName : newSortedRigidNames)
-                {
-                    if (!fileSystem->exists(rigidName + ".sh"))
-                    {
-                        LOGDEBUG("Component in subscription list has been previously removed, or has not been installed.");
-                        return true;
-                    }
-                }
             }
 
             LOGDEBUG("No difference between new update config and previous update config.");
