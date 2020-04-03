@@ -96,6 +96,8 @@ UpdateScheduler Update That Has no Change Does Not ReInstall The Product
 
     Run Keyword And Expect Error   *1 times not the requested 2 times*   Upgrade Installs Product Twice
 
+    Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Downloaded Product line: 'ServerProtectionLinux-Base' is up to date  1
+
 
 *** Keywords ***
 Upgrade Installs Product Twice   
