@@ -9,8 +9,6 @@ Suite Setup  Suite Setup
 Test Setup  Test Setup
 Test Teardown  Test Teardown
 
-#Test Teardown  Require Uninstalled
-
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
 
 *** Test Cases ***
