@@ -55,8 +55,6 @@ Overwriting Action File Doesn't Cause Crash
 
 Repeatedly writing the same file into the action folder Does Not Cause A Crash
 
-    #This sleep is to let mcs settle down
-    sleep  2
     Stop MCSRouter
 
     Remove File  /opt/sophos-spl/logs/base/suldownloader.log
@@ -87,7 +85,6 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
     Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  2
     Check UpdateScheduler Log Contains String N Times  An active instance of SulDownloader is already running, continuing with current instance  9
     Check All Product Logs Do Not Contain Critical
-
 
 Actions Folder Out Of Space Does Not Crash MCSRouter
     [Teardown]  Test Teardown With Mount Removal
