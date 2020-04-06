@@ -50,6 +50,7 @@ EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
+    [Tags]  EXCLUDE_AMAZON_LINUX
     Run Live Query  ${CRASH_QUERY}  Crash
 
     Wait Until Keyword Succeeds
@@ -68,6 +69,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
 
 
 EDR Plugin Reports Telemetry Correctly For Live Query
+    [Tags]  EXCLUDE_AMAZON_LINUX
     Run Live Query  ${SIMPLE_QUERY_1_ROW}   simple
     Wait Until Keyword Succeeds
     ...  100 secs
@@ -90,6 +92,7 @@ EDR Plugin Reports Telemetry Correctly For Live Query
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  queries=@{queries}
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by EDR Plugin
+    [Tags]  EXCLUDE_AMAZON_LINUX
     Wait Until OSQuery Running  20
     Kill OSQuery
     Wait Until OSQuery Running  20

@@ -46,9 +46,9 @@ class HttpsServer(object):
     def __init__(self):
         self.thread = None
 
-    def start_https_server(self, certfile_path, protocol_string=None):
+    def start_https_server(self, certfile_path, port=443, protocol_string=None):
 
-        port = 443
+        port = int(port)
         print("Start Simple HTTPS Server localhost:{}".format(port))
 
         keyfile_path = "/tmp/key.pem"

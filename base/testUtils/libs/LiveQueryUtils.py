@@ -7,9 +7,6 @@ from random import randrange
 
 import BaseInfo as base_info
 
-import robot.api.logger as logger
-from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
-
 TMP_ACTIONS_DIR = os.path.join("/tmp", "actions")
 BASE_ACTION_DIR = os.path.join(base_info.get_install(), "base", "mcs", "action")
 os.makedirs(TMP_ACTIONS_DIR, exist_ok=True)
@@ -53,3 +50,7 @@ def run_live_query(query, name):
 
     # Move query file into mcs action dir to be picked up by management agent
     shutil.move(query_file_path, BASE_ACTION_DIR)
+
+def get_correlation_id():
+    import uuid
+    return str(uuid.uuid4())

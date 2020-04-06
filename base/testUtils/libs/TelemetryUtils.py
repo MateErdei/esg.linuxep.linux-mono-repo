@@ -406,9 +406,10 @@ class TelemetryUtils:
         os.chmod(command_path, 0o744)
 
     def create_test_telemetry_config_file(self, telemetry_config_file_path, certificate_path, username,
-                                          requestType="PUT"):
+                                          requestType="PUT", port=443):
         self._default_telemetry_config["telemetryServerCertificatePath"] = certificate_path
         self._default_telemetry_config["verb"] = requestType
+        self._default_telemetry_config["port"] = int(port)
         with open(telemetry_config_file_path, 'w') as tcf:
             tcf.write(json.dumps(self._default_telemetry_config))
         self.chown(telemetry_config_file_path, username)
