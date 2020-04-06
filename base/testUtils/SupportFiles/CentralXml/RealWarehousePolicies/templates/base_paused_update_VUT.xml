@@ -14,9 +14,9 @@
         <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
         <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
         <bootstrap Location="" UsePrimaryServerAddress="true"/>
-        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="1.0.2"/>
+        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="1.1.0"/>
         <cloud_subscriptions>
-            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="1.0.2"/>
+            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="1.1.0"/>
         </cloud_subscriptions>
         <delay_supplements enabled="true"/>
     </AUConfig>
