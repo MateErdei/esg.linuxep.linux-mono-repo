@@ -160,7 +160,7 @@ def run_local_live_query_perf_test():
         record_result(event_name, date_time, start_time, end_time)
 
 
-def run_central_live_query_perf_test(email, password):
+def run_central_live_query_perf_test(email, password, region):
     if not email:
         logging.error("Please enter email, use -h for help.")
         return
@@ -168,6 +168,7 @@ def run_central_live_query_perf_test(email, password):
         logging.error("Please enter password, use -h for help.")
         return
 
+    wait_for_edr_to_be_installed()
     logging.info("Running Local Live Query performance test")
     this_dir = os.path.dirname(os.path.realpath(__file__))
     central_live_query_script = os.path.join(this_dir, "cloudClient.py")
@@ -177,11 +178,11 @@ def run_central_live_query_perf_test(email, password):
 
     # Make sure we're logged in, no point timing that.
     subprocess.run(
-        ['python3', central_live_query_script, '--region', 'q', '--email', email, '--password', password, 'login'],
+        ['python3', central_live_query_script, '--region', region, '--email', email, '--password', password, 'login'],
         timeout=120)
 
     # Check hostname query response is expected as a sanity check before kicking off tests.
-    command = ['python3', central_live_query_script, '--region', 'q', '--email', email, '--password', password,
+    command = ['python3', central_live_query_script, '--region', region, '--email', email, '--password', password,
                'run_live_query_and_wait_for_response', "hostname-result-check",
                'SELECT system_info.hostname, system_info.local_hostname FROM system_info;', target_machine]
     results = subprocess.check_output(command, timeout=120).decode("utf-8")
@@ -199,7 +200,7 @@ def run_central_live_query_perf_test(email, password):
     for (name, query) in queries_to_run:
         date_time = get_current_date_time_string()
         start_time = get_current_unix_epoch_in_seconds()
-        command = ['python3', central_live_query_script, '--region', 'q', '--email', email, '--password', password,
+        command = ['python3', central_live_query_script, '--region', region, '--email', email, '--password', password,
                    'run_live_query_and_wait_for_response', name, query, target_machine]
         process_result = subprocess.run(command, timeout=120)
         if process_result.returncode != 0:
@@ -218,7 +219,20 @@ def add_options():
     parser.add_argument('-e', '--email', default='darwinperformance@sophos.xmas.testqa.com', action='store',
                         help="Central account email address to use to run live queries")
     parser.add_argument('-p', '--password', action='store', help="Central account password to use to run live queries")
+    parser.add_argument('-r', '--region', action='store', help="Central region (q, p)")
     return parser
+
+
+def wait_for_edr_to_be_installed():
+    edr_path = "/opt/sophos-spl/plugins/edr"
+    if not os.path.exists(edr_path):
+        logging.info("Waiting for EDR to be installed")
+
+    timeout = 200
+    while time.time() < timeout:
+        if os.path.exists(edr_path):
+            return
+        time.sleep(1)
 
 
 def main():
@@ -234,7 +248,7 @@ def main():
     if args.suite == 'local-livequery':
         run_local_live_query_perf_test()
     if args.suite == 'central-livequery':
-        run_central_live_query_perf_test(args.email, args.password)
+        run_central_live_query_perf_test(args.email, args.password, args.region)
 
     logging.info("Finished")
 
