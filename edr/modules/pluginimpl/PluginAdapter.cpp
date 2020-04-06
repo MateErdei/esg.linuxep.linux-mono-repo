@@ -112,7 +112,7 @@ namespace Plugin
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
-                LOGINFO("No activity for " << QUEUE_TIMEOUT << " seconds. Checking files");
+                LOGDEBUG("No activity for " << QUEUE_TIMEOUT << " seconds. Checking files");
                 cleanUpOldOsqueryFiles();
                 if (pluginMemoryAboveThreshold())
                 {
