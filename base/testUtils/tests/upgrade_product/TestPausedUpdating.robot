@@ -25,7 +25,7 @@ Test SSPL Will Updated To A Fixed Version When Paused Updating Is Activated And 
 
     Start Local Cloud Server  --initial-alc-policy  ${PausedBaseVUTPrevPolicy}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${PausedBaseVUTPrevPolicy}  real=True
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${PausedBaseVUTPrevPolicy}
 
     Wait For Initial Update To Fail
     Override LogConf File as Global Level  DEBUG
