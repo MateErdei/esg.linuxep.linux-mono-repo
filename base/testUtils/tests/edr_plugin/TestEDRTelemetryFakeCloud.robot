@@ -25,12 +25,6 @@ Default Tags   EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY  AMAZON_LINUX
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${EDR_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/edr
 
-${COMPONENT_TEMP_DIR}  /tmp/edr_component
-${CRASH_QUERY} =  WITH RECURSIVE counting (curr, next) AS ( SELECT 1,1 UNION ALL SELECT next, curr+1 FROM counting LIMIT 10000000000 ) SELECT group_concat(curr) FROM counting;
-${SIMPLE_QUERY_1_ROW} =  SELECT * from users limit 1;
-${SIMPLE_QUERY_2_ROW} =  SELECT * from users limit 2;
-${SIMPLE_QUERY_4_ROW} =  SELECT * from users limit 4;
-
 *** Test Cases ***
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts FakeCloud
     Install EDR And Override LogConf
