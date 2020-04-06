@@ -17,6 +17,7 @@ import errno
 import sys
 import logging
 import http.client
+import datetime
 
 import urllib.request
 from urllib.parse import urlencode
@@ -375,7 +376,17 @@ class CloudClient(object):
 
         return self._getItems(response)
 
-    def getServerId(self, hostname=None):
+    def return_most_recently_active_server(self, servers):
+        most_recent_server = None
+        time_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+        last_activity_key = "last_activity"
+        for server in servers:
+            if most_recent_server is None or datetime.datetime.strptime(server[last_activity_key], time_format) > \
+                    datetime.datetime.strptime(most_recent_server[last_activity_key], time_format):
+                most_recent_server = server
+        return most_recent_server
+
+    def getServerId(self, hostname=None, get_most_recently_active=False):
         if hostname is None:
             hostname = self.options.hostname
 
@@ -394,8 +405,10 @@ class CloudClient(object):
             print("No server found with name %s, Found: [%s]" % (hostname, str(serverList)), file=sys.stderr)
             return None
 
-        if len(servers) > 1:
+        if get_most_recently_active:
+            return self.return_most_recently_active_server(servers)["id"]
 
+        if len(servers) > 1:
             ip = get_ip()
             for server in servers:
                 ipaddresses = server['info']['ipAddresses/ipv4']
@@ -413,8 +426,8 @@ class CloudClient(object):
         serverId = servers[0]['id']
         return serverId
 
-    def getServerByName(self, hostname=None):
-        serverId = self.getServerId(hostname)
+    def getServerByName(self, hostname=None, get_most_recently_active=False):
+        serverId = self.getServerId(hostname, get_most_recently_active)
         if serverId is None:
             return None
         return self.getServerById(serverId)
@@ -1953,7 +1966,9 @@ class CloudClient(object):
         if hostname is None:
             hostname = self.options.hostname
 
-        server = self.getServerByName(hostname)
+        logger.info("running query_name:{}, query:{}, hostname:{}".format(query_name, query_string, hostname))
+        
+        server = self.getServerByName(hostname, get_most_recently_active=True)
         if server is None:
             return
 
@@ -2015,7 +2030,7 @@ class CloudClient(object):
         if hostname is None:
             hostname = self.options.hostname
 
-        server = self.getServerByName(hostname)
+        server = self.getServerByName(hostname, get_most_recently_active=True)
         if server is None:
             return
 
