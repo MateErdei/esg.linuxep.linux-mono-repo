@@ -66,14 +66,6 @@ function platform_exclude_tag()
         else
             PLATFORM_EXCLUDE_TAG="EXCLUDE_RHEL"
         fi
-    elif [[ -f /etc/os-release ]]
-    then
-        current_release=$(grep '^NAME=' /etc/os-release | cut -d '=' -f 2-)
-        release_pattern="Amazon Linux*"
-        if [[ ${current_release} =~ ${release_pattern} ]]
-        then
-            PLATFORM_EXCLUDE_TAG="EXCLUDE_AMAZON_LINUX"
-        fi
     elif [[ -n `lsb_release -a` ]]
     then
         PLATFORM_EXCLUDE_TAG="EXCLUDE_UBUNTU"

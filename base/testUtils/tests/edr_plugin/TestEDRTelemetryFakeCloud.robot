@@ -18,7 +18,7 @@ Resource  ../telemetry/TelemetryResources.robot
 
 Resource    EDRResources.robot
 
-Default Tags   EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
+Default Tags   EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY  AMAZON_LINUX
 
 
 *** Variables ***
@@ -33,7 +33,6 @@ ${SIMPLE_QUERY_4_ROW} =  SELECT * from users limit 4;
 
 *** Test Cases ***
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts FakeCloud
-    [Tags]  AMAZON_LINUX
     Install EDR And Override LogConf
     Test LiveQuery With FakeCloud   Crash Query  ${CRASH_QUERY}
     Wait Until Keyword Succeeds
@@ -60,7 +59,6 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Run And Verify EDR Telemetry  {"name":"Crash Query", "failed-osquery-died-count":1, "osquery-restarts":2}  2  1
 
 EDR Plugin Reports Telemetry Correctly For Live Query FakeCloud
-    [Tags]  AMAZON_LINUX
     Install EDR And Override LogConf
     Test LiveQuery With FakeCloud  simple   ${SIMPLE_QUERY_1_ROW}
     Wait Until Keyword Succeeds
