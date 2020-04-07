@@ -16,7 +16,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 #include <capnp/message.h>
-#include <capnp/serialize.h>
 
 using namespace avscanner::avscannerimpl;
 using ::testing::Return;

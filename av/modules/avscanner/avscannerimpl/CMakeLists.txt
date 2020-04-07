@@ -1,5 +1,3 @@
-configure_file(config.h.in config.h )
-
 add_library(avscannerimpl SHARED
         BaseFileWalkCallbacks.cpp
         BaseFileWalkCallbacks.h
@@ -28,7 +26,6 @@ add_library(avscannerimpl SHARED
         PathUtils.h
         ScanClient.cpp
         ScanClient.h
-        config.h
         )
 
 target_include_directories(avscannerimpl PUBLIC
