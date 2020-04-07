@@ -81,7 +81,7 @@ Trigger Query From Fake Cloud
 
 Run And Verify EDR Telemetry
     [Arguments]  ${query_metadata}  ${osquery_crashes}=0  ${failed_osquery_died_count}=0
-    Prepare To Run Telemetry Executable With HTTPS Protocol  8443
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=8443
     Log File  ${EXE_CONFIG_FILE}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}

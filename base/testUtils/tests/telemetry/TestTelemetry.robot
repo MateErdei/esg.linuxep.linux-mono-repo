@@ -292,14 +292,14 @@ Telemetry Executable Generates Watchdog Telemetry That Increments When Plugins D
 Telemetry Executable Will Do A Successful HTTP PUT Request When Server Run TLSv1_2
     [Documentation]    Telemetry Executable Creates HTTP PUT Request With Collected Telemetry Content
     Cleanup Telemetry Server
-    Prepare To Run Telemetry Executable With HTTPS Protocol   tlsv1_2
+    Prepare To Run Telemetry Executable With HTTPS Protocol   TLSProtocol=tlsv1_2
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
 
 
 Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less Than TLSv1_2
     [Documentation]    Telemetry Executable Creates HTTP PUT Request With Collected Telemetry Content
     Cleanup Telemetry Server
-    Prepare To Run Telemetry Executable With HTTPS Protocol   tlsv1_1
+    Prepare To Run Telemetry Executable With HTTPS Protocol   TLSProtocol=tlsv1_1
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${FAILED}   checkResult=0
 
     Wait Until Keyword Succeeds
