@@ -134,7 +134,7 @@ void ThreatReporterServerConnectionThread::run()
 
             if (length == 0)
             {
-                LOGERROR("Ignoring length of zero");
+                LOGDEBUG("Ignoring length of zero");
                 continue;
             }
 

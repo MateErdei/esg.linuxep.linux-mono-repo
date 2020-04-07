@@ -158,13 +158,13 @@ void unixsocket::ScanningServerConnectionThread::run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length < 0)
             {
-                PRINT("Aborting connection: failed to read length");
+                LOGERROR("Aborting connection: failed to read length");
                 break;
             }
 
             if (length == 0)
             {
-                PRINT("Ignoring length of zero");
+                LOGDEBUG("Ignoring length of zero");
                 continue;
             }
 
@@ -178,24 +178,24 @@ void unixsocket::ScanningServerConnectionThread::run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read != length)
             {
-                PRINT("Aborting connection: failed to read capn proto");
+                LOGERROR("Aborting connection: failed to read capn proto");
                 break;
             }
 
-            PRINT("Read capn of " << bytes_read);
+            LOGDEBUG("Read capn of " << bytes_read);
 
             std::string pathname = parseRequest(proto_buffer, bytes_read);
 
-            PRINT("Scan requested of " << pathname);
+            LOGDEBUG("Scan requested of " << pathname);
 
             // read fd
             int file_fd = recv_fd(socket_fd);
             if (file_fd < 0)
             {
-                PRINT("Aborting connection: failed to read fd");
+                LOGERROR("Aborting connection: failed to read fd");
                 break;
             }
-            PRINT("Managed to get file descriptor: " << file_fd);
+            LOGDEBUG("Managed to get file descriptor: " << file_fd);
 
             datatypes::AutoFd file_fd_manager(file_fd);
 
@@ -207,7 +207,7 @@ void unixsocket::ScanningServerConnectionThread::run()
 
             if (!writeLengthAndBuffer(socket_fd, serialised_result))
             {
-                PRINT("Failed to write result to unix socket");
+                LOGERROR("Failed to write result to unix socket");
             }
         }
     }

@@ -66,10 +66,15 @@ int unixsocket::readLength(int socket_fd)
                 return -1;
             }
         }
-        else
+        else if (count == -1)
         {
-            perror("Reading length");
+            perror("Reading FD returned error");
             return -1;
+        }
+        else if (count == 0)
+        {
+            perror("Reading FD returned EOF");
+            return 0;
         }
     }
 }
