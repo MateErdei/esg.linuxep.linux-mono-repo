@@ -8,6 +8,7 @@ Resource  McsRouterResources.robot
 Suite Setup  Suite Setup
 Test Setup  Test Setup
 Test Teardown  Test Teardown
+Suite Teardown    Stop Local Cloud Server
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
 
