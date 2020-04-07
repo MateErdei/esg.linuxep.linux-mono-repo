@@ -21,6 +21,7 @@ namespace common
         buffer.reserve(text.size());
         for(size_t pos = 0; pos != text.size(); ++pos) {
             switch(text[pos]) {
+                // control characters
                 case '\1': buffer.append("\\1");           break;
                 case '\2': buffer.append("\\2");           break;
                 case '\3': buffer.append("\\3");           break;
@@ -35,6 +36,12 @@ namespace common
                 case '\f': buffer.append("\\f");           break;
                 case '\r': buffer.append("\\r");           break;
                 case '\\': buffer.append("\\\\");          break;
+                // xml special characters
+                case '&':  buffer.append("&amp;");         break;
+                case '\"': buffer.append("&quot;");        break;
+                case '\'': buffer.append("&apos;");        break;
+                case '<':  buffer.append("&lt;");          break;
+                case '>':  buffer.append("&gt;");          break;
                 default:
                     auto character = static_cast<unsigned>(text[pos]);
                     if (character <= 31 || character == 127)
@@ -55,6 +62,7 @@ namespace common
                     break;
             }
         }
+
         text.swap(buffer);
     }
 
