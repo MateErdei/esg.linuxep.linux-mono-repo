@@ -31,6 +31,11 @@ namespace avscanner::avscannerimpl
             return p.string().rfind(value.string(), 0) == 0;
         }
 
+        static bool contains(const fs::path& p, const fs::path& value)
+        {
+            return p.string().find(value.string(), 0) != std::string::npos;
+        }
+
         static bool endswith(const fs::path& p, const fs::path& value)
         {
             if (p.string().length() >= value.string().length()) {

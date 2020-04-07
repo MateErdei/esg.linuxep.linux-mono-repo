@@ -14,6 +14,9 @@ enum ExclusionType
     FULLPATH,
     GLOB,
     FILENAME,
+    RELATIVE_PATH,
+    RELATIVE_STEM,
+    RELATIVE_GLOB,
     INVALID
 };
 
