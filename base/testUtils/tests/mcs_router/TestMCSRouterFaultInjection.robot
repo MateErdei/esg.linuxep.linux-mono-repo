@@ -138,6 +138,8 @@ Make File Of Size
 Make File Of Size And Expect No Space Error
     [Arguments]  ${path}  ${size}
     ${r} =  Run Process  dd  if\=/dev/urandom  of\=${path}  bs\=${size}  count\=1
+    Log  ${r.stderr}
+    Log  ${r.stdout}
     Should Contain  ${r.stderr}     dd: error writing '${path}': No space left on device
     Should Exist  ${path}
 
