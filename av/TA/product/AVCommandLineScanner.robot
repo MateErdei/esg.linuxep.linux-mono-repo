@@ -50,6 +50,21 @@ CLS Can Scan Infected File
 
    Stop AV
 
+AV Log Contains No Errors When Scanning File
+    Start AV
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
+    Should Be Equal As Integers  ${rc}  69
+
+    Wait Until AV Plugin Log Contains  Sending threat detection notification to central
+
+    AV Plugin Log Does Not Contain  ERROR
+
+    Stop AV
+
 CLS Can Scan Infected And Clean File With The Same Name
    Start AV
 
