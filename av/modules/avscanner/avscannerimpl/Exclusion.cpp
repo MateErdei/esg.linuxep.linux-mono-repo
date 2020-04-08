@@ -14,61 +14,51 @@ using namespace avscanner::avscannerimpl;
 
 
 Exclusion::Exclusion(const std::string& path)
-    : m_exclusionPath(path)
 {
-    if (path.empty())
+    std::string exclusionPath(path);
+    
+    if (exclusionPath.empty())
     {
         m_type = INVALID;
+        return;
     }
-    else if (path.find('?') != std::string::npos || path.find('*') != std::string::npos)
+    
+    // if exclusionPath ends with '/*' remove the '*'
+    if (exclusionPath.size() > 1 && exclusionPath.compare(exclusionPath.size()-2, 2, "/*") == 0)
     {
-        if (path.at(0) == '/')
-        {
-            if (path.size() > 1 && path.compare(path.size()-2, 2, "/*") == 0)
-            {
-                std::string truncatedPath = path.substr(0, path.size() - 1);
-                if (truncatedPath.find('?') == std::string::npos && truncatedPath.find('*') == std::string::npos)
-                {
-                    m_type = STEM;
-                    m_exclusionPath = truncatedPath;
-                    return;
-                }
-            }
+        exclusionPath = exclusionPath.substr(0, exclusionPath.size() - 1);
+    }
 
+    // if exclusionPath starts with '*/' remove the '*/'
+    if (exclusionPath.size() > 1 && exclusionPath.compare(0, 2, "*/") == 0)
+    {
+        exclusionPath = exclusionPath.substr(2, exclusionPath.size() - 2);
+    }
+
+    if (exclusionPath.find('?') != std::string::npos || exclusionPath.find('*') != std::string::npos)
+    {
+        if (exclusionPath.at(exclusionPath.size()-1) == '/')
+        {
+            exclusionPath = exclusionPath + "*";
+        }
+
+        if (exclusionPath.at(0) == '/')
+        {
             m_type = GLOB;
-            m_exclusionPath = convertGlobToRegex(path);
+            m_exclusionPath = exclusionPath;
         }
         else
         {
-            if (path.size() > 1 && path.compare(0, 2, "*/") == 0)
-            {
-                std::string truncatedPath = path.substr(2, path.size() - 2);
-                if (truncatedPath.find('?') == std::string::npos && truncatedPath.find('*') == std::string::npos)
-                {
-                    if (truncatedPath.find('/') == std::string::npos)
-                    {
-                        m_type = FILENAME;
-                    }
-                    else if (truncatedPath.at(truncatedPath.size()-1) == '/')
-                    {
-                        m_type = RELATIVE_STEM;
-                    }
-                    else
-                    {
-                        m_type = RELATIVE_PATH;
-                    }
-                    m_exclusionPath = "/" + truncatedPath;
-                    return;
-                }
-            }
-
             m_type = RELATIVE_GLOB;
-            m_exclusionPath = convertGlobToRegex("*/" + path);
+            m_exclusionPath = "*/" + exclusionPath;
         }
+        m_pathRegex = convertGlobToRegex(m_exclusionPath);
     }
-    else if (path.at(0) == '/')
+    else if (exclusionPath.at(0) == '/')
     {
-        if (path.at(path.size()-1) == '/')
+        m_exclusionPath = exclusionPath;
+
+        if (exclusionPath.at(exclusionPath.size()-1) == '/')
         {
             m_type = STEM;
         }
@@ -79,13 +69,13 @@ Exclusion::Exclusion(const std::string& path)
     }
     else
     {
-        m_exclusionPath = "/" + path;
+        m_exclusionPath = "/" + exclusionPath;
 
-        if (path.find('/') == std::string::npos)
+        if (exclusionPath.find('/') == std::string::npos)
         {
             m_type = FILENAME;
         }
-        else if (path.at(path.size()-1) == '/')
+        else if (exclusionPath.at(exclusionPath.size()-1) == '/')
         {
             m_type = RELATIVE_STEM;
         }
@@ -116,6 +106,15 @@ bool Exclusion::appliesToPath(const std::string& path) const
             }
             break;
         }
+        case FILENAME:
+        case RELATIVE_PATH:
+        {
+            if (PathUtils::endswith(path, m_exclusionPath))
+            {
+                return true;
+            }
+            break;
+        }
         case FULLPATH:
         {
             if (path == m_exclusionPath)
@@ -127,21 +126,13 @@ bool Exclusion::appliesToPath(const std::string& path) const
         case GLOB:
         case RELATIVE_GLOB:
         {
-            std::regex pathRegex(m_exclusionPath);
-            if (std::regex_match(path, pathRegex))
+            if (std::regex_match(path, m_pathRegex))
             {
                 return true;
             }
             break;
         }
-        case FILENAME:
-        case RELATIVE_PATH:
-        {
-            if (PathUtils::endswith(path, m_exclusionPath))
-            {
-                return true;
-            }
-        }
+
         default:
             break;
     }
@@ -180,7 +171,7 @@ void Exclusion::escapeRegexMetaCharacters(std::string& text)
     text.swap(buffer);
 }
 
-std::string Exclusion::convertGlobToRegex(const std::string& glob)
+std::regex Exclusion::convertGlobToRegex(const std::string& glob)
 {
     std::string regexStr = glob;
     escapeRegexMetaCharacters(regexStr);
@@ -199,5 +190,5 @@ std::string Exclusion::convertGlobToRegex(const std::string& glob)
         found = regexStr.find_first_of('*', found+2);
     }
 
-    return regexStr;
+    return std::regex(regexStr);
 }

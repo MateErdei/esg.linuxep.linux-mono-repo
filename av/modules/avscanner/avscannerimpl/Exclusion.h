@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
+#include <regex>
 
 enum ExclusionType
 {
@@ -32,10 +33,11 @@ namespace avscanner::avscannerimpl
         [[nodiscard]] ExclusionType type() const;
 
     private:
-        std::string convertGlobToRegex(const std::string& glob);
-        void escapeRegexMetaCharacters(std::string& text);
+        static std::regex convertGlobToRegex(const std::string& glob);
+        static void escapeRegexMetaCharacters(std::string& text);
 
         std::string m_exclusionPath;
+        std::regex m_pathRegex;
         ExclusionType m_type;
     };
 }
