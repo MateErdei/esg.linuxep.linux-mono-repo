@@ -128,13 +128,13 @@ void ThreatReporterServerConnectionThread::run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length < 0)
             {
-                LOGERROR("ThreatReporter aborting/closing connection: failed to read length: " << length);
+                LOGERROR("ThreatReporter Connection Thread aborting connection: failed to read length");
                 break;
             }
 
             if (length == 0)
             {
-                LOGDEBUG("Ignoring length of zero");
+                LOGDEBUG("Ignoring length of zero / No new messages");
                 continue;
             }
 
