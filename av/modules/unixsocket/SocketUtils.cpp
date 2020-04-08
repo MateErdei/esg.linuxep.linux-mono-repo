@@ -68,12 +68,12 @@ int unixsocket::readLength(int socket_fd)
         }
         else if (count == -1)
         {
-            perror("Reading FD returned error");
+            perror("Reading socket returned error");
             return -1;
         }
         else if (count == 0)
         {
-            perror("Reading FD returned EOF");
+            perror("Reading socket returned EOF");
             return 0;
         }
     }
