@@ -1,0 +1,2 @@
+query: "SELECT processes.pid, processes.name, processes.path, processes.cmdline, processes.state, processes.threads, processes.on_disk FROM processes WHERE processes.path LIKE '%/opt/sophos-s%';"
+name: "special query"

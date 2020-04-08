@@ -17,6 +17,9 @@ Suite Teardown   Fuzzer Tests Global TearDown
 Test LiveQuery
     Run Fuzzer By Name  LiveQueryTests
 
+Test LiveQueryInput
+    Run Fuzzer By Name  LiveQueryInputTests
+
 *** Keywords ***
 Fuzzer Tests Global Setup
         Fuzzer Set Paths  tests/LibFuzzerTests/data/

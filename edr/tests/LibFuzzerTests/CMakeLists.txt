@@ -1,5 +1,5 @@
 
-set(PROTO_INPUT_FILE livequery.proto)
+set(PROTO_INPUT_FILE livequery.proto livequeryinput.proto)
 
 protobuf_generate_cpp(LIB_FUZZER_EXAMPLE_PROTO_SRCS
         LIB_FUZZER_EXAMPLE_PROTO_HDRS
@@ -45,3 +45,9 @@ sophos_add_exe(LiveQueryTests
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude}  ${testhelpersinclude}
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} ${expatlib} ${zlib}  ${testhelperslib}
         )
+sophos_add_exe(LiveQueryInputTests
+	LiveQueryInputTests.cpp
+        EXTRA_PROJECTS fuzzer-proto osqueryclient livequeryimpl pluginimpl
+        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude}  ${testhelpersinclude}
+        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} ${expatlib} ${zlib}  ${testhelperslib}
+	)

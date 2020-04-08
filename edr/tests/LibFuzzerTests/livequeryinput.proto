@@ -1,0 +1,7 @@
+syntax = "proto2";
+package LiveQueryInputProto;
+
+message TestCase {
+    optional bytes name = 2;
+    optional bytes query = 3; 
+}
