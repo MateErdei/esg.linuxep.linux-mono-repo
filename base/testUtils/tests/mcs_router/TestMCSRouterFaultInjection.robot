@@ -106,7 +106,10 @@ Actions Folder Out Of Space Does Not Crash MCSRouter
     ...  30 secs
     ...  5 secs
     ...  Check MCSrouter Log Contains    utf8 write failed with message: [Errno 28] No space left on device
-    Check MCSrouter Log Contains    Failed to write an action to: /opt/sophos-spl/tmp/actions
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check MCSrouter Log Contains    Failed to write an action to: /opt/sophos-spl/tmp/actions
 
 
 
@@ -140,7 +143,7 @@ Make File Of Size And Expect No Space Error
     ${r} =  Run Process  dd  if\=/dev/urandom  of\=${path}  bs\=${size}  count\=1
     Log  ${r.stderr}
     Log  ${r.stdout}
-    Should Contain  ${r.stderr}     dd: error writing '${path}': No space left on device
+    Should Contain  ${r.stderr}     No space left on device
     Should Exist  ${path}
 
 Cleanup mount
