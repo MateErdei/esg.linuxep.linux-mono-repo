@@ -21,7 +21,7 @@ namespace unixsocket
     protected:
         TPtr makeThread(int fd) override
         {
-            return std::make_unique<connection_thread_t>(fd, m_callback);
+            return std::make_unique<ThreatReporterServerConnectionThread>(fd, m_callback);
         }
     private:
 

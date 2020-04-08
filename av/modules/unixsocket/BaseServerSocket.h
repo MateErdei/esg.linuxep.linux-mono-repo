@@ -24,7 +24,7 @@ namespace unixsocket
         BaseServerSocket(const BaseServerSocket&) = delete;
         BaseServerSocket& operator=(const BaseServerSocket&) = delete;
 
-        explicit BaseServerSocket(const sophos_filesystem::path& path);
+        explicit BaseServerSocket(const std::string& path);
         ~BaseServerSocket() override;
 
         void run() override;
@@ -55,6 +55,8 @@ namespace unixsocket
     protected:
         using TPtr = std::unique_ptr<T>;
 
+        virtual TPtr makeThread(int fd) = 0;
+
         bool handleConnection(int fd) override
         {
             // first, tidy up any stale threads
@@ -72,7 +74,7 @@ namespace unixsocket
                 }
             }
 
-            auto thread = std::make_unique<T>(fd);
+            auto thread = makeThread(fd);
             thread->start();
             m_threadVector.emplace_back(std::move(thread));
             return false;
