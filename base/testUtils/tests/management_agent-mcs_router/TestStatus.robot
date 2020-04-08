@@ -38,7 +38,7 @@ Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fak
     ...  5 secs
     ...  Check Cloud Server Log Contains    ${statusContent}   1
 
-    #negative test to confirm these two processes are registered as plugins LINUXDAR-1637
+    #Negative test to confirm these two processes are never registered as plugins LINUXDAR-1637
     Check Log Does Not Contain    Registered plugin mcsrouter   ${SophosManagementLog}    Sophos Management Agent
     Check Log Does Not Contain    Registered plugin  managementagent   ${SophosManagementLog}    Sophos Management Agent
 
