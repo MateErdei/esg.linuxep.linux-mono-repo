@@ -65,6 +65,12 @@ namespace Common
             std::string getXmlTranslatorPath() const;
 
             /**
+             * Used to get the flag that indicates if the plugin is managemed by sophos management agent
+             * @return bool flag.
+             */
+            bool getIsManagedPlugin() const;
+
+            /**
              * Used to store the given Policy AppIds the plugin is interested in.
              * @param list of appIDs
              */
@@ -99,6 +105,12 @@ namespace Common
              * @param xmlTranslationPath
              */
             void setXmlTranslatorPath(const std::string& xmlTranslationPath);
+
+            /**
+             * Used to store the deduced flag that indicates whether a plugin is managed by sophos_management
+             * @param isManaged
+             */
+            void setIsManagedPlugin(bool isManaged);
 
             /**
              * Serialize pluginInfo object into protobuf message.
@@ -166,6 +178,7 @@ namespace Common
             std::vector<std::string> m_statusAppIds;
             std::string m_pluginName;
             std::string m_xmlTranslatorPath;
+            bool m_isManagedPlugin = true;
         };
 
         using PluginInfoPtr = std::unique_ptr<PluginInfo>;

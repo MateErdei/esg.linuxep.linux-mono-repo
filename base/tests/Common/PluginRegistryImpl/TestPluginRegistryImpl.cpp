@@ -207,6 +207,13 @@ public:
                      << expected.getSecondsToShutDown() << "\n result: " << resulted.getSecondsToShutDown() ;
         }
 
+        if (expected.getIsManagedPlugin() != resulted.getIsManagedPlugin())
+        {
+            return ::testing::AssertionFailure()
+                    << s.str() << " plugin name differs: \n expected: " << (expected.getIsManagedPlugin()? "true" : "false")
+                    << "\n result: " << (resulted.getIsManagedPlugin() ? "true" : "false");
+        }
+
         return ::testing::AssertionSuccess();
     }
 };
@@ -436,6 +443,7 @@ TEST_F( // NOLINT
 
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setPluginName(pluginName);
+    expectedPluginInfo.setIsManagedPlugin(false);
 
     EXPECT_PRED_FORMAT2(
         pluginInfoSimilar,
@@ -455,6 +463,7 @@ TEST_F( // NOLINT
 
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setPluginName("Anything");
+    expectedPluginInfo.setIsManagedPlugin(false);
 
     EXPECT_PRED_FORMAT2(
         pluginInfoSimilar,

@@ -37,6 +37,8 @@ namespace Common
 
         std::string PluginInfo::getXmlTranslatorPath() const { return m_xmlTranslatorPath; }
 
+        bool PluginInfo::getIsManagedPlugin() const { return m_isManagedPlugin; }
+
         void PluginInfo::setPolicyAppIds(const std::vector<std::string>& appIDs) { m_policyAppIds = appIDs; }
 
         void PluginInfo::addPolicyAppIds(const std::string& appID) { m_policyAppIds.push_back(appID); }
@@ -47,6 +49,7 @@ namespace Common
         {
             m_xmlTranslatorPath = xmlTranslationPath;
         }
+        void PluginInfo::setIsManagedPlugin(bool isManaged) { m_isManagedPlugin = isManaged; }
 
         std::string PluginInfo::serializeToString(const PluginInfo& pluginInfo)
         {
@@ -63,7 +66,10 @@ namespace Common
                 pluginInfoProto.add_statusappids(statusAppId);
             }
 
-            pluginInfoProto.set_pluginname(pluginInfo.getPluginName());
+            if ( pluginInfo.getIsManagedPlugin())
+            {
+                pluginInfoProto.set_pluginname(pluginInfo.getPluginName());
+            }
             pluginInfoProto.set_xmltranslatorpath(pluginInfo.getXmlTranslatorPath());
             pluginInfoProto.set_executableuserandgroup(pluginInfo.getExecutableUserAndGroupAsString());
             pluginInfoProto.set_executablefullpath(pluginInfo.getExecutableFullPath());
@@ -115,6 +121,9 @@ namespace Common
             std::string pluginname = protoPluginInfo.pluginname();
             if (pluginname.empty())
             {
+                //all plugins without names in the json configs are not managed by sophos_management
+                // this covers mcsrouter and sophos_management itsself
+                pluginInfo.setIsManagedPlugin(false);
                 pluginname = pluginNameFromFilename;
             }
             else if (pluginname != pluginNameFromFilename)

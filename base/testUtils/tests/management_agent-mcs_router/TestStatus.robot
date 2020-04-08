@@ -8,6 +8,9 @@ Resource    ../management_agent/ManagementAgentResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../installer/InstallerResources.robot
 
+*** Variables ***
+${SophosManagementLog}         ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
+
 *** Test Case ***
 
 Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fake Cloud
@@ -34,6 +37,11 @@ Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fak
     ...  1 min
     ...  5 secs
     ...  Check Cloud Server Log Contains    ${statusContent}   1
+
+    #negative test to confirm these two processes are registered as plugins LINUXDAR-1637
+    Check Log Does Not Contain    Registered plugin mcsrouter   ${SophosManagementLog}    Sophos Management Agent
+    Check Log Does Not Contain    Registered plugin  managementagent   ${SophosManagementLog}    Sophos Management Agent
+
 
     # clean up
     Stop Plugin
