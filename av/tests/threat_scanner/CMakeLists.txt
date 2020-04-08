@@ -2,6 +2,7 @@
 include(GoogleTest)
 
 SophosAddTest(TestThreatScanner
+        TestSusiResponseParsing.cpp
         TestThreatScanner.cpp
         PROJECTS threat_scanner
         INC_DIRS
@@ -12,3 +13,9 @@ SET_TARGET_PROPERTIES(TestThreatScanner
         INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
+
+target_link_libraries(TestThreatScanner  PUBLIC
+        ${pluginapilib}
+        )
+
+target_include_directories(TestThreatScanner PUBLIC ${pluginapiinclude})
