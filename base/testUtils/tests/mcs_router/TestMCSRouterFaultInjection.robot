@@ -116,7 +116,7 @@ Make Tiny File System
     ${temp_dir} =  Add Temporary Directory  workspace
 
     Make File Of Size  ${temp_dir}/fs  5MB
-    ${r} =  Run Process  mkfs.ext3  ${temp_dir}/fs
+    ${r} =  Run Process  mkfs.ext3  -F  ${temp_dir}/fs
     Should Be Equal As Strings  ${r.rc}  0
 
 
