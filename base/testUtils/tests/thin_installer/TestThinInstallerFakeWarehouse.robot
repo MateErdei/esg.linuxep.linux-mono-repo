@@ -148,6 +148,11 @@ Thin Installer Repairs Broken Existing Installation
     Should Exist  ${REGISTER_CENTRAL}
     remove_thininstaller_log
     Check Root Directory Permissions Are Not Changed
+    ${mcsrouter_log} =  Mcs Router Log
+    #there is a race condition where the mcsrouter can restart when
+    #the thinstaller is overwriting the mcsrouter zip this causes an an expected critical exception
+    Remove File  ${mcsrouter_log}
+    Check Expected Base Processes Are Running
 
 Thin Installer Fails When No Path In Systemd File
     # Install to default location and break it
