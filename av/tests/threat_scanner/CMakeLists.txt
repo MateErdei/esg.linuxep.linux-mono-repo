@@ -14,8 +14,4 @@ SET_TARGET_PROPERTIES(TestThreatScanner
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
-target_link_libraries(TestThreatScanner  PUBLIC
-        ${pluginapilib}
-        )
-
 target_include_directories(TestThreatScanner PUBLIC ${pluginapiinclude})
