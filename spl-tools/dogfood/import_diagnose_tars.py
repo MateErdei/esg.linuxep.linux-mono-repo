@@ -309,8 +309,6 @@ def process_diagnose_file(tar_path):
     print("Hostname: {}".format(hostname))
     print("IP: {}".format(ip))
     print("Version: {}".format(product_base_version))
-    print("EDR Version: {}".format(product_edr_version))
-    print("MTR Version: {}".format(product_mtr_version))
     time.sleep(3)
 
     # This account has only insert privileges (not even select) so it is safe to include here.
@@ -434,3 +432,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
