@@ -67,16 +67,9 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
 
     Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  1
 
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
+    :FOR    ${i}    IN RANGE    10
+    \  Copy File And Send It To MCS Actions folder  ${temp_dir}/template
+    \  sleep  0.01s
 
     Wait Until Keyword Succeeds
     ...  30 secs
