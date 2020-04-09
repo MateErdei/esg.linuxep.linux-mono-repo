@@ -40,7 +40,7 @@ Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fak
 
     #Negative test to confirm these two processes are never registered as plugins LINUXDAR-1637
     Check Log Does Not Contain    Registered plugin mcsrouter   ${SophosManagementLog}    Sophos Management Agent
-    Check Log Does Not Contain    Registered plugin  managementagent   ${SophosManagementLog}    Sophos Management Agent
+    Check Log Does Not Contain    Registered plugin managementagent   ${SophosManagementLog}    Sophos Management Agent
 
 
     # clean up
