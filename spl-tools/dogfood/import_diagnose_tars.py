@@ -304,11 +304,13 @@ def process_diagnose_file(tar_path):
     ip = extract_ip(sub_dir)
     product_base_version = extract_base_version(sub_dir)
     product_edr_version = extract_plugin_version(sub_dir, "edr")
-    product_mtr_version = extract_plugin_version(sub_dir, "mtr")a
+    product_mtr_version = extract_plugin_version(sub_dir, "mtr")
 
     print("Hostname: {}".format(hostname))
     print("IP: {}".format(ip))
     print("Version: {}".format(product_base_version))
+    print("EDR Version: {}".format(product_edr_version))
+    print("MTR Version: {}".format(product_mtr_version))
     time.sleep(3)
 
     # This account has only insert privileges (not even select) so it is safe to include here.
