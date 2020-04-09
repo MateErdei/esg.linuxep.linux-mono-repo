@@ -16,7 +16,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <modules/osqueryclient/OsqueryProcessor.h>
 #include <modules/livequery/IQueryProcessor.h>
-#include <modules/livequery/ParallelQueryProcessor.h>
 #include <modules/osqueryclient/IOsqueryClient.h>
 
 #include <thirdparty/nlohmann-json/json.hpp>
@@ -56,35 +55,34 @@ namespace livequery
      */
     class DummyDispatcher : public livequery::ResponseDispatcher
     {
-        std::shared_ptr<std::promise<void>> m_promise; 
-        std::shared_ptr<std::string> m_result; 
-        std::shared_ptr<livequery::IResponseDispatcher::QueryResponseStatus> m_responseStatus; 
-        
+        std::string m_result; 
+        livequery::IResponseDispatcher::QueryResponseStatus m_responseStatus;        
 
     public:
-        DummyDispatcher( std::shared_ptr<std::promise<void>> p, 
-            std::shared_ptr<std::string> r, 
-            std::shared_ptr<livequery::IResponseDispatcher::QueryResponseStatus> responseStatus ) : 
-            m_promise(p), m_result(r), m_responseStatus{responseStatus}
+        DummyDispatcher( )
         {
 
         }
         void sendResponse(const std::string& /*correlationId*/, const QueryResponse& response) override
         {
-            *m_result = serializeToJson(response); 
-            // uncomment to see the response from osquery
-            //std::cout << jsonContent.dump(2) << std::endl;
+            m_result = serializeToJson(response); 
         }
 
         std::unique_ptr<IResponseDispatcher> clone() override{
-            return std::unique_ptr<IResponseDispatcher>{new DummyDispatcher(m_promise, m_result, m_responseStatus)}; 
+            return std::unique_ptr<IResponseDispatcher>{new DummyDispatcher()}; 
         }
 
         void feedbackResponseStatus(QueryResponseStatus queryResponseStatus ) override{
-            *m_responseStatus = queryResponseStatus; 
-            m_promise->set_value(); 
+            m_responseStatus = queryResponseStatus; 
         }
-
+        QueryResponseStatus responseStatus() const
+        {
+            return m_responseStatus; 
+        }
+        std::string serializedResult( )const
+        {
+            return m_result; 
+        }
     };
 
 } // namespace livequery
@@ -112,28 +110,16 @@ void mainTest(const LiveQueryInputProto::TestCase& itestCase)
     std::string serializedQuery = buildjson.str(); 
     /*    std::cout << serializedQuery << std::endl; */
 
-    std::shared_ptr<std::promise<void>> promise = std::make_shared<std::promise<void>>(); 
-    std::shared_ptr<std::string> holdResult = std::make_shared<std::string>(); 
-    std::shared_ptr<livequery::IResponseDispatcher::QueryResponseStatus> responseStatus = std::make_shared<livequery::IResponseDispatcher::QueryResponseStatus>(); 
-    std::future<void> queryFinishedFuture = promise->get_future();
-
-    livequery::ParallelQueryProcessor processor{
-	   std::unique_ptr<livequery::IQueryProcessor>{new osqueryclient::OsqueryProcessor("/tmp/notused")}, 
-           std::unique_ptr<livequery::IResponseDispatcher>{new livequery::DummyDispatcher(promise, holdResult, responseStatus)}}; 
+    osqueryclient::OsqueryProcessor queryP{"/tmp/notused"}; 
+    livequery::DummyDispatcher queryD; 
 
     osqueryclient::factory().replace([](){
             return std::unique_ptr<osqueryclient::IOsqueryClient>(new FakeIOsqueryClient{}); 
             });
     
-    processor.addJob(serializedQuery, "1234");    
+    livequery::processQuery(queryP, queryD, serializedQuery, "1234"); 
     
-    if (queryFinishedFuture.wait_for(std::chrono::seconds(1)) == std::future_status::timeout)
-    {
-        std::cerr << "Dispatcher did not report that the query was processed. This is a fatal error" << std::endl; 
-        std::terminate(); 
-    }
-
-    switch (*responseStatus)
+    switch (queryD.responseStatus())
     {
     case livequery::IResponseDispatcher::QueryResponseStatus::UnexpectedExceptionOnHandlingQuery:
         std::cerr << "Input data triggered exception. This is a fatal error" << std::endl; 
@@ -146,10 +132,10 @@ void mainTest(const LiveQueryInputProto::TestCase& itestCase)
     default:
         {
             std::string expectSuccessContains = R"sophos("errorCode":0,"errorMessage":"OK","sizeBytes":0})sophos"; 
-            std::string result = *holdResult; 
+            std::string result = queryD.serializedResult(); 
             if ( result.find(expectSuccessContains) == std::string::npos)
             {
-                std::cerr << "Result not expected" << *holdResult << std::endl; 
+                std::cerr << "Result not expected" << result << std::endl; 
                 std::terminate(); 
             }            
         }
