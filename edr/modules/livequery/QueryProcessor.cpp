@@ -28,6 +28,28 @@ namespace
     const char* queryTypeKey = "type";
     const char* queryNameKey = "name";
     const char* querySqlKey = "query";
+
+    class ScopedFeedbackProvider{
+        livequery::IResponseDispatcher & m_dispatcher; 
+        livequery::IResponseDispatcher::QueryResponseStatus m_status; 
+        public: 
+        ScopedFeedbackProvider( livequery::IResponseDispatcher& dispatcher ): 
+            m_dispatcher(dispatcher), 
+            m_status{livequery::IResponseDispatcher::QueryResponseStatus::UnexpectedExceptionOnHandlingQuery }
+        {
+
+        }
+        void setFeedback(livequery::IResponseDispatcher::QueryResponseStatus queryResponseStatus )
+        {
+            m_status = queryResponseStatus; 
+        }
+
+        ~ScopedFeedbackProvider()
+        {
+            m_dispatcher.feedbackResponseStatus(m_status); 
+        }
+    };
+
 } // namespace
 
 void livequery::processQuery(
@@ -36,6 +58,7 @@ void livequery::processQuery(
     const std::string& queryJson,
     const std::string& correlationId)
 {
+    ScopedFeedbackProvider scopedFeedbackProvider{dispatcher};
     std::unordered_map<std::string, Common::Telemetry::TelemetryValue> requestMap;
     try
     {
@@ -46,6 +69,7 @@ void livequery::processQuery(
         LOGWARN("Received an invalid request, failed to parse the json input.");
         LOGSUPPORT("Invalid request, failed to parse the json with error: " << ex.what());
         LOGDEBUG("Content of input request: " << queryJson);
+        scopedFeedbackProvider.setFeedback(livequery::IResponseDispatcher::QueryResponseStatus::QueryInvalidJson); 
         return;
     }
 
@@ -59,6 +83,7 @@ void livequery::processQuery(
             "Invalid request, required json values are: '" << queryTypeKey << "', '" << queryNameKey << "' and '"
                                                            << querySqlKey);
         LOGDEBUG("Content of input request: " << queryJson);
+        scopedFeedbackProvider.setFeedback(livequery::IResponseDispatcher::QueryResponseStatus::QueryFailedValidation); 
         return;
     }
 
@@ -68,6 +93,7 @@ void livequery::processQuery(
     {
         LOGWARN("Invalid request, required json value 'query' must be a string");
         LOGDEBUG("Content of input request: " << queryJson);
+        scopedFeedbackProvider.setFeedback(livequery::IResponseDispatcher::QueryResponseStatus::QueryFailedValidation); 
         return;
     }
 
@@ -98,11 +124,13 @@ void livequery::processQuery(
         }
 
         dispatcher.sendResponse(correlationId, response);
+        scopedFeedbackProvider.setFeedback(livequery::IResponseDispatcher::QueryResponseStatus::QueryResponseProduced); 
     }
     catch (const std::exception& ex)
     {
         LOGWARN("Error while executing query");
         LOGSUPPORT("Error information: " << ex.what());
         LOGDEBUG("Content of input request: '" << queryIter->second.getString() << "'");
+        scopedFeedbackProvider.setFeedback(livequery::IResponseDispatcher::QueryResponseStatus::UnexpectedExceptionOnHandlingQuery); 
     }
 }
