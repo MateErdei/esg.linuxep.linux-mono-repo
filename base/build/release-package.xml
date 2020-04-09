@@ -116,6 +116,6 @@
             <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,feature</publishbranches>
+        <publishbranches>master,feature,release</publishbranches>
     </publish>
 </package>
