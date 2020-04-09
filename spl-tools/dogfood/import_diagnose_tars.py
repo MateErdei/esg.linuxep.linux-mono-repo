@@ -304,7 +304,7 @@ def process_diagnose_file(tar_path):
     ip = extract_ip(sub_dir)
     product_base_version = extract_base_version(sub_dir)
     product_edr_version = extract_plugin_version(sub_dir, "edr")
-    product_mtr_version = extract_plugin_version(sub_dir, "mtr")
+    product_mtr_version = extract_plugin_version(sub_dir, "mtr")a
 
     print("Hostname: {}".format(hostname))
     print("IP: {}".format(ip))
