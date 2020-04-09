@@ -106,11 +106,6 @@ Actions Folder Out Of Space Does Not Crash MCSRouter
     ...  30 secs
     ...  5 secs
     ...  Check MCSrouter Log Contains    utf8 write failed with message: [Errno 28] No space left on device
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Check MCSrouter Log Contains    Failed to write an action to: /opt/sophos-spl/tmp/actions
-
 
 
 *** Keywords ***
