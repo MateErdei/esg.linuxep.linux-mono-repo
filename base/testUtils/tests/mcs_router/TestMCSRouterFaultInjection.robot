@@ -67,7 +67,8 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
 
     Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  1
 
-    :FOR    ${i}    IN RANGE    10
+    ${Actions_to_send} =  Set Variable  10
+    :FOR    ${i}    IN RANGE    ${Actions_to_send}
     \  Copy File And Send It To MCS Actions folder  ${temp_dir}/template
     \  sleep  0.01s
 
@@ -75,9 +76,10 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
     ...  30 secs
     ...  5 secs
     ...  Check Suldownloader Log Contains  Update failed, with code: 112
-    Check Managementagent Log Contains String N Times  Action /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml sent to 1 plugins  10
+    Check Managementagent Log Contains String N Times  Action /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml sent to 1 plugins  ${Actions_to_send}
     Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  2
-    Check UpdateScheduler Log Contains String N Times  An active instance of SulDownloader is already running, continuing with current instance  9
+    ${Expected_sul_already_running_logs} =  Evaluate    ${Actions_to_send} - 1
+    Check UpdateScheduler Log Contains String N Times  An active instance of SulDownloader is already running, continuing with current instance  ${Expected_sul_already_running_logs}
     Check All Product Logs Do Not Contain Critical
 
 Actions Folder Out Of Space Does Not Crash MCSRouter
