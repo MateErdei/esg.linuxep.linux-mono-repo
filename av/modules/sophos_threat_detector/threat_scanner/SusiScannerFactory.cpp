@@ -4,6 +4,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-// Uncomment to run sophos_threat_detector in chroot
-//#define USE_CHROOT
-#define USE_SUSI
+#include "SusiScannerFactory.h"
+
+#include "SusiScanner.h"
+
+using namespace threat_scanner;
+
+IThreatScannerPtr SusiScannerFactory::createScanner()
+{
+    return std::make_unique<SusiScanner>();
+}

@@ -6,36 +6,51 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SophosThreatDetectorMain.h"
 #include "Logger.h"
+
+#include "common/Define.h"
+#ifdef USE_SUSI
+#include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
+#else
 #include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
+#endif
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include <datatypes/Print.h>
+#include "datatypes/sophos_filesystem.h"
+
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 #include <string>
 #include <unistd.h>
 
-#define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
-
-#define CHROOT "/opt/sophos-spl/plugins/av/chroot"
-
 using namespace sspl::sophosthreatdetectorimpl;
+namespace fs = sophos_filesystem;
 
 static int inner_main()
 {
-    int ret;
-
-    ret = ::chroot(CHROOT);
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
+    fs::path chrootPath = pluginInstall / "chroot";
+#ifdef USE_CHROOT
+    int ret = ::chroot(chrootPath.c_str());
     if (ret != 0)
     {
-        handle_error("Failed to chroot to "
-                             CHROOT);
+        LOGERROR("Failed to chroot to " << chrootPath);
+        exit(EXIT_FAILURE);
     }
 
-    const std::string path = "/unix_socket";
+    fs::path scanningSocketPath = "/scanning_socket";
+#else
+    fs::path scanningSocketPath = chrootPath / "scanning_socket";
+#endif
 
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+#ifdef USE_SUSI
+        = std::make_shared<threat_scanner::SusiScannerFactory>();
+#else
         = std::make_shared<threat_scanner::FakeSusiScannerFactory>();
-    unixsocket::ScanningServerSocket server(path, scannerFactory);
+#endif
+    unixsocket::ScanningServerSocket server(scanningSocketPath, scannerFactory);
     server.run();
 
     return 0;

@@ -4,6 +4,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-// Uncomment to run sophos_threat_detector in chroot
-//#define USE_CHROOT
-#define USE_SUSI
+#pragma once
+
+#include <string>
+
+class SusiGlobalHandler
+{
+public:
+    explicit SusiGlobalHandler(const std::string& json_config);
+    ~SusiGlobalHandler();
+};
