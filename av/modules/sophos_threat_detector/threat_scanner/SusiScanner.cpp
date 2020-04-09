@@ -82,28 +82,10 @@ SusiScanner::SusiScanner()
 }
 
 scan_messages::ScanResponse
-SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
+SusiScanner::scan(datatypes::AutoFd& /*fd*/, const std::string& /*file_path*/)
 {
-    char buffer[512];
-
-    // Test reading the file
-    ssize_t bytesRead = read(fd.get(), buffer, sizeof(buffer) - 1);
-    buffer[bytesRead] = 0;
-    LOGINFO("Read " << bytesRead << " from " << file_path << '\n');
-
-    // Test stat the file
-    struct stat statbuf = {};
-    ::fstat(fd.get(), &statbuf);
-    LOGINFO("size:" << statbuf.st_size << '\n');
-
+    // TODO: Will be implemented by LINUXDAR-1565
     scan_messages::ScanResponse response;
-    std::string contents(buffer);
-    bool clean = (contents.find("EICAR") == std::string::npos);
-    response.setClean(clean);
-    if (!clean)
-    {
-        response.setThreatName("EICAR");
-    }
-
+    response.setClean(true);
     return response;
 }
