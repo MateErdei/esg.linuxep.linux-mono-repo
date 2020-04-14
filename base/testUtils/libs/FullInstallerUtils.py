@@ -383,19 +383,19 @@ SOPHOS_GROUP="sophos-spl-group"
 
 
 def get_delete_user_cmd():
-    devnull = open(os.devnull, "w")
-    if subprocess.call(["sudo", "which", "deluser"], stderr=devnull, stdout=devnull) == 0:
-        return "deluser"
-    if subprocess.call(["sudo", "which", "userdel"], stderr=devnull, stdout=devnull) == 0:
-        return "userdel"
+    with open(os.devnull, "w") as devnull:
+        if subprocess.call(["sudo", "which", "deluser"], stderr=devnull, stdout=devnull) == 0:
+            return "deluser"
+        if subprocess.call(["sudo", "which", "userdel"], stderr=devnull, stdout=devnull) == 0:
+            return "userdel"
 
 
 def get_delete_group_cmd():
-    devnull = open(os.devnull, "w")
-    if subprocess.call(["sudo", "which", "delgroup"], stderr=devnull, stdout=devnull) == 0:
-        return "delgroup"
-    if subprocess.call(["sudo", "which", "groupdel"], stderr=devnull, stdout=devnull) == 0:
-        return "groupdel"
+    with open(os.devnull, "w") as devnull:
+        if subprocess.call(["sudo", "which", "delgroup"], stderr=devnull, stdout=devnull) == 0:
+            return "delgroup"
+        if subprocess.call(["sudo", "which", "groupdel"], stderr=devnull, stdout=devnull) == 0:
+            return "groupdel"
 
 
 def Uninstall_SSPL(installdir=None):
@@ -406,7 +406,7 @@ def Uninstall_SSPL(installdir=None):
         if os.path.isfile(p):
             try:
                 uninstall_log = open("/tmp/uninstall.log", 'w+')
-                subprocess.call(["bin/bash", "-x", p, "--force"], stdout=uninstall_log, stderr=uninstall_log)
+                subprocess.call([ p, "--force"], stdout=uninstall_log, stderr=uninstall_log)
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
             finally:
@@ -439,18 +439,20 @@ def Uninstall_SSPL(installdir=None):
                 print("Failed to run uninstaller", e)
         subprocess.call(['rm', '-rf', installdir])
 
-    devnull = open(os.devnull, "w")
+
 
     # Find delete user command, deluser on ubuntu and userdel on centos/rhel.
     delete_user_cmd = get_delete_user_cmd()
     logger.debug("Using delete user command:{}".format(delete_user_cmd))
-    subprocess.call(["sudo", delete_user_cmd, SOPHOS_USER], stderr=devnull)
+    with open(os.devnull, "w") as devnull:
+        subprocess.call(["sudo", delete_user_cmd, SOPHOS_USER], stderr=devnull)
 
     # Find delete group command, delgroup on ubuntu and groupdel on centos/rhel.
     delete_group_cmd = get_delete_group_cmd()
     logger.debug("Using delete group command:{}".format(delete_group_cmd))
     if does_group_exist():
-        subprocess.call(["sudo", delete_group_cmd, SOPHOS_GROUP], stderr=devnull)
+        with open(os.devnull, "w") as devnull:
+            subprocess.call(["sudo", delete_group_cmd, SOPHOS_GROUP], stderr=devnull)
 
 
 def uninstall_sspl_unless_cleanup_disabled(installdir=None):
