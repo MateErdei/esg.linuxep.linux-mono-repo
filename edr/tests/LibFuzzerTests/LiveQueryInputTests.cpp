@@ -5,21 +5,21 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "FuzzerUtils.h"
+
 #include <livequery.pb.h>
 #include <livequeryinput.pb.h>
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
 #    include <libprotobuf-mutator/src/mutator.h>
 #endif
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/FileSystem/IFileSystem.h>
+#include "google/protobuf/text_format.h"
 
-#include <modules/osqueryclient/OsqueryProcessor.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <modules/livequery/IQueryProcessor.h>
 #include <modules/osqueryclient/IOsqueryClient.h>
-
+#include <modules/osqueryclient/OsqueryProcessor.h>
 #include <thirdparty/nlohmann-json/json.hpp>
-#include "google/protobuf/text_format.h"
 
 #include <future>
 
@@ -28,18 +28,21 @@ namespace osquery
     FLAG(bool, decorations_top_level, false, "test");
 }
 
-/* This replaces the osquery sdk and always return the same output 
- * The substitution is done via the factory replacement. 
- * */ 
-class FakeIOsqueryClient : public osqueryclient::IOsqueryClient{
-    public: 
-    void connect(const std::string& ) override{}
-    osquery::Status query(const std::string& , osquery::QueryData & ) override
+/* This replaces the osquery sdk and always return the same output
+ * The substitution is done via the factory replacement.
+ * */
+class FakeIOsqueryClient : public osqueryclient::IOsqueryClient
+{
+public:
+    void connect(const std::string&) override
+    {
+    }
+    osquery::Status query(const std::string&, osquery::QueryData&) override
     {
         return osquery::Status::success();
     }
 
-    osquery::Status getQueryColumns(const std::string& , osquery::QueryData & ) override
+    osquery::Status getQueryColumns(const std::string&, osquery::QueryData&) override
     {
         return osquery::Status::success();
     }
@@ -47,46 +50,46 @@ class FakeIOsqueryClient : public osqueryclient::IOsqueryClient{
 
 namespace livequery
 {
-    /* This response dispatcher has two main functions. It is here to prevent the 
+    /* This response dispatcher has two main functions. It is here to prevent the
      * ResponseDispatcher from writing the result to the file as it does not help the
-     * fuzzer in anyway or form. 
-     * It is also here to allow the main test to verify that the report was called and the 
-     * result produced. 
+     * fuzzer in anyway or form.
+     * It is also here to allow the main test to verify that the report was called and the
+     * result produced.
      */
     class DummyDispatcher : public livequery::ResponseDispatcher
     {
-        std::string m_result; 
-        livequery::IResponseDispatcher::QueryResponseStatus m_responseStatus;        
+        std::string m_result;
+        livequery::IResponseDispatcher::QueryResponseStatus m_responseStatus;
 
     public:
-        DummyDispatcher( )
+        DummyDispatcher()
         {
-
         }
         void sendResponse(const std::string& /*correlationId*/, const QueryResponse& response) override
         {
-            m_result = serializeToJson(response); 
+            m_result = serializeToJson(response);
         }
 
-        std::unique_ptr<IResponseDispatcher> clone() override{
-            return std::unique_ptr<IResponseDispatcher>{new DummyDispatcher()}; 
+        std::unique_ptr<IResponseDispatcher> clone() override
+        {
+            return std::unique_ptr<IResponseDispatcher> { new DummyDispatcher() };
         }
 
-        void feedbackResponseStatus(QueryResponseStatus queryResponseStatus ) override{
-            m_responseStatus = queryResponseStatus; 
+        void feedbackResponseStatus(QueryResponseStatus queryResponseStatus) override
+        {
+            m_responseStatus = queryResponseStatus;
         }
         QueryResponseStatus responseStatus() const
         {
-            return m_responseStatus; 
+            return m_responseStatus;
         }
-        std::string serializedResult( )const
+        std::string serializedResult() const
         {
-            return m_result; 
+            return m_result;
         }
     };
 
 } // namespace livequery
-
 
 #ifdef HasLibFuzzer
 DEFINE_PROTO_FUZZER(const LiveQueryInputProto::TestCase& itestCase)
@@ -96,53 +99,53 @@ void mainTest(const LiveQueryInputProto::TestCase& itestCase)
 {
 #endif
 
-    std::string iquery = itestCase.query(); 
-    std::string iname = itestCase.name(); 
+    std::string iquery = itestCase.query();
+    std::string iname = itestCase.name();
 
-    /*std::cout << "iquery " << iquery << std::endl; 
+    /*std::cout << "iquery " << iquery << std::endl;
     std::cout << "iname " << iname << std::endl; */
-    std::stringstream buildjson; 
+    std::stringstream buildjson;
     buildjson << R"sophos({
     "type": "sophos.mgt.action.RunLiveQuery",
-    "name": ")sophos" << iname << R"sophos(",
-    "query": ")sophos" << iquery << R"sophos("
-})sophos"; 
-    std::string serializedQuery = buildjson.str(); 
+    "name": ")sophos"
+              << iname << R"sophos(",
+    "query": ")sophos"
+              << iquery << R"sophos("
+})sophos";
+    std::string serializedQuery = buildjson.str();
     /*    std::cout << serializedQuery << std::endl; */
 
-    osqueryclient::OsqueryProcessor queryP{"/tmp/notused"}; 
-    livequery::DummyDispatcher queryD; 
+    osqueryclient::OsqueryProcessor queryP { "/tmp/notused" };
+    livequery::DummyDispatcher queryD;
 
-    osqueryclient::factory().replace([](){
-            return std::unique_ptr<osqueryclient::IOsqueryClient>(new FakeIOsqueryClient{}); 
-            });
-    
-    livequery::processQuery(queryP, queryD, serializedQuery, "1234"); 
-    
+    osqueryclient::factory().replace(
+        []() { return std::unique_ptr<osqueryclient::IOsqueryClient>(new FakeIOsqueryClient {}); });
+
+    livequery::processQuery(queryP, queryD, serializedQuery, "1234");
+
     switch (queryD.responseStatus())
     {
-    case livequery::IResponseDispatcher::QueryResponseStatus::UnexpectedExceptionOnHandlingQuery:
-        std::cerr << "Input data triggered exception. This is a fatal error" << std::endl; 
-        std::terminate(); 
-        break;
-    case livequery::IResponseDispatcher::QueryResponseStatus::QueryFailedValidation:
-    case livequery::IResponseDispatcher::QueryResponseStatus::QueryInvalidJson:
-        break; 
-    case livequery::IResponseDispatcher::QueryResponseStatus::QueryResponseProduced:    
-    default:
+        case livequery::IResponseDispatcher::QueryResponseStatus::UnexpectedExceptionOnHandlingQuery:
+            std::cerr << "Input data triggered exception. This is a fatal error" << std::endl;
+            std::terminate();
+            break;
+        case livequery::IResponseDispatcher::QueryResponseStatus::QueryFailedValidation:
+        case livequery::IResponseDispatcher::QueryResponseStatus::QueryInvalidJson:
+            break;
+        case livequery::IResponseDispatcher::QueryResponseStatus::QueryResponseProduced:
+        default:
         {
-            std::string expectSuccessContains = R"sophos("errorCode":0,"errorMessage":"OK","sizeBytes":0})sophos"; 
-            std::string result = queryD.serializedResult(); 
-            if ( result.find(expectSuccessContains) == std::string::npos)
+            std::string expectSuccessContains = R"sophos("errorCode":0,"errorMessage":"OK","sizeBytes":0})sophos";
+            std::string result = queryD.serializedResult();
+            if (result.find(expectSuccessContains) == std::string::npos)
             {
-                std::cerr << "Result not expected" << result << std::endl; 
-                std::terminate(); 
-            }            
+                std::cerr << "Result not expected" << result << std::endl;
+                std::terminate();
+            }
         }
         break;
-    } 
+    }
 }
-
 
 /**
  * LibFuzzer works only with clang, and developers machine are configured to run gcc.
