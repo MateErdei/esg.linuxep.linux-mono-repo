@@ -30,11 +30,9 @@ def receive():
     This function is to be used as a generator in for loops to yield a tuple
     containing data about LiveQuery response files.
     """
-    LOGGER.info("JAKE START OF RECEIVER")
+
     response_dir = os.path.join(path_manager.response_dir())
-    LOGGER.info(os.listdir(response_dir))
     for response_file in os.listdir(response_dir):
-        LOGGER.info("JAKE")
         match_object = re.match(r"^([^_]*)_([^_]*)_response\.json$", response_file)
         file_path = os.path.join(response_dir, response_file)
         if match_object:
@@ -42,25 +40,18 @@ def receive():
             correlation_id = match_object.group(2)
             time = os.path.getmtime(file_path)
             try:
-
-                LOGGER.info("JAKE PRE OPEN")
-                # with open(file_path, 'r', encoding='utf-8') as file_to_read:
                 with open(file_path, 'rb') as file_to_read:
                     body = file_to_read.read()
                     body = body.decode("utf-8")
-                    LOGGER.info(body)
                     validate_string_as_json(body)
-                    LOGGER.info("JAKE VALIDATED")
                     yield file_path, app_id, correlation_id, time, body
-            except json.JSONDecodeError as error:
+            except (json.JSONDecodeError, UnicodeDecodeError) as error:
                 LOGGER.error("Failed to load response json file \"{}\". Error: {}".format(file_path, str(error)))
                 remove_response_file(file_path)
-            except (OSError, UnicodeDecodeError) as error:
+            except OSError as error:
                 # OSErrors can happen here due to insufficient permissions or the file is no longer there.
                 # In both situations there is no point attempting to remove the file so just log the error.
                 LOGGER.error("Failed to read response json file \"{}\". Error: {}".format(file_path, str(error)))
-
         else:
             LOGGER.warning("Malformed response file: %s", response_file)
             remove_response_file(file_path)
-    # LOGGER.info("JAKE END OF RECEIVER")   

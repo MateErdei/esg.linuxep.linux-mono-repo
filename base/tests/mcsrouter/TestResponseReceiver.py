@@ -24,7 +24,7 @@ INVALID_BODY=b"""{
     }
 } """
 
-def thing(*args):
+def mutating_open_mock(*args):
     args = open.call_args.args
     if open.call_count > 2:
         mock.mock_open(mock=open, read_data=b'{"hello": "world"}')
@@ -34,7 +34,7 @@ def thing(*args):
         mock.mock_open(mock=open, read_data=b'\xc3\xaep\xa5\x18\x9ajK\x98\x96')
         return_object = open(*args)
         open.call_count -= 1
-        open.side_effect = thing
+        open.side_effect = mutating_open_mock
         return return_object
 
 @mock.patch('os.path.isfile', return_value=True)
@@ -126,7 +126,7 @@ class TestResponseReceiver(unittest.TestCase):
     @mock.patch('builtins.open')
     @mock.patch("logging.Logger.error")
     def test_non_utf8_response_file_throws_error(self, *mockargs):
-        open.side_effect = thing
+        open.side_effect = mutating_open_mock
 
 
         lst = list(response_receiver.receive())
@@ -141,18 +141,18 @@ class TestResponseReceiver(unittest.TestCase):
         
         response_dir = "/tmp/sophos-spl/base/mcs/response/"
         self.assertEqual(logging.Logger.error.call_count, 2)
-        call_1 = mock.call("Failed to read response json file \"{}\". Error: {}".format(
+        call_1 = mock.call("Failed to load response json file \"{}\". Error: {}".format(
             os.path.join(response_dir, "LiveQuery_ABC123abc_response.json"),
             "'utf-8' codec can't decode byte 0xa5 in position 3: invalid start byte")
         )
-        call_2 = mock.call("Failed to read response json file \"{}\". Error: {}".format(
+        call_2 = mock.call("Failed to load response json file \"{}\". Error: {}".format(
             os.path.join(response_dir, "LiveQuery_XYZ987xyz_response.json"),
             "'utf-8' codec can't decode byte 0xa5 in position 3: invalid start byte")
         )
 
         self.assertEqual(logging.Logger.error.call_args_list, [call_1, call_2])
         self.assertEqual(open.call_count, 3)
-        self.assertFalse(os.remove.called)
+        self.assertTrue(os.remove.call_count, 3)
 
 
 if __name__ == '__main__':

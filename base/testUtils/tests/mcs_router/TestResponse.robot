@@ -31,7 +31,7 @@ Basic EDR Response Sent
     Cloud Server Log Should Not Contain  Failed to decompress response body content
 
 
-test1
+MCSRouter Handles Response File With Special Characters Without Crashing
     ${tempdir} =  Add Temporary Directory  workspace
     Make Garbage File  ${tempdir}/garbage_file
 
@@ -45,7 +45,7 @@ test1
     Wait Until Keyword Succeeds
     ...  10s
     ...  2s
-    ...  Check Mcsrouter Log Contains  Failed to read response json file "/opt/sophos-spl/base/mcs/response/LiveQuery_f291664d-112a-328b-e3ed-f920012cdea1_response.json". Error: 'utf-8' codec can't decode byte
+    ...  Check Mcsrouter Log Contains  Failed to load response json file "/opt/sophos-spl/base/mcs/response/LiveQuery_f291664d-112a-328b-e3ed-f920012cdea1_response.json". Error: 'utf-8' codec can't decode byte
     Require No Unhandled Exception
 
 *** Keywords ***

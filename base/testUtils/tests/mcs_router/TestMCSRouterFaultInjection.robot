@@ -65,7 +65,10 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
     Chmod  550  ${temp_dir}/template
     Chown  sophos-spl-user:sophos-spl-group  ${temp_dir}/template
 
-    Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  1
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  1
 
     ${Actions_to_send} =  Set Variable  10
     :FOR    ${i}    IN RANGE    ${Actions_to_send}
