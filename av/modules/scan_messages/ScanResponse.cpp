@@ -26,6 +26,7 @@ std::string ScanResponse::serialise() const
 
     responseBuilder.setClean(m_clean);
     responseBuilder.setThreatName(m_threatName);
+    responseBuilder.setFullScanResult(m_fullScanResult);
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
     kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
@@ -41,7 +42,10 @@ void ScanResponse::setClean(bool b)
 void ScanResponse::setThreatName(std::string threatName)
 {
     m_threatName = std::move(threatName);
-
 }
 
+void ScanResponse::setFullScanResult(std::string threatName)
+{
+    m_fullScanResult = std::move(threatName);
+}
 

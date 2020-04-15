@@ -16,6 +16,7 @@ namespace scan_messages
         ScanResponse();
 
         void setThreatName(std::string);
+        void setFullScanResult(std::string threatName);
         void setClean(bool);
 
         [[nodiscard]] std::string serialise() const;
@@ -30,9 +31,15 @@ namespace scan_messages
             return m_threatName;
         }
 
+        [[nodiscard]] std::string fullScanResult() const
+        {
+            return m_fullScanResult;
+        }
+
     private:
         bool m_clean;
         std::string m_threatName;
+        std::string m_fullScanResult;
     };
 }
 
