@@ -40,7 +40,7 @@
 
         <!-- SUSI imports -->
         <package name="sspl-plugin-av-susi-component"
-                 version="master/%LASTGOODCOMPONENTBUILD%/sspl-plugin-av-susi-component/0.5.0/output"
+                 version="master/20200326170810-92338d0f9e8e01d1c5ce69e5a0684c12a5c93825/sspl-plugin-av-susi-component/0.5.0/output"
                  dest="input" buildtype="dev">
             <include src="susi.tar" dest="."/>
         </package>
