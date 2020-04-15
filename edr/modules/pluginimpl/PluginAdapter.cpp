@@ -16,6 +16,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/Proc/ProcUtilities.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/PluginApi/NoPolicyAvailableException.h>
 
 #include <cmath>
 #include <unistd.h>
@@ -83,6 +84,16 @@ namespace Plugin
 
     void PluginAdapter::mainLoop()
     {
+        try
+        {
+            m_baseService->requestPolicies("ALC");
+        }
+        catch (const Common::PluginApi::NoPolicyAvailableException&)
+        {
+            LOGINFO("No policy available right now for app: " << "ALC");
+            // Ignore no Policy Available errors
+        }
+
         try
         {
             innerMainLoop();
