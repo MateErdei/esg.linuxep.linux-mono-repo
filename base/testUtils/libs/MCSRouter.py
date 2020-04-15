@@ -648,14 +648,38 @@ class MCSRouter(object):
 
         shutil.move(event_file, os.path.join(self.mcs_dir, "event", "ALC_event-001.xml"))
 
-    def send_edr_response(self, app_id, correlation_id):
+    def __send_edr_response(self, app_id, correlation_id, content):
+        logger.info("sending edr response with content: {}".format(content))
         file_name = "{}_{}_response.json".format(app_id, correlation_id)
         response_file = os.path.join(self.tmp_path, file_name)
         with open(response_file, "w") as f:
-            f.write(DUMMY_EDR_RESPONSE)
+            f.write(content)
 
         shutil.move(response_file, os.path.join(self.mcs_dir, "response", file_name))
-        return DUMMY_EDR_RESPONSE
+        return content
+
+    def send_edr_response(self, app_id, correlation_id):
+        return self.__send_edr_response(app_id, correlation_id, DUMMY_EDR_RESPONSE)
+
+    def send_borked_edr_response(self, app_id, correlation_id):
+        logger.info("sending edr response with special characters")
+        edr_resonse_with_special_characters = """{
+    "type": "sophos.mgt.response.RunLiveQuery",
+    "queryMetaData": {
+        "durationMillis": 32,
+        "sizeBytes": 0,
+        "rows": 0,
+        "errorCode": 0,
+        "errorMessage": "OK"
+    },
+    "columnMetaData": [
+        {"name": "pathname", "type": "TEXT"},
+        {"name": "sophosPID", "𝘈Ḇ𝖢𝕯٤ḞԍНǏ𝙅ƘԸⲘ𝙉০Ρ𝗤Ɍ𝓢ȚЦ𝒱Ѡ𝓧ƳȤѧᖯć𝗱ễ𝑓𝙜Ⴙ𝞲𝑗𝒌ļṃŉо𝞎𝒒ᵲꜱ𝙩ừ𝗏ŵ𝒙𝒚ź1234567890": "TEXT"},
+        {"name": "start_time", "type": "BIGINT"}
+    ]
+}
+"""
+        return self.__send_edr_response(app_id, correlation_id, edr_resonse_with_special_characters)
         
     def send_alc_status(self, res):
         status_file = os.path.join(self.tmp_path, self.alc_status_file)
