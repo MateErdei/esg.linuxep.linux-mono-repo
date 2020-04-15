@@ -6,20 +6,24 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "ISusiWrapper.h"
 #include "SusiGlobalHandler.h"
-
-#include <Susi.h>
 
 #include <memory>
 #include <string>
 
-class SusiWrapper
+class SusiWrapper : public ISusiWrapper
 {
 public:
     SusiWrapper(const std::string& runtimeConfig, const std::string& scannerConfig);
     ~SusiWrapper();
 
-    SusiScannerHandle getHandle();
+    SusiResult scanFile(
+            const char* metaData,
+            const char* filename,
+            SusiScanResult** scanResult) override;
+
+    void freeResult(SusiScanResult* scanResult) override;
 
 private:
     std::unique_ptr<SusiGlobalHandler> m_globalHandler;

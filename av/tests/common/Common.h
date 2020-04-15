@@ -23,3 +23,9 @@ void setupFakeSophosThreatDetectorConfig()
     std::ofstream ost(f);
     ost.close();
 }
+
+fs::path pluginInstall()
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    return appConfig.getData("PLUGIN_INSTALL");
+}

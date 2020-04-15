@@ -60,7 +60,16 @@ SusiWrapper::~SusiWrapper()
     }
 }
 
-SusiScannerHandle SusiWrapper::getHandle()
+SusiResult SusiWrapper::scanFile(
+        const char* metaData,
+        const char* filename,
+        SusiScanResult** scanResult)
 {
-    return m_handle;
+    SusiResult ret = SUSI_ScanFile(m_handle, metaData, filename, scanResult);
+    return ret;
+}
+
+void SusiWrapper::freeResult(SusiScanResult* scanResult)
+{
+    SUSI_FreeScanResult(scanResult);
 }

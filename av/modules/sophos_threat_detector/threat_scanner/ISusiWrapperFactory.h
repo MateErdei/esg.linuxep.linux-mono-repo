@@ -4,14 +4,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "SusiScannerFactory.h"
+#pragma once
 
-#include "SusiScanner.h"
-#include "SusiWrapperFactory.h"
+#include "ISusiWrapper.h"
 
-using namespace threat_scanner;
+#include <memory>
 
-IThreatScannerPtr SusiScannerFactory::createScanner()
+class ISusiWrapperFactory
 {
-    return std::make_unique<SusiScanner>(std::make_shared<SusiWrapperFactory>());
-}
+public:
+    virtual std::shared_ptr<ISusiWrapper> createSusiWrapper(const std::string& runtimeConfig, const std::string& scannerConfig) = 0;
+};

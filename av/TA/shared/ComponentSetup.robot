@@ -46,6 +46,8 @@ Setup Component For Testing
     Create Directory  ${COMPONENT_ROOT_PATH}/var
     Create Directory  ${COMPONENT_ROOT_PATH}/log
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
+    Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/   shell=True
+    Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1   shell=True
 
 Use Fake AVScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  true

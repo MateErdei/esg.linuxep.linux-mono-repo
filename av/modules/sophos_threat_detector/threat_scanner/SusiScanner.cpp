@@ -12,14 +12,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
+#include <thirdparty/nlohmann-json/json.hpp>
+
 #include <iostream>
 #include <string>
-#include <unistd.h>
-
-#include <sys/stat.h>
-
 
 using namespace threat_scanner;
+using json = nlohmann::json;
 namespace fs = sophos_filesystem;
 
 fs::path pluginInstall()
@@ -28,7 +27,7 @@ fs::path pluginInstall()
     return appConfig.getData("PLUGIN_INSTALL");
 }
 
-SusiScanner::SusiScanner()
+SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory)
 {
     fs::path libraryPath = pluginInstall() / "chroot/susi/distribution_version";
 
@@ -61,7 +60,7 @@ SusiScanner::SusiScanner()
         "libraryPath": "@@LIBRARY_PATH@@",
         "tempPath": "/tmp",
         "product": {
-            "name": "DLCL_Experiment",
+            "name": "SSPL AV Plugin",
             "context": "File",
             "version": "1.0.0"
         },
@@ -78,14 +77,44 @@ SusiScanner::SusiScanner()
 })sophos", {{"@@SCANNER_CONFIG@@", scannerInfo}
     });
 
-    m_susi = std::make_unique<SusiWrapper>(runtimeConfig, scannerConfig);
+    m_susi = susiWrapperFactory->createSusiWrapper(runtimeConfig, scannerConfig);
 }
 
 scan_messages::ScanResponse
-SusiScanner::scan(datatypes::AutoFd& /*fd*/, const std::string& /*file_path*/)
+SusiScanner::scan(datatypes::AutoFd& /*fd*/, const std::string& file_path)
 {
-    // TODO: Will be implemented by LINUXDAR-1565
     scan_messages::ScanResponse response;
     response.setClean(true);
+
+    static const std::string metaDataJson = R"({
+    "properties": {
+        "url": "www.example.com"
+    }
+    })";
+
+    SusiScanResult* scanResult = nullptr;
+    SusiResult res = m_susi->scanFile(metaDataJson.c_str(), file_path.c_str(), &scanResult);
+
+    if (res == SUSI_I_THREATPRESENT)
+    {
+        response.setClean(false);
+    }
+    LOGINFO("Scan result " << std::hex << res << std::dec);
+    if (scanResult != nullptr)
+    {
+        LOGINFO("Details: " << scanResult->version << ", " << scanResult->scanResultJson);
+
+        json parsedScanResult = json::parse(scanResult->scanResultJson);
+        for (auto result : parsedScanResult["results"])
+        {
+            for (auto detection : result["detections"])
+            {
+                LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
+            }
+        }
+    }
+
+    m_susi->freeResult(scanResult);
+
     return response;
 }
