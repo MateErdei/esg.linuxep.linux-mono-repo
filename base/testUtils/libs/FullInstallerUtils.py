@@ -405,7 +405,7 @@ def Uninstall_SSPL(installdir=None):
         p = os.path.join(installdir, "bin", "uninstall.sh")
         if os.path.isfile(p):
             try:
-                subprocess.Popen([ p, "--force"])
+                subprocess.call([ p, "--force"])
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
 
