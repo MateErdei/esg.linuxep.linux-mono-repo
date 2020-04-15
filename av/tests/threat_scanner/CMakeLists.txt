@@ -2,7 +2,7 @@
 include(GoogleTest)
 
 SophosAddTest(TestThreatScanner
-        TestSusiResponseParsing.cpp
+        #TestSusiResponseParsing.cpp
         TestThreatScanner.cpp
         PROJECTS threat_scanner
         INC_DIRS ${pluginapiinclude}
