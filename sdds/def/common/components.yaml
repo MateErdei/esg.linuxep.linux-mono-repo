@@ -2,14 +2,14 @@
 ---
 sspl-base:
     build:
-        branch: abelard
+        branch: master
         name: sspl-base
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base
     line-id: ServerProtectionLinux-Base
 sspl-edr:
     build:
-        branch: master
+        branch: abelard
         name: sspl-plugin-edr-component
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-EDR
