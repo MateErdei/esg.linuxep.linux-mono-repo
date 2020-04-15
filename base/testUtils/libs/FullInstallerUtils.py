@@ -405,18 +405,10 @@ def Uninstall_SSPL(installdir=None):
         p = os.path.join(installdir, "bin", "uninstall.sh")
         if os.path.isfile(p):
             try:
-                uninstall_log = open("/tmp/uninstall.log", 'w+')
-                subprocess.call([ p, "--force"], stdout=uninstall_log, stderr=uninstall_log)
+                subprocess.Popen([ p, "--force"])
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
-            finally:
-                uninstall_log.close()
 
-            contents = ""
-            with open("/tmp/uninstall.log","r") as f:
-                contents = f.readlines()
-
-            logger.info(contents)
         subprocess.call(['rm', '-rf', installdir])
 
     # Attempts to uninstall based on the env variables in the sophos-spl .service file
