@@ -116,6 +116,6 @@
             <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,feature,release</publishbranches>
+        <publishbranches>master,feature,release,LINUXDAR-1602-mcsrouter-crashes-if-response-file-json-contains-special-characters</publishbranches>
     </publish>
 </package>
