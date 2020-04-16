@@ -48,7 +48,11 @@ def install_requirements(machine: tap.Machine):
         print("On adding user and group: {}".format(ex))
 
 
-def robot_task(machine: tap.Machine, environment=None):
+def robot_task(machine: tap.Machine):
+    robot_task_with_env(machine)
+
+
+def robot_task_with_env(machine: tap.Machine, environment=None):
     try:
         package_install(machine, 'nfs-kernel-server')
         install_requirements(machine)
@@ -59,7 +63,11 @@ def robot_task(machine: tap.Machine, environment=None):
         machine.output_artifact('/opt/test/results', 'results')
 
 
-def pytest_task(machine: tap.Machine, environment=None):
+def pytest_task(machine: tap.Machine):
+    pytest_task_with_env(machine)
+
+
+def pytest_task_with_env(machine: tap.Machine, environment=None):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
@@ -106,8 +114,8 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
 
         # run component pytests and integration robot tests with coverage file to get combined coverage
-        pytest_task(machine, environment={'COVFILE': COVFILE_COMBINED})
-        robot_task(machine, environment={'COVFILE': COVFILE_COMBINED})
+        pytest_task_with_env(machine, environment={'COVFILE': COVFILE_COMBINED})
+        robot_task_with_env(machine, environment={'COVFILE': COVFILE_COMBINED})
 
         # generate combined coverage html results and upload to allegro
         combined_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-combined')
