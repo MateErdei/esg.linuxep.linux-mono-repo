@@ -12,12 +12,13 @@ function exitFailure()
     exit $E
 }
 
+SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
+
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-av-unittest
 [[ -n ${htmldir} ]] || htmldir=output/coverage/${COV_HTML_BASE}
 export htmldir
 
-PRIVATE_KEY=${BASE}/build/bullseye/private.key
-[[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=build/bullseye/private.key
+PRIVATE_KEY=${SCRIPT_DIR}/private.key
 [[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
 
 bash ${0%/*}/generateResults.sh || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
