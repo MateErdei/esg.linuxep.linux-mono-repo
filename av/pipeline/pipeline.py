@@ -143,7 +143,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     with stage.group('coverage'):
         branch_name = context.branch
-        if parameters.coverage == 'yes' or has_coverage_build(branch_name):
+        if parameters.run_tests_on_coverage == 'yes' or has_coverage_build(branch_name):
             machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
                                                 inputs=get_inputs(context, coverage=True),
                                                 platform=tap.Platform.Linux)

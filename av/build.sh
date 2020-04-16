@@ -383,6 +383,7 @@ function build()
     elif (( BULLSEYE == 1 ))
     then
         bash -x build/bullseye/generateResults.sh || exit $?
+        cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
     fi
 
     echo "Build Successful"
