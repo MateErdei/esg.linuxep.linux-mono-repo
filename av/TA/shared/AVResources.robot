@@ -183,8 +183,10 @@ Install Base For Component Tests
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install AV Directly from SDDS
-    ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\n output: \n${result.stdout}"
+    ${install_log} =  Set Variable   /tmp/avplugin_install.log
+    ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
+    ${log_contents} =  Get File  ${install_log}
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\n output: \n${log_contents}"
 
 Check AV Plugin Installed With Base
     Check Plugin Installed and Running

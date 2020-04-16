@@ -57,7 +57,7 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until Management Log Contains  Action /opt/sophos-spl/base/mcs/action/SAV_action
     Wait Until AV Plugin Log Contains  Starting scan
-    Wait Until AV Plugin Log Contains  Completed scan
+    Wait Until AV Plugin Log Contains  Completed scan  timeout=120
     Wait Until AV Plugin Log Contains  Sending scan complete
     Validate latest Event
 
@@ -186,18 +186,15 @@ AV Plugin Reports encoded eicars To Base
    Log  ${output}
 
    Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
-   Wait Until Keyword Succeeds
-      ...  15 secs
-      ...  3 secs
-      ...  Run Process    /usr/local/bin/avscanner  /tmp/encoded_eicars/
+   Run Process    /usr/local/bin/avscanner  /tmp/encoded_eicars/  timeout=120s
 
    #make sure base has generated all events before checking
    Wait Until Keyword Succeeds
          ...  15 secs
          ...  3 secs
-         ...  check_number_of_events_matches  56
+         ...  check_number_of_events_matches  53
 
-   check_multiple_different_threat_events  56   encoded_eicars
+   check_multiple_different_threat_events  53   encoded_eicars
 
    Empty Directory  ${MCS_PATH}/event/
    Remove Directory  /tmp/encoded_eicars  true

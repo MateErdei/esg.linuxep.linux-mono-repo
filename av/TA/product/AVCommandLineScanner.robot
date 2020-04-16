@@ -156,14 +156,14 @@ CLS Creates Threat Report
    Should Be Equal As Integers  ${rc}  69
 
    Wait Until AV Plugin Log Contains  Sending threat detection notification to central
-   AV Plugin Log Contains  description="Found 'EICAR' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+   AV Plugin Log Contains  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
    AV Plugin Log Contains  type="sophos.mgt.msg.event.threat"
    AV Plugin Log Contains  domain="local"
    AV Plugin Log Contains  type="1"
-   AV Plugin Log Contains  name="EICAR"
+   AV Plugin Log Contains  name="EICAR-AV-Test"
    AV Plugin Log Contains  scanType="203"
    AV Plugin Log Contains  status="200"
-   AV Plugin Log Contains  id="T2614dba1b04efcdaf6d31f57e0a6ce2eae55477b7831899263afc4d8ea82eb68"
+   AV Plugin Log Contains  id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8"
    AV Plugin Log Contains  idSource="Tsha256(path,name)"
    AV Plugin Log Contains  <item file="naugthy_eicar"
    AV Plugin Log Contains  path="${NORMAL_DIRECTORY}/"/>
@@ -175,10 +175,7 @@ CLS Encoded Eicars
    Start AV
 
    Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
-   Wait Until Keyword Succeeds
-       ...  15 secs
-       ...  3 secs
-       ...  Run Process    ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/
+   Run Process    ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
 
    AV Plugin Log Contains  Sending threat detection notification to central
 

@@ -177,11 +177,11 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=120
     AV Plugin Log Contains  Starting scan MyScan
     File Should Exist  ${myscan_log}
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path1}" is infected with EICAR
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path2}" is infected with EICAR
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path3}" is infected with EICAR
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path4}" is infected with EICAR
-    File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR
+    File Log Should Not Contain  ${myscan_log}  "${eicar_path1}" is infected with EICAR-AV-Test
+    File Log Should Not Contain  ${myscan_log}  "${eicar_path2}" is infected with EICAR-AV-Test
+    File Log Should Not Contain  ${myscan_log}  "${eicar_path3}" is infected with EICAR-AV-Test
+    File Log Should Not Contain  ${myscan_log}  "${eicar_path4}" is infected with EICAR-AV-Test
+    File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test
 
     ${result} =   Terminate Process  ${handle}
 

@@ -14,20 +14,21 @@ GL_MCS_EVENTS_DIRECTORY = "/opt/sophos-spl/base/mcs/event/"
 
 GL_EXPECTED_CONTENTS = {
     "naugthyEicarThreatReport": [
-        '''description="Found 'EICAR' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar''',
+        '''description="Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar''',
         '''type="sophos.mgt.msg.event.threat"''',
         '''userId="root"''',
         '''domain="local"''',
-        '''name="EICAR"''',
+        '''name="EICAR-AV-Test"''',
         '''scanType="203"''',
         '''status="200"''',
-        '''id="T2614dba1b04efcdaf6d31f57e0a6ce2eae55477b7831899263afc4d8ea82eb68"''',
+        '''id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8"''',
         '''idSource="Tsha256(path,name)"''',
         '''file="naugthy_eicar"''',
         '''path="/home/vagrant/this/is/a/directory/for/scanning/"/>''',
         '''action="101"'''
     ],
 
+    #TODO: uncomment when LINUXDAR-1721 fixed and also update list_of_expected_encoded_eicars file
     "encoded_eicars": [
         '''" " path="/tmp/encoded_eicars/"''',
         r'''WIERDPATH-eicar.com-VIRUS" path="/tmp/encoded_eicars/.\r/''',
@@ -47,9 +48,9 @@ GL_EXPECTED_CONTENTS = {
         '''LATIN1-JAPANESE--VIRUS''',
         '''PairSingleQuote-&apos;VIRUS.com''',
         '''SingleDoubleQuote-&quot;-VIRUS.com''',
-        r'''ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !&quot;#$%&amp;&apos;()*+,-.0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177''',
+        # r'''ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !&quot;#$%&amp;&apos;()*+,-.0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177''',
         '''eicar.com''',
-        r'''RANDOMGARBAGE-?Ñ8[Úm\025\1\2\a\t2\020\023 &quot;3DUfwª»ÌÝîÿ\tá¹©{êùx\2ÿþ6è\035²ÆÞeM#ö-VIRUS (Latin1)''',
+        # r'''RANDOMGARBAGE-?Ñ8[Úm\025\1\2\a\t2\020\023 &quot;3DUfwª»ÌÝîÿ\tá¹©{êùx\2ÿþ6è\035²ÆÞeM#ö-VIRUS (Latin1)''',
         '''LATIN1-FRENCH-à ta santé âge-VIRUS (Latin1)''',
         '''COM1" ''',
         '''COM2" ''',
@@ -79,7 +80,7 @@ GL_EXPECTED_CONTENTS = {
         '''path="/tmp/encoded_eicars/"''',
         '''UTF-8-CHINESE-涴跺最唗郔場腔醴腔-VIRUS''',
         '''ES-Español''',
-        r'''0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177" path="/tmp/encoded_eicars/FULL-ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !&quot;#$%&amp;&apos;()*+,-./''',
+        # r'''0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177" path="/tmp/encoded_eicars/FULL-ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !&quot;#$%&amp;&apos;()*+,-./''',
         '''SJIS-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (SJIS)''',
         '''UTF-8-ENGLISH-For all good men-VIRUS''',
         '''UTF-8-JAPANESE-ソフォスレイヤーアクセスる-VIRUS''',
