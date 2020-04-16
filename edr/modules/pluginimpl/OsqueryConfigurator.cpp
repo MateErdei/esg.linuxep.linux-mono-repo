@@ -117,10 +117,11 @@ namespace Plugin
     void OsqueryConfigurator::prepareSystemForPlugin()
     {
         bool disableAuditD = disableSystemAuditDAndTakeOwnershipOfNetlink();
+        bool disableAuditDataGathering = enableAuditDataCollection();
 
         SystemConfigurator::setupOSForAudit(disableAuditD);
 
-        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditD);
+        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering);
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
     }
 
