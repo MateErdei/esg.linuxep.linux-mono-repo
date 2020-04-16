@@ -21,7 +21,10 @@ export htmldir
 PRIVATE_KEY=${SCRIPT_DIR}/private.key
 [[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
 
-bash ${0%/*}/generateResults.sh || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+if [[ -z ${UPLOAD_ONLY} ]]
+then
+  bash ${0%/*}/generateResults.sh || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+fi
 
 ## Ensure ssh won't complain about private key permissions:
 chmod 600 ${PRIVATE_KEY}

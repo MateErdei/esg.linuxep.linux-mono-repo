@@ -103,7 +103,8 @@ def bullseye_coverage_task(machine: tap.Machine):
 
         # upload unit test coverage html results to allegro
         unitest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-unittest')
-        machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
+        machine.run('bash', '-x', UPLOAD_SCRIPT,
+                    environment={'COVFILE': COVFILE_UNITTEST, 'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
         # publish unit test coverage file and results to artifactory results/coverage
         coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
@@ -121,7 +122,7 @@ def bullseye_coverage_task(machine: tap.Machine):
         # generate combined coverage html results and upload to allegro
         combined_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-combined')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': '1', 'htmldir': combined_htmldir})
+                    environment={'COVFILE': COVFILE_COMBINED, 'COV_HTML_BASE': 'sspl-av-combined', 'htmldir': combined_htmldir})
 
         # publish combined html results and coverage file to artifactory
         machine.run('mv', combined_htmldir, coverage_results_dir)
@@ -136,13 +137,13 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
 
-    with stage.group('component'):
+    with stage.parallel('component'):
         stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
 
-    with stage.group('integration'):
+    with stage.parallel('integration'):
         stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
 
-    with stage.group('coverage'):
+    with stage.parallel('coverage'):
         branch_name = context.branch
         if parameters.run_tests_on_coverage == 'yes' or has_coverage_build(branch_name):
             machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
