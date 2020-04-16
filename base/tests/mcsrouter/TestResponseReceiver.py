@@ -30,12 +30,11 @@ def mutating_open_mock(*args):
         mock.mock_open(mock=open, read_data=b'{"hello": "world"}')
         open.call_count -= 1
         return open(*args)
-    else:  
-        mock.mock_open(mock=open, read_data=b'\xc3\xaep\xa5\x18\x9ajK\x98\x96')
-        return_object = open(*args)
-        open.call_count -= 1
-        open.side_effect = mutating_open_mock
-        return return_object
+    mock.mock_open(mock=open, read_data=b'\xc3\xaep\xa5\x18\x9ajK\x98\x96')
+    return_object = open(*args)
+    open.call_count -= 1
+    open.side_effect = mutating_open_mock
+    return return_object
 
 @mock.patch('os.path.isfile', return_value=True)
 @mock.patch('os.remove', return_value="")
@@ -132,12 +131,12 @@ class TestResponseReceiver(unittest.TestCase):
         lst = list(response_receiver.receive())
         self.assertEqual(len(lst), 1)
 
-        response2 = lst[0]
-        self.assertEqual(response2[0], os.path.join(RESPONSE_DIR, "LiveQuery_third_response.json"))
-        self.assertEqual(response2[1], "LiveQuery")
-        self.assertEqual(response2[2], "third")
-        self.assertEqual(response2[3], DUMMY_TIMESTAMP)
-        self.assertEqual(response2[4], '{"hello": "world"}')
+        successful_response = lst[0]
+        self.assertEqual(successful_response[0], os.path.join(RESPONSE_DIR, "LiveQuery_third_response.json"))
+        self.assertEqual(successful_response[1], "LiveQuery")
+        self.assertEqual(successful_response[2], "third")
+        self.assertEqual(successful_response[3], DUMMY_TIMESTAMP)
+        self.assertEqual(successful_response[4], '{"hello": "world"}')
         
         response_dir = "/tmp/sophos-spl/base/mcs/response/"
         self.assertEqual(logging.Logger.error.call_count, 2)
