@@ -92,6 +92,7 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
     if coverage:
         assert has_coverage_build(context.branch)
         test_inputs['av'] = context.artifact.build() / 'coverage'
+        test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
 
     return test_inputs
 
