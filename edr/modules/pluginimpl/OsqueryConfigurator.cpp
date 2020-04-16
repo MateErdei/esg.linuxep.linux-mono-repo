@@ -116,7 +116,7 @@ namespace Plugin
 
     void OsqueryConfigurator::prepareSystemForPlugin()
     {
-        bool disableAuditD = enableAuditDataCollection();
+        bool disableAuditD = disableSystemAuditDAndTakeOwnershipOfNetlink();
 
         SystemConfigurator::setupOSForAudit(disableAuditD);
 
