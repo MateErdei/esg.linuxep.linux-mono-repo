@@ -126,6 +126,12 @@ class MCSHttpServiceUnavailableException(MCSHttpException):
     """
     pass
 
+class MCSHttpInternalServerErrorException(MCSHttpException):
+    """
+    500
+    """
+    pass
+
 
 class MCSHttpUnauthorizedException(MCSHttpException):
     """
@@ -639,6 +645,11 @@ class MCSConnection:
                 response.reason, body))
             raise MCSHttpGatewayTimeoutException(
                 response.status, response_headers, body)
+        if response.status == http.client.INTERNAL_SERVER_ERROR:
+            LOGGER.warning("HTTP Internal Server Error (500): {} ({})".format(
+                response.reason, body))
+            raise MCSHttpInternalServerErrorException(
+                response.status, response_headers, body)
         if response.status != http.client.OK:
             LOGGER.error("Bad response from server {}: {} ({})".format(
                 response.status, response.reason,
@@ -992,6 +1003,9 @@ class MCSConnection:
         """
         This method is used in mcs.py to trigger the sending of LiveQuery responses to central
         """
+        def log_exception_error(app_id, correlation_id, exception):
+            LOGGER.error("Failed to send response ({} : {}) : {}".format(reapp_id, correlation_id, exception))
+
         for response in responses:
             try:
                 if response.m_json_body_size != 0:
@@ -1000,8 +1014,14 @@ class MCSConnection:
                     LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(response.m_correlation_id))
                 response.remove_response_file()
 
+            except (MCSHttpServiceUnavailableException, MCSHttpInternalServerErrorException) as exception:
+                log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+                LOGGER.debug("Discarding response '{}' due to rejection by central".format(response.m_correlation_id))
+                response.remove_response_file()
+
             except Exception as exception:
-                LOGGER.error("Failed to send response ({} : {}) : {}".format(response.m_app_id, response.m_correlation_id, exception))
+                log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+
 
 
     def extract_commands_from_xml(self, commands_xml):
