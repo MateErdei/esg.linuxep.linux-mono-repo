@@ -12,6 +12,23 @@ function exitFailure()
     exit $E
 }
 
+# tap template bullseye is installed to /usr/local/bin,
+# jenkins job template installs to either /opt/BullseyeCoverage or /usr/local/bullseye
+if [[ -f /opt/BullseyeCoverage/bin/covselect ]]
+then
+  BULLSEYE_DIR=/opt/BullseyeCoverage
+elif [[ -f /usr/local/bin/covselect ]]
+then
+  BULLSEYE_DIR=/usr/local
+elif [[ -f /usr/local/bullseye/bin/covselect ]]
+then
+    BULLSEYE_DIR=/usr/local/bullseye
+else
+  exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+fi
+
+echo "Bullseye location: $BULLSEYE_DIR"
+
 [[ -n ${BULLSEYE_DIR} ]] || exitFailure 1 "BULLSEYE_DIR not set"
 [[ -n ${COVFILE} ]] || exitFailure 2 "COVFILE not set"
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-av-unittest
@@ -22,7 +39,7 @@ PRIVATE_KEY=${BASE}/build/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
 
 echo "Exclusions:"
-covselect --list --no-banner --file "$COVFILE"
+$BULLSEYE_DIR/bin/covselect --list --no-banner --file "$COVFILE"
 
 $BULLSEYE_DIR/bin/covhtml \
     --file "$COVFILE"     \
