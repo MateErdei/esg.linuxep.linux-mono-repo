@@ -43,8 +43,6 @@ Test Push Wakeup Command Fuzz
     Run MCS Router Fuzzer   wakeup
 
 Test Push Livequery Response Fuzz
-    [Tags]  TESTFAILURE
-    #TODO remove TESTFAILURE tag after LINUXDAR-1602 is fixed (McsRouter crashes if response file json contains special characters)
     #Force logging of response sent to central in cloudServer.log
     Override LogConf File as Global Level  DEBUG
     Run MCS Router Fuzzer   response  10

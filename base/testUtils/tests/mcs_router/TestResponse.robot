@@ -39,6 +39,7 @@ MCSRouter Handles Response File With Special Characters Without Crashing
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
+    ${mcsrouter_pid_1} =  Get MCSRouter PID
     # ${expected_body} =  send_borked_edr_response     LiveQuery  f291664d-112a-328b-e3ed-f920012cdea1
     Move File  ${tempdir}/garbage_file  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_f291664d-112a-328b-e3ed-f920012cdea1_response.json
 
@@ -47,6 +48,8 @@ MCSRouter Handles Response File With Special Characters Without Crashing
     ...  2s
     ...  Check Mcsrouter Log Contains  Failed to load response json file "/opt/sophos-spl/base/mcs/response/LiveQuery_f291664d-112a-328b-e3ed-f920012cdea1_response.json". Error: 'utf-8' codec can't decode byte
     Require No Unhandled Exception
+    ${mcsrouter_pid_2} =  Get MCSRouter PID
+    Should Be Equal  ${mcsrouter_pid_1}  ${mcsrouter_pid_2}
 
 *** Keywords ***
 Make Garbage File
@@ -57,3 +60,8 @@ Make Garbage File
 Test Teardown
     MCSRouter Default Test Teardown
     Cleanup Temporary Folders
+
+Get MCSRouter PID
+    ${r} =  Run Process  pgrep  -f  mcsrouter
+    Should Be Equal As Strings  ${r.rc}  0
+    [Return]  ${r.stdout}
