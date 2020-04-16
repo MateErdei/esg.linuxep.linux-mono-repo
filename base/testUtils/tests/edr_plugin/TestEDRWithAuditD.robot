@@ -22,6 +22,7 @@ Default Tags   THIN_INSTALLER  OSTIA  EDR_PLUGIN  FAKE_CLOUD
 
 *** Variables ***
 ${BaseAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+${BaseAndEdrAndMtrVUTPolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseVUTPolicy}                      ${GeneratedWarehousePolicies}/base_only_VUT.xml
 
 
@@ -87,6 +88,23 @@ EDR Does Disable Auditd After Manual Change To Config
     ${EDR_CONFIG_CONTENT}=  Get File  ${EDR_DIR}/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   disable_auditd=1
 
+    Wait Keyword Succeed  Check EDR Log Shows AuditD Has Been Disabled
+
+    Check AuditD Executable Not Running
+
+EDR Does Disable Auditd When Installed with MTR
+    [Tags]   THIN_INSTALLER  OSTIA  EDR_PLUGIN  FAKE_CLOUD  MDR_PLUGIN
+    Check AuditD Executable Running
+
+    Install EDR  ${BaseAndEdrVUTPolicy}
+
+
+    ${EDR_CONFIG_CONTENT}=  Get File  ${EDR_DIR}/etc/plugin.conf
+    Should Contain  ${EDR_CONFIG_CONTENT}   disable_auditd=1
+
+    Check AuditD Executable Not Running
+    Check AuditD Service Disabled
+    Check EDR Log Shows AuditD Has Been Disabled
     Wait Keyword Succeed  Check EDR Log Shows AuditD Has Been Disabled
 
     Check AuditD Executable Not Running
