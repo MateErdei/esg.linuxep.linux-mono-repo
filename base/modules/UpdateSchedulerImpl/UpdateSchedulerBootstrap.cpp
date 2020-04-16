@@ -21,6 +21,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 #include <iostream>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -29,6 +31,12 @@ namespace UpdateSchedulerImpl
     {
         umask(S_IRWXG | S_IRWXO); // Read and write for the owner
         Common::Logging::FileLoggingSetup logging("updatescheduler", true);
+
+        //initialise telemetry restore path
+        Common::ApplicationConfiguration::applicationConfiguration().setData(
+                Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR, Common::FileSystem::join(
+                        Common::ApplicationConfiguration::applicationConfiguration().getData(
+                                Common::ApplicationConfiguration::SOPHOS_INSTALL), "var", "updateScheduler-telemetry.json") );
 
         std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
             Common::PluginApi::createPluginResourceManagement();

@@ -308,6 +308,7 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs"
 # Telemetry
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry"
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry/var"
+makedir 750 "${SOPHOS_INSTALL}/base/telemetry/cache"
 chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/telemetry"
 
 ## Setup libraries for versionedcopy

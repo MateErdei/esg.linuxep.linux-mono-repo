@@ -64,6 +64,11 @@ namespace Common
             return createDefaultDataMessage(Commands::REQUEST_PLUGIN_TELEMETRY, std::string(), std::string());
         }
 
+        DataMessage MessageBuilder::requestSaveTelemetryMessage() const
+        {
+            return createDefaultDataMessage(Commands::SAVE_PLUGIN_TELEMETRY, std::string(), std::string());
+        }
+
         std::string MessageBuilder::requestExtractEvent(const DataMessage& dataMessage) const
         {
             assert(dataMessage.m_command == Commands::PLUGIN_SEND_EVENT);

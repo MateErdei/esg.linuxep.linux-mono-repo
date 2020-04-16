@@ -25,6 +25,7 @@ namespace Common
             void queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId) override;
             std::vector<Common::PluginApi::StatusInfo> getStatus() override;
             std::string getTelemetry() override;
+            void saveTelemetry() override;
 
             void setPolicyAndActionsAppIds(const std::vector<std::string>& appIds) override;
 

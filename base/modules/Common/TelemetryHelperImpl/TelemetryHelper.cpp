@@ -11,6 +11,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 
 #include <functional>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFilePermissions.h>
+#include <sys/stat.h>
 
 namespace Common::Telemetry
 {
@@ -258,6 +263,62 @@ namespace Common::Telemetry
         for (const auto& keyValuePair : m_statsCollection)
         {
             set(keyValuePair.first + "-max",getStatMax(keyValuePair.first));
+        }
+    }
+
+    void TelemetryHelper::locked_restore(const TelemetryObject& savedTelemetry)
+    {
+        //m_statsCollection = {};
+        std::lock_guard<std::mutex> dataLock(m_dataLock);
+        m_root = savedTelemetry;
+    }
+
+    void TelemetryHelper::save(const std::string &pluginName)
+    {
+        //ToDo handle stats.
+        Path restorePath;
+        try
+        {
+            restorePath = Common::ApplicationConfiguration::applicationConfiguration().getData(Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR);
+        }
+        catch(std::out_of_range& outOfRange)
+        {
+            throw std::out_of_range("Telemetry restore location is not defined for this plugin");
+        }
+
+        auto restorePathBase = Common::FileSystem::dirName(restorePath);
+        auto fs = Common::FileSystem::fileSystem();
+        if(fs->isDirectory(restorePathBase))
+        {
+            auto tempDir = Common::ApplicationConfigurationImpl::ApplicationPathManager().getTempPath();
+            auto output = serialise();
+            fs->writeFileAtomically(restorePath, output, tempDir);
+            Common::FileSystem::filePermissions()->chmod(restorePath, S_IRUSR | S_IWUSR);
+        }
+        else
+        {
+            throw std::logic_error("Saving telemetry failed, restore location " + restorePath + "deos not exists");
+        }
+    }
+
+    void TelemetryHelper::restore()
+    {
+        Path restorePath;
+        try
+        {
+            restorePath = Common::ApplicationConfiguration::applicationConfiguration().getData(Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR);
+        }
+        catch(std::out_of_range& outOfRange)
+        {
+            throw std::out_of_range("Telemetry restore location is not defined for this plugin");
+        }
+
+        auto fs = Common::FileSystem::fileSystem();
+        if(fs->isFile(restorePath) )
+        {
+            auto input = fs->readFile(restorePath, 10000);
+            auto restoreRoot = TelemetrySerialiser::deserialise(input);
+            locked_restore(restoreRoot);
         }
     }
 

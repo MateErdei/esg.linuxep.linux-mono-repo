@@ -12,6 +12,9 @@
 
 #include <thread>
 
+#include "../Helpers/FileSystemReplaceAndRestore.h"
+#include "../Helpers/MockFileSystem.h"
+
 using namespace Common::Telemetry;
 
 class DummyTelemetryProvider
@@ -534,3 +537,48 @@ TEST(TestTelemetryHelper, telemtryStatSerialisedCorrectly) // NOLINT
     ASSERT_EQ(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
 }
 
+TEST(TestTelemetryHelper, saveToDisk) // NOLINT
+{
+    std::string testFilePath("/tmp/testfilepath");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+            Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR, testFilePath);
+
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.appendStat("statName", 1);
+    helper.appendStat("statName", 6);
+    helper.appendStat("statName", 10);
+    helper.updateTelemetryWithStats();
+
+    std::unique_ptr<MockFileSystem> mockfileSystemUniquePtr(new StrictMock<MockFileSystem>());
+    MockFileSystem* mockFileSystemRawptr = mockfileSystemUniquePtr.get();
+    Tests::replaceFileSystem(std::move(mockfileSystemUniquePtr));
+
+    EXPECT_CALL(*mockFileSystemRawptr, isDirectory(_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystemRawptr, writeFileAtomically(testFilePath, R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", _));
+    helper.save(<#initializer#>);
+}
+
+TEST(TestTelemetryHelper, restoreFromDisk) // NOLINT
+{
+    std::string testFilePath("/tmp/testfilepath");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+            Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR, testFilePath);
+
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.updateTelemetryWithStats();
+
+
+    std::unique_ptr<MockFileSystem> mockfileSystemUniquePtr(new StrictMock<MockFileSystem>());
+    MockFileSystem* mockFileSystemRawptr = mockfileSystemUniquePtr.get();
+    Tests::replaceFileSystem(std::move(mockfileSystemUniquePtr));
+
+    EXPECT_CALL(*mockFileSystemRawptr, isFile(testFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystemRawptr, readFile(testFilePath, 10000)).WillOnce(Return(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})"));
+    helper.restore();
+    ASSERT_EQ(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
+//    helper.appendStat("statName", 3);
+//    helper.updateTelemetryWithStats();
+//    ASSERT_EQ(R"({"statName-avg":5,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
+}

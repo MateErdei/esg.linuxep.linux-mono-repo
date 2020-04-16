@@ -83,4 +83,17 @@ namespace UpdateSchedulerImpl
     }
 
     bool SchedulerPluginCallback::shutdownReceived() { return m_shutdownReceived; }
+
+    void SchedulerPluginCallback::saveTelemetry()
+    {
+        LOGSUPPORT("Received save telemetry request");
+        try
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().save(<#initializer#>);
+        }
+        catch(std::exception& ex)
+        {
+            LOGWARN("Failed to save telemetry. reason: "<< ex.what());
+        }
+    }
 } // namespace UpdateSchedulerImpl

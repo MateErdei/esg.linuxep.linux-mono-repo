@@ -69,6 +69,15 @@ namespace Common
             return m_messageBuilder.replyExtractTelemetry(reply);
         }
 
+        void PluginProxy::saveTelemetry()
+        {
+            Common::PluginProtocol::DataMessage replyMessage = getReply(m_messageBuilder.requestSaveTelemetryMessage());
+            if (!m_messageBuilder.hasAck(replyMessage))
+            {
+                throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'save telemetry request'");
+            }
+        }
+
         Common::PluginProtocol::DataMessage PluginProxy::getReply(
             const Common::PluginProtocol::DataMessage& request) const
         {

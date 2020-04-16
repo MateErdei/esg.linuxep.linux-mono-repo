@@ -10,6 +10,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <utility>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 namespace TelemetrySchedulerImpl
 {
@@ -41,5 +42,18 @@ namespace TelemetrySchedulerImpl
     {
         LOGSUPPORT("Received telemetry request");
         return "{}"; // TODO: LINUXEP-7988
+    }
+
+    void PluginCallback::saveTelemetry()
+    {
+        LOGSUPPORT("Received save telemetry request");
+        try
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().save(<#initializer#>);
+        }
+        catch(std::exception& ex)
+        {
+            LOGWARN("Failed to save telemetry. reason: "<< ex.what());
+        }
     }
 } // namespace TelemetrySchedulerImpl

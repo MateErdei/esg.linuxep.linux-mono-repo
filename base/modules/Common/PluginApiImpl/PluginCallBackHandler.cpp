@@ -68,6 +68,7 @@ namespace Common
 
         void PluginCallBackHandler::onShutdownRequested()
         {
+            m_pluginCallback->saveTelemetry();
             m_pluginCallback->onShutdown();
             stop();
         }

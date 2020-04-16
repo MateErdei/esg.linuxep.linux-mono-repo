@@ -96,6 +96,19 @@ namespace
             return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
         }
 
+        void saveTelemetry() override
+        {
+            LOGSUPPORT("Received save telemetry request");
+            try
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().save(<#initializer#>);
+            }
+            catch(std::exception& ex)
+            {
+                LOGWARN("Failed to save telemetry. reason: "<< ex.what());
+            }
+        }
+
         std::function<std::vector<std::string>(void)> m_getListOfPluginsFunc;
     };
 

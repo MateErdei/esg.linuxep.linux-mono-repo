@@ -15,6 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 #include <sys/stat.h>
 #include <Common/UtilityImpl/ConfigException.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 #ifndef PATH_MAX
 #    define PATH_MAX 2048
@@ -58,6 +59,12 @@ int watchdog_main::main(int argc, char** argv)
     std::string installDir = work_out_install_directory();
     Common::ApplicationConfiguration::applicationConfiguration().setData(
         Common::ApplicationConfiguration::SOPHOS_INSTALL, installDir);
+
+    //initialise telemetry restore path
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+            Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR, Common::FileSystem::join(
+                    installDir, "var", "watchdog-telemetry.json") );
+
     Common::Logging::FileLoggingSetup logSetup("watchdog");
     if (argc > 1)
     {
