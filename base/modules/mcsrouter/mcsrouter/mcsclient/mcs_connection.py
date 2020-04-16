@@ -1004,7 +1004,7 @@ class MCSConnection:
         This method is used in mcs.py to trigger the sending of LiveQuery responses to central
         """
         def log_exception_error(app_id, correlation_id, exception):
-            LOGGER.error("Failed to send response ({} : {}) : {}".format(reapp_id, correlation_id, exception))
+            LOGGER.error("Failed to send response ({} : {}) : {}".format(app_id, correlation_id, exception))
 
         for response in responses:
             try:
