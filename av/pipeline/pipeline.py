@@ -3,7 +3,7 @@ import os
 
 import tap.v1 as tap
 
-COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-edr-unit.cov'
+COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-av-unit.cov'
 COVFILE_COMBINED = '/opt/test/inputs/av/sspl-av-combined.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 LOGS_DIR = '/opt/test/logs'
