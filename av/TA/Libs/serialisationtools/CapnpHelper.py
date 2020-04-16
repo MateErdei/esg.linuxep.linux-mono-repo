@@ -4,8 +4,8 @@
 # All rights reserved.
 
 from enum import Enum
+
 import capnp
-import os
 from robot.api import logger
 
 CAPNP_DIR = "/opt/test/inputs/av/test-resources/capnp-files"
@@ -35,7 +35,7 @@ class CapnpHelper:
                                       CapnpSchemas.ScanResponse: scan_response_schema,
                                       CapnpSchemas.ThreatDetected: threat_detected_schema}
         except OSError:
-            logger.error("Unable to load canpnp definitions")
+            logger.error("Unable to load capnp definitions")
             self.schema_object_map = {}
 
     def check_named_scan_object(self, object_filename,
