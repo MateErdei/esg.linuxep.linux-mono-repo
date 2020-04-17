@@ -384,6 +384,9 @@ function build()
     then
         bash -x build/bullseye/generateResults.sh || exit $?
         cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
+        # copy the source into output, so that tests can generate detailed coverage reports
+        mkdir -p output/src
+        cp -a modules product output/src/
     fi
 
     echo "Build Successful"

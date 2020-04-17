@@ -31,8 +31,8 @@ if [[ ! -f ${COVFILE} ]]
 then
     mkdir -p $(dirname ${COVFILE})
     chmod 777 $(dirname ${COVFILE})
-    covmgr -l -c
-    cov01 -1
+    covmgr --list --create --srcdir $PWD
+    cov01 --on
 
     [[ -f ${COVFILE} ]] || {
         echo "Failed to create COVFILE: $?"
@@ -68,16 +68,16 @@ COVDIR="${COVFILE%/*}"
 ## Need to get between these dirs
 #currentDir="../..$BASE_DIR"
 
-SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
-BUILD_SRC_DIR="${SCRIPT_DIR%/*}"
-SRC_DIR="${BUILD_SRC_DIR%/*}"
+#SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
+#BUILD_SRC_DIR="${SCRIPT_DIR%/*}"
+#SRC_DIR="${BUILD_SRC_DIR%/*}"
 
 echo "COVFILE=$COVFILE"
 echo "COVDIR=$COVDIR"
 echo "ORIG_CWD=$ORIG_CWD"
 echo "BASE_DIR=$BASE_DIR"
-echo "SCRIPT_DIR=$SCRIPT_DIR"
-echo "SRC_DIR=$SRC_DIR"
+#echo "SCRIPT_DIR=$SCRIPT_DIR"
+#echo "SRC_DIR=$SRC_DIR"
 #echo "rel path = $currentDir"
 
 #
@@ -103,24 +103,17 @@ function exclude()
     covselect --add $@ || failure 3 "Failed to add exclusion $*"
 }
 
-echo "Excluding \!../../redist/"
-covselect --quiet --add \!../../redist/ || failure 4 "Failed to exclude /redist"
-echo "Excluding \!../../opt/"
-covselect --quiet --add \!../../opt/ || failure 5 "Failed to exclude /opt"
-echo "Excluding \!../../lib/"
-covselect --quiet --add \!../../lib/ || failure 6 "Failed to exclude /lib"
+#echo "Excluding \!../../redist/"
+#covselect --quiet --add \!../../redist/ || failure 4 "Failed to exclude /redist"
+#echo "Excluding \!../../opt/"
+#covselect --quiet --add \!../../opt/ || failure 5 "Failed to exclude /opt"
+#echo "Excluding \!../../lib/"
+#covselect --quiet --add \!../../lib/ || failure 6 "Failed to exclude /lib"
 
-SRC_TEST_DIR=${SRC_DIR}/tests
-
-[[ -d ${SRC_TEST_DIR} ]] || {
-    echo "Failed to find src dir - SRC_TEST_DIR doesn't exist"
-    exit 2
-}
-
-exclude \!../..${SRC_DIR}/build/
-exclude \!../..${SRC_DIR}/build64/
-exclude \!../..${SRC_DIR}/redist/
-exclude \!../..${SRC_TEST_DIR}/
+exclude \!build/
+exclude \!build64/
+exclude \!redist/
+exclude \!tests/
 
 echo "Exclusions:"
 covselect --list --no-banner
