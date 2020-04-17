@@ -288,6 +288,7 @@ function build()
         addpath ${BULLSEYE_DIR}/bin
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
+        export COVSRCDIR=$PWD
         export COV_HTML_BASE
         export BULLSEYE_DIR
         bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"

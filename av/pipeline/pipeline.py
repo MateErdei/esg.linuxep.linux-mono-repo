@@ -9,6 +9,7 @@ UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
 INPUTS_DIR = '/opt/test/inputs'
+COVSRCDIR = os.path.join(INPUTS_DIR, 'av', 'src')
 
 logger = logging.getLogger(__name__)
 
@@ -99,16 +100,17 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
 
 def bullseye_coverage_task(machine: tap.Machine):
     try:
+        exception = None
+
         install_requirements(machine)
 
         # upload unit test coverage html results to allegro
         unitest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage_html')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
                     environment={
-                        'COVFILE': COVFILE_UNITTEST,
                         'COV_HTML_BASE': 'sspl-plugin-av-unittest',
                         'UPLOAD_ONLY': 'UPLOAD',
-                        'htmldir': unitest_htmldir
+                        'htmldir': unitest_htmldir,
                     })
 
         # publish unit test coverage file and results to artifactory results/coverage
@@ -121,23 +123,36 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
 
         # run component pytests and integration robot tests with coverage file to get combined coverage
-        pytest_task_with_env(machine, environment={'COVFILE': COVFILE_COMBINED})
-        robot_task_with_env(machine, environment={'COVFILE': COVFILE_COMBINED})
+        pytest_task_with_env(machine, environment={
+            'COVFILE': COVFILE_COMBINED,
+            'COVSRCDIR': COVSRCDIR,
+        })
+
+        # don't abort immediately if robot tests fail, generate the coverage report, then re-raise the exception
+        try:
+            robot_task_with_env(machine, environment={
+                'COVFILE': COVFILE_COMBINED,
+                'COVSRCDIR': COVSRCDIR,
+            })
+        except tap.exceptions.PipelineProcessExitNonZeroError as e:
+            exception = e
 
         # generate combined coverage html results and upload to allegro
         combined_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-combined')
-        srcdir = os.path.join(INPUTS_DIR, 'av', 'src')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
                     environment={
                         'COVFILE': COVFILE_COMBINED,
+                        'COVSRCDIR': COVSRCDIR,
                         'COV_HTML_BASE': 'sspl-plugin-av-combined',
                         'htmldir': combined_htmldir,
-                        'scrdir': srcdir
                     })
 
         # publish combined html results and coverage file to artifactory
         machine.run('mv', combined_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
+
+        if exception is not None:
+            raise exception
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')

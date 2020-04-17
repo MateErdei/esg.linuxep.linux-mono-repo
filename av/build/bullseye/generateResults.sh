@@ -33,14 +33,12 @@ echo "Bullseye location: $BULLSEYE_DIR"
 [[ -n ${COVFILE} ]] || exitFailure 2 "COVFILE not set"
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-av-unittest
 [[ -n ${htmldir} ]] || htmldir=output/coverage/${COV_HTML_BASE}
-[[ -n ${srcdir} ]] || srcdir=$PWD
 
 echo "Exclusions:"
 $BULLSEYE_DIR/bin/covselect --list --no-banner --file "$COVFILE"
 
 $BULLSEYE_DIR/bin/covhtml \
     --file "$COVFILE"     \
-    --srcdir "$srcdir"    \
     --verbose             \
     "$htmldir"            \
     </dev/null            \

@@ -31,7 +31,7 @@ if [[ ! -f ${COVFILE} ]]
 then
     mkdir -p $(dirname ${COVFILE})
     chmod 777 $(dirname ${COVFILE})
-    covmgr --list --create --srcdir $PWD
+    covmgr --list --create
     cov01 --on
 
     [[ -f ${COVFILE} ]] || {
