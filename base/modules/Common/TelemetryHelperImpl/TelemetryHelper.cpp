@@ -17,6 +17,24 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <sys/stat.h>
 
+namespace
+{
+    Path getTelemetryCacheDir(const std::string& pluginName)
+    {
+        try
+        {
+            return Common::FileSystem::join(Common::ApplicationConfiguration::applicationConfiguration().getData(
+                    Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR), pluginName + "-telemetry.json");
+        }
+        catch(std::out_of_range& outOfRange)
+        {
+            throw std::out_of_range("Telemetry restore location is not defined for this plugin");
+        }
+    }
+
+    const unsigned int DEFAULT_MAX_JSON_SIZE = 1000000; // 1MB
+}
+
 namespace Common::Telemetry
 {
     void TelemetryHelper::set(const std::string& key, long value) { setInternal(key, value, false); }
@@ -128,7 +146,7 @@ namespace Common::Telemetry
         return TelemetrySerialiser::serialise(m_root);
     }
 
-    void TelemetryHelper::registerResetCallback(std::string cookie, std::function<void(TelemetryHelper&)> function)
+    void TelemetryHelper::registerResetCallback(std::string& cookie, std::function<void(TelemetryHelper&)> function)
     {
         std::lock_guard<std::mutex> lock(m_callbackLock);
         if (m_callbacks.find(cookie) != m_callbacks.end())
@@ -273,52 +291,47 @@ namespace Common::Telemetry
         m_root = savedTelemetry;
     }
 
-    void TelemetryHelper::save(const std::string &pluginName)
+    void TelemetryHelper::save(const std::string& pluginName)
     {
         //ToDo handle stats.
-        Path restorePath;
-        try
-        {
-            restorePath = Common::ApplicationConfiguration::applicationConfiguration().getData(Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR);
-        }
-        catch(std::out_of_range& outOfRange)
-        {
-            throw std::out_of_range("Telemetry restore location is not defined for this plugin");
-        }
-
-        auto restorePathBase = Common::FileSystem::dirName(restorePath);
+         Path restoreFilepath = getTelemetryCacheDir(pluginName);
         auto fs = Common::FileSystem::fileSystem();
-        if(fs->isDirectory(restorePathBase))
+        if(fs->isDirectory(Common::FileSystem::dirName(restoreFilepath)))
         {
             auto tempDir = Common::ApplicationConfigurationImpl::ApplicationPathManager().getTempPath();
             auto output = serialise();
-            fs->writeFileAtomically(restorePath, output, tempDir);
-            Common::FileSystem::filePermissions()->chmod(restorePath, S_IRUSR | S_IWUSR);
+            fs->writeFileAtomically(restoreFilepath, output, tempDir);
+            Common::FileSystem::filePermissions()->chmod(restoreFilepath, S_IRUSR | S_IWUSR);
         }
         else
         {
-            throw std::logic_error("Saving telemetry failed, restore location " + restorePath + "deos not exists");
+            throw std::logic_error("Restore directory " + Common::FileSystem::dirName(restoreFilepath) + "does not exists");
         }
     }
 
-    void TelemetryHelper::restore()
+    void TelemetryHelper::restore(const std::string &pluginName)
     {
-        Path restorePath;
-        try
-        {
-            restorePath = Common::ApplicationConfiguration::applicationConfiguration().getData(Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR);
-        }
-        catch(std::out_of_range& outOfRange)
-        {
-            throw std::out_of_range("Telemetry restore location is not defined for this plugin");
-        }
+        Path restoreFilepath = getTelemetryCacheDir(pluginName);
 
         auto fs = Common::FileSystem::fileSystem();
-        if(fs->isFile(restorePath) )
+        if(fs->isFile(restoreFilepath) )
         {
-            auto input = fs->readFile(restorePath, 10000);
-            auto restoreRoot = TelemetrySerialiser::deserialise(input);
-            locked_restore(restoreRoot);
+            try
+            {
+                auto input = fs->readFile(restoreFilepath, DEFAULT_MAX_JSON_SIZE);
+                auto restoreRoot = TelemetrySerialiser::deserialise(input);
+                locked_restore(restoreRoot);
+                fs->removeFile(restoreFilepath);
+            }
+            catch(std::exception& ex)
+            {
+                fs->removeFile(restoreFilepath);
+                throw;
+            }
+        }
+        else
+        {
+            throw std::logic_error("There is no saved telemetry at: " + restoreFilepath);
         }
     }
 

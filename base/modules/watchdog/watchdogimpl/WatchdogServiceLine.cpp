@@ -96,18 +96,7 @@ namespace
             return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
         }
 
-        void saveTelemetry() override
-        {
-            LOGSUPPORT("Received save telemetry request");
-            try
-            {
-                Common::Telemetry::TelemetryHelper::getInstance().save(<#initializer#>);
-            }
-            catch(std::exception& ex)
-            {
-                LOGWARN("Failed to save telemetry. reason: "<< ex.what());
-            }
-        }
+        void saveTelemetry() override  {}
 
         std::function<std::vector<std::string>(void)> m_getListOfPluginsFunc;
     };
@@ -207,6 +196,32 @@ namespace watchdog
             std::stringstream telemetryMessage;
             telemetryMessage << pluginName << "-unexpected-restarts";
             return telemetryMessage.str();
+        }
+
+        void restoreWatchdogTelemetry()
+        {
+            LOGSUPPORT("Received save telemetry request");
+            try
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().restore("watchdogservice");
+            }
+            catch(std::exception& ex)
+            {
+                LOGDEBUG("Restoring telemetry from disk was unsuccessful, reason: "<< ex.what());
+            }
+        }
+
+        void saveWatchdogTelemetry()
+        {
+            LOGSUPPORT("Received save telemetry request");
+            try
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().save("watchdogservice");
+            }
+            catch(std::exception& ex)
+            {
+                LOGWARN("Failed to save telemetry. reason: "<< ex.what());
+            }
         }
 
     } // namespace watchdogimpl

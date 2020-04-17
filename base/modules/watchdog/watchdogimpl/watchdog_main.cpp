@@ -60,11 +60,6 @@ int watchdog_main::main(int argc, char** argv)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
         Common::ApplicationConfiguration::SOPHOS_INSTALL, installDir);
 
-    //initialise telemetry restore path
-    Common::ApplicationConfiguration::applicationConfiguration().setData(
-            Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR, Common::FileSystem::join(
-                    installDir, "var", "watchdog-telemetry.json") );
-
     Common::Logging::FileLoggingSetup logSetup("watchdog");
     if (argc > 1)
     {

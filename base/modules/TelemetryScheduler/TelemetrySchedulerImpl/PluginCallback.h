@@ -35,4 +35,5 @@ namespace TelemetrySchedulerImpl
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;
     };
+    void initialiseTelemetry();
 } // namespace TelemetrySchedulerImpl

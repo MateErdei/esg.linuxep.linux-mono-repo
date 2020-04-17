@@ -22,7 +22,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <stdexcept>
 #include <sys/stat.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystem.h>
 
 namespace TelemetrySchedulerImpl
 {
@@ -35,11 +34,8 @@ namespace TelemetrySchedulerImpl
 
             LOGINFO("Telemetry Scheduler running...");
 
-            //initialise telemetry restore path
-            Common::ApplicationConfiguration::applicationConfiguration().setData(
-                    Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR, Common::FileSystem::join(
-                            Common::ApplicationConfiguration::applicationConfiguration().getData(
-                                    Common::ApplicationConfiguration::SOPHOS_INSTALL), "var", "tscheduler-telemetry.json") );
+            //restore telemetry from disk
+            initialiseTelemetry();
 
             std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
                 Common::PluginApi::createPluginResourceManagement();

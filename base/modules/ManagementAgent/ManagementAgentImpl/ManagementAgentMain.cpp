@@ -29,6 +29,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 
 #include <csignal>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 using namespace Common;
 
@@ -45,6 +46,28 @@ namespace
         GL_signalPipe->notify();
     }
 
+    std::string sophosManagementPluginName("sophos_managementagent");
+
+    enum class SaveRestoreAction    {  SAVE,  RESTORE };
+    //initialise telemetry
+    void saveRestore(SaveRestoreAction action)
+    {
+        try
+        {
+            if(action == SaveRestoreAction::RESTORE)
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().restore(sophosManagementPluginName);
+            }
+            else
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().save(sophosManagementPluginName);
+            }
+        }
+        catch (std::exception &ex)
+        {
+            LOGDEBUG("Telemetry save and restored from disk was unsuccessful reason: " << ex.what());
+        }
+    }
 } // namespace
 
 namespace ManagementAgent
@@ -55,7 +78,7 @@ namespace ManagementAgent
         {
             umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
             static_cast<void>(argv);            // unused
-            Common::Logging::FileLoggingSetup loggerSetup("sophos_managementagent", true);
+            Common::Logging::FileLoggingSetup loggerSetup(sophosManagementPluginName, true);
             if (argc > 1)
             {
                 LOGERROR("Error, invalid command line arguments. Usage: Management Agent");
@@ -243,6 +266,8 @@ namespace ManagementAgent
             m_taskQueueProcessor->start();
             m_directoryWatcher->startWatch();
 
+            // Restore telemetry from disk
+            saveRestore(SaveRestoreAction::RESTORE);
             LOGINFO("Management Agent running.");
 
             bool running = true;
@@ -265,6 +290,9 @@ namespace ManagementAgent
             m_directoryWatcher->removeListener(*m_policyListener);
             m_directoryWatcher->removeListener(*m_actionListener);
             m_taskQueueProcessor->stop();
+
+            //save telemetry to disk
+            saveRestore(SaveRestoreAction::SAVE);
 
             LOGDEBUG("Management Agent stopped");
             return 0;

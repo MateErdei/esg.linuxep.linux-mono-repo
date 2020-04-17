@@ -36,4 +36,6 @@ namespace UpdateSchedulerImpl
 
         bool shutdownReceived();
     };
+
+    void initialiseTelemetry();
 } // namespace UpdateSchedulerImpl
