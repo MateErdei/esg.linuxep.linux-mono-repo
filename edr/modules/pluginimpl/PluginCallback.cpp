@@ -9,9 +9,14 @@ Copyright 2018-2019 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "Telemetry.h"
 #include "TelemetryConsts.h"
+#include "config.h"
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+namespace
+{
+    const char* g_pluginName = PLUGIN_NAME;
+}
 namespace Plugin
 {
     PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) : m_task(std::move(task))
@@ -46,7 +51,7 @@ namespace Plugin
 
     void PluginCallback::onShutdown()
     {
-        LOGSUPPORT("Shutdown signal received");
+        LOGINFO("Shutdown signal received");
         m_task->pushStop();
     }
 
@@ -95,5 +100,29 @@ namespace Plugin
         telemetry.set(plugin::telemetryOSQueryRestartsCPU, 0L);
         telemetry.set(plugin::telemetryOSQueryRestartsMemory, 0L);
         telemetry.set(plugin::telemetryOSQueryDatabasePurges, 0L);
+
+        try
+        {
+            std::call_once(m_restoreTelemetryFromDiskFlag, [&](){telemetry.restore(g_pluginName);});
+        }
+        catch(std::exception& ex)
+        {
+            LOGWARN("Restoring telemetry from disk was unsuccessful reason: " << ex.what());
+        }
     }
+
+    void PluginCallback::saveTelemetry()
+    {
+        LOGSUPPORT("Received save telemetry request");
+        //ToDo handle stats.
+        try
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().save(g_pluginName);
+        }
+        catch(std::exception& ex)
+        {
+            LOGWARN("Unable to save telemetry. reason: "<< ex.what());
+        }
+    }
+
 } // namespace Plugin

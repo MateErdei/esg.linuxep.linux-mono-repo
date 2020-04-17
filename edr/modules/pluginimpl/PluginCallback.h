@@ -9,6 +9,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "QueueTask.h"
 
 #include <Common/PluginApi/IPluginCallbackApi.h>
+#include <mutex>
 
 namespace Plugin
 {
@@ -16,6 +17,7 @@ namespace Plugin
     {
         std::shared_ptr<QueueTask> m_task;
         Common::PluginApi::StatusInfo m_statusInfo;
+        std::once_flag m_restoreTelemetryFromDiskFlag;
 
     public:
         explicit PluginCallback(std::shared_ptr<QueueTask> task);
@@ -32,5 +34,6 @@ namespace Plugin
 
         std::string getTelemetry() override;
         void initialiseTelemetry();
+        void saveTelemetry() override;
     };
 }; // namespace Plugin

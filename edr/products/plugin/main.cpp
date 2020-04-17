@@ -1,18 +1,22 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "config.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IPidLockFileUtils.h>
 #include <Common/Logging/PluginLoggingSetup.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/ErrorCodes.h>
+#include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/PluginApi/IPluginResourceManagement.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/Logger.h>
+#include <modules/pluginimpl/OsqueryProcessImpl.h>
 #include <modules/pluginimpl/PluginAdapter.h>
 #include <modules/livequery/ResponseDispatcher.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
@@ -23,14 +27,33 @@ namespace osquery{
 }
 
 
-const char* PluginName = PLUGIN_NAME;
+const char* g_pluginName = PLUGIN_NAME;
 
 int main()
 {
     using namespace Plugin;
     int ret = 0;
-    Common::Logging::PluginLoggingSetup loggerSetup(PluginName);
-    std::string socket = "/tmp/test.";
+    Common::Logging::PluginLoggingSetup loggerSetup(g_pluginName);
+
+    //initialise telemetry restore
+    auto plugInsPath = Common::FileSystem::join( Common::ApplicationConfiguration::applicationConfiguration().getData(
+                    Common::ApplicationConfiguration::SOPHOS_INSTALL), "plugins", g_pluginName);
+
+    Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR,
+            Common::FileSystem::join( plugInsPath, "var"));
+
+    std::unique_ptr<Common::FileSystem::ILockFileHolder> lockFile;
+    try
+    {
+        lockFile = Common::FileSystem::acquireLockFile(lockFilePath());
+    }
+    catch( std::system_error & ex)
+    {
+        LOGERROR( ex.what());
+        LOGERROR("Only one instance of EDR can run.");
+        return ex.code().value();
+    }
+
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
         Common::PluginApi::createPluginResourceManagement();
 
@@ -41,7 +64,7 @@ int main()
 
     try
     {
-        baseService = resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
+        baseService = resourceManagement->createPluginAPI(g_pluginName, sharedPluginCallBack);
     }
     catch (const Common::PluginApi::ApiException & apiException)
     {
@@ -50,8 +73,6 @@ int main()
     }
     std::unique_ptr<livequery::IQueryProcessor> queryProcessor(new osqueryclient::OsqueryProcessor{Plugin::osquerySocket()});
     std::unique_ptr<livequery::IResponseDispatcher> queryResponder(new livequery::ResponseDispatcher{});
-
-
 
     PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack,
                                 std::move(queryProcessor), std::move(queryResponder));
