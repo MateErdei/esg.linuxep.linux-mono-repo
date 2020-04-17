@@ -23,6 +23,7 @@ TA/resources/sophos_certs/local_certs/https/index.*
 TA/resources/sophos_certs/local_certs/https/InternalServerCA.cer
 TA/resources/sophos_certs/local_certs/https/localhost*
 TA/resources/sophos_certs/local_certs/https/root-ca.crt.*
+TA/resources/sophos_certs/local_certs/https/root-ca.srl
 TA/resources/sophos_certs/local_certs/https/serial*
 TA/resources/sophos_certs/local_certs/https/server*
 TA/resources/sophos_certs/local_certs/https/*.pem
