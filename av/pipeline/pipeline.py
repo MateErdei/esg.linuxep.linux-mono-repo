@@ -4,7 +4,7 @@ import os
 import tap.v1 as tap
 
 COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-av-unit.cov'
-COVFILE_COMBINED = '/opt/test/inputs/av/sspl-av-combined.cov'
+COVFILE_COMBINED = '/opt/test/inputs/av/sspl-plugin-av-combined.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
@@ -102,9 +102,14 @@ def bullseye_coverage_task(machine: tap.Machine):
         install_requirements(machine)
 
         # upload unit test coverage html results to allegro
-        unitest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-unittest')
+        unitest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage_html')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_UNITTEST, 'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
+                    environment={
+                        'COVFILE': COVFILE_UNITTEST,
+                        'COV_HTML_BASE': 'sspl-plugin-av-unittest',
+                        'UPLOAD_ONLY': 'UPLOAD',
+                        'htmldir': unitest_htmldir
+                    })
 
         # publish unit test coverage file and results to artifactory results/coverage
         coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
@@ -122,7 +127,11 @@ def bullseye_coverage_task(machine: tap.Machine):
         # generate combined coverage html results and upload to allegro
         combined_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-combined')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_COMBINED, 'COV_HTML_BASE': 'sspl-av-combined', 'htmldir': combined_htmldir})
+                    environment={
+                        'COVFILE': COVFILE_COMBINED,
+                        'COV_HTML_BASE': 'sspl-plugin-av-combined',
+                        'htmldir': combined_htmldir
+                    })
 
         # publish combined html results and coverage file to artifactory
         machine.run('mv', combined_htmldir, coverage_results_dir)
