@@ -145,7 +145,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
 
     SusiResult susiResult = SUSI_S_OK;
     SusiScanResult* scanResult = nullptr;
-    std::string filePath = "/tmp/eicar.txt";
+    std::string filePath = "/tmp/clean_file.txt";
 
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _)).WillOnce(Return(susiResult));
     EXPECT_CALL(*susiWrapper, freeResult(scanResult));
