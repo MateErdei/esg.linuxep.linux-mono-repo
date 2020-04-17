@@ -200,9 +200,9 @@ namespace watchdog
 
         void restoreWatchdogTelemetry()
         {
-            LOGSUPPORT("Received save telemetry request");
             try
             {
+                LOGSUPPORT("Restoring telemetry from disk");
                 Common::Telemetry::TelemetryHelper::getInstance().restore("watchdogservice");
             }
             catch(std::exception& ex)
@@ -213,14 +213,14 @@ namespace watchdog
 
         void saveWatchdogTelemetry()
         {
-            LOGSUPPORT("Received save telemetry request");
             try
             {
+                LOGSUPPORT("Saving watchdog telemetry");
                 Common::Telemetry::TelemetryHelper::getInstance().save("watchdogservice");
             }
             catch(std::exception& ex)
             {
-                LOGWARN("Failed to save telemetry. reason: "<< ex.what());
+                LOGDEBUG("Saving telemetry was unsuccessful reason: "<< ex.what());
             }
         }
 

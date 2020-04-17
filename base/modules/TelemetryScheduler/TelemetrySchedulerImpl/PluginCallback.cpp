@@ -14,6 +14,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
+    const char* g_pluginName = "tscheduler";
     PluginCallback::PluginCallback(std::shared_ptr<ITaskQueue> taskQueue) : m_taskQueue(std::move(taskQueue))
     {
         LOGDEBUG("Plugin callback started");
@@ -49,25 +50,24 @@ namespace TelemetrySchedulerImpl
         LOGSUPPORT("Received save telemetry request");
         try
         {
-            Common::Telemetry::TelemetryHelper::getInstance().save("tscheduler");
+            Common::Telemetry::TelemetryHelper::getInstance().save(g_pluginName);
         }
         catch(std::exception& ex)
         {
-            LOGWARN("Failed to save telemetry. reason: "<< ex.what());
+            LOGDEBUG("Saving telemetry was unsuccessful reason: "<< ex.what());
         }
     }
 
     void initialiseTelemetry()
     {
-        LOGSUPPORT("Received save telemetry request");
         try
         {
             LOGSUPPORT("Restoring telemetry from disk");
-            Common::Telemetry::TelemetryHelper::getInstance().restore("UpdateScheduler");
+            Common::Telemetry::TelemetryHelper::getInstance().restore(g_pluginName);
         }
         catch(std::exception& ex)
         {
-            LOGWARN("Restore telemetry was unsuccessful reason: "<< ex.what());
+            LOGDEBUG("Restore telemetry was unsuccessful reason: "<< ex.what());
         }
     }
 } // namespace TelemetrySchedulerImpl

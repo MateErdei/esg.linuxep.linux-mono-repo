@@ -146,7 +146,7 @@ namespace Common::Telemetry
         return TelemetrySerialiser::serialise(m_root);
     }
 
-    void TelemetryHelper::registerResetCallback(std::string& cookie, std::function<void(TelemetryHelper&)> function)
+    void TelemetryHelper::registerResetCallback(std::string cookie, std::function<void(TelemetryHelper&)> function)
     {
         std::lock_guard<std::mutex> lock(m_callbackLock);
         if (m_callbacks.find(cookie) != m_callbacks.end())
