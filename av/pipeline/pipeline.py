@@ -50,13 +50,13 @@ def install_requirements(machine: tap.Machine):
 
 
 def robot_task(machine: tap.Machine):
+    install_requirements(machine)
     robot_task_with_env(machine)
 
 
 def robot_task_with_env(machine: tap.Machine, environment=None):
     try:
         package_install(machine, 'nfs-kernel-server')
-        install_requirements(machine)
         machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py', environment=environment)
     finally:
         machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
@@ -65,12 +65,12 @@ def robot_task_with_env(machine: tap.Machine, environment=None):
 
 
 def pytest_task(machine: tap.Machine):
+    install_requirements(machine)
     pytest_task_with_env(machine)
 
 
 def pytest_task_with_env(machine: tap.Machine, environment=None):
     try:
-        install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
         args = ['python', '-u', '-m', 'pytest', tests_dir,
                 '-o', 'log_cli=true',
