@@ -145,8 +145,7 @@ namespace Plugin
         }
         else
         {
-            LOGWARN(
-                "Could not find EDR Plugin config file: " << Plugin::edrConfigFilePath()
+            LOGWARN("Could not find EDR Plugin config file: " << Plugin::edrConfigFilePath()
                                                           << ", using disable_auditd default value");
         }
         return disableAuditD;
@@ -176,7 +175,17 @@ namespace Plugin
 
     bool OsqueryConfigurator::enableAuditDataCollection() const
     {
-        return disableSystemAuditDAndTakeOwnershipOfNetlink() && !MTRBoundEnabled();
+        bool enableAuditDataCollection = disableSystemAuditDAndTakeOwnershipOfNetlink() && !MTRBoundEnabled();
+
+        if (enableAuditDataCollection)
+        {
+            LOGINFO("Plugin configured to gather data from auditd netlink");
+        }
+        else
+        {
+            LOGINFO("Plugin configured not to gather data from auditd netlink");
+        }
+        return enableAuditDataCollection;
     }
 
     void OsqueryConfigurator::loadALCPolicy(const std::string& alcPolicy)
@@ -201,10 +210,10 @@ namespace Plugin
     {
         if (retrieveDisableAuditFlagFromSettingsFile())
         {
-            LOGINFO("plugins.conf configured to collect audit data from osquery");
+            LOGINFO("plugins.conf configured to disable auditd if active");
             return true;
         }
-        LOGINFO("plugins.conf configured to not collect audit data from osquery");
+        LOGINFO("plugins.conf configured to not disable auditd if active");
         return false;
     }
 
