@@ -285,7 +285,7 @@ function build()
         BULLSEYE_DIR=/opt/BullseyeCoverage
         [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
         [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
-        addpath ${BULLSEYE_DIR}/bin:$PATH
+        addpath ${BULLSEYE_DIR}/bin
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
         export COV_HTML_BASE
