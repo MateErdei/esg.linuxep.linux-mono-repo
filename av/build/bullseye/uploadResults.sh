@@ -28,7 +28,7 @@ fi
 
 ## Ensure ssh won't complain about private key permissions:
 chmod 600 ${PRIVATE_KEY}
-rsync -va --rsh="ssh -i ${PRIVATE_KEY}" --delete $htmldir \
-    upload@allegro.eng.sophos:public_html/bullseye/  \
+rsync -az --rsh="ssh -i ${PRIVATE_KEY}  -o StrictHostKeyChecking=no" --delete ${htmldir}/ \
+    upload@allegro.eng.sophos:public_html/bullseye/${COV_HTML_BASE}/  \
     </dev/null \
     || exitFailure $FAILURE_BULLSEYE "Failed to upload bulleye html"

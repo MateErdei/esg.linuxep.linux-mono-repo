@@ -34,10 +34,6 @@ echo "Bullseye location: $BULLSEYE_DIR"
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-av-unittest
 [[ -n ${htmldir} ]] || htmldir=output/coverage/${COV_HTML_BASE}
 
-PRIVATE_KEY=${BASE}/build/bullseye/private.key
-[[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=build/bullseye/private.key
-[[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
-
 echo "Exclusions:"
 $BULLSEYE_DIR/bin/covselect --list --no-banner --file "$COVFILE"
 
