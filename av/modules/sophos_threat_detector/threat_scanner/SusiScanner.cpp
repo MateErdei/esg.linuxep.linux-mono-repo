@@ -110,6 +110,7 @@ SusiScanner::scan(datatypes::AutoFd& /*fd*/, const std::string& file_path)
             for (auto detection : result["detections"])
             {
                 LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
+                response.setThreatName(detection["threatName"]);
             }
         }
     }
