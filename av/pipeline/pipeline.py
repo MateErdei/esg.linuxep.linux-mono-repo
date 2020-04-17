@@ -126,11 +126,13 @@ def bullseye_coverage_task(machine: tap.Machine):
 
         # generate combined coverage html results and upload to allegro
         combined_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-combined')
+        srcdir = os.path.join(INPUTS_DIR, 'av', 'src')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
                     environment={
                         'COVFILE': COVFILE_COMBINED,
                         'COV_HTML_BASE': 'sspl-plugin-av-combined',
-                        'htmldir': combined_htmldir
+                        'htmldir': combined_htmldir,
+                        'scrdir': srcdir
                     })
 
         # publish combined html results and coverage file to artifactory
@@ -141,7 +143,7 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-@tap.pipeline(version=1, component='sspl-plugin-anti-virus')
+@tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
 def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
 
     machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
