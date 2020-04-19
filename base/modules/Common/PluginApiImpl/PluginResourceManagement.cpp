@@ -23,6 +23,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <unistd.h>
 #include <Common/UtilityImpl/ProjectNames.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 namespace Common
 {
@@ -106,6 +107,9 @@ namespace Common
                 plugin->setPluginCallback(pluginName, pluginCallback, std::move(replier));
 
                 plugin->registerWithManagementAgent();
+
+                LOGSUPPORT("Restoring telemetry from disk for plugin: " << pluginName);
+                Common::Telemetry::TelemetryHelper::getInstance().restore(pluginName);
 
                 return std::unique_ptr<PluginApi::IBaseServiceApi>(plugin.release());
             }

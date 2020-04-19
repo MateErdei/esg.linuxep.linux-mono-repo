@@ -4,6 +4,7 @@
 ///
 ///******************************************************************************************************/
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
@@ -539,54 +540,71 @@ TEST(TestTelemetryHelper, telemtryStatSerialisedCorrectly) // NOLINT
     ASSERT_EQ(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, saveToDisk) // NOLINT
+TEST(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly) // NOLINT
 {
-    std::string pluginName("test");
-    std::string testFilePath("/opt/sophos-spl/base/telemetry/cache/"+ pluginName + "-telemetry.json");
+    MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystemPtr));
+
+    MockFilePermissions* mockFilePermissions = new StrictMock<MockFilePermissions>();
+    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions));
+
+    EXPECT_CALL(*mockFileSystemPtr, isDirectory(_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystemPtr, writeFileAtomically(_,
+            R"({"rootkey":{"a":"b"},"statskey":{"statName":[1.0,6.0,10.0]}})", _));
+
+    EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
 
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
     helper.appendStat("statName", 1);
     helper.appendStat("statName", 6);
     helper.appendStat("statName", 10);
-    helper.updateTelemetryWithStats();
 
-    std::unique_ptr<MockFileSystem> mockfileSystemUniquePtr(new StrictMock<MockFileSystem>());
-    MockFileSystem* mockFileSystemRawptr = mockfileSystemUniquePtr.get();
-    Tests::replaceFileSystem(std::move(mockfileSystemUniquePtr));
+    helper.set("a", "b");
 
-    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-
-    EXPECT_CALL(*mockFileSystemRawptr, isDirectory(_)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystemRawptr, writeFileAtomically(testFilePath, R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", _));
-    EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
-    helper.save(pluginName);
+    helper.save();
 }
 
-TEST(TestTelemetryHelper, restoreFromDisk) // NOLINT
+TEST(TestTelemetryHelper, updateStatsCollectionFromSavedTelemetry) // NOLINT
 {
-    std::unique_ptr<MockFileSystem> mockfileSystemUniquePtr(new StrictMock<MockFileSystem>());
-    MockFileSystem* mockFileSystemRawptr = mockfileSystemUniquePtr.get();
-    Tests::replaceFileSystem(std::move(mockfileSystemUniquePtr));
-
-    std::string pluginName("test");
-    std::string testFilePath("/opt/sophos-spl/base/telemetry/cache/"+ pluginName+"-telemetry.json");
+    MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystemPtr));
 
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
+
+    EXPECT_CALL(*mockFileSystemPtr, isFile(_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystemPtr, readFile(_, 1000000)).WillOnce(Return(R"({"rootkey":{"a":"b"},"statskey":{"statName":[1.0,6.0,10.0]}})"));
+    EXPECT_CALL(*mockFileSystemPtr, removeFile(_));
+
+    helper.restore("test");
+
     helper.updateTelemetryWithStats();
 
-    EXPECT_CALL(*mockFileSystemRawptr, isFile(testFilePath)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystemRawptr, readFile(testFilePath, 1000000)).WillOnce(Return(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})"));
-    EXPECT_CALL(*mockFileSystemRawptr, removeFile(testFilePath));
+    ASSERT_EQ(R"({"a":"b","statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
+}
 
-    helper.restore(pluginName);
-    ASSERT_EQ(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
+TEST(TestTelemetryHelper, updateStatsFromSavedTelemetryInvalidJson) // NOLINT
+{
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
 
-//    helper.appendStat("statName", 3);
-//    helper.updateTelemetryWithStats();
-//    ASSERT_EQ(R"({"statName-avg":5,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
+    testing::internal::CaptureStderr();
+
+    MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystemPtr));
+
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    std::string telemetryFilePath{"/opt/sophos-spl/base/telemetry/cache/test-telemetry.json"};
+    EXPECT_CALL(*mockFileSystemPtr, isFile(telemetryFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystemPtr, readFile(telemetryFilePath, 1000000)).WillOnce(Return(R"({"rootkey":{"a":"b"},"statskey":{"statName";[1.0,6.0,10.0]}})"));
+    EXPECT_CALL(*mockFileSystemPtr, removeFile(_));
+
+    helper.restore("test");
+
+    helper.updateTelemetryWithStats();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Restore Telemetry unsuccessful reason: "));
+    ASSERT_EQ(R"({})", helper.serialise());
 }

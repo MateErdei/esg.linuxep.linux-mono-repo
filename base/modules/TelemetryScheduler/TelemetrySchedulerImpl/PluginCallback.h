@@ -30,10 +30,7 @@ namespace TelemetrySchedulerImpl
 
         std::string getTelemetry() override;
 
-        void saveTelemetry() override;
-
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;
     };
-    void initialiseTelemetry();
 } // namespace TelemetrySchedulerImpl

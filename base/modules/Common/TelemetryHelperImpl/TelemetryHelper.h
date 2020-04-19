@@ -69,13 +69,14 @@ namespace Common::Telemetry
         void reset();
         std::string serialise();
         std::string serialiseAndReset();
-        void save(const std::string &pluginName);
+        void save();
         void restore(const std::string &pluginName);
 
         // Normally with a singleton the constructor is private but here we make the constructor public
         // so that plugins can instantiate multiple Telemetry Helpers and not share a root data structure if they want
         // to.
         TelemetryHelper() = default;
+
 
     private:
         TelemetryObject m_root;
@@ -84,6 +85,7 @@ namespace Common::Telemetry
         std::mutex m_callbackLock;
         std::map<std::string, std::function<void(TelemetryHelper&)>> m_callbacks;
         std::map<std::string, std::vector<double>> m_statsCollection;
+        std::string m_saveTelemetryPath;
 
         void locked_reset();
 
@@ -169,5 +171,8 @@ namespace Common::Telemetry
         void clearData();
 
         void locked_restore(const TelemetryObject& savedTelemetry);
+
+        TelemetryObject statsCollectionToTelemetryObject();
+        void updateStatsCollectionFromTelemetryObject(const TelemetryObject& savedStatsCollection);
     };
 } // namespace Common::Telemetry

@@ -46,10 +46,16 @@ namespace
             ON_CALL(mock, getPluginSocketAddress(_)).WillByDefault(Return("inproc://watchdogservice.ipc"));
             Common::ApplicationConfiguration::replaceApplicationPathManager(
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+
+            m_mockFileSystemPtr = new StrictMock<MockFileSystem>();
+            std::unique_ptr<MockFileSystem> mockIFileSystemPtr(m_mockFileSystemPtr);
+            Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+            EXPECT_CALL(*m_mockFileSystemPtr, isFile(_)).WillRepeatedly(Return(false));
         }
 
         void TearDown() override { Common::ApplicationConfiguration::restoreApplicationPathManager(); }
         IgnoreFilePermissions ignoreFilePermissions;
+        MockFileSystem* m_mockFileSystemPtr;
     };
 
     std::string createJsonString(const std::string& oldPartString, const std::string& newPartString)
@@ -89,17 +95,13 @@ namespace
 
     TEST_F(WatchdogTests, WatchdogCanReadSinglePluginConfig) // NOLINT
     {
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
-
         std::vector<std::string> files;
         std::string filename("/tmp/plugins/PluginName.json");
         files.push_back(filename);
         std::string fileContent = createJsonString("", "");
 
-        EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
-        EXPECT_CALL(*mockFileSystem, readFile(filename)).WillOnce(Return(fileContent));
+        EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
+        EXPECT_CALL(*m_mockFileSystemPtr, readFile(filename)).WillOnce(Return(fileContent));
 
         TestWatchdog watchdog;
         watchdog::watchdogimpl::PluginInfoVector plugins;
@@ -112,15 +114,11 @@ namespace
 
     TEST_F(WatchdogTests, WatchdogShouldNoFailIfNoValidPluginConfigs) // NOLINT
     {
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
-
         std::vector<std::string> files;
         std::string filename("/tmp/plugins/invalid.json");
         files.push_back(filename);
-        EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
-        EXPECT_CALL(*mockFileSystem, readFile(filename)).WillOnce(Return("invalid json"));
+        EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
+        EXPECT_CALL(*m_mockFileSystemPtr, readFile(filename)).WillOnce(Return("invalid json"));
 
         TestWatchdog watchdog;
 
@@ -129,10 +127,6 @@ namespace
 
     TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs) // NOLINT
     {
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
-
         std::vector<std::string> files;
         std::string filename1("/tmp/plugins/valid.json");
         std::string filename2("/tmp/plugins/invalid.json");
@@ -140,9 +134,9 @@ namespace
         files.push_back(filename2);
         std::string fileContent = createJsonString("PluginName", "valid");
 
-        EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
-        EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Return(fileContent));
-        EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Return("invalid json"));
+        EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
+        EXPECT_CALL(*m_mockFileSystemPtr, readFile(filename1)).WillOnce(Return(fileContent));
+        EXPECT_CALL(*m_mockFileSystemPtr, readFile(filename2)).WillOnce(Return("invalid json"));
 
         TestWatchdog watchdog;
 
@@ -156,10 +150,6 @@ namespace
 
     TEST_F(WatchdogTests, WatchdogSucceedsWhenItLoadsTwoPluginConfigs) // NOLINT
     {
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
-
         std::vector<std::string> files;
         std::string filename1("/tmp/plugins/valid1.json");
         std::string filename2("/tmp/plugins/valid2.json");
@@ -168,9 +158,9 @@ namespace
         std::string fileContent1 = createJsonString("PluginName", "valid1");
         std::string fileContent2 = createJsonString("PluginName", "valid2");
 
-        EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
-        EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Return(fileContent1));
-        EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Return(fileContent2));
+        EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
+        EXPECT_CALL(*m_mockFileSystemPtr, readFile(filename1)).WillOnce(Return(fileContent1));
+        EXPECT_CALL(*m_mockFileSystemPtr, readFile(filename2)).WillOnce(Return(fileContent2));
 
         TestWatchdog watchdog;
 

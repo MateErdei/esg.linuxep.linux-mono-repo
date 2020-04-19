@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/PluginApi/ApiException.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 namespace Common
 {
@@ -68,7 +69,8 @@ namespace Common
 
         void PluginCallBackHandler::onShutdownRequested()
         {
-            m_pluginCallback->saveTelemetry();
+            LOGSUPPORT("Saving plugin telemetry before shutdown");
+            Common::Telemetry::TelemetryHelper::getInstance().save();
             m_pluginCallback->onShutdown();
             stop();
         }

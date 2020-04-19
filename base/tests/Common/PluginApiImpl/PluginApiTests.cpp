@@ -48,6 +48,9 @@ namespace
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
             Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
+            EXPECT_CALL(*mockFileSystem, isFile(
+                    "/opt/sophos-spl/base/telemetry/cache/plugin-telemetry.json")).WillOnce(Return(false));
+
             auto mockFilePermissions = new StrictMock<MockFilePermissions>();
             std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
                 std::unique_ptr<MockFilePermissions>(mockFilePermissions);

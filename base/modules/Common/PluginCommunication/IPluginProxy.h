@@ -50,12 +50,6 @@ namespace Common
             virtual std::string getTelemetry() = 0;
 
             /**
-             * Request the plugin to save its telemetry to disk
-             *
-             */
-            virtual void saveTelemetry() = 0;
-
-            /**
              * Change the app IDs that the plugin is interested in for policy and actions
              *
              * @param appIds

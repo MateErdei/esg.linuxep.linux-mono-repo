@@ -31,11 +31,12 @@ namespace
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
             Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
+            EXPECT_CALL(*mockFileSystem, isDirectory(_)).WillRepeatedly(Return(false));
+            EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
             std::string pluginname =
                     "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() + ".ipc";
-            Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname, "inproc://watchdogservice.ipc"
-
-            );
+            Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname,
+                    "inproc://watchdogservice.ipc");
 
         }
         ~TestWatchdog()

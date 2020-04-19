@@ -82,12 +82,6 @@ namespace Common
              * @return The content of the telemetry to be forwarded via the ipc channel.
              */
             virtual std::string getTelemetry() = 0;
-
-            /**
-             * Plugin developer must implement this function to save the plugin's Telemetry to disk
-             * Plugin. This method is requested via the ipc channel.
-             */
-            virtual void saveTelemetry() = 0;
         };
 
     } // namespace PluginApi

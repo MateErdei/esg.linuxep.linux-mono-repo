@@ -10,11 +10,9 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <utility>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 namespace TelemetrySchedulerImpl
 {
-    const char* g_pluginName = "tscheduler";
     PluginCallback::PluginCallback(std::shared_ptr<ITaskQueue> taskQueue) : m_taskQueue(std::move(taskQueue))
     {
         LOGDEBUG("Plugin callback started");
@@ -43,31 +41,5 @@ namespace TelemetrySchedulerImpl
     {
         LOGSUPPORT("Received telemetry request");
         return "{}"; // TODO: LINUXEP-7988
-    }
-
-    void PluginCallback::saveTelemetry()
-    {
-        LOGSUPPORT("Received save telemetry request");
-        try
-        {
-            Common::Telemetry::TelemetryHelper::getInstance().save(g_pluginName);
-        }
-        catch(std::exception& ex)
-        {
-            LOGDEBUG("Saving telemetry was unsuccessful reason: "<< ex.what());
-        }
-    }
-
-    void initialiseTelemetry()
-    {
-        try
-        {
-            LOGSUPPORT("Restoring telemetry from disk");
-            Common::Telemetry::TelemetryHelper::getInstance().restore(g_pluginName);
-        }
-        catch(std::exception& ex)
-        {
-            LOGDEBUG("Restore telemetry was unsuccessful reason: "<< ex.what());
-        }
     }
 } // namespace TelemetrySchedulerImpl

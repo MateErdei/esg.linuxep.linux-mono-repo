@@ -31,11 +31,6 @@ namespace UpdateSchedulerImpl
         void setStatus(Common::PluginApi::StatusInfo statusInfo);
 
         std::string getTelemetry() override;
-
-        void saveTelemetry() override;
-
         bool shutdownReceived();
     };
-
-    void initialiseTelemetry();
 } // namespace UpdateSchedulerImpl

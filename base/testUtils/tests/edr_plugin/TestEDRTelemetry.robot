@@ -34,6 +34,7 @@ EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Wait Until OSQuery Running  20
     Kill OSQuery
     Wait Until OSQuery Running  20
+
     Kill OSQuery
     Wait Until OSQuery Running  20
 
@@ -89,6 +90,9 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Wait Until OSQuery Running  20
     Kill OSQuery
     Wait Until OSQuery Running  20
+
+    Restart EDR Plugin
+
     Kill OSQuery
     Wait Until OSQuery Running  20
 

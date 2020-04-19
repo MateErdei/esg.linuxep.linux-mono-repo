@@ -226,6 +226,16 @@ class TelemetryUtils:
         assert actual_dict == expected_dict, "actual watchdog telemetry: \n\t{}\n did not match expected: \n\t{}".format(
             actual_dict, expected_dict)
 
+    def check_watchdog_saved_json_strings_are_equal(self, actual_json, expected_times=0):
+        actual_dict = json.loads(actual_json)["rootkey"]
+        expected_dict = self.generate_watchdog_telemetry_dict(expected_times)
+
+        #pop mcsrouter efore comparison
+        actual_dict.pop("mcsrouter-unexpected-restarts")
+        expected_dict.pop("mcsrouter-unexpected-restarts")
+
+        self.check_watchdog_telemetry_is_correct(actual_dict,expected_dict)
+
     def check_update_scheduler_telemetry_json_is_correct(self, json_string, number_failed_updates,
                                                          most_recent_update_successful=None,
                                                          successful_update_time=None, timing_tolerance=10,

@@ -77,6 +77,7 @@ namespace
                 std::unique_ptr<MockFilePermissions>(mockFilePermissions);
             Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
+            EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/telemetry/cache/plugin-telemetry.json")).WillOnce(Return(false));
             EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
             EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
 

@@ -96,8 +96,6 @@ namespace
             return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
         }
 
-        void saveTelemetry() override  {}
-
         std::function<std::vector<std::string>(void)> m_getListOfPluginsFunc;
     };
 
@@ -159,6 +157,8 @@ namespace watchdog
         {
             try
             {
+                Common::Telemetry::TelemetryHelper::getInstance().restore(WatchdogServiceLineName());
+
                 auto replier = m_context->getReplier();
                 Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, WatchdogServiceLineName(), 5000, 5000);
                 std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack(getPluginListFunc) };
@@ -181,6 +181,7 @@ namespace watchdog
             {
                 m_pluginHandler->stop();
             }
+            Common::Telemetry::TelemetryHelper::getInstance().save();
         }
 
         Common::UtilityImpl::Factory<IWatchdogRequest>& factory()
@@ -196,32 +197,6 @@ namespace watchdog
             std::stringstream telemetryMessage;
             telemetryMessage << pluginName << "-unexpected-restarts";
             return telemetryMessage.str();
-        }
-
-        void restoreWatchdogTelemetry()
-        {
-            try
-            {
-                LOGSUPPORT("Restoring telemetry from disk");
-                Common::Telemetry::TelemetryHelper::getInstance().restore("watchdogservice");
-            }
-            catch(std::exception& ex)
-            {
-                LOGDEBUG("Restoring telemetry from disk was unsuccessful, reason: "<< ex.what());
-            }
-        }
-
-        void saveWatchdogTelemetry()
-        {
-            try
-            {
-                LOGSUPPORT("Saving watchdog telemetry");
-                Common::Telemetry::TelemetryHelper::getInstance().save("watchdogservice");
-            }
-            catch(std::exception& ex)
-            {
-                LOGDEBUG("Saving telemetry was unsuccessful reason: "<< ex.what());
-            }
         }
 
     } // namespace watchdogimpl

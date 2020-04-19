@@ -21,7 +21,6 @@ target_link_libraries(telemetryschedulerimpl PUBLIC
         pluginapiimpl
         processimpl
         telemetryconfigimpl
-        telemetryhelperimpl
         utilityimpl
         osutilitiesimpl
         )

@@ -4,6 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "Logger.h"
 #include "TelemetryHelper.h"
 
 #include "TelemetrySerialiser.h"
@@ -17,26 +18,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <sys/stat.h>
 
-namespace
-{
-    Path getTelemetryCacheDir(const std::string& pluginName)
-    {
-        try
-        {
-            return Common::FileSystem::join(Common::ApplicationConfiguration::applicationConfiguration().getData(
-                    Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR), pluginName + "-telemetry.json");
-        }
-        catch(std::out_of_range& outOfRange)
-        {
-            throw std::out_of_range("Telemetry restore location is not defined for this plugin");
-        }
-    }
-
-    const unsigned int DEFAULT_MAX_JSON_SIZE = 1000000; // 1MB
-}
-
 namespace Common::Telemetry
 {
+    const unsigned int DEFAULT_MAX_JSON_SIZE = 1000000; // 1MB
+    const char* ROOTKEY = "rootkey";
+    const char* STATSKEY = "statskey";
+
     void TelemetryHelper::set(const std::string& key, long value) { setInternal(key, value, false); }
     void TelemetryHelper::set(const std::string& key, unsigned long value) { setInternal(key, value, false); }
 
@@ -286,53 +273,116 @@ namespace Common::Telemetry
 
     void TelemetryHelper::locked_restore(const TelemetryObject& savedTelemetry)
     {
-        //m_statsCollection = {};
         std::lock_guard<std::mutex> dataLock(m_dataLock);
         m_root = savedTelemetry;
     }
 
-    void TelemetryHelper::save(const std::string& pluginName)
+    void TelemetryHelper::save()
     {
-        //ToDo handle stats.
-         Path restoreFilepath = getTelemetryCacheDir(pluginName);
-        auto fs = Common::FileSystem::fileSystem();
-        if(fs->isDirectory(Common::FileSystem::dirName(restoreFilepath)))
+        try
         {
-            auto tempDir = Common::ApplicationConfigurationImpl::ApplicationPathManager().getTempPath();
-            auto output = serialise();
-            fs->writeFileAtomically(restoreFilepath, output, tempDir);
-            Common::FileSystem::filePermissions()->chmod(restoreFilepath, S_IRUSR | S_IWUSR);
+            //ToDo handle stats.
+            auto fs = Common::FileSystem::fileSystem();
+            if(fs->isDirectory(Common::FileSystem::dirName(m_saveTelemetryPath)))
+            {
+                TelemetryObject restoreTelemetryObj;
+                restoreTelemetryObj.set(STATSKEY, statsCollectionToTelemetryObject());
+
+                {
+                    std::lock_guard<std::mutex> lock(m_dataLock);
+                    restoreTelemetryObj.set(ROOTKEY, m_root);
+                }
+
+                auto output = TelemetrySerialiser::serialise(restoreTelemetryObj);
+
+                auto tempDir = Common::ApplicationConfigurationImpl::ApplicationPathManager().getTempPath();
+                fs->writeFileAtomically(m_saveTelemetryPath, output, tempDir);
+                Common::FileSystem::filePermissions()->chmod(m_saveTelemetryPath, S_IRUSR | S_IWUSR);
+            }
+            else
+            {
+                LOGINFO("Restore directory " << Common::FileSystem::dirName(m_saveTelemetryPath) << " does not exists");
+            }
         }
-        else
+        catch(std::exception& ex)
         {
-            throw std::logic_error("Restore directory " + Common::FileSystem::dirName(restoreFilepath) + "does not exists");
+            LOGINFO("Unable to save telemetry reason: " << ex.what());
         }
     }
 
     void TelemetryHelper::restore(const std::string &pluginName)
     {
-        Path restoreFilepath = getTelemetryCacheDir(pluginName);
+        try
+        {
+            auto restoreDir = Common::ApplicationConfiguration::applicationConfiguration().getData(
+                    Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR);
+            m_saveTelemetryPath = Common::FileSystem::join(restoreDir, pluginName + "-telemetry.json");
+        }
+        catch(std::out_of_range& outOfRange)
+        {
+            LOGERROR("Telemetry restore directory path is not defined");
+            return;
+        }
 
         auto fs = Common::FileSystem::fileSystem();
-        if(fs->isFile(restoreFilepath) )
+        try
         {
-            try
+            if (fs->isFile(m_saveTelemetryPath))
             {
-                auto input = fs->readFile(restoreFilepath, DEFAULT_MAX_JSON_SIZE);
-                auto restoreRoot = TelemetrySerialiser::deserialise(input);
-                locked_restore(restoreRoot);
-                fs->removeFile(restoreFilepath);
+                auto input = fs->readFile(m_saveTelemetryPath, DEFAULT_MAX_JSON_SIZE);
+                auto savedTelemetryObject = TelemetrySerialiser::deserialise(input);
+
+                locked_restore(savedTelemetryObject.getObject(ROOTKEY));
+                updateStatsCollectionFromTelemetryObject(savedTelemetryObject.getObject(STATSKEY));
+                fs->removeFile(m_saveTelemetryPath);
             }
-            catch(std::exception& ex)
+            else
             {
-                fs->removeFile(restoreFilepath);
-                throw;
+                LOGINFO("There is no saved telemetry at: " << m_saveTelemetryPath);
             }
         }
-        else
+        catch(std::exception& ex)
         {
-            throw std::logic_error("There is no saved telemetry at: " + restoreFilepath);
+            LOGINFO("Restore Telemetry unsuccessful reason: " << ex.what());
+            if( fs->isFile(m_saveTelemetryPath) )
+            {
+                try {
+                    fs->removeFile(m_saveTelemetryPath);
+                }
+                catch(std::exception& ex)
+                {
+                    LOGINFO("Failed to remove cached telemetry file, reason: " << ex.what());
+                }
+            }
         }
     }
 
+    TelemetryObject TelemetryHelper::statsCollectionToTelemetryObject()
+    {
+        TelemetryObject statsTelemetryObj;
+        for(const auto& values : m_statsCollection)
+        {
+            std::list<TelemetryObject> valuesTelemetryObject;
+            for(auto value : values.second)
+            {
+                TelemetryObject valueTObj;
+                valueTObj.set(TelemetryValue(value));
+                valuesTelemetryObject.emplace_back(valueTObj);
+            }
+            statsTelemetryObj.set(values.first, valuesTelemetryObject);
+        }
+        return statsTelemetryObj;
+    }
+
+    void TelemetryHelper::updateStatsCollectionFromTelemetryObject(const TelemetryObject& statsObject)
+    {
+       auto statsCollection = statsObject.getChildObjects();
+       for( auto stat : statsCollection)
+       {
+           for(auto value : stat.second.getArray())
+           {
+               appendStat(stat.first, value.getValue().getDouble());
+           }
+       }
+    }
 } // namespace Common::Telemetry

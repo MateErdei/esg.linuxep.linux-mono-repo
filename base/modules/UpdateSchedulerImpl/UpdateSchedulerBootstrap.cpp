@@ -21,7 +21,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 #include <iostream>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -30,9 +29,6 @@ namespace UpdateSchedulerImpl
     {
         umask(S_IRWXG | S_IRWXO); // Read and write for the owner
         Common::Logging::FileLoggingSetup logging("updatescheduler", true);
-
-        //check if there is saved telemetry and restore from it
-        initialiseTelemetry();
 
         std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
             Common::PluginApi::createPluginResourceManagement();

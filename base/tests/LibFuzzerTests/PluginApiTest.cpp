@@ -109,11 +109,6 @@ public:
         return std::string{};
     }
 
-
-    void saveTelemetry( ) override
-    {
-        std::cout << "request saveTelemetry" << std::endl;
-    }
 };
 
 class DummyPluginRunner : public Runner

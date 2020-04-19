@@ -68,13 +68,9 @@ int Watchdog::initialiseAndRun()
         throw Common::UtilityImpl::ConfigException( "Watchdog", ex.what());
     }
 
-    //restore telemetry from disk
-    restoreWatchdogTelemetry();
-
     run();
 
     // Normal shutdown
-    saveWatchdogTelemetry();        //none standard plugin, call its save telemetry method
     m_socket.reset();
     return 0;
 }

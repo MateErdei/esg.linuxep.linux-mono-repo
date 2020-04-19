@@ -37,7 +37,6 @@ namespace Common
 
             DataMessage requestRequestPluginStatusMessage(const std::string& appId) const;
             DataMessage requestRequestTelemetryMessage() const;
-            DataMessage requestSaveTelemetryMessage() const;
 
             /** Extracting information from requests as server **/
             std::string requestExtractEvent(const DataMessage&) const;

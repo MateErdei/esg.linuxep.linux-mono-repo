@@ -24,8 +24,7 @@ namespace Common
             REQUEST_PLUGIN_APPLY_POLICY,
             REQUEST_PLUGIN_DO_ACTION,
             REQUEST_PLUGIN_STATUS,
-            REQUEST_PLUGIN_TELEMETRY,
-            SAVE_PLUGIN_TELEMETRY
+            REQUEST_PLUGIN_TELEMETRY
         };
 
         struct DataMessage

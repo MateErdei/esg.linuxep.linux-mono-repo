@@ -14,6 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/ConfigException.h>
 #include <Common/ZeroMQWrapper/IHasFD.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
@@ -26,10 +27,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 #include <csignal>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 using namespace Common;
 
@@ -48,26 +47,6 @@ namespace
 
     std::string sophosManagementPluginName("sophos_managementagent");
 
-    enum class SaveRestoreAction    {  SAVE,  RESTORE };
-    //initialise telemetry
-    void saveRestore(SaveRestoreAction action)
-    {
-        try
-        {
-            if(action == SaveRestoreAction::RESTORE)
-            {
-                Common::Telemetry::TelemetryHelper::getInstance().restore(sophosManagementPluginName);
-            }
-            else
-            {
-                Common::Telemetry::TelemetryHelper::getInstance().save(sophosManagementPluginName);
-            }
-        }
-        catch (std::exception &ex)
-        {
-            LOGDEBUG("Telemetry save and restored from disk was unsuccessful reason: " << ex.what());
-        }
-    }
 } // namespace
 
 namespace ManagementAgent
@@ -248,6 +227,9 @@ namespace ManagementAgent
         {
             LOGINFO("Management Agent starting.. ");
 
+            // Restore telemetry from disk
+            Common::Telemetry::TelemetryHelper::getInstance().restore(sophosManagementPluginName);
+
             // Setup SIGNAL handling for shutdown.
             Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;
             Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
@@ -266,8 +248,6 @@ namespace ManagementAgent
             m_taskQueueProcessor->start();
             m_directoryWatcher->startWatch();
 
-            // Restore telemetry from disk
-            saveRestore(SaveRestoreAction::RESTORE);
             LOGINFO("Management Agent running.");
 
             bool running = true;
@@ -292,7 +272,7 @@ namespace ManagementAgent
             m_taskQueueProcessor->stop();
 
             //save telemetry to disk
-            saveRestore(SaveRestoreAction::SAVE);
+            Common::Telemetry::TelemetryHelper::getInstance().save();
 
             LOGDEBUG("Management Agent stopped");
             return 0;
