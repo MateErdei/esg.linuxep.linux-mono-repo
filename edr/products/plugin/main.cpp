@@ -13,7 +13,6 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ErrorCodes.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/OsqueryProcessImpl.h>
@@ -34,13 +33,6 @@ int main()
     using namespace Plugin;
     int ret = 0;
     Common::Logging::PluginLoggingSetup loggerSetup(g_pluginName);
-
-    //initialise telemetry restore
-    auto plugInsPath = Common::FileSystem::join( Common::ApplicationConfiguration::applicationConfiguration().getData(
-                    Common::ApplicationConfiguration::SOPHOS_INSTALL), "plugins", g_pluginName);
-
-    Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR,
-            Common::FileSystem::join( plugInsPath, "var"));
 
     std::unique_ptr<Common::FileSystem::ILockFileHolder> lockFile;
     try
