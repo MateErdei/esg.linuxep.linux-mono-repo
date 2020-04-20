@@ -77,7 +77,7 @@ AV Configures Single Scheduled Scan Correctly
     Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan
     Wait Until AV Plugin Log Contains  Days: Monday
     Wait Until AV Plugin Log Contains  Times: 11:00:00
-    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 27
+    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 28
     Wait Until AV Plugin Log Contains  No of Sophos Defined Extension Exclusions Configured: 3
     Wait Until AV Plugin Log Contains  No of User Defined Extension Exclusions Configured: 4
 
@@ -93,7 +93,7 @@ AV Configures Multiple Scheduled Scans Correctly
     Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan Two
     Wait Until AV Plugin Log Contains  Days: Monday Thursday
     Wait Until AV Plugin Log Contains  Times: 11:00:00 23:00:00
-    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 24
+    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 25
     Wait Until AV Plugin Log Contains  No of Sophos Defined Extension Exclusions Configured: 0
     Wait Until AV Plugin Log Contains  No of User Defined Extension Exclusions Configured: 0
 
@@ -125,7 +125,7 @@ AV Reconfigures Scans Correctly
     Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan
     Wait Until AV Plugin Log Contains  Days: Monday
     Wait Until AV Plugin Log Contains  Times: 11:00:00
-    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 27
+    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 28
     Wait Until AV Plugin Log Contains  No of Sophos Defined Extension Exclusions Configured: 3
     Wait Until AV Plugin Log Contains  No of User Defined Extension Exclusions Configured: 4
     Send Sav Policy With Multiple Scheduled Scans
@@ -138,7 +138,7 @@ AV Reconfigures Scans Correctly
     Wait Until AV Plugin Log Contains  Scheduled Scan: Sophos Cloud Scheduled Scan Two
     Wait Until AV Plugin Log Contains  Days: Monday Thursday
     Wait Until AV Plugin Log Contains  Times: 11:00:00 23:00:00
-    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 24
+    Wait Until AV Plugin Log Contains  No of Exclusions Configured: 25
     Wait Until AV Plugin Log Contains  No of Sophos Defined Extension Exclusions Configured: 0
     Wait Until AV Plugin Log Contains  No of User Defined Extension Exclusions Configured: 0
 
