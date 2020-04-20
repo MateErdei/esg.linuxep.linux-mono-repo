@@ -249,7 +249,7 @@ Check Scan Now Configuration File is Correct
         ...    File Should Exist  ${configFilename}
     CapnpHelper.check named scan object   ${configFilename}
         ...     name=Scan Now
-        ...     exclude_paths=["/bin/", "/boot/", "/dev/", "/etc/", "/home/", "/lib32/", "/lib64/", "/lib/", "/lost+found/", "/media/", "/mnt/", "/oldTarFiles/", "/opt/", "/proc/", "/redist/", "/root/", "/run/", "/sbin/", "/snap/", "/srv/", "/sys/", "/usr/", "/vagrant/", "/var/", "*.glob", "globExample?.txt", "/stemexample/*"]
+        ...     exclude_paths=["/bin/", "/boot/", "/dev/", "/etc/", "/home/", "/lib32/", "/lib64/", "/lib/", "/lost+found/", "/media/", "/mnt/", "/oldTarFiles/", "/opt/", "/proc/", "/redist/", "/root/", "/run/", "/sbin/", "/snap/", "/srv/", "/sys/", "/usr/", "/vagrant/", "/var/", "/SophosPackages/", "*.glob", "globExample?.txt", "/stemexample/*"]
         ...     sophos_extension_exclusions=["exclusion1", "exclusion2", "exclusion3"]
         ...     user_defined_extension_inclusions=["exclusion1", "exclusion2", "exclusion3", "exclusion4"]
         ...     scan_archives=False
@@ -270,7 +270,7 @@ Check Scheduled Scan Configuration File is Correct
     # TODO LINUXDAR-1482 Make the check more complicated so we check the list attributes
     CapnpHelper.check named scan object   ${configFilename}
         ...     name=Sophos Cloud Scheduled Scan
-        ...     exclude_paths=["/bin/", "/boot/", "/dev/", "/etc/", "/home/", "/lib32/", "/lib64/", "/lib/", "/lost+found/", "/media/", "/mnt/", "/oldTarFiles/", "/opt/", "/proc/", "/redist/", "/root/", "/run/", "/sbin/", "/snap/", "/srv/", "/sys/", "/usr/", "/vagrant/", "/var/"]
+        ...     exclude_paths=["/bin/", "/boot/", "/dev/", "/etc/", "/home/", "/lib32/", "/lib64/", "/lib/", "/lost+found/", "/media/", "/mnt/", "/oldTarFiles/", "/opt/", "/proc/", "/redist/", "/root/", "/run/", "/sbin/", "/snap/", "/srv/", "/sys/", "/usr/", "/vagrant/", "/var/", "/SophosPackages/"]
         ...     sophos_extension_exclusions=[]
         ...     user_defined_extension_inclusions=[]
         ...     scan_archives=False

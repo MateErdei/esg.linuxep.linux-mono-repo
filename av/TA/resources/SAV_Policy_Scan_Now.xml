@@ -92,6 +92,7 @@
                 <filePath>/usr/</filePath>
                 <filePath>/vagrant/</filePath>
                 <filePath>/var/</filePath>
+                <filePath>/SophosPackages/</filePath>
             </filePathSet>
             <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
         </posixExclusions>
