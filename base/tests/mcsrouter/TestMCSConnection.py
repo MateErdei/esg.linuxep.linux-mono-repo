@@ -248,7 +248,6 @@ class TestMCSConnection(unittest.TestCase):
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id")
     @mock.patch("os.remove")
-    # @mock.patch("os.path.isfile", return_value=True)
     def test_mcs_drops_response_when_receiving_500_from_central(self, *mockargs):
 
         side_effects = (mcsrouter.mcsclient.mcs_connection.MCSHttpInternalServerErrorException(500, "header", "body"),
