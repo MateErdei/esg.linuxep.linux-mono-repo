@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo "Process bullseye output"
+echo "Generating bullseye output"
 unset LD_LIBRARY_PATH
 
 FAILURE_BULLSEYE=52

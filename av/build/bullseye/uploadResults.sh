@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo "Process bullseye output"
+echo "Uploading bullseye output"
 unset LD_LIBRARY_PATH
 
 FAILURE_BULLSEYE=52
@@ -15,6 +15,7 @@ function exitFailure()
 SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-av-unittest
+export COV_HTML_BASE
 [[ -n ${htmldir} ]] || htmldir=output/coverage/${COV_HTML_BASE}
 export htmldir
 
