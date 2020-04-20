@@ -4,13 +4,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/UtilityImpl/Main.h>
-#include <modules/livequery/livequery_main.h>
+#include "livequery_main.h"
 
+namespace livequery{
 
-static int query_runner_main(int argc, char* argv[])
-{
-    return livequery::livequery_main::main(argc, argv);
+    int livequery_main::main(int argc, char* argv[])
+    {
+
+    }
 }
-
-MAIN(query_runner_main(argc, argv))
