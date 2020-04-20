@@ -169,7 +169,6 @@ namespace Common::Telemetry
         TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath, TelemetryObject & root);
         void clearData();
 
-        void locked_restore(const TelemetryObject& savedTelemetry);
         TelemetryObject statsCollectionToTelemetryObject();
         void updateStatsCollectionFromTelemetryObject(const TelemetryObject& savedStatsCollection);
     };
