@@ -50,7 +50,7 @@ namespace
             m_mockFileSystemPtr = new StrictMock<MockFileSystem>();
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr(m_mockFileSystemPtr);
             Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
-            EXPECT_CALL(*m_mockFileSystemPtr, isFile(_)).WillRepeatedly(Return(false));
+            EXPECT_CALL(*m_mockFileSystemPtr, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
         }
 
         void TearDown() override { Common::ApplicationConfiguration::restoreApplicationPathManager(); }

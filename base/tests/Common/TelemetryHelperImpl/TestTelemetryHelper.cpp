@@ -573,9 +573,10 @@ TEST(TestTelemetryHelper, updateStatsCollectionFromSavedTelemetry) // NOLINT
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
 
-    EXPECT_CALL(*mockFileSystemPtr, isFile(_)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystemPtr, readFile(_, 1000000)).WillOnce(Return(R"({"rootkey":{"a":"b"},"statskey":{"statName":[1.0,6.0,10.0]}})"));
-    EXPECT_CALL(*mockFileSystemPtr, removeFile(_));
+    std::string telemetryFilePath{"/opt/sophos-spl/base/telemetry/cache/test-telemetry.json"};
+    EXPECT_CALL(*mockFileSystemPtr, isFile(telemetryFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystemPtr, readFile(telemetryFilePath, 1000000)).WillOnce(Return(R"({"rootkey":{"a":"b"},"statskey":{"statName":[1.0,6.0,10.0]}})"));
+    EXPECT_CALL(*mockFileSystemPtr, removeFile(telemetryFilePath));
 
     helper.restore("test");
 
@@ -598,7 +599,7 @@ TEST(TestTelemetryHelper, updateStatsFromSavedTelemetryInvalidJson) // NOLINT
     std::string telemetryFilePath{"/opt/sophos-spl/base/telemetry/cache/test-telemetry.json"};
     EXPECT_CALL(*mockFileSystemPtr, isFile(telemetryFilePath)).WillRepeatedly(Return(true));
     EXPECT_CALL(*mockFileSystemPtr, readFile(telemetryFilePath, 1000000)).WillOnce(Return(R"({"rootkey":{"a":"b"},"statskey":{"statName";[1.0,6.0,10.0]}})"));
-    EXPECT_CALL(*mockFileSystemPtr, removeFile(_));
+    EXPECT_CALL(*mockFileSystemPtr, removeFile(telemetryFilePath));
 
     helper.restore("test");
 

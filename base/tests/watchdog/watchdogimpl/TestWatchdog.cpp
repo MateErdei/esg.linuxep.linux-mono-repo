@@ -31,8 +31,8 @@ namespace
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
             Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
-            EXPECT_CALL(*mockFileSystem, isDirectory(_)).WillRepeatedly(Return(false));
-            EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+            EXPECT_CALL(*mockFileSystem, isDirectory(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
+            EXPECT_CALL(*mockFileSystem, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
             std::string pluginname =
                     "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() + ".ipc";
             Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname,

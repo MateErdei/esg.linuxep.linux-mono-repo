@@ -314,7 +314,6 @@ namespace Common::Telemetry
 
     void TelemetryHelper::restore(const std::string &pluginName)
     {
-        std::lock_guard<std::mutex> dataLock(m_dataLock);
         try
         {
             auto restoreDir = Common::ApplicationConfiguration::applicationConfiguration().getData(
@@ -335,6 +334,7 @@ namespace Common::Telemetry
                 auto input = fs->readFile(m_saveTelemetryPath, DEFAULT_MAX_JSON_SIZE);
                 auto savedTelemetryObject = TelemetrySerialiser::deserialise(input);
 
+                std::lock_guard<std::mutex> dataLock(m_dataLock);
                 lockedRestoreRoot(savedTelemetryObject.getObject(ROOTKEY));
                 lockedUpdateStatsCollection(savedTelemetryObject.getObject(STATSKEY));
                 fs->removeFile(m_saveTelemetryPath);

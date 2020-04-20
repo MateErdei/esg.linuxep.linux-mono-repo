@@ -159,7 +159,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPlugi
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicyone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicytwo")).Times(0);
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystemMock, isFile(_)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile(HasSubstr("base/telemetry/cache"))).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))  // Registeer
         .WillOnce(Return(true)); // Check it is still in Register
@@ -185,7 +185,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromR
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicyone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicytwo")).Times(0);
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystemMock, isFile(_)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile(HasSubstr("base/telemetry/cache"))).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))   // Registeer
         .WillOnce(Return(false)); // Check it is still in Register
@@ -251,7 +251,7 @@ TEST_F(TestPluginManager, TestDoActionOnFailedPluginLeavesItInRegisteredPluginLi
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(0);
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystemMock, isFile(_)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile(HasSubstr("base/telemetry/cache"))).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))  // Register it
         .WillOnce(Return(true)); // Check it is still in Register
@@ -277,7 +277,7 @@ TEST_F(TestPluginManager, TestDoActionOnPluginNoLongerInstalledRemovesItFromRegi
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(0);
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystemMock, isFile(_)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile(HasSubstr("base/telemetry/cache"))).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))   // Register it
         .WillOnce(Return(false)); // Check it is still in Register
