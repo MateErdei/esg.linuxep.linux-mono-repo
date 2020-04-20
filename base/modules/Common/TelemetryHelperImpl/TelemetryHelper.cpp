@@ -208,11 +208,13 @@ namespace Common::Telemetry
 
     void TelemetryHelper::appendStat(const std::string& statsKey, double value)
     {
+        std::lock_guard<std::mutex> statsLock(m_statsLock);
         m_statsCollection[statsKey].push_back(value);
     }
 
     double TelemetryHelper::getStatAverage(const std::string& statsKey)
     {
+        std::lock_guard<std::mutex> statsLock(m_statsLock);
         if (m_statsCollection[statsKey].empty())
         {
             return 0;
@@ -229,11 +231,13 @@ namespace Common::Telemetry
 
     double TelemetryHelper::getStatMin(const std::string& statsKey)
     {
+        std::lock_guard<std::mutex> statsLock(m_statsLock);
         return *std::min_element(m_statsCollection[statsKey].begin(), m_statsCollection[statsKey].end());
     }
 
     double TelemetryHelper::getStatMax(const std::string& statsKey)
     {
+        std::lock_guard<std::mutex> statsLock(m_statsLock);
         return *std::max_element(m_statsCollection[statsKey].begin(), m_statsCollection[statsKey].end());
     }
 
@@ -271,6 +275,12 @@ namespace Common::Telemetry
         }
     }
 
+    void TelemetryHelper::locked_restore(const TelemetryObject& savedTelemetryRoot)
+    {
+        std::lock_guard<std::mutex> dataLock(m_dataLock);
+        m_root = savedTelemetryRoot;
+    }
+
     void TelemetryHelper::save()
     {
         try
@@ -282,8 +292,9 @@ namespace Common::Telemetry
                 {
                     std::lock_guard<std::mutex> lock(m_dataLock);
                     restoreTelemetryObj.set(ROOTKEY, m_root);
-                    restoreTelemetryObj.set(STATSKEY, statsCollectionToTelemetryObject());
                 }
+                restoreTelemetryObj.set(STATSKEY, statsCollectionToTelemetryObject());
+
                 auto output = TelemetrySerialiser::serialise(restoreTelemetryObj);
 
                 auto tempDir = Common::ApplicationConfigurationImpl::ApplicationPathManager().getTempPath();
@@ -303,7 +314,6 @@ namespace Common::Telemetry
 
     void TelemetryHelper::restore(const std::string &pluginName)
     {
-        std::lock_guard<std::mutex> dataLock(m_dataLock);
         try
         {
             auto restoreDir = Common::ApplicationConfiguration::applicationConfiguration().getData(
@@ -324,7 +334,7 @@ namespace Common::Telemetry
                 auto input = fs->readFile(m_saveTelemetryPath, DEFAULT_MAX_JSON_SIZE);
                 auto savedTelemetryObject = TelemetrySerialiser::deserialise(input);
 
-                m_root = savedTelemetryObject.getObject(ROOTKEY);
+                locked_restore(savedTelemetryObject.getObject(ROOTKEY));
                 updateStatsCollectionFromTelemetryObject(savedTelemetryObject.getObject(STATSKEY));
                 fs->removeFile(m_saveTelemetryPath);
             }
@@ -351,6 +361,7 @@ namespace Common::Telemetry
 
     TelemetryObject TelemetryHelper::statsCollectionToTelemetryObject()
     {
+        std::lock_guard<std::mutex> statsLock(m_statsLock);
         TelemetryObject statsTelemetryObj;
         for(const auto& values : m_statsCollection)
         {

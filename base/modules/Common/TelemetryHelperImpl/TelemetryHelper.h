@@ -82,6 +82,7 @@ namespace Common::Telemetry
         TelemetryObject m_resetToThis;
         std::mutex m_dataLock;
         std::mutex m_callbackLock;
+        std::mutex m_statsLock;
         std::map<std::string, std::function<void(TelemetryHelper&)>> m_callbacks;
         std::map<std::string, std::vector<double>> m_statsCollection;
         std::string m_saveTelemetryPath;
@@ -171,5 +172,7 @@ namespace Common::Telemetry
 
         TelemetryObject statsCollectionToTelemetryObject();
         void updateStatsCollectionFromTelemetryObject(const TelemetryObject& savedStatsCollection);
+
+        void locked_restore(const TelemetryObject &savedTelemetryRoot);
     };
 } // namespace Common::Telemetry
