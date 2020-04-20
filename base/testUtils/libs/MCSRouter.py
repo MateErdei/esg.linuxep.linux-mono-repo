@@ -445,7 +445,7 @@ class MCSRouter(object):
             return dict_actual['columnData']
         return None
 
-    def check_cloud_server_log_contains(self, expected, occurs, return_line_after=False, filter_line_start=""):
+    def check_cloud_server_log_contains(self, expected, occurs=1, return_line_after=False, filter_line_start=""):
         import codecs
         server_log = os.path.join(self.tmp_path, "cloudServer.log")
         occurs = int(occurs)

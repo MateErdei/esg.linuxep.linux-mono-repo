@@ -1,7 +1,14 @@
 import unittest
 import os
+import mock
+import gzip
+import time
+
+from types import SimpleNamespace
 
 import PathManager
+import TestMCSResponse
+from TestUtils import assert_message_in_logs
 
 import logging
 logger = logging.getLogger("TestMCSConnection")
@@ -9,18 +16,27 @@ logger = logging.getLogger("TestMCSConnection")
 import mcsrouter.utils.config
 import mcsrouter.mcsclient.mcs_connection
 import mcsrouter.mcsclient.mcs_exception
+import mcsrouter.mcsclient.mcs_connection
+from mcsrouter.mcsclient.mcs_connection import EnvelopeHandler
+import mcsrouter.mcsclient.responses
 
 # Stop the mcs router tests writing to disk
 class ConfigWithoutSave(mcsrouter.utils.config.Config):
     def save(self, filename=None):
         pass
 
+def dummy_function(*args):
+    pass
 
-def createTestConfig(url="http://localhost/foobar"):
+def raise_exception(message):
+    raise AssertionError(message)
+
+
+def create_test_config(url="http://localhost/foobar"):
     config = ConfigWithoutSave('testConfig.config')
-    config.set("MCSURL",url)
-    config.set("MCSID","")
-    config.set("MCSPassword","")
+    config.set("MCSURL", url)
+    config.set("MCSID", "")
+    config.set("MCSPassword", "")
     return config
 
 class FakeMCSConnection(mcsrouter.mcsclient.mcs_connection.MCSConnection):
@@ -55,33 +71,108 @@ class TestMCSConnection(unittest.TestCase):
 
     def test_user_agent_constructor_empty_reg_token(self):
         expected = "Sophos MCS Client/5 Linux sessions "
-        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5","")
-        self.assertEqual(actual,expected)
+        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5", "")
+        self.assertEqual(actual, expected)
 
     def test_user_agent_constructor_unknown_reg_token(self):
         expected = "Sophos MCS Client/5 Linux sessions "
-        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5","unknown")
-        self.assertEqual(actual,expected)
+        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5", "unknown")
+        self.assertEqual(actual, expected)
 
     def test_user_agent_constructor_none_reg_token(self):
         expected = "Sophos MCS Client/5 Linux sessions "
-        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5",None)
-        self.assertEqual(actual,expected)
+        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5", None)
+        self.assertEqual(actual, expected)
 
     def test_user_agent_constructor_reg_token(self):
         expected = "Sophos MCS Client/5 Linux sessions regToken"
-        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5","Foobar")
-        self.assertEqual(actual,expected)
+        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5", "Foobar")
+        self.assertEqual(actual, expected)
 
     def test_user_agent_constructor_diff_platform(self):
         expected = "Sophos MCS Client/5 MyPlatform sessions regToken"
-        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5","Foobar","MyPlatform")
-        self.assertEqual(actual,expected)
+        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("5", "Foobar", "MyPlatform")
+        self.assertEqual(actual, expected)
 
     def test_user_agent_constructor_diff_version(self):
         expected = "Sophos MCS Client/99 Linux sessions regToken"
-        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("99","Foobar")
-        self.assertEqual(actual,expected)
+        actual = mcsrouter.mcsclient.mcs_connection.create_user_agent("99", "Foobar")
+        self.assertEqual(actual, expected)
+
+    @mock.patch(__name__ + ".dummy_function")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id", return_value="")
+    def test_send_responses_logs_warning_with_empty_body(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        response = SimpleNamespace(m_json_body_size=0, m_correlation_id="ABC123abc", remove_response_file=dummy_function)
+        responses = [response]
+        self.assertEqual(len(responses), 1)
+        with self.assertLogs(level="WARNING") as logs:
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_responses(mcs_connection, responses)
+        assert_message_in_logs("Empty response (Correlation ID: ABC123abc). Not sending", logs.output, log_level="WARNING")
+        self.assertFalse(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.called)
+        #dummy_function plays the roll of response.remove_response_file
+        self.assertEqual(dummy_function.call_count, 1)
+
+    @mock.patch(__name__ + ".dummy_function")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id", return_value="")
+    def test_send_responses_sends_response_when_body_valid(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        response = SimpleNamespace(m_json_body_size=12, remove_response_file=dummy_function)
+        responses = [response]
+        self.assertEqual(len(responses), 1)
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_responses(mcs_connection, responses)
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.called)
+        #dummy_function plays the roll of response.remove_response_file
+        self.assertEqual(dummy_function.call_count, 1)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request", return_value=("header", "body"))
+    def test_send_responses_does_not_stop_sending_if_one_response_fails(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        sucessful_get_command_path = lambda endpoint_id: "/responses/endpoint/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
+        unsuccessful_get_command_path = lambda endpoint_id: raise_exception("Induced Exception")
+        bad_response = SimpleNamespace(m_json_body_size=12, get_command_path=unsuccessful_get_command_path, remove_response_file=dummy_function, m_app_id="bad_app_id", m_correlation_id="bad_correlation_id")
+        good_response = SimpleNamespace(m_json_body_size=12, get_command_path=sucessful_get_command_path, remove_response_file=dummy_function, m_app_id="good_app_id", m_correlation_id="good_correlation_id", m_gzip_body_size=12, m_json_body = '{"hello": "world"}')
+
+        responses = [bad_response, good_response]
+        with self.assertLogs(level="ERROR") as error_logs:
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_responses(mcs_connection, responses)
+
+        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request.call_count, 1)
+        self.assertEqual(len(error_logs.output), 1)
+        assert_message_in_logs("Failed to send response (bad_app_id : bad_correlation_id) : Induced Exception", error_logs.output, log_level="ERROR")
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request", return_value=("header", "body"))
+    def test_send_live_query_response_with_id(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        json_body = '{"hello": "world"}'
+        dummy_get_command_path = lambda endpoint_id: "/responses/endpoint/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
+        response = SimpleNamespace(m_json_body_size=12, m_json_body=json_body, m_gzip_body_size=len(json_body), get_command_path=dummy_get_command_path)
+        body = mcs_connection.send_live_query_response_with_id(response)
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request.call_count, 1)
+        self.assertEqual(body, "body")
+
+    @mock.patch("logging.Logger.info")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request",
+                side_effect=mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request)
+    def test_send_request_does_not_log_response_bodies(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        dummy_path = "/responses/endpoint/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
+        dummy_body = gzip.compress(bytes("body", "utf-8"))
+        envelope_handler = EnvelopeHandler()
+        message = mcs_connection._build_request_string("POST", dummy_path, dummy_body)
+        envelope_handler.set_request(message)
+        self.assertEqual(logging.Logger.info.call_count, 1)
+        expected_args = mock.call("POST {}".format(dummy_path))
+        self.assertEqual(logging.Logger.info.call_args, expected_args)
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request.called)
+
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request")
+    def test_send_request_does_not_trim_non_response_messages(self, *mockargs):
+        message = "GET /policy/application/ALC/INITIAL_ALC_POLICY_ID"
+        envelope_handler = EnvelopeHandler()
+        envelope_handler.set_request(message)
+        self.assertFalse(mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request.called)
 
     def test_query_will_process_complete_commands(self):
         mcs_connection=FakeMCSConnection("""<command>
@@ -155,12 +246,33 @@ class TestMCSConnection(unittest.TestCase):
             mcs_connection.query_commands(['ALC', 'LiveQuery'])
         self._log_contains(logs.output, "Invalid command. Missing required field: 'body'")
 
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id")
+    @mock.patch("os.remove")
+    # @mock.patch("os.path.isfile", return_value=True)
+    def test_mcs_drops_response_when_receiving_500_from_central(self, *mockargs):
 
+        side_effects = (mcsrouter.mcsclient.mcs_connection.MCSHttpInternalServerErrorException(500, "header", "body"),
+                        mcsrouter.mcsclient.mcs_connection.MCSHttpServiceUnavailableException(503, "header", "body"))
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.side_effect=side_effects
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        bad_response1 = mcsrouter.mcsclient.responses.Response("fake/path500", "bad_app_id500", "bad_corellation_id500", time.time(), "bad_body500")
+        bad_response2 = mcsrouter.mcsclient.responses.Response("fake/path503", "bad_app_id503", "bad_corellation_id503", time.time(), "bad_body503")
 
-# except ImportError:
-#     print >>sys.stderr,sys.path
-#     class TestMCSConnection(unittest.TestCase):
-#         pass
+        with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
+            responses = [bad_response1, bad_response2]
+            with self.assertLogs(level="DEBUG") as logs:
+                   mcsrouter.mcsclient.mcs_connection.MCSConnection.send_responses(mcs_connection, responses)
+
+        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.call_count, 2)
+        self.assertEqual(len(logs.output), 6)
+        self.assertEqual(isfile_mock.call_args_list, [mock.call("fake/path500"), mock.call("fake/path503")])
+        assert_message_in_logs("Failed to send response (bad_app_id500 : bad_corellation_id500) : MCS HTTP Error: code=500", logs.output, log_level="ERROR")
+        assert_message_in_logs("Discarding response 'bad_corellation_id500' due to rejection by central", logs.output, log_level="DEBUG")
+        assert_message_in_logs("Removed bad_app_id500 response file: fake/path500", logs.output, log_level="DEBUG")
+        assert_message_in_logs("Failed to send response (bad_app_id503 : bad_corellation_id503) : MCS HTTP Error: code=503", logs.output, log_level="ERROR")
+        assert_message_in_logs("Discarding response 'bad_corellation_id503' due to rejection by central", logs.output, log_level="DEBUG")
+        assert_message_in_logs("Removed bad_app_id503 response file: fake/path503", logs.output, log_level="DEBUG")
+
 
 if __name__ == '__main__':
     unittest.main()

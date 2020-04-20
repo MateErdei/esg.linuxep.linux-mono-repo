@@ -207,6 +207,7 @@ HEARTBEAT_ENABLED = True
 ERROR_NEXT = False
 SERVER_401 = False
 NULL_NEXT = False
+SERVER_500 = False
 
 
 def readCert(basename):
@@ -1173,6 +1174,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
     def do_GET_error(self):
         global ERROR_NEXT
         global SERVER_401
+        global SERVER_500
         global NULL_NEXT
 
         if self.path == "/error":
@@ -1181,6 +1183,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/error/server401":
             logger.info("SENDING 401s")
             SERVER_401 = True
+            return self.ret("")
+        elif self.path == "/error/server500":
+            logger.info("SENDING 500")
+            SERVER_500 = True
             return self.ret("")
         elif self.path == "/error/null":
             logger.info("SENDING empty command response")
@@ -1411,6 +1417,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         if endpoint is None:
             ## Create endpoint?
             return self.ret("Response for unknown endpoint", 400)
+        if SERVER_500:
+            return self.ret("Internal Server Error", 500)
 
         response_body = self.getBody()
         endpoint.handle_response(app_id, correlation_id, response_body)
