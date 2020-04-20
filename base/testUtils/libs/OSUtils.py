@@ -40,7 +40,7 @@ def pids_of_file(file_path):
 
     if not os.path.exists(file_path):
         raise AssertionError("Not a valid path: {}".format(file_path))
-    pids = []
+    pids_of = []
 
     try:
         output = subprocess.check_output(['pidof', file_path])
@@ -58,12 +58,13 @@ def pids_of_file(file_path):
     except Exception as ex: 
         # any other exception is not expected
         raise
-    return pids
+    return pids_of
 
 def check_if_process_has_osquery_netlink(file_path):
     pids = pids_of_file(file_path)
-    if pids.size() < 2:
-        raise AssertionError("osquery processes are not running")
+
+    if len(pids) < 2:
+        raise AssertionError("not all osquery processes are not running only {} processes running".format(len(pids)))
     try:
         output = subprocess.check_output(['auditctl', '-s'])
         string_to_check = output.decode()
@@ -73,7 +74,7 @@ def check_if_process_has_osquery_netlink(file_path):
 
     contains = False
     for process_id in pids:
-        if process_id in string_to_check:
+        if str(process_id) in string_to_check:
             contains = True
 
     return contains
