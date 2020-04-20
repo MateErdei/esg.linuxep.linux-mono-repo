@@ -281,7 +281,6 @@ namespace Common::Telemetry
     {
         try
         {
-            //ToDo handle stats.
             auto fs = Common::FileSystem::fileSystem();
             if(fs->isDirectory(Common::FileSystem::dirName(m_saveTelemetryPath)))
             {
@@ -363,7 +362,7 @@ namespace Common::Telemetry
         for(const auto& values : m_statsCollection)
         {
             std::list<TelemetryObject> valuesTelemetryObject;
-            for(auto value : values.second)
+            for(const auto& value : values.second)
             {
                 TelemetryObject valueTObj;
                 valueTObj.set(TelemetryValue(value));
@@ -379,7 +378,7 @@ namespace Common::Telemetry
        auto statsCollection = statsObject.getChildObjects();
        for( auto stat : statsCollection)
        {
-           for(auto value : stat.second.getArray())
+           for(const auto& value : stat.second.getArray())
            {
                appendStat(stat.first, value.getValue().getDouble());
            }

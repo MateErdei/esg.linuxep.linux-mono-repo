@@ -77,7 +77,6 @@ namespace Common::Telemetry
         // to.
         TelemetryHelper() = default;
 
-
     private:
         TelemetryObject m_root;
         TelemetryObject m_resetToThis;
@@ -171,7 +170,6 @@ namespace Common::Telemetry
         void clearData();
 
         void locked_restore(const TelemetryObject& savedTelemetry);
-
         TelemetryObject statsCollectionToTelemetryObject();
         void updateStatsCollectionFromTelemetryObject(const TelemetryObject& savedStatsCollection);
     };
