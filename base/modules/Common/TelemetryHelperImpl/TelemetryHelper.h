@@ -82,7 +82,6 @@ namespace Common::Telemetry
         TelemetryObject m_resetToThis;
         std::mutex m_dataLock;
         std::mutex m_callbackLock;
-        std::mutex m_statsLock;
         std::map<std::string, std::function<void(TelemetryHelper&)>> m_callbacks;
         std::map<std::string, std::vector<double>> m_statsCollection;
         std::string m_saveTelemetryPath;
@@ -170,9 +169,11 @@ namespace Common::Telemetry
         TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath, TelemetryObject & root);
         void clearData();
 
-        TelemetryObject statsCollectionToTelemetryObject();
-        void updateStatsCollectionFromTelemetryObject(const TelemetryObject& savedStatsCollection);
-
-        void locked_restore(const TelemetryObject &savedTelemetryRoot);
+        // The following set of lockedXxx... methods do not lock the mutex before access.
+        // the calling method must acquire the mutex before calling them
+        TelemetryObject lockedStatsCollectionToTelemetryObject();
+        void lockedUpdateStatsCollection(const TelemetryObject& statsObject);
+        void lockedRestoreRoot(const TelemetryObject &savedTelemetryRoot);
+        void lockedAppendStat(const std::string &statsKey, double value);
     };
 } // namespace Common::Telemetry
