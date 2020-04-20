@@ -47,7 +47,7 @@ export ENABLE_STRIP=1
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
 COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
-COV_HTML_BASE=sspl-plugin-${PRODUCT}-unittest
+COV_HTML_BASE=sspl-plugin-${PRODUCT}-unittest-dev
 VALGRIND=0
 GOOGLETESTTAR=googletest-release-1.8.1
 NO_BUILD=0
@@ -152,10 +152,11 @@ do
             BULLSEYE=1
             UNITTEST=1
             BULLSEYE_UPLOAD=0
+            COV_HTML_BASE=${COV_HTML_BASE%-dev}
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
-            BULLSEYE_UPLOAD=1
+            BULLSEYE_UPLOAD=0
             UNITTEST=1
             ;;
         --bullseye-upload-unittest|--bullseye-upload)
@@ -291,6 +292,7 @@ function build()
         export COVSRCDIR=$PWD
         export COV_HTML_BASE
         export BULLSEYE_DIR
+        [[ $CLEAN == 1 ]] && rm -f "$COVFILE"
         bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
         export CC=$BULLSEYE_DIR/bin/gcc
         export CXX=$BULLSEYE_DIR/bin/g++
