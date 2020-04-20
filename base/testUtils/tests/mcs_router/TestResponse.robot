@@ -27,7 +27,7 @@ Basic EDR Response Sent
     Check Cloud Server Log For EDR Response Body   LiveQuery  f291664d-112a-328b-e3ed-f920012cdea1  ${expected_body}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
 
-test 500
+Test Response Given 500 From Central Is Not Retried
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -40,7 +40,6 @@ test 500
     ...  10s
     ...  2s
     ...  Check MCSRouter Log Contains  Discarding response 'f291664d-112a-328b-e3ed-f920012cdea1' due to rejection by central
-
 
 *** Keywords ***
 Test Teardown
