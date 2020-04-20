@@ -14,9 +14,8 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/Process/IProcess.h>
-#include <livequery/IQueryProcessor.h>
-#include <livequery/IResponseDispatcher.h>
-#include <livequery/ParallelQueryProcessor.h>
+#include <queryrunner/IQueryRunner.h>
+#include <queryrunner/ParallelQueryProcessor.h>
 
 #include <future>
 
@@ -32,7 +31,7 @@ namespace Plugin
         std::shared_ptr<QueueTask> m_queueTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
-        livequery::ParallelQueryProcessor m_parallelQueryProcessor;
+        queryrunner::ParallelQueryProcessor m_parallelQueryProcessor;
 
     public:
         /* Keeps track of all the tasks sent to the queue
@@ -67,9 +66,7 @@ namespace Plugin
         PluginAdapter(
             std::shared_ptr<QueueTask> queueTask,
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-            std::shared_ptr<PluginCallback> callback,
-            std::unique_ptr<livequery::IQueryProcessor> queryProcessor,
-            std::unique_ptr<livequery::IResponseDispatcher> responseDispatcher);
+            std::shared_ptr<PluginCallback> callback);
 
         void mainLoop();
         ~PluginAdapter();

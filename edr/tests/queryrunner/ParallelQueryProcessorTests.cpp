@@ -4,50 +4,57 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <modules/livequery/ParallelQueryProcessor.h>
+#include <modules/queryrunner/ParallelQueryProcessor.h>
 #include <modules/livequery/QueryResponse.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 using namespace ::testing;
+    
 
-class ConfigurableDelayedQuery : public livequery::IQueryProcessor
+class ConfigurableDelayedQuery : public queryrunner::IQueryRunner
 {
+    std::future<void> m_fut; 
+    std::string m_id; 
+    
 public:
     ConfigurableDelayedQuery()
     {
 
     }
-    livequery::QueryResponse query(const std::string& query) override
+    ~ConfigurableDelayedQuery()
     {
+        if (m_fut.valid())
+        {
+            m_fut.wait(); 
+        }
+    }
+    void triggerQuery(const std::string& correlationid, const std::string& query, std::function<void(std::string id)> notifyFinished) override
+    {
+        m_id = correlationid; 
+        m_fut = std::async(std::launch::async, [query, correlationid, notifyFinished](){
         std::stringstream s(query);
         int timeToWait;
         s>>timeToWait;
         if (!s)
         {
-            return livequery::QueryResponse::emptyResponse();
+            timeToWait = 0; 
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(timeToWait));
-        return livequery::QueryResponse::emptyResponse();
-    };
-
-    std::unique_ptr<livequery::IQueryProcessor> clone() override {
-        return std::unique_ptr<livequery::IQueryProcessor>(new ConfigurableDelayedQuery{});
+        notifyFinished(correlationid); 
+        }); 
     }
-};
-
-class DummyResponse: public livequery::IResponseDispatcher
-{
-public:
-    DummyResponse(std::shared_ptr<std::atomic<int>> counter) : m_counter{counter}{}
-    void sendResponse(const std::string& , const livequery::QueryResponse& ) override {
-        m_counter->fetch_add(1);
-    };
-    std::unique_ptr<livequery::IResponseDispatcher> clone() override {
-        return std::unique_ptr<livequery::IResponseDispatcher>(new DummyResponse{m_counter});
-    };
-    std::shared_ptr<std::atomic<int>> m_counter;
+    std::string id() override{
+        return m_id; 
+    }
+    virtual queryrunner::QueryRunnerStatus getResult() override
+    {
+        return queryrunner::QueryRunnerStatus{};
+    }
+    std::unique_ptr<IQueryRunner> clone() override{
+        return std::unique_ptr<IQueryRunner>(new ConfigurableDelayedQuery{});
+    };  
 };
 
 std::string buildQuery(int timeToSleep)
@@ -64,8 +71,7 @@ TEST_F(ParallelQueryProcessorTests, addJob) // NOLINT
 {
     auto counter = std::make_shared<std::atomic<int>>(0);
     {
-        livequery::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<livequery::IQueryProcessor>(new ConfigurableDelayedQuery{}),
-                                                                 std::unique_ptr<livequery::IResponseDispatcher>(new DummyResponse{counter})  };
+        queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<queryrunner::IQueryRunner>(new ConfigurableDelayedQuery{})};
         parallelQueryProcessor.addJob(buildQuery(1), "1");
         parallelQueryProcessor.addJob(buildQuery(1), "2");
     }
@@ -81,8 +87,7 @@ TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible) // NOLINT
 
     auto counter = std::make_shared<std::atomic<int>>(0);
     {
-        livequery::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<livequery::IQueryProcessor>(new ConfigurableDelayedQuery{}),
-                                                                 std::unique_ptr<livequery::IResponseDispatcher>(new DummyResponse{counter})  };
+        queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<queryrunner::IQueryRunner>(new ConfigurableDelayedQuery{})};
         for(int i=0; i<10;i++)
         {
             parallelQueryProcessor.addJob(buildQuery(1), std::to_string(i));

@@ -70,13 +70,11 @@ namespace Plugin
     PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-        std::shared_ptr<PluginCallback> callback,
-        std::unique_ptr<livequery::IQueryProcessor> queryProcessor,
-        std::unique_ptr<livequery::IResponseDispatcher> responseDispatcher) :
+        std::shared_ptr<PluginCallback> callback) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
-        m_parallelQueryProcessor{std::move(queryProcessor), std::move(responseDispatcher)},
+        m_parallelQueryProcessor{queryrunner::createQueryRunner(Plugin::osquerySocket())},
         m_timesOsqueryProcessFailedToStart(0),
         m_osqueryConfigurator()
     {

@@ -1,7 +1,5 @@
 sophos_add_library(livequeryimpl SHARED
         IQueryProcessor.h
-        ParallelQueryProcessor.h
-        ParallelQueryProcessor.cpp
         QueryProcessor.cpp
         QueryResponse.h
         QueryResponse.cpp

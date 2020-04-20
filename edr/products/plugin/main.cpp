@@ -17,14 +17,6 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/OsqueryProcessImpl.h>
 #include <modules/pluginimpl/PluginAdapter.h>
-#include <modules/livequery/ResponseDispatcher.h>
-#include <modules/osqueryclient/OsqueryProcessor.h>
-#include <osquery/flagalias.h>
-namespace osquery{
-
-    FLAG(bool, decorations_top_level, false, "test");
-}
-
 
 const char* g_pluginName = PLUGIN_NAME;
 
@@ -63,11 +55,8 @@ int main()
         LOGERROR("Plugin Api could not be instantiated: " << apiException.what());
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
-    std::unique_ptr<livequery::IQueryProcessor> queryProcessor(new osqueryclient::OsqueryProcessor{Plugin::osquerySocket()});
-    std::unique_ptr<livequery::IResponseDispatcher> queryResponder(new livequery::ResponseDispatcher{});
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack,
-                                std::move(queryProcessor), std::move(queryResponder));
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
 
     try
     {

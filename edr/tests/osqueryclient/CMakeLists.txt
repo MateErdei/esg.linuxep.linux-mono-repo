@@ -2,8 +2,7 @@ message("testheaderinclude: ${testhelpersinclude}")
 
 SophosAddTest(TestOsqueryProcessor
         OsqueryProcessorTests.cpp
-        OsqueryProcessorTestsWithMock.cpp
-        ParallelQueryProcessorTests.cpp
+        OsqueryProcessorTestsWithMock.cpp        
         MockOsqueryClient.h
         PROJECTS osqueryclient
         LIBS ${pluginapilib} ${log4cpluslib} ${testhelperslib} gmock gtest

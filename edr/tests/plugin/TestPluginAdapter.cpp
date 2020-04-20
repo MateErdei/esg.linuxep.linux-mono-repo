@@ -25,16 +25,6 @@ public:
 
     void requestPolicies(const std::string&) const override {};
 };
-class DummyQuery : public livequery::IQueryProcessor
-{
-    livequery::QueryResponse query(const std::string&) override
-    {
-        throw std::runtime_error("not implemented");
-    };
-    std::unique_ptr<livequery::IQueryProcessor> clone() override {
-        return std::unique_ptr<livequery::IQueryProcessor>(new DummyQuery{});
-    }
-};
 
 class TestablePluginAdapter : public Plugin::PluginAdapter
 {
@@ -43,9 +33,7 @@ public:
         Plugin::PluginAdapter(
             queueTask,
             std::unique_ptr<Common::PluginApi::IBaseServiceApi>(new DummyServiceApli()),
-            std::make_shared<Plugin::PluginCallback>(queueTask),
-            std::unique_ptr<livequery::IQueryProcessor>(new DummyQuery()),
-            std::unique_ptr<livequery::IResponseDispatcher>(new livequery::ResponseDispatcher {}))
+            std::make_shared<Plugin::PluginCallback>(queueTask))
     {
     }
     void processALCPolicy(const std::string& policy, bool firstTime)
