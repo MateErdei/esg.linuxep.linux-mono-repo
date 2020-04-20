@@ -37,14 +37,14 @@ def ensure_owner_and_group_matches(filepath, username, groupname):
         raise AssertionError("Filepath {} belongs to group {}. Expected {}", filepath, group, groupname)
 
 def pids_of_file(file_path):
-    
-    logger.info("Attempt to kill process by file: {}".format(file_path))
+
     if not os.path.exists(file_path):
         raise AssertionError("Not a valid path: {}".format(file_path))
-    pids_of = []
+    pids = []
 
     try:
         output = subprocess.check_output(['pidof', file_path])
+        output = output.decode()
         if len(output):
             pids_of = [int(p) for p in output[:-1].split(' ')]
             logger.info("Pids found: {}".format(pids_of))
@@ -58,7 +58,25 @@ def pids_of_file(file_path):
     except Exception as ex: 
         # any other exception is not expected
         raise
-    return pids_of
+    return pids
+
+def check_if_process_has_osquery_netlink(file_path):
+    pids = pids_of_file(file_path)
+    if pids.size() < 2:
+        raise AssertionError("osquery processes are not running")
+    try:
+        output = subprocess.check_output(['auditctl', '-s'])
+        string_to_check = output.decode()
+
+    except subprocess.CalledProcessError as ex:
+        logger.debug(ex)
+
+    contains = False
+    for process_id in pids:
+        if process_id in string_to_check:
+            contains = True
+
+    return contains
 
 def check_process_running( file_path, expect='Running'):
     """

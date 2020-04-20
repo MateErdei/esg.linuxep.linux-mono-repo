@@ -96,8 +96,13 @@ EDR Does Disable Auditd When Installed with MTR
     [Tags]   THIN_INSTALLER  OSTIA  EDR_PLUGIN  FAKE_CLOUD  MDR_PLUGIN
     Check AuditD Executable Running
 
-    Install EDR  ${BaseAndEdrVUTPolicy}
+    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Should Exist  ${MTR_DIR}
 
+    Check MDR Plugin Installed
 
     ${EDR_CONFIG_CONTENT}=  Get File  ${EDR_DIR}/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   disable_auditd=1
@@ -105,9 +110,21 @@ EDR Does Disable Auditd When Installed with MTR
     Check AuditD Executable Not Running
     Check AuditD Service Disabled
     Check EDR Log Shows AuditD Has Been Disabled
-    Wait Keyword Succeed  Check EDR Log Shows AuditD Has Been Disabled
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  2 secs
+    ...  Check EDR Log Contains   Plugin configured not to gather data from auditd netlink
 
     Check AuditD Executable Not Running
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check MTR Osquery Executable Running
+
+    Check Log Contains  --disable_audit=true   /opt/sophos-spl/plugins/edr/etc/osquery.flags   osquery.flags
+
+    ${result} =  Check If Process Has Osquery Netlink   /opt/sophos-spl/plugins/edr/bin/osqueryd
+    Should Be Equal  ${result}   ${FALSE}
 
 Thin Installer Creates Options File With Many Args
 
