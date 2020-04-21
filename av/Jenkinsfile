@@ -23,7 +23,7 @@ try{
     PreBuild(params, version_number, project)
     git_branch = "${env.BRANCH_NAME}"
     echo git_branch
-    if (git_branch == 'bugfix/get_coverage_builds_working')) // || git_branch == 'master')
+    if (git_branch == 'bugfix/get_coverage_builds_working') // || git_branch == 'master')
     {
         parallel Build:
         {
