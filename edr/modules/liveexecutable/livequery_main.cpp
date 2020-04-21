@@ -36,8 +36,13 @@ namespace livequery{
 
         auto queryResponder = livequery::ResponseDispatcher();
         osqueryclient::OsqueryProcessor osqueryProcessor { socket };
-        livequery::processQuery(osqueryProcessor, queryResponder, query, correlationid);
+        int returnCode = livequery::processQuery(osqueryProcessor, queryResponder, query, correlationid);
 
+        if (returnCode != 0)
+        {
+            std::cerr << "The query failed to execute with errorcode " << returnCode << std::endl;
+            return 3;
+        }
         return 0;
     }
 }

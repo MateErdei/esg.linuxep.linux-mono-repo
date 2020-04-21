@@ -19,7 +19,7 @@ namespace livequery
         virtual std::unique_ptr<IQueryProcessor> clone() = 0;
     };
 
-    void processQuery(
+    int processQuery(
         livequery::IQueryProcessor& iQueryProcessor,
         livequery::IResponseDispatcher& dispatcher,
         const std::string& queryJson,
