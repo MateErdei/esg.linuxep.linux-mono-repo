@@ -6,7 +6,7 @@ version_key = '0.5.0'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-modular-anti-virus.git'
 project_builddir = project
 project_release_xml = 'build-files/release-package.xml'
-buildAgentTemplate = 'JenkinsLinuxTemplate3'
+buildAgentTemplate = 'JenkinsLinuxTemplate5'
 
 properties([
   parameters([
@@ -23,7 +23,7 @@ try{
     PreBuild(params, version_number, project)
     git_branch = "${env.BRANCH_NAME}"
     echo git_branch
-    if (git_branch == 'bugfix/get_coverage_builds_working') // || git_branch == 'master')
+    if (git_branch == 'bugfix/get_coverage_builds_working') || git_branch == 'master')
     {
         parallel Build:
         {
