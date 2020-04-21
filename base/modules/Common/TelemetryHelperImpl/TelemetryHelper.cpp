@@ -209,10 +209,10 @@ namespace Common::Telemetry
     void TelemetryHelper::appendStat(const std::string& statsKey, double value)
     {
         std::lock_guard<std::mutex> statsLock(m_dataLock);
-        lockedAppendStat(statsKey, value);
+        noLockAppendStat(statsKey, value);
     }
 
-    void TelemetryHelper::lockedAppendStat(const std::string& statsKey, double value)
+    void TelemetryHelper::noLockAppendStat(const std::string& statsKey, double value)
     {
         m_statsCollection[statsKey].push_back(value);
     }
@@ -277,7 +277,7 @@ namespace Common::Telemetry
         }
     }
 
-    void TelemetryHelper::lockedRestoreRoot(const TelemetryObject& savedTelemetryRoot)
+    void TelemetryHelper::noLockRestoreRoot(const TelemetryObject& savedTelemetryRoot)
     {
         m_root = savedTelemetryRoot;
     }
@@ -293,7 +293,7 @@ namespace Common::Telemetry
             {
                 TelemetryObject restoreTelemetryObj;
                 restoreTelemetryObj.set(ROOTKEY, m_root);
-                restoreTelemetryObj.set(STATSKEY, lockedStatsCollectionToTelemetryObject());
+                restoreTelemetryObj.set(STATSKEY, noLockStatsCollectionToTelemetryObject());
 
                 auto output = TelemetrySerialiser::serialise(restoreTelemetryObj);
 
@@ -335,8 +335,8 @@ namespace Common::Telemetry
                 auto savedTelemetryObject = TelemetrySerialiser::deserialise(input);
 
                 std::lock_guard<std::mutex> dataLock(m_dataLock);
-                lockedRestoreRoot(savedTelemetryObject.getObject(ROOTKEY));
-                lockedUpdateStatsCollection(savedTelemetryObject.getObject(STATSKEY));
+                noLockRestoreRoot(savedTelemetryObject.getObject(ROOTKEY));
+                noLockUpdateStatsCollection(savedTelemetryObject.getObject(STATSKEY));
                 fs->removeFile(m_saveTelemetryPath);
             }
             else
@@ -360,7 +360,7 @@ namespace Common::Telemetry
         }
     }
 
-    TelemetryObject TelemetryHelper::lockedStatsCollectionToTelemetryObject()
+    TelemetryObject TelemetryHelper::noLockStatsCollectionToTelemetryObject()
     {
         TelemetryObject statsTelemetryObj;
         for(const auto& values : m_statsCollection)
@@ -377,14 +377,14 @@ namespace Common::Telemetry
         return statsTelemetryObj;
     }
 
-    void TelemetryHelper::lockedUpdateStatsCollection(const TelemetryObject& statsObject)
+    void TelemetryHelper::noLockUpdateStatsCollection(const TelemetryObject& statsObject)
     {
        auto statsCollection = statsObject.getChildObjects();
        for( auto stat : statsCollection)
        {
            for(const auto& value : stat.second.getArray())
            {
-               lockedAppendStat(stat.first, value.getValue().getDouble());
+               noLockAppendStat(stat.first, value.getValue().getDouble());
            }
        }
     }

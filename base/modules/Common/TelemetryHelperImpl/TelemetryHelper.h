@@ -171,9 +171,9 @@ namespace Common::Telemetry
 
         // The following set of lockedXxx... methods do not lock the mutex before access.
         // the calling method must acquire the mutex before calling them
-        TelemetryObject lockedStatsCollectionToTelemetryObject();
-        void lockedUpdateStatsCollection(const TelemetryObject& statsObject);
-        void lockedRestoreRoot(const TelemetryObject &savedTelemetryRoot);
-        void lockedAppendStat(const std::string &statsKey, double value);
+        TelemetryObject noLockStatsCollectionToTelemetryObject();
+        void noLockUpdateStatsCollection(const TelemetryObject& statsObject);
+        void noLockRestoreRoot(const TelemetryObject &savedTelemetryRoot);
+        void noLockAppendStat(const std::string &statsKey, double value);
     };
 } // namespace Common::Telemetry
