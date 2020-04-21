@@ -12,6 +12,7 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 #include <thirdparty/nlohmann-json/json.hpp>
 #include "Logger.h"
 #include <sstream>
+#include <Common/UtilityImpl/StringUtils.h>
 
 namespace
 {
@@ -241,8 +242,12 @@ namespace livequery
         serializedJson << R"(
 })";
 
-        m_telemetryHandler.processLiveQueryResponseStats(response, queryMetaData.value("durationMillis",0));
-
+        std::string strippedQueryName =
+                Common::UtilityImpl::StringUtils::replaceAll(response.metaData().getQueryName(), ".", "-");
+        std::cout<< "name:" << strippedQueryName << std::endl;
+        std::cout<< "errorcode:" << queryMetaData.value("errorCode",0)<< std::endl;
+        std::cout<< "duration:" << queryMetaData.value("durationMillis",0)<< std::endl;
+        std::cout<< "rowcount:" << queryMetaData.value("rows",0)<< std::endl;
         return serializedJson.str();
     }
 

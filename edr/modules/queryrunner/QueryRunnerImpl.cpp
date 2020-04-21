@@ -18,7 +18,7 @@ namespace queryrunner{
     void QueryRunnerImpl::triggerQuery(const std::string& correlationid, const std::string& query, std::function<void(std::string id)> /*notifyFinished*/)
     {
         Common::Process::IProcessPtr processMonitorPtr = Common::Process::createProcess();
-        std::vector<std::string> arguments ={correlationid,query,m_osquerySocketPath};
+        std::vector<std::string> arguments = {correlationid, query, m_osquerySocketPath};
         processMonitorPtr->exec(m_executablePath, arguments, {});
 
     }
