@@ -167,7 +167,7 @@ do
             ;;
         --get-input)
             rm -rf ${BUILD_DIR}/input
-            python3.7 -m build_scripts.artisan_fetch build-files/release-package.xml
+            python3 -m build_scripts.artisan_fetch build-files/release-package.xml
             ;;
         --setup)
             rm -rf ${BUILD_DIR}/input
@@ -264,7 +264,7 @@ function build()
         mkdir -p "$REDIST"
         (( LOCAL_GCC == 0 )) && unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" "${PLUGIN_TAR}"
-        python3.7 "$BASE"/build-files/create_library_links.py $REDIST
+        python3 "$BASE"/build-files/create_library_links.py $REDIST
         (( LOCAL_CMAKE == 0 )) && untar_input cmake cmake-3.11.2-linux
         untar_input capnproto
         untar_input boost
@@ -366,7 +366,7 @@ function build()
         cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
 
-    python3.7 TA/process_capnp_files.py
+    python3 TA/process_capnp_files.py
 
     if [[ -d build${BITS}/symbols ]]
     then
