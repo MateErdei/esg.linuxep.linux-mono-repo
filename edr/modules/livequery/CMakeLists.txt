@@ -11,8 +11,7 @@ sophos_add_library(livequeryimpl SHARED
         ResponseMetaData.cpp
         ResponseStatus.h
         ResponseStatus.cpp
-        livequery_main.cpp
-        livequery_main.h
+
         Logger.h
         Logger.cpp
         Telemetry.h

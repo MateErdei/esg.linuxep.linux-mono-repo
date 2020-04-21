@@ -1,6 +1,6 @@
 add_executable(sophos_livequery main.cpp)
 
-target_link_libraries(sophos_livequery livequeryimpl)
+target_link_libraries(sophos_livequery livequeryimpl osqueryclient)
 
 SET_TARGET_PROPERTIES(sophos_livequery PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
 
