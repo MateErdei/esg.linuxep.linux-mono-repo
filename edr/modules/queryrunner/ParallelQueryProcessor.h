@@ -26,8 +26,8 @@ namespace queryrunner
         void cleanupListOfJobs(); 
         std::unique_ptr<queryrunner::IQueryRunner> m_queryProcessor;
         queryrunner::Telemetry m_telemetry; 
-        std::atomic<bool> m_ignoreCallBack;
         std::list<std::unique_ptr<queryrunner::IQueryRunner>> m_processingQueries;
+        std::list<std::unique_ptr<queryrunner::IQueryRunner>> m_processedQueries;
         std::mutex m_mutex; 
     };
 

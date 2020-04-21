@@ -17,6 +17,7 @@ namespace queryrunner
         void triggerQuery(const std::string& correlationid, const std::string& query, std::function<void(std::string id)> notifyFinished) override;
         virtual std::string id() override; 
         virtual QueryRunnerStatus getResult() override; 
+        void requestAbort() override; 
         virtual std::unique_ptr<IQueryRunner> clone() override;
     };
 }

@@ -26,6 +26,7 @@ namespace queryrunner{
         QueryRunnerStatus status; 
         return status; 
     } 
+    void QueryRunnerImpl::requestAbort(){}; 
     std::unique_ptr<IQueryRunner> QueryRunnerImpl::clone()
     {
         return std::unique_ptr<IQueryRunner>{new QueryRunnerImpl(m_osquerySocketPath)};

@@ -10,47 +10,82 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 namespace queryrunner{
 
     ParallelQueryProcessor::ParallelQueryProcessor(std::unique_ptr<queryrunner::IQueryRunner> queryProcessor):
-                                                   m_queryProcessor{std::move(queryProcessor)}, m_ignoreCallBack{false}
+                                                   m_queryProcessor{std::move(queryProcessor)}
     {
 
     }
 
     ParallelQueryProcessor::~ParallelQueryProcessor()
     {
-        m_ignoreCallBack = true;    
-        std::lock_guard<std::mutex> l{m_mutex};             
-        for( auto & l: m_processingQueries)
         {
-            auto result = l->getResult(); 
-            m_telemetry.processLiveQueryResponseStats(result); 
+            std::lock_guard<std::mutex> l{m_mutex};
+            for( auto& p: m_processingQueries)
+            {
+                p->requestAbort(); 
+            }
+        }
+        // give up to 0.5 seconds to have all the queries processed. 
+        int count =0; 
+        while(count++ < 50)
+        {
+            bool isEmpty=false;
+            {
+                std::lock_guard<std::mutex> l{m_mutex};
+                for( auto& p: m_processingQueries)
+                {
+                    p->requestAbort(); 
+                }
+                isEmpty = m_processingQueries.empty(); 
+            }
+            if( isEmpty )break; 
+            std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
+        }
+                
+        {
+            std::lock_guard<std::mutex> l{m_mutex};
+            if( !m_processingQueries.empty())
+            {
+                LOGERROR("Should not have any further queries to process."); 
+            }
+            m_processedQueries.clear(); 
         }
     }
 
     void ParallelQueryProcessor::newJobDone(std::string id)
-    {
-        if ( m_ignoreCallBack) return;
+    {        
         std::lock_guard<std::mutex> l{m_mutex};
-        for( auto it = m_processingQueries.begin(); it != m_processingQueries.end(); )
+        LOGDEBUG("Query " << id << " finished"); 
+
+        // clearing up previous queries objects that now can be removed as they are not in the same thread. 
+        m_processedQueries.clear();
+
+        // this method retrieves the result and mark the queryRunner to be cleared after as it can not be removed
+        // as this method is executed in the queryRunner callback thread. 
+
+        auto it = std::find_if(m_processingQueries.begin(), m_processingQueries.end(), 
+            [id](const std::unique_ptr<queryrunner::IQueryRunner> & irunner ){return irunner->id()==id; }
+            );
+
+        if ( it != m_processingQueries.end())
         {
-            if (it->get()->id() == id)
-            {
-                auto result = it->get()->getResult(); 
-                m_telemetry.processLiveQueryResponseStats(result); 
-                LOGSUPPORT("One more entry removed from the queue of processing queries");
-                it = m_processingQueries.erase(it);
-                return; 
-            } else{
-                it++;
-            }
+            auto result = it->get()->getResult(); 
+            m_telemetry.processLiveQueryResponseStats(result); 
+            LOGDEBUG("One more entry removed from the queue of processing queries");
+            // move this element to the other list to clear it afterwards. 
+            // it cannnot be clear here as this is executed in the callback of the queryrunnerthread.
+            m_processedQueries.splice(m_processedQueries.begin(), m_processingQueries, it); 
         }
-        LOGWARN("Failed to find the job in the list of managed jobs: " << id ); 
+        else
+        {
+            LOGWARN("Failed to find the query " << id << " in the list of processing queries"); 
+        }
     }
 
     void ParallelQueryProcessor::addJob(const std::string &queryJson, const std::string &correlationId) {
 
         auto newproc = m_queryProcessor->clone(); 
-        newproc->triggerQuery( queryJson, correlationId, [this](std::string id){this->newJobDone(id);});
         std::lock_guard<std::mutex> l{m_mutex};
+        newproc->triggerQuery( correlationId, queryJson, [this](std::string id){this->newJobDone(id);});        
         m_processingQueries.emplace_back(std::move(newproc)); 
     }
 }

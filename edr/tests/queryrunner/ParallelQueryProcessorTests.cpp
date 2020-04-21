@@ -9,7 +9,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
-
+#include <atomic>
+#include <memory>
 using namespace ::testing;
     
 
@@ -17,21 +18,30 @@ class ConfigurableDelayedQuery : public queryrunner::IQueryRunner
 {
     std::future<void> m_fut; 
     std::string m_id; 
-    
+    std::shared_ptr<std::atomic<int>> m_counter;
+    bool triggered = false; 
 public:
-    ConfigurableDelayedQuery()
+    ConfigurableDelayedQuery(std::shared_ptr<std::atomic<int>> counter):m_counter{counter}
     {
-
+        triggered = false; 
     }
     ~ConfigurableDelayedQuery()
     {
+        if (!triggered) return; 
         if (m_fut.valid())
         {
-            m_fut.wait(); 
+            try{
+                m_fut.wait(); 
+            }catch(std::exception & ex)
+            {
+                std::cerr << ex.what() << std::endl; 
+            }            
         }
     }
+    void requestAbort() override{}; 
     void triggerQuery(const std::string& correlationid, const std::string& query, std::function<void(std::string id)> notifyFinished) override
     {
+        triggered = true; 
         m_id = correlationid; 
         m_fut = std::async(std::launch::async, [query, correlationid, notifyFinished](){
         std::stringstream s(query);
@@ -50,10 +60,11 @@ public:
     }
     virtual queryrunner::QueryRunnerStatus getResult() override
     {
+        *m_counter+=1; 
         return queryrunner::QueryRunnerStatus{};
     }
     std::unique_ptr<IQueryRunner> clone() override{
-        return std::unique_ptr<IQueryRunner>(new ConfigurableDelayedQuery{});
+        return std::unique_ptr<IQueryRunner>(new ConfigurableDelayedQuery{m_counter});
     };  
 };
 
@@ -71,7 +82,7 @@ TEST_F(ParallelQueryProcessorTests, addJob) // NOLINT
 {
     auto counter = std::make_shared<std::atomic<int>>(0);
     {
-        queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<queryrunner::IQueryRunner>(new ConfigurableDelayedQuery{})};
+        queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<queryrunner::IQueryRunner>(new ConfigurableDelayedQuery{counter})};
         parallelQueryProcessor.addJob(buildQuery(1), "1");
         parallelQueryProcessor.addJob(buildQuery(1), "2");
     }
@@ -87,7 +98,7 @@ TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible) // NOLINT
 
     auto counter = std::make_shared<std::atomic<int>>(0);
     {
-        queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<queryrunner::IQueryRunner>(new ConfigurableDelayedQuery{})};
+        queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<queryrunner::IQueryRunner>(new ConfigurableDelayedQuery{counter})};
         for(int i=0; i<10;i++)
         {
             parallelQueryProcessor.addJob(buildQuery(1), std::to_string(i));
