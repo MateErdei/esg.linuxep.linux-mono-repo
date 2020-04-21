@@ -9,6 +9,6 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 log4cplus::Logger& getLiveQueryMainLogger()
 {
-    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("livemain");
+    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("livequery");
     return STATIC_LOGGER;
 }

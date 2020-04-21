@@ -22,9 +22,9 @@ namespace livequery{
             return 1;
         }
 
-        std::string correlationid  = argv[1];
-        std::string query  = argv[2];
-        std::string socket  = argv[3];
+        std::string correlationid = argv[1];
+        std::string query = argv[2];
+        std::string socket = argv[3];
 
         auto queryResponder = livequery::ResponseDispatcher();
         osqueryclient::OsqueryProcessor osqueryProcessor { socket };
