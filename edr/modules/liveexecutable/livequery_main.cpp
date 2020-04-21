@@ -34,9 +34,9 @@ namespace livequery{
             return 2;
         }
 
-        livequery::ResponseDispatcher queryResponder();
+        auto queryResponder = livequery::ResponseDispatcher();
         osqueryclient::OsqueryProcessor osqueryProcessor { socket };
-        livequery::processQuery(osqueryProcessor, reinterpret_cast<IResponseDispatcher &>(queryResponder), query, correlationid);
+        livequery::processQuery(osqueryProcessor, queryResponder, query, correlationid);
 
         return 0;
     }

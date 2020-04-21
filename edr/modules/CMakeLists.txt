@@ -1,4 +1,5 @@
 add_subdirectory(livequery)
+add_subdirectory(liveexecutable)
 add_subdirectory(pluginimpl)
 add_subdirectory(Proc)
 add_subdirectory(osqueryclient)

@@ -2,4 +2,4 @@
 add_subdirectory(installer)
 add_subdirectory(distribution)
 add_subdirectory(plugin)
-#add_subdirectory(livequery)
+add_subdirectory(livequery)
