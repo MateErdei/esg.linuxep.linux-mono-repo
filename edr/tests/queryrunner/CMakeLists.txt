@@ -2,6 +2,7 @@ message("testheaderinclude: ${testhelpersinclude}")
 
 SophosAddTest(TestQueryRunner
         ParallelQueryProcessorTests.cpp
+        QueryRunnerImplTests.cpp
         PROJECTS queryrunnerimpl
         LIBS ${pluginapilib} ${log4cpluslib} ${testhelperslib} gmock gtest
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}

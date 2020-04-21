@@ -6,7 +6,7 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
-
+#include <optional>
 namespace livequery
 {
     enum class ErrorCode : int
@@ -24,6 +24,8 @@ namespace livequery
         std::string m_errorReason;
 
     public:
+        static std::string errorCodeName(ErrorCode ); 
+        static std::optional<ErrorCode> errorCodeFromString(const std::string & ); 
         ResponseStatus(ErrorCode error);
         void overrideErrorDescription(const std::string&);
 

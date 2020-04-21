@@ -4,6 +4,7 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ResponseStatus.h"
+#include <unordered_map>
 namespace
 {
     std::string fromErrorCode(livequery::ErrorCode errorCode)
@@ -49,4 +50,41 @@ namespace livequery
     {
         return m_errorReason;
     }
+        
+    std::string ResponseStatus::errorCodeName(ErrorCode errCode)
+    {
+        switch(errCode)
+        {
+            case ErrorCode::SUCCESS: 
+            return "Success"; 
+            case ErrorCode::OSQUERYERROR:
+            return "OsqueryError"; 
+            case ErrorCode::RESPONSEEXCEEDLIMIT:
+            return "ExceedLimit"; 
+            case ErrorCode::UNEXPECTEDERROR:
+            return "UnexpectedError"; 
+            case ErrorCode::EXTENSIONEXITEDWHILERUNNING:
+            return "ExtensionExited"; 
+        }
+        return ""; 
+    }
+
+    std::optional<ErrorCode> ResponseStatus::errorCodeFromString(const std::string &  errCodeName)
+    {
+        static std::unordered_map<std::string, ErrorCode> map2; 
+        if (map2.empty())
+        {
+            for(auto errcode: {ErrorCode::SUCCESS, ErrorCode::OSQUERYERROR, ErrorCode::RESPONSEEXCEEDLIMIT, ErrorCode::UNEXPECTEDERROR, ErrorCode::EXTENSIONEXITEDWHILERUNNING}){
+                map2[errorCodeName(errcode)] = errcode;
+            }
+        }
+
+        auto found = map2.find(errCodeName); 
+        if (found == map2.end())
+        {
+            return std::nullopt; 
+        }
+        return found->second; 
+    }
+
 } // namespace livequery
