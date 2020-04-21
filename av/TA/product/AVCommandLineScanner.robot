@@ -15,6 +15,8 @@ Start AV
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Test Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
+    ## wait for AV Plugin to initialize
+    Sleep  500ms
 
 Stop AV
      ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
