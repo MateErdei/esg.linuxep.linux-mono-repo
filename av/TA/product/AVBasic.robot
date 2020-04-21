@@ -63,7 +63,7 @@ AV Plugin Can Process Scan Now
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Policy  av  sav  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=120
     AV Plugin Log Contains  Received new Action
     AV Plugin Log Contains  Starting Scan Now scan
     AV Plugin Log Contains  Starting scan Scan Now
