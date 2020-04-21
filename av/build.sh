@@ -171,7 +171,7 @@ do
             ;;
         --setup)
             rm -rf ${BUILD_DIR}/input
-            python3.7 -m build_scripts.artisan_fetch build-files/release-package.xml
+            python3 -m build_scripts.artisan_fetch build-files/release-package.xml
             rm -f ${BUILD_DIR}/input/gcc-*-linux.tar.gz
             NO_BUILD=1
             LOCAL_GCC=1
