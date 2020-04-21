@@ -244,14 +244,31 @@ namespace livequery
 
         std::string strippedQueryName =
                 Common::UtilityImpl::StringUtils::replaceAll(response.metaData().getQueryName(), ".", "-");
-        std::cout<< "name:" << strippedQueryName << std::endl;
-        std::cout<< "errorcode:" << queryMetaData.value("errorCode",0)<< std::endl;
-        std::cout<< "duration:" << queryMetaData.value("durationMillis",0)<< std::endl;
-        std::cout<< "rowcount:" << queryMetaData.value("rows",0)<< std::endl;
+
+        std::stringstream json;
+        json << R"({
+"name":)" << strippedQueryName;
+        json << R"(,
+"errorcode":)" << queryMetaData.value("errorCode",0);
+        json << R"(,
+"duration":)" << queryMetaData.value("durationMillis",0);
+        json << R"(,
+"rowcount":)" << queryMetaData.value("rows",0);
+        json << R"(
+})" ;
+        setTelemetry(json.str());
         return serializedJson.str();
     }
 
     std::unique_ptr<IResponseDispatcher> ResponseDispatcher::clone() {
         return std::unique_ptr<IResponseDispatcher>(new ResponseDispatcher{});
+    }
+
+    std::string ResponseDispatcher::getTelemetry() {
+        return m_telemetry;
+    }
+
+    void ResponseDispatcher::setTelemetry(const std::string &json) {
+        m_telemetry = json;
     }
 } // namespace livequery

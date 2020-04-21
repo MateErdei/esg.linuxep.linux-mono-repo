@@ -20,6 +20,8 @@ namespace livequery
         /// Add method to allow for reporting what happened to the query since it was received till it is processed.
         virtual void feedbackResponseStatus(QueryResponseStatus ){
             // default behaviour is to ignore this information.
-        }; 
+        };
+        virtual std::string getTelemetry() = 0;
+        virtual void setTelemetry(const std::string& json) = 0;
     };
 } // namespace livequery

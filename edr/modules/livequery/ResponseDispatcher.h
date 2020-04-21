@@ -17,8 +17,12 @@ namespace livequery
         void sendResponse(const std::string& correlationId, const QueryResponse& response) override;
         std::unique_ptr<IResponseDispatcher> clone() override ;
         std::string serializeToJson(const QueryResponse& response);
+        std::string getTelemetry();
+        void setTelemetry(const std::string& json);
+
 
     private:
-        Telemetry m_telemetryHandler;
+        std::string m_telemetry = "";
+
     };
 } // namespace livequery

@@ -43,6 +43,7 @@ namespace livequery{
             std::cerr << "The query failed to execute with errorcode " << returnCode << std::endl;
             return 3;
         }
+        std::cout << queryResponder.getTelemetry();
         return 0;
     }
 }
