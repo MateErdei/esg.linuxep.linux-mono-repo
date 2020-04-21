@@ -247,9 +247,9 @@ namespace livequery
 
         std::stringstream json;
         json << R"({
-"name":)" << strippedQueryName;
+"name": ")" << strippedQueryName << '"';
         json << R"(,
-"errorcode":)" << queryMetaData.value("errorCode",0);
+"errorcode": ")" << livequery::ResponseStatus::errorCodeName(response.status().errorCode()) << '"';
         json << R"(,
 "duration":)" << queryMetaData.value("durationMillis",0);
         json << R"(,

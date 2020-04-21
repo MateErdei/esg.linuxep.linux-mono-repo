@@ -12,15 +12,16 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 namespace{
     const char * QueryName = "name"; 
-    const char * ErrorCode = "errorCode"; 
+    const char * ErrorCode = "errorcode"; 
     const char * Duration = "duration"; 
-    const char * RowCount = "rowCount"; 
+    const char * RowCount = "rowcount"; 
 }
 
 namespace queryrunner{
     QueryRunnerImpl::QueryRunnerImpl(const std::string &osquerySocketPath, const std::string &executablePath)
     : m_osquerySocketPath{osquerySocketPath}, m_executablePath(executablePath)
     {
+        
 
     } 
     void QueryRunnerImpl::triggerQuery(const std::string& correlationid, const std::string& query, std::function<void(std::string id)> notifyFinished)
@@ -30,6 +31,7 @@ namespace queryrunner{
         {
             try{
                 this->m_process = Common::Process::createProcess(); 
+                LOGINFO("Trigger livequery at: " << this->m_executablePath << " for query : " << correlationid); 
                 std::vector<std::string> arguments = {correlationid, query, this->m_osquerySocketPath};            
                 this->m_process->exec(this->m_executablePath, arguments, {}); 
                 auto output = this->m_process->output(); 
@@ -123,6 +125,7 @@ namespace queryrunner{
             }
             return; 
         }
+        LOGINFO("Extra information, output of livequery: " << output); 
         queryrunnerStatus.errorCode = livequery::ErrorCode::UNEXPECTEDERROR; 
 
     }
@@ -131,6 +134,9 @@ namespace queryrunner{
     {
         std::lock_guard<std::mutex> l{m_mutex}; 
         setStatusFromExitResult(m_runnerStatus, exitCode, output); 
+        LOGINFO("Query finished: " << m_runnerStatus.name << ", exit code: " 
+            << livequery::ResponseStatus::errorCodeName(m_runnerStatus.errorCode) 
+            << ". Duration: " << m_runnerStatus.queryDuration << ". Rows: " << m_runnerStatus.rowCount); 
     }
 
     void QueryRunnerImpl::requestAbort(){

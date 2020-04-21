@@ -16,7 +16,6 @@ namespace livequery{
 
     int livequery_main::main(int argc, char* argv[])
     {
-        std::cout << argc << argv << std::endl;
         if (argc != 4)
         {
             std::cerr << "Expecting  three parameters got " << (argc - 1) << std::endl;
@@ -26,13 +25,6 @@ namespace livequery{
         std::string correlationid  = argv[1];
         std::string query  = argv[2];
         std::string socket  = argv[3];
-        auto fileSystem = Common::FileSystem::fileSystem();
-
-        if (!fileSystem->isFile(socket))
-        {
-            std::cerr << "The socket " << socket << " does not exist" << std::endl;
-            return 2;
-        }
 
         auto queryResponder = livequery::ResponseDispatcher();
         osqueryclient::OsqueryProcessor osqueryProcessor { socket };
