@@ -91,3 +91,8 @@ std::string Plugin::servicePath()
 std::string Plugin::osQueryExtensionsPath() {
     return fromRelative("extensions");
 }
+
+std::string Plugin::livequeryExecutable()
+{
+    return fromRelative("bin/sophos_livequery");
+}

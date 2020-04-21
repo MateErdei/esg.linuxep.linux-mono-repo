@@ -35,5 +35,5 @@ namespace queryrunner
         /* Create a new instance of queryrunner to be used by the parallelQuery to run 'jobs' in parallel */
         virtual std::unique_ptr<IQueryRunner> clone() = 0;
     };
-    std::unique_ptr<IQueryRunner> createQueryRunner(std::string osquerySocket); 
+    std::unique_ptr<IQueryRunner> createQueryRunner(std::string osquerySocket,std::string executablePath);
 } // namespace queryrunner

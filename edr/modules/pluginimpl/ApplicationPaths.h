@@ -24,4 +24,5 @@ namespace Plugin
     std::string getVersionIniFilePath();
     std::string systemctlPath();
     std::string servicePath();
+    std::string livequeryExecutable();
 } // namespace Plugin

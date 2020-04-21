@@ -74,7 +74,7 @@ namespace Plugin
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
-        m_parallelQueryProcessor{queryrunner::createQueryRunner(Plugin::osquerySocket())},
+        m_parallelQueryProcessor{queryrunner::createQueryRunner(Plugin::osquerySocket(), Plugin::livequeryExecutable())},
         m_timesOsqueryProcessFailedToStart(0),
         m_osqueryConfigurator()
     {
