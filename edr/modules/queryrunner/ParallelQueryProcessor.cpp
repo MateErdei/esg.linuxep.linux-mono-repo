@@ -18,6 +18,7 @@ namespace queryrunner{
     ParallelQueryProcessor::~ParallelQueryProcessor()
     {
         {
+
             std::lock_guard<std::mutex> l{m_mutex};
             for( auto& p: m_processingQueries)
             {
@@ -48,6 +49,7 @@ namespace queryrunner{
                 LOGERROR("Should not have any further queries to process."); 
             }
             m_processedQueries.clear(); 
+
         }
     }
 
