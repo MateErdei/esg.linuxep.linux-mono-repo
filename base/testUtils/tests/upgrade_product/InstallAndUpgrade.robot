@@ -148,8 +148,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  TESTFAILURE
-    #TODO LINUXDAR-1196 remove testfailure tag when we next release
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
 
@@ -183,17 +182,15 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Trigger Update Now
 
 
-    #TODO LINUXDAR-1196 uncomment when we next release
-#    Wait Until Keyword Succeeds
-#    ...   200 secs
-#    ...   10 secs
-#    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+   Wait Until Keyword Succeeds
+   ...   200 secs
+   ...   10 secs
+   ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
-    #TODO LINUXDAR-1196 remove when we next release
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
     # If mtr is installed for the first time, this will appear
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
@@ -202,14 +199,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
     # This is only an issue with versions of base before we started using boost process
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-
-
-    #TODO LINUXDAR-1196 remove when we next release
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log      mtr <> Plugin Api could not be instantiated: No incoming data
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log       ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr died with 43
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Installation failed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log          Failed to start mtr: Timeout out connecting to watchdog: No incoming data
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log    mcsrouter.adapters.agent_adapter <> Insufficient permissions to read VERSION.ini file: Reporting softwareVersion=0 to Central
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
