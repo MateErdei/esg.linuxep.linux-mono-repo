@@ -230,7 +230,7 @@ function build()
         untar_input protobuf
 
         mkdir -p "$REDIST"/osquery
-        tar xzf ${INPUT}/osquery-4.0.2_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
+        tar xzf ${INPUT}/osquery-4.3.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
     fi
 
     addpath "$REDIST/cmake/bin"
