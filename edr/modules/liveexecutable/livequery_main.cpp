@@ -3,6 +3,7 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include <modules/livequery/config.h>
 #include "livequery_main.h"
 #include "modules/livequery/IQueryProcessor.h"
 
@@ -23,7 +24,7 @@ namespace livequery{
             std::cerr << "Expecting  three parameters got " << (argc - 1) << std::endl;
             return 1;
         }
-        Common::Logging::PluginLoggingSetup loggerSetup("edr", "livequery");
+        Common::Logging::PluginLoggingSetup loggerSetup(PLUGIN_NAME, "livequery");
         std::string correlationid = argv[1];
         std::string query = argv[2];
         std::string socket = argv[3];

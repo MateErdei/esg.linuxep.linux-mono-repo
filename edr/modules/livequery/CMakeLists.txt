@@ -1,3 +1,5 @@
+configure_file(config.h.in config.h)
+
 sophos_add_library(livequeryimpl SHARED
         IQueryProcessor.h
         QueryProcessor.cpp

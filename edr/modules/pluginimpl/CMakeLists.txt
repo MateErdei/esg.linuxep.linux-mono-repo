@@ -1,5 +1,3 @@
-configure_file(config.h.in config.h)
-
 sophos_add_library(pluginimpl SHARED
         PluginCallback.cpp
         PluginCallback.h
@@ -33,6 +31,6 @@ sophos_add_library(pluginimpl SHARED
         OsqueryLogIngest.h
         OsqueryLogIngest.cpp
         EXTRA_PROJECTS queryrunnerimpl procimpl
-        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR}
+        EXTRA_INCLUDES ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR}
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} ${expatlib} ${zlib}
 )
