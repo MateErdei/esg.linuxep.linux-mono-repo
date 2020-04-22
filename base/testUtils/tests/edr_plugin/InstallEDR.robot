@@ -59,17 +59,17 @@ Install EDR and handle Live Query
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  2 secs
-    ...  Check EDR Log Contains    Executing query name: Test Query Special and corresponding id: firstcommand
+    ...  Check Livequery Log Contains    Executing query name: Test Query Special and corresponding id: firstcommand
 
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Check EDR Log Contains    Successfully executed query with name: Test Query Special and corresponding id: firstcommand
+    ...  Check Livequery Log Contains    Successfully executed query with name: Test Query Special and corresponding id: firstcommand
 
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Check EDR Log Contains    Query result: {
+    ...  Check Livequery Log Contains    Query result: {
 
     Wait Until Keyword Succeeds
     ...  10 secs

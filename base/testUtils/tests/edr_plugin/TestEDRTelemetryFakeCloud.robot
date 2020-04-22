@@ -32,7 +32,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts FakeCloud
     Wait Until Keyword Succeeds
     ...  80 secs
     ...  4 secs
-    ...  Check EDR Log Contains    Extension exited while running
+    ...  Check Livequery Log Contains    Extension exited while running
 
     Run And Verify EDR Telemetry  {"name":"Crash Query", "failed-osquery-died-count":1}  0  1
 
@@ -48,7 +48,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  2 secs
-    ...  Check EDR Log Contains    Extension exited while running
+    ...  Check Livequery Log Contains    Extension exited while running
 
     Run And Verify EDR Telemetry  {"name":"Crash Query", "failed-osquery-died-count":1, "osquery-restarts":2}  2  1
 
@@ -58,13 +58,13 @@ EDR Plugin Reports Telemetry Correctly For Live Query FakeCloud
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  4 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Successfully executed query with name: simple  1
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: simple  1
 
     Trigger Query From Fake Cloud   simple   ${SIMPLE_QUERY_4_ROW}
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  4 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Successfully executed query with name: simple  2
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: simple  2
 
     Run And Verify EDR Telemetry  {"name":"simple", "rowcount-avg":2.5, "rowcount-min":1, "rowcount-max":4, "successful-count":2}  0  0
 

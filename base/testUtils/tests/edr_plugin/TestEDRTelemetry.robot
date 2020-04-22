@@ -59,7 +59,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  2 secs
-    ...  Check EDR Log Contains    Extension exited while running
+    ...  Check Livequery Log Contains    Extension exited while running
 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -76,7 +76,7 @@ EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  2 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Successfully executed query with name: simple  1
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: simple  1
 
     Restart EDR Plugin              #Check telemetry persists after restart
 
@@ -84,7 +84,7 @@ EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  2 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Successfully executed query with name: simple  2
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: simple  2
 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -107,7 +107,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  2 secs
-    ...  Check EDR Log Contains    Extension exited while running
+    ...  Check Livequery Log Contains    Extension exited while running
 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}

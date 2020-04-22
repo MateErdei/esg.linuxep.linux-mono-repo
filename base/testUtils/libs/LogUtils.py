@@ -43,6 +43,7 @@ class LogUtils(object):
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
+        self.livequery_log = os.path.join(self.install_path, "plugins", "edr", "log", "livequery.log")
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
@@ -368,6 +369,9 @@ class LogUtils(object):
 
     def check_thininstaller_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.thin_install_log, "Thin Installer")
+
+    def check_livequery_log_contains(self, string_to_contain):
+        self.check_log_contains(string_to_contain, self.livequery_log, "Livequery")
 
     def check_suldownloader_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.suldownloader_log, "Suldownloader")
