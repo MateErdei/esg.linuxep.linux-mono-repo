@@ -244,17 +244,6 @@ TEST_F(TestOSQueryProcessor, InvalidColumnNameShouldReturnError) // NOLINT
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessor, MissingARequiredConstrainShouldReturnError) // NOLINT
-{
-    if (skipTest())
-        return;
-    std::string m_testFakeSocketPath(osquerySocket());
-    osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
-    auto response = osqueryProcessor.query("select * from hash");
-    auto expectedResponse = failure(livequery::ErrorCode::OSQUERYERROR, "no query solution");
-    EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
-}
-
 TEST_F(TestOSQueryProcessor, AttemptToModifyAnOsQueryTableShouldReturnError) // NOLINT
 {
     if (skipTest())
