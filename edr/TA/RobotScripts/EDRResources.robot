@@ -11,6 +11,7 @@ Resource    ComponentSetup.robot
 ${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${EDR_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/edr.log
+${LIVEQUERY_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/livequery.log
 ${BASE_SDDS}        ${TEST_INPUT_PATH}/edr/base-sdds/
 ${EDR_SDDS}         ${COMPONENT_SDDS}
 
@@ -31,6 +32,10 @@ File Log Contains
 EDR Plugin Log Contains
     [Arguments]  ${input}
     File Log Contains  ${EDR_LOG_PATH}   ${input}
+
+LiveQuery Log Contains
+    [Arguments]  ${input}
+    File Log Contains  ${LIVEQUERY_LOG_PATH}   ${input}
 
 EDR Plugin Log Contains X Times
     [Arguments]  ${input}   ${xtimes}
@@ -142,6 +147,7 @@ EDR And Base Teardown
     ...  1 secs
     ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Run Keyword If Test Failed   Log File   ${EDR_LOG_PATH}
+    Run Keyword If Test Failed   Log File   ${LIVEQUERY_LOG_PATH}
     Remove File    ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
 

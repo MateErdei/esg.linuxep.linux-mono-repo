@@ -28,7 +28,7 @@ Incorrect LiveQuery is Distributed to EDR Plugin is handled correclty
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains  Query with name: Incorrect Query and corresponding id: 123-4 failed to execute with error: no such table: proc
+    ...  LiveQuery Log Contains  Query with name: Incorrect Query and corresponding id: 123-4 failed to execute with error: no such table: proc
 
 EDR plugin Can Start Osquery
     Check EDR Plugin Installed With Base
