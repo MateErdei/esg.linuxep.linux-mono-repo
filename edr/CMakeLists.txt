@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(sspl_edr_plugin)
+set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
 if (BUILD_FUZZ_TESTS )
@@ -61,10 +62,8 @@ endif()
 string( TOLOWER ${PLUGIN_NAME} plugin_name)
 
 if(NOT DEFINED PRODUCT_LINE_ID)
-    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${PLUGIN_NAME})
+    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-EDR)
 endif()
-
-set(COMPONENT_SUITE_LINE_ID ServerProtectionLinux-Plugin-EDR)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -80,10 +79,7 @@ endif()
 
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
-set(FEATURE_LIST "EDR")
-
-
-set(CMAKE_CXX_STANDARD 17)
+set(FEATURE_LIST "LIVEQUERY")
 
 # Check process children and give detail for each leak
 ## --trace-children=yes
@@ -148,11 +144,13 @@ set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
 
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 
+set(OSQUERY_BINARY ${INPUT}/osquery/usr/local/bin/osqueryd)
+
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
-file(GLOB expatlib    ${PLUGINAPIPATH}/lib64/libexpat.so.*)
-file(GLOB libz    ${PLUGINAPIPATH}/lib64/libz.so.*)
+file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so.*)
+file(GLOB zlib ${PLUGINAPIPATH}/lib64/libz.so.*)
 
 
 find_library(OSQUERY_LIBRARY

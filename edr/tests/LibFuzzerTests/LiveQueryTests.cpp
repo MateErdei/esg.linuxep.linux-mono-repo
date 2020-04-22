@@ -133,7 +133,7 @@ public:
         {
             throw std::runtime_error("No REDIST environment variable defined");
         }
-        return Common::FileSystem::join(redist,"osquery/usr/bin/osqueryd") ;
+        return Common::FileSystem::join(redist,"osquery/usr/local/bin/osqueryd") ;
     }
 
     std::string getOsqueryPath()
