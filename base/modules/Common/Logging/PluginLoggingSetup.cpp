@@ -12,10 +12,14 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <log4cplus/logger.h>
 
-Common::Logging::PluginLoggingSetup::PluginLoggingSetup(const std::string& pluginName)
+Common::Logging::PluginLoggingSetup::PluginLoggingSetup(const std::string& pluginName, const std::string& overrideFileName)
 {
-    setupFileLogging(pluginName);
-    applyGeneralConfig(pluginName);
+    std::string fileName{overrideFileName}; 
+    if (fileName.empty()){
+        fileName = pluginName;
+    }
+    setupFileLogging(pluginName, fileName);
+    applyGeneralConfig(fileName);
 }
 
 Common::Logging::PluginLoggingSetup::~PluginLoggingSetup()
@@ -23,10 +27,10 @@ Common::Logging::PluginLoggingSetup::~PluginLoggingSetup()
     log4cplus::Logger::shutdown();
 }
 
-void Common::Logging::PluginLoggingSetup::setupFileLogging(const std::string& pluginName)
+void Common::Logging::PluginLoggingSetup::setupFileLogging(const std::string& pluginNameDir, const std::string& pluginFileName)
 {
     std::string logPath = Common::FileSystem::join(
-        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), "plugins", pluginName);
-    logPath = Common::FileSystem::join(logPath, "log", pluginName + ".log");
+        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), "plugins", pluginNameDir);
+    logPath = Common::FileSystem::join(logPath, "log", pluginFileName + ".log");
     Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(logPath);
 }
