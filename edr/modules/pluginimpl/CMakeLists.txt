@@ -13,7 +13,6 @@ sophos_add_library(pluginimpl SHARED
         StringReplace.h
         Telemetry.cpp
         Telemetry.h
-        config.h
         ApplicationPaths.h
         ApplicationPaths.cpp
         OsqueryProcessImpl.h
