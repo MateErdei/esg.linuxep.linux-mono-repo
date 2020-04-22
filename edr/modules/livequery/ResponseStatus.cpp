@@ -1,10 +1,12 @@
 /******************************************************************************************************
 
-Copyright 2019-2020 Sophos Limited.  All rights reserved.
+Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
 #include "ResponseStatus.h"
 #include <unordered_map>
+
 namespace
 {
     std::string fromErrorCode(livequery::ErrorCode errorCode)
@@ -53,18 +55,18 @@ namespace livequery
         
     std::string ResponseStatus::errorCodeName(ErrorCode errCode)
     {
-        switch(errCode)
+        switch (errCode)
         {
             case ErrorCode::SUCCESS: 
-            return "Success"; 
+                return "Success";
             case ErrorCode::OSQUERYERROR:
-            return "OsqueryError"; 
+                return "OsqueryError";
             case ErrorCode::RESPONSEEXCEEDLIMIT:
-            return "ExceedLimit"; 
+                return "ExceedLimit";
             case ErrorCode::UNEXPECTEDERROR:
-            return "UnexpectedError"; 
+                return "UnexpectedError";
             case ErrorCode::EXTENSIONEXITEDWHILERUNNING:
-            return "ExtensionExited"; 
+                return "ExtensionExited";
         }
         return ""; 
     }
@@ -74,7 +76,11 @@ namespace livequery
         static std::unordered_map<std::string, ErrorCode> mapErrorName2ErrorCode; 
         if (mapErrorName2ErrorCode.empty())
         {
-            for(auto errcode: {ErrorCode::SUCCESS, ErrorCode::OSQUERYERROR, ErrorCode::RESPONSEEXCEEDLIMIT, ErrorCode::UNEXPECTEDERROR, ErrorCode::EXTENSIONEXITEDWHILERUNNING}){
+            for (auto errcode: {ErrorCode::SUCCESS, ErrorCode::OSQUERYERROR,
+                                ErrorCode::RESPONSEEXCEEDLIMIT,
+                                ErrorCode::UNEXPECTEDERROR,
+                                ErrorCode::EXTENSIONEXITEDWHILERUNNING})
+            {
                 mapErrorName2ErrorCode[errorCodeName(errcode)] = errcode;
             }
         }
