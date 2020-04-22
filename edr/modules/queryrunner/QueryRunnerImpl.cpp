@@ -29,16 +29,18 @@ namespace queryrunner{
         m_correlationId = correlationid; 
         m_fut = std::async( std::launch::async, [this, correlationid, query, notifyFinished]()
         {
-            try{
+            try
+            {
                 this->m_process = Common::Process::createProcess(); 
-                LOGINFO("Trigger livequery at: " << this->m_executablePath << " for query : " << correlationid); 
+                LOGINFO("Trigger livequery at: " << this->m_executablePath << " for query : " << correlationid);
                 std::vector<std::string> arguments = {correlationid, query, this->m_osquerySocketPath};            
                 this->m_process->exec(this->m_executablePath, arguments, {}); 
                 auto output = this->m_process->output(); 
                 auto code = this->m_process->exitCode(); 
                 this->setStatus(code, output); 
 
-            }catch(std::exception & ex)
+            }
+            catch (std::exception & ex)
             {
                 LOGERROR("Error while running LiveQuery: " << ex.what()); 
                 this->setStatus(2, ""); 
@@ -68,7 +70,7 @@ namespace queryrunner{
                 break; 
             }
             auto pos = std::find(output.begin(), output.end(), '{'); 
-            if ( pos == output.end())
+            if (pos == output.end())
             {
                 LOGINFO("LiveQuery did not produce a json value" );
                 break; 
@@ -89,7 +91,7 @@ namespace queryrunner{
             auto errorCode = responseMap.find(ErrorCode); 
             auto duration = responseMap.find(Duration); 
             auto rowCount = responseMap.find(RowCount); 
-            if ( errorCode == responseMap.end())
+            if (errorCode == responseMap.end())
             {
                 LOGINFO("LiveQuery json value did not contain: " << ErrorCode );
                 break; 
@@ -101,33 +103,32 @@ namespace queryrunner{
                 break; 
             } 
             queryrunnerStatus.errorCode = errC.value(); 
-            if ( queryName != responseMap.end())
+            if (queryName != responseMap.end())
             {
-                if ( queryName->second.getType() == Common::Telemetry::TelemetryValue::Type::string_type)
+                if (queryName->second.getType() == Common::Telemetry::TelemetryValue::Type::string_type)
                 {
                     queryrunnerStatus.name = queryName->second.getString(); 
                 }                
             }
-            if ( duration != responseMap.end())
+            if (duration != responseMap.end())
             {
                              
-                if ( duration->second.getType() == Common::Telemetry::TelemetryValue::Type::unsigned_integer_type)
+                if (duration->second.getType() == Common::Telemetry::TelemetryValue::Type::unsigned_integer_type)
                 {
                     queryrunnerStatus.queryDuration = duration->second.getUnsignedInteger(); 
                 }
             }
-            if ( rowCount != responseMap.end())
+            if (rowCount != responseMap.end())
             {
-                if ( rowCount->second.getType() == Common::Telemetry::TelemetryValue::Type::unsigned_integer_type)
+                if (rowCount->second.getType() == Common::Telemetry::TelemetryValue::Type::unsigned_integer_type)
                 {
                     queryrunnerStatus.rowCount = rowCount->second.getUnsignedInteger(); 
                 }
             }
             return; 
         }
-        LOGINFO("Extra information, output of livequery: " << output); 
-        queryrunnerStatus.errorCode = livequery::ErrorCode::UNEXPECTEDERROR; 
-
+        LOGINFO("Extra information, output of livequery: " << output);
+        queryrunnerStatus.errorCode = livequery::ErrorCode::UNEXPECTEDERROR;
     }
 
     void  QueryRunnerImpl::setStatus(int exitCode, const std::string& output)
@@ -139,14 +140,17 @@ namespace queryrunner{
             << ". Duration: " << m_runnerStatus.queryDuration << ". Rows: " << m_runnerStatus.rowCount); 
     }
 
-    void QueryRunnerImpl::requestAbort(){
+    void QueryRunnerImpl::requestAbort()
+    {
         m_process->kill(); 
-    }; 
+    };
+
     std::unique_ptr<IQueryRunner> QueryRunnerImpl::clone()
     {
         return std::unique_ptr<IQueryRunner>{new QueryRunnerImpl(m_osquerySocketPath, m_executablePath)};
     }
 }
+
 std::unique_ptr<queryrunner::IQueryRunner> queryrunner::createQueryRunner(std::string osquerySocket, std::string executablePath)
 {
     return std::unique_ptr<queryrunner::IQueryRunner>(new QueryRunnerImpl(osquerySocket, executablePath));

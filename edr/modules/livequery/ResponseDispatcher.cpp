@@ -255,15 +255,18 @@ namespace livequery
         return serializedJson.str();
     }
 
-    std::unique_ptr<IResponseDispatcher> ResponseDispatcher::clone() {
+    std::unique_ptr<IResponseDispatcher> ResponseDispatcher::clone()
+    {
         return std::unique_ptr<IResponseDispatcher>(new ResponseDispatcher{});
     }
 
-    std::string ResponseDispatcher::getTelemetry() {
+    std::string ResponseDispatcher::getTelemetry()
+    {
         return m_telemetry;
     }
 
-    void ResponseDispatcher::setTelemetry(const std::string &json) {
+    void ResponseDispatcher::setTelemetry(const std::string &json)
+    {
         m_telemetry = json;
     }
 } // namespace livequery

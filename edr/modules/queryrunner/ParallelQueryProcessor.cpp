@@ -19,41 +19,43 @@ namespace queryrunner{
     {
         try
         {
-
             {
                 std::lock_guard<std::mutex> l{m_mutex};
-                for( auto& p: m_processingQueries)
+                for (auto& p: m_processingQueries)
                 {
                     p->requestAbort(); 
                 }
             }
             // give up to 0.5 seconds to have all the queries processed. 
-            int count =0; 
-            while(count++ < 50)
+            int count = 0;
+            while (count++ < 50)
             {
                 bool isEmpty=false;
                 {
                     std::lock_guard<std::mutex> l{m_mutex};
-                    for( auto& p: m_processingQueries)
+                    for (auto& p: m_processingQueries)
                     {
                         p->requestAbort(); 
                     }
                     isEmpty = m_processingQueries.empty(); 
                 }
-                if( isEmpty )break; 
+                if (isEmpty)
+                {
+                    break;
+                }
                 std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
             }
                     
             {
                 std::lock_guard<std::mutex> l{m_mutex};
-                if( !m_processingQueries.empty())
+                if (!m_processingQueries.empty())
                 {
                     LOGERROR("Should not have any further queries to process."); 
                 }
                 m_processedQueries.clear(); 
             }
         }
-        catch(std::exception& ex)
+        catch (std::exception& ex)
         {
             LOGERROR("Failure in clean up ParallelQueryProcessor: " << ex.what()); 
         }        
@@ -76,7 +78,7 @@ namespace queryrunner{
                 [id](const std::unique_ptr<queryrunner::IQueryRunner> & irunner ){return irunner->id()==id; }
                 );
 
-            if ( it != m_processingQueries.end())
+            if (it != m_processingQueries.end())
             {
                 auto result = it->get()->getResult(); 
                 m_telemetry.processLiveQueryResponseStats(result); 
@@ -89,7 +91,7 @@ namespace queryrunner{
             {
                 LOGWARN("Failed to find the query " << id << " in the list of processing queries"); 
             }
-        }catch( std::exception & ex)
+        }catch (std::exception & ex)
         {
             LOGERROR("Failed to handle feedback on query finished: " << ex.what()); 
         }
@@ -100,13 +102,13 @@ namespace queryrunner{
     {
         try
         {
-
             auto newproc = m_queryProcessor->clone(); 
             std::lock_guard<std::mutex> l{m_mutex};
             newproc->triggerQuery( correlationId, queryJson, [this](std::string id){this->newJobDone(id);});        
             m_processingQueries.emplace_back(std::move(newproc)); 
 
-        }catch(std::exception &ex)
+        }
+        catch (std::exception &ex)
         {
             LOGERROR("Failed to configure a new query: " << ex.what()); 
         }
