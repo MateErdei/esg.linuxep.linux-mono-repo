@@ -148,34 +148,3 @@ TEST(QueryRunnerImpl, setStatusFromExitResult_shouldRefuseIfJsonIsInvalid) // NO
     EXPECT_EQ(status.rowCount, 0);
 }
 
-// TEST(QueryRunnerImpl, setStatusFromExitResult_shouldRefuseToProcessIfErrorCodeNotPresent) // NOLINT
-// {
-//     std::string output{R"({"name":"query", "errorcode":"Success", "duration":10, "rowcount":5})"};
-//     auto status = statusFromExitResult( 0, output); 
-//     EXPECT_EQ(status.errorCode, livequeryimpl::ErrorCode::UNEXPECTEDERROR);
-//     EXPECT_EQ(status.name, ""); 
-//     EXPECT_EQ(status.queryDuration, 0);
-//     EXPECT_EQ(status.rowCount, 0);
-// }
-
-// TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible) // NOLINT
-// {
-//     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
-//     testing::internal::CaptureStderr();
-
-//     auto counter = std::make_shared<std::atomic<int>>(0);
-//     {
-//         queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<queryrunner::IQueryRunner>(new ConfigurableDelayedQuery{counter})};
-//         for(int i=0; i<10;i++)
-//         {
-//             parallelQueryProcessor.addJob(buildQuery(1), std::to_string(i));
-//             std::this_thread::sleep_for(std::chrono::microseconds{200});
-//         }
-//     }
-//     // whenever parallel is destroyed, all the jobs will have been finished.
-//     int value = *counter;
-//     EXPECT_EQ(value, 10);
-//     std::string logMessage = testing::internal::GetCapturedStderr();
-
-//     EXPECT_THAT(logMessage, ::testing::HasSubstr("DEBUG One more entry removed from the queue of processing queries"));
-// }
