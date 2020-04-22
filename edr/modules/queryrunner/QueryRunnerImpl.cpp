@@ -134,7 +134,7 @@ namespace queryrunner{
     {
         std::lock_guard<std::mutex> l{m_mutex}; 
         setStatusFromExitResult(m_runnerStatus, exitCode, output); 
-        LOGINFO("Query finished: " << m_runnerStatus.name << ", exit code: " 
+        LOGDEBUG("Query finished: " << m_runnerStatus.name << ", exit code: "
             << livequery::ResponseStatus::errorCodeName(m_runnerStatus.errorCode) 
             << ". Duration: " << m_runnerStatus.queryDuration << ". Rows: " << m_runnerStatus.rowCount); 
     }
