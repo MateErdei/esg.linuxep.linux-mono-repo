@@ -71,16 +71,16 @@ namespace livequery
 
     std::optional<ErrorCode> ResponseStatus::errorCodeFromString(const std::string &  errCodeName)
     {
-        static std::unordered_map<std::string, ErrorCode> map2; 
-        if (map2.empty())
+        static std::unordered_map<std::string, ErrorCode> mapErrorName2ErrorCode; 
+        if (mapErrorName2ErrorCode.empty())
         {
             for(auto errcode: {ErrorCode::SUCCESS, ErrorCode::OSQUERYERROR, ErrorCode::RESPONSEEXCEEDLIMIT, ErrorCode::UNEXPECTEDERROR, ErrorCode::EXTENSIONEXITEDWHILERUNNING}){
-                map2[errorCodeName(errcode)] = errcode;
+                mapErrorName2ErrorCode[errorCodeName(errcode)] = errcode;
             }
         }
 
-        auto found = map2.find(errCodeName); 
-        if (found == map2.end())
+        auto found = mapErrorName2ErrorCode.find(errCodeName); 
+        if (found == mapErrorName2ErrorCode.end())
         {
             return std::nullopt; 
         }
