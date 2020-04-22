@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <modules/livequery/IResponseDispatcher.h>
-#include <modules/livequery/QueryResponse.h>
+#include <modules/livequeryimpl/IResponseDispatcher.h>
+#include <modules/livequeryimpl/QueryResponse.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

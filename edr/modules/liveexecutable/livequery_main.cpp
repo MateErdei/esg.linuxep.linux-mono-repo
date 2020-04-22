@@ -3,17 +3,16 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <modules/livequery/config.h>
 #include "livequery_main.h"
-#include "modules/livequery/IQueryProcessor.h"
 
+#include <modules/livequeryimpl/config.h>
+#include "modules/livequeryimpl/IQueryProcessor.h"
 #include <modules/osqueryclient/OsqueryProcessor.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
-#include <Common/FileSystem/IFileSystem.h>
+
 #include <Common/Logging/PluginLoggingSetup.h>
 
 #include <iostream>
-#include <memory>
 
 namespace livequery{
 

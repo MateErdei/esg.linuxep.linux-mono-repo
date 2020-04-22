@@ -31,7 +31,7 @@ namespace queryrunner{
         {
             try{
                 this->m_process = Common::Process::createProcess(); 
-                LOGINFO("Trigger livequery at: " << this->m_executablePath << " for query : " << correlationid); 
+                LOGINFO("Trigger livequeryimpl at: " << this->m_executablePath << " for query : " << correlationid); 
                 std::vector<std::string> arguments = {correlationid, query, this->m_osquerySocketPath};            
                 this->m_process->exec(this->m_executablePath, arguments, {}); 
                 auto output = this->m_process->output(); 
@@ -64,7 +64,7 @@ namespace queryrunner{
         {
             if (exitCode != 0)
             {
-                LOGINFO("Execution of livequery failed with error code: " << exitCode);
+                LOGINFO("Execution of livequeryimpl failed with error code: " << exitCode);
                 break; 
             }
             auto pos = std::find(output.begin(), output.end(), '{'); 
@@ -81,7 +81,7 @@ namespace queryrunner{
             }
             catch (std::runtime_error& ex)
             {
-                LOGWARN("Received invalid json response from sophos livequery:  " << output);
+                LOGWARN("Received invalid json response from sophos livequeryimpl:  " << output);
                 LOGSUPPORT( ex.what());
                 break; 
             }
@@ -125,7 +125,7 @@ namespace queryrunner{
             }
             return; 
         }
-        LOGINFO("Extra information, output of livequery: " << output); 
+        LOGINFO("Extra information, output of livequeryimpl: " << output); 
         queryrunnerStatus.errorCode = livequery::ErrorCode::UNEXPECTEDERROR; 
 
     }

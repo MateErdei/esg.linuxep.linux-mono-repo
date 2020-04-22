@@ -12,6 +12,6 @@ namespace livequery
             static int main(int argc, char* argv[]);
     };
 
-} // namespace livequery
+} // namespace livequeryimpl
 
 

@@ -271,4 +271,4 @@ namespace livequery
     void ResponseDispatcher::setTelemetry(const std::string &json) {
         m_telemetry = json;
     }
-} // namespace livequery
+} // namespace livequeryimpl

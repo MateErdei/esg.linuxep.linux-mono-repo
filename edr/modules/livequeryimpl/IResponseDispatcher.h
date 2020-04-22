@@ -24,4 +24,4 @@ namespace livequery
         virtual std::string getTelemetry() = 0;
         virtual void setTelemetry(const std::string& json) = 0;
     };
-} // namespace livequery
+} // namespace livequeryimpl

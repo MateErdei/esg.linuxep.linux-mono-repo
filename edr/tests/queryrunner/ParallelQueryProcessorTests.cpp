@@ -5,7 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <modules/queryrunner/ParallelQueryProcessor.h>
-#include <modules/livequery/QueryResponse.h>
+#include <modules/livequeryimpl/QueryResponse.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>

@@ -5,8 +5,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/livequery/ResponseData.h>
-#include <modules/livequery/Telemetry.h>
+#include <modules/livequeryimpl/ResponseData.h>
+#include <modules/livequeryimpl/Telemetry.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 

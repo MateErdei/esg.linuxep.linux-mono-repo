@@ -4,7 +4,7 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
-#include <livequery/ResponseStatus.h>
+#include <livequeryimpl/ResponseStatus.h>
 #include <functional>
 #include <string>
 #include <memory>

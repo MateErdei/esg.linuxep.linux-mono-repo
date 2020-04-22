@@ -1,4 +1,4 @@
-add_subdirectory(livequery)
+add_subdirectory(livequeryimpl)
 add_subdirectory(liveexecutable)
 add_subdirectory(pluginimpl)
 add_subdirectory(Proc)

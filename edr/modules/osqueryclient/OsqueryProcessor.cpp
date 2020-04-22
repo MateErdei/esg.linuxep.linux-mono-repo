@@ -9,8 +9,8 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include "IOsqueryClient.h"
 #include "Logger.h"
 
-#include <livequery/ResponseData.h>
-#include <livequery/ResponseStatus.h>
+#include <livequeryimpl/ResponseData.h>
+#include <livequeryimpl/ResponseStatus.h>
 #include <thrift/transport/TTransportException.h>
 
 #include <iostream>

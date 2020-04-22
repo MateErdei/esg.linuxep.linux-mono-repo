@@ -4,7 +4,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <livequery/IQueryProcessor.h>
+#include <livequeryimpl/IQueryProcessor.h>
 #include <osquery/flagalias.h>
 #include <osquery/flags.h>
 #include <osqueryclient/OsqueryProcessor.h>
@@ -40,7 +40,7 @@ namespace livequery
         }
     };
 
-} // namespace livequery
+} // namespace livequeryimpl
 
 int main(int argc, char* argv[])
 {

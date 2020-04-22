@@ -29,4 +29,4 @@ namespace livequery
     const int INVALIDQUERYERROR = 3;
     const int FAILEDTOEXECUTEERROR = 4;
 
-} // namespace livequery
+} // namespace livequeryimpl

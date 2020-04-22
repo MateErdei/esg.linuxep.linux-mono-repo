@@ -16,7 +16,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <modules/livequery/IQueryProcessor.h>
+#include <modules/livequeryimpl/IQueryProcessor.h>
 #include <modules/osqueryclient/IOsqueryClient.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
 #include <thirdparty/nlohmann-json/json.hpp>
@@ -89,7 +89,7 @@ namespace livequery
         }
     };
 
-} // namespace livequery
+} // namespace livequeryimpl
 
 #ifdef HasLibFuzzer
 DEFINE_PROTO_FUZZER(const LiveQueryInputProto::TestCase& itestCase)

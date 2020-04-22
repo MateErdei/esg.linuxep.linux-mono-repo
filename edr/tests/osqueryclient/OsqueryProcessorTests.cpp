@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/TempDir.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Process/IProcess.h>
-#include <modules/livequery/Logger.h>
+#include <modules/livequeryimpl/Logger.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
 #include <osquery/flagalias.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>

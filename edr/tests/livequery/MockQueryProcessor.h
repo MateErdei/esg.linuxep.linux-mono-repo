@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <modules/livequery/IQueryProcessor.h>
+#include <modules/livequeryimpl/IQueryProcessor.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

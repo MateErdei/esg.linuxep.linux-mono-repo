@@ -63,7 +63,7 @@ public:
 };
 #include "Telemetry.h"
 
-#include <livequery/ResponseDispatcher.h>
+#include <livequeryimpl/ResponseDispatcher.h>
 
 namespace Plugin
 {

@@ -5,7 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <modules/queryrunner/QueryRunnerImpl.h>
-#include <modules/livequery/ResponseStatus.h>
+#include <modules/livequeryimpl/ResponseStatus.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
@@ -152,7 +152,7 @@ TEST(QueryRunnerImpl, setStatusFromExitResult_shouldRefuseIfJsonIsInvalid) // NO
 // {
 //     std::string output{R"({"name":"query", "errorcode":"Success", "duration":10, "rowcount":5})"};
 //     auto status = statusFromExitResult( 0, output); 
-//     EXPECT_EQ(status.errorCode, livequery::ErrorCode::UNEXPECTEDERROR); 
+//     EXPECT_EQ(status.errorCode, livequeryimpl::ErrorCode::UNEXPECTEDERROR);
 //     EXPECT_EQ(status.name, ""); 
 //     EXPECT_EQ(status.queryDuration, 0);
 //     EXPECT_EQ(status.rowCount, 0);

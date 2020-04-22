@@ -87,4 +87,4 @@ namespace livequery
         return found->second; 
     }
 
-} // namespace livequery
+} // namespace livequeryimpl

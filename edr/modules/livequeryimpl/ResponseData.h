@@ -71,4 +71,4 @@ namespace livequery
         ColumnHeaders m_headers;
         ColumnData m_columnData;
     };
-} // namespace livequery
+} // namespace livequeryimpl
