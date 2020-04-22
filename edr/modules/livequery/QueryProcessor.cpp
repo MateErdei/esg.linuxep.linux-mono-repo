@@ -71,7 +71,7 @@ int livequery::processQuery(
         LOGSUPPORT("Invalid request, failed to parse the json with error: " << ex.what());
         LOGDEBUG("Content of input request: " << queryJson);
         scopedFeedbackProvider.setFeedback(livequery::IResponseDispatcher::QueryResponseStatus::QueryInvalidJson);
-        return 1;
+        return INVALIDJSONERROR;
     }
 
     auto queryIter = requestMap.find(querySqlKey);
@@ -85,7 +85,7 @@ int livequery::processQuery(
                                                            << querySqlKey);
         LOGDEBUG("Content of input request: " << queryJson);
         scopedFeedbackProvider.setFeedback(livequery::IResponseDispatcher::QueryResponseStatus::QueryFailedValidation);
-        return 2;
+        return INVALIDREQUESTERROR;
     }
 
     // check option value is string
@@ -95,7 +95,7 @@ int livequery::processQuery(
         LOGWARN("Invalid request, required json value 'query' must be a string");
         LOGDEBUG("Content of input request: " << queryJson);
         scopedFeedbackProvider.setFeedback(livequery::IResponseDispatcher::QueryResponseStatus::QueryFailedValidation);
-        return 3;
+        return INVALIDQUERYERROR;
     }
 
     try
@@ -135,7 +135,7 @@ int livequery::processQuery(
         LOGDEBUG("Content of input request: '" << queryIter->second.getString() << "'");
         scopedFeedbackProvider.setFeedback(
             livequery::IResponseDispatcher::QueryResponseStatus::UnexpectedExceptionOnHandlingQuery);
-        return 4;
+        return FAILEDTOEXECUTEERROR;
     }
     return 0;
 }

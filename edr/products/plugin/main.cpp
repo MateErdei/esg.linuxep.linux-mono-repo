@@ -6,7 +6,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include <modules/livequery/config.h>
 
-#include <Common/FileSystem/IFileSystem.h>
+
 #include <Common/FileSystem/IPidLockFileUtils.h>
 #include <Common/Logging/PluginLoggingSetup.h>
 #include <Common/PluginApi/ApiException.h>
@@ -15,7 +15,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/Logger.h>
-#include <modules/pluginimpl/OsqueryProcessImpl.h>
+
 #include <modules/pluginimpl/PluginAdapter.h>
 
 const char* g_pluginName = PLUGIN_NAME;
