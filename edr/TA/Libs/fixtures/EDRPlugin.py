@@ -14,14 +14,17 @@ def _edr_exec_path():
 def _osquery_database_path():
     return os.path.join(_sophos_spl_path(), 'plugins/edr/var/osquery.db')
 
-def _edr_log_path():
-    return os.path.join(_sophos_spl_path(), 'plugins/edr/log/edr.log')
-
 def _log_path():
     return os.path.join(_sophos_spl_path(), 'plugins/edr/log/')
 
+def _edr_log_path():
+    return os.path.join(_log_path(), 'edr.log')
+
+def _live_query_log_path():
+    return os.path.join(_log_path(), 'livequery.log')
+
 def _edr_oquery_paths():
-    _edr_log_dir = os.path.join(_sophos_spl_path(), 'plugins/edr/log')
+    _edr_log_dir = _log_path()
     osquery_logs = [file_name for file_name in os.listdir(_edr_log_dir) if 'osquery' in file_name ]
     if not osquery_logs:
         return []
@@ -88,9 +91,12 @@ class EDRPlugin:
     # Will return empty string if log doesn't exist
     def log(self):
         log_path = _edr_log_path()
-        if not os.path.exists(log_path):
-            return ""
-        return _file_content(log_path)
+        live_query_path = _live_query_log_path()
+        content=[]
+        for path in [log_path, live_query_path]:
+            if os.path.exists(path):
+                content.append(_file_content(path))
+        return '\n'.join(content)
 
     def osquery_logs(self):
         full_content = ""

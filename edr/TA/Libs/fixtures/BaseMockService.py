@@ -50,6 +50,7 @@ def install_component(sophos_install):
     component_tests_dir = os.path.join(sophos_install, 'componenttests')
     plugin_lib64_path = os.path.join(plugin_dir_path, 'lib64')
     plugin_executable = os.path.join(plugin_dir_path, 'bin/edr')
+    livequery_executable = os.path.join(plugin_dir_path, 'bin/sophos_livequery')
     osquery_executable = os.path.join(plugin_dir_path, 'bin/osqueryd')
     for dirn in ['var', 'log', 'etc', 'extensions']:
         os.makedirs(os.path.join(plugin_dir_path, dirn), exist_ok=True)
@@ -62,9 +63,9 @@ def install_component(sophos_install):
     shutil.copy(os.path.join(component_tests_dir, BinaryData), os.path.join(extensions_dir, BinaryData))
 
     run_shell(['ldconfig', '-lN', '*.so.*'], cwd=plugin_lib64_path)
-    run_shell(['chmod', '+x', plugin_executable])
+    for path in [plugin_executable, osquery_executable, livequery_executable]:
+        run_shell(['chmod', '+x', path])
     run_shell(['chmod', '+x', os.path.join(component_tests_dir, '*')])
-    run_shell(['chmod', '+x', osquery_executable])
     run_shell(['chmod', '+x', os.path.join(extensions_dir, '*')])
     os.environ['SOPHOS_INSTALL'] = sophos_install
 
