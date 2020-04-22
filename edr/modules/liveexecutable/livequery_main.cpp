@@ -3,14 +3,16 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include "livequery_main.h"
+#include "modules/livequery/IQueryProcessor.h"
 
-#include <iostream>
-#include <memory>
 #include <modules/osqueryclient/OsqueryProcessor.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <Common/FileSystem/IFileSystem.h>
-#include "livequery_main.h"
-#include "modules/livequery/IQueryProcessor.h"
+#include <Common/Logging/PluginLoggingSetup.h>
+
+#include <iostream>
+#include <memory>
 
 namespace livequery{
 
@@ -21,7 +23,7 @@ namespace livequery{
             std::cerr << "Expecting  three parameters got " << (argc - 1) << std::endl;
             return 1;
         }
-
+        Common::Logging::PluginLoggingSetup loggerSetup("edr", "livequery");
         std::string correlationid = argv[1];
         std::string query = argv[2];
         std::string socket = argv[3];
