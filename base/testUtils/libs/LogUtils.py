@@ -373,6 +373,9 @@ class LogUtils(object):
     def check_livequery_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.livequery_log, "Livequery")
 
+    def dump_livequery_log(self):
+        self.dump_log(self.livequery_log)
+
     def check_suldownloader_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.suldownloader_log, "Suldownloader")
 
