@@ -1,11 +1,21 @@
 #!/bin/bash
 
-[[ -d "/opt/sophos-spl" ]] || exit 1
-
-HOSTNAME=$(hostname)
 PLUGINS_DIR="/opt/sophos-spl/plugins"
-FILE_COUNT=$(find $PLUGINS_DIR -name "*.sst" | wc -l)
-SIZE=$(find $PLUGINS_DIR -type f -name "*.sst" -exec du -cb {} + | grep total | sed 's/\s.*$//')
-DATETIME=$(date +"%Y/%m/%d %H:%M:%S")
+[[ -d "$PLUGINS_DIR" ]] || exit 1
+HOSTNAME=$(hostname)
+DATETIME=$(date -u +"%Y/%m/%d %H:%M:%S")
 
-curl -X POST "http://sspl-perf-mon:9200/osquery-db-files/_doc" -H "Content-Type: application/json" -d '{"hostname":"'$HOSTNAME'", "filecount":'$FILE_COUNT', "filesize":'$SIZE', "datetime":"'"$DATETIME"'"}'
+
+for plugin_dir in "$PLUGINS_DIR"/*
+do
+    if [ -d "$plugin_dir" ]
+    then
+      FILE_COUNT=$(find $plugin_dir -name "*.sst" | wc -l)
+      SIZE=$(find $plugin_dir -type f -name "*.sst" -exec du -cb {} + | grep total | sed 's/\s.*$//')
+      PLUGIN=$(basename $plugin_dir)
+
+      curl -X POST "http://sspl-perf-mon:9200/osquery-db-files/_doc" -H "Content-Type: application/json" -d \
+      '{"hostname":"'$HOSTNAME'", "filecount":'$FILE_COUNT', "filesize":'$SIZE', "datetime":"'"$DATETIME"'", "plugin":"'$PLUGIN'"}'
+    fi
+done
+
