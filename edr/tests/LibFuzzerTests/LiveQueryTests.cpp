@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #    include <libprotobuf-mutator/src/mutator.h>
 #endif
 
-#include <livequeryimpl/IQueryProcessor.h>
+#include <livequery/IQueryProcessor.h>
 #include <modules/pluginimpl/OsqueryConfigurator.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
@@ -48,7 +48,7 @@ namespace livequery
         }
     };
 
-} // namespace livequeryimpl
+} // namespace livequery
 
 class OsqueryOutputErrorDetector {
     char lastChar = '\n';

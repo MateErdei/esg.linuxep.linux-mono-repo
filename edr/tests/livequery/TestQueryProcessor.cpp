@@ -7,7 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
-#include <modules/livequeryimpl/Logger.h>
+#include <modules/livequery/Logger.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 #include "MockQueryProcessor.h"
 #include "MockResponseDispatcher.h"

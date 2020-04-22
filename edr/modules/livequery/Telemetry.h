@@ -14,4 +14,4 @@ namespace livequery
     public:
         void processLiveQueryResponseStats(const livequery::QueryResponse& response, long queryDuration);
     };
-} // namespace livequeryimpl
+} // namespace livequery

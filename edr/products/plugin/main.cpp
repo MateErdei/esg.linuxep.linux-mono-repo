@@ -4,7 +4,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <modules/livequeryimpl/config.h>
+#include <modules/livequery/config.h>
 
 
 #include <Common/FileSystem/IPidLockFileUtils.h>

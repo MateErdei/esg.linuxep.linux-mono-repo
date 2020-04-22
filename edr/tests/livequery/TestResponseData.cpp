@@ -6,7 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
-#include <modules/livequeryimpl/ResponseData.h>
+#include <modules/livequery/ResponseData.h>
 
 using namespace ::testing;
 

@@ -33,4 +33,4 @@ namespace livequery
     {
         return m_data;
     }
-} // namespace livequeryimpl
+} // namespace livequery

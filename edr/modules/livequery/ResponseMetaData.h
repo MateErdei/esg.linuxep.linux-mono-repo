@@ -22,4 +22,4 @@ namespace livequery
         long m_queryStartMillisEpoch = 0;
         std::string m_queryName;
     };
-} // namespace livequeryimpl
+} // namespace livequery

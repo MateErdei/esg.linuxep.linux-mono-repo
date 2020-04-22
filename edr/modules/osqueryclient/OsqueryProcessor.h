@@ -5,7 +5,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <modules/livequeryimpl/IQueryProcessor.h>
+#include <modules/livequery/IQueryProcessor.h>
 
 namespace osqueryclient
 {

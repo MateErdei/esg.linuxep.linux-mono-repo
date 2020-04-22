@@ -34,4 +34,4 @@ namespace livequery
         ResponseMetaData m_metaData;
         ResponseData m_data;
     };
-} // namespace livequeryimpl
+} // namespace livequery

@@ -25,4 +25,4 @@ namespace livequery
         std::string m_telemetry = "";
 
     };
-} // namespace livequeryimpl
+} // namespace livequery

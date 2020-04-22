@@ -120,4 +120,4 @@ namespace livequery
         }
         return found->second;
     }
-} // namespace livequeryimpl
+} // namespace livequery

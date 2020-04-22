@@ -33,4 +33,4 @@ namespace livequery
         int errorValue() const;
         const std::string& errorDescription() const;
     };
-} // namespace livequeryimpl
+} // namespace livequery

@@ -14,4 +14,4 @@ namespace queryrunner
     public:
         void processLiveQueryResponseStats(const queryrunner::QueryRunnerStatus& response);
     };
-} // namespace livequeryimpl
+} // namespace livequery
