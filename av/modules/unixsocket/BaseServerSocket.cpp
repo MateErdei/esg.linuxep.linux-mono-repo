@@ -93,6 +93,7 @@ void unixsocket::BaseServerSocket::run()
 
     // Announce after we have started listening
     announceThreadStarted();
+    LOGINFO("Listener started");
 
     while (!terminate)
     {

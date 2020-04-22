@@ -15,6 +15,7 @@ In order to run these tests in TAP do:
     source tapvenv/bin/activate
  2) tap run av_plugin.integration --debug-loop for integration tests
     tap run av_plugin.component --debug-loop for component tests
+    tap run av_plugin.coverage for coverage tests
 
 In order to run them in Vagrant box:
     vagrant up

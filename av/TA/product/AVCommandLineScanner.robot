@@ -16,7 +16,10 @@ Start AV
     Set Test Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
     # wait for AV Plugin to initialize
-    Wait For Process  timeout=0.5s
+    Wait Until Keyword Succeeds
+        ...  1 secs
+        ...  0.1 secs
+        ...  Threat Detector Log Contains  UnixSocket <> Listener started
 
 Stop AV
      ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
