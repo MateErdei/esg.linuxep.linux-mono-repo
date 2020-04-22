@@ -17,77 +17,98 @@ namespace queryrunner{
 
     ParallelQueryProcessor::~ParallelQueryProcessor()
     {
+        try
         {
 
-            std::lock_guard<std::mutex> l{m_mutex};
-            for( auto& p: m_processingQueries)
-            {
-                p->requestAbort(); 
-            }
-        }
-        // give up to 0.5 seconds to have all the queries processed. 
-        int count =0; 
-        while(count++ < 50)
-        {
-            bool isEmpty=false;
             {
                 std::lock_guard<std::mutex> l{m_mutex};
                 for( auto& p: m_processingQueries)
                 {
                     p->requestAbort(); 
                 }
-                isEmpty = m_processingQueries.empty(); 
             }
-            if( isEmpty )break; 
-            std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
-        }
-                
-        {
-            std::lock_guard<std::mutex> l{m_mutex};
-            if( !m_processingQueries.empty())
+            // give up to 0.5 seconds to have all the queries processed. 
+            int count =0; 
+            while(count++ < 50)
             {
-                LOGERROR("Should not have any further queries to process."); 
+                bool isEmpty=false;
+                {
+                    std::lock_guard<std::mutex> l{m_mutex};
+                    for( auto& p: m_processingQueries)
+                    {
+                        p->requestAbort(); 
+                    }
+                    isEmpty = m_processingQueries.empty(); 
+                }
+                if( isEmpty )break; 
+                std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
             }
-            m_processedQueries.clear(); 
-
+                    
+            {
+                std::lock_guard<std::mutex> l{m_mutex};
+                if( !m_processingQueries.empty())
+                {
+                    LOGERROR("Should not have any further queries to process."); 
+                }
+                m_processedQueries.clear(); 
+            }
         }
+        catch(std::exception& ex)
+        {
+            LOGERROR("Failure in clean up ParallelQueryProcessor: " << ex.what()); 
+        }        
     }
 
     void ParallelQueryProcessor::newJobDone(std::string id)
-    {        
-        std::lock_guard<std::mutex> l{m_mutex};
-        LOGDEBUG("Query " << id << " finished"); 
-
-        // clearing up previous queries objects that now can be removed as they are not in the same thread. 
-        m_processedQueries.clear();
-
-        // this method retrieves the result and mark the queryRunner to be cleared after as it can not be removed
-        // as this method is executed in the queryRunner callback thread. 
-
-        auto it = std::find_if(m_processingQueries.begin(), m_processingQueries.end(), 
-            [id](const std::unique_ptr<queryrunner::IQueryRunner> & irunner ){return irunner->id()==id; }
-            );
-
-        if ( it != m_processingQueries.end())
+    {     
+        try
         {
-            auto result = it->get()->getResult(); 
-            m_telemetry.processLiveQueryResponseStats(result); 
-            LOGDEBUG("One more entry removed from the queue of processing queries");
-            // move this element to the other list to clear it afterwards. 
-            // it cannnot be clear here as this is executed in the callback of the queryrunnerthread.
-            m_processedQueries.splice(m_processedQueries.begin(), m_processingQueries, it); 
-        }
-        else
+            std::lock_guard<std::mutex> l{m_mutex};
+            LOGDEBUG("Query " << id << " finished"); 
+
+            // clearing up previous queries objects that now can be removed as they are not in the same thread. 
+            m_processedQueries.clear();
+
+            // this method retrieves the result and mark the queryRunner to be cleared after as it can not be removed
+            // as this method is executed in the queryRunner callback thread. 
+
+            auto it = std::find_if(m_processingQueries.begin(), m_processingQueries.end(), 
+                [id](const std::unique_ptr<queryrunner::IQueryRunner> & irunner ){return irunner->id()==id; }
+                );
+
+            if ( it != m_processingQueries.end())
+            {
+                auto result = it->get()->getResult(); 
+                m_telemetry.processLiveQueryResponseStats(result); 
+                LOGDEBUG("One more entry removed from the queue of processing queries");
+                // move this element to the other list to clear it afterwards. 
+                // it cannnot be clear here as this is executed in the callback of the queryrunnerthread.
+                m_processedQueries.splice(m_processedQueries.begin(), m_processingQueries, it); 
+            }
+            else
+            {
+                LOGWARN("Failed to find the query " << id << " in the list of processing queries"); 
+            }
+        }catch( std::exception & ex)
         {
-            LOGWARN("Failed to find the query " << id << " in the list of processing queries"); 
+            LOGERROR("Failed to handle feedback on query finished: " << ex.what()); 
         }
+
     }
 
-    void ParallelQueryProcessor::addJob(const std::string &queryJson, const std::string &correlationId) {
+    void ParallelQueryProcessor::addJob(const std::string &queryJson, const std::string &correlationId) 
+    {
+        try
+        {
 
-        auto newproc = m_queryProcessor->clone(); 
-        std::lock_guard<std::mutex> l{m_mutex};
-        newproc->triggerQuery( correlationId, queryJson, [this](std::string id){this->newJobDone(id);});        
-        m_processingQueries.emplace_back(std::move(newproc)); 
+            auto newproc = m_queryProcessor->clone(); 
+            std::lock_guard<std::mutex> l{m_mutex};
+            newproc->triggerQuery( correlationId, queryJson, [this](std::string id){this->newJobDone(id);});        
+            m_processingQueries.emplace_back(std::move(newproc)); 
+
+        }catch(std::exception &ex)
+        {
+            LOGERROR("Failed to configure a new query: " << ex.what()); 
+        }
     }
 }
