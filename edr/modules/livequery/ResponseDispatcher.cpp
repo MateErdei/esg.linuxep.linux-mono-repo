@@ -251,7 +251,7 @@ namespace livequery
         telemetryJson["duration"] = queryMetaData.value("durationMillis",0);
         telemetryJson["rowcount"] = queryMetaData.value("rows",0);
 
-        setTelemetry(telemetryJson.dump());
+        setTelemetry(telemetryJson.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace));
         return serializedJson.str();
     }
 
