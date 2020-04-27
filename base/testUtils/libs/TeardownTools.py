@@ -1,6 +1,7 @@
 import os
 import subprocess as sp
 from robot.api import logger
+from robot.libraries.BuiltIn import BuiltIn
 import glob
 
 
@@ -69,6 +70,8 @@ class TeardownTools(object):
     ROBOT_LIBRARY_SCOPE = 'TEST SUITE'
     ROBOT_LISTENER_API_VERSION = 2
 
+    FORCE_LOGGING_KEY="FORCE_LOGGING"
+
     def __init__(self):
         self.log_files = _log_files()
         self.log_mark_dict = {}
@@ -96,6 +99,18 @@ class TeardownTools(object):
         assert grep_process.returncode == 1 # 0 means it found something, 1 means it didn't find anything, 2 means there was an error
 
         return stdout
+
+    def force_teardown_logging_if_env_set(self):
+        if not os.environ.get(self.FORCE_LOGGING_KEY, None):
+            logger.info("{} not set".format(self.FORCE_LOGGING_KEY))
+            return
+
+        BuiltIn().run_keyword("Dump All Logs")
+        BuiltIn().run_keyword("Check and Dump Journalctl")
+        BuiltIn().run_keyword("Check Journalctl")
+        BuiltIn().run_keyword("Log Status Of Sophos Spl")
+        BuiltIn().run_keyword("Display All SSPL Files Installed")
+        BuiltIn().run_keyword("Dump All Sophos Processes")
 
     def dump_teardown_log(self, filename):
         if os.path.isfile(filename):
