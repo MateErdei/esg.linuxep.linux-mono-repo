@@ -122,7 +122,7 @@ namespace
             cell["type"] = livequery::ResponseData::AcceptedTypesToString(entry.second);
             columnMetaData.push_back(cell);
         }
-        return columnMetaData.dump();
+        return columnMetaData.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
     }
 
     std::string columnDataObject(const livequery::QueryResponse& queryResponse)
@@ -146,7 +146,7 @@ namespace
             }
             columnDataJson.push_back(rowDataJson);
         }
-        return columnDataJson.dump();
+        return columnDataJson.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
     }
 } // namespace
 
@@ -216,7 +216,7 @@ namespace livequery
 
         auto queryMetaData = queryMetaDataObject(response, sizeBytes, limitExceeded);
         serializedJson << R"(,
-"queryMetaData": )" << queryMetaData.dump();
+"queryMetaData": )" << queryMetaData.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
 
         if (response.data().hasHeaders())
         {
