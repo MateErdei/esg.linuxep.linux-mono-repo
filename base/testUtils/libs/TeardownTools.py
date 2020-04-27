@@ -105,12 +105,10 @@ class TeardownTools(object):
             logger.info("{} not set".format(self.FORCE_LOGGING_KEY))
             return
 
-        BuiltIn().run_keyword("Dump All Logs")
-        BuiltIn().run_keyword("Check and Dump Journalctl")
-        BuiltIn().run_keyword("Check Journalctl")
-        BuiltIn().run_keyword("Log Status Of Sophos Spl")
-        BuiltIn().run_keyword("Display All SSPL Files Installed")
-        BuiltIn().run_keyword("Dump All Sophos Processes")
+        BuiltIn().run_keyword_if_test_passed("Dump All Logs")
+        BuiltIn().run_keyword_if_test_passed("Log Status Of Sophos Spl")
+        BuiltIn().run_keyword_if_test_passed("Display All SSPL Files Installed")
+        BuiltIn().run_keyword_if_test_passed("Dump All Sophos Processes")
 
     def dump_teardown_log(self, filename):
         if os.path.isfile(filename):
