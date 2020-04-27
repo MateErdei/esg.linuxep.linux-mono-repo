@@ -61,6 +61,6 @@ int main(int argc, char* argv[])
     queryStructure["name"] = "";
     queryStructure["query"] = query;
 
-    livequery::processQuery(osqueryProcessor, showInConsoleDispatcher, queryStructure.dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore), "anycorrelation");
+    livequery::processQuery(osqueryProcessor, showInConsoleDispatcher, queryStructure.dump(), "anycorrelation");
     return 0;
 }
