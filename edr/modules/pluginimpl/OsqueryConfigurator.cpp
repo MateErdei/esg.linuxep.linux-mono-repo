@@ -107,6 +107,7 @@ namespace Plugin
 
         std::string disableAuditFlagValue = enableAuditEventCollection ? "false" : "true";
         flags.push_back("--disable_audit=" + disableAuditFlagValue);
+        addTlsServerCertsOsqueryFlag(flags);
 
         flags.push_back("--augeas_lenses=" + Plugin::osQueryLensesPath());
 
@@ -217,6 +218,22 @@ namespace Plugin
         }
         LOGINFO("plugins.conf configured to not disable auditd if active");
         return false;
+    }
+
+    void OsqueryConfigurator::addTlsServerCertsOsqueryFlag(std::vector<std::string>& flags)
+    {
+        const std::vector<Path> caPaths = { "/etc/ssl/certs/ca-certificates.crt",
+                                            "/etc/ssl/certs/ca-bundle.crt" };
+
+        for (const auto& caPath : caPaths)
+        {
+            if (Common::FileSystem::fileSystem()->isFile(caPath))
+            {
+                flags.push_back("--tls_server_certs=" + caPath);
+                return;
+            }
+        }
+        LOGWARN("CA path not found");
     }
 
 } // namespace Plugin

@@ -9,6 +9,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <tuple>
+#include <vector>
 namespace Plugin
 {
     class OsqueryConfigurator
@@ -22,6 +23,7 @@ namespace Plugin
         void prepareSystemForPlugin();
         static void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection);
         static void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
+        static void addTlsServerCertsOsqueryFlag(std::vector<std::string>& flags);
 
     protected:
         bool MTRBoundEnabled() const;
