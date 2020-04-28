@@ -80,6 +80,11 @@ namespace
         livequery::ResponseData::ValueType m_valueType;
     };
 
+    std::string safeDumpJson(nlohmann::json& jsonArray)
+    {
+        return jsonArray.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
+    }
+
     nlohmann::json queryMetaDataObject(const livequery::QueryResponse& queryResponse, size_t sizeInBytes, bool exceededLimit)
     {
         nlohmann::json queryMetaData;
@@ -122,7 +127,7 @@ namespace
             cell["type"] = livequery::ResponseData::AcceptedTypesToString(entry.second);
             columnMetaData.push_back(cell);
         }
-        return columnMetaData.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
+        return safeDumpJson(columnMetaData);
     }
 
     std::string columnDataObject(const livequery::QueryResponse& queryResponse)
@@ -146,7 +151,7 @@ namespace
             }
             columnDataJson.push_back(rowDataJson);
         }
-        return columnDataJson.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
+        return safeDumpJson(columnDataJson);
     }
 } // namespace
 
@@ -216,7 +221,7 @@ namespace livequery
 
         auto queryMetaData = queryMetaDataObject(response, sizeBytes, limitExceeded);
         serializedJson << R"(,
-"queryMetaData": )" << queryMetaData.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
+"queryMetaData": )" << safeDumpJson(queryMetaData);
 
         if (response.data().hasHeaders())
         {
@@ -251,7 +256,7 @@ namespace livequery
         telemetryJson["duration"] = queryMetaData.value("durationMillis",0);
         telemetryJson["rowcount"] = queryMetaData.value("rows",0);
 
-        setTelemetry(telemetryJson.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace));
+        setTelemetry(safeDumpJson(telemetryJson));
         return serializedJson.str();
     }
 
