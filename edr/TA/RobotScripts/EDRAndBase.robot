@@ -55,4 +55,3 @@ Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
 
     Should Contain  ${result.stdout}   "errorCode": 0
     Should Contain  ${result.stdout}  <!doctype html>
-    Should Not Contain  ${result.stdout}  null
