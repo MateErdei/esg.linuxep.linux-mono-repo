@@ -282,7 +282,7 @@ Install base and edr and mtr then downgrade to current release base and mtr
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Log For Event Success Within Nth Set Of Events Sent  3
 
 
 Install master of base and edr and mtr and upgrade to mtr 999
@@ -656,5 +656,11 @@ Install Then Restart With master of base and edr and check EDR OSQuery Flags Fil
 
 
 *** Keywords ***
+
+Check MCS Envelope Log For Event Success Within Nth Set Of Events Sent
+    [Arguments]  ${Event_Number}
+    ${string} =  Check Log And Return Nth Occurence Between Strings  <ns:events   </ns:events>   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log   ${Event_Number}
+    Should Contain   ${string}   &lt;number&gt;0&lt;/number&gt
+
 Upgrade Installs EDR Twice
     Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Installing product: ServerProtectionLinux-Plugin-EDR   2

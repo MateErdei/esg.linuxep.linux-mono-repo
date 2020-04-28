@@ -166,8 +166,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
         ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Check Current Release Installed Correctly
-    ${BaseDevVersion} =     Set Variable   Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrDevVersion} =      Set Variable   Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
 
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
@@ -186,11 +186,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
    ...   200 secs
    ...   10 secs
    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
     # If mtr is installed for the first time, this will appear
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
