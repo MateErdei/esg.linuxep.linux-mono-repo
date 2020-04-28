@@ -39,8 +39,9 @@ public:
         std::string fileContent;
         auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
         EXPECT_CALL(*mockFileSystem, isFile(filepath)).WillOnce(Return(false));
-        EXPECT_CALL(*mockFileSystem, isFile(HasSubstr("/etc/ssl/certs"))).WillOnce(Return(true));
-        EXPECT_CALL(*mockFileSystem, writeFile(filepath, _))
+        EXPECT_CALL(*mockFileSystem, isFile(HasSubstr("/etc/ssl/certs")))
+        .WillOnce(Return(false)).WillOnce(Return(true));
+        EXPECT_CALL(*mockFileSystem, writeFile(filepath, HasSubstr("--tls_server_certs=/etc/ssl/certs/ca")))
             .WillOnce(
                 Invoke([&fileContent](const std::string&, const std::string& content) { fileContent = content; }));
 
