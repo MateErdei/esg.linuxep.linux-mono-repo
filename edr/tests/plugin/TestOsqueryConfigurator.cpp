@@ -39,10 +39,10 @@ public:
         std::string fileContent;
         auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
         EXPECT_CALL(*mockFileSystem, isFile(filepath)).WillOnce(Return(false));
-        EXPECT_CALL(*mockFileSystem, isFile(HasSubstr("/etc/ssl/certs")))
-        .WillOnce(Return(false)).WillOnce(Return(true));
-        EXPECT_CALL(*mockFileSystem, writeFile(filepath, HasSubstr("--tls_server_certs=/etc/ssl/certs/ca")))
-            .WillOnce(
+        EXPECT_CALL(*mockFileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
+        EXPECT_CALL(*mockFileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(true));
+        EXPECT_CALL(*mockFileSystem, writeFile(filepath,
+                HasSubstr("--tls_server_certs=/etc/pki/tls/certs/ca-bundle.crt"))).WillOnce(
                 Invoke([&fileContent](const std::string&, const std::string& content) { fileContent = content; }));
 
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
