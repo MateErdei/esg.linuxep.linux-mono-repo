@@ -31,6 +31,8 @@ def get_platform():
         return "ubuntu"
     elif "rhel" in platform_data or "redhat" in platform_data:
         return "rhel"
+    elif "with-glibc2.29" in platform_data:
+        return "ubuntu"
     return "unknown"
 
 
