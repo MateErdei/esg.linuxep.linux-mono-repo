@@ -32,7 +32,7 @@ TEST(Options, TestPaths) // NOLINT
     EXPECT_EQ(o.config(), "");
 }
 
-TEST(Options, TestMulitplePaths) // NOLINT
+TEST(Options, TestMultiplePaths) // NOLINT
 {
     const int argc = 3;
     const char* argv[argc];

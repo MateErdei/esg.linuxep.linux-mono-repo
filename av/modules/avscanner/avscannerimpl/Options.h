@@ -9,6 +9,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
+#include <boost/program_options.hpp>
+
+namespace po = boost::program_options;
+
 namespace avscanner::avscannerimpl
 {
     class Options
@@ -26,13 +30,18 @@ namespace avscanner::avscannerimpl
             return m_paths;
         }
 
+        [[nodiscard]] bool archiveScanning() const
+        {
+            return m_archiveScanning;
+        }
+
+
     private:
         std::string m_config;
         std::vector <std::string> m_paths;
+        bool m_archiveScanning = false;
 
-
-        bool handleOption(const std::string& key, const std::string& value);
-
+        static boost::program_options::variables_map parseCommandLine(int argc, char** argv);
     };
 }
 

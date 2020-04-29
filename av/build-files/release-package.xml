@@ -18,7 +18,12 @@
             <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
-        <package name="boostlinux11" version="1-72-0-27/219058/output" dest="input">
+        <!-- TODO: LINUXDAR-1780 Use the boost build with program_options built-->
+        <package name="boostlinux11"
+                 version="sophos-av-plugin-build_program_options/%LASTGOODCOMPONENTBUILD%/boostlinux11/1-72-0/output"
+                 buildtype="dev"
+                 dest="input">
+<!--        <package name="boostlinux11" version="1-72-0-27/219058/output" dest="input">-->
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
@@ -38,17 +43,12 @@
             <include src="openssl.tar" dest="."/>
         </package>
 
-        <!-- SUSI imports
-
+        <!-- SUSI imports -->
+        <!-- TODO: LINUXDAR-1780 Use the boost build with program_options built-->
         <package name="sspl-plugin-av-susi-component"
-                 version="master/20200326170810-92338d0f9e8e01d1c5ce69e5a0684c12a5c93825/sspl-plugin-av-susi-component/0.5.0/output"
+                 version="master/20200429134209-e4ca9d2c5d0e3cda9c78838d270273b689f5c130/sspl-plugin-av-susi-component/0.5.0/output"
                  dest="input" buildtype="dev">
-        -->
-        <package name="sspl-plugin-av-susi-component" version="0-5-0-32/219527/output" dest="input">
             <include src="susi.tar" dest="."/>
-        </package>
-        <package buildtype="dev" name="lrdata" version="sophos-susi-lrdata/%LASTGOODBUILD%/lrdata/2019061901" dest="input" >
-            <include src="reputation.zip" dest="lrdata" />
         </package>
 
     </inputs>
@@ -76,6 +76,6 @@
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
-        <publishbranches>master,feature/LINUXDAR-1793_switch_to_production_susi</publishbranches>
+        <publishbranches>master,feature/LINUXDAR-1479_ostia_experiment</publishbranches>
     </publish>
 </package>

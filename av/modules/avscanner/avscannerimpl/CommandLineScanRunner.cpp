@@ -108,9 +108,12 @@ namespace
     };
 }
 
-CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths)
+CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths, bool archiveScanning)
     : m_paths(std::move(paths))
+    , m_archiveScanning(archiveScanning)
 {
+    PRINT("Scanning Options");
+    PRINT("Scan archives enabled:" << archiveScanning);
 }
 
 int CommandLineScanRunner::run()
