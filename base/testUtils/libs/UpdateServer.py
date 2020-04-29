@@ -82,7 +82,9 @@ class UpdateServer(object):
         process = subprocess.Popen(command, stdout=self.server_log, stderr=subprocess.STDOUT)
         self.server_processes.append(process)
         logger.info("started update server with pid: {}".format(process.pid))
-        self.wait_for_server_up("https://localhost", str(port))
+        #self.wait_for_server_up("https://localhost", str(port))
+        import time
+        time.sleep(10)
 
     def stop_update_server(self):
         for process in self.server_processes:
