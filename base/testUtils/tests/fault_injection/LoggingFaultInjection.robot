@@ -53,13 +53,13 @@ Logger Cannot Write To Target Log Path Because It Is A Directory
 
 Logger Does Not Hang When It Runs Out Of Disk Space To Write To
     [Teardown]  Local Test Teardown With Test File System Cleanup
-    ${FileSystemRoot} =  Make Test Filesystem  100K
+    ${FileSystemRoot} =  Make Test Filesystem  200K
     ${SmallFileSystemLogFile} =  Set Variable  ${FileSystemRoot}/test.log
     Create File Of Size  70000  ${FileSystemRoot}/bigFile
-    ${fakeLoggerOutput} =  Run Fake Logger  1000  ${SmallFileSystemLogFile}
+    ${fakeLoggerOutput} =  Run Fake Logger  2000  ${SmallFileSystemLogFile}
     ${LogContents} =  Get File  ${SmallFileSystemLogFile}
     Should Exist  ${SmallFileSystemLogFile}
-    Should Not Contain  ${LogContents}  testlogger <> Write this boring line1000
+    Should Not Contain  ${LogContents}  testlogger <> Write this boring line2000
     File System Should Be Full  ${FileSystemRoot}
 
 *** Keywords ***
