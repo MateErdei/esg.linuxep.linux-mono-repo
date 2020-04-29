@@ -19,13 +19,19 @@ Fail Register with TLS1_2 Bad Certificate
     Fail Register With HTTPS Server Certificate Verify Failed
 
 Test Register With TLS Below Minimum Accepted of TLSv1_2 Fails
+    [Tags] MCS  FAKE_CLOUD  MCS_ROUTER  EXCLUDE_UBUNTU20
     Start HTTPS Server    --tls1
     Fail Register With HTTPS Server   [SSL: UNSUPPORTED_PROTOCOL]
     
 Fail Register If TLS1_1
+    [Tags] MCS  FAKE_CLOUD  MCS_ROUTER  EXCLUDE_UBUNTU20
     Start HTTPS Server    --tls1_1
     Fail Register With HTTPS Server   [SSL: UNSUPPORTED_PROTOCOL]
 
+Fail Register If TLS1_1
+    [Tags] MCS  FAKE_CLOUD  MCS_ROUTER
+    Start HTTPS Server    --tls1_1
+    Fail Register With HTTPS Server   [Errno 0]
 Register with TLS1_2
     Start HTTPS Server    --tls1_2
     Set Local CA Environment Variable
