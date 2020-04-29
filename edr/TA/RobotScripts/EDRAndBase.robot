@@ -47,11 +47,10 @@ Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
     Copy File  ${TEST_INPUT_PATH}/edr/componenttests/LiveQueryReport  ${COMPONENT_ROOT_PATH}/extensions/
     Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport
 
-    ${result} =  Run Process  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport  ${COMPONENT_ROOT_PATH}/var/osquery.sock  select * from curl where url\=\"https://www.google.com/\"
+    ${result} =  Run Process  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport  ${COMPONENT_ROOT_PATH}/var/osquery.sock  select '1\xfffd' as h;  shell=true
 
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
 
     Should Contain  ${result.stdout}   "errorCode": 0
-    Should Contain  ${result.stdout}  <!doctype html>
