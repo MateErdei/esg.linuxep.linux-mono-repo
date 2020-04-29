@@ -19,9 +19,10 @@ public:
     {
     }
 
-    MOCK_METHOD3(scanFile, SusiResult(
+    MOCK_METHOD4(scanFile, SusiResult(
             const char* metaData,
             const char* filename,
+            datatypes::AutoFd& fd,
             SusiScanResult** scanResult));
 
     MOCK_METHOD1(freeResult, void(SusiScanResult* scanResult));

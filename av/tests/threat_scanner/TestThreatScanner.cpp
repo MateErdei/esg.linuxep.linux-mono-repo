@@ -208,7 +208,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
     SusiScanResult* scanResult = nullptr;
     std::string filePath = "/tmp/clean_file.txt";
 
-    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _)).WillOnce(Return(susiResult));
+    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(Return(susiResult));
     EXPECT_CALL(*susiWrapper, freeResult(scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
@@ -233,7 +233,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     scanResult.scanResultJson = const_cast<char*>(susiResponseStr.c_str());
     std::string filePath = "/tmp/eicar.txt";
 
-    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _)).WillOnce(DoAll(SetArgPointee<2>(&scanResult), Return(susiResult)));
+    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);

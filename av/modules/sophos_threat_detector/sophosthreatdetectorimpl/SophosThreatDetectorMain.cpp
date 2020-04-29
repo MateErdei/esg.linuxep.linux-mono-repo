@@ -32,6 +32,12 @@ static int inner_main()
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
     fs::path chrootPath = pluginInstall / "chroot";
 #ifdef USE_CHROOT
+    // Copy logger config from base
+    fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
+    fs::path loggerConf = sophosInstall / "base/etc/logger.conf";
+    fs::path targetFile = chrootPath / sophosInstall / "base/etc/logger.conf";
+    fs::copy_file(loggerConf, targetFile, fs::copy_options::overwrite_existing);
+
     int ret = ::chroot(chrootPath.c_str());
     if (ret != 0)
     {

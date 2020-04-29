@@ -76,7 +76,13 @@ mkdir -p "$VAR"
 chmod 0700 "$VAR"
 
 CHROOT="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/chroot"
-chmod 0711 "$CHROOT"
+CHROOT_LINK_DIR="${CHROOT}/${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+mkdir -p ${CHROOT_LINK_DIR}
+ln -s / ${CHROOT_LINK_DIR}/chroot
+mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
+mkdir ${CHROOT}/tmp
+chmod -R 0711 "$CHROOT"
+cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${CHROOT}/susi/distribution_version/version1/
 
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 

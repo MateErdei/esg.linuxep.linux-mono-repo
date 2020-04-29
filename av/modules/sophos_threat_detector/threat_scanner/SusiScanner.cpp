@@ -82,7 +82,7 @@ SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapper
 }
 
 scan_messages::ScanResponse
-SusiScanner::scan(datatypes::AutoFd& /*fd*/, const std::string& file_path)
+SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
 {
     scan_messages::ScanResponse response;
     response.setClean(true);
@@ -94,7 +94,7 @@ SusiScanner::scan(datatypes::AutoFd& /*fd*/, const std::string& file_path)
     })";
 
     SusiScanResult* scanResult = nullptr;
-    SusiResult res = m_susi->scanFile(metaDataJson.c_str(), file_path.c_str(), &scanResult);
+    SusiResult res = m_susi->scanFile(metaDataJson.c_str(), file_path.c_str(), fd, &scanResult);
 
     if (res == SUSI_I_THREATPRESENT)
     {
