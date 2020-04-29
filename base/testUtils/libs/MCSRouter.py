@@ -17,7 +17,6 @@ from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
 import robot.libraries.BuiltIn
 import CentralUtils
-import UpdateServer
 import PathManager
 import json
 
@@ -831,8 +830,7 @@ class MCSRouter(object):
         command = [sys.executable, os.path.join(self.support_path, "https_proxy.py"), str(self.local_proxy_port), protocol, "--certfile", cert_location]
         self.proxy = subprocess.Popen(command, stdout=proxy_log_file, stderr=subprocess.STDOUT)
         self.__ensure_server_started(self.proxy, proxy_log_file_path, 'Serving HTTP Proxy')
-        update_server = UpdateServer.UpdateServer("proxy_server.log")
-        update_server.can_curl_url("https://localhost:{}".format(self.local_proxy_port))
+
         
     def switch_to_original_cacert(self):
         try:
