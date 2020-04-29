@@ -27,8 +27,8 @@ Setup Warehouse
     Generate Warehouse
     Start Update Server    1233    ./tmp/temp_warehouse/customer_files/   ${customer_file_protocol}
     Start Update Server    1234    ./tmp/temp_warehouse/warehouses/sophosmain/   ${warehouse_protocol}
-    Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
-    Can Curl Url    https://localhost:1233
+    #Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
+    #Can Curl Url    https://localhost:1233
 
 Setup Thininstaller Test
     Require Uninstalled
