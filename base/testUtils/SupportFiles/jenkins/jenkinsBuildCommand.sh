@@ -69,7 +69,7 @@ function platform_exclude_tag()
     elif [[ -n `lsb_release -a` ]]
     then
         current_release=$(cat /etc/os-release | grep PRETTY_NAME)
-        release_pattern="*PRETTY_NAME=\"Ubuntu 20.*"
+        release_pattern="PRETTY_NAME=\"Ubuntu 20.*"
         if [[ ${current_release} =~ ${release_pattern} ]]
         then
             PLATFORM_EXCLUDE_TAG="EXCLUDE_UBUNTU20"
