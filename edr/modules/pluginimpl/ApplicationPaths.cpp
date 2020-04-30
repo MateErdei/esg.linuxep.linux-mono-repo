@@ -96,3 +96,9 @@ std::string Plugin::livequeryExecutable()
 {
     return fromRelative("bin/sophos_livequery");
 }
+
+std::string Plugin::osQueryLensesPath()
+{
+    return fromRelative("osquery/lenses");
+}
+

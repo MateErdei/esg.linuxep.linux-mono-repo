@@ -9,6 +9,11 @@ install(FILES ${OSQUERY_BINARY}
         files/plugins/${PLUGIN_NAME}/bin/
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 
+install(DIRECTORY ${OSQUERY_LENSES_DIR}
+        DESTINATION files/plugins/${PLUGIN_NAME}/osquery/
+        FILES_MATCHING PATTERN *.*
+        )
+
 install(FILES  ${PROJECT_BINARY_DIR}/${PLUGIN_NAME}.json DESTINATION files/base/pluginRegistry)
 
 install(FILES ${PROJECT_BINARY_DIR}/install.sh

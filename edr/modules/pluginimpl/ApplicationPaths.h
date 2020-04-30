@@ -25,4 +25,5 @@ namespace Plugin
     std::string systemctlPath();
     std::string servicePath();
     std::string livequeryExecutable();
+    std::string osQueryLensesPath();
 } // namespace Plugin

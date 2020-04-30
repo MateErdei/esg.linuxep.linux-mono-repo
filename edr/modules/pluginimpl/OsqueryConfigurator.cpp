@@ -108,6 +108,8 @@ namespace Plugin
         std::string disableAuditFlagValue = enableAuditEventCollection ? "false" : "true";
         flags.push_back("--disable_audit=" + disableAuditFlagValue);
 
+        flags.push_back("--augeas_lenses=" + Plugin::osQueryLensesPath());
+
         std::ostringstream flagsAsString;
         std::copy(flags.begin(), flags.end(), std::ostream_iterator<std::string>(flagsAsString, "\n"));
 
