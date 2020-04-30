@@ -42,8 +42,11 @@ Check Save And Restore Correctly Persists Telemetry Through SSPL Restarts
     ...  20s
     ...  2s
     ...  Check Expected Base Processes Are Running
-    sleep  10
-    Check All Base Saved Telemetry Files Are Cleanup After Restore Exists
+
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check All Base Saved Telemetry Files Are Cleanup After Restore Exists
 
     Kill Sophos Processes That Arent Watchdog
     Wait Until Keyword Succeeds
