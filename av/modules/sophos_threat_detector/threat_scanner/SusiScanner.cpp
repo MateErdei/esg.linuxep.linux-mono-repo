@@ -27,14 +27,14 @@ fs::path pluginInstall()
     return appConfig.getData("PLUGIN_INSTALL");
 }
 
-SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory)
+SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory, bool scanArchives)
 {
     fs::path libraryPath = pluginInstall() / "chroot/susi/distribution_version";
 
-    static const std::string scannerInfo = R"("scanner": {
+    static const std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
         "signatureBased": {
             "fileTypeCategories": {
-                "archive": true,
+                "archive": @@SCAN_ARCHIVES@@,
                 "selfExtractor": true,
                 "executable": true,
                 "office": true,
@@ -53,7 +53,7 @@ SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapper
                 "stopOnArchiveBombs": true
             }
         }
-    })";
+    })sophos", {{"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"}});
 
     std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
     "library": {
