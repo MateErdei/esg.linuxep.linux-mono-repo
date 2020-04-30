@@ -139,9 +139,9 @@ def run_local_live_query_perf_test():
         (ALL_PROCESSES_QUERY, 10),
         (ALL_USERS_QUERY, 10),
         (HOSTNAME_QUERY, 10),
-        (ALL_PROCESSES_QUERY, 100),
-        (ALL_USERS_QUERY, 100),
-        (HOSTNAME_QUERY, 100)
+        (ALL_PROCESSES_QUERY, 50),
+        (ALL_USERS_QUERY, 50),
+        (HOSTNAME_QUERY, 50)
     ]
 
     for (name, query), times_to_run in queries_to_run:
