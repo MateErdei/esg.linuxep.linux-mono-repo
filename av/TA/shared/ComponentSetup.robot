@@ -42,12 +42,16 @@ Setup Component For Testing
     ## Change permissions for all executables
     Run Process   chmod  -R  +x  ${COMPONENT_ROOT_PATH}/sbin  ${COMPONENT_ROOT_PATH}/bin  ${BASH_SCRIPTS_PATH}  shell=True
     Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/sophos_certs/InstallCertificateToSystem.sh
-    Create Directory  ${COMPONENT_ROOT_PATH}/chroot
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/base/etc
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/tmp
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}
     Create Directory  ${COMPONENT_ROOT_PATH}/var
     Create Directory  ${COMPONENT_ROOT_PATH}/log
+    Run Process   ln  -s  /  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}/chroot
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/   shell=True
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1   shell=True
+    Copy File  /lib/x86_64-linux-gnu/libz.so.1  ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1/
 
 Use Fake AVScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  true
