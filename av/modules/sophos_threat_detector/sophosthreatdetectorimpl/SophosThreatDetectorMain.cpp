@@ -36,6 +36,7 @@ static int inner_main()
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
     fs::path loggerConf = sophosInstall / "base/etc/logger.conf";
     fs::path targetFile = chrootPath / sophosInstall / "base/etc/logger.conf";
+    LOGINFO("Copying: " << loggerConf << " to: " << targetFile);
     fs::copy_file(loggerConf, targetFile, fs::copy_options::overwrite_existing);
 
     int ret = ::chroot(chrootPath.c_str());
