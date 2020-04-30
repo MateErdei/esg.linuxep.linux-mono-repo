@@ -173,7 +173,7 @@ AV Plugin Reports Threat XML To Base
    Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
    ${rc}   ${output} =    Run And Return Rc And Output   /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naugthy_eicar
 
-   Log  ${output}
+   Log To Console  ${output}
 
    Should Be Equal As Integers  ${rc}  69
 
@@ -183,7 +183,7 @@ AV Plugin Reports encoded eicars To Base
    Check AV Plugin Installed With Base
    ${rc}   ${output} =  Run And Return Rc And Output  id
 
-   Log  ${output}
+   Log To Console  ${output}
 
    Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
    Run Process    /usr/local/bin/avscanner  /tmp/encoded_eicars/  timeout=120s

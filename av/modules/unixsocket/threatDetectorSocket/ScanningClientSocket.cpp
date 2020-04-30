@@ -25,6 +25,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
+#define MAX_CONN_RETRIES 10
+
 unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket_path)
 {
     m_socket_fd.reset(socket(AF_UNIX, SOCK_STREAM, 0));
@@ -37,9 +39,16 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket
     addr.sun_path[sizeof(addr.sun_path) - 1] = '\0';
 
     int ret = connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
-    if (ret != 0)
+    int count = 0;
+    while (ret != 0)
     {
-        handle_error("Failed to connect to unix socket");
+        PRINT("Failed to connect to unix socket");
+        sleep(1);
+        if (++count >= MAX_CONN_RETRIES)
+        {
+            handle_error("Failed to connect to unix socket");
+        }
+        ret = connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
     }
 }
 
