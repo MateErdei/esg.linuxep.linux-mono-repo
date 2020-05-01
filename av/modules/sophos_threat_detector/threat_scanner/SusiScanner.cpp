@@ -32,7 +32,7 @@ SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapper
 {
     fs::path libraryPath = pluginInstall() / "chroot/susi/distribution_version";
 
-    static const std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
+    std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
         "signatureBased": {
             "fileTypeCategories": {
                 "archive": @@SCAN_ARCHIVES@@,
