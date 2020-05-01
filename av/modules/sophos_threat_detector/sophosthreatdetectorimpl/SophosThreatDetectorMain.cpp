@@ -31,18 +31,16 @@ static int inner_main()
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
     fs::path chrootPath = pluginInstall / "chroot";
-    std::string chrootPathStr = chrootPath.string();
     LOGDEBUG("Preparing to enter chroot at: " << chrootPath);
 #ifdef USE_CHROOT
     // Copy logger config from base
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
     LOGDEBUG("SSPL installed to: " << sophosInstall);
-    fs::path loggerConf = sophosInstall / "/base/etc/logger.conf";
-    std::string targetFile = chrootPathStr + sophosInstall.string();
-    LOGDEBUG("SSPL install path within chroot: " << targetFile);
-    targetFile += "base/etc/logger.conf";
-    LOGINFO("Copying: " << loggerConf << " to: " << targetFile);
-    fs::copy_file(loggerConf, targetFile, fs::copy_options::overwrite_existing);
+    std::string loggerConfFile = "/base/etc/logger.conf";
+    std::string sourceFile = sophosInstall.string() + loggerConfFile;
+    std::string targetFile = chrootPath.string() + sophosInstall.string() + loggerConfFile;
+    LOGINFO("Copying: " << sourceFile << " to: " << targetFile);
+    fs::copy_file(sourceFile, targetFile, fs::copy_options::overwrite_existing);
 
     int ret = ::chroot(chrootPath.c_str());
     if (ret != 0)
