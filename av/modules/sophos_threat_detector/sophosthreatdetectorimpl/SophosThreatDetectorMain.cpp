@@ -31,11 +31,14 @@ static int inner_main()
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
     fs::path chrootPath = pluginInstall / "chroot";
+    LOGDEBUG("Preparing to enter chroot at: " << chrootPath);
 #ifdef USE_CHROOT
     // Copy logger config from base
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
+    LOGDEBUG("SSPL installed to: " << sophosInstall);
     fs::path loggerConf = sophosInstall / "base/etc/logger.conf";
-    fs::path targetFile = chrootPath / sophosInstall / "base/etc/logger.conf";
+    //fs::path targetFile = chrootPath / sophosInstall / "base/etc/logger.conf";
+    fs::path targetFile = "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf";
     LOGINFO("Copying: " << loggerConf << " to: " << targetFile);
     fs::copy_file(loggerConf, targetFile, fs::copy_options::overwrite_existing);
 
