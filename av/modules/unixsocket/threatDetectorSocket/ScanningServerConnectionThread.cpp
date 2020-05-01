@@ -141,7 +141,6 @@ void unixsocket::ScanningServerConnectionThread::run()
     max = addFD(&readFDs, exitFD, max);
     max = addFD(&readFDs, socket_fd, max);
 
-    auto scanner = m_scannerFactory->createScanner(false);
     while (true)
     {
         fd_set tempRead = readFDs;
@@ -197,10 +196,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             std::string pathname = requestReader.getPathname();
             bool scanArchives = requestReader.getScanInsideArchives();
 
-            if (scanArchives != scanner->isScanningArchives())
-            {
-              scanner = m_scannerFactory->createScanner(scanArchives);
-            }
+            auto scanner = m_scannerFactory->createScanner(scanArchives);
 
             LOGDEBUG("Scan requested of " << pathname);
 

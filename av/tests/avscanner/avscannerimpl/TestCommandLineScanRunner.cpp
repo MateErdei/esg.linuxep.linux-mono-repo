@@ -23,6 +23,12 @@ TEST(CommandLineScanRunner, construction) // NOLINT
     avscanner::avscannerimpl::CommandLineScanRunner runner(paths, false);
 }
 
+TEST(CommandLineScanRunner, constructionWithScanArchives) // NOLINT
+{
+    std::vector<std::string> paths;
+    avscanner::avscannerimpl::CommandLineScanRunner runner(paths, true);
+}
+
 TEST(CommandLineScanRunner, scanRelativeDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
@@ -42,6 +48,24 @@ TEST(CommandLineScanRunner, scanRelativeDirectory) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
+TEST(CommandLineScanRunner, scanRelativeDirectoryWithScanArchives) // NOLINT
+{
+    fs::create_directories("sandbox/a/b/d/e");
+    std::ofstream("sandbox/a/b/file1.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("sandbox");
+    avscanner::avscannerimpl::CommandLineScanRunner runner(paths, true);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    fs::remove_all("sandbox");
+
+    ASSERT_EQ(socket->m_paths.size(), 1);
+    EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
+}
 
 TEST(CommandLineScanRunner, scanAbsolutePath) // NOLINT
 {

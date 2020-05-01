@@ -22,7 +22,7 @@ In order to run them in Vagrant box:
     vagrant ssh
     sudo mkdir -p /opt/test/inputs
     sudo mkdir -p /opt/test/inputs/av/
-    sudo ln -s /vagrant/sspl-plugin-anti-virus/TA/ /opt/test/inputs/test_scripts
+    sudo ln -s /vagrant/sspl-plugin-anti-virus/TA /opt/test/inputs/test_scripts
     sudo ln -s /vagrant/sspl-plugin-anti-virus/output/SDDS-COMPONENT /opt/test/inputs/av/SDDS-COMPONENT
     sudo ln -s /vagrant/sspl-plugin-anti-virus/output/test-resources /opt/test/inputs/av/test-resources
     sudo ln -s /vagrant/everest-base/output/SDDS-COMPONENT /opt/test/inputs/av/base-sdds
