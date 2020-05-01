@@ -76,6 +76,6 @@
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
-        <publishbranches>master,feature/LINUXDAR-1479_ostia_experiment</publishbranches>
+        <publishbranches>master,feature/LINUXDAR-1793_switch_to_production_susi</publishbranches>
     </publish>
 </package>
