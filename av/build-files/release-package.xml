@@ -38,11 +38,17 @@
             <include src="openssl.tar" dest="."/>
         </package>
 
-        <!-- SUSI imports -->
+        <!-- SUSI imports
+
         <package name="sspl-plugin-av-susi-component"
                  version="master/20200326170810-92338d0f9e8e01d1c5ce69e5a0684c12a5c93825/sspl-plugin-av-susi-component/0.5.0/output"
                  dest="input" buildtype="dev">
+        -->
+        <package name="sspl-plugin-av-susi-component" version="0-5-0-32/219527/output" dest="input">
             <include src="susi.tar" dest="."/>
+        </package>
+        <package buildtype="dev" name="lrdata" version="sophos-susi-lrdata/%LASTGOODBUILD%/lrdata/2019061901" dest="input" >
+            <include src="reputation.zip" dest="lrdata" />
         </package>
 
     </inputs>

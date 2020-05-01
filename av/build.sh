@@ -242,6 +242,21 @@ function untar_input()
     fi
 }
 
+function unzip_lrdata()
+{
+    local LRDATA_ZIP=${INPUT}/lrdata/reputation.zip
+    if [[ ! -f "$LRDATA_ZIP" ]]
+    then
+        echo "Can't find $LRDATA_ZIP - expected if we have a production build"
+        return
+    fi
+    local DEST=$REDIST/susi_build/version1/lrdata
+    mkdir -p "$DEST"
+    pushd "$DEST"
+    unzip "$LRDATA_ZIP"
+    popd
+}
+
 function build()
 {
     local BITS=$1
@@ -271,6 +286,7 @@ function build()
         untar_input $GOOGLETESTTAR
         untar_input susi "" "" optional
         untar_input openssl
+        unzip_lrdata
     fi
 
     addpath "$REDIST/cmake/bin"
