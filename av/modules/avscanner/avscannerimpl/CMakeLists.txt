@@ -28,26 +28,18 @@ add_library(avscannerimpl SHARED
         ScanClient.h
         )
 
-SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
-SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
-SET (BOOST_ROOT ${BOOSTPATH}/boost)
-
-find_package( Boost REQUIRED COMPONENTS program_options)
-
 target_include_directories(avscannerimpl PUBLIC
         ${CMAKE_SOURCE_DIR}/modules
         "${CAPNPROTO_INCLUDE_DIR}"
         ${CMAKE_BINARY_DIR}/modules/scan_messages
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${BOOSTPATH})
+        ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(avscannerimpl
         datatypes
         scanmessages
         unixsocket
         filewalker
-        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
-        ${Boost_LIBRARIES})
+        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
 
 install(TARGETS avscannerimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

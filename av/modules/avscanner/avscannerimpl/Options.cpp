@@ -8,52 +8,56 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Options.h"
 
 using namespace avscanner::avscannerimpl;
-namespace po = boost::program_options;
 
-po::variables_map Options::parseCommandLine(int argc, char** argv)
+namespace
 {
+    bool startswith(const std::string& value, const char* substr)
+    {
+        return (value.find(substr) == 0);
+    }
+}
 
-    po::positional_options_description positionalOptions;
-    positionalOptions.add("files", -1);
+bool Options::handleOption(const std::string& key, const std::string& value)
+{
+    if (key == "--config")
+    {
+        m_config = value;
+        return true;
+    }
 
-    po::options_description optionalOptions("Allowed options");
-    optionalOptions.add_options()
-        ("files,f", po::value< std::vector<std::string> >(), "files to scan")
-        ("config,c", po::value<std::string>(), "input configuration file for scheduled scans")
-        ("scan-archives,s","scan inside archives")
-        ;
-
-    po::variables_map vm;
-    store(po::command_line_parser(argc, argv)
-                                      .options(optionalOptions)
-                                      .positional(positionalOptions)
-                                      .run(),
-                                   vm);
-
-    return vm;
+    return false;
 }
 
 Options::Options(int argc, char** argv)
 {
-    if (argc > 0)
+    m_paths.reserve(argc);
+    bool allPaths = false;
+
+    for(int i=1; i < argc; i++)
     {
-        auto variableMap = parseCommandLine(argc, argv);
-
-        m_paths.reserve(argc);
-
-        if (variableMap.count("files"))
+        std::string arg(argv[i]);
+        if (allPaths)
         {
-            m_paths = variableMap["files"].as<std::vector<std::string>>();
+            m_paths.emplace_back(arg);
         }
-
-        if (variableMap.count("scan-archives"))
+        else if (arg == "--")
         {
-            m_archiveScanning = true;
+            allPaths = true;
         }
-
-        if (variableMap.count("config"))
+        else if (startswith(arg, "--"))
         {
-            m_config = variableMap["config"].as<std::string>();
+            const char* option = argv[i];
+            i++;
+            if (i >= argc)
+            {
+                throw std::runtime_error("Specified an option without a value");
+            }
+            const char* value = argv[i];
+            handleOption(option, value);
+        }
+        else
+        {
+            m_paths.emplace_back(arg);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace fs = sophos_filesystem;
 TEST(CommandLineScanRunner, construction) // NOLINT
 {
     std::vector<std::string> paths;
-    avscanner::avscannerimpl::CommandLineScanRunner runner(paths, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(paths);
 }
 
 TEST(CommandLineScanRunner, constructionWithScanArchives) // NOLINT
@@ -36,7 +36,7 @@ TEST(CommandLineScanRunner, scanRelativeDirectory) // NOLINT
 
     std::vector<std::string> paths;
     paths.emplace_back("sandbox");
-    avscanner::avscannerimpl::CommandLineScanRunner runner(paths, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(paths);
 
     auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
@@ -76,7 +76,7 @@ TEST(CommandLineScanRunner, scanAbsolutePath) // NOLINT
 
     std::vector<std::string> paths;
     paths.emplace_back(startingpoint);
-    avscanner::avscannerimpl::CommandLineScanRunner runner(paths, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(paths);
 
     auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
@@ -160,7 +160,7 @@ TEST(CommandLineScanRunner, excludeSpecialMounts) // NOLINT
 
     std::vector<std::string> paths;
     paths.emplace_back(startingpoint);
-    avscanner::avscannerimpl::CommandLineScanRunner runner(paths, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(paths);
 
     auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);

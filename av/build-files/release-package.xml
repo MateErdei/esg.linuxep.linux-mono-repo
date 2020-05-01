@@ -8,7 +8,7 @@
         <workingdir>sspl-plugin-anti-virus</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
-        <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.2/output" dest="input" buildtype="dev">
+        <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.1/output" dest="input" buildtype="dev">
             <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
@@ -18,12 +18,7 @@
             <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
-        <!-- TODO: LINUXDAR-1745 Change this to point to the latest production build-->
-        <package name="boostlinux11"
-                 version="sophos-av-plugin-build_program_options/%LASTGOODCOMPONENTBUILD%/boostlinux11/1-72-0/output"
-                 buildtype="dev"
-                 dest="input">
-<!--        <package name="boostlinux11" version="1-72-0-27/219523/output" dest="input">-->
+        <package name="boostlinux11" version="1-72-0-27/219058/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
