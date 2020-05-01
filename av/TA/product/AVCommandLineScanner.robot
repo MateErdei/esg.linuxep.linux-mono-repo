@@ -52,7 +52,7 @@ CLS Can Scan Infected File
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
    Should Be Equal As Integers  ${rc}  69
-
+   sleep  20m
    Stop AV
 
 CLS Can Scan Archive File

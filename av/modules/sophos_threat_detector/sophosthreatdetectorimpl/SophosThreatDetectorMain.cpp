@@ -37,7 +37,8 @@ static int inner_main()
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
     LOGDEBUG("SSPL installed to: " << sophosInstall);
     fs::path loggerConf = sophosInstall / "base/etc/logger.conf";
-    fs::path targetFile = chrootPath / sophosInstall;
+    fs::path targetFile = chrootPath / sophosInstall.string().c_str();
+    LOGDEBUG("SSPL install path within chroot: " << targetFile);
     targetFile /= "base/etc/logger.conf";
     LOGINFO("Copying: " << loggerConf << " to: " << targetFile);
     fs::copy_file(loggerConf, targetFile, fs::copy_options::overwrite_existing);

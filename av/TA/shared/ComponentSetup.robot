@@ -52,6 +52,7 @@ Setup Component For Testing
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/   shell=True
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1   shell=True
     Copy File  /lib/x86_64-linux-gnu/libz.so.1  ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1/
+    Run Process  chown  sophos-spl-user:sophos-spl-group  ${COMPONENT_ROOT_PATH}/chroot
 
 Use Fake AVScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  true
