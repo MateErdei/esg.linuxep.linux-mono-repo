@@ -69,7 +69,7 @@ static std::string susiResponseStr =
 TEST(TestThreatScanner, test_FakeSusiScannerConstruction) //NOLINT
 {
     threat_scanner::FakeSusiScannerFactory factory;
-    auto scanner = factory.createScanner(false);
+    auto scanner = factory.createScanner();
     scanner.reset();
 }
 
@@ -82,7 +82,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
     static const std::string scannerInfo = R"("scanner": {
         "signatureBased": {
             "fileTypeCategories": {
-                "archive": false,
+                "archive": true,
                 "selfExtractor": true,
                 "executable": true,
                 "office": true,
@@ -131,7 +131,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(susiWrapper->m_runtimeConfig,
             susiWrapper->m_scannerConfig)).WillOnce(Return(susiWrapper));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory);
 }
 
 TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
@@ -211,7 +211,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(Return(susiResult));
     EXPECT_CALL(*susiWrapper, freeResult(scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory);
     datatypes::AutoFd fd(1);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath);
 
@@ -236,7 +236,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory);
     datatypes::AutoFd fd(1);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath);
 

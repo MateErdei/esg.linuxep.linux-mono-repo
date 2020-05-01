@@ -19,7 +19,7 @@ namespace threat_scanner
     class SusiScanner : public IThreatScanner
     {
     public:
-        explicit SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory, bool scanArchives);
+        explicit SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory);
 
         scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path) override;
 

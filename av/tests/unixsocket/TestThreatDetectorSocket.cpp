@@ -22,7 +22,7 @@ namespace
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {
     public:
-        MOCK_METHOD1(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives));
+        MOCK_METHOD0(createScanner, threat_scanner::IThreatScannerPtr());
     };
 }
 

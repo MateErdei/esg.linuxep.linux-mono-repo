@@ -13,6 +13,6 @@ namespace threat_scanner
     class FakeSusiScannerFactory : public IThreatScannerFactory
     {
     public:
-        IThreatScannerPtr createScanner(bool scanArchives) override;
+        IThreatScannerPtr createScanner() override;
     };
 }

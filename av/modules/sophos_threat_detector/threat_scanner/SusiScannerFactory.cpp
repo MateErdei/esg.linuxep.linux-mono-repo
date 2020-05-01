@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace threat_scanner;
 
-IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives)
+IThreatScannerPtr SusiScannerFactory::createScanner()
 {
-    return std::make_unique<SusiScanner>(std::make_shared<SusiWrapperFactory>(), scanArchives);
+    return std::make_unique<SusiScanner>(std::make_shared<SusiWrapperFactory>());
 }
