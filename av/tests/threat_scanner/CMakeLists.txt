@@ -6,7 +6,7 @@ SophosAddTest(TestThreatScanner
         MockSusiWrapperFactory.h
         TestSusiResponseParsing.cpp
         TestThreatScanner.cpp
-        PROJECTS threat_scanner
+        PROJECTS threat_scanner common
         INC_DIRS ${pluginapiinclude}
         ${CMAKE_SOURCE_DIR}/modules
         )

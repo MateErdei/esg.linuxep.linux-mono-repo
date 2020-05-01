@@ -7,11 +7,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SusiScanner.h"
 
 #include "Logger.h"
+
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/UtilityImpl/StringUtils.h"
 #include "datatypes/sophos_filesystem.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-
+#include <common/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <iostream>
@@ -103,15 +104,18 @@ SusiScanner::scan(datatypes::AutoFd& /*fd*/, const std::string& file_path)
     if (scanResult != nullptr)
     {
         LOGINFO("Details: " << scanResult->version << ", " << scanResult->scanResultJson);
+        std::string scanResultUTF8 =  common::toUtf8( scanResult->scanResultJson, false);
 
-        json parsedScanResult = json::parse(scanResult->scanResultJson);
+        LOGINFO("Converted: " << scanResultUTF8);
+
+        json parsedScanResult = json::parse(scanResultUTF8);
         for (auto result : parsedScanResult["results"])
         {
             for (auto detection : result["detections"])
             {
                 LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
                 response.setThreatName(detection["threatName"]);
-                response.setFullScanResult(scanResult->scanResultJson);
+                response.setFullScanResult(scanResultUTF8);
             }
         }
     }

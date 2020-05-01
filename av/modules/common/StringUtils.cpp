@@ -81,7 +81,7 @@ namespace common
         return ss.str();
     }
 
-    std::string toUtf8(const std::string& str)
+    std::string toUtf8(const std::string& str, bool appendConversion)
     {
         try
         {
@@ -97,8 +97,18 @@ namespace common
         {
             try
             {
-                std::string encoding_info = " (" + encoding + ")";
-                return boost::locale::conv::to_utf<char>(str, encoding, boost::locale::conv::stop).append(encoding_info);
+                if (appendConversion)
+                {
+                    std::string encoding_info = " (" + encoding + ")";
+                    return boost::locale::conv::to_utf<char>(str,
+                                                             encoding,
+                                                             boost::locale::conv::stop).append(encoding_info);
+                }
+                else
+                {
+                    return boost::locale::conv::to_utf<char>(str, encoding, boost::locale::conv::stop);
+                }
+
             }
             catch(const boost::locale::conv::conversion_error& e)
             {
