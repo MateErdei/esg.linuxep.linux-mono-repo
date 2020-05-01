@@ -251,6 +251,8 @@ function unzip_lrdata()
         return
     fi
     local DEST=$REDIST/susi_build/version1/lrdata
+    ## Make sure to remove any previous version of this
+    rm -rf "${DEST}"
     mkdir -p "$DEST"
     pushd "$DEST"
     unzip "$LRDATA_ZIP"
