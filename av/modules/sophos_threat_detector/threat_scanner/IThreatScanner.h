@@ -17,6 +17,10 @@ namespace threat_scanner
     {
         public:
             virtual scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path) = 0;
+            [[nodiscard]] bool isScanningArchives() const { return m_scanArchives;}
+
+        private:
+            bool m_scanArchives = false;
     };
 
     using IThreatScannerPtr = std::unique_ptr<IThreatScanner>;

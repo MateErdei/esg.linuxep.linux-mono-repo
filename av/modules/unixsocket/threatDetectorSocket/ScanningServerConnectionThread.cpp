@@ -111,7 +111,7 @@ static int recv_fd(int socket)
  * @param bytes_read
  * @return
  */
-static std::string parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
+static Sophos::ssplav::FileScanRequest::Reader parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
 {
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
@@ -119,7 +119,7 @@ static std::string parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& b
     Sophos::ssplav::FileScanRequest::Reader requestReader =
             messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
 
-    return requestReader.getPathname();
+    return requestReader;
 }
 
 void unixsocket::ScanningServerConnectionThread::run()
@@ -140,8 +140,8 @@ void unixsocket::ScanningServerConnectionThread::run()
     int max = -1;
     max = addFD(&readFDs, exitFD, max);
     max = addFD(&readFDs, socket_fd, max);
+    threat_scanner::IThreatScannerPtr scanner;
 
-    auto scanner = m_scannerFactory->createScanner();
     while (true)
     {
         fd_set tempRead = readFDs;
@@ -193,7 +193,14 @@ void unixsocket::ScanningServerConnectionThread::run()
 
             LOGDEBUG("Read capn of " << bytes_read);
 
-            std::string pathname = parseRequest(proto_buffer, bytes_read);
+            Sophos::ssplav::FileScanRequest::Reader requestReader = parseRequest(proto_buffer, bytes_read);
+            std::string pathname = requestReader.getPathname();
+            bool scanArchives = requestReader.getScanInsideArchives();
+
+            if (!scanner)
+            {
+                scanner = m_scannerFactory->createScanner(scanArchives);
+            }
 
             LOGDEBUG("Scan requested of " << pathname);
 

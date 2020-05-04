@@ -108,9 +108,12 @@ namespace
     };
 }
 
-CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths)
+CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths, bool archiveScanning)
     : m_paths(std::move(paths))
+    , m_archiveScanning(archiveScanning)
 {
+    PRINT("Scanning Options");
+    PRINT("Scan archives enabled:" << archiveScanning);
 }
 
 int CommandLineScanRunner::run()
@@ -130,7 +133,7 @@ int CommandLineScanRunner::run()
     }
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
-    ScanClient scanner(*getSocket(), scanCallbacks, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
     CallbackImpl callbacks(std::move(scanner), excludedMountPoints);
 
     // for each select included mount point call filewalker for that mount point
