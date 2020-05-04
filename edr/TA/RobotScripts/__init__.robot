@@ -28,7 +28,7 @@ Global Setup Tasks
     Set Global variable  ${COMPONENT_LIB64_DIR}     ${COMPONENT_ROOT_PATH}/lib64
     Set Global Variable  ${FAKEMANAGEMENT_AGENT_LOG_PATH}  ${SOPHOS_INSTALL}/tmp/fake_management_agent.log
 
-    directory should exist  ${ROBOT_SCRIPTS_PATH}
+    Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
 
     Setup Base And Component
 
