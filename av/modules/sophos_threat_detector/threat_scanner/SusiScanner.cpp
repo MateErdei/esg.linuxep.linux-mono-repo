@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
+#include <common/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <iostream>
@@ -27,14 +28,14 @@ fs::path pluginInstall()
     return appConfig.getData("PLUGIN_INSTALL");
 }
 
-SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory)
+SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory, bool scanArchives)
 {
     fs::path libraryPath = pluginInstall() / "chroot/susi/distribution_version";
 
-    static const std::string scannerInfo = R"("scanner": {
+    static const std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
         "signatureBased": {
             "fileTypeCategories": {
-                "archive": true,
+                "archive": @@SCAN_ARCHIVES@@,
                 "selfExtractor": true,
                 "executable": true,
                 "office": true,
@@ -53,7 +54,7 @@ SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapper
                 "stopOnArchiveBombs": true
             }
         }
-    })";
+    })sophos", {{"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"}});
 
     std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
     "library": {
@@ -103,15 +104,18 @@ SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
     if (scanResult != nullptr)
     {
         LOGINFO("Details: " << scanResult->version << ", " << scanResult->scanResultJson);
+        std::string scanResultUTF8 =  common::toUtf8( scanResult->scanResultJson, false);
 
-        json parsedScanResult = json::parse(scanResult->scanResultJson);
+        LOGINFO("Converted: " << scanResultUTF8);
+
+        json parsedScanResult = json::parse(scanResultUTF8);
         for (auto result : parsedScanResult["results"])
         {
             for (auto detection : result["detections"])
             {
                 LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
                 response.setThreatName(detection["threatName"]);
-                response.setFullScanResult(scanResult->scanResultJson);
+                response.setFullScanResult(scanResultUTF8);
             }
         }
     }
