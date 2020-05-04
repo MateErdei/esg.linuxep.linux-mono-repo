@@ -23,7 +23,6 @@ namespace threat_scanner
 
         scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path) override;
 
-
     private:
         std::shared_ptr<ISusiWrapper> m_susi;
     };
