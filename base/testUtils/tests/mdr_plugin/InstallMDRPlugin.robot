@@ -31,6 +31,7 @@ MDR Plugin Installs
     File Exists With Permissions      ${MDR_LOG_FILE}     root  root              -rw-------
     Socket Exists With Permissions    ${IPC_FILE}         root  sophos-spl-group  srw-rw----
     Directory Should Exist  ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/logs
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
 
 MDR Plugin Installs With Version Ini File
     Install MDR Directly
