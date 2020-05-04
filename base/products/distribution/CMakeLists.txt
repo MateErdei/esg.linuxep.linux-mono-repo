@@ -22,25 +22,25 @@ set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
 set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py )
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
+        COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
         )
 
 add_custom_target(
         dist
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
+        COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 
 add_custom_target(
         forcedist
         COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
+        COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 INCLUDE(FindLibraryFullPath)
@@ -84,16 +84,16 @@ install(FILES ${VERSIG_INPUT}/bin64/versig
 add_custom_target(
         copy_libs
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
-        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
+        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
 )
 
 execute_process(
-        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
+        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
         OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
-        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
+        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
         OUTPUT_VARIABLE PRODUCT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 

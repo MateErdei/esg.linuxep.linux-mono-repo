@@ -2,7 +2,7 @@
 # Copyright (C) 2019 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-from __future__ import absolute_import, print_function, division, unicode_literals
+
 
 import fileInfo
 import readVersion
@@ -80,12 +80,10 @@ TELEMSUPP_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 
 PY3 = sys.version_info[0] == 3
 
-if PY3:
-    unicode_str = str
-    byte_str = bytes
-else:
-    unicode_str = unicode
-    byte_str = str
+
+unicode_str = str
+byte_str = bytes
+
 
 def ensure_binary_string(s):
     if isinstance(s, unicode_str):

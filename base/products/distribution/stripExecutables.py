@@ -36,10 +36,10 @@ def main(argv):
     elif stripEnv == "1":
         print("Stripping binaries due to ENABLE_STRIP=1")
     elif buildType in ("Debug", "RelWithDebInfo"):
-        print("NOT stipping binaries in buildType %s"%buildType)
+        print("NOT stripping binaries in buildType {}".format(buildType))
         return 0
     else:
-        print("Stripping binaries in buildType %s"%buildType)
+        print("Stripping binaries in buildType {}".format(buildType))
 
     for (base, dirs, files) in os.walk(dest):
         for f in files:

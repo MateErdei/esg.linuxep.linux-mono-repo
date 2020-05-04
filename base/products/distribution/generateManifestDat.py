@@ -2,17 +2,12 @@
 # Copyright (C) 2019 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-from __future__ import absolute_import, print_function, division, unicode_literals
 
 import os
 import socket
 import sys
 
-try:
-    import xmlrpc.client as xmlrpc_client
-except ImportError:
-    import xmlrpclib as xmlrpc_client
-
+import xmlrpc.client as xmlrpc_client
 import fileInfo
 
 
@@ -66,14 +61,10 @@ def read(p):
     except EnvironmentError:
         return None
 
-PY2 = sys.version_info[0] == 2
-PY3 = sys.version_info[0] == 3
-if PY3:
-    unicode_str = str
-    byte_str = bytes
-else:
-    unicode_str = unicode
-    byte_str = str
+
+unicode_str = str
+byte_str = bytes
+
 
 def ensure_bytes(s):
     if isinstance(s, unicode_str):

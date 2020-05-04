@@ -2,7 +2,7 @@
 # Copyright (C) 2019 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-from __future__ import absolute_import, print_function, division, unicode_literals
+
 
 import os
 import re
