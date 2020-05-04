@@ -7,10 +7,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SusiScanner.h"
 
 #include "Logger.h"
-#include "datatypes/sophos_filesystem.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "datatypes/sophos_filesystem.h"
 
 #include <common/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
@@ -32,7 +32,7 @@ SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapper
 {
     fs::path libraryPath = pluginInstall() / "chroot/susi/distribution_version";
 
-    static const std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
+    std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
         "signatureBased": {
             "fileTypeCategories": {
                 "archive": @@SCAN_ARCHIVES@@,

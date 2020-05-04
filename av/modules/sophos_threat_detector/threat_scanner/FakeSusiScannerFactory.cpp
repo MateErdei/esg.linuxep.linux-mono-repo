@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace threat_scanner;
 
-IThreatScannerPtr FakeSusiScannerFactory::createScanner()
+IThreatScannerPtr FakeSusiScannerFactory::createScanner(bool)
 {
     return std::make_unique<FakeSusiScanner>();
 }

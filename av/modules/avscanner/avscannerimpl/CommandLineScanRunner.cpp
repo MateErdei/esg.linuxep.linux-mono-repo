@@ -112,8 +112,8 @@ CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths, boo
     : m_paths(std::move(paths))
     , m_archiveScanning(archiveScanning)
 {
-    PRINT("Scanning Options");
-    PRINT("Scan archives enabled:" << archiveScanning);
+    std::string printArchiveScanning = archiveScanning?"yes":"no";
+    PRINT("Archive scanning enabled: " << printArchiveScanning);
 }
 
 int CommandLineScanRunner::run()

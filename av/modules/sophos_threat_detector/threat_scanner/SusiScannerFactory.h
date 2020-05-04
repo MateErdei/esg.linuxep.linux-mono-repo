@@ -13,6 +13,6 @@ namespace threat_scanner
     class SusiScannerFactory : public IThreatScannerFactory
     {
     public:
-        IThreatScannerPtr createScanner() override;
+        IThreatScannerPtr createScanner(bool scanArchives) override;
     };
 }

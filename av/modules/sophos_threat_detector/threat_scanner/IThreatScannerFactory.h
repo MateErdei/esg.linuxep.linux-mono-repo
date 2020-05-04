@@ -13,7 +13,7 @@ namespace threat_scanner
     class IThreatScannerFactory
     {
     public:
-        virtual IThreatScannerPtr createScanner() = 0;
+        virtual IThreatScannerPtr createScanner(bool scanArchives) = 0;
     };
     using IThreatScannerFactorySharedPtr = std::shared_ptr<IThreatScannerFactory>;
 }

@@ -69,11 +69,72 @@ static std::string susiResponseStr =
 TEST(TestThreatScanner, test_FakeSusiScannerConstruction) //NOLINT
 {
     threat_scanner::FakeSusiScannerFactory factory;
-    auto scanner = factory.createScanner();
+    auto scanner = factory.createScanner(false);
     scanner.reset();
 }
 
 TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
+{
+    setupFakeSophosThreatDetectorConfig();
+
+    fs::path libraryPath = pluginInstall() / "chroot/susi/distribution_version";
+
+    static const std::string scannerInfo = R"("scanner": {
+        "signatureBased": {
+            "fileTypeCategories": {
+                "archive": false,
+                "selfExtractor": true,
+                "executable": true,
+                "office": true,
+                "adobe": true,
+                "android": true,
+                "internet": true,
+                "webArchive": true,
+                "webEncoding": true,
+                "media": true,
+                "macintosh": true
+            },
+            "scanControl": {
+                "trueFileTypeDetection": true,
+                "puaDetection": true,
+                "archiveRecursionDepth": 16,
+                "stopOnArchiveBombs": true
+            }
+        }
+    })";
+
+    std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
+    "library": {
+        "libraryPath": "@@LIBRARY_PATH@@",
+        "tempPath": "/tmp",
+        "product": {
+            "name": "SSPL AV Plugin",
+            "context": "File",
+            "version": "1.0.0"
+        },
+        "customerID": "0123456789abcdef",
+        "machineID": "fedcba9876543210"
+    },
+    @@SCANNER_CONFIG@@
+})sophos", {{"@@LIBRARY_PATH@@", libraryPath},
+            {"@@SCANNER_CONFIG@@", scannerInfo}
+    });
+
+    std::string scannerConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
+        @@SCANNER_CONFIG@@
+})sophos", {{"@@SCANNER_CONFIG@@", scannerInfo}
+    });
+
+    auto susiWrapper = std::make_shared<MockSusiWrapper>(runtimeConfig, scannerConfig);
+    std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
+
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(susiWrapper->m_runtimeConfig,
+            susiWrapper->m_scannerConfig)).WillOnce(Return(susiWrapper));
+
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
+}
+
+TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -129,9 +190,9 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
     std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(susiWrapper->m_runtimeConfig,
-            susiWrapper->m_scannerConfig)).WillOnce(Return(susiWrapper));
+                                                       susiWrapper->m_scannerConfig)).WillOnce(Return(susiWrapper));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true);
 }
 
 TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
@@ -147,10 +208,10 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
     SusiScanResult* scanResult = nullptr;
     std::string filePath = "/tmp/clean_file.txt";
 
-    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(Return(susiResult));
+    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _)).WillOnce(Return(susiResult));
     EXPECT_CALL(*susiWrapper, freeResult(scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
     datatypes::AutoFd fd(1);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath);
 
@@ -172,10 +233,10 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     scanResult.scanResultJson = const_cast<char*>(susiResponseStr.c_str());
     std::string filePath = "/tmp/eicar.txt";
 
-    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
+    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _)).WillOnce(DoAll(SetArgPointee<2>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
     datatypes::AutoFd fd(1);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath);
 
