@@ -21,6 +21,7 @@ po::variables_map Options::parseCommandLine(int argc, char** argv)
         ("files,f", po::value< std::vector<std::string> >(), "files to scan")
         ("config,c", po::value<std::string>(), "input configuration file for scheduled scans")
         ("scan-archives,s","scan inside archives")
+        ("exclude,ex", po::value< std::vector<std::string> >(),"exclude these locations from being scanned")
         ;
 
     po::variables_map vm;
@@ -49,6 +50,11 @@ Options::Options(int argc, char** argv)
         if (variableMap.count("scan-archives"))
         {
             m_archiveScanning = true;
+        }
+
+        if (variableMap.count("exclude"))
+        {
+            m_exclusions = variableMap["exclude"].as<std::vector<std::string>>();
         }
 
         if (variableMap.count("config"))

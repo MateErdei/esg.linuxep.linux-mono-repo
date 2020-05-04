@@ -53,12 +53,14 @@ namespace
     public:
         explicit CallbackImpl(
                 ScanClient scanner,
-                std::vector<fs::path> exclusions
+                std::vector<fs::path> mountExclusions,
+                std::vector<Exclusion> cmdExclusions
                 )
                 : BaseFileWalkCallbacks(std::move(scanner))
-                , m_exclusions(std::move(exclusions))
+                , m_mountExclusions(std::move(mountExclusions))
+                , m_cmdExclusions(std::move(cmdExclusions))
         {
-            m_currentExclusions.reserve(m_exclusions.size());
+            m_currentExclusions.reserve(m_mountExclusions.size());
         }
 
         void processFile(const fs::path& p) override
@@ -86,13 +88,24 @@ namespace
                     return false;
                 }
             }
+
+            for (const auto& exclusion : m_cmdExclusions)
+            {
+                PRINT("callback exclusions: " << exclusion.path());
+                if (exclusion.appliesToPath(p) && exclusion.type() != FILENAME)
+                {
+                    PRINT("exclusion applied to: " << p);
+                    return false;
+                }
+            }
+
             return true;
         }
 
         void setCurrentInclude(const fs::path& inclusionPath)
         {
             m_currentExclusions.clear();
-            for (const auto& e : m_exclusions)
+            for (const auto& e : m_mountExclusions)
             {
                 if (PathUtils::longer(e, inclusionPath) &&
                     PathUtils::startswith(e, inclusionPath))
@@ -103,14 +116,18 @@ namespace
         }
 
     private:
-        std::vector<fs::path> m_exclusions;
+        std::vector<fs::path> m_mountExclusions;
         std::vector<fs::path> m_currentExclusions;
+        std::vector<Exclusion> m_cmdExclusions;
     };
 }
 
-CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths, bool archiveScanning)
+CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths,
+                                             bool archiveScanning,
+                                             std::vector<std::string> exclusions)
     : m_paths(std::move(paths))
     , m_archiveScanning(archiveScanning)
+    , m_exclusions(std::move(exclusions))
 {
     std::string printArchiveScanning = archiveScanning?"yes":"no";
     PRINT("Archive scanning enabled: " << printArchiveScanning);
@@ -121,6 +138,7 @@ int CommandLineScanRunner::run()
     // evaluate mount information
     std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+
     std::vector<fs::path> excludedMountPoints;
     excludedMountPoints.reserve(allMountpoints.size());
     for (const auto& mp : allMountpoints)
@@ -132,9 +150,17 @@ int CommandLineScanRunner::run()
         excludedMountPoints.emplace_back(mp->mountPoint());
     }
 
+    std::vector<Exclusion> cmdExclusions;
+    cmdExclusions.reserve(m_exclusions.size());
+    for (const auto& exclusion : m_exclusions)
+    {
+        PRINT("exclusion: " << exclusion);
+        cmdExclusions.emplace_back(exclusion);
+    }
+
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
     ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
-    CallbackImpl callbacks(std::move(scanner), excludedMountPoints);
+    CallbackImpl callbacks(std::move(scanner), excludedMountPoints, cmdExclusions);
 
     // for each select included mount point call filewalker for that mount point
     for (const auto& path : m_paths)

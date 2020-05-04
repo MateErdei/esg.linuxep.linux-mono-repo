@@ -35,10 +35,16 @@ namespace avscanner::avscannerimpl
             return m_archiveScanning;
         }
 
+        [[nodiscard]] std::vector<std::string> exclusions() const
+        {
+            return m_exclusions;
+        }
+
 
     private:
         std::string m_config;
         std::vector <std::string> m_paths;
+        std::vector <std::string> m_exclusions;
         bool m_archiveScanning = false;
 
         static boost::program_options::variables_map parseCommandLine(int argc, char** argv);
