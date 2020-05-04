@@ -55,6 +55,20 @@ CLS Can Scan Infected File
 
    Stop AV
 
+CLS Can Scan Archive File
+      Start AV
+
+      Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+      Run Process     tar  -cf  ${NORMAL_DIRECTORY}/naugthy_eicar.tar  ${NORMAL_DIRECTORY}/naugthy_eicar
+      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar.tar --scan-archives
+
+      Log To Console  return code is ${rc}
+      Log To Console  output is ${output}
+      Should Be Equal As Integers  ${rc}  69
+
+      Stop AV
+
+
 AV Log Contains No Errors When Scanning File
     Start AV
 

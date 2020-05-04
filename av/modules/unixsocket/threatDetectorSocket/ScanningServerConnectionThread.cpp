@@ -111,7 +111,7 @@ static int recv_fd(int socket)
  * @param bytes_read
  * @return
  */
-static Sophos::ssplav::FileScanRequest::Reader parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
+static unixsocket::ScanRequestObject parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
 {
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
@@ -119,7 +119,10 @@ static Sophos::ssplav::FileScanRequest::Reader parseRequest(kj::Array<capnp::wor
     Sophos::ssplav::FileScanRequest::Reader requestReader =
             messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
 
-    return requestReader;
+    unixsocket::ScanRequestObject scanRequest;
+    scanRequest.pathname = requestReader.getPathname();
+    scanRequest.scanArchives = requestReader.getScanInsideArchives();
+    return scanRequest;
 }
 
 void unixsocket::ScanningServerConnectionThread::run()
@@ -193,16 +196,14 @@ void unixsocket::ScanningServerConnectionThread::run()
 
             LOGDEBUG("Read capn of " << bytes_read);
 
-            Sophos::ssplav::FileScanRequest::Reader requestReader = parseRequest(proto_buffer, bytes_read);
-            std::string pathname = requestReader.getPathname();
-            bool scanArchives = requestReader.getScanInsideArchives();
+            ScanRequestObject requestReader = parseRequest(proto_buffer, bytes_read);
 
             if (!scanner)
             {
-                scanner = m_scannerFactory->createScanner(scanArchives);
+                scanner = m_scannerFactory->createScanner(requestReader.scanArchives);
             }
 
-            LOGDEBUG("Scan requested of " << pathname);
+            LOGDEBUG("Scan requested of " << requestReader.pathname);
 
             // read fd
             int file_fd = recv_fd(socket_fd);
@@ -215,7 +216,7 @@ void unixsocket::ScanningServerConnectionThread::run()
 
             datatypes::AutoFd file_fd_manager(file_fd);
 
-            auto result = scanner->scan(file_fd_manager, pathname);
+            auto result = scanner->scan(file_fd_manager, requestReader.pathname);
             file_fd_manager.reset();
 
             std::string serialised_result = result.serialise();
