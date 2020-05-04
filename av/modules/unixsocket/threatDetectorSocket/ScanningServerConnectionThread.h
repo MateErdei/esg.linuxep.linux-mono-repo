@@ -36,12 +36,6 @@ namespace unixsocket
         datatypes::AutoFd m_fd;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
     };
-
-    struct ScanRequestObject
-    {
-        std::string pathname;
-        bool scanArchives;
-    };
 }
 
 

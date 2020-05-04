@@ -134,67 +134,6 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory);
 }
 
-TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
-{
-    setupFakeSophosThreatDetectorConfig();
-
-    fs::path libraryPath = pluginInstall() / "chroot/susi/distribution_version";
-
-    static const std::string scannerInfo = R"("scanner": {
-        "signatureBased": {
-            "fileTypeCategories": {
-                "archive": true,
-                "selfExtractor": true,
-                "executable": true,
-                "office": true,
-                "adobe": true,
-                "android": true,
-                "internet": true,
-                "webArchive": true,
-                "webEncoding": true,
-                "media": true,
-                "macintosh": true
-            },
-            "scanControl": {
-                "trueFileTypeDetection": true,
-                "puaDetection": true,
-                "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true
-            }
-        }
-    })";
-
-    std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
-    "library": {
-        "libraryPath": "@@LIBRARY_PATH@@",
-        "tempPath": "/tmp",
-        "product": {
-            "name": "SSPL AV Plugin",
-            "context": "File",
-            "version": "1.0.0"
-        },
-        "customerID": "0123456789abcdef",
-        "machineID": "fedcba9876543210"
-    },
-    @@SCANNER_CONFIG@@
-})sophos", {{"@@LIBRARY_PATH@@", libraryPath},
-            {"@@SCANNER_CONFIG@@", scannerInfo}
-    });
-
-    std::string scannerConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
-        @@SCANNER_CONFIG@@
-})sophos", {{"@@SCANNER_CONFIG@@", scannerInfo}
-    });
-
-    auto susiWrapper = std::make_shared<MockSusiWrapper>(runtimeConfig, scannerConfig);
-    std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
-
-    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(susiWrapper->m_runtimeConfig,
-                                                       susiWrapper->m_scannerConfig)).WillOnce(Return(susiWrapper));
-
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true);
-}
-
 TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
 {
     setupFakeSophosThreatDetectorConfig();
