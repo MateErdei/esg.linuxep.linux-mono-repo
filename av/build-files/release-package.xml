@@ -18,7 +18,12 @@
             <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
-        <package name="boostlinux11" version="1-72-0-27/219058/output" dest="input">
+        <!-- TODO: LINUXDAR-1780 Use the boost build with program_options built-->
+        <package name="boostlinux11"
+                 version="sophos-av-plugin-build_program_options/%LASTGOODCOMPONENTBUILD%/boostlinux11/1-72-0/output"
+                 buildtype="dev"
+                 dest="input">
+<!--        <package name="boostlinux11" version="1-72-0-27/219523/output" dest="input">-->
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
@@ -39,6 +44,7 @@
         </package>
 
         <!-- SUSI imports -->
+        <!-- TODO: LINUXDAR-1780 Use the boost build with program_options built-->
         <package name="sspl-plugin-av-susi-component"
                  version="master/%LASTGOODCOMPONENTBUILD%/sspl-plugin-av-susi-component/0.5.0/output"
                  dest="input" buildtype="dev">
