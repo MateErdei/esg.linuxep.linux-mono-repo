@@ -70,6 +70,6 @@
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
-        <publishbranches>master,feature/LINUXDAR-1479_ostia_experiment,feature/LINUXDAR-1797-undo-chroot-susi-changes-linuxdar-1561</publishbranches>
+        <publishbranches>master,feature/LINUXDAR-1479_ostia_experiment</publishbranches>
     </publish>
 </package>

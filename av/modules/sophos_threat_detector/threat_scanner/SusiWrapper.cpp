@@ -61,10 +61,10 @@ SusiWrapper::~SusiWrapper()
 }
 
 SusiResult SusiWrapper::scanFile(
-    const char* metaData,
-    const char* filename,
-    datatypes::AutoFd& fd,
-    SusiScanResult** scanResult)
+        const char* metaData,
+        const char* filename,
+        datatypes::AutoFd& fd,
+        SusiScanResult** scanResult)
 {
     SusiResult ret = SUSI_ScanHandle(m_handle, metaData, filename, fd.get(), scanResult);
     return ret;

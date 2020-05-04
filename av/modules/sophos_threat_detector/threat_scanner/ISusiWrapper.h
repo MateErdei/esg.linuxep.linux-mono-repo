@@ -14,10 +14,10 @@ class ISusiWrapper
 {
 public:
     virtual SusiResult scanFile(
-        const char* metaData,
-        const char* filename,
-        datatypes::AutoFd& fd,
-        SusiScanResult** scanResult) = 0;
+            const char* metaData,
+            const char* filename,
+            datatypes::AutoFd& fd,
+            SusiScanResult** scanResult) = 0;
 
     virtual void freeResult(SusiScanResult* scanResult) = 0;
 };

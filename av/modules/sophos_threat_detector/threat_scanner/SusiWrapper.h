@@ -19,10 +19,10 @@ public:
     ~SusiWrapper();
 
     SusiResult scanFile(
-        const char* metaData,
-        const char* filename,
-        datatypes::AutoFd& fd,
-        SusiScanResult** scanResult) override;
+            const char* metaData,
+            const char* filename,
+            datatypes::AutoFd& fd,
+            SusiScanResult** scanResult) override;
 
     void freeResult(SusiScanResult* scanResult) override;
 

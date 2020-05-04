@@ -35,7 +35,6 @@ static int inner_main()
 #ifdef USE_CHROOT
     // Copy logger config from base
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
-    LOGDEBUG("SSPL installed to: " << sophosInstall);
     std::string loggerConfFile = "/base/etc/logger.conf";
     std::string sourceFile = sophosInstall.string() + loggerConfFile;
     std::string targetFile = chrootPath.string() + sophosInstall.string() + loggerConfFile;
