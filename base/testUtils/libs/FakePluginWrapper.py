@@ -48,6 +48,14 @@ class FakePluginWrapper(object):
         robot.api.logger.info("Wrote plugin registry to {}".format(filename))
         robot.api.logger.info(config)
 
+    def remove_fake_plugin_from_registry(self):
+        filename = '/opt/sophos-spl/base/pluginRegistry/{}.json'.format(self.__m_pluginName)
+        try:
+            os.remove(filename)
+            robot.api.logger.info("file removed from plugin registry: {}".format(filename))
+        except:
+            robot.api.logger.info("Exception while removing plugin registry file: {}".format(filename))
+
     def start_plugin(self):
         if self.plugin:
             raise AssertionError("Plugin already initialized")

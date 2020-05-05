@@ -2,11 +2,10 @@
 
 Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
-Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
 Library     String
 Resource    McsRouterResources.robot
+Resource    MCSPushClientReources.robot
 Resource    ../upgrade_product/UpgradeResources.robot
 Resource    ../management_agent/ManagementAgentResources.robot
 
@@ -17,9 +16,6 @@ Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 Test Teardown    Test Teardown
 
 Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_TESTS
-
-*** Variables ***
-${MCS_ROUTER_LOG}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 
 *** Test Case ***
 
@@ -446,80 +442,9 @@ MCS Push Client Logs Successfull Connection Via Proxy
 
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
-
-MCSRouter Can Start and Receive LiveTerminal Action From Push Client
-    Start MCS Push Server
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
-
-    Set Fake Plugin App ID   LiveTerminal
-    Setup Plugin Registry
-
-    Check Connected To Fake Cloud
-
-    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
-
-    ${liveResponse} =  Create Live Response Action  wss://test-url  FakeThumbprint
-    send_message_to_push_server   ${liveResponse}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Mcsrouter Log Contains   Received command from Push Server
-
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  File Should Exist  ${MCS_DIR}/action/LiveTerminal_action_FakeTime.xml
-
-    ${content} =  Get File  ${MCS_DIR}/action/LiveTerminal_action_FakeTime.xml
-    Should Contain  ${content}  <action type="sophos.mgt.action.InitiateLiveTerminal">
-    Should Contain  ${content}  wss://test-url
-
-    ${file} =  get_live_response_file
-    Log File  ${file}
-
-
 *** Keywords ***
-
-Push Client started and connects to Push Server when the MCS Client receives MCS Policy
-    [Arguments]  ${proxy}=no
-    Run Keyword If  '${proxy}' != 'proxy'
-    ...  Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct  ELSE
-    ...  Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
-
-Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
-    Wait Until Keyword Succeeds
-    ...          10s
-    ...          1s
-    ...          Run Keywords
-    ...          Check Mcsrouter Log Contains   Push Server settings changed. Applying it    AND
-    ...          Check Mcsrouter Log Contains   Push client successfully connected to localhost:4443 directly
-
-Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
-    Wait Until Keyword Succeeds
-    ...          10s
-    ...          1s
-    ...          Run Keywords
-    ...          Check Mcsrouter Log Contains   Push Server settings changed. Applying it    AND
-    ...          Check Mcsrouter Log Contains   Push client successfully connected to localhost:4443 via localhost:1235
-
-Send Message To Push Server And Expect It In MCSRouter Log
-    [Arguments]  ${message}
-    Send Message To Push Server    ${message}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Mcsrouter Log Contains   Received command: ${message}
-
-Check Connected To Fake Cloud
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Check Mcsrouter Log Contains     Successfully directly connected to localhost:4443
-
 Test Teardown
-    Push Server Teardown with MCS Fake Server
-    Stop Proxy Servers
-    Stop Mcsrouter If Running
+    Push Client Test Teardown
     Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
 
 Test Teardown With Env Proxy
