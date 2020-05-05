@@ -151,8 +151,7 @@ do
     esac
     shift
 done
-rm -f /usr/bin/python
-rm -f /usr/bin/python2
+
 if [[ ! -d "$INPUT" ]]
 then
     if [[ -d "$BASE/sspl-base-build" ]]
