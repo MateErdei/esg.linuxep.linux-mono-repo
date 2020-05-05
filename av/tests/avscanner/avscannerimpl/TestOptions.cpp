@@ -17,6 +17,9 @@ TEST(Options, TestNoArgs) // NOLINT
     Options o(argc, argv);
     EXPECT_EQ(o.paths().size(), 0);
     EXPECT_EQ(o.config(), "");
+    EXPECT_FALSE(o.archiveScanning());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
 }
 
 TEST(Options, TestPaths) // NOLINT
@@ -30,6 +33,9 @@ TEST(Options, TestPaths) // NOLINT
     ASSERT_EQ(paths.size(), 1);
     EXPECT_EQ(paths.at(0), "/foo");
     EXPECT_EQ(o.config(), "");
+    EXPECT_FALSE(o.archiveScanning());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
 }
 
 TEST(Options, TestMultiplePaths) // NOLINT
@@ -45,8 +51,10 @@ TEST(Options, TestMultiplePaths) // NOLINT
     EXPECT_EQ(paths.at(0), "/foo");
     EXPECT_EQ(paths.at(1), "/bar");
     EXPECT_EQ(o.config(), "");
+    EXPECT_FALSE(o.archiveScanning());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
 }
-
 
 TEST(Options, TestConfig) // NOLINT
 {
@@ -59,5 +67,66 @@ TEST(Options, TestConfig) // NOLINT
     auto paths = o.paths();
     ASSERT_EQ(paths.size(), 0);
     EXPECT_EQ(o.config(), "/bar");
+    EXPECT_FALSE(o.archiveScanning());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+}
+
+TEST(Options, TestArchiveScanning) // NOLINT
+{
+    const int argc = 2;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--scan-archives";
+    Options o(argc, const_cast<char**>(argv));
+    auto paths = o.paths();
+    ASSERT_EQ(paths.size(), 0);
+    EXPECT_EQ(o.config(), "");
+    EXPECT_TRUE(o.archiveScanning());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+}
+
+TEST(Options, TestExclusions) // NOLINT
+{
+    const int argc = 3;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--exclude";
+    argv[2] = "file.txt";
+    Options o(argc, const_cast<char**>(argv));
+    auto paths = o.paths();
+    ASSERT_EQ(paths.size(), 0);
+    EXPECT_EQ(o.config(), "");
+    EXPECT_FALSE(o.archiveScanning());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    EXPECT_EQ(exclusions.at(0), "file.txt");
+}
+
+TEST(Options, TestShortArguments) // NOLINT
+{
+    const int argc = 10;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "-c";
+    argv[2] = "/bar";
+    argv[3] = "-s";
+    argv[4] = "-x";
+    argv[5] = "file.txt";
+    argv[6] = "-f";
+    argv[7] = "/foo";
+    argv[8] = "--";
+    argv[9] = "/baz";
+    Options o(argc, const_cast<char**>(argv));
+    EXPECT_EQ(o.config(), "/bar");
+    EXPECT_TRUE(o.archiveScanning());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    EXPECT_EQ(exclusions.at(0), "file.txt");
+    auto paths = o.paths();
+    ASSERT_EQ(paths.size(), 2);
+    EXPECT_EQ(paths.at(0), "/foo");
+    EXPECT_EQ(paths.at(1), "/baz");
 }
 

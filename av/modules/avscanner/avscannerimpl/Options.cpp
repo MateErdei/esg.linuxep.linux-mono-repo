@@ -21,7 +21,7 @@ po::variables_map Options::parseCommandLine(int argc, char** argv)
         ("files,f", po::value< std::vector<std::string> >(), "files to scan")
         ("config,c", po::value<std::string>(), "input configuration file for scheduled scans")
         ("scan-archives,s","scan inside archives")
-        ("exclude,ex", po::value< std::vector<std::string> >(),"exclude these locations from being scanned")
+        ("exclude,x", po::value< std::vector<std::string> >(),"exclude these locations from being scanned")
         ;
 
     po::variables_map vm;
