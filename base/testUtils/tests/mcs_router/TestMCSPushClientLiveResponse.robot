@@ -19,7 +19,7 @@ Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_TESTS
 
 
 *** Test Case ***
-MCSRouter Can Start and Receive LiveTerminal Action From Push Client
+MCSRouter Can Start and Receive LiveTerminal Action Via Push Client
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
 

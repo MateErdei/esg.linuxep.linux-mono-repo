@@ -438,6 +438,31 @@ class EDREndpointManager(object):
         self.__id = ""
 
 
+class LiveTerminalEndpointManager(object):
+    def __init__(self):
+        self.__liveTerminalInit = ""
+        self.__id = ""
+
+    def LiveTerminalPending(self):
+        return self.__liveTerminalInit != ""
+
+    def initiateLiveTerminal(self, cmd_body, command_id):
+        self.__id = command_id
+        if cmd_body is None:
+            self.__liveTerminalInit = \
+                """<action type="sophos.mgt.action.InitiateLiveTerminal"><url>"wss://url"</url><thumbprint>thumbprint</thumbprint></action>"""
+        else:
+            self.__liveTerminalInit = cmd_body.decode("utf-8")
+
+    def liveTerminal(self):
+        if self.__liveTerminalInit == "":
+            raise AssertionError("No LiveTerminal init command available")
+        return self.__liveTerminalInit, self.__id
+
+    def clearLiveTerminal(self):
+        self.__liveTerminalInit = ""
+        self.__id = ""
+
 # MCS Policy
 class MCSEndpointManager(object):
     def __init__(self):
@@ -530,6 +555,7 @@ class Endpoint(object):
         self.__hb = HeartbeatEndpointManager()
         self.__sav = SAVEndpointManager()
         self.__edr = EDREndpointManager()
+        self.__liveTerminal = LiveTerminalEndpointManager()
         self.__mcs = MCSEndpointManager()
         self.__alc = ALCEndpointManager()
         self.__mdr = MDREndpointManager()
@@ -748,6 +774,17 @@ class Endpoint(object):
         <body>{}</body>
       </command>""".format(id, xml.sax.saxutils.escape(body.decode("utf-8")))
 
+    def liveTerminalCommand(self):
+        body, id = self.__liveTerminal.liveTerminal()
+        self.__liveTerminal.clearLiveTerminal()
+        return r"""<command>
+        <id>{}</id>
+        <appId>LiveTerminal</appId>
+        <creationTime>FakeTime</creationTime>
+        <ttl>PT10000S</ttl>
+        <body>{}</body>
+      </command>""".format(id, xml.sax.saxutils.escape(body))
+
     def commandXml(self, apps):
         logger.debug("commandXML - %s", apps)
         commands = []
@@ -770,6 +807,8 @@ class Endpoint(object):
             commands.append(self.updateNowCommand())
         if "MDR" in apps and self.__mdr.policyPending():
             commands.append(self.policyCommand("MDR", self.__mdr.policyID()))
+        if 'LiveTerminal' in apps and self.__liveTerminal.LiveTerminalPending():
+            commands.append(self.liveTerminalCommand())
 
         # Useful for specific test scenarios
         commands.extend(self.queued_actions)
@@ -824,6 +863,9 @@ class Endpoint(object):
 
     def setQuery(self, query, command_id):
         self.__edr.setQuery(query, command_id)
+
+    def initiateLiveTerminal(self, body, command_id):
+        self.__liveTerminal.initiateLiveTerminal(body, command_id)
 
     def queueUpdateNow(self, creation_time):
         self.queued_actions.append(self.updateNowCommand(creation_time))
@@ -971,6 +1013,12 @@ class Endpoints(object):
         for e in self.__m_endpoints.values():
             e.clearNonAsciiAction()
 
+    def initiateLiveTerminal(self, adapter="LiveTerminal", body=None, command_id="LiveTerminal"):
+        logger.info("LiveTerminal command {}".format(body))
+        assert body != ""
+        assert adapter == "LiveTerminal"
+        for e in self.__m_endpoints.values():
+            e.initiateLiveTerminal(body, command_id)
 
 
 GL_ENDPOINTS = Endpoints()
@@ -1212,6 +1260,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/action/clearNonAsciiAction":
             logger.info("Received on demand clear now non ascii action ")
             GL_ENDPOINTS.clearNonAsciiAction()
+            return self.ret("")
+        elif self.path == "/action/initiateLiveTerminal":
+            logger.info("Received an initiate live-terminal action")
+            GL_ENDPOINTS.initiateLiveTerminal()
             return self.ret("")
         else:
             return self.ret("Unknown Action command path, should be /action/*", code=500)

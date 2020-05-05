@@ -592,6 +592,9 @@ class MCSRouter(object):
     def trigger_update_now(self):
         self.send_cmd_to_fake_cloud("action/updatenow")
 
+    def trigger_initiate_live_terminal(self):
+        self.send_cmd_to_fake_cloud("action/initiateLiveTerminal")
+
     def queue_update_now(self, creation_time=None):
         path = "action/queueupdatenow"
         if creation_time is not None:

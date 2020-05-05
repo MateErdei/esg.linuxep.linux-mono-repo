@@ -18,7 +18,7 @@ def get_live_response_file(live_response_filepath=None):
         return reresponse_filepath
 
 def create_live_response_action(wss_url="wss://lr.url/", thumbprint="thumbprint"):
-    return """<?xml version="1.0"?><ns:commands xmlns:ns="http://www.sophos.com/xml/mcs/commands" schemaVersion="1.0">
+    return f"""<?xml version="1.0"?><ns:commands xmlns:ns="http://www.sophos.com/xml/mcs/commands" schemaVersion="1.0">
         <command>
             <id>LR</id>
             <seq>1</seq>
@@ -28,8 +28,12 @@ def create_live_response_action(wss_url="wss://lr.url/", thumbprint="thumbprint"
             <body>
                 &lt;?xml version='1.0'?&gt;
                 &lt;action type="sophos.mgt.action.InitiateLiveTerminal"&gt;
-                &lt;url&gt;{0}&lt;/url&gt;
-                &lt;thumbprint&gt;{1}&lt;/thumbprint&gt;
+                &lt;url&gt;{wss_url}&lt;/url&gt;
+                &lt;thumbprint&gt;{thumbprint}&lt;/thumbprint&gt;
+                &lt;/action&gt;                
             </body>
             </command>
-        </ns:commands>""".format(wss_url, thumbprint)
+        </ns:commands>"""
+
+def create_live_response_action_fake_cloud(wss_url="wss://lr.url/", thumbprint="thumbprint"):
+    return f""" <?xml version='1.0'?><action type="sophos.mgt.action.InitiateLiveTerminal"><url>{wss_url}</url><thumbprint>{thumbprint}</thumbprint>"""
