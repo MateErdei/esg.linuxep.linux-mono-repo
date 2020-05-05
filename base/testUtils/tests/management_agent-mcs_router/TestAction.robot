@@ -57,7 +57,7 @@ Verify Initiate LiveTerminal Action Sent Through MCS Router And Management Agent
     Check Cloud Server Log For Command Poll    2
 
     Wait Until Keyword Succeeds
-    ...  10 secst5
+    ...  10 secs
     ...  1 secs
     ...  Get Plugin Action
     ${pluginAction} =  Get Plugin Action
@@ -72,9 +72,8 @@ Test Action Teardown
     # clean up
  	Run Keyword And Ignore Error  Stop Plugin
     Run Keyword And Ignore Error  Stop Management Agent
-    Run Keywords
-    ...     Terminate All Processes  kill=True  AND
-    ...     General Test Teardown
+    Remove Fake Plugin From Registry
+    MCSRouter Default Test Teardown
 
 Check Cloud Server Log For Command Poll
     [Arguments]    ${occurrence}=1
