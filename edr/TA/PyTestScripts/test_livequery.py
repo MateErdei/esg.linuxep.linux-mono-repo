@@ -264,6 +264,7 @@ def test_edr_plugin_run_tests_in_parallel(sspl_mock, edr_plugin_instance):
         for i in range(10, 0, -1):
             delay = controlled_delay.replace('DELAYTIME', str(i))
             sspl_mock.management.send_plugin_action('edr', 'LiveQuery', str(i), delay)
+            time.sleep(0.1)
 
         # wait till the expected last response
         response_filepath = response_file(10)
