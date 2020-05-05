@@ -68,6 +68,13 @@ namespace
             std::string escapedPath(p);
             common::escapeControlCharacters(escapedPath);
             PRINT("Scanning " << escapedPath);
+            for (const auto& exclusion : m_cmdExclusions)
+            {
+                if (exclusion.appliesToPath(p))
+                {
+                    return;
+                }
+            }
             try
             {
                 m_scanner.scan(p);
