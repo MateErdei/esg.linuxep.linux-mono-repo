@@ -84,7 +84,7 @@ install(FILES ${VERSIG_INPUT}/bin64/versig
 add_custom_target(
         copy_libs
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
-        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
+        COMMAND python2 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
 )
 
 execute_process(
