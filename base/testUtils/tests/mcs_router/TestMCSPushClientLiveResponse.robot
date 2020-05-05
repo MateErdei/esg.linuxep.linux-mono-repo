@@ -13,7 +13,7 @@ Resource    ../upgrade_product/UpgradeResources.robot
 Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
-Test Teardown    LiveResponse Test Teardown
+Test Teardown    Live Terminal Test Teardown
 
 Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_TESTS
 
@@ -49,6 +49,8 @@ MCSRouter Can Start and Receive LiveTerminal Action From Push Client
     ${file} =  get_live_response_file
     Log File  ${file}
 
-LiveResponse Test Teardown
+
+*** Keywords ***
+Live Terminal Test Teardown
     Push Client Test Teardown
     Remove Fake Plugin From Registry
