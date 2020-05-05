@@ -67,14 +67,18 @@ namespace
         {
             std::string escapedPath(p);
             common::escapeControlCharacters(escapedPath);
-            PRINT("Scanning " << escapedPath);
+
             for (const auto& exclusion : m_cmdExclusions)
             {
                 if (exclusion.appliesToPath(p))
                 {
+                    PRINT("Exclusion applied to: " << p);
                     return;
                 }
             }
+
+            PRINT("Scanning " << escapedPath);
+
             try
             {
                 m_scanner.scan(p);
@@ -98,10 +102,9 @@ namespace
 
             for (const auto& exclusion : m_cmdExclusions)
             {
-                PRINT("callback exclusions: " << exclusion.path());
                 if (exclusion.appliesToPath(p) && exclusion.type() != FILENAME)
                 {
-                    PRINT("exclusion applied to: " << p);
+                    PRINT("Exclusion applied to: " << p);
                     return false;
                 }
             }
@@ -159,9 +162,10 @@ int CommandLineScanRunner::run()
 
     std::vector<Exclusion> cmdExclusions;
     cmdExclusions.reserve(m_exclusions.size());
+    PRINT("Exclusions: ");
     for (const auto& exclusion : m_exclusions)
     {
-        PRINT("exclusion: " << exclusion);
+        PRINT("        " << exclusion);
         cmdExclusions.emplace_back(exclusion);
     }
 
