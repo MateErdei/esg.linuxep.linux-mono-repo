@@ -103,20 +103,28 @@ SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
     LOGINFO("Scan result " << std::hex << res << std::dec);
     if (scanResult != nullptr)
     {
-        LOGINFO("Details: " << scanResult->version << ", " << scanResult->scanResultJson);
-        std::string scanResultUTF8 =  common::toUtf8( scanResult->scanResultJson, false);
-
-        LOGINFO("Converted: " << scanResultUTF8);
-
-        json parsedScanResult = json::parse(scanResultUTF8);
-        for (auto result : parsedScanResult["results"])
+        try
         {
-            for (auto detection : result["detections"])
+            LOGINFO("Details: " << scanResult->version << ", " << scanResult->scanResultJson);
+            std::string scanResultUTF8 = common::toUtf8(scanResult->scanResultJson, false);
+
+            LOGINFO("Converted: " << scanResultUTF8);
+
+            json parsedScanResult = json::parse(scanResultUTF8);
+            for (auto result : parsedScanResult["results"])
             {
-                LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
-                response.setThreatName(detection["threatName"]);
-                response.setFullScanResult(scanResultUTF8);
+                for (auto detection : result["detections"])
+                {
+                    LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
+                    response.setThreatName(detection["threatName"]);
+                    response.setFullScanResult(scanResultUTF8);
+                }
             }
+        }
+        catch (const std::exception& e)
+        {
+            // CORE-1517 - Until SUSI responses are always valid JSON
+            LOGERROR("Failed to parse response from SUSI: " << e.what());
         }
     }
 
