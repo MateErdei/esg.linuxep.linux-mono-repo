@@ -11,7 +11,7 @@ import sys
 
 
 def main(argv):
-    dist = generateManifestDat.ensure_bytes(argv[1])
+    dist = argv[1]
     if len(argv) > 2:
         distribution_list = argv[2]
     else:
@@ -25,13 +25,13 @@ def main(argv):
 
     changed = generateManifestDat.generate_manifest(dist, file_objects)
 
-    sdds_import_path = os.path.join(dist, b"SDDS-Import.xml")
+    sdds_import_path = os.path.join(dist, "SDDS-Import.xml")
     if os.path.isfile(sdds_import_path) and not changed:
         print("Contents not changed: not regenerating manifest.dat and SDDS-Import.xml")
         return 0
 
     ## Add manifest.dat to file_list
-    file_objects.append(fileInfo.FileInfo(dist, b"manifest.dat"))
+    file_objects.append(fileInfo.FileInfo(dist, "manifest.dat"))
 
     generateSDDSImport.generate_sdds_import(dist, file_objects, BASE)
 

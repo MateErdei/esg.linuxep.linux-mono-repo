@@ -73,27 +73,24 @@ def ensure_bytes(s):
 
 def generate_manifest(dist, file_objects):
     options = Options()
-    MANIFEST_NAME = os.environ.get("MANIFEST_NAME", b"manifest.dat")
-    manifest_path = os.path.join(
-        ensure_bytes(dist),
-        ensure_bytes(MANIFEST_NAME)
-        )
+    MANIFEST_NAME = os.environ.get("MANIFEST_NAME", "manifest.dat")
+    manifest_path = os.path.join(dist, MANIFEST_NAME)
 
     previousContents = read(manifest_path)
     newContents = []
 
     for f in file_objects:
-        display_path = b".\\" + ensure_bytes(f.m_path).replace(b"/", b"\\")
-        newContents.append(b'"%s" %d %s\n' % (display_path, f.m_length, ensure_bytes(f.m_sha1)))
-        newContents.append(b'#sha256 %s\n' % ensure_bytes(f.m_sha256))
-        newContents.append(b'#sha384 %s\n' % ensure_bytes(f.m_sha384))
+        display_path = ".\\" + f.m_path
+        newContents.append('"%s" %d %s\n' % (display_path, f.m_length, f.m_sha1))
+        newContents.append('#sha256 %s\n' % f.m_sha256)
+        newContents.append('#sha384 %s\n' % f.m_sha384)
 
-    newContents = b"".join(newContents)
+
     if newContents == previousContents:
         return False
 
-    output = open(manifest_path, "wb")
-    output.write(newContents)
+    output = open(manifest_path, "w")
+    output.write("".join(newContents))
     output.close()
 
     signer = SigningOracleClientSigner(options, verbose=True)
@@ -106,12 +103,12 @@ def generate_manifest(dist, file_objects):
         signer.testSigning()
 
     sig = signer.encodedSignatureForFile(manifest_path)
-    sig = ensure_bytes(sig)
+    sig = sig
 
-    output = open(manifest_path, "ab")
+    output = open(manifest_path, "a")
     output.write(sig)
-    output.write(ensure_bytes(signer.public_cert()))
-    output.write(ensure_bytes(signer.ca_cert()))
+    output.write(signer.public_cert())
+    output.write(signer.ca_cert())
     output.close()
     return True
 
