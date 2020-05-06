@@ -7,13 +7,13 @@ Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
 Library     String
 Resource    McsRouterResources.robot
-Resource    MCSPushClientReources.robot
+Resource    McsPushClientResources.robot
 Resource    ../upgrade_product/UpgradeResources.robot
 
 Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
-Test Teardown    Live Terminal Test Teardown
+Test Teardown    Live Response Test Teardown
 
 Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_TESTS
 
@@ -31,7 +31,7 @@ MCSRouter Can Start and Receive LiveTerminal Action Via Push Client
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
 
     ${liveResponse} =  Create Live Response Action  wss://test-url  FakeThumbprint
-    send_message_to_push_server   ${liveResponse}
+    Send Message To Push Server   ${liveResponse}
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -46,11 +46,8 @@ MCSRouter Can Start and Receive LiveTerminal Action Via Push Client
     Should Contain  ${content}  <action type="sophos.mgt.action.InitiateLiveTerminal">
     Should Contain  ${content}  wss://test-url
 
-    ${file} =  get_live_response_file
-    Log File  ${file}
-
 
 *** Keywords ***
-Live Terminal Test Teardown
+Live Response Test Teardown
     Push Client Test Teardown
     Remove Fake Plugin From Registry

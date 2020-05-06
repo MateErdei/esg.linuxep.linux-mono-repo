@@ -53,8 +53,8 @@ class FakePluginWrapper(object):
         try:
             os.remove(filename)
             robot.api.logger.info("file removed from plugin registry: {}".format(filename))
-        except:
-            robot.api.logger.info("Exception while removing plugin registry file: {}".format(filename))
+        except OSError as os_err:
+            robot.api.logger.info("Exception: {} while removing plugin registry file: {}".format(str(os_err), filename))
 
     def start_plugin(self):
         if self.plugin:

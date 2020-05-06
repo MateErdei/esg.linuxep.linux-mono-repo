@@ -448,7 +448,7 @@ class LiveTerminalEndpointManager(object):
 
     def initiateLiveTerminal(self, cmd_body, command_id):
         self.__id = command_id
-        if cmd_body is None:
+        if not cmd_body:
             self.__liveTerminalInit = \
                 """<action type="sophos.mgt.action.InitiateLiveTerminal"><url>"wss://url"</url><thumbprint>thumbprint</thumbprint></action>"""
         else:
