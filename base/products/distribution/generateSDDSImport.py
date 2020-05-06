@@ -197,7 +197,6 @@ def get_sdds_import_tempate():
 
 
 def generate_sdds_import(dist, file_objects, BASE=None):
-    #dist = ensure_binary_string(dist)
     sdds_import_path = os.path.join(dist, "SDDS-Import.xml")
 
     doc = xml.dom.minidom.parseString(get_sdds_import_tempate())
@@ -242,7 +241,6 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     setTextInTag(doc, "LongDesc", longDescription)
 
     xmlstr = doc.toxml('UTF-8')
-    #xmlstr = ensure_binary_string(xmlstr)
     doc.unlink()
 
     f = open(sdds_import_path, "wb")
