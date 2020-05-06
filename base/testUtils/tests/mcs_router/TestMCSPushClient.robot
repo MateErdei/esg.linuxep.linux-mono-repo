@@ -5,7 +5,7 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 
 Library     String
 Resource    McsRouterResources.robot
-Resource    McsPushClientReources.robot
+Resource    McsPushClientResources.robot
 Resource    ../upgrade_product/UpgradeResources.robot
 Resource    ../management_agent/ManagementAgentResources.robot
 
