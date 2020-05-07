@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-thininstaller" version="1.0.3">
+<package name="sspl-thininstaller" version="1.0.4">
     <versioning>
         <workingdir>sspl-thininstaller-build/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -8,28 +8,28 @@
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
-        <package name="openssllinux11" version="1-1-1d-10/217518/output" dest="input">
+        <package name="openssllinux11" version="1-1-1g-6/219531/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
-        <package name="versig" version="2-0-0-60/217550/output" dest="input">
+        <package name="versig" version="2-0-0-72/217560/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux11" version="7-66-0-15/217541/output" dest="input">
+        <package name="curllinux11" version="7-66-0-17/219557/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-28/219013/output" dest="input">
+        <package name="sullinux11" version="1-0-0-32/219604/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
         <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
-        <package name="expatlinux11" version="2-2-9-6/219009/output" dest="input">
+        <package name="expatlinux11" version="2-2-9-9/219532/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
-        <package name="zliblinux10" version="1-2-11/206949/zliblinux10" dest="input">
+        <package name="zliblinux11" version="1-2-11-3/219533/output" dest="input">
             <include src="zlib.tar" dest="."/>
         </package>
     </inputs>
