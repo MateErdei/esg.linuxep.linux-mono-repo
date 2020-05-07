@@ -234,6 +234,12 @@ namespace Common
             virtual void removeFileOrDirectory(const Path& path) const = 0;
 
             /**
+             * Delete all files in the given path
+             * @param path of the files to delete
+             */
+            virtual void removeFilesInDirectory(const Path& path) const = 0;
+
+            /**
              * Convert a relative path to an absolute path in the current working directory.
              *
              * /Foo -> /Foo

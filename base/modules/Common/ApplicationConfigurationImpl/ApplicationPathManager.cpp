@@ -157,6 +157,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/var");
         }
 
+        std::string ApplicationPathManager::getSulDownloaderProcessedReportPath() const
+        {
+            return Common::FileSystem::join(getSulDownloaderReportPath(), "processed_reports");
+        }
+
         std::string ApplicationPathManager::getSulDownloaderConfigFilePath() const
         {
             return Common::FileSystem::join(getSulDownloaderReportPath(), "update_config.json");

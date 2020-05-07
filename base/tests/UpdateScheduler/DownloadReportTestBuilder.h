@@ -65,23 +65,18 @@ namespace SulDownloader
             static SulDownloader::suldownloaderdata::DownloadReport goodReport(
                 UseTime useTime = UseTime::Later,
                 bool upgraded = true,
-                const std::string& sourceURL = "")
-            {
+                const std::string& sourceURL = "") {
                 SulDownloader::suldownloaderdata::DownloadReport report;
                 report.m_status = WarehouseStatus::SUCCESS;
-                if (sourceURL.empty())
-                {
+                if (sourceURL.empty()) {
                     report.m_urlSource = SophosURL;
-                }
-                else
-                {
+                } else {
                     report.m_urlSource = sourceURL;
                 }
 
                 report.m_description = "";
                 report.m_sulError = "";
-                switch (useTime)
-                {
+                switch (useTime) {
                     case UseTime::Later:
                         report.m_startTime = StartTimeTest;
                         report.m_finishedTime = FinishTimeTest;
@@ -97,10 +92,8 @@ namespace SulDownloader
                 }
                 report.m_sync_time = report.m_finishedTime;
                 report.m_productReport = goodProducts();
-                if (!upgraded)
-                {
-                    for (auto& product : report.m_productReport)
-                    {
+                if (!upgraded) {
+                    for (auto &product : report.m_productReport) {
                         product.productStatus = ProductReport::ProductStatus::UpToDate;
                     }
                 }

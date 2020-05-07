@@ -353,6 +353,7 @@ namespace SulDownloader
             productInfo.m_version = warehouseComponentProto.installedversion();
             report.m_warehouseComponents.push_back(productInfo);
         }
+        report.m_processedReport = false; // default
 
         return report;
     }
@@ -366,6 +367,16 @@ namespace SulDownloader
     const std::string DownloadReport::getSourceURL() const { return m_urlSource; }
 
     const std::vector<ProductInfo>& DownloadReport::getWarehouseComponents() const { return m_warehouseComponents; }
+
+    bool DownloadReport::isProcessedReport() const
+    {
+        return m_processedReport;
+    }
+
+    void DownloadReport::setProcessedReport(bool isProcessed)
+    {
+        m_processedReport = isProcessed;
+    }
 
     std::string ProductReport::statusToString() const
     {

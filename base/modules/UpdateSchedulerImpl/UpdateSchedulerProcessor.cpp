@@ -355,6 +355,11 @@ namespace UpdateSchedulerImpl
             return std::string();
         }
 
+        // removed previous processed reports
+        Path processedReportPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
+        iFileSystem->removeFilesInDirectory(
+                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath());
+
         for (size_t i = 0; i < reportAndFiles.sortedFilePaths.size(); i++)
         {
             if (reportAndFiles.reportCollectionResult.IndicesOfSignificantReports[i] ==
@@ -363,6 +368,22 @@ namespace UpdateSchedulerImpl
             {
                 LOGSUPPORT("Remove File: " << reportAndFiles.sortedFilePaths[i]);
                 iFileSystem->removeFile(reportAndFiles.sortedFilePaths[i]);
+            }
+            else
+            {
+                std::string baseName = Common::FileSystem::basename(reportAndFiles.sortedFilePaths[i]);
+                std::string destinationPath = Common::FileSystem::join(
+                        Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath(),
+                        baseName);
+
+                try
+                {
+                    iFileSystem->copyFile(reportAndFiles.sortedFilePaths[i], destinationPath);
+                }
+                catch(Common::FileSystem::IFileSystemException& ex)
+                {
+                    LOGWARN("Failed to copy '" << reportAndFiles.sortedFilePaths[i] << "' to '" << destinationPath << "'");
+                }
             }
         }
 
@@ -552,10 +573,10 @@ namespace UpdateSchedulerImpl
             auto iProcess = Common::Process::createProcess();
             iProcess->exec(pidOfCommand, { pathOfSulDownloader });
 
-            auto state = iProcess->wait(Common::Process::milli(5), 100);
+            auto state = iProcess->wait(Common::Process::milli(10), 1000);
             if (state != Common::Process::ProcessStatus::FINISHED)
             {
-                LOGWARN("pidof(SulDownloader) Failed to exit after 500 ms");
+                LOGWARN("pidof(SulDownloader) Failed to exit after 10s");
                 iProcess->kill();
             }
 
@@ -565,7 +586,7 @@ namespace UpdateSchedulerImpl
                 // pidof returns 1 if no process with the given name is found.
                 break;
             }
-            else if (exitCode != 0)
+            else if (exitCode != 0 && exitCode != SIGTERM)
             {
                 LOGWARN("pidof(SulDownloader) returned " << exitCode);
                 break;

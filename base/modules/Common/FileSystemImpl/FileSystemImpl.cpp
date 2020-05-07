@@ -669,6 +669,19 @@ namespace Common
             return statbuf.st_mtim.tv_sec;
         }
 
+        void FileSystemImpl::removeFilesInDirectory(const Path& path) const
+        {
+            if (!FileSystemImpl::isDirectory(path))
+            {
+                return;
+            }
+            std::vector<Path> files = listFiles(path);
+            for(auto& file : files)
+            {
+                removeFile(file);
+            }
+        }
+
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()
         {
             static std::unique_ptr<Common::FileSystem::IFileSystem> instance =

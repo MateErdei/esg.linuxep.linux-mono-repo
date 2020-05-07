@@ -216,6 +216,131 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
  ]
 }
 )sophos" };
+
+    std::string downloadReportUpgraded =
+            R"({
+ "startTime": "20200423 160452",
+ "finishTime": "20200423 160514",
+ "syncTime": "20200423 160514",
+ "status": "SUCCESS",
+ "sulError": "",
+ "errorDescription": "",
+ "urlSource": "http://dci.sophosupd.com/update",
+ "products": [
+  {
+   "rigidName": "ServerProtectionLinux-Base",
+   "productName": "Sophos Linux Base",
+   "downloadVersion": "1.1.1.15",
+   "errorDescription": "",
+   "productStatus": "UPGRADED"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-Plugin-EDR",
+   "productName": "Sophos Live Discover Plugin",
+   "downloadVersion": "1.0.1.29",
+   "errorDescription": "",
+   "productStatus": "UPGRADED"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-Plugin-MDR",
+   "productName": "Sophos Server Protection for Linux MTR",
+   "downloadVersion": "1.0.4.13",
+   "errorDescription": "",
+   "productStatus": "UPGRADED"
+  }
+ ],
+ "warehouseComponents": [
+  {
+   "rigidName": "ServerProtectionLinux-Base",
+   "productName": "Sophos Linux Base",
+   "installedVersion": "1.1.1.15"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-Plugin-EDR",
+   "productName": "Sophos Live Discover Plugin",
+   "installedVersion": "1.0.1.29"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-MDR-osquery-Component",
+   "productName": "Sophos Query Component",
+   "installedVersion": "4.3.0"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-MDR-Control-Component",
+   "productName": "Sophos Managed Threat Response plug-in",
+   "installedVersion": "1.0.4.20"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-MDR-DBOS-Component",
+   "productName": "Sophos Managed Threat Response for Linux",
+   "installedVersion": "1.0.3.15"
+  }
+ ]
+}
+)";
+
+    std::string downloadReportUpToDate =
+            R"({
+ "startTime": "20200424 084004",
+ "finishTime": "20200424 084005",
+ "syncTime": "20200424 084005",
+ "status": "SUCCESS",
+ "sulError": "",
+ "errorDescription": "",
+ "urlSource": "http://dci.sophosupd.com/update",
+ "products": [
+  {
+   "rigidName": "ServerProtectionLinux-Base",
+   "productName": "Sophos Linux Base",
+   "downloadVersion": "1.1.1.15",
+   "errorDescription": "",
+   "productStatus": "UPTODATE"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-Plugin-EDR",
+   "productName": "Sophos Live Discover Plugin",
+   "downloadVersion": "1.0.1.29",
+   "errorDescription": "",
+   "productStatus": "UPTODATE"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-Plugin-MDR",
+   "productName": "Sophos Server Protection for Linux MTR",
+   "downloadVersion": "1.0.4.13",
+   "errorDescription": "",
+   "productStatus": "UPTODATE"
+  }
+ ],
+ "warehouseComponents": [
+  {
+   "rigidName": "ServerProtectionLinux-Base",
+   "productName": "Sophos Linux Base",
+   "installedVersion": "1.1.1.15"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-Plugin-EDR",
+   "productName": "Sophos Live Discover Plugin",
+   "installedVersion": "1.0.1.29"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-MDR-osquery-Component",
+   "productName": "Sophos Query Component",
+   "installedVersion": "4.3.0"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-MDR-Control-Component",
+   "productName": "Sophos Managed Threat Response plug-in",
+   "installedVersion": "1.0.4.20"
+  },
+  {
+   "rigidName": "ServerProtectionLinux-MDR-DBOS-Component",
+   "productName": "Sophos Managed Threat Response for Linux",
+   "installedVersion": "1.0.3.15"
+  }
+ ]
+}
+)";
+
 } // namespace
 
 static const std::string updatePolicyWithScheduledUpdate{ R"sophos(<?xml version="1.0"?>
@@ -470,6 +595,8 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
 
     EXPECT_CALL(fileSystemMock, readFile(reportPath)).WillOnce(Return(downloadReport));
 
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
+
     EXPECT_CALL(*api, sendEvent("ALC", _));
     EXPECT_CALL(*api, sendStatus("ALC", _, _));
 
@@ -488,6 +615,183 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
 }
+
+TEST_F(TestUpdateScheduler, UppdateUnprocessedReportUpgradeReportResultsInSendingEvent) // NOLINT
+{
+    ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
+    EXPECT_CALL(*cron, setPeriodTime(time));
+    // update now restart the chron time
+    EXPECT_CALL(*cron, reset());
+    EXPECT_CALL(*cron, requestStop());
+
+    ScheduledUpdate scheduledUpdate;
+    EXPECT_CALL(*cron, setScheduledUpdate(_)).WillOnce(SaveArg<0>(&scheduledUpdate));
+
+    EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*runner, triggerSulDownloader());
+    auto& fileSystemMock = setupFileSystemMock();
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+            m_queue,
+            std::unique_ptr<IBaseServiceApi>(api),
+            m_pluginCallback,
+            std::unique_ptr<ICronSchedulerThread>(cron),
+            std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+
+    std::string reportPath =
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath();
+
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/update_config.json", _));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/update_config.json"))
+            .Times(2)
+            .WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile(HasSubstr("/installroot/base/update/var/update_report")))
+            .WillOnce(Return(false))  // after policy no report exist
+            .WillOnce(Return(true))   // after the first report is created
+            .WillOnce(Return(false)); // after checking if it is safe to move file
+    EXPECT_CALL(fileSystemMock, moveFile(reportPath, _));
+    // the real name would be different as the file has been moved. But, ignoring here.
+    std::vector<std::string> files{ reportPath, "/installroot/base/update/var/update_config.json",
+                                    "/installroot/base/update/var/update_report_1.json",
+                                    "/installroot/base/update/var/update_report_2.json"};
+
+    std::vector<std::string> noReportFiles{ "/installroot/base/update/var/update_config.json"};
+
+    EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
+            .WillOnce(Return(files)); // report generated by suldownloader
+
+    EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
+            .Times(2)
+            .WillRepeatedly(Return(noReportFiles)) // after policy it process current reports (empty)
+            .RetiresOnSaturation();
+
+    EXPECT_CALL(fileSystemMock, readFile(reportPath)).WillOnce(Return(downloadReportUpToDate));
+    EXPECT_CALL(fileSystemMock, readFile("/installroot/base/update/var/update_report_1.json")).WillOnce(Return(downloadReport));
+    EXPECT_CALL(fileSystemMock, readFile("/installroot/base/update/var/update_report_2.json")).WillOnce(Return(downloadReport));
+
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report_1.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report_2.json")).WillOnce(Return(false));
+
+    EXPECT_CALL(fileSystemMock, removeFilesInDirectory("/installroot/base/update/var/processed_reports")).Times(1);
+    EXPECT_CALL(fileSystemMock, isDirectory("/installroot/base/update/var/processed_reports")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var/processed_reports")).WillRepeatedly(Return(std::vector<Path>()));
+
+    EXPECT_CALL(fileSystemMock, copyFile(reportPath, "/installroot/base/update/var/processed_reports/update_report.json")).Times(1);
+    EXPECT_CALL(fileSystemMock, copyFile("/installroot/base/update/var/update_report_2.json", "/installroot/base/update/var/processed_reports/update_report_2.json")).Times(1);
+    EXPECT_CALL(fileSystemMock, copyFile("/installroot/base/update/var/update_config.json", _)).Times(1);
+
+
+    EXPECT_CALL(*api, sendEvent("ALC", _));
+    EXPECT_CALL(*api, sendStatus("ALC", _, _));
+
+    std::future<void> schedulerRunHandle =
+            std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
+
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithProxy });
+
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::UpdateNow, updateAction });
+
+    // on success... runner will add task to the queue
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::SulDownloaderFinished, "" });
+
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
+    schedulerRunHandle.get(); // synchronize stop
+
+    EXPECT_EQ(scheduledUpdate.getEnabled(), false);
+}
+
+TEST_F(TestUpdateScheduler, UppdateUnprocessedReportCompareingProcessedReportResultsInNotSendingEvent) // NOLINT
+{
+    ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
+    EXPECT_CALL(*cron, setPeriodTime(time));
+    // update now restart the chron time
+    EXPECT_CALL(*cron, reset());
+    EXPECT_CALL(*cron, requestStop());
+
+    ScheduledUpdate scheduledUpdate;
+    EXPECT_CALL(*cron, setScheduledUpdate(_)).WillOnce(SaveArg<0>(&scheduledUpdate));
+
+    EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*runner, triggerSulDownloader());
+    auto& fileSystemMock = setupFileSystemMock();
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+            m_queue,
+            std::unique_ptr<IBaseServiceApi>(api),
+            m_pluginCallback,
+            std::unique_ptr<ICronSchedulerThread>(cron),
+            std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+
+    std::string reportPath =
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath();
+
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/update_config.json", _));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/update_config.json"))
+            .Times(2)
+            .WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile(HasSubstr("/installroot/base/update/var/update_report")))
+            .WillOnce(Return(false))  // after policy no report exist
+            .WillOnce(Return(true))   // after the first report is created
+            .WillOnce(Return(false)); // after checking if it is safe to move file
+    EXPECT_CALL(fileSystemMock, moveFile(reportPath, _));
+    // the real name would be different as the file has been moved. But, ignoring here.
+    std::vector<std::string> files{ reportPath, "/installroot/base/update/var/update_config.json",
+                                    "/installroot/base/update/var/update_report_1.json",
+                                    "/installroot/base/update/var/update_report_2.json"};
+
+    std::vector<std::string> noReportFiles{ "/installroot/base/update/var/update_config.json"};
+
+    EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
+            .WillOnce(Return(files)); // report generated by suldownloader
+
+    EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
+            .Times(2)
+            .WillRepeatedly(Return(noReportFiles)) // after policy it process current reports (empty)
+            .RetiresOnSaturation();
+
+    EXPECT_CALL(fileSystemMock, readFile(reportPath)).WillOnce(Return(downloadReportUpToDate));
+    EXPECT_CALL(fileSystemMock, readFile("/installroot/base/update/var/update_report_1.json")).WillOnce(Return(downloadReportUpToDate));
+    EXPECT_CALL(fileSystemMock, readFile("/installroot/base/update/var/update_report_2.json")).WillOnce(Return(downloadReportUpgraded));
+
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report_1.json")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report_2.json")).WillOnce(Return(true));
+
+    std::vector<Path> listProcessFiles {"/installroot/base/update/var/processed_reports/update_report_1.json", "/installroot/base/update/var/processed_reports/update_report_2.json"};
+
+    EXPECT_CALL(fileSystemMock, removeFilesInDirectory("/installroot/base/update/var/processed_reports")).Times(1);
+
+    EXPECT_CALL(fileSystemMock, copyFile("/installroot/base/update/var/update_report_1.json", "/installroot/base/update/var/processed_reports/update_report_1.json")).Times(1);
+    EXPECT_CALL(fileSystemMock, copyFile("/installroot/base/update/var/update_report_2.json", "/installroot/base/update/var/processed_reports/update_report_2.json")).Times(1);
+    EXPECT_CALL(fileSystemMock, copyFile("/installroot/base/update/var/update_config.json", _)).Times(1);
+
+
+    EXPECT_CALL(*api, sendEvent("ALC", _)).Times(0);
+    EXPECT_CALL(*api, sendStatus("ALC", _, _));
+
+    std::future<void> schedulerRunHandle =
+            std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
+
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithProxy });
+
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::UpdateNow, updateAction });
+
+    // on success... runner will add task to the queue
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::SulDownloaderFinished, "" });
+
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
+    schedulerRunHandle.get(); // synchronize stop
+
+    EXPECT_EQ(scheduledUpdate.getEnabled(), false);
+}
+
+
+
+
+
+
+
 
 TEST_F(TestUpdateScheduler, checkUpdateOnStartUpNotSetToFalseWhenMissedUpdate) // NOLINT
 {
@@ -528,6 +832,8 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpNotSetToFalseWhenMissedUpdate) /
     EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
         .Times(2)
         .WillRepeatedly(Return(files)); // after policy it process current reports (empty)
+
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
 
     // Set last update time to a week ago (in case the test runs at the same time as the scheduled update)
     time_t nowTime = std::time(nullptr) - 7 * 24 * 60 * 60;
@@ -592,6 +898,8 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpSetToFalseWhenNotMissedUpdate) /
     EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
         .Times(2)
         .WillRepeatedly(Return(files)); // after policy it process current reports (empty)
+
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
 
     time_t nowTime = std::time(nullptr);
     std::tm now = *std::localtime(&nowTime);
@@ -996,6 +1304,8 @@ TEST_F(TestUpdateScheduler, sulDownloaderTimeoutWillTriggerSulDownloaderToUpdate
     std::vector<std::string> noReportFiles{ "/installroot/base/update/var/update_config.json" };
     EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
             .WillOnce(Return(files)); // report generated by suldownloader
+
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
 
     EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
             .Times(2)

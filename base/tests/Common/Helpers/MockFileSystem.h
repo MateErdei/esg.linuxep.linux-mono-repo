@@ -53,4 +53,5 @@ public:
     MOCK_CONST_METHOD1(readlink, Path(const Path& path));
     MOCK_CONST_METHOD1(fileSize, off_t(const Path& path));
     MOCK_CONST_METHOD1(lastModifiedTime, std::time_t(const Path& path));
+    MOCK_CONST_METHOD1(removeFilesInDirectory, void(const Path& path));
 };

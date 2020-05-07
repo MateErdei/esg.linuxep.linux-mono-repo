@@ -269,6 +269,8 @@ TEST_F(TestDownloadReportAnalyser, SecondEventNotUpgradeDoNotSendEvent) // NOLIN
     };
     DownloadReportTestBuilder::setReportNoUpgrade(&reports[1]);
 
+    reports[0].setProcessedReport(true);
+
     ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
@@ -291,6 +293,9 @@ TEST_F(TestDownloadReportAnalyser, ThirdAndSecondEventNotUpgradeDoNotSendEvent) 
     };
     DownloadReportTestBuilder::setReportNoUpgrade(&reports[1]);
     DownloadReportTestBuilder::setReportNoUpgrade(&reports[2]);
+
+    reports[0].setProcessedReport(true);
+    reports[1].setProcessedReport(true);
 
     ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
@@ -426,6 +431,10 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     EXPECT_CALL(*mockFileSystem, readFile("update_report_2.json")).WillOnce(Return(file2));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_3.json")).WillOnce(Return(file3));
 
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processed_reports/update_report_1.json")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processed_reports/update_report_2.json")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processed_reports/update_report_3.json")).WillOnce(Return(false));
+
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -470,6 +479,9 @@ TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilte
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_1.json")).WillOnce(Return(badFile));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_2.json")).WillOnce(Return(goodFile));
+
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processed_reports/update_report_1.json")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processed_reports/update_report_2.json")).WillOnce(Return(false));
 
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
@@ -578,8 +590,10 @@ TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) // NOLINT
 TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithNoCache) // NOLINT
 {
     auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious);
+    upgradeReport.setProcessedReport(true);
     // flag upgraded = false
     auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false);
+    updateReport.setProcessedReport(true);
     auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false);
 
     DownloadReportsAnalyser::DownloadReportVector reports{ upgradeReport, updateReport, lastUpdateReport };
@@ -606,9 +620,11 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
 {
     auto upgradeReport =
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
+    upgradeReport.setProcessedReport(true);
     // flag upgraded = false
     auto updateReport =
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false, "cache1");
+    updateReport.setProcessedReport(true);
     auto lastUpdateReport =
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false, "cache1");
 

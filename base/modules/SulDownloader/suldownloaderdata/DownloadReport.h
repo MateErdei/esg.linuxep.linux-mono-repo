@@ -105,6 +105,10 @@ namespace SulDownloader
 
             int getExitCode() const;
 
+            bool isProcessedReport() const;
+
+            void setProcessedReport(bool isProcessed);
+
         private:
             WarehouseStatus m_status;
             std::string m_description;
@@ -116,6 +120,8 @@ namespace SulDownloader
 
             std::vector<ProductReport> m_productReport;
             std::vector<ProductInfo> m_warehouseComponents;
+
+            bool m_processedReport;
 
             void setProductsInfo(
                 const std::vector<suldownloaderdata::DownloadedProduct>& products,

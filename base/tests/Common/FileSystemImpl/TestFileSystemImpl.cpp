@@ -752,4 +752,41 @@ namespace
         std::time_t time_created = m_fileSystem->lastModifiedTime(tempDir.absPath("symlink"));
         ASSERT_GE(time_created, curTime);
     }
+
+    TEST_F(FileSystemImplTest, removeFilesInDirectoryRemovesFilesInDirectory) // NOLINT
+    {
+
+        std::vector<Path> filesInDirectory{"file1", "file2", "file3"};
+
+        Tests::TempDir tempDir;
+        Path directoryPath = tempDir.dirPath();
+        for(auto& filePath : filesInDirectory)
+        {
+            tempDir.createFile(filePath,"");
+        }
+
+        m_fileSystem->removeFilesInDirectory(directoryPath);
+
+        ASSERT_FALSE(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[0])));
+        ASSERT_FALSE(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[1])));
+        ASSERT_FALSE(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[2])));
+    }
+
+    TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenDirectoryDoesNotExistDoesNotThrow) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        Path directoryPath =  Common::FileSystem::join(tempDir.dirPath(), "missing_dir");
+
+        EXPECT_NO_THROW(m_fileSystem->removeFilesInDirectory(directoryPath));
+    }
+
+    TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenFilesDoNotExistDoesNotThrow) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        Path directoryPath =  tempDir.dirPath();
+
+        EXPECT_EQ(m_fileSystem->listFiles(directoryPath).size(), 0);
+        EXPECT_NO_THROW(m_fileSystem->removeFilesInDirectory(directoryPath));
+    }
+
 } // namespace

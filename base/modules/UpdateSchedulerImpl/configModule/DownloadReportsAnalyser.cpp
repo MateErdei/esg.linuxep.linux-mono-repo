@@ -10,6 +10,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <UpdateSchedulerImpl/configModule/UpdateStatus.h>
 
 #include <algorithm>
 #include <cassert>
@@ -227,6 +228,14 @@ namespace UpdateSchedulerImpl
                     std::string content = Common::FileSystem::fileSystem()->readFile(filepath);
                     SulDownloader::suldownloaderdata::DownloadReport fileReport =
                         SulDownloader::suldownloaderdata::DownloadReport::toReport(content);
+
+                    // check to see of report has been processed
+                    std::string processedReportPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
+                    if(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(processedReportPath, Common::FileSystem::basename(filepath))))
+                    {
+                        fileReport.setProcessedReport(true);
+                    }
+
                     reportCollection.push_back(
                         FileAndDownloadReport{ filepath, fileReport, fileReport.getStartTime() });
                 }
@@ -339,6 +348,29 @@ namespace UpdateSchedulerImpl
             collectionResult.SchedulerEvent.IsRelevantToSend |=
                 reportCollection.at(previousIndex).getStatus() !=
                 SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
+
+            for(auto& report : reportCollection)
+            {
+                if(report.isProcessedReport())
+                {
+                    continue;
+                }
+
+                for(auto& product : report.getProducts())
+                {
+                    if(product.productStatus == SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded ||
+                    product.productStatus ==  SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
+                    {
+                        collectionResult.SchedulerEvent.IsRelevantToSend = true;
+                    }
+
+                }
+
+               // if(report.getStatus() != SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)
+                //{
+                //    collectionResult.SchedulerEvent.IsRelevantToSend = true;
+               // }
+            }
 
             // if previous one had source url different from current, send event
             collectionResult.SchedulerEvent.IsRelevantToSend |=

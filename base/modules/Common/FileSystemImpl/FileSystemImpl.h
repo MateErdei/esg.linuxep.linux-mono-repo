@@ -76,6 +76,8 @@ namespace Common
             off_t fileSize(const Path& path) const override;
 
             std::time_t lastModifiedTime(const Path& path) const override;
+
+            void removeFilesInDirectory(const Path& path) const override;
         };
 
         std::unique_ptr<IFileSystem>& fileSystemStaticPointer();
