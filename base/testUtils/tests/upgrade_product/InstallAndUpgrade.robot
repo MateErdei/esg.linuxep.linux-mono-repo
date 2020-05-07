@@ -147,6 +147,8 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
+    Check Update Reports Have Been Processed
+
 We Can Downgrade From Master To A Release Without Unexpected Errors
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
@@ -681,3 +683,18 @@ Check Files After Upgrade
 
     File Should Exist   ${SOPHOS_INSTALL}/base/update/var/update_config.json
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
+
+Check Update Reports Have Been Processed
+   Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/processed_reports
+   ${files_in_processed_dir} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/processed_reports
+   Log  ${files_in_processed_dir}
+
+   ${filesInUpdateVar} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var
+   Log  ${filesInUpdateVar}
+
+   ${ProcessedFileCount}=  Get length   ${files_in_processed_dir}
+   Should Be Equal As Numbers  ${ProcessedFileCount}   1
+   Should Contain  @{files_in_processed_dir}[0]  update_report
+   Should Not Contain  @{files_in_processed_dir}[0]  update_report.json
+
+   Should Contain  ${filesInUpdateVar}   @{files_in_processed_dir}[0]
