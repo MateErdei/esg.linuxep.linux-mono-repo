@@ -195,7 +195,7 @@ VersionCopy File in the Wrong Location Is Removed
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
