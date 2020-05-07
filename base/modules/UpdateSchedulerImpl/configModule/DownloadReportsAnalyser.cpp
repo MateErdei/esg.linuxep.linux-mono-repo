@@ -349,6 +349,9 @@ namespace UpdateSchedulerImpl
                 reportCollection.at(previousIndex).getStatus() !=
                 SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
 
+            // Run through the report collection, and check if there is an ols un-processed report containing
+            // an Upgrade or uninstalled state., if there is set IsRelevantToSend to true to force sending an
+            // Update Status Event.
             for(auto& report : reportCollection)
             {
                 if(report.isProcessedReport())
@@ -363,13 +366,7 @@ namespace UpdateSchedulerImpl
                     {
                         collectionResult.SchedulerEvent.IsRelevantToSend = true;
                     }
-
                 }
-
-               // if(report.getStatus() != SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)
-                //{
-                //    collectionResult.SchedulerEvent.IsRelevantToSend = true;
-               // }
             }
 
             // if previous one had source url different from current, send event

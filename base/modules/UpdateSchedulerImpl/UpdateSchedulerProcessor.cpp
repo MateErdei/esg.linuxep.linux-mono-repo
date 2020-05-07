@@ -355,7 +355,7 @@ namespace UpdateSchedulerImpl
             return std::string();
         }
 
-        // removed previous processed reports
+        // removed previous processed reports files, only need to store process reports files for the this run (last/ current run).
         Path processedReportPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
         iFileSystem->removeFilesInDirectory(
                 Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath());
@@ -378,7 +378,9 @@ namespace UpdateSchedulerImpl
 
                 try
                 {
-                    iFileSystem->copyFile(reportAndFiles.sortedFilePaths[i], destinationPath);
+                    // create a marker file in the processed_report path with the same name as the process report file.
+                    // The file will be used on the next update to determine which reports have already been processed.
+                    iFileSystem->writeFile(destinationPath, "");
                 }
                 catch(Common::FileSystem::IFileSystemException& ex)
                 {

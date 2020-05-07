@@ -678,6 +678,7 @@ namespace Common
             std::vector<Path> files = listFiles(path);
             for(auto& file : files)
             {
+                LOGSUPPORT("Removed File: " << file);
                 removeFile(file);
             }
         }
