@@ -772,7 +772,7 @@ namespace
         ASSERT_FALSE(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[2])));
     }
 
-    TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenDirectoryDoesNotExistDoesNotThrow) // NOLINT
+    TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenDirectoryDoesNotExist) // NOLINT
     {
         Tests::TempDir tempDir;
         Path directoryPath =  Common::FileSystem::join(tempDir.dirPath(), "missing_dir");

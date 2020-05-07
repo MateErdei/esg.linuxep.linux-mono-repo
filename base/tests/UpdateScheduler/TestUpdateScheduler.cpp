@@ -701,7 +701,7 @@ TEST_F(TestUpdateScheduler, UpdateUnprocessedReportUpgradeReportResultsInSending
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
 }
 
-TEST_F(TestUpdateScheduler, UppdateUnprocessedReportCompareingProcessedReportResultsInNotSendingEvent) // NOLINT
+TEST_F(TestUpdateScheduler, UppdateUnprocessedReportComparingProcessedReportResultsInNotSendingEvent) // NOLINT
 {
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
