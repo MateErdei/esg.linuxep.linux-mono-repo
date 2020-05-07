@@ -34,6 +34,7 @@ Resource    UpgradeResources.robot
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${EdrEAPReleasePolicy}                      ${GeneratedWarehousePolicies}/EDR_EAP.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
+${BaseAndMtrAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
 ${BaseAndEdrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${BaseOnlyVUTPolicy}                        ${GeneratedWarehousePolicies}/base_only_VUT.xml
@@ -110,6 +111,10 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Check EAP Release Installed Correctly
+    Create Directory   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
+    Create File   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0
+    ${result} =  Run Process  ln  -sf  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy
+    Should Be Equal As Integers     ${result.rc}    0
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
 
@@ -144,20 +149,20 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
-We Can Upgrade From EDR EAP To Master Without Unexpected Errors
+VersionCopy File in the Wrong Location Is Removed
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
-    Start Local Cloud Server  --initial-alc-policy  ${EdrEAPReleasePolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
 
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${EdrEAPReleasePolicy}  real=True
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}  real=True
     Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${EdrEAPReleasePolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
     Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
@@ -166,7 +171,13 @@ We Can Upgrade From EDR EAP To Master Without Unexpected Errors
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Check EAP Release Installed Correctly
-    Directory Should Exist   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
+
+    #fake the file being copied to the wrong location
+    Create Directory   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
+    Create File   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0
+    ${result} =  Run Process  ln  -sf  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy
+    Should Be Equal As Integers     ${result.rc}    0
+
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
 
@@ -186,23 +197,9 @@ We Can Upgrade From EDR EAP To Master Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
-#     If mtr is installed for the first time, this will appear
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
-    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-
-    Check for Management Agent Failing To Send Message To MTR And Check Recovery
-
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
-
-    Check Current Release Installed Correctly
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
-
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
