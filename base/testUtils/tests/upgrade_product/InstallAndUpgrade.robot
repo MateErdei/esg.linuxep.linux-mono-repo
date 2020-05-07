@@ -111,10 +111,6 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Check EAP Release Installed Correctly
-    Create Directory   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
-    Create File   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0
-    ${result} =  Run Process  ln  -sf  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy
-    Should Be Equal As Integers     ${result.rc}    0
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
 
@@ -149,7 +145,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
+
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
