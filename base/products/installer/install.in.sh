@@ -312,7 +312,10 @@ makedir 750 "${SOPHOS_INSTALL}/base/telemetry"
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry/var"
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry/cache"
 chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/telemetry"
-
+if [ -L "${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy" ]
+then
+    rm -rf "${SOPHOS_INSTALL}/opt/"
+fi
 ## Setup libraries for versionedcopy
 INSTALLER_LIB="${SOPHOS_INSTALL}/tmp/install_lib"
 export LD_LIBRARY_PATH="$DIST/files/base/lib64:${INSTALLER_LIB}"

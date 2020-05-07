@@ -32,6 +32,7 @@ Resource    UpgradeResources.robot
 
 *** Variables ***
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
+${EdrEAPReleasePolicy}                      ${GeneratedWarehousePolicies}/EDR_EAP.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
 ${BaseAndEdrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
@@ -147,7 +148,63 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
-    Check Update Reports Have Been Processed
+We Can Upgrade From EDR EAP To Master Without Unexpected Errors
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${EdrEAPReleasePolicy}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${EdrEAPReleasePolicy}  real=True
+    Wait For Initial Update To Fail
+
+    Send ALC Policy And Prepare For Upgrade  ${EdrEAPReleasePolicy}
+    Trigger Update Now
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    Check EAP Release Installed Correctly
+    Directory Should Exist   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
+    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
+
+    Mark Watchdog Log
+    Mark Managementagent Log
+
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+#     If mtr is installed for the first time, this will appear
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+
+    Check for Management Agent Failing To Send Message To MTR And Check Recovery
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+    Check Current Release Installed Correctly
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
+
+    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+
+    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
+    Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
@@ -683,18 +740,3 @@ Check Files After Upgrade
 
     File Should Exist   ${SOPHOS_INSTALL}/base/update/var/update_config.json
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
-
-Check Update Reports Have Been Processed
-   Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/processedReports
-   ${files_in_processed_dir} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/processedReports
-   Log  ${files_in_processed_dir}
-
-   ${filesInUpdateVar} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var
-   Log  ${filesInUpdateVar}
-
-   ${ProcessedFileCount}=  Get length   ${files_in_processed_dir}
-   Should Be Equal As Numbers  ${ProcessedFileCount}   1
-   Should Contain  @{files_in_processed_dir}[0]  update_report
-   Should Not Contain  @{files_in_processed_dir}[0]  update_report.json
-
-   Should Contain  ${filesInUpdateVar}   @{files_in_processed_dir}[0]
