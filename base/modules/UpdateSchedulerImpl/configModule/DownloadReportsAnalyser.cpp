@@ -229,7 +229,7 @@ namespace UpdateSchedulerImpl
                     SulDownloader::suldownloaderdata::DownloadReport fileReport =
                         SulDownloader::suldownloaderdata::DownloadReport::toReport(content);
 
-                    // check to see of report has been processed
+                    // check to see if report has been processed
                     std::string processedReportPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
                     if(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(processedReportPath, Common::FileSystem::basename(filepath))))
                     {
@@ -349,7 +349,7 @@ namespace UpdateSchedulerImpl
                 reportCollection.at(previousIndex).getStatus() !=
                 SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
 
-            // Run through the report collection, and check if there is an ols un-processed report containing
+            // Run through the report collection, and check if there is an old un-processed report containing
             // an Upgrade or uninstalled state., if there is set IsRelevantToSend to true to force sending an
             // Update Status Event.
             for(auto& report : reportCollection)
