@@ -145,7 +145,7 @@ set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 
 set(OSQUERY_BINARY ${INPUT}/osquery/usr/local/bin/osqueryd)
-set(OSQUERY_LENSES_DIR ${INPUT}/osquery/usr/share/osquery/lenses)
+set(OSQUERY_LENSES_DIR ${INPUT}/osquery/usr/local/share/osquery/lenses)
 
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)
