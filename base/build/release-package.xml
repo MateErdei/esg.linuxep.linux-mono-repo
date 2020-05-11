@@ -23,7 +23,7 @@
         <package name="curllinux11" version="7-66-0-17/219557/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-32/219604/output" dest="input">
+        <package name="sullinux11" version="1-0-0-36/219636/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
         <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
@@ -41,7 +41,7 @@
         <package name="log4cpluslinux11" version="2-0-5-17/219045/output" dest="input">
             <include src="log4cplus.tar" dest="."/>
         </package>
-        <package name="zliblinux11" version="1-2-11-3/219533/output" dest="input">
+        <package name="zliblinux11" version="1-2-11-4/219630/output" dest="input">
             <include src="zlib.tar" dest="."/>
         </package>
         <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input">
