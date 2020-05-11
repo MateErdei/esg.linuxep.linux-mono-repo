@@ -17,7 +17,7 @@
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
         <package name="versig"
-                 version="2-0-0-72/217560/output" dest="input">
+                 version="2-0-0-72/219560/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
         <package name="curllinux11" version="7-66-0-17/219557/output" dest="input">
@@ -98,9 +98,9 @@
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command  buildtype="prod"> -->
         <command>
-          <program>/bin/bash</program>
-          <args>./build.sh --clean</args>
-          <workingdir>sspl-base-build</workingdir>
+            <program>/bin/bash</program>
+            <args>./build.sh --clean</args>
+            <workingdir>sspl-base-build</workingdir>
         </command>
         <!--<command buildtype="dev">
             <program>/bin/bash</program>
@@ -116,6 +116,6 @@
             <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,feature,release,develop</publishbranches>
+        <publishbranches>master,feature,release</publishbranches>
     </publish>
 </package>
