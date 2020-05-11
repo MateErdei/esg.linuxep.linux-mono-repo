@@ -231,6 +231,9 @@ function build()
 
         mkdir -p "$REDIST"/osquery
         tar xzf ${INPUT}/osquery-4.3.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
+        ls -al "$REDIST"/osquery/usr
+        ls -al "$REDIST"/osquery/usr/share/osquery/lenses
+
     fi
 
     addpath "$REDIST/cmake/bin"
