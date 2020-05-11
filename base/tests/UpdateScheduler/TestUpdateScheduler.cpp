@@ -595,9 +595,9 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
 
     EXPECT_CALL(fileSystemMock, readFile(reportPath)).WillOnce(Return(downloadReport));
 
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report.json")).WillOnce(Return(false));
 
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processed_reports/update_report.json", _));
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processedReports/update_report.json", _));
     EXPECT_CALL(*api, sendEvent("ALC", _));
     EXPECT_CALL(*api, sendStatus("ALC", _, _));
 
@@ -670,16 +670,16 @@ TEST_F(TestUpdateScheduler, UpdateUnprocessedReportUpgradeReportResultsInSending
     EXPECT_CALL(fileSystemMock, readFile("/installroot/base/update/var/update_report_1.json")).WillOnce(Return(downloadReport));
     EXPECT_CALL(fileSystemMock, readFile("/installroot/base/update/var/update_report_2.json")).WillOnce(Return(downloadReport));
 
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report_1.json")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report_2.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report_1.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report_2.json")).WillOnce(Return(false));
 
-    EXPECT_CALL(fileSystemMock, removeFilesInDirectory("/installroot/base/update/var/processed_reports")).Times(1);
-    EXPECT_CALL(fileSystemMock, isDirectory("/installroot/base/update/var/processed_reports")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var/processed_reports")).WillRepeatedly(Return(std::vector<Path>()));
+    EXPECT_CALL(fileSystemMock, removeFilesInDirectory("/installroot/base/update/var/processedReports")).Times(1);
+    EXPECT_CALL(fileSystemMock, isDirectory("/installroot/base/update/var/processedReports")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var/processedReports")).WillRepeatedly(Return(std::vector<Path>()));
 
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processed_reports/update_report.json", _)).Times(1);
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processed_reports/update_report_2.json", _)).Times(1);
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processedReports/update_report.json", _)).Times(1);
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processedReports/update_report_2.json", _)).Times(1);
     EXPECT_CALL(fileSystemMock, copyFile("/installroot/base/update/var/update_config.json", _)).Times(1);
 
     EXPECT_CALL(*api, sendEvent("ALC", _));
@@ -754,16 +754,16 @@ TEST_F(TestUpdateScheduler, UppdateUnprocessedReportComparingProcessedReportResu
     EXPECT_CALL(fileSystemMock, readFile("/installroot/base/update/var/update_report_1.json")).WillOnce(Return(downloadReportUpToDate));
     EXPECT_CALL(fileSystemMock, readFile("/installroot/base/update/var/update_report_2.json")).WillOnce(Return(downloadReportUpgraded));
 
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report_1.json")).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report_2.json")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report_1.json")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report_2.json")).WillOnce(Return(true));
 
-    std::vector<Path> listProcessFiles {"/installroot/base/update/var/processed_reports/update_report_1.json", "/installroot/base/update/var/processed_reports/update_report_2.json"};
+    std::vector<Path> listProcessFiles {"/installroot/base/update/var/processedReports/update_report_1.json", "/installroot/base/update/var/processedReports/update_report_2.json"};
 
-    EXPECT_CALL(fileSystemMock, removeFilesInDirectory("/installroot/base/update/var/processed_reports")).Times(1);
+    EXPECT_CALL(fileSystemMock, removeFilesInDirectory("/installroot/base/update/var/processedReports")).Times(1);
 
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processed_reports/update_report_1.json", _)).Times(1);
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processed_reports/update_report_2.json", _)).Times(1);
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processedReports/update_report_1.json", _)).Times(1);
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processedReports/update_report_2.json", _)).Times(1);
     EXPECT_CALL(fileSystemMock, copyFile("/installroot/base/update/var/update_config.json", _)).Times(1);
 
 
@@ -833,8 +833,8 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpNotSetToFalseWhenMissedUpdate) /
         .Times(2)
         .WillRepeatedly(Return(files)); // after policy it process current reports (empty)
 
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processed_reports/update_report.json", _));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processedReports/update_report.json", _));
 
     // Set last update time to a week ago (in case the test runs at the same time as the scheduled update)
     time_t nowTime = std::time(nullptr) - 7 * 24 * 60 * 60;
@@ -900,8 +900,8 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpSetToFalseWhenNotMissedUpdate) /
         .Times(2)
         .WillRepeatedly(Return(files)); // after policy it process current reports (empty)
 
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processed_reports/update_report.json", _));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processedReports/update_report.json", _));
 
     time_t nowTime = std::time(nullptr);
     std::tm now = *std::localtime(&nowTime);
@@ -1307,8 +1307,8 @@ TEST_F(TestUpdateScheduler, sulDownloaderTimeoutWillTriggerSulDownloaderToUpdate
     EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
             .WillOnce(Return(files)); // report generated by suldownloader
 
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processed_reports/update_report.json")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processed_reports/update_report.json", _));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/processedReports/update_report.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/processedReports/update_report.json", _));
 
     EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
             .Times(2)

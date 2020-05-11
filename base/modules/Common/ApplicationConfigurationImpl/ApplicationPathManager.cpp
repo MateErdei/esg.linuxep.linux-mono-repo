@@ -159,7 +159,7 @@ namespace Common
 
         std::string ApplicationPathManager::getSulDownloaderProcessedReportPath() const
         {
-            return Common::FileSystem::join(getSulDownloaderReportPath(), "processed_reports");
+            return Common::FileSystem::join(getSulDownloaderReportPath(), "processedReports");
         }
 
         std::string ApplicationPathManager::getSulDownloaderConfigFilePath() const

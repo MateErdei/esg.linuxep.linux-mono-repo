@@ -685,8 +685,8 @@ Check Files After Upgrade
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
 
 Check Update Reports Have Been Processed
-   Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/processed_reports
-   ${files_in_processed_dir} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/processed_reports
+   Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/processedReports
+   ${files_in_processed_dir} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/processedReports
    Log  ${files_in_processed_dir}
 
    ${filesInUpdateVar} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var
