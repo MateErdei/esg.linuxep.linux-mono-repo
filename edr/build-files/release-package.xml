@@ -33,13 +33,13 @@
         <package name="osquery-linux" version="4-3-0/EES-18066" dest="input">
             <include src="osquery-4.3.0_1.linux_x86_64.tar.gz" dest="."/>
         </package>
-        <package name="osquerysdklinux11" version="1-0-0-45/219073/output" dest="input">
+        <package name="osquerysdklinux11" version="1-0-0-49/219565/output" dest="input">
             <include src="osquerysdk.tar" dest="."/>
         </package>
         <package name="osquerysdklinux11" version="sophos-linux-sdk-master/%LASTGOODCOMPONENTBUILD%/osquerysdklinux11/1.0.0/output" dest="input" buildtype="dev">
             <include src="osquerysdk.tar" dest="."/>
         </package>
-        <package name="openssllinux11" version="1-1-1d-10/217518/output" dest="input">
+        <package name="openssllinux11" version="1-1-1g-6/219531/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
