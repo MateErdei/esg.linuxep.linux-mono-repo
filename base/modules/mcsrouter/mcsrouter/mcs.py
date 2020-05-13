@@ -587,6 +587,11 @@ class MCS:
                             status_updated(
                                 reason="adapter reporting status change")
 
+                    elif self.__m_mcs_adapter.has_new_status():
+                        status_updated(
+                            reason="adapter reporting status change")
+
+
                     # get all pending events
                     for app_id, event_time, event in event_receiver.receive():
                         LOGGER.info("queuing event for %s", app_id)
