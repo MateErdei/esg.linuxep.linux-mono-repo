@@ -484,7 +484,7 @@ class MCS:
         # see if register_central.py --reregister has been called
         if config.get_default("MCSID") == "reregister":
             reregister = True
-
+        hour_check_time = time.time()
         # pylint: disable=too-many-nested-blocks
         try:
             while running:
@@ -579,11 +579,13 @@ class MCS:
 
                     timeout_compensation = (time.time() - last_command_time_check)
 
-                    # Check to see if any adapters have new status
-                    if self.__m_computer.has_status_changed() \
-                            or self.__m_mcs_adapter.has_new_status():
-                        status_updated(
-                            reason="adapter reporting status change")
+                    if (time.time() - hour_check_time > 3600):
+                        hour_check_time = time.time()
+                        # Check to see if any adapters have new status
+                        if self.__m_computer.has_status_changed() \
+                                or self.__m_mcs_adapter.has_new_status():
+                            status_updated(
+                                reason="adapter reporting status change")
 
                     # get all pending events
                     for app_id, event_time, event in event_receiver.receive():
