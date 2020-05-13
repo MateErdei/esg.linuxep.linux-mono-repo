@@ -148,7 +148,7 @@ EDR Uninstalled When Removed From ALC Policy
     File Should Not Exist   ${CACHED_STATUS_XML}
 
 Install Base And MTR Then Migrate To EDR
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
+    [Tags]   THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN  EXCLUDE_UBUNTU20
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}  real=True
@@ -190,7 +190,7 @@ Install Base And MTR Then Migrate To EDR
     ...  Should Not Exist  ${MTR_DIR}
 
 Install Base And EDR Then Migrate To BASE
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
+    [Tags]  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
     Install EDR  ${BaseAndEdrVUTPolicy}
     Wait Until OSQuery Running
     # Uninstall EDR
@@ -251,6 +251,7 @@ Install base and edr 999 then downgrade to current master
     ...  wdctl <> start edr
 
 Install base and edr and mtr then downgrade to current release base and mtr
+    [Tags]   THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN  EXCLUDE_UBUNTU20
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
     #truncate log so that check mdr plugin installed works correctly later in the test

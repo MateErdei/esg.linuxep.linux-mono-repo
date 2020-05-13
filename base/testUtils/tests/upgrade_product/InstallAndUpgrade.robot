@@ -94,7 +94,7 @@ We Can Install From A Ballista Warehouse
 #    Fail
 
 We Can Upgrade From A Release To Master Without Unexpected Errors
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EXCLUDE_UBUNTU20
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
 
@@ -152,7 +152,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Check Update Reports Have Been Processed
 
 VersionCopy File in the Wrong Location Is Removed
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
 
@@ -203,7 +203,7 @@ VersionCopy File in the Wrong Location Is Removed
 
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
 
@@ -358,7 +358,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
 
 Version Copy Versions All Changed Files When Upgrading
-    [Tags]      INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]      INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
     [Documentation]  LINUXDAR-771 - check versioned copy works as expected.
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
