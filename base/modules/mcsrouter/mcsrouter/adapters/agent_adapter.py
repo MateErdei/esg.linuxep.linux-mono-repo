@@ -7,6 +7,7 @@ import logging
 import os
 import subprocess
 import sys
+import time
 
 import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.path_manager as path_manager
@@ -69,6 +70,7 @@ class ComputerCommonStatus:
         self.ipv4s = list(ip_address.get_non_local_ipv4())
         self.ipv6s = list(ip_address.get_non_local_ipv6())
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
+        self.created_time = time.time()
 
         mac_addresses = []
         try:
@@ -89,6 +91,9 @@ class ComputerCommonStatus:
         __ne__
         """
         return not self == other
+
+    def should_be_refreshed(self):
+        return (time.time() - self.created_time) > 3600
 
     def get_mac_addresses(self):
         path_to_machineid_executable = os.path.join(path_manager.install_dir(), "base", "bin", "machineid")
@@ -235,21 +240,26 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         has_new_status
         """
-        return self.__m_common_status != self.__create_common_status()
+        return self.__m_common_status.to_status_xml() != self.__create_common_status().to_status_xml()
 
     def get_common_status_xml(self):
         """
         get_common_status_xml
         """
-        common_status = self.__create_common_status()
 
-        if self.__m_common_status != common_status:
-            self.__m_common_status = common_status
 
-            LOGGER.info("Reporting computerName=%s,fqdn=%s,IPv4=%s",
-                        self.__m_common_status.computer_name,
-                        self.__m_common_status.fqdn,
-                        str(self.__m_common_status.ipv4s))
+        if not self.__m_common_status:
+            self.__m_common_status = self.__create_common_status()
+        elif self.__m_common_status.should_be_refreshed():
+            new_common_status = self.__create_common_status()
+
+            if self.__m_common_status.to_status_xml() != new_common_status().to_status_xml():
+                self.__m_common_status = new_common_status()
+
+                LOGGER.info("Reporting computerName=%s,fqdn=%s,IPv4=%s",
+                            self.__m_common_status.computer_name,
+                            self.__m_common_status.fqdn,
+                            str(self.__m_common_status.ipv4s))
 
         return self.__m_common_status.to_status_xml()
 
