@@ -240,6 +240,8 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         has_new_status
         """
+        if not self.__m_common_status:
+            return True
         return self.__m_common_status.to_status_xml() != self.__create_common_status().to_status_xml()
 
     def get_common_status_xml(self):
