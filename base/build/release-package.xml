@@ -50,7 +50,7 @@
         <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
-        <package name="pythonlinux11" version="3-7-7-19/219661/output" dest="input">
+        <package name="pythonlinux11" version="3-7-7-23/219664/output" dest="input">
             <include src="python.tar" dest="." />
         </package>
         <package name="python-watchdog" version="0-10-2-2/218866/watchdog" dest="input">
@@ -116,6 +116,6 @@
             <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,feature,release,develop</publishbranches>
+        <publishbranches>master,feature,release,develop,bugfix</publishbranches>
     </publish>
 </package>
