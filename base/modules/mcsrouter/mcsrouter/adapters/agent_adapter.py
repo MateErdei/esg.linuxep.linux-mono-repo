@@ -152,7 +152,6 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         if install_dir is not None:
             path_manager.INST = install_dir
         self.__m_common_status = None
-        self.__m_created_time = None
 
     def get_app_id(self):
         """
