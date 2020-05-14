@@ -92,16 +92,6 @@ class ComputerCommonStatus:
         """
         return not self == other
 
-    def should_be_refreshed(self):
-        status_is_old = False
-        current_time = time.time()
-
-        if (current_time - self.created_time) > 30:
-            self.created_time = current_time
-            status_is_old = True
-
-        return status_is_old
-
     def get_mac_addresses(self):
         path_to_machineid_executable = os.path.join(path_manager.install_dir(), "base", "bin", "machineid")
 
@@ -162,6 +152,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         if install_dir is not None:
             path_manager.INST = install_dir
         self.__m_common_status = None
+        self.__m_created_time = None
 
     def get_app_id(self):
         """
@@ -235,32 +226,36 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         return mcsrouter.utils.target_system_manager.get_target_system(
             path_manager.install_dir())
 
-    def __create_common_status(self):
+    def __get_common_status(self):
         """
         __create_common_status
         """
         #creates new status if has not been created or if status is over an hour old
         if self.__m_common_status:
-            if not self.__m_common_status.should_be_refreshed():
-                return False
+            if not (time.time() - self.__m_created_time > 3600):
+                return self.__m_common_status
 
+        return self.__create_common_status()
+
+    def __create_common_status(self):
         target_system = self.__target_system()
         assert target_system is not None
-        self.__m_common_status = ComputerCommonStatus(target_system)
-        return True
+        self.__m_created_time = time.time()
+        return ComputerCommonStatus(target_system)
+
 
     def has_new_status(self):
         """
         has_new_status
         """
 
-        return self.__create_common_status()
+        return self.__m_common_status != self.__get_common_status()
 
     def get_common_status_xml(self):
         """
         get_common_status_xml
         """
-        self.__create_common_status()
+        self.__m_common_status = self.__get_common_status()
 
 
         return self.__m_common_status.to_status_xml()
