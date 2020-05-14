@@ -93,7 +93,14 @@ class ComputerCommonStatus:
         return not self == other
 
     def should_be_refreshed(self):
-        return (time.time() - self.created_time) > 3600
+        should_be_refreshed = False
+        current_time = time.time()
+
+        if (current_time - self.created_time) > 3600:
+            self.created_time = current_time
+            should_be_refreshed = True
+
+        return should_be_refreshed
 
     def get_mac_addresses(self):
         path_to_machineid_executable = os.path.join(path_manager.install_dir(), "base", "bin", "machineid")
