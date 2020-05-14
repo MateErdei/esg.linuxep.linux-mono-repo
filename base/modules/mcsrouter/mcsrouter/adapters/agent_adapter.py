@@ -93,14 +93,14 @@ class ComputerCommonStatus:
         return not self == other
 
     def should_be_refreshed(self):
-        should_be_refreshed = False
+        status_is_old = False
         current_time = time.time()
 
-        if (current_time - self.created_time) > 3600:
+        if (current_time - self.created_time) > 30:
             self.created_time = current_time
-            should_be_refreshed = True
+            status_is_old = True
 
-        return should_be_refreshed
+        return status_is_old
 
     def get_mac_addresses(self):
         path_to_machineid_executable = os.path.join(path_manager.install_dir(), "base", "bin", "machineid")
@@ -239,36 +239,29 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         __create_common_status
         """
+        #creates new status if has not been created or if status is over an hour old
+        if self.__m_common_status:
+            if not self.__m_common_status.should_be_refreshed():
+                return False
+
         target_system = self.__target_system()
         assert target_system is not None
-        return ComputerCommonStatus(target_system)
+        self.__m_common_status = ComputerCommonStatus(target_system)
+        return True
 
     def has_new_status(self):
         """
         has_new_status
         """
-        if not self.__m_common_status:
-            return True
-        return self.__m_common_status.to_status_xml() != self.__create_common_status().to_status_xml()
+
+        return self.__create_common_status()
 
     def get_common_status_xml(self):
         """
         get_common_status_xml
         """
+        self.__create_common_status()
 
-
-        if not self.__m_common_status:
-            self.__m_common_status = self.__create_common_status()
-        elif self.__m_common_status.should_be_refreshed():
-            new_common_status = self.__create_common_status()
-
-            if self.__m_common_status.to_status_xml() != new_common_status().to_status_xml():
-                self.__m_common_status = new_common_status()
-
-                LOGGER.info("Reporting computerName=%s,fqdn=%s,IPv4=%s",
-                            self.__m_common_status.computer_name,
-                            self.__m_common_status.fqdn,
-                            str(self.__m_common_status.ipv4s))
 
         return self.__m_common_status.to_status_xml()
 
