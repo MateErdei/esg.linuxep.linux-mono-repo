@@ -70,7 +70,6 @@ class ComputerCommonStatus:
         self.ipv4s = list(ip_address.get_non_local_ipv4())
         self.ipv6s = list(ip_address.get_non_local_ipv6())
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
-        self.created_time = time.time()
 
         mac_addresses = []
         try:
@@ -152,6 +151,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         if install_dir is not None:
             path_manager.INST = install_dir
         self.__m_common_status = None
+        self.__m_created_time = None
 
     def get_app_id(self):
         """
