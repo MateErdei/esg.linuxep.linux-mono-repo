@@ -151,7 +151,7 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload/bin
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload/cmath.cpython-37m-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload/fcntl.cpython-37m-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload/grp.cpython-37m-x86_64-linux-gnu.so.0
-o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload/libffi.so.7.1.0.0
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload/libffi.so.7.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload/math.cpython-37m-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload/mmap.cpython-37m-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/lib-dynload/nis.cpython-37m-x86_64-linux-gnu.so.0
