@@ -21,11 +21,11 @@ ${PausedBase999Policy}    ${GeneratedWarehousePolicies}/base_paused_update_999.x
 
 *** Test Cases ***
 Test SSPL Will Updated To A Fixed Version When Paused Updating Is Activated And Updating Will Resolve To Recommended When It Is Deactivated
-    [Tags] PAUSED_UPDATE  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
+    [Tags]  PAUSED_UPDATE  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
 
     Start Local Cloud Server  --initial-alc-policy  ${PausedBaseVUTPrevPolicy}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${PausedBaseVUTPrevPolicy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${PausedBaseVUTPrevPolicy}   real=True
 
     Wait For Initial Update To Fail
     Override LogConf File as Global Level  DEBUG
