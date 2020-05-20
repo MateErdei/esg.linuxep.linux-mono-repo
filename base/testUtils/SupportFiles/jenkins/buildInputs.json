@@ -1,0 +1,14 @@
+{
+  "vut_builds": {
+    "base": "/mnt/filer6/bfr/sspl-base/master",
+    "edr_plugin": "/mnt/filer6/bfr/sspl-edr-plugin/master",
+    "mtr_plugin": "/mnt/filer6/bfr/sspl-mdr-control-plugin/master",
+    "mtr_component_suite": "/mnt/filer6/bfr/sspl-mdr-componentsuite/master",
+    "thininstaller": "/mnt/filer6/bfr/sspl-thininstaller/master",
+    "example_plugin": "/mnt/filer6/bfr/sspl-exampleplugin/master",
+    "audit_plugin": "/mnt/filer6/bfr/sspl-audit/master",
+    "event_processor": "/mnt/filer6/bfr/sspl-eventprocessor/master"
+  },
+  "ostia_warehouse_addresses": {
+  }
+}
