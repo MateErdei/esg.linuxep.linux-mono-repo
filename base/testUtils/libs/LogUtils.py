@@ -498,6 +498,16 @@ class LogUtils(object):
             self.dump_watchdog_log()
             raise AssertionError("Marked watchdog log did not contain: " + string_to_contain)
 
+    def check_marked_watchdog_log_does_not_contain(self, string_to_contain):
+        watchdog_log = self.watchdog_log()
+        contents = get_log_contents(watchdog_log)
+
+        contents = contents[self.marked_watchdog_logs:]
+
+        if string_to_contain in contents:
+            self.dump_watchdog_log()
+            raise AssertionError("Marked watchdog log did not contain: " + string_to_contain)
+
     def check_marked_managementagent_log_contains(self, string_to_contain):
         managementagent_log = self.managementagent_log()
         contents = get_log_contents(managementagent_log)

@@ -23,6 +23,7 @@ Default Tags   EDR_PLUGIN   OSTIA  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
 ${BaseAndMtrReleasePolicy}          ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseAndMtrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+${BrokenEDRPolicy}                      ${GeneratedWarehousePolicies}/base_and_broken_edr.xml
 ${BaseAndEdrAndMtrVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_and_edr_999.xml
 ${BaseEdrAndMtr999Policy}              ${GeneratedWarehousePolicies}/base_edr_vut_and_mtr_999.xml
@@ -96,6 +97,54 @@ Install EDR And Get Historic Event Data
     ...   7x
     ...   10 secs
     ...   Run Query Until It Gives Expected Results  select pid from process_events LIMIT 1  {"columnMetaData":[{"name":"pid","type":"BIGINT"}],"queryMetaData":{"errorCode":0,"errorMessage":"OK","rows":1}}
+
+A broken edr installation will fail update
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EXCLUDE_UBUNTU20
+
+    Start Local Cloud Server  --initial-alc-policy  ${BrokenEDRPolicy}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BrokenEDRPolicy}   real=True
+    Wait For Initial Update To Fail
+    Override LogConf File as Global Level   DEBUG
+    Send ALC Policy And Prepare For Upgrade  ${BrokenEDRPolicy}
+    Trigger Update Now
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   100 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Fail On N Event Sent  2
+
+    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+
+    Mark Watchdog Log
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   100 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Fail On N Event Sent  3
+
+    Check Marked Watchdog Log Does Not Contain  Starting /opt/sophos-spl/base/bin/UpdateScheduler
+    Check Marked Watchdog Log Does Not Contain  Starting /opt/sophos-spl/base/bin/tscheduler
+    Check Marked Watchdog Log Does Not Contain  Starting /opt/sophos-spl/base/bin/mcsrouter
+    Check Marked Watchdog Log Does Not Contain  Starting /opt/sophos-spl/base/bin/sophos_managementagent
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
+
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  4
+
+    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+
+    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
+
 
 EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not Running
     [Teardown]  EDR Uninstall Teardown
