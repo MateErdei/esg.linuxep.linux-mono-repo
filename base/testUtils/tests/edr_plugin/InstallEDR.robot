@@ -114,7 +114,7 @@ A broken edr installation will fail update
     ...   100 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Fail On N Event Sent  2
-
+    Check SulDownloader Log Contains in Order   Installation failed    Installer exit code: 20
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
 
     Mark Watchdog Log
