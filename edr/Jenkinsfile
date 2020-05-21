@@ -23,47 +23,42 @@ try{
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     git_branch = "${env.BRANCH_NAME}"
-    if ( git_branch == 'master' ||
-          params.mode == 'coverage' || git_branch.endsWith('coverage') )
+    if ( params.mode == 'coverage' || git_branch.endsWith('coverage') )
     {
-        parallel release_build:
+        parallel coverage_build:
         {
-            echo 'Starting edr master release builds'
-            ArtisanBuild(
-                buildAgentTemplate,
-                project_release_xml,
-                'release',
-                version_number,
-                project_builddir)
-            echo 'Finished edr master release build'
-        },
-        coverage_build:
-        {
-            echo 'Starting edr master coverage build'
+            echo 'Starting edr coverage build'
             ArtisanBuild(
                 'JenkinsLinuxTemplate3',
                 project_release_xml,
                 'coverage',
                 version_number,
                 project_builddir)
-            echo 'Finished edr master coverage build'
+            echo 'Finished edr coverage build'
         },
         coverity_build:
         {
-            echo 'Starting edr master coverage build'
+            echo 'Starting edr coverity build'
             ArtisanBuild(
                 'JenkinsLinuxTemplate3',
                 project_release_xml,
                 'coverity',
                 version_number,
                 project_builddir)
-            echo 'Finished edr master coverage build'
+            echo 'Finished edr coverity build'
         }
     }
     else
     {
-        echo 'Starting ticket branch edr build'
-        ArtisanBuild(buildAgentTemplate, project_release_xml, params.mode, version_number, project_builddir)
+        echo 'Starting edr ' + params.mode + ' ' + git_branch + ' build'
+        ArtisanBuild(
+            buildAgentTemplate,
+            project_release_xml,
+            params.mode,
+            version_number,
+            project_builddir
+            )
+        echo 'Finished edr  ' + params.mode + ' ' + git_branch + ' build'
     }
     SuccessfulBuild(project_release_xml)
 
