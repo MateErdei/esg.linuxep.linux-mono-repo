@@ -121,16 +121,13 @@ def pytest_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext, coverage_inputs: str = 'no'):
+def get_inputs(context: tap.PipelineContext):
     logger.info(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
-        edr=context.artifact.build() / 'output'
+        edr=context.artifact.build()  / 'coverage',
+        bullseye_files=context.artifact.from_folder('./build/bullseye')
     )
-    # override the edr input and get the bullseye coverage build insteady
-    if coverage_inputs == 'yes':
-        test_inputs['edr'] = context.artifact.build()
-        test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
     return test_inputs
 
 
