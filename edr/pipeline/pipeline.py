@@ -31,7 +31,7 @@ def has_coverage_build(branch_name):
     return branch_name == 'master' or branch_name.endswith('coverage')
 
 def has_coverage_file(machine: tap.Machine):
-    """If the branch name does an analysis mode build"""
+    """If the downloaded build output has a coverage file then its a bullseye build"""
     return machine.run('test', '-f', COVFILE_UNITTEST, return_exit_code=True) == 0
 
 def install_requirements(machine: tap.Machine):
