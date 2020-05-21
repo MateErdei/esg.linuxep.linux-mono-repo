@@ -35,18 +35,19 @@ try{
                 version_number,
                 project_builddir)
             echo 'Finished edr coverage build'
-        },
-        coverity_build:
-        {
-            echo 'Starting edr coverity build'
-            ArtisanBuild(
-                'JenkinsLinuxTemplate3',
-                project_release_xml,
-                'coverity',
-                version_number,
-                project_builddir)
-            echo 'Finished edr coverity build'
         }
+// FixMe         ToDo remove this debug code
+//         coverity_build:
+//         {
+//             echo 'Starting edr coverity build'
+//             ArtisanBuild(
+//                 'JenkinsLinuxTemplate3',
+//                 project_release_xml,
+//                 'coverity',
+//                 version_number,
+//                 project_builddir)
+//             echo 'Finished edr coverity build'
+//         }
     }
     else
     {
