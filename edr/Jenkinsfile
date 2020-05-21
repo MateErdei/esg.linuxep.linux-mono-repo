@@ -36,9 +36,9 @@ try{
                 project_builddir)
             echo 'Finished edr coverage build'
         }
-        //ToDo Replace Coverity build with CPP check LINUXDAR-1820
-        // this requires changes to the release.xml, and build.sh
-        //Results upload server is currently broken for Coverity
+        // To Do : Results upload server is currently broken for Coverity EES-18316
+        // https://jira.sophos.net/browse/EES-18316
+        //
         //         coverity_build:
         //         {
         //             echo 'Starting edr coverity build'
