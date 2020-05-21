@@ -36,18 +36,20 @@ try{
                 project_builddir)
             echo 'Finished edr coverage build'
         }
-// FixMe         ToDo remove this debug code
-//         coverity_build:
-//         {
-//             echo 'Starting edr coverity build'
-//             ArtisanBuild(
-//                 'JenkinsLinuxTemplate3',
-//                 project_release_xml,
-//                 'coverity',
-//                 version_number,
-//                 project_builddir)
-//             echo 'Finished edr coverity build'
-//         }
+        //ToDo Replace Coverity build with CPP check LINUXDAR-1820
+        // this requires changes to the release.xml, and build.sh
+        //Results upload server is currently broken for Coverity
+        //         coverity_build:
+        //         {
+        //             echo 'Starting edr coverity build'
+        //             ArtisanBuild(
+        //                 'JenkinsLinuxTemplate3',
+        //                 project_release_xml,
+        //                 'coverity',
+        //                 version_number,
+        //                 project_builddir)
+        //             echo 'Finished edr coverity build'
+        //         }
     }
     else
     {

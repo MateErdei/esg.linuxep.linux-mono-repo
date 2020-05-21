@@ -28,9 +28,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return True
-    #return branch_name == 'master' or branch_name.endswith('coverage')
-    #FIXME remove this debug code
+    return branch_name == 'master' or branch_name.endswith('coverage')
 
 def has_coverage_file(machine: tap.Machine):
     """If the branch name does an analysis mode build"""
