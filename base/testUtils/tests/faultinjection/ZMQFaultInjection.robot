@@ -200,7 +200,13 @@ ZMQ Suite Teardown
     Ensure Uninstalled
     Run Process  rm  -rf  ${ZMQCheckerDir}
 
+Report Output of Replier
+    ${result} =    Wait For Process    replierprocess  timeout=15 s  on_timeout=terminate
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+
 ZMQ Test Teardown
+    Run Keyword If Test Failed  Report Output of Replier
     General Test Teardown
     Run Process  pkill  -f  zmqchecker
     Run Process  rm  -f  ${TESTIPCCUSTOM}
