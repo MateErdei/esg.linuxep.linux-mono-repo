@@ -125,7 +125,7 @@ def get_inputs(context: tap.PipelineContext):
     logger.info(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
-        edr=context.artifact.build()  / 'coverage',
+        edr=context.artifact.build() / 'output',
         bullseye_files=context.artifact.from_folder('./build/bullseye')
     )
     return test_inputs
