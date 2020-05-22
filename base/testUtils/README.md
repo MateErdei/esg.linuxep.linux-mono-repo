@@ -37,6 +37,24 @@ It is also possible to run the tests in tap.
 tap run sspl_base.integration --debug-loop
 ```
 
+Building an Ostia Warehouse Using Builds From Your Pairing Station
+1.build base
+2.build mtr component suite
+3. In sspl-tools, run:
+    a.Only needs to be done once:
+        setup/setupPairingStationOstiaBranches.py
+    b. setup/copyLocalBuildOutputToDevWarehouse.py
+
+4. On CI, build the branch for your pairing station under sspl-warehouse (e.g. develop/orange , develop/pear,  develop/abelard, etc.)
+
+5. In system product tests
+    a. go to libs/WarehouseUtils.py
+    b. find this line "OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "master")"
+    c. change "master" to "develop-*yourPairingStationName* (e.g. develop-orange, develop-pear, develop-abelard, etc
+
+DONE. Any tests that would previously have used the VUT ostia warehouse (i.e. master) will now use the builds which were on your pairing station.
+To refresh, run step 3b then 4
+
 The following tags can be used to select which tests can be run, using the include or exclude arguments.
 * AUDIT_PLUGIN - Test cases which test sspl-audit
 * AMAZON_LINUX - Test cases which will run on AWS only
