@@ -23,7 +23,7 @@ ${ZMQCheckerDir} =  /tmp/zmqchecker
 ${TESTUSER} =  sophos-spl-user
 ${IPCPATH} =   /tmp/zmqtestdir
 ${TESTIPCCUSTOM} =   ${IPCPATH}/test.ipc
-${TESTIPCTMP} =   /tmp/test.ipc
+${TESTIPCTMP} =   /var/tmp/test.ipc
 ${REQUEST} =  req
 
 
