@@ -117,18 +117,6 @@ A broken edr installation will fail update
     Check SulDownloader Log Contains in Order   Installation failed    Installer exit code: 20
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
 
-    Mark Watchdog Log
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   100 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Fail On N Event Sent  3
-
-    Check Marked Watchdog Log Does Not Contain  Starting /opt/sophos-spl/base/bin/UpdateScheduler
-    Check Marked Watchdog Log Does Not Contain  Starting /opt/sophos-spl/base/bin/tscheduler
-    Check Marked Watchdog Log Does Not Contain  Starting /opt/sophos-spl/base/bin/mcsrouter
-    Check Marked Watchdog Log Does Not Contain  Starting /opt/sophos-spl/base/bin/sophos_managementagent
-
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -139,10 +127,10 @@ A broken edr installation will fail update
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  4
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-
+    Wait For EDR to be Installed
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
 
 
