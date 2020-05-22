@@ -206,11 +206,6 @@ Save Current InstalledFiles To Local Path
     Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/DirectoryInfo  ${DirectoryInfo}
     Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
 
-Display List Files Dash L in Directory 
-   [Arguments]  ${DirPath}
-   ${result}=    Run Process  ls -l ${DirPath}  shell=True
-   Log  ${result.stdout}
-
 VersionCopy Teardown
     Run Keyword If Test Failed   Display List Files Dash L In Directory   /tmp/testVersionCopy/files
     Run Keyword If Test Failed   Display List Files Dash L In Directory   /tmp/target

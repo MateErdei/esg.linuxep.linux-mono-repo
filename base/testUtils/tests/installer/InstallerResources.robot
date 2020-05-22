@@ -94,6 +94,10 @@ Display All SSPL Plugins Files Installed
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
 
+Display List Files Dash L in Directory 
+   [Arguments]  ${DirPath}
+   ${result}=    Run Process  ls -l ${DirPath}  shell=True
+   Log  ${result.stdout}
 
 Display All tmp Files Present
     ${handle}=  Start Process  find   ./tmp

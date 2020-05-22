@@ -200,13 +200,46 @@ ZMQ Suite Teardown
     Ensure Uninstalled
     Run Process  rm  -rf  ${ZMQCheckerDir}
 
-Report Output of Replier
+Get Pid of zmqchecker
+    ${result} =    Run Process  pidof  zmqchecker
+    Should Be Equal As Integers    ${result.rc}    0   msg=${result.stderr}
+    [Return]  ${result.stdout}
+
+Describe information for given Pid
+    [Arguments]  ${pid}
+    ${result}=    Run Process  ls -l /proc/${pid}/fd  shell=True
+    Log  ${result.stdout}
+
+    ${result}=    Run Process  cat /proc/${pid}/status  shell=True
+    Log  ${result.stdout}
+
+    ${result}=    Run Process  cat /proc/${pid}/environ  shell=True
+    Log  ${result.stdout}
+
+    ${result}=    Run Process  ps -elfT | grep ${pid}  shell=True
+    Log  ${result.stdout}
+
+
+Report Status and Output of Replier
+    # can be sudo
+    ${pid}=   Process.Get Process Id  replierprocess
+    Describe information for given Pid  ${pid}
+
+    #ensure it is zmqchecker    
+    ${pid}=  Get Pid of zmqchecker
+    Describe information for given Pid  ${pid}
+
+    ${result}=    Run Process  ldd  ${ZMQCheckerDir}/zmqchecker  shell=True
+    Log  ${result.stdout} 
+
     ${result} =    Wait For Process    replierprocess  timeout=15 s  on_timeout=terminate
     Log  ${result.stdout}
     Log  ${result.stderr}
 
 ZMQ Test Teardown
-    Run Keyword If Test Failed  Report Output of Replier
+    Run Keyword If Test Failed   Display List Files Dash L In Directory   /tmp/
+    Run Keyword If Test Failed   Display List Files Dash L In Directory   /var/tmp/
+    Run Keyword If Test Failed   Report Status and Output of Replier
     General Test Teardown
     Run Process  pkill  -f  zmqchecker
     Run Process  rm  -f  ${TESTIPCCUSTOM}

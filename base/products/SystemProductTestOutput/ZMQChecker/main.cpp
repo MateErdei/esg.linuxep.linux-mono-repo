@@ -47,6 +47,7 @@ static int zmqchecker_main(int argc, char* argv[])
 
     if( connectionType == REQUESTER_SOCKET || connectionType == REQUEST_NO_READ_SOCKET)
     {
+        std::cout << "Creating the client connecting to " << ipc_path << std::endl; 
         Client client(ipc_path, connectTimeout);
 
         std::string command("hello");
@@ -83,6 +84,7 @@ static int zmqchecker_main(int argc, char* argv[])
     {
 
         bool ignoreRequests = (connectionType == REPLIER_NOREPLY_SOCKET);
+        std::cout << "Creating the Replier binding to " << ipc_path << std::endl; 
         Server server(ipc_path, true, ignoreRequests);
         try
         {
