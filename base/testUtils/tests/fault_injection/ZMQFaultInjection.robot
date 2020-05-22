@@ -4,6 +4,7 @@ Documentation    Suite description
 Library    OperatingSystem
 Library    Process
 Resource  ../GeneralTeardownResource.robot
+Library     ${LIBS_DIRECTORY}/TeardownTools.py
 Library     ${LIBS_DIRECTORY}/FaultInjectionTools.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
 Resource  ../installer/InstallerResources.robot
@@ -31,7 +32,7 @@ ${REQUEST} =  req
 Test IPC Path With Enough Permission To Create Channel Successfully Communicates
     ${handle} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  alias=replierprocess
     Wait Until Keyword Succeeds
-    ...  3s
+    ...  7s
     ...  1s
     ...  IPC File Should Exists  ${TESTIPCTMP}
     Run ZMQ Checker Executable As Low Priviledged User  req  ${TESTIPCTMP}  0  world
@@ -45,7 +46,7 @@ Test IPC Path Replier Without Enough Permission To Create Channel Will Throw ZMQ
     Create Directory  ${IPCPATH}
     ${handle} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCCUSTOM}  alias=replierprocess
     Wait Until Keyword Succeeds
-    ...  3s
+    ...  7s
     ...  1s
     ...  Ipc File Should Not Exists  ${TESTIPCCUSTOM}
 
@@ -64,7 +65,7 @@ Test IPC Path Requester Without Enough Permission To Create Channel Will Throw Z
     Create Directory  ${IPCPATH}
     ${handle} =  Start Process   ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCCUSTOM}  alias=replierprocess
     Wait Until Keyword Succeeds
-    ...  3s
+    ...  7s
     ...  1s
     ...  Ipc File Should Exists  ${TESTIPCCUSTOM}
 
@@ -93,7 +94,7 @@ Test IPC Path Requester Without Enough Permissions to Connect To The Channel Wil
     ${handle} =  Start Process  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  alias=replierprocess
     #ipc is created with user without write permission and having read and execute permissions.
     Wait Until Keyword Succeeds
-    ...  3s
+    ...  7s
     ...  1s
     ...  IPC File Should Exists  ${TESTIPCTMP}
 
@@ -110,7 +111,7 @@ Test IPC Path Requester Without Enough Permissions to Connect To The Channel Wil
 Test A Bad Client That Fails To Read Its Response From Replier Does Not Interfere With The service Of other Clients
     ${handle1} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  continue  alias=replierprocess
     Wait Until Keyword Succeeds
-    ...  3s
+    ...  7s
     ...  1s
     ...  IPC File Should Exists  ${TESTIPCTMP}
     #This requester will not read its reply
@@ -144,7 +145,7 @@ Test IPC Requester Does Not Exists Or Does Not Respond Replier Will Continue To 
 
     ${handle} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  alias=replierprocess
     Wait Until Keyword Succeeds
-    ...  3s
+    ...  7s
     ...  1s
     ...  IPC File Should Exists  ${TESTIPCTMP}
     Wait For Process    replierprocess  timeout=30 s  on_timeout=continue
@@ -159,7 +160,7 @@ Test IPC Replier Does Not Exists Or Does Not Respond Will Throw ZMQWrapperExcept
     # this replier will not respond to the requests
     ${handle1} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep-noreply  ${TESTIPCTMP}  alias=replierprocess
     Wait Until Keyword Succeeds
-    ...  3s
+    ...  7s
     ...  1s
     ...  IPC File Should Exists  ${TESTIPCTMP}
 
@@ -231,10 +232,18 @@ Report Status and Output of Replier
 
     ${result}=    Run Process  ldd  ${ZMQCheckerDir}/zmqchecker  shell=True
     Log  ${result.stdout} 
+    
+    # get average load time
+    ${result}=    Run Process  uptime  shell=True
+    Log  ${result.stdout}
 
     ${result} =    Wait For Process    replierprocess  timeout=15 s  on_timeout=terminate
     Log  ${result.stdout}
     Log  ${result.stderr}
+
+    # secure may report the sudo sessions
+    Dump Teardown Log   /var/log/dnf.log
+    Dump Teardown Log   /var/log/secure
 
 ZMQ Test Teardown
     Run Keyword If Test Failed   Display List Files Dash L In Directory   /tmp/
