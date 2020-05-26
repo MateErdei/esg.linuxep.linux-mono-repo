@@ -27,7 +27,7 @@ try{
     {
         parallel coverage_build:
         {
-            echo 'Starting edr coverage build'
+            echo 'Starting edr coverage build  on ' + git_branch
             ArtisanBuild(
                 'JenkinsLinuxTemplate3',
                 project_release_xml,
@@ -35,21 +35,18 @@ try{
                 version_number,
                 project_builddir)
             echo 'Finished edr coverage build'
+        },
+        coverity_build:
+        {
+            echo 'Starting edr coverity build on ' + git_branch
+            ArtisanBuild(
+                'JenkinsLinuxTemplate3',
+                project_release_xml,
+                'coverity',
+                version_number,
+                project_builddir)
+            echo 'Finished edr coverity build'
         }
-        // To Do : Results upload server is currently broken for Coverity EES-18316
-        // https://jira.sophos.net/browse/EES-18316
-        //
-        //         coverity_build:
-        //         {
-        //             echo 'Starting edr coverity build'
-        //             ArtisanBuild(
-        //                 'JenkinsLinuxTemplate3',
-        //                 project_release_xml,
-        //                 'coverity',
-        //                 version_number,
-        //                 project_builddir)
-        //             echo 'Finished edr coverity build'
-        //         }
     }
     else
     {
