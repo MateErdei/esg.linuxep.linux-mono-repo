@@ -30,7 +30,7 @@ ${REQUEST} =  req
 
 *** Test Cases ***
 Test IPC Path With Enough Permission To Create Channel Successfully Communicates
-    ${handle} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  alias=replierprocess
+    ${handle} =  Start Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  alias=replierprocess
     Wait Until Keyword Succeeds
     ...  7s
     ...  1s
@@ -44,7 +44,7 @@ Test IPC Path With Enough Permission To Create Channel Successfully Communicates
 Test IPC Path Replier Without Enough Permission To Create Channel Will Throw ZMQWrapperException Failed To Bind
     #start replier as root
     Create Directory  ${IPCPATH}
-    ${handle} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCCUSTOM}  alias=replierprocess
+    ${handle} =  Start Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCCUSTOM}  alias=replierprocess
     Wait Until Keyword Succeeds
     ...  7s
     ...  1s
@@ -69,7 +69,7 @@ Test IPC Path Requester Without Enough Permission To Create Channel Will Throw Z
     ...  1s
     ...  Ipc File Should Exists  ${TESTIPCCUSTOM}
 
-    ${handle} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  req  ${TESTIPCCUSTOM}  alias=requesterprocess
+    ${handle} =  Start Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  req  ${TESTIPCCUSTOM}  alias=requesterprocess
 
     # requester expected to throw "Failed to receive message component"
     # This because it will have no permission to create a channel in a directory owned by root
@@ -109,14 +109,14 @@ Test IPC Path Requester Without Enough Permissions to Connect To The Channel Wil
     Log  ${result.stderr}
 
 Test A Bad Client That Fails To Read Its Response From Replier Does Not Interfere With The service Of other Clients
-    ${handle1} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  continue  alias=replierprocess
+    ${handle1} =  Start Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  continue  alias=replierprocess
     Wait Until Keyword Succeeds
     ...  7s
     ...  1s
     ...  IPC File Should Exists  ${TESTIPCTMP}
     #This requester will not read its reply
-    ${handle2} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  req-noread  ${TESTIPCTMP}  alias=requesterprocess_1
-    ${handle1} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  req  ${TESTIPCTMP}  alias=requesterprocess_2
+    ${handle2} =  Start Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  req-noread  ${TESTIPCTMP}  alias=requesterprocess_1
+    ${handle1} =  Start Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  req  ${TESTIPCTMP}  alias=requesterprocess_2
     #should both successfully send
 
 
@@ -143,7 +143,7 @@ Test A Bad Client That Fails To Read Its Response From Replier Does Not Interfer
 Test IPC Requester Does Not Exists Or Does Not Respond Replier Will Continue To Service Other Clients
     #Create a requester process and replier process that consumes and never acknowledge
 
-    ${handle} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  alias=replierprocess
+    ${handle} =  Start Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep  ${TESTIPCTMP}  alias=replierprocess
     Wait Until Keyword Succeeds
     ...  7s
     ...  1s
@@ -158,13 +158,13 @@ Test IPC Requester Does Not Exists Or Does Not Respond Replier Will Continue To 
 
 Test IPC Replier Does Not Exists Or Does Not Respond Will Throw ZMQWrapperException Failed To Receive Message
     # this replier will not respond to the requests
-    ${handle1} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep-noreply  ${TESTIPCTMP}  alias=replierprocess
+    ${handle1} =  Start Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  rep-noreply  ${TESTIPCTMP}  alias=replierprocess
     Wait Until Keyword Succeeds
     ...  7s
     ...  1s
     ...  IPC File Should Exists  ${TESTIPCTMP}
 
-    ${handle2} =  Start Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  req  ${TESTIPCTMP}  alias=requesterprocess
+    ${handle2} =  Start Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  req  ${TESTIPCTMP}  alias=requesterprocess
 
     #  Requester throws
     #  ZeroMQWrapperException Failed to receive message component
@@ -182,7 +182,7 @@ Test IPC Replier Does Not Exists Or Does Not Respond Will Throw ZMQWrapperExcept
 *** Keywords ***
 Run ZMQ Checker Executable As Low Priviledged User
     [Arguments]  ${connectionType}  ${ipcPath}  ${expectedResult}  ${expectedOutput}
-    ${result} =  Run Process  sudo  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  ${connectionType}  ${ipcPath}
+    ${result} =  Run Process  runuser  -u  ${TESTUSER}  ${ZMQCheckerDir}/zmqchecker  ${connectionType}  ${ipcPath}
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Contain  ${result.stdout}  ${expectedOutput}
@@ -220,9 +220,13 @@ Describe information for given Pid
     ${result}=    Run Process  ps -elfT | grep ${pid}  shell=True
     Log  ${result.stdout}
 
+Tail File
+    [Arguments]  ${file}  ${lines}
+    ${result}=    Run Process  tail -n ${lines} ${file}  shell=True
+    Log  ${result.stdout}
 
 Report Status and Output of Replier
-    # can be sudo
+    # can be runuser
     ${pid}=   Process.Get Process Id  replierprocess
     Describe information for given Pid  ${pid}
 
@@ -241,9 +245,13 @@ Report Status and Output of Replier
     Log  ${result.stdout}
     Log  ${result.stderr}
 
-    # secure may report the sudo sessions
-    Dump Teardown Log   /var/log/dnf.log
-    Dump Teardown Log   /var/log/secure
+    # secure may report the runuser sessions
+    Tail File   /var/log/dnf.log   100
+    Tail File   /var/log/secure    100
+    Tail File   /var/log/message   100
+    Tail File   /var/log/syslog    100
+    Tail File   /var/log/auth.log  100
+
 
 ZMQ Test Teardown
     Run Keyword If Test Failed   Display List Files Dash L In Directory   /tmp/
