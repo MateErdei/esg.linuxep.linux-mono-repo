@@ -9,9 +9,9 @@ sspl-base:
     line-id: ServerProtectionLinux-Base
 sspl-liveterminal:
     build:
-        branch: feature-LINUXDAR-1590-adapt-live-response-agent-test-linuxpty
+        branch: abelard
         name: liveterminal
-        output: liveterminal_linux11\1.0.0\output\SDDS-COMPONENT
+        output: output\SDDS-COMPONENT
 sspl-edr:
     build:
         branch: master
