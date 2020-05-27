@@ -6,7 +6,7 @@ version_key = '1.0.1'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-edr-component.git'
 project_builddir = 'sspl-plugin-edr-component-build'
 project_release_xml = 'build-files/release-package.xml'
-buildAgentTemplate = 'JenkinsLinuxTemplate3'
+buildAgentTemplate = 'JenkinsLinuxTemplate5'
 
 properties([
   parameters([
@@ -29,7 +29,7 @@ try{
         {
             echo 'Starting edr coverage build  on ' + git_branch
             ArtisanBuild(
-                'JenkinsLinuxTemplate3',
+                buildAgentTemplate,
                 project_release_xml,
                 'coverage',
                 version_number,
@@ -40,7 +40,7 @@ try{
         {
             echo 'Starting edr coverity build on ' + git_branch
             ArtisanBuild(
-                'JenkinsLinuxTemplate3',
+                buildAgentTemplate,
                 project_release_xml,
                 'coverity',
                 version_number,
