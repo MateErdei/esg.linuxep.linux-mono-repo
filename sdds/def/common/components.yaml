@@ -2,14 +2,19 @@
 ---
 sspl-base:
     build:
-        branch: master
+        branch: abelard
         name: sspl-base
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base
     line-id: ServerProtectionLinux-Base
+sspl-liveterminal:
+    build:
+        branch: feature-LINUXDAR-1590-adapt-live-response-agent-test-linuxpty
+        name: liveterminal
+        output: liveterminal_linux11\1.0.0\output\SDDS-COMPONENT
 sspl-edr:
     build:
-        branch: abelard
+        branch: master
         name: sspl-plugin-edr-component
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-EDR

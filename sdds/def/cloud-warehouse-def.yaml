@@ -16,6 +16,8 @@ warehouses:
                         tag: RECOMMENDED
                     -   base-version: ""
                         tag: BETA
+                subcomponents:
+                    sspl-liveterminal:
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
