@@ -12,6 +12,8 @@ sspl-liveterminal:
         branch: abelard
         name: liveterminal
         output: output\SDDS-COMPONENT
+    canonical-name: ServerProtectionLinux-Plugin-liveterminal
+    line-id: ServerProtectionLinux-Plugin-liveterminal
 sspl-edr:
     build:
         branch: master
