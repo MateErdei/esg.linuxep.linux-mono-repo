@@ -14,7 +14,7 @@ sspl-liveterminal:
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Plugin-liveterminal
     line-id: ServerProtectionLinux-Plugin-liveterminal
-    mountpoint: .
+    mountpoint: liveterminal
 sspl-edr:
     build:
         branch: master
