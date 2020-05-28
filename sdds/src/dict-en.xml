@@ -12,6 +12,15 @@
     </Identity>
     <Identity>
       <Label>
+        <Token>ServerProtectionLinux-Plugin-liveterminal</Token>
+        <Language lang="en">
+          <LongDesc>ServerProtectionLinux-Plugin-liveterminal</LongDesc>
+          <ShortDesc>SSPL live terminal</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
         <Token>ServerProtectionLinux-Plugin-MDR</Token>
         <Language lang="en">
           <LongDesc>Server Protection for Linux Plugin MTR</LongDesc>
@@ -160,6 +169,15 @@
         <Language lang="en">
           <ShortDesc>Live Query</ShortDesc>
           <LongDesc>Live Query</LongDesc>
+        </Language>
+      </Label>
+    </Features>
+    <Features>
+      <Label>
+        <Token>LIVETERMINAL</Token>
+        <Language lang="en">
+          <ShortDesc>Live Terminal</ShortDesc>
+          <LongDesc>Live Terminal</LongDesc>
         </Language>
       </Label>
     </Features>
