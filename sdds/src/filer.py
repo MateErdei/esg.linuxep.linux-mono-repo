@@ -132,15 +132,25 @@ def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
         return not_found
     if not build:
         if build_type:
-            build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + '-' + build_type)
+            build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + '_linux11-' + build_type)
         else:
-            build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + '-release')
+            build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + '_linux11-release')
             if build:
                 build_type = 'release'
             else:
-                build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name)
+                build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + "_linux11")
+
         if not build:
-            return not_found
+            if build_type:
+                build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + build_type)
+                else:
+                build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + '-release')
+                if build:
+                    build_type = 'release'
+                else:
+                    build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name)
+            if not build:
+                return not_found
 
     print("Build = {}".format(build))
 
@@ -149,9 +159,19 @@ def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
     else:
         path = os.path.join(path, build, name)
 
-    print("Path build name = {}".format(os.path.join(UPSTREAM_DEV, path)))
-    if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
-        return not_found
+    if build_type:
+        path_linux = os.path.join(path, build, name + '-' + build_type)
+    else:
+        path_linux = os.path.join(path, build, name)
+
+    if not os.path.exists(os.path.join(UPSTREAM_DEV, path_linux)):
+        if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
+            print("Path build name = {}".format(os.path.join(UPSTREAM_DEV, path)))
+            return not_found
+    else:
+        path = path_linux
+        print("Path build name = {}".format(os.path.join(UPSTREAM_DEV, path)))
+
     if not version:
         version = get_latest_version(os.path.join(UPSTREAM_DEV, path))
         if not version:
