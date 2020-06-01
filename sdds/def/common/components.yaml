@@ -14,7 +14,7 @@ sspl-liveterminal:
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Plugin-liveresponse
     line-id: ServerProtectionLinux-Plugin-liveresponse
-    mountpoint: ./ServerProtectionLinux-Plugin-liveresponse
+    mountpoint: ServerProtectionLinux-Plugin-liveresponse
 sspl-edr:
     build:
         branch: master
