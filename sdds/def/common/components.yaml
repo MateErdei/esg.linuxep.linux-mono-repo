@@ -9,12 +9,12 @@ sspl-base:
     line-id: ServerProtectionLinux-Base
 sspl-liveterminal:
     build:
-        branch: abelard
+        branch: develop
         name: liveterminal
         output: output\SDDS-COMPONENT
-    canonical-name: ServerProtectionLinux-Plugin-liveterminal
-    line-id: ServerProtectionLinux-Plugin-liveterminal
-    mountpoint: ./liveresponse
+    canonical-name: ServerProtectionLinux-Plugin-liveresponse
+    line-id: ServerProtectionLinux-Plugin-liveresponse
+    mountpoint: ./ServerProtectionLinux-Plugin-liveresponse
 sspl-edr:
     build:
         branch: master
