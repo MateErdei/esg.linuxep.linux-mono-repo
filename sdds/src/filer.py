@@ -129,17 +129,18 @@ def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
     path = os.path.join(path, branch)
     path_linux = os.path.join(path, branch)
     print("Path name and branch = {}".format(os.path.join(UPSTREAM_DEV, path)))
+    print("Path_linux name and branch = {}".format(os.path.join(UPSTREAM_DEV, path_linux)))
     if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
         return not_found
     if not build:
         if build_type:
-            build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + '_linux11-' + build_type)
+            build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path_linux), name + '_linux11-' + build_type)
         else:
-            build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + '_linux11-release')
+            build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path_linux), name + '_linux11-release')
             if build:
                 build_type = 'release'
             else:
-                build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + "_linux11")
+                build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path_linux), name + "_linux11")
 
         if not build:
             if build_type:
