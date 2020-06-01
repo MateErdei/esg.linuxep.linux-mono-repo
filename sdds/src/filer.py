@@ -143,7 +143,7 @@ def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
         if not build:
             if build_type:
                 build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + build_type)
-                else:
+            else:
                 build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + '-release')
                 if build:
                     build_type = 'release'
