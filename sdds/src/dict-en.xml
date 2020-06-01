@@ -12,10 +12,10 @@
     </Identity>
     <Identity>
       <Label>
-        <Token>ServerProtectionLinux-Plugin-liveterminal</Token>
+        <Token>ServerProtectionLinux-Plugin-liveresponse</Token>
         <Language lang="en">
-          <LongDesc>ServerProtectionLinux-Plugin-liveterminal</LongDesc>
-          <ShortDesc>SSPL live terminal</ShortDesc>
+          <LongDesc>ServerProtectionLinux Plugin live response</LongDesc>
+          <ShortDesc>SSPL live response</ShortDesc>
         </Language>
       </Label>
     </Identity>
