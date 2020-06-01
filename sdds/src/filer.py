@@ -164,7 +164,9 @@ def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
     else:
         path_linux = os.path.join(path, build, name + "_linux11")
 
+    print("Path build name = {}".format(os.path.join(UPSTREAM_DEV, path)))
     print("Linux11 path = {}".format(os.path.join(UPSTREAM_DEV, path_linux)))
+    print("UPSTREAM_DEV = {}".format(UPSTREAM_DEV))
 
     if not os.path.exists(os.path.join(UPSTREAM_DEV, path_linux)):
         if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
