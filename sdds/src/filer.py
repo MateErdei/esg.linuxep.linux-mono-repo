@@ -97,12 +97,18 @@ def locate_scaffold_package_on_filer6(branch, build, name, version):
     if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
         return not_found
     if not build:
-        build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name)
+        build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name + "_linux11")
         if not build:
-            return not_found
-    path = os.path.join(path, build, name)
+            build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name)
+            if not build:
+                return not_found
+
+    path = os.path.join(path, build, name + "_linux11")
+
     if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
-        return not_found
+        path = os.path.join(path, build, name)
+        if not os.path.exists(os.path.join(UPSTREAM_DEV, path)):
+            return not_found
     if not version:
         version = get_latest_version(os.path.join(UPSTREAM_DEV, path))
         if not version:
