@@ -386,7 +386,7 @@ Set credentials for non aws
 
 Set credentials for aws
     Wait Until Keyword Succeeds
-    ...  1800
+    ...  1200
     ...  30
     ...  Set Default Credentials
 
