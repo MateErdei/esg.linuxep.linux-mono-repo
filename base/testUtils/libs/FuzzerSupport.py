@@ -1,5 +1,8 @@
 try:
     from robot.api import logger
+    # robot api logger does not have warning method, while logging.logger warn method is deprecated. 
+    # the line below allows logger.warning to be used in both cases. 
+    logger.warning=logger.warn
 except:
     import logging
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
