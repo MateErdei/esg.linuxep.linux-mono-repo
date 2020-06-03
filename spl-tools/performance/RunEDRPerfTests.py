@@ -1,3 +1,4 @@
+import json
 import logging
 import requests
 import sys
@@ -70,6 +71,7 @@ def get_build_date_and_version(path):
     return build_date, product_version
 
 
+# Expects start_time and end_time as millisecond unix epochs
 def record_result(event_name, date_time, start_time, end_time):
     hostname = socket.gethostname()
     base_build_date, base_product_version = get_build_date_and_version("/opt/sophos-spl/base/VERSION.ini")
@@ -86,7 +88,8 @@ def record_result(event_name, date_time, start_time, end_time):
         "eventname": event_name,
         "start": start_time,
         "finish": end_time,
-        "duration": str(duration)}
+        "duration": str(duration/1000)}
+    # store duration in seconds, old data was in seconds so can compare it more easily.
 
     if edr_product_version and edr_build_date:
         result["edr_product_version"] = edr_product_version
@@ -109,8 +112,8 @@ def get_current_date_time_string():
     return time.strftime("%Y/%m/%d %H:%M:%S")
 
 
-def get_current_unix_epoch_in_seconds():
-    return int(time.time())
+def get_current_unix_epoch_in_milliseconds():
+    return time.time() * 1000
 
 
 def run_gcc_perf_test():
@@ -119,9 +122,9 @@ def run_gcc_perf_test():
     build_gcc_script = os.path.join(this_dir, "build-gcc-only.sh")
 
     date_time = get_current_date_time_string()
-    start_time = get_current_unix_epoch_in_seconds()
+    start_time = get_current_unix_epoch_in_milliseconds()
     subprocess.run(['bash', build_gcc_script], timeout=10000)
-    end_time = get_current_unix_epoch_in_seconds()
+    end_time = get_current_unix_epoch_in_milliseconds()
 
     record_result("GCC Build", date_time, start_time, end_time)
 
@@ -146,16 +149,16 @@ def run_local_live_query_perf_test():
 
     for (name, query), times_to_run in queries_to_run:
         date_time = get_current_date_time_string()
-        start_time = get_current_unix_epoch_in_seconds()
         command = ['python3', local_live_query_script, name, query, str(times_to_run)]
-        process_result = subprocess.run(command, timeout=120)
+        process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
         if process_result.returncode != 0:
             logging.error("Running local live query failed. return code: {}, stdout: {}, stderr: {}".format(
                 process_result.returncode, process_result.stdout, process_result.stderr))
             continue
-        end_time = get_current_unix_epoch_in_seconds()
+
+        result = json.loads(process_result.stdout)
         event_name = "local-query_{}_x{}".format(name, str(times_to_run))
-        record_result(event_name, date_time, start_time, end_time)
+        record_result(event_name, date_time, result["start_time"], result["end_time"])
 
 
 def run_central_live_query_perf_test(email, password, region):
@@ -169,25 +172,10 @@ def run_central_live_query_perf_test(email, password, region):
     wait_for_edr_to_be_installed()
     logging.info("Running Local Live Query performance test")
     this_dir = os.path.dirname(os.path.realpath(__file__))
-    central_live_query_script = os.path.join(this_dir, "cloudClient.py")
+    central_live_query_script = os.path.join(this_dir, "RunCentralLiveQuery.py")
 
     # This machine - this script is intended to run on the test machine.
     target_machine = socket.gethostname()
-
-    # Make sure we're logged in, no point timing that.
-    subprocess.run(
-        ['python3', central_live_query_script, '--region', region, '--email', email, '--password', password, 'login'],
-        timeout=120)
-
-    # Check hostname query response is expected as a sanity check before kicking off tests.
-    command = ['python3', central_live_query_script, '--region', region, '--email', email, '--password', password,
-               'run_live_query_and_wait_for_response', "hostname-result-check",
-               'SELECT system_info.hostname, system_info.local_hostname FROM system_info;', target_machine]
-    results = subprocess.check_output(command, timeout=120).decode("utf-8")
-    if target_machine not in results:
-        logging.error("Did not get the expected response from Central when querying hostname via live query, stopping.")
-        logging.error("Got: {}, expected: {}".format(str(results), target_machine))
-        return
 
     queries_to_run = [
         ALL_PROCESSES_QUERY,
@@ -197,17 +185,22 @@ def run_central_live_query_perf_test(email, password, region):
 
     for (name, query) in queries_to_run:
         date_time = get_current_date_time_string()
-        start_time = get_current_unix_epoch_in_seconds()
-        command = ['python3', central_live_query_script, '--region', region, '--email', email, '--password', password,
-                   'run_live_query_and_wait_for_response', name, query, target_machine]
-        process_result = subprocess.run(command, timeout=120)
+        command = ['python3', central_live_query_script,
+                   '--region', region,
+                   '--email', email,
+                   '--password', password,
+                   '--name', name,
+                   '--query', query,
+                   '--machine', target_machine]
+        process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
         if process_result.returncode != 0:
             logging.error("Running live query through central failed. return code: {}, stdout: {}, stderr: {}".format(
                 process_result.returncode, process_result.stdout, process_result.stderr))
             continue
-        end_time = get_current_unix_epoch_in_seconds()
+
+        result = json.loads(process_result.stdout)
         event_name = "central-live-query_{}".format(name)
-        record_result(event_name, date_time, start_time, end_time)
+        record_result(event_name, date_time, result["start_time"], result["end_time"])
 
 
 def add_options():

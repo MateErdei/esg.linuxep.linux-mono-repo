@@ -5,6 +5,7 @@ import shutil
 import sys
 import time
 import traceback
+import json
 from random import randrange
 from pwd import getpwnam
 import subprocess
@@ -69,18 +70,17 @@ def run_live_query(query, name):
 
 def inc_response_count(event):
     global RESPONSE_COUNT
-    print("Response created: {}".format(event.src_path))
     RESPONSE_COUNT += 1
 
 
 def stop_mcsrouter():
-    wdct_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
-    subprocess.run([wdct_path, "stop", "mcsrouter"])
+    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
+    subprocess.run([wdctl_path, "stop", "mcsrouter"])
 
 
 def start_mcsrouter():
-    wdct_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
-    subprocess.run([wdct_path, "start", "mcsrouter"])
+    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
+    subprocess.run([wdctl_path, "start", "mcsrouter"])
 
 
 def remove_all_pending_responses():
@@ -89,9 +89,15 @@ def remove_all_pending_responses():
         p.unlink()
 
 
+def get_current_unix_epoch_in_milliseconds():
+    return time.time() * 1000
+
+
 def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_send):
     global RESPONSE_COUNT
 
+    end_time = 0
+    start_time = 0
     try:
         # We get blacklisted from central if bad live query responses go up
         stop_mcsrouter()
@@ -102,6 +108,7 @@ def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_
         fsw.event_handler.on_created = inc_response_count
         fsw.start_filesystem_watcher()
 
+        start_time = get_current_unix_epoch_in_milliseconds()
         for i in range(0, times_to_send):
             run_live_query(query_string, query_name)
 
@@ -109,6 +116,8 @@ def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_
         timeout = time.time() + 100
         while RESPONSE_COUNT < times_to_send and time.time() < timeout:
             time.sleep(0.01)
+
+        end_time = get_current_unix_epoch_in_milliseconds()
 
         fsw.stop_filesystem_watcher()
         remove_all_pending_responses()
@@ -119,7 +128,14 @@ def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_
         # Make sure we start mcsrouter up again
         start_mcsrouter()
 
-    return RESPONSE_COUNT == times_to_send
+    result = {"response_count": RESPONSE_COUNT,
+              "times_to_send": times_to_send,
+              "start_time": start_time,
+              "end_time": end_time,
+              "duration": end_time - start_time,
+              "success": RESPONSE_COUNT == times_to_send}
+
+    return result
 
 
 def print_usage_and_exit(script_name):
@@ -132,7 +148,6 @@ def print_usage_and_exit(script_name):
 
 
 def main(args):
-    print(args)
     number_of_args = len(args) - 1
 
     if number_of_args == 1:
@@ -148,7 +163,9 @@ def main(args):
     if number_of_args == 3:
         times_to_send = int(args[3])
 
-    return run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_send)
+    result = run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_send)
+    print(json.dumps(result))
+    return result["success"]
 
 
 if __name__ == '__main__':

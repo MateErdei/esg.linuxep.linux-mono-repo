@@ -8,7 +8,7 @@
 function failure()
 {
   echo "$1"
-  # The sleep is useful when running this from Clion on Windows because the bash window closes immediatly on exit.
+  # The sleep is useful when running this from Clion on Windows because the bash window closes immediately on exit.
   sleep 5
   exit 1
 }
@@ -40,6 +40,7 @@ copy_file run-test-gcc.sh
 copy_file build-gcc-only.sh
 copy_file RunEDRPerfTests.py
 copy_file RunLocalLiveQuery.py
+copy_file RunCentralLiveQuery.py
 copy_file save-osquery-db-file-count.sh
 copy_file sync_perf_machine.sh
 copy_file install-edr-mtr.sh
