@@ -7,7 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "TelemetryObject.h"
-
+#include <Common/FileSystem/IFileSystem.h>
 #include <functional>
 #include <mutex>
 #include <string>
@@ -71,11 +71,16 @@ namespace Common::Telemetry
         std::string serialiseAndReset();
         void save();
         void restore(const std::string &pluginName);
+        // Bofh TelemetryHelper and FileSystem are often used as singleton. Having dependency in 'static' objects is not good. 
+        // For this reason, TelemetryHelper will have an instance of the FileSystemImpl. For some tests that need to verify or 
+        // mock the call for the filesystem, they may use this method. 
+        void replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem>); 
+
 
         // Normally with a singleton the constructor is private but here we make the constructor public
         // so that plugins can instantiate multiple Telemetry Helpers and not share a root data structure if they want
         // to.
-        TelemetryHelper() = default;
+        TelemetryHelper();        
 
     private:
         TelemetryObject m_root;
@@ -85,6 +90,7 @@ namespace Common::Telemetry
         std::map<std::string, std::function<void(TelemetryHelper&)>> m_callbacks;
         std::map<std::string, std::vector<double>> m_statsCollection;
         std::string m_saveTelemetryPath;
+        std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem; 
 
         void locked_reset();
 

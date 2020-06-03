@@ -12,10 +12,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 
 #include <functional>
-#include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <sys/stat.h>
 
 namespace Common::Telemetry
@@ -23,6 +22,17 @@ namespace Common::Telemetry
     const unsigned int DEFAULT_MAX_JSON_SIZE = 1000000; // 1MB
     const char* ROOTKEY = "rootkey";
     const char* STATSKEY = "statskey";
+
+    TelemetryHelper::TelemetryHelper(): 
+     m_fileSystem( std::unique_ptr<Common::FileSystem::IFileSystem>{new Common::FileSystem::FileSystemImpl()})
+    {
+
+    }
+    
+    void TelemetryHelper::replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem> fs)
+    {
+        m_fileSystem = std::move(fs); 
+    }
 
     void TelemetryHelper::set(const std::string& key, long value) { setInternal(key, value, false); }
     void TelemetryHelper::set(const std::string& key, unsigned long value) { setInternal(key, value, false); }
@@ -288,8 +298,7 @@ namespace Common::Telemetry
         {
             std::lock_guard<std::mutex> lock(m_dataLock);
 
-            auto fs = Common::FileSystem::fileSystem();
-            if(fs->isDirectory(Common::FileSystem::dirName(m_saveTelemetryPath)))
+            if(m_fileSystem->isDirectory(Common::FileSystem::dirName(m_saveTelemetryPath)))
             {
                 TelemetryObject restoreTelemetryObj;
                 restoreTelemetryObj.set(ROOTKEY, m_root);
@@ -298,8 +307,7 @@ namespace Common::Telemetry
                 auto output = TelemetrySerialiser::serialise(restoreTelemetryObj);
 
                 auto tempDir = Common::ApplicationConfigurationImpl::ApplicationPathManager().getTempPath();
-                fs->writeFileAtomically(m_saveTelemetryPath, output, tempDir);
-                Common::FileSystem::filePermissions()->chmod(m_saveTelemetryPath, S_IRUSR | S_IWUSR);
+                m_fileSystem->writeFileAtomically(m_saveTelemetryPath, output, tempDir);
             }
             else
             {
@@ -325,19 +333,18 @@ namespace Common::Telemetry
             LOGERROR("Telemetry restore directory path is not defined");
             return;
         }
-
-        auto fs = Common::FileSystem::fileSystem();
+        
         try
         {
-            if (fs->isFile(m_saveTelemetryPath))
+            if (m_fileSystem->isFile(m_saveTelemetryPath))
             {
-                auto input = fs->readFile(m_saveTelemetryPath, DEFAULT_MAX_JSON_SIZE);
+                auto input = m_fileSystem->readFile(m_saveTelemetryPath, DEFAULT_MAX_JSON_SIZE);
                 auto savedTelemetryObject = TelemetrySerialiser::deserialise(input);
 
                 std::lock_guard<std::mutex> dataLock(m_dataLock);
                 noLockRestoreRoot(savedTelemetryObject.getObject(ROOTKEY));
                 noLockUpdateStatsCollection(savedTelemetryObject.getObject(STATSKEY));
-                fs->removeFile(m_saveTelemetryPath);
+                m_fileSystem->removeFile(m_saveTelemetryPath);
             }
             else
             {
@@ -347,10 +354,10 @@ namespace Common::Telemetry
         catch(std::exception& ex)
         {
             LOGINFO("Restore Telemetry unsuccessful reason: " << ex.what());
-            if( fs->isFile(m_saveTelemetryPath) )
+            if( m_fileSystem->isFile(m_saveTelemetryPath) )
             {
                 try {
-                    fs->removeFile(m_saveTelemetryPath);
+                    m_fileSystem->removeFile(m_saveTelemetryPath);
                 }
                 catch(std::exception& ex)
                 {

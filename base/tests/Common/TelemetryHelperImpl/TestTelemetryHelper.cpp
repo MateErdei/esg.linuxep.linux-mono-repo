@@ -13,10 +13,8 @@
 
 #include <thread>
 
-#include "../Helpers/FileSystemReplaceAndRestore.h"
 #include "../Helpers/MockFileSystem.h"
-#include "../Helpers/FilePermissionsReplaceAndRestore.h"
-#include "../Helpers/MockFilePermissions.h"
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 using namespace Common::Telemetry;
 
@@ -36,6 +34,20 @@ public:
 private:
     std::string m_cookie;
     bool m_callbackCalled = false;
+};
+
+class ScopeInsertFSMock{
+    Common::Telemetry::TelemetryHelper & m_helper; 
+    public:
+    explicit ScopeInsertFSMock( IFileSystem * mock, Common::Telemetry::TelemetryHelper & helper):
+    m_helper(helper)
+    {
+        m_helper.replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem>(mock)); 
+    }
+    ~ScopeInsertFSMock()
+    {
+        m_helper.replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem>(new Common::FileSystem::FileSystemImpl())); 
+    }
 };
 
 TEST(TestTelemetryHelper, getInstanceReturnsSingleton) // NOLINT
@@ -543,18 +555,12 @@ TEST(TestTelemetryHelper, telemtryStatSerialisedCorrectly) // NOLINT
 TEST(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly) // NOLINT
 {
     MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystemPtr));
-
-    MockFilePermissions* mockFilePermissions = new StrictMock<MockFilePermissions>();
-    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions));
-
     EXPECT_CALL(*mockFileSystemPtr, isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystemPtr, writeFileAtomically(_,
             R"({"rootkey":{"a":"b"},"statskey":{"statName":[1.0,6.0,10.0]}})", _));
 
-    EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
-
     TelemetryHelper& helper = TelemetryHelper::getInstance();
+    ScopeInsertFSMock s(mockFileSystemPtr, helper);
     helper.reset();
     helper.appendStat("statName", 1);
     helper.appendStat("statName", 6);
@@ -568,9 +574,9 @@ TEST(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly) // NOLINT
 TEST(TestTelemetryHelper, updateStatsCollectionFromSavedTelemetry) // NOLINT
 {
     MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystemPtr));
-
     TelemetryHelper& helper = TelemetryHelper::getInstance();
+    ScopeInsertFSMock s(mockFileSystemPtr, helper);
+
     helper.reset();
 
     std::string telemetryFilePath{"/opt/sophos-spl/base/telemetry/cache/test-telemetry.json"};
@@ -592,9 +598,10 @@ TEST(TestTelemetryHelper, updateStatsFromSavedTelemetryInvalidJson) // NOLINT
     testing::internal::CaptureStderr();
 
     MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystemPtr));
 
     TelemetryHelper& helper = TelemetryHelper::getInstance();
+    ScopeInsertFSMock s(mockFileSystemPtr, helper);
+
     helper.reset();
     std::string telemetryFilePath{"/opt/sophos-spl/base/telemetry/cache/test-telemetry.json"};
     EXPECT_CALL(*mockFileSystemPtr, isFile(telemetryFilePath)).WillRepeatedly(Return(true));
