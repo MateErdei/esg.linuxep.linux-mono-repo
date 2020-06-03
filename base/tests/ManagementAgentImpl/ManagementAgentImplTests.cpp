@@ -32,7 +32,7 @@ namespace
             initialise(pluginManager);
         }
 
-        void runWrapper() { run(); }
+        void runWrapper() { run(false); }
 
         Common::TaskQueue::ITaskQueueSharedPtr getTaskQueue() { return m_taskQueue; }
     };

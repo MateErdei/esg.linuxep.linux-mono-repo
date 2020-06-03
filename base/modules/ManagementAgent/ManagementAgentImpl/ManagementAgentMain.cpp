@@ -63,7 +63,11 @@ namespace ManagementAgent
                 LOGERROR("Error, invalid command line arguments. Usage: Management Agent");
                 return -1;
             }
-
+            return mainForValidArguments(); 
+        }
+        
+        int ManagementAgentMain::mainForValidArguments(bool withPersistentTelemetry)
+        {
             try
             {
                 std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
@@ -72,7 +76,7 @@ namespace ManagementAgent
 
                 ManagementAgentMain managementAgent;
                 managementAgent.initialise(*pluginManager);
-                return managementAgent.run();
+                return managementAgent.run(withPersistentTelemetry);
             }
             catch (Common::UtilityImpl::ConfigException& ex)
             {
@@ -223,12 +227,15 @@ namespace ManagementAgent
             }
         }
 
-        int ManagementAgentMain::run()
+        int ManagementAgentMain::run(bool withPersistentTelemetry)
         {
             LOGINFO("Management Agent starting.. ");
 
             // Restore telemetry from disk
-            Common::Telemetry::TelemetryHelper::getInstance().restore(sophosManagementPluginName);
+            if (withPersistentTelemetry)
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().restore(sophosManagementPluginName);
+            }
 
             // Setup SIGNAL handling for shutdown.
             Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;
@@ -271,8 +278,11 @@ namespace ManagementAgent
             m_directoryWatcher->removeListener(*m_actionListener);
             m_taskQueueProcessor->stop();
 
-            //save telemetry to disk
-            Common::Telemetry::TelemetryHelper::getInstance().save();
+            if (withPersistentTelemetry)
+            {
+                //save telemetry to disk
+                Common::Telemetry::TelemetryHelper::getInstance().save();
+            }
 
             LOGDEBUG("Management Agent stopped");
             return 0;

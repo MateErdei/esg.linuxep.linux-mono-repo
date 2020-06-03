@@ -134,14 +134,11 @@ public:
         setupTestFiles();
 
         setMainLoop([]() {
-            char* argv[] = {
-                (char*)"ManagementAgent",
-            };
             Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp/fuzz");
             try
             {
-                return ManagementAgent::ManagementAgentImpl::ManagementAgentMain::main(1, argv);
+                return ManagementAgent::ManagementAgentImpl::ManagementAgentMain::mainForValidArguments(false);
             }
             catch (std::exception& ex)
             {

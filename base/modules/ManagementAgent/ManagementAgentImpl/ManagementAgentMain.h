@@ -22,7 +22,7 @@ namespace ManagementAgent
         {
         public:
             static int main(int argc, char* argv[]);
-
+            static int mainForValidArguments(bool withPersistentTelemetry=true);
         protected:
             void initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager);
             void loadPlugins();
@@ -32,7 +32,7 @@ namespace ManagementAgent
             void sendCurrentPluginPolicies();
             void sendCurrentActions();
             void sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins);
-            int run();
+            int run(bool withPersistentTelemetry);
             // to be used in tests
             void test_request_stop();
 

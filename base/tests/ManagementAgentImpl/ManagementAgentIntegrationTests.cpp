@@ -86,7 +86,7 @@ namespace
                     new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
             initialise(*pluginManager);
-            auto futureRunner = std::async(std::launch::async, [this]() { return run(); });
+            auto futureRunner = std::async(std::launch::async, [this]() { return run(false); });
             synchronizer.waitfor(duration);
             test_request_stop();
             return futureRunner.get();
