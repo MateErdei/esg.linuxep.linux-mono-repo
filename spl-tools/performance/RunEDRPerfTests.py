@@ -86,8 +86,8 @@ def record_result(event_name, date_time, start_time, end_time):
         "build_date": base_build_date,
         "product_version": base_product_version,
         "eventname": event_name,
-        "start": start_time,
-        "finish": end_time,
+        "start": int(start_time/1000),
+        "finish": int(end_time/1000),
         "duration": str(duration/1000)}
     # store duration in seconds, old data was in seconds so can compare it more easily.
 
