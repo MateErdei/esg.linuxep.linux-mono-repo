@@ -13,6 +13,7 @@ Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/SystemInfo.py
 
 
 *** Variables ***
@@ -375,7 +376,19 @@ Setup MCS Tests Nova
     Reload Cloud Options
     Set Default Credentials
     Set Nova MCS CA Environment Variable
+    ${is_AWS}=  is_aws_instance
+    Run Keyword If  ${is_AWS} == ${False}  Set registration for non aws
+    Run Keyword If  ${is_AWS} == ${True}   Set registration for aws
+
+Set registration for non aws
     ${regCommand}=  Get Sspl Registration
+    Set Suite Variable    ${regCommand}     ${regCommand}   children=true
+
+Set registration for aws
+    Wait Until Keyword Succeeds
+    ...  1800
+    ...  30
+    ...  ${regCommand}=  Get Sspl Registration
     Set Suite Variable    ${regCommand}     ${regCommand}   children=true
 
 Setup Real Update Cache And Message Relay Tests With Nova
