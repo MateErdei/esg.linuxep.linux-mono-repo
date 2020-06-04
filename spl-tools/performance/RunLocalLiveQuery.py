@@ -89,8 +89,8 @@ def remove_all_pending_responses():
         p.unlink()
 
 
-def get_current_unix_epoch_in_milliseconds():
-    return time.time() * 1000
+def get_current_unix_epoch_in_seconds():
+    return time.time()
 
 
 def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_send):
@@ -108,7 +108,7 @@ def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_
         fsw.event_handler.on_created = inc_response_count
         fsw.start_filesystem_watcher()
 
-        start_time = get_current_unix_epoch_in_milliseconds()
+        start_time = get_current_unix_epoch_in_seconds()
         for i in range(0, times_to_send):
             run_live_query(query_string, query_name)
 
@@ -117,7 +117,7 @@ def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_
         while RESPONSE_COUNT < times_to_send and time.time() < timeout:
             time.sleep(0.01)
 
-        end_time = get_current_unix_epoch_in_milliseconds()
+        end_time = get_current_unix_epoch_in_seconds()
 
         fsw.stop_filesystem_watcher()
         remove_all_pending_responses()

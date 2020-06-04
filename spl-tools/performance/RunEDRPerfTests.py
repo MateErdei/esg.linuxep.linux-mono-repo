@@ -71,7 +71,7 @@ def get_build_date_and_version(path):
     return build_date, product_version
 
 
-# Expects start_time and end_time as millisecond unix epochs
+# Expects start_time and end_time as a float of seconds unix epochs
 def record_result(event_name, date_time, start_time, end_time):
     hostname = socket.gethostname()
     base_build_date, base_product_version = get_build_date_and_version("/opt/sophos-spl/base/VERSION.ini")
@@ -86,10 +86,9 @@ def record_result(event_name, date_time, start_time, end_time):
         "build_date": base_build_date,
         "product_version": base_product_version,
         "eventname": event_name,
-        "start": int(start_time/1000),
-        "finish": int(end_time/1000),
-        "duration": str(duration/1000)}
-    # store duration in seconds, old data was in seconds so can compare it more easily.
+        "start": int(start_time),
+        "finish": int(end_time),
+        "duration": str(duration)}
 
     if edr_product_version and edr_build_date:
         result["edr_product_version"] = edr_product_version
@@ -112,7 +111,7 @@ def get_current_date_time_string():
     return time.strftime("%Y/%m/%d %H:%M:%S")
 
 
-def get_current_unix_epoch_in_milliseconds():
+def get_current_unix_epoch_in_seconds():
     return time.time() * 1000
 
 
@@ -122,9 +121,9 @@ def run_gcc_perf_test():
     build_gcc_script = os.path.join(this_dir, "build-gcc-only.sh")
 
     date_time = get_current_date_time_string()
-    start_time = get_current_unix_epoch_in_milliseconds()
+    start_time = get_current_unix_epoch_in_seconds()
     subprocess.run(['bash', build_gcc_script], timeout=10000)
-    end_time = get_current_unix_epoch_in_milliseconds()
+    end_time = get_current_unix_epoch_in_seconds()
 
     record_result("GCC Build", date_time, start_time, end_time)
 

@@ -45,8 +45,8 @@ def get_client(email, password, region):
     return cloudClient.CloudClient(options)
 
 
-def get_current_unix_epoch_in_milliseconds():
-    return time.time() * 1000
+def get_current_unix_epoch_in_seconds():
+    return time.time()
 
 
 def add_options():
@@ -75,9 +75,9 @@ def main():
     if args.machine not in response:
         return 1
 
-    start_time = get_current_unix_epoch_in_milliseconds()
+    start_time = get_current_unix_epoch_in_seconds()
     response = client.run_live_query_and_wait_for_response(args.name, args.query, args.machine)
-    end_time = get_current_unix_epoch_in_milliseconds()
+    end_time = get_current_unix_epoch_in_seconds()
 
     result = {"start_time": start_time,
               "end_time": end_time,
