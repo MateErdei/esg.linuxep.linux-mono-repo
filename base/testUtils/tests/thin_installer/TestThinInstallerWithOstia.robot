@@ -16,19 +16,19 @@ Resource    ../upgrade_product/UpgradeResources.robot
 
 *** Variables ***
 ${BaseOnlyVUTPolicy}                        ${GeneratedWarehousePolicies}/base_only_VUT.xml
-${BaseOnlyGAPolicy}                        ${GeneratedWarehousePolicies}/base_only_GA.xml
+${BaseOnlyRecommendedPolicy}                ${GeneratedWarehousePolicies}/base_only_VUT-1.xml
 ${BetaOnlyPolicy}                           ${GeneratedWarehousePolicies}/base_beta_only.xml
 
 
 *** Test Cases ***
 Thin Installer Installs Recommended Base When Only a Recommended Version is Available
     [Tags]  THIN_INSTALLER   OSTIA  EXCLUDE_UBUNTU20
-    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyGAPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyRecommendedPolicy}
 
     Should Not Exist    ${SOPHOS_INSTALL}
 
     Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyGAPolicy}  real=True
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyRecommendedPolicy}
 
 Thin Installer Installs Recommended Base When the Component Also Has the Beta Tag
     Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
