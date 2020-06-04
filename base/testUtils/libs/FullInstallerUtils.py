@@ -172,6 +172,14 @@ def get_sspl_mdr_plugin_sdds():
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("SSPL MDR Plugin", "SSPL_MDR_PLUGIN_SDDS", candidates)
 
+def get_sspl_live_response_plugin_sdds():
+    candidates = []
+    local_path_to_plugin = PathManager.find_local_component_dir_path("liveterminal")
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
+    return get_plugin_sdds("SSPL LiveResponse Plugin", "SSPL_LIVERESPONSE_PLUGIN_SDDS", candidates)
+
 def get_sspl_edr_plugin_sdds():
     candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-edr-component")

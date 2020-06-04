@@ -41,7 +41,6 @@ Verify that the mtr installer works correctly
 ## -----------------------------------------------------------------------------------------------------
     [Teardown]  MTR Tests Teardown With Installed File Replacement
     Install MDR Directly
-    Check MDR Plugin Installed
 
     ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get file info for installation  mtr
     Set Test Variable  ${FileInfo}
