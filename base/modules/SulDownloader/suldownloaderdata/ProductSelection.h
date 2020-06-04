@@ -32,7 +32,11 @@ namespace SulDownloader
 
         struct SelectedResultsIndexes
         {
+            // product selected to be installed
             std::vector<size_t> selected;
+            // refers to the subscriptions that were targeted in the subscriptions part of the ALC policy.
+            std::vector<size_t> selected_subscriptions;
+            // these are the products that will be instructed not to download from the wharehouse catalogue
             std::vector<size_t> notselected;
             std::vector<std::string> missing;
         };
@@ -64,7 +68,7 @@ namespace SulDownloader
             std::vector<size_t> selectedProducts(
                 const ISingleProductSelector&,
                 const ProductMetaDataVector& warehouseProducts) const;
-        };
+        };        
 
     } // namespace suldownloaderdata
 } // namespace SulDownloader

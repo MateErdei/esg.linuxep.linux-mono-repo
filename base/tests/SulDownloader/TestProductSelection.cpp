@@ -60,110 +60,6 @@ public:
 
     void TearDown() override {}
 
-    SulDownloader::suldownloaderdata::ProductMetadata createTestProductMetaData(int productItem)
-    {
-        SulDownloader::suldownloaderdata::ProductMetadata metadata;
-
-        if (productItem == 1)
-        {
-            metadata.setLine("BaseProduct-RigidName");
-            metadata.setDefaultHomePath("Linux1");
-            metadata.setVersion("9.1.1.1");
-            metadata.setBaseVersion("9");
-            metadata.setName("Linux Security1");
-            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
-            metadata.setTags({ tag });
-            metadata.setFeatures({ "CORE" });
-        }
-
-        if (productItem == 2)
-        {
-            metadata.setLine("PrefixOfProduct-SimulateProductA");
-            metadata.setDefaultHomePath("Linux2");
-            metadata.setVersion("9.1.1.1");
-            metadata.setBaseVersion("9");
-            metadata.setName("Linux Security2");
-            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
-            metadata.setTags({ tag });
-            metadata.setFeatures({ "MDR" });
-        }
-
-        if (productItem == 3)
-        {
-            metadata.setLine("DifferentPrefix-SimulateProductA");
-            metadata.setDefaultHomePath("Linux3");
-            metadata.setVersion("9.1.1.1");
-            metadata.setBaseVersion("9");
-            metadata.setName("Linux Security3");
-            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
-            metadata.setTags({ tag });
-            metadata.setFeatures({ "MDR" });
-        }
-
-        if (productItem == 4) // used for missing product test.
-        {
-            metadata.setLine("Unknown Product");
-            metadata.setDefaultHomePath("Linux4");
-            metadata.setVersion("9.1.1.1");
-            metadata.setBaseVersion("9");
-            metadata.setName("Linux Security4");
-            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
-            metadata.setTags({ tag });
-            metadata.setFeatures({});
-        }
-
-        // Products with different releaseTag and base version, used for testing keepProduct
-        if (productItem == 5)
-        {
-            metadata.setLine("BaseProduct-RigidName");
-            metadata.setDefaultHomePath("Linux1");
-            metadata.setVersion("10.1.1.1");
-            metadata.setBaseVersion("10");
-            metadata.setName("Linux Security1");
-            Tag tag("RECOMMENDED", "10", "RECOMMENDED");
-            metadata.setTags({ tag });
-            metadata.setFeatures({ "CORE" });
-        }
-
-        if (productItem == 6)
-        {
-            metadata.setLine("PrefixOfProduct-SimulateProductA");
-            metadata.setDefaultHomePath("Linux2");
-            metadata.setVersion("9.1.1.1");
-            metadata.setBaseVersion("9");
-            metadata.setName("Linux Security2");
-            Tag tag("PREVIEW", "9", "PREVIEW");
-            metadata.setTags({ tag });
-            metadata.setFeatures({ "MDR" });
-        }
-
-        if (productItem == 7)
-        {
-            metadata.setLine("BaseProduct-RigidName");
-            metadata.setDefaultHomePath("Linux1");
-            metadata.setVersion("9.1.1.2"); // higher version
-            metadata.setBaseVersion("9");
-            metadata.setName("Linux Security1");
-            Tag tag("PREVIEW", "9", "PREVIEW");
-            metadata.setTags({ tag });
-            metadata.setFeatures({ "CORE" });
-        }
-
-        if (productItem == 8)
-        {
-            metadata.setLine("PrefixOfProduct-SimulateProductB");
-            metadata.setDefaultHomePath("Linux2");
-            metadata.setVersion("9.1.1.1");
-            metadata.setBaseVersion("9");
-            metadata.setName("Linux Security2");
-            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
-            metadata.setTags({ tag });
-            metadata.setFeatures({ "SAV" });
-        }
-
-        return metadata;
-    }
-
     enum ProductIdForDev
     {
         Primary_Rec_CORE = 1,
@@ -174,7 +70,23 @@ public:
         ProdA_PREV_MDR = 6,
         Primary_PREV_CORE = 7,
         ProdB_Rec_SAV = 8,
+        CS_BASE_MDR = 9,
+        CS_Base_MDR_WITH_FEATURES=10, 
+        ServerProtectionForLinux_Base=11,
+        Product_EDR=12,
+        CS_EDR_SAV=13
     };
+    SulDownloader::suldownloaderdata::ProductMetadata createTestProductMetaData(int productItem);
+    SulDownloader::suldownloaderdata::SubProducts productAsSubProducts(std::vector<ProductIdForDev> productItems)
+    {
+        SulDownloader::suldownloaderdata::SubProducts subproducts; 
+        for( auto devid : productItems)
+        {
+            auto metadata = createTestProductMetaData(devid); 
+            subproducts.push_back({metadata.getLine(), metadata.getVersion()}); 
+        }
+        return subproducts; 
+    }
 
     std::vector<SulDownloader::suldownloaderdata::ProductMetadata> simulateWarehouseContent(
         const std::vector<ProductIdForDev>& products)
@@ -209,6 +121,163 @@ public:
         return selectedProducts.selected == selected;
     }
 };
+
+
+    SulDownloader::suldownloaderdata::ProductMetadata ProductSelectionTest::createTestProductMetaData(int productItem)
+    {
+        SulDownloader::suldownloaderdata::ProductMetadata metadata;
+        if (productItem == Primary_Rec_CORE)
+        {
+            metadata.setLine("BaseProduct-RigidName");
+            metadata.setDefaultHomePath("Linux1");
+            metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
+            metadata.setName("Linux Security1");
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "CORE" });
+        }
+
+        if (productItem == ProdA_Rec_MDR)
+        {
+            metadata.setLine("PrefixOfProduct-SimulateProductA");
+            metadata.setDefaultHomePath("Linux2");
+            metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
+            metadata.setName("Linux Security2");
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "MDR" });
+        }
+
+        if (productItem == DiffA_Rec_MDR)
+        {
+            metadata.setLine("DifferentPrefix-SimulateProductA");
+            metadata.setDefaultHomePath("Linux3");
+            metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
+            metadata.setName("Linux Security3");
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "MDR" });
+        }
+
+        if (productItem == UNK_Rec_NONE) // used for missing product test.
+        {
+            metadata.setLine("Unknown Product");
+            metadata.setDefaultHomePath("Linux4");
+            metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
+            metadata.setName("Linux Security4");
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setFeatures({});
+        }
+
+        // Products with different releaseTag and base version, used for testing keepProduct
+        if (productItem == Primary_Rec_CORE_V2)
+        {
+            metadata.setLine("BaseProduct-RigidName");
+            metadata.setDefaultHomePath("Linux1");
+            metadata.setVersion("10.1.1.1");
+            metadata.setBaseVersion("10");
+            metadata.setName("Linux Security1");
+            Tag tag("RECOMMENDED", "10", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "CORE" });
+        }
+
+        if (productItem == ProdA_PREV_MDR)
+        {
+            metadata.setLine("PrefixOfProduct-SimulateProductA");
+            metadata.setDefaultHomePath("Linux2");
+            metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
+            metadata.setName("Linux Security2");
+            Tag tag("PREVIEW", "9", "PREVIEW");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "MDR" });
+        }
+
+        if (productItem == Primary_PREV_CORE)
+        {
+            metadata.setLine("BaseProduct-RigidName");
+            metadata.setDefaultHomePath("Linux1");
+            metadata.setVersion("9.1.1.2"); // higher version
+            metadata.setBaseVersion("9");
+            metadata.setName("Linux Security1");
+            Tag tag("PREVIEW", "9", "PREVIEW");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "CORE" });
+        }
+
+        if (productItem == ProdB_Rec_SAV)
+        {
+            metadata.setLine("PrefixOfProduct-SimulateProductB");
+            metadata.setDefaultHomePath("Linux2");
+            metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
+            metadata.setName("Linux Security2");
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "SAV" });
+        }
+
+        if (productItem == CS_BASE_MDR)
+        {
+            metadata.setLine("CS_Base_MDR"); 
+            metadata.setVersion("1.1.2"); 
+            metadata.setName("ComponentSuite"); 
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setSubProduts(productAsSubProducts({Primary_Rec_CORE, ProdA_Rec_MDR})); 
+        }
+
+        if (productItem ==CS_Base_MDR_WITH_FEATURES)
+        {
+            metadata.setLine("CS_Base_MDR_WITH_FEATURES"); 
+            metadata.setVersion("1.1.2"); 
+            metadata.setName("ComponentSuite_withFeatures"); 
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "CORE" });
+            metadata.setSubProduts(productAsSubProducts({Primary_Rec_CORE, ProdA_Rec_MDR})); 
+        }
+
+        if (productItem == ServerProtectionForLinux_Base)
+        {
+            metadata.setLine("ServerProtectionForLinux-Base"); // with features, but special case for 
+            metadata.setVersion("1.1.2"); 
+            metadata.setName("ComponentSuite-WithFeaturesSpecialCase"); 
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "CORE" });
+            metadata.setSubProduts(productAsSubProducts({Primary_Rec_CORE, ProdA_Rec_MDR})); 
+        }
+
+        if (productItem == Product_EDR)
+        {
+            metadata.setLine("ServerProtectionForLinux-EDR"); // with features, but special case for 
+            metadata.setVersion("1.1.2"); 
+            metadata.setName("Simple EDR component"); 
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setFeatures({ "EDR" });            
+        }
+
+        if (productItem == CS_EDR_SAV)
+        {
+            metadata.setLine("CS_EDR_SAV"); 
+            metadata.setVersion("1.1.2"); 
+            metadata.setName("ComponentSuite_ForEDR_SAV"); 
+            Tag tag("RECOMMENDED", "9", "RECOMMENDED");
+            metadata.setTags({ tag });
+            metadata.setSubProduts(productAsSubProducts({Product_EDR, ProdB_Rec_SAV})); 
+        }
+
+        return metadata;
+    }
+
 
 TEST_F(ProductSelectionTest, CreateProductSelection_SelectingZeroProductsDoesNotThrow) // NOLINT
 {
@@ -321,12 +390,12 @@ TEST_F( // NOLINT
     ProductSelection productSelection = ProductSelection::CreateProductSelection(configurationData);
 
     std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
-    SulDownloader::suldownloaderdata::ProductMetadata metadata1 = createTestProductMetaData(1);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata2 = createTestProductMetaData(2);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata3 = createTestProductMetaData(3);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata4 = createTestProductMetaData(4);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata5 = createTestProductMetaData(5);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata6 = createTestProductMetaData(6);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata1 = createTestProductMetaData(Primary_Rec_CORE);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata2 = createTestProductMetaData(ProdA_Rec_MDR);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata3 = createTestProductMetaData(DiffA_Rec_MDR);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata4 = createTestProductMetaData(UNK_Rec_NONE);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata5 = createTestProductMetaData(Primary_Rec_CORE_V2);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata6 = createTestProductMetaData(ProdA_PREV_MDR);
 
     warehouseProducts.push_back(metadata1);
     warehouseProducts.push_back(metadata2);
@@ -342,8 +411,9 @@ TEST_F( // NOLINT
     EXPECT_EQ(selectedProducts.selected.size(), 3);    // 0 1 4
 
     // 0 and 4 differ only by the base version. Hence, both are selected
-    EXPECT_EQ(selectedProducts.selected[0], 0);
-    EXPECT_EQ(selectedProducts.selected[1], 4);
+    std::vector<size_t> selected{ 0,4,1 }; 
+    EXPECT_EQ(selectedProducts.selected, selected);
+
     // match filter line and recommended
     EXPECT_EQ(warehouseProducts[0].getLine(), "BaseProduct-RigidName");
 
@@ -352,10 +422,8 @@ TEST_F( // NOLINT
     EXPECT_TRUE(warehouseProducts[4].hasTag("RECOMMENDED"));
 
     EXPECT_EQ(selectedProducts.selected[2], 1);
-
-    EXPECT_EQ(selectedProducts.notselected[0], 2);
-    EXPECT_EQ(selectedProducts.notselected[1], 3);
-    EXPECT_EQ(selectedProducts.notselected[2], 5);
+    std::vector<size_t> notselected{ 2,3,5 }; 
+    EXPECT_EQ(selectedProducts.notselected, notselected);
 }
 
 TEST_F(ProductSelectionTest, ShouldSelectTheCorrectProductWhenMoreThanOneVersionIsAvailable) // NOLINT
@@ -664,4 +732,138 @@ TEST_F(ProductSelectionTest, ShouldAllowSelectionOfNewerVersion) // NOLINT
     EXPECT_EQ(selectedProducts.notselected, notselected);
     std::vector<size_t> selected{ 1 };
     EXPECT_EQ(selectedProducts.selected, selected);
+    EXPECT_EQ(selectedProducts.selected_subscriptions, selected);
 }
+
+TEST_F(ProductSelectionTest, SelectingComponentSuiteWithoutFeatures_ExpandToComponent) // NOLINT
+{
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("", ""));
+
+    auto metadata = createTestProductMetaData(CS_BASE_MDR); 
+    ProductSubscription productSubscription{metadata.getLine(), "", "RECOMMENDED", ""}; 
+    configurationData.setProductsSubscription({}); 
+    configurationData.setPrimarySubscription(productSubscription); 
+    configurationData.setFeatures({"CORE","MDR"}); 
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_Rec_MDR, CS_BASE_MDR });
+
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    // although the component
+    EXPECT_EQ(selectedProducts.missing.size(), 0);
+    // CS_BASE_MDR is not selected as a product to download, but it will be available in the selected_subscriptions
+    std::vector<size_t> notselected{ 2 }; 
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    std::vector<size_t> selected{ 0, 1 };
+    EXPECT_EQ(selectedProducts.selected, selected);
+    
+    std::vector<size_t> selected_subscriptions{ 2 };
+    EXPECT_EQ(selectedProducts.selected_subscriptions, selected_subscriptions);
+}
+
+TEST_F(ProductSelectionTest, SelectingComponentSuiteWithFeatures_DoesNotExpandToComponent) // NOLINT
+{
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("", ""));
+
+    auto metadata = createTestProductMetaData(CS_Base_MDR_WITH_FEATURES); 
+    ProductSubscription productSubscription{metadata.getLine(), "", "RECOMMENDED", ""}; 
+    configurationData.setProductsSubscription({}); 
+    configurationData.setPrimarySubscription(productSubscription); 
+    configurationData.setFeatures({"CORE","MDR"}); 
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_Rec_MDR, CS_Base_MDR_WITH_FEATURES });
+
+    // given that the component suite has feature, only CS_Base_MDR_WITH_FEATURES will be directly selected
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    // although the component
+    EXPECT_EQ(selectedProducts.missing.size(), 0);
+    std::vector<size_t> notselected{ 0, 1 }; 
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    std::vector<size_t> selected{ 2 };
+    EXPECT_EQ(selectedProducts.selected, selected);
+
+    std::vector<size_t> selected_subscriptions{ 2 };
+    EXPECT_EQ(selectedProducts.selected_subscriptions, selected_subscriptions);
+}
+
+TEST_F(ProductSelectionTest, SelectingComponentSuiteWithFeaturesButBase_ExpandToComponent) // NOLINT
+{
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("", ""));
+
+    auto metadata = createTestProductMetaData(ServerProtectionForLinux_Base); 
+    ProductSubscription productSubscription{metadata.getLine(), "", "RECOMMENDED", ""}; 
+    configurationData.setProductsSubscription({}); 
+    configurationData.setPrimarySubscription(productSubscription); 
+    configurationData.setFeatures({"CORE","MDR"}); 
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_Rec_MDR, ServerProtectionForLinux_Base });
+
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    // although the component
+    EXPECT_EQ(selectedProducts.missing.size(), 0);
+    // ServerProtectionForLinux_Base has not been selected to download directly only its subcomponents
+    std::vector<size_t> notselected{ 2 }; 
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    std::vector<size_t> selected{ 0, 1 };
+    EXPECT_EQ(selectedProducts.selected, selected);
+
+    std::vector<size_t> selected_subscriptions{ 2 };
+    EXPECT_EQ(selectedProducts.selected_subscriptions, selected_subscriptions);
+
+}
+
+
+TEST_F(ProductSelectionTest, ComponentSuitesWithoutAnySelectedProductShouldNotBeReportedAsSelected) // NOLINT
+{
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("", ""));
+
+    auto metadata = createTestProductMetaData(CS_BASE_MDR); 
+    ProductSubscription primarySubscription{metadata.getLine(), "", "RECOMMENDED", ""};     
+    configurationData.setPrimarySubscription(primarySubscription); 
+    metadata = createTestProductMetaData(CS_EDR_SAV); 
+    ProductSubscription productSubscription{metadata.getLine(), "", "RECOMMENDED", ""};     
+    configurationData.setProductsSubscription({productSubscription});     
+    configurationData.setFeatures({"CORE","MDR"}); // features are not selecting EDR or SAV
+    // this test presents two subscriptions targeting 2 component suites: 
+    //  CS_BASE_MDR and CS_EDR_SAV
+    //  but the features will select only products inside: 
+    //  CS_BASE_MDR
+    //  hence, the subscription CS_EDR_SAV should not be counted as 'selected'
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_Rec_MDR, CS_BASE_MDR, 
+                Product_EDR, ProdB_Rec_SAV, CS_EDR_SAV });
+
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    // although the component
+    EXPECT_EQ(selectedProducts.missing.size(), 0);
+
+    // Product_EDR, ProdB_Rec_SAV and CS_EDR_SAV were filtered out due to the FEATURES set
+    // CS_BASE_MDR is not marked to be downloaded, only its components.
+    std::vector<size_t> notselected{ 2, 3, 4, 5 }; 
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    
+    // Select set refers only to the components, not the component suite: Primary_Rec_CORE, ProdA_Rec_MDR
+    std::vector<size_t> selected{ 0, 1 };
+    EXPECT_EQ(selectedProducts.selected, selected);
+    
+    // Selected subscription here refers only to the CS_BASE_MDR
+    std::vector<size_t> selected_subscriptions{ 2 };
+    EXPECT_EQ(selectedProducts.selected_subscriptions, selected_subscriptions);
+}
+
+

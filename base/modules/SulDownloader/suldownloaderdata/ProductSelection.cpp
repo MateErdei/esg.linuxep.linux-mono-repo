@@ -108,6 +108,81 @@ namespace
 
     bool SubscriptionSelector::isProductRequired() const { return true; }
 
+
+    class SubscriptionToProductsMapSelector : public virtual ISingleProductSelector
+    {
+    public:
+        explicit SubscriptionToProductsMapSelector(ProductMetadata productSubscriptionMetaData);
+        [[nodiscard]] std::string targetProductName() const override;
+
+        [[nodiscard]] bool keepProduct(const SulDownloader::suldownloaderdata::ProductMetadata&) const override;
+
+        [[nodiscard]] bool isProductRequired() const override;
+
+    private:
+        bool matchOriginal(const SulDownloader::suldownloaderdata::ProductMetadata&) const; 
+        bool matchSubComponents(const SulDownloader::suldownloaderdata::ProductMetadata&) const; 
+
+        ProductMetadata m_productSubscriptionMetaData;
+        bool m_matchOriginal;
+    };
+
+    SubscriptionToProductsMapSelector::SubscriptionToProductsMapSelector(ProductMetadata productSubscriptionMetaData) :
+            m_productSubscriptionMetaData(std::move(productSubscriptionMetaData))
+    {
+        if (!m_productSubscriptionMetaData.subProducts().empty() && 
+            m_productSubscriptionMetaData.getLine() != "ServerProtectionLinux-Base")
+            {
+                m_matchOriginal = false; 
+            }
+            else
+            {
+                m_matchOriginal = true; 
+            }
+            
+    }
+
+    std::string SubscriptionToProductsMapSelector::targetProductName() const { return m_productSubscriptionMetaData.getLine(); }
+
+    bool SubscriptionToProductsMapSelector::keepProduct(const SulDownloader::suldownloaderdata::ProductMetadata& productInformation) const
+    {
+        return m_matchOriginal? matchOriginal(productInformation) : matchSubComponents(productInformation); 
+    }
+    
+    bool SubscriptionToProductsMapSelector::matchOriginal(const SulDownloader::suldownloaderdata::ProductMetadata& productInformation) const
+    {
+        if (productInformation.getLine() == m_productSubscriptionMetaData.getLine() 
+            && m_productSubscriptionMetaData.getVersion() == productInformation.getVersion())
+        {
+            for (auto & tag : m_productSubscriptionMetaData.tags())
+            {
+                if (productInformation.hasTag(tag.tag))
+                {
+                    return true; 
+                }
+            }
+        }
+        return false; 
+    }
+
+    bool SubscriptionToProductsMapSelector::matchSubComponents(const SulDownloader::suldownloaderdata::ProductMetadata& productInformation) const
+    {
+        for( auto & subComponent : m_productSubscriptionMetaData.subProducts()){
+            if (subComponent.m_line == productInformation.getLine() && 
+                subComponent.m_version == productInformation.getVersion())
+                {
+                    return true; 
+                }
+        }
+        return false;     
+    }
+
+
+
+    bool SubscriptionToProductsMapSelector::isProductRequired() const { return false; }
+
+
+
 } // namespace
 
 namespace SulDownloader
@@ -141,7 +216,7 @@ namespace SulDownloader
     SelectedResultsIndexes ProductSelection::selectProducts(const std::vector<ProductMetadata>& warehouseProducts) const
     {
         SelectedResultsIndexes selection;
-        StableSetIndex selectedProductsIndex(warehouseProducts.size());
+        StableSetIndex selectedSubscriptionsIndex(warehouseProducts.size());
 
         for (auto& selector : m_selection)
         {
@@ -154,10 +229,22 @@ namespace SulDownloader
             }
             else
             {
-                selectedProductsIndex.addIndexes(selectedIndexes);
+                selectedSubscriptionsIndex.addIndexes(selectedIndexes);
             }
         }
-        LOGDEBUG("Selected "<< selectedProductsIndex.values().size() << " products total");
+        LOGDEBUG("Selected "<< selectedSubscriptionsIndex.values().size() << " subscriptions total");
+        for( auto & index : selectedSubscriptionsIndex.values())
+        {
+             const auto& warehouseProduct = warehouseProducts[index];
+             LOGDEBUG("Selected Subscription: " << warehouseProduct.getName()); 
+        }
+
+        StableSetIndex selectedProductsIndex(warehouseProducts.size());
+        for( auto & index : selectedSubscriptionsIndex.values())
+        {
+            auto selectedIndexes = selectedProducts( SubscriptionToProductsMapSelector(warehouseProducts[index]), warehouseProducts ); 
+            selectedProductsIndex.addIndexes(selectedIndexes); 
+        }
 
         StableSetIndex secondSelection(warehouseProducts.size());
         bool atLeastOneHasCore = false;
@@ -183,8 +270,28 @@ namespace SulDownloader
         }
         selectedProductsIndex = secondSelection;
         LOGDEBUG("Filtered "<< selectedProductsIndex.values().size() << " products total");
+        
+        std::vector<ProductMetadata> selectedProductsView; 
+        for( auto & index : selectedProductsIndex.values())
+        {
+             const auto& warehouseProduct = warehouseProducts[index];
+             LOGDEBUG("Selected product: " << warehouseProduct.getName()); 
+             selectedProductsView.push_back(warehouseProduct); 
+        }
+
+        StableSetIndex finalSubscriptionSelection(warehouseProducts.size());
+        for( auto & index: selectedSubscriptionsIndex.values())
+        {
+            auto selectedIndexesInView = selectedProducts( SubscriptionToProductsMapSelector(warehouseProducts[index]), selectedProductsView );             
+            // it he selection returns empty it means that all the products under the component suite were removed, hence, it should not be added.
+            if ( !selectedIndexesInView.empty())
+            {
+                finalSubscriptionSelection.addIndex(index); 
+            }
+        }
 
         selection.selected = selectedProductsIndex.values();
+        selection.selected_subscriptions = finalSubscriptionSelection.values();
 
         for (size_t i = 0; i < warehouseProducts.size(); ++i)
         {
@@ -202,11 +309,16 @@ namespace SulDownloader
         const std::vector<ProductMetadata>& warehouseProducts) const
     {
         StableSetIndex set(warehouseProducts.size());
+
         for (size_t i = 0; i < warehouseProducts.size(); ++i)
         {
             if (selector.keepProduct(warehouseProducts[i]))
             {
                 set.addIndex(i);
+                for( auto & product: warehouseProducts[i].subProducts())
+                {
+                    LOGDEBUG("Selected component has line,version="<< product.m_line << ", "<< product.m_version); 
+                }
             }
         }
         return set.values();
