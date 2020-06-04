@@ -67,5 +67,4 @@ o770, sophos-spl-group, root, /opt/sophos-spl/base/etc/sophosspl
 o770, sophos-spl-group, root, /opt/sophos-spl/base/update
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/update/certs
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/update/var
-o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/update/var/processedReports
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/logs/base/sophosspl

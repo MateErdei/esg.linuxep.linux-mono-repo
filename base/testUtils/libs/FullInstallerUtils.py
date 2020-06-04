@@ -633,7 +633,7 @@ def get_result_and_stat(path):
     return result, s
 
 
-def get_file_info_for_installation():
+def get_file_info_for_installation(plugin=None):
     """
     ${FileInfo}=  Run Process  find  ${SOPHOS_INSTALL}  -type  f
     Should Be Equal As Integers  ${FileInfo.rc}  0  Command to find all files and permissions in install dir failed: ${FileInfo.stderr}
@@ -649,11 +649,24 @@ def get_file_info_for_installation():
     :return:
     """
     SOPHOS_INSTALL = get_sophos_install()
-    fullFiles = set()
-    fullDirectories = [SOPHOS_INSTALL]
-
     exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "installer/InstallSet/ExcludeFiles")).readlines()
     exclusions = set(( e.strip() for e in exclusions ))
+
+    # Allows the overriding of this function to work for specific plugins
+    if plugin:
+        plugin = plugin.lower()
+        plugin_dir = "plugins/{}".format(plugin)
+        SOPHOS_INSTALL = os.path.join(SOPHOS_INSTALL, plugin_dir)
+        if plugin == "mtr":
+            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "mdr_plugin/InstallSet/ExcludeFiles")).readlines()
+        elif plugin == "edr":
+            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "edr_plugin/InstallSet/ExcludeFiles")).readlines()
+        elif plugin == "liveresponse":
+            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "mdr_plugin/InstallSet/ExcludeFiles")).readlines()
+        exclusions = set(( e.strip() for e in exclusions ))
+
+    fullFiles = set()
+    fullDirectories = [SOPHOS_INSTALL]
 
     for (base, dirs, files) in os.walk(SOPHOS_INSTALL):
         for f in files:

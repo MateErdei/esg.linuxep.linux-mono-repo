@@ -7,6 +7,7 @@ Test Teardown    EDR Test Teardown
 
 Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
@@ -38,6 +39,48 @@ ${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.lo
 ${WDCTL_LOG_PATH}                   ${SOPHOS_INSTALL}/logs/base/wdctl.log
 
 *** Test Cases ***
+Verify that the edr installer works correctly
+## -------------------------------------READ----ME------------------------------------------------------
+## Please note that these tests rely on the files in InstallSet being upto date. To regenerate these run
+## an install manually and run the generateFromInstallDir.sh from InstallSet directory.
+## WARNING
+## If you generate this from a local build please make sure that you have blatted the distribution
+## folder before remaking it. Otherwise old content can slip through to new builds and corrupt the
+## fileset.
+##
+## ALTERNATIVELY ##
+## Run the commented out *test* above ("Get Fileset"). Open the report and copy the logged "DirectoryInfo",
+## "FileInfo", and "SymbolicLinkInfo" into their respective files in the installset and use a find and
+## replace with regex enabled to swap \|\| for \n
+## WARNING:
+## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
+## -----------------------------------------------------------------------------------------------------
+    [Teardown]  EDR Tests Teardown With Installed File Replacement
+    Install EDR  ${BaseAndEdrVUTPolicy}
+
+    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get file info for installation  edr
+    Set Test Variable  ${FileInfo}
+    Set Test Variable  ${DirectoryInfo}
+    Set Test Variable  ${SymbolicLinkInfo}
+    ## Check Directory Structure
+    Log  ${DirectoryInfo}
+    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/DirectoryInfo
+    Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
+
+    ## Check File Info
+    # wait for /opt/sophos-spl/base/mcs/status/cache/ALC.xml to exist
+    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/FileInfo
+    Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
+
+    ## Check Symbolic Links
+    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SymbolicLinkInfo
+    Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
+
+    ## Check systemd files
+    ${SystemdInfo}=  get systemd file info
+    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SystemdInfo
+    Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
+
 Install EDR and handle Live Query
     Install EDR  ${BaseAndEdrVUTPolicy}
     Wait Until OSQuery Running
@@ -694,6 +737,14 @@ Install Then Restart With master of base and edr and check EDR OSQuery Flags Fil
 
 
 *** Keywords ***
+EDR Tests Teardown With Installed File Replacement
+    Run Keyword If Test Failed  Save Current EDR InstalledFiles To Local Path
+    EDR Test Teardown
+
+Save Current EDR InstalledFiles To Local Path
+    Create File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/FileInfo  ${FileInfo}
+    Create File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/DirectoryInfo  ${DirectoryInfo}
+    Create File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
 
 Check MCS Envelope Log For Event Success Within Nth Set Of Events Sent
     [Arguments]  ${Event_Number}
