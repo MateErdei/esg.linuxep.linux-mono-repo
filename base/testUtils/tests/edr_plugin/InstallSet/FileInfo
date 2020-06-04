@@ -247,11 +247,6 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/xymon.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/yaml.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/yum.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/var/edr.lock
-o600, root, root, /opt/sophos-spl/plugins/edr/var/osquery.db/000003.log
-o600, root, root, /opt/sophos-spl/plugins/edr/var/osquery.db/CURRENT
-o600, root, root, /opt/sophos-spl/plugins/edr/var/osquery.db/IDENTITY
-o600, root, root, /opt/sophos-spl/plugins/edr/var/osquery.db/LOCK
-o600, root, root, /opt/sophos-spl/plugins/edr/var/osquery.db/MANIFEST-000004
 o600, root, root, /opt/sophos-spl/plugins/edr/VERSION.ini.0
 o644, root, root, /opt/sophos-spl/plugins/edr/log/osqueryd.results.log
 o644, root, root, /opt/sophos-spl/plugins/edr/var/osquery.pid

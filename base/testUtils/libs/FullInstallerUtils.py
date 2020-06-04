@@ -680,13 +680,19 @@ def get_file_info_for_installation(plugin=None):
         for f in files:
             include = True
             for e in exclusions:
-                if e in f:
+                if e in f or e in base:
                     include = False
                     break
             if include:
                 fullFiles.add(os.path.join(base, f))
         for d in dirs:
-            fullDirectories.append(os.path.join(base, d))
+            include = True
+            for e in exclusions:
+                if e in d:
+                    include = False
+                    break
+            if include:
+                fullDirectories.append(os.path.join(base, d))
 
     details = []
     symlinks = []

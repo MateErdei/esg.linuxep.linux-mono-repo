@@ -7,4 +7,3 @@ o700, root, root, /opt/sophos-spl/plugins/edr/log
 o700, root, root, /opt/sophos-spl/plugins/edr/osquery
 o700, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses
 o700, root, root, /opt/sophos-spl/plugins/edr/var
-o700, root, root, /opt/sophos-spl/plugins/edr/var/osquery.db
