@@ -53,7 +53,6 @@ OSTIA_PREV_ADDRESS_BRANCH = os.environ.get(OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE, "
 OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_PREV_ADDRESS_BRANCH)
 # The GA Release
 OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone"
-OSTIA_EDR_EAP_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/release-EDR_EAP"
 # A version with mocked libraries (to test file removal on upgrade)
 OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-version-0-6-0-warehouse"
 # a version with edr 9.99.9 for downgrade tests
@@ -309,7 +308,6 @@ class WarehouseUtils(object):
         "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_and_mtr_GA.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_mtr_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
         "base_and_broken_edr.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_base_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
-        "EDR_EAP.xml": TemplateConfig("BASE_AND_MTR_EDR_EAP", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_EDR_EAP_ADDRESS),
         "base_and_edr_VUT.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_edr_and_mtr.xml": TemplateConfig("BASE_ONLY_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_0_6_0.xml": TemplateConfig("BASE_ONLY_0_6_0", "base_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
