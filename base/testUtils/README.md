@@ -56,31 +56,38 @@ DONE. Any tests that would previously have used the VUT ostia warehouse (i.e. ma
 To refresh, run step 3b then 4
 
 The following tags can be used to select which tests can be run, using the include or exclude arguments.
-* AUDIT_PLUGIN - Test cases which test sspl-audit
 * AMAZON_LINUX - Test cases which will run on AWS only
+* AUDIT_PLUGIN - Test cases which test sspl-audit
 * CENTRAL - Tests which run against Central or Nova
+* CUSTOM_LOCATION - Tests which install to a custom location
 * DEBUG - Tests which are useful for debugging
 * DIAGNOSE - Tests which exercise sophos_diagnose
+* EDR_PLUGIN - Tests focusing on EDR capabilities
 * EVENT_PLUGIN - Tests which exercise the event processor plugin 
 * EXAMPLE_PLUGIN - Tests which exercise the example plugin 
 * EXCLUDE_AWS - Used to exclude the test from being run on AWS
-* CUSTOM_LOCATION - Tests which install to a custom location
+* EXCLUDE_CENTOS8 excludes the test from running on centos 8
+* EXCLUDE_RHEL8  excludes the test from running on rhel 8
 * FAKE_CLOUD - Tests which run against our fake central scripts
+* FAULTINJECTION - Tests that deliberately introduces faults to the normal installation
+* FUZZ - Tests that are related to fuzzer
 * INSTALLER - Tests which exercise the main installer 
+* LIVE_RESPONSE - Tests which exercise the live response plugin
 * MANAGEMENT_AGENT - Tests which exercise the Management Agent component
 * MANUAL - Tests which are ony run manually and not as part of a test run on Jenkins
 * MCS - Tests which use the MCS pipeline
 * MCS_ROUTER - Tests which exercise the MCS Router component
-* MESSAGE_RELAY - Tests which include a Message Relay
 * MDR_PLUGIN - Tests which exercise the mdr plugin
-* EDR_PLUGIN - Tests focusing on EDR capabilities
+* MDR_REGRESSION_TESTS - End to end tests related to MTR feature
+* MESSAGE_RELAY - Tests which include a Message Relay
 * PUB_SUB - Tests which use the protobuf pub sub pipeline
-* REGISTRATION - Tests that exercise the registration code
 * OSTIA - Tests which use ostia
+* REGISTRATION - Tests that exercise the registration code
 * SAV - Tests which install SAV
 * SLOW - Tests which take a long time to run
 * SMOKE - Tests which check that the most important functions of the product work
 * SULDOWNLOADER - Tests that exercise SUL Downloader
+* TAP_TESTS - Tests to be executed in Tap environment
 * TELEMETRY - Tests that exercise the Telemetry executable
 * TESTFAILURE - Tests that we expect to fail
 * THIN_INSTALLER - Tests that exercise the Thin Installer
@@ -89,9 +96,3 @@ The following tags can be used to select which tests can be run, using the inclu
 * UPDATE_SCHEDULER - Tests that exercise the Update Scheduler plugin
 * WATCHDOG - Tests that exercise the Watchdog
 * WDCTL - Tests that exercise WDCTL, Watchdog Control
-* FUZZ - Tests that are related to fuzzer
-* FAULTINJECTION - Tests that deliberately introduces faults to the normal installation
-* MDR_REGRESSION_TESTS - End to end tests related to MTR feature
-* TAP_TESTS - Tests to be executed in Tap environment
-* EXCLUDE_RHEL8  excludes the test from running on rhel 8
-* EXCLUDE_CENTOS8 excludes the test from running on centos 8

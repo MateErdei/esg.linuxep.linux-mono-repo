@@ -47,12 +47,6 @@ Verify that the edr installer works correctly
 ## If you generate this from a local build please make sure that you have blatted the distribution
 ## folder before remaking it. Otherwise old content can slip through to new builds and corrupt the
 ## fileset.
-##
-## ALTERNATIVELY ##
-## Run the commented out *test* above ("Get Fileset"). Open the report and copy the logged "DirectoryInfo",
-## "FileInfo", and "SymbolicLinkInfo" into their respective files in the installset and use a find and
-## replace with regex enabled to swap \|\| for \n
-## WARNING:
 ## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
 ## -----------------------------------------------------------------------------------------------------
     [Teardown]  EDR Tests Teardown With Installed File Replacement
