@@ -38,7 +38,7 @@ INPUT=$BASE/input
 
 COVFILE="/tmp/root/sspl-unit.cov"
 COV_HTML_BASE=sspl-unittest
-BULLSEYE_SYSTEM_TEST_BRANCH=master
+BULLSEYE_SYSTEM_TEST_BRANCH=develop
 export TEST_SELECTOR=
 CMAKE_BUILD_TYPE=RelWithDebInfo
 DEBUG=0
