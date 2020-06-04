@@ -8,7 +8,7 @@
         <workingdir>sspl-plugin-edr-component-build</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
-        <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.2/output" dest="input" buildtype="dev">
+        <package name="sspl-base" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.2/output" dest="input" buildtype="dev">
             <include src="pluginapi.tar.gz" dest="."/>
              <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
@@ -77,12 +77,13 @@
         <destdir>sspl-plugin-edr-component</destdir>
         <buildoutputs>
             <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release,coverage"> </output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
             <output name="build_log" srcfolder="log" mode="debug,release"> </output>
 
             <!-- Coverage -->
+            <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
 
         </buildoutputs>
-        <publishbranches>master,feature,bugfix,release</publishbranches>
+        <publishbranches>master,feature,bugfix,release,develop/live-discover</publishbranches>
     </publish>
 </package>
