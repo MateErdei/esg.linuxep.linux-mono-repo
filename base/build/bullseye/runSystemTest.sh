@@ -44,7 +44,7 @@ export GIT_SSH_COMMAND="ssh -i ${PRIVATE_KEY}"
 SYSTEM_TEST_CHECKOUT="/tmp/system-tests"
 
 
-[[ -n ${BULLSEYE_SYSTEM_TEST_BRANCH} ]] || BULLSEYE_SYSTEM_TEST_BRANCH=master
+[[ -n ${BULLSEYE_SYSTEM_TEST_BRANCH} ]] || BULLSEYE_SYSTEM_TEST_BRANCH=develop
 
 unset LD_LIBRARY_PATH
 
@@ -88,14 +88,14 @@ LASTGOODBUILD () {
 # You can override the specific branch to use of any jenkins dev build by providing
 # one of the below environment variable variables when this script is called
 # If a <repo>_BRANCH variable is given, it will use that specific branch from the jenkins build output on filer6
-# If none is given, master will be assumed
+# If none is given, develop will be assumed
 
-[[ ! -z ${BASE_BRANCH} ]]                 || BASE_BRANCH="master"
-[[ ! -z ${EXAMPLE_PLUGIN_BRANCH} ]]       || EXAMPLE_PLUGIN_BRANCH="master"
-[[ ! -z ${AUDIT_PLUGIN_BRANCH} ]]         || AUDIT_PLUGIN_BRANCH="master"
-[[ ! -z ${EVENT_PROCESSOR_BRANCH} ]]      || EVENT_PROCESSOR_BRANCH="master"
-[[ ! -z ${MDR_PLUGIN_BRANCH} ]]           || MDR_PLUGIN_BRANCH="master"
-[[ ! -z ${MDR_COMPONENT_SUITE_BRANCH} ]]  || MDR_COMPONENT_SUITE_BRANCH="master"
+[[ ! -z ${BASE_BRANCH} ]]                 || BASE_BRANCH="develop"
+[[ ! -z ${EXAMPLE_PLUGIN_BRANCH} ]]       || EXAMPLE_PLUGIN_BRANCH="develop"
+[[ ! -z ${AUDIT_PLUGIN_BRANCH} ]]         || AUDIT_PLUGIN_BRANCH="develop"
+[[ ! -z ${EVENT_PROCESSOR_BRANCH} ]]      || EVENT_PROCESSOR_BRANCH="develop"
+[[ ! -z ${MDR_PLUGIN_BRANCH} ]]           || MDR_PLUGIN_BRANCH="develop"
+[[ ! -z ${MDR_COMPONENT_SUITE_BRANCH} ]]  || MDR_COMPONENT_SUITE_BRANCH="develop"
 
 ## Find example plugin
 if [[ -d "$EXAMPLEPLUGIN_SDDS" ]]

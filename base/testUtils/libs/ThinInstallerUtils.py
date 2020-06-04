@@ -52,7 +52,7 @@ class ThinInstallerUtils(object):
 
         self.last_good_artisan_build_file = os.path.join(filer6,
                                                          "sspl-thininstaller",
-                                                         "master/sspl-thininstaller_lastgoodbuild.txt")
+                                                         "develop/sspl-thininstaller_lastgoodbuild.txt")
         self.https_certs_dir = os.path.join(PathManager.get_support_file_path(), "https/ca")
 
         try:
@@ -102,7 +102,7 @@ class ThinInstallerUtils(object):
                 last_good_build = f.read()
 
             print("Last good Thin Installer build: {}".format(last_good_build))
-            source_folder = os.path.join("/mnt", "filer6", "bfr", "sspl-thininstaller", "master", last_good_build, "sspl-thininstaller")
+            source_folder = os.path.join("/mnt", "filer6", "bfr", "sspl-thininstaller", "develop", last_good_build, "sspl-thininstaller")
             version_dirs = os.listdir(source_folder)
             if len(version_dirs) == 1:
                 source = os.path.join(source_folder, version_dirs[0], "output")

@@ -12,7 +12,7 @@ JENKINS_DIR=$(dirname ${0})
 #   BASE_BRANCH=bugfix/LINUXDAR-999-pluginapi-fix MDR_PLUGIN_SOURCE=/uk-filer5/prodro/bir/sspl-mdr-control-plugin/1-0-0-45/217122/output/SDDS-COMPONENT/ jenkinsBuildCommand.sh -s mdr_plugin
 #
 #   this example would run the mdr_plugin suite with overrides for a dev branch of base and
-#   using a production build of mdr plugin, with all else being the master branch builds
+#   using a production build of mdr plugin, with all else being the develop branch builds
 #   from JenkinsBuildOutput on filer6
 #
 #  Overrides will also be picked up from environment variables set via "export" commands/etc.
@@ -98,25 +98,22 @@ export SDDS_SSPL_DBOS_COMPONENT="/tmp/SDDS-SSPL-DBOS-COMPONENT"
 export SDDS_SSPL_OSQUERY_COMPONENT="/tmp/SDDS-SSPL-OSQUERY-COMPONENT"
 export SDDS_SSPL_MDR_COMPONENT="/tmp/SDDS-SSPL-MDR-COMPONENT"
 export SDDS_SSPL_MDR_COMPONENT_SUITE="/tmp/SDDS-SSPL-MDR-COMPONENT-SUITE"
-export SSPL_LIVERESPONSE_PLUGIN_SDDS="/tmp/liveresponse-plugin-SDDS-COMPONENT"
-export WEBSOCKET_SERVER="/tmp/websocket_server"
 
 
 ## BRANCH OVERRIDES
 # You can override the specific branch to use of any jenkins dev build by providing
 # one of the bellow environment variable variables when this script is called
 # If a <repo>_BRANCH variable is given, it will use that specific branch from the jenkins build output on filer6
-# If none is given, master will be assumed
+# If none is given, develop will be assumed
 
-[[ ! -z ${BASE_BRANCH} ]]                 || BASE_BRANCH="master"
-[[ ! -z ${EXAMPLE_PLUGIN_BRANCH} ]]       || EXAMPLE_PLUGIN_BRANCH="master"
-[[ ! -z ${AUDIT_PLUGIN_BRANCH} ]]         || AUDIT_PLUGIN_BRANCH="master"
-[[ ! -z ${EVENT_PROCESSOR_BRANCH} ]]      || EVENT_PROCESSOR_BRANCH="master"
-[[ ! -z ${MDR_PLUGIN_BRANCH} ]]           || MDR_PLUGIN_BRANCH="master"
-[[ ! -z ${EDR_PLUGIN_BRANCH} ]]           || EDR_PLUGIN_BRANCH="master"
-[[ ! -z ${LIVERESPONSE_PLUGIN_BRANCH} ]]  || LIVERESPONSE_PLUGIN_BRANCH="develop"
-[[ ! -z ${THININSTALLER_BRANCH} ]]        || THININSTALLER_BRANCH="master"
-[[ ! -z ${MDR_COMPONENT_SUITE_BRANCH} ]]  || MDR_COMPONENT_SUITE_BRANCH="master"
+[[ ! -z ${BASE_BRANCH} ]]                 || BASE_BRANCH="develop"
+[[ ! -z ${EXAMPLE_PLUGIN_BRANCH} ]]       || EXAMPLE_PLUGIN_BRANCH="develop"
+[[ ! -z ${AUDIT_PLUGIN_BRANCH} ]]         || AUDIT_PLUGIN_BRANCH="develop"
+[[ ! -z ${EVENT_PROCESSOR_BRANCH} ]]      || EVENT_PROCESSOR_BRANCH="develop"
+[[ ! -z ${MDR_PLUGIN_BRANCH} ]]           || MDR_PLUGIN_BRANCH="develop"
+[[ ! -z ${EDR_PLUGIN_BRANCH} ]]           || EDR_PLUGIN_BRANCH="develop"
+[[ ! -z ${THININSTALLER_BRANCH} ]]        || THININSTALLER_BRANCH="develop"
+[[ ! -z ${MDR_COMPONENT_SUITE_BRANCH} ]]  || MDR_COMPONENT_SUITE_BRANCH="develop"
 
 ## SOURCE OVERRIDES
 # If a <repo>_SOURCE variable is given, it will use the exact path you give it
@@ -142,8 +139,7 @@ LASTGOODBUILD () {
 [[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_SUITE} ]]    || MDR_COMPONENT_SUITE_SOURCE_SUITE="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT-SUITE/"
 # The System Product Test Output must be from the build of base being used. It is found in the directory above the SDDS-COMPONENT
 [[ ! -z  ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} ]]   || SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE="$(dirname ${BASE_SOURCE})/SystemProductTestOutput.tar.gz"
-[[ ! -z  ${LIVERESPONSE_PLUGIN_SOURCE} ]]          || LIVERESPONSE_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/liveterminal/${LIVERESPONSE_PLUGIN_BRANCH}" )/liveterminal_linux11/*/output/SDDS-COMPONENT)
-[[ ! -z  ${WEBSOCKET_SERVER_SOURCE} ]]             || WEBSOCKET_SERVER_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/liveterminal/${LIVERESPONSE_PLUGIN_BRANCH}" )/liveterminal/*/websocket_server)
+
 
 # Check everything exists
 
@@ -159,8 +155,6 @@ LASTGOODBUILD () {
 [[ -d ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} ]]  || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} doesn't exist"
 [[ -d ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} ]]   || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} doesn't exist"
 [[ -d ${MDR_COMPONENT_SUITE_SOURCE_SUITE} ]]    || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_SUITE} doesn't exist"
-[[ -d ${LIVERESPONSE_PLUGIN_SOURCE} ]]          || fail "Error: ${LIVERESPONSE_PLUGIN_SOURCE} doesn't exist"
-[[ -d ${WEBSOCKET_SERVER_SOURCE} ]]             || fail "Error: ${WEBSOCKET_SERVER_SOURCE} doesn't exist"
 
 sudo rm -rf ${BASE_DIST}
 sudo rm -rf ${EXAMPLEPLUGIN_SDDS}
@@ -174,8 +168,6 @@ sudo rm -rf ${SDDS_SSPL_DBOS_COMPONENT}
 sudo rm -rf ${SDDS_SSPL_OSQUERY_COMPONENT}
 sudo rm -rf ${SDDS_SSPL_MDR_COMPONENT}
 sudo rm -rf ${SDDS_SSPL_MDR_COMPONENT_SUITE}
-sudo rm -rf ${SSPL_LIVERESPONSE_PLUGIN_SDDS}
-sudo rm -rf ${WEBSOCKET_SERVER}
 
 # make the Product Test Output folder so that the tar can be copied into it
 mkdir ${SYSTEM_PRODUCT_TEST_OUTPUT}
@@ -192,8 +184,6 @@ sudo cp -r ${MDR_COMPONENT_SUITE_SOURCE_DBOS} ${SDDS_SSPL_DBOS_COMPONENT}
 sudo cp -r ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} ${SDDS_SSPL_OSQUERY_COMPONENT}
 sudo cp -r ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} ${SDDS_SSPL_MDR_COMPONENT}
 sudo cp -r ${MDR_COMPONENT_SUITE_SOURCE_SUITE} ${SDDS_SSPL_MDR_COMPONENT_SUITE}
-sudo cp -r ${LIVERESPONSE_PLUGIN_SOURCE} ${SSPL_LIVERESPONSE_PLUGIN_SDDS}
-sudo cp -r ${WEBSOCKET_SERVER_SOURCE} ${WEBSOCKET_SERVER}
 
 echo "Using ${BASE_SOURCE} as BASE_SOURCE"
 echo "Using ${EXAMPLE_PLUGIN_SOURCE} as EXAMPLE_PLUGIN_SOURCE"
@@ -207,8 +197,6 @@ echo "Using ${MDR_COMPONENT_SUITE_SOURCE_DBOS} as MDR_COMPONENT_SUITE_DBOS_SDDS"
 echo "Using ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} as MDR_COMPONENT_SUITE_OSQUERY_SDDS"
 echo "Using ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} as MDR_COMPONENT_SUITE_PLUGIN_SDDS"
 echo "Using ${MDR_COMPONENT_SUITE_SOURCE_SUITE} as MDR_COMPONENT_SUITE_SDDS"
-echo "Using ${LIVERESPONSE_PLUGIN_SOURCE} as LIVERESPONSE_PLUGIN_SOURCE"
-echo "Using ${WEBSOCKET_SERVER_SOURCE} as WEBSOCKET_SERVER_SOURCE"
 
 bash ${JENKINS_DIR}/install_dependencies.sh
 
