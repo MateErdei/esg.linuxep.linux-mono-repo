@@ -1,1 +1,3 @@
 osquery.db
+edr.lock
+osqueryd.results.log
