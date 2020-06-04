@@ -142,7 +142,5 @@ def is_aws_instance():
     proc = subprocess.Popen(["wget", "http://169.254.169.254/latest/dynamic/instance-identity/document"])
     output, error = proc.communicate()
     returncode = proc.returncode
-    if returncode == 0:
-        return True
-    else:
-        return False
+
+    return returncode == 0
