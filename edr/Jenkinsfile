@@ -1,19 +1,17 @@
 
 library "standardPipeline"
 
-project = 'sspl-plugin-edr-component'
-version_key = '1.1.0'
-project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-edr-component.git'
-project_builddir = 'sspl-plugin-edr-component-build'
+project = 'sspl-template-plugin'
+version_key = '0.5.0'
+project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-template.git'
+project_builddir = 'sspl-template-plugin-build'
 project_release_xml = 'build-files/release-package.xml'
-buildAgentTemplate = 'JenkinsLinuxTemplate5'
 
 properties([
   parameters([
     string(name: 'CommitHash', defaultValue: ''),
     string(name: 'PortalId', defaultValue: ''),
-    string(name: 'PortalAddress', defaultValue: ''),
-    string(name: 'mode', defaultValue: 'release-classic')
+    string(name: 'PortalAddress', defaultValue: '')
   ])
 ])
 
@@ -22,48 +20,29 @@ try{
 	version_number = GetVersionNumber(version_key, project)
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
-    env.CI_REPO_RELATIVE = 'true' // builds are configured for Unified Pipeline
-    git_branch = "${env.BRANCH_NAME}"
-    if ( params.mode == 'coverage' || git_branch.endsWith('coverage') )
-    {
-        //coverage build in project_release_xml also runs static analysis, so we can publish the results in one place
-        //and we need not spin a separate machine just for the cppcheck.
-        parallel coverage_build:
-        {
-            echo 'Starting edr coverage build  on ' + git_branch
-            ArtisanBuild(
-                buildAgentTemplate,
-                project_release_xml,
-                'coverage',
-                version_number,
-                project_builddir)
-            echo 'Finished edr coverage build'
-        },
-        analysis_build:
-        {
-            echo 'Starting edr cppcheck build on ' + git_branch
-            ArtisanBuild(
-                buildAgentTemplate,
-                project_release_xml,
-                'analysis',
-                version_number,
-                project_builddir)
-            echo 'Finished edr cppcheck build'
-        }
-    }
-    else
-    {
-        echo 'Starting edr ' + params.mode + ' ' + git_branch + ' build'
+    parallel Build:{
         ArtisanBuild(
-            buildAgentTemplate,
+            params.CommitHash,
+            params.PortalId,
+            'Release',
+            project_builddir,
             project_release_xml,
-            params.mode,
-            version_number,
-            project_builddir
-            )
-        echo 'Finished edr  ' + params.mode + ' ' + git_branch + ' build'
-    }
-    SuccessfulBuild(project_release_xml)
+            'JenkinsLinuxTemplate1',
+			version_number,
+            'develop',
+            project_gitrepo,
+            "${env.BRANCH_NAME}",
+            'release')
+        }
+
+    SuccessfulBuild(
+		params.CommitHash,
+		params.PortalId,
+		params.PortalAddress,
+		'develop',
+		project_gitrepo,
+		"${env.BRANCH_NAME}",
+		project_release_xml)
 
 } catch(e){
     FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
