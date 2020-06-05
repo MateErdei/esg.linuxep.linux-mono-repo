@@ -162,7 +162,7 @@ namespace SulDownloader
         {
             LOGWARN("Verification of the downloaded products failed.");
             return DownloadReport::Report(
-                sourceURL, products, {}, &timeTracker, DownloadReport::VerifyState::VerifyFailed);
+                sourceURL, products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyFailed);
         }
 
         // design decision: do not install if any error happens before this time.
@@ -198,6 +198,7 @@ namespace SulDownloader
             sourceURL,
             products,
             warehouseRepository->listInstalledProducts(),
+            warehouseRepository->listInstalledSubscriptions(),
             &timeTracker,
             DownloadReport::VerifyState::VerifyCorrect);
     }

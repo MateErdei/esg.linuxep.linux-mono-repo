@@ -154,7 +154,7 @@ TEST_F( // NOLINT
     std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
     EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(
                         productList, m_mockWarehouseRepository);); // NOLINT
-    EXPECT_EQ(actualProductList.size(), 1);
+    ASSERT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
 
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));

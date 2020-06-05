@@ -279,6 +279,12 @@ namespace SulDownloader
 
         SelectedResultsIndexes selectedIndexes = selection.selectProducts(productMetadataList);
 
+        m_selectedSubscriptions.clear(); 
+        for( size_t index: selectedIndexes.selected_subscriptions){
+            auto & productMetadata = productMetadataList[index];            
+            m_selectedSubscriptions.push_back({productMetadata.getLine(), productMetadata.getVersion()}); 
+        }
+
         for (size_t index : selectedIndexes.selected)
         {
             LOGINFO("Product will be downloaded: " << productMetadataList[index].getLine());
@@ -644,6 +650,11 @@ namespace SulDownloader
     std::vector<suldownloaderdata::ProductInfo> WarehouseRepository::listInstalledProducts() const
     {
         return CatalogueInfo::calculatedListProducts(getProducts(), m_catalogueInfo);
+    }
+
+    std::vector<suldownloaderdata::SubscriptionInfo>  WarehouseRepository::listInstalledSubscriptions() const
+    {
+        return m_selectedSubscriptions; 
     }
 
     std::string WarehouseRepository::getProductDistributionPath(

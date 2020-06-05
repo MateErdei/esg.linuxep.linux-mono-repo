@@ -316,7 +316,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalled
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sourceurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sourceurl", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -416,7 +416,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sourceurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sourceurl", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -461,7 +461,7 @@ TEST_F( // NOLINT
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sourceurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sourceurl", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -484,7 +484,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
     std::vector<DownloadedProduct> products;
 
     auto report =
-        DownloadReport::Report("sourceurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sourceurl", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
 
@@ -536,8 +536,12 @@ TEST_F( // NOLINT
     warehouseComponents.push_back(ProductInfo{ downloadedProduct.getLine(),
                                                downloadedProduct.getProductMetadata().getName(),
                                                downloadedProduct.getProductMetadata().getVersion() });
+
+    std::vector<SubscriptionInfo> subscriptionComponents;
+    subscriptionComponents.push_back({ downloadedProduct.getLine(), downloadedProduct.getProductMetadata().getVersion() });
+
     auto report = DownloadReport::Report(
-        "sophosurl", products, warehouseComponents, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        "sophosurl", products, warehouseComponents, subscriptionComponents, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
 
@@ -596,7 +600,7 @@ TEST_F( // NOLINT
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sophosurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sophosurl", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::UNINSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Uninstall failed");
@@ -652,7 +656,7 @@ TEST_F( // NOLINT
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sophosurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sophosurl", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Update failed");
@@ -712,40 +716,49 @@ TEST_F(DownloadReportTest, shouldExtractTheWarehouseSubComponents)
 }
 
 
-TEST_F(DownloadReportTest, shouldNotThrowOnValidReportWhenAnUnkownFieldIsPresent)
+TEST_F(DownloadReportTest, shouldExtractTheSubscriptionComponents)
 {
     std::string serializedReportWithSubComponents{ R"sophos({
- "startTime": "20200608 162035",
- "finishTime": "20200608 162106",
- "syncTime": "20200608 162106",
- "status": "SUCCESS",
- "sulError": "",
- "errorDescription": "",
- "urlSource": "https://ostia.eng.sophos/latest/sspl-warehouse/master",
- "products": [
-  {
-   "rigidName": "ServerProtectionLinux-Base",
-   "productName": "Sophos Linux Base",
-   "downloadVersion": "1.0.0",
-   "errorDescription": "",
-   "productStatus": "UPGRADED"
-  }
- ],
- "warehouseComponents": [
-  {
-   "rigidName": "ServerProtectionLinux-Base",
-   "productName": "Sophos Linux Base",
-   "installedVersion": "1.0.0"
-  }
- ],
- "aNewEntryThatWasNotKNownBefore": [
-  {
-   "rigidName": "ServerProtectionLinux-Base",
-   "version": "1.0.0"
-  }
- ] 
+    "finishTime": "20180822 121220",
+    "status": "SUCCESS",
+    "sulError": "",
+    "products": [
+        {
+            "errorDescription": "",
+            "rigidName": "ServerProtectionLinux-Base",
+            "downloadVersion": "0.5.0",
+            "productStatus": "UPTODATE",
+            "productName": "ServerProtectionLinux-Base#0.5.0"
+        },
+        {
+            "errorDescription": "",
+            "rigidName": "ServerProtectionLinux-Plugin",
+            "downloadVersion": "0.5.0",
+            "productStatus": "UPTODATE",
+            "productName": "ServerProtectionLinux-Plugin#0.5"
+        }
+    ],
+    "warehouseComponents":[
+        { "rigidName" : "rn1", "productName": "p1", "installedVersion":"v1"},
+        { "rigidName" : "rn2", "productName": "p2", "installedVersion":"v2"}
+    ],
+    "subscriptionComponents":[
+        { "rigidName" : "subrn1", "version": "v1.2"},
+        { "rigidName" : "subrn2", "version": "v2.3"}
+    ],
+    "startTime": "20180822 121220",
+    "errorDescription": "",
+    "urlSource": "Sophos",
+    "syncTime": "20180821 121220"
 })sophos" };
-auto report = DownloadReport::toReport(serializedReportWithSubComponents); 
-EXPECT_EQ(report.getProducts().size(), 1); 
-
+    DownloadReport report = DownloadReport::toReport(serializedReportWithSubComponents);
+    std::vector<suldownloaderdata::SubscriptionInfo> subscriptionComponents = report.getSubscriptionComponents();
+    std::vector<suldownloaderdata::SubscriptionInfo> expected = { { "subrn1", "v1.2" }, { "subrn2", "v2.3" } };
+    EXPECT_EQ( subscriptionComponents, expected );
+    // serialization and deserialization preserves SubscriptionComponents
+    auto rerialized = DownloadReport::fromReport(report); 
+    DownloadReport report2 = DownloadReport::toReport(rerialized); 
+    subscriptionComponents = report2.getSubscriptionComponents();
+    EXPECT_EQ( subscriptionComponents, expected );
 }
+

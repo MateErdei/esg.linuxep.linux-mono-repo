@@ -72,6 +72,7 @@ namespace SulDownloader
                 const std::string& sourceURL,
                 const std::vector<suldownloaderdata::DownloadedProduct>& products,
                 const std::vector<suldownloaderdata::ProductInfo>& componentsToALCStatus,
+                const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
                 TimeTracker* timeTracker,
                 VerifyState verify);
 
@@ -100,6 +101,7 @@ namespace SulDownloader
             const std::vector<ProductReport>& getProducts() const;
 
             const std::vector<ProductInfo>& getWarehouseComponents() const;
+            const std::vector<SubscriptionInfo>& getSubscriptionComponents() const;
 
             const std::string getSourceURL() const;
 
@@ -120,6 +122,7 @@ namespace SulDownloader
 
             std::vector<ProductReport> m_productReport;
             std::vector<ProductInfo> m_warehouseComponents;
+            std::vector<SubscriptionInfo> m_subscriptionComponents; 
 
             bool m_processedReport;
 

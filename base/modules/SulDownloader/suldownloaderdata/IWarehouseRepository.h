@@ -24,6 +24,12 @@ namespace SulDownloader
             std::string m_version;
         };
 
+        struct SubscriptionInfo{
+            std::string rigidName; 
+            std::string version; 
+        };
+        bool operator==(const SubscriptionInfo & , const SubscriptionInfo &);
+
         /**
          * Interface for WarehouseRepository to enable tests.
          * For documentation, see WarehouseRepository.h
@@ -48,6 +54,7 @@ namespace SulDownloader
             virtual std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const = 0;
 
             virtual std::vector<ProductInfo> listInstalledProducts() const = 0;
+            virtual std::vector<suldownloaderdata::SubscriptionInfo> listInstalledSubscriptions() const = 0; 
         };
 
         using IWarehouseRepositoryPtr = std::unique_ptr<IWarehouseRepository>;

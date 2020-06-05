@@ -114,6 +114,13 @@ namespace SulDownloader
                 return report;
             }
 
+            static SulDownloader::suldownloaderdata::DownloadReport goodReportWithSubscriptions()
+            {
+                auto report = goodReport(); 
+                report.m_subscriptionComponents.push_back( {"ComponentSuite", "v1"}); 
+                return report; 
+            }
+
             static std::string goodReportString(UseTime useTime)
             {
                 auto report = goodReport(useTime);

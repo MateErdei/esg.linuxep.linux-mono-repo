@@ -23,6 +23,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace SulDownloader::suldownloaderdata;
 
+bool SulDownloader::suldownloaderdata::operator==(const SulDownloader::suldownloaderdata::SubscriptionInfo& lh, const SulDownloader::suldownloaderdata::SubscriptionInfo& rh)
+{
+    return lh.rigidName == rh.rigidName && lh.version == rh.version; 
+}
+
 namespace
 {
     SulDownloaderProto::ProductStatusReport_ProductStatus convert(ProductReport::ProductStatus productStatus)
@@ -104,6 +109,7 @@ namespace SulDownloader
         const std::string& sourceURL,
         const std::vector<suldownloaderdata::DownloadedProduct>& products,
         const std::vector<suldownloaderdata::ProductInfo>& warehouseComponents,
+        const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
         TimeTracker* timeTracker,
         VerifyState verifyState)
     {
@@ -157,6 +163,11 @@ namespace SulDownloader
         report.setTimings(*timeTracker);
 
         report.m_warehouseComponents = warehouseComponents;
+
+        for( auto & sub: subscriptionsToALCStatus)
+        {
+            report.m_subscriptionComponents.push_back( {sub.rigidName, sub.version} ); 
+        }
 
         return report;
     }
@@ -305,6 +316,13 @@ namespace SulDownloader
             warehouseComponentProto->set_installedversion(warehouseComponent.m_version);
         }
 
+        for( auto & subscriptionComponent : report.getSubscriptionComponents())
+        {
+            SulDownloaderProto::SubscriptionComponent * subscriptionComponentProto = protoReport.add_subscriptioncomponents(); 
+            subscriptionComponentProto->set_rigidname(subscriptionComponent.rigidName);
+            subscriptionComponentProto->set_version(subscriptionComponent.version);
+        }
+
         return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoReport);
     }
 
@@ -356,6 +374,14 @@ namespace SulDownloader
             productInfo.m_version = warehouseComponentProto.installedversion();
             report.m_warehouseComponents.push_back(productInfo);
         }
+
+        for (auto& SubscriptionInfoProto : protoReport.subscriptioncomponents())
+        {
+            SubscriptionInfo subscriptionInfo;
+            subscriptionInfo.rigidName = SubscriptionInfoProto.rigidname();
+            subscriptionInfo.version = SubscriptionInfoProto.version();
+            report.m_subscriptionComponents.push_back(subscriptionInfo);
+        }        
         report.m_processedReport = false; // default
 
         return report;
@@ -370,6 +396,7 @@ namespace SulDownloader
     const std::string DownloadReport::getSourceURL() const { return m_urlSource; }
 
     const std::vector<ProductInfo>& DownloadReport::getWarehouseComponents() const { return m_warehouseComponents; }
+    const std::vector<SubscriptionInfo>& DownloadReport::getSubscriptionComponents() const {return m_subscriptionComponents; }
 
     bool DownloadReport::isProcessedReport() const
     {

@@ -85,7 +85,7 @@ static boost::property_tree::ptree parseString(const std::string& input)
 }
 
 void TestSerializeStatus::runTest(const std::string& expectedXML, const UpdateStatus& status)
-{
+{    
     namespace pt = boost::property_tree;
     pt::ptree expectedTree = parseString(expectedXML);
 
@@ -109,4 +109,25 @@ TEST_F(TestSerializeStatus, SuccessStatus) // NOLINT
 TEST_F(TestSerializeStatus, FailedStatus) // NOLINT
 {
     runTest(normalStatusXML, getErrorStatus());
+}
+
+TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
+{
+static const std::string normalStatusWithDefinedSubscription{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
+<status xmlns="com.sophos\mansys\status" type="sau">
+    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
+    <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
+        <endpoint id="thisMachineID" />
+    </autoUpdate>
+    <subscriptions>
+        <subscription rigidName="ComponentSuite" version="v1" displayVersion="v1" />
+    </subscriptions>
+    <products>
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
+    </products>
+</status>)sophos" };    
+    DownloadReportsAnalyser::DownloadReportVector singleReport{ DownloadReportTestBuilder::goodReportWithSubscriptions() };
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(singleReport);
+
+    runTest(normalStatusWithDefinedSubscription,collectionResult.SchedulerStatus);
 }
