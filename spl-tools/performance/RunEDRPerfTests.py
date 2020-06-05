@@ -112,7 +112,7 @@ def get_current_date_time_string():
 
 
 def get_current_unix_epoch_in_seconds():
-    return time.time() * 1000
+    return time.time()
 
 
 def run_gcc_perf_test():
