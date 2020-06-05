@@ -17,7 +17,7 @@ warehouses:
                     -   base-version: ""
                         tag: BETA
                 subcomponents:
-                    sspl-base-component
+                    sspl-base-component:
                     sspl-liveterminal:
             sspl-edr:
                 import:
