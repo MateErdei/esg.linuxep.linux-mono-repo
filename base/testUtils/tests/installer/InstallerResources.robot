@@ -132,8 +132,30 @@ Check Telemetry Scheduler Is Running
     ${result} =     Run Process     pgrep  -f   tscheduler
     Should Be Equal As Integers     ${result.rc}    0
 
+Check Watchdog Not Running
+    ${result} =    Run Process  pgrep  sophos_watchdog
+    Should Not Be Equal As Integers    ${result.rc}    0
+
+Check Management Agent not Running
+    ${result} =     Run Process     pgrep  -f   sophos_managementagent
+    Should Not Be Equal As Integers     ${result.rc}    0
+
+Check Update Scheduler Not Running
+    ${result} =     Run Process     pgrep  -f   UpdateScheduler
+    Should Not Be Equal As Integers     ${result.rc}    0
+
+Check Telemetry Scheduler Plugin Not Running
+    ${result} =    Run Process  pgrep  tscheduler
+    Should Not Be Equal As Integers    ${result.rc}    0
+
 Check Expected Base Processes Are Running
     Check Watchdog Running
     Check Management Agent Running
     Check Update Scheduler Running
     Check Telemetry Scheduler Is Running
+
+Check Base Processes Are Not Running
+    Check Watchdog Not Running
+    Check Management Agent not Running
+    Check Update Scheduler Not Running
+    Check Telemetry Scheduler Plugin Not Running

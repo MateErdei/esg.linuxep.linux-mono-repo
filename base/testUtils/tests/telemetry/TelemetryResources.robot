@@ -119,11 +119,6 @@ Start Telemetry Scheduler
     Wait Until Keyword Succeeds  20 seconds  1 seconds   Check Telemetry Scheduler Is Running
 
 
-Check Telemetry Scheduler Plugin Not Running
-    ${result} =    Run Process  pgrep  tscheduler
-    Should Not Be Equal As Integers    ${result.rc}    0
-
-
 Check Telemetry Executable Is Running
     ${result} =    Run Process  pgrep  telemetry
     Should Be Equal As Integers    ${result.rc}    0

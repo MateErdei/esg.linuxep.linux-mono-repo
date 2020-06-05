@@ -81,6 +81,20 @@ Check MDR Plugin Uninstalled
     ...  1 secs
     ...  Check MTR Osquery Executable Not Running
 
+Check MDR component suite running
+    Directory Should Exist  ${MDR_PLUGIN_PATH}
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check MDR Plugin Running
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check SophosMTR Executable Running
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check MTR Osquery Executable Running
 
 Check MDR Plugin Running
     ${result} =    Run Process  pgrep  mtr

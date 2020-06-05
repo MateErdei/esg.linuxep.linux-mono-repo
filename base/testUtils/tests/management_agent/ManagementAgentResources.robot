@@ -67,11 +67,6 @@ Check Management Agent Running And Ready
     Check Log Contains More Than One Pair Of Strings In Order  Initializing Management Agent  Management Agent running  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  Management Agent Log
 
 
-Check Managementagent Not Running
-    ${result} =    Run Process  pgrep  -f  ${MANAGEMENT_AGENT}
-    Should Not Be Equal As Integers    ${result.rc}    0
-
-
 Check File Content
     [Arguments]     ${expectedFileContent}     ${pathToCheck}
     # check if mcs file has been created on disk
@@ -131,10 +126,6 @@ Check Status File
 Check Status Cache File
     [Arguments]     ${expectedFileContent}
     Check File With Wait  ${expectedFileContent}  ${SOPHOS_INSTALL}/base/mcs/status/cache
-
-Check Watchdog Not Running
-    ${result} =    Run Process  pgrep  sophos_watchdog
-    Should Not Be Equal As Integers    ${result.rc}    0
 
 Require Watchdog Running
     ${systemctlResult} =  Run Process   systemctl start sophos-spl   shell=yes
