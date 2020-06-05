@@ -748,7 +748,9 @@ TEST_F(ProductSelectionTest, SelectingComponentSuiteWithoutFeatures_ExpandToComp
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_Rec_MDR, CS_BASE_MDR });
+    // observe that we have changed the order to make the product that should be installed last the first one in the list.
+    // but the CS_BASE_MDR defines the components are first the Primary_Rec_CORE and than ProdA_Rec_MDR
+    auto warehouseProducts = simulateWarehouseContent({ProdA_Rec_MDR, Primary_Rec_CORE, CS_BASE_MDR });
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -757,12 +759,56 @@ TEST_F(ProductSelectionTest, SelectingComponentSuiteWithoutFeatures_ExpandToComp
     // CS_BASE_MDR is not selected as a product to download, but it will be available in the selected_subscriptions
     std::vector<size_t> notselected{ 2 }; 
     EXPECT_EQ(selectedProducts.notselected, notselected);
-    std::vector<size_t> selected{ 0, 1 };
+    // the selected, returns in the correct order that the products should be installed.
+    std::vector<size_t> selected{ 1, 0 };
     EXPECT_EQ(selectedProducts.selected, selected);
     
     std::vector<size_t> selected_subscriptions{ 2 };
     EXPECT_EQ(selectedProducts.selected_subscriptions, selected_subscriptions);
 }
+
+
+TEST_F(ProductSelectionTest, SelectingComponentSuiteWithoutFeatures_ExpandToComponentAndTheOrderCanBeControlledByTheNameOfTheSubComponents) // NOLINT
+{
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("", ""));
+
+    auto metadata = createTestProductMetaData(CS_BASE_MDR); 
+    ProductSubscription productSubscription{metadata.getLine(), "", "RECOMMENDED", ""}; 
+    configurationData.setProductsSubscription({}); 
+    configurationData.setPrimarySubscription(productSubscription); 
+    configurationData.setFeatures({"CORE","MDR"}); 
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    // observe that we have changed the order to make the product that should be installed last the first one in the list.
+    // but the CS_BASE_MDR defines the components are first the Primary_Rec_CORE and than ProdA_Rec_MDR
+    auto warehouseProducts = simulateWarehouseContent({ProdA_Rec_MDR, Primary_Rec_CORE, CS_BASE_MDR });
+
+    // because the component suite sets the order of the components as Primary_Rec_CORE, ProdA_Rec_MDR 
+    // That is the way the will be selected (last first)
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+    std::vector<size_t> selected{ 1, 0 };
+    EXPECT_EQ(selectedProducts.selected, selected);
+
+    // but if we were to change the rigidname of ProdA_REC_MDR to CS_Base_MDR_main_comp
+    // that will than be installed first. 
+    // the order is still Primary_Rec_CORE, CS_Base_MDR_maincomp as before, 
+    // but because the name contains the component suite, it will be bring forward
+    auto subproducts = productAsSubProducts({Primary_Rec_CORE, ProdA_Rec_MDR}); 
+    std::string newRigidName = "CS_Base_MDR_maincomp"; 
+    subproducts[1].m_line = newRigidName;    
+    warehouseProducts[0].setLine(newRigidName); 
+    warehouseProducts[2].setSubProduts(subproducts); 
+
+    selectedProducts = productSelection.selectProducts(warehouseProducts);
+    // see the order has changed to be 0, 1 instead of 1,0
+    selected = std::vector<size_t>{ 0, 1 };
+    EXPECT_EQ(selectedProducts.selected, selected);    
+
+}
+
+
 
 TEST_F(ProductSelectionTest, SelectingComponentSuiteWithFeatures_DoesNotExpandToComponent) // NOLINT
 {
@@ -805,8 +851,7 @@ TEST_F(ProductSelectionTest, SelectingComponentSuiteWithFeaturesButBase_ExpandTo
     configurationData.setFeatures({"CORE","MDR"}); 
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
-
-    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_Rec_MDR, ServerProtectionForLinux_Base });
+    auto warehouseProducts = simulateWarehouseContent({ProdA_Rec_MDR, Primary_Rec_CORE, ServerProtectionForLinux_Base });
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -815,13 +860,14 @@ TEST_F(ProductSelectionTest, SelectingComponentSuiteWithFeaturesButBase_ExpandTo
     // ServerProtectionForLinux_Base has not been selected to download directly only its subcomponents
     std::vector<size_t> notselected{ 2 }; 
     EXPECT_EQ(selectedProducts.notselected, notselected);
-    std::vector<size_t> selected{ 0, 1 };
+    std::vector<size_t> selected{ 1, 0 };
     EXPECT_EQ(selectedProducts.selected, selected);
 
     std::vector<size_t> selected_subscriptions{ 2 };
     EXPECT_EQ(selectedProducts.selected_subscriptions, selected_subscriptions);
-
 }
+
+
 
 
 TEST_F(ProductSelectionTest, ComponentSuitesWithoutAnySelectedProductShouldNotBeReportedAsSelected) // NOLINT
