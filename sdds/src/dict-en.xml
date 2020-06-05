@@ -12,6 +12,15 @@
     </Identity>
     <Identity>
       <Label>
+        <Token>ServerProtectionLinux-Base-component</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Base component</LongDesc>
+          <ShortDesc>SSPL Base component</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
         <Token>ServerProtectionLinux-Plugin-liveresponse</Token>
         <Language lang="en">
           <LongDesc>ServerProtectionLinux Plugin live response</LongDesc>
