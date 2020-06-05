@@ -130,16 +130,24 @@ namespace
     SubscriptionToProductsMapSelector::SubscriptionToProductsMapSelector(ProductMetadata productSubscriptionMetaData) :
             m_productSubscriptionMetaData(std::move(productSubscriptionMetaData))
     {
-        if (!m_productSubscriptionMetaData.subProducts().empty() && 
-            m_productSubscriptionMetaData.getLine() != "ServerProtectionLinux-Base")
+        if ( m_productSubscriptionMetaData.subProducts().empty())
+        {
+            m_matchOriginal = true; 
+        }
+        else
+        {
+            if (m_productSubscriptionMetaData.getFeatures().empty())
             {
                 m_matchOriginal = false; 
             }
             else
             {
-                m_matchOriginal = true; 
-            }
-            
+                // this should be true: match the original, as there are features associated with the component suite. 
+                // but a special case has to be made to ServerProtectionLinux-Base to handle transition where the old-version of 
+                // suldownloader needs to be used for upgrading (hence, features will be associated with that rigidname for some time.)
+                m_matchOriginal = m_productSubscriptionMetaData.getLine() != "ServerProtectionLinux-Base"; 
+            }                        
+        }            
     }
 
     std::string SubscriptionToProductsMapSelector::targetProductName() const { return m_productSubscriptionMetaData.getLine(); }
@@ -232,6 +240,7 @@ namespace SulDownloader
                 selectedSubscriptionsIndex.addIndexes(selectedIndexes);
             }
         }
+        
         LOGDEBUG("Selected "<< selectedSubscriptionsIndex.values().size() << " subscriptions total");
         for( auto & index : selectedSubscriptionsIndex.values())
         {
@@ -245,6 +254,13 @@ namespace SulDownloader
             auto selectedIndexes = selectedProducts( SubscriptionToProductsMapSelector(warehouseProducts[index]), warehouseProducts ); 
             selectedProductsIndex.addIndexes(selectedIndexes); 
         }
+
+        for( auto & index : selectedProductsIndex.values())
+        {
+             const auto& warehouseProduct = warehouseProducts[index];
+             LOGDEBUG("Selected Product Indexes after Map Subscription to Product: " << warehouseProduct.getName()); 
+        }
+
 
         StableSetIndex secondSelection(warehouseProducts.size());
         bool atLeastOneHasCore = false;

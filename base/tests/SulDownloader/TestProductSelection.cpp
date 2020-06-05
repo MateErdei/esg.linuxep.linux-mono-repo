@@ -246,7 +246,7 @@ public:
 
         if (productItem == ServerProtectionForLinux_Base)
         {
-            metadata.setLine("ServerProtectionForLinux-Base"); // with features, but special case for 
+            metadata.setLine("ServerProtectionLinux-Base"); // with features, but special case for 
             metadata.setVersion("1.1.2"); 
             metadata.setName("ComponentSuite-WithFeaturesSpecialCase"); 
             Tag tag("RECOMMENDED", "9", "RECOMMENDED");
