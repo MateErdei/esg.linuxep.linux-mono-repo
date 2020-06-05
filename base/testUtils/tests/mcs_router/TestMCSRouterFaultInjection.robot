@@ -58,7 +58,9 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
 
     Stop MCSRouter
 
-    Remove File  /opt/sophos-spl/logs/base/suldownloader.log
+    Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Create Fake Suldownloader That Will Take A While To Finish
 
     ${temp_dir} =  add_temporary_directory  staging
     Create File   ${temp_dir}/template    content=<?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>
@@ -75,10 +77,6 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
     \  Copy File And Send It To MCS Actions folder  ${temp_dir}/template
     \  sleep  0.01s
 
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check Suldownloader Log Contains  Update failed, with code: 112
     Check Managementagent Log Contains String N Times  Action /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml sent to 1 plugins  ${Actions_to_send}
     Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  2
     ${Expected_sul_already_running_logs} =  Evaluate    ${Actions_to_send} - 1
@@ -166,10 +164,12 @@ Copy File And Send It To MCS Actions folder
     ${directory} =  Get Dirname Of Path  ${file}
     ${basename} =  Get Basename Of Path  ${file}
 
-    Copy File  ${file}    ${directory}/${basename}-copy
-    ${r} =  Run Process  chown  sophos-spl-user:sophos-spl-group  ${directory}/${basename}-copy
+    Copy File  ${file}    ${SOPHOS_INSTALL}/${basename}-copy
+    ${r} =  Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/${basename}-copy
     Should Be Equal As Strings  ${r.rc}  0
-    Move File  ${directory}/${basename}-copy  /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml
+    #We use mv as a subprocess because robot's "Move File" sometimes copies
+    ${r} =  Run Process  mv  ${SOPHOS_INSTALL}/${basename}-copy   /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml
+    Should Be Equal As Strings  ${r.rc}  0
 
 Suite Setup
     Start Local Cloud Server
@@ -182,7 +182,7 @@ Test Setup
     Cleanup Local Cloud Server Logs
 
     create file  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
-    Register With Fake Cloud
+    Register With Fake Cloud Without Starting MCSRouter
 
 Test Teardown
     Check MCSRouter Does Not Contain Critical Exceptions
@@ -207,3 +207,12 @@ Test Teardown
 Test Teardown With Mount Removal
     Cleanup mount
     Test Teardown
+
+Create Fake Suldownloader That Will Take A While To Finish
+    ${script} =     Catenate    SEPARATOR=\n
+    ...    \#!/bin/bash
+    ...    sleep 10"
+    ...    \
+    Create File  ${SOPHOS_INSTALL}/tmp/fakeSuldownloader  content=${script}
+    Chmod  555  ${SOPHOS_INSTALL}/tmp/fakeSuldownloader
+    Move File  ${SOPHOS_INSTALL}/tmp/fakeSuldownloader   ${SOPHOS_INSTALL}/base/bin/SulDownloader

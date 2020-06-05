@@ -242,7 +242,11 @@ Install Register And Wait First MCS Policy With MCS Policy
     Wait New MCS Policy Downloaded
 
 Register With Fake Cloud
+    Register With Fake Cloud Without Starting MCSRouter
+    Start MCSRouter
+
+Register With Fake Cloud Without Starting MCSRouter
     Should Exist  ${REGISTER_CENTRAL}
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
-    Start MCSRouter
+    Check Correct MCS Password And ID For Local Cloud Saved
