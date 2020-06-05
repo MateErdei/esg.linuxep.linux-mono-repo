@@ -2,8 +2,8 @@
 ---
 sspl-base:
     build:
-        branch: abelard
-        name: sspl-edr-componentsuite
+        branch: feature-LINUXDAR-1649-create-base-component-suite
+        name: sspl-componentsuite
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base
     line-id: ServerProtectionLinux-Base
