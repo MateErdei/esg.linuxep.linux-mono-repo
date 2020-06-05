@@ -6,7 +6,7 @@ version_key = '1.0.1'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-edr-component.git'
 project_builddir = 'sspl-plugin-edr-component-build'
 project_release_xml = 'build-files/release-package.xml'
-buildAgentTemplate = 'JenkinsLinuxTemplate5'
+buildAgentTemplate = 'JenkinsLinuxTemplate3'
 
 properties([
   parameters([
@@ -23,42 +23,47 @@ try{
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     git_branch = "${env.BRANCH_NAME}"
-    if ( params.mode == 'coverage' || git_branch.endsWith('coverage') )
+    if ( git_branch == 'develop' ||
+          params.mode == 'coverage' || git_branch.endsWith('coverage') )
     {
-        parallel coverage_build:
+        parallel release_build:
         {
-            echo 'Starting edr coverage build  on ' + git_branch
+            echo 'Starting edr develop release builds'
             ArtisanBuild(
                 buildAgentTemplate,
+                project_release_xml,
+                'release',
+                version_number,
+                project_builddir)
+            echo 'Finished edr develop release build'
+        },
+        coverage_build:
+        {
+            echo 'Starting edr develop coverage build'
+            ArtisanBuild(
+                'JenkinsLinuxTemplate3',
                 project_release_xml,
                 'coverage',
                 version_number,
                 project_builddir)
-            echo 'Finished edr coverage build'
+            echo 'Finished edr develop coverage build'
         },
         coverity_build:
         {
-            echo 'Starting edr coverity build on ' + git_branch
+            echo 'Starting edr develop coverage build'
             ArtisanBuild(
-                buildAgentTemplate,
+                'JenkinsLinuxTemplate3',
                 project_release_xml,
                 'coverity',
                 version_number,
                 project_builddir)
-            echo 'Finished edr coverity build'
+            echo 'Finished edr develop coverage build'
         }
     }
     else
     {
-        echo 'Starting edr ' + params.mode + ' ' + git_branch + ' build'
-        ArtisanBuild(
-            buildAgentTemplate,
-            project_release_xml,
-            params.mode,
-            version_number,
-            project_builddir
-            )
-        echo 'Finished edr  ' + params.mode + ' ' + git_branch + ' build'
+        echo 'Starting ticket branch edr build'
+        ArtisanBuild(buildAgentTemplate, project_release_xml, params.mode, version_number, project_builddir)
     }
     SuccessfulBuild(project_release_xml)
 
