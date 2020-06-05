@@ -76,54 +76,6 @@ def get_metrics(hostname, from_timestamp, to_timestamp, es):
     from_datetime = datetime.utcfromtimestamp(from_timestamp)
     to_datetime = datetime.utcfromtimestamp(to_timestamp)
 
-    query_body = {   "query": {
-        "match": {
-            "agent.hostname": hostname
-        }
-    },
-
-        "aggs": {
-            "task_time_range": {
-                "filter": {
-                    "range": {
-                        "@timestamp": {
-                            "gte": from_datetime,
-                            "lte": to_datetime
-                        }
-                    }
-                },
-                "aggs": {
-                    "avg_cpu": {
-                        "avg": {
-                            "field": "system.cpu.total.pct"
-                        }
-                    },
-                    "max_cpu": {
-                        "max": {
-                            "field": "system.cpu.total.pct"
-                        }
-                    },
-                    "avg_mem": {
-                        "avg": {
-                            "field": "system.memory.used.bytes"
-                        }
-                    },
-                    "max_mem": {
-                        "max": {
-                            "field": "system.memory.used.bytes"
-                        }
-                    },
-                    "min_mem": {
-                        "min": {
-                            "field": "system.memory.used.bytes"
-                        }
-                    }
-                },
-
-            }
-        }
-    }
-
     metrics_index = "metric*"
     res_metrics = es.search(index=metrics_index,
                             body={
