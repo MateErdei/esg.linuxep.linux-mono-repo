@@ -29,7 +29,7 @@ try{
             project_release_xml,
             'JenkinsLinuxTemplate1',
 			version_number,
-            'master',
+            'develop',
             project_gitrepo,
             "${env.BRANCH_NAME}",
             'release')
@@ -39,7 +39,7 @@ try{
 		params.CommitHash,
 		params.PortalId,
 		params.PortalAddress,
-		'master',
+		'develop',
 		project_gitrepo,
 		"${env.BRANCH_NAME}",
 		project_release_xml)
