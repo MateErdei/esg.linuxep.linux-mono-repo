@@ -7,3 +7,4 @@ asyncio
 aiohttp
 aiohttp_sse
 python-dateutil
+websockets

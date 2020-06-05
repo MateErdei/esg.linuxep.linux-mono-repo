@@ -22,13 +22,10 @@ def create_live_response_action(wss_url="wss://lr.url/", thumbprint="thumbprint"
             <appId>LiveTerminal</appId>
             <creationTime>FakeTime</creationTime>
             <ttl>PT10000S</ttl>'
-            <body>
-                &lt;?xml version='1.0'?&gt;
-                &lt;action type="sophos.mgt.action.InitiateLiveTerminal"&gt;
-                &lt;url&gt;{wss_url}&lt;/url&gt;
-                &lt;thumbprint&gt;{thumbprint}&lt;/thumbprint&gt;
-                &lt;/action&gt;                
-            </body>
+            <body>&lt;?xml version="1.0"?&gt;&lt;action type="sophos.mgt.action.InitiateLiveTerminal"&gt;&lt;url&gt;{wss_url}&lt;/url&gt; \
+                        &lt;thumbprint&gt;{thumbprint}&lt;/thumbprint&gt; \
+                                        &lt;/action&gt; \
+                                         </body>
             </command>
         </ns:commands>"""
 

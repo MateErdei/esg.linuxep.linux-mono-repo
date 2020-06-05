@@ -46,6 +46,7 @@ Global Setup Tasks
     Set Global Variable  ${UPDATE_DIR}                  ${SOPHOS_INSTALL}/base/update
     Set Global Variable  ${MTR_DIR}                     ${SOPHOS_INSTALL}/plugins/mtr
     Set Global Variable  ${EDR_DIR}                     ${SOPHOS_INSTALL}/plugins/edr
+    Set Global Variable  ${LIVERESPONSE_DIR}            ${SOPHOS_INSTALL}/plugins/liveresponse
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update
