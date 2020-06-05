@@ -18,7 +18,8 @@ class WebsocketWrapper:
 
     def start_websocket_server(self, port=443):
         print("staring websocket server")
-        self._server = LTserver.LTServerImpl('localhost', port, certificates.CERTIFICATE_PEM, log_dir="/tmp/")
+        self._server = LTserver.LTServerImpl('localhost', port, certificates.CERTIFICATE_PEM, log_dir=LTserver.THIS_DIR)
+        self._log_path = self._server.logfile
         self._server.start()
         return self._server
 
@@ -33,11 +34,21 @@ class WebsocketWrapper:
             self._server.join()
 
     def match_message(self, message, path):
-        assert self._server.match_message(message,path)
+        assert self._server.match_message(message, path)
+
+    def liveterminal_server_log_file(self):
+        return self._log_path
 
     def send_message_with_newline(self, message, path):
         self._server.send_message_with_newline(message, path)
 
+    @staticmethod
+    def install_lt_server_certificates():
+        certificates.InstallCertificates.install_certificate()
+
+    @staticmethod
+    def uninstall_lt_server_certificates():
+        certificates.InstallCertificates.uninstall_certificate()
 
 if __name__ == "__main__":
     wbs = WebsocketWrapper()

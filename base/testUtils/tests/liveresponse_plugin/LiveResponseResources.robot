@@ -31,3 +31,14 @@ Live Response Plugin Log Contains
     File Should Exist  ${LIVE_RESPONSE_LOG_FILE}
     ${fileContent}=  Get File  ${LIVE_RESPONSE_LOG_FILE}
     Should Contain  ${fileContent}    ${TextToFind}
+
+Check Liveresponse Agent Executable is Not Running
+    ${result} =    Run Process  pgrep  -a  sophos-live-terminal
+    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\n err: ${result.stderr}"
+
+Restart Liveresponse Plugin
+    [Arguments]  ${clearLog}=False
+    Wdctl Stop Plugin  liveresponse
+    Run Keyword If   ${clearLog}   Remove File  ${LIVERESPONSE_DIR}/log/liveresponse.log
+    Wdctl Start Plugin  liveresponse
