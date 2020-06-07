@@ -9,6 +9,7 @@ Library     String
 Library     OperatingSystem
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../mcs_router/McsPushClientResources.robot
+Resource    ../management_agent/ManagementAgentResources.robot
 Resource  LiveResponseResources.robot
 
 
@@ -96,7 +97,7 @@ Liveresponse Test Teardown
 
 Liveresponse Suite Setup
     Install LT Server Certificates
-    Cleanup Local Cloud Server Logs
+    LiveResponseResources.Setup Tmp Dir
     Start MCS Push Server
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Set Local CA Environment Variable

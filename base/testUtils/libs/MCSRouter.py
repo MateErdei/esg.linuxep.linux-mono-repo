@@ -186,7 +186,9 @@ class MCSRouter(object):
         self.tmp_path = os.path.join(".", "tmp")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.cloud_std_err = self.cloud_server_log + '1'
-        self.cloud_std_handler = open(self.cloud_std_err, 'w')
+        self.cloud_std_handler = None
+        if os.path.exists(self.tmp_path):
+            self.cloud_std_handler = open(self.cloud_std_err, 'w')
         self.local_mcs_token = "ThisIsARegToken"
         self.local_mcs_URL = "https://localhost:4443/mcs"
         self.local_proxy_port = 20000
@@ -219,7 +221,8 @@ class MCSRouter(object):
         self.mcs_policy_time = None
 
     def __del__(self):
-        self.cloud_std_handler.close()
+        if self.cloud_std_handler:
+            self.cloud_std_handler.close()
 
     def _mcsrouter_exec_log(self):
         return os.path.join(self.tmp_path, 'mcsrouter_exec.log')
