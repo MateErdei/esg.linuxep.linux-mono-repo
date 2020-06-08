@@ -9,6 +9,7 @@ warehouses:
                     # The version used here is just an identifier and does not need to match the actual version of the product for ostia.
                     # Means we dont have to keep updating the metadata for the build numbers....
                     version: "1.0.0"
+                features: [CORE]
                 platforms: []
                 release-tags:
                     -   base-version: ""
