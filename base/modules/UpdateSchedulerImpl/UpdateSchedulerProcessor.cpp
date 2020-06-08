@@ -34,6 +34,21 @@ Copyright 2018-2019 Sophos Limited.  All rights reserved.
 
 using namespace std::chrono;
 
+namespace{
+    //FIXME: remove after LINUXDAR-1942
+    bool detectedUpgradeWithBrokenLiveResponse()
+    {
+        auto fs = Common::FileSystem::fileSystem(); 
+        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse")
+        && !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
+        {
+            LOGINFO("Upgrade to new warehouse structure detected. Triggering a new out-of-sync update"); 
+            return true; 
+        }
+        return false; 
+    }
+}
+
 namespace UpdateSchedulerImpl
 {
     using SettingsHolder = UpdateSchedulerImpl::configModule::SettingsHolder;
@@ -334,6 +349,14 @@ namespace UpdateSchedulerImpl
     {
         auto iFileSystem = Common::FileSystem::fileSystem();
         bool remainingReportToProcess{ false };
+
+        if (detectedUpgradeWithBrokenLiveResponse())
+        {
+            UpdateScheduler::SchedulerTask task; 
+            task.taskType = UpdateScheduler::SchedulerTask::TaskType::ScheduledUpdate; 
+            m_queueTask->push(UpdateScheduler::SchedulerTask{task} ); 
+            return std::string(); 
+        }        
 
         if (processLatestReport)
         {

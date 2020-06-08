@@ -445,6 +445,8 @@ public:
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs")).WillRepeatedly(Return(true));
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs/rootca.crt")).WillRepeatedly(Return(true));
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs/ps_rootca.crt")).WillRepeatedly(Return(true));
+        // FIXME: remove after LINUXDAR-1942
+        EXPECT_CALL(*pointer, exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse")).WillRepeatedly(Return(false));
 
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;

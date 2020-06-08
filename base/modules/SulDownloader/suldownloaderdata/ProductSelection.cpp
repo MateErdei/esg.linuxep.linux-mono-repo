@@ -137,6 +137,7 @@ namespace
             }
             else
             {
+                // FIXME: adjust this after LINUXDAR-1942
                 // this should be false: do not expand the component suite as there are features associated with the component suite. 
                 // but a special case has to be made to ServerProtectionLinux-Base to handle transition where the old-version of 
                 // suldownloader needs to be used for upgrading (hence, features will be associated with that rigidname for some time.)
