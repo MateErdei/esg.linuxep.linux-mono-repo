@@ -90,6 +90,11 @@ Check Diagnose Output For Additional MDR Plugin File
     Should Contain  ${MTRVersionFile}    VERSION.ini
     Should Contain  ${MTRDBOSVersionFile}    VERSION.ini
 
+Check Diagnose Output For Additional LR Plugin Files
+    ${LRLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/
+    Should Contain   ${LRLogFiles}   liveresponse.log
+    Should Contain   ${LRLogFiles}   session.log
+
 Check Diagnose Output For System Command Files
     ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/SystemFiles
     Should Contain  ${Files}    df
@@ -150,3 +155,8 @@ Mimic MDR Component Files
     [Arguments]     ${installLocation}
     Create File  ${installLocation}/plugins/mtr/dbos/data/logs/some.log.file
     Create File  ${installLocation}/plugins/mtr/dbos/data/osquery.flags
+
+Mimic LR Component Files
+    [Documentation]  Creates files to simulate LR plugin being installed and run
+    [Arguments]     ${installLocation}
+    Create File  ${installLocation}/plugins/liveresponse/log/session.log
