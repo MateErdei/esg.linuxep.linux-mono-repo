@@ -43,7 +43,8 @@ Restart Liveresponse Plugin
     Run Keyword If   ${clearLog}   Remove File  ${LIVERESPONSE_DIR}/log/liveresponse.log
     Wdctl Start Plugin  liveresponse
 
-Setup Tmp Dir
-    Set Suite Variable   ${TMP_DIR}   ./tmp
-    Remove Directory    ${TMP_DIR}   recursive=True
-    Create Directory    ${TMP_DIR}
+Setup Suite Tmp Dir
+    [Arguments]    ${directory_path}
+    Set Suite Variable   ${SUITE_TMP_DIR}   ${directory_path}
+    Remove Directory    ${SUITE_TMP_DIR}   recursive=True
+    Create Directory    ${SUITE_TMP_DIR}

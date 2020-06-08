@@ -96,11 +96,20 @@ Liveresponse Test Teardown
 
 
 Liveresponse Suite Setup
+    Setup Base FakeCloud And FakeCentral-LT Servers
+    Install Live Response Directly
+
+Liveresponse Suite Teardown
+    Uninstall SSPL
+    uninstall LT Server Certificates
+
+Setup Base FakeCloud And FakeCentral-LT Servers
     Install LT Server Certificates
-    LiveResponseResources.Setup Tmp Dir
+    Setup Suite Tmp Dir   ./tmp
     Start MCS Push Server
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Set Local CA Environment Variable
+
     Require Fresh Install
     create file  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     Register With Local Cloud Server
@@ -108,8 +117,3 @@ Liveresponse Suite Setup
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log   liveresponse   DEBUG
 
     Wait New MCS Policy Downloaded
-    Install Live Response Directly
-
-Liveresponse Suite Teardown
-    Uninstall SSPL
-    uninstall LT Server Certificates
