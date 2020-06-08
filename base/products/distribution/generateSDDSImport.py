@@ -182,7 +182,7 @@ def getFeatureList():
 
 
 def getRigidName():
-    return getVariable("PRODUCT_LINE_ID", "RIGID_NAME", "Rigid name", "ServerProtectionLinux-Base")
+    return getVariable("PRODUCT_LINE_ID", "RIGID_NAME", "Rigid name", "ServerProtectionLinux-Base-component")
 
 def get_sdds_import_tempate():
 

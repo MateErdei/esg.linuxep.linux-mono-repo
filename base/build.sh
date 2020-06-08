@@ -1,7 +1,7 @@
 #!/bin/bash
 PRODUCT=sspl-base
 export PRODUCT_NAME="Sophos Server Protection Linux - Base"
-export PRODUCT_LINE_ID="ServerProtectionLinux-Base"
+export PRODUCT_LINE_ID="ServerProtectionLinux-Base-component"
 export DEFAULT_HOME_FOLDER="sspl-base"
 
 FAILURE_INPUT_NOT_AVAILABLE=50
