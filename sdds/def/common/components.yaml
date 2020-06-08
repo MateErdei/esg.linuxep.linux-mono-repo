@@ -9,7 +9,7 @@ sspl-base:
     line-id: ServerProtectionLinux-Base
 sspl-base-component:
     build:
-        branch: abelard
+        branch: feature-LINUXDAR-1649-add-suldownloader-for-component-suite-without-features
         name: sspl-base
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base-component
