@@ -39,6 +39,8 @@ Kill Sophos Processes That Arent Watchdog
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
     ${result} =  Run Process   pgrep   tscheduler
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
+    ${result} =  Run Process   pgrep   liveresponse
+    Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
 
 Kill Sophos Processes
     ${result} =  Run Process   pgrep   sophos_watchdog
