@@ -11,10 +11,13 @@ EXIT_FAIL_DIR_MARKER=18
 EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_REGISTER=30
 EXIT_FAIL_SERVICE=40
+EXIT_FAIL_WRONG_LIBC_VERSION=50
 
 umask 077
 
-PRODUCT_LINE_ID="ServerProtectionLinux-Base"
+PRODUCT_LINE_ID="ServerProtectionLinux-Base-component"
+BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
+system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -217,6 +220,17 @@ if [[ $(id -u) != 0 ]]
 then
     failure ${EXIT_FAIL_NOT_ROOT} "Please run this installer as root."
 fi
+
+function build_version_less_than_system_version()
+{
+    test "$(printf '%s\n' ${BUILD_LIBC_VERSION} ${system_libc_version} | sort -V | head -n 1)" != ${BUILD_LIBC_VERSION}
+}
+
+if build_version_less_than_system_version
+then
+    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
+fi
+
 
 export DIST
 export SOPHOS_INSTALL
