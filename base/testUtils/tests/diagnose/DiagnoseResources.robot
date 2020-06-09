@@ -93,7 +93,7 @@ Check Diagnose Output For Additional MDR Plugin File
 Check Diagnose Output For Additional LR Plugin Files
     ${LRLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/
     Should Contain   ${LRLogFiles}   liveresponse.log
-    Should Contain   ${LRLogFiles}   session.log
+    Should Contain   ${LRLogFiles}   sessions.log
 
 Check Diagnose Output For System Command Files
     ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/SystemFiles
