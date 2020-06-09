@@ -19,7 +19,8 @@ echo [global] > pip.conf
 echo index-url = https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple >> pip.conf
 echo cert = $SCRIPTDIR/sophos_certs.pem >> pip.conf
 
-python3 -m pip install build_scripts || failure "Unable to install build_scripts"
+python3 -m pip install --upgrade build_scripts || failure "Unable to install build_scripts"
+python3 -m pip install --upgrade keyrings.alt || failure "Unable to install dependency"
 popd
 rm -rf ~/.config/pip/
 
