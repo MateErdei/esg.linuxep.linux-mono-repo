@@ -23,11 +23,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace SulDownloader::suldownloaderdata;
 
-bool SulDownloader::suldownloaderdata::operator==(const SulDownloader::suldownloaderdata::SubscriptionInfo& lh, const SulDownloader::suldownloaderdata::SubscriptionInfo& rh)
-{
-    return lh.rigidName == rh.rigidName && lh.version == rh.version; 
-}
-
 namespace
 {
     SulDownloaderProto::ProductStatusReport_ProductStatus convert(ProductReport::ProductStatus productStatus)
@@ -82,6 +77,19 @@ namespace
 } // namespace
 namespace SulDownloader
 {
+    namespace suldownloaderdata
+    {
+        ProductReport::ProductStatus ProductReport::maxProductStatus( ProductReport::ProductStatus lh, ProductReport::ProductStatus rh)
+        {
+            int i_lh = static_cast<int>(lh); 
+            int i_rh = static_cast<int>(rh); 
+            int i_max = std::max(i_lh, i_rh); 
+            return static_cast<ProductStatus>(i_max);             
+        }
+
+    }
+
+
     using namespace Common::UtilityImpl;
     DownloadReport::DownloadReport() : m_status(WarehouseStatus::UNSPECIFIED) {}
 
@@ -101,7 +109,7 @@ namespace SulDownloader
             report.m_description = "";
         }
         report.m_urlSource = warehouse.getSourceURL();
-        report.setProductsInfo(warehouse.getProducts(), report.m_status);
+        report.m_productReport = combineProductsAndSubscriptions(warehouse.getProducts(), warehouse.listInstalledSubscriptions(), report.m_status); 
         return report;
     }
 
@@ -145,7 +153,7 @@ namespace SulDownloader
             }
         }
 
-        report.setProductsInfo(products, report.m_status);
+        report.m_productReport = combineProductsAndSubscriptions(products, subscriptionsToALCStatus, report.m_status);
 
         if (verifyState == VerifyState::VerifyFailed)
         {
@@ -163,11 +171,6 @@ namespace SulDownloader
         report.setTimings(*timeTracker);
 
         report.m_warehouseComponents = warehouseComponents;
-
-        for( auto & sub: subscriptionsToALCStatus)
-        {
-            report.m_subscriptionComponents.push_back( {sub.rigidName, sub.version} ); 
-        }
 
         return report;
     }
@@ -219,11 +222,12 @@ namespace SulDownloader
 
     const std::vector<ProductReport>& DownloadReport::getProducts() const { return m_productReport; }
 
-    void DownloadReport::setProductsInfo(
+    std::vector<ProductReport> DownloadReport::combineProductsAndSubscriptions(
         const std::vector<suldownloaderdata::DownloadedProduct>& products,
+        const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsInfo,
         const WarehouseStatus& warehouseStatus)
     {
-        m_productReport.clear();
+        std::unordered_map<std::string, ProductReport> productReport;
         for (auto& product : products)
         {
             ProductReport productReportEntry;
@@ -261,9 +265,54 @@ namespace SulDownloader
                     productReportEntry.productStatus = ProductReport::ProductStatus::Uninstalled;
                 }
             }
-
-            m_productReport.push_back(productReportEntry);
+            productReport[productReportEntry.rigidName] = productReportEntry;
         }
+
+        std::vector<ProductReport> productsRep; 
+        for(auto & subscriptionInfo: subscriptionsInfo)
+        {
+            auto found = productReport.find(subscriptionInfo.rigidName); 
+            if ( found != productReport.end() )
+            {
+                productsRep.push_back(found->second); 
+            }
+            else
+            {
+                ProductReport productReportEntry;
+                productReportEntry.rigidName = subscriptionInfo.rigidName; 
+                productReportEntry.downloadedVersion = subscriptionInfo.version; 
+                productReportEntry.name = subscriptionInfo.rigidName; 
+                std::string combinedError;
+                ProductReport::ProductStatus combinedStatus{ProductReport::ProductStatus::UpToDate}; 
+
+                for( auto & subComp : subscriptionInfo.subProducts)
+                {
+                    auto subComponentProduct = productReport.find(subComp.m_line);
+                    if ( subComponentProduct!= productReport.end())
+                    {
+                        const std::string& error{subComponentProduct->second.errorDescription };
+                        suldownloaderdata::ProductReport::ProductStatus status=subComponentProduct->second.productStatus; 
+
+                        if (!error.empty()){
+                            if ( combinedError.empty())
+                            {
+                                combinedError = error; 
+                            }
+                            else
+                            {
+                                combinedError += ". " + error; 
+                            }                            
+                        }
+                        combinedStatus = ProductReport::maxProductStatus(combinedStatus, status); 
+                    }
+                }
+                productReportEntry.productStatus = combinedStatus;
+                productReportEntry.errorDescription = combinedError; 
+                productsRep.push_back(productReportEntry); 
+            }            
+        }
+
+        return productsRep; 
     }
 
     void DownloadReport::setTimings(const TimeTracker& timeTracker)
@@ -314,13 +363,6 @@ namespace SulDownloader
             warehouseComponentProto->set_productname(warehouseComponent.m_productName);
             warehouseComponentProto->set_rigidname(warehouseComponent.m_rigidName);
             warehouseComponentProto->set_installedversion(warehouseComponent.m_version);
-        }
-
-        for( auto & subscriptionComponent : report.getSubscriptionComponents())
-        {
-            SulDownloaderProto::SubscriptionComponent * subscriptionComponentProto = protoReport.add_subscriptioncomponents(); 
-            subscriptionComponentProto->set_rigidname(subscriptionComponent.rigidName);
-            subscriptionComponentProto->set_version(subscriptionComponent.version);
         }
 
         return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoReport);
@@ -375,13 +417,6 @@ namespace SulDownloader
             report.m_warehouseComponents.push_back(productInfo);
         }
 
-        for (auto& SubscriptionInfoProto : protoReport.subscriptioncomponents())
-        {
-            SubscriptionInfo subscriptionInfo;
-            subscriptionInfo.rigidName = SubscriptionInfoProto.rigidname();
-            subscriptionInfo.version = SubscriptionInfoProto.version();
-            report.m_subscriptionComponents.push_back(subscriptionInfo);
-        }        
         report.m_processedReport = false; // default
 
         return report;
@@ -396,7 +431,6 @@ namespace SulDownloader
     const std::string DownloadReport::getSourceURL() const { return m_urlSource; }
 
     const std::vector<ProductInfo>& DownloadReport::getWarehouseComponents() const { return m_warehouseComponents; }
-    const std::vector<SubscriptionInfo>& DownloadReport::getSubscriptionComponents() const {return m_subscriptionComponents; }
 
     bool DownloadReport::isProcessedReport() const
     {
@@ -451,4 +485,5 @@ namespace SulDownloader
                 return "UPTODATE";
         }
     }
+
 } // namespace SulDownloader

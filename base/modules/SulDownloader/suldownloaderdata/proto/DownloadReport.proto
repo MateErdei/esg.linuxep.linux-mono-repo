@@ -31,12 +31,6 @@ message WarehouseComponent
     optional string installedVersion = 3;
 }
 
-message SubscriptionComponent
-{
-    optional string rigidName = 1; 
-    optional string version = 2; 
-}
-
 //FIXME LINUXEP-6537: add information about the purpose of these entries.
 
 message DownloadStatusReport
@@ -50,5 +44,4 @@ message DownloadStatusReport
    optional string urlSource = 7;
    repeated ProductStatusReport products = 8;
    repeated WarehouseComponent warehouseComponents = 9;
-   repeated SubscriptionComponent subscriptionComponents = 10;
 }

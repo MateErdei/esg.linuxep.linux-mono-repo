@@ -776,11 +776,13 @@ TEST_F( // NOLINT
     wError.Description = "Error description";
     wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
     std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
-    DownloadedProductVector emptyProducts;
+    DownloadedProductVector emptyProducts;    
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));  
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));     
+ 
     EXPECT_CALL(mock, getSourceURL());
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
@@ -815,6 +817,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));     
+
     EXPECT_CALL(mock, getSourceURL());
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
@@ -866,6 +870,8 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products))); 
+
     EXPECT_CALL(mock, getSourceURL());
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
@@ -985,6 +991,7 @@ TEST_F( // NOLINT
     products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
 
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));     
     EXPECT_CALL(mock, getSourceURL());
 
     SimplifiedDownloadReport expectedDownloadReport{
@@ -1172,11 +1179,10 @@ TEST_F( // NOLINT
         downloadReportSimilar,
         expectedDownloadReport,
         calculatedReport);
-    auto subscriptions = calculatedReport.getSubscriptionComponents(); 
-    std::vector<suldownloaderdata::SubscriptionInfo> expected = { 
-        { products[0].getLine(), products[0].getProductMetadata().getVersion()},
-        { products[1].getLine(), products[1].getProductMetadata().getVersion()}  };
-    EXPECT_EQ( subscriptions, expected );        
+    auto productsAndSubscriptions = calculatedReport.getProducts(); 
+    ASSERT_EQ(productsAndSubscriptions.size(), 2); 
+    EXPECT_EQ( productsAndSubscriptions[0].rigidName, products[0].getLine()); 
+    EXPECT_EQ( productsAndSubscriptions[1].rigidName, products[1].getLine()); 
 }
 
 TEST_F( // NOLINT
@@ -1248,7 +1254,11 @@ TEST_F( // NOLINT
                                                      "",
                                                      productReports,
                                                      true,
-                                                     productsInfo({ products[0], products[1] }) };                                                     
+                                                     productsInfo({ products[0], products[1] }) };
+                                                         
+    auto copyProduct = expectedDownloadReport.Products[0]; 
+    expectedDownloadReport.Products.clear(); 
+    expectedDownloadReport.Products.push_back(copyProduct); 
 
     ConfigurationData configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
@@ -1261,11 +1271,9 @@ TEST_F( // NOLINT
         expectedDownloadReport,
         calculatedReport);
    // only one component were returned in the subscription see listInstalledSubscriptions
-   auto subscriptions = calculatedReport.getSubscriptionComponents(); 
-    std::vector<suldownloaderdata::SubscriptionInfo> expected = { 
-        { products[0].getLine(), products[0].getProductMetadata().getVersion()}};
-    EXPECT_EQ( subscriptions, expected );
-
+   auto subscriptions = calculatedReport.getProducts(); 
+   ASSERT_EQ(subscriptions.size(), 1); 
+   EXPECT_EQ(subscriptions[0].rigidName, products[0].getProductMetadata().getLine()); 
 }
 
 TEST_F( // NOLINT

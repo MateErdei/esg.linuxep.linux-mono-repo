@@ -281,8 +281,8 @@ namespace SulDownloader
 
         m_selectedSubscriptions.clear(); 
         for( size_t index: selectedIndexes.selected_subscriptions){
-            auto & productMetadata = productMetadataList[index];            
-            m_selectedSubscriptions.push_back({productMetadata.getLine(), productMetadata.getVersion()}); 
+            auto & productMetadata = productMetadataList[index];
+            m_selectedSubscriptions.push_back({productMetadata.getLine(), productMetadata.getVersion(), productMetadata.subProducts()}); 
         }
 
         for (size_t index : selectedIndexes.selected)

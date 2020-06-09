@@ -7,6 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+#include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -22,6 +23,7 @@ namespace SulDownloader
             std::function<suldownloaderdata::IWarehouseRepositoryPtr(const suldownloaderdata::ConfigurationData&)>
                 creator);
         void restoreWarehouseFactory();
+
     };
     ::testing::AssertionResult productInfoIsEquivalent(
         const char* m_expr,
@@ -33,5 +35,6 @@ namespace SulDownloader
         const char* n_expr,
         const std::vector<suldownloaderdata::ProductInfo>& expected,
         const std::vector<suldownloaderdata::ProductInfo>& resulted);
+    std::vector<suldownloaderdata::SubscriptionInfo> subscriptionsFromProduct(const std::vector<SulDownloader::suldownloaderdata::DownloadedProduct>& products);
 
 } // namespace SulDownloader

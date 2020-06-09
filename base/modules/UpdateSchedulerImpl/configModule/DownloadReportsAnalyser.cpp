@@ -147,24 +147,13 @@ namespace
         status.LastFinishdTime = report.getFinishedTime();
         status.LastResult = event.MessageNumber;
 
-        auto reportSubscriptions = report.getSubscriptionComponents(); 
-        if ( reportSubscriptions.empty())
+        for (auto& product : report.getProducts())
         {
-            for (auto& product : report.getProducts())
+            if (product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
             {
-                if (product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
-                {
-                    status.Subscriptions.emplace_back(product.rigidName, product.name, product.downloadedVersion);
-                }
+                status.Subscriptions.emplace_back(product.rigidName, product.name, product.downloadedVersion);
             }
         }
-        else
-        {
-            for( auto & subscription: reportSubscriptions)
-            {
-                status.Subscriptions.emplace_back(subscription.rigidName, "notused", subscription.version ); 
-            }            
-        }       
 
         for (auto& whComponent : report.getWarehouseComponents())
         {

@@ -25,16 +25,17 @@ namespace SulDownloader
             std::string rigidName;
             std::string downloadedVersion;
             std::string errorDescription;
-            enum class ProductStatus
+            enum class ProductStatus : int
             {
-                SyncFailed,
-                InstallFailed,
-                UninstallFailed,
-                VerifyFailed,
-                UpToDate,
-                Upgraded,
-                Uninstalled
+                UpToDate = 0,
+                Upgraded = 1,
+                Uninstalled = 2,
+                UninstallFailed = 3,
+                SyncFailed = 4,
+                InstallFailed = 5,
+                VerifyFailed = 6
             };
+            static ProductStatus maxProductStatus( ProductStatus lh, ProductStatus rh); 
             ProductStatus productStatus = ProductStatus::SyncFailed;
 
             std::string statusToString() const;
@@ -65,6 +66,9 @@ namespace SulDownloader
                 VerifyFailed,
                 VerifyCorrect
             };
+            static std::vector<ProductReport> combineProductsAndSubscriptions( const std::vector<suldownloaderdata::DownloadedProduct> & , 
+                    const std::vector<suldownloaderdata::SubscriptionInfo>&, 
+                    const WarehouseStatus& warehouseStatus); 
 
             static DownloadReport Report(const IWarehouseRepository&, const TimeTracker& timeTracker);
 
@@ -101,7 +105,6 @@ namespace SulDownloader
             const std::vector<ProductReport>& getProducts() const;
 
             const std::vector<ProductInfo>& getWarehouseComponents() const;
-            const std::vector<SubscriptionInfo>& getSubscriptionComponents() const;
 
             const std::string getSourceURL() const;
 
@@ -122,13 +125,8 @@ namespace SulDownloader
 
             std::vector<ProductReport> m_productReport;
             std::vector<ProductInfo> m_warehouseComponents;
-            std::vector<SubscriptionInfo> m_subscriptionComponents; 
 
             bool m_processedReport;
-
-            void setProductsInfo(
-                const std::vector<suldownloaderdata::DownloadedProduct>& products,
-                const WarehouseStatus& warehouseStatus);
 
             void setError(const WarehouseError& error);
 

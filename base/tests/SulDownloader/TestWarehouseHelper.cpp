@@ -69,3 +69,13 @@ void SulDownloader::TestWarehouseHelper::restoreWarehouseFactory()
     }
     return ::testing::AssertionSuccess();
 }
+using namespace SulDownloader; 
+std::vector<suldownloaderdata::SubscriptionInfo> SulDownloader::subscriptionsFromProduct(const std::vector<SulDownloader::suldownloaderdata::DownloadedProduct>& products)
+{
+    std::vector<suldownloaderdata::SubscriptionInfo> subscriptions; 
+    for( auto & product: products)
+    {
+        subscriptions.push_back( {product.getLine(), product.getProductMetadata().getVersion(), {}}); 
+    }
+    return subscriptions; 
+}

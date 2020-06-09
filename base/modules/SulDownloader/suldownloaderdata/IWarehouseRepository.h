@@ -9,6 +9,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <vector>
+#include "ProductMetadata.h"
 
 namespace SulDownloader
 {
@@ -26,9 +27,9 @@ namespace SulDownloader
 
         struct SubscriptionInfo{
             std::string rigidName; 
-            std::string version; 
+            std::string version;
+            SubProducts subProducts; 
         };
-        bool operator==(const SubscriptionInfo & , const SubscriptionInfo &);
 
         /**
          * Interface for WarehouseRepository to enable tests.

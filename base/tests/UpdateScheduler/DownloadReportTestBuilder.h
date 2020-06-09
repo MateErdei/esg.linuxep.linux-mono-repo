@@ -117,7 +117,12 @@ namespace SulDownloader
             static SulDownloader::suldownloaderdata::DownloadReport goodReportWithSubscriptions()
             {
                 auto report = goodReport(); 
-                report.m_subscriptionComponents.push_back( {"ComponentSuite", "v1"}); 
+                std::vector<ProductReport> products; 
+                ProductReport compSuite; 
+                compSuite.rigidName = "ComponentSuite"; 
+                compSuite.downloadedVersion="v1";
+                products.push_back(compSuite); 
+                report.m_productReport = products; 
                 return report; 
             }
 
