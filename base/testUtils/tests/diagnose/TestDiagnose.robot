@@ -91,7 +91,7 @@ Diagnose Tool Gathers MDR Logs When Run From Installation
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
 Diagnose Tool Gathers LR Logs When Run From Installation
-    [Tags]  DIAGNOSE  MDR_PLUGIN
+    [Tags]  DIAGNOSE  LIVE_RESPONSE
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
     Create Directory  ${TAR_FILE_DIRECTORY}
