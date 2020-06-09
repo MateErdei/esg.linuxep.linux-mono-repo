@@ -1,4 +1,4 @@
-# Copyright 2019 Sophos Plc, Oxford, England.
+# Copyright 2020 Sophos Plc, Oxford, England.
 """
 generic_adapter Module
 """
@@ -6,6 +6,8 @@ generic_adapter Module
 import datetime
 import logging
 import os
+import time
+import re
 import xml.dom.minidom
 
 import mcsrouter.adapters.adapter_base
@@ -86,24 +88,33 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
         return []
 
-    def _process_action(self, command):
-        """
-        Process the actions by creating the file
-        Can be overriden by classes inheriting from Generic Adapter
-        """
-        LOGGER.debug("Received %s action", self.__m_app_id)
-
-        body = command.get("body")
+    def _get_action_name(self, command):
         try:
             timestamp = command.get("creationTime")
         except KeyError:
             timestamp = mcsrouter.utils.timestamp.timestamp()
 
-        order_tag = datetime.datetime.now().strftime("%Y%d%m%H%M%S%f")
-        action_name = "{}_{}_action_{}.xml".format(order_tag, self.__m_app_id, timestamp)
+        order_tag = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
+        return "{}_{}_action_{}.xml".format(order_tag, self.__m_app_id, timestamp)
+
+    def _process_action(self, command):
+        """
+        Process the actions by creating the file
+        Can be overridden by classes inheriting from Generic Adapter
+        """
+        LOGGER.debug("Received %s action", self.get_app_id())
+
+        body = command.get("body")
+        action_name = self._get_action_name(command)
+        print("Action name: {}".format(action_name))
+        self._write_tmp_action(action_name, body)
+        LOGGER.debug(f"{self.get_app_id()} action saved to path {action_name}")
+        return []
+
+    def _write_tmp_action(self, action_name, body):
         action_path_tmp = os.path.join(path_manager.actions_temp_dir(), action_name)
         mcsrouter.utils.utf8_write.utf8_write(action_path_tmp, body)
-        return []
+        return action_path_tmp
 
     def _get_status_xml(self):
         """
@@ -166,3 +177,13 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
                 return self._process_action(command)
         finally:
             command.complete()
+
+    def _convert_ttl_to_epoch_time(self, timestamp, ttl):
+        match_object = re.match("^PT([0-9]+)S$", ttl)
+        if match_object:
+            seconds_to_live = int(match_object.group(1))
+        else:
+            LOGGER.warning(f"TTL of command is in an invalid format: {ttl}. Using default of 10000 seconds")
+            seconds_to_live = 10000
+        epoch_time = time.mktime(datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").timetuple())
+        return int(epoch_time + seconds_to_live)

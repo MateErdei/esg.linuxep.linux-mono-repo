@@ -83,7 +83,7 @@ TEST_F(ActionTaskTests, LiveQueryFilesWillBeForwardedToPlugin) // NOLINT
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_2013-05-02T09:50:08Z_request.json");
+            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_2013-05-02T09:50:08Z_5591718946_request.json");
     task.run();
 }
 
@@ -100,7 +100,7 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithoutAppIdWillBeDiscardedAndErrorLogged)
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/correlation-id_2013-05-02T09:50:08Z_request.json");
+            m_mockPluginManager, "/tmp/action/correlation-id_2013-05-02T09:50:08Z_5591718946_request.json");
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
 
@@ -120,7 +120,7 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithoutCorrelationIdWillBeDiscardedAndErro
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/LiveQuery_2013-05-02T09:50:08Z_request.json");
+            m_mockPluginManager, "/tmp/action/LiveQuery_2013-05-02T09:50:08Z_5591718946_request.json");
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
 
@@ -145,4 +145,23 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithInvalidConventionNameWillBeDiscarded) 
     std::string logMessage = testing::internal::GetCapturedStderr();
 
     EXPECT_THAT(logMessage, ::testing::HasSubstr("invalid"));
+}
+
+TEST_F(ActionTaskTests, LiveResponseFileWithExpiredTTLIsDiscarded)
+{
+    testing::internal::CaptureStderr();
+
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
+
+    EXPECT_CALL(m_mockPluginManager, queueAction(_,_,_)).Times(0);
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
+    ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
+            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_2020-06-09T09:15:23Z_1591700523_request.json");
+    task.run();
+    std::string logMessage = testing::internal::GetCapturedStderr();
+
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Action has expired"));
 }
