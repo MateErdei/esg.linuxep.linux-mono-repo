@@ -106,8 +106,8 @@ Liveresponse Suite Teardown
 Setup Base FakeCloud And FakeCentral-LT Servers
     Install LT Server Certificates
     Setup Suite Tmp Dir   ./tmp
-    Start MCS Push Server
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Start MCS Push Server
     Set Local CA Environment Variable
 
     Require Fresh Install
