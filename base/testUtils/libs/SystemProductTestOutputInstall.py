@@ -40,14 +40,17 @@ def getSystemProductTestOutput(install_base_path=None):
     env_path = os.environ.get("SYSTEM_PRODUCT_TEST_OUTPUT")
     if env_path:
         system_product_test_output.insert(0, env_path)
-
+    LOGGER.info("Attempt to detect path of systemproducttest in the following order {}".format(system_product_test_output))
     system_product_test_output_found = False
     system_product_test_path = ""
     for path in system_product_test_output:
+        LOGGER.info("checking {}".format(path))
         if os.path.isdir(path):
             tarPath = os.path.join(path, "SystemProductTestOutput.tar.gz")
             if os.path.isfile(tarPath):
+                LOGGER.info("stat file {}".format(tarPath))
                 srcstat = os.stat(tarPath)
+                LOGGER.info("file found {}".format(tarPath))
                 system_product_test_output_found = True
                 system_product_test_path = tarPath
 
