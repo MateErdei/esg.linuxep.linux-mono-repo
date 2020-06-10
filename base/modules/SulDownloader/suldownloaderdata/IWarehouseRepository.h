@@ -5,11 +5,12 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include "ProductMetadata.h"
+
 #include <bits/unique_ptr.h>
 
 #include <string>
 #include <vector>
-#include "ProductMetadata.h"
 
 namespace SulDownloader
 {
@@ -25,10 +26,11 @@ namespace SulDownloader
             std::string m_version;
         };
 
-        struct SubscriptionInfo{
-            std::string rigidName; 
+        struct SubscriptionInfo
+        {
+            std::string rigidName;
             std::string version;
-            SubProducts subProducts; 
+            SubProducts subProducts;
         };
 
         /**
@@ -55,7 +57,7 @@ namespace SulDownloader
             virtual std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const = 0;
 
             virtual std::vector<ProductInfo> listInstalledProducts() const = 0;
-            virtual std::vector<suldownloaderdata::SubscriptionInfo> listInstalledSubscriptions() const = 0; 
+            virtual std::vector<suldownloaderdata::SubscriptionInfo> listInstalledSubscriptions() const = 0;
         };
 
         using IWarehouseRepositoryPtr = std::unique_ptr<IWarehouseRepository>;

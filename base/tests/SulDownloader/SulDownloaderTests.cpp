@@ -122,7 +122,6 @@ public:
         return settings;
     }
 
-
     ConfigurationSettings newFeatureSettings()
     {
         ConfigurationSettings settings = defaultSettings();
@@ -137,7 +136,6 @@ public:
         return settings;
     }
 
-
     ConfigurationSettings newSubscriptionSettings()
     {
         ConfigurationSettings settings = defaultSettings();
@@ -150,9 +148,8 @@ public:
         proto_subscription.set_tag("RECOMMMENDED");
         proto_subscription.set_fixedversion("");
 
-
         proto_subscriptions->Add(
-                dynamic_cast<SulDownloaderProto::ConfigurationSettings_Subscription &&>(proto_subscription));
+            dynamic_cast<SulDownloaderProto::ConfigurationSettings_Subscription&&>(proto_subscription));
 
         return settings;
     }
@@ -169,16 +166,11 @@ public:
         proto_subscription.set_tag("RECOMMMENDED");
         proto_subscription.set_fixedversion("");
 
-
         proto_subscriptions->Add(
-                dynamic_cast<SulDownloaderProto::ConfigurationSettings_Subscription &&>(proto_subscription));
+            dynamic_cast<SulDownloaderProto::ConfigurationSettings_Subscription&&>(proto_subscription));
 
         return settings;
     }
-
-
-
-
 
     std::string jsonSettings(const ConfigurationSettings& configSettings)
     {
@@ -232,7 +224,6 @@ public:
         return subInfos;
     }
 
-
     std::vector<SulDownloader::suldownloaderdata::ProductMetadata> defaultMetadata()
     {
         SulDownloader::suldownloaderdata::ProductMetadata base;
@@ -280,13 +271,16 @@ public:
         return *m_mockptr;
     }
 
-    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount=1)
+    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1)
     {
         auto filesystemMock = new StrictMock<MockFileSystem>();
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).Times(expectCallCount).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primarywarehouse"))
-            .Times(expectCallCount).WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary")).Times(expectCallCount).WillRepeatedly(Return(true));
+            .Times(expectCallCount)
+            .WillRepeatedly(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary"))
+            .Times(expectCallCount)
+            .WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
 
         auto pointer = filesystemMock;
@@ -434,7 +428,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
     // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
@@ -501,7 +495,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -552,7 +546,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -613,7 +607,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1")))
         .WillOnce(Return("/installroot/base/update/cache/primary/productRemove1"));
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -675,7 +669,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
 
     TimeTracker timeTracker;
@@ -752,7 +746,8 @@ TEST_F( // NOLINT
     std::string previousSettingString("");
     std::string previousReportData;
 
-    std::tie(exitCode, reportContent) = SulDownloader::configAndRunDownloader(settingsString, previousSettingString, previousReportData);
+    std::tie(exitCode, reportContent) =
+        SulDownloader::configAndRunDownloader(settingsString, previousSettingString, previousReportData);
 
     EXPECT_NE(exitCode, 0);
     EXPECT_THAT(
@@ -776,13 +771,13 @@ TEST_F( // NOLINT
     wError.Description = "Error description";
     wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
     std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
-    DownloadedProductVector emptyProducts;    
+    DownloadedProductVector emptyProducts;
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));  
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));     
- 
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
+
     EXPECT_CALL(mock, getSourceURL());
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
@@ -817,7 +812,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));     
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
     EXPECT_CALL(mock, getSourceURL());
 
@@ -870,7 +865,7 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products))); 
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
 
     EXPECT_CALL(mock, getSourceURL());
 
@@ -908,7 +903,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
@@ -991,7 +986,7 @@ TEST_F( // NOLINT
     products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
 
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));     
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
     EXPECT_CALL(mock, getSourceURL());
 
     SimplifiedDownloadReport expectedDownloadReport{
@@ -1075,7 +1070,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED,
                                                      "Update failed",
@@ -1162,7 +1157,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -1174,15 +1169,13 @@ TEST_F( // NOLINT
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
-    auto calculatedReport = SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport); 
-    EXPECT_PRED_FORMAT2(
-        downloadReportSimilar,
-        expectedDownloadReport,
-        calculatedReport);
-    auto productsAndSubscriptions = calculatedReport.getProducts(); 
-    ASSERT_EQ(productsAndSubscriptions.size(), 2); 
-    EXPECT_EQ( productsAndSubscriptions[0].rigidName, products[0].getLine()); 
-    EXPECT_EQ( productsAndSubscriptions[1].rigidName, products[1].getLine()); 
+    auto calculatedReport =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+    EXPECT_PRED_FORMAT2(downloadReportSimilar, expectedDownloadReport, calculatedReport);
+    auto productsAndSubscriptions = calculatedReport.getProducts();
+    ASSERT_EQ(productsAndSubscriptions.size(), 2);
+    EXPECT_EQ(productsAndSubscriptions[0].rigidName, products[0].getLine());
+    EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
 }
 
 TEST_F( // NOLINT
@@ -1249,36 +1242,35 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0] }))); // only product 0 in the subscriptions
+    EXPECT_CALL(mock, listInstalledSubscriptions)
+        .WillOnce(Return(subscriptionsInfo({ products[0] }))); // only product 0 in the subscriptions
     SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
-                                                         
-    auto copyProduct = expectedDownloadReport.Products[0]; 
-    expectedDownloadReport.Products.clear(); 
-    expectedDownloadReport.Products.push_back(copyProduct); 
+
+    auto copyProduct = expectedDownloadReport.Products[0];
+    expectedDownloadReport.Products.clear();
+    expectedDownloadReport.Products.push_back(copyProduct);
 
     ConfigurationData configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
-    auto calculatedReport = SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport); 
-    EXPECT_PRED_FORMAT2(
-        downloadReportSimilar,
-        expectedDownloadReport,
-        calculatedReport);
-   // only one component were returned in the subscription see listInstalledSubscriptions
-   auto subscriptions = calculatedReport.getProducts(); 
-   ASSERT_EQ(subscriptions.size(), 1); 
-   EXPECT_EQ(subscriptions[0].rigidName, products[0].getProductMetadata().getLine()); 
+    auto calculatedReport =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+    EXPECT_PRED_FORMAT2(downloadReportSimilar, expectedDownloadReport, calculatedReport);
+    // only one component were returned in the subscription see listInstalledSubscriptions
+    auto subscriptions = calculatedReport.getProducts();
+    ASSERT_EQ(subscriptions.size(), 1);
+    EXPECT_EQ(subscriptions[0].rigidName, products[0].getProductMetadata().getLine());
 }
 
 TEST_F( // NOLINT
-        SULDownloaderTest,
-        runSULDownloader_ListOfSubscriptionListSizeDifferenceResultsInFullSuccessfulUpdate)
+    SULDownloaderTest,
+    runSULDownloader_ListOfSubscriptionListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2);
     MockWarehouseRepository& mock = warehouseMocked();
@@ -1340,7 +1332,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -1358,18 +1350,17 @@ TEST_F( // NOLINT
     timeTracker.setFinishedTime(std::time_t(0));
 
     DownloadReport previousDownloadReport =
-            DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_PRED_FORMAT2(
-            downloadReportSimilar,
-            expectedDownloadReport,
-            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
-
+        downloadReportSimilar,
+        expectedDownloadReport,
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 TEST_F( // NOLINT
-        SULDownloaderTest,
-        runSULDownloader_ListOfFeatureListSizeDifferenceResultsInFullSuccessfulUpdate)
+    SULDownloaderTest,
+    runSULDownloader_ListOfFeatureListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2);
     MockWarehouseRepository& mock = warehouseMocked();
@@ -1431,7 +1422,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -1449,18 +1440,17 @@ TEST_F( // NOLINT
     timeTracker.setFinishedTime(std::time_t(0));
 
     DownloadReport previousDownloadReport =
-            DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_PRED_FORMAT2(
-            downloadReportSimilar,
-            expectedDownloadReport,
-            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
-
+        downloadReportSimilar,
+        expectedDownloadReport,
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 TEST_F( // NOLINT
-        SULDownloaderTest,
-        runSULDownloader_ListOfSubscriptionsWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
+    SULDownloaderTest,
+    runSULDownloader_ListOfSubscriptionsWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2);
     MockWarehouseRepository& mock = warehouseMocked();
@@ -1522,7 +1512,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -1540,18 +1530,17 @@ TEST_F( // NOLINT
     timeTracker.setFinishedTime(std::time_t(0));
 
     DownloadReport previousDownloadReport =
-            DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_PRED_FORMAT2(
-            downloadReportSimilar,
-            expectedDownloadReport,
-            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
-
+        downloadReportSimilar,
+        expectedDownloadReport,
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 TEST_F( // NOLINT
-        SULDownloaderTest,
-        runSULDownloader_ListOfFeaturesWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
+    SULDownloaderTest,
+    runSULDownloader_ListOfFeaturesWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2);
     MockWarehouseRepository& mock = warehouseMocked();
@@ -1613,7 +1602,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -1626,23 +1615,22 @@ TEST_F( // NOLINT
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
 
-
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
     timeTracker.setFinishedTime(std::time_t(0));
 
     DownloadReport previousDownloadReport =
-            DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_PRED_FORMAT2(
-            downloadReportSimilar,
-            expectedDownloadReport,
-            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+        downloadReportSimilar,
+        expectedDownloadReport,
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 TEST_F( // NOLINT
-        SULDownloaderTest,
-        runSULDownloader_previousProductChangesShouldResultInSuccessfulFullUpdateAndProduceValidSuccessReport)
+    SULDownloaderTest,
+    runSULDownloader_previousProductChangesShouldResultInSuccessfulFullUpdateAndProduceValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1);
     MockWarehouseRepository& mock = warehouseMocked();
@@ -1704,7 +1692,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));    
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -1712,21 +1700,21 @@ TEST_F( // NOLINT
                                                      productsInfo({ products[0], products[1] }) };
 
     ConfigurationData configurationData = configData(defaultSettings());
-    //ConfigurationData previousConfigurationData = configData(previousFeatureSettings());
+    // ConfigurationData previousConfigurationData = configData(previousFeatureSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
     EXPECT_PRED_FORMAT2(
-            downloadReportSimilar,
-            expectedDownloadReport,
-            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+        downloadReportSimilar,
+        expectedDownloadReport,
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 TEST_F( // NOLINT
-        SULDownloaderTest,
-        runSULDownloader_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
+    SULDownloaderTest,
+    runSULDownloader_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
@@ -1766,12 +1754,12 @@ TEST_F( // NOLINT
     timeTracker.setStartTime(std::time_t(0));
     timeTracker.setFinishedTime(std::time_t(0));
     DownloadReport previousDownloadReport =
-            DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_PRED_FORMAT2(
-            downloadReportSimilar,
-            expectedDownloadReport,
-            SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+        downloadReportSimilar,
+        expectedDownloadReport,
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
 TEST_F( // NOLINT
@@ -1791,7 +1779,8 @@ TEST_F( // NOLINT
     suldownloaderdata::ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
-    auto downloadReport = SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+    auto downloadReport =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
     std::string output = testing::internal::GetCapturedStdout();
     std::string errStd = testing::internal::GetCapturedStderr();
     ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to connect to the warehouse"));
@@ -1815,7 +1804,8 @@ TEST_F( // NOLINT
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
-    auto downloadReport = SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+    auto downloadReport =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
     std::string output = testing::internal::GetCapturedStdout();
     std::string errStd = testing::internal::GetCapturedStderr();
     ASSERT_THAT(output, ::testing::Not(::testing::HasSubstr("Proxy used was")));

@@ -12,11 +12,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
 #include <gmock/gmock-matchers.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/OSUtilitiesImpl/MockDnsLookup.h>
 #include <tests/Common/OSUtilitiesImpl/MockILocalIP.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+
 #include <future>
 
 // NOLINTNEXTLINE(cert-err58-cpp)
@@ -411,10 +411,7 @@ public:
     TestUpdatePolicyTranslator() : m_loggingSetup() {}
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
-    void TearDown() override
-    {
-        Tests::restoreFileSystem();
-    }
+    void TearDown() override { Tests::restoreFileSystem(); }
 };
 
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
@@ -496,7 +493,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
 
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
-
     auto settingsHolder = translator.translatePolicy(updatePolicyWithAESCredential);
     auto config = settingsHolder.configurationData;
 
@@ -531,7 +527,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     UpdatePolicyTranslator translator;
 
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
-
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithProxy);
     auto config = settingsHolder.configurationData;
@@ -591,7 +586,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
 
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
-
     auto settingsHolder = translator.translatePolicy(updatePolicyWithScheduledUpdate);
     auto config = settingsHolder.configurationData;
 
@@ -620,7 +614,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
     EXPECT_EQ(scheduledUpdateTime.minute, 0);
 }
 
-
 TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStillGetsTheCorrectData) // NOLINT
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
@@ -629,18 +622,22 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStill
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     UpdatePolicyTranslator translator;
-    (void) translator.translatePolicy(updatePolicyWithScheduledUpdate);
-    std::string expectedTelemetry{R"sophos({"warehouse":{"sddsid":"QA940267","subscriptions":[{"fixedversion":"","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"","rigidname":"ServerProtectionLinux-Base9"}]}})sophos"};
+    (void)translator.translatePolicy(updatePolicyWithScheduledUpdate);
+    std::string expectedTelemetry{
+        R"sophos({"warehouse":{"sddsid":"QA940267","subscriptions":[{"fixedversion":"","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"","rigidname":"ServerProtectionLinux-Base9"}]}})sophos"
+    };
     std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ( telemetry, expectedTelemetry );
+    EXPECT_EQ(telemetry, expectedTelemetry);
     // second time with additional 'extra' value
-    Common::Telemetry::TelemetryHelper::getInstance().set("extra","newvalue");
-    std::string expectedTelemetryWithExtra{R"sophos({"extra":"newvalue","warehouse":{"sddsid":"QA940267","subscriptions":[{"fixedversion":"","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"","rigidname":"ServerProtectionLinux-Base9"}]}})sophos"};
+    Common::Telemetry::TelemetryHelper::getInstance().set("extra", "newvalue");
+    std::string expectedTelemetryWithExtra{
+        R"sophos({"extra":"newvalue","warehouse":{"sddsid":"QA940267","subscriptions":[{"fixedversion":"","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"","rigidname":"ServerProtectionLinux-Base9"}]}})sophos"
+    };
     telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ( telemetry, expectedTelemetryWithExtra );
+    EXPECT_EQ(telemetry, expectedTelemetryWithExtra);
     // third time telemetry the 'extra' value is gone
     telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ( telemetry, expectedTelemetry );
+    EXPECT_EQ(telemetry, expectedTelemetry);
 }
 
 TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty) // NOLINT
@@ -651,12 +648,13 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty) // NOLINT
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     UpdatePolicyTranslator translator;
-    (void) translator.translatePolicy(updatePolicyWithCache);
-    std::string expectedTelemetry{R"sophos({"warehouse":{"sddsid":"W2YJXI6FED","subscriptions":[{"fixedversion":"11","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"8","rigidname":"ServerProtectionLinux-Base9"}]}})sophos"};
+    (void)translator.translatePolicy(updatePolicyWithCache);
+    std::string expectedTelemetry{
+        R"sophos({"warehouse":{"sddsid":"W2YJXI6FED","subscriptions":[{"fixedversion":"11","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"8","rigidname":"ServerProtectionLinux-Base9"}]}})sophos"
+    };
     std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ( telemetry, expectedTelemetry );
+    EXPECT_EQ(telemetry, expectedTelemetry);
 }
-
 
 TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndResetKeepsExpectedData) // NOLINT
 {
@@ -666,37 +664,39 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndRese
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     UpdatePolicyTranslator translator;
-    (void) translator.translatePolicy(updatePolicyWithCache);
-    std::string expectedTelemetry{R"sophos({"warehouse":{"sddsid":"W2YJXI6FED","subscriptions":[{"fixedversion":"11","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"8","rigidname":"ServerProtectionLinux-Base9"}]}})sophos"};
+    (void)translator.translatePolicy(updatePolicyWithCache);
+    std::string expectedTelemetry{
+        R"sophos({"warehouse":{"sddsid":"W2YJXI6FED","subscriptions":[{"fixedversion":"11","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"8","rigidname":"ServerProtectionLinux-Base9"}]}})sophos"
+    };
     std::string telemetry1 = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     std::string telemetry2 = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ( telemetry1, expectedTelemetry );
-    EXPECT_EQ( telemetry2, expectedTelemetry );
+    EXPECT_EQ(telemetry1, expectedTelemetry);
+    EXPECT_EQ(telemetry2, expectedTelemetry);
 }
 
 TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredConcurrently) // NOLINT
 {
     UpdatePolicyTranslator translator;
-    (void) translator.translatePolicy(mdrSSPLBasePolicy);
-    auto thread1 = std::async( std::launch::async, [](){
-        for(int i = 0; i< 1000; i++)
+    (void)translator.translatePolicy(mdrSSPLBasePolicy);
+    auto thread1 = std::async(std::launch::async, []() {
+        for (int i = 0; i < 1000; i++)
         {
-            std::string expectedTelemetry{R"sophos({"warehouse":{"sddsid":"CSP190408113225","subscriptions":[{"fixedversion":"","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"","rigidname":"ServerProtectionLinux-Plugin-MDR"}]}})sophos"};
+            std::string expectedTelemetry{
+                R"sophos({"warehouse":{"sddsid":"CSP190408113225","subscriptions":[{"fixedversion":"","rigidname":"ServerProtectionLinux-Base"},{"fixedversion":"","rigidname":"ServerProtectionLinux-Plugin-MDR"}]}})sophos"
+            };
             std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-            EXPECT_EQ( telemetry, expectedTelemetry ) << "Iteration: "<< i;
+            EXPECT_EQ(telemetry, expectedTelemetry) << "Iteration: " << i;
         }
     });
-    auto thread2 = std::async( std::launch::async, [&translator](){
-        for( int i=0; i< 10; i++)
+    auto thread2 = std::async(std::launch::async, [&translator]() {
+        for (int i = 0; i < 10; i++)
         {
-            (void) translator.translatePolicy(mdrSSPLBasePolicy);
+            (void)translator.translatePolicy(mdrSSPLBasePolicy);
         }
     });
     thread1.get();
     thread2.get();
-
 }
-
 
 TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) // NOLINT
 {
@@ -735,7 +735,6 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
 
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
-
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
@@ -771,7 +770,6 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
     UpdatePolicyTranslator translator;
 
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
-
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
@@ -900,7 +898,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
     EXPECT_EQ(scheduledUpdateTime.hour, 11);
     EXPECT_EQ(scheduledUpdateTime.minute, 0);
 }
-
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog) // NOLINT
 {

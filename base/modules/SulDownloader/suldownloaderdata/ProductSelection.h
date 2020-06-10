@@ -68,7 +68,7 @@ namespace SulDownloader
             std::vector<size_t> selectedProducts(
                 const ISingleProductSelector&,
                 const ProductMetaDataVector& warehouseProducts) const;
-        };        
+        };
 
     } // namespace suldownloaderdata
 } // namespace SulDownloader

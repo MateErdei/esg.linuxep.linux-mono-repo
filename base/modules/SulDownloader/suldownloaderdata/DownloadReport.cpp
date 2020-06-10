@@ -79,16 +79,17 @@ namespace SulDownloader
 {
     namespace suldownloaderdata
     {
-        ProductReport::ProductStatus ProductReport::maxProductStatus( ProductReport::ProductStatus lh, ProductReport::ProductStatus rh)
+        ProductReport::ProductStatus ProductReport::maxProductStatus(
+            ProductReport::ProductStatus lh,
+            ProductReport::ProductStatus rh)
         {
-            int i_lh = static_cast<int>(lh); 
-            int i_rh = static_cast<int>(rh); 
-            int i_max = std::max(i_lh, i_rh); 
-            return static_cast<ProductStatus>(i_max);             
+            int i_lh = static_cast<int>(lh);
+            int i_rh = static_cast<int>(rh);
+            int i_max = std::max(i_lh, i_rh);
+            return static_cast<ProductStatus>(i_max);
         }
 
-    }
-
+    } // namespace suldownloaderdata
 
     using namespace Common::UtilityImpl;
     DownloadReport::DownloadReport() : m_status(WarehouseStatus::UNSPECIFIED) {}
@@ -109,7 +110,8 @@ namespace SulDownloader
             report.m_description = "";
         }
         report.m_urlSource = warehouse.getSourceURL();
-        report.m_productReport = combineProductsAndSubscriptions(warehouse.getProducts(), warehouse.listInstalledSubscriptions(), report.m_status); 
+        report.m_productReport = combineProductsAndSubscriptions(
+            warehouse.getProducts(), warehouse.listInstalledSubscriptions(), report.m_status);
         return report;
     }
 
@@ -268,51 +270,53 @@ namespace SulDownloader
             productReport[productReportEntry.rigidName] = productReportEntry;
         }
 
-        std::vector<ProductReport> productsRep; 
-        for(auto & subscriptionInfo: subscriptionsInfo)
+        std::vector<ProductReport> productsRep;
+        for (auto& subscriptionInfo : subscriptionsInfo)
         {
-            auto found = productReport.find(subscriptionInfo.rigidName); 
-            if ( found != productReport.end() )
+            auto found = productReport.find(subscriptionInfo.rigidName);
+            if (found != productReport.end())
             {
-                productsRep.push_back(found->second); 
+                productsRep.push_back(found->second);
             }
             else
             {
                 ProductReport productReportEntry;
-                productReportEntry.rigidName = subscriptionInfo.rigidName; 
-                productReportEntry.downloadedVersion = subscriptionInfo.version; 
-                productReportEntry.name = subscriptionInfo.rigidName; 
+                productReportEntry.rigidName = subscriptionInfo.rigidName;
+                productReportEntry.downloadedVersion = subscriptionInfo.version;
+                productReportEntry.name = subscriptionInfo.rigidName;
                 std::string combinedError;
-                ProductReport::ProductStatus combinedStatus{ProductReport::ProductStatus::UpToDate}; 
+                ProductReport::ProductStatus combinedStatus{ ProductReport::ProductStatus::UpToDate };
 
-                for( auto & subComp : subscriptionInfo.subProducts)
+                for (auto& subComp : subscriptionInfo.subProducts)
                 {
                     auto subComponentProduct = productReport.find(subComp.m_line);
-                    if ( subComponentProduct!= productReport.end())
+                    if (subComponentProduct != productReport.end())
                     {
-                        const std::string& error{subComponentProduct->second.errorDescription };
-                        suldownloaderdata::ProductReport::ProductStatus status=subComponentProduct->second.productStatus; 
+                        const std::string& error{ subComponentProduct->second.errorDescription };
+                        suldownloaderdata::ProductReport::ProductStatus status =
+                            subComponentProduct->second.productStatus;
 
-                        if (!error.empty()){
-                            if ( combinedError.empty())
+                        if (!error.empty())
+                        {
+                            if (combinedError.empty())
                             {
-                                combinedError = error; 
+                                combinedError = error;
                             }
                             else
                             {
-                                combinedError += ". " + error; 
-                            }                            
+                                combinedError += ". " + error;
+                            }
                         }
-                        combinedStatus = ProductReport::maxProductStatus(combinedStatus, status); 
+                        combinedStatus = ProductReport::maxProductStatus(combinedStatus, status);
                     }
                 }
                 productReportEntry.productStatus = combinedStatus;
-                productReportEntry.errorDescription = combinedError; 
-                productsRep.push_back(productReportEntry); 
-            }            
+                productReportEntry.errorDescription = combinedError;
+                productsRep.push_back(productReportEntry);
+            }
         }
 
-        return productsRep; 
+        return productsRep;
     }
 
     void DownloadReport::setTimings(const TimeTracker& timeTracker)
@@ -432,15 +436,9 @@ namespace SulDownloader
 
     const std::vector<ProductInfo>& DownloadReport::getWarehouseComponents() const { return m_warehouseComponents; }
 
-    bool DownloadReport::isProcessedReport() const
-    {
-        return m_processedReport;
-    }
+    bool DownloadReport::isProcessedReport() const { return m_processedReport; }
 
-    void DownloadReport::setProcessedReport(bool isProcessed)
-    {
-        m_processedReport = isProcessed;
-    }
+    void DownloadReport::setProcessedReport(bool isProcessed) { m_processedReport = isProcessed; }
 
     std::string ProductReport::statusToString() const
     {

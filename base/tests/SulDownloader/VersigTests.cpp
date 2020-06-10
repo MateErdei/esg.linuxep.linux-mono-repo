@@ -21,8 +21,8 @@ public:
     VersigTests() : m_configurationData(SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL)
     {
         m_configurationData.setCertificatePath("/installroot/cert");
-        m_configurationData.setManifestNames({"manifest.dat"});
-        m_configurationData.setOptionalManifestNames({"telem-manifest.dat"});
+        m_configurationData.setManifestNames({ "manifest.dat" });
+        m_configurationData.setOptionalManifestNames({ "telem-manifest.dat" });
         rootca = Common::FileSystem::join(m_configurationData.getCertificatePath(), "rootca.crt");
         productDir = "/installroot/cache/update/Primary/product";
         manifestdat = "/installroot/cache/update/Primary/product/manifest.dat";

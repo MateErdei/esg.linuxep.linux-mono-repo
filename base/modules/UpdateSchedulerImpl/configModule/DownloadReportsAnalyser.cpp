@@ -231,8 +231,10 @@ namespace UpdateSchedulerImpl
                         SulDownloader::suldownloaderdata::DownloadReport::toReport(content);
 
                     // check to see if report has been processed
-                    std::string processedReportPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
-                    if(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(processedReportPath, Common::FileSystem::basename(filepath))))
+                    std::string processedReportPath = Common::ApplicationConfiguration::applicationPathManager()
+                                                          .getSulDownloaderProcessedReportPath();
+                    if (Common::FileSystem::fileSystem()->isFile(
+                            Common::FileSystem::join(processedReportPath, Common::FileSystem::basename(filepath))))
                     {
                         fileReport.setProcessedReport(true);
                     }
@@ -353,17 +355,19 @@ namespace UpdateSchedulerImpl
             // Run through the report collection, and check if there is an old un-processed report containing
             // an Upgrade or uninstalled state., if there is set IsRelevantToSend to true to force sending an
             // Update Status Event.
-            for(auto& report : reportCollection)
+            for (auto& report : reportCollection)
             {
-                if(report.isProcessedReport())
+                if (report.isProcessedReport())
                 {
                     continue;
                 }
 
-                for(auto& product : report.getProducts())
+                for (auto& product : report.getProducts())
                 {
-                    if(product.productStatus == SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded ||
-                    product.productStatus ==  SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
+                    if (product.productStatus ==
+                            SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded ||
+                        product.productStatus ==
+                            SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
                     {
                         collectionResult.SchedulerEvent.IsRelevantToSend = true;
                     }

@@ -34,20 +34,22 @@ Copyright 2018-2019 Sophos Limited.  All rights reserved.
 
 using namespace std::chrono;
 
-namespace{
-    //FIXME: remove after LINUXDAR-1942
+namespace
+{
+    // FIXME: remove after LINUXDAR-1942
     bool detectedUpgradeWithBrokenLiveResponse()
     {
-        auto fs = Common::FileSystem::fileSystem(); 
-        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse")
-        && !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/"
+                       "ServerProtectionLinux-Plugin-liveresponse") &&
+            !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
         {
-            LOGINFO("Upgrade to new warehouse structure detected. Triggering a new out-of-sync update"); 
-            return true; 
+            LOGINFO("Upgrade to new warehouse structure detected. Triggering a new out-of-sync update");
+            return true;
         }
-        return false; 
+        return false;
     }
-}
+} // namespace
 
 namespace UpdateSchedulerImpl
 {
@@ -74,7 +76,8 @@ namespace UpdateSchedulerImpl
         m_reportfilePath(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath()),
         m_configfilePath(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath()),
-        m_previousConfigFilePath(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderPreviousConfigFilePath()),
+        m_previousConfigFilePath(
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderPreviousConfigFilePath()),
         m_formattedTime(),
         m_policyReceived(false),
         m_pendingUpdate(false)
@@ -212,11 +215,12 @@ namespace UpdateSchedulerImpl
 
             writeConfigurationData(settingsHolder.configurationData);
 
-            std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData = getPreviousConfigurationData();
+            std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData =
+                getPreviousConfigurationData();
 
-            if(previousConfigurationData.has_value() && SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
-                    settingsHolder.configurationData,
-                    previousConfigurationData.value()))
+            if (previousConfigurationData.has_value() &&
+                SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+                    settingsHolder.configurationData, previousConfigurationData.value()))
             {
                 LOGINFO("Detected product configuration change, triggering update.");
                 m_pendingUpdate = true;
@@ -311,7 +315,7 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::processScheduleUpdate()
     {
-        if(m_sulDownloaderRunner->isRunning() && !m_sulDownloaderRunner->hasTimedOut())
+        if (m_sulDownloaderRunner->isRunning() && !m_sulDownloaderRunner->hasTimedOut())
         {
             LOGINFO("An active instance of SulDownloader is already running, continuing with current instance.");
             return;
@@ -352,11 +356,11 @@ namespace UpdateSchedulerImpl
 
         if (detectedUpgradeWithBrokenLiveResponse())
         {
-            UpdateScheduler::SchedulerTask task; 
-            task.taskType = UpdateScheduler::SchedulerTask::TaskType::ScheduledUpdate; 
-            m_queueTask->push(UpdateScheduler::SchedulerTask{task} ); 
-            return std::string(); 
-        }        
+            UpdateScheduler::SchedulerTask task;
+            task.taskType = UpdateScheduler::SchedulerTask::TaskType::ScheduledUpdate;
+            m_queueTask->push(UpdateScheduler::SchedulerTask{ task });
+            return std::string();
+        }
 
         if (processLatestReport)
         {
@@ -378,10 +382,12 @@ namespace UpdateSchedulerImpl
             return std::string();
         }
 
-        // removed previous processed reports files, only need to store process reports files for the this run (last/ current run).
-        Path processedReportPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
+        // removed previous processed reports files, only need to store process reports files for the this run (last/
+        // current run).
+        Path processedReportPath =
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
         iFileSystem->removeFilesInDirectory(
-                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath());
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath());
 
         for (size_t i = 0; i < reportAndFiles.sortedFilePaths.size(); i++)
         {
@@ -396,8 +402,8 @@ namespace UpdateSchedulerImpl
             {
                 std::string baseName = Common::FileSystem::basename(reportAndFiles.sortedFilePaths[i]);
                 std::string destinationPath = Common::FileSystem::join(
-                        Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath(),
-                        baseName);
+                    Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath(),
+                    baseName);
 
                 try
                 {
@@ -405,9 +411,10 @@ namespace UpdateSchedulerImpl
                     // The file will be used on the next update to determine which reports have already been processed.
                     iFileSystem->writeFile(destinationPath, "");
                 }
-                catch(Common::FileSystem::IFileSystemException& ex)
+                catch (Common::FileSystem::IFileSystemException& ex)
                 {
-                    LOGWARN("Failed to copy '" << reportAndFiles.sortedFilePaths[i] << "' to '" << destinationPath << "'");
+                    LOGWARN(
+                        "Failed to copy '" << reportAndFiles.sortedFilePaths[i] << "' to '" << destinationPath << "'");
                 }
             }
         }
@@ -451,9 +458,11 @@ namespace UpdateSchedulerImpl
             {
                 iFileSystem->copyFile(m_configfilePath, m_previousConfigFilePath);
             }
-            catch(Common::FileSystem::IFileSystemException& ex)
+            catch (Common::FileSystem::IFileSystemException& ex)
             {
-                LOGWARN("Failed to create previous configuration file at : " << m_previousConfigFilePath << ", with error, " << ex.what());
+                LOGWARN(
+                    "Failed to create previous configuration file at : " << m_previousConfigFilePath << ", with error, "
+                                                                         << ex.what());
             }
 
             return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;
@@ -502,16 +511,17 @@ namespace UpdateSchedulerImpl
         Common::FileSystem::fileSystem()->writeFile(m_configfilePath, serializedConfigData);
     }
 
-    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerProcessor::getPreviousConfigurationData()
+    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerProcessor::
+        getPreviousConfigurationData()
     {
         Path previousConfigFilePath = Common::FileSystem::join(
-                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath(),
-                Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath(),
+            Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
 
         std::string previousConfigSettings;
         SulDownloader::suldownloaderdata::ConfigurationData previousConfigurationData;
 
-        if(Common::FileSystem::fileSystem()->isFile(previousConfigFilePath))
+        if (Common::FileSystem::fileSystem()->isFile(previousConfigFilePath))
         {
             LOGDEBUG("Previous update configuration file found.");
             try
@@ -519,15 +529,14 @@ namespace UpdateSchedulerImpl
                 previousConfigSettings = Common::FileSystem::fileSystem()->readFile(previousConfigFilePath);
 
                 previousConfigurationData =
-                        SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(previousConfigSettings);
-                return std::optional<SulDownloader::suldownloaderdata::ConfigurationData>{previousConfigurationData};
-
+                    SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(previousConfigSettings);
+                return std::optional<SulDownloader::suldownloaderdata::ConfigurationData>{ previousConfigurationData };
             }
-            catch(SulDownloader::suldownloaderdata::SulDownloaderException& ex)
+            catch (SulDownloader::suldownloaderdata::SulDownloaderException& ex)
             {
                 LOGWARN("Failed to load previous configuration settings from : " << previousConfigFilePath);
             }
-            catch(Common::FileSystem::IFileSystemException& ex)
+            catch (Common::FileSystem::IFileSystemException& ex)
             {
                 LOGWARN("Failed to read previous configuration file : " << previousConfigFilePath);
             }
@@ -535,7 +544,6 @@ namespace UpdateSchedulerImpl
 
         return std::nullopt;
     }
-
 
     void UpdateSchedulerProcessor::safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const
     {

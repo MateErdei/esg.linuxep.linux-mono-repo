@@ -17,6 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IPidLockFileUtils.h>
 #include <Common/Logging/FileLoggingSetup.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
@@ -30,7 +31,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <cassert>
-#include <Common/UtilityImpl/ProjectNames.h>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -59,17 +59,20 @@ namespace
     // FIXME: remove after LINUXDAR-1942
     void detectAndFixIssuesRelatedToUpgradeWithBrokenLiveResponse()
     {
-        auto fs = Common::FileSystem::fileSystem(); 
-        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse/")
-        && !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/"
+                       "ServerProtectionLinux-Plugin-liveresponse/") &&
+            !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
         {
-            try{
-                LOGINFO("Detected previous upgrade left liveresponse uninstalled. Perform the repare procedure."); 
-                fs->removeFileOrDirectory("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/"); 
-            }catch( Common::FileSystem::IFileSystemException & ex)
+            try
             {
-                LOGWARN("Failed to remove directory in primary/ folder. " << ex.what() ); 
-            }            
+                LOGINFO("Detected previous upgrade left liveresponse uninstalled. Perform the repare procedure.");
+                fs->removeFileOrDirectory("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/");
+            }
+            catch (Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to remove directory in primary/ folder. " << ex.what());
+            }
         }
     }
 
@@ -149,8 +152,8 @@ namespace SulDownloader
 
         // Mark which products need to be forced to re/install.
         bool forceReinstallAllProducts =
-                SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
-                        configurationData, previousConfigurationData, false);
+            SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+                configurationData, previousConfigurationData, false);
 
         for (auto& product : products)
         {
@@ -179,7 +182,12 @@ namespace SulDownloader
         {
             LOGWARN("Verification of the downloaded products failed.");
             return DownloadReport::Report(
-                sourceURL, products, {}, warehouseRepository->listInstalledSubscriptions(), &timeTracker, DownloadReport::VerifyState::VerifyFailed);
+                sourceURL,
+                products,
+                {},
+                warehouseRepository->listInstalledSubscriptions(),
+                &timeTracker,
+                DownloadReport::VerifyState::VerifyFailed);
         }
 
         // design decision: do not install if any error happens before this time.
@@ -231,15 +239,14 @@ namespace SulDownloader
 
             ConfigurationData previousConfigurationData;
 
-            if(!previousSettingString.empty())
+            if (!previousSettingString.empty())
             {
                 previousConfigurationData = ConfigurationData::fromJsonSettings(previousSettingString);
-                if(!previousConfigurationData.verifySettingsAreValid())
+                if (!previousConfigurationData.verifySettingsAreValid())
                 {
                     LOGDEBUG("No previous configuration data provided");
                 }
             }
-
 
             if (!configurationData.verifySettingsAreValid())
             {
@@ -307,11 +314,9 @@ namespace SulDownloader
         auto fileSystem = Common::FileSystem::fileSystem();
 
         // previous setting data will be based on location of inputFilePath.
-        Path previousSettingFilePath =
-                Common::FileSystem::join(
-                        Common::FileSystem::dirName(inputFilePath),
-                        Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
-
+        Path previousSettingFilePath = Common::FileSystem::join(
+            Common::FileSystem::dirName(inputFilePath),
+            Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
 
         std::string settingsString = fileSystem->readFile(inputFilePath);
 
@@ -323,7 +328,7 @@ namespace SulDownloader
             {
                 previousSettingsString = fileSystem->readFile(previousSettingFilePath);
             }
-            catch(Common::FileSystem::IFileSystemException& ex)
+            catch (Common::FileSystem::IFileSystemException& ex)
             {
                 LOGWARN("Failed to read previous update configuration file.");
             }
@@ -346,7 +351,8 @@ namespace SulDownloader
         std::string previousReportData = getPreviousDownloadReportData(outputParentPath);
         int exitCode;
         std::string jsonReport;
-        std::tie(exitCode, jsonReport) = configAndRunDownloader(settingsString, previousSettingsString, previousReportData);
+        std::tie(exitCode, jsonReport) =
+            configAndRunDownloader(settingsString, previousSettingsString, previousReportData);
 
         if (exitCode == 0)
         {
@@ -394,7 +400,7 @@ namespace SulDownloader
 
         try
         {
-            detectAndFixIssuesRelatedToUpgradeWithBrokenLiveResponse(); 
+            detectAndFixIssuesRelatedToUpgradeWithBrokenLiveResponse();
             return fileEntriesAndRunDownloader(inputPath, outputPath);
         } // failed or unable to either read or to write files
         catch (std::exception& ex)

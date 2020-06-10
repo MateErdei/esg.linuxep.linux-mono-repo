@@ -35,7 +35,7 @@ namespace SulDownloader
                 InstallFailed = 5,
                 VerifyFailed = 6
             };
-            static ProductStatus maxProductStatus( ProductStatus lh, ProductStatus rh); 
+            static ProductStatus maxProductStatus(ProductStatus lh, ProductStatus rh);
             ProductStatus productStatus = ProductStatus::SyncFailed;
 
             std::string statusToString() const;
@@ -66,9 +66,10 @@ namespace SulDownloader
                 VerifyFailed,
                 VerifyCorrect
             };
-            static std::vector<ProductReport> combineProductsAndSubscriptions( const std::vector<suldownloaderdata::DownloadedProduct> & , 
-                    const std::vector<suldownloaderdata::SubscriptionInfo>&, 
-                    const WarehouseStatus& warehouseStatus); 
+            static std::vector<ProductReport> combineProductsAndSubscriptions(
+                const std::vector<suldownloaderdata::DownloadedProduct>&,
+                const std::vector<suldownloaderdata::SubscriptionInfo>&,
+                const WarehouseStatus& warehouseStatus);
 
             static DownloadReport Report(const IWarehouseRepository&, const TimeTracker& timeTracker);
 

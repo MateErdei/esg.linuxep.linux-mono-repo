@@ -125,7 +125,7 @@ namespace SulDownloader
         std::vector<suldownloaderdata::DownloadedProduct> getProducts() const override;
 
         std::vector<suldownloaderdata::ProductInfo> listInstalledProducts() const override;
-        std::vector<suldownloaderdata::SubscriptionInfo> listInstalledSubscriptions() const override; 
+        std::vector<suldownloaderdata::SubscriptionInfo> listInstalledSubscriptions() const override;
 
         std::string getSourceURL() const override;
 

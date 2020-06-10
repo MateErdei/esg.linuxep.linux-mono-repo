@@ -354,8 +354,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        ConnectionSelectorTest,
-        getConnectionCandidatesShouldReturnValidCandidatesWhenObfuscatedPassedHasBeenPadded)
+    ConnectionSelectorTest,
+    getConnectionCandidatesShouldReturnValidCandidatesWhenObfuscatedPassedHasBeenPadded)
 {
     std::string oldString = R"("proxy": {
                                "url": "noproxy:",
@@ -376,7 +376,7 @@ TEST_F( // NOLINT
                                },)";
 
     suldownloaderdata::ConfigurationData configurationData =
-            suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
@@ -396,7 +396,7 @@ TEST_F( // NOLINT
     EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
-            connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+        connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
@@ -405,6 +405,6 @@ TEST_F( // NOLINT
     EXPECT_STREQ(connectionCandidates[2].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[2].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
-            connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+        connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
 }

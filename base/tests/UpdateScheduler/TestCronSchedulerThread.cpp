@@ -326,12 +326,13 @@ TEST_F(TestCronSchedulerThread, cronShouldNotTriggerUpdateBeforePassingTheOffset
         {
             continue;
         }
-        ASSERT_EQ(receivedValues.size(), 1) << "Failed. CapturedLog: " << capturedLog;       // there should always be either none or one.
-        ASSERT_EQ(receivedValues, expectedValues)<< "Failed. CapturedLog: " << capturedLog; // if there is one, it must be the expectedValues
+        ASSERT_EQ(receivedValues.size(), 1)
+            << "Failed. CapturedLog: " << capturedLog; // there should always be either none or one.
+        ASSERT_EQ(receivedValues, expectedValues)
+            << "Failed. CapturedLog: " << capturedLog; // if there is one, it must be the expectedValues
         count_how_many_times_scheduled_update_was_triggered++;
     }
     // statistically it is very unlikely that it has always triggered or never triggered.
-    EXPECT_LT(count_how_many_times_scheduled_update_was_triggered, 10)<< "Failed. CapturedLog: " << capturedLog;
-    EXPECT_GT(count_how_many_times_scheduled_update_was_triggered, 0)<< "Failed. CapturedLog: " << capturedLog;
-
+    EXPECT_LT(count_how_many_times_scheduled_update_was_triggered, 10) << "Failed. CapturedLog: " << capturedLog;
+    EXPECT_GT(count_how_many_times_scheduled_update_was_triggered, 0) << "Failed. CapturedLog: " << capturedLog;
 }

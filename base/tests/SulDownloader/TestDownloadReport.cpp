@@ -201,7 +201,8 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
 
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(false));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));         
+    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions())
+        .WillOnce(Return(subscriptionsFromProduct(products)));
     EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
@@ -235,7 +236,8 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(true));
     EXPECT_CALL(mockWarehouseRepository, getError()).WillOnce(Return(error));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));      
+    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions())
+        .WillOnce(Return(subscriptionsFromProduct(products)));
     EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
@@ -270,7 +272,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(true));
     EXPECT_CALL(mockWarehouseRepository, getError()).WillOnce(Return(error));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));      
+    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions())
+        .WillOnce(Return(subscriptionsFromProduct(products)));
     EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
@@ -319,8 +322,13 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalled
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report =
-        DownloadReport::Report("sourceurl", products, {}, subscriptionsFromProduct(products), &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(
+        "sourceurl",
+        products,
+        {},
+        subscriptionsFromProduct(products),
+        &timeTracker,
+        DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -346,7 +354,8 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCrea
 
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(false));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));      
+    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions())
+        .WillOnce(Return(subscriptionsFromProduct(products)));
     EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
@@ -384,7 +393,8 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCrea
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(true));
     EXPECT_CALL(mockWarehouseRepository, getError()).WillOnce(Return(error));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));      
+    EXPECT_CALL(mockWarehouseRepository, listInstalledSubscriptions())
+        .WillOnce(Return(subscriptionsFromProduct(products)));
     EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
@@ -421,8 +431,13 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report =
-        DownloadReport::Report("sourceurl", products, {}, subscriptionsFromProduct(products), &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(
+        "sourceurl",
+        products,
+        {},
+        subscriptionsFromProduct(products),
+        &timeTracker,
+        DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -466,8 +481,13 @@ TEST_F( // NOLINT
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report =
-        DownloadReport::Report("sourceurl", products, {}, subscriptionsFromProduct(products), &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(
+        "sourceurl",
+        products,
+        {},
+        subscriptionsFromProduct(products),
+        &timeTracker,
+        DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -489,8 +509,13 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
 
     std::vector<DownloadedProduct> products;
 
-    auto report =
-        DownloadReport::Report("sourceurl", products, {}, subscriptionsFromProduct(products), &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(
+        "sourceurl",
+        products,
+        {},
+        subscriptionsFromProduct(products),
+        &timeTracker,
+        DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
 
@@ -544,7 +569,12 @@ TEST_F( // NOLINT
                                                downloadedProduct.getProductMetadata().getVersion() });
 
     auto report = DownloadReport::Report(
-        "sophosurl", products, warehouseComponents, subscriptionsFromProduct(products), &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        "sophosurl",
+        products,
+        warehouseComponents,
+        subscriptionsFromProduct(products),
+        &timeTracker,
+        DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
 
@@ -602,8 +632,13 @@ TEST_F( // NOLINT
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report =
-        DownloadReport::Report("sophosurl", products, {}, subscriptionsFromProduct(products), &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(
+        "sophosurl",
+        products,
+        {},
+        subscriptionsFromProduct(products),
+        &timeTracker,
+        DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::UNINSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Uninstall failed");
@@ -658,8 +693,13 @@ TEST_F( // NOLINT
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report =
-        DownloadReport::Report("sophosurl", products, {}, subscriptionsFromProduct(products), &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(
+        "sophosurl",
+        products,
+        {},
+        subscriptionsFromProduct(products),
+        &timeTracker,
+        DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Update failed");
@@ -720,69 +760,66 @@ TEST_F(DownloadReportTest, shouldExtractTheWarehouseSubComponents)
 
 TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReconcileSubscriptions)
 {
-    suldownloaderdata::WarehouseError wErr; 
-    wErr.Description = "Error P1"; 
-    wErr.status = suldownloaderdata::WarehouseStatus::UNINSTALLFAILED; 
+    suldownloaderdata::WarehouseError wErr;
+    wErr.Description = "Error P1";
+    wErr.status = suldownloaderdata::WarehouseStatus::UNINSTALLFAILED;
     std::vector<suldownloaderdata::DownloadedProduct> downloadedProducts;
-    auto metadata = createTestProductMetaData(); 
-    metadata.setLine("P1"); 
-    downloadedProducts.push_back( createTestDownloadedProduct(metadata)); 
-    downloadedProducts[0].setError(wErr); 
-    downloadedProducts[0].setProductIsBeingUninstalled(true); 
-    
-    wErr.Description = "Error P2"; 
+    auto metadata = createTestProductMetaData();
+    metadata.setLine("P1");
+    downloadedProducts.push_back(createTestDownloadedProduct(metadata));
+    downloadedProducts[0].setError(wErr);
+    downloadedProducts[0].setProductIsBeingUninstalled(true);
+
+    wErr.Description = "Error P2";
     wErr.status = suldownloaderdata::WarehouseStatus::INSTALLFAILED;
 
-    metadata.setLine("P2"); 
-    downloadedProducts.push_back( createTestDownloadedProduct(metadata)); 
+    metadata.setLine("P2");
+    downloadedProducts.push_back(createTestDownloadedProduct(metadata));
     downloadedProducts[1].setError(wErr);
-    
-    
-    suldownloaderdata::SubProducts products; 
+
+    suldownloaderdata::SubProducts products;
     auto version = metadata.getVersion(); // they all have the same version
-    products.push_back({"P1", version}); 
-    products.push_back({"P2", version}); 
-    
-    suldownloaderdata::SubscriptionInfo subscriptionInfo; 
-    subscriptionInfo.rigidName = "CS1"; 
-    subscriptionInfo.version = version; 
-    subscriptionInfo.subProducts = products; 
-    std::vector<suldownloaderdata::SubscriptionInfo> subscriptions; 
-    subscriptions.push_back(subscriptionInfo);    
+    products.push_back({ "P1", version });
+    products.push_back({ "P2", version });
 
-    auto reportProducts = DownloadReport::combineProductsAndSubscriptions(downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS); 
-    ASSERT_EQ(reportProducts.size(), 1); 
-    EXPECT_EQ( reportProducts[0].rigidName, "CS1"); 
-    EXPECT_EQ( reportProducts[0].productStatus, ProductReport::ProductStatus::InstallFailed); 
-    EXPECT_EQ( reportProducts[0].errorDescription, "Error P1. Error P2"); 
+    suldownloaderdata::SubscriptionInfo subscriptionInfo;
+    subscriptionInfo.rigidName = "CS1";
+    subscriptionInfo.version = version;
+    subscriptionInfo.subProducts = products;
+    std::vector<suldownloaderdata::SubscriptionInfo> subscriptions;
+    subscriptions.push_back(subscriptionInfo);
 
-    subscriptions.clear(); 
-    subscriptionInfo.subProducts.clear(); 
-    subscriptionInfo.rigidName = "P1"; 
-    subscriptions.push_back(subscriptionInfo);    
+    auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
+        downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
+    ASSERT_EQ(reportProducts.size(), 1);
+    EXPECT_EQ(reportProducts[0].rigidName, "CS1");
+    EXPECT_EQ(reportProducts[0].productStatus, ProductReport::ProductStatus::InstallFailed);
+    EXPECT_EQ(reportProducts[0].errorDescription, "Error P1. Error P2");
 
-    reportProducts = DownloadReport::combineProductsAndSubscriptions(downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS); 
-    ASSERT_EQ(reportProducts.size(), 1); 
-    EXPECT_EQ( reportProducts[0].rigidName, "P1"); 
-    EXPECT_EQ( reportProducts[0].productStatus, ProductReport::ProductStatus::UninstallFailed); 
-    EXPECT_EQ( reportProducts[0].errorDescription, "Error P1"); 
+    subscriptions.clear();
+    subscriptionInfo.subProducts.clear();
+    subscriptionInfo.rigidName = "P1";
+    subscriptions.push_back(subscriptionInfo);
 
+    reportProducts = DownloadReport::combineProductsAndSubscriptions(
+        downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
+    ASSERT_EQ(reportProducts.size(), 1);
+    EXPECT_EQ(reportProducts[0].rigidName, "P1");
+    EXPECT_EQ(reportProducts[0].productStatus, ProductReport::ProductStatus::UninstallFailed);
+    EXPECT_EQ(reportProducts[0].errorDescription, "Error P1");
 
-    subscriptions.clear(); 
-    subscriptionInfo.subProducts.clear(); 
-    subscriptionInfo.rigidName = "P1"; 
-    subscriptions.push_back(subscriptionInfo);    
-    subscriptionInfo.rigidName = "P2"; 
-    subscriptions.push_back(subscriptionInfo);    
+    subscriptions.clear();
+    subscriptionInfo.subProducts.clear();
+    subscriptionInfo.rigidName = "P1";
+    subscriptions.push_back(subscriptionInfo);
+    subscriptionInfo.rigidName = "P2";
+    subscriptions.push_back(subscriptionInfo);
 
-    reportProducts = DownloadReport::combineProductsAndSubscriptions(downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS); 
-    ASSERT_EQ(reportProducts.size(), 2); 
-    EXPECT_EQ( reportProducts[0].rigidName, "P1"); 
-    EXPECT_EQ( reportProducts[1].rigidName, "P2"); 
-    EXPECT_EQ( reportProducts[1].productStatus, ProductReport::ProductStatus::InstallFailed); 
-    EXPECT_EQ( reportProducts[1].errorDescription, "Error P2"); 
-
-
-
-
+    reportProducts = DownloadReport::combineProductsAndSubscriptions(
+        downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
+    ASSERT_EQ(reportProducts.size(), 2);
+    EXPECT_EQ(reportProducts[0].rigidName, "P1");
+    EXPECT_EQ(reportProducts[1].rigidName, "P2");
+    EXPECT_EQ(reportProducts[1].productStatus, ProductReport::ProductStatus::InstallFailed);
+    EXPECT_EQ(reportProducts[1].errorDescription, "Error P2");
 }

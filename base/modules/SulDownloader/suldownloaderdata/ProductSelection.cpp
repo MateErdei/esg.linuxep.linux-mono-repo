@@ -8,9 +8,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "SulDownloaderException.h"
-#include <list>
-#include <cassert>
+
 #include <Common/UtilityImpl/StringUtils.h>
+
+#include <cassert>
+#include <list>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -71,13 +73,14 @@ namespace
     // Subscription Selector
 
     SubscriptionSelector::SubscriptionSelector(ProductSubscription productSubscription) :
-            m_productSubscription(std::move(productSubscription))
+        m_productSubscription(std::move(productSubscription))
     {
     }
 
     std::string SubscriptionSelector::targetProductName() const { return m_productSubscription.rigidName(); }
 
-    bool SubscriptionSelector::keepProduct(const SulDownloader::suldownloaderdata::ProductMetadata& productInformation) const
+    bool SubscriptionSelector::keepProduct(
+        const SulDownloader::suldownloaderdata::ProductMetadata& productInformation) const
     {
         // the selection is based on the following algorithm.
 
@@ -109,56 +112,59 @@ namespace
 
     bool SubscriptionSelector::isProductRequired() const { return true; }
 
-
     struct MatchLineVersion
     {
-        std::string m_line; 
-        std::string m_version; 
-        MatchLineVersion(std::string line, std::string version): m_line(line), m_version(version)
+        std::string m_line;
+        std::string m_version;
+        MatchLineVersion(std::string line, std::string version) : m_line(line), m_version(version) {}
+        bool operator()(const SulDownloader::suldownloaderdata::ProductMetadata& candidate) const
         {
+            return candidate.getLine() == m_line && candidate.getVersion() == m_version;
         }
-        bool operator()(const SulDownloader::suldownloaderdata::ProductMetadata& candidate) const{
-            return candidate.getLine() == m_line && candidate.getVersion() == m_version; 
-        }        
     };
 
     bool shouldExpandComponentSuiteToProducts(const ProductMetadata& productSubscriptionMetaData)
     {
-        if ( productSubscriptionMetaData.subProducts().empty())
+        if (productSubscriptionMetaData.subProducts().empty())
         {
-            
-            return false; 
+            return false;
         }
         else
         {
             if (productSubscriptionMetaData.getFeatures().empty())
             {
-                return true; 
+                return true;
             }
             else
             {
                 // FIXME: adjust this after LINUXDAR-1942
-                // this should be false: do not expand the component suite as there are features associated with the component suite. 
-                // but a special case has to be made to ServerProtectionLinux-Base to handle transition where the old-version of 
-                // suldownloader needs to be used for upgrading (hence, features will be associated with that rigidname for some time.)
-                return productSubscriptionMetaData.getLine() == "ServerProtectionLinux-Base"; 
-            }                        
+                // this should be false: do not expand the component suite as there are features associated with the
+                // component suite. but a special case has to be made to ServerProtectionLinux-Base to handle transition
+                // where the old-version of suldownloader needs to be used for upgrading (hence, features will be
+                // associated with that rigidname for some time.)
+                return productSubscriptionMetaData.getLine() == "ServerProtectionLinux-Base";
+            }
         }
     }
 
-    StableSetIndex mapSubscriptionToProducts( ProductMetadata productSubscriptionMetaData, const std::vector<ProductMetadata>& warehouseProducts )
+    StableSetIndex mapSubscriptionToProducts(
+        ProductMetadata productSubscriptionMetaData,
+        const std::vector<ProductMetadata>& warehouseProducts)
     {
         StableSetIndex set(warehouseProducts.size());
 
-        for( auto & subComp: productSubscriptionMetaData.subProducts())
+        for (auto& subComp : productSubscriptionMetaData.subProducts())
         {
-            auto pos = std::find_if(warehouseProducts.begin(), warehouseProducts.end(), MatchLineVersion(subComp.m_line, subComp.m_version)); 
-            if ( pos != warehouseProducts.end())
+            auto pos = std::find_if(
+                warehouseProducts.begin(),
+                warehouseProducts.end(),
+                MatchLineVersion(subComp.m_line, subComp.m_version));
+            if (pos != warehouseProducts.end())
             {
-                set.addIndex(std::distance(warehouseProducts.begin(), pos)); 
+                set.addIndex(std::distance(warehouseProducts.begin(), pos));
             }
         }
-        return set; 
+        return set;
     }
 
 } // namespace
@@ -210,59 +216,59 @@ namespace SulDownloader
                 selectedSubscriptionsIndex.addIndexes(selectedIndexes);
             }
         }
-        
-        LOGDEBUG("Selected "<< selectedSubscriptionsIndex.values().size() << " subscriptions total");
-        for( auto & index : selectedSubscriptionsIndex.values())
+
+        LOGDEBUG("Selected " << selectedSubscriptionsIndex.values().size() << " subscriptions total");
+        for (auto& index : selectedSubscriptionsIndex.values())
         {
-             const auto& warehouseProduct = warehouseProducts[index];
-             LOGDEBUG("Selected Subscription: " << warehouseProduct.getName()); 
+            const auto& warehouseProduct = warehouseProducts[index];
+            LOGDEBUG("Selected Subscription: " << warehouseProduct.getName());
         }
 
         StableSetIndex selectedProductsIndex(warehouseProducts.size());
-        for( auto & index : selectedSubscriptionsIndex.values())
+        for (auto& index : selectedSubscriptionsIndex.values())
         {
             if (shouldExpandComponentSuiteToProducts(warehouseProducts[index]))
             {
                 const auto& subscriptionProduct = warehouseProducts[index];
-                auto selectedIndexes = mapSubscriptionToProducts(warehouseProducts[index] , warehouseProducts );
+                auto selectedIndexes = mapSubscriptionToProducts(warehouseProducts[index], warehouseProducts);
 
-                // in order to handle the 'strange case' that the order of the component could not be the order 
-                // defined in the warehouse configuration, it has been decided, that if it were to be a product that needs to be installed
-                // first inside a component suite, that product will have the name of the component suite plus a suffix. 
-                // the lines below, garantee that a component within a component suite whose rigidline contains the component suite 
-                // will be placed in the front of the 'list'. 
-                // if the order were garantted, it woudl be possible to do: 
+                // in order to handle the 'strange case' that the order of the component could not be the order
+                // defined in the warehouse configuration, it has been decided, that if it were to be a product that
+                // needs to be installed first inside a component suite, that product will have the name of the
+                // component suite plus a suffix. the lines below, garantee that a component within a component suite
+                // whose rigidline contains the component suite will be placed in the front of the 'list'. if the order
+                // were garantted, it woudl be possible to do:
                 //  selectedProductsIndex.addIndexes(selectedIndexes);
 
-                std::list<size_t> indexes; 
-                for( auto sub_index: selectedIndexes.values())
+                std::list<size_t> indexes;
+                for (auto sub_index : selectedIndexes.values())
                 {
-                    const auto & product = warehouseProducts[sub_index]; 
-                    if ( Common::UtilityImpl::StringUtils::startswith(product.getLine(), subscriptionProduct.getLine()))
+                    const auto& product = warehouseProducts[sub_index];
+                    if (Common::UtilityImpl::StringUtils::startswith(product.getLine(), subscriptionProduct.getLine()))
                     {
-                        indexes.push_front(sub_index); 
-                    }else
+                        indexes.push_front(sub_index);
+                    }
+                    else
                     {
-                        indexes.push_back(sub_index); 
-                    }                
-                } 
-                for( auto sub_index: indexes)
+                        indexes.push_back(sub_index);
+                    }
+                }
+                for (auto sub_index : indexes)
                 {
-                    selectedProductsIndex.addIndex(sub_index); 
+                    selectedProductsIndex.addIndex(sub_index);
                 }
             }
             else
             {
-                selectedProductsIndex.addIndex(index); 
-            }            
+                selectedProductsIndex.addIndex(index);
+            }
         }
 
-        for( auto & index : selectedProductsIndex.values())
+        for (auto& index : selectedProductsIndex.values())
         {
-             const auto& warehouseProduct = warehouseProducts[index];
-             LOGDEBUG("Selected Product Indexes after Map Subscription to Product: " << warehouseProduct.getName()); 
+            const auto& warehouseProduct = warehouseProducts[index];
+            LOGDEBUG("Selected Product Indexes after Map Subscription to Product: " << warehouseProduct.getName());
         }
-
 
         StableSetIndex secondSelection(warehouseProducts.size());
         bool atLeastOneHasCore = false;
@@ -287,31 +293,32 @@ namespace SulDownloader
             selection.missing.push_back(MissingCoreProduct());
         }
         selectedProductsIndex = secondSelection;
-        LOGDEBUG("Filtered "<< selectedProductsIndex.values().size() << " products total");
-        
-        std::vector<ProductMetadata> selectedProductsView; 
-        for( auto & index : selectedProductsIndex.values())
+        LOGDEBUG("Filtered " << selectedProductsIndex.values().size() << " products total");
+
+        std::vector<ProductMetadata> selectedProductsView;
+        for (auto& index : selectedProductsIndex.values())
         {
-             const auto& warehouseProduct = warehouseProducts[index];
-             LOGDEBUG("Selected product: " << warehouseProduct.getName()); 
-             selectedProductsView.push_back(warehouseProduct); 
+            const auto& warehouseProduct = warehouseProducts[index];
+            LOGDEBUG("Selected product: " << warehouseProduct.getName());
+            selectedProductsView.push_back(warehouseProduct);
         }
 
         StableSetIndex finalSubscriptionSelection(warehouseProducts.size());
-        for( auto & index: selectedSubscriptionsIndex.values())
+        for (auto& index : selectedSubscriptionsIndex.values())
         {
-            if ( shouldExpandComponentSuiteToProducts(warehouseProducts[index]))
+            if (shouldExpandComponentSuiteToProducts(warehouseProducts[index]))
             {
-                 auto selectedIndexes = mapSubscriptionToProducts(warehouseProducts[index] , selectedProductsView );
-                 // it he selection returns empty it means that all the products under the component suite were removed, hence, it should not be added.
-                 if (!selectedIndexes.empty())
-                 {
-                    finalSubscriptionSelection.addIndex(index); 
-                 }
+                auto selectedIndexes = mapSubscriptionToProducts(warehouseProducts[index], selectedProductsView);
+                // it he selection returns empty it means that all the products under the component suite were removed,
+                // hence, it should not be added.
+                if (!selectedIndexes.empty())
+                {
+                    finalSubscriptionSelection.addIndex(index);
+                }
             }
             else
             {
-                finalSubscriptionSelection.addIndex(index); 
+                finalSubscriptionSelection.addIndex(index);
             }
         }
 
@@ -340,9 +347,9 @@ namespace SulDownloader
             if (selector.keepProduct(warehouseProducts[i]))
             {
                 set.addIndex(i);
-                for( auto & product: warehouseProducts[i].subProducts())
+                for (auto& product : warehouseProducts[i].subProducts())
                 {
-                    LOGDEBUG("Selected component has line,version="<< product.m_line << ", "<< product.m_version); 
+                    LOGDEBUG("Selected component has line,version=" << product.m_line << ", " << product.m_version);
                 }
             }
         }

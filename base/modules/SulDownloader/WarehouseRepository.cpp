@@ -147,8 +147,7 @@ namespace
     {
         displayProductTags(
             product,
-            {
-              "Line",
+            { "Line",
               "R_Line",
               "VersionId",
               "Name",
@@ -279,10 +278,12 @@ namespace SulDownloader
 
         SelectedResultsIndexes selectedIndexes = selection.selectProducts(productMetadataList);
 
-        m_selectedSubscriptions.clear(); 
-        for( size_t index: selectedIndexes.selected_subscriptions){
-            auto & productMetadata = productMetadataList[index];
-            m_selectedSubscriptions.push_back({productMetadata.getLine(), productMetadata.getVersion(), productMetadata.subProducts()}); 
+        m_selectedSubscriptions.clear();
+        for (size_t index : selectedIndexes.selected_subscriptions)
+        {
+            auto& productMetadata = productMetadataList[index];
+            m_selectedSubscriptions.push_back(
+                { productMetadata.getLine(), productMetadata.getVersion(), productMetadata.subProducts() });
         }
 
         for (size_t index : selectedIndexes.selected)
@@ -652,9 +653,9 @@ namespace SulDownloader
         return CatalogueInfo::calculatedListProducts(getProducts(), m_catalogueInfo);
     }
 
-    std::vector<suldownloaderdata::SubscriptionInfo>  WarehouseRepository::listInstalledSubscriptions() const
+    std::vector<suldownloaderdata::SubscriptionInfo> WarehouseRepository::listInstalledSubscriptions() const
     {
-        return m_selectedSubscriptions; 
+        return m_selectedSubscriptions;
     }
 
     std::string WarehouseRepository::getProductDistributionPath(

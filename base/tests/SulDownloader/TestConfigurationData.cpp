@@ -5,11 +5,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ConfigurationDataBase.h"
-#include <Common/Logging/ConsoleLoggingSetup.h>
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
@@ -451,7 +451,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyS
     configurationData.verifySettingsAreValid();
 
     suldownloaderdata::ProxyCredentials proxyCredentials("user", "password", "");
-    std::vector<Proxy> expectedProxyList = { Proxy("savedProxy.com", proxyCredentials ), Proxy(Proxy::NoProxy) };
+    std::vector<Proxy> expectedProxyList = { Proxy("savedProxy.com", proxyCredentials), Proxy(Proxy::NoProxy) };
     EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
 }
@@ -473,7 +473,6 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxySh
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-
 TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLoggedAndNotReturnValidObject) // NOLINT
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
@@ -488,7 +487,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLo
 
     configurationData.verifySettingsAreValid();
 
-    std::vector<Proxy> expectedProxyList = {Proxy(Proxy::NoProxy)};
+    std::vector<Proxy> expectedProxyList = { Proxy(Proxy::NoProxy) };
     std::vector<Proxy> actualProxyList = configurationData.proxiesList();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -497,7 +496,6 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLo
     EXPECT_EQ(actualProxyList, expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
 }
-
 
 TEST_F(ConfigurationDataTest, proxyFromSavedProxyUrlShouldBeLoggedAndReturnNullOpt) // NOLINT
 {

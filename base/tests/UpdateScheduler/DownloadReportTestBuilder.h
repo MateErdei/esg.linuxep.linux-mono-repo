@@ -80,7 +80,8 @@ namespace SulDownloader
 
                 report.m_description = "";
                 report.m_sulError = "";
-                switch (useTime) {
+                switch (useTime)
+                {
                     case UseTime::Later:
                         report.m_startTime = StartTimeTest;
                         report.m_finishedTime = FinishTimeTest;
@@ -116,14 +117,14 @@ namespace SulDownloader
 
             static SulDownloader::suldownloaderdata::DownloadReport goodReportWithSubscriptions()
             {
-                auto report = goodReport(); 
-                std::vector<ProductReport> products; 
-                ProductReport compSuite; 
-                compSuite.rigidName = "ComponentSuite"; 
-                compSuite.downloadedVersion="v1";
-                products.push_back(compSuite); 
-                report.m_productReport = products; 
-                return report; 
+                auto report = goodReport();
+                std::vector<ProductReport> products;
+                ProductReport compSuite;
+                compSuite.rigidName = "ComponentSuite";
+                compSuite.downloadedVersion = "v1";
+                products.push_back(compSuite);
+                report.m_productReport = products;
+                return report;
             }
 
             static std::string goodReportString(UseTime useTime)
