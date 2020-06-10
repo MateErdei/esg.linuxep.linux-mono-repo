@@ -402,7 +402,6 @@ Reset Environment For Nova Tests
     Require Fresh Install
     Remove Environment Variable  MCS_CONFIG_SET
     Reload Cloud Options
-    Set credentials for non aws
     Set Nova MCS CA Environment Variable
     ${regCommand}=  Get Sspl Registration
     Set Suite Variable    ${regCommand}     ${regCommand}   children=true
