@@ -27,6 +27,7 @@ ${websocket_server_url}     wss://localhost
 
 *** Test Cases ***
 Verify Liveresponse Works End To End LiveResponse Session Command Via Push
+    Wait New MCS Policy Downloaded
     Check Connected To Fake Cloud
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
 
@@ -115,5 +116,3 @@ Setup Base FakeCloud And FakeCentral-LT Servers
     Register With Local Cloud Server
     Override LogConf File as Global Level  DEBUG
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log   liveresponse   DEBUG
-
-    Wait New MCS Policy Downloaded
