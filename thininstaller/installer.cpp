@@ -576,14 +576,13 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
     }
 
     std::vector<ProductInfo> products = listProductsFromWarehouse(session->m_session); 
-    logDebug("products listed in the warehouse " );
+    
     std::vector<ProductInfo>::iterator selectedProductIt; 
     for( auto & targetRigidName: g_GuidPreferences)
     {
         selectedProductIt = std::find_if(products.begin(), products.end(), MatchProduct(targetRigidName)); 
         if (selectedProductIt != products.end())
         {
-            logDebug("found one element to install in the warehouse" );
             break; 
         }
     }
@@ -594,26 +593,17 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
         return 47;
     }
 
-    logDebug("remove all the components of the warehouse but the target one" );
     // remove all the other products
     for( auto it=products.begin(); it != products.end(); ++it)
     {
         if ( it != selectedProductIt)
         {
-                logDebug("remove one more product handle" );
-                logDebug(it->rigidName);
                 ret = SU_removeProduct(it->pHandle);
                 RETURN_IF_ERROR("SU_removeProduct", ret);
         }
-        else{
-            logDebug("keep the product that we want in the warehouse" );
-        }
     }
 
-    logDebug("upgrade the g_Product handle " );
     g_Product = selectedProductIt->pHandle; 
-
-    logDebug("before synchronize" );
 
     ret = SU_synchronise(session->m_session);
     logDebug("synchronise: " + std::to_string(ret));
