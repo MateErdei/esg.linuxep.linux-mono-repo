@@ -18,7 +18,7 @@
 static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
 
-static const char* g_Guid = "ServerProtectionLinux-Base";
+static const std::vector<std::string> g_GuidPreferences{"ServerProtectionLinux-Base-component", "ServerProtectionLinux-Base"};
 static const char* g_ReleaseTag = "RECOMMENDED";
 
 // Used to check if an env proxy is in use.
@@ -232,13 +232,30 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
     return connected;
 }
 
+std::string strFromSul(SU_ConstString sulString, SU_Handle session)
+{
+    if ( sulString == nullptr)
+    {
+        return std::string{}; 
+    }
+    std::string copyStr{sulString}; 
+    SU_freeString(session, sulString ); 
+    return copyStr; 
+}
+
+std::string getProductMetadata(SU_PHandle product, const char * tag, SU_Int index)
+{
+    return strFromSul(SU_queryProductMetadata(product, tag, index ), SU_getSession(product)); 
+}
+
 /// Print metadata for a product using the SUL library, for debug purposes.
 /// \param product SUL object which acts as a handle to a products warehouse info.
 /// \param attribute The attribute of the product metadata that you want printed.
 static void queryProductMetadata(SU_PHandle product, const char* attribute)
 {
-    SU_String result = SU_queryProductMetadata(product, attribute, 0);
-    printf("%s: [%s]\n", attribute, result ? result : "<null>");
+    static std::string nullString{"<null>"}; 
+    std::string result = getProductMetadata(product, attribute, 0);     
+    printf("%s: [%s]\n", attribute, !result.empty() ? result.c_str() : nullString.c_str());
 }
 
 static void writeSignedFile(const char* cred)
@@ -269,7 +286,8 @@ static bool logSulError(const char* what, SU_Result ret, SU_Handle session)
 {
     if (isSULError(ret))
     {
-        fprintf(stderr, "FAILURE: %s: %s (%d)\n", what, SU_getErrorDetails(session), ret);
+        std::string error = strFromSul(SU_getErrorDetails(session), session); 
+        fprintf(stderr, "FAILURE: %s: %s (%d)\n", what, error.c_str(), ret);
         return true;
     }
     else
@@ -386,6 +404,62 @@ public:
     ~SULInit() { SU_deinit(); }
 };
 
+struct ProductInfo
+{
+    SU_PHandle pHandle; 
+    bool hasTargetReleaseTag; 
+    std::string rigidName; 
+    static ProductInfo from(SU_PHandle product)
+    {
+        ProductInfo productInfo;
+        if (g_DebugMode)
+        {
+            queryProductMetadata(product, "Line");
+            queryProductMetadata(product, "Major");
+            queryProductMetadata(product, "Minor");
+            queryProductMetadata(product, "Name");
+            queryProductMetadata(product, "VersionId");
+            queryProductMetadata(product, "DefaultHomeFolder");
+            queryProductMetadata(product, "Platforms");
+            queryProductMetadata(product, "ReleaseTagsTag");
+            printf("\n");
+        }
+        // We only ever expect there to be up to 2 tags for a single component. If there is more this should be updated
+        productInfo.hasTargetReleaseTag = (getProductMetadata(product, "ReleaseTagsTag", 0) == g_ReleaseTag 
+                            || getProductMetadata(product, "ReleaseTagsTag", 1) == g_ReleaseTag); 
+        productInfo.rigidName =  getProductMetadata(product, "Line", 0); 
+        productInfo.pHandle = product; 
+        return productInfo;
+    }
+};
+
+struct MatchProduct
+{
+    std::string m_rigidLine; 
+    MatchProduct( std::string rigidLine): m_rigidLine(std::move(rigidLine)){}
+    bool operator()(const ProductInfo& pInfo) const{
+        return pInfo.rigidName == m_rigidLine && pInfo.hasTargetReleaseTag; 
+    }
+};
+
+std::vector<ProductInfo> listProductsFromWarehouse(SU_Handle session){
+    std::vector<ProductInfo> products; 
+    while (true)
+    {
+        logDebug("Getting next product");
+        SU_PHandle product = SU_getProductRelease(session);
+        if (product)
+        {
+            products.emplace_back(ProductInfo::from(product));
+        }
+        else{
+            logDebug("Out of products");
+            break;
+        }
+    }
+    return products; 
+}
+
 /// Downloads installer from sophos URL
 /// \param location Sophos warehouse URL
 /// \param updateCache Whether location is an Update Cache.
@@ -501,50 +575,45 @@ static int downloadInstaller(std::string location, bool updateCache, bool disabl
         return 46;
     }
 
-    while (true)
+    std::vector<ProductInfo> products = listProductsFromWarehouse(session->m_session); 
+    logDebug("products listed in the warehouse " );
+    std::vector<ProductInfo>::iterator selectedProductIt; 
+    for( auto & targetRigidName: g_GuidPreferences)
     {
-        logDebug("Getting next product");
-        SU_PHandle product = SU_getProductRelease(session->m_session);
-        if (product)
+        selectedProductIt = std::find_if(products.begin(), products.end(), MatchProduct(targetRigidName)); 
+        if (selectedProductIt != products.end())
         {
-            if (g_DebugMode)
-            {
-                queryProductMetadata(product, "Line");
-                queryProductMetadata(product, "Major");
-                queryProductMetadata(product, "Minor");
-                queryProductMetadata(product, "Name");
-                queryProductMetadata(product, "VersionId");
-                queryProductMetadata(product, "DefaultHomeFolder");
-                queryProductMetadata(product, "Platforms");
-                queryProductMetadata(product, "ReleaseTagsTag");
-                printf("\n");
-            }
-
-            // We only ever expect there to be up to 2 tags for a single component. If there is more this should be updated
-            if (!strcmp(SU_queryProductMetadata(product, "Line", 0), g_Guid) && (
-                    !strcmp(SU_queryProductMetadata(product, "ReleaseTagsTag", 0), g_ReleaseTag) ||
-                            !strcmp(SU_queryProductMetadata(product, "ReleaseTagsTag", 1), g_ReleaseTag)))
-            {
-                g_Product = product;
-            }
-            else
-            {
-                ret = SU_removeProduct(product);
-                RETURN_IF_ERROR("SU_removeProduct", ret);
-            }
-        }
-        else
-        {
-            logDebug("Out of products");
-            break;
+            logDebug("found one element to install in the warehouse" );
+            break; 
         }
     }
 
-    if (!g_Product)
+    if (selectedProductIt == products.end())
     {
         logError("Internal error - base installer not found");
         return 47;
     }
+
+    logDebug("remove all the components of the warehouse but the target one" );
+    // remove all the other products
+    for( auto it=products.begin(); it != products.end(); ++it)
+    {
+        if ( it != selectedProductIt)
+        {
+                logDebug("remove one more product handle" );
+                logDebug(it->rigidName);
+                ret = SU_removeProduct(it->pHandle);
+                RETURN_IF_ERROR("SU_removeProduct", ret);
+        }
+        else{
+            logDebug("keep the product that we want in the warehouse" );
+        }
+    }
+
+    logDebug("upgrade the g_Product handle " );
+    g_Product = selectedProductIt->pHandle; 
+
+    logDebug("before synchronize" );
 
     ret = SU_synchronise(session->m_session);
     logDebug("synchronise: " + std::to_string(ret));
