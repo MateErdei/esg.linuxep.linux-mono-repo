@@ -399,5 +399,11 @@ Setup Real Update Cache And Message Relay Tests With Nova
 
 Reset Environment For Nova Tests
     Nova Suite Teardown
-    Setup MCS Tests Nova
+    Require Fresh Install
+    Remove Environment Variable  MCS_CONFIG_SET
+    Reload Cloud Options
+    Set credentials for non aws
+    Set Nova MCS CA Environment Variable
+    ${regCommand}=  Get Sspl Registration
+    Set Suite Variable    ${regCommand}     ${regCommand}   children=true
 

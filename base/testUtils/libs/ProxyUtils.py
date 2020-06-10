@@ -112,7 +112,7 @@ def restart_Secure_Server_Proxy():
                "-i", APPSERVER_KEYFILE,
                ]
 
-    command.append("root@10.55.36.245")
+    command.append("root@10.55.36.87")
     command.append("/etc/init.d/tinyproxy restart")
 
 
