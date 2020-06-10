@@ -70,6 +70,6 @@ class TestLiveResponseAdapter(unittest.TestCase):
                     mock_date.now.return_value = fixed_datetime
                     mock_date.strptime.return_value = creation_time_datetime
                     live_response_adapter.process_command(live_response_command)
-        mock_i.assert_called_once_with(f"./install/tmp/actions/{expected_date_string}_LiveTerminal_action_{creation_time}_1591700523.xml", 'wb', 1)
+        mock_i.assert_called_once_with(f"./install/tmp/actions/{expected_date_string}_LiveTerminal_action_{creation_time}_1591704123.xml", 'wb', 1)
         handle = mock_i()
         handle.write.assert_called_once_with(b'<action type="sophos.mgt.action.InitiateLiveTerminal"><url>url</url><thumbprint>thumbprint</thumbprint></action>')

@@ -84,7 +84,7 @@ class TestLiveQueryAdapter(unittest.TestCase):
                     mock_date.now.return_value = fixed_datetime
                     mock_date.strptime.return_value = creation_time_datetime
                     livequery_adapter.process_command(live_query_command)
-        mock_i.assert_called_once_with(f'./install/tmp/actions/{expected_date_string}_LiveQuery_correlation-id_{creation_time}_1591700523_request.json', 'wb', 1)
+        mock_i.assert_called_once_with(f'./install/tmp/actions/{expected_date_string}_LiveQuery_correlation-id_{creation_time}_1591704123_request.json', 'wb', 1)
         handle = mock_i()
         handle.write.assert_called_once_with(b'{"type": "sophos.mgt.action.RunLiveQuery", "name": "Test", "query": "select * from process"}')
         self._log_contains(logs.output, 'LiveQuery action saved to path')
@@ -106,7 +106,7 @@ class TestLiveQueryAdapter(unittest.TestCase):
                     mock_date.now.return_value = fixed_datetime
                     mock_date.strptime.return_value = creation_time_datetime
                     livequery_adapter.process_command(live_query_command)
-        mock_i.assert_called_once_with(f'./install/tmp/actions/{expected_date_string}_LiveQuery_correlation-id_{creation_time}_1591700523_request.json', 'wb', 1)
+        mock_i.assert_called_once_with(f'./install/tmp/actions/{expected_date_string}_LiveQuery_correlation-id_{creation_time}_1591704123_request.json', 'wb', 1)
         handle = mock_i()
         expected_file_content = b'{"type": "sophos.mgt.action.RunLiveQuery", "name": "Test", "query": "select time from process where time > 30 and name != \\"hello\\" "}'
         handle.write.assert_called_once_with(expected_file_content)

@@ -7,6 +7,7 @@ import datetime
 import logging
 import os
 import time
+import calendar
 import re
 import xml.dom.minidom
 
@@ -179,11 +180,17 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             command.complete()
 
     def _convert_ttl_to_epoch_time(self, timestamp, ttl):
+        """
+        :param timestamp: The time the command was created by central
+        :param ttl: the time to live value given with the command
+        :return: the unix time in seconds that the command should be considered to have expired
+        """
         match_object = re.match("^PT([0-9]+)S$", ttl)
         if match_object:
             seconds_to_live = int(match_object.group(1))
         else:
             LOGGER.warning(f"TTL of command is in an invalid format: {ttl}. Using default of 10000 seconds")
             seconds_to_live = 10000
-        epoch_time = time.mktime(datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").timetuple())
+        # epoch_time = time.mktime(datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").timetuple())
+        epoch_time = calendar.timegm(datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").timetuple())
         return int(epoch_time + seconds_to_live)

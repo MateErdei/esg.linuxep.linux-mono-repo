@@ -151,7 +151,7 @@ class TestGenericAdapter(unittest.TestCase):
         ttl = 10000
         ttl_string = f"PT{ttl}S"
         epoch_time = adapter._convert_ttl_to_epoch_time(timestamp, ttl_string)
-        self.assertEqual(epoch_time, 1591723008)
+        self.assertEqual(epoch_time, 1591726608)
 
     def test_convert_ttl_to_epoch_time_with_ttl_20000(self):
         adapter = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
@@ -160,14 +160,14 @@ class TestGenericAdapter(unittest.TestCase):
         ttl = 20000
         ttl_string = f"PT{ttl}S"
         epoch_time = adapter._convert_ttl_to_epoch_time(timestamp, ttl_string)
-        self.assertEqual(epoch_time, 1591733008)
+        self.assertEqual(epoch_time, 1591736608)
 
     def test_convert_ttl_to_epoch_time_returns_if_invalid_ttl_format(self):
         adapter = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
         # def _convert_ttl_to_epoch_time(self, timestamp, ttl):
         timestamp = "2020-06-09T15:30:08Z"
         ttl = 2000
-        expected_ttl_epoch = 1591723008
+        expected_ttl_epoch = 1591726608
         def test_invalid_ttl(ttl_string):
             epoch_time = adapter._convert_ttl_to_epoch_time(timestamp, ttl_string)
             self.assertEqual(expected_ttl_epoch, epoch_time)
