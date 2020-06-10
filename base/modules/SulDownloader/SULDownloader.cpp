@@ -56,25 +56,6 @@ namespace
         Common::FileSystem::createAtomicFileToSophosUser(content, outputFilePath, tempDir);
     }
 
-    // FIXME: remove after LINUXDAR-1942
-    void detectAndFixIssuesRelatedToUpgradeWithBrokenLiveResponse()
-    {
-        auto fs = Common::FileSystem::fileSystem();
-        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse/") &&
-            !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
-        {
-            try
-            {
-                LOGINFO("Detected previous upgrade left liveresponse uninstalled. Perform the repare procedure.");
-                fs->removeFileOrDirectory("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/");
-            }
-            catch (Common::FileSystem::IFileSystemException& ex)
-            {
-                LOGWARN("Failed to remove directory in primary/ folder. " << ex.what());
-            }
-        }
-    }
-
 } // namespace
 
 namespace SulDownloader
@@ -399,7 +380,6 @@ namespace SulDownloader
 
         try
         {
-            detectAndFixIssuesRelatedToUpgradeWithBrokenLiveResponse();
             return fileEntriesAndRunDownloader(inputPath, outputPath);
         } // failed or unable to either read or to write files
         catch (std::exception& ex)

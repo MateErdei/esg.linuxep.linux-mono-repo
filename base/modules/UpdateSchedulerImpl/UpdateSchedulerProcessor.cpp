@@ -38,18 +38,21 @@ namespace
 {
     // FIXME: remove after LINUXDAR-1942
     bool detectedUpgradeWithBrokenLiveResponse()
-    {
-        LOGINFO( "Inside detectedUpgradeWithBrokenLiveResponse ");         
+    {      
         auto fs = Common::FileSystem::fileSystem();
-
-        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse/"))
+        std::string fileMarkOfUpgrade{"/opt/sophos-spl/tmp/.upgradeToNewWarehouse"}; 
+        if (fs->exists(fileMarkOfUpgrade))
         {
-            LOGINFO("ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse directory exists"); 
-            if( !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
-            {
-                LOGINFO("Upgrade to new warehouse structure detected. Triggering a new out-of-sync update");
-                return true;
+            try{
+                fs->removeFile(fileMarkOfUpgrade); 
             }
+            catch( std::exception & ex)
+            {
+                LOGWARN("Failed to remove file: " << fileMarkOfUpgrade << ". Reason: " << ex.what()); 
+            }
+            
+            LOGINFO("Upgrade to new warehouse structure detected. Triggering a new out-of-sync update");
+            return true;
         }
         return false;
     }

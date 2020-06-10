@@ -449,7 +449,7 @@ public:
         // FIXME: remove after LINUXDAR-1942
         EXPECT_CALL(
             *pointer,
-            exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse/"))
+            exists("/opt/sophos-spl/tmp/.upgradeToNewWarehouse"))
             .WillRepeatedly(Return(false));
 
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
