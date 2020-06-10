@@ -107,7 +107,6 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
         body = command.get("body")
         action_name = self._get_action_name(command)
-        print("Action name: {}".format(action_name))
         self._write_tmp_action(action_name, body)
         LOGGER.debug(f"{self.get_app_id()} action saved to path {action_name}")
         return []

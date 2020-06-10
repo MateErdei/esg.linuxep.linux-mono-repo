@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
 
 namespace
@@ -23,11 +24,9 @@ namespace
 
     bool isAlive(const std::string& ttl)
     {
-        auto nowTime = std::chrono::high_resolution_clock::now();
-        std::ostringstream ost;
-        ost << std::chrono::duration_cast<std::chrono::seconds>(nowTime.time_since_epoch()).count();
-        std::string now = ost.str();
-        return !(ttl < now);
+        std::time_t nowTime = Common::UtilityImpl::TimeUtils::getCurrTime();
+        std::time_t integer_ttl = std::stoi(ttl);
+        return integer_ttl >= nowTime;
     }
 
     ActionFilenameFields getActionFilenameFields(const std::string& filename)

@@ -13,6 +13,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FakeTimeUtils.h>
+
+std::time_t t_20190501T13h{ 1556712000 };
+std::time_t t_20200610T12h{ 1591790400 };
 
 using ::testing::_;
 
@@ -82,8 +86,12 @@ TEST_F(ActionTaskTests, LiveQueryFilesWillBeForwardedToPlugin) // NOLINT
     EXPECT_CALL(*filesystemMock, removeFile(_)).Times(1);
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
+    bool stop{ false };
+    // make managementagent think it is 20190501T13h so that the action ttl we give is in the past
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime{ {t_20190501T13h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_2013-05-02T09:50:08Z_5591718946_request.json");
+            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_2013-05-02T09:50:08Z_1591790400_request.json");
     task.run();
 }
 
@@ -99,8 +107,12 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithoutAppIdWillBeDiscardedAndErrorLogged)
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
+    bool stop{ false };
+    // make managementagent think it is 20190501T13h so that the action ttl we give is in the past
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime{ {t_20190501T13h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/correlation-id_2013-05-02T09:50:08Z_5591718946_request.json");
+            m_mockPluginManager, "/tmp/action/correlation-id_2013-05-02T09:50:08Z_1591790400_request.json");
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
 
@@ -119,8 +131,12 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithoutCorrelationIdWillBeDiscardedAndErro
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
+    bool stop{ false };
+    // make managementagent think it is 20190501T13h so that the action ttl we give is in the past
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime{ {t_20190501T13h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/LiveQuery_2013-05-02T09:50:08Z_5591718946_request.json");
+            m_mockPluginManager, "/tmp/action/LiveQuery_2013-05-02T09:50:08Z_1591790400_request.json");
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
 
@@ -158,10 +174,67 @@ TEST_F(ActionTaskTests, LiveResponseFileWithExpiredTTLIsDiscarded)
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
+    bool stop{ false };
+    // make managementagent think it is 20200610T12h so that the action ttl we give is in the past
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime{ {t_20200610T12h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
+
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_2020-06-09T09:15:23Z_1591700523_request.json");
+            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_2020-06-09T09:15:23Z_1556712000_request.json");
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
 
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Action has expired"));
+}
+
+TEST_F(ActionTaskTests, LiveResponseFileWithTimeToLiveInFutureIsProcessed)
+{
+    testing::internal::CaptureStderr();
+
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
+
+    EXPECT_CALL(m_mockPluginManager, queueAction("LiveQuery","FileContent","correlation-id")).Times(1);
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("FileContent"));
+    std::string file_path = "/tmp/action/LiveQuery_correlation-id_2020-06-09T09:15:23Z_1591790400_request.json";
+    EXPECT_CALL(*filesystemMock, removeFile(file_path)).Times(1);
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
+    bool stop{ false };
+    // make managementagent think it is 20190501T13h so that the action ttl we give is in the past
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime{ {t_20190501T13h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
+
+    ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
+            m_mockPluginManager, file_path);
+    task.run();
+    std::string logMessage = testing::internal::GetCapturedStderr();
+
+}
+
+TEST_F(ActionTaskTests, LiveResponseFileWithTimeToLiveEqualToCurrentTimeIsProcessed)
+{
+    testing::internal::CaptureStderr();
+
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
+
+    EXPECT_CALL(m_mockPluginManager, queueAction("LiveQuery","FileContent","correlation-id")).Times(1);
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("FileContent"));
+    std::string file_path = "/tmp/action/LiveQuery_correlation-id_2020-06-09T09:15:23Z_1591790400_request.json";
+    EXPECT_CALL(*filesystemMock, removeFile(file_path)).Times(1);
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
+    bool stop{ false };
+    // make managementagent think it is 20190501T13h so that the action ttl we give is in the past
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime{ {t_20200610T12h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
+
+    ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
+            m_mockPluginManager, file_path);
+    task.run();
+    std::string logMessage = testing::internal::GetCapturedStderr();
+
 }
