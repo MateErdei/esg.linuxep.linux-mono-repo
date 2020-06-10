@@ -939,11 +939,11 @@ TEST_F(PluginRegistryTests, ShouldIgnoreUnknownFields) // NOLINT
                                     }
                                     ],
                                     "executableUserAndGroup": "user:group",
-                                    "secondsToShutDown": "3"
+                                    "secondsToShutDown": "3",
                                     "unknownField": "unknownValue"
                                 })";
 
-    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(pluginInfoWithUnkonwnField, "edr"); // NOLINT
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(pluginInfoWithUnkonwnField, "PluginName"); // NOLINT
     std::vector<std::string> expected{{"app1"}}; 
     EXPECT_EQ(pluginInfo.getPolicyAppIds(), expected); 
 }

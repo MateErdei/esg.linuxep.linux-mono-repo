@@ -98,8 +98,10 @@ namespace Common
             using ProtoPluginInfo = PluginInfoProto::PluginInfo;
             using namespace google::protobuf::util;
             ProtoPluginInfo protoPluginInfo;
+            JsonParseOptions jsonParseOptions;
+            jsonParseOptions.ignore_unknown_fields = true; 
 
-            auto status = JsonStringToMessage(settingsString, &protoPluginInfo);
+            auto status = JsonStringToMessage(settingsString, &protoPluginInfo, jsonParseOptions);
 
             if (!status.ok())
             {

@@ -314,7 +314,10 @@ namespace SulDownloader
         using SulDownloaderProto::DownloadStatusReport;
 
         DownloadStatusReport protoReport;
-        auto status = JsonStringToMessage(serializedVersion, &protoReport);
+        JsonParseOptions jsonParseOptions;
+        jsonParseOptions.ignore_unknown_fields = true; 
+        
+        auto status = JsonStringToMessage(serializedVersion, &protoReport, jsonParseOptions);
         if (!status.ok())
         {
             LOGERROR("Failed to load SulDownload serialized string");

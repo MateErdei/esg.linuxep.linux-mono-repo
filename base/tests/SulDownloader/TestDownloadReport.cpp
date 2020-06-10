@@ -738,12 +738,14 @@ TEST_F(DownloadReportTest, shouldNotThrowOnValidReportWhenAnUnkownFieldIsPresent
    "installedVersion": "1.0.0"
   }
  ],
- "ANewEntryThatWasNotKNownBefore": [
+ "aNewEntryThatWasNotKNownBefore": [
   {
    "rigidName": "ServerProtectionLinux-Base",
    "version": "1.0.0"
   }
- ]
+ ] 
 })sophos" };
-EXPECT_NO_THROW(DownloadReport::toReport(serializedReportWithSubComponents);
+auto report = DownloadReport::toReport(serializedReportWithSubComponents); 
+EXPECT_EQ(report.getProducts().size(), 1); 
+
 }

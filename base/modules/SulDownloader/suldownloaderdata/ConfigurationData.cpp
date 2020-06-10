@@ -394,7 +394,10 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     using SulDownloaderProto::ConfigurationSettings;
 
     ConfigurationSettings settings;
-    auto status = JsonStringToMessage(settingsString, &settings);
+    JsonParseOptions jsonParseOptions;
+    jsonParseOptions.ignore_unknown_fields = true; 
+
+    auto status = JsonStringToMessage(settingsString, &settings, jsonParseOptions);
     if (!status.ok())
     {
         LOGERROR("Failed to process input settings");

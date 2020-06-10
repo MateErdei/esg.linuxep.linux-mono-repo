@@ -904,7 +904,9 @@ createJsonString("", "");
                                ],
                                "fieldUnknown": "anyvalue"
                                })sophos" };
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(serializedConfigurationDataWithUnknownField);        
-    EXPECT_TRUE(configurationData.verifySettingsAreValid());
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(serializedConfigurationDataWithUnknownField); 
+    std::vector<std::string> features = configurationData.getFeatures(); 
+    std::vector<std::string> expected_features{{std::string{"CORE"}, std::string{"MDR"}}}; 
+    EXPECT_EQ(features, expected_features);  
 
 }
