@@ -9,7 +9,7 @@ Suite Teardown  Require Uninstalled
 
 Test Teardown  General Test Teardown
 
-Default Tags   LIVE_RESPONSE
+Default Tags   LIVERESPONSE_PLUGIN
 
 
 *** Test Cases ***

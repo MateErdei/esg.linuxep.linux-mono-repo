@@ -185,6 +185,7 @@ class TelemetryUtils:
         telemetry["warehouse"] = warehouse
 
         return telemetry
+
     def generate_liveresponse_telemetry_dict(self):
         version = get_plugin_version("liveresponse")
         telemetry = {
@@ -236,7 +237,7 @@ class TelemetryUtils:
 
         actual_watchdog_telemetry_dict = json.loads(json_string)["watchdogservice"]
 
-        #pop mcsrouter efore comparison
+        #pop mcsrouter before comparison
         actual_watchdog_telemetry_dict.pop("mcsrouter-unexpected-restarts")
         expected_watchdog_telemetry_dict.pop("mcsrouter-unexpected-restarts")
         self.check_watchdog_telemetry_is_correct(actual_watchdog_telemetry_dict, expected_watchdog_telemetry_dict)
@@ -389,7 +390,7 @@ class TelemetryUtils:
 
         if actual_lr_telemetry_dict != expected_lr_telemetry_dict:
             raise AssertionError(
-                "EDR telemetry doesn't match telemetry expected by test. expected: {}, actual: {}".format(
+                "LiveResponse telemetry doesn't match telemetry expected by test. expected: {}, actual: {}".format(
                     expected_lr_telemetry_dict, actual_lr_telemetry_dict))
 
     def move_file_from_expected_path(self, command_path):
