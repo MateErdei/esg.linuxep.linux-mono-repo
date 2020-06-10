@@ -399,6 +399,7 @@ Setup Real Update Cache And Message Relay Tests With Nova
 
 Reset Environment For Nova Tests
     Nova Suite Teardown
+    Setup Host File
     Require Fresh Install
     Remove Environment Variable  MCS_CONFIG_SET
     Reload Cloud Options
