@@ -39,9 +39,13 @@ namespace
     // FIXME: remove after LINUXDAR-1942
     bool detectedUpgradeWithBrokenLiveResponse()
     {
+        LOGINFO( "Inside detectedUpgradeWithBrokenLiveResponse ");         
         auto fs = Common::FileSystem::fileSystem();
-        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/"
-                       "ServerProtectionLinux-Plugin-liveresponse") &&
+
+        LOGINFO( "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse exists?: " << fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse") );
+        LOGINFO( "/opt/sophos-spl/plugins/liveresponse exists?: " << fs->exists("/opt/sophos-spl/plugins/liveresponse") );
+
+        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse") &&
             !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
         {
             LOGINFO("Upgrade to new warehouse structure detected. Triggering a new out-of-sync update");
