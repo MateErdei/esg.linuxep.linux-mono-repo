@@ -159,7 +159,7 @@ LASTGOODBUILD () {
 [[ -d ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} ]]  || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} doesn't exist"
 [[ -d ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} ]]   || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} doesn't exist"
 [[ -d ${MDR_COMPONENT_SUITE_SOURCE_SUITE} ]]    || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_SUITE} doesn't exist"
-[[ -d ${SSPL_LIVERESPONSE_PLUGIN_SOURCE} ]]          || fail "Error: ${LIVERESPONSE_PLUGIN_SOURCE} doesn't exist"
+[[ -d ${LIVERESPONSE_PLUGIN_SOURCE} ]]          || fail "Error: ${LIVERESPONSE_PLUGIN_SOURCE} doesn't exist"
 [[ -d ${WEBSOCKET_SERVER_SOURCE} ]]             || fail "Error: ${WEBSOCKET_SERVER_SOURCE} doesn't exist"
 
 sudo rm -rf ${BASE_DIST}
