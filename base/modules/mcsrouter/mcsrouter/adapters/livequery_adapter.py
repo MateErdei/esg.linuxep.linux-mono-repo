@@ -37,4 +37,4 @@ class LiveQueryAdapter(generic_adapter.GenericAdapter):
             timestamp = mcsrouter.utils.timestamp.timestamp()
         ttl = self._convert_ttl_to_epoch_time(timestamp, command.get("ttl"))
         order_tag = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
-        return "{}_{}_{}_{}_{}_request.json".format(order_tag, app_id, correlation_id, timestamp, ttl)
+        return f"{order_tag}_{app_id}_{correlation_id}_{timestamp}_{ttl}_request.json"
