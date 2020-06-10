@@ -60,8 +60,7 @@ namespace
     void detectAndFixIssuesRelatedToUpgradeWithBrokenLiveResponse()
     {
         auto fs = Common::FileSystem::fileSystem();
-        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/"
-                       "ServerProtectionLinux-Plugin-liveresponse/") &&
+        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse/") &&
             !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
         {
             try

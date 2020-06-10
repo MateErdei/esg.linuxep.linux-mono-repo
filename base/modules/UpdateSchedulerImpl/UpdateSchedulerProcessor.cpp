@@ -42,14 +42,14 @@ namespace
         LOGINFO( "Inside detectedUpgradeWithBrokenLiveResponse ");         
         auto fs = Common::FileSystem::fileSystem();
 
-        LOGINFO( "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse exists?: " << fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse") );
-        LOGINFO( "/opt/sophos-spl/plugins/liveresponse exists?: " << fs->exists("/opt/sophos-spl/plugins/liveresponse") );
-
-        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse") &&
-            !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
+        if (fs->exists("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse/"))
         {
-            LOGINFO("Upgrade to new warehouse structure detected. Triggering a new out-of-sync update");
-            return true;
+            LOGINFO("ServerProtectionLinux-Base/ServerProtectionLinux-Plugin-liveresponse directory exists"); 
+            if( !fs->exists("/opt/sophos-spl/plugins/liveresponse"))
+            {
+                LOGINFO("Upgrade to new warehouse structure detected. Triggering a new out-of-sync update");
+                return true;
+            }
         }
         return false;
     }
