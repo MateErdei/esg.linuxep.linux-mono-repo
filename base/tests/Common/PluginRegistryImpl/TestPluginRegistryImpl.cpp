@@ -916,3 +916,34 @@ TEST_F(PluginRegistryTests, extractPluginNameReturnsCorrectAnswer) // NOLINT
     std::string plugin = Common::PluginRegistryImpl::PluginInfo::extractPluginNameFromFilename("/foo/bar/sav.json");
     EXPECT_EQ(plugin, "sav");
 }
+
+TEST_F(PluginRegistryTests, ShouldIgnoreUnknownFields) // NOLINT
+{
+        std::string pluginInfoWithUnkonwnField = R"({
+                                "policyAppIds": [
+                                "app1"
+                                    ],
+                                    "statusAppIds": [
+                                    "app2"
+                                    ],
+                                    "pluginName": "PluginName",
+                                    "xmlTranslatorPath": "path1",
+                                    "executableFullPath": "path2",
+                                    "executableArguments": [
+                                    "arg1"
+                                    ],
+                                    "environmentVariables": [
+                                    {
+                                    "name": "hello",
+                                    "value": "world"
+                                    }
+                                    ],
+                                    "executableUserAndGroup": "user:group",
+                                    "secondsToShutDown": "3"
+                                    "unknownField": "unknownValue"
+                                })";
+
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(pluginInfoWithUnkonwnField, "edr"); // NOLINT
+    std::vector<std::string> expected{{"app1"}}; 
+    EXPECT_EQ(pluginInfo.getPolicyAppIds(), expected); 
+}

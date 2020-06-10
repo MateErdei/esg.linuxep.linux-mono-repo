@@ -854,3 +854,57 @@ TEST_F( // NOLINT
         EXPECT_TRUE(configData.verifySettingsAreValid());
     }
 }
+
+TEST_F(ConfigurationDataTest, configurationDataRetrievalShouldIgnoreUnknownFields)
+{
+createJsonString("", "");
+    std::string serializedConfigurationDataWithUnknownField{ R"sophos({
+                               "sophosURLs": [
+                               "https://sophosupdate.sophos.com/latest/warehouse"
+                               ],
+                               "updateCache": [
+                               "https://cache.sophos.com/latest/warehouse"
+                               ],
+                               "credential": {
+                               "username": "administrator",
+                               "password": "password"
+                               },
+                               "proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": "",
+                               "proxyType": ""
+                                }
+                               },
+                               "manifestNames" : ["manifest.dat"],
+                               "optionalManifestNames" : ["telem-manifest.dat"],
+                               "installationRootPath": "absInstallationPath",
+                               "certificatePath": "absCertificatePath",
+                               "systemSslPath": "absSystemSslPath",
+                               "cacheUpdateSslPath": "absCacheUpdatePath",
+                               "primarySubscription": {
+                                "rigidName" : "BaseProduct-RigidName",
+                                "baseVersion" : "9",
+                                "tag" : "RECOMMENDED",
+                                "fixedVersion" : ""
+                                },
+                                "products": [
+                                {
+                                "rigidName" : "PrefixOfProduct-SimulateProductA",
+                                "baseVersion" : "9",
+                                "tag" : "RECOMMENDED",
+                                "fixedVersion" : ""
+                                },
+                                ],
+                                "features": ["CORE", "MDR"],
+                               "installArguments": [
+                               "--install-dir",
+                               "/opt/sophos-spl"
+                               ],
+                               "fieldUnknown": "anyvalue"
+                               })sophos" };
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(serializedConfigurationDataWithUnknownField);        
+    EXPECT_TRUE(configurationData.verifySettingsAreValid());
+
+}
