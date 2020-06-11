@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-thininstaller" version="1.0.4">
+<package name="sspl-thininstaller" version="1.0.5">
     <versioning>
         <workingdir>sspl-thininstaller-build/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -14,13 +14,13 @@
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
-        <package name="versig" version="2-0-0-80/221233/output" dest="input">
+        <package name="versig" version="2-0-0-72/219560/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux11" version="7-71-1-2/220751/output" dest="input">
+        <package name="curllinux11" version="7-70-0-2/220357/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-59/220764/output" dest="input">
+        <package name="sullinux11" version="1-0-0-42/220368/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
         <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
@@ -31,10 +31,6 @@
         </package>
         <package name="zliblinux11" version="1-2-11-4/219630/output" dest="input">
             <include src="zlib.tar" dest="."/>
-        </package>
-
-        <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input/update_certs">
-            <include src="ps_rootca.crt" dest="."/>
         </package>
     </inputs>
 
@@ -49,9 +45,9 @@
         <workingdir>sspl-thininstaller-build</workingdir>
         <destdir>sspl-thininstaller</destdir>
         <buildoutputs>
-            <output name="output" srcfolder="output" artifactpath="output"> </output>
+            <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,release,develop,feature</publishbranches>
+        <publishbranches>master,release</publishbranches>
     </publish>
 </package>
