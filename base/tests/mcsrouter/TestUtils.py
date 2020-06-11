@@ -177,7 +177,7 @@ class TestIPSelection(unittest.TestCase):
             {'hostname': 'FakeRelayTwentyFive', 'port': '6666', 'priority': '0', 'id': '1', 'ips': ['11.0.2.15']},
             {'hostname': 'FakeRelayFive', 'port': '6666', 'priority': '0', 'id': '2', 'ips': ['10.0.2.31']},
             {'hostname': 'FakeRelayNine', 'port': '6666', 'priority': '0', 'id': '4', 'ips': ['10.0.3.15']},
-            {'hostname': 'ssplsecureproxyserver.eng.sophos', 'port': '8888', 'priority': '1', 'id': '5', 'ips': ['10.55.36.87']}
+            {'hostname': 'ssplsecureproxyserver.eng.sophos', 'port': '8888', 'priority': '1', 'id': '5', 'ips': ['10.55.36.245']}
         ]
         server_location_list = ip_selection.order_message_relays(server_location_list, local_ipv4s, local_ipv6s)
         hostnames=['FakeRelayFive', 'FakeRelayNine', 'FakeRelayTwentyFive', 'ssplsecureproxyserver.eng.sophos' ]
