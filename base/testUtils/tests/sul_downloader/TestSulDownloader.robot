@@ -1567,7 +1567,7 @@ Test Suldownloader Can Upgrade From Major Versions Using Warehouses
 Test Suldownloader Can Download A Component Suite And Component From A Single Warehouse
     Create Product File   helloworld   ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
     Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}2
-    Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}3    installsh=otherinstall.sh
+    Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}3
     Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${EXAMPLE_PLUGIN_RIGID_NAME}
 
     ##Add Component Suite Warehouse Config:  rigidname, source directory, target directory, warehouse name
@@ -1593,10 +1593,12 @@ Test Suldownloader Can Download A Component Suite And Component From A Single Wa
     Verify Product Installed and Report Upgraded   ${result}
 
     # Check all expected files exist in generated CID location
-
-    File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}/testinstall.txt
-    File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}/install.sh   # comes from ${BASE_RIGID_NAME}2
-    File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}/otherinstall.sh   # comes from ${BASE_RIGID_NAME}3
+    
+    # is defined in the component suite, but will not be downloaded, as suldownloader will target the components inside the component suite
+    File Should Not Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}/testinstall.txt  
+    
+    File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}2/install.sh   # comes from ${BASE_RIGID_NAME}2
+    File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}3/install.sh   # comes from ${BASE_RIGID_NAME}3
     File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${EXAMPLE_PLUGIN_RIGID_NAME}/install.sh
 
     Stop Update Server
@@ -1628,8 +1630,10 @@ Test Suldownloader Can Download A Component Suite And Component From A Multiple 
 
     # Check all expected files exist in generated CID location
 
-    File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}/testinstall.txt
-    File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}/install.sh   # comes from ${BASE_RIGID_NAME}2
+    # described in the component suite, but not installed as suldownloader will expand to the components inside the warehouse
+    File Should Not Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}/testinstall.txt  
+
+    File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${BASE_RIGID_NAME}2/install.sh   # comes from ${BASE_RIGID_NAME}2
     File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${EXAMPLE_PLUGIN_RIGID_NAME}/install.sh
 
     Stop Update Server
