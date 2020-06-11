@@ -116,5 +116,3 @@ Setup Base FakeCloud And FakeCentral-LT Servers
     Register With Local Cloud Server
     Override LogConf File as Global Level  DEBUG
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log   liveresponse   DEBUG
-
-    Wait New MCS Policy Downloaded
