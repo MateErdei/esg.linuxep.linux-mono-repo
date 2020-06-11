@@ -80,7 +80,7 @@ Global Setup Tasks
     Copy File  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/libssp.so.0.0.0         ${SUPPORT_FILES}/warehouseGeneration/lib/libssp.so.0
     Copy File  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/openssl                 ${SUPPORT_FILES}/warehouseGeneration/bin/openssl
 
-    Log To Console  \n ${colored_message} \n
+    Log To Console  \n${colored_message} \n
 
     # Turn on the pub sub logging on all tests globally. The pub sub will then be logged in the management agent log
     # Should in general be false.
