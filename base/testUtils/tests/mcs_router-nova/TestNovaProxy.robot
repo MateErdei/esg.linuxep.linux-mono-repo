@@ -29,7 +29,7 @@ Test Teardown     Run Keywords
 
 ${FAKE_PROXY_HOST}         NoProxyHere
 ${FAKE_PROXY_PORT}         10001
-${SECURE_PROXY_HOST}       10.55.36.87
+${SECURE_PROXY_HOST}       ssplsecureproxyserver.eng.proxy
 ${SECURE_PROXY_PORT}       8888
 ${REAL_MR_HOST}            10.55.36.42
 ${REAL_MR_PORT}            8190
