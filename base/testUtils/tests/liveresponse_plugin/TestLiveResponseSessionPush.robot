@@ -96,6 +96,8 @@ Liveresponse Test Teardown
 
 
 Liveresponse Suite Setup
+    Generate Local Fake Cloud Certificates
+    Setup Suite Tmp Dir   ./tmp
     Setup Base FakeCloud And FakeCentral-LT Servers
     Install Live Response Directly
 
@@ -105,9 +107,8 @@ Liveresponse Suite Teardown
 
 Setup Base FakeCloud And FakeCentral-LT Servers
     Install LT Server Certificates
-    Setup Suite Tmp Dir   ./tmp
-    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Start MCS Push Server
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Set Local CA Environment Variable
 
     Require Fresh Install
