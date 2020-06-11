@@ -225,7 +225,7 @@ Install Base And MTR Then Migrate To EDR
     [Tags]   THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN  EXCLUDE_UBUNTU20
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
     Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}  real=True
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
     Wait For Initial Update To Fail
 
     # Install MTR

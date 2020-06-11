@@ -159,4 +159,4 @@ Mimic MDR Component Files
 Mimic LR Component Files
     [Documentation]  Creates files to simulate LR plugin being installed and run
     [Arguments]     ${installLocation}
-    Create File  ${installLocation}/plugins/liveresponse/log/session.log
+    Create File  ${installLocation}/plugins/liveresponse/log/sessions.log

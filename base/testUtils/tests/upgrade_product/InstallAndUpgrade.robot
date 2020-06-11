@@ -99,7 +99,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
 
     Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}  real=True
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
     Wait For Initial Update To Fail
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
@@ -157,7 +157,7 @@ VersionCopy File in the Wrong Location Is Removed
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
 
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}  real=True
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
     Wait For Initial Update To Fail
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
@@ -367,9 +367,9 @@ Version Copy Versions All Changed Files When Upgrading
 
     # Wrapped in a wait to keep trying for a bit if ostia is intermittent
     Wait Until Keyword Succeeds
-    ...  15 mins
-    ...  10 secs
-    ...  Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}  real=True
+    ...  3 mins
+    ...  30 secs
+    ...  Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
 
     Wait For Initial Update To Fail
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
