@@ -20,10 +20,10 @@
                  version="2-0-0-72/219560/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux11" version="7-66-0-17/219557/output" dest="input">
+        <package name="curllinux11" version="7-70-0-2/220357/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-36/219636/output" dest="input">
+        <package name="sullinux11" version="1-0-0-42/220368/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
         <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
@@ -71,7 +71,7 @@
         <package buildtype="prod" name="sspl-telemetry-config" version="1.0/EES-9377" dest="input/telemetry">
             <include src="telemetry-config.json" dest="." />
         </package>
-        <package name="python-certifi" version="2019-11-28-18/218616/certifi" dest="input">
+        <package name="python-certifi" version="2020-4-5-2-1/220359/certifi" dest="input">
             <include src="python-certifi.tar" dest="."/>
         </package>
         <package name="python-urllib3" version="1-25-8-13/218622/urllib3" dest="input">
