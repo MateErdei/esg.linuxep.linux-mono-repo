@@ -44,15 +44,6 @@ Liveresponse Plugin Unexpected Restart Telemetry Is Reported Correctly
     Check Watchdog Telemetry Json Is Correct  ${telemetryFileContents}  1  liveresponse
 
 
-EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
-    [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY  EXCLUDE_AWS
-    Prepare To Run Telemetry Executable
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-
-    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}
-
-
 *** Keywords ***
 LiveResponse Telemetry Suite Setup
     Require Fresh Install
