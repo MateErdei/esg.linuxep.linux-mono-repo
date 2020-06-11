@@ -195,7 +195,6 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         else:
             LOGGER.warning(f"TTL of command is in an invalid format: {ttl}. Using default of 10000 seconds")
             seconds_to_live = 10000
-        # epoch_time = time.mktime(datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").timetuple())
         expected_timestamp_format = "%Y-%m-%dT%H:%M:%SZ"
         try:
             epoch_time = calendar.timegm(datetime.datetime.strptime(timestamp, expected_timestamp_format).timetuple())
