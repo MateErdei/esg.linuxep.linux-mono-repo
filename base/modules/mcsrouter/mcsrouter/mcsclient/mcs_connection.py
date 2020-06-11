@@ -18,6 +18,7 @@ import mcsrouter.mcsclient.mcs_commands  # pylint: disable=no-name-in-module, im
 import mcsrouter.mcsclient.mcs_exception
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper
+import mcsrouter.utils.write_json
 from mcsrouter import ip_selection
 from mcsrouter import proxy_authorization
 from mcsrouter import sophos_https
@@ -565,6 +566,7 @@ class MCSConnection:
         if self.__m_current_proxy != proxy:
             self.__m_current_proxy = proxy
             self.__m_config.set("current_relay_id", proxy.relay_id())
+            mcsrouter.utils.write_json.write_current_proxy_info(proxy)
             self.__m_config.save()
 
         return connection

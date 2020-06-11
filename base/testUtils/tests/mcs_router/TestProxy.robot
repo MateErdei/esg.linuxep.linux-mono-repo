@@ -60,6 +60,7 @@ Proxy Creds And Message Relay Information Used On Registration
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
+    Should Exist  /opt/sophos-spl/base/etc/current_proxy
 
 Transient errors keeps same proxies
     [Documentation]  Derived from  CLOUD.MCS.008_one_transient_error_keeps_same_proxy.sh
