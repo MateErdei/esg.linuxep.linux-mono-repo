@@ -20,6 +20,7 @@ namespace ManagementAgent
         public:
             ActionTask(PluginCommunication::IPluginManager& pluginManager, const std::string& filePath);
             void run() override;
+            static bool isAlive(const std::string& ttl);
 
         private:
             PluginCommunication::IPluginManager& m_pluginManager;

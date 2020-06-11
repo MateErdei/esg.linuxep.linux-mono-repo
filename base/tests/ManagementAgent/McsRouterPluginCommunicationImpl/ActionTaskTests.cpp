@@ -287,3 +287,17 @@ TEST_F(ActionTaskTests, LiveResponseFileWithTimeToLiveEqualToCurrentTimeIsProces
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
 }
+
+
+TEST_F(ActionTaskTests, TestIsAliveMethod)
+{
+    bool stop{ false };
+    // make method think the current time is 1591790400 so that the action ttl we give is in the past
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime{ {1591790400}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
+
+    EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("0"), false);
+    EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("1591790399"), false);
+    EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("1591790400"), true);
+    EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("1591790401"), true);
+}

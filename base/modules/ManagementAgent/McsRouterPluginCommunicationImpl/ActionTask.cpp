@@ -22,13 +22,6 @@ namespace
         bool m_isAlive;
     };
 
-    bool isAlive(const std::string& ttl)
-    {
-        std::time_t nowTime = Common::UtilityImpl::TimeUtils::getCurrTime();
-        std::time_t integer_ttl = std::stoi(ttl);
-        return integer_ttl >= nowTime;
-    }
-
     ActionFilenameFields getActionFilenameFields(const std::string& filename)
     {
         ActionFilenameFields actionFilenameFields;
@@ -40,14 +33,14 @@ namespace
         {
             actionFilenameFields.m_appId = fileNameFields[0];
             actionFilenameFields.m_correlationId = fileNameFields[1];
-            actionFilenameFields.m_isAlive = isAlive(fileNameFields[3]);
+            actionFilenameFields.m_isAlive = ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(fileNameFields[3]);
             actionFilenameFields.m_isValid = true;
         }
         else if (Common::UtilityImpl::StringUtils::isSubstring(filename, "LiveTerminal_") && fileNameFields.size() == 4)
         {
             // TODO: LINUXDAR-1648  Consolidate this 'else if' with the above 'if' when correlationId is added for LiveTerminal.
             actionFilenameFields.m_appId = fileNameFields[0];
-            actionFilenameFields.m_isAlive = isAlive(fileNameFields[3]);
+            actionFilenameFields.m_isAlive = ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(fileNameFields[3]);
             actionFilenameFields.m_isValid = true;
         }
         else
@@ -70,6 +63,12 @@ ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::ActionTask(
 {
 }
 
+bool ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(const std::string& ttl)
+{
+    std::time_t nowTime = Common::UtilityImpl::TimeUtils::getCurrTime();
+    std::time_t integer_ttl = std::stoi(ttl);
+    return integer_ttl >= nowTime;
+}
 
 
 void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
