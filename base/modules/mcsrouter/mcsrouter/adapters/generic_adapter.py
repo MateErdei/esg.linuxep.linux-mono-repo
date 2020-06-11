@@ -17,9 +17,12 @@ import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.timestamp
 import mcsrouter.utils.utf8_write
 import mcsrouter.utils.xml_helper as xml_helper
+from mcsrouter.mcsclient.mcs_exception import MCSException
 
 LOGGER = logging.getLogger(__name__)
 
+class FailedToProcessActionException(MCSException):
+    pass
 
 class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
     """
@@ -175,6 +178,8 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             except NotImplementedError:
                 LOGGER.debug("{} adaptor processing as action".format(self.__m_app_id))
                 return self._process_action(command)
+            except FailedToProcessActionException as exception:
+                LOGGER.error(f"Failed to process {self.__m_app_id} action, reason: {exception}")
         finally:
             command.complete()
 
@@ -191,5 +196,11 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             LOGGER.warning(f"TTL of command is in an invalid format: {ttl}. Using default of 10000 seconds")
             seconds_to_live = 10000
         # epoch_time = time.mktime(datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").timetuple())
-        epoch_time = calendar.timegm(datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").timetuple())
+        expected_timestamp_format = "%Y-%m-%dT%H:%M:%SZ"
+        try:
+            epoch_time = calendar.timegm(datetime.datetime.strptime(timestamp, expected_timestamp_format).timetuple())
+        except ValueError as error:
+            LOGGER.error(f"Failed to convert creation time: '{timestamp}' to unix time, reason: {error}")
+            raise FailedToProcessActionException
+
         return int(epoch_time + seconds_to_live)

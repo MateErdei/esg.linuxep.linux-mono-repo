@@ -80,7 +80,7 @@ MCSRouter Can Start and Receive Live Query From Push Client
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  File Should Exist  ${MCS_DIR}/action/LiveQuery_ABC_FakeTime_request.json
+    ...  File Should Exist  ${MCS_DIR}/action/LiveQuery_ABC_2020-06-09T15:30:08Z_1591726608_request.json
 
     Check File Content  {"type": "sophos.mgt.action.RunLiveQuery", "name": "users", "query": "SELECT * from users"}  ${MCS_DIR}/action/
 

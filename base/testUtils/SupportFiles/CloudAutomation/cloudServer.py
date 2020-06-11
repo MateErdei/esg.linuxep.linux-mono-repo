@@ -769,7 +769,7 @@ class Endpoint(object):
         return r"""<command>
         <id>{}</id>
         <appId>LiveQuery</appId>
-        <creationTime>FakeTime</creationTime>
+        <creationTime>2020-06-09T15:30:08Z</creationTime>
         <ttl>PT10000S</ttl>
         <body>{}</body>
       </command>""".format(id, xml.sax.saxutils.escape(body.decode("utf-8")))
@@ -780,7 +780,7 @@ class Endpoint(object):
         return r"""<command>
         <id>{}</id>
         <appId>LiveTerminal</appId>
-        <creationTime>FakeTime</creationTime>
+        <creationTime>2020-06-09T15:30:08Z</creationTime>
         <ttl>PT10000S</ttl>
         <body>{}</body>
       </command>""".format(id, xml.sax.saxutils.escape(body))

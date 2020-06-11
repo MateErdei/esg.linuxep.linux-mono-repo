@@ -40,7 +40,7 @@ Query can be Sent From Fake Cloud and Received by MCS Router
     ...  10 secs
     ...  Check Envelope Log Contains       Test Query Special
 
-    ${LiveQueryPath} =  Set Variable  ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_firstcommand_FakeTime_request.json
+    ${LiveQueryPath} =  Set Variable  ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_firstcommand_2020-06-09T15:30:08Z_1591726608_request.json
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  10 secs
@@ -55,6 +55,6 @@ Query can be Sent From Fake Cloud and Received by MCS Router
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  10 secs
-    ...  Check Action File Exists   LiveQuery_secondcommand_FakeTime_request.json
-    Check Action File Exists    LiveQuery_firstcommand_FakeTime_request.json
+    ...  Check Action File Exists   LiveQuery_secondcommand_2020-06-09T15:30:08Z_1591726608_request.json
+    Check Action File Exists    LiveQuery_firstcommand_2020-06-09T15:30:08Z_1591726608_request.json
     Check Action File Exists    ALC_action_FakeTime.xml
