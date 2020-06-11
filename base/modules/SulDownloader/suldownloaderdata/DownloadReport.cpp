@@ -230,6 +230,7 @@ namespace SulDownloader
         const WarehouseStatus& warehouseStatus)
     {
         std::unordered_map<std::string, ProductReport> productReport;
+        std::vector<ProductReport> productsRep;
         for (auto& product : products)
         {
             ProductReport productReportEntry;
@@ -267,15 +268,24 @@ namespace SulDownloader
                     productReportEntry.productStatus = ProductReport::ProductStatus::Uninstalled;
                 }
             }
-            productReport[productReportEntry.rigidName] = productReportEntry;
-        }
+            LOGDEBUG("Product Report for product downloaded: " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription); 
 
-        std::vector<ProductReport> productsRep;
+            productReport[productReportEntry.rigidName] = productReportEntry;
+            if (productReportEntry.productStatus == ProductReport::ProductStatus::Uninstalled || productReportEntry.productStatus == ProductReport::ProductStatus::UninstallFailed)
+            {
+                // uninstalled products will not be in the subscription info, hence, explicitly adding it
+                LOGDEBUG("Adding information for uninstalled products directly to the combined list " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription); 
+                productsRep.push_back(productReportEntry);
+            }
+        }
+        LOGDEBUG("Combine the products to merge into the subscriptions"); 
+        
         for (auto& subscriptionInfo : subscriptionsInfo)
         {
             auto found = productReport.find(subscriptionInfo.rigidName);
             if (found != productReport.end())
             {
+                LOGDEBUG("Product Report merged to subscrition: " << found->second.rigidName << " " << found->second.statusToString() << " err: " << found->second.errorDescription);                 
                 productsRep.push_back(found->second);
             }
             else
@@ -312,6 +322,8 @@ namespace SulDownloader
                 }
                 productReportEntry.productStatus = combinedStatus;
                 productReportEntry.errorDescription = combinedError;
+                LOGDEBUG("Product Report merget to subscrition: " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription); 
+
                 productsRep.push_back(productReportEntry);
             }
         }
