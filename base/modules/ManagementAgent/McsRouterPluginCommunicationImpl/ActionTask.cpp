@@ -66,17 +66,34 @@ ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::ActionTask(
 bool ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(const std::string& ttl)
 {
     std::time_t nowTime = Common::UtilityImpl::TimeUtils::getCurrTime();
-    std::time_t integer_ttl = std::stoi(ttl);
+    std::time_t integer_ttl;
+    try
+    {
+        integer_ttl = std::stoi(ttl);
+    }
+    catch (std::exception& exception)
+    {
+        std::stringstream msg;
+        msg << "Failed to convert time to live '" << ttl << "' into time_t";
+        throw FailedToConvertTtlException(msg.str());
+    }
     return integer_ttl >= nowTime;
 }
-
 
 void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
 {
     LOGSUPPORT("Process new action from mcsrouter: " << m_filePath);
     std::string basename = Common::FileSystem::basename(m_filePath);
-
-    auto actionFilenameFields = getActionFilenameFields(basename);
+    ActionFilenameFields actionFilenameFields;
+    try
+    {
+        actionFilenameFields = getActionFilenameFields(basename);
+    }
+    catch (FailedToConvertTtlException& exception)
+    {
+        LOGERROR(exception.what());
+        return;
+    }
     if (!actionFilenameFields.m_isValid)
     {
         LOGWARN("Got an invalid file name for action detection: " << m_filePath);

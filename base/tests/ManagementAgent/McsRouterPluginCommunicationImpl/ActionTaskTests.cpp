@@ -301,3 +301,36 @@ TEST_F(ActionTaskTests, TestIsAliveMethod)
     EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("1591790400"), true);
     EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("1591790401"), true);
 }
+
+TEST_F(ActionTaskTests, testIsAliveWithBadArgumentThrows)
+{
+     EXPECT_THROW(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("IAmNotANumber"),
+                  ManagementAgent::McsRouterPluginCommunicationImpl::FailedToConvertTtlException);
+}
+
+TEST_F(ActionTaskTests, TestGarbageTTLIsHandledWithLogging) // NOLINT
+{
+
+    testing::internal::CaptureStderr();
+
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
+
+    EXPECT_CALL(m_mockPluginManager, queueAction(_,_,_)).Times(0);
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
+    try
+    {
+        ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
+                m_mockPluginManager, "/tmp/action/LiveTerminal_action_2020-06-09T09:15:23Z_IAmNotANumber.json");
+    }
+    catch(ManagementAgent::McsRouterPluginCommunicationImpl::FailedToConvertTtlException& exception)
+    {
+        EXPECT_STREQ(exception.what(), "Failed to convert time to live 'IAmNotANumber' into time_t");
+    }
+    catch(...)
+    {
+        FAIL();
+    }
+}
