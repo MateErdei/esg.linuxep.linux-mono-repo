@@ -93,6 +93,9 @@ Liveresponse Test Teardown
     Stop Proxy Servers
     ${liveterminal_server_log} =  Liveterminal Server Log File
     Log File  ${liveterminal_server_log}
+    ${result} =  Run Process  pgrep  python
+    Log   ${result.stdout}
+    Log   ${result.stderr}
 
 
 Liveresponse Suite Setup
