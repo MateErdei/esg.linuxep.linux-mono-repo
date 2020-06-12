@@ -253,7 +253,7 @@ Thin Installer Detects Sweep And Cancels Installation
 
 Thin Installer Has Working Version Option
     Run Default Thininstaller With Args   0     --version
-    Check Thininstaller Log Contains    Sophos Linux Protection Installer, version: 1.0.4
+    Check Thininstaller Log Contains    Sophos Linux Protection Installer, version: 1.0.
 
 Check Installer Does Not Contain Todos Or Fixmes
     [Tags]   THIN_INSTALLER
