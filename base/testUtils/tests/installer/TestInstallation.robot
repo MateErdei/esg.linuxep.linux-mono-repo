@@ -144,7 +144,7 @@ Verify VERSION File Is Installed And Contains Sensible Details
     [Tags]   INSTALLER
     Require Fresh Install
     File Should Exist  ${SOPHOS_INSTALL}/base/VERSION.ini
-    VERSION Ini File Contains Proper Format For Product Name  ${SOPHOS_INSTALL}/base/VERSION.ini   Sophos Server Protection Linux - Base
+    VERSION Ini File Contains Proper Format For Product Name  ${SOPHOS_INSTALL}/base/VERSION.ini   Sophos Server Protection Linux - Base Component
 
 Installer Fails If The System Has A Libc Version Below That Of The Build Machine
     [Teardown]  Fake Ldd Teardown
