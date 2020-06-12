@@ -34,15 +34,14 @@ namespace SulDownloader
                 SyncFailed = 4,
                 InstallFailed = 5,
                 VerifyFailed = 6
-            };
-            static ProductStatus maxProductStatus(ProductStatus lh, ProductStatus rh);
+            };                        
             ProductStatus productStatus = ProductStatus::SyncFailed;
 
             std::string statusToString() const;
 
             std::string jsonString() const;
         };
-
+        bool operator< (ProductReport::ProductStatus lh, ProductReport::ProductStatus rh ); 
         /**
          * DownloadReport holds the relevant information about an attempt to run SULDownloader.
          * It will eventually be serialized to json via the SulDownloaderProto::DownloadStatusReport.

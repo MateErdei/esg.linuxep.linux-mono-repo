@@ -75,22 +75,14 @@ namespace
     }
 
 } // namespace
+bool SulDownloader::suldownloaderdata::operator< (SulDownloader::suldownloaderdata::ProductReport::ProductStatus lh, 
+                                                    SulDownloader::suldownloaderdata::ProductReport::ProductStatus rh )
+{
+    return static_cast<int>(lh) < static_cast<int>(rh); 
+}
+
 namespace SulDownloader
 {
-    namespace suldownloaderdata
-    {
-        ProductReport::ProductStatus ProductReport::maxProductStatus(
-            ProductReport::ProductStatus lh,
-            ProductReport::ProductStatus rh)
-        {
-            int i_lh = static_cast<int>(lh);
-            int i_rh = static_cast<int>(rh);
-            int i_max = std::max(i_lh, i_rh);
-            return static_cast<ProductStatus>(i_max);
-        }
-
-    } // namespace suldownloaderdata
-
     using namespace Common::UtilityImpl;
     DownloadReport::DownloadReport() : m_status(WarehouseStatus::UNSPECIFIED) {}
 
@@ -321,7 +313,7 @@ namespace SulDownloader
                                 combinedError += ". " + error;
                             }
                         }
-                        combinedStatus = ProductReport::maxProductStatus(combinedStatus, status);
+                        combinedStatus = std::max(combinedStatus, status);
                     }
                 }
                 productReportEntry.productStatus = combinedStatus;
