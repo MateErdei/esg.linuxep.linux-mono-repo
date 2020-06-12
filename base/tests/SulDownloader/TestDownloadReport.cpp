@@ -179,6 +179,39 @@ public:
         // double check to ensure we have something to loop through.
         EXPECT_EQ(report.getProducts().size(), 0);
     }
+
+    std::pair< std::vector<suldownloaderdata::DownloadedProduct>, std::vector<suldownloaderdata::SubscriptionInfo> > componentSuiteSubscriptionReferencingTwoProducts()
+    {
+        suldownloaderdata::WarehouseError wErr;
+        wErr.Description = "Error P1";
+        wErr.status = suldownloaderdata::WarehouseStatus::UNINSTALLFAILED;
+        std::vector<suldownloaderdata::DownloadedProduct> downloadedProducts;
+        auto metadata = createTestProductMetaData();
+        metadata.setLine("P1");
+        downloadedProducts.push_back(createTestDownloadedProduct(metadata));
+        downloadedProducts[0].setError(wErr);
+        downloadedProducts[0].setProductIsBeingUninstalled(true);
+
+        wErr.Description = "Error P2";
+        wErr.status = suldownloaderdata::WarehouseStatus::INSTALLFAILED;
+
+        metadata.setLine("P2");
+        downloadedProducts.push_back(createTestDownloadedProduct(metadata));
+        downloadedProducts[1].setError(wErr);
+
+        suldownloaderdata::SubProducts products;
+        auto version = metadata.getVersion(); // they all have the same version
+        products.push_back({ "P1", version });
+        products.push_back({ "P2", version });
+
+        suldownloaderdata::SubscriptionInfo subscriptionInfo;
+        subscriptionInfo.rigidName = "CS1";
+        subscriptionInfo.version = version;
+        subscriptionInfo.subProducts = products;
+        std::vector<suldownloaderdata::SubscriptionInfo> subscriptions;
+        subscriptions.push_back(subscriptionInfo);
+        return std::make_pair(downloadedProducts, subscriptions); 
+    }    
 };
 
 TEST_F(DownloadReportTest, fromReportWithReportCreatedFromErrorDescriptionShouldNotThrow) // NOLINT
@@ -758,36 +791,9 @@ TEST_F(DownloadReportTest, shouldExtractTheWarehouseSubComponents)
     EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, reportAgain.getWarehouseComponents());
 }
 
-TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReconcileSubscriptions)
+TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReconcileSubscriptionsAndReportTheSubscriptionInsteadOftheUnderliningProducts)
 {
-    suldownloaderdata::WarehouseError wErr;
-    wErr.Description = "Error P1";
-    wErr.status = suldownloaderdata::WarehouseStatus::UNINSTALLFAILED;
-    std::vector<suldownloaderdata::DownloadedProduct> downloadedProducts;
-    auto metadata = createTestProductMetaData();
-    metadata.setLine("P1");
-    downloadedProducts.push_back(createTestDownloadedProduct(metadata));
-    downloadedProducts[0].setError(wErr);
-    downloadedProducts[0].setProductIsBeingUninstalled(true);
-
-    wErr.Description = "Error P2";
-    wErr.status = suldownloaderdata::WarehouseStatus::INSTALLFAILED;
-
-    metadata.setLine("P2");
-    downloadedProducts.push_back(createTestDownloadedProduct(metadata));
-    downloadedProducts[1].setError(wErr);
-
-    suldownloaderdata::SubProducts products;
-    auto version = metadata.getVersion(); // they all have the same version
-    products.push_back({ "P1", version });
-    products.push_back({ "P2", version });
-
-    suldownloaderdata::SubscriptionInfo subscriptionInfo;
-    subscriptionInfo.rigidName = "CS1";
-    subscriptionInfo.version = version;
-    subscriptionInfo.subProducts = products;
-    std::vector<suldownloaderdata::SubscriptionInfo> subscriptions;
-    subscriptions.push_back(subscriptionInfo);
+    auto [downloadedProducts, subscriptions] = componentSuiteSubscriptionReferencingTwoProducts();
 
     auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
         downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
@@ -802,28 +808,44 @@ TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReconcileSubscr
     EXPECT_EQ(reportProducts[1].rigidName, "CS1");
     EXPECT_EQ(reportProducts[1].productStatus, ProductReport::ProductStatus::InstallFailed);
     EXPECT_EQ(reportProducts[1].errorDescription, "Error P1. Error P2");
+}
 
-    subscriptions.clear();
-    subscriptionInfo.subProducts.clear();
-    subscriptionInfo.rigidName = "P1";
-    subscriptions.push_back(subscriptionInfo);
+TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldIgnoreProductsNotMatchingSubscriptionThatHasNoReferenceFromTheComponentSuite)
+{
+    auto [downloadedProducts, subscriptions] = componentSuiteSubscriptionReferencingTwoProducts();
 
-    reportProducts = DownloadReport::combineProductsAndSubscriptions(
+    // setting the subscription as only a single product P1
+    // the products still have 2 prodcuts, but the report products will only report on the one has a subscription matching
+    subscriptions[0].rigidName = "P1"; 
+    subscriptions[0].subProducts.clear(); 
+
+    auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
         downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
+
     ASSERT_EQ(reportProducts.size(), 1);
     EXPECT_EQ(reportProducts[0].rigidName, "P1");
     EXPECT_EQ(reportProducts[0].productStatus, ProductReport::ProductStatus::UninstallFailed);
-    EXPECT_EQ(reportProducts[0].errorDescription, "Error P1");
+    EXPECT_EQ(reportProducts[0].errorDescription, "Error P1");   
+}
 
-    subscriptions.clear();
-    subscriptionInfo.subProducts.clear();
+TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReportOnAllProductsIfTheyAreMarkedAsFirstLevelSubscription)
+{
+    auto [downloadedProducts, subscriptions] = componentSuiteSubscriptionReferencingTwoProducts();
+
+    suldownloaderdata::SubscriptionInfo subscriptionInfo;
+    auto version = subscriptions[0].version;
     subscriptionInfo.rigidName = "P1";
-    subscriptions.push_back(subscriptionInfo);
+    subscriptionInfo.version = version; 
+    subscriptions.clear(); 
+    subscriptions.push_back(subscriptionInfo); 
     subscriptionInfo.rigidName = "P2";
-    subscriptions.push_back(subscriptionInfo);
-
-    reportProducts = DownloadReport::combineProductsAndSubscriptions(
+    subscriptionInfo.version = version;
+    subscriptions.push_back(subscriptionInfo);      
+    
+    // the subscriptions have 2 entries matching the downloaded entries. Both will be reported in the combined report
+    auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
         downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
+
     ASSERT_EQ(reportProducts.size(), 2);
     EXPECT_EQ(reportProducts[0].rigidName, "P1");
     EXPECT_EQ(reportProducts[1].rigidName, "P2");
