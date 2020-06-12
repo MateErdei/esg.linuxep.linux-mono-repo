@@ -41,8 +41,8 @@ SPLIT_WH_MAGIC_TEXT = """<WarehouseEntry>
 NEW_DCI_MAGIC_TEXT = """<?xml version="1.0" encoding="utf-8" ?>
 <Warehouse>
 <LicenseDescription>%s</LicenseDescription>
-<LastModified>%s</LastModified>
-<LastAssigned>%s</LastAssigned>
+<LastModified>2020-01-01T12:00:00Z</LastModified>
+<LastAssigned>2020-01-01T12:00:00Z</LastAssigned>
 <FileName>%s</FileName>
 %s%s%s
 </Warehouse>
@@ -196,8 +196,6 @@ def create(warehouse_def_file, options):
             ef = open(dci_file_path, "w+b")
             ef.write(NEW_DCI_MAGIC_TEXT.replace('\r\n',
                                                 '\n') % (repo_id,
-                                                         current_time_str,
-                                                         current_time_str,
                                                          file_name_element_value,
                                                          urls, wh_block,
                                                          redirects_block))
