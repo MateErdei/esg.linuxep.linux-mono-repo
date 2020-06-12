@@ -273,9 +273,13 @@ namespace SulDownloader
             productReport[productReportEntry.rigidName] = productReportEntry;
             if (productReportEntry.productStatus == ProductReport::ProductStatus::Uninstalled || productReportEntry.productStatus == ProductReport::ProductStatus::UninstallFailed)
             {
-                // uninstalled products will not be in the subscription info, hence, explicitly adding it
-                LOGDEBUG("Adding information for uninstalled products directly to the combined list " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription); 
-                productsRep.push_back(productReportEntry);
+                auto productMatchSubscriptionEntry = [&productReportEntry](const SubscriptionInfo & sI){ return sI.rigidName == productReportEntry.rigidName; }; 
+                if ( std::find_if(subscriptionsInfo.begin(), subscriptionsInfo.end(), productMatchSubscriptionEntry) == subscriptionsInfo.end() )
+                {
+                    // uninstalled products will not be in the subscription info, hence, explicitly adding it
+                    LOGDEBUG("Adding information for uninstalled products directly to the combined list " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription); 
+                    productsRep.push_back(productReportEntry);
+                }
             }
         }
         LOGDEBUG("Combine the products to merge into the subscriptions"); 

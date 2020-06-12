@@ -791,10 +791,17 @@ TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReconcileSubscr
 
     auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
         downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
-    ASSERT_EQ(reportProducts.size(), 1);
-    EXPECT_EQ(reportProducts[0].rigidName, "CS1");
-    EXPECT_EQ(reportProducts[0].productStatus, ProductReport::ProductStatus::InstallFailed);
-    EXPECT_EQ(reportProducts[0].errorDescription, "Error P1. Error P2");
+    
+    // given that there is an uninstallation, the uninstalled products will also be reported. 
+    ASSERT_EQ(reportProducts.size(), 2);
+    EXPECT_EQ(reportProducts[0].rigidName, "P1");
+    EXPECT_EQ(reportProducts[0].productStatus, ProductReport::ProductStatus::UninstallFailed);
+    EXPECT_EQ(reportProducts[0].errorDescription, "Error P1");
+
+
+    EXPECT_EQ(reportProducts[1].rigidName, "CS1");
+    EXPECT_EQ(reportProducts[1].productStatus, ProductReport::ProductStatus::InstallFailed);
+    EXPECT_EQ(reportProducts[1].errorDescription, "Error P1. Error P2");
 
     subscriptions.clear();
     subscriptionInfo.subProducts.clear();
