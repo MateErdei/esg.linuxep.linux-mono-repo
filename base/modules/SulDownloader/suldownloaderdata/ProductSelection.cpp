@@ -232,13 +232,12 @@ namespace SulDownloader
                 const auto& subscriptionProduct = warehouseProducts[index];
                 auto selectedIndexes = mapSubscriptionToProducts(warehouseProducts[index], warehouseProducts);
 
-                // in order to handle the 'strange case' that the order of the component could not be the order
-                // defined in the warehouse configuration, it has been decided, that if it were to be a product that
-                // needs to be installed first inside a component suite, that product will have the name of the
-                // component suite plus a suffix. the lines below, garantee that a component within a component suite
-                // whose rigidline contains the component suite will be placed in the front of the 'list'. if the order
-                // were garantted, it woudl be possible to do:
-                //  selectedProductsIndex.addIndexes(selectedIndexes);
+                // In order to handle the 'strange case' that the order of the component could not be defined
+                // through warehouse configuration, it has been decided, that a product inside a component suite
+                // that needs to be installed first will have the rigidname matching the component suite name + a suffix. 
+                // The algorithm below, such a component will be put in front of the queue to be installed first. 
+                // If the order of the subcomponents also defined the installation order, it would be possible to do:
+                // selectedProductsIndex.addIndexes(selectedIndexes);
 
                 std::list<size_t> indexes;
                 for (auto sub_index : selectedIndexes.values())
@@ -347,7 +346,7 @@ namespace SulDownloader
             if (selector.keepProduct(warehouseProducts[i]))
             {
                 set.addIndex(i);
-                for (auto& product : warehouseProducts[i].subProducts())
+                for (const auto& product : warehouseProducts[i].subProducts())
                 {
                     LOGDEBUG("Selected component has line,version=" << product.m_line << ", " << product.m_version);
                 }
