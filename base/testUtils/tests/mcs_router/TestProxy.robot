@@ -60,7 +60,6 @@ Proxy Creds And Message Relay Information Used On Registration
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
-    Should Exist  /opt/sophos-spl/base/etc/current_proxy
 
 Transient errors keeps same proxies
     [Documentation]  Derived from  CLOUD.MCS.008_one_transient_error_keeps_same_proxy.sh
@@ -134,6 +133,9 @@ The Connection Will Transfer Between Proxies When One Fails
     ...  30 secs
     ...  5 secs
     ...  Check Mcsenvelope Log Contains In Order  PUT /statuses/endpoint  ${Proxy_Name_One}  PUT /statuses/endpoint  ${Proxy_Name_Two}
+    Should Exist  /opt/sophos-spl/base/etc/current_proxy
+    Log File  /opt/sophos-spl/base/etc/current_proxy
+    fail
 
 Mcs Router reregisters after only getting one 401 error
     [Documentation]  Derived from  CLOUD.MCS.011
@@ -263,11 +265,11 @@ Policy authentication with digest
     Start Proxy Server With Digest Auth    3000  ${username}  ${password}
     Register With Local Cloud Server
     Start MCSRouter
-    Send Mcs Policy With Proxy   CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw
+    Send Mcs Policy With Proxy   CCCsjU2VJjvDy9Pa0GO8epaEiub4uCHU6hQqbB4iZifrVQYTbsQkL81bwT5il9PHpFKgngNWpioSDB1ptJ0QZVq2
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check MCS Policy Config Contains    CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw
+    ...  Check MCS Policy Config Contains    CCCsjU2VJjvDy9Pa0GO8epaEiub4uCHU6hQqbB4iZifrVQYTbsQkL81bwT5il9PHpFKgngNWpioSDB1ptJ0QZVq2
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
@@ -279,6 +281,9 @@ Policy authentication with digest
         ...  5 secs
         ...  Check MCSRouter Log Contains   Established MCS Push Connection
     Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:3000
+    Should Exist  /opt/sophos-spl/base/etc/current_proxy
+    Log File  /opt/sophos-spl/base/etc/current_proxy
+
 
 
 Attempt to Connect Via Digest Proxy with Wrong Credentials Produce Correct Error Line
@@ -288,11 +293,11 @@ Attempt to Connect Via Digest Proxy with Wrong Credentials Produce Correct Error
     Register With Local Cloud Server
     Start MCSRouter
     # this will try a connection that is invalid
-    Send Mcs Policy With Proxy   CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw
+    Send Mcs Policy With Proxy   CCCsjU2VJjvDy9Pa0GO8epaEiub4uCHU6hQqbB4iZifrVQYTbsQkL81bwT5il9PHpFKgngNWpioSDB1ptJ0QZVq2
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check MCS Policy Config Contains    CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw
+    ...  Check MCS Policy Config Contains    CCCsjU2VJjvDy9Pa0GO8epaEiub4uCHU6hQqbB4iZifrVQYTbsQkL81bwT5il9PHpFKgngNWpioSDB1ptJ0QZVq2
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs

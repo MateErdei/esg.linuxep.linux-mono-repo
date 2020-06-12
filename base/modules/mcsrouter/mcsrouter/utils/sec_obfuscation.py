@@ -7,6 +7,7 @@ sec_obfuscation Module
 
 
 import binascii
+import random
 
 from Crypto.Cipher import DES3
 from Crypto.Hash import SHA512, HMAC
@@ -235,7 +236,7 @@ def deobfuscate(base64_obfuscated):
         raise SECObfuscationException("Ciphertext corrupt: " + str(exception))
 
 
-def obfuscate(embedded_algorithm_byte, raw_plain, random_generator):
+def obfuscate(embedded_algorithm_byte, raw_plain):
     """
     @param embedded_algorithm_byte - one of ALGO_3DES or ALGO_AES256
     @param raw_plain Original plain text
@@ -247,7 +248,7 @@ def obfuscate(embedded_algorithm_byte, raw_plain, random_generator):
     assert impl is not None
 
     salt_length = impl.SALT_LENGTH
-    salt = random_generator.random_bytes(salt_length)
+    salt = bytearray(random.getrandbits(8) for _ in range(salt_length))
     assert len(salt) == salt_length
 
     partial = impl.obfuscate(salt, raw_plain)

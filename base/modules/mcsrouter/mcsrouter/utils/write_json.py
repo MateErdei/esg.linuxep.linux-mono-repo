@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright 2020 Sophos Plc, Oxford, England.
 
+from . import sec_obfuscation
 from . import path_manager
 
 import logging
@@ -12,9 +13,23 @@ def write_current_proxy_info(proxy):
     folder = path_manager.etc_dir()
     filepath = os.path.join(folder, "current_proxy")
     proxy_info = {}
-    proxy_info['relay_id'] = proxy.relay_id()
-    proxy_info['host'] = proxy.host()
-    proxy_info['port'] = proxy.port()
+
+    if proxy.address():
+        proxy_info['address'] = proxy.address()
+
+        if proxy.relay_id():
+            proxy_info['relay_id'] = proxy.relay_id()
+
+        elif proxy.username():
+
+            proxycredentials = proxy.username() + ":" + proxy.password()
+            cred_encoded = proxycredentials.encode('utf-8')
+            obfuscated = sec_obfuscation.obfuscate(
+                sec_obfuscation.ALGO_AES256,
+                cred_encoded)
+            proxy_info['credentials'] = obfuscated.decode('utf-8')
+
+
 
     with open(filepath, 'w') as outfile:
         json.dump(proxy_info, outfile)

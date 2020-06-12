@@ -14,14 +14,6 @@ import mcsrouter.utils.sec_obfuscation
 import mcsrouter.utils.sec_obfuscation_password
 
 
-class NotRandomGenerator(object):
-    def randomBytes(self, size):
-        return b"A" * size
-
-class RandomGenerator(object):
-    def random_bytes(self, size):
-        return bytearray(random.getrandbits(8) for _ in range(size))
-
 class TestSECObfuscation(unittest.TestCase):
     def testPassword(self):
         password = mcsrouter.utils.sec_obfuscation_password.get_password()
@@ -114,7 +106,7 @@ class TestSECObfuscation(unittest.TestCase):
     def testRoundTrip_AES(self):
         expected = "Lorem ipsum dolor sit amet"
         input_for_obfuscate = expected.encode('ascii')
-        obfuscated = mcsrouter.utils.sec_obfuscation.obfuscate(mcsrouter.utils.sec_obfuscation.ALGO_AES256,input_for_obfuscate,RandomGenerator())
+        obfuscated = mcsrouter.utils.sec_obfuscation.obfuscate(mcsrouter.utils.sec_obfuscation.ALGO_AES256,input_for_obfuscate)
         deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
         self.assertEqual(deobfuscated,expected)
 

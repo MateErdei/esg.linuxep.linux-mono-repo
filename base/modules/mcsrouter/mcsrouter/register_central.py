@@ -13,7 +13,6 @@ import glob
 import logging
 import logging.handlers
 import os
-import random
 import subprocess
 import sys
 import time
@@ -185,19 +184,6 @@ def remove_mcs_policy():
     safe_delete(path_manager.mcs_policy_config())
     safe_delete(path_manager.mcs_policy_file())
 
-class RandomGenerator:
-    """
-    RandomGenerator
-    """
-    # pylint: disable=too-few-public-methods
-
-    def random_bytes(self, size):
-        """
-        random_bytes
-        """
-        # pylint: disable=no-self-use
-        return bytearray(random.getrandbits(8) for _ in range(size))
-
 
 def add_options_to_policy(relays, proxycredentials):
     """
@@ -232,8 +218,7 @@ def add_options_to_policy(relays, proxycredentials):
         cred_encoded = proxycredentials.encode('utf-8')
         obfuscated = sec_obfuscation.obfuscate(
             sec_obfuscation.ALGO_AES256,
-            cred_encoded,
-            RandomGenerator())
+            cred_encoded)
         policy_config.set("mcs_policy_proxy_credentials", to_utf8(obfuscated))
 
     policy_config.save()
