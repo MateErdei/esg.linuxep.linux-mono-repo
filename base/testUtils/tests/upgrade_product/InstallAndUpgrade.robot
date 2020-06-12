@@ -211,7 +211,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
     Wait For Initial Update To Fail
 
-
+    Override LogConf File as Global Level  DEBUG
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
     Trigger Update Now
         # waiting for 2nd because the 1st is a guaranteed failure
@@ -224,7 +224,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
 
-
+    
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -233,7 +233,9 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-
+    Override LogConf File as Global Level  DEBUG
+    #FIXME: this workaround is not acceptable
+    Remove File  /opt/sophos-spl/base/update/cache/primarywarehouse/catalogue/last-modified-*
     Trigger Update Now
 
 
@@ -367,8 +369,8 @@ Version Copy Versions All Changed Files When Upgrading
 
     # Wrapped in a wait to keep trying for a bit if ostia is intermittent
     Wait Until Keyword Succeeds
-    ...  3 mins
-    ...  30 secs
+    ...  15 mins
+    ...  10 secs
     ...  Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
 
     Wait For Initial Update To Fail
