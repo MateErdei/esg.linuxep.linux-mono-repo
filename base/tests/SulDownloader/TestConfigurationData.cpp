@@ -749,19 +749,6 @@ TEST_F( // NOLINT
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithAddedUnknownDataShouldThrow) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("baseVersion" : "9",)";
-
-    std::string newString = R"("baseVersion" : "9",
-            "UnknownDataItem" : "UnknownString",)";
-
-    EXPECT_THROW( // NOLINT
-        ConfigurationData::fromJsonSettings(createJsonString(oldString, newString)),
-        SulDownloaderException);
-}
-
 TEST_F(ConfigurationDataTest, serializeDeserialize) // NOLINT
 {
     std::string originalString = createJsonString("", "");
