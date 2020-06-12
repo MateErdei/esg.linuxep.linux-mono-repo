@@ -139,3 +139,8 @@ def create_log_file_of_specific_size(filename, size):
     with open(str(filename), "wb") as out:
         out.truncate(int(size))
 
+def get_expected_path_of_base_manifest_files(diagnose_output):
+    expected_comp = os.path.join(diagnose_output, 'BaseFiles/ServerProtectionLinux-Base-component')
+    if os.path.exists(expected_comp):
+        return expected_comp
+    return os.path.join(diagnose_output, 'BaseFiles/ServerProtectionLinux-Base')

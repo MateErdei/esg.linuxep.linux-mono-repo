@@ -257,15 +257,11 @@ namespace diagnose
     }
 
     void GatherFiles::copyFilesInComponentDirectories(const Path& destination)
-    {
-
-        std::vector<std::string> componentSubPaths =
-                {"tmp/ServerProtectionLinux-Base", "tmp/ServerProtectionLinux-Plugin-MDR"};
-
-        for(auto& componentSubPath : componentSubPaths)
+    {      
+        Path ssplTmp = Common::FileSystem::join(m_installDirectory, "tmp"); 
+        std::vector<std::string> componentPaths = m_fileSystem.listDirectories(ssplTmp); 
+        for(auto& sourcePath : componentPaths)
         {
-            Path sourcePath = Common::FileSystem::join(m_installDirectory, componentSubPath);
-
             if(!m_fileSystem.isDirectory(sourcePath))
             {
                 continue;
