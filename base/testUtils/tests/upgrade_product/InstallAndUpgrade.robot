@@ -233,9 +233,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Override LogConf File as Global Level  DEBUG
-    #FIXME: this workaround is not acceptable
-    Remove File  /opt/sophos-spl/base/update/cache/primarywarehouse/catalogue/last-modified-*
     Trigger Update Now
 
 
