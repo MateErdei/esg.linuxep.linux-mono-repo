@@ -1700,7 +1700,6 @@ TEST_F( // NOLINT
                                                      productsInfo({ products[0], products[1] }) };
 
     ConfigurationData configurationData = configData(defaultSettings());
-    // ConfigurationData previousConfigurationData = configData(previousFeatureSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();

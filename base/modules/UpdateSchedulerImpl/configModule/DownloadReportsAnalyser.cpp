@@ -355,14 +355,14 @@ namespace UpdateSchedulerImpl
             // Run through the report collection, and check if there is an old un-processed report containing
             // an Upgrade or uninstalled state., if there is set IsRelevantToSend to true to force sending an
             // Update Status Event.
-            for (auto& report : reportCollection)
+            for (const auto& report : reportCollection)
             {
                 if (report.isProcessedReport())
                 {
                     continue;
                 }
 
-                for (auto& product : report.getProducts())
+                for (const auto& product : report.getProducts())
                 {
                     if (product.productStatus ==
                             SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded ||
