@@ -30,14 +30,14 @@ namespace Common
             }
 
             /**
-             * Does s start with target
-             * @param s
-             * @param target
+             * Does haystack starts with needle
+             * @param haystack
+             * @param needle
              * @return
              */
-            static inline bool startswith(const std::string& s, const std::string& target)
+            static inline bool startswith(const std::string& haystack, const std::string& needle)
             {
-                return s.find(target) == 0;
+                return haystack.find(needle) == 0;
             }
 
             /**
