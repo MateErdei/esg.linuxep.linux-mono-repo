@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SULUtils.h"
 
 #include "suldownloaderdata/Logger.h"
-
+#include "Common/UtilityImpl/StringUtils.h"
 #include <iostream>
 #include <vector>
 
@@ -112,7 +112,14 @@ namespace SulDownloader
 
         for (auto& log : SulLogs(ses))
         {
-            LOGSUPPORT(log);
+            if ( Common::UtilityImpl::StringUtils::startswith(log, "[E") )
+            {
+                LOGINFO(log); 
+            }
+            else
+            {           
+                LOGSUPPORT(log);
+            }
         }
     }
 
