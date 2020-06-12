@@ -1548,9 +1548,12 @@ Test Suldownloader Can Upgrade From Major Versions Using Warehouses
 
     Stop Update Server
 
-    Remove Directory  ${tmpdir}/TestInstallFiles   recursive=True
+    Remove Directory  ${tmpdir}/TestInstallFiles/   recursive=True
+    Remove Directory  ${tmpdir}/temp_warehouse/    recursive=True
 
-    Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
+    Clear Warehouse Config
+
+    Create Install File   0   INSTALLER EXECUTED2    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
 
     Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}
 
