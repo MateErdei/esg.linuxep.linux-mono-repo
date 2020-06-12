@@ -34,7 +34,8 @@ Teardown
 
 Check Diagnose Base Output
     ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/BaseFiles
-    ${GeneratedComponentFiles} =  List Files In Directory   /tmp/DiagnoseOutput/BaseFiles/ServerProtectionLinux-Base
+    ${BaseDatDir} =  Get Expected Path Of Base Manifest Files   /tmp/DiagnoseOutput
+    ${GeneratedComponentFiles} =  List Files In Directory    ${BaseDatDir}
 
     # Base files
     Should Contain  ${Files}    ALC_status.xml
