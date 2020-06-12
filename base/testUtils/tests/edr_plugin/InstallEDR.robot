@@ -324,41 +324,6 @@ Install base and edr 999 then downgrade to current master
     ...  wdctl <> stop edr
     ...  wdctl <> start edr
 
-Install base and edr and mtr then downgrade to current release base and mtr
-    [Tags]   THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN  EXCLUDE_UBUNTU20
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
-    #truncate log so that check mdr plugin installed works correctly later in the test
-    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-EDR since it was removed from warehouse
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  EDR Plugin Is Not Running
-
-    Wait Until Keyword Succeeds
-    ...  100 secs
-    ...  5 secs
-    ...  Should Not Exist  ${EDR_DIR}
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Should Exist  ${MTR_DIR}
-
-    Check MDR Plugin Installed
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Log For Event Success Within Nth Set Of Events Sent  3
-
 
 Install master of base and edr and mtr and upgrade to mtr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
