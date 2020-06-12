@@ -1,4 +1,3 @@
-o460, syslog, root, /opt/sophos-spl/plugins/edr/var/syslog_pipe
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.flags
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/plugin.conf

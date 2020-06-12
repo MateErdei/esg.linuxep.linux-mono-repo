@@ -1,3 +1,4 @@
 osquery.db
 edr.lock
 osqueryd.results.log
+syslog_pipe
