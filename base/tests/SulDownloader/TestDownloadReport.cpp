@@ -852,3 +852,41 @@ TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReportOnAllProd
     EXPECT_EQ(reportProducts[1].productStatus, ProductReport::ProductStatus::InstallFailed);
     EXPECT_EQ(reportProducts[1].errorDescription, "Error P2");
 }
+
+TEST_F(DownloadReportTest, shouldNotThrowOnValidReportWhenAnUnkownFieldIsPresent)
+{
+    std::string serializedReportWithSubComponents{ R"sophos({
+ "startTime": "20200608 162035",
+ "finishTime": "20200608 162106",
+ "syncTime": "20200608 162106",
+ "status": "SUCCESS",
+ "sulError": "",
+ "errorDescription": "",
+ "urlSource": "https://ostia.eng.sophos/latest/sspl-warehouse/master",
+ "products": [
+  {
+   "rigidName": "ServerProtectionLinux-Base",
+   "productName": "Sophos Linux Base",
+   "downloadVersion": "1.0.0",
+   "errorDescription": "",
+   "productStatus": "UPGRADED"
+  }
+ ],
+ "warehouseComponents": [
+  {
+   "rigidName": "ServerProtectionLinux-Base",
+   "productName": "Sophos Linux Base",
+   "installedVersion": "1.0.0"
+  }
+ ],
+ "aNewEntryThatWasNotKNownBefore": [
+  {
+   "rigidName": "ServerProtectionLinux-Base",
+   "version": "1.0.0"
+  }
+ ] 
+})sophos" };
+    auto report = DownloadReport::toReport(serializedReportWithSubComponents); 
+    EXPECT_EQ(report.getProducts().size(), 1); 
+
+}
