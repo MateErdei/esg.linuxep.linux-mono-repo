@@ -22,13 +22,6 @@ namespace
         bool m_isAlive;
     };
 
-    bool isAlive(const std::string& ttl)
-    {
-        std::time_t nowTime = Common::UtilityImpl::TimeUtils::getCurrTime();
-        std::time_t integer_ttl = std::stoi(ttl);
-        return integer_ttl >= nowTime;
-    }
-
     ActionFilenameFields getActionFilenameFields(const std::string& filename)
     {
         ActionFilenameFields actionFilenameFields;
@@ -36,13 +29,18 @@ namespace
         actionFilenameFields.m_isAlive = true;
 
         auto fileNameFields = Common::UtilityImpl::StringUtils::splitString(filename, "_");
-        if ((Common::UtilityImpl::StringUtils::startswith(filename, "LiveQuery_") ||
-            Common::UtilityImpl::StringUtils::startswith(filename, "LiveTerminal_")) &&
-            fileNameFields.size() == 5)
+        if (Common::UtilityImpl::StringUtils::isSubstring(filename, "LiveQuery_") && fileNameFields.size() == 5)
         {
             actionFilenameFields.m_appId = fileNameFields[0];
             actionFilenameFields.m_correlationId = fileNameFields[1];
-            actionFilenameFields.m_isAlive = isAlive(fileNameFields[4]);
+            actionFilenameFields.m_isAlive = ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(fileNameFields[3]);
+            actionFilenameFields.m_isValid = true;
+        }
+        else if (Common::UtilityImpl::StringUtils::isSubstring(filename, "LiveTerminal_") && fileNameFields.size() == 4)
+        {
+            // TODO: LINUXDAR-1648  Consolidate this 'else if' with the above 'if' when correlationId is added for LiveTerminal.
+            actionFilenameFields.m_appId = fileNameFields[0];
+            actionFilenameFields.m_isAlive = ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(fileNameFields[3]);
             actionFilenameFields.m_isValid = true;
         }
         else
@@ -65,14 +63,37 @@ ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::ActionTask(
 {
 }
 
-
+bool ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(const std::string& ttl)
+{
+    std::time_t nowTime = Common::UtilityImpl::TimeUtils::getCurrTime();
+    std::time_t integer_ttl = 0;
+    try
+    {
+        integer_ttl = std::stol(ttl);
+    }
+    catch (std::exception& exception)
+    {
+        std::stringstream msg;
+        msg << "Failed to convert time to live '" << ttl << "' into time_t";
+        throw FailedToConvertTtlException(msg.str());
+    }
+    return integer_ttl >= nowTime;
+}
 
 void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
 {
     LOGSUPPORT("Process new action from mcsrouter: " << m_filePath);
     std::string basename = Common::FileSystem::basename(m_filePath);
-
-    auto actionFilenameFields = getActionFilenameFields(basename);
+    ActionFilenameFields actionFilenameFields;
+    try
+    {
+        actionFilenameFields = getActionFilenameFields(basename);
+    }
+    catch (FailedToConvertTtlException& exception)
+    {
+        LOGERROR(exception.what());
+        return;
+    }
     if (!actionFilenameFields.m_isValid)
     {
         LOGWARN("Got an invalid file name for action detection: " << m_filePath);
