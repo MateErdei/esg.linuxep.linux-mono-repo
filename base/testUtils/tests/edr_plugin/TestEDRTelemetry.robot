@@ -96,7 +96,6 @@ EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  queries=@{queries}
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by EDR Plugin
-    [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY  EXCLUDE_AWS
     Wait Until OSQuery Running  20
     Kill OSQuery
     Wait Until OSQuery Running  20
