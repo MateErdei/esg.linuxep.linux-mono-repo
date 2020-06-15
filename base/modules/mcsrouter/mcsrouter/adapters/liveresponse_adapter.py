@@ -22,6 +22,7 @@ class LiveResponseAdapter(generic_adapter.GenericAdapter):
         super().__init__(app_id, install_dir)
 
     def _get_action_name(self, command):
+        correlation_id = command.get("id")
         try:
             timestamp = command.get("creationTime")
         except KeyError:
@@ -29,4 +30,4 @@ class LiveResponseAdapter(generic_adapter.GenericAdapter):
         ttl = self._convert_ttl_to_epoch_time(timestamp, command.get("ttl"))
 
         order_tag = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
-        return f"{order_tag}_{self.get_app_id()}_action_{timestamp}_{ttl}.xml"
+        return f"{order_tag}_{self.get_app_id()}_{correlation_id}_action_{timestamp}_{ttl}.xml"
