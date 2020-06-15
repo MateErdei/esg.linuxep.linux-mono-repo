@@ -10,7 +10,7 @@ import os
 LOGGER = logging.getLogger(__name__)
 
 def write_current_proxy_info(proxy):
-    folder = path_manager.etc_dir()
+    folder = path_manager.sophos_etc_dir()
     filepath = os.path.join(folder, "current_proxy")
     proxy_info = {}
 
