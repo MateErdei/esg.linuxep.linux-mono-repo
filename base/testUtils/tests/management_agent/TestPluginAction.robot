@@ -7,6 +7,7 @@ Library           Collections
 
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
 Resource    ManagementAgentResources.robot
 
@@ -50,7 +51,8 @@ Verify Management Agent Sends LiveQuery To EDR Plugin
     Start Plugin
 
     # Write Action file.
-    ${actionFileName} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_correlation-id_FakeTime_request.json
+    ${creation_time_and_ttl} =  get_valid_creation_time_and_ttl
+    ${actionFileName} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_correlation-id_${creation_time_and_ttl}_request.json
 
     ${actionTmpName} =    Set Variable   ${SOPHOS_INSTALL}/tmp/TempAction.json
     ${liveQueryContent} =    Set Variable   Live Query Content
