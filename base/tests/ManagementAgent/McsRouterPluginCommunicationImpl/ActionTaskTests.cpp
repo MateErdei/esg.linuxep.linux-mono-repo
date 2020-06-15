@@ -91,7 +91,7 @@ TEST_F(ActionTaskTests, LiveQueryFilesWillBeForwardedToPlugin) // NOLINT
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
             new SequenceOfFakeTime{ {t_20190501T13h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_2013-05-02T09:50:08Z_1591790400_request.json");
+            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_request_2013-05-02T09:50:08Z_1591790400.json");
     task.run();
 }
 
@@ -112,7 +112,7 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithoutAppIdWillBeDiscardedAndErrorLogged)
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
             new SequenceOfFakeTime{ {t_20190501T13h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/correlation-id_2013-05-02T09:50:08Z_1591790400_request.json");
+            m_mockPluginManager, "/tmp/action/correlation-id_request_2013-05-02T09:50:08Z_1591790400.json");
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
 
@@ -136,7 +136,7 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithoutCorrelationIdWillBeDiscardedAndErro
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
             new SequenceOfFakeTime{ {t_20190501T13h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/LiveQuery_2013-05-02T09:50:08Z_1591790400_request.json");
+            m_mockPluginManager, "/tmp/action/LiveQuery_request_2013-05-02T09:50:08Z_1591790400.json");
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
 
@@ -163,56 +163,6 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithInvalidConventionNameWillBeDiscarded) 
     EXPECT_THAT(logMessage, ::testing::HasSubstr("invalid"));
 }
 
-TEST_F(ActionTaskTests, LiveQueryFileWithExpiredTTLIsDiscarded)
-{
-    testing::internal::CaptureStderr();
-
-    Common::Logging::ConsoleLoggingSetup loggingSetup;
-
-    EXPECT_CALL(m_mockPluginManager, queueAction(_,_,_)).Times(0);
-
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-
-    bool stop{ false };
-    // make managementagent think it is 20200610T12h so that the action ttl we give is in the past
-    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime{ {t_20200610T12h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
-
-    ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_2020-06-09T09:15:23Z_1556712000_request.json");
-    task.run();
-    std::string logMessage = testing::internal::GetCapturedStderr();
-
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Action has expired"));
-}
-
-TEST_F(ActionTaskTests, LiveQueryFileWithTimeToLiveEqualToCurrentTimeIsProcessed)
-{
-    testing::internal::CaptureStderr();
-
-    Common::Logging::ConsoleLoggingSetup loggingSetup;
-
-    EXPECT_CALL(m_mockPluginManager, queueAction("LiveQuery","FileContent","correlation-id")).Times(1);
-
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("FileContent"));
-    std::string file_path = "/tmp/action/LiveQuery_correlation-id_2020-06-09T09:15:23Z_1591790400_request.json";
-    EXPECT_CALL(*filesystemMock, removeFile(file_path)).Times(1);
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-
-    bool stop{ false };
-    // make managementagent think it is 20190501T13h so that the action ttl we give is in the past
-    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime{ {t_20200610T12h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
-
-    ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, file_path);
-    task.run();
-    std::string logMessage = testing::internal::GetCapturedStderr();
-}
-
-
 TEST_F(ActionTaskTests, LiveResponseFileWithExpiredTTLIsDiscarded)
 {
     testing::internal::CaptureStderr();
@@ -230,7 +180,7 @@ TEST_F(ActionTaskTests, LiveResponseFileWithExpiredTTLIsDiscarded)
             new SequenceOfFakeTime{ {t_20200610T12h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
 
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-            m_mockPluginManager, "/tmp/action/LiveTerminal_action_2020-06-09T09:15:23Z_1556712000.json");
+            m_mockPluginManager, "/tmp/action/LiveQuery_correlation-id_request_2020-06-09T09:15:23Z_1556712000.json");
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
 
@@ -243,11 +193,11 @@ TEST_F(ActionTaskTests, LiveResponseFileWithTimeToLiveInFutureIsProcessed)
 
     Common::Logging::ConsoleLoggingSetup loggingSetup;
 
-    EXPECT_CALL(m_mockPluginManager, queueAction("LiveTerminal","FileContent","")).Times(1);
+    EXPECT_CALL(m_mockPluginManager, queueAction("LiveTerminal","FileContent","correlation-id")).Times(1);
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("FileContent"));
-    std::string file_path = "/tmp/action/LiveTerminal_action_2020-06-09T09:15:23Z_1591790400.json";
+    std::string file_path = "/tmp/action/LiveTerminal_correlation-id_action_2020-06-09T09:15:23Z_1591790400.xml";
     EXPECT_CALL(*filesystemMock, removeFile(file_path)).Times(1);
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
@@ -269,11 +219,11 @@ TEST_F(ActionTaskTests, LiveResponseFileWithTimeToLiveEqualToCurrentTimeIsProces
 
     Common::Logging::ConsoleLoggingSetup loggingSetup;
 
-    EXPECT_CALL(m_mockPluginManager, queueAction("LiveTerminal","FileContent","")).Times(1);
+    EXPECT_CALL(m_mockPluginManager, queueAction("LiveTerminal","FileContent","correlation-id")).Times(1);
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("FileContent"));
-    std::string file_path = "/tmp/action/LiveTerminal_action_2020-06-09T09:15:23Z_1591790400.json";
+    std::string file_path = "/tmp/action/LiveTerminal_correlation-id_action_2020-06-09T09:15:23Z_1591790400.xml";
     EXPECT_CALL(*filesystemMock, removeFile(file_path)).Times(1);
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
@@ -286,51 +236,5 @@ TEST_F(ActionTaskTests, LiveResponseFileWithTimeToLiveEqualToCurrentTimeIsProces
             m_mockPluginManager, file_path);
     task.run();
     std::string logMessage = testing::internal::GetCapturedStderr();
-}
 
-
-TEST_F(ActionTaskTests, TestIsAliveMethod)
-{
-    bool stop{ false };
-    // make method think the current time is 1591790400 so that the action ttl we give is in the past
-    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime{ {1591790400}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
-
-    EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("0"), false);
-    EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("1591790399"), false);
-    EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("1591790400"), true);
-    EXPECT_EQ(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("1591790401"), true);
-}
-
-TEST_F(ActionTaskTests, testIsAliveWithBadArgumentThrows)
-{
-     EXPECT_THROW(ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive("IAmNotANumber"),
-                  ManagementAgent::McsRouterPluginCommunicationImpl::FailedToConvertTtlException);
-}
-
-TEST_F(ActionTaskTests, TestGarbageTTLIsHandledWithLogging) // NOLINT
-{
-
-    testing::internal::CaptureStderr();
-
-    Common::Logging::ConsoleLoggingSetup loggingSetup;
-
-    EXPECT_CALL(m_mockPluginManager, queueAction(_,_,_)).Times(0);
-
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-
-    try
-    {
-        ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(
-                m_mockPluginManager, "/tmp/action/LiveTerminal_action_2020-06-09T09:15:23Z_IAmNotANumber.json");
-    }
-    catch(ManagementAgent::McsRouterPluginCommunicationImpl::FailedToConvertTtlException& exception)
-    {
-        EXPECT_STREQ(exception.what(), "Failed to convert time to live 'IAmNotANumber' into time_t");
-    }
-    catch(...)
-    {
-        FAIL();
-    }
 }
