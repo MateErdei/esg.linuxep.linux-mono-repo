@@ -87,3 +87,5 @@ def addPathToSysPath(p):
     p = os.path.normpath(p)
     if p not in sys.path:
         sys.path.append(p)
+
+SOPHOS_INSTALL = os.path.join("/","opt", "sophos-spl")

@@ -6,12 +6,12 @@ from pwd import getpwnam
 from random import randrange
 import time
 import datetime
+import PathManager
 
 import BaseInfo as base_info
 
-TMP_ACTIONS_DIR = os.path.join("/tmp", "actions")
+TMP_ACTIONS_DIR = os.path.join(PathManager.SOPHOS_INSTALL, "tmp")
 BASE_ACTION_DIR = os.path.join(base_info.get_install(), "base", "mcs", "action")
-os.makedirs(TMP_ACTIONS_DIR, exist_ok=True)
 
 def verify_livequery_request_has_the_expected_fields(filepath, **kwargs):
     with open(filepath, 'r') as query_file:
