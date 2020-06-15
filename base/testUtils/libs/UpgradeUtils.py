@@ -83,7 +83,10 @@ def compare_before_and_after_manifests_with_changed_files_manifest(before_manife
     strip_all_lines(before_lines)
     strip_all_lines(after_lines)
 
-    difference_in_manifests = list(set(after_lines) - set(before_lines))
+    convert_to_unix_paths(before_lines)
+    convert_to_unix_paths(after_lines)
+
+    difference_in_manifests = list(set(after_lines).difference(set(before_lines)))
 
     convert_to_unix_paths(difference_in_manifests)
 
