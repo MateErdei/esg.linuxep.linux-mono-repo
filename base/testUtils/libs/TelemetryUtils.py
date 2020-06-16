@@ -186,11 +186,13 @@ class TelemetryUtils:
 
         return telemetry
 
-    def generate_liveresponse_telemetry_dict(self, total_sessions):
+    def generate_liveresponse_telemetry_dict(self, total_sessions, successful_sessions, failed_sessions):
         version = get_plugin_version("liveresponse")
         telemetry = {
             "version": version,
-            "total-sessions": total_sessions
+            "total-sessions": total_sessions,
+            "successful-sessions": successful_sessions,
+            "failed-sessions": failed_sessions
         }
         return telemetry
 
@@ -385,8 +387,12 @@ class TelemetryUtils:
                 "EDR telemetry doesn't match telemetry expected by test. expected: {}, actual: {}".format(
                     expected_edr_telemetry_dict, actual_edr_telemetry_dict))
 
-    def check_liveresponse_telemetry_json_is_correct(self, json_string, total_sessions=0):
-        expected_lr_telemetry_dict = self.generate_liveresponse_telemetry_dict(total_sessions)
+    def check_liveresponse_telemetry_json_is_correct(self,
+                                                     json_string,
+                                                     total_sessions=0,
+                                                     successful_sessions=0,
+                                                     failed_sessions=0):
+        expected_lr_telemetry_dict = self.generate_liveresponse_telemetry_dict(total_sessions, successful_sessions, failed_sessions)
         actual_lr_telemetry_dict = json.loads(json_string)["liveresponse"]
 
         if actual_lr_telemetry_dict != expected_lr_telemetry_dict:

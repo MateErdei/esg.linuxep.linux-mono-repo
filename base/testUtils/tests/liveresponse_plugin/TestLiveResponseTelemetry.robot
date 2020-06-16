@@ -22,6 +22,8 @@ Suite Teardown   LiveResponse Telemetry Suite Teardown
 
 Default Tags   LIVERESPONSE_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
 
+*** Variables ***
+${terminal_binary}   ${LIVERESPONSE_DIR}/bin/sophos-live-terminal
 
 *** Test Cases ***
 Liveresponse Plugin Unexpected Restart Telemetry Is Reported Correctly
@@ -44,7 +46,7 @@ Liveresponse Plugin Unexpected Restart Telemetry Is Reported Correctly
     Check Watchdog Telemetry Json Is Correct  ${telemetryFileContents}  1  liveresponse
 
 
-Liveresponse Plugin Session Count Defaults To Zero
+Liveresponse Plugin Session Counts Default To Zero
     [Documentation]    Check session count telemetry defaults to zero when when no liveresponse sessions are run.
     Wait Until Keyword Succeeds
     ...  40s
@@ -55,11 +57,12 @@ Liveresponse Plugin Session Count Defaults To Zero
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     log  ${telemetryFileContents}
     ${sessions} =  Set Variable  0
-    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}
+    ${successful_sessions} =  Set Variable  0
+    ${failed_sessions} =  Set Variable  0
+    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${successful_sessions}  ${failed_sessions}
 
-Liveresponse Plugin Session Count
-    [Documentation]    Check session count telemetry is correct when liveresponse sessions are run.
-
+Liveresponse Plugin Session Counts Successful And Failed
+    [Documentation]    Check session counts telemetry is correct when liveresponse sessions are run.
     Wait Until Keyword Succeeds
     ...  40s
     ...  5s
@@ -71,11 +74,20 @@ Liveresponse Plugin Session Count
     ${actionFileName1} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_action_1_2592240006
     ${actionFileName2} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_action_2_2592240006
 
-    # Create 1st action
+    # Create and trigger 1st action
     Create File     ${actionTempName}   ${actionContents}
     Move File       ${actionTempName}   ${actionFileName1}
 
-    # Create 2nd action
+    # Wait for a session to be started
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log   Session   1
+
+    Swap Out Real Terminal With One That Always Returns Success
+    # Restoring is done in teardown if it's needed.
+
+    # Create and trigger 2nd action
     Create File     ${actionTempName}   ${actionContents}
     Move File       ${actionTempName}   ${actionFileName2}
 
@@ -93,7 +105,9 @@ Liveresponse Plugin Session Count
 
     # Expect 2 sessions to have been run and reported in telemetry
     ${sessions} =  Set Variable  2
-    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}
+    ${successful_sessions} =  Set Variable  1
+    ${failed_sessions} =  Set Variable  1
+    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${successful_sessions}  ${failed_sessions}
 
 
 *** Keywords ***
@@ -116,7 +130,18 @@ LiveResponse Telemetry Test Teardown
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
     General Test Teardown
+    Restore Original Live Response Terminal Binary
     Remove file  ${TELEMETRY_OUTPUT_JSON}
     Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
     Cleanup Telemetry Server
     Remove File  ${EXE_CONFIG_FILE}
+
+
+Swap Out Real Terminal With One That Always Returns Success
+    Move File  ${terminal_binary}  /tmp/sophos-live-terminal-original
+    Create File  ${terminal_binary}  \#!/bin/bash\nsleep 0.1
+    Run Process    chmod  a+x  ${terminal_binary}
+
+Restore Original Live Response Terminal Binary
+    # If needed it will restore the old live response terminal binary
+    Run Keyword And Ignore Error  Move File  /tmp/sophos-live-terminal-original  ${terminal_binary}
