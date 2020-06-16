@@ -63,6 +63,10 @@ OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/
 OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PAUSED_OVERRIDE"
 OSTIA_PAUSED_ADDRESS_BRANCH = os.environ.get(OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE, "feature-paused-updating")
 OSTIA_PAUSED_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_PAUSED_ADDRESS_BRANCH)
+# A warehouse containing Base and EDR pre live response
+OSTIA_BASE_EDR_OLD_WH_ADDRESS_BRANCH_OVERRIDE = "OSTIA_BASE_EDR_OLD_WH_OVERRIDE"
+OSTIA_BASE_EDR_OLD_WH_ADDRESS_BRANCH = os.environ.get(OSTIA_BASE_EDR_OLD_WH_ADDRESS_BRANCH_OVERRIDE, "feature-Base-EDR-Only-OldWarehouseStyle")
+OSTIA_BASE_EDR_OLD_WH_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_BASE_EDR_OLD_WH_ADDRESS_BRANCH)
 # dictionary of ostia addresses against the ports that should be used to serve their customer files locally
 OSTIA_ADDRESSES = {
                     OSTIA_VUT_ADDRESS: "2233",
@@ -73,7 +77,8 @@ OSTIA_ADDRESSES = {
                     OSTIA_EDR_999_ADDRESS: "7233",
                     OSTIA_MTR_999_ADDRESS: "7237",
                     OSTIA_EDR_AND_MTR_999_ADDRESS: "7240",
-                    OSTIA_BETA_ONLY_ADDRESS: "7244"
+                    OSTIA_BETA_ONLY_ADDRESS: "7244",
+                    OSTIA_BASE_EDR_OLD_WH_ADDRESS: "7245"
                    }
 
 BALLISTA_ADDRESS = "https://dci.sophosupd.com/cloudupdate"
@@ -318,7 +323,8 @@ class WarehouseUtils(object):
         "base_paused_update_VUT.xml": TemplateConfig("BASE_PAUSED_VUT", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
         "base_paused_update_999.xml": TemplateConfig("BASE_PAUSED_999", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
         "base_only_VUT_without_SDU_Feature.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_beta_only.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_BETA_ONLY_ADDRESS)
+        "base_beta_only.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_BETA_ONLY_ADDRESS),
+        "base_edr_old_wh_format.xml": TemplateConfig("BASE_EDR_OLD_WH", "base_user_vut", DEV_BUILD_CERTS, OSTIA_BASE_EDR_OLD_WH_ADDRESS),
     }
 
 
