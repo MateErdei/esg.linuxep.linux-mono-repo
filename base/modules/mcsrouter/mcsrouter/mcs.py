@@ -24,6 +24,7 @@ from .adapters import event_receiver
 from .adapters import response_receiver
 from .adapters import generic_adapter
 from .adapters import livequery_adapter
+from .adapters import liveresponse_adapter
 from .adapters import mcs_adapter
 from .mcsclient import config_exception
 from .mcsclient import events as events_module
@@ -380,6 +381,11 @@ class MCS:
                 LOGGER.debug( "Add LiveQuery adapter for app {}".format(app))
                 self.__m_computer.add_adapter(
                     livequery_adapter.LiveQueryAdapter(app, path_manager.install_dir())
+                )
+            elif app == "LiveTerminal":
+                LOGGER.debug( "Add LiveResponse adapter for app {}".format(app))
+                self.__m_computer.add_adapter(
+                    liveresponse_adapter.LiveResponseAdapter(app, path_manager.install_dir())
                 )
             else:
                 LOGGER.debug( "Add Generic adapter for app {}".format(app))

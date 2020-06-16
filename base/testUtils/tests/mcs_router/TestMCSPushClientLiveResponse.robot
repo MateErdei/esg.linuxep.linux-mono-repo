@@ -40,9 +40,12 @@ MCSRouter Can Start and Receive LiveTerminal Action Via Push Client
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  File Should Exist  ${MCS_DIR}/action/LiveTerminal_action_FakeTime.xml
+    ...  Only 1 Action File Present
 
-    ${content} =  Get File  ${MCS_DIR}/action/LiveTerminal_action_FakeTime.xml
+    ${Files} =  List Files In Directory  ${MCS_DIR}/action/
+    Should Contain    ${Files[0]}   LiveTerminal_correlation-id_action
+
+    ${content} =  Get File  ${MCS_DIR}/action/${Files[0]}
     Should Contain  ${content}  <action type="sophos.mgt.action.InitiateLiveTerminal">
     Should Contain  ${content}  wss://test-url
 
@@ -51,3 +54,8 @@ MCSRouter Can Start and Receive LiveTerminal Action Via Push Client
 Live Response Test Teardown
     Push Client Test Teardown
     Remove Fake Plugin From Registry
+
+Only 1 Action File Present
+    ${Files} =  List Files In Directory  ${MCS_DIR}/action/
+    ${fileCount} =    Get length    ${Files}
+    Should Be Equal As Numbers  ${fileCount}  1

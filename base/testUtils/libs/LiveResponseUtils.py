@@ -1,5 +1,6 @@
 import os
 import glob
+import datetime
 
 import BaseInfo as base_info
 
@@ -14,13 +15,14 @@ def get_live_response_file():
     return filelist[0]
 
 
-def create_live_response_action(wss_url="wss://lr.url/", thumbprint="thumbprint"):
+def create_live_response_action(wss_url="wss://lr.url/", thumbprint="thumbprint", correlationId="correlation-id"):
+    now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     return f"""<?xml version="1.0"?><ns:commands xmlns:ns="http://www.sophos.com/xml/mcs/commands" schemaVersion="1.0">
         <command>
-            <id>LR</id>
+            <id>{correlationId}</id>
             <seq>1</seq>
             <appId>LiveTerminal</appId>
-            <creationTime>FakeTime</creationTime>
+            <creationTime>{now}</creationTime>
             <ttl>PT10000S</ttl>'
             <body>&lt;?xml version="1.0"?&gt;&lt;action type="sophos.mgt.action.InitiateLiveTerminal"&gt;&lt;url&gt;{wss_url}&lt;/url&gt; \
                         &lt;thumbprint&gt;{thumbprint}&lt;/thumbprint&gt; \

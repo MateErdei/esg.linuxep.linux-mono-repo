@@ -34,13 +34,13 @@ class WebsocketWrapper:
             self._server.join()
 
     def match_message(self, message, path):
-        assert self._server.match_message(message, path)
+        assert self._server.match_message(message, f"/{path}")
 
     def liveterminal_server_log_file(self):
         return self._log_path
 
     def send_message_with_newline(self, message, path):
-        self._server.send_message_with_newline(message, path)
+        self._server.send_message_with_newline(message, f"/{path}")
 
     @staticmethod
     def install_lt_server_certificates():
