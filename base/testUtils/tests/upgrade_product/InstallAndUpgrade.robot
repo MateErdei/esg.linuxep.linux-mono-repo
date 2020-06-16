@@ -362,10 +362,10 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     # Swap old manifest files around, this will make the cleanup process mark files for delete which should not be
     # deleted, because the files are outside of the components realm
 
-    Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat  /tmp/base-manifest.dat
+    Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
     Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat  /tmp/MDR-manifest.dat
 
-    Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
+    Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
     Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
     Trigger Update Now
@@ -375,8 +375,10 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
+    If Upgrade To New WarehouseStruct Wait Out Of Sync Update
+
     # ensure that the list of files to remove contains files which are outside of the components realm
-    ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
+    ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
     Should Contain  ${BASE_REMOVE_FILE_CONTENT}  plugins/mtr
 
     ${MTR_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
