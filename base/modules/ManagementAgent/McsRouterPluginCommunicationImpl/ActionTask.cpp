@@ -66,10 +66,10 @@ ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::ActionTask(
 bool ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(const std::string& ttl)
 {
     std::time_t nowTime = Common::UtilityImpl::TimeUtils::getCurrTime();
-    std::time_t integer_ttl = 0;
+    std::time_t long_ttl = 0;
     try
     {
-        integer_ttl = std::stol(ttl);
+        long_ttl = std::stol(ttl);
     }
     catch (std::exception& exception)
     {
@@ -77,7 +77,7 @@ bool ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(cons
         msg << "Failed to convert time to live '" << ttl << "' into time_t";
         throw FailedToConvertTtlException(msg.str());
     }
-    return integer_ttl >= nowTime;
+    return long_ttl >= nowTime;
 }
 
 void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
