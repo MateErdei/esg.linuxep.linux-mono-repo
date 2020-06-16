@@ -59,23 +59,20 @@ Check Diagnose Base Output
     Should Contain  ${GeneratedComponentFiles}  removedFiles_manifest.dat
 
 
-Check Diagnose Output For Plugin logs
-    ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles
-    Should Contain  ${Files}    AuditPlugin.log
-    Should Contain  ${Files}    EventProcessor.log
+Check Diagnose Output For EDR Plugin logs
+    ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr
+    Should Contain  ${Files}    edr.log
 
     # Check the plugin registry files
     ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/BaseFiles
-    Should Contain  ${Files}    AuditPlugin.json
-    Should Contain  ${Files}    EventProcessor.json
+    Should Contain  ${Files}    edr.json
 
 Check Diagnose Output For Additional EDR Plugin File
-    ${EDRLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/
-    ${EDRFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/
+    ${EDRFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr
     ${EDRConfFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/etc
 
-    Should Contain  ${EDRLogFiles}    edr.log
-    Should Contain  ${EDRLogFiles}    osqueryd.results.log
+    Should Contain  ${EDRFiles}    edr.log
+    Should Contain  ${EDRFiles}    osqueryd.results.log
     Should Contain  ${EDRFiles}    VERSION.ini
     Should Contain  ${EDRConfFiles}    osquery.flags
     Should Contain  ${EDRConfFiles}    osquery.conf
@@ -92,7 +89,7 @@ Check Diagnose Output For Additional MDR Plugin File
     Should Contain  ${MTRDBOSVersionFile}    VERSION.ini
 
 Check Diagnose Output For Additional LR Plugin Files
-    ${LRLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/
+    ${LRLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/liveresponse
     Should Contain   ${LRLogFiles}   liveresponse.log
     Should Contain   ${LRLogFiles}   sessions.log
 

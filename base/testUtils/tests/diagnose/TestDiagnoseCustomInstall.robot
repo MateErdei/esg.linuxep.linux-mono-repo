@@ -7,8 +7,7 @@ Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     Process
 Library     OperatingSystem
 
-Resource    ../management_agent-audit_plugin/AuditPluginResources.robot
-Resource    ../management_agent-event_processor/EventProcessorResources.robot
+Resource    ../edr_plugin/EDRResources.robot
 Resource    DiagnoseResources.robot
 
 Suite Setup     Suite Setup Custom Install
@@ -26,8 +25,8 @@ ${CustomPath}  /opt/not-default-location
 
 *** Test Cases ***
 Diagnose Tool Gathers Logs When Run From Installation In Custom Location
-    [Tags]  EVENT_PLUGIN  AUDIT_PLUGIN  DIAGNOSE  CUSTOM_LOCATION
-    Install Audit Plugin Directly
+    [Tags]  EDR_PLUGIN  DIAGNOSE  CUSTOM_LOCATION
+    Install EDR Directly
     Install EventProcessor Plugin Directly
 
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
@@ -52,7 +51,7 @@ Diagnose Tool Gathers Logs When Run From Installation In Custom Location
     Should Be Equal As Strings   ${result.rc}  0
 
     Check Diagnose Base Output
-    Check Diagnose Output For Plugin logs
+    Check Diagnose Output For EDR Plugin logs
     Check Diagnose Output For System Command Files
     Check Diagnose Output For System Files
 

@@ -189,8 +189,6 @@ Diagnose Tool No Input Creates Output Locally
     Remove File  sspl-diagnose_*.tar.gz
 
 Diagnose Tool Run Twice Creates Two Tar Files
-    ${TAR_FILE_DIRECTORY} =  Set Variable  /tmp/TestOutputDirectory
-
     Create Directory  ${TAR_FILE_DIRECTORY}
 
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose    ${TAR_FILE_DIRECTORY}
@@ -301,3 +299,45 @@ Diagnose Tool Fails Due To Read Only Mount And Should Not Generate Uncaught Exce
     Should Not Contain   ${result.stderr}    	Uncaught std::exception
     Should Contain   ${result.stderr}   File system error: Failed to create directory
     Should Contain   ${result.stderr}   Cause: Read-only file system
+
+
+Diagnose Tool Overwrite Hanles Files Of Same Name In Different Directoies
+    Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
+
+    Create File  ${BASE_LOGS_DIR}/a.log  text
+    Create File  ${BASE_LOGS_DIR}/sophosspl/a.log  text
+    Create File  ${EDR_DIR}/log/plugin.log  text
+    Create File  ${EDR_DIR}/etc/plugin.log  text
+
+    Create Directory  ${TAR_FILE_DIRECTORY}
+    ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
+    Should Be Equal As Integers   ${retcode}  0
+
+    ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
+
+    # Untar diagnose tar to check contents
+    Create Directory  ${UNPACK_DIRECTORY}
+    ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
+    Should Be Equal As Strings   ${result.rc}  0
+
+    Check Diagnose Base Output
+    Check Diagnose Output For System Command Files
+    Check Diagnose Output For System Files
+
+    # Check for a.log and a.log.1, incase there is a clash we append a suffix.
+    ${base_files} =  List Files In Directory  /tmp/DiagnoseOutput/BaseFiles
+    Should Contain  ${base_files}    a.log
+    Should Contain  ${base_files}    a.log.1
+
+    # Check for the two plugin.log files, they should be in seperate directories.
+    ${plugin_files} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr
+    Should Contain  ${plugin_files}    plugin.log
+    ${plugin_files} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/etc
+    Should Contain  ${plugin_files}    plugin.log
+
+    ${contents} =  Get File  /tmp/diagnose.log
+    log  ${contents}
+    Should Not Contain  ${contents}  error  ignore_case=True
+
+
+    Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}

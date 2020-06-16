@@ -619,6 +619,19 @@ namespace
         EXPECT_EQ(newFilePermissions, filePermissionsRead);
     }
 
+    TEST_F(FileSystemImplTest, copyFileOverwritesExistingFile) // NOLINT
+    {
+        Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
+        Path A = tempdir.absPath("A");
+        Path B = tempdir.absPath("B");
+        tempdir.createFile("A", "FOOBAR-A");
+        tempdir.createFile("B", "FOOBAR-B");
+        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B)); // NOLINT
+        EXPECT_TRUE(m_fileSystem->exists(B));
+        std::string content = m_fileSystem->readFile(B);
+        EXPECT_EQ(content, "FOOBAR-A");
+    }
+
     TEST_F(FileSystemImplTest, removeFileDeletesFile) // NOLINT
     {
         std::string filePath =

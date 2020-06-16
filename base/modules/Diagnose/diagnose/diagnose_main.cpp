@@ -27,8 +27,6 @@ namespace diagnose
 {
     int diagnose_main::main(int argc, char* argv[])
     {
-
-
         if (argc > 2)
         {
             std::cerr << "Expecting only one parameter got " << (argc - 1) << std::endl;
@@ -52,7 +50,6 @@ namespace diagnose
             std::cerr << "tar command not available: unable to generate diagnose output" << std::endl;
             return 4;
         }
-
 
 
         try

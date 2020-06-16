@@ -91,7 +91,22 @@ namespace diagnose
         }
 
         std::string filename = Common::FileSystem::basename(filePath);
-        m_fileSystem.copyFile(filePath, Common::FileSystem::join(dirPath, filename));
+        Path targetFilePath = Common::FileSystem::join(dirPath, filename);
+
+        // Check to see if the file exists, if it does then append a ".#" on the end, e.g. ".1"
+        if (m_fileSystem.exists(targetFilePath))
+        {
+            int fileCounterSuffix = 1;
+            Path targetFilePathStart = targetFilePath;
+            targetFilePath = targetFilePathStart + "." + std::to_string(fileCounterSuffix);
+            while (m_fileSystem.exists(targetFilePath))
+            {
+                fileCounterSuffix++;
+                targetFilePath = targetFilePathStart + "." + std::to_string(fileCounterSuffix);
+            }
+        }
+
+        m_fileSystem.copyFile(filePath, targetFilePath);
         LOGINFO("Copied " << filePath << " to " << dirPath);
     }
 
@@ -185,16 +200,13 @@ namespace diagnose
         for (const auto& possibleSubDirectory : possiblePluginLogSubDirectories)
         {
             std::string absolutePath = Common::FileSystem::join(pluginsDir, pluginName, possibleSubDirectory);
-
             LOGSUPPORT(absolutePath.c_str());
-
             if (m_fileSystem.isDirectory(absolutePath))
             {
                 std::string newDestinationPath =
                     Common::FileSystem::join(destination, pluginName, possibleSubDirectory);
 
                 m_fileSystem.makedirs(newDestinationPath);
-
                 std::vector<Path> files = m_fileSystem.listFiles(absolutePath);
 
                 for (const auto& file : files)
@@ -223,12 +235,12 @@ namespace diagnose
         for (const auto& absolutePluginPath : pluginDirs)
         {
             std::string pluginName = Common::FileSystem::basename(absolutePluginPath);
-
             Path pluginLogDir = Common::FileSystem::join(pluginsDir, pluginName, "log");
-
+            Path pluginDestinationLogDir = Common::FileSystem::join(destination, pluginName);
+            m_fileSystem.makedirs(pluginDestinationLogDir);
             if (m_fileSystem.isDirectory(pluginLogDir))
             {
-                copyAllOfInterestFromDir(pluginLogDir, destination);
+                copyAllOfInterestFromDir(pluginLogDir, pluginDestinationLogDir);
             }
 
             copyPluginSubDirectoryFiles(pluginsDir, pluginName, destination);

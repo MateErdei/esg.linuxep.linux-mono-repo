@@ -200,7 +200,7 @@ namespace Common
             virtual void makedirs(const Path& path) const = 0;
 
             /**
-             * Copy one file to another
+             * Copy one file to another, overwriting target if it exists.
              * @param src, source file that is to be copied
              * @param dest, location where the file will be copied to
              */
