@@ -209,7 +209,7 @@ Verify Status Message And Event Is Sent On First Update And Not On Following Upd
     Prepare Installation For Upgrade Using Policy  ${BASE_VUT_POLICY}
     Trigger Update Now
 
-    ${UpToDateMessage}=  Set Variable  Downloaded Product line: 'ServerProtectionLinux-Base' is up to date.
+    ${UpToDateMessage}=  Set Variable  Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.
 
     Wait Until Keyword Succeeds
     ...   70 secs
