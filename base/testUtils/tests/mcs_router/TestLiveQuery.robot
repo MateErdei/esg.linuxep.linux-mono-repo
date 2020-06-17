@@ -40,21 +40,37 @@ Query can be Sent From Fake Cloud and Received by MCS Router
     ...  10 secs
     ...  Check Envelope Log Contains       Test Query Special
 
-    ${LiveQueryPath} =  Set Variable  ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_firstcommand_request_2020-06-09T15:30:08Z_1591726608.json
+    ${files} =  List Files In Directory  ${SOPHOS_INSTALL}/base/mcs/action/
+    ${LiveQueryPath} =  Set Variable  ${SOPHOS_INSTALL}/base/mcs/action/${files[0]}
+
     Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  10 secs
+    ...  5 secs
+    ...  1 secs
     ...  File should exist  ${LiveQueryPath}
 
     Verify LiveQuery Request Has The Expected Fields  ${LiveQueryPath}  type=sophos.mgt.action.RunLiveQuery  name=Test Query Special   query=select * from process
 
     Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Action File Exists    ALC_action_FakeTime.xml
+
     Send Query From Fake Cloud    Test Another Special   select * from process   command_id=secondcommand
 
-    #all the different actions can be processed along with livequery and end up written to disk
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check 3 Action Files Exist
+
+    ${files} =  List Files In Directory  ${SOPHOS_INSTALL}/base/mcs/action/
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  10 secs
-    ...  Check Action File Exists   LiveQuery_secondcommand_request_2020-06-09T15:30:08Z_1591726608.json
-    Check Action File Exists    LiveQuery_firstcommand_request_2020-06-09T15:30:08Z_1591726608.json
-    Check Action File Exists    ALC_action_FakeTime.xml
+    ...  Check Action File Exists   ${files[2]}
+
+*** Keywords ***
+Check 3 Action Files Exist
+    ${count} =  Count Files In Directory  ${SOPHOS_INSTALL}/base/mcs/action/
+    Should Be Equal As Integers  ${count}  3
