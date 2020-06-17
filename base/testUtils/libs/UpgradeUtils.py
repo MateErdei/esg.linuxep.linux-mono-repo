@@ -26,7 +26,11 @@ def check_versioned_copy_file_manifest(manifest_name, expected_version):
     # Example line from a changedFiles_manifest.dat file: files/base/bin/UpdateScheduler
     # which relates to the file /opt/sophos-spl/base/bin/UpdateScheduler
 
-    skip_symlink_check_list = [os.path.join(install_dir, "base/pluginRegistry/mtr.json")]
+    skip_symlink_check_list = [os.path.join(install_dir, "base/pluginRegistry/mtr.json"),
+                               os.path.join(install_dir, "base/pluginRegistry/liveresponse.json"),
+                               os.path.join(install_dir, "base/pluginRegistry/edr.json")]
+
+    "base/pluginRegistry/liveresponse.json"
     logger.trace("Symlink skip list: {}".format(skip_symlink_check_list))
     
     for manifest_path in file_manifests:

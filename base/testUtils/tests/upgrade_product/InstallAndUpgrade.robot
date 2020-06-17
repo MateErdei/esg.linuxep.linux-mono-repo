@@ -32,7 +32,7 @@ Resource    UpgradeResources.robot
 
 *** Variables ***
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
-${BaseAndEDROldWHFormat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
+${EdrEAPReleasePolicy}                      ${GeneratedWarehousePolicies}/EDR_EAP.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${BaseAndMtrAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
@@ -262,40 +262,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
-We Can Upgrade From A Release With EDR To Master With Live Response
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEDROldWHFormat}
-
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEDROldWHFormat}
-    Wait For Initial Update To Fail
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEDROldWHFormat}
-    Trigger Update Now
-    # waiting for 2nd because the 1st is a guaranteed failure
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    # Perform upgrade and make sure Live Response is installed and running after upgrade
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
-
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Should Exist   /opt/sophos-spl/plugins/liveresponse
-
-    Check Live Response Plugin Running
-
-
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
     [Timeout]   10 minutes
@@ -362,10 +328,10 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     # Swap old manifest files around, this will make the cleanup process mark files for delete which should not be
     # deleted, because the files are outside of the components realm
 
-    Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
+    Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat  /tmp/base-manifest.dat
     Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat  /tmp/MDR-manifest.dat
 
-    Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
+    Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
     Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
     Trigger Update Now
@@ -375,10 +341,8 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
-    If Upgrade To New WarehouseStruct Wait Out Of Sync Update
-
     # ensure that the list of files to remove contains files which are outside of the components realm
-    ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
+    ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
     Should Contain  ${BASE_REMOVE_FILE_CONTENT}  plugins/mtr
 
     ${MTR_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
@@ -402,12 +366,12 @@ Version Copy Versions All Changed Files When Upgrading
 
     # Wrapped in a wait to keep trying for a bit if ostia is intermittent
     Wait Until Keyword Succeeds
-    ...  15 mins
-    ...  10 secs
-    ...  Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
+    ...  3 mins
+    ...  30 secs
+    ...  Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
 
     Wait For Initial Update To Fail
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrWithFakeLibs}
     Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
@@ -419,7 +383,7 @@ Version Copy Versions All Changed Files When Upgrading
     ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion}=  Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
 
-    ${BaseManifestPath}=  Set Variable  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
+    ${BaseManifestPath}=  Set Variable  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
     ${MTRPluginManifestPath}=  Set Variable  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
     ${BeforeManifestBase}=  Get File  ${BaseManifestPath}
@@ -463,8 +427,8 @@ Version Copy Versions All Changed Files When Upgrading
     ${AfterManifestBase}=  Get File  ${BaseManifestPath}
     ${AfterManifestPluginMdr}=  Get File  ${MTRPluginManifestPath}
 
-    ${ChangedBase}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/changedFiles_manifest.dat
-    ${AddedBase}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/addedFiles_manifest.dat
+    ${ChangedBase}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
+    ${AddedBase}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/addedFiles_manifest.dat
     ${combinedBaseChanges}=  Catenate  SEPARATOR=\n  ${ChangedBase}  ${AddedBase}
     ${ChangedPluginMdr}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/changedFiles_manifest.dat
     ${AddedPluginMdr}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/addedFiles_manifest.dat
@@ -759,10 +723,10 @@ Check Files After Upgrade
     File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999
     File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999.0
 
-    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/addedFiles_manifest.dat
-    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/changedFiles_manifest.dat
-    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
-    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/addedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
 
     File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/addedFiles_manifest.dat
     File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/changedFiles_manifest.dat
@@ -770,7 +734,7 @@ Check Files After Upgrade
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
     File Should Exist   ${SOPHOS_INSTALL}/base/update/var/update_config.json
-    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
 
 Check Update Reports Have Been Processed
    Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/processedReports
