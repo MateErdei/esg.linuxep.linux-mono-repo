@@ -27,12 +27,10 @@ def get_platform():
         return "centos"
     elif "amazon" in platform_data or "amzn2" in platform_data:
         return "amazon_linux"
-    elif "ubuntu" in platform_data:
+    elif "ubuntu" in platform_data or "debian" in platform_data or "with-glibc2.29" in platform_data:
         return "ubuntu"
     elif "rhel" in platform_data or "redhat" in platform_data:
         return "rhel"
-    elif "with-glibc2.29" in platform_data:
-        return "ubuntu"
     return "unknown"
 
 
