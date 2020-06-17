@@ -360,7 +360,7 @@ Version Copy Versions All Changed Files When Upgrading
     [Tags]      INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
     [Documentation]  LINUXDAR-771 - check versioned copy works as expected.
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
 
     Log File  /etc/hosts
 
