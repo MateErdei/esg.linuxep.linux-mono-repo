@@ -59,9 +59,9 @@ Liveresponse Plugin Session Counts Default To Zero
     ${sessions} =  Set Variable  0
     ${successful_sessions} =  Set Variable  0
     ${failed_sessions} =  Set Variable  0
-    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${successful_sessions}  ${failed_sessions}
+    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}   ${failed_sessions}
 
-Liveresponse Plugin Session Counts Successful And Failed
+Liveresponse Plugin Session Counts Failed
     [Documentation]    Check session counts telemetry is correct when liveresponse sessions are run.
     Wait Until Keyword Succeeds
     ...  40s
@@ -105,9 +105,8 @@ Liveresponse Plugin Session Counts Successful And Failed
 
     # Expect 2 sessions to have been run and reported in telemetry
     ${sessions} =  Set Variable  2
-    ${successful_sessions} =  Set Variable  1
     ${failed_sessions} =  Set Variable  1
-    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${successful_sessions}  ${failed_sessions}
+    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${failed_sessions}
 
 
 *** Keywords ***
