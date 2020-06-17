@@ -26,7 +26,7 @@ try{
             'Release',
             project_builddir,
             project_release_xml,
-            'JenkinsLinuxTemplate3',
+            'JenkinsLinuxTemplate5',
 			version_number,
             'master',
             project_gitrepo,
