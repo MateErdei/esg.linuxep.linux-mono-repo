@@ -4,14 +4,12 @@ import grp
 import shutil
 from pwd import getpwnam
 from random import randrange
-import time
-import datetime
-import PathManager
 
 import BaseInfo as base_info
 
-TMP_ACTIONS_DIR = os.path.join(PathManager.SOPHOS_INSTALL, "tmp")
+TMP_ACTIONS_DIR = os.path.join("/tmp", "actions")
 BASE_ACTION_DIR = os.path.join(base_info.get_install(), "base", "mcs", "action")
+os.makedirs(TMP_ACTIONS_DIR, exist_ok=True)
 
 def verify_livequery_request_has_the_expected_fields(filepath, **kwargs):
     with open(filepath, 'r') as query_file:
@@ -44,7 +42,7 @@ def make_file_readable_by_mcs(file_path):
 def run_live_query(query, name):
     random_correlation_id = "correlation-id-{}".format(randrange(10000000))
     query_json = '{"type": "sophos.mgt.action.RunLiveQuery", "name": "' + name + '", "query": "' + query + '"}'
-    query_file_name = "LiveQuery_{}_{}_request.json".format(random_correlation_id, get_valid_creation_time_and_ttl())
+    query_file_name = "LiveQuery_{}_request_2013-05-02T09:50:08Z_1692398393.json".format(random_correlation_id)
     query_file_path = os.path.join(TMP_ACTIONS_DIR, query_file_name)
     with open(query_file_path, 'w') as action_file:
         action_file.write(query_json)
@@ -56,8 +54,3 @@ def run_live_query(query, name):
 def get_correlation_id():
     import uuid
     return str(uuid.uuid4())
-
-def get_valid_creation_time_and_ttl():
-    ttl = int(time.time())+10000
-    creation_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-    return f"{creation_time}_{ttl}"

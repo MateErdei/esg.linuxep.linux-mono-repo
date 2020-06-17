@@ -44,7 +44,7 @@ namespace ManagementAgent
             {
                 task.reset(new PolicyTask(m_pluginManager, fullPath));
             }
-            else if (filename.find("action") != std::string::npos || filename.find("request.json") != std::string::npos)
+            else if (filename.find("action") != std::string::npos || filename.find("request") != std::string::npos)
             {
                 task.reset(new ActionTask(m_pluginManager, fullPath));
             }
