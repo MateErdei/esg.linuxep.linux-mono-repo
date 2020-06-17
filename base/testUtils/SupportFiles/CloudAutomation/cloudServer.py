@@ -16,6 +16,7 @@ import socket
 import http.server
 import subprocess
 import time
+import datetime
 import xml.dom.minidom
 import xml.sax.saxutils
 
@@ -766,24 +767,26 @@ class Endpoint(object):
     def liveQueryCommand(self):
         body, id = self.__edr.liveQuery()
         self.__edr.clearLiveQuery()
+        now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         return r"""<command>
         <id>{}</id>
         <appId>LiveQuery</appId>
-        <creationTime>2020-06-09T15:30:08Z</creationTime>
+        <creationTime>{}</creationTime>
         <ttl>PT10000S</ttl>
         <body>{}</body>
-      </command>""".format(id, xml.sax.saxutils.escape(body.decode("utf-8")))
+      </command>""".format(id, now, xml.sax.saxutils.escape(body.decode("utf-8")))
 
     def liveTerminalCommand(self):
         body, id = self.__liveTerminal.liveTerminal()
         self.__liveTerminal.clearLiveTerminal()
+        now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         return r"""<command>
         <id>{}</id>
         <appId>LiveTerminal</appId>
-        <creationTime>2020-06-09T15:30:08Z</creationTime>
+        <creationTime>{}}</creationTime>
         <ttl>PT10000S</ttl>
         <body>{}</body>
-      </command>""".format(id, xml.sax.saxutils.escape(body))
+      </command>""".format(id, now, xml.sax.saxutils.escape(body))
 
     def commandXml(self, apps):
         logger.debug("commandXML - %s", apps)

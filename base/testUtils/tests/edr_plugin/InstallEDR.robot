@@ -87,7 +87,7 @@ Install EDR and handle Live Query
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  10 secs
-    ...  Check Envelope Log Contains   /commands/applications/MCS;ALC;AGENT;LiveQuery;APPSPROXY
+    ...  Check Envelope Log Contains   /commands/applications/MCS;ALC;AGENT;LiveQuery
 
     Wait Until Keyword Succeeds
     ...  30 secs
