@@ -32,7 +32,7 @@ Resource    UpgradeResources.robot
 
 *** Variables ***
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
-${BaseAndEDROldWHFomrat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
+${BaseAndEDROldWHFormat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${BaseAndMtrAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
@@ -265,13 +265,13 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 We Can Upgrade From A Release With EDR To Master With Live Response
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EXCLUDE_UBUNTU20
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEDROldWHFomrat}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEDROldWHFormat}
 
     Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEDROldWHFomrat}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEDROldWHFormat}
     Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEDROldWHFomrat}
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEDROldWHFormat}
     Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
@@ -293,7 +293,8 @@ We Can Upgrade From A Release With EDR To Master With Live Response
     ...   10 secs
     ...   Should Exist   /opt/sophos-spl/plugins/liveresponse
 
-    Check SSPL Live Response Plugin Running
+    Check Live Response Plugin Running
+
 
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA

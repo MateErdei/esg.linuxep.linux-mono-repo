@@ -15,6 +15,7 @@ Library     String
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../mcs_router-nova/McsRouterNovaResources.robot
 Resource    ../thin_installer/ThinInstallerResources.robot
+Resource    ../liveresponse_plugin/LiveResponseResources.robot
 
 
 *** Variables ***
@@ -108,8 +109,3 @@ Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
     Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\n stdout: \n ${result.stdout} \n. stderr: \n ${result.stderr}"
-
-Check SSPL Live Response Plugin Running
-    ## SSPL_AUDIT_BINARY_NAME > 15 chars, so need to use -f
-    ${result} =    Run Process  pgrep  -f  liveresponse
-    Should Be Equal As Integers    ${result.rc}    0   msg=Process liveresponse is not running
