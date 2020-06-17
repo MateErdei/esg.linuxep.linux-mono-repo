@@ -170,6 +170,19 @@ namespace SulDownloader
                 DownloadReport::VerifyState::VerifyFailed);
         }
 
+        // Note: Should only get here if Download has been successful, if no products are downloaded then
+        // a warehouse error should have been generated, preventing getting this far, therefore preventing
+        // un-installation of all products.
+        // We need to perform un-install of any components not downloaded first to prevent a race condition
+        // between component registration and product un-installation when upgrading Base.
+        SulDownloader::ProductUninstaller uninstallManager;
+        std::vector<DownloadedProduct> uninstalledProducts =
+                uninstallManager.removeProductsNotDownloaded(products, *warehouseRepository);
+        for (auto& uninstalledProduct : uninstalledProducts)
+        {
+            products.push_back(uninstalledProduct);
+        }
+
         // design decision: do not install if any error happens before this time.
         // try to install all products and report error for those that failed (if any)
         for (auto& product : products)
@@ -182,17 +195,6 @@ namespace SulDownloader
             {
                 LOGINFO("Downloaded Product line: '" << product.getLine() << "' is up to date.");
             }
-        }
-
-        // Note: Should only get here if Download has been successful, if no products are downloaded then
-        // a warehouse error should have been generated, preventing getting this far, therefore preventing
-        // un-installation of all products.
-        SulDownloader::ProductUninstaller uninstallManager;
-        std::vector<DownloadedProduct> uninstalledProducts =
-            uninstallManager.removeProductsNotDownloaded(products, *warehouseRepository);
-        for (auto& uninstalledProduct : uninstalledProducts)
-        {
-            products.push_back(uninstalledProduct);
         }
 
         timeTracker.setFinishedTime(TimeUtils::getCurrTime());
