@@ -133,9 +133,6 @@ The Connection Will Transfer Between Proxies When One Fails
     ...  30 secs
     ...  5 secs
     ...  Check Mcsenvelope Log Contains In Order  PUT /statuses/endpoint  ${Proxy_Name_One}  PUT /statuses/endpoint  ${Proxy_Name_Two}
-    Should Exist  /opt/sophos-spl/base/etc/current_proxy
-    Log File  /opt/sophos-spl/base/etc/current_proxy
-    fail
 
 Mcs Router reregisters after only getting one 401 error
     [Documentation]  Derived from  CLOUD.MCS.011
