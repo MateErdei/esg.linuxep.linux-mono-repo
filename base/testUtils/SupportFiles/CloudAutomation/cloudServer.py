@@ -767,7 +767,7 @@ class Endpoint(object):
     def liveQueryCommand(self):
         body, id = self.__edr.liveQuery()
         self.__edr.clearLiveQuery()
-        now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         return r"""<command>
         <id>{}</id>
         <appId>LiveQuery</appId>
@@ -779,7 +779,7 @@ class Endpoint(object):
     def liveTerminalCommand(self):
         body, id = self.__liveTerminal.liveTerminal()
         self.__liveTerminal.clearLiveTerminal()
-        now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         return r"""<command>
         <id>{}</id>
         <appId>LiveTerminal</appId>

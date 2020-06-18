@@ -57,8 +57,8 @@ class TestLiveResponseAdapter(unittest.TestCase):
     def test_live_response_adapter_process_command_xml_and_writes_file_to_temp_action_dir(self):
         fixed_datetime = datetime.datetime(2019, month=5, day=7, hour=13, minute=33, second=24, microsecond=870000)
         expected_date_string = "20190507133324870000"
-        creation_time = "2020-06-09T09:15:23Z"
-        creation_time_datetime = datetime.datetime.strptime(creation_time, "%Y-%m-%dT%H:%M:%SZ")
+        creation_time = "2020-06-09T09:15:23.000Z"
+        creation_time_datetime = datetime.datetime.strptime(creation_time, "%Y-%m-%dT%H:%M:%S.%fZ")
 
         live_response_adapter = LiveResponseAdapter('LiveTerminal', INSTALL_DIR)
         self.assertEqual(live_response_adapter.get_app_id(), 'LiveTerminal')

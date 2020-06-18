@@ -195,6 +195,7 @@ Liveresponse Test Teardown
     ${files} =  List Directory   ${MCS_DIR}/action/
     ${liveterminal_server_log} =  Liveterminal Server Log File
     Log File  ${liveterminal_server_log}
+    General Test Teardown
 
 
 Liveresponse Suite Setup

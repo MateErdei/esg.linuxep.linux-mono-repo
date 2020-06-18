@@ -16,7 +16,7 @@ def get_live_response_file():
 
 
 def create_live_response_action(wss_url="wss://lr.url/", thumbprint="thumbprint", correlationId="correlation-id"):
-    now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     return f"""<?xml version="1.0"?><ns:commands xmlns:ns="http://www.sophos.com/xml/mcs/commands" schemaVersion="1.0">
         <command>
             <id>{correlationId}</id>
