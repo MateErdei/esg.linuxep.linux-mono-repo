@@ -198,9 +198,7 @@ namespace diagnose
         const std::string& pluginName,
         const Path& destination)
     {
-        static const std::vector<std::string> possiblePluginLogSubDirectories{
-            "./", "dbos/data", "dbos/data/logs", "etc"
-        };
+        static const std::vector<std::string> possiblePluginLogSubDirectories{"./", "dbos/data", "dbos/data/logs", "etc"};
 
         // Copy all files from sub directories specified in possiblePluginLogSubDirectories
         for (const auto& possibleSubDirectory : possiblePluginLogSubDirectories)
@@ -286,8 +284,7 @@ namespace diagnose
             }
 
             std::vector<Path> files = m_fileSystem->listFiles(sourcePath);
-
-            if (files.size() == 0)
+            if (files.empty())
             {
                 continue;
             }

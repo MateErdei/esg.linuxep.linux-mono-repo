@@ -51,7 +51,6 @@ namespace diagnose
             return 4;
         }
 
-
         try
         {
 
@@ -63,8 +62,8 @@ namespace diagnose
             const std::string installDir = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
 
             // Setup the file gatherer.
-            auto fs_ptr  = std::make_unique<Common::FileSystem::FileSystemImpl>(Common::FileSystem::FileSystemImpl());
-            GatherFiles gatherFiles(std::move(fs_ptr));
+            auto filesystemPtr = std::make_unique<Common::FileSystem::FileSystemImpl>(Common::FileSystem::FileSystemImpl());
+            GatherFiles gatherFiles(std::move(filesystemPtr));
             gatherFiles.setInstallDirectory(installDir);
 
             // Create the top level directory in the output directory structure
