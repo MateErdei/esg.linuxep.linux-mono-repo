@@ -262,11 +262,11 @@ Policy authentication with digest
     Start Proxy Server With Digest Auth    3000  ${username}  ${password}
     Register With Local Cloud Server
     Start MCSRouter
-    Send Mcs Policy With Proxy   CCCsjU2VJjvDy9Pa0GO8epaEiub4uCHU6hQqbB4iZifrVQYTbsQkL81bwT5il9PHpFKgngNWpioSDB1ptJ0QZVq2
+    Send Mcs Policy With Proxy   CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check MCS Policy Config Contains    CCCsjU2VJjvDy9Pa0GO8epaEiub4uCHU6hQqbB4iZifrVQYTbsQkL81bwT5il9PHpFKgngNWpioSDB1ptJ0QZVq2
+    ...  Check MCS Policy Config Contains    CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
@@ -278,9 +278,6 @@ Policy authentication with digest
         ...  5 secs
         ...  Check MCSRouter Log Contains   Established MCS Push Connection
     Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:3000
-    Should Exist  /opt/sophos-spl/base/etc/current_proxy
-    Log File  /opt/sophos-spl/base/etc/current_proxy
-
 
 
 Attempt to Connect Via Digest Proxy with Wrong Credentials Produce Correct Error Line
@@ -290,11 +287,11 @@ Attempt to Connect Via Digest Proxy with Wrong Credentials Produce Correct Error
     Register With Local Cloud Server
     Start MCSRouter
     # this will try a connection that is invalid
-    Send Mcs Policy With Proxy   CCCsjU2VJjvDy9Pa0GO8epaEiub4uCHU6hQqbB4iZifrVQYTbsQkL81bwT5il9PHpFKgngNWpioSDB1ptJ0QZVq2
+    Send Mcs Policy With Proxy   CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check MCS Policy Config Contains    CCCsjU2VJjvDy9Pa0GO8epaEiub4uCHU6hQqbB4iZifrVQYTbsQkL81bwT5il9PHpFKgngNWpioSDB1ptJ0QZVq2
+    ...  Check MCS Policy Config Contains    CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
