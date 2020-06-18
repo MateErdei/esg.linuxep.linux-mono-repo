@@ -28,8 +28,8 @@ def replace_placeholder(host, elements, index, replacement_file):
 
 
 def get_last_good_component_build(path, name):
-    if name == 'sed':
-        # TODO remove this when SED stamps builds correctly
+    if name == 'none':
+        # support unified pipeline builds.
         good_build_file_name = os.path.join(path, 'lastgoodbuild.txt')
     else:
         good_build_file_name = os.path.join(path, name + '_lastgoodbuild.txt')
@@ -37,6 +37,9 @@ def get_last_good_component_build(path, name):
     try:
         with open(good_build_file_name) as f:
             build = f.readline().strip()
+        # ensure the build directory exists, if not return None.
+        if not os.path.exists(os.path.join(path, build)):
+            return None
     except IOError:
         return None
 
@@ -50,7 +53,7 @@ def get_latest_version(path):
     if len(versions) ==1:
         return versions[0]
 
-    current = versions[0] 
+    current = versions[0]
 
     for v in versions:
         if v > current:
@@ -101,7 +104,10 @@ def locate_scaffold_package_on_filer6(branch, build, name, version):
         if not build:
             build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name)
             if not build:
-                return not_found
+                # try to get path based on lastgood build file.
+                build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), "none")
+                if not build:
+                    return not_found
 
     path = os.path.join(path, build, name + "_linux11")
 
@@ -151,6 +157,10 @@ def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
                     build_type = 'release'
                 else:
                     build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path), name)
+
+            if not build:
+                build = get_last_good_component_build(os.path.join(UPSTREAM_DEV, path_linux), "none")
+
             if not build:
                 return not_found
 
@@ -213,9 +223,9 @@ def locate_package_from_clues(name, branch, version, build, build_type):
         #  not a filer5 package, try filer6, artisan builds take priority
         #  Artisan packages are <name>/<branch>/<build>/<name>-<build-type>/<version>
         filer, package, found_branch, found_build = locate_artisan_package_on_filer6(name, branch, build, build_type, version)
-        
+
         print("artisan Filer {}, package {}, found_branch {}, found_build {}".format(filer, package, found_branch, found_build))
-        
+
         if package:
             commit = found_build.split('-')[1]
             print('Found an Artisan build on filer6')
