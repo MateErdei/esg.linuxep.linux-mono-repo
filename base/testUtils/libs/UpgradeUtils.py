@@ -30,7 +30,6 @@ def check_versioned_copy_file_manifest(manifest_name, expected_version):
                                os.path.join(install_dir, "base/pluginRegistry/liveresponse.json"),
                                os.path.join(install_dir, "base/pluginRegistry/edr.json")]
 
-    "base/pluginRegistry/liveresponse.json"
     logger.trace("Symlink skip list: {}".format(skip_symlink_check_list))
     
     for manifest_path in file_manifests:
