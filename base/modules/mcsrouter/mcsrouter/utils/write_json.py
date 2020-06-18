@@ -13,9 +13,10 @@ def write_current_proxy_info(proxy):
     filepath = path_manager.mcs_current_proxy()
     proxy_info = {}
 
-    if proxy.address():
-        proxy_info['proxy'] = proxy.address()
-
+    if proxy.host():
+        proxy_info['proxy'] = proxy.host()
+        if proxy.port():
+            proxy_info['proxy'] = proxy.host() + ':' + str(proxy.port())
         if proxy.relay_id():
             proxy_info['relay_id'] = proxy.relay_id()
 
