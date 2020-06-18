@@ -175,6 +175,11 @@ def mcs_policy_config():
     """
     return os.path.join(sophos_etc_dir(), "mcs_policy.config")
 
+def mcs_current_proxy():
+    """
+    mcs_current_proxy
+    """
+    return os.path.join(sophos_etc_dir(), "current_proxy")
 
 def sophosspl_config():
     """

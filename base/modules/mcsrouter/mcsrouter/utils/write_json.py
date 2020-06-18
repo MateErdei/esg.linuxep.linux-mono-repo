@@ -10,17 +10,16 @@ import os
 LOGGER = logging.getLogger(__name__)
 
 def write_current_proxy_info(proxy):
-    folder = path_manager.sophos_etc_dir()
-    filepath = os.path.join(folder, "current_proxy")
+    filepath = path_manager.mcs_current_proxy()
     proxy_info = {}
 
     if proxy.address():
-        proxy_info['address'] = proxy.address()
+        proxy_info['proxy'] = proxy.address()
 
         if proxy.relay_id():
             proxy_info['relay_id'] = proxy.relay_id()
 
-        elif proxy.username():
+        elif proxy.username() and proxy.password():
 
             proxycredentials = proxy.username() + ":" + proxy.password()
             cred_encoded = proxycredentials.encode('utf-8')
