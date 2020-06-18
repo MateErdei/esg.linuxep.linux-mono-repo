@@ -1,6 +1,8 @@
 import os
 import glob
 import datetime
+import shutil
+import LiveQueryUtils
 
 import BaseInfo as base_info
 
@@ -37,3 +39,14 @@ def create_live_response_action_fake_cloud(wss_url="wss://lr.url/", thumbprint="
 def get_correlation_id():
     import uuid
     return str(uuid.uuid4())
+
+def run_live_response(query, correlationId):
+
+    query_file_name = "LiveTerminal_{}_action_{}.json".format(correlationId, LiveQueryUtils.get_valid_creation_time_and_ttl())
+    query_file_path = os.path.join(TMP_ACTIONS_DIR, query_file_name)
+    with open(query_file_path, 'w') as action_file:
+        action_file.write(query)
+        LiveQueryUtils.make_file_readable_by_mcs(query_file_path)
+
+    # Move query file into mcs action dir to be picked up by management agent
+    shutil.move(query_file_path, BASE_ACTION_DIR)
