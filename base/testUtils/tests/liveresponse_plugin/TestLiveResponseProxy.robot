@@ -51,12 +51,11 @@ Liveresponse Plugin Proxy
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Match Message   root@   ${correlationId}
-
+    ...  Check Sessions Log Contains   Using proxy: localhost:3000
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Check Sessions Log Contains   Using Proxy
+    ...  Check Sessions Log Contains   Connected to subscriber, url: wss://localhost
 
 
 
