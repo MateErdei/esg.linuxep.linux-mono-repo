@@ -14,7 +14,7 @@ namespace diagnose
     class GatherFiles
     {
     public:
-        GatherFiles() = default;
+        explicit GatherFiles(std::unique_ptr<Common::FileSystem::IFileSystem> filesystem);
 
         /*
          * Copies all files of interest from the directories specified in "DiagnoseLogFilePaths.conf"
@@ -80,7 +80,7 @@ namespace diagnose
          */
         void copyDiagnoseLogFile(const Path& destination);
 
-    private:
+    protected:
         /*
          * Creates directories
          */
@@ -100,7 +100,7 @@ namespace diagnose
             const Path& destination);
 
         std::vector<std::string> m_logFilePaths;
-        Common::FileSystem::FileSystemImpl m_fileSystem;
+        std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;
         std::string m_installDirectory;
         std::unique_ptr<Common::FileSystem::ITempDir> m_tempDir;
     };

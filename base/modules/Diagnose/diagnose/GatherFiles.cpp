@@ -9,7 +9,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "Strings.h"
 
-
 #include <Common/FileSystemImpl/TempDir.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
@@ -39,6 +38,11 @@ namespace
 
 namespace diagnose
 {
+    GatherFiles::GatherFiles(std::unique_ptr<Common::FileSystem::IFileSystem> filesystem) :
+        m_fileSystem(std::move(filesystem))
+    {
+    }
+
     void GatherFiles::setInstallDirectory(const Path& path) { m_installDirectory = path; }
 
     Path GatherFiles::createRootDir(const Path& path)
@@ -55,13 +59,13 @@ namespace diagnose
 
     Path GatherFiles::createDiagnoseFolder(const Path& path, const std::string& dirName)
     {
-        if (!m_fileSystem.isDirectory(path))
+        if (!m_fileSystem->isDirectory(path))
         {
             throw std::invalid_argument("Error: Directory does not exist");
         }
 
         Path outputDir = Common::FileSystem::join(path, dirName);
-        if (m_fileSystem.isDirectory(outputDir))
+        if (m_fileSystem->isDirectory(outputDir))
         {
             if (dirName == DIAGNOSE_FOLDER)
             {
@@ -74,8 +78,8 @@ namespace diagnose
             }
         }
 
-        m_fileSystem.makedirs(outputDir);
-        if (m_fileSystem.isDirectory(outputDir))
+        m_fileSystem->makedirs(outputDir);
+        if (m_fileSystem->isDirectory(outputDir))
         {
             return outputDir;
         }
@@ -85,7 +89,7 @@ namespace diagnose
 
     void GatherFiles::copyFileIntoDirectory(const Path& filePath, const Path& dirPath)
     {
-        if (!m_fileSystem.isFile(filePath))
+        if (!m_fileSystem->isFile(filePath))
         {
             return;
         }
@@ -94,38 +98,38 @@ namespace diagnose
         Path targetFilePath = Common::FileSystem::join(dirPath, filename);
 
         // Check to see if the file exists, if it does then append a ".#" on the end, e.g. ".1"
-        if (m_fileSystem.exists(targetFilePath))
+        if (m_fileSystem->exists(targetFilePath))
         {
             int fileCounterSuffix = 1;
             Path targetFilePathStart = targetFilePath;
             targetFilePath = targetFilePathStart + "." + std::to_string(fileCounterSuffix);
-            while (m_fileSystem.exists(targetFilePath))
+            while (m_fileSystem->exists(targetFilePath))
             {
                 fileCounterSuffix++;
                 targetFilePath = targetFilePathStart + "." + std::to_string(fileCounterSuffix);
             }
         }
 
-        m_fileSystem.copyFile(filePath, targetFilePath);
+        m_fileSystem->copyFile(filePath, targetFilePath);
         LOGINFO("Copied " << filePath << " to " << dirPath);
     }
 
     void GatherFiles::copyFile(const Path& filePath, const Path& destination)
     {
-        if (!m_fileSystem.isFile(filePath))
+        if (!m_fileSystem->isFile(filePath))
         {
             return;
         }
 
-        m_fileSystem.copyFile(filePath, destination);
+        m_fileSystem->copyFile(filePath, destination);
         LOGINFO("Copied " << filePath << " to " << destination);
     }
 
     void GatherFiles::copyAllOfInterestFromDir(const Path& dirPath, const Path& destination)
     {
-        if (m_fileSystem.isDirectory(dirPath))
+        if (m_fileSystem->isDirectory(dirPath))
         {
-            std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
+            std::vector<std::string> files = m_fileSystem->listFiles(dirPath);
             for (const auto& file : files)
             {
                 if (isFileOfInterest(file))
@@ -153,11 +157,11 @@ namespace diagnose
             }
 
             std::string filePath = Common::FileSystem::join(m_installDirectory, path);
-            if (m_fileSystem.isFile(filePath))
+            if (m_fileSystem->isFile(filePath))
             {
                 copyFileIntoDirectory(filePath, destination);
             }
-            else if (m_fileSystem.isDirectory(filePath))
+            else if (m_fileSystem->isDirectory(filePath))
             {
                 copyAllOfInterestFromDir(filePath, destination);
             }
@@ -170,9 +174,9 @@ namespace diagnose
 
     std::vector<std::string> GatherFiles::getLogLocations(const Path& inputFilePath)
     {
-        if (m_fileSystem.isFile(inputFilePath))
+        if (m_fileSystem->isFile(inputFilePath))
         {
-            return m_fileSystem.readLines(inputFilePath);
+            return m_fileSystem->readLines(inputFilePath);
         }
         throw std::invalid_argument("Error: Log locations config file does not exist: " + inputFilePath);
     }
@@ -180,7 +184,7 @@ namespace diagnose
     Path GatherFiles::getConfigLocation(const std::string& configFileName)
     {
         Path configFilePath = Common::FileSystem::join(m_installDirectory, "base/etc", configFileName);
-        if (m_fileSystem.isFile(configFilePath))
+        if (m_fileSystem->isFile(configFilePath))
         {
             LOGINFO("Location of config file: " << configFilePath);
             return configFilePath;
@@ -194,20 +198,22 @@ namespace diagnose
         const std::string& pluginName,
         const Path& destination)
     {
-        static const std::vector<std::string> possiblePluginLogSubDirectories{ "./", "dbos/data", "dbos/data/logs", "etc" };
+        static const std::vector<std::string> possiblePluginLogSubDirectories{
+            "./", "dbos/data", "dbos/data/logs", "etc"
+        };
 
         // Copy all files from sub directories specified in possiblePluginLogSubDirectories
         for (const auto& possibleSubDirectory : possiblePluginLogSubDirectories)
         {
             std::string absolutePath = Common::FileSystem::join(pluginsDir, pluginName, possibleSubDirectory);
             LOGSUPPORT(absolutePath.c_str());
-            if (m_fileSystem.isDirectory(absolutePath))
+            if (m_fileSystem->isDirectory(absolutePath))
             {
                 std::string newDestinationPath =
                     Common::FileSystem::join(destination, pluginName, possibleSubDirectory);
 
-                m_fileSystem.makedirs(newDestinationPath);
-                std::vector<Path> files = m_fileSystem.listFiles(absolutePath);
+                m_fileSystem->makedirs(newDestinationPath);
+                std::vector<Path> files = m_fileSystem->listFiles(absolutePath);
 
                 for (const auto& file : files)
                 {
@@ -225,20 +231,20 @@ namespace diagnose
         // Find names of the plugins installed
         Path pluginsDir = Common::FileSystem::join(m_installDirectory, "plugins");
 
-        if (!m_fileSystem.isDirectory(pluginsDir))
+        if (!m_fileSystem->isDirectory(pluginsDir))
         {
             return;
         }
 
-        std::vector<Path> pluginDirs = m_fileSystem.listDirectories(pluginsDir);
+        std::vector<Path> pluginDirs = m_fileSystem->listDirectories(pluginsDir);
 
         for (const auto& absolutePluginPath : pluginDirs)
         {
             std::string pluginName = Common::FileSystem::basename(absolutePluginPath);
             Path pluginLogDir = Common::FileSystem::join(pluginsDir, pluginName, "log");
             Path pluginDestinationLogDir = Common::FileSystem::join(destination, pluginName);
-            m_fileSystem.makedirs(pluginDestinationLogDir);
-            if (m_fileSystem.isDirectory(pluginLogDir))
+            m_fileSystem->makedirs(pluginDestinationLogDir);
+            if (m_fileSystem->isDirectory(pluginLogDir))
             {
                 copyAllOfInterestFromDir(pluginLogDir, pluginDestinationLogDir);
             }
@@ -252,53 +258,54 @@ namespace diagnose
         // do not use copy file here because the logger will not be available.
         Path diagnoseLogPath = Common::FileSystem::join(m_installDirectory, "logs/base/diagnose.log");
 
-        if (!m_fileSystem.isFile(diagnoseLogPath))
+        if (!m_fileSystem->isFile(diagnoseLogPath))
         {
             return;
         }
 
         Path fullDest = Common::FileSystem::join(destination, "BaseFiles/diagnose.log");
 
-        if (!m_fileSystem.isFile(fullDest))
+        if (!m_fileSystem->isFile(fullDest))
         {
-            m_fileSystem.removeFile(fullDest);
+            m_fileSystem->removeFile(fullDest);
         }
 
-        m_fileSystem.copyFile(diagnoseLogPath, fullDest);
+        m_fileSystem->copyFile(diagnoseLogPath, fullDest);
         std::cout << "Copied " << diagnoseLogPath << " to " << fullDest << std::endl;
     }
 
     void GatherFiles::copyFilesInComponentDirectories(const Path& destination)
-    {      
-        Path ssplTmp = Common::FileSystem::join(m_installDirectory, "tmp"); 
-        std::vector<std::string> componentPaths = m_fileSystem.listDirectories(ssplTmp); 
-        for(auto& sourcePath : componentPaths)
+    {
+        Path ssplTmp = Common::FileSystem::join(m_installDirectory, "tmp");
+        std::vector<std::string> componentPaths = m_fileSystem->listDirectories(ssplTmp);
+        for (auto& sourcePath : componentPaths)
         {
-            if(!m_fileSystem.isDirectory(sourcePath))
+            if (!m_fileSystem->isDirectory(sourcePath))
             {
                 continue;
             }
 
-            std::vector<Path> files = m_fileSystem.listFiles(sourcePath);
+            std::vector<Path> files = m_fileSystem->listFiles(sourcePath);
 
-            if(files.size() == 0)
+            if (files.size() == 0)
             {
                 continue;
             }
 
             std::string componentFolderName = Common::FileSystem::basename(sourcePath);
 
-            Path destinationPath =  Common::FileSystem::join(destination, "BaseFiles", componentFolderName);
+            Path destinationPath = Common::FileSystem::join(destination, "BaseFiles", componentFolderName);
 
-            if(!m_fileSystem.isDirectory(destinationPath))
+            if (!m_fileSystem->isDirectory(destinationPath))
             {
-                m_fileSystem.makedirs(destinationPath);
+                m_fileSystem->makedirs(destinationPath);
             }
 
-            for(auto& sourceFilePath : files)
+            for (auto& sourceFilePath : files)
             {
-                Path destinationFilePath = Common::FileSystem::join(destinationPath, Common::FileSystem::basename(sourceFilePath));
-                m_fileSystem.copyFile(sourceFilePath, destinationFilePath);
+                Path destinationFilePath =
+                    Common::FileSystem::join(destinationPath, Common::FileSystem::basename(sourceFilePath));
+                m_fileSystem->copyFile(sourceFilePath, destinationFilePath);
             }
         }
     }
