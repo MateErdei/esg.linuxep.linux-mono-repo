@@ -205,6 +205,10 @@ VersionCopy File in the Wrong Location Is Removed
 We Can Downgrade From Master To A Release Without Unexpected Errors
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
 
+    # Note, if updating test make sure that at least one compnent will be un-installed during downgrade
+    # There should be no errors in management agent relating to registering components which have been uninstalled
+    # during the downgrade
+
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
 
     Log File  /etc/hosts
@@ -261,6 +265,10 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
+
+    # check that at least one component was uninstalled during downgrade
+    Check SulDownloader Log Contains  Uninstalling
+
 
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
