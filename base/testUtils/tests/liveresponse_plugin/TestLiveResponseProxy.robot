@@ -42,8 +42,8 @@ Liveresponse Plugin Proxy
     ${correlationId} =  Get Correlation Id
 
     Mark Managementagent Log
-    ${liveResponse} =  create_live_response_action_fake_cloud  ${websocket_server_url}  ${Thumbprint}
-    run_live_response  ${liveResponse}   ${correlationId}
+    ${liveResponse} =  Create Live Response Action Fake Cloud  ${websocket_server_url}  ${Thumbprint}
+    Run Live Response  ${liveResponse}   ${correlationId}
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  5 secs
@@ -58,9 +58,8 @@ Liveresponse Plugin Proxy
     ...  Check Sessions Log Contains   Connected to subscriber, url: wss://localhost
 
 
-
 *** Keywords ***
-LiveResponse Telemetry Suite Setup
+LiveResponse Suite Setup
     Require Fresh Install
     Override LogConf File as Global Level  DEBUG
     Set Local CA Environment Variable
@@ -68,20 +67,18 @@ LiveResponse Telemetry Suite Setup
 
     Start Local Cloud Server
 
-
-
-LiveResponse Telemetry Suite Teardown
+LiveResponse Suite Teardown
     Uninstall SSPL
 
-LiveResponse Telemetry Test Setup
+LiveResponse Test Setup
     Require Installed
     Start Websocket Server
 
-
-LiveResponse Telemetry Test Teardown
+LiveResponse Test Teardown
     General Test Teardown
     Restart Liveresponse Plugin  True
     Stop Websocket Server
+    Stop Proxy Servers
     ${files} =  List Directory   ${MCS_DIR}/action/
     ${liveterminal_server_log} =  Liveterminal Server Log File
     Log File  ${liveterminal_server_log}
