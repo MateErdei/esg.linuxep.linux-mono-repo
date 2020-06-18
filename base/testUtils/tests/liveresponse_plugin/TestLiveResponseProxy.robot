@@ -39,10 +39,10 @@ Liveresponse Plugin Proxy
     ...  5 secs
     ...  Should Exist  /opt/sophos-spl/base/etc/sophosspl/current_proxy
     Log File  /opt/sophos-spl/base/etc/sophosspl/current_proxy
-    ${random_id} =  Get Correlation Id
+    ${correlationId} =  Get Correlation Id
 
     Mark Managementagent Log
-    ${liveResponse} =  Create Live Response Action  ${websocket_server_url}/${correlationId}  ${Thumbprint}  ${correlationId}
+    ${liveResponse} =  create_live_response_action_fake_cloud  ${websocket_server_url}  ${Thumbprint}
     run_live_response  ${liveResponse}   ${correlationId}
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -53,7 +53,10 @@ Liveresponse Plugin Proxy
     ...  1 secs
     ...  Match Message   root@   ${correlationId}
 
-
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Sessions Log Contains   Using Proxy
 
 
 

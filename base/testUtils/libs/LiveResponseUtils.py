@@ -34,7 +34,7 @@ def create_live_response_action(wss_url="wss://lr.url/", thumbprint="thumbprint"
         </ns:commands>"""
 
 def create_live_response_action_fake_cloud(wss_url="wss://lr.url/", thumbprint="thumbprint"):
-    return f""" <?xml version='1.0'?><action type="sophos.mgt.action.InitiateLiveTerminal"><url>{wss_url}</url><thumbprint>{thumbprint}</thumbprint>"""
+    return f"""<?xml version='1.0'?><action type="sophos.mgt.action.InitiateLiveTerminal"><url>{wss_url}</url><thumbprint>{thumbprint}</thumbprint></action>"""
 
 def get_correlation_id():
     import uuid

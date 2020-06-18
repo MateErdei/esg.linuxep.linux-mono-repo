@@ -44,6 +44,8 @@ class LogUtils(object):
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.livequery_log = os.path.join(self.install_path, "plugins", "edr", "log", "livequery.log")
+        self.liveresponse_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "liveresponse.log")
+        self.sessions_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "sessions.log")
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
@@ -370,11 +372,27 @@ class LogUtils(object):
     def check_thininstaller_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.thin_install_log, "Thin Installer")
 
+    def check_thininstaller_log_does_not_contain(self, string_not_to_contain):
+        self.check_log_does_not_contain(string_not_to_contain, self.thin_install_log, "Thin Installer")
+
+    def check_thininstaller_log_contains_in_order(self, *args):
+        log_contains_in_order(self.thin_install_log, "Thin installer", args)
+
+    def remove_thininstaller_log(self, *args):
+        if os.path.isfile(self.thin_install_log):
+            os.remove(self.thin_install_log)
+
     def check_livequery_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.livequery_log, "Livequery")
 
     def dump_livequery_log(self):
         self.dump_log(self.livequery_log)
+
+    def check_liveresponse_log_contains(self, string_to_contain):
+        self.check_log_contains(string_to_contain, self.liveresponse_log, "Liveresponse")
+
+    def check_sessions_log_contains(self, string_to_contain):
+        self.check_log_contains(string_to_contain, self.sessions_log, "sessions")
 
     def check_suldownloader_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.suldownloader_log, "Suldownloader")
@@ -385,21 +403,11 @@ class LogUtils(object):
     def osquery_watcher_log_should_not_contain(self, string_to_not_contain):
         self.check_log_does_not_contain(string_to_not_contain, self.osquery_watcher_log, "osquery watcher log")
 
-    def check_thininstaller_log_does_not_contain(self, string_not_to_contain):
-        self.check_log_does_not_contain(string_not_to_contain, self.thin_install_log, "Thin Installer")
-
-    def check_thininstaller_log_contains_in_order(self, *args):
-        log_contains_in_order(self.thin_install_log, "Thin installer", args)
-
     def cloud_server_log_should_contain(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.cloud_server_log, "cloud server log")
 
     def cloud_server_log_should_not_contain(self, string_to_contain):
         self.check_log_does_not_contain(string_to_contain, self.cloud_server_log, "cloud server log")
-
-    def remove_thininstaller_log(self, *args):
-        if os.path.isfile(self.thin_install_log):
-            os.remove(self.thin_install_log)
 
     def remove_mtr_plugin_log(self):
         if os.path.isfile(self.mdr_log):
