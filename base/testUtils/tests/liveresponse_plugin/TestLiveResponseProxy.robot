@@ -56,7 +56,7 @@ Liveresponse Plugin Proxy
     ...  5 secs
     ...  1 secs
     ...  Check Sessions Log Contains   Connected to subscriber, url: wss://localhost
-    fail
+
 
 
 *** Keywords ***
