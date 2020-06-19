@@ -306,8 +306,7 @@ class ThinInstallerUtils(object):
         self.run_thininstaller([self.default_installsh_path],
                                mcs_ca=mcs_ca,
                                override_location=None,
-                               certs_dir=certs_dir,
-                               real=True)
+                               certs_dir=certs_dir)
 
     def run_thininstaller_with_non_standard_path(self, expected_return_code, override_path, mcsurl=None):
         self.run_thininstaller([self.default_installsh_path],

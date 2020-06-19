@@ -68,11 +68,16 @@ Liveresponse Plugin Session Counts Failed
     ...  5s
     ...  Check Expected Base Processes Are Running
 
+    ${correlation_id1} =  Get Correlation Id
+    ${correlation_id2} =  Get Correlation Id
+
+    ${creation_time_and_ttl1} =  get_valid_creation_time_and_ttl
+    ${creation_time_and_ttl2} =  get_valid_creation_time_and_ttl
     # Write Action file.
     ${actionTempName} =    Set Variable   /tmp/temp_liveresponse_action.xml
     ${actionContents} =    Set Variable   <action type="sophos.mgt.action.InitiateLiveTerminal"><url>url</url><thumbprint>thumbprint</thumbprint></action>
-    ${actionFileName1} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_action_1_2592240006
-    ${actionFileName2} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_action_2_2592240006
+    ${actionFileName1} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_${correlation_id1}_action_${creation_time_and_ttl1}.xml
+    ${actionFileName2} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_${correlation_id2}_action_${creation_time_and_ttl2}.xml
 
     # Create and trigger 1st action
     Create File     ${actionTempName}   ${actionContents}
@@ -82,7 +87,7 @@ Liveresponse Plugin Session Counts Failed
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log   Session   1
+    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log   Session  1
 
     Swap Out Real Terminal With One That Always Returns Success
     # Restoring is done in teardown if it's needed.
@@ -95,7 +100,7 @@ Liveresponse Plugin Session Counts Failed
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log   Session   2
+    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log   Session  2
 
     # Run telemetry
     Prepare To Run Telemetry Executable
