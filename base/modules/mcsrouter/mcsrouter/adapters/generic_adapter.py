@@ -199,7 +199,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         try:
             epoch_time = calendar.timegm(datetime.datetime.strptime(timestamp, expected_timestamp_format).timetuple())
         except ValueError as error:
-            LOGGER.error(f"Failed to convert creation time: '{timestamp}' to unix time, reason: {error}")
-            raise FailedToProcessActionException
+            LOGGER.error(f"Failed to convert creation time: '{timestamp}' to unix time: {error}. Using system time")
+            epoch_time = time.time()
 
         return int(epoch_time + seconds_to_live)

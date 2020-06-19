@@ -1,6 +1,7 @@
 import os
 import unittest
 import mock
+import time
 
 import sys
 import json
@@ -159,6 +160,16 @@ class TestGenericAdapter(unittest.TestCase):
         ttl_string = f"PT{ttl}S"
         epoch_time = adapter._convert_ttl_to_epoch_time(timestamp, ttl_string)
         self.assertEqual(epoch_time, 1591736608)
+
+    @mock.patch('time.time', return_value=1591724145)
+    def test_convert_ttl_to_epoch_time_uses_current_time_if_invalid_timestamp_format(self, *mockargs):
+        adapter = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
+        timestamp = "2020-06-09T15:30:08Z"
+        ttl = 2000
+        ttl_string = f"PT{ttl}S"
+        epoch_time = adapter._convert_ttl_to_epoch_time(timestamp, ttl_string)
+        self.assertEqual(epoch_time, 1591726145)
+        self.assertTrue(time.time.called)
 
     def test_convert_ttl_to_epoch_time_returns_if_invalid_ttl_format(self):
         adapter = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
