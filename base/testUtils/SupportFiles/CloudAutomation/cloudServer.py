@@ -783,7 +783,7 @@ class Endpoint(object):
         return r"""<command>
         <id>{}</id>
         <appId>LiveTerminal</appId>
-        <creationTime>{}}</creationTime>
+        <creationTime>{}</creationTime>
         <ttl>PT10000S</ttl>
         <body>{}</body>
       </command>""".format(id, now, xml.sax.saxutils.escape(body))
