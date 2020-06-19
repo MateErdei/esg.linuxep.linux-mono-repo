@@ -14,11 +14,11 @@ Resource  LiveResponseResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
 
 
-Test Setup  LiveResponse Telemetry Test Setup
-Test Teardown  LiveResponse Telemetry Test Teardown
+Test Setup  LiveResponse Test Setup
+Test Teardown  LiveResponse Test Teardown
 
-Suite Setup   LiveResponse Telemetry Suite Setup
-Suite Teardown   LiveResponse Telemetry Suite Teardown
+Suite Setup   LiveResponse Suite Setup
+Suite Teardown   LiveResponse Suite Teardown
 
 Default Tags   LIVERESPONSE_PLUGIN
 
@@ -56,6 +56,7 @@ Liveresponse Plugin Proxy
     ...  5 secs
     ...  1 secs
     ...  Check Sessions Log Contains   Connected to subscriber, url: wss://localhost
+    fail
 
 
 *** Keywords ***
