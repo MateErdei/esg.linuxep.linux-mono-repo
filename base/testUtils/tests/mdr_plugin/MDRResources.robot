@@ -26,7 +26,7 @@ ${OSqueryPurgeMsg}     Osquery database watcher purge completed
 Install MDR Directly
     ${MDR_SDDS_DIR} =  Get SSPL MDR Plugin SDDS
     ${result} =    Run Process  bash -x ${MDR_SDDS_DIR}/install.sh   shell=True
-    Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}"
+    Should Be Equal As Integers    ${result.rc}    20   "Installer failed: Reason ${result.stderr}"
     Log  ${result.stdout}
     Log  ${result.stderr}
     Check MDR Plugin Installed
