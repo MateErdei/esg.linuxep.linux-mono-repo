@@ -34,7 +34,8 @@ Install MDR Directly
 Install MDR Directly with Fake SophosMTR
     ${MDR_SDDS_DIR} =  Get SSPL MDR Plugin SDDS
     ${result} =    Run Process  ${MDR_SDDS_DIR}/install.sh
-    Should Be Equal As Integers    ${result.rc}    0
+    # installer will report version copy error since osquery is not present
+    Should Be Equal As Integers    ${result.rc}    20
     Log  ${result.stdout}
     Log  ${result.stderr}
     Create Fake MDR Executable
