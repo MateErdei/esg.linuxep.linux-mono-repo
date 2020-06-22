@@ -69,6 +69,7 @@ LiveResponse Suite Setup
     Start Local Cloud Server
 
 LiveResponse Suite Teardown
+    Stop Local Cloud Server
     Uninstall SSPL
 
 LiveResponse Test Setup
