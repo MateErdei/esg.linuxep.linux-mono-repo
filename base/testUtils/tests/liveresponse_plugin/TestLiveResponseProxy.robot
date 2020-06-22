@@ -81,6 +81,7 @@ LiveResponse Test Teardown
     Restart Liveresponse Plugin  True
     Stop Websocket Server
     Stop Proxy Servers
+    Remove Environment Variable    https_proxy
     ${files} =  List Directory   ${MCS_DIR}/action/
     ${liveterminal_server_log} =  Liveterminal Server Log File
     Log File  ${liveterminal_server_log}
