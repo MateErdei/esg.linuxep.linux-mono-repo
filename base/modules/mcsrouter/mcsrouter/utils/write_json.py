@@ -30,7 +30,8 @@ def write_current_proxy_info(proxy):
             proxy_info['credentials'] = obfuscated.decode('utf-8')
     else:
         try:
-            os.remove(filepath)
+            if os.path.exists(filepath):
+                os.remove(filepath)
         except Exception as e:
             LOGGER.warning("Failed to clean up current proxy file with error {}".format(e))
 
