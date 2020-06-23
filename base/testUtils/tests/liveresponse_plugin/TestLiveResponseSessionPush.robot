@@ -34,11 +34,11 @@ Verify Liveresponse Works End To End LiveResponse Session Command Via Push
     ${correlation_id} =  Get Correlation Id
     Check Liveresponse Command Successfully Starts A Session   ${correlation_id}
 
-#    Send Message With Newline   systemctl status sophos-spl   ${correlation_id}
-#    Wait Until Keyword Succeeds
-#    ...  10 secs
-#    ...  1 secs
-#    ...  Match Message   sophos-live-terminal   ${correlation_id}
+    Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Match Message   sophos-live-terminal   ${correlation_id}
 
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id}
@@ -69,11 +69,11 @@ Multiple Liveresponse Sessions Work Concurrently
     Check Liveresponse Command Successfully Starts A Session   ${correlation_id9}
     Check Liveresponse Command Successfully Starts A Session   ${correlation_id10}
 
-#    Send Message With Newline   systemctl status sophos-spl   ${correlation_id1}
-#    Wait Until Keyword Succeeds
-#    ...  10 secs
-#    ...  1 secs
-#    ...  Match Message   sophos-live-terminal   ${correlation_id1}
+    Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id1}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Match Message   sophos-live-terminal   ${correlation_id1}
 
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id1}
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id2}
