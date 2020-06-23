@@ -20,7 +20,7 @@ class LiveQueryAdapter(generic_adapter.GenericAdapter):
     """
     LiveQueryAdapter class override _get_action_name to handle processing of LiveQuery request
     LiveQuery request require that their file written to the actions folder has its name as:
-     '<AppId=LiveQuery>_<correlation-id=id>_<timestamp=creationTime>_request.json'
+     '<AppId=LiveQuery>_<correlation-id=id>_request_<timestamp=creationTime>_<ttl=ttl+creationTime>.json'
     """
     def __init__(self, app_id, install_dir):
         super().__init__(app_id, install_dir)
