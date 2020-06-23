@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="system-product-tests" version="1.1.1">
+    <inputs>
+        <workingdir>/tmp/system-product-test-inputs</workingdir>
+        <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.2/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-base" />
+            <include src="SystemProductTestOutput.tar.gz"   dest="." />
+        </package>
+        <package name="sspl-edr-plugin" version="master/%LASTGOODCOMPONENTBUILD%/sspl-edr-plugin/1.0.2/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-edr-plugin" />
+        </package>
+        <package name="sspl-mdr-control-plugin" version="master/%LASTGOODCOMPONENTBUILD%/sspl-mdr-control-plugin/1.0.5/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-mdr-control-plugin" />
+        </package>
+        <package name="sspl-mdr-componentsuite" version="master/%LASTGOODCOMPONENTBUILD%/sspl-mdr-componentsuite/1.0.5/output" dest="." buildtype="dev">
+            <include src="."   dest="sspl-mdr-componentsuite" />
+        </package>
+        <package name="sspl-thininstaller" version="master/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.5/output" dest="." buildtype="dev">
+            <include src="."   dest="sspl-thininstaller" />
+        </package>
+        <package name="sspl-exampleplugin" version="master/%LASTGOODCOMPONENTBUILD%/sspl-exampleplugin/0.5.1/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-exampleplugin" />
+        </package>
+        <package name="sspl-audit" version="master/%LASTGOODCOMPONENTBUILD%/sspl-audit/0.5.1/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-audit" />
+        </package>
+        <package name="sspl-eventprocessor" version="master/%LASTGOODCOMPONENTBUILD%/sspl-eventprocessor/0.5.1/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-eventprocessor" />
+        </package>
+        <package name="liveterminal" version="develop/%LASTGOODBUILD%/liveterminal_linux11/1.0.0/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="liveterminal" />
+        </package>
+        <package name="liveterminal" version="develop/%LASTGOODBUILD%/liveterminal/1.1/websocket_server/" dest="." buildtype="dev">
+            <include src="."   dest="websocket_server" />
+        </package>
+    </inputs>
+    <publish>
+        <workingdir>sspl-base-build</workingdir>
+        <destdir>sspl-base</destdir>
+        <buildoutputs>
+            <output name="output" srcfolder="output" artifactpath="output"> </output>
+            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl"> </output>
+            <output name="build_log" srcfolder="log"> </output>
+        </buildoutputs>
+        <publishbranches>master,feature,release,develop,bugfix</publishbranches>
+    </publish>
+</package>

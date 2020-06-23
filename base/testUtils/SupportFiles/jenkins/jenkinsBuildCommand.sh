@@ -12,7 +12,7 @@ JENKINS_DIR=$(dirname ${0})
 #   BASE_BRANCH=bugfix/LINUXDAR-999-pluginapi-fix MDR_PLUGIN_SOURCE=/uk-filer5/prodro/bir/sspl-mdr-control-plugin/1-0-0-45/217122/output/SDDS-COMPONENT/ jenkinsBuildCommand.sh -s mdr_plugin
 #
 #   this example would run the mdr_plugin suite with overrides for a dev branch of base and
-#   using a production build of mdr plugin, with all else being the develop branch builds
+#   using a production build of mdr plugin, with all else being the master branch builds
 #   from JenkinsBuildOutput on filer6
 #
 #  Overrides will also be picked up from environment variables set via "export" commands/etc.
@@ -86,82 +86,65 @@ then
     sudo cp $WORKSPACE/testUtils/SupportFiles/jenkins/auditdConfig.txt /etc/audit/auditd.conf || fail "ERROR: failed to copy auditdConfig from $WORKSPACE/SupportFiles to /etc/audit/auditd.conf"
 fi
 
-export BASE_DIST="/tmp/distribution"
-export EXAMPLEPLUGIN_SDDS="/tmp/Example-Plugin-SDDS-COMPONENT"
-export SSPL_AUDIT_PLUGIN_SDDS="/tmp/Audit-Plugin-SDDS-COMPONENT"
-export SSPL_PLUGIN_EVENTPROCESSOR_SDDS="/tmp/Event-Processor-Plugin-SDDS-COMPONENT"
-export SSPL_EDR_PLUGIN_SDDS="/tmp/EDR-Plugin-SDDS-COMPONENT"
-export SSPL_MDR_PLUGIN_SDDS="/tmp/MDR-Plugin-SDDS-COMPONENT"
-export SYSTEM_PRODUCT_TEST_OUTPUT="/tmp/SystemProductTestOutput"
-export THIN_INSTALLER_OVERRIDE="/tmp/ThinInstaller"
-export SDDS_SSPL_DBOS_COMPONENT="/tmp/SDDS-SSPL-DBOS-COMPONENT"
-export SDDS_SSPL_OSQUERY_COMPONENT="/tmp/SDDS-SSPL-OSQUERY-COMPONENT"
-export SDDS_SSPL_MDR_COMPONENT="/tmp/SDDS-SSPL-MDR-COMPONENT"
-export SDDS_SSPL_MDR_COMPONENT_SUITE="/tmp/SDDS-SSPL-MDR-COMPONENT-SUITE"
-export SSPL_LIVERESPONSE_PLUGIN_SDDS="/tmp/liveresponse-plugin-SDDS-COMPONENT"
-export WEBSOCKET_SERVER="/tmp/websocket_server"
+SYSTEMPRODUCT_TEST_INPUT=/tmp/system-product-test-inputs
+export BASE_DIST="$SYSTEMPRODUCT_TEST_INPUT/sspl-base"
+export EXAMPLEPLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-exampleplugin"
+export SSPL_AUDIT_PLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-audit"
+export SSPL_PLUGIN_EVENTPROCESSOR_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-eventprocessor"
+export SSPL_EDR_PLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-edr-plugin"
+export SSPL_MDR_PLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-mdr-control-plugin"
+export SYSTEM_PRODUCT_TEST_OUTPUT="$SYSTEMPRODUCT_TEST_INPUT/SystemProductTestOutput.tar.gz"
+export THIN_INSTALLER_OVERRIDE="$SYSTEMPRODUCT_TEST_INPUT/sspl-thininstaller"
+export SDDS_SSPL_DBOS_COMPONENT="$SYSTEMPRODUCT_TEST_INPUT/sspl-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT"
+export SDDS_SSPL_OSQUERY_COMPONENT="$SYSTEMPRODUCT_TEST_INPUT/sspl-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"
+export SDDS_SSPL_MDR_COMPONENT="$SYSTEMPRODUCT_TEST_INPUT/sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT"
+export SDDS_SSPL_MDR_COMPONENT_SUITE="$SYSTEMPRODUCT_TEST_INPUT/sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"
+export SSPL_LIVERESPONSE_PLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/liveterminal"
+export WEBSOCKET_SERVER="$SYSTEMPRODUCT_TEST_INPUT/websocket_server"
 
-
-## BRANCH OVERRIDES
-# You can override the specific branch to use of any jenkins dev build by providing
-# one of the bellow environment variable variables when this script is called
-# If a <repo>_BRANCH variable is given, it will use that specific branch from the jenkins build output on filer6
-# If none is given, develop will be assumed
-
-[[ ! -z ${BASE_BRANCH} ]]                 || BASE_BRANCH="develop"
-[[ ! -z ${EXAMPLE_PLUGIN_BRANCH} ]]       || EXAMPLE_PLUGIN_BRANCH="develop"
-[[ ! -z ${AUDIT_PLUGIN_BRANCH} ]]         || AUDIT_PLUGIN_BRANCH="master"
-[[ ! -z ${EVENT_PROCESSOR_BRANCH} ]]      || EVENT_PROCESSOR_BRANCH="master"
-[[ ! -z ${MDR_PLUGIN_BRANCH} ]]           || MDR_PLUGIN_BRANCH="develop"
-[[ ! -z ${EDR_PLUGIN_BRANCH} ]]           || EDR_PLUGIN_BRANCH="develop"
-[[ ! -z ${LIVERESPONSE_PLUGIN_BRANCH} ]]  || LIVERESPONSE_PLUGIN_BRANCH="develop"
-[[ ! -z ${THININSTALLER_BRANCH} ]]        || THININSTALLER_BRANCH="develop"
-[[ ! -z ${MDR_COMPONENT_SUITE_BRANCH} ]]  || MDR_COMPONENT_SUITE_BRANCH="develop"
-
-## SOURCE OVERRIDES
-# If a <repo>_SOURCE variable is given, it will use the exact path you give it
-# If none is given, the filer6 CI build output will be used (with the branch as defined above)
-# Giving both a branch and source override renders the <repo>_BRANCH variable redundant
-
-DEVBFR="/mnt/filer6/bfr"
-LASTGOODBUILD () {
-        echo "$1/$( cat "$1/lastgoodbuild.txt" )"
-}
-[[ ! -z  ${BASE_SOURCE} ]]                         || BASE_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-base/${BASE_BRANCH}" )/sspl-base/*/output/SDDS-COMPONENT)
-[[ ! -z  ${EXAMPLE_PLUGIN_SOURCE} ]]               || EXAMPLE_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-exampleplugin/${EXAMPLE_PLUGIN_BRANCH}" )/sspl-exampleplugin/*/output/SDDS-COMPONENT)
-[[ ! -z  ${AUDIT_PLUGIN_SOURCE} ]]                 || AUDIT_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-audit/${AUDIT_PLUGIN_BRANCH}" )/sspl-audit/*/output/SDDS-COMPONENT)
-[[ ! -z  ${EVENT_PROCESSOR_SOURCE} ]]              || EVENT_PROCESSOR_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-eventprocessor/${EVENT_PROCESSOR_BRANCH}" )/sspl-eventprocessor/*/output/SDDS-COMPONENT)
-[[ ! -z  ${MDR_PLUGIN_SOURCE} ]]                   || MDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-control-plugin/${MDR_PLUGIN_BRANCH}" )/sspl-mdr-control-plugin/*/output/SDDS-COMPONENT)
-[[ ! -z  ${EDR_PLUGIN_SOURCE} ]]                   || EDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-plugin-edr-component/${EDR_PLUGIN_BRANCH}" )/sspl-plugin-edr-component/*/output/SDDS-COMPONENT)
-[[ ! -z  ${THININSTALLER_SOURCE} ]]                || THININSTALLER_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-thininstaller/${THININSTALLER_BRANCH}" )/sspl-thininstaller/*/output)
-[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE} ]]          || MDR_COMPONENT_SUITE_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-componentsuite/${MDR_COMPONENT_SUITE_BRANCH}" )/sspl-mdr-componentsuite/*/output)
-# It is not expected that you will ever override the following locations as they are implied by previously set variables
-[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_DBOS} ]]     || MDR_COMPONENT_SUITE_SOURCE_DBOS="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-DBOS-COMPONENT/"
-[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} ]]  || MDR_COMPONENT_SUITE_SOURCE_OSQUERY="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-OSQUERY-COMPONENT/"
-[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} ]]   || MDR_COMPONENT_SUITE_SOURCE_PLUGIN="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT/"
-[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_SUITE} ]]    || MDR_COMPONENT_SUITE_SOURCE_SUITE="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT-SUITE/"
-# The System Product Test Output must be from the build of base being used. It is found in the directory above the SDDS-COMPONENT
-[[ ! -z  ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} ]]   || SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE="$(dirname ${BASE_SOURCE})/SystemProductTestOutput.tar.gz"
-[[ ! -z  ${LIVERESPONSE_PLUGIN_SOURCE} ]]          || LIVERESPONSE_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/liveterminal/${LIVERESPONSE_PLUGIN_BRANCH}" )/liveterminal_linux11/*/output/SDDS-COMPONENT)
-[[ ! -z  ${WEBSOCKET_SERVER_SOURCE} ]]             || WEBSOCKET_SERVER_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/liveterminal/${LIVERESPONSE_PLUGIN_BRANCH}" )/liveterminal/*/websocket_server)
-
-# Check everything exists
-
-[[ -d ${BASE_SOURCE} ]]                         || fail "Error: ${BASE_SOURCE} doesn't exist"
-[[ -d ${EXAMPLE_PLUGIN_SOURCE} ]]               || fail "Error: ${EXAMPLE_PLUGIN_SOURCE} doesn't exist"
-[[ -d ${AUDIT_PLUGIN_SOURCE} ]]                 || fail "Error: ${AUDIT_PLUGIN_SOURCE} doesn't exist"
-[[ -d ${EVENT_PROCESSOR_SOURCE} ]]              || fail "Error: ${EVENT_PROCESSOR_SOURCE} doesn't exist"
-[[ -d ${MDR_PLUGIN_SOURCE} ]]                   || fail "Error: ${MDR_PLUGIN_SOURCE} doesn't exist"
-[[ -d ${EDR_PLUGIN_SOURCE} ]]                   || fail "Error: ${EDR_PLUGIN_SOURCE} doesn't exist"
-[[ -f ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} ]]   || fail "Error: ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} doesn't exist"
-[[ -d ${THININSTALLER_SOURCE} ]]                || fail "Error: ${THININSTALLER_SOURCE} doesn't exist"
-[[ -d ${MDR_COMPONENT_SUITE_SOURCE_DBOS} ]]     || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_DBOS} doesn't exist"
-[[ -d ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} ]]  || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} doesn't exist"
-[[ -d ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} ]]   || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} doesn't exist"
-[[ -d ${MDR_COMPONENT_SUITE_SOURCE_SUITE} ]]    || fail "Error: ${MDR_COMPONENT_SUITE_SOURCE_SUITE} doesn't exist"
-[[ -d ${LIVERESPONSE_PLUGIN_SOURCE} ]]          || fail "Error: ${LIVERESPONSE_PLUGIN_SOURCE} doesn't exist"
-[[ -d ${WEBSOCKET_SERVER_SOURCE} ]]             || fail "Error: ${WEBSOCKET_SERVER_SOURCE} doesn't exist"
-
+#
+### BRANCH OVERRIDES
+## You can override the specific branch to use of any jenkins dev build by providing
+## one of the bellow environment variable variables when this script is called
+## If a <repo>_BRANCH variable is given, it will use that specific branch from the jenkins build output on filer6
+## If none is given, master will be assumed
+#
+#[[ ! -z ${BASE_BRANCH} ]]                 || BASE_BRANCH="master"
+#[[ ! -z ${EXAMPLE_PLUGIN_BRANCH} ]]       || EXAMPLE_PLUGIN_BRANCH="master"
+#[[ ! -z ${AUDIT_PLUGIN_BRANCH} ]]         || AUDIT_PLUGIN_BRANCH="master"
+#[[ ! -z ${EVENT_PROCESSOR_BRANCH} ]]      || EVENT_PROCESSOR_BRANCH="master"
+#[[ ! -z ${MDR_PLUGIN_BRANCH} ]]           || MDR_PLUGIN_BRANCH="master"
+#[[ ! -z ${EDR_PLUGIN_BRANCH} ]]           || EDR_PLUGIN_BRANCH="master"
+#[[ ! -z ${THININSTALLER_BRANCH} ]]        || THININSTALLER_BRANCH="master"
+#[[ ! -z ${MDR_COMPONENT_SUITE_BRANCH} ]]  || MDR_COMPONENT_SUITE_BRANCH="master"
+#
+### SOURCE OVERRIDES
+## If a <repo>_SOURCE variable is given, it will use the exact path you give it
+## If none is given, the filer6 CI build output will be used (with the branch as defined above)
+## Giving both a branch and source override renders the <repo>_BRANCH variable redundant
+#
+#DEVBFR="/mnt/filer6/bfr"
+#LASTGOODBUILD () {
+#        echo "$1/$( cat "$1/lastgoodbuild.txt" )"
+#}
+#[[ ! -z  ${BASE_SOURCE} ]]                         || BASE_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-base/${BASE_BRANCH}" )/sspl-base/*/output/SDDS-COMPONENT)
+#[[ ! -z  ${EXAMPLE_PLUGIN_SOURCE} ]]               || EXAMPLE_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-exampleplugin/${EXAMPLE_PLUGIN_BRANCH}" )/sspl-exampleplugin/*/output/SDDS-COMPONENT)
+#[[ ! -z  ${AUDIT_PLUGIN_SOURCE} ]]                 || AUDIT_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-audit/${AUDIT_PLUGIN_BRANCH}" )/sspl-audit/*/output/SDDS-COMPONENT)
+#[[ ! -z  ${EVENT_PROCESSOR_SOURCE} ]]              || EVENT_PROCESSOR_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-eventprocessor/${EVENT_PROCESSOR_BRANCH}" )/sspl-eventprocessor/*/output/SDDS-COMPONENT)
+#[[ ! -z  ${MDR_PLUGIN_SOURCE} ]]                   || MDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-control-plugin/${MDR_PLUGIN_BRANCH}" )/sspl-mdr-control-plugin/*/output/SDDS-COMPONENT)
+#[[ ! -z  ${EDR_PLUGIN_SOURCE} ]]                   || EDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-plugin-edr-component/${EDR_PLUGIN_BRANCH}" )/sspl-plugin-edr-component/*/output/SDDS-COMPONENT)
+#[[ ! -z  ${THININSTALLER_SOURCE} ]]                || THININSTALLER_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-thininstaller/${THININSTALLER_BRANCH}" )/sspl-thininstaller/*/output)
+#[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE} ]]          || MDR_COMPONENT_SUITE_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-componentsuite/${MDR_COMPONENT_SUITE_BRANCH}" )/sspl-mdr-componentsuite/*/output)
+## It is not expected that you will ever override the following locations as they are implied by previously set variables
+#[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_DBOS} ]]     || MDR_COMPONENT_SUITE_SOURCE_DBOS="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-DBOS-COMPONENT/"
+#[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_OSQUERY} ]]  || MDR_COMPONENT_SUITE_SOURCE_OSQUERY="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-OSQUERY-COMPONENT/"
+#[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_PLUGIN} ]]   || MDR_COMPONENT_SUITE_SOURCE_PLUGIN="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT/"
+#[[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_SUITE} ]]    || MDR_COMPONENT_SUITE_SOURCE_SUITE="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT-SUITE/"
+## The System Product Test Output must be from the build of base being used. It is found in the directory above the SDDS-COMPONENT
+#[[ ! -z  ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} ]]   || SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE="$(dirname ${BASE_SOURCE})/SystemProductTestOutput.tar.gz"
+#
+#
+## Check everything exists
 sudo rm -rf ${BASE_DIST}
 sudo rm -rf ${EXAMPLEPLUGIN_SDDS}
 sudo rm -rf ${SSPL_AUDIT_PLUGIN_SDDS}
@@ -176,6 +159,26 @@ sudo rm -rf ${SDDS_SSPL_MDR_COMPONENT}
 sudo rm -rf ${SDDS_SSPL_MDR_COMPONENT_SUITE}
 sudo rm -rf ${SSPL_LIVERESPONSE_PLUGIN_SDDS}
 sudo rm -rf ${WEBSOCKET_SERVER}
+
+pushd $WORKSPACE
+python3 -m build_scripts.artisan_fetch $WORKSPACE/testUtils/release-package.xml
+popd
+
+[[ -d ${BASE_DIST} ]]                           || fail "Error: ${BASE_DIST} doesn't exist"
+[[ -d ${EXAMPLEPLUGIN_SDDS} ]]                  || fail "Error: ${EXAMPLEPLUGIN_SDDS} doesn't exist"
+[[ -d ${SSPL_AUDIT_PLUGIN_SDDS} ]]              || fail "Error: ${SSPL_AUDIT_PLUGIN_SDDS} doesn't exist"
+[[ -d ${SSPL_PLUGIN_EVENTPROCESSOR_SDDS} ]]     || fail "Error: ${SSPL_PLUGIN_EVENTPROCESSOR_SDDS} doesn't exist"
+[[ -d ${SSPL_MDR_PLUGIN_SDDS} ]]                || fail "Error: ${SSPL_MDR_PLUGIN_SDDS} doesn't exist"
+[[ -d ${SSPL_EDR_PLUGIN_SDDS} ]]                || fail "Error: ${SSPL_EDR_PLUGIN_SDDS} doesn't exist"
+[[ -f ${SYSTEM_PRODUCT_TEST_OUTPUT} ]]          || fail "Error: ${SYSTEM_PRODUCT_TEST_OUTPUT} doesn't exist"
+[[ -d ${THIN_INSTALLER_OVERRIDE} ]]             || fail "Error: ${THIN_INSTALLER_OVERRIDE} doesn't exist"
+[[ -d ${SDDS_SSPL_DBOS_COMPONENT} ]]            || fail "Error: ${SDDS_SSPL_DBOS_COMPONENT} doesn't exist"
+[[ -d ${SDDS_SSPL_OSQUERY_COMPONENT} ]]         || fail "Error: ${SDDS_SSPL_OSQUERY_COMPONENT} doesn't exist"
+[[ -d ${SDDS_SSPL_MDR_COMPONENT} ]]             || fail "Error: ${SDDS_SSPL_MDR_COMPONENT} doesn't exist"
+[[ -d ${SDDS_SSPL_MDR_COMPONENT_SUITE} ]]       || fail "Error: ${SDDS_SSPL_MDR_COMPONENT_SUITE} doesn't exist"
+[[ -d ${SSPL_LIVERESPONSE_PLUGIN_SDDS} ]]       || fail "Error: ${SSPL_LIVERESPONSE_PLUGIN_SDDS} doesn't exist"
+[[ -d ${WEBSOCKET_SERVER} ]]                    || fail "Error: ${WEBSOCKET_SERVER} doesn't exist"
+
 
 # make the Product Test Output folder so that the tar can be copied into it
 mkdir ${SYSTEM_PRODUCT_TEST_OUTPUT}
@@ -219,7 +222,7 @@ HasFailure=false
 inputArguments="$@"
 
 platform_exclude_tag
-EXCLUDED_BY_DEFAULT_TAGS="MANUAL PUB_SUB FUZZ AUDIT_PLUGIN EVENT_PLUGIN TESTFAILURE MCS_FUZZ AMAZON_LINUX EXAMPLE_PLUGIN "$PLATFORM_EXCLUDE_TAG
+EXCLUDED_BY_DEFAULT_TAGS="MANUAL PUB_SUB FUZZ AUDIT_PLUGIN EVENT_PLUGIN TESTFAILURE MCS_FUZZ CUSTOM_LOCATION AMAZON_LINUX EXAMPLE_PLUGIN "$PLATFORM_EXCLUDE_TAG
 
 EXTRA_ARGUMENTS=""
 for EXCLUDED_TAG in ${EXCLUDED_BY_DEFAULT_TAGS}; do
@@ -248,6 +251,14 @@ fi
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
 then
     sudo chown -R jenkins:jenkins ${WORKSPACE} || fail "ERROR: failed to chown "$WORKSPACE
+fi
+
+#Copy segfault core dumps onto filer 6 at the end of test runs
+if [[ `ls -al /tmp | grep core- | wc -l` != 0 ]]
+then
+    CRASH_DUMP_FILER6=/mnt/filer6/linux/SSPL/CoreDumps/${NODE_NAME}_${BUILD_TAG}
+    sudo mkdir -p ${CRASH_DUMP_FILER6}
+    sudo cp /tmp/core-* ${CRASH_DUMP_FILER6}
 fi
 
 sudo find /home/jenkins/jenkins_slave -name "*-cleanup_*" -exec rm -rf {} \; || exit 0
