@@ -4,7 +4,7 @@
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.2/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-base" />
-            <include src="SystemProductTestOutput.tar.gz"   dest="." />
+            <include src="SystemProductTestOutput.tar.gz"   dest="SystemProductTestOutput" />
         </package>
         <package name="sspl-edr-plugin" version="master/%LASTGOODCOMPONENTBUILD%/sspl-edr-plugin/1.0.2/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-edr-plugin" />
