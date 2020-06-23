@@ -1,5 +1,13 @@
 # log4cplus global data
 {
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:_ZN9log4cplus19initializeLog4cplusEv.part.*
+   fun:call_init
+}
+{
    log4cplus init
    Memcheck:Leak
    match-leak-kinds: definite,possible

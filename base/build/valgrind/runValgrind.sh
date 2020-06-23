@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -x 
 
 #valgrind --leak-check=full --error-exitcode=70 \
 #    --trace-children=yes \
@@ -26,17 +26,16 @@ cat ${MEMORYCHECK_SUPPRESSIONS_FILE}
 echo 'Run Ctest'
 ctest \
     -D MEMORYCHECK_SUPPRESSIONS_FILE=${MEMORYCHECK_SUPPRESSIONS_FILE} \
-    -D CTEST_MEMORYCHECK_SUPPRESSIONS_FILE=${MEMORYCHECK_SUPPRESSIONS_FILE} \
     -D MEMORYCHECK_COMMAND_OPTIONS="${MEMORYCHECK_COMMAND_OPTIONS}" \
-    -D CTEST_MEMORYCHECK_COMMAND_OPTIONS="${MEMORYCHECK_COMMAND_OPTIONS}" \
     --test-action memcheck --parallel ${NPROC} \
     --output-on-failure \
-    -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PollerShouldThrowExceptionIfUnderlingSocketCloses|PythonTest'
+    -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PollerShouldThrowExceptionIfUnderlingSocketCloses|PythonTest' -R SophosInstallLocationFoundFromExecutableInBaseBin
 
+echo "ctest check returned code: $?"
 pushd Testing/Temporary
 
 # remove all the tests that passed
-grep  'ERROR SUMMARY: 0' MemoryChecker*.log | cut -d':' -f1 | xargs rm
+/bin/grep -H 'ERROR SUMMARY: 0' MemoryChecker*.log | cut -d':' -f1 | xargs rm
 
 # consider a success if no memory error is reported by valgrind
 EXIT=0
