@@ -68,6 +68,12 @@ Liveresponse Plugin Session Counts Failed
     ...  5s
     ...  Check Expected Base Processes Are Running
 
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check Log Contains   Entering the main loop    ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log
+
+
     ${correlation_id1} =  Get Correlation Id
     ${correlation_id2} =  Get Correlation Id
 
@@ -131,8 +137,8 @@ LiveResponse Telemetry Test Setup
     Restart Liveresponse Plugin  True
 
 LiveResponse Telemetry Test Teardown
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log  ${telemetryFileContents}
+#    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+#    Log  ${telemetryFileContents}
     General Test Teardown
     Restore Original Live Response Terminal Binary
     Remove file  ${TELEMETRY_OUTPUT_JSON}
