@@ -29,7 +29,7 @@ ctest \
     -D MEMORYCHECK_COMMAND_OPTIONS="${MEMORYCHECK_COMMAND_OPTIONS}" \
     --test-action memcheck --parallel ${NPROC} \
     --output-on-failure \
-    -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PollerShouldThrowExceptionIfUnderlingSocketCloses|PythonTest' -R SophosInstallLocationFoundFromExecutableInBaseBin
+    -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PollerShouldThrowExceptionIfUnderlingSocketCloses|PythonTest'
 
 echo "ctest check returned code: $?"
 pushd Testing/Temporary
