@@ -115,7 +115,7 @@ namespace SulDownloader
             void setProcessedReport(bool isProcessed);
 
         private:
-            WarehouseStatus m_status;
+            WarehouseStatus m_status= WarehouseStatus::UNSPECIFIED;
             std::string m_description;
             std::string m_sulError;
             std::string m_startTime;
@@ -126,7 +126,7 @@ namespace SulDownloader
             std::vector<ProductReport> m_productReport;
             std::vector<ProductInfo> m_warehouseComponents;
 
-            bool m_processedReport;
+            bool m_processedReport = false;
 
             void setError(const WarehouseError& error);
 

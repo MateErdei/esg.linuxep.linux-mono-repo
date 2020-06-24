@@ -27,7 +27,7 @@ echo 'Run Ctest'
 ctest \
     -D MEMORYCHECK_SUPPRESSIONS_FILE=${MEMORYCHECK_SUPPRESSIONS_FILE} \
     -D MEMORYCHECK_COMMAND_OPTIONS="${MEMORYCHECK_COMMAND_OPTIONS}" \
-    --test-action memcheck --parallel ${NPROC} \
+    --test-action memcheck --parallel 1 \
     --output-on-failure \
     -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PollerShouldThrowExceptionIfUnderlingSocketCloses|PythonTest'
 
