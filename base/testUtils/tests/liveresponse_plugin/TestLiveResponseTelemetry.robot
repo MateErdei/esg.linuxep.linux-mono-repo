@@ -68,12 +68,6 @@ Liveresponse Plugin Session Counts Failed
     ...  5s
     ...  Check Expected Base Processes Are Running
 
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Check Log Contains   Entering the main loop    ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log
-
-
     ${correlation_id1} =  Get Correlation Id
     ${correlation_id2} =  Get Correlation Id
 
