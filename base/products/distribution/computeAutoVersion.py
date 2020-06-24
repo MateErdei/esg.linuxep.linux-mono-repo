@@ -35,8 +35,7 @@ def main(argv):
     autoVersion = readAutoVersion(base_path, jenkins_file_path)
 
     if autoVersion:
-        parts = autoVersion.split(".")
-        version = base_version+"."+parts[-1]
+        version = autoVersion
     else:
         version = base_version+".999"
 
