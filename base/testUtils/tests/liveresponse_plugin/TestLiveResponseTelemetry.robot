@@ -138,8 +138,8 @@ LiveResponse Telemetry Test Setup
     Restart Liveresponse Plugin  True
 
 LiveResponse Telemetry Test Teardown
-#    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-#    Log  ${telemetryFileContents}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
     General Test Teardown
     Restore Original Live Response Terminal Binary
     Remove file  ${TELEMETRY_OUTPUT_JSON}
