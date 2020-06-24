@@ -79,8 +79,9 @@ Liveresponse Plugin Session Counts Failed
 
     ${creation_time_and_ttl1} =  get_valid_creation_time_and_ttl
     ${creation_time_and_ttl2} =  get_valid_creation_time_and_ttl
+
     # Write Action file.
-    ${actionTempName} =    Set Variable   /tmp/temp_liveresponse_action.xml
+    ${actionTempName} =    Set Variable   /opt/temp_liveresponse_action.xml
     ${actionContents} =    Set Variable   <action type="sophos.mgt.action.InitiateLiveTerminal"><url>url</url><thumbprint>thumbprint</thumbprint></action>
     ${actionFileName1} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_${correlation_id1}_action_${creation_time_and_ttl1}.xml
     ${actionFileName2} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_${correlation_id2}_action_${creation_time_and_ttl2}.xml
