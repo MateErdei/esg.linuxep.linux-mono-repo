@@ -1,6 +1,5 @@
 o600, root, root, /opt/sophos-spl/plugins/liveresponse/log/liveresponse.log
 o644, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libcrypto.so.1.1.0
-o644, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libliveresponseimpl.so.0
 o644, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so.3.4.5.0
 o644, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libpluginapi.so.0
 o644, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libpluginimpl.so.0

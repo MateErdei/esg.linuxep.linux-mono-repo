@@ -4,7 +4,6 @@ o777, root, root, /opt/sophos-spl/plugins/liveresponse/bin/uninstall.sh
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libcrypto.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libcrypto.so.1
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libcrypto.so.1.1
-o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libliveresponseimpl.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so.3
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so.3.4
