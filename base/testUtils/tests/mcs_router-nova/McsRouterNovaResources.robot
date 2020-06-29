@@ -206,11 +206,12 @@ Check For Content In File
 
     ${FILE_CONTENT} =  Set Variable  ''
 
-    :FOR    ${item}     IN      @{files}
-    \   ${filecontent} =     Get File    ${pathToCheck}/${item}
-    \   Log File    ${pathToCheck}/${item}
-    \   ${result} =   Set Variable If   """${expectedFileContent}""" in """${filecontent}"""     True
-    \   Run Keyword If   ${result}   Exit For Loop
+    FOR    ${item}     IN      @{files}
+    ${filecontent} =     Get File    ${pathToCheck}/${item}
+    Log File    ${pathToCheck}/${item}
+    ${result} =   Set Variable If   """${expectedFileContent}""" in """${filecontent}"""     True
+    Run Keyword If   ${result}   Exit For Loop
+    END
 
    Should Be True   ${result}
 
@@ -238,8 +239,9 @@ Log All Files In Directory
     # check if mcs file has been created on disk
     @{files} = 	List Files In Directory	   ${SOPHOS_INSTALL}/base/update/var/
 
-    :FOR    ${item}     IN      @{files}
-    \   Log File   ${SOPHOS_INSTALL}/base/update/var/${item}
+    FOR    ${item}     IN      @{files}
+    Log File   ${SOPHOS_INSTALL}/base/update/var/${item}
+    END
 
 
 Wait Until Update Event Has Been Sent

@@ -94,7 +94,7 @@ Remove Permission to Read Status and Write Policy From McsRouter Will Make it To
 Run Process And Expect Failure
     [Arguments]    ${execPath}
     ${result} =    Run Process   ${execPath}
-    Should Not Be Equal As Integers    ${result.rc}    0   msg="${execPath} did not report failure. stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0   msg="${execPath} did not report failure. stdout:${result.stdout}\nerr: ${result.stderr}"
     Log  ${result.stdout}
     Should Not Contain   ${result.stderr}  Critical unhandled
 

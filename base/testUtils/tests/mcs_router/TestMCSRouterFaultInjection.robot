@@ -73,9 +73,10 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
     ...  Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  1
 
     ${Actions_to_send} =  Set Variable  10
-    :FOR    ${i}    IN RANGE    ${Actions_to_send}
-    \  Copy File And Send It To MCS Actions folder  ${temp_dir}/template
-    \  sleep  0.01s
+    FOR    ${i}    IN RANGE    ${Actions_to_send}
+    Copy File And Send It To MCS Actions folder  ${temp_dir}/template
+    sleep  0.01s
+    END
 
     Check Managementagent Log Contains String N Times  Action /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml sent to 1 plugins  ${Actions_to_send}
     Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  2

@@ -379,18 +379,21 @@ Verify Messages Sent From Multiple Publishers On Different Channels Concurrently
 
 Send Data Over Data Channel
     [Arguments]    ${Channel_Name}   @{DataItems}
-    :FOR    ${item}     IN      @{DataItems}
-        \    Send Data  1   ${ChannelName}   ${item}
+    FOR    ${item}     IN      @{DataItems}
+    Send Data  1   ${ChannelName}   ${item}
+    END
 
 Check Log Contains Data
     [Arguments]    ${Channel_Name}  ${Subscriber}  @{DataItems}
-    :FOR    ${item}     IN      @{DataItems}
-        \    Check Log Contains  Sub ${Subscriber} received message: [b'${ChannelName}', b'${item}']  ./tmp/fake_multi_subscriber.log  Fake Multi-Subscriber Log
+    FOR    ${item}     IN      @{DataItems}
+    Check Log Contains  Sub ${Subscriber} received message: [b'${ChannelName}', b'${item}']  ./tmp/fake_multi_subscriber.log  Fake Multi-Subscriber Log
+    END
 
 Check Log Does Not Contain Data
     [Arguments]    ${Channel_Name}  ${Subscriber}  @{DataItems}
-    :FOR    ${item}     IN      @{DataItems}
-        \    Check Log Does Not Contain  Sub ${Subscriber} received message: [b'${ChannelName}', b'${item}']  ./tmp/fake_multi_subscriber.log  Fake Multi-Subscriber Log
+    FOR    ${item}     IN      @{DataItems}
+    Check Log Does Not Contain  Sub ${Subscriber} received message: [b'${ChannelName}', b'${item}']  ./tmp/fake_multi_subscriber.log  Fake Multi-Subscriber Log
+    END
 
 Test Teardown For Suite
     General Test Teardown

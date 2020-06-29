@@ -133,8 +133,9 @@ Verify Common Status Contains All Interface MAC Addresses
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     ${MacAddresses} =  Get Interface Mac Addresses
-    :FOR  ${MacAddress}  IN  @{MacAddresses}
-    \   Check Register Central Log Contains  <macAddress>${MacAddress}</macAddress>
+    FOR  ${MacAddress}  IN  @{MacAddresses}
+    Check Register Central Log Contains  <macAddress>${MacAddress}</macAddress>
+    END
 
 Successful Registration Sends Current Product Version To Central
     ${StartRegCentralStatus} =  Set Variable  <ns:computerStatus xmlns:ns="http://www.sophos.com/xml/mcs/computerstatus">

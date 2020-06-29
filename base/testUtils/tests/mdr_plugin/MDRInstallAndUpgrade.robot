@@ -176,7 +176,7 @@ MDR Install And Upgrade Setup
     Install Internal Warehouse Certs
 
     ${result} =  Run Process  curl -v https://dci.sophosupd.com/cloudupdate/   shell=True
-    Should Be Equal As Integers  ${result.rc}  0  "Failed to Verify connection to Update Server. Please, check endpoint is configured. (Hint: tools/setup_sspl/setupEnvironment2.sh).\n StdOut: ${result.stdout}\n StdErr: ${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  0  "Failed to Verify connection to Update Server. Please, check endpoint is configured. (Hint: tools/setup_sspl/setupEnvironment2.sh).\nStdOut: ${result.stdout}\n StdErr: ${result.stderr}"
 
     Regenerate Certificates
     Setup MCS Tests

@@ -35,7 +35,7 @@ Live Response Plugin Log Contains
 Check Liveresponse Agent Executable is Not Running
     ${result} =    Run Process  pgrep  -a  sophos-live-terminal
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
-    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Restart Liveresponse Plugin
     [Arguments]  ${clearLog}=False

@@ -112,8 +112,9 @@ Verify Management Agent Send Plugin Policy When Requested By Plugin
 Remove Policy Xml Files
     @{policyfiles} = 	List Files In Directory 	${SOPHOS_INSTALL}/base/mcs/policy
 
-    :FOR    ${item}     IN      @{policyfiles}
-    \   Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/${item}
+    FOR    ${item}     IN      @{policyfiles}
+    Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/${item}
+    END
 
 
 

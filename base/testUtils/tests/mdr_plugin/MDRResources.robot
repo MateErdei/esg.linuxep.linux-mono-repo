@@ -107,7 +107,7 @@ Check EAP MDR Plugin Running
 
 Check MDR Plugin Not Running
     ${result} =    Run Process  pgrep  mtr
-    Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Wait Until SophosMTR Executable Running
     [Arguments]  ${WaitInSecs}=10
@@ -132,42 +132,42 @@ Wait Until EDR Running
 
 Check SophosMTR Executable Running
     ${result} =    Run Process  pgrep  SophosMTR
-    Should Be Equal As Integers    ${result.rc}    0       msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Be Equal As Integers    ${result.rc}    0       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check SophosMTR Executable Not Running
     ${result} =    Run Process  pgrep  SophosMTR
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
-    Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check Osquery Executable Running
     #Check both osquery instances are running
     ${result} =    Run Process  pgrep osquery | wc -w  shell=true
-    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check MTR Osquery Executable Running
     #Check both osquery instances are running
     ${result} =    Run Process  pgrep -a osquery | grep plugins/mtr | wc -l  shell=true
-    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check MTR Osquery Executable Not Running
     ${result} =    Run Process  pgrep  -a  osquery | grep plugins/mtr
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
-    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check Osquery Executable Not Running
     ${result} =    Run Process  pgrep  -a  osquery
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
-    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check EDR Executable Running
     #Check both osquery instances are running
     ${result} =    Run Process  pgrep edr | wc -w  shell=true
-    Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check EDR Executable Not Running
     ${result} =    Run Process  pgrep  -a  edr
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
-    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 MDR Plugin Log Contains
     [Arguments]  ${TextToFind}
@@ -310,7 +310,7 @@ Uninstall MDR Plugin
     Log  ${result.stderr}
     ${logresult}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  "Last mdr logs:\n${logresult.stdout}"
-    Should Be Equal As Strings   ${result.rc}  0   msg="output:${result.stdout}\n error:${result.stderr}."
+    Should Be Equal As Strings   ${result.rc}  0   msg="output:${result.stdout}\nerror:${result.stderr}."
 
 
 MDR Test Teardown

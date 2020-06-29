@@ -23,7 +23,7 @@ Stop Management Agent
 
 Check Managment Agent Is Not Running
     ${result} =    Run Process  pgrep  sophos_managementagent
-    Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Wait For Management Agent To Stop
     Wait Until Keyword Succeeds
@@ -76,11 +76,12 @@ Check File Content
 
     ${FILE_CONTENT} =  Set Variable  ''
 
-    :FOR    ${item}     IN      @{files}
-    \   ${filecontent} =     Get File    ${pathToCheck}/${item}
-    \   Log File    ${pathToCheck}/${item}
-    \   ${result} =   Set Variable If   """${filecontent}""" == """${expectedFileContent}"""     True
-    \   Run Keyword If   ${result}   Exit For Loop
+    FOR    ${item}     IN      @{files}
+    ${filecontent} =     Get File    ${pathToCheck}/${item}
+    Log File    ${pathToCheck}/${item}
+    ${result} =   Set Variable If   """${filecontent}""" == """${expectedFileContent}"""     True
+    Run Keyword If   ${result}   Exit For Loop
+    END
 
    Should Be True   ${result}
 
@@ -91,25 +92,29 @@ Check Event File
 Remove Event Xml Files
     @{eventfiles} = 	List Files In Directory 	${SOPHOS_INSTALL}/base/mcs/event
 
-    :FOR    ${item}     IN      @{eventfiles}
-    \   Remove File   ${SOPHOS_INSTALL}/base/mcs/event/${item}
+    FOR    ${item}     IN      @{eventfiles}
+    Remove File   ${SOPHOS_INSTALL}/base/mcs/event/${item}
+    END
 
 Remove Action Xml Files
     @{actionfiles} = 	List Files In Directory  	${SOPHOS_INSTALL}/base/mcs/action
 
-    :FOR    ${item}     IN      @{actionfiles}
-    \   Remove File   ${SOPHOS_INSTALL}/base/mcs/action/${item}
+    FOR    ${item}     IN      @{actionfiles}
+    Remove File   ${SOPHOS_INSTALL}/base/mcs/action/${item}
+    END
 
 Remove Status Xml Files
     @{statusfiles} = 	List Files In Directory 	${SOPHOS_INSTALL}/base/mcs/status
 
-    :FOR    ${item}     IN      @{statusfiles}
-    \   Remove File   ${SOPHOS_INSTALL}/base/mcs/status/${item}
+    FOR    ${item}     IN      @{statusfiles}
+    Remove File   ${SOPHOS_INSTALL}/base/mcs/status/${item}
+    END
 
     @{statuscachefiles} = 	List Files In Directory 	${SOPHOS_INSTALL}/base/mcs/status/cache
 
-    :FOR    ${item}     IN      @{statuscachefiles}
-    \   Remove File   ${SOPHOS_INSTALL}/base/mcs/status/cache/${item}
+    FOR    ${item}     IN      @{statuscachefiles}
+    Remove File   ${SOPHOS_INSTALL}/base/mcs/status/cache/${item}
+    END
 
 
 Check File With Wait
