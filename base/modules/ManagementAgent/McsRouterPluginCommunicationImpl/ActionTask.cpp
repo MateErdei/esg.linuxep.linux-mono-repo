@@ -117,8 +117,15 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
         throw;
     }
 
-    int pluginsNotified = m_pluginManager.queueAction(actionFilenameFields.m_appId, payload, actionFilenameFields.m_correlationId);
-    LOGINFO("Action " << m_filePath << " sent to " << pluginsNotified << " plugins");
+    if (payload.empty())
+    {
+        LOGWARN("Action is empty: " << m_filePath);
+    }
+    else
+    {
+        int pluginsNotified = m_pluginManager.queueAction(actionFilenameFields.m_appId, payload, actionFilenameFields.m_correlationId);
+        LOGINFO("Action " << m_filePath << " sent to " << pluginsNotified << " plugins");
+    }
 
     Common::FileSystem::fileSystem()->removeFile(m_filePath);
 }
