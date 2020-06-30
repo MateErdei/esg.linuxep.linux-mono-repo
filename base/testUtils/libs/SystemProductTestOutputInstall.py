@@ -84,6 +84,7 @@ class SystemProductTestOutputInstall(object):
         LOGGER.info(TEST_UTILS_PATH)
         system_product_test_path = getSystemProductTestOutput(self.install_base_path)
         capnp_tar_path = os.path.join(capnp_location, "capnproto.tar")
+        LOGGER.info(f"capn tar path: {capnp_tar_path}")
         capnp_prod_sys_test_output_path = os.path.join(self.install_base_path, "SystemProductTestOutput")
         LOGGER.info(capnp_prod_sys_test_output_path)
         if capnp_location == 'IGNORE':

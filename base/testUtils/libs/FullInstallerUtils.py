@@ -210,14 +210,6 @@ def get_sspl_base_sdds_version_1():
     candidates = ["/uk-filer5/prodro/bir/sspl-base/1-0-0-74/216976/output/SDDS-COMPONENT/"]
     return get_plugin_sdds("SSPL Base Version 1.0.0", "SSPL_BASE_SDDS_RELEASE_1_0", candidates)
 
-def get_telemetry_supplement_version_1_path():
-    telemetry_supplement_release_1_override = os.environ.get("RELEASE_1_TELEMETRY_SUPPLEMENT", None)
-
-    if telemetry_supplement_release_1_override is None:
-        return "/uk-filer5/prodro/bir/sspl-telemetry-supplement/1-0-0-3/217066/output/SDDS-SSPL-TELEMSUPP-COMPONENT/telemetry-config.json"
-    else:
-        return telemetry_supplement_release_1_override
-
 
 def get_sspl_example_plugin_sdds_version_0_5():
     candidates = ["/uk-filer5/prodro/bir/sspl-exampleplugin/0-5-0-43/213556/output/SDDS-COMPONENT/"]
