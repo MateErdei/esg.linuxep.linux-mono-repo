@@ -2,6 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         String
+Library         DateTime
 
 Library         ../Libs/FakeManagement.py
 
@@ -67,7 +68,12 @@ Simulate Live Query
     File Should Exist  ${requestFile}
     Copy File   ${requestFile}  ${SOPHOS_INSTALL}/tmp
     Run Shell Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/${name}  OnError=Failed to change ownership
-    Move File    ${SOPHOS_INSTALL}/tmp/${name}  ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_${correlation}_FakeTime_request.json
+    ${creation_time} =  Get Current Date
+    ${eptime} =  Get Time  epoch
+    Log To Console  ${eptime}
+    ${delta} =  Set Variable   10000
+    ${ttl} =  Evaluate   ${eptime}+${delta}
+    Move File    ${SOPHOS_INSTALL}/tmp/${name}  ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_${correlation}_request_${creation_time}_${ttl}.json
 
 Install With Base SDDS
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
