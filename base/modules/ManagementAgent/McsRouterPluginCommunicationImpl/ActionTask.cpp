@@ -29,19 +29,16 @@ namespace
         actionFilenameFields.m_isAlive = true;
 
         auto fileNameFields = Common::UtilityImpl::StringUtils::splitString(filename, "_");
-        if (Common::UtilityImpl::StringUtils::isSubstring(filename, "LiveQuery_") && fileNameFields.size() == 5)
+        if (Common::UtilityImpl::StringUtils::startswith(filename, "LiveQuery_") ||
+            Common::UtilityImpl::StringUtils::startswith(filename, "LiveTerminal_"))
         {
-            actionFilenameFields.m_appId = fileNameFields[0];
-            actionFilenameFields.m_correlationId = fileNameFields[1];
-            actionFilenameFields.m_isAlive = ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(fileNameFields[3]);
-            actionFilenameFields.m_isValid = true;
-        }
-        else if (Common::UtilityImpl::StringUtils::isSubstring(filename, "LiveTerminal_") && fileNameFields.size() == 4)
-        {
-            // TODO: LINUXDAR-1648  Consolidate this 'else if' with the above 'if' when correlationId is added for LiveTerminal.
-            actionFilenameFields.m_appId = fileNameFields[0];
-            actionFilenameFields.m_isAlive = ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(fileNameFields[3]);
-            actionFilenameFields.m_isValid = true;
+            if (fileNameFields.size() == 5)
+            {
+                actionFilenameFields.m_appId = fileNameFields[0];
+                actionFilenameFields.m_correlationId = fileNameFields[1];
+                actionFilenameFields.m_isAlive = ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(fileNameFields[4]);
+                actionFilenameFields.m_isValid = true;
+            }
         }
         else
         {
