@@ -32,7 +32,6 @@ ${BaseMtrAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_mtr_vu
 ${BaseAndMTREdr999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_999.xml
 ${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
-${EDR_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/edr
 ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
 ${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log

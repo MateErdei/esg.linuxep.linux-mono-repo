@@ -130,7 +130,6 @@ EDR Plugin Counts Osquery Database Purges
 *** Keywords ***
 EDR Telemetry Suite Setup
     Require Fresh Install
-    Install EDR Directly
     Copy Telemetry Config File in To Place
 
 
@@ -139,7 +138,7 @@ EDR Telemetry Suite Teardown
 
 EDR Telemetry Test Setup
     Require Installed
-    Restart EDR Plugin  True
+    Install EDR Directly
     Create Directory   ${COMPONENT_TEMP_DIR}
     Wait Until OSQuery Running  20
 
@@ -152,6 +151,7 @@ EDR Telemetry Test Teardown
     Cleanup Telemetry Server
     Remove Directory   ${COMPONENT_TEMP_DIR}  recursive=true
     Remove File  ${EXE_CONFIG_FILE}
+    Uninstall EDR Plugin
 
 Trigger EDR Osquery Database Purge
     Should Exist  /opt/sophos-spl/plugins/edr/var/osquery.db

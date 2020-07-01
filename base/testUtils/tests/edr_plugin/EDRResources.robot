@@ -10,7 +10,7 @@ ${CRASH_QUERY} =  WITH RECURSIVE counting (curr, next) AS ( SELECT 1,1 UNION ALL
 ${SIMPLE_QUERY_1_ROW} =  SELECT * from users limit 1;
 ${SIMPLE_QUERY_2_ROW} =  SELECT * from users limit 2;
 ${SIMPLE_QUERY_4_ROW} =  SELECT * from users limit 4;
-
+${EDR_PLUGIN_PATH}    ${SOPHOS_INSTALL}/plugins/edr
 
 *** Keywords ***
 Wait For EDR to be Installed
