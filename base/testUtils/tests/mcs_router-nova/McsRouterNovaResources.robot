@@ -390,8 +390,9 @@ Set credentials for aws
     Wait Until Keyword Succeeds
     ...  1200
     ...  30
-    ...  Set Default Credentials
-    ${regCommand}=  Get Sspl Registration
+    ...  Run Keywords
+    ...  Set Default Credentials  AND
+    ...  ${regCommand}=  Get Sspl Registration
     Set Suite Variable    ${regCommand}     ${regCommand}   children=true
 
 Setup Real Update Cache And Message Relay Tests With Nova
