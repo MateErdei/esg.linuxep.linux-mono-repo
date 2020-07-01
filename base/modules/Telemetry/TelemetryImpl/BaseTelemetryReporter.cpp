@@ -76,16 +76,16 @@ namespace Telemetry
     std::optional<std::string> BaseTelemetryReporter::getVersion()
     {
         Path versionIniFilepath = Common::ApplicationConfiguration::applicationPathManager().getVersionFilePath();
-        return extractValueFromIniFile(versionIniFilepath, "PRODUCT_VERSION");
+        return extractValueFromFile(versionIniFilepath, "PRODUCT_VERSION");
     }
 
     std::optional<std::string> BaseTelemetryReporter::getEndpointId()
     {
         Path configFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFilePath();
-        return extractValueFromIniFile(configFilePath, "MCSID");
+        return extractValueFromFile(configFilePath, "MCSID");
     }
 
-    std::optional<std::string> extractValueFromIniFile(const Path& filePath, const std::string& key)
+    std::optional<std::string> extractValueFromFile(const Path& filePath, const std::string& key)
     {
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(filePath))

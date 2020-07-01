@@ -101,6 +101,6 @@ TEST_F(BaseTelemetryReporterTests, extractValueFromIniFileMissingIniFile) // NOL
 
     std::string testFilePath("testfilepath");
     EXPECT_CALL(*mockFileSystemRawptr, isFile(testFilePath)).WillOnce(Return(false));
-    auto endPointId = Telemetry::extractValueFromIniFile(testFilePath, "endpointId");
+    auto endPointId = Telemetry::extractValueFromFile(testFilePath, "endpointId");
     EXPECT_FALSE( endPointId.has_value());
 }
