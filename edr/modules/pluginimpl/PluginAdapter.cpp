@@ -220,7 +220,9 @@ namespace Plugin
                     telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 1L);
 
                     LOGDEBUG("Purging Done");
-                    setUpOsqueryMonitor();
+
+                    // osquery will automatically be restarted, make sure there is no delay.
+                    m_restartNoDelay = true;
                 }
             }
             else
