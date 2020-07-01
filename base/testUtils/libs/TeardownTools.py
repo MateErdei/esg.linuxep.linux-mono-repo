@@ -215,7 +215,7 @@ class TeardownTools(object):
 
     def copy_to_filer6(self, filepath, testname):
         fuzz_output_dir = "/mnt/filer6/linux/SSPL/CoreDumps"
-        testname = (testname + str(datetime.datetime.now())).replace(" ", "_")
+        testname = (testname + "_" + str(datetime.datetime.now())).replace(" ", "_")
         core_dump_dir = os.path.join(fuzz_output_dir, testname)
 
         logger.info("copying file: {} to filer6".format(filepath))
