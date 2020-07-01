@@ -126,6 +126,7 @@ EDR Plugin Counts Osquery Database Purges
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  1  0  0  ignore_cpu_restarts=True  ignore_memory_restarts=True
+    run process  touch  /tmp/core-
 
 *** Keywords ***
 EDR Telemetry Suite Setup
