@@ -238,12 +238,4 @@ then
     sudo chown -R jenkins:jenkins ${WORKSPACE} || fail "ERROR: failed to chown "$WORKSPACE
 fi
 
-#Copy segfault core dumps onto filer 6 at the end of test runs
-if [[ `ls -al /tmp | grep core- | wc -l` != 0 ]]
-then
-    CRASH_DUMP_FILER6=/mnt/filer6/linux/SSPL/CoreDumps/${NODE_NAME}_${BUILD_TAG}
-    sudo mkdir -p ${CRASH_DUMP_FILER6}
-    sudo cp /tmp/core-* ${CRASH_DUMP_FILER6}
-fi
-
 sudo find /home/jenkins/jenkins_slave -name "*-cleanup_*" -exec rm -rf {} \; || exit 0

@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess as sp
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
@@ -197,6 +198,48 @@ class TeardownTools(object):
         if root_coverage or tests_coverage:
             files = root_coverage + tests_coverage
             self._run_combine_ignore_error(files)
+
+    def check_for_coredumps(self, testname):
+        self.mount_filer6()
+        files_in_tmp = [f for f in os.listdir("/tmp") if os.path.isfile(os.path.join("/tmp", f))]
+        is_core_dump = False
+        for file in files_in_tmp:
+            if file.startswith("core-"):
+                is_core_dump = True
+                file_path = os.path.join("/tmp", file)
+                self.copy_to_filer6(file_path, testname)
+                os.remove(file_path)
+        if is_core_dump:
+            raise AssertionError("Core dump found")
+
+    def copy_to_filer6(self, filepath, testname):
+        fuzz_output_dir = "/mnt/filer6/linux/SSPL/CoreDumps"
+
+        core_dump_dir = os.path.join(fuzz_output_dir, testname)
+
+        logger.info("copying file: {} to filer6".format(filepath))
+        if not os.path.exists(core_dump_dir):
+            os.makedirs(core_dump_dir)
+        shutil.copy(filepath, core_dump_dir)
+
+    def mount_filer6(self):
+        filer6 = "/mnt/filer6/linux"
+        sspl_filer_path = "/mnt/filer6/linux/SSPL"
+
+        if not os.path.ismount(sspl_filer_path):
+            popen = sp.Popen(["mount", filer6], stdout=sp.PIPE, stderr=sp.PIPE)
+            output, stderror = popen.communicate()
+
+            if output:
+                logger.info(output)
+
+            if stderror:
+                logger.info(stderror)
+
+            returncode = popen.returncode
+            if returncode != 0:
+                return returncode
+
 
 
 

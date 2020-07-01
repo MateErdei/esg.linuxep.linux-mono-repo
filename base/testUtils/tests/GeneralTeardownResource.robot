@@ -80,6 +80,7 @@ Check and Dump Journalctl
 
 General Test Teardown
     Require No Unhandled Exception
+    check_for_coredumps  ${TEST NAME}
     Run Keyword If Test Failed    Dump All Logs
     Run Keyword If Test Failed    Check and Dump Journalctl
     Run Keyword If Test Passed    Check Journalctl
