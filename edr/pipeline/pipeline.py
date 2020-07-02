@@ -5,6 +5,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+EDR_INPUT_FOLDER = '/opt/test/inputs/edr'
+COV_BUILD_FOLDER = '/opt/test/inputs/edr/coverage'
 COVFILE_UNITTEST = '/opt/test/inputs/edr/sspl-plugin-edr-unit.cov'
 COVFILE_COMBINED = '/opt/test/inputs/edr/sspl-edr-combined.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
@@ -32,7 +34,7 @@ def has_coverage_build(branch_name):
 
 def has_coverage_file(machine: tap.Machine):
     """If the downloaded build output has a coverage file then its a bullseye build"""
-    return machine.run('test', '-f', COVFILE_UNITTEST, return_exit_code=True) == 0
+    return machine.run('test', '-f', COV_BUILD_FOLDER, return_exit_code=True) == 0
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
@@ -71,6 +73,11 @@ def combined_task(machine: tap.Machine):
                 machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
 
         else:
+            #move files
+            edr_input_cache = os.path.join('/tmp/edr')
+            machine.run('mv', COV_BUILD_FOLDER, edr_input_cache)
+            machine.run('mv', edr_input_cache, EDR_INPUT_FOLDER)
+
             # upload unit test coverage html results to allegro
             unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
             machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
