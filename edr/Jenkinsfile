@@ -59,8 +59,8 @@ try{
             project_builddir
             )
         echo 'Finished edr  ' + params.mode + ' ' + git_branch + ' build'
-        SuccessfulBuild(project_release_xml)
     }
+    SuccessfulBuild(project_release_xml)
 
 } catch(e){
     FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
