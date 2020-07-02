@@ -44,22 +44,6 @@ MTR Plugin Produces Telemetry With Empty OSQueryD Output Log File
     Log  ${telemetryFileContents}
     Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0
 
-MTR Plugin Counts SophosMTR Restarts Correctly And Reports In Telemetry
-    Install MTR From Fake Component Suite
-
-    Kill SophosMTR Executable
-    Wait Until SophosMTR Executable Running  20
-
-    Kill SophosMTR Executable
-    Wait Until SophosMTR Executable Running  20
-
-    #If the file doesn't exist this returns -1 which when passed into Check MTR Telemetry Json Is Correct
-    #causes the cpu and memory restarts to not be added to expected telemetry
-    ${Expected_Restarts} =  Check If We Expect Telemetry For Restarts  ${OSQUERYD_OUTPUT_LOG}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log  ${telemetryFileContents}
-    Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  ${Expected_Restarts}  ${Expected_Restarts}
 
 MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart and No Telemetry To Report
     Install MTR From Fake Component Suite
@@ -156,6 +140,23 @@ MTR Plugin Counts Osquery Database Purges
     Should Contain  ${fileContent}    --logger_min_status=1
 
     Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  0  1  0  0  ignore_cpu_restarts=True  ignore_memory_restarts=True
+
+MTR Plugin Counts SophosMTR Restarts Correctly And Reports In Telemetry
+    Install MTR From Fake Component Suite
+
+    Kill SophosMTR Executable
+    Wait Until SophosMTR Executable Running  20
+
+    Kill SophosMTR Executable
+    Wait Until SophosMTR Executable Running  20
+
+    #If the file doesn't exist this returns -1 which when passed into Check MTR Telemetry Json Is Correct
+    #causes the cpu and memory restarts to not be added to expected telemetry
+    ${Expected_Restarts} =  Check If We Expect Telemetry For Restarts  ${OSQUERYD_OUTPUT_LOG}
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
+    Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  ${Expected_Restarts}  ${Expected_Restarts}
 
 *** Keywords ***
 MTR Telemetry Suite Setup

@@ -118,6 +118,8 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  1  0  queries=@{queries}
 
 EDR Plugin Counts Osquery Database Purges
+    #TODO LINUXDAR-1994 remove the exclude_rhel8 tag
+    [Tags]   EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY   EXCLUDE_RHEL8
     Prepare To Run Telemetry Executable
     Trigger EDR Osquery Database Purge
     Restart EDR Plugin
