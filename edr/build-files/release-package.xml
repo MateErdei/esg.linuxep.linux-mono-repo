@@ -78,10 +78,11 @@
         <buildoutputs>
             <!-- Release -->
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
-            <output name="build_log" srcfolder="log" mode="debug,release,coverage"> </output>
+            <output name="build_log" srcfolder="log" mode="debug,release"> </output>
 
             <!-- Coverage -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="coverage"> </output>
+            <output name="output" srcfolder="output" artifactpath="output/coverage" mode="coverage"> </output>
+            <output name="coverage_build_log" srcfolder="log" mode="coverage"> </output>
 
         </buildoutputs>
         <publishbranches>master,feature,bugfix,release</publishbranches>

@@ -25,7 +25,18 @@ try{
     git_branch = "${env.BRANCH_NAME}"
     if ( params.mode == 'coverage' || git_branch.endsWith('coverage') )
     {
-        parallel coverage_build:
+        parallel release_build:
+        {
+            echo 'Starting edr release build on ' + git_branch
+            ArtisanBuild(
+                buildAgentTemplate,
+                project_release_xml,
+                'release',
+                version_number,
+                project_builddir)
+            echo 'Finished edr release build on ' + git_branch
+        },
+        coverage_build:
         {
             echo 'Starting edr coverage build  on ' + git_branch
             ArtisanBuild(
