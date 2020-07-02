@@ -434,6 +434,7 @@ class MCSPolicyHandler:
             self.__apply_policy_setting(policy_node, "useDirect")
             self.__apply_policy_setting(policy_node, "pushPingTimeout")
             self.__apply_policy_setting(policy_node, "pushFallbackPollInterval")
+            self.__apply_policy_setting(policy_node, "customerId", treat_missing_as_empty=True)
             self.__apply_polling_delay(policy_node)
             # MCSToken is the config option we are already using for the Token
             # elsewhere

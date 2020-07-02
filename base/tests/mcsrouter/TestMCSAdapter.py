@@ -652,6 +652,23 @@ class TestMCSAdapter(unittest.TestCase):
         adapter.process_command(command)
         self.assertTrue(command.m_complete)
 
+    def testCanRetrieveCustomerId(self):
+        TEST_POLICY="""<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+  <meta protocolVersion="1.1"/>
+  <csc:Comp RevID="ad36efeecd218c" policyType="25"/>
+  <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
+    <customerId>4b4ca3ba-c144-4447</customerId>
+</configuration>
+</policy>"""
+        policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
+        adapter = createAdapter(policy_config)
+
+        command = FakePolicyCommand(TEST_POLICY)
+        adapter.process_command(command)
+        self.assertTrue(command.m_complete)
+        self.assertEqual(policy_config.get_default("customerId",None),"4b4ca3ba-c144-4447")
+
+
     def testReducingNumberOfUrls(self):
         TEST_POLICY_1="""<?xml version="1.0"?>
 <policy xmlns:csc="com.sophos\msys\csc" type="mcs">

@@ -4,6 +4,7 @@
     <csc:Comp RevID="0e09e27cfc21f8d7510d562c56e34507711bdce48bfdfd3846965f130fef142a" policyType="25"/>
     <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
         <registrationToken>PolicyRegToken</registrationToken>
+        <customerId>thisisacustomer-id-value</customerId>
         <servers>
             <server>https://localhost:4443/mcs</server>
         </servers>

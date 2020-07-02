@@ -53,7 +53,7 @@ MCS Policy Can Control URL used
     Verify That MCS Connection To Central Is Re-established   4444
 
 MCS policy with Pushserver disabled is handled with no errors
-    [Tags]  SMOKE  MCS_ROUTER  FAKE_CLOUD  MCS
+    [Tags]  SMOKE  MCS_ROUTER  FAKE_CLOUD  MCS  
     Install Register And Wait First MCS Policy
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -183,6 +183,7 @@ MCS policy without Pushserver Updates MCS Policy Config Correctly
         ...  5 secs
         ...  1 secs
         ...  Check MCS Policy Config Contains   pushServer1=https://localhost:4443/mcs
+    Check MCS Policy Config Contains   customerId=thisisacustomer-id-value
 
     #send policy without push server url
     Send Policy File   mcs   ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MCS_policy.xml
@@ -190,3 +191,5 @@ MCS policy without Pushserver Updates MCS Policy Config Correctly
         ...  30 secs
         ...  5 secs
         ...  Check MCS Policy Config Does Not Contain   pushServer1=https://localhost:4443/mcs
+    Check MCS Policy Config Does Not Contain   customerId=thisisacustomer
+    Check MCS Policy Config Contains   customerId=
