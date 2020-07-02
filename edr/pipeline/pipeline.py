@@ -30,7 +30,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return branch_name == 'master' or branch_name.endswith('coverage')
+    return branch_name == 'master' or branch_name.endswith('coverage-build')
 
 def has_coverage_file(machine: tap.Machine):
     """If the downloaded build output has a coverage file then its a bullseye build"""
