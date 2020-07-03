@@ -59,6 +59,7 @@ The following tags can be used to select which tests can be run, using the inclu
 * AMAZON_LINUX - Test cases which will run on AWS only
 * AUDIT_PLUGIN - Test cases which test sspl-audit
 * CENTRAL - Tests which run against Central or Nova
+* COMMS - Tests cases which test the comms component
 * CUSTOM_LOCATION - Tests which install to a custom location
 * DEBUG - Tests which are useful for debugging
 * DIAGNOSE - Tests which exercise sophos_diagnose

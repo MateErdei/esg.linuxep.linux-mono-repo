@@ -319,6 +319,9 @@ class LogUtils(object):
     def mcs_router_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
 
+    def comms_component_log(self):
+        return os.path.join(self.base_logs_dir, "CommsComponent.log")
+
     def dump_mcsrouter_log(self):
         mcsrouter_log = self.mcs_router_log()
         self.dump_log(mcsrouter_log)
@@ -676,3 +679,13 @@ class LogUtils(object):
         for arg in args[1:]:
             if arg != master:
                 raise AssertionError("Not all items are equal in: {}".format(args))
+
+    def check_comms_component_log_contains(self, string_to_contain):
+        log = self.comms_component_log()
+        self.check_log_contains(string_to_contain, log, "Comms Component")
+        logger.info(log)
+
+    def check_watchdog_log_contains(self, string_to_contain):
+        log = self.watchdog_log()
+        self.check_log_contains(string_to_contain, log, "Watchdog")
+        logger.info(log)
