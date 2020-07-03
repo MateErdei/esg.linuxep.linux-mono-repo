@@ -1,4 +1,5 @@
 add_subdirectory(commandline)
+add_subdirectory(CommsComponent)
 add_subdirectory(distribution)
 add_subdirectory(Diagnose)
 add_subdirectory(installer)

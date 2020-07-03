@@ -1,0 +1,7 @@
+{
+  "policyAppIds": [],
+  "statusAppIds": [],
+  "pluginName": "commscomponent",
+  "executableFullPath": "base/bin/CommsComponent",
+  "executableUserAndGroup": "root:root"
+}

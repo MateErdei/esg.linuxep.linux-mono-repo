@@ -1,4 +1,5 @@
 add_subdirectory(Common)
+add_subdirectory(CommsComponent)
 add_subdirectory(Diagnose)
 add_subdirectory(Installer)
 add_subdirectory(mcsrouter)
