@@ -41,7 +41,6 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_filesystem.so.
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_regex.so.1.72.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_system.so.1.72.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_thread.so.1.72.0.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libCommsComponentImpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcommscomponentimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcrypto.so.1.1.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurl.so.4.6.0.0

@@ -392,7 +392,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_thread.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_thread.so.1
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_thread.so.1.72
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_thread.so.1.72.0
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libCommsComponentImpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcommscomponentimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcrypto.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcrypto.so.1
