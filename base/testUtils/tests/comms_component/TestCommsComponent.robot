@@ -14,6 +14,7 @@ Suite Setup  Require Uninstalled
 *** Test Cases ***
 
 Test Comms Component Starts
+    [Tags]   COMMS  TAP_TESTS
     Require Fresh Install
     File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
     Check Watchdog Starts Comms Component
