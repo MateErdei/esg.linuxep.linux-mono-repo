@@ -1,3 +1,9 @@
+def PLUGIN_NAME = "sspl-plugin-mav"
+
+environment {
+    PLUGIN_NAME = "${PLUGIN_NAME}"
+}
+
 pipeline {
     agent {
         node {
