@@ -418,12 +418,15 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  wdctl <> start edr
 
 Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
+    [Timeout]  10 minutes
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
@@ -445,6 +448,16 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...  5 secs
     ...  EDR Plugin Is Running
 
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check Live Response Plugin Running
+
     Check MDR Plugin Installed
     Wait Until Keyword Succeeds
     ...   200 secs
@@ -455,6 +468,8 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
     ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
     Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
+    ${live_response_version_contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
+    Should contain   ${live_response_version_contents}   PRODUCT_VERSION = 99.99.99
 
     Check Log Contains In Order
     ...  ${WDCTL_LOG_PATH}
