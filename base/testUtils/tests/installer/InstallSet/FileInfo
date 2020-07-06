@@ -4,7 +4,7 @@ o600, root, root, /opt/sophos-spl/base/etc/licenses.txt.0
 o600, root, root, /opt/sophos-spl/base/update/certs/ps_rootca.crt.0
 o600, root, root, /opt/sophos-spl/base/update/certs/rootca.crt.0
 o600, root, root, /opt/sophos-spl/base/update/ServerProtectionLinux-Base-component/manifest.dat
-o600, root, root, /opt/sophos-spl/logs/base/CommsComponent.log
+o600, root, root, /opt/sophos-spl/logs/base/comms_component.log
 o600, root, root, /opt/sophos-spl/.sophos
 o600, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component/addedFiles_manifest.dat
 o600, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
