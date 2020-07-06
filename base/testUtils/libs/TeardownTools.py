@@ -202,16 +202,19 @@ class TeardownTools(object):
 
     def check_for_coredumps(self, testname):
         self.mount_filer6()
-        files_in_tmp = [f for f in os.listdir("/tmp") if os.path.isfile(os.path.join("/tmp", f))]
-        is_core_dump = False
-        for file in files_in_tmp:
-            if file.startswith("core-"):
-                is_core_dump = True
-                file_path = os.path.join("/tmp", file)
-                self.copy_to_filer6(file_path, testname)
-                os.remove(file_path)
-        if is_core_dump:
-            raise AssertionError("Core dump found")
+        if os.path.exists("/tmp"):
+            files_in_tmp = [f for f in os.listdir("/tmp") if os.path.isfile(os.path.join("/tmp", f))]
+            is_core_dump = False
+            for file in files_in_tmp:
+                if file.startswith("core-"):
+                    is_core_dump = True
+                    file_path = os.path.join("/tmp", file)
+                    self.copy_to_filer6(file_path, testname)
+                    os.remove(file_path)
+            if is_core_dump:
+                raise AssertionError("Core dump found")
+        else:
+            print("No tmp directory")
 
     def copy_to_filer6(self, filepath, testname):
         fuzz_output_dir = "/mnt/filer6/linux/SSPL/CoreDumps"
