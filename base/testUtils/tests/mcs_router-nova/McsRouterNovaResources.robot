@@ -378,10 +378,10 @@ Setup MCS Tests Nova
     Reload Cloud Options
     Set Nova MCS CA Environment Variable
     ${is_AWS}=  is_aws_instance
-    Run Keyword If  ${is_AWS} == ${False}  Set credentials for non aws
+    Run Keyword If  ${is_AWS} == ${False}  Set credentials
     Run Keyword If  ${is_AWS} == ${True}   Set credentials for aws
 
-Set credentials for non aws
+Set credentials
     Set Default Credentials
     ${regCommand}=  Get Sspl Registration
     Set Suite Variable    ${regCommand}     ${regCommand}   children=true
@@ -390,10 +390,7 @@ Set credentials for aws
     Wait Until Keyword Succeeds
     ...  1200
     ...  30
-    ...  Run Keywords
-    ...  Set Default Credentials  AND
-    ...  ${regCommand}=  Get Sspl Registration
-    Set Suite Variable    ${regCommand}     ${regCommand}   children=true
+    ...  Set credentials
 
 Setup Real Update Cache And Message Relay Tests With Nova
     Setup Host File
