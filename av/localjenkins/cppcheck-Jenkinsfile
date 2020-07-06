@@ -1,0 +1,13 @@
+pipeline {
+    agent {
+        node {
+            label 'sav-cppcheck'
+            customWorkspace "${PLUGIN_NAME}/${BRANCH_NAME}"
+        }
+    }
+    stages {
+        stage('cppcheck') {
+            sh 'cppcheck --inline-suppr --std=c++11 --xml --xml-version=2 modules products'
+        }
+    }
+}
