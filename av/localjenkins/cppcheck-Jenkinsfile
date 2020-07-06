@@ -14,7 +14,8 @@ pipeline {
     stages {
         stage('cppcheck') {
             steps {
-                sh 'cppcheck --inline-suppr --std=c++11 --xml --xml-version=2 modules products'
+                sh 'cppcheck --inline-suppr --std=c++11 --xml --xml-version=2 modules products 2> cppcheck.xml'
+                publishCppcheck pattern=cppcheck.xml
             }
         }
     }
