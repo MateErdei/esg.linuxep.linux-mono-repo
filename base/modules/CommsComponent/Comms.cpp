@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 #include <thread>
 
-Common::Logging::FileLoggingSetup loggerSetup("CommsComponent");
+Common::Logging::FileLoggingSetup loggerSetup("comms_component");
 namespace CommsComponent {
     int main_entry() {
         LOGINFO("Started Comms Component");

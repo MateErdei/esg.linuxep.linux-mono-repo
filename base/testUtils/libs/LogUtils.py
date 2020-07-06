@@ -320,7 +320,7 @@ class LogUtils(object):
         return os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
 
     def comms_component_log(self):
-        return os.path.join(self.base_logs_dir, "CommsComponent.log")
+        return os.path.join(self.base_logs_dir, "comms_component.log")
 
     def dump_mcsrouter_log(self):
         mcsrouter_log = self.mcs_router_log()
