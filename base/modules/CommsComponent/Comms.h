@@ -1,11 +1,13 @@
-//
-// Created by pair on 03/07/2020.
-//
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
-namespace Comms
+namespace CommsComponent
 {
     int main_entry();
-} // namespace Comms
+} // namespace CommsComponent
 

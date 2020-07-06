@@ -1,12 +1,15 @@
+/******************************************************************************************************
 
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "Logger.h"
 #include <Common/Logging/FileLoggingSetup.h>
 #include <thread>
 
-
-namespace Comms {
+Common::Logging::FileLoggingSetup loggerSetup("CommsComponent");
+namespace CommsComponent {
     int main_entry() {
-        Common::Logging::FileLoggingSetup loggerSetup("CommsComponent");
         LOGINFO("Started Comms Component");
         while (true) {
             LOGINFO("Comms Component Running");
@@ -14,4 +17,4 @@ namespace Comms {
         }
         return 0;
     }
-} // namespace Comms
+} // namespace CommsComponent

@@ -1,15 +1,15 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include <Common/UtilityImpl/Main.h>
 #include <CommsComponent/Comms.h>
 
-static int comms_component_man()
+static int comms_component_main()
 {
-    return Comms::main_entry();
+    return CommsComponent::main_entry();
 }
 
-MAIN(comms_component_man())
+MAIN(comms_component_main())

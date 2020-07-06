@@ -6,7 +6,7 @@ add_library(commscomponentimpl SHARED
         AsyncMessager.h
         AsyncMessager.cpp)
 
-target_link_libraries(commscomponentimpl PUBLIC filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl logging obfuscationimpl protobufutil)
+target_link_libraries(commscomponentimpl PUBLIC logging processimpl)
 
 target_include_directories(commscomponentimpl PUBLIC ${BOOST_INCLUDE_DIR})
 
