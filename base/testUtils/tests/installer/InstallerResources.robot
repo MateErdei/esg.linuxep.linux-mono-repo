@@ -152,6 +152,10 @@ Check Telemetry Scheduler Plugin Not Running
     ${result} =    Run Process  pgrep  tscheduler
     Should Not Be Equal As Integers    ${result.rc}    0
 
+Check Comms Component Running
+    ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
+    Should Not Be Equal As Integers    ${result.rc}    0
+
 Check Expected Base Processes Are Running
     Check Watchdog Running
     Check Management Agent Running
