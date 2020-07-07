@@ -182,12 +182,12 @@ std::string Mounts::Drive::device() const
 std::string Mounts::scrape(const std::string& path, const std::vector<std::string>& args)
 {
     std::string result;
-    int fd[2];
 
 
     if (access(path.c_str(), X_OK) == 0)
     {
         // We have permission to execute the command
+        int fd[2];
         if (pipe(fd) != -1)
         {
             pid_t child = fork();
