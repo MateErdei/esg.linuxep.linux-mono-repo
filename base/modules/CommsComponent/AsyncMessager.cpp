@@ -26,26 +26,60 @@ namespace Comms
     {
        read();
     }
+
+    /*
+    * Periodically read messages from the socket and send them to the 'asynchronous callback'. 
+    * One important thing about this method is related to handling 'chunks' of messages (or fragmented messages). 
+    * The reason for this is that datagrams ( the socket used here ) impose some limits on the ammount of 
+    * data that can be transfered in a single transfer. But, from the high level point of view, we want to provide
+    * an interface that allows for a string of any size to be inserted and the 'same' string to 'appear' in the other side. 
+    * 
+    * see the ::sendMessage method for detail on how the message is 'broken' into chunks to be sent.
+    * 
+    */
     void AsyncMessager::read()
     {
-        std::cout << "arm reader" << std::endl;
         m_socket.async_receive(boost::asio::buffer(buffer),
          boost::asio::bind_executor(m_strand,
              [this](boost::system::error_code ec, std::size_t size)
              {
-                std::cout << "finished read" << std::endl;
                  if (!ec)
                  {
-                     std::string message{buffer.begin(), buffer.begin()+size};
-                     this->m_onNewMessage(message);
-                     std::cout << message << std::endl;
+                     // the chunk is the full message minus the last byte (control byte.)
+                     std::string chunk{buffer.begin(), buffer.begin()+size-1};
+
+                     // control byte is FinalChunk?   
+                     if (buffer[size-1] == AsyncMessager::FinalChunk)
+                     {
+                         if (this->m_pendingChunks.empty())
+                         {
+                            this->m_onNewMessage(chunk);        
+                         }
+                         else
+                         {
+                             std::string message;
+                             message.reserve((m_pendingChunks.size() + 1)*capacity); 
+                             for(auto & m : this->m_pendingChunks)
+                             {
+                                 message += m; 
+                             }
+                             message += chunk;
+                             this->m_onNewMessage(message);
+                         }
+                         m_pendingChunks.clear(); 
+                     }
+                     else
+                     {
+                         m_pendingChunks.push_back(chunk); 
+                     }
+                     
                      read();
                }
                else
                {
                    if ( ec.value() !=  boost::asio::error::operation_aborted)
                    {
-                       std::cout << "error category : " << ec.category().name()  << "value: " << ec.value() << std::endl;
+                       LOGDEBUG("error category : " << ec.category().name()  << "value: " << ec.value() );
                        throw boost::system::system_error(ec);
                    }
                }
@@ -54,28 +88,55 @@ namespace Comms
 
     }
 
+    /**  Schedule a message to be sent via the io_service. 
+     *   
+     *   The message is broken into chunks of AsyncMessager::capacity.
+     *   If the message is the last one (or if the message is smaller than the capacity) the message will be sent with a control character AsyncMessager::FinalChunk
+     *   Otherwise, the message will be sent with a control character called AsyncMessager::PartialChunk. 
+     *   
+     *   The reason to choose the last character as the control character and not the first one, is that, normally, messages will be smaller than the capacity, 
+     *   which means that only a small character will be appended to the message (which usually does not force an allocation). While if it were the first character, 
+     *   than an extra allocation would be necessary for each and every message. 
+     * 
+     *   
+     * 
+     * */
     void AsyncMessager::sendMessage(const std::string& message)
     {
-//        m_socket.send(boost::asio::buffer(message));
-
-         std::cout << "send message" << std::endl;
-         boost::asio::post(m_io,
+        // the mutex is to ensure that the message broken into chunks are scheduled in the correct order inside the io_service
+        // even if the AsyncMessage were to be used in different threads.         
+        std::lock_guard<std::mutex> lo{m_mutex};
+        size_t sent = 0; 
+        while (sent < message.size())
+        {
+            size_t lower_bound = sent; 
+            size_t higher_boud = std::min( lower_bound + capacity, message.size() ); 
+            std::string chunk{message.begin()+lower_bound, message.begin()+higher_boud}; 
+            if (higher_boud == message.size())
+            {
+                chunk += FinalChunk; 
+            }
+            else
+            {
+                chunk += PartialChunk; 
+            }
+            boost::asio::post(m_io,
                            boost::asio::bind_executor(m_strand,
-             [this, message]()
-         {
-           bool write_in_progress = !m_queue.empty();
-           m_queue.push_back(message);
-           if (!write_in_progress)
-           {
-             do_write();
-           }
-         }));
-         std::cout << "message scheculed" << std::endl;
+             [this, chunk]()
+            {
+                bool write_in_progress = !m_queue.empty();
+                m_queue.push_back(chunk);
+                if (!write_in_progress)
+                {
+                    do_write();
+                }
+            }));
+            sent = higher_boud; 
+        }
     }
     
     void AsyncMessager::do_write()
     {
-        std::cout << "do write test: " << m_queue.front()  << "and lenght: " << m_queue.front().length()<< std::endl; 
         m_socket.async_send(boost::asio::buffer(m_queue.front().data(),
                 m_queue.front().length()),
                             boost::asio::bind_executor(m_strand,
@@ -93,9 +154,7 @@ namespace Comms
           {
               throw boost::system::system_error(ec); 
           }
-          std::cout << "send message with success" << std::endl; 
         }));
-        std::cout << "write done" << std::endl;      
     }
 
     void AsyncMessager::push_stop()
@@ -130,6 +189,7 @@ namespace Comms
            }
            catch (std::exception& ex)
            {
+               std::cout << "Exception in thread: " << ex.what() <<  std::endl; 
             LOGERROR( "Exception in thread: " << ex.what() ); 
            }
          }

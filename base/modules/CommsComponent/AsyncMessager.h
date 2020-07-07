@@ -19,6 +19,11 @@ namespace Comms
 
     class AsyncMessager{
         public:
+        static constexpr size_t  capacity = 4095;
+        static constexpr size_t  bufferSize = capacity + 1;  
+        static constexpr char FinalChunk = '0'; 
+        static constexpr char PartialChunk = '1'; 
+
             AsyncMessager(boost::asio::io_service& io,
                 local::datagram_protocol::socket && socket,
                 MessageReceivedCB onNewMessage );
@@ -26,17 +31,18 @@ namespace Comms
             void sendMessage(const std::string&);
             void push_stop();
 
-// not to be used directly
-            void do_write();
         private:
-        void read();
+            void read();
+            void do_write();
 
         boost::asio::io_service & m_io;
         boost::asio::strand<boost::asio::io_context::executor_type> m_strand;
         local::datagram_protocol::socket m_socket;
         MessageReceivedCB m_onNewMessage;
+        std::mutex m_mutex;
         MessageQueue m_queue; 
-        std::array<char,4096> buffer;
+        std::array<char,bufferSize> buffer;
+        std::vector<std::string> m_pendingChunks;        
         int count;
     };
 

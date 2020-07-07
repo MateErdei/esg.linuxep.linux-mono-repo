@@ -25,16 +25,6 @@ struct MessagesAppender
     }
 };
 
-//sendMessage(str)
-//str + '1' or '0'
-//break_str_into_chunks( 4095) (4096)
-//'stop'
-//
-//
-//recv(buffer)
-//check last (0): combine previous messages
-//if (1) append to a pending_parts
-
 TEST(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
@@ -74,7 +64,8 @@ TEST(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOLIN
     ListStrings firstReceivedMessages1;
     ListStrings firstReceivedMessages2;
 
-    std::vector<int> vecsizes{10,100,1000}; //TODO add to bigger values
+    // sending up to almost 10MB in a single message 
+    std::vector<int> vecsizes{10,100,1000, 1'0000, 100'000, 1'000'000, 10'000'000}; 
     Tests::TestExecutionSynchronizer synchronizer(vecsizes.size());
 
     auto [m1,m2] = CommsContext::setupPairOfConnectedSockets(m_io, MessagesAppender{firstReceivedMessages1, synchronizer} , MessagesAppender{firstReceivedMessages2, synchronizer} ); 
@@ -88,7 +79,7 @@ TEST(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOLIN
         m1->sendMessage(message);         
     }
 
-    EXPECT_TRUE(synchronizer.waitfor(1000));
+    EXPECT_TRUE(synchronizer.waitfor(5000));
     m2->push_stop(); 
     m1->push_stop(); 
     thread.join(); 
@@ -98,5 +89,70 @@ TEST(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOLIN
     {
         EXPECT_EQ(firstReceivedMessages2.at(i).size(), vecsizes.at(i)); 
     }    
+}
+
+
+TEST(TestAsyncMessager, reconstructedMessageShouldBeTheSameASOriginal) // NOLINT
+{
+    using ListStrings = std::vector<std::string>;
+    boost::asio::io_service m_io;
+
+    ListStrings firstReceivedMessages1;
+    ListStrings firstReceivedMessages2;
+
+    std::string message = std::string(AsyncMessager::capacity,'a') + std::string(AsyncMessager::capacity,'b'); 
+    EXPECT_EQ(message.size(), AsyncMessager::capacity*2); 
+
+    Tests::TestExecutionSynchronizer synchronizer(1);
+
+    auto [m1,m2] = CommsContext::setupPairOfConnectedSockets(m_io, MessagesAppender{firstReceivedMessages1, synchronizer} , MessagesAppender{firstReceivedMessages2, synchronizer} ); 
+
+    std::thread thread = CommsContext::startThread(m_io); 
+
+    m1->sendMessage(message); 
+    EXPECT_TRUE(synchronizer.waitfor(5000));
+    m2->push_stop(); 
+    m1->push_stop(); 
+    thread.join(); 
+
+    ASSERT_EQ(firstReceivedMessages2.size(), 1);
+    ASSERT_EQ(firstReceivedMessages2.at(0), message);    
+}
+
+
+TEST(TestAsyncMessager, shouldSupportBinaryMessagesAsWell) // NOLINT
+{
+    using ListStrings = std::vector<std::string>;
+    boost::asio::io_service m_io;
+
+    ListStrings firstReceivedMessages1;
+    ListStrings firstReceivedMessages2;
+
+    // the full spectrum of binary values
+    std::array<char,256> fullBuffer; 
+    char i=0; 
+    for(char& v: fullBuffer)
+    {
+        v=i++; 
+    }
+
+    std::string message = std::string{fullBuffer.begin(), fullBuffer.end()}; 
+    EXPECT_EQ(message.size(), fullBuffer.size()); 
+
+    Tests::TestExecutionSynchronizer synchronizer(1);
+
+    auto [m1,m2] = CommsContext::setupPairOfConnectedSockets(m_io, MessagesAppender{firstReceivedMessages1, synchronizer} , MessagesAppender{firstReceivedMessages2, synchronizer} ); 
+
+    std::thread thread = CommsContext::startThread(m_io); 
+
+    m1->sendMessage(message); 
+    EXPECT_TRUE(synchronizer.waitfor(5000));
+    m2->push_stop(); 
+    m1->push_stop(); 
+    thread.join(); 
+
+    ASSERT_EQ(firstReceivedMessages2.size(), 1);
+    ASSERT_EQ(firstReceivedMessages2.at(0), message);
+    ASSERT_EQ(message[10], 10);     
 }
 
