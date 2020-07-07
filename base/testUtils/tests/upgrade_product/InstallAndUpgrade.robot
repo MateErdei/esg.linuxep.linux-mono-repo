@@ -32,7 +32,7 @@ Resource    UpgradeResources.robot
 
 *** Variables ***
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
-${EdrEAPReleasePolicy}                      ${GeneratedWarehousePolicies}/EDR_EAP.xml
+${BaseAndEDROldWHFormat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${BaseAndMtrAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
@@ -270,6 +270,71 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Check SulDownloader Log Contains  Uninstalling
 
 
+We Can Upgrade From A Release With EDR To Master With Live Response
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEDROldWHFormat}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEDROldWHFormat}
+    Wait For Initial Update To Fail
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEDROldWHFormat}
+    Trigger Update Now
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    # Perform upgrade and make sure Live Response is installed and running after upgrade
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
+
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Should Exist   /opt/sophos-spl/plugins/liveresponse
+
+    Check Live Response Plugin Running
+
+    # check additional update does not restart key services
+    ${us_before_pid}=  Get Pid Of Process   UpdateScheduler
+    ${ma_before_pid}=  Get Pid Of Process   sophos_managementagent
+    ${wd_before_pid}=  Get Pid Of Process   sophos_watchdog
+    ${lr_before_pid}=  Get Pid Of Process   liveresponse
+    ${edr_before_pid}=  Get Pid Of Process  edr
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  4
+
+    ${us_after_pid}=  Get Pid Of Process   UpdateScheduler
+    ${ma_after_pid}=  Get Pid Of Process   sophos_managementagent
+    ${wd_after_pid}=  Get Pid Of Process   sophos_watchdog
+    ${lr_after_pid}=  Get Pid Of Process   liveresponse
+    ${edr_after_pid}=  Get Pid Of Process  edr
+
+    Should Be Equal As Integers    ${us_before_pid}   ${us_after_pid}
+    Should Be Equal As Integers    ${ma_before_pid}   ${ma_after_pid}
+    Should Be Equal As Integers    ${wd_before_pid}   ${wd_after_pid}
+    Should Be Equal As Integers    ${lr_before_pid}   ${lr_after_pid}
+    Should Be Equal As Integers    ${edr_before_pid}   ${edr_after_pid}
+
+
+
+
+
+
+
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
     [Timeout]   10 minutes
@@ -336,10 +401,10 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     # Swap old manifest files around, this will make the cleanup process mark files for delete which should not be
     # deleted, because the files are outside of the components realm
 
-    Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat  /tmp/base-manifest.dat
+    Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
     Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat  /tmp/MDR-manifest.dat
 
-    Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base/manifest.dat
+    Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
     Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
     Trigger Update Now
@@ -350,7 +415,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
     # ensure that the list of files to remove contains files which are outside of the components realm
-    ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
+    ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
     Should Contain  ${BASE_REMOVE_FILE_CONTENT}  plugins/mtr
 
     ${MTR_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
@@ -656,16 +721,12 @@ Check EAP Release Installed Correctly
 Check Installed Correctly
     Should Exist    ${SOPHOS_INSTALL}
 
+    Check Expected Base Processes Are Running
     Check Correct MCS Password And ID For Local Cloud Saved
 
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
-    ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
-    ${base_version_above_1_1_2} =  check_version_over_1_1_2  ${version_number}
-    Run Keyword If  ${base_version_above_1_1_2} == ${True}
-    ...  Check Expected Base Processes Are Running
-    ...  ELSE  Check Expected Base Processes Except Comms Are Running
 
 Check Files Before Upgrade
     # This is a selection of files from Base product, based on the version initialy installed
@@ -758,7 +819,13 @@ Check Update Reports Have Been Processed
 
    ${ProcessedFileCount}=  Get length   ${files_in_processed_dir}
    Should Be Equal As Numbers  ${ProcessedFileCount}   1
-   Should Contain  ${files_in_processed_dir}[0]  update_report
-   Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
+   Should Contain  @{files_in_processed_dir}[0]  update_report
+   Should Not Contain  @{files_in_processed_dir}[0]  update_report.json
 
-   Should Contain  ${filesInUpdateVar}   ${files_in_processed_dir}[0]
+   Should Contain  ${filesInUpdateVar}   @{files_in_processed_dir}[0]
+
+Get Pid Of Process
+    [Arguments]  ${process_name}
+    ${result} =    Run Process  pidof  ${process_name}
+    Should Be Equal As Integers    ${result.rc}    0   msg=${result.stderr}
+    [Return]  ${result.stdout}

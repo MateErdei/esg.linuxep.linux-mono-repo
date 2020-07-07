@@ -418,11 +418,11 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  wdctl <> start edr
 
 Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
-    [Timeout]  10 minutes
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
+    Check log Does not Contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
@@ -434,6 +434,11 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
     Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version: 99.9.9
 
     Wait Until Keyword Succeeds
     ...  60 secs
@@ -464,6 +469,8 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
+    ${base_version_contents} =  Get File  ${SOPHOS_INSTALL}/base/VERSION.ini
+    Should contain   ${base_version_contents}   PRODUCT_VERSION = 99.9.9
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
     ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
