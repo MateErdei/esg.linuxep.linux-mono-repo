@@ -16,8 +16,7 @@ pipeline {
             steps {
                 sh 'cppcheck -j2 --inline-suppr --std=c++11 --xml --xml-version=2 --enable=style modules products 2> cppcheck.xml'
                 sh 'cat cppcheck.xml'
-                def cppcheck = scanForIssues tool: cppCheck(pattern: 'cppcheck.xml')
-                publishIssues issues:[cppcheck], unstableTotalAll:1
+                recordIssues tool: cppCheck(pattern: 'cppcheck.xml'), unstableTotalAll:1
             }
         }
     }
