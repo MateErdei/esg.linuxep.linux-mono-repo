@@ -57,6 +57,7 @@ MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart and No Telemetry
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
+    Log File  ${OSQUERYD_OUTPUT_LOG}
     Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  ${Expected_Restarts}  ${Expected_Restarts}
 
     Stop MDR Plugin
