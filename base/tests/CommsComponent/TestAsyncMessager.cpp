@@ -8,43 +8,150 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <modules/CommsComponent/AsyncMessager.h>
-
+#include <boost/thread/thread.hpp>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 using namespace Comms; 
-
 
 struct MessagesAppender
 {
-    std::vector<std::string> & m_messages; 
-    MessagesAppender(std::vector<std::string> & messages): m_messages(messages){}
+    std::vector<std::string> & m_messages;
+    Tests::TestExecutionSynchronizer & m_synchronizer;
+    MessagesAppender(std::vector<std::string> & messages,
+            Tests::TestExecutionSynchronizer & synchronizer):
+            m_messages(messages), m_synchronizer(synchronizer){}
     void operator()(std::string newMessage){
-        m_messages.emplace_back(std::move(newMessage)); 
+        m_messages.emplace_back(std::move(newMessage));
+        m_synchronizer.notify();
     }
 };
 
+//sendMessage(str)
+//str + '1' or '0'
+//break_str_into_chunks( 4095) (4096)
+//'stop'
+//
+//
+//recv(buffer)
+//check last (0): combine previous messages
+//if (1) append to a pending_parts
+
+
+
 TEST(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
 {
-    using ListStrings = std::vector<std::string>; 
-    ListStrings firstReceivedMessages; 
-    ListStrings secondReceivedMessages; 
+    using ListStrings = std::vector<std::string>;
+    boost::asio::io_service m_io;
+    local::datagram_protocol::socket socket1(m_io);
+    local::datagram_protocol::socket socket2(m_io);
+    local::connect_pair(socket1, socket2);
+    ListStrings firstReceivedMessages1;
+    ListStrings firstReceivedMessages2;
+    Tests::TestExecutionSynchronizer synchronizer(3);
+    AsyncMessager m1{m_io, std::move(socket1), MessagesAppender{firstReceivedMessages1, synchronizer} };
+    AsyncMessager m2{m_io, std::move(socket2), MessagesAppender{firstReceivedMessages2, synchronizer} };
+    std::thread thread(
+         [&m_io]()
+         {
+           try
+           {
+             m_io.run();
+           }
+           catch (std::exception& e)
+           {
+             std::cerr << "Exception in thread: " << e.what() << "\n";}
+         });
 
-    {
-        CommsContext context; 
-        auto [firstM, secondM] = context.setupPairOfConnectedSockets(MessagesAppender{firstReceivedMessages}, MessagesAppender{secondReceivedMessages}); 
+    std::string message{"basictest"};
+    std::string message2{"basictest2"};
+    std::string fromm1{"from_m1"};
+    m1.sendMessage(fromm1);
+    m2.sendMessage(message);
+    m2.sendMessage(message2);
+    EXPECT_TRUE(synchronizer.waitfor(1000));
+    m1.push_stop();
+    m2.push_stop();
+    thread.join();
+    ASSERT_EQ(firstReceivedMessages1.size(), 2);
+    ASSERT_EQ(firstReceivedMessages2.size(), 1);
+    EXPECT_EQ(message, firstReceivedMessages1.at(0));
+    EXPECT_EQ(message2, firstReceivedMessages1.at(1));
+    EXPECT_EQ(fromm1, firstReceivedMessages2.at(0));
 
-        firstM.sendMessage("fromFirst1");
-        // firstM.sendMessage("fromFirst2");
-        // secondM.sendMessage("fromSecond1");
-        // secondM.sendMessage("fromSecond2");
-        context.run(); 
-        std::cout << "after run" << std::endl; 
-        secondM.shutdown();
-        std::cout << "finished" << std::endl; 
-        std::this_thread::sleep_for(std::chrono::milliseconds(300)); 
-    }
-    ListStrings expectedFirst{{"fromSecond1"}, {"fromSecond2"}}; 
-    EXPECT_EQ(firstReceivedMessages, expectedFirst);
+//
+//    ListStrings secondReceivedMessages;
+//
+//    {
+//        CommsContext context;
+//        auto pair = context.setupPairOfConnectedSockets(MessagesAppender{firstReceivedMessages}, MessagesAppender{secondReceivedMessages});
+//
+//        pair.first.sendMessage("fromFirst1");
+//        // firstM.sendMessage("fromFirst2");
+//        pair.second.sendMessage("fromSecond1");
+//        // secondM.sendMessage("fromSecond2");
+//        std::thread thread(
+//         [&context]()
+//         {
+//           try
+//           {
+//             context.m_io.run();
+//           }
+//           catch (std::exception& e)
+//           {
+//             std::cerr << "Exception in thread: " << e.what() << "\n";
+//             std::exit(1);
+//           }
+//         });
+//        //context.run();
+//        thread.join();
+//
+//        std::cout << "after run" << std::endl;
+//        pair.second.shutdown();
+//        std::cout << "finished" << std::endl;
+//        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+//    }
+//    ListStrings expectedFirst{{"fromSecond1"}, {"fromSecond2"}};
+//    EXPECT_EQ(firstReceivedMessages, expectedFirst);
 }
 
+
+TEST(TestAsyncMessager, SendReceiveDataGram) // NOLINT
+{
+    using ListStrings = std::vector<std::string>;
+    boost::asio::io_service m_io;
+    local::datagram_protocol::socket socket1(m_io);
+    local::datagram_protocol::socket socket2(m_io);
+    local::connect_pair(socket1, socket2);
+    ListStrings firstReceivedMessages;
+    std::thread thread(
+            [&m_io]() {
+                try {
+                    m_io.run();
+                }
+                catch (std::exception &e) {
+                    std::cerr << "Exception in thread: " << e.what() << "\n";
+                }
+            });
+
+    std::thread thread2(
+            [&socket1, &firstReceivedMessages](){
+                std::array<char,1024> buffer;
+                auto size = socket1.receive(boost::asio::buffer(buffer));
+                firstReceivedMessages.push_back(std::string{buffer.begin(), buffer.begin()+size});
+                size = socket1.receive(boost::asio::buffer(buffer));
+                firstReceivedMessages.push_back(std::string{buffer.begin(), buffer.begin()+size});
+            }
+            );
+    std::string message{"basictest"};
+    std::string message2{"basictest"};
+
+    socket2.send(boost::asio::buffer(message));
+    socket2.send(boost::asio::buffer(message2));
+    thread.join();
+    thread2.join();
+    ASSERT_EQ(firstReceivedMessages.size(), 2);
+    EXPECT_EQ(message, firstReceivedMessages.at(0));
+    EXPECT_EQ(message2, firstReceivedMessages.at(1));
+}
 
 // #include <array>
 // #include <iostream>

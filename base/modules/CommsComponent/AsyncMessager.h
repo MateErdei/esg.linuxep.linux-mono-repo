@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <functional>
 #include <deque>
+#include <atomic>
 
 
 #include <boost/asio.hpp>
@@ -18,22 +19,25 @@ namespace Comms
 
     class AsyncMessager{
         public:
-            AsyncMessager(boost::asio::io_service& io, 
-                local::stream_protocol::socket && socket, 
+            AsyncMessager(boost::asio::io_service& io,
+                local::datagram_protocol::socket && socket,
                 MessageReceivedCB onNewMessage );
             
-            void sendMessage(std::string);
-            void shutdown();
+            void sendMessage(const std::string&);
+            void push_stop();
 
 // not to be used directly
-            void handle_read(const boost::system::error_code& ec, std::size_t size); 
-            void do_write(); 
+            void do_write();
         private:
-        boost::asio::io_service & m_io; 
-        local::stream_protocol::socket m_socket; 
+        void read();
+
+        boost::asio::io_service & m_io;
+        boost::asio::strand<boost::asio::io_context::executor_type> m_strand;
+        local::datagram_protocol::socket m_socket;
         MessageReceivedCB m_onNewMessage;
         MessageQueue m_queue; 
-        std::array<char,512> buffer; 
+        std::array<char,512> buffer;
+        int count;
     };
 
     struct CommsContext{
