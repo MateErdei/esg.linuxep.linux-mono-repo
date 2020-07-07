@@ -14,7 +14,9 @@ pipeline {
     stages {
         stage('cppcheck') {
             steps {
-                sh 'cppcheck -j2 --inline-suppr --std=c++11 --xml --xml-version=2 --enable=style --suppress=passedByValue -Imodules modules products 2> cppcheck.xml'
+                sh '''cppcheck -j2 --inline-suppr --std=c++11 --xml --xml-version=2 \
+                    --enable=style --suppressions-list=localjenkins/cppcheck-style/cppcheck-style-suppressions \
+                    -Imodules modules products 2> cppcheck.xml'''
                 sh 'cat cppcheck.xml'
                 recordIssues tool: cppCheck(pattern: 'cppcheck.xml'), unstableTotalAll:1
             }

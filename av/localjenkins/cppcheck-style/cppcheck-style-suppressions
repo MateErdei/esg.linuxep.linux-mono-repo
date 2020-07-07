@@ -1,0 +1,5 @@
+// cppcheck finds constructors using copy/move which is what Clion/clang require
+passedByValue
+
+// cppcheck doesn't handle scope locks
+unreadVariable:modules/lockedqueue/LockedQueue.h
