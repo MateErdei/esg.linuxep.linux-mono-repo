@@ -646,17 +646,24 @@ Check Old MCS Router Running
 Check Current Release Installed Correctly
     Check Mcs Router Running
     Check MDR Plugin Installed
-    Check Installed Correctly
+    Check Installed Correctly With Comms
 
 Check EAP Release Installed Correctly
     Check MCS Router Running
     Check MDR Plugin Installed
+    Check Installed Correctly Without Comms
+
+Check Installed Correctly Without Comms
     Check Installed Correctly
+    Check Expected Base Processes Except Comms Are Running
+
+Check Installed Correctly With Comms
+    Check Installed Correctly
+    Check Expected Base Processes Are Running
 
 Check Installed Correctly
     Should Exist    ${SOPHOS_INSTALL}
 
-    Check Expected Base Processes Are Running
     Check Correct MCS Password And ID For Local Cloud Saved
 
     ${result}=  Run Process  stat  -c  "%A"  /opt

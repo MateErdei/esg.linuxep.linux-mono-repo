@@ -82,6 +82,7 @@ Telemetry Executable Generates System Telemetry
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
 
 Telemetry Executable Generates Watchdog Telemetry
+    [Tags]  SMOKE  TAP_TESTS   TELEMETRY   WATCHDOG
     [Documentation]    Telemetry Executable Generates Watchdog Telemetry
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
