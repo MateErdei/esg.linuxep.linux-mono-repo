@@ -8,7 +8,7 @@
         <workingdir>sspl-plugin-anti-virus</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
-        <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.1/output" dest="input" buildtype="dev">
+        <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.2/output" dest="input" buildtype="dev">
             <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
