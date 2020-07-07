@@ -1,0 +1,22 @@
+def PLUGIN_NAME = "sspl-plugin-mav"
+
+environment {
+    PLUGIN_NAME = "${PLUGIN_NAME}"
+}
+
+pipeline {
+    agent {
+        node {
+            label 'sav-cppcheck'
+            customWorkspace "${PLUGIN_NAME}/${BRANCH_NAME}"
+        }
+    }
+    stages {
+        stage('cppcheck') {
+            steps {
+                sh 'cppcheck -j2 --inline-suppr --std=c++11 --xml --xml-version=2 --enable=style modules products 2> cppcheck.xml'
+                scanForIssues tool: cppCheck(pattern: 'cppcheck.xml')
+            }
+        }
+    }
+}
