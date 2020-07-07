@@ -69,6 +69,7 @@ class TelemetryUtils:
 
     def generate_watchdog_telemetry_dict(self, expected_times):
         telemetry = {
+            "commscomponent-unexpected-restarts": int(expected_times),
             "managementagent-unexpected-restarts": int(expected_times),
             "mcsrouter-unexpected-restarts": int(expected_times),
             "tscheduler-unexpected-restarts": int(expected_times),
