@@ -35,7 +35,6 @@ static int cap_set_ambient(cap_value_t cap, cap_flag_value_t set)
 
 int pass_on_capability(cap_value_t cap)
 {
-    cap_flag_value_t v = 0;
     cap_t caps = cap_get_proc();
     int ret;
 
