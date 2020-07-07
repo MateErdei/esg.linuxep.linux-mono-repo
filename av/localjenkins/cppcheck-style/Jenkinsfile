@@ -21,6 +21,17 @@ pipeline {
         }
     }
     post {
+        always {
+            emailext subject: 'TEST sending emails',
+                body: 'Check console output at $BUILD_URL to view the results',
+                recipientProviders: [
+                    [$class: 'CulpritsRecipientProvider'],
+                    [$class: 'DevelopersRecipientProvider'],
+                    [$class: 'RequesterRecipientProvider']
+                ],
+                replyTo: 'ukdevvlx@sophos.com',
+                to: 'douglas.leeder@sophos.com'
+        }
         failure {
             emailext subject: 'cppcheck-style failed for SSPL-AV',
                 body: 'Check console output at $BUILD_URL to view the results',
