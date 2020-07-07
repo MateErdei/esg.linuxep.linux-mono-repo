@@ -42,11 +42,11 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket
     int count = 0;
     while (ret != 0)
     {
-        PRINT("Failed to connect to unix socket");
+        PRINT("Failed to connect to unix socket - retrying in 1 second");
         sleep(1);
         if (++count >= MAX_CONN_RETRIES)
         {
-            handle_error("Failed to connect to unix socket");
+            handle_error("Reached maximum number of retries while attempting to connect to unix socket");
         }
         ret = connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
     }
