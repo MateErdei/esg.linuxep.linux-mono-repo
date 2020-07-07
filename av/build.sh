@@ -75,6 +75,16 @@ do
             export ENABLE_STRIP=0
             CMAKE_BUILD_TYPE=Debug
             ;;
+        --dev|--local)
+            ## Set good options for a local build
+            export ENABLE_STRIP=0
+            CMAKE_BUILD_TYPE=Debug
+            LOCAL_GCC=1
+            LOCAL_CMAKE=1
+            NPROC=4
+            CLEAN=0
+            UNITTEST=1
+            ;;
         --no-debug)
             export ENABLE_STRIP=1
             CMAKE_BUILD_TYPE=RelWithDebInfo
