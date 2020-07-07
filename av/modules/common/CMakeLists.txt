@@ -8,7 +8,7 @@ SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
 SET (BOOST_ROOT ${BOOSTPATH}/boost)
 
-find_package( Boost REQUIRED COMPONENTS locale)
+find_package( Boost REQUIRED COMPONENTS locale system)
 
 target_link_libraries(common  PUBLIC
         scanmessages
@@ -27,6 +27,6 @@ install(TARGETS common
 
 SET_TARGET_PROPERTIES(common
         PROPERTIES
-        BUILD_RPATH "$ORIGIN"
+        BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
         )
