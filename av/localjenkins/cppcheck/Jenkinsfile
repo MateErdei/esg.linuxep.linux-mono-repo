@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('cppcheck') {
             steps {
-                sh 'cppcheck --inline-suppr --std=c++11 --xml --xml-version=2 modules products 2> cppcheck.xml'
+                sh 'cppcheck --inline-suppr --std=c++11 --xml --xml-version=2 . -Imodules 2> cppcheck.xml'
                 sh 'cat cppcheck.xml'
                 recordIssues tool: cppCheck(pattern: 'cppcheck.xml'), unstableTotalAll:1
             }
