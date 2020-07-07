@@ -36,6 +36,7 @@ foreach (LIB boost_locale boost_system boost_program_options)
     add_boost_library(${LIB} ${BOOSTPATH}/boost/lib64)
 endforeach(LIB)
 
+set(PYTHON python3)
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
@@ -43,24 +44,24 @@ set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
 set(GENERATE_TOOL ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py )
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
+        COMMAND ${PYTHON} ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND ${PYTHON} ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
         )
 
 add_custom_target(
         dist
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
+        COMMAND ${PYTHON} ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND ${PYTHON} ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(
         forcedist
         COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
+        COMMAND ${PYTHON} ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND ${PYTHON} ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 install(FILES  ${third_party_libs}
