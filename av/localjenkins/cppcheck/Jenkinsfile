@@ -20,4 +20,26 @@ pipeline {
             }
         }
     }
+    post {
+        unstable {
+            emailext subject: 'cppcheck failed for SSPL-AV',
+                body: 'Check console output at $BUILD_URL to view the results',
+                recipientProviders: [
+                    [$class: 'CulpritsRecipientProvider'],
+                    [$class: 'DevelopersRecipientProvider'],
+                    [$class: 'RequesterRecipientProvider']
+                ],
+                replyTo: 'ukdevvlx@sophos.com'
+        }
+        failure {
+            emailext subject: 'UNABLE TO CPPCHECK SSPL-AV',
+                body: 'Check console output at $BUILD_URL to view the results',
+                recipientProviders: [
+                    [$class: 'CulpritsRecipientProvider'],
+                    [$class: 'DevelopersRecipientProvider'],
+                    [$class: 'RequesterRecipientProvider']
+                ],
+                replyTo: 'ukdevvlx@sophos.com'
+        }
+    }
 }
