@@ -5,8 +5,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "AsyncMessager.h"
+#include "Logger.h"
 #include <iostream>
 #include <boost/bind.hpp>
+
 using namespace boost::asio;
 namespace Comms
 {
@@ -106,26 +108,32 @@ namespace Comms
          }));
     }
 
-    std::pair<AsyncMessager, AsyncMessager> CommsContext::setupPairOfConnectedSockets(MessageReceivedCB onMessageReceivedFirst, MessageReceivedCB onMessageReceivedSecond )
+    std::pair<std::unique_ptr<AsyncMessager>, std::unique_ptr<AsyncMessager>> CommsContext::setupPairOfConnectedSockets(boost::asio::io_service& io_service, 
+            MessageReceivedCB onMessageReceivedFirst, MessageReceivedCB onMessageReceivedSecond )
     {
-        
-        local::datagram_protocol::socket socket1(m_io);
-        local::datagram_protocol::socket socket2(m_io);
-        local::connect_pair(socket1, socket2);
+        local::datagram_protocol::socket s1(io_service);
+        local::datagram_protocol::socket s2(io_service);
 
-        return std::make_pair(AsyncMessager{m_io, std::move(socket1), onMessageReceivedFirst}, 
-            AsyncMessager{m_io, std::move(socket2), onMessageReceivedSecond} ); 
+        local::connect_pair(s1, s2);
+
+        return std::make_pair(std::make_unique<AsyncMessager>(io_service, std::move(s1), onMessageReceivedFirst),
+            std::make_unique<AsyncMessager>(io_service, std::move(s2), onMessageReceivedSecond ));                            
     }
 
-    void CommsContext::run()
+    std::thread CommsContext::startThread(boost::asio::io_service& io_service)
     {
-        try{
-            m_io.run(); 
-        }catch(std::exception & ex)
-        {
-            std::cerr << "Exception in thread: " << ex.what() << "\n";
-        }
-        
+         return std::thread{[&io_service]()
+         {
+           try
+           {
+             io_service.run();
+           }
+           catch (std::exception& ex)
+           {
+            LOGERROR( "Exception in thread: " << ex.what() ); 
+           }
+         }
+         }; 
     }
 }
 

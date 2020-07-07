@@ -36,13 +36,13 @@ namespace Comms
         local::datagram_protocol::socket m_socket;
         MessageReceivedCB m_onNewMessage;
         MessageQueue m_queue; 
-        std::array<char,512> buffer;
+        std::array<char,4096> buffer;
         int count;
     };
 
     struct CommsContext{
-        boost::asio::io_service m_io; 
-        std::pair<AsyncMessager, AsyncMessager> setupPairOfConnectedSockets(MessageReceivedCB onMessageReceivedFirst, MessageReceivedCB onMessageReceivedSecond ); 
-        void run(); 
+        static std::pair<std::unique_ptr<AsyncMessager>, std::unique_ptr<AsyncMessager>> setupPairOfConnectedSockets(boost::asio::io_service& io_service, 
+                        MessageReceivedCB onMessageReceivedFirst, MessageReceivedCB onMessageReceivedSecond ); 
+        static std::thread startThread(boost::asio::io_service& io_service); 
     };
 }
