@@ -84,13 +84,10 @@ PluginAdapter::PluginAdapter(
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
-        m_threatReporterServer(threat_reporter_socket(),  std::make_shared<ThreatReportCallbacks>(*this))
+        m_threatReporterServer(threat_reporter_socket(),  std::make_shared<ThreatReportCallbacks>(*this)),
+        m_sophosThreadDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
+            sophos_threat_detector_launcher()))
 {
-    // Don't need to request policies, as we get them as soon as we send a status.
-    // m_baseService->requestPolicies("SAV");
-    m_sophosThreadDetector = std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
-            sophos_threat_detector_launcher()
-    );
 }
 
 void PluginAdapter::mainLoop()
