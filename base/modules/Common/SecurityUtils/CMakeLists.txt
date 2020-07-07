@@ -1,6 +1,6 @@
 add_library(securityutilsobject OBJECT
-        ProcessSecurityUtils.cpp
         ProcessSecurityUtils.h
+        ProcessSecurityUtils.cpp
         )
 
 target_include_directories(securityutilsobject PUBLIC ${CMAKE_SOURCE_DIR})
