@@ -47,28 +47,25 @@ MTR Plugin Produces Telemetry With Empty OSQueryD Output Log File
 
 MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart and No Telemetry To Report
     Install MTR From Fake Component Suite
-
+    Create File  ${OSQUERYD_OUTPUT_LOG}
     Kill SophosMTR Executable
     Wait Until SophosMTR Executable Running  20
 
-    #If the file doesn't exist this returns -1 which when passed into Check MTR Telemetry Json Is Correct
-    #causes the cpu and memory restarts to not be added to expected telemetry
-    ${Expected_Restarts} =  Check If We Expect Telemetry For Restarts  ${OSQUERYD_OUTPUT_LOG}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
-    Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  ${Expected_Restarts}  ${Expected_Restarts}
+    Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  0  0
 
     Stop MDR Plugin
     Start MDR Plugin
 
     Cleanup Telemetry Server
     Prepare To Run Telemetry Executable
-    ${Expected_Restarts} =  Check If We Expect Telemetry For Restarts  ${OSQUERYD_OUTPUT_LOG}
+
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
-    Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  ${Expected_Restarts}  ${Expected_Restarts}
+    Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0
 
 
 MTR Plugin Reports Telemetry Correctly For OSQuery Memory Restarts And Also Uses Cached Values From Disk
