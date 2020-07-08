@@ -142,8 +142,8 @@ MTR Plugin Counts SophosMTR Restarts Correctly And Reports In Telemetry
     Install MTR From Fake Component Suite
     Create File  ${OSQUERYD_OUTPUT_LOG}
     Override LogConf File as Global Level  DEBUG
-    Kill SophosMTR Executable
-    Wait Until SophosMTR Executable Running  20
+#    Kill SophosMTR Executable
+#    Wait Until SophosMTR Executable Running  20
 
     Kill SophosMTR Executable
     Wait Until SophosMTR Executable Running  20
