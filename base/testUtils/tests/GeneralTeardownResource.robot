@@ -57,8 +57,6 @@ Dump All Logs
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/base/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
-    Dump Teardown Log    /var/log/audit/audit.log
-    Dump Teardown Log    /var/log/audit.log
 
 Dump All Sophos Processes
     ${result}=  Run Process    ps -elf | grep sophos    shell=True
