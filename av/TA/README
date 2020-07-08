@@ -30,3 +30,6 @@ In order to run them in Vagrant box:
     sudo -H python3.7 -m pip install pyzmq protobuf pytest-html robotframework Cython pycapnp
     cd /vagrant/sspl-plugin-anti-virus/TA
     sudo python3.7 -m robot .
+
+To run a single test:
+    sudo python3.7 -m robot --test "<name>" .
