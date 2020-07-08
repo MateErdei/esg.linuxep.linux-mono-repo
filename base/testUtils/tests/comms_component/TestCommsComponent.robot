@@ -13,7 +13,7 @@ Test Teardown  Test Teardown
 
 Test Comms Component Starts
     [Tags]   COMMS  TAP_TESTS
-    Require Fresh Install
+    Require Installed
     File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
     Check Watchdog Starts Comms Component
 
