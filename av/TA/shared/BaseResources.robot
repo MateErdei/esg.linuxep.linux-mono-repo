@@ -36,12 +36,11 @@ Check Diagnose Collects Correct AV Files
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
     Should Be Equal As Integers  ${result.rc}  0
 
-    ${PluginFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}
     ${AVFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av
 
-    Should Contain  ${PluginFiles}  av.log
-    Should Contain  ${PluginFiles}  Scan Now.log
-    Should Contain  ${PluginFiles}  sophos_threat_detector.log
+    Should Contain  ${AVFiles}  av.log
+    Should Contain  ${AVFiles}  Scan Now.log
+    Should Contain  ${AVFiles}  sophos_threat_detector.log
 
     Should Contain  ${AVFiles}  VERSION.ini
     Should Contain  ${AVFiles}  VERSION.ini.0
