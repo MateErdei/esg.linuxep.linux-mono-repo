@@ -27,7 +27,7 @@ class CommsComponentUtils:
         pids = self._pid_of_comms_component()
         pid = None
         if pids:
-            # TODO - LINUXDAR-54: This will fail when there is a parent and child comms process. Change this keyword to look for the new expected behaviour
+            # TODO - LINUXDAR-1954: This will fail when there is a parent and child comms process. Change this keyword to look for the new expected behaviour
             if len(pids) != 1:
                 raise AssertionError("Only one instance of comms component should be running at any given time. Found {}".format(pids))
             pid = pids[0]
