@@ -22,11 +22,19 @@ namespace Comms
         static constexpr size_t bufferSize = capacity + 1;
         static constexpr char FinalChunk = '0';
         static constexpr char PartialChunk = '1';
+        static const std::string& StopMessage()
+        {
+            static std::string stop{ "stop" };
+            return stop;
+        }
 
         AsyncMessager(
             boost::asio::io_service& io,
             local::datagram_protocol::socket&& socket,
             MessageReceivedCB onNewMessage);
+
+        AsyncMessager(const AsyncMessager&) = delete;
+        AsyncMessager& operator=(const AsyncMessager&) = delete;
 
         void sendMessage(const std::string&);
         void push_stop();
@@ -34,6 +42,7 @@ namespace Comms
     private:
         void read();
         void do_write();
+        void deliverMessage(std::string&& message);
 
         boost::asio::io_service& m_io;
         boost::asio::strand<boost::asio::io_context::executor_type> m_strand;

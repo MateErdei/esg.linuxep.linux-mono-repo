@@ -45,18 +45,19 @@ namespace Comms
     {
         m_socket.async_receive(
             boost::asio::buffer(buffer),
-            boost::asio::bind_executor(m_strand, [this](boost::system::error_code ec, std::size_t size) {
+            boost::asio::bind_executor(m_strand, [this](boost::system::error_code ec, std::size_t size) {                
                 if (!ec)
                 {
+                    LOGDEBUG("AsyncMessager new message received: " << size << " bytes");
                     // the chunk is the full message minus the last byte (control byte.)
                     std::string chunk{ buffer.begin(), buffer.begin() + size - 1 };
-
+                    char controlByte = buffer.at(size - 1);
                     // control byte is FinalChunk?
-                    if (buffer[size - 1] == AsyncMessager::FinalChunk)
+                    if (controlByte == AsyncMessager::FinalChunk)
                     {
                         if (this->m_pendingChunks.empty())
                         {
-                            this->m_onNewMessage(chunk);
+                            deliverMessage(std::move(chunk));
                         }
                         else
                         {
@@ -67,26 +68,47 @@ namespace Comms
                                 message += m;
                             }
                             message += chunk;
-                            this->m_onNewMessage(message);
+                            deliverMessage(std::move(message));
                         }
                         m_pendingChunks.clear();
                     }
-                    else
+                    else if (controlByte == PartialChunk)
                     {
                         m_pendingChunks.push_back(chunk);
+                    }
+                    else if (StopMessage() == (chunk + controlByte))
+                    {
+                        return; // request to stop does not rearm the read.
+                    }
+                    else
+                    {
+                        LOGINFO("Unexpected message with " << size << " bytes. Ignoring it.");
                     }
 
                     read();
                 }
                 else
                 {
+                    LOGINFO("AsyncMessager closing reading operation");
                     if (ec.value() != boost::asio::error::operation_aborted)
                     {
-                        LOGDEBUG("error category : " << ec.category().name() << "value: " << ec.value());
+                        LOGDEBUG("AsyncMessager error on reading message error category : " << ec.category().name() << "value: " << ec.value() << ec.message()) ;
                         throw boost::system::system_error(ec);
                     }
                 }
             }));
+    }
+
+    void AsyncMessager::deliverMessage(std::string&& message)
+    {
+        try
+        {
+            this->m_onNewMessage(message);
+        }
+        catch (std::exception& ex)
+        {
+            LOGWARN("Callback on new message throw exception: " << ex.what());
+        }
     }
 
     /**  Schedule a message to be sent via the io_service.
@@ -150,13 +172,27 @@ namespace Comms
                 }
                 else
                 {
-                    throw boost::system::system_error(ec);
+                    if (ec.value() != boost::asio::error::connection_refused)
+                    {
+                        throw boost::system::system_error(ec);
+                    }
+                    LOGSUPPORT("Other side closed communication channel");
                 }
             }));
     }
 
     void AsyncMessager::push_stop()
     {
+        std::lock_guard<std::mutex> lo{ m_mutex };
+        boost::asio::post(m_io, boost::asio::bind_executor(m_strand, [this]() {
+                              bool write_in_progress = !m_queue.empty();
+                              m_queue.push_back(StopMessage());
+                              if (!write_in_progress)
+                              {
+                                  do_write();
+                              }
+                          }));
+
         boost::asio::post(m_io, boost::asio::bind_executor(m_strand, [this]() { m_socket.close(); }));
     }
 
