@@ -30,52 +30,6 @@ ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
 {
 }
 
-static fs::path pluginInstall()
-{
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    try
-    {
-        return appConfig.getData("PLUGIN_INSTALL");
-    }
-    catch (const std::out_of_range&)
-    {
-        return "/opt/sophos-spl/plugins/av";
-    }
-
-}
-
-static fs::path threat_reporter_socket()
-{
-    return pluginInstall() / "chroot/threat_report_socket";
-}
-
-void ScanClient::sendThreatReport(const fs::path& threatPath, const std::string& threatName)
-{
-    if (threatPath.empty())
-    {
-        LOGERROR("ERROR: sendThreatReport with empty path!");
-    }
-
-    fs::path threatReporterSocketPath = threat_reporter_socket();
-    LOGDEBUG("Threat reporter path " << threatReporterSocketPath);
-    unixsocket::ThreatReporterClientSocket threatReporterSocket(threatReporterSocketPath);
-    std::time_t detectionTimeStamp = std::time(nullptr);
-
-    scan_messages::ThreatDetected threatDetected;
-    const char* user = std::getenv("USER");
-    threatDetected.setUserID(user ? user : "root");
-    threatDetected.setDetectionTime(detectionTimeStamp);
-    threatDetected.setScanType(m_scanType);
-    //For now this is always 1 (Virus)
-    threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
-    threatDetected.setThreatName(threatName);
-    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
-    threatDetected.setFilePath(threatPath);
-    threatDetected.setActionCode(E_SMT_THREAT_ACTION_NONE);
-
-    threatReporterSocket.sendThreatDetection(threatDetected);
-}
-
 scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& fileToScanPath)
 {
     datatypes::AutoFd file_fd(::open(fileToScanPath.c_str(), O_RDONLY));
@@ -99,7 +53,6 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
         }
         else
         {
-            sendThreatReport(fileToScanPath, response.threatName());
             m_callbacks->infectedFile(fileToScanPath, response.threatName());
         }
     }

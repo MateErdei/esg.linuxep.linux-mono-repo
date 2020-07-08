@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "datatypes/sophos_filesystem.h"
+#include "unixsocket/threatReporterSocket/ThreatReporterClient.h"
 
 #include <common/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
@@ -81,6 +82,38 @@ SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapper
     m_susi = susiWrapperFactory->createSusiWrapper(runtimeConfig, scannerConfig);
 }
 
+static fs::path threat_reporter_socket()
+{
+    return pluginInstall() / "chroot/threat_report_socket";
+}
+
+void SusiScanner::sendThreatReport(const std::string& threatPath, const std::string& threatName)
+{
+    if (threatPath.empty())
+    {
+        LOGERROR("ERROR: sendThreatReport with empty path!");
+    }
+
+    fs::path threatReporterSocketPath = threat_reporter_socket();
+    LOGDEBUG("Threat reporter path " << threatReporterSocketPath);
+    unixsocket::ThreatReporterClientSocket threatReporterSocket(threatReporterSocketPath);
+    std::time_t detectionTimeStamp = std::time(nullptr);
+
+    scan_messages::ThreatDetected threatDetected;
+    const char* user = std::getenv("USER");
+    threatDetected.setUserID(user ? user : "root");
+    threatDetected.setDetectionTime(detectionTimeStamp);
+    threatDetected.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    //For now this is always 1 (Virus)
+    threatDetected.setThreatType(scan_messages::E_VIRUS_THREAT_TYPE);
+    threatDetected.setThreatName(threatName);
+    threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
+    threatDetected.setFilePath(threatPath);
+    threatDetected.setActionCode(scan_messages::E_SMT_THREAT_ACTION_NONE);
+
+    threatReporterSocket.sendThreatDetection(threatDetected);
+}
+
 scan_messages::ScanResponse
 SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
 {
@@ -118,6 +151,7 @@ SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
                     LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
                     response.setThreatName(detection["threatName"]);
                     response.setFullScanResult(scanResultUTF8);
+                    sendThreatReport(file_path, detection["threatName"]);
                 }
             }
         }

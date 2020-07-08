@@ -22,8 +22,12 @@ add_library(threat_scanner SHARED
 
 find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
 
-target_link_libraries(threat_scanner
-        PUBLIC scanmessages datatypes $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs> ${SUSI_LIB}
+target_link_libraries(threat_scanner PUBLIC
+        datatypes
+        scanmessages
+        unixsocket
+        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+        ${SUSI_LIB}
         )
 
 target_include_directories(threat_scanner

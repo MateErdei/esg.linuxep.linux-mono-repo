@@ -96,4 +96,4 @@ install(FILES ../../build64/products/distribution/VERSION.ini
 
 set(SUSI_INSTALL_DIR files/plugins/${PLUGIN_NAME}/chroot/susi)
 install(DIRECTORY ${SUSI_SDDS_PATH}/ DESTINATION ${SUSI_INSTALL_DIR}/distribution_version/)
-install(DIRECTORY ${INPUT}/lrdata DESTINATION ${SUSI_INSTALL_DIR}/distribution_version/version1/)
+#install(DIRECTORY ${INPUT}/lrdata DESTINATION ${SUSI_INSTALL_DIR}/distribution_version/version1/)

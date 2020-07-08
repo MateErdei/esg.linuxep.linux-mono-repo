@@ -14,6 +14,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
 #include "../common/Common.h"
 
+#include "../common/WaitForEvent.h"
+#include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
+
 #include "Common/UtilityImpl/StringUtils.h"
 
 using namespace testing;
@@ -65,6 +68,12 @@ static std::string susiResponseStr =
         "        }\n"
         "    ]\n"
         "}";
+
+class MockIThreatReportCallbacks : public IMessageCallback
+{
+public:
+    MOCK_METHOD1(processMessage, void(const std::string& threatDetectedXML));
+};
 
 TEST(TestThreatScanner, test_FakeSusiScannerConstruction) //NOLINT
 {
@@ -222,10 +231,23 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
 {
     setupFakeSophosThreatDetectorConfig();
 
+    WaitForEvent serverWaitGuard;
     auto susiWrapper = std::make_shared<MockSusiWrapper>("", "");
     std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
+    std::shared_ptr<StrictMock<MockIThreatReportCallbacks> > mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_, _)).WillOnce(Return(susiWrapper));
+
+    EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
+        InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
+
+    setupFakeSophosThreatDetectorConfig();
+    unixsocket::ThreatReporterServerSocket threatReporterServer(
+        "/tmp/TestPluginAdapter/chroot/threat_report_socket",
+        mock_callback
+    );
+
+    threatReporterServer.start();
 
     SusiResult susiResult = SUSI_I_THREATPRESENT;
     SusiScanResult scanResult;
@@ -239,6 +261,10 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
     datatypes::AutoFd fd(1);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath);
+
+    serverWaitGuard.wait();
+    threatReporterServer.requestStop();
+    threatReporterServer.join();
 
     EXPECT_EQ(response.clean(), false);
 }

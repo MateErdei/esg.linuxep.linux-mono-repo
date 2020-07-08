@@ -9,8 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "avscanner/avscannerimpl/ScanClient.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
-#include "tests/common/WaitForEvent.h"
 #include "tests/common/Common.h"
 
 #define BASE "/tmp/TestPluginAdapter"
@@ -40,12 +38,6 @@ namespace
          */
         MOCK_METHOD1(cleanFile, void(const path&));
         MOCK_METHOD2(infectedFile, void(const path&, const std::string&));
-    };
-
-    class MockIThreatReportCallbacks : public IMessageCallback
-    {
-    public:
-        MOCK_METHOD1(processMessage, void(const std::string& threatDetectedXML));
     };
 }
 
@@ -116,28 +108,13 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     static const char* THREAT = "THREAT";
 
     StrictMock<MockIScanningClientSocket> mock_socket;
-    WaitForEvent serverWaitGuard;
     scan_messages::ScanResponse response;
     response.setClean(false);
     response.setThreatName(THREAT);
 
-    std::shared_ptr<StrictMock<MockIThreatReportCallbacks> > mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
-
-    EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
-            InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
-
     EXPECT_CALL(mock_socket, scan(_, _))
-            .Times(1)
-            .WillOnce(Return(response));
-
-    setupFakeSophosThreatDetectorConfig();
-    unixsocket::ThreatReporterServerSocket threatReporterServer(
-            "/tmp/TestPluginAdapter/chroot/threat_report_socket",
-            mock_callback
-    );
-
-    threatReporterServer.start();
-
+        .Times(1)
+        .WillOnce(Return(response));
 
     std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
             new StrictMock<MockIScanCallbacks>()
@@ -148,10 +125,6 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
 
     ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
-
-    serverWaitGuard.wait();
-    threatReporterServer.requestStop();
-    threatReporterServer.join();
 
     EXPECT_FALSE(result.clean());
     EXPECT_EQ(result.threatName(), THREAT);

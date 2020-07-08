@@ -24,6 +24,8 @@ namespace threat_scanner
         scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const std::string& file_path) override;
 
     private:
+        void sendThreatReport(const std::string& threatPath, const std::string& threatName);
+
         std::shared_ptr<ISusiWrapper> m_susi;
     };
 }
