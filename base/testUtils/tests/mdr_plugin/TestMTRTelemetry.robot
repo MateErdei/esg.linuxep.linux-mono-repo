@@ -142,17 +142,22 @@ MTR Plugin Counts SophosMTR Restarts Correctly And Reports In Telemetry
     Install MTR From Fake Component Suite
     Create File  ${OSQUERYD_OUTPUT_LOG}
     Override LogConf File as Global Level  DEBUG
-#    Kill SophosMTR Executable
-#    Wait Until SophosMTR Executable Running  20
-
     Kill SophosMTR Executable
     Wait Until SophosMTR Executable Running  20
-
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
-    Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  ${Expected_Restarts}  ${Expected_Restarts}
+    Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  0  0
+
+    Kill SophosMTR Executable
+    Wait Until SophosMTR Executable Running  20
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
+    Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0
 
 *** Keywords ***
 MTR Telemetry Suite Setup
