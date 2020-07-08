@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <modules/CommsComponent/AsyncMessager.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
-using namespace Comms;
+using namespace CommsComponent;
 
 struct MessagesAppender
 {
@@ -111,8 +111,8 @@ TEST(TestAsyncMessager, reconstructedMessageShouldBeTheSameASOriginal) // NOLINT
     ListStrings receivedMessages1;
     ListStrings receivedMessages2;
 
-    std::string message = std::string(AsyncMessager::capacity, 'a') + std::string(AsyncMessager::capacity, 'b');
-    EXPECT_EQ(message.size(), AsyncMessager::capacity * 2);
+    std::string message = std::string(AsyncMessager::Capacity, 'a') + std::string(AsyncMessager::Capacity, 'b');
+    EXPECT_EQ(message.size(), AsyncMessager::Capacity * 2);
 
     Tests::TestExecutionSynchronizer synchronizer(1);
 
@@ -232,3 +232,31 @@ TEST(TestAsyncMessager, asyncMessagersShouldBeResistentToExceptionsTriggeredInth
     ASSERT_EQ(receivedMessages2.size(), 1);
     ASSERT_EQ(receivedMessages2.at(0), message);
 }
+
+
+TEST(TestAsyncMessager, emptyMessagesWillBeRejectedAndNotTransmitted) // NOLINT
+{
+    using ListStrings = std::vector<std::string>;
+    boost::asio::io_service m_io;
+
+    ListStrings receivedMessages1;
+    ListStrings receivedMessages2;
+
+    std::string emptyMessage;
+    Tests::TestExecutionSynchronizer synchronizer(1);
+
+    auto [m1, m2] = CommsContext::setupPairOfConnectedSockets(
+        m_io,
+        MessagesAppender{ receivedMessages1, synchronizer },
+        MessagesAppender{ receivedMessages2, synchronizer });
+
+    std::thread thread = CommsContext::startThread(m_io);
+
+    EXPECT_THROW(m1->sendMessage(emptyMessage), std::runtime_error); 
+    m1->push_stop();
+    (void) m2; 
+    thread.join();
+    // no message sent
+    ASSERT_EQ(receivedMessages2.size(), 0);
+}
+

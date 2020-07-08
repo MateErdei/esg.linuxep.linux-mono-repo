@@ -13,13 +13,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace boost::asio;
 using MessageReceivedCB = std::function<void(std::string)>;
 using MessageQueue = std::deque<std::string>;
-namespace Comms
+namespace CommsComponent
 {
     class AsyncMessager
     {
     public:
-        static constexpr size_t capacity = 4095;
-        static constexpr size_t bufferSize = capacity + 1;
+        static constexpr size_t Capacity = 4095;
+        static constexpr size_t BufferSize = Capacity + 1;
         static constexpr char FinalChunk = '0';
         static constexpr char PartialChunk = '1';
         static const std::string& StopMessage()
@@ -36,7 +36,16 @@ namespace Comms
         AsyncMessager(const AsyncMessager&) = delete;
         AsyncMessager& operator=(const AsyncMessager&) = delete;
 
+        /* throw if the string is empty as empty string is an invalid message to exchange
+            Message may fail to be delivered, but because it sends the message asynchronously, this can only be 
+            seen from the io_service. 
+        */
         void sendMessage(const std::string&);
+
+        /* Schedule an asynchronous request to stop the communication. 
+           It will send a stop message to the other size to allow it to close as well. 
+           */
+
         void push_stop();
 
     private:
@@ -50,7 +59,7 @@ namespace Comms
         MessageReceivedCB m_onNewMessage;
         std::mutex m_mutex;
         MessageQueue m_queue;
-        std::array<char, bufferSize> buffer;
+        std::array<char, BufferSize> buffer;
         std::vector<std::string> m_pendingChunks;
         int count;
     };

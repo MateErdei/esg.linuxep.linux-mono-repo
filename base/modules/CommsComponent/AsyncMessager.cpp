@@ -13,7 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <iostream>
 
 using namespace boost::asio;
-namespace Comms
+namespace CommsComponent
 {
     AsyncMessager::AsyncMessager(
         boost::asio::io_service& io,
@@ -62,7 +62,7 @@ namespace Comms
                         else
                         {
                             std::string message;
-                            message.reserve((m_pendingChunks.size() + 1) * capacity);
+                            message.reserve((m_pendingChunks.size() + 1) * Capacity);
                             for (auto& m : this->m_pendingChunks)
                             {
                                 message += m;
@@ -72,7 +72,7 @@ namespace Comms
                         }
                         m_pendingChunks.clear();
                     }
-                    else if (controlByte == PartialChunk)
+                    else if (controlByte == AsyncMessager::PartialChunk)
                     {
                         m_pendingChunks.push_back(chunk);
                     }
@@ -103,7 +103,7 @@ namespace Comms
     {
         try
         {
-            this->m_onNewMessage(message);
+            this->m_onNewMessage(std::move(message));
         }
         catch (std::exception& ex)
         {
@@ -113,7 +113,7 @@ namespace Comms
 
     /**  Schedule a message to be sent via the io_service.
      *
-     *   The message is broken into chunks of AsyncMessager::capacity.
+     *   The message is broken into chunks of AsyncMessager::Capacity.
      *   If the message is the last one (or if the message is smaller than the capacity) the message will be sent with a
      * control character AsyncMessager::FinalChunk Otherwise, the message will be sent with a control character called
      * AsyncMessager::PartialChunk.
@@ -128,22 +128,28 @@ namespace Comms
      * */
     void AsyncMessager::sendMessage(const std::string& message)
     {
+
+        if (message.empty())
+        {
+            throw std::runtime_error("Empty message can not be exchanged"); 
+        }
+
         // the mutex is to ensure that the message broken into chunks are scheduled in the correct order inside the
         // io_service even if the AsyncMessage were to be used in different threads.
         std::lock_guard<std::mutex> lo{ m_mutex };
         size_t sent = 0;
         while (sent < message.size())
         {
-            size_t lower_bound = sent;
-            size_t higher_boud = std::min(lower_bound + capacity, message.size());
-            std::string chunk{ message.begin() + lower_bound, message.begin() + higher_boud };
-            if (higher_boud == message.size())
+            size_t lowerBound = sent;
+            size_t higherBound = std::min(lowerBound + Capacity, message.size());
+            std::string chunk{ message.begin() + lowerBound, message.begin() + higherBound };
+            if (higherBound == message.size())
             {
-                chunk += FinalChunk;
+                chunk += AsyncMessager::FinalChunk;
             }
             else
             {
-                chunk += PartialChunk;
+                chunk += AsyncMessager::PartialChunk;
             }
             boost::asio::post(m_io, boost::asio::bind_executor(m_strand, [this, chunk]() {
                                   bool write_in_progress = !m_queue.empty();
@@ -153,7 +159,7 @@ namespace Comms
                                       do_write();
                                   }
                               }));
-            sent = higher_boud;
+            sent = higherBound;
         }
     }
 
@@ -220,7 +226,6 @@ namespace Comms
             }
             catch (std::exception& ex)
             {
-                std::cout << "Exception in thread: " << ex.what() << std::endl;
                 LOGERROR("Exception in thread: " << ex.what());
             }
         } };
