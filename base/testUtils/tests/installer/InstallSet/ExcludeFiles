@@ -4,6 +4,7 @@ mcsrouter.log
 mcs_envelope.log
 updatescheduler.log
 watchdog.log
+CommsComponent.log
 wdctl.log
 tscheduler.log
 ALC_status.xml
