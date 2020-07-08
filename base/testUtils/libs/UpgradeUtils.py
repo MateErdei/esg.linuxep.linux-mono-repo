@@ -4,6 +4,7 @@
 
 import glob
 import os
+from packaging import version
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
 
@@ -113,3 +114,9 @@ manifest diff:
 Version copy changed file: 
 {}""".format("\n".join(difference_in_manifests), "\n".join(changed_lines))
         raise AssertionError(error_message)
+
+def check_version_over_1_1_2(version_string):
+    logger.info(version_string)
+    if version.parse(version_string) > version.parse("1.1.2.0"):
+        return True
+    return False

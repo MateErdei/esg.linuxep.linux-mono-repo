@@ -646,20 +646,12 @@ Check Old MCS Router Running
 Check Current Release Installed Correctly
     Check Mcs Router Running
     Check MDR Plugin Installed
-    Check Installed Correctly With Comms
+    Check Installed Correctly
 
 Check EAP Release Installed Correctly
     Check MCS Router Running
     Check MDR Plugin Installed
-    Check Installed Correctly Without Comms
-
-Check Installed Correctly Without Comms
     Check Installed Correctly
-    Check Expected Base Processes Except Comms Are Running
-
-Check Installed Correctly With Comms
-    Check Installed Correctly
-    Check Expected Base Processes Are Running
 
 Check Installed Correctly
     Should Exist    ${SOPHOS_INSTALL}
@@ -669,6 +661,11 @@ Check Installed Correctly
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
+    ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
+    ${base_version_above_1_1_2} =  check_version_over_1_1_2  ${version_number}
+    Run Keyword If  ${base_version_above_1_1_2} == ${True}
+    ...  Check Expected Base Processes Are Running
+    ...  ELSE  Check Expected Base Processes Except Comms Are Running
 
 Check Files Before Upgrade
     # This is a selection of files from Base product, based on the version initialy installed
