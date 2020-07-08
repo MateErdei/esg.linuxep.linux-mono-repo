@@ -140,16 +140,15 @@ MTR Plugin Counts Osquery Database Purges
 
 MTR Plugin Counts SophosMTR Restarts Correctly And Reports In Telemetry
     Install MTR From Fake Component Suite
-
+    Create File  ${OSQUERYD_OUTPUT_LOG}
+    Override LogConf File as Global Level  DEBUG
     Kill SophosMTR Executable
     Wait Until SophosMTR Executable Running  20
 
     Kill SophosMTR Executable
     Wait Until SophosMTR Executable Running  20
 
-    #If the file doesn't exist this returns -1 which when passed into Check MTR Telemetry Json Is Correct
-    #causes the cpu and memory restarts to not be added to expected telemetry
-    ${Expected_Restarts} =  Check If We Expect Telemetry For Restarts  ${OSQUERYD_OUTPUT_LOG}
+
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
