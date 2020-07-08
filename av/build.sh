@@ -254,18 +254,12 @@ function untar_input()
 
 function unzip_lrdata()
 {
-    local LRDATA_ZIP=${INPUT}/lrdata/reputation.zip
-    if [[ ! -f "$LRDATA_ZIP" ]]
-    then
-        echo "Can't find $LRDATA_ZIP - expected if we have a production build"
-        return
-    fi
-    local DEST=$REDIST/susi_build/version1/lrdata
-    ## Make sure to remove any previous version of this
-    rm -rf "${DEST}"
-    mkdir -p "$DEST"
-    pushd "$DEST"
-    unzip "$LRDATA_ZIP"
+    local ZIP=${INPUT}/lrdata/reputation.zip
+    local DEST=${REDIST}/lrdata
+
+    mkdir -p $DEST
+    pushd $DEST
+    unzip $ZIP
     popd
 }
 
