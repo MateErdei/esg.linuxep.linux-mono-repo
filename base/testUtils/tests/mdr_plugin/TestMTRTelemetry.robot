@@ -45,7 +45,7 @@ MTR Plugin Produces Telemetry With Empty OSQueryD Output Log File
     Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0
 
 
-MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart and No Telemetry To Report
+MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart And Also Uses Cached Values From Disk
     Install MTR From Fake Component Suite
     Create File  ${OSQUERYD_OUTPUT_LOG}
     Kill SophosMTR Executable
@@ -141,7 +141,7 @@ MTR Plugin Counts Osquery Database Purges
 MTR Plugin Counts SophosMTR Restarts Correctly And Reports In Telemetry
     Install MTR From Fake Component Suite
     Create File  ${OSQUERYD_OUTPUT_LOG}
-    Override LogConf File as Global Level  DEBUG
+    # the server seems to die if it doesn't recieve any input for a while
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
 
     Kill SophosMTR Executable
