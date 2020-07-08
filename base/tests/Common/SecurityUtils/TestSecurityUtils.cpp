@@ -36,23 +36,19 @@ TEST(TestSecurityUtils, TestDropPrivilegeToNobody) // NOLINT
 
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
     ASSERT_EXIT({
+                    auto userNobody = getUserIdAndGroupId("nobody", "nobody");
+                    dropPrivileges("nobody", "nobody");
 
-        auto userent = getpwnam("nobody");
-        auto cuid = userent->pw_uid;
-        auto cgid = userent->pw_gid;
-        std::cout << "nobody: " << userent->pw_uid << " id" << std::endl;
-        dropPrivileges(userent->pw_gid, userent->pw_uid);
+                    auto current_uid = getuid();
+                    auto current_gid = getgid();
+                    std::cout << "actual uid: " << current_uid << "target value: " << userNobody->m_userid << std::endl;
 
-        auto current_uid = getuid();
-        auto current_gid = getgid();
-        std::cout << "curent uid: " << current_uid << "current value: " << userent->pw_uid << std::endl;
-        if ( current_uid == cuid && current_gid==cgid)
-        {
-            exit(0);
-        }
-        exit(2);  },
-            ::testing::ExitedWithCode(0),".*");
-
+                    if (current_uid == userNobody->m_userid && current_gid == userNobody->m_groupid) {
+                        exit(0);
+                    }
+                    exit(2);
+                },
+                ::testing::ExitedWithCode(0), ".*");
 }
 
 
@@ -140,10 +136,10 @@ TEST(TestSecurityUtils, TestchrootAndDropPrivilegesAbortIfNotRealUser) // NOLINT
     MAYSKIP;
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
     ASSERT_EXIT({
-        chrootAndDropPrivileges("notArealUser", "/tmp");
-        exit(0);
-        },
-                ::testing::ExitedWithCode(EXIT_FAILURE),".*");
+                    chrootAndDropPrivileges("notArealUser", "notArealGrp", "/tmp");
+                    exit(0);
+                },
+                ::testing::ExitedWithCode(EXIT_FAILURE), ".*");
 }
 
 TEST(TestSecurityUtils, TestChrootAndDropPrivilegesSuccessfully) // NOLINT
@@ -152,25 +148,23 @@ TEST(TestSecurityUtils, TestChrootAndDropPrivilegesSuccessfully) // NOLINT
 
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
     ASSERT_EXIT({
-        auto oldUid = getuid();
-        auto userent = getpwnam("nobody");
-        auto nobodyUid = userent->pw_uid;
-        auto nobodyGid = userent->pw_gid;
-        std::cout << "nobody: " << nobodyUid << " id" << std::endl;
-        ASSERT_NE(oldUid, nobodyUid);
-        chrootAndDropPrivileges("nobody", "/tmp");
+                    auto userNobody = getUserIdAndGroupId("nobody", "nobody");
+                    auto nobodyUid = userNobody->m_userid;
+                    auto nobodyGid = userNobody->m_groupid;
 
-        auto current_uid = getuid();
-        auto current_gid = getgid();
-        std::cout << "curent uid: " << current_uid << "current value: " << nobodyUid << std::endl;
+                    chrootAndDropPrivileges("nobody", "nobody", "/tmp");
 
-        //test can't see outside chroot /tmp/tempath*
-        std::ifstream passwdFile ("/etc/passwd");
-        if ( current_uid == nobodyUid && current_gid==nobodyGid && (!passwdFile.is_open()))
-        {
-            exit(0);
-        }
-        exit(2);  },
-                ::testing::ExitedWithCode(0),".*");
+                    auto current_uid = getuid();
+                    auto current_gid = getgid();
+                    std::cout << "current uid: " << current_uid << "target value: " << nobodyUid << std::endl;
+
+                    //test can't see outside chroot /tmp/tempath*
+                    std::ifstream passwdFile("/etc/passwd");
+                    if (current_uid == nobodyUid && current_gid == nobodyGid && (!passwdFile.is_open())) {
+                        exit(0);
+                    }
+                    exit(2);
+                },
+                ::testing::ExitedWithCode(0), ".*");
 
 }
