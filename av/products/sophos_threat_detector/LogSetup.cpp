@@ -14,7 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 LogSetup::LogSetup()
 {
     std::string logfilepath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-    logfilepath += "/plugins/av/log/sophos_threat_detector.log";
+    logfilepath += "/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log";
 
     Common::Logging::ConsoleFileLoggingSetup::setupConsoleFileLoggingWithPath(logfilepath);
 }

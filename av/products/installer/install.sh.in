@@ -78,10 +78,17 @@ chmod 0700 "$VAR"
 CHROOT="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/chroot"
 CHROOT_LINK_DIR="${CHROOT}/${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 mkdir -p ${CHROOT_LINK_DIR}
-ln -s / ${CHROOT_LINK_DIR}/chroot
+ln -snf / ${CHROOT_LINK_DIR}/chroot
 mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
-mkdir ${CHROOT}/tmp
+mkdir -p ${CHROOT}/tmp
 chmod -R 0711 "$CHROOT"
+
+## Create log directory symlinks for sophos_threat_detector
+mkdir -p "$CHROOT/log" "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log" "${CHROOT_LINK_DIR}/log"
+ln -snf "$CHROOT/log" "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log/sophos_threat_detector"
+ln -snf "/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector"
+
+## Temporary - will need to adapt to hot-updating in SuSI
 cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${CHROOT}/susi/distribution_version/version1/
 
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
