@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cstdlib>
 #include <grp.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <sstream>
 
 
 namespace Common::SecurityUtils
@@ -18,8 +19,7 @@ namespace Common::SecurityUtils
     /*
      * drop privileges permanently, effective if the process is root.
      * params: git_t newgid, uid_t newuid (force to use real non-privileged user)
-     * Ref: https://learning.oreilly.com/library/view/secure-programming-cookbook/0596003943/ch01s03.html
-     */
+    */
     void dropPrivileges(uid_t newuid, gid_t newgid) {
         gid_t oldgid = getegid();
         uid_t olduid = geteuid();
@@ -57,6 +57,9 @@ namespace Common::SecurityUtils
     void dropPrivileges(const std::string &userString, const std::string &groupString) {
         auto runUser = getUserIdAndGroupId(userString, groupString);
         if (!runUser.has_value()) {
+            std::stringstream userlookup;
+            userlookup << "User lookup for user: " << userString << "and group: " << groupString << "failed";
+            perror(userlookup.str().c_str());
             exit(EXIT_FAILURE);
         }
 
@@ -66,18 +69,20 @@ namespace Common::SecurityUtils
 
     /*
      * Must be called after user look up and before privilege drop
+     * Ref: https://wiki.sophos.net/display/~MoritzGrimm/Validate+Transitive+Trust+in+Endpoints
+     * Ref: http://www.unixwiz.net/techtips/chroot-practices.html
      */
     void setupJailAndGoIn(const std::string &chrootDirPath) {
         if (chdir(chrootDirPath.c_str())) {
-            std::cout << "failed to chdir to jail" << std::endl;
+            perror("failed to chdir to jail");
             exit(EXIT_FAILURE);
         }
         if (chroot(chrootDirPath.c_str())) {
-            std::cout << "failed to chroot to jail" << std::endl;
+            perror("process failed to chroot");
             exit(EXIT_FAILURE);
         }
         if (setenv("PWD", "/", 1)) {
-            std::cout << "failed to sync PWD" << std::endl;
+            perror("failed to sync PWD environment variable");
             exit(EXIT_FAILURE);
         }
     }
