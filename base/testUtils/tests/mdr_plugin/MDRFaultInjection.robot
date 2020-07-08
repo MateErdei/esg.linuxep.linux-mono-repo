@@ -35,6 +35,7 @@ ${bigspam}          --bigspam
 ${numberSpam}        --num-spam
 ${deadlock}         --deadlock
 ${crash}            --crash
+${exit}             --exit
 
 
 *** Test Cases ***
@@ -119,14 +120,14 @@ MTR Plugin Restarts Fake MTR Agent When It Stops Unexpectedly
     Check Intended Fault Injection Argument Was Used  ${run}
 
 MDR Plugin Restarts MDR Agent When It Stops On Its Own
-    Create Fake Sophos MDR Executable With Pick Your Poison  ${crash}
+    Create Fake Sophos MDR Executable With Pick Your Poison  ${exit}
     Wait for MDR Executable To Be Running
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
     ...  Check SophosMTR Executable Not Running
     Wait for MDR Executable To Be Running
-    Check Intended Fault Injection Argument Was Used  ${crash}
+    Check Intended Fault Injection Argument Was Used  ${exit}
 
 Start MDR Plugin Without An MDR Executable Raises Error
     Wait Until Keyword Succeeds

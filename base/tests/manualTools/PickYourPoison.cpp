@@ -78,6 +78,7 @@ int printUsageAndExit() {
                  "\t--gobble        - continuously append items to a vector to use up progressively more memory\n"
                  "\t--run           - just run without induced errors\n"
                  "\t--hello-world\n"
+                 "\t--exit\n"
                  "\t--help          - show this dialogue\n"
             ;
 
@@ -127,16 +128,19 @@ std::string readFile(std::string)
     }
 }
 
-void crash()
-{
+void crash() {
     std::this_thread::sleep_for(std::chrono::seconds(5));
     abort();
 }
 
-void deadlock()
-{
+void exit() {
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    exit(EXIT_SUCCESS);
+}
 
-    auto t1 = std::async( std::launch::async, [](){
+void deadlock() {
+
+    auto t1 = std::async(std::launch::async, []() {
         std::cout << "Entering deadlock" << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
         std::cout << "Now in deadlock" << std::endl;
@@ -204,26 +208,22 @@ int main(int argc, char *argv[]) {
         argument = readFile(argumentFile);
         argument.erase(std::remove(argument.begin(), argument.end(), '\n'), argument.end());
         std::cout << "using argument: " << argument << " from " << argumentFile << std::endl;
-    }
-    else if (argc == 2)
-    {
+    } else if (argc == 2) {
         argument = argv[1];
         std::cout << "using argument: " << argument << " from command line" << std::endl;
-    }
-    else
-    {
+    } else {
         return printUsageAndExit();
     }
 
-    if (argument == "--crash")
-    {
+    if (argument == "--exit") {
+        exit();
+    }
+
+    if (argument == "--crash") {
         crash();
-    }
-    else if (argument == "--spam")
-    {
+    } else if (argument == "--spam") {
         spamOutErr();
-    }
-    else if (argument == "--num-spam")
+    } else if (argument == "--num-spam")
     {
         numSpam();
     }
