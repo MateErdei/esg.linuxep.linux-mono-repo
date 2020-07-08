@@ -24,8 +24,6 @@ namespace
 
     class TestManifestDiff : public ::testing::Test
     {
-    public:
-        void TearDown() override { Tests::restoreFileSystem(); }
     };
 
     TEST_F(TestManifestDiff, calculateAddedWorksCorrectly) // NOLINT
@@ -44,7 +42,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(two_entries));
@@ -60,7 +58,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(two_entries));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry));
@@ -77,7 +75,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry_changed));

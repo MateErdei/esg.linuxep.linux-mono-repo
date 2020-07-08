@@ -25,14 +25,12 @@ public:
         Common::ApplicationConfiguration::replaceApplicationPathManager(
             std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
         m_mockFileSystem = new StrictMock<MockFileSystem>();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(m_mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystem));        
     }
 
     void TearDown() override
     {
         Common::ApplicationConfiguration::restoreApplicationPathManager();
-        Tests::restoreFileSystem();
     }
 
     StrictMock<MockFileSystem>* m_mockFileSystem;
@@ -40,6 +38,8 @@ public:
 
 private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    Tests::ScopedReplaceFileSystem m_replacer; 
+
 };
 
 TEST_F(TestStatusCache, testConstruction) // NOLINT

@@ -23,13 +23,13 @@ namespace
     {
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
         IgnoreFilePermissions ignoreFilePermissions;
+        Tests::ScopedReplaceFileSystem m_replacer; 
 
     public:
         TestWatchdog()
         {
             auto mockFileSystem = new StrictMock<MockFileSystem>();
-            std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-            Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+            m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));            
 
             EXPECT_CALL(*mockFileSystem, isDirectory(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
             EXPECT_CALL(*mockFileSystem, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
@@ -42,7 +42,6 @@ namespace
         ~TestWatchdog()
         {
             Tests::restoreFilePermissions();
-            Tests::restoreFileSystem();
         }
     };
 

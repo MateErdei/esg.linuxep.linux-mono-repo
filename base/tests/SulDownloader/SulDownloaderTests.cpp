@@ -88,7 +88,6 @@ public:
      */
     void TearDown() override
     {
-        Tests::restoreFileSystem();
         Common::FileSystemImpl::restorePidLockUtils();
         SulDownloader::suldownloaderdata::VersigFactory::instance().restoreCreator();
         TestWarehouseHelper helper;
@@ -284,7 +283,7 @@ public:
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
 
         auto pointer = filesystemMock;
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
     }
 
@@ -371,6 +370,8 @@ public:
 
 protected:
     MockWarehouseRepository* m_mockptr = nullptr;
+    Tests::ScopedReplaceFileSystem m_replacer; 
+
 };
 
 TEST_F(SULDownloaderTest, configurationDataVerificationOfDefaultSettingsReturnsTrue) // NOLINT
@@ -384,7 +385,7 @@ TEST_F(SULDownloaderTest, configurationDataVerificationOfDefaultSettingsReturnsT
 TEST_F(SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode) // NOLINT
 {
     auto filesystemMock = new MockFileSystem();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     int expectedErrorCode = -2;
 
@@ -721,7 +722,7 @@ TEST_F( // NOLINT
     fileEntriesAndRunDownloaderThrowIfCannotCreateOutputFile)
 {
     auto filesystemMock = new MockFileSystem();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     EXPECT_CALL(*filesystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
@@ -736,8 +737,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     configAndRunDownloaderInvalidSettingsReportError_WarehouseStatus_UNSPECIFIED)
 {
-    auto filesystemMock = new MockFileSystem();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(new MockFileSystem())};
     std::string reportContent;
     int exitCode = 0;
     auto settings = defaultSettings();

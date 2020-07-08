@@ -421,7 +421,6 @@ public:
     }
     void TearDown() override
     {
-        Tests::restoreFileSystem();
         Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
     }
 
@@ -451,14 +450,16 @@ public:
             *pointer,
             exists("/opt/sophos-spl/tmp/.upgradeToNewWarehouse"))
             .WillRepeatedly(Return(false));
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
     }
 
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     std::shared_ptr<SchedulerTaskQueue> m_queue;
     std::shared_ptr<SchedulerPluginCallback> m_pluginCallback;
+    Tests::ScopedReplaceFileSystem m_replacer; 
+
 };
 
 TEST_F(TestUpdateScheduler, shutdownReceivedShouldStopScheduler) // NOLINT

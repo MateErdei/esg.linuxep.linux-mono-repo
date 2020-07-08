@@ -90,9 +90,9 @@ public:
 
     void SetUp() override
     {
-        std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
-        m_mockFileSystem = mockfileSystem.get();
-        Tests::replaceFileSystem(std::move(mockfileSystem));
+        m_mockFileSystem = new StrictMock<MockFileSystem>();
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystem));
+
 
         std::unique_ptr<MockFilePermissions> mockfilePermissions(new StrictMock<MockFilePermissions>());
         m_mockFilePermissions = mockfilePermissions.get();
@@ -109,6 +109,7 @@ public:
     }
 
     void TearDown() override {}
+    Tests::ScopedReplaceFileSystem m_replacer; 
 };
 
 TEST_F(SchedulerProcessorTests, CanBeConstructed) // NOLINT

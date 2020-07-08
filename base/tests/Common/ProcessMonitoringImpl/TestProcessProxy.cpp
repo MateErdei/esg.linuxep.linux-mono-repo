@@ -24,7 +24,6 @@ namespace
     public:
         ~TestProcessProxy()
         {
-            Tests::restoreFileSystem();
             Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
         }
 
@@ -61,7 +60,7 @@ TEST_F(TestProcessProxy, WontStartPluginIfExecutableDoesNotExist) // NOLINT
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(false));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     auto info = Common::Process::createEmptyProcessInfo();
     info->setExecutableUserAndGroup("root:root");
@@ -84,7 +83,8 @@ TEST_F(TestProcessProxy, WontStartPluginIfExecutableGroupUserNameIsUnset) // NOL
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     auto info = Common::Process::createEmptyProcessInfo();
     info->setExecutableFullPath(execPath);
@@ -112,7 +112,7 @@ TEST_F(TestProcessProxy, WillStartPluginWithExecutable) // NOLINT
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     auto info = Common::Process::createEmptyProcessInfo();
     info->setExecutableUserAndGroup("root:root");
@@ -144,7 +144,7 @@ TEST_F(TestProcessProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     auto info = Common::Process::createEmptyProcessInfo();
     info->setExecutableUserAndGroup("root:root");
@@ -184,7 +184,7 @@ TEST_F(TestProcessProxy, checkExpectedExitIsNotLogged) // NOLINT
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     auto info = Common::Process::createEmptyProcessInfo();
     info->setExecutableUserAndGroup("root:root");
@@ -227,7 +227,7 @@ TEST_F(TestProcessProxy, checkDoesNotReportErrorWhenItIssuesKill) // NOLINT
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
         new SequenceOfFakeTime({ 10, 10 + 3 }, std::chrono::milliseconds(0), []() {})));
@@ -274,7 +274,7 @@ TEST_F(TestProcessProxy, checkItDoesReportErrorWhenItDidNotIssueKill) // NOLINT
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
         new SequenceOfFakeTime({ 10, 10 + 3 }, std::chrono::milliseconds(0), []() {})));
@@ -314,7 +314,7 @@ TEST_F(TestProcessProxy, checkItDoesReportDiedWithWhenIsDifferentCode) // NOLINT
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
         new SequenceOfFakeTime({ 10, 10 + 3 }, std::chrono::milliseconds(0), []() {})));

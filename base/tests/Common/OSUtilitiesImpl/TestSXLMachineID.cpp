@@ -16,12 +16,12 @@ class TestSXLMachineID : public ::testing::Test
 public:
     TestSXLMachineID()
     {
-        std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
-        mockIFileSystemPtr = mockfileSystem.get();
-        Tests::replaceFileSystem(std::move(mockfileSystem));
+        mockIFileSystemPtr = new StrictMock<MockFileSystem>();
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockIFileSystemPtr));        
     }
-    ~TestSXLMachineID() { Tests::restoreFileSystem(); }
     MockFileSystem* mockIFileSystemPtr;
+    Tests::ScopedReplaceFileSystem m_replacer; 
+    
 };
 
 TEST_F(TestSXLMachineID, SXLMachineIDShouldCreateMachineIDWhenInstalling) // NOLINT

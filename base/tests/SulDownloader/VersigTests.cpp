@@ -29,9 +29,8 @@ public:
         telemManifestdat = "/installroot/cache/update/Primary/product/telem-manifest.dat";
         versigExec = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
         fileSystemMock = new MockFileSystem();
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));        
     }
-    ~VersigTests() override { Tests::restoreFileSystem(); }
     SulDownloader::suldownloaderdata::ConfigurationData m_configurationData;
     std::string rootca;
     std::string productDir;
@@ -40,6 +39,8 @@ public:
     std::string telemManifestdat;
     MockFileSystem* fileSystemMock;
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    Tests::ScopedReplaceFileSystem m_replacer; 
+
 };
 using VS = SulDownloader::suldownloaderdata::IVersig::VerifySignature;
 

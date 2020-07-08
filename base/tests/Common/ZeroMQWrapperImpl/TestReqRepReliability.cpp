@@ -124,6 +124,7 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWork) // NOLINT
     {
+        testing::FLAGS_gtest_death_test_style="threadsafe";
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
@@ -154,6 +155,7 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply) // NOLINT
     {
+        testing::FLAGS_gtest_death_test_style="threadsafe";
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
@@ -258,6 +260,7 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, replierShouldNotBreakIfRequesterFails) // NOLINT
     {
+        testing::FLAGS_gtest_death_test_style="threadsafe";
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();

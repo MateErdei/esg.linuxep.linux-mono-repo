@@ -436,7 +436,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsSelinuxOk) // NOLINT
     MockFileSystem* mockFileSystem = nullptr;
     std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
     mockFileSystem = mockfileSystem.get();
-    Tests::replaceFileSystem(std::move(mockfileSystem));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockfileSystem));
 
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(selinuxStatusTelemetryConfig, {});
 

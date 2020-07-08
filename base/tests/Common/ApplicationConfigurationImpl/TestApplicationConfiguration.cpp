@@ -22,15 +22,15 @@ public:
     ApplicationConfigurationTests()
     {
         m_mockFileSystem = new StrictMock<MockFileSystem>(false); // Cleaned up by unique_ptr below
-        std::unique_ptr<MockFileSystem> mockFileSystemUniquePtr(m_mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockFileSystemUniquePtr));
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystem));
+
     }
 
     ~ApplicationConfigurationTests() override
     {
-        Tests::restoreFileSystem();
         unsetenv("SOPHOS_INSTALL");
     }
+    Tests::ScopedReplaceFileSystem m_replacer; 
 
     MockFileSystem* m_mockFileSystem;
 };

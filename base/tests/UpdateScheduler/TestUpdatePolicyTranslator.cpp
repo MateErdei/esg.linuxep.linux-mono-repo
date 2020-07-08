@@ -411,7 +411,6 @@ public:
     TestUpdatePolicyTranslator() : m_loggingSetup() {}
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
-    void TearDown() override { Tests::restoreFileSystem(); }
 };
 
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
@@ -425,7 +424,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -487,7 +486,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -504,7 +503,7 @@ TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -522,7 +521,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -580,7 +579,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -618,7 +617,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStill
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     UpdatePolicyTranslator translator;
@@ -644,7 +643,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty) // NOLINT
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     UpdatePolicyTranslator translator;
@@ -660,7 +659,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndRese
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     UpdatePolicyTranslator translator;
@@ -702,7 +701,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) // NOLINT
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -729,7 +728,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
 
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -765,7 +764,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
 
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -788,7 +787,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -844,7 +843,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -903,7 +902,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -939,7 +938,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreRep
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -991,7 +990,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
@@ -1029,7 +1028,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 

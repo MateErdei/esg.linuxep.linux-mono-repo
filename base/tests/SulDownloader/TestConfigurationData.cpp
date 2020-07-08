@@ -21,7 +21,7 @@ using namespace SulDownloader::suldownloaderdata;
 class ConfigurationDataTest : public ConfigurationDataBase
 {
 public:
-    ~ConfigurationDataTest() { Tests::restoreFileSystem(); }
+    ~ConfigurationDataTest() { }
 
     MockFileSystem& setupFileSystemAndGetMock()
     {
@@ -38,10 +38,11 @@ public:
         ON_CALL(*filesystemMock, exists(empty)).WillByDefault(Return(false));
         ON_CALL(*filesystemMock, exists(Ne(empty))).WillByDefault(Return(true));
 
-        auto pointer = filesystemMock;
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-        return *pointer;
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        return *filesystemMock;
     }
+Tests::ScopedReplaceFileSystem m_replacer; 
+
 
     ::testing::AssertionResult configurationDataIsEquivalent(
         const char* m_expr,

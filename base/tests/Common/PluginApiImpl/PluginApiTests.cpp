@@ -35,6 +35,9 @@ namespace
     class PluginApiTests : public ::testing::Test
     {
     public:
+        PluginApiTests()
+        {  
+        }
         void SetUp() override
         {
             MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
@@ -45,11 +48,7 @@ namespace
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
 
             auto mockFileSystem = new StrictMock<MockFileSystem>();
-            std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-            Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
-
-            EXPECT_CALL(*mockFileSystem, isFile(
-                    "/opt/sophos-spl/base/telemetry/cache/plugin-telemetry.json")).WillOnce(Return(false));
+            m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));
 
             auto mockFilePermissions = new StrictMock<MockFilePermissions>();
             std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
@@ -68,10 +67,12 @@ namespace
             pluginResourceManagement.setDefaultTimeout(500);
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback);
         }
+
         void TearDown() override
         {
             Common::ApplicationConfiguration::restoreApplicationPathManager();
             plugin.reset();
+            
             if (server.joinable())
             {
                 server.join();
@@ -88,12 +89,14 @@ namespace
 
             return dataMessage;
         }
+        Tests::ScopedReplaceFileSystem m_replacer;
         Common::Logging::ConsoleLoggingSetup m_consoleLogging;
         PluginResourceManagement pluginResourceManagement;
         SingleResponseServer responseServer;
         std::thread server;
-        std::shared_ptr<MockedPluginApiCallback> mockPluginCallback;
+        std::shared_ptr<MockedPluginApiCallback> mockPluginCallback;        
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> plugin;
+
     };
 
     TEST_F(PluginApiTests, pluginAPIcanSendEvent) // NOLINT

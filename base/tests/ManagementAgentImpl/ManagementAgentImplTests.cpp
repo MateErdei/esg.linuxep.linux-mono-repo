@@ -97,7 +97,7 @@ namespace
     TEST_F(ManagementAgentImplTests, initialiseWillSetupManagementAgentAndNotThrow) // NOLINT
     {
         auto filesystemMock = new NiceMock<MockFileSystem>();
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
         std::vector<std::string> pluginFiles = { "PluginName.json" };
 
@@ -138,7 +138,7 @@ namespace
     TEST_F(ManagementAgentImplTests, initialiseManagementAgentWillAddStatusTaskToQueue) // NOLINT
     {
         auto filesystemMock = new NiceMock<MockFileSystem>();
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
         std::vector<std::string> pluginFiles = { "PluginName.json" };
 

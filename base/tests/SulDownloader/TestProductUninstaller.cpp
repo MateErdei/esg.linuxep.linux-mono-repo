@@ -26,13 +26,12 @@ class ProductUninstallerTest : public ::testing::Test
     void SetUp() override
     {
         m_fileSystemMock = new StrictMock<MockFileSystem>();
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(m_fileSystemMock));
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_fileSystemMock));        
         m_defaultDistributionPath = "/opt/sophos-spl/base/update/cache/primary/product";
     }
 
     void TearDown() override
     {
-        Tests::restoreFileSystem();
         Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
     }
 
@@ -73,6 +72,8 @@ public:
     MockFileSystem* m_fileSystemMock; // BORROWED
     ::testing::StrictMock<MockWarehouseRepository> m_mockWarehouseRepository;
     std::string m_defaultDistributionPath;
+    Tests::ScopedReplaceFileSystem m_replacer; 
+    
 };
 
 TEST_F(ProductUninstallerTest, defaultConstructorDoesNotThrow) // NOLINT

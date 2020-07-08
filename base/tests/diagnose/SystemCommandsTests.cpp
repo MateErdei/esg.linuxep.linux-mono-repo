@@ -48,14 +48,16 @@ public:
         });
 
         m_mockFileSystem = new StrictMock<MockFileSystem>();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(m_mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystem));        
     }
 
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     std::vector<std::unique_ptr<MockProcess>> m_mockProcesses;
 
     StrictMock<MockFileSystem>* m_mockFileSystem;
+    Tests::ScopedReplaceFileSystem m_replacer; 
+
+    
 
 private:
     size_t m_mockProcessIndex = 0;

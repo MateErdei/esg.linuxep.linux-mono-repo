@@ -45,7 +45,7 @@ namespace
     class FileSystemImplTest : public ::testing::Test
     {
     public:
-        ~FileSystemImplTest() { Tests::restoreFileSystem(); }
+        ~FileSystemImplTest() { }
         std::unique_ptr<IFileSystem> m_fileSystem;
         void SetUp() override { m_fileSystem.reset(new FileSystemImpl()); }
 
@@ -558,7 +558,7 @@ namespace
         // With wrong permissions file will exist but not open
         EXPECT_CALL(*mockFileSystem, exists(A)).WillOnce(Return(true));
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
         copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', reading file failed.");
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
@@ -587,7 +587,7 @@ namespace
         EXPECT_CALL(*mockFileSystem, fileSize(dest)).WillOnce(Return(0));
         EXPECT_CALL(*mockFileSystem, removeFile(dest)).WillOnce(Return());
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
         copyFileAndExpectThrow(
             src,
             dest,

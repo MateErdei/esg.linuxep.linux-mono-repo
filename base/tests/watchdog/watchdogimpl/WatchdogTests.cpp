@@ -24,11 +24,6 @@ namespace
 
     public:
         TestWatchdog() {}
-        ~TestWatchdog()
-        {
-            Tests::restoreFileSystem();
-        }
-
         watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs() { return readPluginConfigs(); }
     };
 
@@ -48,14 +43,15 @@ namespace
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
 
             m_mockFileSystemPtr = new StrictMock<MockFileSystem>();
-            std::unique_ptr<MockFileSystem> mockIFileSystemPtr(m_mockFileSystemPtr);
-            Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+            m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystemPtr));
             EXPECT_CALL(*m_mockFileSystemPtr, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
         }
 
         void TearDown() override { Common::ApplicationConfiguration::restoreApplicationPathManager(); }
         IgnoreFilePermissions ignoreFilePermissions;
         MockFileSystem* m_mockFileSystemPtr;
+        Tests::ScopedReplaceFileSystem m_replacer; 
+
     };
 
     std::string createJsonString(const std::string& oldPartString, const std::string& newPartString)

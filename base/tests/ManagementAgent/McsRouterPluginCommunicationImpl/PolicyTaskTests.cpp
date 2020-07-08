@@ -36,13 +36,12 @@ TEST_F(PolicyTaskTests, PolicyTaskAssignsPolicyWhenRun) // NOLINT
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask task(
         m_mockPluginManager, "/tmp/policy/SAV-11_policy.xml");
     task.run();
 
-    Tests::restoreFileSystem();
 }
 
 TEST_F(PolicyTaskTests, PolicyTaskHandlesNameWithoutHyphen) // NOLINT

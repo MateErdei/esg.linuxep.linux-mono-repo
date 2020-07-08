@@ -39,7 +39,8 @@ TEST_F(PolicyReceiverImplTests, PolicyReceiverConstructorWithValidDataDoesNotThr
 TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAddedToQeue) // NOLINT
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    
 
     std::string appId = "AppID";
     std::string policyId = "25";
@@ -56,13 +57,12 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
 
     EXPECT_NE(task.get(), nullptr);
 
-    Tests::restoreFileSystem();
 }
 
 TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) // NOLINT
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     std::string appId = "AppID";
     std::string policyId = "25";
@@ -87,5 +87,4 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) // NOLI
 
     task->run();
 
-    Tests::restoreFileSystem();
 }

@@ -69,15 +69,13 @@ namespace
             std::thread registration(handleRegistration, pluginResourceManagement.getSocketContext());
 
             auto mockFileSystem = new StrictMock<MockFileSystem>();
-            std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-            Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+            m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));            
 
             auto mockFilePermissions = new StrictMock<MockFilePermissions>();
             std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
                 std::unique_ptr<MockFilePermissions>(mockFilePermissions);
             Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
-            EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/telemetry/cache/plugin-telemetry.json")).WillOnce(Return(false));
             EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
             EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
 
@@ -123,6 +121,7 @@ namespace
 
         std::shared_ptr<MockedPluginApiCallback> mockPluginCallback;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> plugin;
+        Tests::ScopedReplaceFileSystem m_replacer; 
     };
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatus) // NOLINT

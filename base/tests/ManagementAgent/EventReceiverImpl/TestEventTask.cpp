@@ -43,10 +43,9 @@ TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated) // NOLINT
             MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp"))
         .WillOnce(Return());
 
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     task.run();
-    Tests::restoreFileSystem();
 }
 
 TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreated) // NOLINT
@@ -73,12 +72,10 @@ TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCre
                 MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp"))
             .WillOnce(SaveArg<0>(&base2));
     }
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     task.run();
     task2.run();
-
-    Tests::restoreFileSystem();
 
     //    std::cerr << "base1=" << base1 << std::endl;
     //    std::cerr << "base2=" << base2 << std::endl;
