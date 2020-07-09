@@ -11,7 +11,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <pwd.h>
 #include <optional>
 
-namespace Common::SecurityUtils {
+namespace Common::SecurityUtils
+{
     struct UserNGroupIdStruct
     {
         uid_t m_userid;
