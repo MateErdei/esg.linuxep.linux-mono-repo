@@ -144,6 +144,7 @@ void unixsocket::ScanningServerConnectionThread::run()
     max = addFD(&readFDs, exitFD, max);
     max = addFD(&readFDs, socket_fd, max);
     threat_scanner::IThreatScannerPtr scanner;
+    bool loggedLengthOfZero = false;
 
     while (true)
     {
@@ -174,9 +175,10 @@ void unixsocket::ScanningServerConnectionThread::run()
                 break;
             }
 
-            if (length == 0)
+            if (length == 0 and not loggedLengthOfZero)
             {
                 LOGDEBUG("Ignoring length of zero / No new messages");
+                loggedLengthOfZero = true;
                 continue;
             }
 
@@ -185,6 +187,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             {
                 buffer_size = 1 + length / sizeof(capnp::word);
                 proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+                loggedLengthOfZero = false;
             }
 
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
