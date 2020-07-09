@@ -87,6 +87,7 @@ chmod -R 0711 "$CHROOT"
 mkdir -p "$CHROOT/log" "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log" "${CHROOT_LINK_DIR}/log"
 ln -snf "$CHROOT/log" "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log/sophos_threat_detector"
 ln -snf "/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector"
+ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log/sophos_threat_detector.log"
 
 ## Temporary - will need to adapt to hot-updating in SuSI
 cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${CHROOT}/susi/distribution_version/version1/
