@@ -175,10 +175,13 @@ void unixsocket::ScanningServerConnectionThread::run()
                 break;
             }
 
-            if (length == 0 and not loggedLengthOfZero)
+            if (length == 0)
             {
-                LOGDEBUG("Ignoring length of zero / No new messages");
-                loggedLengthOfZero = true;
+                if (not loggedLengthOfZero)
+                {
+                    LOGDEBUG("Ignoring length of zero / No new messages");
+                    loggedLengthOfZero = true;
+                }
                 continue;
             }
 
