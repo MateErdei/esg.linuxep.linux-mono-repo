@@ -6,6 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "FakeSusiScanner.h"
 
+#include "Logger.h"
+
+#include "datatypes/sophos_filesystem.h"
+#include "unixsocket/threatReporterSocket/ThreatReporterClient.h"
+
 #include <iostream>
 #include <string>
 #include <unistd.h>
@@ -14,8 +19,55 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace threat_scanner;
 
+namespace fs = sophos_filesystem;
+
+fs::path fakePluginInstall()
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    return appConfig.getData("PLUGIN_INSTALL");
+}
+
+static fs::path threat_reporter_socket()
+{
+    return fakePluginInstall() / "chroot/threat_report_socket";
+}
+
+void FakeSusiScanner::sendThreatReport(
+    const std::string& threatPath,
+    const std::string& threatName,
+    int64_t scanType,
+    const std::string& userID)
+{
+    if (threatPath.empty())
+    {
+        LOGERROR("ERROR: sendThreatReport with empty path!");
+    }
+
+    fs::path threatReporterSocketPath = threat_reporter_socket();
+    LOGDEBUG("Threat reporter path " << threatReporterSocketPath);
+    unixsocket::ThreatReporterClientSocket threatReporterSocket(threatReporterSocketPath);
+    std::time_t detectionTimeStamp = std::time(nullptr);
+
+    scan_messages::ThreatDetected threatDetected;
+    threatDetected.setUserID(userID);
+    threatDetected.setDetectionTime(detectionTimeStamp);
+    threatDetected.setScanType(static_cast<scan_messages::E_SCAN_TYPE>(scanType));
+    //For now this is always 1 (Virus)
+    threatDetected.setThreatType(scan_messages::E_VIRUS_THREAT_TYPE);
+    threatDetected.setThreatName(threatName);
+    threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
+    threatDetected.setFilePath(threatPath);
+    threatDetected.setActionCode(scan_messages::E_SMT_THREAT_ACTION_NONE);
+
+    threatReporterSocket.sendThreatDetection(threatDetected);
+}
+
 scan_messages::ScanResponse
-FakeSusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
+FakeSusiScanner::scan(
+    datatypes::AutoFd& fd,
+    const std::string& file_path,
+    int64_t scanType,
+    const std::string& userID)
 {
     char buffer[512];
 
@@ -35,7 +87,9 @@ FakeSusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
     response.setClean(clean);
     if (!clean)
     {
-        response.setThreatName("EICAR");
+        std::string threatName = "EICAR";
+        response.setThreatName(threatName);
+        sendThreatReport(file_path, threatName, scanType, userID);
     }
 
     return response;

@@ -21,6 +21,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace threat_scanner;
 using json = nlohmann::json;
+
 namespace fs = sophos_filesystem;
 
 fs::path pluginInstall()
@@ -87,7 +88,11 @@ static fs::path threat_reporter_socket()
     return pluginInstall() / "chroot/threat_report_socket";
 }
 
-void SusiScanner::sendThreatReport(const std::string& threatPath, const std::string& threatName)
+void SusiScanner::sendThreatReport(
+    const std::string& threatPath,
+    const std::string& threatName,
+    int64_t scanType,
+    const std::string& userID)
 {
     if (threatPath.empty())
     {
@@ -100,10 +105,9 @@ void SusiScanner::sendThreatReport(const std::string& threatPath, const std::str
     std::time_t detectionTimeStamp = std::time(nullptr);
 
     scan_messages::ThreatDetected threatDetected;
-    const char* user = std::getenv("USER");
-    threatDetected.setUserID(user ? user : "root");
+    threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(detectionTimeStamp);
-    threatDetected.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    threatDetected.setScanType(static_cast<scan_messages::E_SCAN_TYPE>(scanType));
     //For now this is always 1 (Virus)
     threatDetected.setThreatType(scan_messages::E_VIRUS_THREAT_TYPE);
     threatDetected.setThreatName(threatName);
@@ -115,7 +119,11 @@ void SusiScanner::sendThreatReport(const std::string& threatPath, const std::str
 }
 
 scan_messages::ScanResponse
-SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
+SusiScanner::scan(
+    datatypes::AutoFd& fd,
+    const std::string& file_path,
+    int64_t scanType,
+    const std::string& userID)
 {
     scan_messages::ScanResponse response;
     response.setClean(true);
@@ -151,7 +159,7 @@ SusiScanner::scan(datatypes::AutoFd& fd, const std::string& file_path)
                     LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
                     response.setThreatName(detection["threatName"]);
                     response.setFullScanResult(scanResultUTF8);
-                    sendThreatReport(file_path, detection["threatName"]);
+                    sendThreatReport(file_path, detection["threatName"], scanType, userID);
                 }
             }
         }

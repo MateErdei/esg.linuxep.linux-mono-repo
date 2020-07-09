@@ -42,6 +42,9 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     scan_messages::ClientScanRequest request;
     request.setPath(fileToScanPath);
     request.setScanInsideArchives(m_scanInArchives);
+    request.setScanType(m_scanType);
+    const char* user = std::getenv("USER");
+    request.setUserID(user ? user : "root");
 
     auto response = m_socket.scan(file_fd, request);
 

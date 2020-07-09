@@ -222,7 +222,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
     datatypes::AutoFd fd(1);
-    scan_messages::ScanResponse response = susiScanner.scan(fd, filePath);
+    scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
 
     EXPECT_EQ(response.clean(), true);
 }
@@ -260,7 +260,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
     datatypes::AutoFd fd(1);
-    scan_messages::ScanResponse response = susiScanner.scan(fd, filePath);
+    scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
 
     serverWaitGuard.wait();
     threatReporterServer.requestStop();

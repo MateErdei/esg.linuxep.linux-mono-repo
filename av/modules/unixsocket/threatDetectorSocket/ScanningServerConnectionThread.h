@@ -41,6 +41,8 @@ namespace unixsocket
     {
         std::string pathname;
         bool scanArchives;
+        int64_t scanType;
+        std::string userID;
     };
 }
 

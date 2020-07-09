@@ -18,6 +18,16 @@ void ClientScanRequest::setPath(const std::string& path)
     m_path = path;
 }
 
+void ClientScanRequest::setScanType(E_SCAN_TYPE scanType)
+{
+    m_scanType = scanType;
+}
+
+void ClientScanRequest::setUserID(const std::string& userID)
+{
+    m_userID = userID;
+}
+
 std::string ClientScanRequest::serialise() const
 {
     ::capnp::MallocMessageBuilder message;

@@ -22,7 +22,11 @@ namespace
 {
     class FakeScanner : public threat_scanner::IThreatScanner
     {
-        scan_messages::ScanResponse scan(datatypes::AutoFd&, const std::string& file_path) override
+        scan_messages::ScanResponse scan(
+            datatypes::AutoFd&,
+            const std::string& file_path,
+            int64_t /*scanType*/,
+            const std::string& /*userID*/) override
         {
             PRINT(file_path);
             scan_messages::ScanResponse response;

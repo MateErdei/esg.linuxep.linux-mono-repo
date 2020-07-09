@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "ThreatDetected.h"
 
 #include <string>
 
@@ -28,11 +29,17 @@ namespace scan_messages
             m_scanInsideArchives = a;
         }
 
+        void setScanType(E_SCAN_TYPE scanType);
+
+        void setUserID(const std::string& userID);
+
         [[nodiscard]] std::string serialise() const;
 
     protected:
         std::string m_path;
         bool m_scanInsideArchives = false;
+        std::string m_userID;
+        E_SCAN_TYPE m_scanType;
     };
 
 }

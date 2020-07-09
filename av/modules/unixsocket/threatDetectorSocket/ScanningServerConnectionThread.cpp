@@ -122,6 +122,8 @@ static unixsocket::ScanRequestObject parseRequest(kj::Array<capnp::word>& proto_
     unixsocket::ScanRequestObject scanRequest;
     scanRequest.pathname = requestReader.getPathname();
     scanRequest.scanArchives = requestReader.getScanInsideArchives();
+    scanRequest.scanType = requestReader.getScanType();
+    scanRequest.userID = requestReader.getUserID();
     return scanRequest;
 }
 
@@ -222,7 +224,7 @@ void unixsocket::ScanningServerConnectionThread::run()
 
             datatypes::AutoFd file_fd_manager(file_fd);
 
-            auto result = scanner->scan(file_fd_manager, requestReader.pathname);
+            auto result = scanner->scan(file_fd_manager, requestReader.pathname, requestReader.scanType, requestReader.userID);
             file_fd_manager.reset();
 
             std::string serialised_result = result.serialise();
