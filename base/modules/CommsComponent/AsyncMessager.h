@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 using namespace boost::asio;
 using MessageReceivedCB = std::function<void(std::string)>;
+using NofifySocketClosed = std::function<void()>; 
 using MessageQueue = std::deque<std::string>;
 namespace CommsComponent
 {
@@ -42,11 +43,16 @@ namespace CommsComponent
         */
         void sendMessage(const std::string&);
 
+        void setNotifyClosure(NofifySocketClosed ); 
+
         /* Schedule an asynchronous request to stop the communication. 
            It will send a stop message to the other size to allow it to close as well. 
            */
 
         void push_stop();
+
+
+        void justShutdownSocket();
 
     private:
         void read();
@@ -57,6 +63,7 @@ namespace CommsComponent
         boost::asio::strand<boost::asio::io_context::executor_type> m_strand;
         local::datagram_protocol::socket m_socket;
         MessageReceivedCB m_onNewMessage;
+        NofifySocketClosed m_notifyClosureDetected; 
         std::mutex m_mutex;
         MessageQueue m_queue;
         std::array<char, BufferSize> buffer;

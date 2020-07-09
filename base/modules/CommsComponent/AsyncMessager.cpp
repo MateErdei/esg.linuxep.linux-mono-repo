@@ -23,6 +23,7 @@ namespace CommsComponent
         m_strand(boost::asio::make_strand(m_io)),
         m_socket(std::move(socket)),
         m_onNewMessage(onNewMessage),
+        m_notifyClosureDetected([](){}),
         m_queue(),
         buffer(),
         count{ 0 }
@@ -78,6 +79,7 @@ namespace CommsComponent
                     }
                     else if (StopMessage() == (chunk + controlByte))
                     {
+                        m_notifyClosureDetected(); 
                         return; // request to stop does not rearm the read.
                     }
                     else
@@ -97,6 +99,11 @@ namespace CommsComponent
                     }
                 }
             }));
+    }
+
+    void AsyncMessager::setNotifyClosure(NofifySocketClosed notifySocketClosed)
+    {
+        m_notifyClosureDetected = notifySocketClosed; 
     }
 
     void AsyncMessager::deliverMessage(std::string&& message)
@@ -199,6 +206,12 @@ namespace CommsComponent
                               }
                           }));
 
+        boost::asio::post(m_io, boost::asio::bind_executor(m_strand, [this]() { m_socket.close(); }));
+    }
+
+    void AsyncMessager::justShutdownSocket()
+    {
+        std::lock_guard<std::mutex> lo{ m_mutex };
         boost::asio::post(m_io, boost::asio::bind_executor(m_strand, [this]() { m_socket.close(); }));
     }
 
