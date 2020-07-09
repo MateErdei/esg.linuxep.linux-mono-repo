@@ -13,12 +13,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace Common::SecurityUtils
 {
-    struct UserNGroupIdStruct
+    struct UserIdStruct
     {
         uid_t m_userid;
         gid_t m_groupid;
 
-        UserNGroupIdStruct(uid_t userid, gid_t groupid) : m_userid(userid), m_groupid(groupid) {}
+        UserIdStruct(uid_t userid, gid_t groupid) : m_userid(userid), m_groupid(groupid) {}
     };
 
     void dropPrivileges(uid_t newuid, gid_t newgid);
@@ -30,6 +30,6 @@ namespace Common::SecurityUtils
     void chrootAndDropPrivileges(const std::string &userName, const std::string &groupName,
                                  const std::string &chrootDirPath);
 
-    std::optional<UserNGroupIdStruct> getUserIdAndGroupId(const std::string &userName, const std::string &groupName);
+    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string &userName, const std::string &groupName);
 
 } // namespace Common::SecurityUtils

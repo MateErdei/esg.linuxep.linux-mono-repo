@@ -106,7 +106,7 @@ namespace Common::SecurityUtils
         }
     }
 
-    std::optional<UserNGroupIdStruct> getUserIdAndGroupId(const std::string &userName, const std::string &groupName)
+    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string &userName, const std::string &groupName)
     {
         try
         {
@@ -114,7 +114,7 @@ namespace Common::SecurityUtils
             auto userid = ifperm->getUserId(userName);
             auto groupid = ifperm->getUserId(groupName);
 
-            return std::optional<UserNGroupIdStruct>(UserNGroupIdStruct(userid, groupid));
+            return std::optional<UserIdStruct>(UserIdStruct(userid, groupid));
         }
         catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
         {
