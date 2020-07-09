@@ -38,22 +38,19 @@ namespace Common::SecurityUtils
 
         if (!olduid && setgroups(1, &newgid) == -1)
         {
-            errorString << "Failed to drop other associated group ids, reason: " << std::strerror(errno);
-            perror(errorString.str().c_str());
+            perror("Failed to drop other associated group ids,");
             exit(EXIT_FAILURE);
         }
 
         if (newgid != oldgid && (setregid(newgid, newgid) == -1))
         {
-            errorString << "Failed to set the new real and effective group ids, reason: " << std::strerror(errno);
-            perror(errorString.str().c_str());
+            perror("Failed to set the new real and effective group ids,");
             exit(EXIT_FAILURE);
         }
 
         if (newuid != olduid && (setreuid(newuid, newuid) == -1))
         {
-            errorString << "Failed to set the new real and effective user ids, reason: " << std::strerror(errno);
-            perror(errorString.str().c_str());
+            perror("Failed to set the new real and effective user ids,");
             exit(EXIT_FAILURE);
         }
         /* verify that the changes were successful */
@@ -75,8 +72,7 @@ namespace Common::SecurityUtils
         if (!runUser.has_value())
         {
             std::stringstream userlookup;
-            userlookup << "User lookup for user: " << userString << "and group: "
-                       << groupString << "failed: " << strerror(errno);
+            userlookup << "User lookup for user: " << userString << "and group: " << groupString;
             perror(userlookup.str().c_str());
             exit(EXIT_FAILURE);
         }
@@ -95,20 +91,17 @@ namespace Common::SecurityUtils
         std::stringstream errorString;
         if (chdir(chrootDirPath.c_str()))
         {
-            errorString << "failed to chdir to jail, reason: " << strerror(errno);
-            perror(errorString.str().c_str());
+            perror("Failed to chdir to jail,");
             exit(EXIT_FAILURE);
         }
         if (chroot(chrootDirPath.c_str()))
         {
-            errorString << "Failed to chroot,  reason: " << strerror(errno);
-            perror(errorString.str().c_str());
+            perror("Failed to chroot,");
             exit(EXIT_FAILURE);
         }
         if (setenv("PWD", "/", 1))
         {
-            errorString << "Failed to sync PWD environment variable, reason: " << strerror(errno);
-            perror(errorString.str().c_str());
+            perror("Failed to sync PWD environment variable,");
             exit(EXIT_FAILURE);
         }
     }
