@@ -15,7 +15,7 @@ Resource    ComponentSetup.robot
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
-${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/log/sophos_threat_detector.log
+${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log
 ${SCANNOW_LOG_PATH}  ${AV_PLUGIN_PATH}/log/Scan Now.log
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
@@ -102,10 +102,6 @@ AV Plugin Log Contains
 Threat Detector Log Contains
     [Arguments]  ${input}
     File Log Contains  ${THREAT_DETECTOR_LOG_PATH}   ${input}
-
-Threat Detector Does Not Log Contain
-    [Arguments]  ${input}
-    File Log Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  ${input}
 
 Wait Until AV Plugin Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
@@ -216,6 +212,7 @@ AV And Base Teardown
     ...  15 secs
     ...  1 secs
     ...  Plugin Log Contains      av <> Plugin Finished
+    Run Keyword If Test Failed   Log File   ${THREAT_DETECTOR_LOG_PATH}
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}
     Remove File    ${AV_LOG_PATH}
     Empty Directory  /opt/sophos-spl/base/mcs/event/
