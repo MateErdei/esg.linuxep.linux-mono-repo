@@ -47,6 +47,7 @@ namespace Common::Telemetry
     void TelemetryHelper::increment(const std::string& key, long value) { incrementInternal(key, value); }
 
     void TelemetryHelper::increment(const std::string& key, unsigned long value) { incrementInternal(key, value); }
+    void TelemetryHelper::increment(const std::string& arraykey, const std::string& key, unsigned long value) { incrementArrayInternalKey(arraykey, key, value); }
 
     void TelemetryHelper::appendValue(const std::string& arrayKey, long value) { appendValueInternal(arrayKey, value); }
 
