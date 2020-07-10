@@ -11,15 +11,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <grp.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <sstream>
-#include <cstring>
 
 
 namespace Common::SecurityUtils
 {
-    /*
-     * drop privileges permanently, effective if the process is root.
-     * params: git_t newgid, uid_t newuid (force to use real non-privileged user)
-    */
+
     void dropPrivileges(uid_t newuid, gid_t newgid)
     {
         gid_t oldgid = getegid();

@@ -5,10 +5,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/SecurityUtils/ProcessSecurityUtils.h>
 #include <gtest/gtest.h>
-#include <include/gmock/gmock-matchers.h>
 #include "../Helpers/TempDir.h"
 #include <fstream>
-#include <sys/stat.h>
 
 using namespace Common::SecurityUtils;
 
@@ -43,7 +41,8 @@ TEST(TestSecurityUtils, TestDropPrivilegeToNobody) // NOLINT
                     auto current_gid = getgid();
                     std::cout << "actual uid: " << current_uid << "target value: " << userNobody->m_userid << std::endl;
 
-                    if (current_uid == userNobody->m_userid && current_gid == userNobody->m_groupid) {
+                    if (current_uid == userNobody->m_userid && current_gid == userNobody->m_groupid)
+                    {
                         exit(0);
                     }
                     exit(2);
@@ -51,6 +50,26 @@ TEST(TestSecurityUtils, TestDropPrivilegeToNobody) // NOLINT
                 ::testing::ExitedWithCode(0), ".*");
 }
 
+TEST(TestSecurityUtils, TestDropPrivilegeLowPrivCanNotDrop) // NOLINT
+{
+    MAYSKIP;
+
+    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+    ASSERT_EXIT({
+                    auto userSshd = getUserIdAndGroupId("sshd", "sshd");
+                    dropPrivileges("sshd", "sshd");
+
+                    auto current_uid = getuid();
+                    auto current_gid = getgid();
+                    if (current_uid == userSshd->m_userid && current_gid == userSshd->m_groupid)
+                    {
+                        dropPrivileges("nobody", "nobody");
+                        exit(0);
+                    }
+                    exit(2);
+                },
+                ::testing::ExitedWithCode(1), ".*");
+}
 
 TEST(TestSecurityUtils, TestSetupJailAndGoInSetsPwdEnvVar) // NOLINT
 {
@@ -58,22 +77,23 @@ TEST(TestSecurityUtils, TestSetupJailAndGoInSetsPwdEnvVar) // NOLINT
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
 
     ASSERT_EXIT({
-        char buff[PATH_MAX]={0};
-        std::string oldCwd = getcwd(buff, PATH_MAX);
+                    char buff[PATH_MAX] = {0};
+                    std::string oldCwd = getcwd(buff, PATH_MAX);
 
-        std::cout << "old working dir: " << oldCwd << std::endl;
-        setupJailAndGoIn("/tmp");
+                    std::cout << "old working dir: " << oldCwd << std::endl;
+                    setupJailAndGoIn("/tmp");
 
 
-        std::string newCwd = getcwd(buff, PATH_MAX);
-        std::string newPwdEnv = getenv("PWD");
-        std::string newRoot = "/";
-        std::cout << "new working dir: " << newCwd << std::endl;
-        if ( oldCwd != newCwd && newPwdEnv==newCwd && newRoot == newPwdEnv)
-        {
-            exit(0);
-        }
-        exit(2);  },
+                    std::string newCwd = getcwd(buff, PATH_MAX);
+                    std::string newPwdEnv = getenv("PWD");
+                    std::string newRoot = "/";
+                    std::cout << "new working dir: " << newCwd << std::endl;
+                    if (oldCwd != newCwd && newPwdEnv == newCwd && newRoot == newPwdEnv)
+                    {
+                        exit(0);
+                    }
+                    exit(2);
+                },
         ::testing::ExitedWithCode(0),".*");
 
 }
