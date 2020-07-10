@@ -35,6 +35,12 @@ namespace Common::Telemetry
         void set(const std::string& key, bool value);
         void set(const std::string& key, const TelemetryObject & object, bool stick);
 
+        /**
+         *  Increments the value of the key by the value passed in
+         * @param key: the identifier for the value you want to increment
+         * To increment internal key "key2" when "key1" : {"key2" : value} use "key1.key2" as the key to pass in
+         * @param value: the value you want to add to the existing value of the key
+         */
         void increment(const std::string& key, long value);
         void increment(const std::string& key, unsigned long value);
 
@@ -132,6 +138,7 @@ namespace Common::Telemetry
 
             telemetryObject.set(telemetryValue);
         }
+
         template<class T>
         void appendValueInternal(const std::string& key, T value)
         {
