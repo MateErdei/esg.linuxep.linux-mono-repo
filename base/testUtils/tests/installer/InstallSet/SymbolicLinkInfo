@@ -445,6 +445,7 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsaucrypto.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsaucrypto.so.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsaucrypto.so.0.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsaucrypto.so.0.0.0
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsecurityutils.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsslimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libssl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libssl.so.1

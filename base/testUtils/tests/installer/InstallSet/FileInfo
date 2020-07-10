@@ -71,6 +71,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobufutil.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libreactorimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libretailer_lib.so.0.0.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsaucrypto.so.0.0.0.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsecurityutils.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsslimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libssl.so.1.1.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstatuscacheimpl.so.0
