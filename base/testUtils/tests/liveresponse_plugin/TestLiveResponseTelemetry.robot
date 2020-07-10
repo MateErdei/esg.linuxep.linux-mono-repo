@@ -98,7 +98,7 @@ Liveresponse Plugin no session telemetry if url is empty
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log  Failed to find url and/or thumbprint in actionXml  1
+    ...  Check Liveresponse Log Contains  Failed to find url and/or thumbprint in actionXml
 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -116,7 +116,7 @@ Liveresponse Plugin no session telemetry if thumbprint is empty
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log  Failed to find url and/or thumbprint in actionXml  1
+    ...  Check Liveresponse Log Contains   Failed to find url and/or thumbprint in actionXml  1
 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -135,7 +135,7 @@ Liveresponse Plugin saves session telemetry if plugin stops
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log  Session  1
+    ...  Check Liveresponse Log Contains  Session
 
     Restart Liveresponse Plugin
     Wait Until Keyword Succeeds
@@ -152,6 +152,38 @@ Liveresponse Plugin saves session telemetry if plugin stops
     @{list}=  Create List   url:thumbprint  1
     @{keys}=  Create List   ${list}
     Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${failed_sessions}  ${keys}
+
+Liveresponse Plugin saves mutiple session with different thumbprints in telemetry
+    Swap Out Real Terminal With One That Always Returns Success
+    ${actionContents1} =    Set Variable   <action type="sophos.mgt.action.InitiateLiveTerminal"><url>url</url><thumbprint>thumbprint</thumbprint></action>
+    ${actionContents2} =    Set Variable   <action type="sophos.mgt.action.InitiateLiveTerminal"><url>url</url><thumbprint>thumbprint2</thumbprint></action>
+
+    Write Action file   ${actionContents1}
+
+    # Wait for a session to be started
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Liveresponse Log Contains  Session
+
+    Write Action file   ${actionContents2}
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log   Session  2
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    log  ${telemetryFileContents}
+
+    ${sessions} =  Set Variable  2
+    ${failed_sessions} =  Set Variable  0
+    @{list}=  Create List   url:thumbprint  1
+    @{list2}=  Create List   url:thumbprint2  1
+    @{keys}=  Create List   ${list}  ${list2}
+    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${failed_sessions}  ${keys}
+
 *** Keywords ***
 LiveResponse Telemetry Suite Setup
     Require Fresh Install
