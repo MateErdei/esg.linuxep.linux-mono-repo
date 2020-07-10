@@ -187,13 +187,19 @@ class TelemetryUtils:
 
         return telemetry
 
-    def generate_liveresponse_telemetry_dict(self, total_sessions, failed_sessions):
+    def generate_liveresponse_telemetry_dict(self, total_sessions, failed_sessions, connection_data_keys):
         version = get_plugin_version("liveresponse")
         telemetry = {
             "version": version,
             "total-sessions": total_sessions,
             "failed-sessions": failed_sessions
         }
+        if connection_data_keys:
+            key_dict = {}
+            for key in connection_data_keys:
+                if key[0]:
+                    key_dict[key[0]] = int(key[1])
+            telemetry["session-connection-data"] = key_dict
         return telemetry
 
     def disks_mismatched(self, expected_disks, actual_disks):
@@ -390,8 +396,11 @@ class TelemetryUtils:
     def check_liveresponse_telemetry_json_is_correct(self,
                                                      json_string,
                                                      total_sessions=0,
-                                                     failed_sessions=0):
-        expected_lr_telemetry_dict = self.generate_liveresponse_telemetry_dict(total_sessions, failed_sessions)
+                                                     failed_sessions=0,
+                                                     connection_data_keys=None
+                                                     ):
+        expected_lr_telemetry_dict = self.generate_liveresponse_telemetry_dict(
+                                        total_sessions, failed_sessions, connection_data_keys)
         actual_lr_telemetry_dict = json.loads(json_string)["liveresponse"]
 
         if actual_lr_telemetry_dict != expected_lr_telemetry_dict:

@@ -24,7 +24,8 @@ Default Tags   LIVERESPONSE_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
 
 *** Variables ***
 ${terminal_binary}   ${LIVERESPONSE_DIR}/bin/sophos-live-terminal
-
+@{list}   url:thumbprint  2
+@{keys}   ${list}
 *** Test Cases ***
 Liveresponse Plugin Unexpected Restart Telemetry Is Reported Correctly
     [Documentation]    Check Watchdog Telemetry When Liveresponse Is Present
@@ -112,7 +113,7 @@ Liveresponse Plugin Session Counts Failed
     # Expect 2 sessions to have been run and reported in telemetry
     ${sessions} =  Set Variable  2
     ${failed_sessions} =  Set Variable  1
-    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${failed_sessions}
+    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${failed_sessions}  ${keys}
 
 
 *** Keywords ***
