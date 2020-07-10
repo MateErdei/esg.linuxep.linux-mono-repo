@@ -32,6 +32,7 @@ Resource    UpgradeResources.robot
 
 *** Variables ***
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
+${BaseEdrAndMtrReleasePolicy}               ${GeneratedWarehousePolicies}/base_edr_and_mtr_VUT-1.xml
 ${BaseAndEDROldWHFormat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${BaseAndMtrAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
@@ -209,41 +210,45 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     # There should be no errors in management agent relating to registering components which have been uninstalled
     # during the downgrade
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}
 
     Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
     Wait For Initial Update To Fail
 
-    Override LogConf File as Global Level  DEBUG
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    #Override LogConf File as Global Level  DEBUG
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
     Trigger Update Now
-        # waiting for 2nd because the 1st is a guaranteed failure
-        Wait Until Keyword Succeeds
-        ...   200 secs
-        ...   10 secs
-        ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Check Current Release Installed Correctly
+    # products that should change version
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
 
-    
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
+    # Products that should be uninstalled after downgrade
+    Should Exist  ${InstalledLRPluginVersionFile}
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrReleasePolicy}
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrReleasePolicy}
 
     Mark Watchdog Log
     Mark Managementagent Log
     Trigger Update Now
 
 
-   Wait Until Keyword Succeeds
-   ...   200 secs
-   ...   10 secs
-   ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
     # If mtr is installed for the first time, this will appear
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
@@ -262,12 +267,16 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
 
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
+    Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
 
     # check that at least one component was uninstalled during downgrade
     Check SulDownloader Log Contains  Uninstalling
+    # Ensure products which should have been removed are removed.
+    Should Not Exist  ${InstalledLRPluginVersionFile}
 
 
 We Can Upgrade From A Release With EDR To Master With Live Response

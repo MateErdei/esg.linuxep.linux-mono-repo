@@ -16,6 +16,8 @@ Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    ../watchdog/LogControlResources.robot
 Resource    EDRResources.robot
+Resource    ../mcs_router/McsPushClientResources.robot
+Resource    ../liveresponse_plugin/LiveResponseResources.robot
 
 Default Tags   EDR_PLUGIN   OSTIA  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
 
@@ -289,21 +291,45 @@ Install Base And EDR Then Migrate To BASE
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
-Install base and edr 999 then downgrade to current master
-    Install EDR  ${BaseAndEdr999Policy}
+Install base and edr and mtr 999 then downgrade to current master
+    Install EDR  ${BaseAndMTREdr999Policy}
     Wait Until OSQuery Running
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
     Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
 
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version
+
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
@@ -316,6 +342,11 @@ Install base and edr 999 then downgrade to current master
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
+    Should not contain   ${contents}   PRODUCT_VERSION = 99.99.99
+
 
     # Ensure EDR was restarted during upgrade.
     Check Log Contains In Order
@@ -733,3 +764,17 @@ Check MCS Envelope Log For Event Success Within Nth Set Of Events Sent
 
 Upgrade Installs EDR Twice
     Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Installing product: ServerProtectionLinux-Plugin-EDR   2
+
+
+
+*** Keywords ***
+Setup Base FakeCloud And FakeCentral-LT Servers
+    Install LT Server Certificates
+    Start MCS Push Server
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Set Local CA Environment Variable
+
+    create file  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
+    Register With Local Cloud Server
+    #Override LogConf File as Global Level  DEBUG
+    #Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log   liveresponse   DEBUG

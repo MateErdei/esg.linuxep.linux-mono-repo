@@ -43,6 +43,32 @@ Verify Liveresponse Works End To End LiveResponse Session Command Via Push
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id}
 
+Verify Liveresponse Disconnects On Service Restart
+    Check Connected To Fake Cloud
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
+
+    ${correlation_id} =  Get Correlation Id
+    Check Liveresponse Command Successfully Starts A Session   ${correlation_id}
+
+    Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Match Message   sophos-live-terminal   ${correlation_id}
+
+    ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
+
+    Should Be Equal As Integers  1   ${count}
+
+    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id}
+
+    Run Process   systemctl  restart  sophos-spl
+
+    ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
+
+    Should Be Equal As Integers  0   ${count}
+
+
 Multiple Liveresponse Sessions Work Concurrently
     Check Connected To Fake Cloud
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
