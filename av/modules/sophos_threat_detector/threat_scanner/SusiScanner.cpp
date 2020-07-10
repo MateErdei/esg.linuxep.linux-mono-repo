@@ -127,6 +127,7 @@ SusiScanner::scan(
 {
     scan_messages::ScanResponse response;
     response.setClean(true);
+    response.setThreatName("unknown");
 
     static const std::string metaDataJson = R"({
     "properties": {
@@ -137,10 +138,6 @@ SusiScanner::scan(
     SusiScanResult* scanResult = nullptr;
     SusiResult res = m_susi->scanFile(metaDataJson.c_str(), file_path.c_str(), fd, &scanResult);
 
-    if (res == SUSI_I_THREATPRESENT)
-    {
-        response.setClean(false);
-    }
     LOGINFO("Scan result " << std::hex << res << std::dec);
     if (scanResult != nullptr)
     {
@@ -159,7 +156,6 @@ SusiScanner::scan(
                     LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
                     response.setThreatName(detection["threatName"]);
                     response.setFullScanResult(scanResultUTF8);
-                    sendThreatReport(file_path, detection["threatName"], scanType, userID);
                 }
             }
         }
@@ -171,6 +167,12 @@ SusiScanner::scan(
     }
 
     m_susi->freeResult(scanResult);
+
+    if (res == SUSI_I_THREATPRESENT)
+    {
+        response.setClean(false);
+        sendThreatReport(file_path, response.threatName(), scanType, userID);
+    }
 
     return response;
 }
