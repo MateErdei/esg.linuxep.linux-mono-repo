@@ -24,8 +24,6 @@ Default Tags   LIVERESPONSE_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
 
 *** Variables ***
 ${terminal_binary}   ${LIVERESPONSE_DIR}/bin/sophos-live-terminal
-@{list}   url:thumbprint  2
-@{keys}   ${list}
 *** Test Cases ***
 Liveresponse Plugin Unexpected Restart Telemetry Is Reported Correctly
     [Documentation]    Check Watchdog Telemetry When Liveresponse Is Present
@@ -113,9 +111,116 @@ Liveresponse Plugin Session Counts Failed
     # Expect 2 sessions to have been run and reported in telemetry
     ${sessions} =  Set Variable  2
     ${failed_sessions} =  Set Variable  1
+    @{list}=  Create List   url:thumbprint  2
+    @{keys}=  Create List   ${list}
     Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${failed_sessions}  ${keys}
 
+Liveresponse Plugin no session telemetry if url is empty
+    [Documentation]    Check session counts telemetry is correct when liveresponse sessions are run.
+    Wait Until Keyword Succeeds
+    ...  40s
+    ...  5s
+    ...  Check Expected Base Processes Are Running
 
+    ${correlation_id1} =  Get Correlation Id
+    ${creation_time_and_ttl1} =  get_valid_creation_time_and_ttl
+
+    # Write Action file.
+    ${actionTempName} =    Set Variable   /opt/temp_liveresponse_action.xml
+    ${actionContents} =    Set Variable   <action type="sophos.mgt.action.InitiateLiveTerminal"><url></url><thumbprint>thumbprint</thumbprint></action>
+    ${actionFileName1} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_${correlation_id1}_action_${creation_time_and_ttl1}.xml
+
+
+    # Create and trigger 1st action
+    Create File     ${actionTempName}   ${actionContents}
+    Move File       ${actionTempName}   ${actionFileName1}
+
+    # Wait for a session to be started
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log  Failed to find url and/or thumbprint in actionXml  1
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    log  ${telemetryFileContents}
+
+    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  1   1
+
+Liveresponse Plugin no session telemetry if thumbprint is empty
+    [Documentation]    Check session counts telemetry is correct when liveresponse sessions are run.
+    Wait Until Keyword Succeeds
+    ...  40s
+    ...  5s
+    ...  Check Expected Base Processes Are Running
+
+    ${correlation_id1} =  Get Correlation Id
+    ${creation_time_and_ttl1} =  get_valid_creation_time_and_ttl
+
+    # Write Action file.
+    ${actionTempName} =    Set Variable   /opt/temp_liveresponse_action.xml
+    ${actionContents} =    Set Variable   <action type="sophos.mgt.action.InitiateLiveTerminal"><url>url</url><thumbprint></thumbprint></action>
+    ${actionFileName1} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_${correlation_id1}_action_${creation_time_and_ttl1}.xml
+
+    # Create and trigger 1st action
+    Create File     ${actionTempName}   ${actionContents}
+    Move File       ${actionTempName}   ${actionFileName1}
+
+    # Wait for a session to be started
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log  Failed to find url and/or thumbprint in actionXml  1
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    log  ${telemetryFileContents}
+
+    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  1   1
+
+Liveresponse Plugin saves session telemetry if plugin stops
+    [Documentation]    Check session counts telemetry is correct when liveresponse sessions are run.
+    Wait Until Keyword Succeeds
+    ...  40s
+    ...  5s
+    ...  Check Expected Base Processes Are Running
+
+
+    ${correlation_id1} =  Get Correlation Id
+    ${creation_time_and_ttl1} =  get_valid_creation_time_and_ttl
+
+    # Write Action file.
+    ${actionTempName} =    Set Variable   /opt/temp_liveresponse_action.xml
+    ${actionContents} =    Set Variable   <action type="sophos.mgt.action.InitiateLiveTerminal"><url>url</url><thumbprint>thumbprint</thumbprint></action>
+    ${actionFileName1} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveTerminal_${correlation_id1}_action_${creation_time_and_ttl1}.xml
+
+    # Create and trigger 1st action
+    Create File     ${actionTempName}   ${actionContents}
+    Move File       ${actionTempName}   ${actionFileName1}
+
+    # Wait for a session to be started
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N Times   ${LIVERESPONSE_DIR}/log/liveresponse.log   liveresponse.log  Session  1
+
+    Restart Liveresponse Plugin
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Live Response Plugin Running
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    log  ${telemetryFileContents}
+
+    ${sessions} =  Set Variable  1
+    ${failed_sessions} =  Set Variable  1
+    @{list}=  Create List   url:thumbprint  1
+    @{keys}=  Create List   ${list}
+    Check Liveresponse Telemetry Json Is Correct  ${telemetryFileContents}  ${sessions}  ${failed_sessions}  ${keys}
 *** Keywords ***
 LiveResponse Telemetry Suite Setup
     Require Fresh Install
