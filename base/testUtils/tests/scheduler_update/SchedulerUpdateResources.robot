@@ -117,7 +117,7 @@ Check Status and Events Are Created
     ...  File Should Exist  ${statusPath}
 
     @{words} =  Split String    ${waitTime}
-    ${eventPath} =  Check Event File Generated  @{words}[0]
+    ${eventPath} =  Check Event File Generated  ${words}[0]
     LogFile  ${eventPath}
     LogFile  ${statusPath}
     [Return]  ${eventPath}
