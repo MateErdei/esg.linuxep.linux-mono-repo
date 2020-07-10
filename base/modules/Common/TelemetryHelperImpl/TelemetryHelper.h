@@ -37,7 +37,6 @@ namespace Common::Telemetry
 
         void increment(const std::string& key, long value);
         void increment(const std::string& key, unsigned long value);
-        void increment(const std::string& arrayKey, const std::string& key, unsigned long value);
 
         void appendValue(const std::string& arrayKey, long value);
         void appendValue(const std::string& arrayKey, unsigned long value);
@@ -133,55 +132,6 @@ namespace Common::Telemetry
 
             telemetryObject.set(telemetryValue);
         }
-
-        template<class T>
-        void incrementArrayInternalKey(const std::string& arrayKey, const std::string& key, T value)
-        {
-            std::lock_guard<std::mutex> lock(m_dataLock);
-            TelemetryObject& telemetryObject = getTelemetryObjectByKey(arrayKey);
-
-            TelemetryValue telemetryValue(0L);
-
-            if (telemetryObject.getType() != TelemetryObject::Type::value)
-            {
-                telemetryObject.set(telemetryValue);
-            }
-
-            TelemetryValue::Type valueType = telemetryObject.getValue().getType();
-            if (valueType == TelemetryValue::Type::integer_type)
-            {
-                long newValue = telemetryObject.getValue().getInteger() + value;
-                telemetryValue.set(newValue);
-            }
-            else if (valueType == TelemetryValue::Type::unsigned_integer_type)
-            {
-                unsigned long newValue = telemetryObject.getValue().getUnsignedInteger() + value;
-                telemetryValue.set(newValue);
-            }
-
-            try
-            {
-                TelemetryObject& keyObject = telemetryObject.getObject(key);
-                keyObject.set(TelemetryValue("telemetryValue"));
-            }
-            catch (const std::out_of_range& e)
-            {
-                // if out of range exception thrown then key does not exist
-                // Force telemetry object to be an array, they are defaulted to object type.
-                if (telemetryObject.getType() != TelemetryObject::Type::array)
-                {
-                    telemetryObject.set(std::list<TelemetryObject>());
-                }
-
-                std::list<TelemetryObject>& list = telemetryObject.getArray();
-
-                TelemetryObject newObj;
-                newObj.set(key, TelemetryValue("telemetryValue"));
-                list.emplace_back(newObj);
-
-            }
-        }
-
         template<class T>
         void appendValueInternal(const std::string& key, T value)
         {
