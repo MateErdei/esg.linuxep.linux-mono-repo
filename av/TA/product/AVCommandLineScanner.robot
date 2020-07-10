@@ -208,3 +208,63 @@ CLS Encoded Eicars
    Remove Directory  /tmp/encoded_eicars  true
 
    Stop AV
+
+CLS Exclusions Filename
+   Start AV
+
+   Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+   Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
+   Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude eicar
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+
+   Should Be True      "Scanning /home/vagrant/this/is/a/directory/for/scanning/clean_eicar" in '''${output.replace("\n", " ")}'''
+   Should Be True      '''Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar_folder/eicar"''' in '''${output.replace("\n", " ")}'''
+   Should Be True      '''Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/clean_eicar_folder/eicar"''' in '''${output.replace("\n", " ")}'''
+   Should Be Equal As Integers  ${rc}  0
+
+   Stop AV
+
+CLS Exclusions Folder
+   Start AV
+
+   Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+   Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
+   Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude ${NORMAL_DIRECTORY}/
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+
+   Should Be True      '''Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/clean_eicar"''' in '''${output.replace("\n", " ")}'''
+   Should Be True      '''Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar_folder"''' in '''${output.replace("\n", " ")}'''
+   Should Be True      '''Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/clean_eicar_folder"''' in '''${output.replace("\n", " ")}'''
+   Should Be Equal As Integers  ${rc}  0
+
+   Stop AV
+
+CLS Exclusions Folder And File
+   Start AV
+
+   Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+   Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
+   Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude clean_eicar --exclude ${NORMAL_DIRECTORY}/clean_eicar_folder/
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+
+   Should Be True      '''Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/clean_eicar"''' in '''${output.replace("\n", " ")}'''
+   Should Be True      '''Scanning /home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar_folder/eicar''' in '''${output.replace("\n", " ")}'''
+   Should Be True      '''Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/clean_eicar_folder/eicar"''' in '''${output.replace("\n", " ")}'''
+   Should Be Equal As Integers  ${rc}  69
+
+   Stop AV
