@@ -103,6 +103,10 @@ Threat Detector Log Contains
     [Arguments]  ${input}
     File Log Contains  ${THREAT_DETECTOR_LOG_PATH}   ${input}
 
+Threat Detector Does Not Log Contain
+    [Arguments]  ${input}
+    File Log Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  ${input}
+
 Wait Until AV Plugin Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}
