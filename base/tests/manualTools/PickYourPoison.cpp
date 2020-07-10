@@ -19,7 +19,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
  * This executable induces various "bad things" when given the corresponding argument
  */
 
-namespace {
+namespace
+{
     std::mutex deadlockMutex;
 
     const char *loremIpsum =
@@ -67,7 +68,8 @@ namespace {
 
 std::string argumentFile = "/tmp/PickYourPoisonArgument";
 
-int printUsageAndExit() {
+int printUsageAndExit()
+{
     std::cerr << "Usage: <executable> <argument>\n"
                  "OR\n"
                  "Call the executable only with an argument in a file at \"/tmp/PickYourPoisonArgument\"\n"
@@ -79,8 +81,7 @@ int printUsageAndExit() {
                  "\t--run           - just run without induced errors\n"
                  "\t--hello-world\n"
                  "\t--exit\n"
-                 "\t--help          - show this dialogue\n"
-            ;
+                 "\t--help          - show this dialogue\n";
 
     return 1;
 }
@@ -88,7 +89,8 @@ int printUsageAndExit() {
 bool arg_file_exists()
 {
     std::ifstream myFile(argumentFile);
-    if(myFile.fail()){
+    if (myFile.fail())
+    {
         return false;
     }
     return true;
@@ -109,11 +111,13 @@ std::string readFile(std::string)
         std::ifstream::pos_type size(inFileStream.tellg());
         if (size < 0)
         {
-            throw std::runtime_error("Error, Failed to read file: '/tmp/PickYourPoisonArgument', failed to get file size");
+            throw std::runtime_error(
+                    "Error, Failed to read file: '/tmp/PickYourPoisonArgument', failed to get file size");
         }
         else if (static_cast<unsigned long>(size) > 1000000)
         {
-            throw std::runtime_error(std::string("Error, Failed to read file: '/tmp/PickYourPoisonArgument', file too large"));
+            throw std::runtime_error(
+                    std::string("Error, Failed to read file: '/tmp/PickYourPoisonArgument', file too large"));
         }
 
         inFileStream.seekg(0, std::istream::beg);
@@ -122,23 +126,26 @@ std::string readFile(std::string)
         inFileStream.read(&content[0], size);
         return content;
     }
-    catch (std::system_error& ex)
+    catch (std::system_error &ex)
     {
         throw std::runtime_error(std::string("Error, Failed to read from file '/tmp/PickYourPoisonArgument'"));
     }
 }
 
-void crash() {
+void crash()
+{
     std::this_thread::sleep_for(std::chrono::seconds(5));
     abort();
 }
 
-void exit() {
+void exit()
+{
     std::this_thread::sleep_for(std::chrono::seconds(5));
     exit(EXIT_SUCCESS);
 }
 
-void deadlock() {
+void deadlock()
+{
 
     auto t1 = std::async(std::launch::async, []() {
         std::cout << "Entering deadlock" << std::endl;
@@ -199,7 +206,8 @@ void helloWorld()
     std::cout << "Hello, world!";
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     std::cout << "Starting PickYourPoison Fault Injection Executable" << std::endl;
     std::string argument;
 
@@ -208,22 +216,31 @@ int main(int argc, char *argv[]) {
         argument = readFile(argumentFile);
         argument.erase(std::remove(argument.begin(), argument.end(), '\n'), argument.end());
         std::cout << "using argument: " << argument << " from " << argumentFile << std::endl;
-    } else if (argc == 2) {
+    }
+    else if (argc == 2)
+    {
         argument = argv[1];
         std::cout << "using argument: " << argument << " from command line" << std::endl;
-    } else {
+    }
+    else
+    {
         return printUsageAndExit();
     }
 
-    if (argument == "--exit") {
+    if (argument == "--exit")
+    {
         exit();
     }
 
-    if (argument == "--crash") {
+    if (argument == "--crash")
+    {
         crash();
-    } else if (argument == "--spam") {
+    }
+    else if (argument == "--spam")
+    {
         spamOutErr();
-    } else if (argument == "--num-spam")
+    }
+    else if (argument == "--num-spam")
     {
         numSpam();
     }
