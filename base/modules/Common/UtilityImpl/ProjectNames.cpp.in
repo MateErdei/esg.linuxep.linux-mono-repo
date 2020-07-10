@@ -5,7 +5,28 @@ std::string sophos::user()
 {
     return "@SOPHOS_SPL_USER@";
 }
+
 std::string sophos::group()
 {
     return "@SOPHOS_SPL_GROUP@";
+}
+
+std::string networkUser()
+{
+    return "@SOPHOS_SPL_NETWORK@";
+}
+
+std::string networkGroup()
+{
+    return "@SOPHOS_SPL_NETWORK@";
+}
+
+std::string localUser()
+{
+    return "@SOPHOS_SPL_LOCAL@";
+}
+
+std::string localGroup()
+{
+    return "@SOPHOS_SPL_LOCAL@";
 }
