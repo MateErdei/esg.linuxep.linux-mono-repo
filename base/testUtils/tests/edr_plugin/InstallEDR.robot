@@ -348,11 +348,22 @@ Install base and edr and mtr 999 then downgrade to current master
     Should not contain   ${contents}   PRODUCT_VERSION = 99.99.99
 
 
-    # Ensure EDR was restarted during upgrade.
+    # Ensure components were restarted during update.
     Check Log Contains In Order
     ...  ${WDCTL_LOG_PATH}
     ...  wdctl <> stop edr
     ...  wdctl <> start edr
+
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop mtr
+    ...  wdctl <> start mtr
+
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop liveresponse
+    ...  wdctl <> start liveresponse
+
 
 
 Install master of base and edr and mtr and upgrade to mtr 999
