@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-plugin-edr-component" version="1.0.1">
+<package name="sspl-plugin-edr-component" version="1.0.2">
     <versioning>
         <workingdir>sspl-plugin-edr-component-build/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
