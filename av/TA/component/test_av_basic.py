@@ -8,7 +8,6 @@ logger.setLevel(logging.DEBUG)
 
 def test_av_plugin_can_receive_actions(sspl_mock, av_plugin_instance):
     logger.debug("Starting %s", inspect.currentframe().f_code.co_name)
-    print("XXXX", file=sys.stderr)
     av_plugin_instance.start_av()
     agent = sspl_mock.management
     action_content = "DummyAction"

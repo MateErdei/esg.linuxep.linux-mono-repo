@@ -46,6 +46,9 @@ class AVPlugin(object):
     def set_failed(self):
         self._failed = True
 
+    def plugin_path(self):
+        return _av_plugin_dir()
+
     def log_path(self):
         return _log_path()
 
@@ -61,8 +64,10 @@ class AVPlugin(object):
         self._ensure_sophos_required_unix_user_and_group_exists()
 
     def start_av(self):
+        logger.debug("Start start_av")
         self.prepare_for_test()
         self._proc = subprocess.Popen([_av_exec_path()])
+        logger.debug("Finish start_av")
 
     def stop_av(self):
         """

@@ -40,14 +40,17 @@ Setup Component For Testing
     Run  pgrep -f sophos-spl | xargs kill -9
     Copy Directory   ${COMPONENT_SDDS}/files/plugins   ${SOPHOS_INSTALL}
     ## Change permissions for all executables
-    Run Process   chmod  -R  +x  ${COMPONENT_ROOT_PATH}/sbin  ${COMPONENT_ROOT_PATH}/bin  ${BASH_SCRIPTS_PATH}  shell=True
+    Run Process  chmod  -R  +x  ${COMPONENT_ROOT_PATH}/sbin  ${COMPONENT_ROOT_PATH}/bin  ${BASH_SCRIPTS_PATH}  shell=True
     Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/sophos_certs/InstallCertificateToSystem.sh
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/base/etc
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/tmp
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/log
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}
     Create Directory  ${COMPONENT_ROOT_PATH}/var
     Create Directory  ${COMPONENT_ROOT_PATH}/log
     Run Process   ln  -s  /  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}/chroot
+    Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/chroot/log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
+    Run Process   ln  -snf  /log  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/   shell=True
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1   shell=True

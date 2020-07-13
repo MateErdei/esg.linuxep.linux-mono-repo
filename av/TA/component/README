@@ -16,3 +16,8 @@ In order to run them in Vagrant box:
   4) pip install -r requirements.txt
   5) python3 -u -m pytest
   6) Result files can be seen at: /var/tmp/pytest-of-vagrant/pytest-current/sophos-splcurrent
+
+
+To run a single test:
+
+    python3 -u -m pytest -k <test-name>

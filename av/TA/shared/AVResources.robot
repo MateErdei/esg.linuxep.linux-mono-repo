@@ -15,7 +15,7 @@ Resource    ComponentSetup.robot
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
-${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log
+${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 ${SCANNOW_LOG_PATH}  ${AV_PLUGIN_PATH}/log/Scan Now.log
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
@@ -102,6 +102,9 @@ AV Plugin Log Contains
 Threat Detector Log Contains
     [Arguments]  ${input}
     File Log Contains  ${THREAT_DETECTOR_LOG_PATH}   ${input}
+
+Increase Threat Detector Log To Max Size
+    increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}
 
 Wait Until AV Plugin Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
