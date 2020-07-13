@@ -144,7 +144,6 @@ CommandLineScanRunner::CommandLineScanRunner(const Options& options)
 
 int CommandLineScanRunner::run()
 {
-    // TODO print help and skip the run
     if(m_help)
     {
         PRINT(Options::getHelp());

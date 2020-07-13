@@ -18,6 +18,7 @@ TEST(Options, TestNoArgs) // NOLINT
     EXPECT_EQ(o.paths().size(), 0);
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
     ASSERT_EQ(exclusions.size(), 0);
 }
@@ -34,6 +35,7 @@ TEST(Options, TestPaths) // NOLINT
     EXPECT_EQ(paths.at(0), "/foo");
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
     ASSERT_EQ(exclusions.size(), 0);
 }
@@ -52,6 +54,7 @@ TEST(Options, TestMultiplePaths) // NOLINT
     EXPECT_EQ(paths.at(1), "/bar");
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
     ASSERT_EQ(exclusions.size(), 0);
 }
@@ -68,6 +71,7 @@ TEST(Options, TestConfig) // NOLINT
     ASSERT_EQ(paths.size(), 0);
     EXPECT_EQ(o.config(), "/bar");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
     ASSERT_EQ(exclusions.size(), 0);
 }
@@ -83,6 +87,23 @@ TEST(Options, TestArchiveScanning) // NOLINT
     ASSERT_EQ(paths.size(), 0);
     EXPECT_EQ(o.config(), "");
     EXPECT_TRUE(o.archiveScanning());
+    EXPECT_FALSE(o.help());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+}
+
+TEST(Options, TestHelp) // NOLINT
+{
+    const int argc = 2;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--help";
+    Options o(argc, const_cast<char**>(argv));
+    auto paths = o.paths();
+    ASSERT_EQ(paths.size(), 0);
+    EXPECT_EQ(o.config(), "");
+    EXPECT_FALSE(o.archiveScanning());
+    EXPECT_TRUE(o.help());
     auto exclusions = o.exclusions();
     ASSERT_EQ(exclusions.size(), 0);
 }
@@ -99,6 +120,7 @@ TEST(Options, TestExclusions) // NOLINT
     ASSERT_EQ(paths.size(), 0);
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
     ASSERT_EQ(exclusions.size(), 1);
     EXPECT_EQ(exclusions.at(0), "file.txt");
@@ -106,21 +128,23 @@ TEST(Options, TestExclusions) // NOLINT
 
 TEST(Options, TestShortArguments) // NOLINT
 {
-    const int argc = 10;
+    const int argc = 11;
     const char* argv[argc];
     argv[0] = "/usr/bin/avscanner";
     argv[1] = "-c";
     argv[2] = "/bar";
     argv[3] = "-s";
-    argv[4] = "-x";
-    argv[5] = "file.txt";
-    argv[6] = "-f";
-    argv[7] = "/foo";
-    argv[8] = "--";
-    argv[9] = "/baz";
+    argv[4] = "-h";
+    argv[5] = "-x";
+    argv[6] = "file.txt";
+    argv[7] = "-f";
+    argv[8] = "/foo";
+    argv[9] = "--";
+    argv[10] = "/baz";
     Options o(argc, const_cast<char**>(argv));
     EXPECT_EQ(o.config(), "/bar");
     EXPECT_TRUE(o.archiveScanning());
+    EXPECT_TRUE(o.help());
     auto exclusions = o.exclusions();
     ASSERT_EQ(exclusions.size(), 1);
     EXPECT_EQ(exclusions.at(0), "file.txt");
@@ -130,3 +154,12 @@ TEST(Options, TestShortArguments) // NOLINT
     EXPECT_EQ(paths.at(1), "/baz");
 }
 
+TEST(Options, TestGetHelp) // NOLINT
+{
+    const int argc = 2;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--help";
+    Options o(argc, const_cast<char**>(argv));
+    EXPECT_NE(Options::getHelp(), "");
+}
