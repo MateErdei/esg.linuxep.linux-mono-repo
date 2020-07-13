@@ -8,16 +8,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "BaseFileWalkCallbacks.h"
 #include "Mounts.h"
+#include "Options.h"
 #include "PathUtils.h"
 #include "ScanClient.h"
 
 #include "datatypes/Print.h"
 #include "filewalker/FileWalker.h"
+
 #include <common/StringUtils.h>
 
+#include <exception>
 #include <memory>
 #include <utility>
-#include <exception>
 
 using namespace avscanner::avscannerimpl;
 namespace fs = sophos_filesystem;
@@ -132,19 +134,26 @@ namespace
     };
 }
 
-CommandLineScanRunner::CommandLineScanRunner(std::vector<std::string> paths,
-                                             bool archiveScanning,
-                                             std::vector<std::string> exclusions)
-    : m_paths(std::move(paths))
-    , m_archiveScanning(archiveScanning)
-    , m_exclusions(std::move(exclusions))
+CommandLineScanRunner::CommandLineScanRunner(const Options& options)
+    : m_help(options.help())
+    , m_paths(options.paths())
+    , m_exclusions(options.exclusions())
+    , m_archiveScanning(options.archiveScanning())
 {
-    std::string printArchiveScanning = archiveScanning?"yes":"no";
-    PRINT("Archive scanning enabled: " << printArchiveScanning);
 }
 
 int CommandLineScanRunner::run()
 {
+    // TODO print help and skip the run
+    if(m_help)
+    {
+        PRINT(Options::getHelp());
+        return m_returnCode;
+    }
+
+    std::string printArchiveScanning = m_archiveScanning?"yes":"no";
+    PRINT("Archive scanning enabled: " << printArchiveScanning);
+
     // evaluate mount information
     std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();

@@ -14,21 +14,25 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <fstream>
 
+using namespace avscanner::avscannerimpl;
 namespace fs = sophos_filesystem;
+
 
 
 TEST(CommandLineScanRunner, construction) // NOLINT
 {
     std::vector<std::string> paths;
     std::vector<std::string> exclusions;
-    avscanner::avscannerimpl::CommandLineScanRunner runner(paths, false, exclusions);
+    Options options(false, paths, exclusions, false);
+    CommandLineScanRunner runner(options);
 }
 
 TEST(CommandLineScanRunner, constructionWithScanArchives) // NOLINT
 {
     std::vector<std::string> paths;
     std::vector<std::string> exclusions;
-    avscanner::avscannerimpl::CommandLineScanRunner runner(paths, true, exclusions);
+    Options options(false, paths, exclusions, true);
+    CommandLineScanRunner runner(options);
 }
 
 TEST(CommandLineScanRunner, scanRelativePath) // NOLINT
@@ -41,7 +45,7 @@ TEST(CommandLineScanRunner, scanRelativePath) // NOLINT
     std::vector<std::string> paths;
     paths.emplace_back(startingpoint);
     std::vector<std::string> exclusions;
-    avscanner::avscannerimpl::CommandLineScanRunner runner(paths, false, exclusions);
+    CommandLineScanRunner runner(paths, false, exclusions);
 
     auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);

@@ -19,6 +19,7 @@ namespace avscanner::avscannerimpl
     {
     public:
         Options(int argc, char* argv[]);
+        Options(bool printHelp, std::vector<std::string> paths, bool archiveScanning, std::vector<std::string> exclusions);
 
         [[nodiscard]] std::string config() const
         {
@@ -40,14 +41,29 @@ namespace avscanner::avscannerimpl
             return m_exclusions;
         }
 
+        [[nodiscard]] bool help() const
+        {
+            return m_printHelp;
+        }
+
+        static std::string getHelp()
+        {
+            std::ostringstream returnString;
+            returnString << *m_optionsDescription;
+            return returnString.str();
+        }
 
     private:
         std::string m_config;
+
+        bool m_printHelp = false;
         std::vector <std::string> m_paths;
         std::vector <std::string> m_exclusions;
         bool m_archiveScanning = false;
 
+        inline static std::unique_ptr<po::options_description> m_optionsDescription = nullptr;
         static boost::program_options::variables_map parseCommandLine(int argc, char** argv);
+        static void constructOptions();
     };
 }
 

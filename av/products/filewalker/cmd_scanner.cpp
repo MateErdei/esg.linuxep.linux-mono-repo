@@ -24,8 +24,7 @@ int main(int argc, char* argv[])
     std::unique_ptr<IRunner> runner;
     if (config.empty())
     {
-        auto paths = options.paths();
-        runner = std::make_unique<CommandLineScanRunner>(paths, options.archiveScanning(), options.exclusions());
+        runner = std::make_unique<CommandLineScanRunner>(options);
     }
     else
     {

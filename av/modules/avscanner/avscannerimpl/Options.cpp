@@ -13,26 +13,32 @@ namespace po = boost::program_options;
 
 po::variables_map Options::parseCommandLine(int argc, char** argv)
 {
-
+    Options::constructOptions();
     po::positional_options_description positionalOptions;
     positionalOptions.add("files", -1);
 
-    po::options_description optionalOptions("Allowed options");
-    optionalOptions.add_options()
-        ("files,f", po::value< std::vector<std::string> >()->multitoken(), "files to scan")
-        ("config,c", po::value<std::string>(), "input configuration file for scheduled scans")
-        ("scan-archives,s","scan inside archives")
-        ("exclude,x", po::value< std::vector<std::string> >()->multitoken(),"exclude these locations from being scanned")
-        ;
-
     po::variables_map vm;
     store(po::command_line_parser(argc, argv)
-                                      .positional(positionalOptions)
-                                      .options(optionalOptions)
-                                      .run(),
-                                   vm);
+              .positional(positionalOptions)
+              .options(*m_optionsDescription)
+              .run(),
+          vm);
 
     return vm;
+}
+
+void Options::constructOptions()
+{
+    if(!m_optionsDescription)
+    {
+        m_optionsDescription = std::make_unique<po::options_description>("Allowed options");
+        m_optionsDescription->add_options()
+            ("help,h", "Print this help message")
+            ("files,f", po::value<std::vector<std::string>>()->multitoken(), "Files to scan")
+            ("config,c", po::value<std::string>(), "Input configuration file for scheduled scans")
+            ("scan-archives,s", "Scan inside archives")
+            ("exclude,x",po::value<std::vector<std::string>>()->multitoken(),"Exclude these locations from being scanned");
+    }
 }
 
 Options::Options(int argc, char** argv)
@@ -62,5 +68,19 @@ Options::Options(int argc, char** argv)
         {
             m_config = variableMap["config"].as<std::string>();
         }
+
+        if (variableMap.count("help"))
+        {
+            m_printHelp = true;
+        }
     }
+}
+
+Options::Options(bool printHelp, std::vector<std::string> paths, bool archiveScanning, std::vector<std::string> exclusions)
+    : m_printHelp(printHelp),
+    m_paths(std::move(paths)),
+    m_exclusions(std::move(exclusions)),
+    m_archiveScanning(archiveScanning)
+{
+    constructOptions();
 }
