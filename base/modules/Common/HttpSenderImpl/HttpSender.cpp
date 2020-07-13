@@ -95,6 +95,7 @@ namespace Common::HttpSenderImpl
 
         curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri);
         curlOptions.emplace_back("Specify preferred TLS/SSL version", CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+        curlOptions.emplace_back("Set logging options", CURLOPT_VERBOSE, 1L);
         std::string certPath = requestConfig.getCertPath();
 
         if (certPath.empty())
