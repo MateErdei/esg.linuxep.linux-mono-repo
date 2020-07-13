@@ -55,7 +55,7 @@ namespace
                 ScanClient scanner,
                 std::vector<fs::path> mountExclusions,
                 std::vector<Exclusion> cmdExclusions
-                )
+        )
                 : BaseFileWalkCallbacks(std::move(scanner))
                 , m_mountExclusions(std::move(mountExclusions))
                 , m_cmdExclusions(std::move(cmdExclusions))
@@ -102,7 +102,7 @@ namespace
 
             for (const auto& exclusion : m_cmdExclusions)
             {
-                if (exclusion.appliesToPath(p) && exclusion.type() != FILENAME)
+                if (exclusion.appliesToPath(p, true))
                 {
                     PRINT("Exclusion applied to: " << p);
                     return false;

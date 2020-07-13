@@ -16,7 +16,7 @@ using namespace avscanner::avscannerimpl;
 Exclusion::Exclusion(const std::string& path)
 {
     std::string exclusionPath(path);
-    
+
     if (exclusionPath.empty())
     {
         m_type = INVALID;
@@ -86,7 +86,8 @@ Exclusion::Exclusion(const std::string& path)
     }
 }
 
-bool Exclusion::appliesToPath(const std::string& path) const
+// isDirectory defaults to false
+bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
 {
     switch(m_type)
     {
@@ -107,6 +108,13 @@ bool Exclusion::appliesToPath(const std::string& path) const
             break;
         }
         case FILENAME:
+        {
+            if (isDirectory)
+            {
+                break;
+            }
+            [[fallthrough]];
+        }
         case RELATIVE_PATH:
         {
             if (PathUtils::endswith(path, m_exclusionPath))
