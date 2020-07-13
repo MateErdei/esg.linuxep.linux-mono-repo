@@ -76,7 +76,7 @@ Options::Options(int argc, char** argv)
     }
 }
 
-Options::Options(bool printHelp, std::vector<std::string> paths, bool archiveScanning, std::vector<std::string> exclusions)
+Options::Options(bool printHelp, std::vector<std::string> paths, std::vector<std::string> exclusions, bool archiveScanning)
     : m_printHelp(printHelp),
     m_paths(std::move(paths)),
     m_exclusions(std::move(exclusions)),

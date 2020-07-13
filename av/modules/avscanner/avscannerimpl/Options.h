@@ -19,7 +19,7 @@ namespace avscanner::avscannerimpl
     {
     public:
         Options(int argc, char* argv[]);
-        Options(bool printHelp, std::vector<std::string> paths, bool archiveScanning, std::vector<std::string> exclusions);
+        Options(bool printHelp, std::vector<std::string> paths, std::vector<std::string> exclusions, bool archiveScanning);
 
         [[nodiscard]] std::string config() const
         {
