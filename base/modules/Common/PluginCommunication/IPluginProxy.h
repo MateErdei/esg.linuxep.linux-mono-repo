@@ -50,11 +50,18 @@ namespace Common
             virtual std::string getTelemetry() = 0;
 
             /**
-             * Change the app IDs that the plugin is interested in for policy and actions
+             * Change the app IDs that the plugin is interested in for policy
              *
              * @param appIds
              */
-            virtual void setPolicyAndActionsAppIds(const std::vector<std::string>& appIds) = 0;
+            virtual void setPolicyAppIds(const std::vector<std::string>& appIds) = 0;
+
+            /**
+             * Change the app IDs that the plugin is interested in for actions
+             *
+             * @param appIds
+             */
+            virtual void setActionAppIds(const std::vector<std::string>& appIds) = 0;
 
             /**
              * Set the app IDs that the plugin claims to be able to provide status for.

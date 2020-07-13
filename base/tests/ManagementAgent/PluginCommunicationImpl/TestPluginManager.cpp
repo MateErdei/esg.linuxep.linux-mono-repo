@@ -61,10 +61,12 @@ public:
     {
         std::string plugin_one_settings = R"sophos({
 "policyAppIds": ["plugin_one"],
+"actionAppIds": ["plugin_one"],
 "statusAppIds": ["plugin_one"],
 "pluginName": "plugin_one"})sophos";
         std::string plugin_two_settings = R"sophos({
 "policyAppIds": ["plugin_two"],
+"actionAppIds": ["plugin_two"],
 "statusAppIds": ["plugin_two"],
 "pluginName": "plugin_two"})sophos";
 
@@ -137,7 +139,7 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForPolicy) // 
         EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("wrongappid", "testpolicynotsent"), 0);
         std::vector<std::string> appIds;
         appIds.emplace_back("wrongappid");
-        m_pluginManagerPtr->registerAndSetAppIds(m_pluginOneName, appIds, appIds);
+        m_pluginManagerPtr->registerAndSetAppIds(m_pluginOneName, appIds, appIds, appIds);
         EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("wrongappid", "testpolicysent"), 1);
     });
     applyPolicy.join();
@@ -227,7 +229,7 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction) // 
         EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionnotsent",""), 0);
         std::vector<std::string> appIds;
         appIds.emplace_back("wrongappid");
-        m_pluginManagerPtr->registerAndSetAppIds(m_pluginOneName, appIds, appIds);
+        m_pluginManagerPtr->registerAndSetAppIds(m_pluginOneName, appIds, appIds, appIds);
         EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionsent",""), 1);
     });
     applyAction.join();

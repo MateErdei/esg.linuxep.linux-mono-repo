@@ -63,6 +63,9 @@ namespace
                                     "policyAppIds": [
                                     "app1"
                                      ],
+                                    "actionAppIds": [
+                                    "app3"
+                                     ],
                                      "statusAppIds": [
                                       "app2"
                                      ],
@@ -106,6 +109,7 @@ namespace
         std::vector<std::string> registeredPlugins = { "PluginName" };
         std::vector<std::string> policyIds = { "app1" };
         std::vector<std::string> statusIds = { "app2" };
+        std::vector<std::string> actionIds = { "app3" };
         std::vector<std::string> statusCacheFiles;
         std::string pluginPath("/tmp/plugin"), statusCachePath("/tmp/status_cache");
 
@@ -119,7 +123,7 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
-        EXPECT_CALL(m_mockPluginManager, registerAndSetAppIds(registeredPlugins[0], policyIds, statusIds)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, registerAndSetAppIds(registeredPlugins[0], policyIds, actionIds, statusIds)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
@@ -147,6 +151,7 @@ namespace
         std::vector<std::string> registeredPlugins = { "PluginName" };
         std::vector<std::string> policyIds = { "app1" };
         std::vector<std::string> statusIds = { "app2" };
+        std::vector<std::string> actionIds = { "app3" };
         std::vector<std::string> statusCacheFiles;
         std::string pluginPath("/tmp/plugin"), statusCachePath("/tmp/status_cache");
 
@@ -162,7 +167,7 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
-        EXPECT_CALL(m_mockPluginManager, registerAndSetAppIds(registeredPlugins[0], policyIds, statusIds)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, registerAndSetAppIds(registeredPlugins[0], policyIds, actionIds, statusIds)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);

@@ -87,6 +87,7 @@ namespace ManagementAgent
             virtual void registerAndSetAppIds(
                 const std::string& pluginName,
                 const std::vector<std::string>& policyAppIds,
+                const std::vector<std::string>& actionAppIds,
                 const std::vector<std::string>& statusAppIds) = 0;
 
             /**

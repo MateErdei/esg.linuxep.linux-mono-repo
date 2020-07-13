@@ -228,6 +228,9 @@ namespace
 "policyAppIds": [
     "ALC"
   ],
+  "actionAppIds": [
+    "ALC"
+  ],
   "statusAppIds": [
     "ALC"
   ],

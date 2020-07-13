@@ -28,6 +28,8 @@ namespace Common
     {
         std::vector<std::string> PluginInfo::getPolicyAppIds() const { return m_policyAppIds; }
 
+        std::vector<std::string> PluginInfo::getActionAppIds() const { return m_actionAppIds; }
+
         std::string PluginInfo::getPluginName() const { return m_pluginName; }
 
         std::string PluginInfo::getPluginIpcAddress() const
@@ -42,6 +44,8 @@ namespace Common
         void PluginInfo::setPolicyAppIds(const std::vector<std::string>& appIDs) { m_policyAppIds = appIDs; }
 
         void PluginInfo::addPolicyAppIds(const std::string& appID) { m_policyAppIds.push_back(appID); }
+
+        void PluginInfo::addActionAppIds(const std::string& appID) { m_actionAppIds.push_back(appID); }
 
         void PluginInfo::setPluginName(const std::string& pluginName) { m_pluginName = pluginName; }
 
@@ -118,6 +122,11 @@ namespace Common
             for (const auto& policyAppid : protoPluginInfo.policyappids())
             {
                 pluginInfo.addPolicyAppIds(policyAppid);
+            }
+
+            for (const auto& actionAppid : protoPluginInfo.actionappids())
+            {
+                pluginInfo.addActionAppIds(actionAppid);
             }
 
             std::string pluginname = protoPluginInfo.pluginname();

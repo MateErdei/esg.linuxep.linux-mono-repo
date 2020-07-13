@@ -27,6 +27,9 @@ namespace Common
         {
             m_appIdCollection.setAppIdsForStatus({ pluginName });
             m_appIdCollection.setAppIdsForPolicyAndActions({ pluginName });
+            m_appIdCollection.setAppIdsForPolicy({ pluginName });
+            m_appIdCollection.setAppIdsForActions({ pluginName });
+
         }
 
         void PluginProxy::applyNewPolicy(const std::string& appId, const std::string& policyXml)
@@ -100,9 +103,14 @@ namespace Common
             return reply;
         }
 
-        void PluginProxy::setPolicyAndActionsAppIds(const std::vector<std::string>& appIds)
+        void PluginProxy::setPolicyAppIds(const std::vector<std::string>& appIds)
         {
-            m_appIdCollection.setAppIdsForPolicyAndActions(appIds);
+            m_appIdCollection.setAppIdsForPolicy(appIds);
+        }
+
+        void PluginProxy::setActionAppIds(const std::vector<std::string>& appIds)
+        {
+            m_appIdCollection.setAppIdsForActions(appIds);
         }
 
         void PluginProxy::setStatusAppIds(const std::vector<std::string>& appIds)
@@ -110,7 +118,10 @@ namespace Common
             m_appIdCollection.setAppIdsForStatus(appIds);
         }
 
-        bool PluginProxy::hasPolicyAppId(const std::string& appId) { return m_appIdCollection.usePolicyId(appId); }
+        bool PluginProxy::hasPolicyAppId(const std::string& appId)
+        {
+            return m_appIdCollection.usePolicyId(appId);
+        }
 
         bool PluginProxy::hasActionAppId(const std::string& appId)
         {

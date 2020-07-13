@@ -20,7 +20,8 @@ public:
     MOCK_METHOD3(queueAction, void(const std::string&, const std::string&, const std::string&));
     MOCK_METHOD0(getStatus, std::vector<Common::PluginApi::StatusInfo>());
     MOCK_METHOD0(getTelemetry, std::string());
-    MOCK_METHOD1(setPolicyAndActionsAppIds, void(const std::vector<std::string>&));
+    MOCK_METHOD1(setPolicyAppIds, void(const std::vector<std::string>&));
+    MOCK_METHOD1(setActionAppIds, void(const std::vector<std::string>&));
     MOCK_METHOD1(setStatusAppIds, void(const std::vector<std::string>&));
     MOCK_METHOD1(hasPolicyAppId, bool(const std::string&));
     MOCK_METHOD1(hasActionAppId, bool(const std::string&));

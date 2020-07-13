@@ -123,7 +123,7 @@ namespace ManagementAgent
                 if(plugin.getIsManagedPlugin())
                 {
                     m_pluginManager->registerAndSetAppIds(
-                            plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getStatusAppIds());
+                            plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getActionAppIds(), plugin.getStatusAppIds());
                     LOGINFO("Registered plugin " << plugin.getPluginName() << ", executable path "
                         << plugin.getExecutableFullPath());
                 }

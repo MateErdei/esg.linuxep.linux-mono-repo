@@ -65,7 +65,7 @@ namespace ManagementAgent
             }
             // Creates the pluginProxy
             m_pluginManager.registerAndSetAppIds(
-                pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getStatusAppIds());
+                pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getActionAppIds(), pluginInfo.getStatusAppIds());
         }
 
         void PluginServerCallback::setStatusReceiver(

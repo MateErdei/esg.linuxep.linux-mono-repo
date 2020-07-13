@@ -225,7 +225,8 @@ TEST_F(TestPluginProxy, TestPluginProxyHasPolicyAppIds) // NOLINT
     appIds.emplace_back("ALC");
     appIds.emplace_back("MCS");
     appIds.emplace_back("ALC"); // repeat entries has no effect
-    m_pluginProxy->setPolicyAndActionsAppIds(appIds);
+    m_pluginProxy->setPolicyAppIds(appIds);
+    m_pluginProxy->setActionAppIds(appIds);
     ASSERT_TRUE(m_pluginProxy->hasPolicyAppId("ALC"));
     ASSERT_TRUE(m_pluginProxy->hasPolicyAppId("MCS"));
     ASSERT_FALSE(m_pluginProxy->hasPolicyAppId("INVALID"));

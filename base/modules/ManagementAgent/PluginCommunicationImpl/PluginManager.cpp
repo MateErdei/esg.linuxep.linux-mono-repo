@@ -171,13 +171,15 @@ namespace ManagementAgent
         void PluginManager::locked_setAppIds(
             Common::PluginCommunication::IPluginProxy* plugin,
             const std::vector<std::string>& policyAppIds,
+            const std::vector<std::string>& actionAppIds,
             const std::vector<std::string>& statusAppIds,
             std::lock_guard<std::mutex>&)
         {
             std::string firstPolicy = policyAppIds.empty() ? "None" : policyAppIds.at(0).c_str();
             LOGSUPPORT("PluginManager: associate appids to pluginName " << plugin->name() << ": " << firstPolicy);
 
-            plugin->setPolicyAndActionsAppIds(policyAppIds);
+            plugin->setPolicyAppIds(policyAppIds);
+            plugin->setActionAppIds(actionAppIds);
             plugin->setStatusAppIds(statusAppIds);
         }
 
@@ -190,11 +192,12 @@ namespace ManagementAgent
         void PluginManager::registerAndSetAppIds(
             const std::string& pluginName,
             const std::vector<std::string>& policyAppIds,
+            const std::vector<std::string>& actionAppIds,
             const std::vector<std::string>& statusAppIds)
         {
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
             auto plugin = locked_createPlugin(pluginName, lock);
-            locked_setAppIds(plugin, policyAppIds, statusAppIds, lock);
+            locked_setAppIds(plugin, policyAppIds, actionAppIds, statusAppIds, lock);
         }
 
         Common::PluginCommunication::IPluginProxy* PluginManager::locked_createPlugin(

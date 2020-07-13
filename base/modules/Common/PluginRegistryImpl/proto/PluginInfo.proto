@@ -12,12 +12,13 @@ message PluginInfo
     }
 
     repeated string policyAppIds = 1;
-    repeated string statusAppIds = 2;
-    optional string pluginName = 3;
-    optional string xmlTranslatorPath = 4;
-    optional string executableFullPath = 5;
-    repeated string executableArguments = 6;
-    repeated EnvironmentVariablesT environmentVariables = 7;
-    optional string executableUserAndGroup = 8;
-    optional int64  secondsToShutDown = 9  [default=2];
+    repeated string actionAppIds = 2;
+    repeated string statusAppIds = 3;
+    optional string pluginName = 4;
+    optional string xmlTranslatorPath = 5;
+    optional string executableFullPath = 6;
+    repeated string executableArguments = 7;
+    repeated EnvironmentVariablesT environmentVariables = 8;
+    optional string executableUserAndGroup = 9;
+    optional int64  secondsToShutDown = 10  [default=2];
 }

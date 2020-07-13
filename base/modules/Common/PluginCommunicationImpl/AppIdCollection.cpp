@@ -15,6 +15,16 @@ namespace Common
             m_policySet.setEntries(std::move(appIds));
         }
 
+        void AppIdCollection::setAppIdsForPolicy(std::vector<std::string> appIds)
+        {
+            m_policySet.setEntries(std::move(appIds));
+        }
+
+        void AppIdCollection::setAppIdsForActions(std::vector<std::string> appIds)
+        {
+            m_actionSet.setEntries(std::move(appIds));
+        }
+
         void AppIdCollection::setAppIdsForStatus(std::vector<std::string> appIds)
         {
             m_statusSet.setEntries(std::move(appIds));
@@ -22,7 +32,7 @@ namespace Common
 
         bool AppIdCollection::usePolicyId(const std::string& appId) const { return m_policySet.hasEntry(appId); }
 
-        bool AppIdCollection::implementActionId(const std::string& appId) const { return m_policySet.hasEntry(appId); }
+        bool AppIdCollection::implementActionId(const std::string& appId) const { return m_actionSet.hasEntry(appId); }
 
         bool AppIdCollection::implementStatus(const std::string& appId) const { return m_statusSet.hasEntry(appId); }
 

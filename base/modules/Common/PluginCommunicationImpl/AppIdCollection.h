@@ -19,10 +19,13 @@ namespace Common
         {
             VectorAsSet m_policySet;
             VectorAsSet m_statusSet;
+            VectorAsSet m_actionSet;
 
         public:
             AppIdCollection() = default;
             void setAppIdsForPolicyAndActions(std::vector<std::string> appIds);
+            void setAppIdsForPolicy(std::vector<std::string> appIds);
+            void setAppIdsForActions(std::vector<std::string> appIds);
             void setAppIdsForStatus(std::vector<std::string> appIds);
             const std::vector<std::string>& statusAppIds() const;
             bool usePolicyId(const std::string& appId) const;

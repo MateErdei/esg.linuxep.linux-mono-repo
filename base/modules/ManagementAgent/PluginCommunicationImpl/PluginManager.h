@@ -39,6 +39,7 @@ namespace ManagementAgent
             void registerAndSetAppIds(
                 const std::string& pluginName,
                 const std::vector<std::string>& policyAppIds,
+                const std::vector<std::string>& actionAppIds,
                 const std::vector<std::string>& statusAppIds) override;
 
             void removePlugin(const std::string& pluginName) override;
@@ -99,6 +100,7 @@ namespace ManagementAgent
             void locked_setAppIds(
                 Common::PluginCommunication::IPluginProxy* plugin,
                 const std::vector<std::string>& policyAppIds,
+                const std::vector<std::string>& actionAppIds,
                 const std::vector<std::string>& statusAppIds,
                 std::lock_guard<std::mutex>& lock);
         };

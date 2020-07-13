@@ -37,6 +37,7 @@ class FakePluginWrapper(object):
     def setup_plugin_registry(self):
         config = {
             "policyAppIds": [self.appId],
+            "actionAppIds": [self.appId],
             "statusAppIds": [self.appId],
             "pluginName": self.__m_pluginName
         }

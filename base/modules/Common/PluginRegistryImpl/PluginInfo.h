@@ -41,6 +41,11 @@ namespace Common
              */
             std::vector<std::string> getPolicyAppIds() const;
             /**
+             * Used to get stored policy appIds
+             * @return list of app ids for the policies the plugin will support
+             */
+            std::vector<std::string> getActionAppIds() const;
+            /**
              * Used to get stored status appIds
              * @return list of app ids for the statuses the plugin will support
              */
@@ -81,6 +86,12 @@ namespace Common
              * @param appID
              */
             void addPolicyAppIds(const std::string& appID);
+
+            /**
+             * Used to add a single Action appId to the stored ActionAppId list.
+             * @param appID
+             */
+            void addActionAppIds(const std::string& appID);
 
             /**
              * Used to store the given Status AppIds the plugin is interested in.
@@ -175,6 +186,7 @@ namespace Common
 
         private:
             std::vector<std::string> m_policyAppIds;
+            std::vector<std::string> m_actionAppIds;
             std::vector<std::string> m_statusAppIds;
             std::string m_pluginName;
             std::string m_xmlTranslatorPath;
