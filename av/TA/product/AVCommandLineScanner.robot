@@ -222,9 +222,9 @@ CLS Exclusions Filename
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
 
-   Should Contain       ${output.replace("\n", " ")}  Scanning /home/vagrant/this/is/a/directory/for/scanning/clean_eicar
-   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar_folder/eicar"
-   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/clean_eicar_folder/eicar"
+   Should Contain       ${output.replace("\n", " ")}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
+   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar"
+   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
    Should Be Equal As Integers  ${rc}  0
 
    Stop AV
@@ -262,9 +262,9 @@ CLS Exclusions Folder And File
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
 
-   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/clean_eicar"
-   Should Contain       ${output.replace("\n", " ")}  Scanning /home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar_folder/eicar
-   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "/home/vagrant/this/is/a/directory/for/scanning/clean_eicar_folder/eicar"
+   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar"
+   Should Contain       ${output.replace("\n", " ")}  Scanning ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
+   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
    Should Be Equal As Integers  ${rc}  69
 
    Stop AV
