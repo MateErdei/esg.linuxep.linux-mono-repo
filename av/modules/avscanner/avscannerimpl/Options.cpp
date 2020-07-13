@@ -34,10 +34,10 @@ void Options::constructOptions()
         m_optionsDescription = std::make_unique<po::options_description>("Allowed options");
         m_optionsDescription->add_options()
             ("help,h", "Print this help message")
-            ("files,f", po::value<std::vector<std::string>>()->multitoken(), "Files to scan")
-            ("config,c", po::value<std::string>(), "Input configuration file for scheduled scans")
+            ("files,f", po::value<std::vector<std::string>>()->value_name("file [file...]")->multitoken(), "Files to scan")
+            ("config,c", po::value<std::string>()->value_name("config_file"), "Input configuration file for scheduled scans")
             ("scan-archives,s", "Scan inside archives")
-            ("exclude,x",po::value<std::vector<std::string>>()->multitoken(),"Exclude these locations from being scanned");
+            ("exclude,x",po::value<std::vector<std::string>>()->value_name("exclusion [exclusion...]")->multitoken(),"Exclude these locations from being scanned");
     }
 }
 
