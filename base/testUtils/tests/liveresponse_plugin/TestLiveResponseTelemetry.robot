@@ -116,7 +116,7 @@ Liveresponse Plugin no session telemetry if thumbprint is empty
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Liveresponse Log Contains   Failed to find url and/or thumbprint in actionXml  1
+    ...  Check Liveresponse Log Contains   Failed to find url and/or thumbprint in actionXml
 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
