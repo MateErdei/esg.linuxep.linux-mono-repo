@@ -36,6 +36,8 @@ std::string ClientScanRequest::serialise() const
 
     requestBuilder.setPathname(m_path);
     requestBuilder.setScanInsideArchives(m_scanInsideArchives);
+    requestBuilder.setScanType(m_scanType);
+    requestBuilder.setUserID(m_userID);
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
     kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();

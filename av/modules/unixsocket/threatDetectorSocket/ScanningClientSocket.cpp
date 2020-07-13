@@ -88,11 +88,18 @@ scan_messages::ScanResponse unixsocket::ScanningClientSocket::scan(int file_fd, 
 }
 
 scan_messages::ScanResponse
-unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const std::string& file_path, bool scanInsideArchives)
+unixsocket::ScanningClientSocket::scan(
+    datatypes::AutoFd& fd,
+    const std::string& file_path,
+    bool scanInsideArchives,
+    scan_messages::E_SCAN_TYPE scanType,
+    const std::string& userID)
 {
     scan_messages::ClientScanRequest request;
     request.setPath(file_path);
     request.setScanInsideArchives(scanInsideArchives);
+    request.setScanType(scanType);
+    request.setUserID(userID);
     return scan(fd, request);
 }
 
