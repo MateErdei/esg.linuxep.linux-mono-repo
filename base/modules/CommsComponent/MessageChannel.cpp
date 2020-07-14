@@ -10,40 +10,51 @@ namespace CommsComponent {
     void MessageChannel::push(std::string message)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
-        m_messages.emplace_back(std::move(message));
-        m_cond.notify_one();
-
+        if (!m_channelClosedFlag)    //if channel closed reject
+        {
+            m_messages.emplace_back(std::move(message));
+            m_cond.notify_one();
+        }
     }
     bool MessageChannel::pop(std::string& message , std::chrono::milliseconds timeout)
     {
         std::unique_lock<std::mutex> lck(m_mutex);
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-
-        if ( timeout.count()==-1)
+        if (!m_channelClosedFlag)    // if channel closed reject
         {
-            m_cond.wait(lck, [this] { return !m_messages.empty();}); 
+            std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+            if (timeout.count() == -1)
+            {
+                //fixme locks forever when other process crash
+                m_cond.wait(lck, [this] { return !m_messages.empty(); });
+            }
+            else
+            {
+                m_cond.wait_until(lck, now + timeout, [this] { return !m_messages.empty(); });
+            }
+
+            if (m_messages.empty())
+            {
+                return false;
+            }
+
+            auto optmessage = m_messages.front();
+            m_messages.pop_front();
+            if (optmessage.has_value())
+            {
+                message = optmessage.value();
+            }
+            else
+            {
+                // set the flag that channel is closed.
+                m_channelClosedFlag = true;
+                throw ChannelClosedException("closed");
+            }
         }
         else
         {
-            m_cond.wait_until(lck, now + timeout,[this] { return !m_messages.empty(); });
+            throw ChannelClosedException("closed");
         }
-
-        if (m_messages.empty())
-        {
-            return false;
-        }
-
-        auto optmessage = m_messages.front();
-        m_messages.pop_front();
-        if (optmessage.has_value())
-        {
-            message = optmessage.value();
-        }
-        else
-        {
-            throw ChannelClosedException("closed"); 
-        }
-        
         return true;
 
     }
@@ -55,8 +66,10 @@ namespace CommsComponent {
     void MessageChannel::pushStop()
     {
         std::lock_guard<std::mutex> lck(m_mutex);
-        m_messages.emplace_back(std::nullopt);
-        m_cond.notify_one();
-
+        if (!m_channelClosedFlag)    // just ignore if already closed
+        {
+            m_messages.emplace_back(std::nullopt);
+            m_cond.notify_one();
+        }
     }
 }

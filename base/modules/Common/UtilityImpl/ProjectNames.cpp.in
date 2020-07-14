@@ -11,22 +11,22 @@ std::string sophos::group()
     return "@SOPHOS_SPL_GROUP@";
 }
 
-std::string networkUser()
+std::string sophos::networkUser()
 {
     return "@SOPHOS_SPL_NETWORK@";
 }
 
-std::string networkGroup()
+std::string sophos::networkGroup()
 {
     return "@SOPHOS_SPL_NETWORK@";
 }
 
-std::string localUser()
+std::string sophos::localUser()
 {
     return "@SOPHOS_SPL_LOCAL@";
 }
 
-std::string localGroup()
+std::string sophos::localGroup()
 {
     return "@SOPHOS_SPL_LOCAL@";
 }

@@ -9,9 +9,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "MessageChannel.h"
 #include "ReactorAdapter.h"
 #include "AsyncMessager.h"
+#include "Logger.h"
 #include <functional>
 #include <unistd.h>
 #include <log4cplus/logger.h>
+#include <modules/Common/Logging/FileLoggingSetup.h>
 
 namespace CommsComponent
 {
@@ -53,92 +55,139 @@ namespace CommsComponent
     template<typename ParentExecutor, typename ChildExecutor, typename Config>
     int splitProcesses( ParentExecutor parent, ChildExecutor && child, Config config)
     {
+        // setup the io_service and the socket/pair.
         boost::asio::io_service io_service;
+        auto[parentChannel, childChannel] = CommsContext::setupPairOfConnectedSockets(
+                io_service, [&parent](std::string message) { parent.onMessageFromOtherSide(std::move(message)); },
+                [&child](std::string message) { child.onMessageFromOtherSide(std::move(message)); });
 
-        auto [parentChannel, childChannel] = CommsContext::setupPairOfConnectedSockets(
-        io_service, [&parent](std::string message){ parent.onMessageFromOtherSide(std::move(message)); },
-        [&child](std::string message){ child.onMessageFromOtherSide(std::move(message));}); 
-
+        // shutdown all threads before fork.
         log4cplus::Logger::shutdown();
         io_service.notify_fork(boost::asio::io_context::fork_prepare);
-        int exitCode = 0; 
-        std::cout << "Parent pid: << " << getpid() << std::endl; 
-        auto pid = fork();         
-        assert(pid != -1); 
-        if ( pid == 0)
+        int exitCode = 0;
+        std::cout << "Parent pid: << " << getpid() << std::endl;
+        auto pid = fork();
+        if (pid == -1)
         {
-            io_service.notify_fork(boost::asio::io_context::fork_child);
-            parentChannel->justShutdownSocket(); 
+            perror("Comms component failed to start");
+            exit(EXIT_FAILURE);
+        }
+        if (pid == 0)
+        {
+            // the io_service thread in the background to receive messages
+            std::thread thread;
+            try
             {
-                OtherSideApi parentService{std::move(childChannel)}; 
+                std::cout << "network process pid: " << getpid() << std::endl;
+                // child code
+                io_service.notify_fork(boost::asio::io_context::fork_child);
+                // Close the file descriptor of the socket that is not supposed to be used.
+                parentChannel->justShutdownSocket();
 
-                config.applyChildSecurityPolicy(); 
-                config.applyChildInit();         
-                std::thread thread = CommsContext::startThread(io_service);
-                std::cout << "Child run" << std::endl; 
-                exitCode = child.run(parentService); 
-                std::cout << "Child run passed" << std::endl; 
-                parentService.close(); 
-                thread.join();            
-                log4cplus::Logger::shutdown(); 
+                OtherSideApi parentService{std::move(childChannel)};
+
+                // Apply the Configurator.
+                config.applyChildSecurityPolicy();
+
+                // equivalent to the code that usually runs before the main init();
+                config.applyChildInit();
+                Common::Logging::FileLoggingSetup logSetup("commsnetwork");
+                std::cout << "Staring network process" << std::endl;
+                LOGINFO("Staring network process");
+                thread = CommsContext::startThread(io_service);
+                exitCode = child.run(parentService);  // missing protection from exception.
+                LOGINFO("Network process finishing");
+
+                // teardown and close
+                parentService.notifyOtherSideAndClose(); // notify the other side and close connection.
+
+                if (thread.joinable())
+                {
+                    thread.join();
+                }
             }
-            std::cout << "after join" << std::endl; 
-            std::cout << "Child finished" << std::endl; 
+            catch (std::exception &ex)
+            {
+                LOGERROR("Comms local process exception: " << ex.what());
+                if (thread.joinable())
+                {
+                    thread.join();
+                }
+                log4cplus::Logger::shutdown();
+            }
+            LOGDEBUG("Network process exiting");
+            log4cplus::Logger::shutdown();
             exit(exitCode);
-
         }
         else
         {
+            log4cplus::Logger::shutdown();
             io_service.notify_fork(boost::asio::io_context::fork_parent);
             boost::asio::signal_set signal_{io_service, SIGCHLD};
             signal_.async_wait(
-                [](boost::system::error_code ec, int /*signo*/)
-                {
-                    std::cout << ec << std::endl; 
-                // Reap completed child processes so that we don't end up with
-                // zombies.
-                std::cout << "wait pid: " << getpid() << std::endl; 
-                int status = 0;
-                while (waitpid(-1, &status, WNOHANG) > 0) {}
-                });             
-            childChannel->justShutdownSocket(); 
+                    [&](boost::system::error_code ec, int /*signo*/)  //capture bu reference here? for childService.
+                    {
+                        std::cout << ec << std::endl;
+                        // Reap completed child processes so that we don't end up with
+                        // zombies.
+                        std::cout << "wait pid: " << getpid() << std::endl;
+                        int status = 0;
+                        while (waitpid(-1, &status, WNOHANG) > 0) {}
+                        // FIXME: should close the parent channel to notify the child is not available;
+                    });
+            childChannel->justShutdownSocket();
             OtherSideApi childService(std::move(parentChannel));
-            config.applyParentSecurityPolicy(); 
-            config.applyChildInit(); 
-            
-            std::thread thread = CommsContext::startThread(io_service);            
-            
-            std::cout << "Parent run service" << std::endl; 
-            exitCode = parent.run(childService); 
-            childService.close();
-            std::cout << "Parent Wait on child" << std::endl; 
-            
-            int status; 
-            // FIXME: 
-            // unfortunatelly log4cplus is still hanging in the destructor because it uses static objects and 
-            // we have to figure out how to properly work with it. 
-            // without the kill below, the executable will be hanging on the child, 
-            // child stack: 
-            //   std::condition_variable::wait(std::unique_lock<std::mutex>&) () from /usr/lib/x86_64-linux-gnu/libstdc++.so.6
-            //   log4cplus::(anonymous namespace)::destroy_default_context::~destroy_default_context() ()
-            //   ...log4cplus/lib/liblog4cplus-2.0.so.3
-            //    __cxa_finalize (d=0x7f4872552000) at cxa_finalize.c:83
-            
+            config.applyParentSecurityPolicy();
+            config.applyParentInit();
+            //requires low privilege location
+            Common::Logging::FileLoggingSetup loggerSetup("commslocal", true);
+            LOGINFO("Starting comms local process, pid:" << getpid());
 
-            kill(pid, SIGHUP);
+            std::thread thread;
+            try
+            {
+                thread = CommsContext::startThread(io_service);
 
-            wait(&status); 
-            std::cout << "parent after wait" << std::endl; 
-            log4cplus::Logger::shutdown();
-            thread.join();
-            std::cout << "parent finished" << std::endl; 
+                std::cout << "Parent run service" << std::endl;
+                exitCode = parent.run(childService);
+                childService.notifyOtherSideAndClose();
+                LOGINFO("Waiting for network process to finish");
+
+                int status;
+                // FIXME low privilege user can not enforce:
+                // unfortunately log4cplus is still hanging in the destructor because it uses static objects and
+                // we have to figure out how to properly work with it.
+                // without the kill below, the executable will be hanging on the child,
+                // child stack:
+                //   std::condition_variable::wait(std::unique_lock<std::mutex>&) () from /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+                //   log4cplus::(anonymous namespace)::destroy_default_context::~destroy_default_context() ()
+                //   ...log4cplus/lib/liblog4cplus-2.0.so.3
+                //    __cxa_finalize (d=0x7f4872552000) at cxa_finalize.c:83
+                kill(pid, SIGHUP);
+                wait(&status);
+                std::cout << "parent after wait" << std::endl;
+                LOGINFO("Comms detected that network process has finished");
+                if (thread.joinable())
+                {
+                    thread.join();
+                }
+            }
+            catch (std::exception &ex)
+            {
+                LOGERROR("Comms local process exception: " << ex.what());
+                if (thread.joinable())
+                {
+                    thread.join();
+                }
+            }
             // wait on child
-
+            LOGINFO("Comms component is returning");
+            log4cplus::Logger::shutdown();
         }
-        return exitCode; 
-    } 
+        return exitCode;
+    }
 
-    /* Creates a ChildExcutor that tunnel the messages received by the Parent into a 
+    /* Creates a ChildExEcutor that tunnel the messages received by the Parent into a
     *  MessageChannel which throw ChannelClosed when the Parent sends a stop message. 
     *  The functor does not need to capture that exception, it is handled by the childexecutor
     *  to teardown the childprocess. 
@@ -149,7 +198,7 @@ namespace CommsComponent
     template<typename ParentExecutor,typename Config>
     int splitProcessesSimpleReactor(ParentExecutor parent, SimpleReactor child, Config config )
     {
-        return splitProcesses(parent, ReactorAdapter{child, "child"}, config); 
+        return splitProcesses(parent, ReactorAdapter{std::move(child), "child"}, config);
     }
 
     /* 
@@ -160,13 +209,14 @@ namespace CommsComponent
     template<typename ParentExecutor>    
     int splitProcessesSimpleReactor(ParentExecutor parent, SimpleReactor child )
     {
-        return splitProcessesSimpleReactor(parent, ReactorAdapter{child}, NullConfigurator{}); 
+        return splitProcessesSimpleReactor(parent, ReactorAdapter{std::move(child), "child"}, NullConfigurator{});
     }
 
     template<typename Config>
     int splitProcessesReactors(SimpleReactor parent, SimpleReactor child, Config config )
     {
-        return splitProcesses(ReactorAdapter{parent, "parent"}, ReactorAdapter{child, "child"}, config); 
+        return splitProcesses(ReactorAdapter{std::move(parent), "parent"}, ReactorAdapter{std::move(child), "child"},
+                              config);
     }
 
     /* Further simplification of splitProcessesReactors to pass NullConfigurator as config. 
@@ -174,7 +224,7 @@ namespace CommsComponent
     */
     int splitProcessesReactors(SimpleReactor parent, SimpleReactor child)
     {
-        return splitProcessesReactors( parent, child, NullConfigurator{}); 
+        return splitProcessesReactors(std::move(parent), std::move(child), NullConfigurator{});
     }
 
 

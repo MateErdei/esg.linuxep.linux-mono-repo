@@ -17,8 +17,13 @@ add_library(utilityimplobject OBJECT
         Factory.h
         ProjectNames.h
         StringUtils.cpp
-        ${CMAKE_CURRENT_BINARY_DIR}/ProjectNames.cpp)
-target_include_directories(utilityimplobject PUBLIC ../../Common ${CMAKE_CURRENT_SOURCE_DIR})
+        ConfigException.h
+        ConfigException.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/ProjectNames.cpp
+        SophosSplUsers.h
+        SophosSplusers.cpp
+        ISophosSplUsers.h)
+target_include_directories(utilityimplobject PUBLIC ../../Common ${CMAKE_CURRENT_SOURCE_DIR} ${CURL_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 add_library(utilityimpl SHARED $<TARGET_OBJECTS:utilityimplobject> )
 target_include_directories(utilityimpl PUBLIC ../../Common ${CMAKE_CURRENT_BINARY_DIR})
 

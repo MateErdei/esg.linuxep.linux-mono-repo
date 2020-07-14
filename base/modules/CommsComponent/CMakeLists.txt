@@ -1,27 +1,27 @@
-add_library(commscomponentimpl SHARED 
-        Comms.cpp 
-        Logger.cpp 
-        Logger.h 
+add_library(commscomponentimpl SHARED
+        Comms.cpp
+        Logger.cpp
+        Logger.h
         Comms.h
-        AsyncMessager.h        
+        AsyncMessager.h
         AsyncMessager.cpp
         SplitProcesses.h
         MessageChannel.h
         MessageChannel.cpp
         Configurator.h
+        Configurator.cpp
         ReactorAdapter.h
         ReactorAdapter.cpp
         OtherSideApi.h
-        OtherSideApi.cpp
-)
+        OtherSideApi.cpp)
 
 
-target_link_libraries(commscomponentimpl PUBLIC logging processimpl)
+target_link_libraries(commscomponentimpl PUBLIC logging processimpl securityutils utilityimpl)
 
 SET_TARGET_PROPERTIES( commscomponentimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
-target_include_directories(commscomponentimpl PUBLIC ${BOOST_INCLUDE_DIR})
+target_include_directories(commscomponentimpl PUBLIC ..Common/SecurityUtils ../Common/UtilityImpl ${BOOST_INCLUDE_DIR})
 
 install(TARGETS commscomponentimpl
         LIBRARY DESTINATION files/base/lib64)
