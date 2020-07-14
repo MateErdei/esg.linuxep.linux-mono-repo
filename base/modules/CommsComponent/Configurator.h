@@ -9,19 +9,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <memory>
 #include <Common/UtilityImpl/ISophosSplUsers.h>
 #include <Common/Logging/LoggerConfig.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 namespace CommsComponent
 {
     class NullConfigurator
     {
+        std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_console; 
     public:
         void applyParentSecurityPolicy() {}
 
-        void applyParentInit() {}
+        void applyParentInit();
 
         void applyChildSecurityPolicy() {}
 
-        void applyChildInit() {}
+        void applyChildInit();
+
     };
 
 

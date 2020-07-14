@@ -18,6 +18,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace CommsComponent
 {
+    void NullConfigurator::applyChildInit(){
+        m_console.reset(new Common::Logging::ConsoleLoggingSetup());
+    }
+    
+    void NullConfigurator::applyParentInit(){
+        m_console.reset(new Common::Logging::ConsoleLoggingSetup());
+    }
+
     void CommsConfigurator::applyChildSecurityPolicy()
     {
         sophos::SophosSplUsers sophosSplUsers;
