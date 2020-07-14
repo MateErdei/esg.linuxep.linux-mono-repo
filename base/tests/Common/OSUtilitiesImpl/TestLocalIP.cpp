@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "MockILocalIP.h"
@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/OSUtilitiesImpl/LocalIPImpl.h>
 #include <Common/Process/IProcess.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -18,7 +19,9 @@ using namespace Common::OSUtilities;
 using PairResult = std::pair<std::string, std::string>;
 using ListInputOutput = std::vector<PairResult>;
 
-TEST(TestLocalIP, shouldBeAbleToResolvValidHosts) // NOLINT
+class TestLocalIP: public LogOffInitializedTests{};
+
+TEST_F(TestLocalIP, shouldBeAbleToResolvValidHosts) // NOLINT
 {
     auto fSystem = Common::FileSystem::fileSystem();
     std::string ipconfigInfo = "/sbin/ifconfig";
@@ -62,7 +65,7 @@ TEST(TestLocalIP, shouldBeAbleToResolvValidHosts) // NOLINT
     }
 }
 
-TEST(TestLocalIP, canMockLocalIPs) // NOLINT
+TEST_F(TestLocalIP, canMockLocalIPs) // NOLINT
 {
     std::unique_ptr<MockILocalIP> mocklocalIP(new StrictMock<MockILocalIP>());
     EXPECT_CALL(*mocklocalIP, getLocalIPs()).WillOnce(Return(MockILocalIP::buildIPsHelper("10.10.101.34")));
@@ -74,7 +77,7 @@ TEST(TestLocalIP, canMockLocalIPs) // NOLINT
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
-TEST(TestLocalIP, canUsetheFakeLocalIPs) // NOLINT
+TEST_F(TestLocalIP, canUsetheFakeLocalIPs) // NOLINT
 {
     std::unique_ptr<FakeILocalIP> fakeILocalIP(
         new FakeILocalIP(std::vector<std::string>{ "10.10.101.34", "10.10.101.35" }));
