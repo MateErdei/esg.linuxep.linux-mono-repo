@@ -32,5 +32,5 @@ TEST(TestScanningServerSocket, test_construction) //NOLINT
 {
     std::string path = "TestThreatDetectorSocket_socket";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    EXPECT_NO_THROW(unixsocket::ScanningServerSocket server(path, scannerFactory));
+    EXPECT_NO_THROW(unixsocket::ScanningServerSocket server(path, 0666, scannerFactory));
 }

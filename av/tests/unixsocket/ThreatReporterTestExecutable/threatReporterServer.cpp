@@ -42,7 +42,7 @@ int main()
     const std::string path = "/tmp/unix_socket";
 
     std::shared_ptr<IMessageCallback> callback = std::make_shared<MessageCallbacks>();
-    unixsocket::ThreatReporterServerSocket server(path,callback);
+    unixsocket::ThreatReporterServerSocket server(path, 0600, callback);
     server.run();
 
     return 0;

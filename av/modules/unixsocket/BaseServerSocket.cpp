@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "BaseServerSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h"
 #include "Logger.h"
 
 #include <stdexcept>
@@ -51,7 +52,7 @@ static int addFD(fd_set* fds, int fd, int currentMax)
     return std::max(fd, currentMax);
 }
 
-unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
+unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, const mode_t mode)
     : m_socketPath(path)
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
@@ -68,7 +69,7 @@ unixsocket::BaseServerSocket::BaseServerSocket(const std::string& path)
     int ret = bind(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
     throwOnError(ret, "Failed to bind to unix socket path");
 
-    ::chmod(path.c_str(), 0777);
+    ::chmod(path.c_str(), mode);
 }
 
 unixsocket::BaseServerSocket::~BaseServerSocket()

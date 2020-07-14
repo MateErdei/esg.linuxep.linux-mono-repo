@@ -16,7 +16,7 @@ namespace unixsocket
     class ThreatReporterServerSocket : public ThreatReporterServerSocketBase
     {
     public:
-        ThreatReporterServerSocket(const std::string& path, std::shared_ptr<IMessageCallback> callback);
+        ThreatReporterServerSocket(const std::string& path, const mode_t mode, std::shared_ptr<IMessageCallback> callback);
 
     protected:
         TPtr makeThread(int fd) override

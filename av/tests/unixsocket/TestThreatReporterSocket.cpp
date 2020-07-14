@@ -65,7 +65,7 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
     EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
             InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));;
 
-    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, mock_callback);
+    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mock_callback);
 
     threatReporterServer.start();
 
@@ -104,7 +104,7 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
             InvokeWithoutArgs(&serverWaitGuard2, &WaitForEvent::onEventNoArgs));;
 
 
-    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, mock_callback);
+    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mock_callback);
 
     threatReporterServer.start();
 

@@ -66,6 +66,12 @@ ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin/uninstall.sh" "${SOPHOS_
 chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64"
 chmod 0755 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64"/*
+# Lock down libraries which are not needed by avscanner
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/liblockedqueue.so"*
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/libpluginimpl.so"*
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/libscanscheduler.so"*
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/libsophosthreatdetectorimpl.so"*
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/libthreat_scanner.so"*
 chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin"
 chmod 0755 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/avscanner"
 chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin"
@@ -81,7 +87,8 @@ mkdir -p ${CHROOT_LINK_DIR}
 ln -snf / ${CHROOT_LINK_DIR}/chroot
 mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
 mkdir -p ${CHROOT}/tmp
-chmod -R 0711 "$CHROOT"
+chmod 0711 "$CHROOT"
+chmod 0700 "$CHROOT"/*
 
 ## Create log directory symlinks for sophos_threat_detector
 mkdir -p "$CHROOT/log" "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log" "${CHROOT_LINK_DIR}/log"

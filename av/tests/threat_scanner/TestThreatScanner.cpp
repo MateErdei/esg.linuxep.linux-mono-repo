@@ -225,7 +225,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
 
     setupFakeSophosThreatDetectorConfig();
     unixsocket::ThreatReporterServerSocket threatReporterServer(
-        "/tmp/TestPluginAdapter/chroot/threat_report_socket",
+        "/tmp/TestPluginAdapter/chroot/threat_report_socket", 0600,
         mock_callback
     );
 

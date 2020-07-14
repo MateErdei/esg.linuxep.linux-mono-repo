@@ -24,7 +24,7 @@ namespace unixsocket
         BaseServerSocket(const BaseServerSocket&) = delete;
         BaseServerSocket& operator=(const BaseServerSocket&) = delete;
 
-        explicit BaseServerSocket(const sophos_filesystem::path& path);
+        explicit BaseServerSocket(const sophos_filesystem::path& path, const mode_t mode);
         ~BaseServerSocket() override;
 
         void run() override;

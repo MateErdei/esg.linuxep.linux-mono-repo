@@ -59,7 +59,7 @@ int main()
 
     const std::string path = "/tmp/unix_socket";
     auto scannerFactory = std::make_shared<FakeScannerFactory>();
-    unixsocket::ScanningServerSocket server(path, scannerFactory);
+    unixsocket::ScanningServerSocket server(path, 0666, scannerFactory);
     server.run();
 
     return 0;

@@ -7,9 +7,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanningServerSocket.h"
 
 unixsocket::ScanningServerSocket::ScanningServerSocket(
-        const std::string& path,
+        const std::string& path, const mode_t mode,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
-        : ImplServerSocket<ScanningServerConnectionThread>(path),
+        : ImplServerSocket<ScanningServerConnectionThread>(path, mode),
                 m_scannerFactory(std::move(scannerFactory))
 {
     if (m_scannerFactory.get() == nullptr)

@@ -59,7 +59,7 @@ static int inner_main()
 #else
         = std::make_shared<threat_scanner::FakeSusiScannerFactory>();
 #endif
-    unixsocket::ScanningServerSocket server(scanningSocketPath, scannerFactory);
+    unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, scannerFactory);
     server.run();
 
     return 0;
