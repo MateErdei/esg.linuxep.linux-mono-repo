@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -11,6 +11,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <UpdateSchedulerImpl/cronModule/CronSchedulerThread.h>
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/FakeTimeUtils.h>
+
+
 using namespace UpdateSchedulerImpl;
 using namespace UpdateScheduler;
 using milliseconds = std::chrono::milliseconds;

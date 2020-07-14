@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
@@ -8,8 +8,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <UpdateScheduler/ScheduledUpdate.h>
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/FakeTimeUtils.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 
-class TestWithMockTimerAbstract : public ::testing::Test
+class TestWithMockTimerAbstract : public LogOffInitializedTests
 {
 public:
     TestWithMockTimerAbstract() : t_20190501T13h(calculateRequiredTestDateTime()) {}

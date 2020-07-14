@@ -1,12 +1,13 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessInfo.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -14,7 +15,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 namespace Common::Process
 {
-    TEST(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithValidUserAndGroupStoresCorrectResults) // NOLINT
+    class ProcessInfoTests: public LogOffInitializedTests{};
+    TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithValidUserAndGroupStoresCorrectResults) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("root:root");
@@ -29,7 +31,7 @@ namespace Common::Process
         EXPECT_EQ(groupActual.second, 0);
     }
 
-    TEST(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithValidUserStoresCorrectResults) // NOLINT
+    TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithValidUserStoresCorrectResults) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("root");
@@ -44,7 +46,7 @@ namespace Common::Process
         EXPECT_EQ(groupActual.second, 0);
     }
 
-    TEST(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithInvalidUserStoresCorrectResults) // NOLINT
+    TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithInvalidUserStoresCorrectResults) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("baduser");
@@ -62,7 +64,7 @@ namespace Common::Process
         EXPECT_EQ(groupActual.second, invalidGroup);
     }
 
-    TEST(ProcessInfoTests,
+    TEST_F(ProcessInfoTests,
          processInfoSetExecutableUserAndGroupWithInvalidUserAndGroupStoresCorrectResults) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
@@ -81,7 +83,7 @@ namespace Common::Process
         EXPECT_EQ(groupActual.second, invalidGroup);
     }
 
-    TEST(
+    TEST_F(
         ProcessInfoTests,
         processInfoSetExecutableUserAndGroupWithInvalidUserAndValidGroupStoresCorrectResults) // NOLINT
     {
@@ -101,7 +103,7 @@ namespace Common::Process
         EXPECT_EQ(groupActual.second, invalidGroup);
     }
 
-    TEST(
+    TEST_F(
         ProcessInfoTests,
         processInfoSetExecutableUserAndGroupWithValidUserAndInvalidGroupStoresCorrectResults) // NOLINT
     {
@@ -123,7 +125,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableUserAndGroupAsString(), userGroup);
     }
 
-    TEST(ProcessInfoTests, setExecutableArguments) // NOLINT
+    TEST_F(ProcessInfoTests, setExecutableArguments) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
@@ -137,7 +139,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableArguments()[2], args[2]);
     }
 
-    TEST(ProcessInfoTests, setExecutableEnvironmentVariables) // NOLINT
+    TEST_F(ProcessInfoTests, setExecutableEnvironmentVariables) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
@@ -152,7 +154,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableEnvironmentVariables()[1].second, envPairs[1].second);
     }
 
-    TEST(ProcessInfoTests, addExecutableArgumentsAddsNewValueCorrectly) // NOLINT
+    TEST_F(ProcessInfoTests, addExecutableArgumentsAddsNewValueCorrectly) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
@@ -164,7 +166,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableArguments()[0], arg);
     }
 
-    TEST(ProcessInfoTests, addExecutableEnvironmentVariablesAddsNewValueCorrectly) // NOLINT
+    TEST_F(ProcessInfoTests, addExecutableEnvironmentVariablesAddsNewValueCorrectly) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
@@ -178,7 +180,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableEnvironmentVariables()[0].second, envValue);
     }
 
-    TEST(ProcessInfoTests, setExecutableFullPathAddsNewValueCorrectly) // NOLINT
+    TEST_F(ProcessInfoTests, setExecutableFullPathAddsNewValueCorrectly) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 

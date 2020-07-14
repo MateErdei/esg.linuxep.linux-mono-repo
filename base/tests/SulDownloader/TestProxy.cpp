@@ -1,16 +1,18 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include <SulDownloader/suldownloaderdata/Credentials.h>
 #include <SulDownloader/suldownloaderdata/Proxy.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <gtest/gtest.h>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
+
 
 TEST(Proxy, DefaultConstructorIsEmptyProxy) // NOLINT
 {
@@ -45,7 +47,8 @@ TEST(Proxy, ShouldHandleCorrectlyProxyUrlAsSulRequires) // NOLINT
     }
 }
 
-TEST(ProxyCredentials, ShouldHandleType1Proxy)
+class ProxyCredentialsTest: public LogOffInitializedTests{};
+TEST_F(ProxyCredentialsTest, ShouldHandleType1Proxy)
 {
     ProxyCredentials credential{ "user", "password", "1" };
     EXPECT_EQ(credential.getProxyType(), "1");
@@ -54,7 +57,7 @@ TEST(ProxyCredentials, ShouldHandleType1Proxy)
     EXPECT_EQ(credential.getUsername(), "user");
 }
 
-TEST(ProxyCredentials, ShouldHandleType2Proxy)
+TEST_F(ProxyCredentialsTest, ShouldHandleType2Proxy)
 {
     ProxyCredentials credential{ "user", "CCCj7sOF/IMdsPr1YxSIC0XjQcBmqy4kRtg7wwV0uCFxwzGl2qNaqk4lYs/6cQmFNLY=", "2" };
     EXPECT_EQ(credential.getProxyType(), "2");
@@ -63,7 +66,7 @@ TEST(ProxyCredentials, ShouldHandleType2Proxy)
     EXPECT_EQ(credential.getUsername(), "user");
 }
 
-TEST(ProxyCredentials, ShouldHandleType2SimpleProxy)
+TEST_F(ProxyCredentialsTest, ShouldHandleType2SimpleProxy)
 {
     ProxyCredentials credential{ "", "CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM=", "2" };
     EXPECT_EQ(credential.getProxyType(), "2");
@@ -72,7 +75,7 @@ TEST(ProxyCredentials, ShouldHandleType2SimpleProxy)
     EXPECT_EQ(credential.getUsername(), "");
 }
 
-TEST(ProxyCredentials, ShouldThrowOnInvalidCredential)
+TEST_F(ProxyCredentialsTest, ShouldThrowOnInvalidCredential)
 {
     std::vector<std::string> invalidPasswordsForEmptyUser = {
         { "CCCj7sOF/IMdsPr1YxSIC0XjQcBmqy4kRtg7wwV0uCFxwzGl2qNaqk4lYs/6cQmFNLY=" }, // non empty

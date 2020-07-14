@@ -31,7 +31,9 @@ namespace
         ASSERT_EQ(ret, 0);
     }
 
-    class ProcessImpl : public LogInitializedTests
+    class ProcessImpl : public LogOffInitializedTests
+    {};
+    class ProcessImplLog : public LogInitializedTests
     {};
     TEST_F(ProcessImpl, SimpleEchoShouldReturnExpectedString) // NOLINT
     {
@@ -112,27 +114,24 @@ namespace
         }
     }
 
-    TEST_F(ProcessImpl, TestDataRaceForProcessImpl)
+    TEST_F(ProcessImplLog, TestDataRaceForProcessImpl)
     {
-        Common::Logging::ConsoleLoggingSetup loggingSetup;
         auto f1 = std::async(std::launch::async, myTest);
         auto f2 = std::async(std::launch::async, myTest);
         f1.get();
         f2.get();
     }
 
-    TEST_F(ProcessImpl, BugTwoProcessesShouldNotDeadlock) // NOLINT
+    TEST_F(ProcessImplLog, BugTwoProcessesShouldNotDeadlock) // NOLINT
     {
-        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
         auto job1 = std::async(std::launch::async, asyncSleep);
         auto job2 = std::async(std::launch::async, asyncSleep);
         EXPECT_EQ(job2.get(), 0);
         EXPECT_EQ(job1.get(), 0);
     }
 
-    TEST_F(ProcessImpl, TwoProcessesWaitingInDifferentlyShouldNotDeadlock) // NOLINT
+    TEST_F(ProcessImplLog, TwoProcessesWaitingInDifferentlyShouldNotDeadlock) // NOLINT
     {
-        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
         auto job1 = std::async(std::launch::async, asyncSleep);
         auto process = createProcess();
         process->exec("/bin/sleep", { "2" });
@@ -332,9 +331,8 @@ sleep 10000
         EXPECT_EQ(process->exitCode(), 1);
     }
 
-    TEST_F(ProcessImpl, NonExistingCommandShouldFail) // NOLINT
+    TEST_F(ProcessImplLog, NonExistingCommandShouldFail) // NOLINT
     {
-        Common::Logging::ConsoleLoggingSetup consoleLogging;
         auto process = createProcess();
         process->exec("/bin/command_does_not_exists", { "fake_argument" });
         EXPECT_EQ(process->wait(milli(1), 500), ProcessStatus::FINISHED);
@@ -448,9 +446,8 @@ sleep 10000
         EXPECT_EQ(captureout + output, echoinput);
     }
 
-    TEST_F(ProcessImpl, SimulationOfDataRace) // NOLINT
+    TEST_F(ProcessImplLog, SimulationOfDataRace) // NOLINT
     {
-        Common::Logging::ConsoleLoggingSetup loggingSetup;
         std::string bashScript = R"(#!/bin/bash
 echo 'started'
 echo {1..300}

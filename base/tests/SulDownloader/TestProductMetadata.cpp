@@ -1,17 +1,20 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include <SulDownloader/suldownloaderdata/ProductMetadata.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-TEST(TestProductMetadata, extractSulComponentsWorkForEmptyComponent) // NOLINT
+class TestProductMetadata: public LogOffInitializedTests{};
+TEST_F(TestProductMetadata, extractSulComponentsWorkForEmptyComponent) // NOLINT
 {
     auto subComponents = ProductMetadata::extractSubProductsFromSulSubComponents("", {});
     EXPECT_TRUE(subComponents.empty());
@@ -19,7 +22,7 @@ TEST(TestProductMetadata, extractSulComponentsWorkForEmptyComponent) // NOLINT
     p.subProducts();
 }
 
-TEST(TestProductMetadata, extractSulComponentShouldProduceValidProductKey)
+TEST_F(TestProductMetadata, extractSulComponentShouldProduceValidProductKey)
 {
     std::vector<ProductKey> listOfExpectedProductKey = { { "rigidname", "v1" },
                                                          { "rig-gid-name-with-dash", "10.56.890" },
@@ -32,14 +35,14 @@ TEST(TestProductMetadata, extractSulComponentShouldProduceValidProductKey)
     }
 }
 
-TEST(TestProductMetadata, rigidNameWithDotDashShouldBeConsideredValid)
+TEST_F(TestProductMetadata, rigidNameWithDotDashShouldBeConsideredValid)
 {
     ProductKey expectedProductKey{ "name-with-;-is-ok", "10.0.5" };
     ProductKey calculated = ProductMetadata::extractProductKeyFromSubComponent("name-with-;-is-ok;10.0.5");
     EXPECT_EQ(calculated, expectedProductKey);
 }
 
-TEST(TestProductMetadata, invalidCombinationIsRejected)
+TEST_F(TestProductMetadata, invalidCombinationIsRejected)
 {
     std::vector<std::string> invalidCombinations = {
         "",        // missing ;
@@ -55,7 +58,7 @@ TEST(TestProductMetadata, invalidCombinationIsRejected)
     }
 }
 
-TEST(TestProductMetadata, extractSulComponentsHandleGracefullyInvalidArguments)
+TEST_F(TestProductMetadata, extractSulComponentsHandleGracefullyInvalidArguments)
 {
     std::vector<std::string> entries = { "rig;1.0.0", "invalid", "name2;5.9" };
     SubProducts subProducts = ProductMetadata::extractSubProductsFromSulSubComponents("", entries);
@@ -64,7 +67,7 @@ TEST(TestProductMetadata, extractSulComponentsHandleGracefullyInvalidArguments)
     EXPECT_EQ(subProducts, expected);
 }
 
-TEST(TestProductMetadata, ProductMetadataHandleCorrectlySettingSubComponents)
+TEST_F(TestProductMetadata, ProductMetadataHandleCorrectlySettingSubComponents)
 {
     std::vector<std::string> entries = { "rig;1.0.0", "name2;5.9" };
     ProductMetadata productMetadata;
@@ -75,7 +78,7 @@ TEST(TestProductMetadata, ProductMetadataHandleCorrectlySettingSubComponents)
     EXPECT_EQ(subProducts, expected);
 }
 
-TEST(TestProductMetadata, combineSubProductsShouldReturnOwnRigidNameAndVersionForEmptySubComponents)
+TEST_F(TestProductMetadata, combineSubProductsShouldReturnOwnRigidNameAndVersionForEmptySubComponents)
 {
     ProductMetadata productMetadata;
     productMetadata.setLine("line");
@@ -87,7 +90,7 @@ TEST(TestProductMetadata, combineSubProductsShouldReturnOwnRigidNameAndVersionFo
     EXPECT_EQ(subProducts, expected);
 }
 
-TEST(TestProductMetadata, combineSubProductsShouldReturnTheSubComponentsWhenNotEmpty)
+TEST_F(TestProductMetadata, combineSubProductsShouldReturnTheSubComponentsWhenNotEmpty)
 {
     ProductMetadata productMetadata;
     productMetadata.setLine("line");
@@ -101,7 +104,7 @@ TEST(TestProductMetadata, combineSubProductsShouldReturnTheSubComponentsWhenNotE
     EXPECT_EQ(subProducts, expected);
 }
 
-TEST(TestProductMetadata, combineSubProductsShouldNotRepeatProducts)
+TEST_F(TestProductMetadata, combineSubProductsShouldNotRepeatProducts)
 {
     ProductMetadata productMetadata;
     productMetadata.setLine("line");

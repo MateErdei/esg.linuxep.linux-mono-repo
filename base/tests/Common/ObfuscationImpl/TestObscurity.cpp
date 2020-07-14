@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,16 +8,20 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ObfuscationImpl/Base64.h>
 #include <Common/ObfuscationImpl/Obfuscate.h>
 #include <Common/ObfuscationImpl/Obscurity.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-TEST(TestObscurity, obscurityThrowsWithBadAESAlgorithm) // NOLINT
+class TestObscurity: public LogOffInitializedTests{};
+
+TEST_F(TestObscurity, obscurityThrowsWithBadAESAlgorithm) // NOLINT
 {
     Common::ObfuscationImpl::CObscurity cObscurity;
     EXPECT_THROW(cObscurity.Reveal("3"), Common::Obfuscation::IObscurityException); // NOLINT
 }
 
-TEST(TestObscurity, obscurityRevealsPassword) // NOLINT
+TEST_F(TestObscurity, obscurityRevealsPassword) // NOLINT
 {
     Common::ObfuscationImpl::CObscurity cObscurity;
     std::string b64DecodedPassword =
@@ -35,7 +39,7 @@ TEST(TestObscurity, obscurityRevealsPassword) // NOLINT
         "");
 }
 
-TEST(TestObscurity, SECDeobfuscate) // NOLINT
+TEST_F(TestObscurity, SECDeobfuscate) // NOLINT
 {
     EXPECT_EQ(
         Common::ObfuscationImpl::SECDeobfuscate("CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM="),

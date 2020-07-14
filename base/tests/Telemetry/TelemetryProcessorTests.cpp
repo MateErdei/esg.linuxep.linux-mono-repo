@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -21,12 +21,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 
 using ::testing::StrictMock;
 
 using namespace Common::HttpSenderImpl;
 
-class TelemetryProcessorTest : public ::testing::Test
+class TelemetryProcessorTest : public LogInitializedTests
 {
 public:
     const char* m_defaultServer = "t1.sophosupd.com";

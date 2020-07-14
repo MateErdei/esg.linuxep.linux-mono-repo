@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -14,10 +14,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 #include <SulDownloader/suldownloaderdata/WarehouseError.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-TEST(MockWarehouseRepositoryTest, DemonstrateMockWarehouse) // NOLINT
+class MockWarehouseRepositoryTest: public LogOffInitializedTests{};
+
+TEST_F(MockWarehouseRepositoryTest, DemonstrateMockWarehouse) // NOLINT
 {
     MockWarehouseRepository mock;
     suldownloaderdata::WarehouseError error;
@@ -46,7 +49,7 @@ TEST(MockWarehouseRepositoryTest, DemonstrateMockWarehouse) // NOLINT
     ASSERT_EQ(mock.getProducts().at(0).getLine(), "");
 }
 
-TEST(MockWarehouseRepositoryTest, ReplaceWarehouseRepository) // NOLINT
+TEST_F(MockWarehouseRepositoryTest, ReplaceWarehouseRepository) // NOLINT
 {
     auto mockptr = new MockWarehouseRepository();
     MockWarehouseRepository& mock = *mockptr;

@@ -1,6 +1,6 @@
-/******************************************************************************************************
+ /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -25,6 +25,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #    include <gtest/gtest.h>
 #    include <tests/Common/Helpers/TempDir.h>
 #    include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #    include <future>
 #    include <stdio.h>
 #    include <stdlib.h>
@@ -115,7 +116,7 @@ namespace
         }
     };
 
-    class ReqRepReliabilityTests : public ::testing::Test
+    class ReqRepReliabilityTests : public LogOffInitializedTests
     {
     public:
         TestContext m_testContext;

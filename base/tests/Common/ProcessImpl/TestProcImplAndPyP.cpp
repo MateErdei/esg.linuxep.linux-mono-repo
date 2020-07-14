@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,6 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <sys/types.h>
@@ -34,7 +35,9 @@ namespace
         throw std::runtime_error("Can not find PickYourPoison");
     }
 
-    TEST(TestProcImplAndPyP, DISABLED_CrashShouldBeDetectedAndNotCrashProcess) // NOLINT
+    class TestProcImplAndPyP: public LogOffInitializedTests{};
+
+    TEST_F(TestProcImplAndPyP, DISABLED_CrashShouldBeDetectedAndNotCrashProcess) // NOLINT
     {
         auto process = createProcess();
         process->exec(PickYourPoisonPath(), { "--crash" });
@@ -46,7 +49,7 @@ namespace
     }
 
     // test passes, but it is slow... Disabling it.
-    TEST(TestProcImplAndPyP, DISABLED_SpamShouldEventuallyNotCorrupt) // NOLINT
+    TEST_F(TestProcImplAndPyP, DISABLED_SpamShouldEventuallyNotCorrupt) // NOLINT
     {
         auto process = createProcess();
         process->setOutputLimit(100);
@@ -59,7 +62,7 @@ namespace
         EXPECT_NE(process->exitCode(), 0);
     }
     // test passes, but it is slow... Disabling it.
-    TEST(TestProcImplAndPyP, DISABLED_DeadlockAndKillShouldBeEnoughToRestore) // NOLINT
+    TEST_F(TestProcImplAndPyP, DISABLED_DeadlockAndKillShouldBeEnoughToRestore) // NOLINT
     {
         auto process = createProcess();
         process->setOutputLimit(100);
@@ -71,7 +74,7 @@ namespace
         EXPECT_NE(process->exitCode(), 0);
     }
 
-    TEST(TestProcImplAndPyP, HelloWorldShouldFinishNormally) // NOLINT
+    TEST_F(TestProcImplAndPyP, HelloWorldShouldFinishNormally) // NOLINT
     {
         auto process = createProcess();
         process->exec(PickYourPoisonPath(), { "--hello-world" });
