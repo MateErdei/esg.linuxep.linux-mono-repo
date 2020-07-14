@@ -1,13 +1,12 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -15,13 +14,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 
 namespace
 {
-    class TestWatchdog : public ::testing::Test
+    class TestWatchdog : public LogOffInitializedTests
     {
-        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
         IgnoreFilePermissions ignoreFilePermissions;
         Tests::ScopedReplaceFileSystem m_replacer; 
 

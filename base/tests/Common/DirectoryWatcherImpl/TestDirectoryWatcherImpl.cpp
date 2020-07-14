@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -10,9 +10,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/DirectoryWatcher/IDirectoryWatcherException.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/MockiNotifyWrapper.h>
+
 
 #include <gmock/gmock.h>
 #include <sys/inotify.h>
@@ -32,7 +32,7 @@ struct MockInotifyEvent
     char name[16];   /* Optional null-terminated name */
 };
 
-class DirectoryWatcherTests : public ::testing::Test
+class DirectoryWatcherTests : public LogInitializedTests
 {
 public:
     DirectoryWatcherTests() :
@@ -61,7 +61,6 @@ public:
     DirectoryWatcherListener m_Listener1, m_Listener2;
     int m_pipe_fd[2];
     MockInotifyEvent m_MockiNotifyEvent;
-    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 

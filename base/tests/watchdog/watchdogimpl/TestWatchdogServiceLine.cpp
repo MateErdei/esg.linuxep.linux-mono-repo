@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -9,7 +9,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -24,6 +23,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 #include <watchdog/watchdogimpl/WatchdogServiceLine.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 
 namespace
 {
@@ -37,9 +37,8 @@ namespace
         ~ProcessReplacement() { Common::ProcessImpl::ProcessFactory::instance().restoreCreator(); }
     };
 
-    class TestWatchdogServiceLine : public ::testing::Test
+    class TestWatchdogServiceLine : public LogOffInitializedTests
     {
-        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
         IgnoreFilePermissions ignoreFilePermissions;
     public:
         Common::ZMQWrapperApi::IContextSharedPtr m_context;

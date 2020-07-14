@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #ifndef ARTISANBUILD
@@ -9,11 +9,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/TempDir.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <modules/Common/UtilityImpl/StringUtils.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <modules/wdctl/wdctlimpl/wdctl_bootstrap.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <gmock/gmock.h>
 #include <thread>
 #include <mutex>
@@ -98,7 +98,7 @@ std::string templateFakePlugin(const std::string&  installdir)
 }
 
 
-class TestWatchdogAndWdctl : public ::testing::Test
+class TestWatchdogAndWdctl  : public LogInitializedTests
 {
 public:
     static void SetUpTestCase();
@@ -129,7 +129,6 @@ public:
     std::vector<std::string> stopArgs;
     std::vector<std::string> isRunningArgs;
     wdctl::wdctlimpl::wdctl_bootstrap wdctl;
-    Common::Logging::ConsoleLoggingSetup consoleLogging;
     ScopedFilePermission scopedFilePermission;
 };
 static void *watchdogmain(void * )
@@ -222,7 +221,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
         }
         else
         {
-            EXPECT_THAT(logMessage, ::testing::HasSubstr("stop fakeplugin"));
+            EXPECT_THAT(logMessage, ::testing::HasSubstr("stop fakeplugin")) << "real message: " << logMessage;
         }
 
         EXPECT_EQ(watchdogRunner.stop(), 0);

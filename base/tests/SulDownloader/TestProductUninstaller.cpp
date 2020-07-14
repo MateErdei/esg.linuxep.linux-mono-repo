@@ -7,7 +7,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "MockWarehouseRepository.h"
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <SulDownloader/ProductUninstaller.h>
@@ -19,10 +19,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 using namespace SulDownloader;
 
-class ProductUninstallerTest : public ::testing::Test
+class ProductUninstallerTest : public LogInitializedTests
 {
-    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
-
     void SetUp() override
     {
         m_fileSystemMock = new StrictMock<MockFileSystem>();

@@ -38,7 +38,7 @@
         <package name="zeromqlinux11" version="4-3-2-27/219061/output" dest="input">
             <include src="zeromq.tar" dest="."/>
         </package>
-        <package name="log4cpluslinux11" version="2-0-5-17/219045/output" dest="input">
+        <package name="log4cpluslinux11" version="2-0-5-19/220731/output" dest="input">
             <include src="log4cplus.tar" dest="."/>
         </package>
         <package name="zliblinux11" version="1-2-11-4/219630/output" dest="input">

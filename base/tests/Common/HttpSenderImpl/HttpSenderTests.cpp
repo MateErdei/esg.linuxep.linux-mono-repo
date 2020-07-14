@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -13,7 +13,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSenderImpl/HttpSender.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
+
 #include <curl/curl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -25,7 +26,7 @@ using ::testing::StrictMock;
 
 using namespace Common::HttpSenderImpl;
 
-class HttpSenderTest : public ::testing::Test
+class HttpSenderTest : public LogInitializedTests
 {
 public:
     const char* m_defaultServer = "t1.sophosupd.com";

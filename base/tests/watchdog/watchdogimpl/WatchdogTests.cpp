@@ -1,11 +1,10 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginRegistryImpl/PluginRegistryException.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -15,6 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <watchdog/watchdogimpl/Watchdog.h>
 #include <watchdog/watchdogimpl/watchdog_main.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 
 namespace
 {
@@ -29,7 +29,7 @@ namespace
 
     using ::testing::NiceMock;
 
-    class WatchdogTests : public ::testing::Test
+    class WatchdogTests  : public LogOffInitializedTests
     {
     public:
         void SetUp() override

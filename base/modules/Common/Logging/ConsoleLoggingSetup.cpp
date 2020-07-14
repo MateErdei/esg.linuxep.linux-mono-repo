@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ConsoleLoggingSetup.h"
@@ -21,7 +21,7 @@ using namespace Common::ApplicationConfiguration;
 Common::Logging::ConsoleLoggingSetup::ConsoleLoggingSetup()
 {
     consoleSetupLogging();
-    applyGeneralConfig(Common::Logging::LOGFORTEST);
+    applyGeneralConfig(Common::Logging::LOGFORTEST());
 }
 
 Common::Logging::ConsoleLoggingSetup::~ConsoleLoggingSetup()

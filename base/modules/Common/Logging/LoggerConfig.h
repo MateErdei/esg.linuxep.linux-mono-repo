@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
@@ -19,7 +19,8 @@ namespace Common
 {
     namespace Logging
     {
-        static const std::string LOGFORTEST;
+        const std::string& LOGFORTEST();
+        const std::string& LOGOFFFORTEST(); 
         /**
          *   Function that applies the settings defined in <installdir>/etc/logger.conf
          *   Currently, the options are:

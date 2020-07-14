@@ -22,6 +22,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
+
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
 #include <chrono>
@@ -34,7 +36,7 @@ using TelemetrySchedulerImpl::TaskQueue;
 
 using ::testing::DefaultValue;
 
-class SchedulerProcessorTests : public ::testing::Test
+class SchedulerProcessorTests : public LogInitializedTests
 {
 public:
     MockFileSystem* m_mockFileSystem = nullptr;

@@ -9,12 +9,12 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 

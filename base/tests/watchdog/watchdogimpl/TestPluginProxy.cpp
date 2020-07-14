@@ -1,10 +1,9 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -13,16 +12,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <watchdog/watchdogimpl/PluginProxy.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 
 namespace
 {
-    class TestPluginProxy : public ::testing::Test
+    class TestPluginProxy : public LogOffInitializedTests
     {
     public:
         ~TestPluginProxy() { Tests::restoreFileSystem(); }
 
     private:
-        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
         IgnoreFilePermissions ignoreFilePermissions;
     };
 

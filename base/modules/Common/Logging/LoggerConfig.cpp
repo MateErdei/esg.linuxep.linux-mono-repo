@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -80,13 +80,26 @@ log4cplus::LogLevel log4cplus::supportFromStringMethod(const log4cplus::tstring&
     return NOT_SET_LOG_LEVEL;
 }
 
-const std::string LOGFORTEST{ "LOGFORTEST" };
+const std::string& Common::Logging::LOGFORTEST(){
+    static std::string l{"LOGFORTEST"};
+    return l;
+}
+
+const std::string& Common::Logging::LOGOFFFORTEST(){
+    static std::string l{"LOGOFFFORTEST"}; 
+    return l;
+}
 
 void Common::Logging::applyGeneralConfig(const std::string& logbase)
 {
     log4cplus::LogLevel logLevel{ SophosLogLevel::INFO }; // default value
-    if (logbase == LOGFORTEST)
+    if (logbase == LOGFORTEST())
     {
+        LoggerSophosSettings::InTestMode = true;
+    }
+    if (logbase == LOGOFFFORTEST())
+    {
+        logLevel = log4cplus::OFF_LOG_LEVEL;
         LoggerSophosSettings::InTestMode = true;
     }
 

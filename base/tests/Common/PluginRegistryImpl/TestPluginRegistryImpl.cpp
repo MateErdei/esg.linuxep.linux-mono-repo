@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -13,10 +13,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 
 using namespace ::testing;
 
-class PluginRegistryTests : public ::testing::Test
+class PluginRegistryTests : public LogOffInitializedTests
 {
 public:
     std::string createJsonString(const std::string& oldPartString, const std::string& newPartString)

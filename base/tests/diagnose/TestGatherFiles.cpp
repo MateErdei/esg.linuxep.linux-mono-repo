@@ -4,7 +4,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -12,9 +11,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/Diagnose/diagnose/SystemCommands.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/TempDir.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
+
+class TestGatherFiles : public LogOffInitializedTests
+{
+
+};
 
 
-TEST(TestGatherFiles, copyFileIntoDirectoryNoDuplicateTargetFile) // NOLINT
+TEST_F(TestGatherFiles, copyFileIntoDirectoryNoDuplicateTargetFile) // NOLINT
 {
     Tests::TempDir tempdir("", "dir1");
     Tests::TempDir tempdir2("", "dir2");
@@ -36,7 +41,7 @@ TEST(TestGatherFiles, copyFileIntoDirectoryNoDuplicateTargetFile) // NOLINT
 
 // This test will try to copy file dir1/A to dir2/ except that we mock calls to make gather files see that both dir2/A
 // and dir2/A.1 exist and it will work out to save to dir2/A.2
-TEST(TestGatherFiles, copyFileIntoDirectoryTwoDuplicateTargetFiles) // NOLINT
+TEST_F(TestGatherFiles, copyFileIntoDirectoryTwoDuplicateTargetFiles) // NOLINT
 {
     Tests::TempDir tempdir("", "dir1");
     Tests::TempDir tempdir2("", "dir2");
@@ -59,7 +64,7 @@ TEST(TestGatherFiles, copyFileIntoDirectoryTwoDuplicateTargetFiles) // NOLINT
 
 // This test will try to copy file dir1/A to dir2/ except that we mock calls to make gather files see that dir2/A
 // exists and it will work out to save to dir2/A.1 we also copy dir1/B to dir2/B afterwards.
-TEST(TestGatherFiles, copyFileIntoDirectoryOneDuplicateOneNot) // NOLINT
+TEST_F(TestGatherFiles, copyFileIntoDirectoryOneDuplicateOneNot) // NOLINT
 {
     std::string filenameA = "A";
     std::string filenameB = "B";
