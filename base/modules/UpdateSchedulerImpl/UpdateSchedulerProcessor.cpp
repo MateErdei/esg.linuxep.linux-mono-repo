@@ -226,8 +226,10 @@ namespace UpdateSchedulerImpl
                 getPreviousConfigurationData();
 
             if (previousConfigurationData.has_value() &&
-                SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
-                    settingsHolder.configurationData, previousConfigurationData.value()))
+                    (SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+                        settingsHolder.configurationData, previousConfigurationData.value()) ||
+                    SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceUpdate(
+                                    settingsHolder.configurationData, previousConfigurationData.value())))
             {
                 LOGINFO("Detected product configuration change, triggering update.");
                 m_pendingUpdate = true;

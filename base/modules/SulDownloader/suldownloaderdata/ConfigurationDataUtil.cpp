@@ -16,6 +16,42 @@ namespace SulDownloader
 {
     namespace suldownloaderdata
     {
+        bool ConfigurationDataUtil::checkIfShouldForceUpdate(const ConfigurationData &configurationData,
+                                                             const ConfigurationData &previousConfigurationData)
+        {
+            auto &newPrimarySubscription = configurationData.getPrimarySubscription();
+            auto &previousPrimarySubscription = previousConfigurationData.getPrimarySubscription();
+
+            if(newPrimarySubscription.rigidName() != previousPrimarySubscription.rigidName()
+               || newPrimarySubscription.tag() != previousPrimarySubscription.tag()
+               || newPrimarySubscription.fixedVersion() != previousPrimarySubscription.fixedVersion())
+            {
+                return true;
+            }
+
+            for (auto &newSubscription : configurationData.getProductsSubscription())
+            {
+                for (auto &previousSubscription : previousConfigurationData.getProductsSubscription())
+                {
+                    if (newSubscription.rigidName() == previousSubscription.rigidName())
+                    {
+                        if(newSubscription.tag() != previousSubscription.tag()
+                        || newSubscription.fixedVersion() != previousSubscription.fixedVersion())
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+
         bool ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(const ConfigurationData& configurationData,
                                                                          const ConfigurationData& previousConfigurationData,
                                                                          bool onlyCompareSubscriptionsAndFeatures)
@@ -96,7 +132,7 @@ namespace SulDownloader
 
             if (newSortedRigidNames != previousSortedRigidNames)
             {
-                LOGDEBUG("Feature list in update configuration has changed.");
+                LOGDEBUG("Subscription list in update configuration has changed.");
                 return true;
             }
 
@@ -105,7 +141,7 @@ namespace SulDownloader
 
             if (newSortedFeatures != previousSortedFeatures)
             {
-                LOGDEBUG("Subscription list in update configuration has changed.");
+                LOGDEBUG("Feature list in update configuration has changed.");
                 return true;
             }
 

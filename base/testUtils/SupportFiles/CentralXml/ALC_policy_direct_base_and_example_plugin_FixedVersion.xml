@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+    <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+    <AUConfig platform="Linux">
+        <sophos_address address="http://es-web.sophos.com/update"/>
+        <primary_location>
+            <server BandwidthLimit="0" AutoDial="false" Algorithm="AES256" UserPassword="CCD37FNeOPt7oCSNouRhmb9TKqwDvVsqJXbyTn16EHuw6ksTa3NCk56J5RRoVigjd3E=" UserName="regruser" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
+            <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+        </primary_location>
+        <secondary_location>
+            <server BandwidthLimit="0" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+            <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+        </secondary_location>
+        <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="20" DetectDialUp="false"/>
+
+        <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
+        <bootstrap Location="" UsePrimaryServerAddress="true"/>
+        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+        <cloud_subscriptions>
+            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+            <!-- Example Plugin is only set to have a fixed version to ensure the correct code is run during test -->
+            <subscription Id="SENSORS" RigidName="ServerProtectionLinux-Plugin-Example" Tag="RECOMMENDED" FixedVersion="1.0.2"/>
+        </cloud_subscriptions>
+        <delay_supplements enabled="false"/>
+    </AUConfig>
+    <Features>
+        <Feature id="CORE"/>
+        <Feature id="SENSORS"/>
+    </Features>
+    <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+    <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
+</AUConfigurations>

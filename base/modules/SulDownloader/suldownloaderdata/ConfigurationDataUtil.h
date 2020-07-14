@@ -16,6 +16,14 @@ namespace SulDownloader
         {
         public:
             /**
+            * Function will return true If:
+            * either the subscription tag, or the subscription fixedVersion differ from previous configuration,
+            * will return false otherwise.
+            */
+            static bool checkIfShouldForceUpdate(const ConfigurationData &configurationData,
+                                                 const ConfigurationData &previousConfigurationData);
+
+            /**
              * Function will return true If:
              * Configuration Data set to force install
              * Rigid names or features differ from previous configuration

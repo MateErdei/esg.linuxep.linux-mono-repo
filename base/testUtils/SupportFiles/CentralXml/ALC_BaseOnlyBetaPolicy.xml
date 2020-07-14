@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+    <csc:Comp RevID="5514d7970027ac81cc3686799c9359043dafbc72d4b809490ca82bacc4bf5026" policyType="1"/>
+    <AUConfig platform="Linux">
+        <sophos_address address="http://es-web.sophos.com/update"/>
+        <primary_location>
+            <server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="NotAPassword" UserName="NotAUserName" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+            <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+        </primary_location>
+        <secondary_location>
+            <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+            <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+        </secondary_location>
+        <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
+        <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
+        <bootstrap Location="" UsePrimaryServerAddress="true"/>
+        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/>
+        <cloud_subscriptions>
+            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/>
+        </cloud_subscriptions>
+        <delay_supplements enabled="true"/>
+    </AUConfig>
+    <Features>
+        <Feature id="CORE"/>
+    </Features>
+    <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+    <customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/>
+</AUConfigurations>

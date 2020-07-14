@@ -1,0 +1,49 @@
+{
+  "sophosURLs": [
+    "http://dci.sophosupd.com/cloudupdate",
+    "http://dci.sophosupd.com/update",
+    "http://dci.sophosupd.net/update"
+  ],
+  "credential": {
+    "username": "9539d7d1f36a71bbac1259db9e868231",
+    "password": "9539d7d1f36a71bbac1259db9e868231"
+  },
+  "proxy": {
+    "url": "",
+    "credential": {
+      "username": "",
+      "password": "",
+      "proxyType": ""
+    }
+  },
+  "certificatePath": "/opt/sophos-spl/base/update/certs",
+  "installationRootPath": "/opt/sophos-spl",
+  "systemSslPath": ":system:",
+  "cacheUpdateSslPath": "",
+  "installArguments": [
+    "--instdir",
+    "/opt/sophos-spl"
+  ],
+  "logLevel": "VERBOSE",
+  "manifestNames": [
+    "manifest.dat"
+  ],
+  "primarySubscription": {
+    "rigidName": "ServerProtectionLinux-Base",
+    "baseVersion": "",
+    "tag": "RECOMMENDED",
+    "fixedVersion": ""
+  },
+  "products": [
+    {
+      "rigidName": "ServerProtectionLinux-Plugin-Example",
+      "baseVersion": "",
+      "tag": "RECOMMENDED",
+      "fixedVersion": ""
+    }
+  ],
+  "features": [
+    "CORE",
+    "SENSORS"
+  ]
+}
