@@ -162,7 +162,10 @@ int CommandLineScanRunner::run()
 
     std::vector<Exclusion> cmdExclusions;
     cmdExclusions.reserve(m_exclusions.size());
-    PRINT("Exclusions: ");
+    if (!m_exclusions.empty())
+    {
+        PRINT("Exclusions: ");
+    }
     for (const auto& exclusion : m_exclusions)
     {
         PRINT("        " << exclusion);
