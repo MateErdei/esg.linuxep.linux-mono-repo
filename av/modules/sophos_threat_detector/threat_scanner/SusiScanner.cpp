@@ -24,16 +24,24 @@ using json = nlohmann::json;
 
 namespace fs = sophos_filesystem;
 
-fs::path pluginInstall()
+static fs::path pluginInstall()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     return appConfig.getData("PLUGIN_INSTALL");
 }
 
-SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory, bool scanArchives)
+static fs::path threat_reporter_socket()
 {
-    fs::path libraryPath = pluginInstall() / "chroot/susi/distribution_version";
+    return pluginInstall() / "chroot/threat_report_socket";
+}
 
+static fs::path susi_library_path()
+{
+    return pluginInstall() / "chroot/susi/distribution_version";
+}
+
+static std::string create_scanner_info(const bool scanArchives)
+{
     std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
         "signatureBased": {
             "fileTypeCategories": {
@@ -58,6 +66,12 @@ SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapper
         }
     })sophos", {{"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"}});
 
+    return scannerInfo;
+}
+
+static std::string create_runtime_config(const std::string& scannerInfo)
+{
+    fs::path libraryPath = susi_library_path();
     std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
     "library": {
         "libraryPath": "@@LIBRARY_PATH@@",
@@ -72,20 +86,24 @@ SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapper
     },
     @@SCANNER_CONFIG@@
 })sophos", {{"@@LIBRARY_PATH@@", libraryPath},
-                               {"@@SCANNER_CONFIG@@", scannerInfo}
-                               });
-
-    std::string scannerConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
-        @@SCANNER_CONFIG@@
-})sophos", {{"@@SCANNER_CONFIG@@", scannerInfo}
+            {"@@SCANNER_CONFIG@@", scannerInfo}
     });
-
-    m_susi = susiWrapperFactory->createSusiWrapper(runtimeConfig, scannerConfig);
+    return runtimeConfig;
 }
 
-static fs::path threat_reporter_socket()
+static std::string create_scanner_config(const std::string& scannerInfo)
 {
-    return pluginInstall() / "chroot/threat_report_socket";
+    return "{"+scannerInfo+"}";
+}
+
+SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory, bool scanArchives)
+{
+    std::string scannerInfo = create_scanner_info(scanArchives);
+
+    std::string runtimeConfig = create_runtime_config(scannerInfo);
+    std::string scannerConfig = create_scanner_config(scannerInfo);
+
+    m_susi = susiWrapperFactory->createSusiWrapper(runtimeConfig, scannerConfig);
 }
 
 void SusiScanner::sendThreatReport(

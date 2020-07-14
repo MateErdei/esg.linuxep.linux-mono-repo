@@ -13,9 +13,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 class MockSusiWrapper : public ISusiWrapper
 {
 public:
-    MockSusiWrapper(const std::string& runtimeConfig, const std::string& scannerConfig)
-    : m_runtimeConfig(std::move(runtimeConfig))
-    , m_scannerConfig(std::move(scannerConfig))
+    explicit MockSusiWrapper(const std::string& scannerConfig)
+    : m_scannerConfig(std::move(scannerConfig))
     {
     }
 
@@ -27,6 +26,5 @@ public:
 
     MOCK_METHOD1(freeResult, void(SusiScanResult* scanResult));
 
-    std::string m_runtimeConfig;
     std::string m_scannerConfig;
 };

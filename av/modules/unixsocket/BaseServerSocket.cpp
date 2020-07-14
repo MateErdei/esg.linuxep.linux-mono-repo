@@ -5,7 +5,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "BaseServerSocket.h"
-#include "unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h"
 #include "Logger.h"
 
 #include <stdexcept>

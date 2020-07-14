@@ -18,10 +18,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include "Common/UtilityImpl/StringUtils.h"
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using namespace testing;
 
-static std::string susiResponseStr =
+static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
+
+static const std::string susiResponseStr =
         "{\n"
         "    \"results\":\n"
         "    [\n"
@@ -129,16 +132,14 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
             {"@@SCANNER_CONFIG@@", scannerInfo}
     });
 
-    std::string scannerConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
-        @@SCANNER_CONFIG@@
-})sophos", {{"@@SCANNER_CONFIG@@", scannerInfo}
-    });
+    std::string scannerConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        "{@@SCANNER_CONFIG@@}", {{"@@SCANNER_CONFIG@@", scannerInfo} });
 
-    auto susiWrapper = std::make_shared<MockSusiWrapper>(runtimeConfig, scannerConfig);
+    auto susiWrapper = std::make_shared<MockSusiWrapper>(scannerConfig);
     std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
 
-    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(susiWrapper->m_runtimeConfig,
-            susiWrapper->m_scannerConfig)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(runtimeConfig,
+                                                       scannerConfig)).WillOnce(Return(susiWrapper));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
 }
@@ -190,16 +191,15 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
             {"@@SCANNER_CONFIG@@", scannerInfo}
     });
 
-    std::string scannerConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
-        @@SCANNER_CONFIG@@
-})sophos", {{"@@SCANNER_CONFIG@@", scannerInfo}
-    });
+    auto scannerConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        "{@@SCANNER_CONFIG@@}", {{"@@SCANNER_CONFIG@@", scannerInfo} });
 
-    auto susiWrapper = std::make_shared<MockSusiWrapper>(runtimeConfig, scannerConfig);
+
+    auto susiWrapper = std::make_shared<MockSusiWrapper>(scannerConfig);
     std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
 
-    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(susiWrapper->m_runtimeConfig,
-                                                       susiWrapper->m_scannerConfig)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(runtimeConfig,
+                                                       scannerConfig)).WillOnce(Return(susiWrapper));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true);
 }
@@ -208,8 +208,8 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
 {
     setupFakeSophosThreatDetectorConfig();
 
-    auto susiWrapper = std::make_shared<MockSusiWrapper>("", "");
-    std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
+    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
+    auto susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_, _)).WillOnce(Return(susiWrapper));
 
@@ -232,7 +232,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     setupFakeSophosThreatDetectorConfig();
 
     WaitForEvent serverWaitGuard;
-    auto susiWrapper = std::make_shared<MockSusiWrapper>("", "");
+    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
     std::shared_ptr<StrictMock<MockIThreatReportCallbacks> > mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
