@@ -72,16 +72,22 @@ namespace Common::SecurityUtils
      * Ref: https://wiki.sophos.net/display/~MoritzGrimm/Validate+Transitive+Trust+in+Endpoints
      * Ref: http://www.unixwiz.net/techtips/chroot-practices.html
      */
-    void setupJailAndGoIn(const std::string &chrootDirPath) {
-        if (chdir(chrootDirPath.c_str())) {
-            perror("failed to chdir to jail");
+    void setupJailAndGoIn(const std::string &chrootDirPath)
+    {
+        if (chdir(chrootDirPath.c_str()))
+        {
+            std::stringstream chdirErrorMsg;
+            chdirErrorMsg << "chdir to jail: " << chrootDirPath << " failed: ";
+            perror(chdirErrorMsg.str().c_str());
             exit(EXIT_FAILURE);
         }
-        if (chroot(chrootDirPath.c_str())) {
+        if (chroot(chrootDirPath.c_str()))
+        {
             perror("process failed to chroot");
             exit(EXIT_FAILURE);
         }
-        if (setenv("PWD", "/", 1)) {
+        if (setenv("PWD", "/", 1))
+        {
             perror("failed to sync PWD environment variable");
             exit(EXIT_FAILURE);
         }

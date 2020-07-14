@@ -15,49 +15,25 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <sstream>
 #include <sys/stat.h>
+#include <sys/mount.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
 namespace CommsComponent
 {
-    void NullConfigurator::applyChildInit(){
-        m_console.reset(new Common::Logging::ConsoleLoggingSetup());
-    }
-    
-    void NullConfigurator::applyParentInit(){
-        m_console.reset(new Common::Logging::ConsoleLoggingSetup());
-    }
+    const std::string SOPHOS_DIRNAME = "sophos-spl-comms";
 
     void CommsConfigurator::applyChildSecurityPolicy()
     {
-        sophos::SophosSplUsers sophosSplUsers;
-        std::string chrootDir("/opt/sophos-spl/var/");
-        applyChildSecurityPolicy({sophosSplUsers.splNetworkUser(), sophosSplUsers.splNetworkGroup()}, chrootDir);
+        Common::SecurityUtils::chrootAndDropPrivileges(m_childUser.userName, m_childUser.userGroup, m_sophosInstall);
     }
 
-    void CommsConfigurator::applyChildSecurityPolicy(const std::string &chrootdir)
-    {
-        sophos::SophosSplUsers sophosSplUsers;
-        CommsConfigurator::applyChildSecurityPolicy({sophosSplUsers.splNetworkUser(), sophosSplUsers.splNetworkGroup()},
-                                                    chrootdir);
-    }
-
-    void CommsConfigurator::applyChildSecurityPolicy(const std::pair<std::string, std::string> &lowPrivUser,
-                                                     const std::string & /*chrootdir*/)
-    {
-        //LINUXDAR-1954 change to add chroot policy
-        //Common::SecurityUtils::chrootAndDropPrivileges(user, group, chrootdir);
-        Common::SecurityUtils::dropPrivileges(lowPrivUser.first, lowPrivUser.second);
-    }
 
     void CommsConfigurator::applyParentSecurityPolicy()
     {
-        sophos::SophosSplUsers sophosSplUsers;
-        applyParentSecurityPolicy({sophosSplUsers.splLocalUser(), sophosSplUsers.splLocalGroup()});
+        Common::SecurityUtils::dropPrivileges(m_parentUser.userName, m_parentUser.userGroup);
     }
 
-    void CommsConfigurator::applyParentSecurityPolicy(const std::pair<std::string, std::string> &lowPrivUser)
-    {
-        Common::SecurityUtils::dropPrivileges(lowPrivUser.first, lowPrivUser.second);
-    }
 
     void CommsConfigurator::applyParentInit()
     {
@@ -66,36 +42,46 @@ namespace CommsComponent
 
     void CommsConfigurator::applyChildInit()
     {
-        //everything is read & execute
         umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
-        //set & create chroot dir
-        //set permissions to chroot path
-        //copy /etc/resolv.conf
-        //copy /etc/hosts
-        //create /usr/
-        //mount --bound /lib & /usr/lib to chroot & chroot/usr
-        setupLoggingFiles("/opt/sophos-spl/");
+
+        //ToDo LINUXDAR-1954
+        // bind mount dirs = {"/lib","/usr/lib"};
+        // bind mount file /etc/resolv.cof", "/etc/hosts" "/etc/ssl/ca-certificate.crt"};        //mount bind a file mount -o ro myfile destdir/myfile
+
+        setupLoggingFiles();
     }
 
-    void setupLoggingFiles(const std::string &logBaseDir)
+    CommsConfigurator::CommsConfigurator(const std::string &newRoot, UserConf childUser,
+                                         UserConf parentUser)
+            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser))
+    {
+        m_sophosInstall = Common::FileSystem::join(newRoot, SOPHOS_DIRNAME);
+    }
+
+    void CommsConfigurator::setupLoggingFiles()
     {
         try
         {
+            std::string oldSophosInstall = Common::ApplicationConfiguration::applicationConfiguration().getData(
+                    Common::ApplicationConfiguration::SOPHOS_INSTALL);
             std::vector<Path> loggingDirectories = {"base/etc/", "logs/base"};
             for (auto &dirpath : loggingDirectories)
             {
-                Common::FileSystem::fileSystem()->makedirs(Common::FileSystem::join(logBaseDir, dirpath));
+                Common::FileSystem::fileSystem()->makedirs(Common::FileSystem::join(m_sophosInstall, dirpath));
             }
             std::stringstream logName;
 
             Path loggerConfRelativePath = "base/etc/logger.conf";
-            auto loggerConfSrc = Common::FileSystem::join(
-                    Common::ApplicationConfiguration::applicationConfiguration().getData(
-                            Common::ApplicationConfiguration::SOPHOS_INSTALL), loggerConfRelativePath);
-            auto loggerConfDst = Common::FileSystem::join(logBaseDir, loggerConfRelativePath);
-            Common::FileSystem::fileSystem()->copyFile(loggerConfSrc, loggerConfDst);
-            setenv(Common::ApplicationConfiguration::SOPHOS_INSTALL.c_str(), logBaseDir.c_str(), 1);
-            //Common::Logging::FileLoggingSetup loggerSetup("commsnetwork", true);
+            auto loggerConfSrc = Common::FileSystem::join(oldSophosInstall, loggerConfRelativePath);
+            auto loggerConfDst = Common::FileSystem::join(m_sophosInstall, loggerConfRelativePath);
+            Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, 440,
+                                                                        m_childUser.userName, m_childUser.userGroup);
+
+            if (setenv(Common::ApplicationConfiguration::SOPHOS_INSTALL.c_str(), Common::FileSystem::join(
+                    "/", SOPHOS_DIRNAME).c_str(), 1) == -1)
+            {
+                perror("Failed to reset SOPHOS_INSTAL environment: ");
+            }
         }
         catch (const std::exception &ex)
         {

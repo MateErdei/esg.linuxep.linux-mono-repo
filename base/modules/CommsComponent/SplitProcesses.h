@@ -86,12 +86,13 @@ namespace CommsComponent
 
                 OtherSideApi parentService{std::move(childChannel)};
 
+                // equivalent to the code that usually runs before the main init();
+                config.applyChildInit();
+
                 // Apply the Configurator.
                 config.applyChildSecurityPolicy();
 
-                // equivalent to the code that usually runs before the main init();
-                config.applyChildInit();
-                Common::Logging::FileLoggingSetup logSetup("commsnetwork");
+                Common::Logging::FileLoggingSetup logSetup("commsnetwork", true);
                 std::cout << "Staring network process" << std::endl;
                 LOGINFO("Staring network process");
                 thread = CommsContext::startThread(io_service);
@@ -137,10 +138,10 @@ namespace CommsComponent
                     });
             childChannel->justShutdownSocket();
             OtherSideApi childService(std::move(parentChannel));
-            config.applyParentSecurityPolicy();
             config.applyParentInit();
-            //requires low privilege location
-            Common::Logging::FileLoggingSetup loggerSetup("commslocal", true);
+            config.applyParentSecurityPolicy();
+
+            Common::Logging::FileLoggingSetup loggerSetup("commslocal");
             LOGINFO("Starting comms local process, pid:" << getpid());
 
             std::thread thread;
@@ -163,6 +164,8 @@ namespace CommsComponent
                 //   log4cplus::(anonymous namespace)::destroy_default_context::~destroy_default_context() ()
                 //   ...log4cplus/lib/liblog4cplus-2.0.so.3
                 //    __cxa_finalize (d=0x7f4872552000) at cxa_finalize.c:83
+
+                std::cout << "sending KILL -s " << pid << std::endl;
                 kill(pid, SIGHUP);
                 wait(&status);
                 std::cout << "parent after wait" << std::endl;
