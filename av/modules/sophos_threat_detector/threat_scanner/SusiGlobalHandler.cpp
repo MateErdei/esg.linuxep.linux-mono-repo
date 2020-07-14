@@ -52,11 +52,39 @@ static SusiCallbackTable my_susi_callbacks{
         .IsWhitelistedCert = isWhitelistedCert
 };
 
+void susiLogCallback(void* token, SusiLogLevel level, const char* message)
+{
+    static_cast<void>(token);
+    std::string m(message);
+    if (!m.empty())
+    {
+        LOGERROR(level << ": " << m);
+    }
+}
+
+static const SusiLogCallback GL_log_callback{
+    .version = SUSI_LOG_CALLBACK_VERSION,
+    .token = nullptr,
+    .log = susiLogCallback,
+    .minLogLevel = SUSI_LOG_LEVEL_DETAIL
+};
+
+static void throwIfNotOk(SusiResult res, const std::string& message)
+{
+    if (res != SUSI_S_OK)
+    {
+        throw std::runtime_error(message);
+    }
+}
+
 SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
 {
     my_susi_callbacks.token = this;
 
-    SusiResult res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
+    auto res = SUSI_SetLogCallback(&GL_log_callback);
+    throwIfNotOk(res, "Failed to set log callback");
+
+    res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
     LOGINFO("Global Susi constructed res=" << std::hex << res << std::dec);
     assert(res == SUSI_S_OK);
 }
