@@ -7,10 +7,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
+#include <memory>
 
-class SusiGlobalHandler
+namespace threat_scanner
 {
-public:
-    explicit SusiGlobalHandler(const std::string& json_config);
-    ~SusiGlobalHandler();
-};
+    class SusiGlobalHandler
+    {
+    public:
+        explicit SusiGlobalHandler(const std::string& json_config);
+        ~SusiGlobalHandler();
+    };
+    using SusiGlobalHandlerSharePtr = std::shared_ptr<SusiGlobalHandler>;
+}

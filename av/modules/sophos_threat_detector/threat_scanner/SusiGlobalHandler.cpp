@@ -13,6 +13,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <cassert>
 
+using namespace threat_scanner;
+
 static bool isWhitelistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
 {
     (void)token;

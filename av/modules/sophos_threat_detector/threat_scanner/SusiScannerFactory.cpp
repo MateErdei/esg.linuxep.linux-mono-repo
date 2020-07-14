@@ -13,5 +13,10 @@ using namespace threat_scanner;
 
 IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives)
 {
-    return std::make_unique<SusiScanner>(std::make_shared<SusiWrapperFactory>(), scanArchives);
+    return std::make_unique<SusiScanner>(m_wrapperFactory, scanArchives);
+}
+
+SusiScannerFactory::SusiScannerFactory()
+    : m_wrapperFactory(std::make_shared<SusiWrapperFactory>())
+{
 }

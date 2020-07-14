@@ -7,9 +7,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "ISusiWrapperFactory.h"
+#include "SusiGlobalHandler.h"
 
-class SusiWrapperFactory : public ISusiWrapperFactory
+namespace threat_scanner
 {
-public:
-    std::shared_ptr<ISusiWrapper> createSusiWrapper(const std::string& runtimeConfig, const std::string& scannerConfig) override;
-};
+    class SusiWrapperFactory : public ISusiWrapperFactory
+    {
+    public:
+        SusiWrapperFactory();
+        std::shared_ptr<ISusiWrapper> createSusiWrapper(
+            const std::string& runtimeConfig,
+            const std::string& scannerConfig) override;
+
+    private:
+        SusiGlobalHandlerSharePtr getGlobalHandler(const std::string& runtimeConfig);
+        SusiGlobalHandlerSharePtr m_globalHandler;
+    };
+
+    using SusiWrapperFactorySharedPtr = std::shared_ptr<SusiWrapperFactory>;
+}

@@ -12,22 +12,24 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <memory>
 #include <string>
 
-class SusiWrapper : public ISusiWrapper
+namespace threat_scanner
 {
-public:
-    SusiWrapper(const std::string& runtimeConfig, const std::string& scannerConfig);
-    ~SusiWrapper();
+    class SusiWrapper : public ISusiWrapper
+    {
+    public:
+        SusiWrapper(SusiGlobalHandlerSharePtr globalHandler, const std::string& scannerConfig);
+        ~SusiWrapper();
 
-    SusiResult scanFile(
+        SusiResult scanFile(
             const char* metaData,
             const char* filename,
             datatypes::AutoFd& fd,
             SusiScanResult** scanResult) override;
 
-    void freeResult(SusiScanResult* scanResult) override;
+        void freeResult(SusiScanResult* scanResult) override;
 
-private:
-    std::unique_ptr<SusiGlobalHandler> m_globalHandler;
-    SusiScannerHandle m_handle;
-
-};
+    private:
+        SusiGlobalHandlerSharePtr m_globalHandler;
+        SusiScannerHandle m_handle;
+    };
+}
