@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SusiScanner.h"
 
 #include "Logger.h"
+#include "ScannerInfo.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/UtilityImpl/StringUtils.h"
@@ -38,35 +39,6 @@ static fs::path threat_reporter_socket()
 static fs::path susi_library_path()
 {
     return pluginInstall() / "chroot/susi/distribution_version";
-}
-
-static std::string create_scanner_info(const bool scanArchives)
-{
-    std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
-        "signatureBased": {
-            "fileTypeCategories": {
-                "archive": @@SCAN_ARCHIVES@@,
-                "selfExtractor": true,
-                "executable": true,
-                "office": true,
-                "adobe": true,
-                "android": true,
-                "internet": true,
-                "webArchive": true,
-                "webEncoding": true,
-                "media": true,
-                "macintosh": true
-            },
-            "scanControl": {
-                "trueFileTypeDetection": true,
-                "puaDetection": true,
-                "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true
-            }
-        }
-    })sophos", {{"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"}});
-
-    return scannerInfo;
 }
 
 static std::string create_runtime_config(const std::string& scannerInfo)
