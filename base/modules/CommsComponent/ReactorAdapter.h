@@ -23,6 +23,8 @@ namespace CommsComponent
         // Contract of Executer:
         void onMessageFromOtherSide(std::string);
 
+        void onOtherSideStop();
+
         int run(OtherSideApi &);
 
     private:

@@ -65,7 +65,7 @@ namespace CommsComponent
         
         io_service.notify_fork(boost::asio::io_context::fork_prepare);
         int exitCode = 0;
-        std::cout << "Parent pid: << " << getpid() << std::endl;
+
         auto pid = fork();
         if (pid == -1)
         {
@@ -78,7 +78,6 @@ namespace CommsComponent
             std::thread thread;
             try
             {
-                std::cout << "network process pid: " << getpid() << std::endl;
                 // child code
                 io_service.notify_fork(boost::asio::io_context::fork_child);
                 // Close the file descriptor of the socket that is not supposed to be used.
@@ -92,7 +91,6 @@ namespace CommsComponent
                 // equivalent to the code that usually runs before the main init();
                 config.applyChildInit();
 
-                std::cout << "Staring network process" << std::endl;
                 LOGINFO("Entering main process: pid " << getpid());
                 thread = CommsContext::startThread(io_service);
                 exitCode = child.run(parentService); 
@@ -104,10 +102,10 @@ namespace CommsComponent
             }
             catch (std::exception &ex)
             {
-                LOGERROR("Comms local process exception: " << ex.what());
+                LOGERROR("Child process exception: " << ex.what());
                 if (exitCode == 0)
                 {
-                    exitCode = 1; 
+                    exitCode = 1;
                 }
                 if (thread.joinable())
                 {
@@ -121,53 +119,47 @@ namespace CommsComponent
         {
             io_service.notify_fork(boost::asio::io_context::fork_parent);
             boost::asio::signal_set signal_{io_service, SIGCHLD};
-            signal_.async_wait(
-                    [&](boost::system::error_code ec, int /*signo*/)  //capture bu reference here? for childService.
-                    {
-                        std::cout << ec << std::endl;
-                        // Reap completed child processes so that we don't end up with
-                        // zombies.
-                        std::cout << "wait pid: " << getpid() << std::endl;
-                        int status = 0;
-                        while (waitpid(-1, &status, WNOHANG) > 0) {}
-                        // FIXME: should close the parent channel to notify the child is not available;
-                    });
+
             childChannel->justShutdownSocket();
             OtherSideApi childService(std::move(parentChannel));
 
+            signal_.async_wait(
+                    [&](boost::system::error_code /*ec*/, int /*signo*/) {
+                        parent.onOtherSideStop();
+                    });
+
             config.applyParentSecurityPolicy();
             config.applyParentInit();
-            LOGINFO("Entering main process, pid:" << getpid());
+            LOGINFO("Entering parent main process, pid:" << getpid());
 
             std::thread thread;
             try
             {
                 thread = CommsContext::startThread(io_service);
 
-                std::cout << "Parent run service" << std::endl;
                 exitCode = parent.run(childService);
+
                 childService.notifyOtherSideAndClose();
                 LOGINFO("Waiting for network process to finish");
 
                 int status;
                 wait(&status);
-                std::cout << "parent after wait" << std::endl;
-                LOGINFO("Comms detected that network process has finished");
+                LOGINFO("Detected that parent process has finished");
                 thread.join();
             }
             catch (std::exception &ex)
             {
-                LOGERROR("Comms local process exception: " << ex.what());
+                LOGERROR("Parent process exception: " << ex.what());
                 if (exitCode == 0)
                 {
-                    exitCode = 1; 
+                    exitCode = 1;
                 }
                 if (thread.joinable())
                 {
                     thread.join();
                 }
             }
-            LOGINFO("Comms component is returning");
+            LOGDEBUG("Parent component is returning");
         }
         return exitCode;
     }

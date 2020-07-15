@@ -25,7 +25,6 @@ namespace CommsComponent {
 
             if (timeout.count() == -1)
             {
-                //fixme locks forever when other process crash
                 m_cond.wait(lck, [this] { return !m_messages.empty(); });
             }
             else
@@ -46,7 +45,7 @@ namespace CommsComponent {
             }
             else
             {
-                // set the flag that channel is closed.
+                // set channel is closed flag.
                 m_channelClosedFlag = true;
                 throw ChannelClosedException("closed");
             }
@@ -66,7 +65,7 @@ namespace CommsComponent {
     void MessageChannel::pushStop()
     {
         std::lock_guard<std::mutex> lck(m_mutex);
-        if (!m_channelClosedFlag)    // just ignore if already closed
+        if (!m_channelClosedFlag)    // ignore if already closed
         {
             m_messages.emplace_back(std::nullopt);
             m_cond.notify_one();

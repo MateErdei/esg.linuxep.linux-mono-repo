@@ -29,14 +29,13 @@ namespace CommsComponent
     };
 
 
-// todo: Create the real CommsConfigurator:
     struct UserConf
     {
         std::string userName;
         std::string userGroup;
+        std::string logName;
     };
 
-// child log file : /log/name.log
     class CommsConfigurator
     {
         std::string m_chrootDir;

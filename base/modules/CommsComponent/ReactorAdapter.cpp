@@ -13,12 +13,16 @@ namespace CommsComponent
             m_channel{std::make_shared<MessageChannel>()},
             m_name(std::move(name))
     {
-
     }
 
     void ReactorAdapter::onMessageFromOtherSide(std::string string)
     {
         m_channel->push(std::move(string));
+    }
+
+    void ReactorAdapter::onOtherSideStop()
+    {
+        m_channel->pushStop();
     }
 
     int ReactorAdapter::run(OtherSideApi &othersideApi)
