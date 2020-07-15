@@ -8,13 +8,25 @@ add_executable(FaultInjectionLogger
 add_executable(PickYourPoison
         PickYourPoison.cpp
         )
+add_executable(JailBreakerTest
+        JailBreakerTest.cpp
+)
 
 target_include_directories(LoggerLimit PUBLIC ${LOG4CPLUS_INCLUDE_DIR} )
 target_include_directories(FaultInjectionLogger PUBLIC ${LOG4CPLUS_INCLUDE_DIR} )
+target_include_directories(JailBreakerTest PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
+
 target_link_libraries(LoggerLimit logging)
 target_link_libraries(FaultInjectionLogger logging)
+target_link_libraries(JailBreakerTest logging commscomponentimpl)
 
 target_link_libraries(PickYourPoison pthread)
 
 SET_TARGET_PROPERTIES(FaultInjectionLogger
+        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+
+SET_TARGET_PROPERTIES(PickYourPoison
+        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+
+SET_TARGET_PROPERTIES(JailBreakerTest
         PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")

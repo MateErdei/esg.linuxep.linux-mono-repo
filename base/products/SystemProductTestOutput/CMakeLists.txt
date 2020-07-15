@@ -12,6 +12,7 @@ install(FILES
         ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/qa_mcs_rootca.crt
         ${CMAKE_BINARY_DIR}/tests/manualTools/FaultInjectionLogger
         ${CMAKE_BINARY_DIR}/tests/manualTools/PickYourPoison
+        ${CMAKE_BINARY_DIR}/tests/manualTools/JailBreakerTest
         ${CMAKE_SOURCE_DIR}/redist/openssl/lib64/libcrypto.so.1.1
         ${CMAKE_SOURCE_DIR}/redist/openssl/lib64/libssl.so.1.1
         ${CMAKE_SOURCE_DIR}/redist/gcc/lib64/libssp.so.0.0.0

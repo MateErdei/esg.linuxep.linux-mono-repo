@@ -26,7 +26,6 @@ namespace CommsComponent
         m_console.reset(new Common::Logging::ConsoleLoggingSetup());
     }
 
-
     void CommsConfigurator::applyChildSecurityPolicy()
     {
         setupLoggingFiles();
@@ -44,20 +43,28 @@ namespace CommsComponent
 
     void CommsConfigurator::applyParentInit()
     {
-        umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
+        //umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
         m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_parentUser.logName, true));
     }
 
     void CommsConfigurator::applyChildInit()
     {
-        umask(S_IXUSR | S_IXGRP | S_IWGRP | S_IRWXO); // Read and write for the owner and read for group 027
+        //umask(S_IXUSR | S_IXGRP | S_IWGRP | S_IRWXO); // Read and write for the owner and read for group 027
 
         m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_childUser.logName));
+
+        //ToDo LINUXDAR-1954
+        // bind mount dirs = {"/lib","/usr/lib"};
+        // bind mount file /etc/resolv.cof", "/etc/hosts" "/etc/ssl/ca-certificate.crt"};        //mount bind a file mount -o ro myfile destdir/myfile
+
+
     }
 
-    CommsConfigurator::CommsConfigurator(const std::string& newRoot, UserConf childUser,
+    CommsConfigurator::CommsConfigurator(const std::string &newRoot, UserConf childUser,
                                          UserConf parentUser)
-            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)) {}
+            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser))
+    {
+    }
 
     void CommsConfigurator::setupLoggingFiles()
     {
@@ -65,10 +72,12 @@ namespace CommsComponent
         {
             std::string oldSophosInstall = Common::ApplicationConfiguration::applicationConfiguration().getData(
                     Common::ApplicationConfiguration::SOPHOS_INSTALL);
-            std::vector<Path> loggingDirectories = {"base/etc/", "logs/base"};
+            std::vector<Path> loggingDirectories = {"base", "base/etc/", "logs", "logs/base"};
             for (auto &dirpath : loggingDirectories)
             {
-                Common::FileSystem::fileSystem()->makedirs(Common::FileSystem::join(m_chrootDir, dirpath));
+                std::string path = Common::FileSystem::join(m_chrootDir, dirpath); 
+                Common::FileSystem::fileSystem()->makedirs(path);
+                Common::FileSystem::filePermissions()->chown(path,m_childUser.userName, m_childUser.userGroup); 
             }
             std::stringstream logName;
 
@@ -78,15 +87,11 @@ namespace CommsComponent
             Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, 440,
                                                                         m_childUser.userName, m_childUser.userGroup);
 
-            //Set the sophos install path relative to chroot root
-            Common::ApplicationConfiguration::applicationConfiguration().setData(
-                    Common::ApplicationConfiguration::SOPHOS_INSTALL, "/");
+            std::cout << "coppied config file correctly " << std::endl;
         }
         catch (const std::exception &ex)
         {
-            std::stringstream errMsg;
-            errMsg << "Failed to configure logging " << ex.what();
-            perror(errMsg.str().c_str());
+            std::cout << "Failed to configure logging " << ex.what() << std::endl;
         }
     }
 }

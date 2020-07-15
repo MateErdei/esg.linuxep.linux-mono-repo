@@ -10,10 +10,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ReactorAdapter.h"
 #include "AsyncMessager.h"
 #include "Logger.h"
+#include <modules/Common/Logging/FileLoggingSetup.h>
+#include <log4cplus/logger.h>
 #include <functional>
 #include <unistd.h>
-#include <log4cplus/logger.h>
-#include <modules/Common/Logging/FileLoggingSetup.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 
 namespace CommsComponent
 {

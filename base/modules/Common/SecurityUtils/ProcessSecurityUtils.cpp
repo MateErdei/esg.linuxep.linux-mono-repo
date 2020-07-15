@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <grp.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <sstream>
-
+#include <iostream>
 
 namespace Common::SecurityUtils
 {
@@ -108,12 +108,13 @@ namespace Common::SecurityUtils
         {
             auto ifperm = Common::FileSystem::filePermissions();
             auto userid = ifperm->getUserId(userName);
-            auto groupid = ifperm->getUserId(groupName);
+            auto groupid = ifperm->getGroupId(groupName);
 
             return std::optional<UserIdStruct>(UserIdStruct(userid, groupid));
         }
-        catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
+        catch (const Common::FileSystem::IFileSystemException &iFileSystemException )
         {
+            std::cerr << "Permission denied: " << iFileSystemException.what() << std::endl; 
             return std::nullopt;
         }
     }
@@ -127,6 +128,21 @@ namespace Common::SecurityUtils
         //do user lookup before chroot
         if (!runAsUser.has_value() || getuid() != 0U)
         {
+            if ( !runAsUser.has_value())
+            {
+                std::cerr << "User not identified" << std::endl; 
+            }
+            else
+            {
+                auto v = runAsUser.value(); 
+                std::cerr << "Identified user: " << v.m_userid << " and group: " << v.m_groupid << std::endl; 
+            }            
+
+            if ( getuid() != 0U)
+            {
+                std::cerr << "Running not as user" << std::endl; 
+            }
+             
             perror("Current user needs to be root and target user must exist");
             exit(EXIT_FAILURE);
         }
