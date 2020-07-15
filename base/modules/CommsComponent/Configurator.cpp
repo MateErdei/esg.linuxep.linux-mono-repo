@@ -48,7 +48,7 @@ namespace CommsComponent
     {
         umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
 
-        m_logSetup.reset(new Common::Logging::FileLoggingSetup("child",true)); //fixme, name
+        m_logSetup.reset(new Common::Logging::FileLoggingSetup("child")); //fixme, name
 
         //ToDo LINUXDAR-1954
         // bind mount dirs = {"/lib","/usr/lib"};

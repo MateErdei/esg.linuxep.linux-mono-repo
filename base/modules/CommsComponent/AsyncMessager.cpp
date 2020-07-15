@@ -185,8 +185,9 @@ namespace CommsComponent
                 }
                 else
                 {
-                    if (ec.value() != boost::asio::error::connection_refused)
+                    if (ec.value() != boost::asio::error::connection_refused && ec.value() != boost::asio::error::bad_descriptor)
                     {
+                        LOGDEBUG("AsyncMessager error on writting message error category : " << ec.category().name() << "value: " << ec.value() << ec.message()) ;                        
                         throw boost::system::system_error(ec);
                     }
                     LOGSUPPORT("Other side closed communication channel");

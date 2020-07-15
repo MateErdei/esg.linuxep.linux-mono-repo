@@ -62,7 +62,7 @@ namespace CommsComponent
                 [&child](std::string message) { child.onMessageFromOtherSide(std::move(message)); });
 
         // shutdown all threads before fork.
-        log4cplus::Logger::shutdown();
+        
         io_service.notify_fork(boost::asio::io_context::fork_prepare);
         int exitCode = 0;
         std::cout << "Parent pid: << " << getpid() << std::endl;
