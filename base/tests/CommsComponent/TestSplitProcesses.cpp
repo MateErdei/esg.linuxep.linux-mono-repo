@@ -68,7 +68,7 @@ VERBOSITY=DEBUG
         fperms.chmod(m_tempDir.dirPath(), 0777);
 
         m_tempDir.createFile(m_logConfigPath, content);
-        m_tempDir.makeDirs(std::vector<std::string>{"var/sophos-spl-comms/logs/base", "logs/base/sophosspl"});
+        m_tempDir.makeDirs(std::vector<std::string>{"var/sophos-spl-comms/logs/base","var/sophos-spl-comms/base/etc", "logs/base/sophosspl"});
         
 
         std::string sophosInstall = m_tempDir.dirPath();
@@ -76,22 +76,17 @@ VERBOSITY=DEBUG
         m_chrootSophosInstall = m_tempDir.absPath("var/sophos-spl-comms");
 
         //network user dirs permissions to be done by the installer
+        for(auto path : std::vector<std::string>{"logs","logs/base","logs/base/sophosspl","base", "base/etc/", "base/etc/logger.conf"}){
+            fperms.chmod(Common::FileSystem::join(sophosInstall, path), 0777);    
+        }
         fperms.chmod(m_chrootDir, 0777);
-        // fperms.chown(m_chrootDir, "root", "root");
-        fperms.chmod(Common::FileSystem::join(sophosInstall, "logs"), 0777);
-        fperms.chmod(Common::FileSystem::join(sophosInstall, "logs/base"), 0777);
-        fperms.chmod(Common::FileSystem::join(sophosInstall, "logs/base/sophosspl"), 0777);
-        fperms.chmod(m_tempDir.absPath(m_logConfigPath), 0777); 
 
-        // fperms.chown(Common::FileSystem::join(sophosInstall, "logs"), "games", "games");
-        // fperms.chown(Common::FileSystem::join(sophosInstall, "logs/base"), "games", "games");
+        for(auto path : std::vector<std::string>{"logs", "base", "base/etc/"}){
+             fperms.chmod(Common::FileSystem::join(m_chrootSophosInstall, path), 0777);    
+        }
 
-        fperms.chmod(m_chrootSophosInstall, 0777);
-        // fperms.chown(m_chrootSophosInstall, "lp", "lp");
-        fperms.chmod(Common::FileSystem::join(m_chrootSophosInstall, "logs"), 0777);
-        fperms.chmod(Common::FileSystem::join(m_chrootSophosInstall, "logs/base"), 0777);
-        // fperms.chown(Common::FileSystem::join(m_chrootSophosInstall, "logs"), "lp", "lp");
-        // fperms.chown(Common::FileSystem::join(m_chrootSophosInstall, "logs/base"), "lp", "lp");
+        fperms.chmod(m_chrootSophosInstall, 0777);       
+        
     }
 };
 
@@ -162,9 +157,12 @@ TEST_F(TestSplitProcessesWithNullConfigurator, ExchangeMessagesAndStop) // NOLIN
 
 
 
+
+
 TEST_F(TestSplitProcesses, ExchangeMessagesAndStop) // NOLINT
 {
     testing::FLAGS_gtest_death_test_style = "threadsafe";
+    MAYSKIP;
     ASSERT_EXIT(
             {
                 auto childProcess = CommNetworkSide();
@@ -187,97 +185,62 @@ TEST_F(TestSplitProcesses, ExchangeMessagesAndStop) // NOLINT
 
 }
 
+TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
+{
+    MAYSKIP;
+    testing::FLAGS_gtest_death_test_style = "threadsafe";
+    ASSERT_EXIT(
+            {
+                auto childProcess = CommNetworkSide();
 
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
+                    childProxy.pushMessage("stop");
+                    std::string message;
+                    try
+                    {
+                        channel->pop(message);
+                    }
+                    catch (ChannelClosedException &)
+                    {
+                        return;
+                    }
+                    throw std::runtime_error("Did not receive closed channel exception");
+                };
+                auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
+                int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
+                exit(exitCode);
+            },
+            ::testing::ExitedWithCode(0), ".*");
+}
 
-// TEST_F(TestSplitProcesses, ExchangeMessagesAndStop) // NOLINT
-// {
-//     MAYSKIP;
-//     testing::FLAGS_gtest_death_test_style = "threadsafe";
-//     ASSERT_EXIT(
-//             {
-//                 auto childProcess = CommNetworkSide();
-//                 auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
-//                     childProxy.pushMessage("hello");
-//                     std::string message;
-//                     channel->pop(message);
-//                     if (message != "world fromchild")
-//                     {
-//                         throw std::runtime_error("Did not receive world");
-//                     }
-//                     childProxy.pushMessage("stop");
-//                 };
+TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
+{
+    MAYSKIP;
+    testing::FLAGS_gtest_death_test_style = "threadsafe";
+    ASSERT_EXIT(
+            {
+                auto childProcess = CommNetworkSide();
 
-//                 auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
-//                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
-//                 exit(exitCode);
-//             },
-//             ::testing::ExitedWithCode(0), ".*");
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
+                    childProxy.pushMessage("abort");
+                    std::string message;
+                    try
+                    {
+                        channel->pop(message);
+                    }
+                    catch (ChannelClosedException &)
+                    {
+                        return;
+                    }
+                    throw std::runtime_error("Did not receive closed channel exception");
+                };
+                auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
+                int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
+                exit(exitCode);
+            },
+            ::testing::ExitedWithCode(0), ".*");
+}
 
-// }
-
-// TEST_F(TestSplitProcesses, SimpleHelloWorldDemonstration) // NOLINT
-// {
-//     MAYSKIP;
-//     testing::FLAGS_gtest_death_test_style = "threadsafe";
-//     ASSERT_EXIT(
-//             {
-//                 auto childProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &parentProxy) {
-//                     std::string message;
-//                     channel->pop(message);
-//                     std::cout << message << std::endl;
-//                     if (message != "hello")
-//                     {
-//                         throw std::runtime_error("Did not received hello");
-//                     }
-//                     parentProxy.pushMessage("world");
-//                 };
-
-//                 auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
-//                     childProxy.pushMessage("hello");
-//                     std::cout << "sent hellow to child " << std::endl;
-//                     std::string message;
-//                     channel->pop(message, std::chrono::milliseconds(500));
-//                     std::cout << message << std::endl;
-//                     if (message != "world")
-//                     {
-//                         throw std::runtime_error("Did not receive world");
-//                     }
-//                 };
-
-//                 auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
-//                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
-//                 exit(exitCode);
-//             },
-//             ::testing::ExitedWithCode(0), ".*");
-// }
-
-// TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
-// {
-//     MAYSKIP;
-//     testing::FLAGS_gtest_death_test_style = "threadsafe";
-//     ASSERT_EXIT(
-//             {
-//                 auto childProcess = CommNetworkSide();
-
-//                 auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
-//                     childProxy.pushMessage("stop");
-//                     std::string message;
-//                     try
-//                     {
-//                         channel->pop(message);
-//                     }
-//                     catch (ChannelClosedException &)
-//                     {
-//                         return;
-//                     }
-//                     throw std::runtime_error("Did not receive closed channel exception");
-//                 };
-//                 auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
-//                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
-//                 exit(exitCode);
-//             },
-//             ::testing::ExitedWithCode(0), ".*");
-// }
 
 // //Test that child can receive more than one message
 // TEST_F(TestSplitProcesses, ChildCanRecieveMoreThanOneMessage) // NOLINT
