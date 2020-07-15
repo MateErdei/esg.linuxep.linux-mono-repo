@@ -10,38 +10,30 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <modules/CommsComponent/AsyncMessager.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-
 using namespace CommsComponent;
 
 struct MessagesAppender
 {
-    static constexpr const char *Command2Throw = "Command2Throw";
-    std::vector<std::string> &m_messages;
-    Tests::TestExecutionSynchronizer &m_synchronizer;
-
-    MessagesAppender(std::vector<std::string> &messages, Tests::TestExecutionSynchronizer &synchronizer) :
-            m_messages(messages),
-            m_synchronizer(synchronizer)
+    static constexpr const char * Command2Throw = "Command2Throw"; 
+    std::vector<std::string>& m_messages;
+    Tests::TestExecutionSynchronizer& m_synchronizer;
+    MessagesAppender(std::vector<std::string>& messages, Tests::TestExecutionSynchronizer& synchronizer) :
+        m_messages(messages),
+        m_synchronizer(synchronizer)
     {
     }
-
     void operator()(std::string newMessage)
     {
         if (newMessage == Command2Throw)
         {
-            throw std::runtime_error("unacceptable message");
+            throw std::runtime_error("unacceptable message"); 
         }
         m_messages.emplace_back(std::move(newMessage));
         m_synchronizer.notify();
     }
 };
 
-class TestAsyncMessager : public LogOffInitializedTests
-{
-};
-
-TEST_F(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
+TEST(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -50,16 +42,16 @@ TEST_F(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
     ListStrings receivedMessages2;
     Tests::TestExecutionSynchronizer synchronizer(3);
 
-    auto[m1, m2] = CommsContext::setupPairOfConnectedSockets(
-            m_io,
-            MessagesAppender{receivedMessages1, synchronizer},
-            MessagesAppender{receivedMessages2, synchronizer});
+    auto [m1, m2] = CommsContext::setupPairOfConnectedSockets(
+        m_io,
+        MessagesAppender{ receivedMessages1, synchronizer },
+        MessagesAppender{ receivedMessages2, synchronizer });
 
     std::thread thread = CommsContext::startThread(m_io);
 
-    std::string message{"basictest"};
-    std::string message2{"basictest2"};
-    std::string fromm1{"from_m1"};
+    std::string message{ "basictest" };
+    std::string message2{ "basictest2" };
+    std::string fromm1{ "from_m1" };
     m1->sendMessage(fromm1);
     m2->sendMessage(message);
     m2->sendMessage(message2);
@@ -74,7 +66,34 @@ TEST_F(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
     EXPECT_EQ(fromm1, receivedMessages2.at(0));
 }
 
-TEST_F(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOLINT
+TEST(TestAsyncMessager, Utf8MessagesArePreserved) // NOLINT
+{
+    using ListStrings = std::vector<std::string>;
+    boost::asio::io_service m_io;
+
+    ListStrings receivedMessages1;
+    ListStrings receivedMessages2;
+    Tests::TestExecutionSynchronizer synchronizer(1);
+
+    auto [m1, m2] = CommsContext::setupPairOfConnectedSockets(
+        m_io,
+        MessagesAppender{ receivedMessages1, synchronizer },
+        MessagesAppender{ receivedMessages2, synchronizer });
+
+    std::thread thread = CommsContext::startThread(m_io);
+
+    std::string message{ "中英字典" };
+    m2->sendMessage(message);
+    EXPECT_TRUE(synchronizer.waitfor(1000));
+    m1->push_stop();
+    m2->push_stop();
+    thread.join();
+    ASSERT_EQ(receivedMessages1.size(), 1);
+    EXPECT_EQ(message, receivedMessages1.at(0));
+}
+
+
+TEST(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -83,7 +102,7 @@ TEST_F(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOL
     ListStrings receivedMessages2;
 
     // sending up to almost 10MB in a single message
-    std::vector<int> vecsizes{10, 100, 1000, 1'0000, 100'000, 1'000'000, 10'000'000};
+    std::vector<int> vecsizes{ 10, 100, 1000, 1'0000, 100'000, 1'000'000, 10'000'000 };
     Tests::TestExecutionSynchronizer synchronizer(vecsizes.size());
 
     auto [m1, m2] = CommsContext::setupPairOfConnectedSockets(
@@ -111,7 +130,7 @@ TEST_F(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOL
     }
 }
 
-TEST_F(TestAsyncMessager, reconstructedMessageShouldBeTheSameASOriginal) // NOLINT
+TEST(TestAsyncMessager, reconstructedMessageShouldBeTheSameASOriginal) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -141,7 +160,7 @@ TEST_F(TestAsyncMessager, reconstructedMessageShouldBeTheSameASOriginal) // NOLI
     ASSERT_EQ(receivedMessages2.at(0), message);
 }
 
-TEST_F(TestAsyncMessager, shouldSupportBinaryMessagesAsWell) // NOLINT
+TEST(TestAsyncMessager, shouldSupportBinaryMessagesAsWell) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -181,7 +200,7 @@ TEST_F(TestAsyncMessager, shouldSupportBinaryMessagesAsWell) // NOLINT
 }
 
 
-TEST_F(TestAsyncMessager, anySideShouldBeAbleToStopTheCommunication) // NOLINT
+TEST(TestAsyncMessager, anySideShouldBeAbleToStopTheCommunication) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -211,7 +230,7 @@ TEST_F(TestAsyncMessager, anySideShouldBeAbleToStopTheCommunication) // NOLINT
 }
 
 
-TEST_F(TestAsyncMessager, asyncMessagersShouldBeResistentToExceptionsTriggeredIntheCallBack) // NOLINT
+TEST(TestAsyncMessager, asyncMessagersShouldBeResistentToExceptionsTriggeredIntheCallBack) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -220,7 +239,7 @@ TEST_F(TestAsyncMessager, asyncMessagersShouldBeResistentToExceptionsTriggeredIn
     ListStrings receivedMessages2;
 
     std::string message = "test";
-    std::string willTriggerThrow = MessagesAppender::Command2Throw;
+    std::string willTriggerThrow = MessagesAppender::Command2Throw; 
     Tests::TestExecutionSynchronizer synchronizer(1);
 
     auto [m1, m2] = CommsContext::setupPairOfConnectedSockets(
@@ -242,7 +261,7 @@ TEST_F(TestAsyncMessager, asyncMessagersShouldBeResistentToExceptionsTriggeredIn
 }
 
 
-TEST_F(TestAsyncMessager, emptyMessagesWillBeRejectedAndNotTransmitted) // NOLINT
+TEST(TestAsyncMessager, emptyMessagesWillBeRejectedAndNotTransmitted) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
