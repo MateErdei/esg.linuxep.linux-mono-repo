@@ -135,21 +135,14 @@ namespace
 }
 
 CommandLineScanRunner::CommandLineScanRunner(const Options& options)
-    : m_help(options.help())
-    , m_paths(options.paths())
-    , m_exclusions(options.exclusions())
-    , m_archiveScanning(options.archiveScanning())
+        : m_paths(options.paths())
+        , m_exclusions(options.exclusions())
+        , m_archiveScanning(options.archiveScanning())
 {
 }
 
 int CommandLineScanRunner::run()
 {
-    if(m_help)
-    {
-        PRINT(Options::getHelp());
-        return m_returnCode;
-    }
-
     std::string printArchiveScanning = m_archiveScanning?"yes":"no";
     PRINT("Archive scanning enabled: " << printArchiveScanning);
 

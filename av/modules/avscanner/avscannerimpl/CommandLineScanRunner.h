@@ -21,7 +21,6 @@ namespace avscanner::avscannerimpl
         int run() override;
 
     private:
-        bool m_help;
         std::vector<std::string> m_paths;
         std::vector<std::string> m_exclusions;
         bool m_archiveScanning;
@@ -29,6 +28,3 @@ namespace avscanner::avscannerimpl
         int m_returnCode = 0;
     };
 }
-
-
-
