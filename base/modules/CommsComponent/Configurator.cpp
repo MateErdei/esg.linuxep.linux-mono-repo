@@ -26,12 +26,11 @@ namespace CommsComponent
         m_console.reset(new Common::Logging::ConsoleLoggingSetup());
     }
 
-    const char *GL_SOPHOS_DIRNAME = "sophos-spl-comms";
 
     void CommsConfigurator::applyChildSecurityPolicy()
     {
         setupLoggingFiles();
-        Common::SecurityUtils::chrootAndDropPrivileges(m_childUser.userName, m_childUser.userGroup, m_sophosInstall);
+        Common::SecurityUtils::chrootAndDropPrivileges(m_childUser.userName, m_childUser.userGroup, m_chrootDir);
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/");
     }
@@ -64,10 +63,7 @@ namespace CommsComponent
 
     CommsConfigurator::CommsConfigurator(const std::string &newRoot, UserConf childUser,
                                          UserConf parentUser)
-            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser))
-    {
-        m_sophosInstall = Common::FileSystem::join(newRoot, GL_SOPHOS_DIRNAME);
-    }
+            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)) {}
 
     void CommsConfigurator::setupLoggingFiles()
     {
@@ -78,13 +74,13 @@ namespace CommsComponent
             std::vector<Path> loggingDirectories = {"base/etc/", "logs/base"};
             for (auto &dirpath : loggingDirectories)
             {
-                Common::FileSystem::fileSystem()->makedirs(Common::FileSystem::join(m_sophosInstall, dirpath));
+                Common::FileSystem::fileSystem()->makedirs(Common::FileSystem::join(m_chrootDir, dirpath));
             }
             std::stringstream logName;
 
             Path loggerConfRelativePath = "base/etc/logger.conf";
             auto loggerConfSrc = Common::FileSystem::join(oldSophosInstall, loggerConfRelativePath);
-            auto loggerConfDst = Common::FileSystem::join(m_sophosInstall, loggerConfRelativePath);
+            auto loggerConfDst = Common::FileSystem::join(m_chrootDir, loggerConfRelativePath);
             Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, 440,
                                                                         m_childUser.userName, m_childUser.userGroup);
 

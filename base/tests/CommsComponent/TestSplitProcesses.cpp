@@ -61,7 +61,6 @@ public:
     UserConf m_lowPrivParentUser = {"games", "lp", "parent"};
     std::string m_logConfigPath = {"base/etc/logger.conf"};
     std::string m_rootPath;
-    std::string m_chrootDir;
     Tests::TempDir m_tempDir;
     std::string m_chrootSophosInstall;
 
@@ -86,7 +85,6 @@ VERBOSITY=DEBUG
 
 
         std::string sophosInstall = m_tempDir.dirPath();
-        m_chrootDir = m_tempDir.absPath("var");
         m_chrootSophosInstall = m_tempDir.absPath("var/sophos-spl-comms");
 
         //local user dirs permissions to be done by the installer
@@ -97,7 +95,7 @@ VERBOSITY=DEBUG
             fperms.chmod(Common::FileSystem::join(sophosInstall, path), 0777);
         }
         //network user dirs permissions to be done by the installer
-        fperms.chmod(m_chrootDir, 0777);
+        fperms.chmod(m_tempDir.absPath("var"), 0777);
         for (auto path : std::vector<std::string>{"logs", "base", "base/etc/", "logs/base"})
         {
             fperms.chmod(Common::FileSystem::join(m_chrootSophosInstall, path), 0777);
@@ -201,7 +199,7 @@ TEST_F(TestSplitProcesses, ExchangeMessagesAndStop) // NOLINT
                     childProxy.pushMessage("stop");
                 };
 
-                auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -231,7 +229,7 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
                     }
                     throw std::runtime_error("Did not receive closed channel exception");
                 };
-                auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -260,7 +258,7 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
                     }
                     throw std::runtime_error("Did not receive closed channel exception");
                 };
-                auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -299,7 +297,7 @@ TEST_F(TestSplitProcesses, ChildCanRecieveMoreThanOneMessageAndConcurrently) // 
                     return;
                 };
 
-                auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -320,7 +318,7 @@ TEST_F(TestSplitProcesses, ParentStopIfChildSendStopNoHanging) // NOLINT
 
                 auto parentProcess = CommNetworkSide();
 
-                auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -353,7 +351,7 @@ TEST_F(TestSplitProcesses, ParentAndChildShouldBeAbleToUseLog4) // NOLINT
                             std::cerr << "failed to write file: " << ex.what() << std::endl;
                         }
                     };
-                    auto config = CommsConfigurator(m_chrootDir, m_lowPrivChildUser, m_lowPrivParentUser);
+                    auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
                     int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
 
 

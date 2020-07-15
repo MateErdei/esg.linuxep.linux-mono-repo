@@ -28,7 +28,7 @@ namespace CommsComponent
 
     };
 
-
+    const char *GL_SOPHOS_DIRNAME = "sophos-spl-comms";
     struct UserConf
     {
         std::string userName;
@@ -41,7 +41,6 @@ namespace CommsComponent
         std::string m_chrootDir;
         UserConf m_childUser;
         UserConf m_parentUser;
-        std::string m_sophosInstall;
         std::shared_ptr<Common::Logging::FileLoggingSetup> m_logSetup; 
 
         /*
