@@ -85,33 +85,48 @@ rm -rf "$SOPHOS_INSTALL"
 
 PATH=$PATH:/usr/sbin:/sbin
 
-USERNAME="@SOPHOS_SPL_USER@"
-GROUPNAME="@SOPHOS_SPL_GROUP@"
+function removeUserAndGroup()
+{
+  local USERNAME=$1
+  local GROUPNAME=$2
+  DELUSER=$(which deluser 2>/dev/null)
+  USERDEL=$(which userdel 2>/dev/null)
+
+  if [[ -x "$DELUSER" ]]
+  then
+      "$DELUSER" "$USERNAME" 2>/dev/null >/dev/null
+  elif [[ -x "$USERDEL" ]]
+  then
+      "$USERDEL" "$USERNAME" 2>/dev/null >/dev/null
+  else
+      echo "Unable to delete user $USERNAME" >&2
+  fi
+
+  ## Can't delete the group if we aren't deleting the user
+  if [[ -z $NO_REMOVE_GROUP ]]
+  then
+      GROUP_DELETER=$(which delgroup 2>/dev/null)
+      [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
+      if [[ -x "$GROUP_DELETER" ]]
+      then
+          "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null
+      else
+          echo "Unable to delete group $GROUPNAME" >&2
+      fi
+  fi
+}
+
 if [[ -z $NO_REMOVE_USER ]]
 then
-    DELUSER=$(which deluser 2>/dev/null)
-    USERDEL=$(which userdel 2>/dev/null)
+  SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
+  SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
+  removeUserAndGroup ${SOPHOS_SPL_USER_NAME} ${SOPHOS_SPL_GROUP_NAME}
 
-    if [[ -x "$DELUSER" ]]
-    then
-        "$DELUSER" "$USERNAME" 2>/dev/null >/dev/null
-    elif [[ -x "$USERDEL" ]]
-    then
-        "$USERDEL" "$USERNAME" 2>/dev/null >/dev/null
-    else
-        echo "Unable to delete user $USERNAME" >&2
-    fi
+  NETWORK_USER_NAME="@SOPHOS_SPL_NETWORK@"
+  NETWORK_GROUP_NAME="@SOPHOS_SPL_NETWORK@"
+  removeUserAndGroup ${NETWORK_USER_NAME} ${NETWORK_GROUP_NAME}
 
-    ## Can't delete the group if we aren't deleting the user
-    if [[ -z $NO_REMOVE_GROUP ]]
-    then
-        GROUP_DELETER=$(which delgroup 2>/dev/null)
-        [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
-        if [[ -x "$GROUP_DELETER" ]]
-        then
-            "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null
-        else
-            echo "Unable to delete group $GROUPNAME" >&2
-        fi
-    fi
+  LOCAL_USER_NAME="@SOPHOS_SPL_LOCAL@"
+  LOCAL_GROUP_NAME="@SOPHOS_SPL_LOCAL@"
+  removeUserAndGroup ${LOCAL_USER_NAME} ${LOCAL_GROUP_NAME}
 fi
