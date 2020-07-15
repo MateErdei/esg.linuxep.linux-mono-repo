@@ -21,23 +21,32 @@ int main(int argc, char* argv[])
 {
     LogSetup logging;
 
-    Options options(argc, argv);
-    auto config = options.config();
+    try {
+        Options options(argc, argv);
 
-    if(options.help())
-    {
+        auto config = options.config();
+
+        if(options.help())
+        {
+            PRINT(Options::getHelp());
+            return 0;
+        }
+
+        std::unique_ptr<IRunner> runner;
+        if (config.empty())
+        {
+            runner = std::make_unique<CommandLineScanRunner>(options);
+        }
+        else
+        {
+            runner = std::make_unique<NamedScanRunner>(config);
+        }
+
+        return runner->run();
+    } catch (boost::program_options::unknown_option& e) {
         PRINT(Options::getHelp());
-        return 0;
-    }
+        PRINT("Unrecognised option: " << e.get_option_name());
 
-    std::unique_ptr<IRunner> runner;
-    if (config.empty())
-    {
-        runner = std::make_unique<CommandLineScanRunner>(options);
+        return -1;
     }
-    else
-    {
-        runner = std::make_unique<NamedScanRunner>(config);
-    }
-    return runner->run();
 }
