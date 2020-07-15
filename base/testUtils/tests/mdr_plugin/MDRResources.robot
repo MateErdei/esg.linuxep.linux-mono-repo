@@ -116,6 +116,13 @@ Wait Until SophosMTR Executable Running
     ...  1 secs
     ...  Check SophosMTR Executable Running
 
+Wait Until EDR and MTR OSQuery Running
+    [Arguments]  ${WaitInSecs}=10
+    Wait Until Keyword Succeeds
+    ...  ${WaitInSecs} secs
+    ...  1 secs
+    ...  Check EDR And MTR Osquery Executable Running
+
 Wait Until OSQuery Running
     [Arguments]  ${WaitInSecs}=10
     Wait Until Keyword Succeeds
@@ -138,6 +145,11 @@ Check SophosMTR Executable Not Running
     ${result} =    Run Process  pgrep  SophosMTR
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+Check EDR And MTR Osquery Executable Running
+    #Check ALL EDR And MTR osquery instances are running
+    ${result} =    Run Process  pgrep osquery | wc -w  shell=true
+    Should Be Equal As Integers    ${result.stdout}    4       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check Osquery Executable Running
     #Check both osquery instances are running

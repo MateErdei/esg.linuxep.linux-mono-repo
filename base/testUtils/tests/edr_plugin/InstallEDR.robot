@@ -293,7 +293,7 @@ Install Base And EDR Then Migrate To BASE
 
 Install base and edr and mtr 999 then downgrade to current master
     Install EDR  ${BaseAndMTREdr999Policy}
-    Wait Until OSQuery Running
+    Wait Until EDR and MTR OSQuery Running  30
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
@@ -313,7 +313,7 @@ Install base and edr and mtr 999 then downgrade to current master
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  120 secs
+    ...  200 secs
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
     Wait Until Keyword Succeeds

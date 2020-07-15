@@ -54,8 +54,8 @@ Install EDR
     Send ALC Policy And Prepare For Upgrade  ${policy}
     Trigger Update Now
     Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   20 secs
+    ...   200 secs
+    ...   10 secs
     ...   Check Suldownloader Log Contains In Order     Installing product: ServerProtectionLinux-Plugin-EDR   Generating the report file
 
     Wait For EDR to be Installed
