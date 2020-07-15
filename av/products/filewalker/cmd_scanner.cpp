@@ -50,6 +50,6 @@ int main(int argc, char* argv[])
         PRINT(Options::getHelp());
         PRINT("Unrecognised option: " << e.get_option_name());
 
-        return -1;
+        return 1;
     }
 }
