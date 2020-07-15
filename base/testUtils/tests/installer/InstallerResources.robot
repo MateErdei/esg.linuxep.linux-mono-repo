@@ -18,8 +18,7 @@ Require Fresh Install
     Kill Sophos Processes
     Run Full Installer
     Should Exist   ${SOPHOS_INSTALL}
-    Verify Group Created
-    Verify User Created
+    Verify Sophos Users And Sophos Groups Are Created
     Should Exist   ${SOPHOS_INSTALL}/var/ipc
     Should Exist   ${SOPHOS_INSTALL}/logs/base
     Should Exist   ${SOPHOS_INSTALL}/tmp
@@ -182,3 +181,14 @@ Check Base Processes Are Not Running
     Check Management Agent not Running
     Check Update Scheduler Not Running
     Check Telemetry Scheduler Plugin Not Running
+
+
+Verify Sophos Users And Sophos Groups Are Created
+    Verify User Created   sophos-spl-user
+    Verify Group Created  sophos-spl-group
+
+    Verify User Created   sophos-spl-network
+    Verify Group Created  sophos-spl-network
+
+    Verify User Created   sophos-spl-local
+    Verify Group Created  sophos-spl-local

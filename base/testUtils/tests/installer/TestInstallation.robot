@@ -99,8 +99,7 @@ Verify that uninstall works correctly
     Ensure Uninstalled
     Run Full Installer
     Run Process    ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
-    Verify Group Removed
-    Verify User Removed
+    Verify Sophos Users And Groups are Removed
     Should Not Exist   ${SOPHOS_INSTALL}
 
 Verify Machine Id is created correctly
@@ -254,3 +253,13 @@ Get Glibc Version From System
     ${result} =  Run Process  ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev  shell=True
     Should Be Equal As Strings  ${result.rc}  0
     [Return]  ${result.stdout}
+
+Verify Sophos Users And Groups are Removed
+    Verify Group Removed  sophos-spl-group
+    Verify User Removed   sophos-spl-user
+
+    Verify Group Removed  sophos-spl-network
+    Verify User Removed   sophos-spl-network
+
+    Verify Group Removed  sophos-spl-local
+    Verify User Removed   sophos-spl-local

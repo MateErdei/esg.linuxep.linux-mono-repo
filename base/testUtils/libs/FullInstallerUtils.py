@@ -462,31 +462,31 @@ def uninstall_sspl_unless_cleanup_disabled(installdir=None):
     return Uninstall_SSPL(installdir)
 
 
-def does_group_exist():
+def does_group_exist(group=SOPHOS_GROUP):
     try:
-        grp.getgrnam(SOPHOS_GROUP)
+        grp.getgrnam(group)
         return True
     except KeyError:
         return False
 
 
-def verify_group_created():
-    grp.getgrnam(SOPHOS_GROUP)
+def verify_group_created(group=SOPHOS_GROUP):
+    grp.getgrnam(group)
 
 
-def verify_user_created():
-    pwd.getpwnam(SOPHOS_USER)
+def verify_user_created(user=SOPHOS_USER):
+    pwd.getpwnam(user)
 
 
-def verify_group_removed():
-    if does_group_exist():
-        raise AssertionError("Group %s still exists" % SOPHOS_GROUP)
+def verify_group_removed(group=SOPHOS_GROUP):
+    if does_group_exist(group):
+        raise AssertionError("Group %s still exists" % group)
 
 
-def verify_user_removed():
+def verify_user_removed(user=SOPHOS_USER):
     try:
-        verify_user_created()
-        raise AssertionError("User %s still exists" % SOPHOS_USER)
+        verify_user_created(user)
+        raise AssertionError("User %s still exists" % user)
     except Exception as e:
         print(e)
 
