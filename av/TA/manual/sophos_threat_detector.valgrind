@@ -1,0 +1,5 @@
+#!/bin/bash
+## copy to /opt/sophos-spl/plugins/av/sbin/
+## ln -snf sophos_threat_detector.valgrind /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector
+
+exec valgrind -v --log-file=/tmp/sophos_threat_detector.valgrind.%p $(dirname $0)/sophos_threat_detector.0 "$@"
