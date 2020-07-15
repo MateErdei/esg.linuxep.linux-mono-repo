@@ -20,9 +20,26 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/UtilityImpl/StringUtils.h"
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
+#include <signal.h>
+
 using namespace testing;
 
 static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
+
+class IgnoreSigPipe
+{
+public:
+    IgnoreSigPipe() noexcept
+    {
+        signal(SIGPIPE, SIG_IGN);
+    }
+    ~IgnoreSigPipe() noexcept
+    {
+        signal(SIGPIPE, SIG_DFL);
+    }
+};
+
+static IgnoreSigPipe sig_pipe_ignorer;
 
 static const std::string susiResponseStr =
         "{\n"
@@ -115,23 +132,6 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
         }
     })";
 
-    std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
-    "library": {
-        "libraryPath": "@@LIBRARY_PATH@@",
-        "tempPath": "/tmp",
-        "product": {
-            "name": "SSPL AV Plugin",
-            "context": "File",
-            "version": "1.0.0"
-        },
-        "customerID": "0123456789abcdef",
-        "machineID": "fedcba9876543210"
-    },
-    @@SCANNER_CONFIG@@
-})sophos", {{"@@LIBRARY_PATH@@", libraryPath},
-            {"@@SCANNER_CONFIG@@", scannerInfo}
-    });
-
     std::string scannerConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(
         "{@@SCANNER_CONFIG@@}", {{"@@SCANNER_CONFIG@@", scannerInfo} });
 
@@ -173,23 +173,6 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
         }
     })";
 
-    std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
-    "library": {
-        "libraryPath": "@@LIBRARY_PATH@@",
-        "tempPath": "/tmp",
-        "product": {
-            "name": "SSPL AV Plugin",
-            "context": "File",
-            "version": "1.0.0"
-        },
-        "customerID": "0123456789abcdef",
-        "machineID": "fedcba9876543210"
-    },
-    @@SCANNER_CONFIG@@
-})sophos", {{"@@LIBRARY_PATH@@", libraryPath},
-            {"@@SCANNER_CONFIG@@", scannerInfo}
-    });
-
     auto scannerConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(
         "{@@SCANNER_CONFIG@@}", {{"@@SCANNER_CONFIG@@", scannerInfo} });
 
@@ -219,8 +202,9 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
     EXPECT_CALL(*susiWrapper, freeResult(scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
-    datatypes::AutoFd fd(1);
+    datatypes::AutoFd fd(100);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
+    static_cast<void>(fd.release()); // not a real file descriptor
 
     EXPECT_EQ(response.clean(), true);
 }
@@ -257,8 +241,9 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
-    datatypes::AutoFd fd(1);
+    datatypes::AutoFd fd(101);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
+    static_cast<void>(fd.release()); // Not a real file descriptor
 
     serverWaitGuard.wait();
     threatReporterServer.requestStop();
