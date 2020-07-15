@@ -138,8 +138,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
     auto susiWrapper = std::make_shared<MockSusiWrapper>(scannerConfig);
     std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
 
-    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(runtimeConfig,
-                                                       scannerConfig)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
 }
@@ -198,8 +197,7 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
     auto susiWrapper = std::make_shared<MockSusiWrapper>(scannerConfig);
     std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
 
-    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(runtimeConfig,
-                                                       scannerConfig)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true);
 }
@@ -211,7 +209,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
 
-    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_, _)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
     SusiResult susiResult = SUSI_S_OK;
     SusiScanResult* scanResult = nullptr;
@@ -236,7 +234,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
     std::shared_ptr<StrictMock<MockIThreatReportCallbacks> > mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
-    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_, _)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
     EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));

@@ -11,5 +11,5 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 class MockSusiWrapperFactory : public ISusiWrapperFactory
 {
 public:
-    MOCK_METHOD2(createSusiWrapper, std::shared_ptr<ISusiWrapper>(const std::string& /*runtimeConfig*/, const std::string& /*scannerConfig*/));
+    MOCK_METHOD1(createSusiWrapper, std::shared_ptr<ISusiWrapper>(const std::string& /*scannerConfig*/));
 };

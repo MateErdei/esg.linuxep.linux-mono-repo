@@ -10,7 +10,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScannerInfo.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/UtilityImpl/StringUtils.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterClient.h"
 
@@ -25,42 +24,9 @@ using json = nlohmann::json;
 
 namespace fs = sophos_filesystem;
 
-static fs::path pluginInstall()
-{
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    return appConfig.getData("PLUGIN_INSTALL");
-}
-
 static fs::path threat_reporter_socket()
 {
     return pluginInstall() / "chroot/threat_report_socket";
-}
-
-static fs::path susi_library_path()
-{
-    return pluginInstall() / "chroot/susi/distribution_version";
-}
-
-static std::string create_runtime_config(const std::string& scannerInfo)
-{
-    fs::path libraryPath = susi_library_path();
-    std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
-    "library": {
-        "libraryPath": "@@LIBRARY_PATH@@",
-        "tempPath": "/tmp",
-        "product": {
-            "name": "SSPL AV Plugin",
-            "context": "File",
-            "version": "1.0.0"
-        },
-        "customerID": "0123456789abcdef",
-        "machineID": "fedcba9876543210"
-    },
-    @@SCANNER_CONFIG@@
-})sophos", {{"@@LIBRARY_PATH@@", libraryPath},
-            {"@@SCANNER_CONFIG@@", scannerInfo}
-    });
-    return runtimeConfig;
 }
 
 static std::string create_scanner_config(const std::string& scannerInfo)
@@ -71,11 +37,8 @@ static std::string create_scanner_config(const std::string& scannerInfo)
 SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapperFactory, bool scanArchives)
 {
     std::string scannerInfo = create_scanner_info(scanArchives);
-
-    std::string runtimeConfig = create_runtime_config(scannerInfo);
     std::string scannerConfig = create_scanner_config(scannerInfo);
-
-    m_susi = susiWrapperFactory->createSusiWrapper(runtimeConfig, scannerConfig);
+    m_susi = susiWrapperFactory->createSusiWrapper(scannerConfig);
 }
 
 void SusiScanner::sendThreatReport(

@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScannerInfo.h"
 
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
 std::string threat_scanner::create_scanner_info(bool scanArchives)
@@ -35,4 +36,10 @@ std::string threat_scanner::create_scanner_info(bool scanArchives)
     })sophos", {{"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"}});
 
     return scannerInfo;
+}
+
+sophos_filesystem::path threat_scanner::pluginInstall()
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    return appConfig.getData("PLUGIN_INSTALL");
 }

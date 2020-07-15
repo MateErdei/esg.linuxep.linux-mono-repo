@@ -16,11 +16,9 @@ namespace threat_scanner
     public:
         SusiWrapperFactory();
         std::shared_ptr<ISusiWrapper> createSusiWrapper(
-            const std::string& runtimeConfig,
             const std::string& scannerConfig) override;
 
     private:
-        SusiGlobalHandlerSharePtr getGlobalHandler(const std::string& runtimeConfig);
         SusiGlobalHandlerSharePtr m_globalHandler;
     };
 
