@@ -186,6 +186,22 @@ find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}/lib
         )
+
+# ensure valid log4cplus to work with fork
+file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
+string(FIND "${log4cplusStrings}" "implicit initialization is turned off" DisabledImplicitInitialization)
+if(${DisabledImplicitInitialization} EQUAL -1)
+    string( APPEND ERRORMESSAGE
+    "Log4cplus needs to be built with --disable-implicit-initialization to work in the presence of fork. \n"
+    "Make sure you have fetched the inputs and build with build.sh at least once\n"
+    "1. Fetch inputs in source folder by running:\n"
+    "    python3 -m build_scripts.artisan_fetch build/release-package.xml\n"
+    "2. Run the full build script with no build flag:\n"
+    "    ./build.sh --no-build\n")
+    message( FATAL_ERROR ${ERRORMESSAGE})
+endif()
+
+
 set( OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
 find_library(OPENSSL_LIBRARY
         NAMES ssl
