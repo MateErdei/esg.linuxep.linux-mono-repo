@@ -40,6 +40,7 @@ class LogUtils(object):
         self.thin_install_log = os.path.join(self.tmp_path, "thin_installer", "ThinInstaller.log")
         self.suldownloader_log = os.path.join(self.base_logs_dir, "suldownloader.log")
         self.update_scheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "updatescheduler.log")
+        self.tscheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "tscheduler.log")
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
@@ -399,6 +400,9 @@ class LogUtils(object):
 
     def check_suldownloader_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.suldownloader_log, "Suldownloader")
+
+    def check_tscheduler_log_contains(self, string_to_contain):
+        self.check_log_contains(string_to_contain, self.tscheduler_log, "Tscheduler")
 
     def osquery_watcher_log_should_contain(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.osquery_watcher_log, "osquery watcher log")

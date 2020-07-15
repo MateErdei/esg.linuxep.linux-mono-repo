@@ -53,6 +53,15 @@ Create Fake Telemetry Executable
     Run Process  chmod  ug+x  ${TELEMETRY_EXECUTABLE}
     Run Process  chgrp  sophos-spl-group  ${TELEMETRY_EXECUTABLE}
 
+Create Fake Telemetry Executable that exits with error
+    ${script} =     Catenate    SEPARATOR=\n
+    ...    \#!/bin/bash
+    ...    echo 'error'
+    ...    exit 1
+    ...    \
+    Create File   ${TELEMETRY_EXECUTABLE}    content=${script}
+    Run Process  chmod  ug+x  ${TELEMETRY_EXECUTABLE}
+    Run Process  chgrp  sophos-spl-group  ${TELEMETRY_EXECUTABLE}
 
 Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol

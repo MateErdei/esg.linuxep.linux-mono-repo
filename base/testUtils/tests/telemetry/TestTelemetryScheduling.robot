@@ -34,6 +34,13 @@ Telemetry Scheduler Plugin Test Setup
     Restart Telemetry Scheduler
     Wait Until Keyword Succeeds  20 seconds  1 seconds   File Should Exist  ${STATUS_FILE}
 
+Telemetry Scheduler Plugin Test Setup with error telemetry executable
+    Run Process  mv  ${TELEMETRY_EXECUTABLE}  ${TELEMETRY_EXECUTABLE}.orig
+    Create Fake Telemetry Executable that exits with error
+    Set Interval In Configuration File  ${TEST_INTERVAL}
+    Remove File  ${STATUS_FILE}
+    Restart Telemetry Scheduler
+    Wait Until Keyword Succeeds  20 seconds  1 seconds   File Should Exist  ${STATUS_FILE}
 
 Telemetry Scheduler Plugin Test Teardown
     General Test Teardown
@@ -93,6 +100,14 @@ Telemetry Scheduler Schedules Telemetry Executable
 
     Wait For Telemetry Executable To Have Run
     Check Telemetry Scheduler Is Running
+
+Telemetry Scheduler recives error output from telemetry executable when it fails
+    [Setup]  Telemetry Scheduler Plugin Test Setup with error telemetry executable
+
+    Wait Until Keyword Succeeds
+    ...  80s
+    ...  10s
+    ...  Check Tscheduler Log Contains  Telemetry executable output: error
 
 Telemetry Scheduler Generates Files With Correct Permissions
     [Documentation]  Telemetry is scheduled and launches telemetry executable, generating files with the correct permissions
