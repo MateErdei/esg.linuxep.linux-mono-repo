@@ -15,7 +15,7 @@ namespace CommsComponent
         m_messager->setNotifyClosure([]() {});
     }
 
-    void OtherSideApi::setNofifyOnClosure(NofifySocketClosed notifyOnClosure)
+    void OtherSideApi::setNotifyOnClosure(NotifySocketClosed notifyOnClosure)
     {
         m_messager->setNotifyClosure(std::move(notifyOnClosure));
     }

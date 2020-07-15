@@ -27,11 +27,11 @@ namespace CommsComponent
 
     int ReactorAdapter::run(OtherSideApi &othersideApi)
     {
-        othersideApi.setNofifyOnClosure([this]() { m_channel->pushStop(); });
+        othersideApi.setNotifyOnClosure([this]() { m_channel->pushStop(); });
         try
         {
             m_reactor(m_channel, othersideApi);
-            othersideApi.setNofifyOnClosure([]() {});
+            othersideApi.setNotifyOnClosure([]() {});
             return 0;
         }
         catch (const ChannelClosedException &channelClosedException)
@@ -41,7 +41,7 @@ namespace CommsComponent
         }
         catch (std::exception &ex)
         {
-            othersideApi.setNofifyOnClosure([]() {});
+            othersideApi.setNotifyOnClosure([]() {});
             LOGERROR(m_name << " process reported error: " << ex.what());
             return 1;
         }

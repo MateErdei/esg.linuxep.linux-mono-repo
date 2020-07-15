@@ -20,7 +20,7 @@ namespace CommsComponent
 
         void notifyOtherSideAndClose();
 
-        void setNofifyOnClosure(NofifySocketClosed);
+        void setNotifyOnClosure(NotifySocketClosed);
 
     private:
         std::unique_ptr<AsyncMessager> m_messager;

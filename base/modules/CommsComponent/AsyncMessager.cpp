@@ -101,9 +101,9 @@ namespace CommsComponent
             }));
     }
 
-    void AsyncMessager::setNotifyClosure(NofifySocketClosed notifySocketClosed)
+    void AsyncMessager::setNotifyClosure(NotifySocketClosed notifySocketClosed)
     {
-        m_notifyClosureDetected = notifySocketClosed; 
+        m_notifyClosureDetected = notifySocketClosed;
     }
 
     void AsyncMessager::deliverMessage(std::string&& message)

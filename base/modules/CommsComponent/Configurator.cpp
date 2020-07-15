@@ -53,15 +53,9 @@ namespace CommsComponent
         umask(S_IXUSR | S_IXGRP | S_IWGRP | S_IRWXO); // Read and write for the owner and read for group 027
 
         m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_childUser.logName));
-
-        //ToDo LINUXDAR-1954
-        // bind mount dirs = {"/lib","/usr/lib"};
-        // bind mount file /etc/resolv.cof", "/etc/hosts" "/etc/ssl/ca-certificate.crt"};        //mount bind a file mount -o ro myfile destdir/myfile
-
-
     }
 
-    CommsConfigurator::CommsConfigurator(const std::string &newRoot, UserConf childUser,
+    CommsConfigurator::CommsConfigurator(const std::string& newRoot, UserConf childUser,
                                          UserConf parentUser)
             : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)) {}
 
@@ -87,11 +81,12 @@ namespace CommsComponent
             //Set the sophos install path relative to chroot root
             Common::ApplicationConfiguration::applicationConfiguration().setData(
                     Common::ApplicationConfiguration::SOPHOS_INSTALL, "/");
-            std::cout << "coppied config file correctly " << std::endl;
         }
         catch (const std::exception &ex)
         {
-            std::cout << "Failed to configure logging " << ex.what() << std::endl;
+            std::stringstream errMsg;
+            errMsg << "Failed to configure logging " << ex.what();
+            perror(errMsg.str().c_str());
         }
     }
 }
