@@ -125,7 +125,8 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
         }
         case FULLPATH:
         {
-            if (path == m_exclusionPath)
+            // Full paths shouldn't match directories
+            if (path == m_exclusionPath && !isDirectory)
             {
                 return true;
             }

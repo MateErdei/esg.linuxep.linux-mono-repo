@@ -47,6 +47,7 @@ TEST(Exclusion, TestFullpathTypes) // NOLINT
     Exclusion dirpathExcl("/tmp/foo");
     EXPECT_EQ(dirpathExcl.type(), FULLPATH);
     EXPECT_TRUE(dirpathExcl.appliesToPath("/tmp/foo"));
+    EXPECT_FALSE(dirpathExcl.appliesToPath("/tmp/foo", true));
     EXPECT_FALSE(dirpathExcl.appliesToPath("/tmp/foo/bar"));
 }
 
