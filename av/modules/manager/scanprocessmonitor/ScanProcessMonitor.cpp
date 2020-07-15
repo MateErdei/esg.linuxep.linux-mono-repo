@@ -37,7 +37,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     announceThreadStarted();
     LOGINFO("Starting sophos_thread_detector monitor");
 
-    bool terminate = false;
+    bool terminate;
 
     auto process = Common::Process::createProcess();
 
@@ -45,12 +45,16 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
             [this]() {subprocess_exited();}
     );
 
+    // Only keep the last 1 MiB of output from sophos_threat_detector
+    // we only output on failure
+    process->setOutputLimit(1024 * 1024);
+
     struct timespec restartBackoff{};
     restartBackoff.tv_sec = 0;
     restartBackoff.tv_nsec = 100*1000*1000;
 
 
-    while (!terminate)
+    while (true)
     {
         // Check if we should terminate before doing anything else
         terminate = stopRequested();
