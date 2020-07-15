@@ -25,7 +25,10 @@ namespace CommsComponent
 
     void CommsConfigurator::applyChildSecurityPolicy()
     {
+        setupLoggingFiles();
         Common::SecurityUtils::chrootAndDropPrivileges(m_childUser.userName, m_childUser.userGroup, m_sophosInstall);
+        Common::ApplicationConfiguration::applicationConfiguration().setData(
+                    Common::ApplicationConfiguration::SOPHOS_INSTALL,"/");
     }
 
 
@@ -38,17 +41,20 @@ namespace CommsComponent
     void CommsConfigurator::applyParentInit()
     {
         umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
+        m_logSetup.reset(new Common::Logging::FileLoggingSetup("parent",true)); //fixme, name
     }
 
     void CommsConfigurator::applyChildInit()
     {
         umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
 
+        m_logSetup.reset(new Common::Logging::FileLoggingSetup("child",true)); //fixme, name
+
         //ToDo LINUXDAR-1954
         // bind mount dirs = {"/lib","/usr/lib"};
         // bind mount file /etc/resolv.cof", "/etc/hosts" "/etc/ssl/ca-certificate.crt"};        //mount bind a file mount -o ro myfile destdir/myfile
 
-        setupLoggingFiles();
+        
     }
 
     CommsConfigurator::CommsConfigurator(const std::string &newRoot, UserConf childUser,
@@ -77,6 +83,7 @@ namespace CommsComponent
             Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, 440,
                                                                         m_childUser.userName, m_childUser.userGroup);
 
+            // fixme: is it necessary... could we just use the applicationconfiguration setData? 
             if (setenv(Common::ApplicationConfiguration::SOPHOS_INSTALL.c_str(), Common::FileSystem::join(
                     "/", SOPHOS_DIRNAME).c_str(), 1) == -1)
             {

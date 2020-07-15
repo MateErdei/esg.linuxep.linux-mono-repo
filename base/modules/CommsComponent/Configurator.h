@@ -10,12 +10,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/ISophosSplUsers.h>
 #include <Common/Logging/LoggerConfig.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/Logging/FileLoggingSetup.h>
 
 namespace CommsComponent
 {
     class NullConfigurator
     {
-        std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_console; 
+        std::shared_ptr<Common::Logging::ConsoleLoggingSetup> m_console; 
     public:
         void applyParentSecurityPolicy() {}
 
@@ -42,6 +43,7 @@ namespace CommsComponent
         UserConf m_childUser;
         UserConf m_parentUser;
         std::string m_sophosInstall;
+        std::shared_ptr<Common::Logging::FileLoggingSetup> m_logSetup; 
 
         /*
          * To be called before chroot to set up files for logging
@@ -69,7 +71,7 @@ namespace CommsComponent
         void applyParentInit();
 
         /*
-         * Setup files and directories required for logging
+         * Setup log4cplus
          */
         void applyChildInit();
 

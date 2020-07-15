@@ -86,43 +86,39 @@ namespace CommsComponent
 
                 OtherSideApi parentService{std::move(childChannel)};
 
-                // equivalent to the code that usually runs before the main init();
-                config.applyChildInit();
-
                 // Apply the Configurator.
                 config.applyChildSecurityPolicy();
 
-                Common::Logging::FileLoggingSetup logSetup("commsnetwork", true);
+                // equivalent to the code that usually runs before the main init();
+                config.applyChildInit();
+
                 std::cout << "Staring network process" << std::endl;
-                LOGINFO("Staring network process");
+                LOGINFO("Entering main process: pid " << getpid());
                 thread = CommsContext::startThread(io_service);
-                exitCode = child.run(parentService);  // missing protection from exception.
-                LOGINFO("Network process finishing");
+                exitCode = child.run(parentService); 
+                LOGINFO("End of the main process, shutting down");
 
                 // teardown and close
                 parentService.notifyOtherSideAndClose(); // notify the other side and close connection.
-
-                if (thread.joinable())
-                {
-                    thread.join();
-                }
+                thread.join(); 
             }
             catch (std::exception &ex)
             {
                 LOGERROR("Comms local process exception: " << ex.what());
+                if (exitCode == 0)
+                {
+                    exitCode = 1; 
+                }
                 if (thread.joinable())
                 {
                     thread.join();
                 }
-                log4cplus::Logger::shutdown();
             }
             LOGDEBUG("Network process exiting");
-            log4cplus::Logger::shutdown();
             exit(exitCode);
         }
         else
         {
-            log4cplus::Logger::shutdown();
             io_service.notify_fork(boost::asio::io_context::fork_parent);
             boost::asio::signal_set signal_{io_service, SIGCHLD};
             signal_.async_wait(
@@ -138,11 +134,10 @@ namespace CommsComponent
                     });
             childChannel->justShutdownSocket();
             OtherSideApi childService(std::move(parentChannel));
-            config.applyParentInit();
-            config.applyParentSecurityPolicy();
 
-            Common::Logging::FileLoggingSetup loggerSetup("commslocal");
-            LOGINFO("Starting comms local process, pid:" << getpid());
+            config.applyParentSecurityPolicy();
+            config.applyParentInit();
+            LOGINFO("Entering main process, pid:" << getpid());
 
             std::thread thread;
             try
@@ -155,37 +150,24 @@ namespace CommsComponent
                 LOGINFO("Waiting for network process to finish");
 
                 int status;
-                // FIXME low privilege user can not enforce:
-                // unfortunately log4cplus is still hanging in the destructor because it uses static objects and
-                // we have to figure out how to properly work with it.
-                // without the kill below, the executable will be hanging on the child,
-                // child stack:
-                //   std::condition_variable::wait(std::unique_lock<std::mutex>&) () from /usr/lib/x86_64-linux-gnu/libstdc++.so.6
-                //   log4cplus::(anonymous namespace)::destroy_default_context::~destroy_default_context() ()
-                //   ...log4cplus/lib/liblog4cplus-2.0.so.3
-                //    __cxa_finalize (d=0x7f4872552000) at cxa_finalize.c:83
-
-                std::cout << "sending KILL -s " << pid << std::endl;
-                kill(pid, SIGHUP);
                 wait(&status);
                 std::cout << "parent after wait" << std::endl;
                 LOGINFO("Comms detected that network process has finished");
-                if (thread.joinable())
-                {
-                    thread.join();
-                }
+                thread.join();
             }
             catch (std::exception &ex)
             {
                 LOGERROR("Comms local process exception: " << ex.what());
+                if (exitCode == 0)
+                {
+                    exitCode = 1; 
+                }
                 if (thread.joinable())
                 {
                     thread.join();
                 }
             }
-            // wait on child
             LOGINFO("Comms component is returning");
-            log4cplus::Logger::shutdown();
         }
         return exitCode;
     }
