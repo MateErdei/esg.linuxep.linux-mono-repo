@@ -171,13 +171,17 @@ void unixsocket::ScanningServerConnectionThread::run()
         {
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
-            if (length < 0)
+            if (length == -2)
+            {
+                LOGDEBUG("Scanning Server Connection closed: EOF");
+                break;
+            }
+            else if (length < 0)
             {
                 LOGERROR("Scanning Server Connection Thread aborting connection: failed to read length");
                 break;
             }
-
-            if (length == 0)
+            else if (length == 0)
             {
                 if (not loggedLengthOfZero)
                 {

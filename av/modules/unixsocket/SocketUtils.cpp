@@ -73,8 +73,9 @@ int unixsocket::readLength(int socket_fd)
         }
         else if (count == 0)
         {
-            perror("Reading socket returned EOF");
-            return 0;
+            // can't call perror since 0 return doesn't set errno
+            // should only return count == 0 on EOF, so we don't need to continue the connection
+            return -2;
         }
     }
 }
