@@ -21,7 +21,8 @@ int main(int argc, char* argv[])
 {
     LogSetup logging;
 
-    try {
+    try
+    {
         Options options(argc, argv);
 
         auto config = options.config();
@@ -43,7 +44,9 @@ int main(int argc, char* argv[])
         }
 
         return runner->run();
-    } catch (boost::program_options::unknown_option& e) {
+    }
+    catch (boost::program_options::unknown_option& e)
+    {
         PRINT(Options::getHelp());
         PRINT("Unrecognised option: " << e.get_option_name());
 
