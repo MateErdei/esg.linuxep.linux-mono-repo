@@ -1,0 +1,44 @@
+syntax = "proto2";
+
+package CommsMsgProto;
+
+message KeyValue
+{
+    required string Key = 1; 
+    required string Value = 2; 
+}
+
+message HttpRequest
+{
+   enum Method{
+        GET = 1; 
+        POST = 2; 
+    }
+    optional Method method = 1; 
+    optional string url = 2; 
+    optional string bodyContent = 3; 
+    optional string bodyFilePath = 4; 
+    optional int64 port = 5; 
+    optional bool proxyAllowed = 6; 
+    optional int64 timetout = 7;
+    repeated KeyValue headers = 8; 
+    repeated KeyValue params = 9;  
+}
+
+message HttpResponse
+{
+    optional int64 httpCode = 1; 
+    optional string description = 2; 
+    optional string bodyContent = 3; 
+    optional string bodyFilePath = 4; 
+    repeated KeyValue headers = 8;
+}
+
+
+message CommsMsg{
+    optional string id = 1; 
+    oneof content {
+        HttpRequest httpRequest = 10; 
+        HttpResponse httpResponse = 11; 
+    } 
+}

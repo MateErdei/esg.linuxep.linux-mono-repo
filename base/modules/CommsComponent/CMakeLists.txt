@@ -1,3 +1,5 @@
+include(proto/CMakeLists.txt)
+
 add_library(commscomponentimpl SHARED
         Comms.cpp
         Logger.cpp
@@ -13,10 +15,15 @@ add_library(commscomponentimpl SHARED
         ReactorAdapter.h
         ReactorAdapter.cpp
         OtherSideApi.h
-        OtherSideApi.cpp)
+        OtherSideApi.cpp
+        ${COMMS_MSG_PROTO_SRC}
+        ${COMMS_MSG_PROTO_H}   
+        CommsMsg.h 
+        CommsMsg.cpp     
+        )
 
 
-target_link_libraries(commscomponentimpl PUBLIC logging processimpl securityutils utilityimpl)
+target_link_libraries(commscomponentimpl PUBLIC logging processimpl securityutils utilityimpl protobufutil)
 
 SET_TARGET_PROPERTIES( commscomponentimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
