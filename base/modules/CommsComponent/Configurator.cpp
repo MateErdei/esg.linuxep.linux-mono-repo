@@ -52,19 +52,11 @@ namespace CommsComponent
         //umask(S_IXUSR | S_IXGRP | S_IWGRP | S_IRWXO); // Read and write for the owner and read for group 027
 
         m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_childUser.logName));
-
-        //ToDo LINUXDAR-1954
-        // bind mount dirs = {"/lib","/usr/lib"};
-        // bind mount file /etc/resolv.cof", "/etc/hosts" "/etc/ssl/ca-certificate.crt"};        //mount bind a file mount -o ro myfile destdir/myfile
-
-
     }
 
-    CommsConfigurator::CommsConfigurator(const std::string &newRoot, UserConf childUser,
+    CommsConfigurator::CommsConfigurator(const std::string& newRoot, UserConf childUser,
                                          UserConf parentUser)
-            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser))
-    {
-    }
+            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)) {}
 
     void CommsConfigurator::setupLoggingFiles()
     {
@@ -75,9 +67,9 @@ namespace CommsComponent
             std::vector<Path> loggingDirectories = {"base", "base/etc/", "logs", "logs/base"};
             for (auto &dirpath : loggingDirectories)
             {
-                std::string path = Common::FileSystem::join(m_chrootDir, dirpath); 
+                std::string path = Common::FileSystem::join(m_chrootDir, dirpath);
                 Common::FileSystem::fileSystem()->makedirs(path);
-                Common::FileSystem::filePermissions()->chown(path,m_childUser.userName, m_childUser.userGroup); 
+                Common::FileSystem::filePermissions()->chown(path,m_childUser.userName, m_childUser.userGroup);
             }
             std::stringstream logName;
 
@@ -87,11 +79,12 @@ namespace CommsComponent
             Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, 440,
                                                                         m_childUser.userName, m_childUser.userGroup);
 
-            std::cout << "coppied config file correctly " << std::endl;
         }
         catch (const std::exception &ex)
         {
-            std::cout << "Failed to configure logging " << ex.what() << std::endl;
+            std::stringstream errMsg;
+            errMsg << "Failed to configure logging " << ex.what();
+            perror(errMsg.str().c_str());
         }
     }
 }
