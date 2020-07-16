@@ -37,8 +37,6 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     announceThreadStarted();
     LOGINFO("Starting sophos_thread_detector monitor");
 
-    bool terminate;
-
     auto process = Common::Process::createProcess();
 
     process->setNotifyProcessFinishedCallBack(
@@ -56,6 +54,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
     while (true)
     {
+        bool terminate;
+
         // Check if we should terminate before doing anything else
         terminate = stopRequested();
         if (terminate)
