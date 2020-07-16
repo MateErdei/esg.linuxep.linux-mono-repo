@@ -120,6 +120,7 @@ MTR Plugin Restarts Fake MTR Agent When It Stops Unexpectedly
     Check Intended Fault Injection Argument Was Used  ${run}
 
 MDR Plugin Restarts MDR Agent When It Stops On Its Own
+    [Tags]  SMOKE  MDR_PLUGIN  FAULTINJECTION
     Create Fake Sophos MDR Executable With Pick Your Poison  ${exit}
     Wait for MDR Executable To Be Running
     Wait Until Keyword Succeeds
