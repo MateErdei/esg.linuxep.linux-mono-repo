@@ -19,6 +19,11 @@ namespace CommsComponent
     {
         std::string path2File;
     };
+    class InvalidCommsMsgException : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
 
     using MapValues = std::map<std::string, std::string>; 
     using BodyOption = std::variant<Body, BodyFile>;
@@ -40,7 +45,7 @@ namespace CommsComponent
         int httpCode; 
         std::string description;
         BodyOption bodyOption; 
-        MapValues header;  
+        MapValues headers;
     };
     
     struct CommsMsg
@@ -48,6 +53,6 @@ namespace CommsComponent
         static CommsMsg fromString(const std::string & ); 
         static std::string serialize(const CommsMsg& ); 
         std::string id; 
-        std::variant<HttpRequest, HttpResponse> content; 
+        std::variant<HttpRequest, HttpResponse> content;
     };    
 }

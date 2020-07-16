@@ -6,9 +6,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "CommsMsg.h"
 #include <CommsMsg.pb.h>
 
-namespace{
+namespace
+{
+
     using namespace CommsComponent;
-    struct CommsMsgVisitorSerializer{
+
+    struct CommsMsgVisitorSerializer
+    {
         CommsMsgProto::CommsMsg & m_msg; 
         CommsMsgVisitorSerializer(CommsMsgProto::CommsMsg& msg): m_msg(msg){}
         void operator()(const HttpResponse& httpResponse)
@@ -24,6 +28,14 @@ namespace{
             {
                 proto->set_bodyfilepath( std::get<CommsComponent::BodyFile>(httpResponse.bodyOption).path2File ); 
             }
+            for (auto & pairEntry : httpResponse.headers)
+            {
+                CommsMsgProto::KeyValue keyValue;
+                keyValue.set_key(pairEntry.first);
+                keyValue.set_value(pairEntry.second);
+                proto->mutable_headers()->Add(dynamic_cast<CommsMsgProto::KeyValue &&>(keyValue));
+            }
+
         }
         void operator()(const HttpRequest& httpRequest)
         {
@@ -50,9 +62,25 @@ namespace{
 
             proto->set_proxyallowed(httpRequest.proxyAllowed);
 
-            proto->set_timetout(httpRequest.timeout); 
+            proto->set_timetout(httpRequest.timeout);
+            for (auto & pairEntry : httpRequest.headers)
+            {
+                CommsMsgProto::KeyValue keyValue;
+                keyValue.set_key(pairEntry.first);
+                keyValue.set_value(pairEntry.second);
+                proto->mutable_headers()->Add(dynamic_cast<CommsMsgProto::KeyValue &&>(keyValue));
+            }
         }
     };
+
+//      CommsComponent::HttpRequest from(const CommsMsgProto::HttpRequest&)
+//      {
+//          return {};
+//      }
+//      CommsComponent::HttpResponse from(const CommsMsgProto::HttpResponse&)
+//    {
+//          return {};
+//    }
 
 /*    TelemetryRequest from(const CommsMsgProto::TelemetryRequest& proto)
     {
@@ -67,14 +95,6 @@ namespace{
         return diagnoseRequest;         
     }
 
-    NetworkResponse from(const CommsMsgProto::NetWorkResponse& proto)
-    {
-        CommsComponent::NetworkResponse networkResponse; 
-        
-        (void) proto;
-        // FIXME
-        return networkResponse; 
-    }
 */
 
 }
@@ -104,10 +124,6 @@ namespace CommsComponent{
             // {
             //     commsMsg.content = from(protoMsg.telemetryrequest()); 
             // } 
-            // else if( protoMsg.has_networkresponse())
-            // {
-            //     commsMsg.content = from(protoMsg.networkresponse());
-            // }
             // else
             // {
             //     throw std::logic_error("Developer forgot to implement one of the fields");
