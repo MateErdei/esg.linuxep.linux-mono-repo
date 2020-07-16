@@ -8,8 +8,6 @@ Library         String
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
-Resource    ../shared/BaseResources.robot
-Resource    ../shared/FakeManagementResources.robot
 
 Test Teardown  Threat Detector Test Teardown
 
@@ -30,8 +28,8 @@ Start AV
     Check AV Plugin Installed
     # wait for AV Plugin to initialize
     Wait Until Keyword Succeeds
-        ...  3 secs
-        ...  0.3 secs
+        ...  30 secs
+        ...  2 secs
         ...  Threat Detector Log Contains  UnixSocket <> Listener started
 
 Stop AV
