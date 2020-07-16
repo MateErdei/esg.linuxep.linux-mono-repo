@@ -3,4 +3,4 @@ protobuf
 pytest-html
 Cython
 pycapnp
-robotframework
+robotframework>=3.1

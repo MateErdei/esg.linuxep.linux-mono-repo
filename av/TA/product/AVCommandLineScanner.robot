@@ -202,8 +202,9 @@ CLS Encoded Eicars
 
    ${FILE_CONTENT}=    Get File  ${SUPPORT_FILES_PATH}/list_of_expected_encoded_eicars
    @{eicar_names_list}=    Split to lines  ${FILE_CONTENT}
-   :FOR    ${item}  IN  @{eicar_names_list}
-   \   AV Plugin Log Contains  ${item}
+   FOR  ${item}  IN  @{eicar_names_list}
+        AV Plugin Log Contains  ${item}
+   END
 
    Remove Directory  /tmp/encoded_eicars  true
 
