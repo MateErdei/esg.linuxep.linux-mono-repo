@@ -28,7 +28,7 @@ void unixsocket::writeLength(int socketfd, unsigned length)
     bytes_written = ::write(socketfd, buffer.get(), bytes.size());
     if (bytes_written != static_cast<ssize_t>(bytes.size()))
     {
-        throw std::runtime_error("Failed to write length to socket");
+        throw environmentInterruption();
     }
 }
 

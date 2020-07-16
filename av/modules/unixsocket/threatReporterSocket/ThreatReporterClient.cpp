@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ThreatReporterClient.h"
 
 #include "unixsocket/SocketUtils.h"
-
+#include "unixsocket/Logger.h"
 #include "datatypes/Print.h"
 #include "scan_messages/ThreatDetected.h"
 #include <ScanResponse.capnp.h>
@@ -49,8 +49,14 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
     assert(m_socket_fd >= 0);
     std::string dataAsString = detection.serialise();
 
-    if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
+    try
     {
-        handle_error("Failed to write capn buffer to unix socket");
+        if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
+        {
+            handle_error("Failed to write capn buffer to unix socket");
+        }
+    }
+    catch (unixsocket::environmentInterruption& e) {
+        LOGERROR("Threat Report Client cannot write to socket: " << e.what());
     }
 }

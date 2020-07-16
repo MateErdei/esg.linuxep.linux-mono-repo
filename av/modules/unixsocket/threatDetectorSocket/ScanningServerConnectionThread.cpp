@@ -233,9 +233,16 @@ void unixsocket::ScanningServerConnectionThread::run()
 
             std::string serialised_result = result.serialise();
 
-            if (!writeLengthAndBuffer(socket_fd, serialised_result))
+            try
             {
-                LOGERROR("Failed to write result to unix socket");
+                if (!writeLengthAndBuffer(socket_fd, serialised_result))
+                {
+                    LOGERROR("Failed to write result to unix socket");
+                }
+            }
+            catch (unixsocket::environmentInterruption& e) {
+                LOGERROR("Scanning Connection Thread Terminated: " << e.what());
+                break;
             }
         }
     }

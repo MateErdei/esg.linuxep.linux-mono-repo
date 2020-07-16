@@ -13,4 +13,12 @@ namespace unixsocket
     int readLength(int socketfd);
     void writeLength(int socketfd, unsigned length);
     bool writeLengthAndBuffer(int socketfd, const std::string& buffer);
+
+    struct environmentInterruption : public std::exception
+    {
+        [[nodiscard]] const char * what () const noexcept override
+        {
+            return "Environment interruption";
+        }
+    };
 }
