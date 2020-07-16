@@ -21,7 +21,7 @@ add_library(utilityimplobject OBJECT
         ConfigException.cpp
         ${CMAKE_CURRENT_BINARY_DIR}/ProjectNames.cpp
         SophosSplUsers.h
-        SophosSplusers.cpp
+        SophosSplUsers.cpp
         ISophosSplUsers.h)
 target_include_directories(utilityimplobject PUBLIC ../../Common ${CMAKE_CURRENT_SOURCE_DIR} ${CURL_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 add_library(utilityimpl SHARED $<TARGET_OBJECTS:utilityimplobject> )

@@ -121,12 +121,12 @@ namespace CommsComponent
         else
         {
             io_service.notify_fork(boost::asio::io_context::fork_parent);
-            boost::asio::signal_set signal_{io_service, SIGCHLD};
+            boost::asio::signal_set signalSet{io_service, SIGCHLD};
 
             childChannel->justShutdownSocket();
             OtherSideApi childService(std::move(parentChannel));
 
-            signal_.async_wait(
+            signalSet.async_wait(
                     [&](boost::system::error_code /*ec*/, int /*signo*/) {
                         parent.onOtherSideStop();
                     });

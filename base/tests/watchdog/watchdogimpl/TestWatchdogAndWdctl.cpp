@@ -221,7 +221,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
         }
         else
         {
-            EXPECT_THAT(logMessage, ::testing::HasSubstr("stop fakeplugin")) << "real message: " << logMessage;
+            EXPECT_THAT(logMessage, ::testing::HasSubstr("stop fakeplugin"));
         }
 
         EXPECT_EQ(watchdogRunner.stop(), 0);
