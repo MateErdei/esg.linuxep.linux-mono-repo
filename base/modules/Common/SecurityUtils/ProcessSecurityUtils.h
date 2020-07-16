@@ -44,12 +44,18 @@ namespace Common::SecurityUtils
      * setupJailAndGoIn & dropPriviges.
     * Errors: This method will cause the process to exit if it fails.
     */
-    void chrootAndDropPrivileges(const std::string &userName, const std::string &groupName,
-                                 const std::string &chrootDirPath);
+    void chrootAndDropPrivileges(const std::string& userName, const std::string& groupName,
+                                 const std::string& chrootDirPath);
 
     /*
      * Performs a user lookup and return struct with uid_t and git_t values
      */
-    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string &userName, const std::string &groupName);
+    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string& groupName);
+
+    void bindMountDirectory(const std::string& sourceDir, const std::string& targetDir);
+
+    void bindMountFiles(const std::string& sourceFile, const std::string& targetFile);
+
+    void unMount(const std::string& targetSpecialFile);
 
 } // namespace Common::SecurityUtils
