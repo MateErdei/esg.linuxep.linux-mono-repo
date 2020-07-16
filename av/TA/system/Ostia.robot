@@ -103,7 +103,7 @@ Start Management Agent
 
 Check Managment Agent Is Not Running
     ${result} =    Run Process  pgrep  sophos_managementagent
-    Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\n err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\n${SPACE}err: ${result.stderr}"
 
 Wait For Management Agent To Stop
     Wait Until Keyword Succeeds

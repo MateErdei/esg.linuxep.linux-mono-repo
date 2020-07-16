@@ -30,7 +30,7 @@ ${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml
 Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
-    Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\n stdout: \n ${result.stdout} \n. stderr: \n ${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
 
 Check Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
@@ -187,14 +187,14 @@ Uninstall and full reinstall
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
     ${result} =   Run Process   bash  -x  ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install base.\n output: \n${result.stdout}"
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to install base.\noutput: \n${result.stdout}"
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install AV Directly from SDDS
     ${install_log} =  Set Variable   /tmp/avplugin_install.log
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
     ${log_contents} =  Get File  ${install_log}
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\n output: \n${log_contents}"
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\noutput: \n${log_contents}"
 
 Check AV Plugin Installed With Base
     Check Plugin Installed and Running
