@@ -116,7 +116,8 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
             handle_error("Failed to write capn buffer to unix socket");
         }
     }
-    catch (unixsocket::environmentInterruption& e) {
+    catch (unixsocket::environmentInterruption& e)
+    {
         LOGERROR("Scanning Client Socket cannot write to socket: " << e.what());
         LOGERROR("Scan request not send to the socket : " << e.what());
         scan_messages::ScanResponse response;

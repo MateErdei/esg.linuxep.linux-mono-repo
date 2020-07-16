@@ -240,7 +240,8 @@ void unixsocket::ScanningServerConnectionThread::run()
                     LOGERROR("Failed to write result to unix socket");
                 }
             }
-            catch (unixsocket::environmentInterruption& e) {
+            catch (unixsocket::environmentInterruption& e)
+            {
                 LOGERROR("Scanning Connection Thread Terminated: " << e.what());
                 break;
             }

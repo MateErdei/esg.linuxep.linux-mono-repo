@@ -56,7 +56,8 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
             handle_error("Failed to write capn buffer to unix socket");
         }
     }
-    catch (unixsocket::environmentInterruption& e) {
+    catch (unixsocket::environmentInterruption& e)
+    {
         LOGERROR("Threat Report Client cannot write to socket: " << e.what());
     }
 }
