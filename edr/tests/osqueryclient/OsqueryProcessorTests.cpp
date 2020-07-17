@@ -5,8 +5,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/TempDir.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Process/IProcess.h>
 #include <modules/livequery/Logger.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
@@ -28,7 +28,7 @@ namespace osquery
     FLAG(bool, decorations_top_level, false, "test");
 }
 
-class TestOSQueryProcessor : public ::testing::Test
+class TestOSQueryProcessor : public  LogOffInitializedTests
 {
 public:
     Tests::TempDir m_tempDir;
