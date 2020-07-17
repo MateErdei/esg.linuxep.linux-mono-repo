@@ -149,12 +149,6 @@ namespace Common::SecurityUtils
                              << std::strerror(errno);
                 std::cerr << errorMessage.str() << std::endl;
             }
-//            if (mount(sourceDir.c_str(), targetDir.c_str(), nullptr, MS_RDONLY | MS_REMOUNT, nullptr) == -1)
-//            {
-//                errorMessage << "Mount for '" << sourceDir << "' to path '" << targetDir << " failed. Reason: "
-//                             << std::strerror(errno);
-//                std::cerr << errorMessage.str() << std::endl;
-//            }
         }
         catch (const std::exception& ex)
         {
@@ -174,6 +168,12 @@ namespace Common::SecurityUtils
                              << std::strerror(errno);
                 std::cerr << errorMessage.str() << std::endl;
             }
+//            if (mount(sourceFile.c_str(), targetFile.c_str(), nullptr, MS_RDONLY | MS_REMOUNT, nullptr) == -1)
+//            {
+//                errorMessage << "Mount for '" << sourceFile << "' to path '" << targetFile << " failed. Reason: "
+//                             << std::strerror(errno);
+//                std::cerr << errorMessage.str() << std::endl;
+//            }
         }
         catch (const std::exception& ex)
         {
