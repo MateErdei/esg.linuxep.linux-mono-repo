@@ -19,6 +19,6 @@ namespace Common::HttpSender
     public:
         virtual ~IHttpSender() = default;
 
-        virtual int doHttpsRequest(RequestConfig& requestConfig) = 0;
+        virtual int doHttpsRequest(const RequestConfig& requestConfig) = 0;
     };
 } // namespace Common::HttpSender

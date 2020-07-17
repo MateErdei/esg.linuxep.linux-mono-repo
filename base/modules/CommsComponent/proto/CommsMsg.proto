@@ -2,39 +2,33 @@ syntax = "proto2";
 
 package CommsMsgProto;
 
+/*
 message KeyValue
 {
-    optional string Key = 1;
-    repeated string Value = 2;
+    required string Key = 1; 
+    required string Value = 2; 
 }
-
-message Config
-{
-    repeated KeyValue keyValue = 1;
-}
+*/
 
 message HttpRequest
 {
     optional string requestType = 1;
     optional string server = 2; 
     optional string resourcePath = 3;
-    optional string certPath = 4;
-    optional string bodyContent = 5;
-    //TODO LINUXDAR-1956 enable the below field
-    // optional string bodyFilePath = 6; This is to be used only for the serialization/deserialization to json between the communication with the distributor and the plugins.
-    optional int64 port = 7;
-    //TODO LINUXDAR-1953 - this field needs to be enabled for this ticket
-    // optional bool proxyAllowed = 8;
-    // optional int64 timeout = 9;
-    repeated string headers = 10;
-    // repeated KeyValue params = 11;
+    optional bytes bodyContent = 4; 
+    // optional string bodyFilePath = 5; This is to be used only for the serialization/deserialization to json between the communication with the distributor and the plugins.
+    optional int64 port = 6; 
+    // optional bool proxyAllowed = 7; 
+    // optional int64 timeout = 8;
+    repeated string headers = 9; 
+    // repeated KeyValue params = 10;  
 }
 
 message HttpResponse
 {
     optional int64 httpCode = 1; 
     optional string description = 2; 
-    optional string bodyContent = 3; 
+    optional bytes bodyContent = 3; 
     // optional string bodyFilePath = 4; 
     // repeated KeyValue headers = 8;
 }
@@ -45,6 +39,5 @@ message CommsMsg{
     oneof content {
         HttpRequest httpRequest = 10; 
         HttpResponse httpResponse = 11; 
-        Config config = 12;
-    }
+    } 
 }

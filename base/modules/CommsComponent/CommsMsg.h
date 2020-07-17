@@ -27,7 +27,7 @@ namespace CommsComponent
         static std::string serialize(const CommsMsg& ); 
 
         static std::string toJson(const Common::HttpSender::RequestConfig& ); 
-        static std::string toJson( Common::HttpSender::HttpResponse&  ); 
+        static std::string toJson( const Common::HttpSender::HttpResponse&  ); 
         static Common::HttpSender::RequestConfig requestConfigFromJson( const std::string & jsonContent); 
         static Common::HttpSender::HttpResponse httpResponseFromJson( const std::string & jsonContent); 
 

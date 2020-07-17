@@ -89,13 +89,13 @@ namespace Common::HttpSenderImpl
 
     HttpSender::~HttpSender() { m_curlWrapper->curlGlobalCleanup(); }
 
-    int HttpSender::doHttpsRequest(RequestConfig& requestConfig)
+    int HttpSender::doHttpsRequest(const RequestConfig& requestConfig)
     {
       Common::HttpSender::HttpResponse response = fetchHttpRequest(requestConfig, false); 
       return response.httpCode;   
     }
 
-    Common::HttpSenderImpl::HttpResponse HttpSender::fetchHttpRequest(RequestConfig& requestConfig, bool captureBody)
+    Common::HttpSenderImpl::HttpResponse HttpSender::fetchHttpRequest(const RequestConfig& requestConfig, bool captureBody)
     {
         using HttResponse = Common::HttpSender::HttpResponse; 
         auto onError=[this](int errorCode) -> HttResponse{ return HttpResponse{errorCode,  m_curlWrapper->curlEasyStrError(static_cast<CURLcode>(errorCode))}; }; 

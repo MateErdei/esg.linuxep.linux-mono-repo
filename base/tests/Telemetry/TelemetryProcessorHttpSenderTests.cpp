@@ -46,7 +46,7 @@ public:
     std::unique_ptr<RequestConfig> m_defaultExpectedRequestConfig;
     Tests::ScopedReplaceFileSystem m_replacer; 
 
-    int CompareRequestConfig(RequestConfig& requestConfig)
+    int CompareRequestConfig(const RequestConfig& requestConfig)
     {
         EXPECT_EQ(requestConfig.getCertPath(), m_defaultExpectedRequestConfig->getCertPath());
         EXPECT_EQ(requestConfig.getAdditionalHeaders(), m_defaultExpectedRequestConfig->getAdditionalHeaders());
@@ -55,19 +55,19 @@ public:
         return 0;
     }
 
-    int CompareGetRequestConfig(RequestConfig& requestConfig)
+    int CompareGetRequestConfig(const RequestConfig& requestConfig)
     {
         EXPECT_EQ(requestConfig.getRequestTypeAsString(), "GET");
         return CompareRequestConfig(requestConfig);
     }
 
-    int ComparePostRequestConfig(RequestConfig& requestConfig)
+    int ComparePostRequestConfig(const RequestConfig& requestConfig)
     {
         EXPECT_EQ(requestConfig.getRequestTypeAsString(), "POST");
         return CompareRequestConfig(requestConfig);
     }
 
-    int ComparePutRequestConfig(RequestConfig& requestConfig)
+    int ComparePutRequestConfig(const RequestConfig& requestConfig)
     {
         EXPECT_EQ(requestConfig.getRequestTypeAsString(), "PUT");
         return CompareRequestConfig(requestConfig);

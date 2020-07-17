@@ -161,7 +161,7 @@ namespace CommsComponent{
             return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoMsg.httprequest()); 
         }
 
-        std::string CommsMsg::toJson( Common::HttpSender::HttpResponse& httpResponse   )
+        std::string CommsMsg::toJson( const Common::HttpSender::HttpResponse& httpResponse   )
         {
             CommsMsgProto::CommsMsg protoMsg;                       
             CommsMsgVisitorSerializer visitor{protoMsg};
