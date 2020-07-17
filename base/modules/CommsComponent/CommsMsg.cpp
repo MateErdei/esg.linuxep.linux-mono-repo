@@ -90,13 +90,13 @@ namespace CommsComponent{
         CommsMsg CommsMsg::fromString(const std::string & serializedString)
         {
             CommsMsgProto::CommsMsg protoMsg; 
-            if ( !protoMsg.ParseFromString(serializedString))
+            if (!protoMsg.ParseFromString(serializedString))
             {
-                throw std::runtime_error("failed");
+                throw InvalidCommsMsgException("failed");
             }
             if (!protoMsg.has_id())
             {
-                throw std::runtime_error("failed");                
+                throw InvalidCommsMsgException("failed");
             }
 
             CommsMsg commsMsg; 
@@ -104,13 +104,12 @@ namespace CommsComponent{
             if (protoMsg.has_httprequest())
             {
                 commsMsg.content = from(protoMsg.httprequest());
-                std::cout << "stuff";
-            }
 
+            }
             if(protoMsg.has_httpresponse())
             {
                 commsMsg.content = from(protoMsg.httpresponse());
-                std::cout << "stuff1";
+
             }
             // if (protoMsg.has_diagnoserequest())
             // {

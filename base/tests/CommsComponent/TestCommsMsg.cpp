@@ -45,7 +45,24 @@ CommsMsg serializeAndDeserialize(const CommsMsg& input)
 TEST_F(TestCommsMsg, DefaultCommsCanGoThroughSerializationAndDeserialization) // NOLINT
 {
     CommsMsg input;
-    // change something.
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, IDofCommsIsparsedCorrecltThroughtSerializationAndDeserialization) // NOLINT
+{
+    CommsMsg input;
+    input.id = "stuff";
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, bodyContentOfHttpResponseCanBeProcessesCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::HttpResponse httpResponse;
+    httpResponse.bodyContent = "stuff";
+    input.content = httpResponse;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
 }

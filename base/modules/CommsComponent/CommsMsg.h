@@ -11,7 +11,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <HttpSender/RequestConfig.h>
 #include <HttpSender/HttpResponse.h>
 namespace CommsComponent
-{    
+{
+    class InvalidCommsMsgException : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+
     struct CommsMsg
     {
         static CommsMsg fromString(const std::string & ); 

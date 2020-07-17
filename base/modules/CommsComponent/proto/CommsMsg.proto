@@ -10,11 +10,6 @@ message KeyValue
 }
 */
 
-message DefaultType
-{
-    optional int64 notUsed = 1;
-}
-
 message HttpRequest
 {
     optional string requestType = 1;
@@ -42,7 +37,6 @@ message HttpResponse
 message CommsMsg{
     optional string id = 1; 
     oneof content {
-        DefaultType empty = 9;
         HttpRequest httpRequest = 10; 
         HttpResponse httpResponse = 11; 
     } 
