@@ -30,6 +30,8 @@ class TestCommsMsg : public LogOffInitializedTests
     std::string actualContent = CommsComponent::CommsMsg::serialize(actual);
     if (actualContent != expectedContent)
     {
+        std::cout << "Expected content: " << expectedContent << std::endl;
+        std::cout << "Actual content: " << actualContent << std::endl;
         return ::testing::AssertionFailure() << s.str() << "the contents are not the same";
     }
 
@@ -57,12 +59,82 @@ TEST_F(TestCommsMsg, IDofCommsIsparsedCorrecltThroughtSerializationAndDeserializ
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
 }
 
-TEST_F(TestCommsMsg, bodyContentOfHttpResponseCanBeProcessesCorrectly) // NOLINT
+TEST_F(TestCommsMsg, bodyContentOfHttpResponseCanBeProcessedCorrectly) // NOLINT
 {
     CommsMsg input;
     Common::HttpSender::HttpResponse httpResponse;
     httpResponse.bodyContent = "stuff";
     input.content = httpResponse;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, httpCodeOfHttpResponseCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::HttpResponse httpResponse;
+    httpResponse.httpCode = 400;
+    input.content = httpResponse;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, descriptionOfHttpResponseCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::HttpResponse httpResponse;
+    httpResponse.description = "stuff";
+    input.content = httpResponse;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, bodyContentOfHttpRequestCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::RequestConfig requestConfig;
+    requestConfig.setData("stuff");
+    input.content = requestConfig;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, serverOfHttpRequestCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::RequestConfig requestConfig;
+    requestConfig.setServer("testserver.com");
+    input.content = requestConfig;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, resourcePathOfHttpRequestCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::RequestConfig requestConfig;
+    requestConfig.setResourcePath("/blah/blah1");
+    input.content = requestConfig;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, certPathOfHttpRequestCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::RequestConfig requestConfig;
+    requestConfig.setCertPath("/tmp/cert.pem");
+    input.content = requestConfig;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, portOfHttpRequestCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::RequestConfig requestConfig;
+    requestConfig.setPort(433);
+    input.content = requestConfig;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
 }

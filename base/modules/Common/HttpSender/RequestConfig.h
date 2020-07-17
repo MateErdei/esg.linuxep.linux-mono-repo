@@ -37,6 +37,7 @@ namespace Common::HttpSender
 
         void setData(const std::string& data);
         void setServer(const std::string& server);
+        void setPort(const int port);
         void setCertPath(const std::string& certPath);
         void setResourcePath(const std::string& resourcePath);
 

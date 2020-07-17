@@ -33,9 +33,9 @@ namespace
             proto->set_port(requestConfig.getPort());
 
             int index = 0;
-            for(auto header : requestConfig.getAdditionalHeaders())
+            for(const auto& header : requestConfig.getAdditionalHeaders())
             {
-                proto->set_headers(index,header);
+                proto->set_headers(index, header);
                 index++;
             }
             // proto->set_proxyallowed(httpRequest.proxyAllowed);
@@ -58,6 +58,7 @@ namespace
         requestConfig.setServer(requestProto.server());
         requestConfig.setResourcePath(requestProto.resourcepath());
         requestConfig.setData(requestProto.bodycontent());
+        requestConfig.setPort(requestProto.port());
         return requestConfig;
     }
     Common::HttpSender::HttpResponse from(const CommsMsgProto::HttpResponse& responseProto)
@@ -65,6 +66,7 @@ namespace
         Common::HttpSender::HttpResponse httpResponse;
         httpResponse.httpCode = responseProto.httpcode();
         httpResponse.bodyContent = responseProto.bodycontent();
+        httpResponse.description = responseProto.description();
         return httpResponse;
     }
 

@@ -66,6 +66,7 @@ namespace Common::HttpSender
     void RequestConfig::setData(const std::string& data) { m_data = data; }
 
     void RequestConfig::setServer(const std::string& server) { m_server = server; }
+    void RequestConfig::setPort(const int port) { m_port = port; }
 
     void RequestConfig::setCertPath(const std::string& certPath) { m_certPath = certPath; }
 
