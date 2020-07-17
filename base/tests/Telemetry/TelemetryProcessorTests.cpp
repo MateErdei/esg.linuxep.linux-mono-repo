@@ -25,7 +25,7 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 using ::testing::StrictMock;
 
-using namespace Common::HttpSenderImpl;
+using namespace Common::HttpSender;
 
 class TelemetryProcessorTest : public LogInitializedTests
 {

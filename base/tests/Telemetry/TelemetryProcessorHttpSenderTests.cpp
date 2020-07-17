@@ -21,7 +21,7 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 using ::testing::StrictMock;
 
-using namespace Common::HttpSenderImpl;
+using namespace Common::HttpSender;
 
 class TelemetryProcessorHttpSenderTests : public LogInitializedTests
 {
@@ -157,7 +157,7 @@ TEST_P(TelemetryProcessorHttpSenderTestsRequestTypes, httpsRequestReturnsSuccess
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    m_config->setVerb(Common::HttpSenderImpl::RequestConfig::requestTypeToString(requestType));
+    m_config->setVerb(Common::HttpSender::RequestConfig::requestTypeToString(requestType));
     Telemetry::TelemetryProcessor telemetryProcessor(m_config, std::move(m_httpSender), telemetryProviders);
 
     telemetryProcessor.Run();

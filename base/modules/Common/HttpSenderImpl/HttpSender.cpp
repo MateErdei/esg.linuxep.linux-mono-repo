@@ -71,8 +71,9 @@ namespace Common::HttpSenderImpl
 
     HttpSender::~HttpSender() { m_curlWrapper->curlGlobalCleanup(); }
 
-    int HttpSender::doHttpsRequest(RequestConfig& requestConfig)
+    int HttpSender::doHttpsRequest(Common::HttpSender::RequestConfig& requestConfig)
     {
+        using namespace Common::HttpSender;
         curl_slist* headers = nullptr;
 
         std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>> > curlOptions;

@@ -10,6 +10,7 @@ namespace
 {
 
     using namespace CommsComponent;
+    using namespace Common::HttpSender;
 
     struct CommsMsgVisitorSerializer
     {
@@ -20,70 +21,57 @@ namespace
             auto proto = m_msg.mutable_httpresponse(); 
             proto->set_httpcode(httpResponse.httpCode); 
             proto->set_description( httpResponse.description); 
-            if (std::holds_alternative<CommsComponent::Body>(httpResponse.bodyOption))
-            {
-                proto->set_bodycontent( std::get<CommsComponent::Body>(httpResponse.bodyOption).body ); 
-            }
-            else
-            {
-                proto->set_bodyfilepath( std::get<CommsComponent::BodyFile>(httpResponse.bodyOption).path2File ); 
-            }
-            for (auto & pairEntry : httpResponse.headers)
-            {
-                CommsMsgProto::KeyValue keyValue;
-                keyValue.set_key(pairEntry.first);
-                keyValue.set_value(pairEntry.second);
-                proto->mutable_headers()->Add(dynamic_cast<CommsMsgProto::KeyValue &&>(keyValue));
-            }
-
+            proto->set_bodycontent( httpResponse.bodyContent);
         }
-        void operator()(const HttpRequest& httpRequest)
+        void operator()(const RequestConfig& requestConfig)
         {
             auto proto = m_msg.mutable_httprequest();
 
-            if (std::holds_alternative<CommsComponent::Body>(httpRequest.bodyOption))
-            {
-                proto->set_bodycontent( std::get<CommsComponent::Body>(httpRequest.bodyOption).body ); 
-            }
-            else
-            {
-                proto->set_bodyfilepath( std::get<CommsComponent::BodyFile>(httpRequest.bodyOption).path2File ); 
-            }
-            proto->set_url(httpRequest.url);
-            proto->set_port(httpRequest.port); 
-            if (httpRequest.method == HttpRequest::Method::Post)
-            {
-                proto->set_method(CommsMsgProto::HttpRequest_Method_POST);
-            }
-            else
-            {
-                proto->set_method(CommsMsgProto::HttpRequest_Method_GET);
-            }
+            // if (std::holds_alternative<CommsComponent::Body>(httpRequest.bodyOption))
+            // {
+            //     proto->set_bodycontent( std::get<CommsComponent::Body>(httpRequest.bodyOption).body ); 
+            // }
+            // else
+            // {
+            //     proto->set_bodyfilepath( std::get<CommsComponent::BodyFile>(httpRequest.bodyOption).path2File ); 
+            // }
+            //proto->set_url(httpRequest.url);
+            proto->set_port(requestConfig.getPort()); 
+            // if (requestConfig.method == HttpRequest::Method::Post)
+            // {
+            //     proto->set_method(CommsMsgProto::HttpRequest_Method_POST);
+            // }
+            // else
+            // {
+            //     proto->set_method(CommsMsgProto::HttpRequest_Method_GET);
+            // }
 
-            proto->set_proxyallowed(httpRequest.proxyAllowed);
+            // proto->set_proxyallowed(httpRequest.proxyAllowed);
 
-            proto->set_timetout(httpRequest.timeout);
-            for (auto & pairEntry : httpRequest.headers)
-            {
-                CommsMsgProto::KeyValue keyValue;
-                keyValue.set_key(pairEntry.first);
-                keyValue.set_value(pairEntry.second);
-                proto->mutable_headers()->Add(dynamic_cast<CommsMsgProto::KeyValue &&>(keyValue));
-            }
+            // proto->set_timetout(httpRequest.timeout);
+            // for (auto & pairEntry : httpRequest.headers)
+            // {
+            //     CommsMsgProto::KeyValue keyValue;
+            //     keyValue.set_key(pairEntry.first);
+            //     keyValue.set_value(pairEntry.second);
+            //     proto->mutable_headers()->Add(dynamic_cast<CommsMsgProto::KeyValue &&>(keyValue));
+            // }
         }
     };
 
-    CommsComponent::HttpRequest from(const CommsMsgProto::HttpRequest& requestProto)
+    Common::HttpSender::RequestConfig from(const CommsMsgProto::HttpRequest& requestProto)
     {
 
-        CommsComponent::HttpRequest httpRequest;
-        httpRequest.url = requestProto.url();
-        return httpRequest;
+        Common::HttpSender::RequestConfig requestConfig;
+        (void)requestProto;
+        //httpRequest.url = requestProto.url();
+        return requestConfig;
     }
-    CommsComponent::HttpResponse from(const CommsMsgProto::HttpResponse& responseProto)
+    Common::HttpSender::HttpResponse from(const CommsMsgProto::HttpResponse& responseProto)
     {
-        CommsComponent::HttpResponse httpResponse;
-        httpResponse.httpCode = responseProto.httpcode();
+        Common::HttpSender::HttpResponse httpResponse;
+        (void)responseProto;
+        //httpResponse.httpCode = responseProto.httpcode();
         return httpResponse;
     }
 

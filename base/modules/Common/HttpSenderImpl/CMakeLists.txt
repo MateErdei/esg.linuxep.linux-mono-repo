@@ -5,12 +5,13 @@ add_library(httpsenderimpl SHARED
         ../HttpSender/IHttpSender.h
         HttpSender.h
         HttpSender.cpp
-        RequestConfig.h
-        RequestConfig.cpp
+        ../HttpSender/RequestConfig.h
+        ../HttpSender/HttpResponse.h
+        ../HttpSender/RequestConfig.cpp
         Logger.h
         Logger.cpp)
 
-include_directories(httpsenderimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
+include_directories(httpsenderimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ../HttpSender)
 
 target_link_libraries(httpsenderimpl PUBLIC
         -L"${CMAKE_BINARY_DIR}/libs"

@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <sstream>
 
-namespace Common::HttpSenderImpl
+namespace Common::HttpSender
 {
     RequestConfig::RequestConfig(
         RequestType requestType,
@@ -71,19 +71,19 @@ namespace Common::HttpSenderImpl
 
     void RequestConfig::setResourcePath(const std::string& resourcePath) { m_resourcePath = resourcePath; }
 
-    RequestType RequestConfig::getRequestType() { return m_requestType; }
+    RequestType RequestConfig::getRequestType() const { return m_requestType; }
 
-    const std::string& RequestConfig::getCertPath() { return m_certPath; }
+    const std::string& RequestConfig::getCertPath() const { return m_certPath; }
 
-    const std::string& RequestConfig::getData() { return m_data; }
+    const std::string& RequestConfig::getData() const { return m_data; }
 
-    std::vector<std::string> RequestConfig::getAdditionalHeaders() { return m_additionalHeaders; }
+    std::vector<std::string> RequestConfig::getAdditionalHeaders() const { return m_additionalHeaders; }
 
-    const std::string& RequestConfig::getServer() { return m_server; }
+    const std::string& RequestConfig::getServer() const { return m_server; }
 
-    std::string RequestConfig::getRequestTypeAsString() { return requestTypeToString(m_requestType); }
+    std::string RequestConfig::getRequestTypeAsString() const { return requestTypeToString(m_requestType); }
 
-    const std::string& RequestConfig::getResourcePath() { return m_resourcePath; }
+    const std::string& RequestConfig::getResourcePath() const { return m_resourcePath; }
 
-    int RequestConfig::getPort() { return m_port; }
+    int RequestConfig::getPort() const { return m_port; }
 } // namespace Common::HttpSenderImpl

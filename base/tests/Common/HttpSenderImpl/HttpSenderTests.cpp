@@ -25,6 +25,7 @@ using ::testing::Return;
 using ::testing::StrictMock;
 
 using namespace Common::HttpSenderImpl;
+using namespace Common::HttpSender;
 
 class HttpSenderTest : public LogInitializedTests
 {

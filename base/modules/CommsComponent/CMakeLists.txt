@@ -23,7 +23,7 @@ add_library(commscomponentimpl SHARED
         )
 
 
-target_link_libraries(commscomponentimpl PUBLIC logging processimpl securityutils utilityimpl protobufutil)
+target_link_libraries(commscomponentimpl PUBLIC logging processimpl securityutils utilityimpl protobufutil httpsenderimpl)
 
 SET_TARGET_PROPERTIES( commscomponentimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

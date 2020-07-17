@@ -1,24 +1,19 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #pragma once
-
-#include "RequestConfig.h"
-
-#include <memory>
 #include <string>
 #include <vector>
 
 namespace Common::HttpSender
 {
-    class IHttpSender
+    struct HttpResponse
     {
-    public:
-        virtual ~IHttpSender() = default;
-
-        virtual int doHttpsRequest(RequestConfig& requestConfig) = 0;
+        int httpCode; 
+        std::string description;
+        std::string bodyContent; 
     };
-} // namespace Common::HttpSender
+}

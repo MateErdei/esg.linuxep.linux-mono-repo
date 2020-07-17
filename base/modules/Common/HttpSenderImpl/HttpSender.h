@@ -25,7 +25,7 @@ namespace Common::HttpSenderImpl
         HttpSender& operator=(const HttpSender&) = delete;
         ~HttpSender() override;
 
-        int doHttpsRequest(RequestConfig& requestConfig) override;
+        int doHttpsRequest(Common::HttpSender::RequestConfig& requestConfig) override;
 
     private:
         CURLcode setCurlOptions(

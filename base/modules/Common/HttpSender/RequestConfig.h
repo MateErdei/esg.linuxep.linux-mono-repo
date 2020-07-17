@@ -12,7 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace Common::HttpSenderImpl
+namespace Common::HttpSender
 {
     enum class RequestType
     {
@@ -32,8 +32,7 @@ namespace Common::HttpSenderImpl
             const std::string& certPath,
             const std::string& resourcePath);
 
-        RequestConfig(const RequestConfig&) = delete;
-        RequestConfig& operator=(const RequestConfig&) = delete;
+        RequestConfig() = default; 
         ~RequestConfig() = default;
 
         void setData(const std::string& data);
@@ -41,14 +40,14 @@ namespace Common::HttpSenderImpl
         void setCertPath(const std::string& certPath);
         void setResourcePath(const std::string& resourcePath);
 
-        const std::string& getData();
-        std::vector<std::string> getAdditionalHeaders();
-        RequestType getRequestType();
-        const std::string& getCertPath();
-        const std::string& getServer();
-        const std::string& getResourcePath();
-        std::string getRequestTypeAsString();
-        int getPort();
+        const std::string& getData() const;
+        std::vector<std::string> getAdditionalHeaders() const;
+        RequestType getRequestType() const;
+        const std::string& getCertPath() const;
+        const std::string& getServer() const;
+        const std::string& getResourcePath() const ;
+        std::string getRequestTypeAsString() const;
+        int getPort() const;
 
         static RequestType stringToRequestType(const std::string& requestType);
         static std::string requestTypeToString(RequestType requestType);
@@ -58,8 +57,8 @@ namespace Common::HttpSenderImpl
         std::vector<std::string> m_additionalHeaders;
 
         std::string m_server;
-        int m_port;
-        RequestType m_requestType;
+        int m_port = 0;
+        RequestType m_requestType = RequestType::GET;
         std::string m_certPath;
         std::string m_resourcePath;
     };

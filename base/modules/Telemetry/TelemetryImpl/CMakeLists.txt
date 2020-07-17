@@ -16,7 +16,7 @@ add_library(telemetryimpl SHARED
         BaseTelemetryReporter.cpp
         BaseTelemetryReporter.h)
 
-include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json ../../ManagementAgent ${BOOST_INCLUDE_DIR})
+include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json ../../ManagementAgent ${BOOST_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/Common/modules/HttpSender)
 
 target_link_libraries(telemetryimpl PUBLIC
         telemetryloggerimpl
