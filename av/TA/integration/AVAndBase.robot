@@ -185,8 +185,11 @@ AV Plugin Reports encoded eicars To Base
 
    Log To Console  ${output}
 
-   Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
-   Run Process    /usr/local/bin/avscanner  /tmp/encoded_eicars/  timeout=120s
+   ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
+   Should Be Equal As Integers  ${result.rc}  0
+
+   ${result} =  Run Process  /usr/local/bin/avscanner  /tmp/encoded_eicars/  timeout=120s
+   Should Be Equal As Integers  ${result.rc}  69
 
    #make sure base has generated all events before checking
    Wait Until Keyword Succeeds

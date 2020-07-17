@@ -11,15 +11,12 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 
 *** Keywords ***
+
 Start AV
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Test Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
-    # wait for AV Plugin to initialize
-    Wait Until Keyword Succeeds
-        ...  1 secs
-        ...  0.1 secs
-        ...  Threat Detector Log Contains  UnixSocket <> Listener started
+    Wait until threat detector running
 
 Stop AV
      ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
@@ -193,8 +190,10 @@ CLS Creates Threat Report
 CLS Encoded Eicars
    Start AV
 
-   Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
-   Run Process    ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
+   ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
+   Should Be Equal As Integers  ${result.rc}  0
+   ${result} =  Run Process  {CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
+   Should Be Equal As Integers  ${result.rc}  69
 
    # Once CORE-1517 has been fixed, uncomment the check below
    #Threat Detector Does Not Log Contain  Failed to parse response from SUSI

@@ -103,6 +103,17 @@ Threat Detector Log Contains
     [Arguments]  ${input}
     File Log Contains  ${THREAT_DETECTOR_LOG_PATH}   ${input}
 
+Threat Detector Does Not Log Contain
+    [Arguments]  ${input}
+    File Log Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  ${input}
+
+Wait until threat detector running
+    # wait for AV Plugin to initialize
+    Wait Until Keyword Succeeds
+        ...  20 secs
+        ...  1 secs
+        ...  Threat Detector Log Contains  UnixSocket <> Listener started
+
 Increase Threat Detector Log To Max Size
     increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}
 
@@ -156,6 +167,7 @@ Check Plugin Installed and Running
     ...  15 secs
     ...  3 secs
     ...  Plugin Log Contains  ${COMPONENT} <> Entering the main loop
+    Wait until threat detector running
 
 Check AV Plugin Installed
     Check Plugin Installed and Running
