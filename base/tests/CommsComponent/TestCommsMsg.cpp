@@ -44,14 +44,14 @@ CommsMsg serializeAndDeserialize(const CommsMsg& input)
     return CommsComponent::CommsMsg::fromString(serialized);
 }
 
-TEST_F(TestCommsMsg, DefaultCommsCanGoThroughSerializationAndDeserialization) // NOLINT
+TEST_F(TestCommsMsg, DefaultCommsCanBeProcessedCorrectly) // NOLINT
 {
     CommsMsg input;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
 }
 
-TEST_F(TestCommsMsg, IDofCommsIsparsedCorrecltThroughtSerializationAndDeserialization) // NOLINT
+TEST_F(TestCommsMsg, IDofCommsCanBeProcessedCorrectly) // NOLINT
 {
     CommsMsg input;
     input.id = "stuff";
@@ -94,6 +94,28 @@ TEST_F(TestCommsMsg, bodyContentOfHttpRequestCanBeProcessedCorrectly) // NOLINT
     CommsMsg input;
     Common::HttpSender::RequestConfig requestConfig;
     requestConfig.setData("stuff");
+    input.content = requestConfig;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+TEST_F(TestCommsMsg, requestTypeOfHttpRequestCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::RequestConfig requestConfig;
+    requestConfig.setRequestTypeFromString("GET");
+    input.content = requestConfig;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+}
+
+TEST_F(TestCommsMsg, HeadersOfHttpRequestCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::RequestConfig requestConfig;
+    std::vector<std::string> headers;
+    headers.push_back("header");
+    headers.push_back("header1");
+    requestConfig.setAdditionalHeaders(headers);
     input.content = requestConfig;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
