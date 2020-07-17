@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <modules/CommsComponent/AsyncMessager.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 using namespace CommsComponent;
 
 struct MessagesAppender
@@ -32,8 +33,9 @@ struct MessagesAppender
         m_synchronizer.notify();
     }
 };
+class TestAsyncMessager : public LogOffInitializedTests{};
 
-TEST(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
+TEST_F(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -66,7 +68,7 @@ TEST(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
     EXPECT_EQ(fromm1, receivedMessages2.at(0));
 }
 
-TEST(TestAsyncMessager, Utf8MessagesArePreserved) // NOLINT
+TEST_F(TestAsyncMessager, Utf8MessagesArePreserved) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -93,7 +95,7 @@ TEST(TestAsyncMessager, Utf8MessagesArePreserved) // NOLINT
 }
 
 
-TEST(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOLINT
+TEST_F(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -130,7 +132,7 @@ TEST(TestAsyncMessager, messagesWithDifferentSizesCanBeSentAndReceived) // NOLIN
     }
 }
 
-TEST(TestAsyncMessager, reconstructedMessageShouldBeTheSameASOriginal) // NOLINT
+TEST_F(TestAsyncMessager, reconstructedMessageShouldBeTheSameASOriginal) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -160,7 +162,7 @@ TEST(TestAsyncMessager, reconstructedMessageShouldBeTheSameASOriginal) // NOLINT
     ASSERT_EQ(receivedMessages2.at(0), message);
 }
 
-TEST(TestAsyncMessager, shouldSupportBinaryMessagesAsWell) // NOLINT
+TEST_F(TestAsyncMessager, shouldSupportBinaryMessagesAsWell) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -200,7 +202,7 @@ TEST(TestAsyncMessager, shouldSupportBinaryMessagesAsWell) // NOLINT
 }
 
 
-TEST(TestAsyncMessager, anySideShouldBeAbleToStopTheCommunication) // NOLINT
+TEST_F(TestAsyncMessager, anySideShouldBeAbleToStopTheCommunication) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -230,7 +232,7 @@ TEST(TestAsyncMessager, anySideShouldBeAbleToStopTheCommunication) // NOLINT
 }
 
 
-TEST(TestAsyncMessager, asyncMessagersShouldBeResistentToExceptionsTriggeredIntheCallBack) // NOLINT
+TEST_F(TestAsyncMessager, asyncMessagersShouldBeResistentToExceptionsTriggeredIntheCallBack) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
@@ -261,7 +263,7 @@ TEST(TestAsyncMessager, asyncMessagersShouldBeResistentToExceptionsTriggeredInth
 }
 
 
-TEST(TestAsyncMessager, emptyMessagesWillBeRejectedAndNotTransmitted) // NOLINT
+TEST_F(TestAsyncMessager, emptyMessagesWillBeRejectedAndNotTransmitted) // NOLINT
 {
     using ListStrings = std::vector<std::string>;
     boost::asio::io_service m_io;
