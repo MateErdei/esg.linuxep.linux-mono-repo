@@ -4,6 +4,7 @@ import time
 import grp
 import pwd
 import glob
+import xml.etree.ElementTree
 
 import logging
 logger = logging.getLogger("AVPlugin")
@@ -37,6 +38,13 @@ def _file_content(path):
     with open(path, 'r') as f:
         return f.read()
 
+def _is_event_xml(path):
+    tree = xml.etree.ElementTree.parse(path)
+    root = tree.getroot()
+    if root.tag == "event" or root.tag == "{http://www.sophos.com/EE/EESavEvent}event":
+        return True
+    logger.info("%s has root element: %s", path, root.tag)
+    return False
 
 class AVPlugin(object):
     def __init__(self):
@@ -136,3 +144,28 @@ class AVPlugin(object):
         latest_xml = max(xml_files, key=os.path.getctime)
         return latest_xml
 
+    @staticmethod
+    def get_latest_event_xml_from_events(relative_path, after=None):
+        if after is None or after == "":
+            after = 0
+        else:
+            after = int(after)
+
+        full_path = os.path.join(_sophos_spl_path(), relative_path)
+        xml_files = glob.iglob(f'{full_path}/SAV_event-*.xml')
+        current_xml_files = [ x for x in xml_files if os.path.getctime(x) >= after ]
+        if len(current_xml_files) == 0:
+            logger.fatal("All %d XML files older than %d", len(xml_files), after)
+            raise Exception("No XML files after %d", after)
+
+        xml_files = current_xml_files
+        xml_files.sort(key=os.path.getctime, reverse=True)
+        logger.debug("Found %d XML files", len(xml_files))
+        for xml_file in xml_files:
+            if _is_event_xml(xml_file):
+                logger.debug("Found Event XML %s", xml_file)
+                return xml_file
+            else:
+                logger.info("Ignoring %s as not event XML", xml_file)
+        logger.fatal("No event XML found")
+        raise Exception("No Event XML found")

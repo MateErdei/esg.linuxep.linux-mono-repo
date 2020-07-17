@@ -31,7 +31,9 @@ Check scan now
     AV Plugin Log Contains  Starting scan Scan Now
 
 Validate latest Event
-     ${eventXml}=  get_latest_xml_from_events  base/mcs/event/
-     Log File  ${eventXml}
-     ${parsedXml}=  parse xml  ${eventXml}
-     ELEMENT TEXT SHOULD MATCH  source=${parsedXml}  pattern=Scan Now  normalize_whitespace=True  xpath=scanComplete
+    [Arguments]  ${now}
+    ${eventXml}=  get_latest_event_xml_from_events  base/mcs/event/  ${now}
+    Log File  ${eventXml}
+    ${parsedXml}=  parse xml  ${eventXml}
+    Should Be Equal  ${parsedXml.tag}  event
+    ELEMENT TEXT SHOULD MATCH  source=${parsedXml}  pattern=Scan Now  normalize_whitespace=True  xpath=scanComplete
