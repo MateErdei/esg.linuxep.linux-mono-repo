@@ -29,7 +29,6 @@ namespace
             proto->set_bodycontent(requestConfig.getData());
             proto->set_server(requestConfig.getServer());
             proto->set_resourcepath(requestConfig.getResourcePath());
-            proto->set_certpath(requestConfig.getCertPath());
             proto->set_requesttype(requestConfig.getRequestTypeAsString());
             proto->set_port(requestConfig.getPort());
 
@@ -37,32 +36,25 @@ namespace
             {
                 proto->add_headers(header);
             }
-        }
-        void operator()(const CommsComponent::CommsConfig& config)
-        {
-            auto proto = m_msg.mutable_config();
+            // proto->set_proxyallowed(httpRequest.proxyAllowed);
 
-            std::map<std::string,std::vector<std::string>> key_list = config.getKeyList();
-            for (auto [key,list] : key_list)
-            {
-                CommsMsgProto::KeyValue keyvalue;
-                keyvalue.set_key(key);
-                for (const auto& value: list)
-                {
-                    keyvalue.add_value(value);
-                }
-                (*proto->add_keyvalue()) = keyvalue;
-            }
+            // proto->set_timetout(httpRequest.timeout);
+            // for (auto & pairEntry : httpRequest.headers)
+            // {
+            //     CommsMsgProto::KeyValue keyValue;
+            //     keyValue.set_key(pairEntry.first);
+            //     keyValue.set_value(pairEntry.second);
+            //     proto->mutable_headers()->Add(dynamic_cast<CommsMsgProto::KeyValue &&>(keyValue));
+            // }
         }
     };
 
     Common::HttpSender::RequestConfig from(const CommsMsgProto::HttpRequest& requestProto)
     {
+
         Common::HttpSender::RequestConfig requestConfig;
-        requestConfig.setRequestTypeFromString(requestProto.requesttype());
         requestConfig.setServer(requestProto.server());
         requestConfig.setResourcePath(requestProto.resourcepath());
-        requestConfig.setCertPath(requestProto.certpath());
         requestConfig.setData(requestProto.bodycontent());
         requestConfig.setPort(requestProto.port());
         std::vector<std::string> headers; 
@@ -82,22 +74,20 @@ namespace
         return httpResponse;
     }
 
-    CommsConfig from(const CommsMsgProto::Config& configProto)
+/*    TelemetryRequest from(const CommsMsgProto::TelemetryRequest& proto)
     {
-        CommsConfig config;
-        for (const auto& pair : configProto.keyvalue())
-        {
-
-            std::vector<std::string> values;
-            for (const auto& value : pair.value())
-            {
-                values.emplace_back(value);
-            }
-            config.addKeyValueToList(std::pair<std::string,std::vector<std::string>>(pair.key(),values));
-
-        }
-        return config;
+        CommsComponent::TelemetryRequest telemetryRequest; 
+        telemetryRequest.telemetryContent = proto.telemetrycontent(); 
+        return telemetryRequest; 
     }
+    DiagnoseRequest from(const CommsMsgProto::DiagnoseRequest& proto)
+    {
+        CommsComponent::DiagnoseRequest diagnoseRequest; 
+        diagnoseRequest.diagnoseContent = proto.diagnosecontent(); 
+        return diagnoseRequest;         
+    }
+
+*/
 
 }
 
@@ -120,25 +110,31 @@ namespace CommsComponent{
             if (protoMsg.has_httprequest())
             {
                 commsMsg.content = from(protoMsg.httprequest());
-            }
 
+            }
             if(protoMsg.has_httpresponse())
             {
                 commsMsg.content = from(protoMsg.httpresponse());
-            }
 
-            if(protoMsg.has_config())
-            {
-                commsMsg.content = from(protoMsg.config());
             }
-
+            // if (protoMsg.has_diagnoserequest())
+            // {
+            //     commsMsg.content = from(protoMsg.diagnoserequest()); 
+            // }
+            // else if( protoMsg.has_telemetryrequest())
+            // {
+            //     commsMsg.content = from(protoMsg.telemetryrequest()); 
+            // } 
+            // else
+            // {
+            //     throw std::logic_error("Developer forgot to implement one of the fields");
+            // }
             return commsMsg; 
         }
 
         std::string CommsMsg::serialize(const CommsMsg& commsMsg)
         {
             CommsMsgProto::CommsMsg protoMsg; 
-            
             protoMsg.set_id(commsMsg.id); 
             
             CommsMsgVisitorSerializer visitor{protoMsg}; 
