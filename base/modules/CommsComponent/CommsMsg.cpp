@@ -73,14 +73,16 @@ namespace
         }
     };
 
-//      CommsComponent::HttpRequest from(const CommsMsgProto::HttpRequest&)
-//      {
-//          return {};
-//      }
-//      CommsComponent::HttpResponse from(const CommsMsgProto::HttpResponse&)
-//    {
-//          return {};
-//    }
+    CommsComponent::HttpRequest from(const CommsMsgProto::HttpRequest& request)
+    {
+        CommsComponent::HttpRequest httpRequest = (HttpRequest &&) request;
+        return httpRequest;
+    }
+    CommsComponent::HttpResponse from(const CommsMsgProto::HttpResponse& response)
+    {
+        CommsComponent::HttpResponse httpResponse = (HttpResponse &&) response;
+        return httpResponse;
+    }
 
 /*    TelemetryRequest from(const CommsMsgProto::TelemetryRequest& proto)
     {
@@ -115,7 +117,14 @@ namespace CommsComponent{
 
             CommsMsg commsMsg; 
             commsMsg.id = protoMsg.id(); 
-
+            if (protoMsg.has_httprequest())
+            {
+                commsMsg.content =from(protoMsg.httprequest());
+            }
+            if(protoMsg.has_httpresponse())
+            {
+                commsMsg.content = from(protoMsg.httpresponse());
+            }
             // if (protoMsg.has_diagnoserequest())
             // {
             //     commsMsg.content = from(protoMsg.diagnoserequest()); 

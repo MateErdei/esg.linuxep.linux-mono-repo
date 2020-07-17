@@ -18,13 +18,19 @@ class TestCommsMsg : public LogOffInitializedTests
         const char* m_expr,
         const char* n_expr,
         const CommsComponent::CommsMsg& expected,
-        const CommsComponent::CommsMsg& resulted) {
+        const CommsComponent::CommsMsg& actual) {
     std::stringstream s;
     s << m_expr << " and " << n_expr << " failed: ";
 
-    if (resulted.id != expected.id)
+    if (actual.id != expected.id)
     {
         return ::testing::AssertionFailure() << s.str() << "the ids are not the same";
+    }
+    std::string expectedContent = CommsComponent::CommsMsg::serialize(expected);
+    std::string actualContent = CommsComponent::CommsMsg::serialize(actual);
+    if (actualContent != expectedContent)
+    {
+        return ::testing::AssertionFailure() << s.str() << "the contents are not the same";
     }
 
     return ::testing::AssertionSuccess();
@@ -36,7 +42,7 @@ CommsMsg serializeAndDeserialize(const CommsMsg& input)
     return CommsComponent::CommsMsg::fromString(serialized);
 }
 
-TEST_F(TestCommsMsg, DefaultCommsCanGoThrhouSerializationAndDeserialization) // NOLINT
+TEST_F(TestCommsMsg, DefaultCommsCanGoThroughSerializationAndDeserialization) // NOLINT
 {
     CommsMsg input;
     // change something.
