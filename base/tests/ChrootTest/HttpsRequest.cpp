@@ -20,7 +20,7 @@ int main(/*int argc, char *argv[]*/)
     Common::Logging::FileLoggingSetup setup("chrootTest");
 
 //    const char *defaultServer = "t1.sophosupd.com";
-    const char *defaultServer2 = "https://www.google.com/";
+    const char *defaultServer2 = "google.com/";
     const int defaultPort = 443;
 
     std::shared_ptr<HttpSender> httpSender;
