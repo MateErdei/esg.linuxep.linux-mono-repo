@@ -9,6 +9,7 @@ from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZM
 from Libs.PluginCommunicationTools.common import PathsLocation
 from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
 
+import time
 
 class ManagementAgentPluginRequester(object):
     def __init__(self, plugin_name, logger):
@@ -127,6 +128,26 @@ class FakeManagement(object):
     def get_plugin_status(self, plugin_name, appid):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
         return plugin.get_status(appid)
+
+    def wait_for_plugin_status(self, plugin_name, appid, *texts):
+        timeout = 15
+        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+        deadline = time.time() + int(timeout)
+        status = "FAILED TO FETCH STATUS"
+
+        while time.time() < deadline:
+            status = plugin.get_status(appid)
+            good = True
+            for t in texts:
+                if t not in status:
+                    good = False
+                    break
+            if good:
+                return
+
+        self.logger.fatal("Plugin status didn't contain expected texts: %s", status)
+        raise Exception("Plugin status didn't contain expected texts")
+
 
     def get_plugin_telemetry(self, plugin_name):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
