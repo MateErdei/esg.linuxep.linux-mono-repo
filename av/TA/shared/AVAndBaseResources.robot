@@ -32,5 +32,6 @@ Check scan now
 
 Validate latest Event
      ${eventXml}=  get_latest_xml_from_events  base/mcs/event/
+     Log File  ${eventXml}
      ${parsedXml}=  parse xml  ${eventXml}
      ELEMENT TEXT SHOULD MATCH  source=${parsedXml}  pattern=Scan Now  normalize_whitespace=True  xpath=scanComplete
