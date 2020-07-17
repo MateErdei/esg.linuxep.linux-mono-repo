@@ -26,26 +26,18 @@ namespace
         void operator()(const RequestConfig& requestConfig)
         {
             auto proto = m_msg.mutable_httprequest();
+            proto->set_bodycontent(requestConfig.getData());
+            proto->set_server(requestConfig.getServer());
+            proto->set_resourcepath(requestConfig.getResourcePath());
+            proto->set_requesttype(requestConfig.getRequestTypeAsString());
+            proto->set_port(requestConfig.getPort());
 
-            // if (std::holds_alternative<CommsComponent::Body>(httpRequest.bodyOption))
-            // {
-            //     proto->set_bodycontent( std::get<CommsComponent::Body>(httpRequest.bodyOption).body ); 
-            // }
-            // else
-            // {
-            //     proto->set_bodyfilepath( std::get<CommsComponent::BodyFile>(httpRequest.bodyOption).path2File ); 
-            // }
-            //proto->set_url(httpRequest.url);
-            proto->set_port(requestConfig.getPort()); 
-            // if (requestConfig.method == HttpRequest::Method::Post)
-            // {
-            //     proto->set_method(CommsMsgProto::HttpRequest_Method_POST);
-            // }
-            // else
-            // {
-            //     proto->set_method(CommsMsgProto::HttpRequest_Method_GET);
-            // }
-
+            int index = 0;
+            for(auto header : requestConfig.getAdditionalHeaders())
+            {
+                proto->set_headers(index,header);
+                index++;
+            }
             // proto->set_proxyallowed(httpRequest.proxyAllowed);
 
             // proto->set_timetout(httpRequest.timeout);
@@ -63,15 +55,16 @@ namespace
     {
 
         Common::HttpSender::RequestConfig requestConfig;
-        (void)requestProto;
-        //httpRequest.url = requestProto.url();
+        requestConfig.setServer(requestProto.server());
+        requestConfig.setResourcePath(requestProto.resourcepath());
+        requestConfig.setData(requestProto.bodycontent());
         return requestConfig;
     }
     Common::HttpSender::HttpResponse from(const CommsMsgProto::HttpResponse& responseProto)
     {
         Common::HttpSender::HttpResponse httpResponse;
-        (void)responseProto;
-        //httpResponse.httpCode = responseProto.httpcode();
+        httpResponse.httpCode = responseProto.httpcode();
+        httpResponse.bodyContent = responseProto.bodycontent();
         return httpResponse;
     }
 
@@ -110,20 +103,14 @@ namespace CommsComponent{
             commsMsg.id = protoMsg.id(); 
             if (protoMsg.has_httprequest())
             {
-                //commsMsg.content =from(protoMsg.httprequest());
+                commsMsg.content = from(protoMsg.httprequest());
                 std::cout << "stuff";
             }
-            else
-                {
-                std::cout << "stuff1";
-                }
-            if (!protoMsg.ParseFromString(serializedString))
-            {
-                commsMsg.content =from(protoMsg.httprequest());
-            }
+
             if(protoMsg.has_httpresponse())
             {
                 commsMsg.content = from(protoMsg.httpresponse());
+                std::cout << "stuff1";
             }
             // if (protoMsg.has_diagnoserequest())
             // {
