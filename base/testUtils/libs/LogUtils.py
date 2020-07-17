@@ -575,6 +575,11 @@ class LogUtils(object):
         self.check_log_contains(string_to_contain, updatescheduler_log, "UpdateScheduler")
         logger.info(updatescheduler_log)
 
+    def check_management_agent_log_contains(self, string_to_contain):
+        log = self.managementagent_log()
+        self.check_log_contains(string_to_contain, log, "ManagementAgent")
+        logger.info(log)
+
 
 
     def check_watchdog_log_does_not_contain(self, string_to_not_contain):

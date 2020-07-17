@@ -757,6 +757,26 @@ Install Then Restart With master of base and edr and check EDR OSQuery Flags Fil
     ${OSQueryFlagsContentsAfterRestart} =  Get File  ${EDR_DIR}/etc/osquery.flags
     Should Contain  ${OSQueryFlagsContentsAfterRestart}  --disable_audit=false
 
+EDR Does Not Trigger Query On Update Now Action
+    [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT
+    Run Full Installer
+    Install EDR Directly
+    Wait Until OSQuery Running
+
+    ${edr_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    ${edr_length_1} =  Get Length  ${edr_log}
+
+    create file  ${SOPHOS_INSTALL}/tmp/ALC_action_timestamp.xml  content="content"
+    move file  ${SOPHOS_INSTALL}/tmp/ALC_action_timestamp.xml  /opt/sophos-spl/base/mcs/action
+
+    Check Management Agent Log Contains  Action /opt/sophos-spl/base/mcs/action/ALC_action_timestamp.xml sent to 1 plugins
+
+    ${edr_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    ${edr_length_2} =  Get Length  ${edr_log}
+
+    # Edr Should Not Have logged anything
+    Should Be Equal  ${edr_length_1}  ${edr_length_2}
+
 
 *** Keywords ***
 EDR Tests Teardown With Installed File Replacement
