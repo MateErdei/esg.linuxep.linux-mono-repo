@@ -38,16 +38,6 @@ namespace
                 proto->set_headers(index, header);
                 index++;
             }
-            // proto->set_proxyallowed(httpRequest.proxyAllowed);
-
-            // proto->set_timetout(httpRequest.timeout);
-            // for (auto & pairEntry : httpRequest.headers)
-            // {
-            //     CommsMsgProto::KeyValue keyValue;
-            //     keyValue.set_key(pairEntry.first);
-            //     keyValue.set_value(pairEntry.second);
-            //     proto->mutable_headers()->Add(dynamic_cast<CommsMsgProto::KeyValue &&>(keyValue));
-            // }
         }
     };
 
@@ -70,6 +60,7 @@ namespace
         return httpResponse;
     }
 
+    //TODO LINUXDAR-1956 the below is skeleton code for this ticket
 /*    TelemetryRequest from(const CommsMsgProto::TelemetryRequest& proto)
     {
         CommsComponent::TelemetryRequest telemetryRequest; 
@@ -113,6 +104,7 @@ namespace CommsComponent{
                 commsMsg.content = from(protoMsg.httpresponse());
 
             }
+            //TODO LINUXDAR-1956 the below is skeleton code for this ticket
             // if (protoMsg.has_diagnoserequest())
             // {
             //     commsMsg.content = from(protoMsg.diagnoserequest()); 

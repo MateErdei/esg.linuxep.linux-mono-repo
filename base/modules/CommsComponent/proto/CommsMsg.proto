@@ -15,9 +15,11 @@ message HttpRequest
     optional string requestType = 1;
     optional string server = 2; 
     optional string resourcePath = 3;
-    optional string bodyContent = 4; 
+    optional string bodyContent = 4;
+    //TODO LINUXDAR-1956 enable the below field
     // optional string bodyFilePath = 5; This is to be used only for the serialization/deserialization to json between the communication with the distributor and the plugins.
-    optional int64 port = 6; 
+    optional int64 port = 6;
+    //TODO LINUXDAR-1953 - this field needs to be enabled for this ticket
     // optional bool proxyAllowed = 7; 
     // optional int64 timeout = 8;
     repeated string headers = 9; 
