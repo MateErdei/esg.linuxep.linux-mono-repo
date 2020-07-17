@@ -125,7 +125,7 @@ namespace Common::SecurityUtils
         auto runAsUser = getUserIdAndGroupId(userName, groupName);
 
         //do user lookup before chroot
-        if (!runAsUser.has_value()||getuid() != 0U)
+        if (!runAsUser.has_value() || getuid() != 0U)
         {
             perror("Current user needs to be root and target user must exist");
             exit(EXIT_FAILURE);
