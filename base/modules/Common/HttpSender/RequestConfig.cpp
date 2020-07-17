@@ -64,6 +64,9 @@ namespace Common::HttpSender
     }
 
     void RequestConfig::setData(const std::string& data) { m_data = data; }
+    void RequestConfig::setRequestTypeFromString(const std::string & req){
+        m_requestType = stringToRequestType(req); 
+    }
 
     void RequestConfig::setServer(const std::string& server) { m_server = server; }
     void RequestConfig::setPort(const int port) { m_port = port; }

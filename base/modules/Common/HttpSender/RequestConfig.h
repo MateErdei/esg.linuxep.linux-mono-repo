@@ -35,6 +35,7 @@ namespace Common::HttpSender
         RequestConfig() = default; 
         ~RequestConfig() = default;
 
+        void setRequestTypeFromString(const std::string& ); 
         void setData(const std::string& data);
         void setServer(const std::string& server);
         void setPort(const int port);
