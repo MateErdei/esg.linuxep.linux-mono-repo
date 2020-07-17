@@ -26,7 +26,6 @@ namespace Common
             m_name(pluginName)
         {
             m_appIdCollection.setAppIdsForStatus({ pluginName });
-            m_appIdCollection.setAppIdsForPolicyAndActions({ pluginName });
             m_appIdCollection.setAppIdsForPolicy({ pluginName });
             m_appIdCollection.setAppIdsForActions({ pluginName });
 

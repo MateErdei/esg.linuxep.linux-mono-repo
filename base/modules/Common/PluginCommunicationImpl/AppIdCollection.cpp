@@ -10,11 +10,6 @@ namespace Common
 {
     namespace PluginCommunicationImpl
     {
-        void AppIdCollection::setAppIdsForPolicyAndActions(std::vector<std::string> appIds)
-        {
-            m_policySet.setEntries(std::move(appIds));
-        }
-
         void AppIdCollection::setAppIdsForPolicy(std::vector<std::string> appIds)
         {
             m_policySet.setEntries(std::move(appIds));

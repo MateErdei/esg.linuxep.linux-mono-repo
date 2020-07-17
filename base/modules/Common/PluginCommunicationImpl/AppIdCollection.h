@@ -23,7 +23,6 @@ namespace Common
 
         public:
             AppIdCollection() = default;
-            void setAppIdsForPolicyAndActions(std::vector<std::string> appIds);
             void setAppIdsForPolicy(std::vector<std::string> appIds);
             void setAppIdsForActions(std::vector<std::string> appIds);
             void setAppIdsForStatus(std::vector<std::string> appIds);
