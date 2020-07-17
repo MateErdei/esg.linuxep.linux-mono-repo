@@ -5,6 +5,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "CommsMsg.h"
 #include <CommsMsg.pb.h>
+#include <Common/ProtobufUtil/MessageUtility.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+#include <google/protobuf/util/json_util.h>
+
+#pragma GCC diagnostic pop
 
 namespace
 {
@@ -145,4 +152,49 @@ namespace CommsComponent{
             return protoMsg.SerializeAsString();  
         }
 
+
+        std::string CommsMsg::toJson(const Common::HttpSender::RequestConfig& requestConfig )
+        {
+            CommsMsgProto::CommsMsg protoMsg;                       
+            CommsMsgVisitorSerializer visitor{protoMsg};
+            visitor(requestConfig); 
+            return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoMsg.httprequest()); 
+        }
+
+        std::string CommsMsg::toJson( Common::HttpSender::HttpResponse& httpResponse   )
+        {
+            CommsMsgProto::CommsMsg protoMsg;                       
+            CommsMsgVisitorSerializer visitor{protoMsg};
+            visitor(httpResponse); 
+            return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoMsg.httpresponse());
+        }
+
+        Common::HttpSender::RequestConfig CommsMsg::requestConfigFromJson( const std::string & jsonContent)
+        {
+            CommsMsgProto::HttpRequest protoHttpRequest;
+            google::protobuf::util::JsonParseOptions jsonParseOptions;
+            jsonParseOptions.ignore_unknown_fields = true; 
+
+            auto status = google::protobuf::util::JsonStringToMessage(jsonContent, &protoHttpRequest, jsonParseOptions);
+
+            if (!status.ok())
+            {
+                throw InvalidCommsMsgException(std::string("Failed to load json string: ") + status.ToString());
+            }
+            return from(protoHttpRequest); 
+        } 
+        Common::HttpSender::HttpResponse CommsMsg::httpResponseFromJson( const std::string & jsonContent)
+        {
+            CommsMsgProto::HttpResponse protoHttpResponse;
+            google::protobuf::util::JsonParseOptions jsonParseOptions;
+            jsonParseOptions.ignore_unknown_fields = true; 
+
+            auto status = google::protobuf::util::JsonStringToMessage(jsonContent, &protoHttpResponse, jsonParseOptions);
+
+            if (!status.ok())
+            {
+                throw InvalidCommsMsgException(std::string("Failed to load json string: ") + status.ToString());
+            }
+            return from(protoHttpResponse); 
+        }
 }
