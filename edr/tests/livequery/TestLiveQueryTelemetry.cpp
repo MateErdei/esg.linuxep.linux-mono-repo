@@ -4,10 +4,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/Helpers/LogInitializedTests.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/livequery/ResponseData.h>
 #include <modules/livequery/Telemetry.h>
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
+
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <gtest/gtest.h>
@@ -45,7 +46,9 @@ livequery::QueryResponse createDummyResponse(
     return response;
 }
 
-TEST(TestResponseDispatcher, twoDifferentQueriesShowCorrectTelemetryStats)
+class TestResponseDispatcher : public LogOffInitializedTests{};
+
+TEST_F(TestResponseDispatcher, twoDifferentQueriesShowCorrectTelemetryStats)
 {
     auto response1 = createDummyResponse("query1", 2, 1000, livequery::ErrorCode::SUCCESS);
     auto response2 = createDummyResponse("query2", 3, 3000, livequery::ErrorCode::SUCCESS);
@@ -108,7 +111,7 @@ TEST(TestResponseDispatcher, twoDifferentQueriesShowCorrectTelemetryStats)
     EXPECT_EQ(q2SuccessfulCount, 1);
 }
 
-TEST(TestResponseDispatcher, twoQueriesSameNameShowCorrectTelemetryStats)
+TEST_F(TestResponseDispatcher, twoQueriesSameNameShowCorrectTelemetryStats)
 {
     auto response1 = createDummyResponse("query", 100, 1000, livequery::ErrorCode::SUCCESS);
     auto response2 = createDummyResponse("query", 200, 3000, livequery::ErrorCode::SUCCESS);
@@ -144,7 +147,7 @@ TEST(TestResponseDispatcher, twoQueriesSameNameShowCorrectTelemetryStats)
     EXPECT_EQ(q1SuccessfulCount, 2);
 }
 
-TEST(TestResponseDispatcher, MultipleQueriesSameNameShowCorrectTelemetryStatsExcludingFailures)
+TEST_F(TestResponseDispatcher, MultipleQueriesSameNameShowCorrectTelemetryStatsExcludingFailures)
 {
     auto response1 = createDummyResponse("query", 100, 1000, livequery::ErrorCode::SUCCESS);
     auto response2 = createDummyResponse("query", 200, 3000, livequery::ErrorCode::SUCCESS);
@@ -194,7 +197,7 @@ TEST(TestResponseDispatcher, MultipleQueriesSameNameShowCorrectTelemetryStatsExc
     EXPECT_EQ(q1FailedOsqueryErrorCount, 4);
 }
 
-TEST(TestResponseDispatcher, MultipleQueriesSameNameShowCorrectTelemetryStatsExcludingFailures2)
+TEST_F(TestResponseDispatcher, MultipleQueriesSameNameShowCorrectTelemetryStatsExcludingFailures2)
 {
     auto response1 = createDummyResponse("query", 100, 1000, livequery::ErrorCode::SUCCESS);
     auto response2 = createDummyResponse("query", 200, 3000, livequery::ErrorCode::SUCCESS);
@@ -250,7 +253,7 @@ TEST(TestResponseDispatcher, MultipleQueriesSameNameShowCorrectTelemetryStatsExc
     EXPECT_EQ(q1FailedUnexpectedErrorCount, 1);
 }
 
-TEST(TestResponseDispatcher, successfulQueriesShowCorrectTelemetryStatsWhenDurationIsZero)
+TEST_F(TestResponseDispatcher, successfulQueriesShowCorrectTelemetryStatsWhenDurationIsZero)
 {
     auto response1 = createDummyResponse("query", 2, 1123, livequery::ErrorCode::SUCCESS);
     auto response2 = createDummyResponse("query", 3, 324, livequery::ErrorCode::SUCCESS);
@@ -286,7 +289,7 @@ TEST(TestResponseDispatcher, successfulQueriesShowCorrectTelemetryStatsWhenDurat
     EXPECT_EQ(q1SuccessfulCount, 2);
 }
 
-TEST(TestResponseDispatcher, successfulQueriesShowCorrectTelemetryStatsWhenRowCountsAreZero)
+TEST_F(TestResponseDispatcher, successfulQueriesShowCorrectTelemetryStatsWhenRowCountsAreZero)
 {
     auto response1 = createDummyResponse("query", 0, 1123, livequery::ErrorCode::SUCCESS);
     auto response2 = createDummyResponse("query", 0, 324, livequery::ErrorCode::SUCCESS);

@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/MockFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/Helpers/LogInitializedTests.h>
 #include <modules/pluginimpl/OsqueryConfigurator.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
@@ -60,17 +60,18 @@ private:
     }
 };
 
-TEST(TestOsqueryConfigurator, ALCContainsMTRFeatureShouldDetectPresenceOFMTR)
+class TestOsqueryConfigurator : public LogOffInitializedTests{};
+
+TEST_F(TestOsqueryConfigurator, ALCContainsMTRFeatureShouldDetectPresenceOFMTR)
 { // NOLINT
     EXPECT_TRUE(OsqueryConfigurator::ALCContainsMTRFeature(PolicyWithMTRFeature()));
     EXPECT_FALSE(OsqueryConfigurator::ALCContainsMTRFeature(PolicyWithoutMTRFeatureButWithSubscription()));
     EXPECT_FALSE(OsqueryConfigurator::ALCContainsMTRFeature(PolicyWithoutMTRFeatureOrSubscription()));
 }
 
-TEST(TestOsqueryConfigurator, ALCContainsMTRFeatureSpecialCaseForEmptyStringShouldReturnFalse)
+TEST_F(TestOsqueryConfigurator, ALCContainsMTRFeatureSpecialCaseForEmptyStringShouldReturnFalse)
 { // NOLINT
     // empty string should be considered no MTR feature without any warning log
-    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
     EXPECT_FALSE(OsqueryConfigurator::ALCContainsMTRFeature(""));
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -78,7 +79,7 @@ TEST(TestOsqueryConfigurator, ALCContainsMTRFeatureSpecialCaseForEmptyStringShou
     EXPECT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("WARN Failed to parse ALC policy")));
 }
 
-TEST(TestOsqueryConfigurator, InvalidALCPolicyShouldBeConsideredToHaveNoMTRFeatureAndWarningShouldBeLogged) // NOLINT
+TEST_F(TestOsqueryConfigurator, InvalidALCPolicyShouldBeConsideredToHaveNoMTRFeatureAndWarningShouldBeLogged) // NOLINT
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
@@ -89,7 +90,7 @@ TEST(TestOsqueryConfigurator, InvalidALCPolicyShouldBeConsideredToHaveNoMTRFeatu
     EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN Failed to parse ALC policy"));
 }
 
-TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeature) // NOLINT
+TEST_F(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeature) // NOLINT
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
@@ -99,7 +100,7 @@ TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeature) // NO
     EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Detected MTR is enabled"));
 }
 
-TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNotPresent) // NOLINT
+TEST_F(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNotPresent) // NOLINT
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
@@ -109,7 +110,7 @@ TEST(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNot
     EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO No MTR Detected"));
 }
 
-TEST(TestOsqueryConfigurator, BeforeALCPolicyIsGivenOsQueryConfiguratorShouldConsideredToBeMTRBounded) // NOLINT
+TEST_F(TestOsqueryConfigurator, BeforeALCPolicyIsGivenOsQueryConfiguratorShouldConsideredToBeMTRBounded) // NOLINT
 {
     TestableOsqueryConfigurator disabledOption(false);
     EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
@@ -124,7 +125,7 @@ TEST(TestOsqueryConfigurator, BeforeALCPolicyIsGivenOsQueryConfiguratorShouldCon
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
 }
 
-TEST(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShouldControlAuditConfiguration) // NOLINT
+TEST_F(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShouldControlAuditConfiguration) // NOLINT
 {
     TestableOsqueryConfigurator disabledOption(false);
     disabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
@@ -145,7 +146,7 @@ TEST(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShouldC
     EXPECT_TRUE(enabledOption.enableAuditDataCollection());
 }
 
-TEST(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConfigured) // NOLINT
+TEST_F(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConfigured) // NOLINT
 {
     TestableOsqueryConfigurator disabledOption(false);
     disabledOption.loadALCPolicy(PolicyWithMTRFeature());
@@ -161,7 +162,7 @@ TEST(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConfig
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
 }
 
-TEST(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataCollection) // NOLINT
+TEST_F(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataCollection) // NOLINT
 {
     TestableOsqueryConfigurator enabledOption(true);
 

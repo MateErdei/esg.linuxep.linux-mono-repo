@@ -288,7 +288,7 @@ function build()
     [[ $CLEAN == 1 ]] && rm -rf build${BITS}
     mkdir -p build${BITS}
     cd build${BITS}
-    [[ -n ${NPROC:-} ]] || NPROC=2
+    [[ -n ${NPROC:-} ]] || NPROC=$(nproc) ||  [[ -n ${NPROC:-} ]] || NPROC=2
     cmake -v -DREDIST="${REDIST}" \
              -DINPUT="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \

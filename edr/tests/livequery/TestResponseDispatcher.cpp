@@ -12,6 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/MockFilePermissions.h>
+#include <Common/Helpers/LogInitializedTests.h>
 
 using namespace ::testing;
 using namespace livequery;
@@ -41,7 +42,9 @@ bool serializedJsonContentAreEquivalent(const std::string & v1, const std::strin
     return jv1 == jv2;
 }
 
-TEST(TestResponseDispatcher, verifySerializedJsonAreEquivalent)
+class TestResponseDispatcher : public LogOffInitializedTests{};
+
+TEST_F(TestResponseDispatcher, verifySerializedJsonAreEquivalent)
 {
     std::string v1 = R"({"data":{"a":"a","b":1}})";
     std::string v2 = R"({"data":{"b":1,"a":"a"}})";
@@ -51,7 +54,7 @@ TEST(TestResponseDispatcher, verifySerializedJsonAreEquivalent)
     EXPECT_FALSE (serializedJsonContentAreEquivalent(v2,v3));
 }
 
-TEST(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumns)
+TEST_F(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumns)
 {
     QueryResponse response{
         ResponseStatus{ErrorCode::RESPONSEEXCEEDLIMIT},
@@ -76,7 +79,7 @@ TEST(TestResponseDispatcher, JsonForExceededEntriesShouldNotIncludeDataColumns)
     EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated)) << calculated;
 }
 
-TEST(TestResponseDispatcher, SpecificErrorConditionShouldBeIncludedInTheJsonFile)
+TEST_F(TestResponseDispatcher, SpecificErrorConditionShouldBeIncludedInTheJsonFile)
 {
     ResponseStatus status{ErrorCode::OSQUERYERROR};
     status.overrideErrorDescription("SpecialError condition reported by osquery");
@@ -102,7 +105,7 @@ TEST(TestResponseDispatcher, SpecificErrorConditionShouldBeIncludedInTheJsonFile
 }
 
 
-TEST(TestResponseDispatcher, emptyResponseWhereNotRowWasSelectedShouldReturnExpectedJson)
+TEST_F(TestResponseDispatcher, emptyResponseWhereNotRowWasSelectedShouldReturnExpectedJson)
 {
     QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
                            ResponseData{headerExample(), ResponseData::ColumnData{}},
@@ -127,7 +130,7 @@ TEST(TestResponseDispatcher, emptyResponseWhereNotRowWasSelectedShouldReturnExpe
     EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))<< "\nCalculated: "<< calculated;
 }
 
-TEST(TestResponseDispatcher, testColumnMetaDataIsPresentWhenNoHeadersAndColumnDataFieldIsPresent)
+TEST_F(TestResponseDispatcher, testColumnMetaDataIsPresentWhenNoHeadersAndColumnDataFieldIsPresent)
 {
     ResponseData::ColumnHeaders  empty_headers {};
 
@@ -151,7 +154,7 @@ TEST(TestResponseDispatcher, testColumnMetaDataIsPresentWhenNoHeadersAndColumnDa
     EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))<< "\nCalculated: "<< calculated << "\nExpected: "<< expected;
 }
 
-TEST(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJson)
+TEST_F(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJson)
 {
     //create response data given a real osquery response as below
     /*
@@ -227,7 +230,7 @@ TEST(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJson)
 }
 
 
-TEST(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
+TEST_F(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
 {
     ResponseData::ColumnData columnData;
     ResponseData::RowData  rowData;
@@ -259,7 +262,7 @@ TEST(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
     EXPECT_THROW(dispatcher.serializeToJson(response), std::exception); // NOLINT
 }
 
-TEST(TestResponseDispatcher, emptyNumberShouldBeSentAsNull)
+TEST_F(TestResponseDispatcher, emptyNumberShouldBeSentAsNull)
 {
     ResponseData::ColumnData columnData;
     ResponseData::RowData  rowData;
@@ -305,7 +308,7 @@ TEST(TestResponseDispatcher, emptyNumberShouldBeSentAsNull)
 }
 
 
-TEST(TestResponseDispatcher, missingEntriesShouldBeSetToNull)
+TEST_F(TestResponseDispatcher, missingEntriesShouldBeSetToNull)
 {
     ResponseData::ColumnData columnData;
     ResponseData::RowData  firstRow;
@@ -356,7 +359,7 @@ TEST(TestResponseDispatcher, missingEntriesShouldBeSetToNull)
                         << "\nCalculated: "<< calculated << ".\n expected: \n" << expected;
 }
 
-TEST(TestResponseDispatcher, JsonForExceededEntriesHasEmptyDataColumnsIfTheyExceed10Mb)
+TEST_F(TestResponseDispatcher, JsonForExceededEntriesHasEmptyDataColumnsIfTheyExceed10Mb)
 {
     ResponseData::ColumnData columnData;
     columnData.reserve(10*1024);
@@ -395,7 +398,7 @@ TEST(TestResponseDispatcher, JsonForExceededEntriesHasEmptyDataColumnsIfTheyExce
     EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated)) << calculated;
 }
 
-TEST(TestResponseDispatcher, JsonShouldContainDuration)
+TEST_F(TestResponseDispatcher, JsonShouldContainDuration)
 {
     QueryResponse response{
         ResponseStatus{ErrorCode::RESPONSEEXCEEDLIMIT},
@@ -432,7 +435,7 @@ TEST(TestResponseDispatcher, JsonShouldContainDuration)
 }
 
 
-class ResposeDispatcherWithMockFileSystem: public ::testing::Test
+class ResposeDispatcherWithMockFileSystem: public LogOffInitializedTests
 {
 public:
     ResposeDispatcherWithMockFileSystem()

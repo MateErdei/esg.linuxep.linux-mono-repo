@@ -5,8 +5,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <modules/queryrunner/ParallelQueryProcessor.h>
-#include <modules/livequery/QueryResponse.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/Helpers/LogInitializedTests.h>
 #include <gtest/gtest.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 #include <atomic>
@@ -73,10 +73,7 @@ std::string buildQuery(int timeToSleep)
     return R"({"type":"sophos.mgt.action.RunLiveQuery", "name":"test", "query": ")" + std::to_string(timeToSleep) + "\"}";
 }
 
-class ParallelQueryProcessorTests : public ::testing::Test
-{
-
-};
+class ParallelQueryProcessorTests : public LogOffInitializedTests{};
 
 TEST_F(ParallelQueryProcessorTests, addJob) // NOLINT
 {

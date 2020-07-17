@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "MockOsqueryClient.h"
 
+#include <Common/Helpers/LogInitializedTests.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
 #include <thrift/transport/TTransportException.h>
 
@@ -13,7 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace ::testing;
 
-class TestOSQueryProcessorWithMock : public ::testing::Test
+class TestOSQueryProcessorWithMock : public LogOffInitializedTests
 {
 public:
     std::unique_ptr<MockIOsqueryClient> m_mockClientPtr;
