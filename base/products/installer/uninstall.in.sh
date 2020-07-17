@@ -63,6 +63,16 @@ function removeWatchdogSystemdService()
 }
 
 
+function unmountCommsComponentDependencies()
+{
+  CommsComponentChroot=$1
+  umount --force ${CommsComponentChroot}/etc/resolv.conf 2>/dev/null >/dev/null
+  umount --force  ${CommsComponentChroot}/etc/hosts 2>/dev/null >/dev/null
+  umount --force ${CommsComponentChroot}/certs/ca-certificates.crt 2>/dev/null >/dev/null
+  umount --force ${CommsComponentChroot}/usr/lib 2>/dev/null >/dev/null
+  umount --force ${CommsComponentChroot}/lib 2>/dev/null >/dev/null
+}
+
 removeUpdaterSystemdService
 
 # Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
@@ -81,6 +91,8 @@ fi
 
 removeWatchdogSystemdService
 
+CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
+unmountCommsComponentDependencies ${CommsComponentChroot}
 rm -rf "$SOPHOS_INSTALL"
 
 PATH=$PATH:/usr/sbin:/sbin

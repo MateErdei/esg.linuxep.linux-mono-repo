@@ -52,13 +52,15 @@ namespace Common::SecurityUtils
      */
     std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string& groupName);
 
-    void bindMountDirectory(const std::string& sourceDir, const std::string& targetDir);
+    bool bindMountReadOnly(const std::string& sourceFile, const std::string& targetMountLocation);
 
-    void bindMountFiles(const std::string& sourceFile, const std::string& targetFile);
+    bool isAlreadyMounted(const std::string& targetFile);
+
+    bool isFreeMountLocation(const std::string& targetFile);
 
     /*
      * This method is required to run but fails due to dropped privilege TODo
      */
-    void unMount(const std::string& targetSpecialFile);
+    bool unMount(const std::string& targetSpecialFile);
 
 } // namespace Common::SecurityUtils

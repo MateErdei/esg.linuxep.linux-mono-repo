@@ -199,7 +199,8 @@ TEST_F(TestSplitProcesses, ExchangeMessagesAndStop) // NOLINT
                     childProxy.pushMessage("stop");
                 };
 
-                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
+                                                std::vector<ReadOnlyMount>());
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -223,13 +224,14 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
                     {
                         channel->pop(message);
                     }
-                    catch (ChannelClosedException &)
+                    catch (ChannelClosedException&)
                     {
                         return;
                     }
                     throw std::runtime_error("Did not receive closed channel exception");
                 };
-                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
+                                                std::vector<ReadOnlyMount>());
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -252,13 +254,14 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
                     {
                         channel->pop(message);
                     }
-                    catch (ChannelClosedException &)
+                    catch (ChannelClosedException&)
                     {
                         return;
                     }
                     throw std::runtime_error("Did not receive closed channel exception");
                 };
-                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
+                                                std::vector<ReadOnlyMount>());
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -297,7 +300,8 @@ TEST_F(TestSplitProcesses, ChildCanRecieveMoreThanOneMessageAndConcurrently) // 
                     return;
                 };
 
-                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
+                                                std::vector<ReadOnlyMount>());
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -312,13 +316,14 @@ TEST_F(TestSplitProcesses, ParentStopIfChildSendStopNoHanging) // NOLINT
     ASSERT_EXIT(
             {
                 setupAfterSkipIfNotRoot();
-                auto childProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi & /*parentProxy*/) {
+                auto childProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& /*parentProxy*/) {
                     channel->pushStop();
                 };
 
                 auto parentProcess = CommNetworkSide();
 
-                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
+                                                std::vector<ReadOnlyMount>());
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
@@ -346,12 +351,13 @@ TEST_F(TestSplitProcesses, ParentAndChildShouldBeAbleToUseLog4) // NOLINT
                         {
                             Common::FileSystem::fileSystem()->writeFile("/logs/base/another_child.log", "testing123");
                         }
-                        catch (std::exception &ex)
+                        catch (std::exception& ex)
                         {
                             std::cerr << "failed to write file: " << ex.what() << std::endl;
                         }
                     };
-                    auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser);
+                    auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
+                                                    std::vector<ReadOnlyMount>());
                     int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
 
 

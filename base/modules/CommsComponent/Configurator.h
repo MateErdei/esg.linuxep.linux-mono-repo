@@ -36,12 +36,15 @@ namespace CommsComponent
         std::string logName;
     };
 
+    using ReadOnlyMount = std::pair<std::string, std::string>;
+
     class CommsConfigurator
     {
         std::string m_chrootDir;
         UserConf m_childUser;
         UserConf m_parentUser;
-        std::shared_ptr<Common::Logging::FileLoggingSetup> m_logSetup; 
+        std::shared_ptr<Common::Logging::FileLoggingSetup> m_logSetup;
+        std::vector<ReadOnlyMount> m_listOfDependencyPairs;
 
         /*
          * To be called before chroot to set up files for logging
@@ -49,8 +52,11 @@ namespace CommsComponent
          */
         void setupLoggingFiles();
 
+        void mountDependenciesReadOnly(UserConf userConf, std::vector<ReadOnlyMount> dependencies);
+
     public:
-        CommsConfigurator(const std::string &newRoot, UserConf childUser, UserConf parentUser);
+        CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser,
+                          std::vector<ReadOnlyMount> dependenciesToMount);
 
         /*
          * drops to the user not facing network

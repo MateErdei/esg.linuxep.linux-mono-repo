@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ProcessSecurityUtils.h"
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 #include <cstdlib>
 #include <grp.h>
@@ -18,6 +19,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace Common::SecurityUtils
 {
+    const char *NOMOUNTED = "SPL.NOMOUNTED";
 
     void dropPrivileges(uid_t newuid, gid_t newgid)
     {
@@ -138,57 +140,99 @@ namespace Common::SecurityUtils
     }
 
 
-    void bindMountDirectory(const std::string& sourceDir, const std::string& targetDir)
+    bool bindMountReadOnly(const std::string& sourceFile, const std::string& targetMountLocation)
     {
+        auto fs = Common::FileSystem::fileSystem();
+
         std::stringstream errorMessage;
-        try
+        if (isAlreadyMounted(targetMountLocation))
         {
-            if (mount(sourceDir.c_str(), targetDir.c_str(), nullptr, MS_BIND, nullptr) == -1)
-            {
-                errorMessage << "Mount for '" << sourceDir << "' to path '" << targetDir << " failed. Reason: "
-                             << std::strerror(errno);
-                std::cerr << errorMessage.str() << std::endl;
-            }
+            errorMessage << "Source '" << sourceFile << "' is already mounted on '" << targetMountLocation << "Error : "
+                         << std::strerror(errno);
+            std::cerr << errorMessage.str() << std::endl;
         }
-        catch (const std::exception& ex)
+
+        //mark the mount location to indicated when not mounted
+        if (fs->isFile(targetMountLocation))
         {
-            errorMessage << "Exception while binding a file src " << sourceDir << " target " << targetDir;
-            perror(errorMessage.str().c_str());
+            fs->writeFile(targetMountLocation, NOMOUNTED);
         }
+        else if (fs->isDirectory(targetMountLocation))
+        {
+            fs->writeFile(Common::FileSystem::join(targetMountLocation, NOMOUNTED), NOMOUNTED);
+        }
+
+        if (mount(sourceFile.c_str(), targetMountLocation.c_str(), nullptr, MS_MGC_VAL | MS_RDONLY | MS_BIND, nullptr)
+            == -1)
+        {
+            errorMessage << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
+                         << std::strerror(errno);
+            std::cerr << errorMessage.str() << std::endl;
+            return false;
+        }
+
+        if (mount("none", targetMountLocation.c_str(), nullptr, MS_RDONLY | MS_REMOUNT | MS_BIND, nullptr) == -1)
+        {
+            errorMessage << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
+                         << std::strerror(errno);
+            std::cerr << errorMessage.str() << std::endl;
+            return false;
+        }
+        return true;
     }
 
-    void bindMountFiles(const std::string& sourceFile, const std::string& targetFile)
+    bool isFreeMountLocation(const std::string& targetFile)
     {
-        std::stringstream errorMessage;
-        try
+        //we will alway create a file to indicated mounted in our mount directories
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->isDirectory(targetFile))
         {
-            if (mount(sourceFile.c_str(), targetFile.c_str(), nullptr, MS_BIND, nullptr) == -1)
+            return fs->exists(Common::FileSystem::join(targetFile, NOMOUNTED));
+        }
+
+        //always mark the mount file to indicate not mounted
+        if (fs->isFile(targetFile))
+        {
+            try
             {
-                errorMessage << "Mount for '" << sourceFile << "' to path '" << targetFile << " failed. Reason: "
-                             << std::strerror(errno);
-                std::cerr << errorMessage.str() << std::endl;
+                auto nomounted = fs->readFile(targetFile, FILENAME_MAX);
+                return nomounted.compare(NOMOUNTED) == 0;
             }
-//            if (mount(sourceFile.c_str(), targetFile.c_str(), nullptr, MS_RDONLY | MS_REMOUNT, nullptr) == -1)
-//            {
-//                errorMessage << "Mount for '" << sourceFile << "' to path '" << targetFile << " failed. Reason: "
-//                             << std::strerror(errno);
-//                std::cerr << errorMessage.str() << std::endl;
-//            }
+            catch (const Common::FileSystem::IFileSystemException& fileSystemException)
+            {
+                return false;
+            }
+
         }
-        catch (const std::exception& ex)
-        {
-            errorMessage << "Exception while binding a file src " << sourceFile << " target " << targetFile;
-            perror(errorMessage.str().c_str());
-        }
+        return false;
     }
 
-    void unMount(const std::string& targetDir)
+    bool isAlreadyMounted(const std::string& targetMountLocation)
+    {
+        if (isFreeMountLocation(targetMountLocation))
+        {
+            return false;
+        }
+        std::stringstream errorMessage;
+        if (mount("none", targetMountLocation.c_str(), nullptr, MS_RDONLY | MS_REMOUNT | MS_BIND, nullptr) == -1)
+        {
+            errorMessage << "Remount read only to path '" << targetMountLocation << " failed. Reason: "
+                         << std::strerror(errno);
+            std::cerr << errorMessage.str() << std::endl;
+            return errno == EINVAL;
+        }
+        return true;
+    }
+
+    bool unMount(const std::string& targetDir)
     {
         std::stringstream errorMessage;
         if (umount2(targetDir.c_str(), MNT_FORCE) == -1)
         {
             errorMessage << "un-mount for '" << targetDir << "' failed. Reason: " << std::strerror(errno);
             std::cerr << errorMessage.str() << std::endl;
+            return false;
         }
+        return true;
     }
 }
