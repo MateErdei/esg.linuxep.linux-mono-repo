@@ -11,7 +11,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <grp.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <sstream>
+#include <sys/mount.h>
+#include <cstring>
 #include <iostream>
+
 
 namespace Common::SecurityUtils
 {
@@ -108,13 +111,12 @@ namespace Common::SecurityUtils
         {
             auto ifperm = Common::FileSystem::filePermissions();
             auto userid = ifperm->getUserId(userName);
-            auto groupid = ifperm->getGroupId(groupName);
+            auto groupid = ifperm->getUserId(groupName);
 
             return std::optional<UserIdStruct>(UserIdStruct(userid, groupid));
         }
-        catch (const Common::FileSystem::IFileSystemException &iFileSystemException )
+        catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
         {
-            std::cerr << "Permission denied: " << iFileSystemException.what() << std::endl; 
             return std::nullopt;
         }
     }
@@ -126,27 +128,55 @@ namespace Common::SecurityUtils
         auto runAsUser = getUserIdAndGroupId(userName, groupName);
 
         //do user lookup before chroot
-        if (!runAsUser.has_value() || getuid() != 0U)
+        if (!runAsUser.has_value()||getuid() != 0U)
         {
-            if ( !runAsUser.has_value())
-            {
-                std::cerr << "User not identified" << std::endl; 
-            }
-            else
-            {
-                auto v = runAsUser.value(); 
-                std::cerr << "Identified user: " << v.m_userid << " and group: " << v.m_groupid << std::endl; 
-            }            
-
-            if ( getuid() != 0U)
-            {
-                std::cerr << "Running not as user" << std::endl; 
-            }
-             
             perror("Current user needs to be root and target user must exist");
             exit(EXIT_FAILURE);
         }
         setupJailAndGoIn(chrootDirPath);
         dropPrivileges(runAsUser->m_userid, runAsUser->m_groupid);
+    }
+
+
+    void bindMountDirectory(const std::string& sourceDir, const std::string& targetDir)
+    {
+        std::stringstream errorMessage;
+
+        if (mount(sourceDir.c_str(), targetDir.c_str(), nullptr, MS_BIND, nullptr) == -1)
+        {
+            errorMessage << "Mount for '" << sourceDir << "' to path '" << targetDir << " failed. Reason: "
+                         << std::strerror(errno);
+            std::cerr << errorMessage.str() << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    void bindMountFiles(const std::string& sourceFile, const std::string& targetFile)
+    {
+        std::stringstream errorMessage;
+        try
+        {
+            if (mount(sourceFile.c_str(), targetFile.c_str(), nullptr, MS_BIND, nullptr) == -1)
+            {
+                errorMessage << "Mount for '" << sourceFile << "' to path '" << targetFile << " failed. Reason: "
+                             << std::strerror(errno);
+                std::cerr << errorMessage.str() << std::endl;
+            }
+        }
+        catch (const std::exception& ex)
+        {
+            errorMessage << "Exception while binding a file src " << sourceFile << " target " << targetFile;
+            perror(errorMessage.str().c_str());
+        }
+    }
+
+    void unMount(const std::string& targetDir)
+    {
+        std::stringstream errorMessage;
+        if (umount2(targetDir.c_str(), MNT_FORCE) == -1)
+        {
+            errorMessage << "un-mount for '" << targetDir << "' failed. Reason: " << std::strerror(errno);
+            std::cerr << errorMessage.str() << std::endl;
+        }
     }
 }

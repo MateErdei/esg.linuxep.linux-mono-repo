@@ -141,7 +141,7 @@ void crash()
 void exit()
 {
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    std::terminate();
+    exit(EXIT_FAILURE);
 }
 
 void deadlock()
