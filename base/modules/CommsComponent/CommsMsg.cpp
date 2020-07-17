@@ -51,8 +51,8 @@ namespace
 
     Common::HttpSender::RequestConfig from(const CommsMsgProto::HttpRequest& requestProto)
     {
-
         Common::HttpSender::RequestConfig requestConfig;
+        requestConfig.setRequestTypeFromString(requestProto.requesttype());
         requestConfig.setServer(requestProto.server());
         requestConfig.setResourcePath(requestProto.resourcepath());
         requestConfig.setData(requestProto.bodycontent());
@@ -135,6 +135,7 @@ namespace CommsComponent{
         std::string CommsMsg::serialize(const CommsMsg& commsMsg)
         {
             CommsMsgProto::CommsMsg protoMsg; 
+            
             protoMsg.set_id(commsMsg.id); 
             
             CommsMsgVisitorSerializer visitor{protoMsg}; 
