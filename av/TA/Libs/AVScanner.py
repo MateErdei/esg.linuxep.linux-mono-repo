@@ -108,3 +108,15 @@ def increase_threat_detector_log_to_max_size_by_path(log_path):
     statbuf = os.stat(log_path)
     current_size = statbuf.st_size
     assert current_size == max_size
+
+
+def count_eicars_in_directory(d):
+    """
+    Count files in directory; assume all are eicar
+    :param d:
+    :return:
+    """
+    count = 0
+    for _, _, files in os.walk(d):
+        count += len(files)
+    return count

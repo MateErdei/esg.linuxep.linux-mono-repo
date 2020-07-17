@@ -181,23 +181,26 @@ AV Plugin Reports Threat XML To Base
 
 AV Plugin Reports encoded eicars To Base
    Check AV Plugin Installed With Base
-   ${rc}   ${output} =  Run And Return Rc And Output  id
 
-   Log To Console  ${output}
-
-   ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
+   ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh  stderr=STDOUT
    Should Be Equal As Integers  ${result.rc}  0
+   Log  ${result.stdout}
 
-   ${result} =  Run Process  /usr/local/bin/avscanner  /tmp/encoded_eicars/  timeout=120s
+   ${expected_count} =  Count Eicars in Directory  /tmp/encoded_eicars/
+   Should Be True  ${expected_count} > 0
+
+   ${result} =  Run Process  /usr/local/bin/avscanner  /tmp/encoded_eicars/  timeout=120s  stderr=STDOUT
    Should Be Equal As Integers  ${result.rc}  69
+   Log  ${result.stdout}
+
 
    #make sure base has generated all events before checking
    Wait Until Keyword Succeeds
          ...  15 secs
          ...  3 secs
-         ...  check_number_of_events_matches  53
+         ...  check_number_of_events_matches  ${expected_count}
 
-   check_multiple_different_threat_events  53   encoded_eicars
+   check_multiple_different_threat_events  ${expected_count}   encoded_eicars
 
    Empty Directory  ${MCS_PATH}/event/
    Remove Directory  /tmp/encoded_eicars  true

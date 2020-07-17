@@ -192,7 +192,7 @@ CLS Encoded Eicars
 
    ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
    Should Be Equal As Integers  ${result.rc}  0
-   ${result} =  Run Process  {CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
+   ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
    Should Be Equal As Integers  ${result.rc}  69
 
    # Once CORE-1517 has been fixed, uncomment the check below
