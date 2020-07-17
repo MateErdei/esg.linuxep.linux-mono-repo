@@ -32,11 +32,9 @@ namespace
             proto->set_requesttype(requestConfig.getRequestTypeAsString());
             proto->set_port(requestConfig.getPort());
 
-            int index = 0;
             for(const auto& header : requestConfig.getAdditionalHeaders())
             {
-                proto->set_headers(index, header);
-                index++;
+                proto->add_headers(header);
             }
         }
     };
@@ -49,6 +47,12 @@ namespace
         requestConfig.setResourcePath(requestProto.resourcepath());
         requestConfig.setData(requestProto.bodycontent());
         requestConfig.setPort(requestProto.port());
+        std::vector<std::string> headers; 
+        for(auto& header: requestProto.headers())
+        {
+            headers.push_back(header);             
+        }
+        requestConfig.setAdditionalHeaders(std::move(headers));
         return requestConfig;
     }
     Common::HttpSender::HttpResponse from(const CommsMsgProto::HttpResponse& responseProto)

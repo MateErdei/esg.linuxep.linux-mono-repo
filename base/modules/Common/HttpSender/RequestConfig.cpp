@@ -71,6 +71,7 @@ namespace Common::HttpSender
     void RequestConfig::setCertPath(const std::string& certPath) { m_certPath = certPath; }
 
     void RequestConfig::setResourcePath(const std::string& resourcePath) { m_resourcePath = resourcePath; }
+    void RequestConfig::setAdditionalHeaders(std::vector<std::string> headers){ m_additionalHeaders = headers; }
 
     RequestType RequestConfig::getRequestType() const { return m_requestType; }
 

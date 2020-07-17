@@ -40,6 +40,7 @@ namespace Common::HttpSender
         void setPort(const int port);
         void setCertPath(const std::string& certPath);
         void setResourcePath(const std::string& resourcePath);
+        void setAdditionalHeaders(std::vector<std::string>); 
 
         const std::string& getData() const;
         std::vector<std::string> getAdditionalHeaders() const;
