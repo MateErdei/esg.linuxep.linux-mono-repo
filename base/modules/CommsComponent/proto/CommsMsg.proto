@@ -8,6 +8,11 @@ message KeyValue
     required string Value = 2; 
 }
 
+message DefaultType
+{
+    optional int64 notUsed = 1;
+}
+
 message HttpRequest
 {
    enum Method{
@@ -38,6 +43,7 @@ message HttpResponse
 message CommsMsg{
     optional string id = 1; 
     oneof content {
+        DefaultType empty = 9;
         HttpRequest httpRequest = 10; 
         HttpResponse httpResponse = 11; 
     } 

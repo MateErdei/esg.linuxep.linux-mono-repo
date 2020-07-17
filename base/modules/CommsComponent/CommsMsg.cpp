@@ -73,14 +73,17 @@ namespace
         }
     };
 
-    CommsComponent::HttpRequest from(const CommsMsgProto::HttpRequest& request)
+    CommsComponent::HttpRequest from(const CommsMsgProto::HttpRequest& requestProto)
     {
-        CommsComponent::HttpRequest httpRequest = (HttpRequest &&) request;
+
+        CommsComponent::HttpRequest httpRequest;
+        httpRequest.url = requestProto.url();
         return httpRequest;
     }
-    CommsComponent::HttpResponse from(const CommsMsgProto::HttpResponse& response)
+    CommsComponent::HttpResponse from(const CommsMsgProto::HttpResponse& responseProto)
     {
-        CommsComponent::HttpResponse httpResponse = (HttpResponse &&) response;
+        CommsComponent::HttpResponse httpResponse;
+        httpResponse.httpCode = responseProto.httpcode();
         return httpResponse;
     }
 
@@ -118,6 +121,15 @@ namespace CommsComponent{
             CommsMsg commsMsg; 
             commsMsg.id = protoMsg.id(); 
             if (protoMsg.has_httprequest())
+            {
+                //commsMsg.content =from(protoMsg.httprequest());
+                std::cout << "stuff";
+            }
+            else
+                {
+                std::cout << "stuff1";
+                }
+            if (!protoMsg.ParseFromString(serializedString))
             {
                 commsMsg.content =from(protoMsg.httprequest());
             }
