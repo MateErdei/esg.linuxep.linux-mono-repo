@@ -58,6 +58,23 @@ public:
     }
 };
 
+class RealHttpSenderTest : public LogInitializedTests{};
+// disabled because it fetches resources from the internet
+TEST_F(RealHttpSenderTest, DISABLED_realGetRequestShouldBeAbleToExtractTheBody)
+{
+    auto curlWrapper = std::make_shared<CurlWrapper>(); 
+    auto httpSender = std::make_shared<HttpSender>(curlWrapper);
+    std::vector<std::string> m_additionalHeaders;
+
+    RequestConfig getRequestConfig(
+        RequestType::GET, m_additionalHeaders, "www.google.com", 443, "", "/");
+    auto resp = httpSender->fetchHttpRequest(getRequestConfig, true);
+    EXPECT_EQ(resp.httpCode, 0); 
+    EXPECT_GT(resp.bodyContent.size(), 100);
+    EXPECT_THAT(resp.bodyContent, ::testing::HasSubstr("Google Search"));
+    
+}
+
 TEST_F(HttpSenderTest, getRequest) // NOLINT
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));

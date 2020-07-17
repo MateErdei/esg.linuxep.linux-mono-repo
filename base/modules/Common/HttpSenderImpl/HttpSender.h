@@ -14,9 +14,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "CurlWrapper.h"
 
 #include <Common/HttpSender/IHttpSender.h>
+#include <Common/HttpSender/HttpResponse.h>
 
 namespace Common::HttpSenderImpl
 {
+
     class HttpSender : public Common::HttpSender::IHttpSender
     {
     public:
@@ -26,6 +28,7 @@ namespace Common::HttpSenderImpl
         ~HttpSender() override;
 
         int doHttpsRequest(Common::HttpSender::RequestConfig& requestConfig) override;
+        Common::HttpSender::HttpResponse fetchHttpRequest(Common::HttpSender::RequestConfig& requestConfig, bool captureBody);
 
     private:
         CURLcode setCurlOptions(

@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include <Common/HttpSenderImpl/HttpSender.h>
-#include <Common/HttpSenderImpl/RequestConfig.h>
+#include <Common/HttpSender/RequestConfig.h>
 
 #include <unistd.h>
 #include <Common/SecurityUtils/ProcessSecurityUtils.h>
@@ -11,6 +11,7 @@
 
 
 using namespace Common::HttpSenderImpl;
+using namespace Common::HttpSender;
 
 int main(/*int argc, char *argv[]*/)
 {

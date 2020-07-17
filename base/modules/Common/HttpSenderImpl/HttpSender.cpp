@@ -18,6 +18,23 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace
 {
+    struct HoldBody
+    {
+        std::string body; 
+    };
+
+    size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp) //NOLINT
+    {
+        HoldBody * resp = static_cast<HoldBody*>(userp); 
+        char* data = static_cast<char*>(buffer); 
+        resp->body += std::string{data, data + (size*nmemb)};
+        return nmemb; 
+    }
+
+}
+
+namespace
+{
     class CurlScopeGuard
     {
         Common::HttpSender::ICurlWrapper& m_iCurlWrapper;
@@ -57,6 +74,7 @@ namespace
 
 namespace Common::HttpSenderImpl
 {
+    using namespace Common::HttpSender;
     HttpSender::HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper) :
         m_curlWrapper(std::move(curlWrapper))
     {
@@ -71,9 +89,16 @@ namespace Common::HttpSenderImpl
 
     HttpSender::~HttpSender() { m_curlWrapper->curlGlobalCleanup(); }
 
-    int HttpSender::doHttpsRequest(Common::HttpSender::RequestConfig& requestConfig)
+    int HttpSender::doHttpsRequest(RequestConfig& requestConfig)
     {
-        using namespace Common::HttpSender;
+      Common::HttpSender::HttpResponse response = fetchHttpRequest(requestConfig, false); 
+      return response.httpCode;   
+    }
+
+    Common::HttpSenderImpl::HttpResponse HttpSender::fetchHttpRequest(RequestConfig& requestConfig, bool captureBody)
+    {
+        using HttResponse = Common::HttpSender::HttpResponse; 
+        auto onError=[this](int errorCode) -> HttResponse{ return HttpResponse{errorCode,  m_curlWrapper->curlEasyStrError(static_cast<CURLcode>(errorCode))}; }; 
         curl_slist* headers = nullptr;
 
         std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>> > curlOptions;
@@ -83,7 +108,13 @@ namespace Common::HttpSenderImpl
         if (!curl)
         {
             LOGERROR("Failed to initialise curl");
-            return CURLE_FAILED_INIT;
+            return HttResponse{CURLE_FAILED_INIT};
+        }
+        HoldBody holdBody; 
+        if (captureBody)
+        {
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &holdBody);
         }
 
         CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
@@ -145,7 +176,7 @@ namespace Common::HttpSenderImpl
             {
                 m_curlWrapper->curlSlistFreeAll(headers);
                 LOGERROR("Failed to append header to request");
-                return CURLE_FAILED_INIT;
+                return HttResponse{CURLE_FAILED_INIT};
             }
             headers = temp;
         }
@@ -168,10 +199,11 @@ namespace Common::HttpSenderImpl
 
             if (result != CURLE_OK)
             {
+                HttpResponse resp = onError(result); 
                 LOGERROR(
                     "Failed to: " << std::get<0>(curlOption)
-                                  << " with error: " << m_curlWrapper->curlEasyStrError(result));
-                return result;
+                                  << " with error: " << resp.description);
+                return resp;
             }
         }
 
@@ -181,8 +213,9 @@ namespace Common::HttpSenderImpl
 
             if (result != CURLE_OK)
             {
-                LOGERROR("Failed to set headers with error: " << m_curlWrapper->curlEasyStrError(result));
-                return result;
+                HttpResponse resp = onError(result); 
+                LOGERROR("Failed to set headers with error: " << resp.description);
+                return resp;
             }
         }
 
@@ -190,10 +223,12 @@ namespace Common::HttpSenderImpl
 
         if (result != CURLE_OK)
         {
-            LOGERROR("Failed to perform file transfer with error: " << m_curlWrapper->curlEasyStrError(result));
-            return result;
+            HttpResponse resp = onError(result); 
+            LOGERROR("Failed to perform file transfer with error: " << resp.description);
+            return resp;
         }
-
-        return static_cast<int>(result);
+        HttpResponse httpResponse{result};
+        httpResponse.bodyContent = std::move(holdBody.body); 
+        return httpResponse;
     }
 } // namespace Common::HttpSenderImpl
