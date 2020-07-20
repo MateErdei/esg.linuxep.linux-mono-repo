@@ -32,4 +32,6 @@ public:
     MOCK_METHOD0(curlGlobalCleanup, void());
 
     MOCK_METHOD1(curlEasyStrError, const char*(CURLcode errornum));
+    
+    MOCK_METHOD2(curlGetResponseCode, CURLcode(CURL* handle, long*));
 };

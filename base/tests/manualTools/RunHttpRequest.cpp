@@ -146,9 +146,11 @@ void serialize(const Common::HttpSender::HttpResponse &response , const std::str
 void runSimpleHttpRequests(const std::vector<std::string> & files)
 {
     Common::Logging::ConsoleLoggingSetup consoleSetup; 
+    LOGINFO("Running runSimpleHttpRequests"); 
     auto networkSide = CommsComponent::NetworkSide::createOrShareNetworkSide(); 
     for(auto & filePath : files)
     {
+        LOGINFO("Process file: " << filePath); 
         auto content = Common::FileSystem::fileSystem()->readFile(filePath); 
         auto response = networkSide->performRequest( CommsComponent::CommsMsg::requestConfigFromJson(content)); 
         serialize(response, Common::FileSystem::basename(filePath));
@@ -159,8 +161,9 @@ void runHttpRequestsInTheJail(Config& config)
 {
     using namespace CommsComponent; 
     CommsComponent::UserConf parentConf{config.parentUser, config.parentGroup, "logparent" }; 
-    CommsComponent::UserConf childConf{config.childUser, config.childGroup, "logchild"};
-    CommsComponent::CommsConfigurator configurator(config.jailRoot, childConf, parentConf, {});
+    CommsComponent::UserConf childConf{config.childUser, config.childGroup, "logchild"}; 
+    CommsComponent::CommsConfigurator configurator(config.jailRoot, childConf, parentConf,
+                                                std::vector<ReadOnlyMount>() );
 
 
     auto parentProc = [&config](std::shared_ptr<MessageChannel> channel, OtherSideApi & childProxy)
@@ -213,4 +216,5 @@ int main(int argc, char * argv[])
     {
         runHttpRequestsInTheJail(config); 
     }
+    
 }

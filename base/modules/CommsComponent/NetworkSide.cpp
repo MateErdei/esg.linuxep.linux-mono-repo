@@ -37,7 +37,8 @@ namespace CommsComponent
     Common::HttpSender::HttpResponse NetworkSide::performRequest(const Common::HttpSender::RequestConfig& request)
     {
         LOGINFO("Perform " << request.getRequestTypeAsString()  << " request to " << request.getServer() ); 
-        return m_sender->fetchHttpRequest(request, true);
+        long curlCode; 
+        return m_sender->fetchHttpRequest(request, true, &curlCode);
     }
         
 }

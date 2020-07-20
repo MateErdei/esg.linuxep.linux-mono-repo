@@ -35,11 +35,20 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
+    def handle_get_request(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b"<html><head><title>Response</title></head><body>Response From HttpsServer</body></html>")
+
     def do_POST(self):
         self.handle_request("POST")
 
     def do_PUT(self):
         self.handle_request("PUT")
+    
+    def do_GET(self):
+        self.handle_get_request()
 
 
 class HttpsServer(object):

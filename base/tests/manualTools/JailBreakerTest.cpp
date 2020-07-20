@@ -93,7 +93,8 @@ int main(int argc, char * argv[])
 
 
     fs->copyFileAndSetPermissions(execPath, targetExec, 0777, childConf.userName, childConf.userGroup); 
-    CommsComponent::CommsConfigurator configurator(jailRoot, childConf, parentConf, std::vector<ReadOnlyMount>());
+    CommsComponent::CommsConfigurator configurator(jailRoot, childConf, parentConf,
+                                                std::vector<ReadOnlyMount>() ); 
 
     auto childProc = [jailBreaker](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi &/*childProxy*/){
         std::string jailBreakerPath = Common::FileSystem::join("/",jailBreaker); 

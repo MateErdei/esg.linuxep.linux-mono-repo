@@ -28,7 +28,7 @@ namespace Common::HttpSenderImpl
         ~HttpSender() override;
 
         int doHttpsRequest(const Common::HttpSender::RequestConfig& requestConfig) override;
-        Common::HttpSender::HttpResponse fetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, bool captureBody);
+        Common::HttpSender::HttpResponse fetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, bool captureBody, long * curlCode);
 
     private:
         CURLcode setCurlOptions(

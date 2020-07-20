@@ -91,16 +91,17 @@ namespace Common::HttpSenderImpl
 
     int HttpSender::doHttpsRequest(const RequestConfig& requestConfig)
     {
-      Common::HttpSender::HttpResponse response = fetchHttpRequest(requestConfig, false); 
-      return response.httpCode;   
+        long curlCode; 
+        fetchHttpRequest(requestConfig, false, &curlCode); 
+        return static_cast<int>(curlCode);   
     }
 
-    Common::HttpSenderImpl::HttpResponse HttpSender::fetchHttpRequest(const RequestConfig& requestConfig, bool captureBody)
+    Common::HttpSenderImpl::HttpResponse HttpSender::fetchHttpRequest(const RequestConfig& requestConfig, bool captureBody, long* curlCode)
     {
         using HttResponse = Common::HttpSender::HttpResponse; 
-        auto onError=[this](int errorCode) -> HttResponse{ return HttpResponse{errorCode,  m_curlWrapper->curlEasyStrError(static_cast<CURLcode>(errorCode))}; }; 
+        auto onError=[this, curlCode](int errorCode) -> HttResponse{ *curlCode = errorCode; return HttpResponse{errorCode,  m_curlWrapper->curlEasyStrError(static_cast<CURLcode>(errorCode))}; }; 
         curl_slist* headers = nullptr;
-
+        LOGINFO("Running easyPerform early code ");
         std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>> > curlOptions;
 
         CURL* curl = m_curlWrapper->curlEasyInit();
@@ -108,6 +109,7 @@ namespace Common::HttpSenderImpl
         if (!curl)
         {
             LOGERROR("Failed to initialise curl");
+            *curlCode=CURLE_FAILED_INIT;             
             return HttResponse{CURLE_FAILED_INIT};
         }
         HoldBody holdBody; 
@@ -176,6 +178,7 @@ namespace Common::HttpSenderImpl
             {
                 m_curlWrapper->curlSlistFreeAll(headers);
                 LOGERROR("Failed to append header to request");
+                *curlCode = CURLE_FAILED_INIT;
                 return HttResponse{CURLE_FAILED_INIT};
             }
             headers = temp;
@@ -219,16 +222,26 @@ namespace Common::HttpSenderImpl
             }
         }
 
+        LOGDEBUG("Running easyPerform. ");
         CURLcode result = m_curlWrapper->curlEasyPerform(curl);
-
+        LOGDEBUG("Performed easyPerform: " << result);
         if (result != CURLE_OK)
         {
             HttpResponse resp = onError(result); 
             LOGERROR("Failed to perform file transfer with error: " << resp.description);
             return resp;
         }
-        HttpResponse httpResponse{result};
-        httpResponse.bodyContent = std::move(holdBody.body); 
-        return httpResponse;
+        else{
+            *curlCode = CURLE_OK;
+            long response_code;
+            if (m_curlWrapper->curlGetResponseCode(curl, &response_code) == CURLE_OK)
+            {
+                HttpResponse httpResponse{static_cast<int>(response_code)};
+                httpResponse.bodyContent = std::move(holdBody.body); 
+                return httpResponse; 
+            }             
+        }
+        return HttpResponse{result};        
+
     }
 } // namespace Common::HttpSenderImpl

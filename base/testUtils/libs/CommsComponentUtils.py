@@ -1,4 +1,6 @@
 import os
+import json
+import base64
 
 COMMS_COMPONENT_EXECUTABLE_NAME="CommsComponent"
 
@@ -40,3 +42,29 @@ class CommsComponentUtils:
             return None
         if not pid and require_running:
             raise AssertionError("No comms component running")
+    
+    def create_http_json_request(self, filename, **kwargs):
+        """
+        Define how to create the json request, any of the following parameters can be passed:
+        requestType
+        server
+        resourcePath
+        bodyContent
+        port
+        headers
+        certPath
+        """
+        entry = dict(kwargs)        
+        with open(filename, 'w') as f:
+            json.dump(entry,f)
+
+    def extract_bodyContent_of_json_response(self,filename, httpCode=""):
+        with open(filename,'r') as f:
+            content = json.load(f)
+            if (httpCode != ""):
+                if content['httpCode'] != int(httpCode):
+                    raise RuntimeError("Expected code does not match: Extrated: {}, Expected {}".format(content['httpCode'],httpCode))
+            return base64.b64decode(content['bodyContent']).decode(errors='replace')
+        return ""
+        
+    

@@ -68,8 +68,9 @@ TEST_F(RealHttpSenderTest, DISABLED_realGetRequestShouldBeAbleToExtractTheBody)
 
     RequestConfig getRequestConfig(
         RequestType::GET, m_additionalHeaders, "www.google.com", 443, "", "/");
-    auto resp = httpSender->fetchHttpRequest(getRequestConfig, true);
-    EXPECT_EQ(resp.httpCode, 0); 
+    long curlCode; 
+    auto resp = httpSender->fetchHttpRequest(getRequestConfig, true, &curlCode);
+    EXPECT_EQ(resp.httpCode, 200); 
     EXPECT_GT(resp.bodyContent.size(), 100);
     EXPECT_THAT(resp.bodyContent, ::testing::HasSubstr("Google Search"));
     
@@ -83,6 +84,7 @@ TEST_F(HttpSenderTest, getRequest) // NOLINT
             {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGetResponseCode(_,_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
     RequestConfig getRequestConfig(
@@ -99,6 +101,7 @@ TEST_F(HttpSenderTest, postRequest) // NOLINT
             {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGetResponseCode(_,_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
     RequestConfig postRequestConfig(
@@ -115,6 +118,7 @@ TEST_F(HttpSenderTest, putRequest) // NOLINT
             {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGetResponseCode(_,_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
     RequestConfig putRequestConfig(
@@ -136,6 +140,7 @@ TEST_F(HttpSenderTest, putRequestWithImplicitCertPath) // NOLINT
             {CURL_SSLVERSION_TLSv1_2})).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGetResponseCode(_,_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
     RequestConfig putRequestConfig(
@@ -153,6 +158,7 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlSlistFreeAll(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGetResponseCode(_,_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
     m_additionalHeaders.emplace_back("testHeader");
