@@ -29,6 +29,7 @@ namespace
             proto->set_bodycontent(requestConfig.getData());
             proto->set_server(requestConfig.getServer());
             proto->set_resourcepath(requestConfig.getResourcePath());
+            proto->set_certpath(requestConfig.getCertPath());
             proto->set_requesttype(requestConfig.getRequestTypeAsString());
             proto->set_port(requestConfig.getPort());
 
@@ -45,6 +46,7 @@ namespace
         requestConfig.setRequestTypeFromString(requestProto.requesttype());
         requestConfig.setServer(requestProto.server());
         requestConfig.setResourcePath(requestProto.resourcepath());
+        requestConfig.setCertPath(requestProto.certpath());
         requestConfig.setData(requestProto.bodycontent());
         requestConfig.setPort(requestProto.port());
         std::vector<std::string> headers; 
@@ -63,22 +65,6 @@ namespace
         httpResponse.description = responseProto.description();
         return httpResponse;
     }
-
-    //TODO LINUXDAR-1956 the below is skeleton code for this ticket
-/*    TelemetryRequest from(const CommsMsgProto::TelemetryRequest& proto)
-    {
-        CommsComponent::TelemetryRequest telemetryRequest; 
-        telemetryRequest.telemetryContent = proto.telemetrycontent(); 
-        return telemetryRequest; 
-    }
-    DiagnoseRequest from(const CommsMsgProto::DiagnoseRequest& proto)
-    {
-        CommsComponent::DiagnoseRequest diagnoseRequest; 
-        diagnoseRequest.diagnoseContent = proto.diagnosecontent(); 
-        return diagnoseRequest;         
-    }
-
-*/
 
 }
 
@@ -108,19 +94,6 @@ namespace CommsComponent{
                 commsMsg.content = from(protoMsg.httpresponse());
 
             }
-            //TODO LINUXDAR-1956 the below is skeleton code for this ticket
-            // if (protoMsg.has_diagnoserequest())
-            // {
-            //     commsMsg.content = from(protoMsg.diagnoserequest()); 
-            // }
-            // else if( protoMsg.has_telemetryrequest())
-            // {
-            //     commsMsg.content = from(protoMsg.telemetryrequest()); 
-            // } 
-            // else
-            // {
-            //     throw std::logic_error("Developer forgot to implement one of the fields");
-            // }
             return commsMsg; 
         }
 
