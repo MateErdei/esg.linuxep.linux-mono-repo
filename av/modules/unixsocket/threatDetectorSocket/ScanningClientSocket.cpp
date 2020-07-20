@@ -118,12 +118,8 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGERROR("Scanning Client Socket cannot write to socket: " << e.what());
-        LOGERROR("Scan request not send to the socket : " << e.what());
-        scan_messages::ScanResponse response;
-
-        response.setClean(true);
-        return response;
+        LOGERROR("Failed to write capn buffer to unix socket, scan request not send to the socket : " << e.what());
+        handle_error("Scan terminated failed to initiate scan");
     }
 
     send_fd(m_socket_fd, fd.get());
