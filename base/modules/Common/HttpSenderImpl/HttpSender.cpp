@@ -14,6 +14,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <map>
 #include <sstream>
 #include <variant>
+#include <Common/Logging/LoggerConfig.h>
 
 namespace
 {
@@ -95,7 +96,15 @@ namespace Common::HttpSenderImpl
 
         curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri);
         curlOptions.emplace_back("Specify preferred TLS/SSL version", CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-        curlOptions.emplace_back("Set logging options", CURLOPT_VERBOSE, 1L);
+        long verbose = 1L;
+        int logLevel = getHttpSenderImplLogger().getLogLevel();
+
+        if (logLevel > 10000)
+        {
+            verbose = 0L;
+        }
+
+        curlOptions.emplace_back("Set logging options", CURLOPT_VERBOSE, verbose);
         std::string certPath = requestConfig.getCertPath();
 
         if (certPath.empty())
