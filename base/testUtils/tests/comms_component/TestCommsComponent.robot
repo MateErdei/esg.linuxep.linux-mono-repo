@@ -23,5 +23,5 @@ Test Setup
     Require Uninstalled
 
 Test Teardown
-    Require Uninstalled
     General Test Teardown
+    Require Uninstalled
