@@ -75,7 +75,7 @@ namespace CommsComponent
         {
             std::string oldSophosInstall = Common::ApplicationConfiguration::applicationConfiguration().getData(
                     Common::ApplicationConfiguration::SOPHOS_INSTALL);
-            std::vector<Path> loggingDirectories = {"base", "base/etc/", "logs", "logs/base"};
+            std::vector<Path> loggingDirectories = {"","base", "base/etc/", "logs", "logs/base"};
             for (auto& dirpath : loggingDirectories)
             {
                 std::string path = Common::FileSystem::join(m_chrootDir, dirpath);
