@@ -9,12 +9,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/Logging/LoggerConfig.h>
 
 #include <curl.h>
 #include <map>
 #include <sstream>
 #include <variant>
-#include <Common/Logging/LoggerConfig.h>
 
 namespace
 {
