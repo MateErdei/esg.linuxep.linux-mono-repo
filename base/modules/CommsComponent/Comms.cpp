@@ -8,16 +8,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <thread>
 #include <csignal>
 
+bool stop = false;
 namespace
 {
     void s_signal_handler(int)
     {
         LOGSUPPORT("Handling signal");
+        stop = true;
     }
 
 } // namespace
-
-bool stop = false;
 
 namespace CommsComponent {
     int main_entry() {
