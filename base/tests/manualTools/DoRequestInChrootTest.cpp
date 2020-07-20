@@ -73,15 +73,8 @@ int main(int argc, char *argv[])
         fp->chown(networkChrootDir, childConf.userName, childConf.userGroup);
         fp->chmod(networkChrootDir, 0770);
     }
-    //setUpCurlDependencies(networkChrootDir, childConf);
-    std::vector<std::pair<std::string, std::string>> mountSources = {
-            {"/lib",             "lib"},
-            {"/usr/lib",         "usr/lib"},
-            {"/etc/ssl",         "etc/ssl"},
-            {"/etc/hosts",       "etc/hosts"},
-            {"/etc/resolv.conf", "etc/resolv.conf"}};
 
-    CommsComponent::CommsConfigurator configurator(networkChrootDir, childConf, parentConf, mountSources);
+    CommsComponent::CommsConfigurator configurator(networkChrootDir, childConf, parentConf);
 
     auto childProc = [&](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi&/*childProxy*/) {
         std::cout << "Running child request" << std::endl;

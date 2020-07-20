@@ -5,12 +5,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <string>
 #include <optional>
+#include <Common/FileSystem/IFileSystem.h>
 
 namespace CommsComponent
 {
-    std::optional<std::string> getCertificateStorePath();
+    std::optional<Path> getCertificateStorePath();
 
-    std::optional<std::string> getCaCertificateBundleFile();
+    std::optional<Path> getCaCertificateBundleFile();
+
+    void makeDirsAndSetPermissions(const Path& rootDir, const Path& pathRelToRootDir, const std::string& userName,
+                                   const std::string& userGroup, __mode_t mode);
 }  //CommsComponent

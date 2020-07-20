@@ -11,11 +11,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <CommsComponent/CertficateStoreUtils.h>
+#include <CommsComponent/CommsComponentUtils.h>
 
 #include <sstream>
 #include <sys/stat.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 namespace CommsComponent
 {
@@ -98,7 +99,8 @@ namespace CommsComponent
         }
     }
 
-    void CommsConfigurator::mountDependenciesReadOnly(UserConf userConf)
+
+    void CommsConfigurator::mountDependenciesReadOnly(CommsComponent::UserConf userConf)
     {
         auto fs = Common::FileSystem::fileSystem();
         auto ifperms = Common::FileSystem::FilePermissionsImpl();
@@ -107,6 +109,13 @@ namespace CommsComponent
         {
             auto sourcePath = target.first;
             auto targetRelPath = target.second;
+
+            //remove "/" if at the start of the path
+            if (Common::UtilityImpl::StringUtils::startswith(targetRelPath, "/"))
+            {
+                targetRelPath = targetRelPath.substr(1);
+            }
+
             auto targetPath = Common::FileSystem::join(m_chrootDir, targetRelPath);
 
             //attempting to mount to an existing file will overwrite
@@ -126,46 +135,50 @@ namespace CommsComponent
 
             if (fs->isFile(sourcePath))
             {
-                auto dirpath = Common::FileSystem::dirName(targetPath);
-                std::cout << "dirname " << dirpath << std::endl;
-                fs->makedirs(dirpath);
-                ifperms.chmod(dirpath, 0755);
+                makeDirsAndSetPermissions(m_chrootDir, Common::FileSystem::dirName(targetRelPath), userConf.userName,
+                                          userConf.userGroup, 0755);
+                assert(fs->exists(Common::FileSystem::dirName(targetPath)));
                 fs->writeFile(targetPath, "");
                 ifperms.chown(targetPath, userConf.userName, userConf.userGroup); //test-spl-user //test-spl-grp
-
             }
-
             else if (fs->isDirectory(sourcePath))
             {
-                fs->makedirs(targetPath);
-                ifperms.chown(targetPath, userConf.userName, userConf.userGroup);
-                ifperms.chmod(targetPath, 0700);
+                CommsComponent::makeDirsAndSetPermissions(m_chrootDir, targetRelPath, userConf.userName,
+                                                          userConf.userGroup, 0700);
+                assert(fs->exists(targetPath));
             }
             Common::SecurityUtils::bindMountReadOnly(sourcePath, targetPath);
         }
     }
 
+
     //throws handle
     std::vector<ReadOnlyMount> CommsConfigurator::getListOfDependenciesToMount()
     {
         std::vector<ReadOnlyMount> deps{
-                {"/lib",             "lib"},
-                {"/usr/lib",         "usr/lib"},
-                {"/etc/ssl/certs",   "etc/certs"},
-                {"/etc/hosts",       "etc/hosts"},          //FIXME replace with calculated path
-                {"/etc/resolv.conf", "etc/resolv.conf"}
+                {"/lib",             "/lib"},
+                {"/usr/lib",         "/usr/lib"},
+                {"/etc/hosts",       "/etc/hosts"},
+                {"/etc/resolv.conf", "/etc/resolv.conf"}
         };
 
-        //add certifcate
-        auto certStorePath = getCertificateStorePath();
-        if (!certStorePath.has_value()||certStorePath->empty())
+        //add default certifcate store path
+        auto certStorePath = CommsComponent::getCertificateStorePath();
+        if (certStorePath.has_value())
         {
-            throw;
+            deps.emplace_back(std::make_pair(certStorePath.value(), certStorePath->substr(1)));
         }
-        //FIXME replace with calculated path
-        //deps.emplace_back(std::make_pair(certStorePath.value(), certStorePath->substr(1)));
+
+        //add mcs certs folder
+        std::string sophosInstall = Common::ApplicationConfiguration::applicationConfiguration().getData(
+                Common::ApplicationConfiguration::SOPHOS_INSTALL);
+        auto mcsCertPathSource = Common::FileSystem::join(sophosInstall, "base/mcs/certs");
+        if (Common::FileSystem::fileSystem()->isDirectory(mcsCertPathSource))
+        {
+            deps.emplace_back(std::make_pair(mcsCertPathSource, "base/mcs/certs"));
+        }
+
         return deps;
     }
-
 
 }

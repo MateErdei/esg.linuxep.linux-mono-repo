@@ -22,8 +22,8 @@ add_library(commscomponentimpl SHARED
         CommsMsg.cpp
         NetworkSide.h
         NetworkSide.cpp
-        CertficateStoreUtils.cpp
-        CertficateStoreUtils.h
+        CommsComponentUtils.cpp
+        CommsComponentUtils.h
         )
 
 
