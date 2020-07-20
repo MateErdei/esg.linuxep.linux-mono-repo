@@ -245,10 +245,12 @@ TEST_F(TestCommsMsg, deserializeFromJsonForHttpResponse) // NOLINT
     httpResponse.description = "desc"; 
     httpResponse.httpCode = 3; 
     httpResponse.bodyContent = "body"; 
+    // observe that body is the base64 encoded of the string body. This is to 
+    // ensure that the body may contain binary strings. 
     std::string json = R"({
  "httpCode": "3",
  "description": "desc",
- "bodyContent": "body"
+ "bodyContent": "Ym9keQ=="
 })"; 
     Common::HttpSender::HttpResponse resHttp = CommsMsg::httpResponseFromJson(json); 
     CommsMsg input;     
@@ -271,11 +273,6 @@ TEST_F(TestCommsMsg, serializationAndDeserializationOfJsonShouldWorkForHttpReque
     input.content = configRequest; 
     Common::HttpSender::RequestConfig reqHttp = CommsMsg::requestConfigFromJson(CommsMsg::toJson(configRequest)); 
 
-    // the certificatePath is not present in the serialization (do we want?)
-    // FIXME: The issue would be that it would open the capability to 'exploit' by providing different certs. 
-    // but allow for cert-pinning.    
-    reqHttp.setCertPath( configRequest.getCertPath()); 
-
     CommsMsg result; 
     result.content = reqHttp; 
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
@@ -288,15 +285,19 @@ TEST_F(TestCommsMsg, deserializeFromJsonForConfigRequest) // NOLINT
         std::vector<std::string>{"header1","header2"}, 
         "domain.com",
         335,
-        "", "/index.html"}; 
-        // Observe that the certPath is empty.
+        "certPath1", "/index.html"}; 
+
+
     configRequest.setData("data"); 
+    // observe that bodyContent is the base64 encoded of the string 'data'. 
+
     std::string json = R"({
  "requestType": "POST",
  "server": "domain.com",
  "resourcePath": "/index.html",
- "bodyContent": "data",
+ "bodyContent": "ZGF0YQ==",
  "port": "335",
+ "certPath" : "certPath1",
  "headers": [
   "header1",
   "header2"

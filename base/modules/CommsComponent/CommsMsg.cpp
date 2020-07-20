@@ -38,21 +38,12 @@ namespace
             proto->set_resourcepath(requestConfig.getResourcePath());
             proto->set_requesttype(requestConfig.getRequestTypeAsString());
             proto->set_port(requestConfig.getPort());
+            proto->set_certpath(requestConfig.getCertPath());
 
             for(const auto& header : requestConfig.getAdditionalHeaders())
             {
                 proto->add_headers(header);
             }
-            // proto->set_proxyallowed(httpRequest.proxyAllowed);
-
-            // proto->set_timetout(httpRequest.timeout);
-            // for (auto & pairEntry : httpRequest.headers)
-            // {
-            //     CommsMsgProto::KeyValue keyValue;
-            //     keyValue.set_key(pairEntry.first);
-            //     keyValue.set_value(pairEntry.second);
-            //     proto->mutable_headers()->Add(dynamic_cast<CommsMsgProto::KeyValue &&>(keyValue));
-            // }
         }
     };
 
@@ -64,6 +55,7 @@ namespace
         requestConfig.setResourcePath(requestProto.resourcepath());
         requestConfig.setData(requestProto.bodycontent());
         requestConfig.setPort(requestProto.port());
+        requestConfig.setCertPath(requestProto.certpath());
         std::vector<std::string> headers; 
         for(auto& header: requestProto.headers())
         {
@@ -80,21 +72,6 @@ namespace
         httpResponse.description = responseProto.description();
         return httpResponse;
     }
-
-/*    TelemetryRequest from(const CommsMsgProto::TelemetryRequest& proto)
-    {
-        CommsComponent::TelemetryRequest telemetryRequest; 
-        telemetryRequest.telemetryContent = proto.telemetrycontent(); 
-        return telemetryRequest; 
-    }
-    DiagnoseRequest from(const CommsMsgProto::DiagnoseRequest& proto)
-    {
-        CommsComponent::DiagnoseRequest diagnoseRequest; 
-        diagnoseRequest.diagnoseContent = proto.diagnosecontent(); 
-        return diagnoseRequest;         
-    }
-
-*/
 
 }
 
@@ -119,23 +96,15 @@ namespace CommsComponent{
                 commsMsg.content = from(protoMsg.httprequest());
 
             }
-            if(protoMsg.has_httpresponse())
+            else if(protoMsg.has_httpresponse())
             {
                 commsMsg.content = from(protoMsg.httpresponse());
 
             }
-            // if (protoMsg.has_diagnoserequest())
-            // {
-            //     commsMsg.content = from(protoMsg.diagnoserequest()); 
-            // }
-            // else if( protoMsg.has_telemetryrequest())
-            // {
-            //     commsMsg.content = from(protoMsg.telemetryrequest()); 
-            // } 
-            // else
-            // {
-            //     throw std::logic_error("Developer forgot to implement one of the fields");
-            // }
+            else
+            {
+                throw std::logic_error("Developer forgot to implement one of the fields");
+            }
             return commsMsg; 
         }
 

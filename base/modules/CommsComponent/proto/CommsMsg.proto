@@ -22,6 +22,7 @@ message HttpRequest
     // optional int64 timeout = 8;
     repeated string headers = 9; 
     // repeated KeyValue params = 10;  
+    optional string certPath = 12; 
 }
 
 message HttpResponse
