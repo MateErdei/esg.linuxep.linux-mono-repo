@@ -55,6 +55,9 @@ sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegis
 "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_REG_FILE}"
 rm -f ${TEMP_REG_FILE}
 
+# Use a safe umask while copying files before correcting permissions
+umask 077
+
 #Install files
 for F in $(find $DIST/files/plugins -type f)
 do
@@ -74,12 +77,10 @@ chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/libsophosthreatdetect
 chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/libthreat_scanner.so"*
 chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin"
 chmod 0755 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/avscanner"
-chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin"
-chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin"/*
+chmod -R 0710 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/sbin"
 
 VAR="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
 mkdir -p "$VAR"
-chmod 0700 "$VAR"
 
 CHROOT="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/chroot"
 CHROOT_LINK_DIR="${CHROOT}/${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
@@ -88,7 +89,6 @@ ln -snf / ${CHROOT_LINK_DIR}/chroot
 mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
 mkdir -p ${CHROOT}/tmp
 chmod 0711 "$CHROOT"
-chmod 0700 "$CHROOT"/*
 
 ## Create log directory symlinks for sophos_threat_detector
 mkdir -p "$CHROOT/log" "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log" "${CHROOT_LINK_DIR}/log"
