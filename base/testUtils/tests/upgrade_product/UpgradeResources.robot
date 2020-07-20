@@ -108,6 +108,7 @@ Wait For Initial Update To Fail
 
 
 Run Shell Process
-    [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
+    [Arguments]  ${Command}   ${OnError}   ${timeout}=20s   ${expectedExitCode}=0
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
-    Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\nstdout: \n${result.stdout} \n.stderr: \n${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${expectedExitCode}   "${OnError}.\nstdout: \n${result.stdout} \n.stderr: \n${result.stderr}"
+    [Return]  ${result.stdout} + ${result.stderr}

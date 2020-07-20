@@ -54,7 +54,10 @@ class CommsComponentUtils:
         headers
         certPath
         """
-        entry = dict(kwargs)        
+        entry = dict(kwargs)
+        bodyContent = 'bodyContent'
+        if bodyContent in entry:
+            entry[bodyContent] = base64.b64encode( entry[bodyContent].encode() ).decode()
         with open(filename, 'w') as f:
             json.dump(entry,f)
 
@@ -62,7 +65,7 @@ class CommsComponentUtils:
         with open(filename,'r') as f:
             content = json.load(f)
             if (httpCode != ""):
-                if content['httpCode'] != int(httpCode):
+                if content['httpCode'] != httpCode:
                     raise RuntimeError("Expected code does not match: Extrated: {}, Expected {}".format(content['httpCode'],httpCode))
             return base64.b64decode(content['bodyContent']).decode(errors='replace')
         return ""

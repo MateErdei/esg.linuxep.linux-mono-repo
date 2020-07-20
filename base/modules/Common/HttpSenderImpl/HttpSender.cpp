@@ -172,6 +172,7 @@ namespace Common::HttpSenderImpl
 
         for (const auto& header : requestConfig.getAdditionalHeaders())
         {
+            LOGDEBUG("Append header: " << header );
             curl_slist* temp = nullptr;
             temp = m_curlWrapper->curlSlistAppend(headers, header);
             if (!temp)

@@ -20,7 +20,6 @@ add_subdirectory(TelemetryScheduler)
 add_subdirectory(UpdateScheduler)
 add_subdirectory(watchdog)
 add_subdirectory(wdctl)
-add_subdirectory(CommsComponent)
 
 if (BUILD_FUZZ_TESTS)
     message("Building fuzz tests ${BUILD_FUZZ_TESTS}")
