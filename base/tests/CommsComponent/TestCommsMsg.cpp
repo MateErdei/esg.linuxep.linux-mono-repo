@@ -3,8 +3,6 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <gmock/gmock-matchers.h>
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <modules/CommsComponent/CommsMsg.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
@@ -131,6 +129,7 @@ TEST_F(TestCommsMsg, IDofCommsCanBeProcessedCorrectly) // NOLINT
     input.id = "stuff";
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(result.id,"stuff");
 }
 
 TEST_F(TestCommsMsg, bodyContentOfHttpResponseCanBeProcessedCorrectly) // NOLINT
@@ -141,6 +140,8 @@ TEST_F(TestCommsMsg, bodyContentOfHttpResponseCanBeProcessedCorrectly) // NOLINT
     input.content = httpResponse;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::HttpResponse>(result.content).bodyContent,"stuff");
+    EXPECT_EQ(std::get<Common::HttpSender::HttpResponse>(result.content).bodyContent,httpResponse.bodyContent);
 }
 
 TEST_F(TestCommsMsg, httpCodeOfHttpResponseCanBeProcessedCorrectly) // NOLINT
@@ -151,6 +152,7 @@ TEST_F(TestCommsMsg, httpCodeOfHttpResponseCanBeProcessedCorrectly) // NOLINT
     input.content = httpResponse;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::HttpResponse>(result.content).httpCode,400);
 }
 
 TEST_F(TestCommsMsg, descriptionOfHttpResponseCanBeProcessedCorrectly) // NOLINT
@@ -161,6 +163,7 @@ TEST_F(TestCommsMsg, descriptionOfHttpResponseCanBeProcessedCorrectly) // NOLINT
     input.content = httpResponse;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::HttpResponse>(result.content).description,"stuff");
 }
 
 TEST_F(TestCommsMsg, bodyContentOfHttpRequestCanBeProcessedCorrectly) // NOLINT
@@ -171,6 +174,7 @@ TEST_F(TestCommsMsg, bodyContentOfHttpRequestCanBeProcessedCorrectly) // NOLINT
     input.content = requestConfig;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::RequestConfig>(result.content).getData(),"stuff");
 }
 TEST_F(TestCommsMsg, requestTypeOfHttpRequestCanBeProcessedCorrectly) // NOLINT
 {
@@ -180,6 +184,7 @@ TEST_F(TestCommsMsg, requestTypeOfHttpRequestCanBeProcessedCorrectly) // NOLINT
     input.content = requestConfig;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::RequestConfig>(result.content).getRequestTypeAsString(),"GET");
 }
 
 TEST_F(TestCommsMsg, HeadersOfHttpRequestCanBeProcessedCorrectly) // NOLINT
@@ -193,6 +198,7 @@ TEST_F(TestCommsMsg, HeadersOfHttpRequestCanBeProcessedCorrectly) // NOLINT
     input.content = requestConfig;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::RequestConfig>(result.content).getAdditionalHeaders(),headers);
 }
 
 TEST_F(TestCommsMsg, serverOfHttpRequestCanBeProcessedCorrectly) // NOLINT
@@ -203,6 +209,7 @@ TEST_F(TestCommsMsg, serverOfHttpRequestCanBeProcessedCorrectly) // NOLINT
     input.content = requestConfig;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::RequestConfig>(result.content).getServer(),"testserver.com");
 }
 
 TEST_F(TestCommsMsg, resourcePathOfHttpRequestCanBeProcessedCorrectly) // NOLINT
@@ -213,6 +220,7 @@ TEST_F(TestCommsMsg, resourcePathOfHttpRequestCanBeProcessedCorrectly) // NOLINT
     input.content = requestConfig;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::RequestConfig>(result.content).getResourcePath(),"/blah/blah1");
 }
 
 TEST_F(TestCommsMsg, certPathOfHttpRequestCanBeProcessedCorrectly) // NOLINT
@@ -223,6 +231,7 @@ TEST_F(TestCommsMsg, certPathOfHttpRequestCanBeProcessedCorrectly) // NOLINT
     input.content = requestConfig;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::RequestConfig>(result.content).getCertPath(),"/tmp/cert.pem");
 }
 
 TEST_F(TestCommsMsg, portOfHttpRequestCanBeProcessedCorrectly) // NOLINT
@@ -233,4 +242,5 @@ TEST_F(TestCommsMsg, portOfHttpRequestCanBeProcessedCorrectly) // NOLINT
     input.content = requestConfig;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::RequestConfig>(result.content).getPort(),433);
 }
