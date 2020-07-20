@@ -11,23 +11,25 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/CommsComponent/AsyncMessager.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
+
 using namespace CommsComponent;
 
 struct MessagesAppender
 {
-    static constexpr const char * Command2Throw = "Command2Throw"; 
-    std::vector<std::string>& m_messages;
-    Tests::TestExecutionSynchronizer& m_synchronizer;
-    MessagesAppender(std::vector<std::string>& messages, Tests::TestExecutionSynchronizer& synchronizer) :
-        m_messages(messages),
-        m_synchronizer(synchronizer)
+    static constexpr const char *Command2Throw = "Command2Throw";
+    std::vector<std::string> &m_messages;
+    Tests::TestExecutionSynchronizer &m_synchronizer;
+
+    MessagesAppender(std::vector<std::string> &messages, Tests::TestExecutionSynchronizer &synchronizer) :
+            m_messages(messages),
+            m_synchronizer(synchronizer)
     {
     }
     void operator()(std::string newMessage)
     {
         if (newMessage == Command2Throw)
         {
-            throw std::runtime_error("unacceptable message"); 
+            throw std::runtime_error("unacceptable message");
         }
         m_messages.emplace_back(std::move(newMessage));
         m_synchronizer.notify();
@@ -53,8 +55,8 @@ TEST_F(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
 
     std::string message{ "basictest" };
     std::string message2{ "basictest2" };
-    std::string fromm1{ "from_m1" };
-    m1->sendMessage(fromm1);
+    std::string from1{ "from_m1" };
+    m1->sendMessage(from1);
     m2->sendMessage(message);
     m2->sendMessage(message2);
     EXPECT_TRUE(synchronizer.waitfor(1000));
@@ -65,7 +67,7 @@ TEST_F(TestAsyncMessager, MessagesCanBeInterchangedByAsyncMessager) // NOLINT
     ASSERT_EQ(receivedMessages2.size(), 1);
     EXPECT_EQ(message, receivedMessages1.at(0));
     EXPECT_EQ(message2, receivedMessages1.at(1));
-    EXPECT_EQ(fromm1, receivedMessages2.at(0));
+    EXPECT_EQ(from1, receivedMessages2.at(0));
 }
 
 TEST_F(TestAsyncMessager, Utf8MessagesArePreserved) // NOLINT
@@ -241,7 +243,7 @@ TEST_F(TestAsyncMessager, asyncMessagersShouldBeResistentToExceptionsTriggeredIn
     ListStrings receivedMessages2;
 
     std::string message = "test";
-    std::string willTriggerThrow = MessagesAppender::Command2Throw; 
+    std::string willTriggerThrow = MessagesAppender::Command2Throw;
     Tests::TestExecutionSynchronizer synchronizer(1);
 
     auto [m1, m2] = CommsContext::setupPairOfConnectedSockets(
