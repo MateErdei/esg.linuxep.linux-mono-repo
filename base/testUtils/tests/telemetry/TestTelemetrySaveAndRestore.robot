@@ -17,8 +17,6 @@ ${TELEMETRY_CACHE_DIR}  ${SOPHOS_INSTALL}/base/telemetry/cache
 
 *** Test Cases ***
 Check Save And Restore Correctly Persists Telemetry Through SSPL Restarts
-    Override LogConf File as Global Level  DEBUG
-
     # TODO - LINUXDAR-1956 Telemetry for comms component is flakey here
     Wait Until Keyword Succeeds
     ...  10s
