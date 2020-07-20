@@ -87,21 +87,31 @@ PATH=$PATH:/usr/sbin:/sbin
 
 function removeUserAndGroup()
 {
+  function check_user_exists()
+  {
+    grep  $1 /etc/passwd &>/dev/null
+  }
+  function check_group_exists()
+  {
+    grep  $1 /etc/group &>/dev/null
+  }
+
   local USERNAME=$1
   local GROUPNAME=$2
+  check_user_exists  $USERNAME  ||  echo "tried to remove user: $USERNAME, which does not exist"
+  check_group_exists  $GROUPNAME  ||  echo "tried to remove group: $GROUPNAME, which does not exist"
   DELUSER=$(which deluser 2>/dev/null)
   USERDEL=$(which userdel 2>/dev/null)
 
   if [[ -x "$DELUSER" ]]
   then
-      "$DELUSER" "$USERNAME" 2>/dev/null >/dev/null
+      "$DELUSER" "$USERNAME" 2>/dev/null >/dev/null  || echo "Failed to delete user: $USERNAME"
   elif [[ -x "$USERDEL" ]]
   then
-      "$USERDEL" "$USERNAME" 2>/dev/null >/dev/null
+      "$USERDEL" "$USERNAME" 2>/dev/null >/dev/null  || echo "Failed to delete user: $USERNAME"
   else
       echo "Unable to delete user $USERNAME" >&2
   fi
-
   ## Can't delete the group if we aren't deleting the user
   if [[ -z $NO_REMOVE_GROUP ]]
   then
@@ -109,7 +119,11 @@ function removeUserAndGroup()
       [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
       if [[ -x "$GROUP_DELETER" ]]
       then
-          "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null
+          check_group_exists  $GROUPNAME
+          if [[ $? -eq 0 ]]
+          then
+              "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null || echo "Failed to delete group: $GROUPNAME"
+          fi
       else
           echo "Unable to delete group $GROUPNAME" >&2
       fi
