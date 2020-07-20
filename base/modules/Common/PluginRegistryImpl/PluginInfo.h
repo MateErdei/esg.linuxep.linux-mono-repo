@@ -41,8 +41,8 @@ namespace Common
              */
             std::vector<std::string> getPolicyAppIds() const;
             /**
-             * Used to get stored policy appIds
-             * @return list of app ids for the policies the plugin will support
+             * Used to get stored action appIds
+             * @return list of app ids for the actions the plugin will support
              */
             std::vector<std::string> getActionAppIds() const;
             /**
