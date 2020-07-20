@@ -52,11 +52,14 @@ namespace CommsComponent
          */
         void setupLoggingFiles();
 
-        void mountDependenciesReadOnly(UserConf userConf, std::vector<ReadOnlyMount> dependencies);
+        void mountDependenciesReadOnly(UserConf userConf);
 
+        std::vector<ReadOnlyMount> getListOfDependenciesToMount();
     public:
         CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser,
                           std::vector<ReadOnlyMount> dependenciesToMount);
+
+        CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser);
 
         /*
          * drops to the user not facing network

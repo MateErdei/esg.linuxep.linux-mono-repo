@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <CommsComponent/CertficateStoreUtils.h>
 
 #include <sstream>
 #include <sys/stat.h>
@@ -31,6 +32,7 @@ namespace CommsComponent
     void CommsConfigurator::applyChildSecurityPolicy()
     {
         setupLoggingFiles();
+        mountDependenciesReadOnly(m_childUser);
         Common::SecurityUtils::chrootAndDropPrivileges(m_childUser.userName, m_childUser.userGroup, m_chrootDir);
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/");
@@ -47,7 +49,6 @@ namespace CommsComponent
     {
         //umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
         m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_parentUser.logName, true));
-        mountDependenciesReadOnly(m_childUser, m_listOfDependencyPairs);
     }
 
     void CommsConfigurator::applyChildInit()
@@ -61,6 +62,11 @@ namespace CommsComponent
                                          std::vector<ReadOnlyMount> dependenciesToMount)
             : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)),
               m_listOfDependencyPairs(std::move(dependenciesToMount)) {}
+
+    CommsConfigurator::CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser)
+
+            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)),
+              m_listOfDependencyPairs(getListOfDependenciesToMount()) {}
 
     void CommsConfigurator::setupLoggingFiles()
     {
@@ -92,15 +98,16 @@ namespace CommsComponent
         }
     }
 
-    void CommsConfigurator::mountDependenciesReadOnly(UserConf userConf, std::vector<ReadOnlyMount> dependencies)
+    void CommsConfigurator::mountDependenciesReadOnly(UserConf userConf)
     {
         auto fs = Common::FileSystem::fileSystem();
         auto ifperms = Common::FileSystem::FilePermissionsImpl();
 
-        for (const auto& target : dependencies)
+        for (const auto& target : m_listOfDependencyPairs)
         {
             auto sourcePath = target.first;
-            auto targetPath = Common::FileSystem::join(m_chrootDir, target.second);
+            auto targetRelPath = target.second;
+            auto targetPath = Common::FileSystem::join(m_chrootDir, targetRelPath);
 
             //attempting to mount to an existing file will overwrite
             if (fs->exists(targetPath)&&!Common::SecurityUtils::isFreeMountLocation(targetPath))
@@ -108,11 +115,12 @@ namespace CommsComponent
                 std::stringstream errorMessage;
                 if (Common::SecurityUtils::isAlreadyMounted(targetPath))
                 {
-                    LOGINFO("Source '" << sourcePath << "' is already mounted on '" << targetPath);
+                    errorMessage << "Configure source '" << sourcePath << "' is already mounted on '" << targetPath;
+                    perror(errorMessage.str().c_str());
                     continue;
                 }
                 //this could be anything do not mount ontop
-                LOGERROR("file without the expected content found in the mount location");
+                perror("file without the expected content found in the mount location");
                 exit(EXIT_FAILURE);
             }
 
@@ -121,9 +129,10 @@ namespace CommsComponent
                 auto dirpath = Common::FileSystem::dirName(targetPath);
                 std::cout << "dirname " << dirpath << std::endl;
                 fs->makedirs(dirpath);
+                ifperms.chmod(dirpath, 0755);
                 fs->writeFile(targetPath, "");
                 ifperms.chown(targetPath, userConf.userName, userConf.userGroup); //test-spl-user //test-spl-grp
-                ifperms.chmod(dirpath, 0755);
+
             }
 
             else if (fs->isDirectory(sourcePath))
@@ -135,4 +144,28 @@ namespace CommsComponent
             Common::SecurityUtils::bindMountReadOnly(sourcePath, targetPath);
         }
     }
+
+    //throws handle
+    std::vector<ReadOnlyMount> CommsConfigurator::getListOfDependenciesToMount()
+    {
+        std::vector<ReadOnlyMount> deps{
+                {"/lib",             "lib"},
+                {"/usr/lib",         "usr/lib"},
+                {"/etc/ssl/certs",   "etc/certs"},
+                {"/etc/hosts",       "etc/hosts"},          //FIXME replace with calculated path
+                {"/etc/resolv.conf", "etc/resolv.conf"}
+        };
+
+        //add certifcate
+        auto certStorePath = getCertificateStorePath();
+        if (!certStorePath.has_value()||certStorePath->empty())
+        {
+            throw;
+        }
+        //FIXME replace with calculated path
+        //deps.emplace_back(std::make_pair(certStorePath.value(), certStorePath->substr(1)));
+        return deps;
+    }
+
+
 }

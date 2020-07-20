@@ -19,8 +19,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace Common::SecurityUtils
 {
-    const char *NOMOUNTED = "SPL.NOMOUNTED";
-
     void dropPrivileges(uid_t newuid, gid_t newgid)
     {
         gid_t oldgid = getegid();
@@ -147,19 +145,20 @@ namespace Common::SecurityUtils
         std::stringstream errorMessage;
         if (isAlreadyMounted(targetMountLocation))
         {
-            errorMessage << "Source '" << sourceFile << "' is already mounted on '" << targetMountLocation << "Error : "
+            errorMessage << "Source '" << sourceFile << "' is already mounted on '" << targetMountLocation << " Error: "
                          << std::strerror(errno);
             std::cerr << errorMessage.str() << std::endl;
+            return true;
         }
 
         //mark the mount location to indicated when not mounted
         if (fs->isFile(targetMountLocation))
         {
-            fs->writeFile(targetMountLocation, NOMOUNTED);
+            fs->writeFile(targetMountLocation, GL_NOTMOUNTED_MARKER);
         }
         else if (fs->isDirectory(targetMountLocation))
         {
-            fs->writeFile(Common::FileSystem::join(targetMountLocation, NOMOUNTED), NOMOUNTED);
+            fs->writeFile(Common::FileSystem::join(targetMountLocation, GL_NOTMOUNTED_MARKER), GL_NOTMOUNTED_MARKER);
         }
 
         if (mount(sourceFile.c_str(), targetMountLocation.c_str(), nullptr, MS_MGC_VAL | MS_RDONLY | MS_BIND, nullptr)
@@ -178,6 +177,8 @@ namespace Common::SecurityUtils
             std::cerr << errorMessage.str() << std::endl;
             return false;
         }
+        errorMessage << "Successfully read only mounted '" << sourceFile << "' to path: '" << targetMountLocation;
+        std::cerr << errorMessage.str() << std::endl;
         return true;
     }
 
@@ -187,7 +188,8 @@ namespace Common::SecurityUtils
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isDirectory(targetFile))
         {
-            return fs->exists(Common::FileSystem::join(targetFile, NOMOUNTED));
+            return fs->listFilesAndDirectories(targetFile).empty()
+                   ||fs->exists(Common::FileSystem::join(targetFile, GL_NOTMOUNTED_MARKER));
         }
 
         //always mark the mount file to indicate not mounted
@@ -196,30 +198,29 @@ namespace Common::SecurityUtils
             try
             {
                 auto nomounted = fs->readFile(targetFile, FILENAME_MAX);
-                return nomounted.compare(NOMOUNTED) == 0;
+                return nomounted.empty()||nomounted.compare(GL_NOTMOUNTED_MARKER) == 0;
             }
             catch (const Common::FileSystem::IFileSystemException& fileSystemException)
             {
                 return false;
             }
-
         }
-        return false;
+        return true;
     }
 
     bool isAlreadyMounted(const std::string& targetMountLocation)
     {
-        if (isFreeMountLocation(targetMountLocation))
-        {
-            return false;
-        }
-        std::stringstream errorMessage;
         if (mount("none", targetMountLocation.c_str(), nullptr, MS_RDONLY | MS_REMOUNT | MS_BIND, nullptr) == -1)
         {
-            errorMessage << "Remount read only to path '" << targetMountLocation << " failed. Reason: "
-                         << std::strerror(errno);
-            std::cerr << errorMessage.str() << std::endl;
-            return errno == EINVAL;
+            auto expectedValue = (errno == EINVAL);
+            if (!expectedValue)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Warning file is mounted test on: '" << targetMountLocation
+                             << "' unexpected errro. Error: " << std::strerror(errno);
+                std::cerr << errorMessage.str() << std::endl;
+            }
+            return false;
         }
         return true;
     }
