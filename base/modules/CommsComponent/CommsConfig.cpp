@@ -64,7 +64,7 @@ namespace CommsComponent
             {
                 LOGDEBUG("Writing credential info to file");
                 auto deobfuscated = Common::ObfuscationImpl::SECDeobfuscate(credentials);
-                m_key_value_config.insert(std::pair<std::string,std::string>("username",proxy));
+                m_key_value_config.insert(std::pair<std::string,std::string>("username",username));
                 m_key_value_config.insert(std::pair<std::string,std::string>("password",deobfuscated));
 
             }

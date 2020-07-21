@@ -47,7 +47,7 @@ namespace
                 keyvalue.add_value(value);
                 keyvalue.set_key(key);
 
-                proto->add_keyvalue(keyvalue);
+                proto->add_keyvalue();
             }
 
         }

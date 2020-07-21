@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <map>
+#include <vector>
 
 namespace CommsComponent
 {

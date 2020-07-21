@@ -4,7 +4,7 @@ package CommsMsgProto;
 
 message KeyValue
 {
-    required string Key = 1;
+    optional string Key = 1;
     repeated string Value = 2;
 }
 
