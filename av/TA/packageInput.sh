@@ -30,6 +30,7 @@ mkdir -p $AV
 rsync -va --copy-unsafe-links --delete  "$BASE/../TA/"            "$INPUTS/test_scripts"
 ln -snf test_scripts "$INPUTS/TA"
 rsync -va --copy-unsafe-links --delete "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
+rsync -va --copy-unsafe-links --delete "$OUTPUT/INSTALL-SET/"    "$AV/INSTALL-SET"
 rsync -va --copy-unsafe-links --delete "${BASE_OUTPUT}/"         "$AV/base-sdds"
 rsync -va --copy-unsafe-links --delete "$OUTPUT/test-resources"  "$AV/"
 exec tar cjf /tmp/inputs.tar.bz2 -C ${DEST_BASE} ${TEST_DIR_NAME}

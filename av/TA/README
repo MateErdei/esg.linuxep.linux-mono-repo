@@ -24,6 +24,7 @@ In order to run them in Vagrant box:
     sudo mkdir -p /opt/test/inputs/av/
     sudo ln -s /vagrant/sspl-plugin-anti-virus/TA/ /opt/test/inputs/test_scripts
     sudo ln -s /vagrant/sspl-plugin-anti-virus/output/SDDS-COMPONENT /opt/test/inputs/av/SDDS-COMPONENT
+    sudo ln -s /vagrant/sspl-plugin-anti-virus/output/INSTALL-SET /opt/test/inputs/av/INSTALL-SET
     sudo ln -s /vagrant/sspl-plugin-anti-virus/output/test-resources /opt/test/inputs/av/test-resources
     sudo ln -s /vagrant/everest-base/output/SDDS-COMPONENT /opt/test/inputs/av/base-sdds
     sudo apt-get -y install python3.7 python3.7-dev python3-pip
@@ -33,3 +34,6 @@ In order to run them in Vagrant box:
 
 To run a single test:
     sudo python3.7 -m robot --test "<name>" .
+
+To run a full set of tests similar to TAP:
+    python3 -m robot --include "INTEGRATION OR PRODUCT" --exclude "OSTIA OR MANUAL OR STRESS" .

@@ -40,6 +40,10 @@ def output():
 
 def sdds():
     OUTPUT = output()
+    ## TODO: For production testing, we'll need to get supplements
+    test = os.path.join(OUTPUT, "INSTALL-SET")
+    if os.path.isdir(test):
+        return test
     return os.path.join(OUTPUT, "SDDS-COMPONENT")
 
 
