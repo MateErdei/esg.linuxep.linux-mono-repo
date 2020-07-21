@@ -21,7 +21,7 @@ def write_current_proxy_info(proxy):
             proxy_info['relay_id'] = proxy.relay_id()
 
         elif proxy.username() and proxy.password():
-
+            proxy_info['username'] = proxy.username()
             proxycredentials = proxy.username() + ":" + proxy.password()
             cred_encoded = proxycredentials.encode('utf-8')
             obfuscated = sec_obfuscation.obfuscate(
