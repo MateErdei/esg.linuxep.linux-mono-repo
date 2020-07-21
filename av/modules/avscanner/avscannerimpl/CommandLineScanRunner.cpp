@@ -65,8 +65,20 @@ namespace
             m_currentExclusions.reserve(m_mountExclusions.size());
         }
 
-        void processFile(const fs::path& p) override
+        void processFile(const fs::path& p, bool symlinkTarget) override
         {
+            if (symlinkTarget)
+            {
+                for (const auto& e : m_mountExclusions)
+                {
+                    if (PathUtils::startswith(p, e))
+                    {
+                        PRINT("Symlink to file on excluded mount point: " << e);
+                        return;
+                    }
+                }
+            }
+
             std::string escapedPath(p);
             common::escapeControlCharacters(escapedPath);
 
