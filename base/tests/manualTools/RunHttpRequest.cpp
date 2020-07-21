@@ -35,7 +35,7 @@ void printUsageAndExit(std::string name, int code)
   }
     )"}; 
 
-        std::cerr <<  "Usage: " << name << " usernameOfParent  usernameOfChild  pathOfExecutable" << std::endl; 
+        std::cerr <<  "Usage: " << name << " " << usage << std::endl; 
         exit(code); 
 
 }
@@ -161,9 +161,8 @@ void runHttpRequestsInTheJail(Config& config)
 {
     using namespace CommsComponent; 
     CommsComponent::UserConf parentConf{config.parentUser, config.parentGroup, "logparent" }; 
-    CommsComponent::UserConf childConf{config.childUser, config.childGroup, "logchild"}; 
-    CommsComponent::CommsConfigurator configurator(config.jailRoot, childConf, parentConf,
-                                                std::vector<ReadOnlyMount>() );
+    CommsComponent::UserConf childConf{config.childUser, config.childGroup, "logchild"};
+    CommsComponent::CommsConfigurator configurator(config.jailRoot, childConf, parentConf);
 
 
     auto parentProc = [&config](std::shared_ptr<MessageChannel> channel, OtherSideApi & childProxy)
@@ -216,5 +215,4 @@ int main(int argc, char * argv[])
     {
         runHttpRequestsInTheJail(config); 
     }
-    
 }
