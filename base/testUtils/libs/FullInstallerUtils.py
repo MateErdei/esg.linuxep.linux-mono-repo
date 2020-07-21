@@ -409,12 +409,15 @@ def get_delete_group_cmd():
 def Uninstall_SSPL(installdir=None):
     if installdir is None:
         installdir = get_sophos_install()
+
+    failed_to_uninstall = False
     if os.path.isdir(installdir):
         p = os.path.join(installdir, "bin", "uninstall.sh")
         if os.path.isfile(p):
             try:
                 rc = subprocess.call([ p, "--force"])
-                assert rc == 0, f"Uninstaller failed with return code: {rc}"
+                if rc != 0:
+                    failed_to_uninstall = True
 
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
@@ -436,7 +439,9 @@ def Uninstall_SSPL(installdir=None):
         p = os.path.join(installdir,"bin","uninstall.sh")
         if os.path.isfile(p):
             try:
-                subprocess.call([p, "--force"])
+                rc = subprocess.call([p, "--force"])
+                if rc != 0:
+                    failed_to_uninstall = True
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
         subprocess.call(['rm', '-rf', installdir])
@@ -455,6 +460,9 @@ def Uninstall_SSPL(installdir=None):
     if does_group_exist():
         with open(os.devnull, "w") as devnull:
             subprocess.call([delete_group_cmd, SOPHOS_GROUP], stderr=devnull)
+
+    if failed_to_uninstall:
+        raise AssertionError("Uninstaller ran with non 0 return code")
 
 
 def uninstall_sspl_unless_cleanup_disabled(installdir=None):

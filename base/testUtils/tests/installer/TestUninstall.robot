@@ -8,7 +8,7 @@ Resource  ../mdr_plugin/MDRResources.robot
 Resource  ../liveresponse_plugin/LiveResponseResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Default Tags  UNINSTALL  EDR_PLUGIN   EDR_PLUGIN   MDR_PLUGIN
+Default Tags  UNINSTALL  LIVERESPONSE_PLUGIN   EDR_PLUGIN   MDR_PLUGIN
 
 *** Test Cases ***
 Uninstallation of base removes all plugins cleanly
