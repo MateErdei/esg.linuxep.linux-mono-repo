@@ -19,6 +19,8 @@ add_library(testhelpersobject OBJECT
         FakeTimeUtils.h
         MockiNotifyWrapper.h
         LogInitializedTests.h
+        TestMacros.h
+        TestMacros.cpp
         )
 
 target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include")

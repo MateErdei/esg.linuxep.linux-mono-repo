@@ -13,46 +13,27 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/CommsComponent/SplitProcesses.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
-
-bool skipTest()
-{
-#ifndef NDEBUG
-    std::cout << "not compatible with coverage ... skip" << std::endl;
-    return true;
-#else
-    if (getuid() != 0)
-    {
-        std::cout << "requires root ... skip" << std::endl;
-        return true;
-    }
-    return false;
-#endif
-}
-
-bool skipIfCoverage()
-{
-// I couldnt' find a way to detect that coverage is enabled (gcov), hence assuming debug is the same as coverage
-#ifndef NDEBUG
-    std::cout << "not compatible with coverage ... skip" << std::endl;
-    return true;
-#else
-    return false;
-#endif
-}
-
-#define SKIPIFCOVERAGE  if (skipIfCoverage()) return
-
-#define MAYSKIP if(skipTest())  return
-
+#include <tests/Common/Helpers/TestMacros.h>
 
 using namespace CommsComponent;
 
-
+const char * TestSplitProc="/tmp/TestSplitProcesses";
 class TestSplitProcesses : public ::testing::Test
 {
 
 public:
-    TestSplitProcesses() : m_rootPath("/tmp"), m_tempDir{m_rootPath, "TestSplitProcesses"}
+    static void SetUpTestCase()
+    {
+        Common::FileSystem::fileSystem()->makedirs(TestSplitProc); 
+        Common::FileSystem::filePermissions()->chmod(TestSplitProc, 0777); 
+    }
+
+    static void TearDownTestCase()
+    {
+        Common::FileSystem::fileSystem()->removeFileOrDirectory(TestSplitProc); 
+    }
+
+    TestSplitProcesses() : m_rootPath(TestSplitProc)
     {
         testing::FLAGS_gtest_death_test_style = "threadsafe";
     }
@@ -61,30 +42,30 @@ public:
     UserConf m_lowPrivParentUser = {"games", "lp", "parent"};
     std::string m_logConfigPath = {"base/etc/logger.conf"};
     std::string m_rootPath;
-    Tests::TempDir m_tempDir;
+    std::unique_ptr<Tests::TempDir> m_tempDir;
     std::string m_chrootSophosInstall;
 
 
     void setupAfterSkipIfNotRoot()
     {
-        std::cout << "called setupAfterSkipIfNotRoot" << std::endl;
+        m_tempDir.reset( new Tests::TempDir(m_rootPath, "TestSplitProcesses")); 
+
         Common::ApplicationConfiguration::applicationConfiguration().setData(
-                Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir.dirPath());
+                Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir->dirPath());
         std::string content = R"(
 [global]
 VERBOSITY=DEBUG
 )";
-        m_tempDir.makeTempDir();
         auto fperms = Common::FileSystem::FilePermissionsImpl();
-        fperms.chmod(m_tempDir.dirPath(), 0777);
+        fperms.chmod(m_tempDir->dirPath(), 0777);
 
-        m_tempDir.createFile(m_logConfigPath, content);
-        m_tempDir.makeDirs(std::vector<std::string>{
+        m_tempDir->createFile(m_logConfigPath, content);
+        m_tempDir->makeDirs(std::vector<std::string>{
                 "var/sophos-spl-comms/logs/base", "var/sophos-spl-comms/base/etc", "logs/base/sophosspl"
         });
 
 
-        std::string sophosInstall = m_tempDir.dirPath();
+        std::string sophosInstall = m_tempDir->dirPath();
         m_chrootSophosInstall =  CommsConfigurator::chrootPathForSSPL(sophosInstall);
 
         //local user dirs permissions to be done by the installer
@@ -95,7 +76,7 @@ VERBOSITY=DEBUG
             fperms.chmod(Common::FileSystem::join(sophosInstall, path), 0777);
         }
         //network user dirs permissions to be done by the installer
-        fperms.chmod(m_tempDir.absPath("var"), 0777);
+        fperms.chmod(m_tempDir->absPath("var"), 0777);
         for (auto path : std::vector<std::string>{"logs", "base", "base/etc/", "logs/base"})
         {
             fperms.chmod(Common::FileSystem::join(m_chrootSophosInstall, path), 0777);
@@ -364,7 +345,7 @@ TEST_F(TestSplitProcesses, ParentAndChildShouldBeAbleToUseLog4) // NOLINT
     std::string captureTempPath;
     ASSERT_EXIT({
                     setupAfterSkipIfNotRoot();
-                    captureTempPath = m_tempDir.dirPath();
+                    captureTempPath = m_tempDir->dirPath();
                     auto parentProcess = [](std::shared_ptr<MessageChannel> /*channel*/,
                                             OtherSideApi & /*childProxy*/) {
                         LOGDEBUG("Log from Parent");
@@ -390,7 +371,7 @@ TEST_F(TestSplitProcesses, ParentAndChildShouldBeAbleToUseLog4) // NOLINT
 
                     std::string childLog = Common::FileSystem::join(m_chrootSophosInstall,
                                                                     "logs/base/child.log");
-                    std::string parentLog = m_tempDir.absPath("logs/base/sophosspl/parent.log");
+                    std::string parentLog = m_tempDir->absPath("logs/base/sophosspl/parent.log");
                     auto fs = Common::FileSystem::fileSystem();
                     std::string parentLogContent = fs->readFile(parentLog);
                     if (parentLogContent.find("Log from Parent") == std::string::npos)
@@ -412,136 +393,4 @@ TEST_F(TestSplitProcesses, ParentAndChildShouldBeAbleToUseLog4) // NOLINT
                 },
                 ::testing::ExitedWithCode(0), ".*");
     std::cout << "temp path " << captureTempPath << std::endl;
-}
-
-TEST_F(TestSplitProcesses, ChildCanMountDependedDirectories) // NOLINT
-{
-    //MAYSKIP;
-    testing::FLAGS_gtest_death_test_style = "threadsafe";
-    std::string captureTempPath;
-    ASSERT_EXIT({
-                    setupAfterSkipIfNotRoot();
-                    captureTempPath = m_tempDir.dirPath();
-                    std::cout << captureTempPath << std::endl;
-
-                    m_tempDir.makeDirs("sourceDir");
-                    auto sourceDir = m_tempDir.absPath("sourceDir");
-                    auto mountedDirContentFile = Common::FileSystem::join(sourceDir, "testMountDir.txt");
-                    Common::FileSystem::fileSystem()->writeFile(mountedDirContentFile, "FileFromMountedDir");
-
-                    //open permissions and prove only readonly mount prevent changing
-                    Common::FileSystem::FilePermissionsImpl().chmod(sourceDir, 0777);
-                    Common::FileSystem::FilePermissionsImpl().chmod(mountedDirContentFile, 0666);
-                    std::string mountedDirRelativePath = "targetDir";
-
-                    //source path and relative path after chroot directory
-                    auto dirDep = std::make_pair(sourceDir, mountedDirRelativePath);
-
-                    std::vector<ReadOnlyMount> mountDependencies;
-                    mountDependencies.emplace_back(dirDep);
-
-                    auto parentProcess = [](std::shared_ptr<MessageChannel> channel,
-                                            OtherSideApi& /*childProxy*/) {
-                        LOGDEBUG("Log from Parent");
-                        std::string message;
-                        sleep(100);
-                        channel->pop(message);
-                    };
-
-                    auto childProcess = [&](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi& /*parentProxy*/) {
-                        LOGDEBUG("Log from Child");
-
-                        auto cfs = Common::FileSystem::fileSystem();
-                        //verify file inside mounted directory is accessible
-                        auto testMountPath = Common::FileSystem::join("/", mountedDirRelativePath, "testMountDir.txt");
-                        std::cout << "try read " << testMountPath << std::endl;
-                        sleep(100);
-                        auto mountDirContent = cfs->readFile(testMountPath);
-                        std::cout << "mountDirContent" << std::endl;
-                        if (mountDirContent.find("FileFromMountedDir") == std::string::npos)
-                        {
-                            throw std::runtime_error("Failed to read file from mounted directoty");
-                        }
-                        //Mounted as read only file remove should fail
-                        try
-                        {
-                            cfs->removeFile(Common::FileSystem::join("/", mountedDirRelativePath, "testMountDir.txt"));
-                            throw std::runtime_error("remove file on readonly directory must fail");
-                        }
-                        catch (const Common::FileSystem::IFileSystemException& error)
-                        {
-                            std::cout << error.what() << std::endl;
-                            std::cerr << "write failed as expected " << error.what() << std::endl;
-                        }
-                        return;
-
-                    };
-                    auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
-                                                    mountDependencies);
-                    int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
-
-                    exit(exitCode);
-                },
-                ::testing::ExitedWithCode(0), ".*");
-}
-
-TEST_F(TestSplitProcesses, ChildCanMountDependedFilesReadOnly) // NOLINT
-{
-    MAYSKIP;
-    testing::FLAGS_gtest_death_test_style = "threadsafe";
-    std::string captureTempPath;
-    ASSERT_EXIT({
-                    setupAfterSkipIfNotRoot();
-                    captureTempPath = m_tempDir.dirPath();
-
-                    std::string sourceFileName = "sourceFile.txt";
-                    m_tempDir.makeDirs("sourceFileDir");
-                    auto sourceFileDir = m_tempDir.absPath("sourceFileDir");
-                    auto sourceFile = Common::FileSystem::join(sourceFileDir, sourceFileName);
-                    Common::FileSystem::fileSystem()->writeFile(sourceFile, "MountedSourceFile");
-                    Common::FileSystem::FilePermissionsImpl().chmod(sourceFile, 644);
-
-                    std::string mountedFileRelativePath = Common::FileSystem::join("targetFileDir", sourceFileName);
-
-                    //source path and relative path after chroot directory
-                    auto dfileDep = std::make_pair(sourceFile, mountedFileRelativePath);
-                    std::vector<ReadOnlyMount> mountDependencies;
-                    mountDependencies.emplace_back(dfileDep);
-
-                    auto parentProcess = [](std::shared_ptr<MessageChannel> /*channel*/,
-                                            OtherSideApi& /*childProxy*/) {
-                    };
-
-                    auto childProcess = [&](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi& /*parentProxy*/) {
-
-                        auto cfs = Common::FileSystem::fileSystem();
-                        //verify file inside mounted directory is accessible
-                        std::cout << "try read mount from Child" << std::endl;
-
-                        auto mountFileContent = cfs->readFile(
-                                Common::FileSystem::join("/", mountedFileRelativePath));
-                        std::cout << "mounted content: " << mountFileContent << std::endl;
-                        if (mountFileContent.find("MountedSourceFile") == std::string::npos)
-                        {
-                            throw std::runtime_error("Failed to read file from mounted directoty");
-                        }
-                        try
-                        {
-                            cfs->writeFile(Common::FileSystem::join("/", mountedFileRelativePath), "ovewrite");
-                            throw std::runtime_error("Write fail should fail for read only mounted file");
-                        }
-                        catch (const Common::FileSystem::IFileSystemException& error)
-                        {
-                            std::cout << "write failed as expected " << error.what() << std::endl;
-                            std::cerr << "write failed as expected " << error.what() << std::endl;
-                        }
-                        throw std::runtime_error("Passed");
-                    };
-                    auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
-                                                    mountDependencies);
-                    int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
-
-                    exit(exitCode);
-                },
-                ::testing::ExitedWithCode(0), ".*");
 }

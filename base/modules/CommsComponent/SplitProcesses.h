@@ -30,14 +30,12 @@ namespace CommsComponent
      *   .   Arm the reactor for child Messages
      *   .   Setup ChildService
      *   .   Run Config::applyParentSecurityPolicies
-     *   .   Run Config::applyParentInit (usually where things like log4cpp will be initialized)
      *   .   Run ParentExecutor::run   
      *   .   Teardown and return.
      *   . In the child:
      *   .   Arm the reactor for parent messages
      *   .   Setup ParentService
      *   .   Run Config::applyChildSecurityPolicies
-     *   .   Run Config::applyChildInit
      *   .   Run ChildExecutor::run
      *   .   Teardown and exit
      * 
@@ -91,9 +89,6 @@ namespace CommsComponent
                 // Apply the Configurator.
                 config.applyChildSecurityPolicy();
 
-                // equivalent to the code that usually runs before the main init();
-                config.applyChildInit();
-
                 LOGINFO("Entering main process: pid " << getpid());
                 thread = CommsContext::startThread(io_service);
                 exitCode = child.run(parentService); 
@@ -132,7 +127,6 @@ namespace CommsComponent
                     });
 
             config.applyParentSecurityPolicy();
-            config.applyParentInit();
             LOGINFO("Entering parent main process, pid:" << getpid());
 
             std::thread thread;

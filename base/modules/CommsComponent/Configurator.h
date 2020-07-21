@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/LoggerConfig.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Logging/FileLoggingSetup.h>
+#include <sstream>
 
 namespace CommsComponent
 {
@@ -18,17 +19,12 @@ namespace CommsComponent
     {
         std::shared_ptr<Common::Logging::ConsoleLoggingSetup> m_console; 
     public:
-        void applyParentSecurityPolicy() {}
+        void applyParentSecurityPolicy();
 
-        void applyParentInit();
-
-        void applyChildSecurityPolicy() {}
-
-        void applyChildInit();
+        void applyChildSecurityPolicy();
 
     };
 
-    const char *GL_SOPHOS_DIRNAME = "sophos-spl-comms";
     struct UserConf
     {
         std::string userName;
@@ -51,39 +47,28 @@ namespace CommsComponent
          * Sets logger.conf and logs directory
          */
         void setupLoggingFiles();
-
-        void mountDependenciesReadOnly(UserConf userConf);
-
-        
+       
     public:
         static std::vector<ReadOnlyMount> getListOfDependenciesToMount();
         static std::vector<std::string> getListOfMountedEntities(const std::string& chrootDir); 
         static void cleanDefaultMountedPaths(const std::string & chrootDir);
         static std::string chrootPathForSSPL(const std::string & ssplRootDir); 
+        enum MountOperation{MountSucceeded, MountFailed}; 
+        static MountOperation mountDependenciesReadOnly(const UserConf&  userConf, const std::vector<ReadOnlyMount> &, const std::string & chrootDir, std::ostream & );        
 
         CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser,
                           std::vector<ReadOnlyMount> dependenciesToMount);
 
         /*
-         * drops to the user not facing network
+         * drops to the user not facing network and configure log4cplus
          */
         void applyParentSecurityPolicy();
 
         /*
-         * drops to the user facing network and go to jail
+         * drops to the user facing network and go to jail and configure log4cplus
          */
         void applyChildSecurityPolicy();
 
-
-        /*
-         * setup log4cplus
-         */
-        void applyParentInit();
-
-        /*
-         * Setup log4cplus
-         */
-        void applyChildInit();
 
     };
 

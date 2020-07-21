@@ -23,23 +23,31 @@ namespace Common::SecurityUtils
         UserIdStruct(uid_t userid, gid_t groupid) : m_userid(userid), m_groupid(groupid) {}
     };
 
+    class FatalSecuritySetupFailureException : public std::runtime_error
+    {
+        public: 
+        using std::runtime_error::runtime_error; 
+        static void onError(const std::string & ); 
+    };
+    
+
     /*
      * Process calling this methods needs to be running as root. This will allow the process
      * permanently change its user from root to the new user groupid and userid
      * Errors; This method will cause the process to exit if it fails to change all the ids.
      */
-    void dropPrivileges(uid_t newuid, gid_t newgid);
+    void dropPrivileges(uid_t newuid, gid_t newgid, std::ostream & );
 
     /*
      * Overload function, takes the username and groupname and performs a user lookup
      */
-    void dropPrivileges(const std::string &userString, const std::string &groupString);
+    void dropPrivileges(const std::string &userString, const std::string &groupString, std::ostream & );
 
     /*
      * Chroot the process to the specified directory and updates PWD environment variable
      * Errors: This method will cause the process to exit if it fails.
      */
-    void setupJailAndGoIn(const std::string &chrootDirPath);
+    void setupJailAndGoIn(const std::string &chrootDirPath, std::ostream & );
 
     /*
     * User loopup needs to be performed before chroot. This methods respects that when applying
@@ -47,22 +55,25 @@ namespace Common::SecurityUtils
     * Errors: This method will cause the process to exit if it fails.
     */
     void chrootAndDropPrivileges(const std::string& userName, const std::string& groupName,
-                                 const std::string& chrootDirPath);
+                                 const std::string& chrootDirPath, std::ostream & );
 
     /*
      * Performs a user lookup and return struct with uid_t and git_t values
      */
-    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string& groupName);
+    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string& groupName, std::ostream &  );
 
-    bool bindMountReadOnly(const std::string& sourceFile, const std::string& targetMountLocation);
+    bool bindMountReadOnly(const std::string& sourceFile, const std::string& targetMountLocation, std::ostream& );
 
-    bool isAlreadyMounted(const std::string& targetFile);
+    bool isAlreadyMounted(const std::string& targetFile, std::ostream& );
 
-    bool isFreeMountLocation(const std::string& targetFile);
+    bool isFreeMountLocation(const std::string& targetFile, std::ostream& );
 
     /*
-     * This method is required to run but fails due to dropped privilege TODo
+     * Requires root privilegde
+     * Unmount the given path. 
+     * Returns true if the path has been successfully unmounted or was not mounted in the first place. 
+     * Returns false if the path is still mounted after calling.
      */
-    bool unMount(const std::string& targetSpecialFile);
+    bool unMount(const std::string& targetSpecialFile, std::ostream & );
 
 } // namespace Common::SecurityUtils

@@ -19,16 +19,23 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace Common::SecurityUtils
 {
-    void dropPrivileges(uid_t newuid, gid_t newgid)
+    void FatalSecuritySetupFailureException::onError(const std::string & errMsg)
     {
+            int e = errno; 
+            std::stringstream err; 
+            err << errMsg << strerror(e);  
+            throw FatalSecuritySetupFailureException(err.str()); 
+    }
+
+    void dropPrivileges(uid_t newuid, gid_t newgid, std::ostream & out)
+    {       
         gid_t oldgid = getegid();
         uid_t olduid = geteuid();
 
         std::stringstream errorString;
         if (oldgid != 0)
         {
-            perror("Process requesting to drop privilege needs to be root");
-            exit(EXIT_FAILURE);
+            FatalSecuritySetupFailureException::onError("Process requesting to drop privilege needs to be root");            
         }
         /* Pare down the ancillary groups for the process before doing anything else because the setgroups()
          * system call requires root privileges.
@@ -37,46 +44,42 @@ namespace Common::SecurityUtils
 
         if (!olduid && setgroups(1, &newgid) == -1)
         {
-            perror("Failed to drop other associated group ids,");
-            exit(EXIT_FAILURE);
+            FatalSecuritySetupFailureException::onError("Failed to drop other associated group ids: ");
         }
 
         if (newgid != oldgid && (setregid(newgid, newgid) == -1))
         {
-            perror("Failed to set the new real and effective group ids,");
-            exit(EXIT_FAILURE);
+            FatalSecuritySetupFailureException::onError("Failed to set the new real and effective group ids, "); 
         }
 
         if (newuid != olduid && (setreuid(newuid, newuid) == -1))
         {
-            perror("Failed to set the new real and effective user ids,");
-            exit(EXIT_FAILURE);
+            FatalSecuritySetupFailureException::onError("Failed to set the new real and effective user ids,");
         }
         /* verify that the changes were successful */
         if (newgid != oldgid && (setegid(oldgid) != -1 || getegid() != newgid))
-        {
-            perror("Process should fail to set effective user ids after dropping privilege");
-            exit(EXIT_FAILURE);
+        {            
+            FatalSecuritySetupFailureException::onError("Process should fail to set effective user ids after dropping privilege ");
         }
         if (newuid != olduid && (seteuid(olduid) != -1 || geteuid() != newuid))
         {
-            perror("Process should fail to set effective group ids after dropping privilege");
-            exit(EXIT_FAILURE);
+            FatalSecuritySetupFailureException::onError("Process should fail to set effective group ids after dropping privilege");
         }
+        out << "Droped privilege to user_id: " << newuid << " group_id: " <<  newgid << "\n";
+
     }
 
-    void dropPrivileges(const std::string &userString, const std::string &groupString)
+    void dropPrivileges(const std::string &userString, const std::string &groupString, std::ostream & out)
     {
-        auto runUser = getUserIdAndGroupId(userString, groupString);
+        auto runUser = getUserIdAndGroupId(userString, groupString, out);
         if (!runUser.has_value())
         {
             std::stringstream userlookup;
             userlookup << "User lookup for user: " << userString << "and group: " << groupString;
-            perror(userlookup.str().c_str());
-            exit(EXIT_FAILURE);
+            FatalSecuritySetupFailureException::onError(userlookup.str());
         }
 
-        dropPrivileges(runUser->m_userid, runUser->m_groupid);
+        dropPrivileges(runUser->m_userid, runUser->m_groupid, out);
     }
 
 
@@ -85,69 +88,82 @@ namespace Common::SecurityUtils
      * Ref: https://wiki.sophos.net/display/~MoritzGrimm/Validate+Transitive+Trust+in+Endpoints
      * Ref: http://www.unixwiz.net/techtips/chroot-practices.html
      */
-    void setupJailAndGoIn(const std::string &chrootDirPath)
+    void setupJailAndGoIn(const std::string &chrootDirPath, std::ostream & out)
     {
-        std::stringstream errorString;
-        if (chdir(chrootDirPath.c_str()))
+        if (chdir(chrootDirPath.c_str()) == -1)
         {
-            perror("Failed to chdir to jail,");
-            exit(EXIT_FAILURE);
+            std::stringstream chdirErrorMsg;
+            chdirErrorMsg << "chdir to jail: " << chrootDirPath << " failed: ";            
+            FatalSecuritySetupFailureException::onError(chdirErrorMsg.str());
         }
-        if (chroot(chrootDirPath.c_str()))
+        if (chroot(chrootDirPath.c_str()) == -1)
         {
-            perror("Failed to chroot,");
-            exit(EXIT_FAILURE);
+            FatalSecuritySetupFailureException::onError("process failed to chroot");
         }
-        if (setenv("PWD", "/", 1))
+        if (setenv("PWD", "/", 1) == -1)
         {
-            perror("Failed to sync PWD environment variable,");
-            exit(EXIT_FAILURE);
+            FatalSecuritySetupFailureException::onError("failed to sync PWD environment variable");
         }
+        out << "Chroot to " << chrootDirPath << "\n"; 
     }
 
-    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string &userName, const std::string &groupName)
+    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string &groupName, std::ostream & out )
     {
         try
         {
             auto ifperm = Common::FileSystem::filePermissions();
             auto userid = ifperm->getUserId(userName);
-            auto groupid = ifperm->getUserId(groupName);
+            auto groupid = ifperm->getGroupId(groupName);
 
             return std::optional<UserIdStruct>(UserIdStruct(userid, groupid));
         }
-        catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
+        catch (const Common::FileSystem::IFileSystemException& iFileSystemException)
         {
+            out << "Permission denied: " << iFileSystemException.what() << std::endl;
             return std::nullopt;
         }
     }
 
 
     void chrootAndDropPrivileges(const std::string &userName, const std::string &groupName,
-                                 const std::string &chrootDirPath)
+                                 const std::string &chrootDirPath, std::ostream& out)
     {
-        auto runAsUser = getUserIdAndGroupId(userName, groupName);
+        auto runAsUser = getUserIdAndGroupId(userName, groupName, out);
 
         //do user lookup before chroot
-        if (!runAsUser.has_value()||getuid() != 0U)
+        if (!runAsUser.has_value() || getuid() != 0U)
         {
-            perror("Current user needs to be root and target user must exist");
-            exit(EXIT_FAILURE);
+            if ( !runAsUser.has_value())
+            {
+                out << "User not identified" << std::endl;
+            }
+            else
+            {
+                auto v = runAsUser.value();
+                out << "Identified user: " << v.m_userid << " and group: " << v.m_groupid << std::endl;
+            }
+
+            if ( getuid() != 0U)
+            {
+                out << "Running not as root" << std::endl;
+            }
+
+
+            throw  FatalSecuritySetupFailureException("Current user needs to be root and target user must exist");
         }
-        setupJailAndGoIn(chrootDirPath);
-        dropPrivileges(runAsUser->m_userid, runAsUser->m_groupid);
+        setupJailAndGoIn(chrootDirPath, out);
+        dropPrivileges(runAsUser->m_userid, runAsUser->m_groupid, out);
     }
 
 
-    bool bindMountReadOnly(const std::string& sourceFile, const std::string& targetMountLocation)
+    bool bindMountReadOnly(const std::string& sourceFile, const std::string& targetMountLocation, std::ostream& out)
     {
         auto fs = Common::FileSystem::fileSystem();
 
-        std::stringstream errorMessage;
-        if (isAlreadyMounted(targetMountLocation))
+        if (isAlreadyMounted(targetMountLocation, out))
         {
-            errorMessage << "Source '" << sourceFile << "' is already mounted on '" << targetMountLocation << " Error: "
+            out << "Source '" << sourceFile << "' is already mounted on '" << targetMountLocation << " Error: "
                          << std::strerror(errno);
-            std::cerr << errorMessage.str() << std::endl;
             return true;
         }
 
@@ -164,25 +180,22 @@ namespace Common::SecurityUtils
         if (mount(sourceFile.c_str(), targetMountLocation.c_str(), nullptr, MS_MGC_VAL | MS_RDONLY | MS_BIND, nullptr)
             == -1)
         {
-            errorMessage << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
-                         << std::strerror(errno);
-            std::cerr << errorMessage.str() << std::endl;
+            out << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
+                         << std::strerror(errno) << "\n";
             return false;
         }
 
         if (mount("none", targetMountLocation.c_str(), nullptr, MS_RDONLY | MS_REMOUNT | MS_BIND, nullptr) == -1)
         {
-            errorMessage << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
-                         << std::strerror(errno);
-            std::cerr << errorMessage.str() << std::endl;
+            out << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
+                         << std::strerror(errno) << "\n";
             return false;
         }
-        errorMessage << "Successfully read only mounted '" << sourceFile << "' to path: '" << targetMountLocation;
-        std::cerr << errorMessage.str() << std::endl;
+        out << "Successfully read only mounted '" << sourceFile << "' to path: '" << targetMountLocation << "\n";
         return true;
     }
 
-    bool isFreeMountLocation(const std::string& targetFile)
+    bool isFreeMountLocation(const std::string& targetFile, std::ostream & out)
     {
         //we will alway create a file to indicated mounted in our mount directories
         auto fs = Common::FileSystem::fileSystem();
@@ -202,36 +215,33 @@ namespace Common::SecurityUtils
             }
             catch (const Common::FileSystem::IFileSystemException& fileSystemException)
             {
+                out << "Failed to check if mounted. Reason: " << fileSystemException.what() << "\n"; 
                 return false;
             }
         }
         return true;
     }
 
-    bool isAlreadyMounted(const std::string& targetMountLocation)
+    bool isAlreadyMounted(const std::string& targetMountLocation, std::ostream& out)
     {
         if (mount("none", targetMountLocation.c_str(), nullptr, MS_RDONLY | MS_REMOUNT | MS_BIND, nullptr) == -1)
         {
             auto expectedValue = (errno == EINVAL);
             if (!expectedValue)
             {
-                std::stringstream errorMessage;
-                errorMessage << "Warning file is mounted test on: '" << targetMountLocation
+                out << "Warning file is mounted test on: '" << targetMountLocation
                              << "' unexpected errro. Error: " << std::strerror(errno);
-                std::cerr << errorMessage.str() << std::endl;
             }
             return false;
         }
         return true;
     }
 
-    bool unMount(const std::string& targetDir)
+    bool unMount(const std::string& targetDir, std::ostream& out)
     {
-        std::stringstream errorMessage;
         if (umount2(targetDir.c_str(), MNT_FORCE) == -1)
         {
-            errorMessage << "un-mount for '" << targetDir << "' failed. Reason: " << std::strerror(errno);
-            std::cerr << errorMessage.str() << std::endl;
+            out << "un-mount for '" << targetDir << "' failed. Reason: " << std::strerror(errno);
             return false;
         }
         return true;
