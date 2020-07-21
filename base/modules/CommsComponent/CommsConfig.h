@@ -20,9 +20,13 @@ namespace CommsComponent
         * @return returns the address and password of proxy in a tuple
         */
         static std::tuple<std::string, std::string,std::string> readCurrentProxyInfo();
-        void addProxyInfoToConfig();
+        const std::map<std::string,std::string> getKeyValue() const;
+        const std::map<std::string,std::vector<std::string>> getKeyList() const;
+        CommsConfig(){addProxyInfoToConfig();};
+        ~CommsConfig() = default;
 
     private:
+        void addProxyInfoToConfig();
         std::map<std::string,std::string> m_key_value_config;
         std::map<std::string, std::vector<std::string>> m_key_composed_values_config;
     };

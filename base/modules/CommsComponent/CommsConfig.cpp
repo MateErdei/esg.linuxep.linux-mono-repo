@@ -70,4 +70,6 @@ namespace CommsComponent
             }
         }
     }
+    const std::map<std::string,std::string> CommsConfig::getKeyValue() const { return m_key_value_config;}
+    const std::map<std::string,std::vector<std::string>> CommsConfig::getKeyList() const { return m_key_composed_values_config;}
 }

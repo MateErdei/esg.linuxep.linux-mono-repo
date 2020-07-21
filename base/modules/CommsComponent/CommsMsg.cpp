@@ -38,6 +38,19 @@ namespace
                 proto->add_headers(header);
             }
         }
+        void operator()(const CommsComponent::CommsConfig& config)
+        {
+            auto proto = m_msg.mutable_config();
+            std::map<std::string,std::string> key_value = config.getKeyValue();
+            for(auto [key,value] : key_value){
+                CommsMsgProto::KeyValue keyvalue;
+                keyvalue.add_value(value);
+                keyvalue.set_key(key);
+
+                proto->add_keyvalue(keyvalue);
+            }
+
+        }
     };
 
     Common::HttpSender::RequestConfig from(const CommsMsgProto::HttpRequest& requestProto)

@@ -10,8 +10,9 @@ message KeyValue
 
 message Config
 {
-    optional KeyValue keyValue = 1;
+    repeated KeyValue keyValue = 1;
 }
+
 message HttpRequest
 {
     optional string requestType = 1;
@@ -44,5 +45,6 @@ message CommsMsg{
     oneof content {
         HttpRequest httpRequest = 10; 
         HttpResponse httpResponse = 11; 
-    } 
+        Config config = 12;
+    }
 }
