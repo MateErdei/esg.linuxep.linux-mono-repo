@@ -5,27 +5,12 @@ package CommsMsgProto;
 message KeyValue
 {
     required string Key = 1;
-    required string Value = 2;
+    repeated string Value = 2;
 }
 
-message KeyList
-{
-    required string Key = 1;
-    repeated string List = 2;
-}
-
-message MapKeyValue
-{
-    repeated KeyValue value = 1;
-}
-message MapKeyList
-{
-    repeated KeyList value = 1;
-}
 message Config
 {
-    optional MapKeyValue keyValue = 1;
-    optional MapKeyList keyComposedValue = 2;
+    optional KeyValue keyValue = 1;
 }
 message HttpRequest
 {
