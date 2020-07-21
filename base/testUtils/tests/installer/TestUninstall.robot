@@ -39,7 +39,7 @@ Uninstallation of base removes all plugins cleanly
     Directory Should Not Exist  ${SOPHOS_INSTALL}
 
 Test Uninstall Script Gives Return Code Zero
-    [Tags]  UNINSTALL  TAP_TESTS
+    [Tags]  UNINSTALL  TAP_TESTS  SMOKE
     Require Fresh Install
     Check Expected Base Processes Are Running
 
