@@ -41,7 +41,8 @@ def check_versioned_copy_file_manifest(manifest_name, expected_version):
                 logger.trace("{} manifest entry: {}".format(manifest_name, manifest_file_line))
 
                 # Files in root dir do not get installed.
-                if "/" not in manifest_file_line:
+                # plugin registry files do not get version copied
+                if "/" not in manifest_file_line or manifest_file_line.startswith("installer/plugins/"):
                     logger.info("Skipping file: {}".format(manifest_file_line))
                     continue
 
@@ -120,3 +121,9 @@ def check_version_over_1_1_2(version_string):
     if version.parse(version_string) > version.parse("1.1.3"):
         return True
     return False
+
+def dump_plugin_registry_files():
+    plugin_registry = "/opt/sophos-spl/base/pluginRegistry"
+    for basename in os.listdir(plugin_registry):
+        with open(os.path.join(plugin_registry,basename)) as file:
+            logger.info(f"{basename} :\n{file.read()}")
