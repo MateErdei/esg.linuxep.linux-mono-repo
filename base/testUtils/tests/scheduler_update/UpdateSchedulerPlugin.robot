@@ -247,12 +247,7 @@ UpdateScheduler Send Status After Receiving Policy
 
 UpdateScheduler Performs Update After Receiving Policy For The First Time
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
-    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${sulConfigPath}
     Start Update Scheduler
@@ -300,12 +295,7 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
 
 UpdateScheduler Performs Update After Receiving Policy With Different Features
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
-    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${sulConfigPath}
     Start Update Scheduler
@@ -327,12 +317,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Features
 
 UpdateScheduler Performs Update After Receiving Policy With Different Subscriptions
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
-    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${sulConfigPath}
     Start Update Scheduler
@@ -353,12 +338,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Subscripti
 
 UpdateScheduler Performs Update After Receiving Policy With Different Primary Subscription release tag Values
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
-    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${sulConfigPath}
     Start Update Scheduler
@@ -379,12 +359,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
 
 UpdateScheduler Performs Update After Receiving Policy With Different Primary Subscription Fixed Version Values
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
-    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${sulConfigPath}
     Start Update Scheduler
@@ -407,12 +382,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
 
 UpdateScheduler Performs Update After Receiving Policy With Different Non Primary Subscription release tag Values
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
-    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${sulConfigPath}
     Start Update Scheduler
@@ -434,12 +404,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
 
 UpdateScheduler Performs Update After Receiving Policy With Different Non Primary Subscription Fixed Version Values
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
-    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${sulConfigPath}
     Start Update Scheduler
@@ -477,6 +442,14 @@ Management Agent Contains
     [Arguments]  ${Contents}
     ${ManagementAgentLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log
     Should Contain  ${ManagementAgentLog}  ${Contents}
+
+Configure Hosts File
+    Copy File  /etc/hosts  /etc/hosts.bk
+    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
+    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
 
 Teardown For Test
     Log SystemCtl Update Status
