@@ -202,4 +202,9 @@ namespace CommsComponent
         }
     }
 
+    std::string CommsConfigurator::chrootPathForSSPL(const std::string & ssplRootDir)
+    {
+        return Common::FileSystem::join(ssplRootDir, "var", GL_SOPHOS_DIRNAME); 
+    }
+
 }

@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Watchdog.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <CommsComponent/Configurator.h>
 #include <Common/Logging/FileLoggingSetup.h>
 
 #include <unistd.h>
@@ -42,6 +43,21 @@ namespace
         // If we can't get the cwd then use a fixed string.
         return "/opt/sophos-spl";
     }
+
+    class UnmountOnClosure
+    {
+        std::string m_chroot;         
+        public: 
+        UnmountOnClosure(std::string installDir)
+        {
+            m_chroot = CommsComponent::CommsConfigurator::chrootPathForSSPL(installDir);
+        }
+        ~UnmountOnClosure()
+        {            
+            CommsComponent::CommsConfigurator::cleanDefaultMountedPaths(m_chroot); 
+        }
+    };
+
 } // namespace
 
 /**
@@ -65,8 +81,9 @@ int watchdog_main::main(int argc, char** argv)
         return 2;
     }
     try
-    {
+    {        
         Watchdog m;
+        UnmountOnClosure unmountOnClosure{installDir}; 
         return m.initialiseAndRun();
     }
     catch ( Common::UtilityImpl::ConfigException & ex)

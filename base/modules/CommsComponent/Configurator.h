@@ -58,7 +58,8 @@ namespace CommsComponent
     public:
         static std::vector<ReadOnlyMount> getListOfDependenciesToMount();
         static std::vector<std::string> getListOfMountedEntities(const std::string& chrootDir); 
-        static void cleanDefaultMountedPaths(const std::string & chrootDir); 
+        static void cleanDefaultMountedPaths(const std::string & chrootDir);
+        static std::string chrootPathForSSPL(const std::string & ssplRootDir); 
 
         CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser,
                           std::vector<ReadOnlyMount> dependenciesToMount);

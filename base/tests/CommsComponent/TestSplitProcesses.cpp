@@ -85,7 +85,7 @@ VERBOSITY=DEBUG
 
 
         std::string sophosInstall = m_tempDir.dirPath();
-        m_chrootSophosInstall = m_tempDir.absPath("var/sophos-spl-comms");
+        m_chrootSophosInstall =  CommsConfigurator::chrootPathForSSPL(sophosInstall);
 
         //local user dirs permissions to be done by the installer
         for (auto path : std::vector<std::string>{
