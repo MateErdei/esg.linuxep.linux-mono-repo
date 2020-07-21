@@ -85,21 +85,9 @@ rm -rf "$SOPHOS_INSTALL"
 
 PATH=$PATH:/usr/sbin:/sbin
 
-function removeUserAndGroup()
+function removeUser()
 {
-  function check_user_exists()
-  {
-    grep  $1 /etc/passwd &>/dev/null
-  }
-  function check_group_exists()
-  {
-    grep  $1 /etc/group &>/dev/null
-  }
-
   local USERNAME=$1
-  local GROUPNAME=$2
-  check_user_exists  $USERNAME  ||  echo "tried to remove user: $USERNAME, which does not exist"
-  check_group_exists  $GROUPNAME  ||  echo "tried to remove group: $GROUPNAME, which does not exist"
   DELUSER=$(which deluser 2>/dev/null)
   USERDEL=$(which userdel 2>/dev/null)
 
@@ -112,21 +100,28 @@ function removeUserAndGroup()
   else
       echo "Unable to delete user $USERNAME" >&2
   fi
-  ## Can't delete the group if we aren't deleting the user
-  if [[ -z $NO_REMOVE_GROUP ]]
+}
+
+function removeGroup()
+{
+  function check_group_exists()
+  {
+    grep  $1 /etc/group &>/dev/null
+  }
+
+  local GROUPNAME=$1
+
+  GROUP_DELETER=$(which delgroup 2>/dev/null)
+  [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
+  if [[ -x "$GROUP_DELETER" ]]
   then
-      GROUP_DELETER=$(which delgroup 2>/dev/null)
-      [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
-      if [[ -x "$GROUP_DELETER" ]]
+      check_group_exists  $GROUPNAME
+      if [[ $? -eq 0 ]]
       then
-          check_group_exists  $GROUPNAME
-          if [[ $? -eq 0 ]]
-          then
-              "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null || echo "Failed to delete group: $GROUPNAME"
-          fi
-      else
-          echo "Unable to delete group $GROUPNAME" >&2
+          "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null || echo "Failed to delete group: $GROUPNAME"
       fi
+  else
+      echo "Unable to delete group $GROUPNAME" >&2
   fi
 }
 
@@ -134,13 +129,16 @@ if [[ -z $NO_REMOVE_USER ]]
 then
   SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
   SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
-  removeUserAndGroup ${SOPHOS_SPL_USER_NAME} ${SOPHOS_SPL_GROUP_NAME}
+  removeUser    ${SOPHOS_SPL_USER_NAME}
+  removeGroup   ${SOPHOS_SPL_GROUP_NAME}
 
   NETWORK_USER_NAME="@SOPHOS_SPL_NETWORK@"
   NETWORK_GROUP_NAME="@SOPHOS_SPL_NETWORK@"
-  removeUserAndGroup ${NETWORK_USER_NAME} ${NETWORK_GROUP_NAME}
+  removeUser    ${NETWORK_USER_NAME}
+  removeGroup   ${NETWORK_GROUP_NAME}
 
   LOCAL_USER_NAME="@SOPHOS_SPL_LOCAL@"
   LOCAL_GROUP_NAME="@SOPHOS_SPL_LOCAL@"
-  removeUserAndGroup ${LOCAL_USER_NAME} ${LOCAL_GROUP_NAME}
+  removeUser    ${LOCAL_USER_NAME}
+  removeGroup   ${LOCAL_GROUP_NAME}
 fi
