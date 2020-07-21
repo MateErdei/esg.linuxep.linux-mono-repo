@@ -268,3 +268,39 @@ CLS Exclusions Folder And File
    Should Be Equal As Integers  ${rc}  69
 
    Stop AV
+
+CLS Prints Help and Failure When Options Are Spaced Incorrectly
+    Start AV
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --exclude= file
+    Should Contain       ${output}   Failed to parse command line options: the argument for option '--exclude' should follow immediately after the equal sign
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --files= file
+    Should Contain       ${output}   Failed to parse command line options: the argument for option '--files' should follow immediately after the equal sign
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --config= config
+    Should Contain       ${output}   Failed to parse command line options: the argument for option '--config' should follow immediately after the equal sign
+
+
+CLS Prints Help and Failure When Parsing Incomplete Arguments
+    Start AV
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --exclude
+    Should Contain       ${output}   Failed to parse command line options: the required argument for option '--exclude' is missing
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --files
+    Should Contain       ${output}   Failed to parse command line options: the required argument for option '--files' is missing
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --config
+    Should Contain       ${output}   Failed to parse command line options: the required argument for option '--config' is missing
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} -x
+    Should Contain       ${output}   Failed to parse command line options: the required argument for option '--exclude' is missing
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} -f
+    Should Contain       ${output}   Failed to parse command line options: the required argument for option '--files' is missing
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} -c
+    Should Contain       ${output}   Failed to parse command line options: the required argument for option '--config' is missing
+
+    Stop AV

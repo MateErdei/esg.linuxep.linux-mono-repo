@@ -52,4 +52,11 @@ int main(int argc, char* argv[])
 
         return 1;
     }
+    catch (boost::program_options::error& e)
+    {
+        PRINT(Options::getHelp());
+        PRINT("Failed to parse command line options: " << e.what());
+
+        return 1;
+    }
 }
