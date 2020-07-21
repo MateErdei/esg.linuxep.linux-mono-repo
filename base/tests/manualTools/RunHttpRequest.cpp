@@ -185,7 +185,7 @@ int runHttpRequestsInTheJail(Config& config)
     using namespace CommsComponent; 
     CommsComponent::UserConf parentConf{config.parentUser, config.parentGroup, "logparent" }; 
     CommsComponent::UserConf childConf{config.childUser, config.childGroup, "logchild"};
-    CommsComponent::CommsConfigurator configurator(config.jailRoot, childConf, parentConf);
+    CommsComponent::CommsConfigurator configurator(config.jailRoot, childConf, parentConf, CommsComponent::CommsConfigurator::getListOfDependenciesToMount());
 
 
     auto parentProc = [&config](std::shared_ptr<MessageChannel> channel, OtherSideApi & childProxy)

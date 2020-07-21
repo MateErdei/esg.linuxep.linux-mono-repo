@@ -64,11 +64,6 @@ namespace CommsComponent
             : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)),
               m_listOfDependencyPairs(std::move(dependenciesToMount)) {}
 
-    CommsConfigurator::CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser)
-
-            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)),
-              m_listOfDependencyPairs(getListOfDependenciesToMount()) {}
-
     void CommsConfigurator::setupLoggingFiles()
     {
         try
