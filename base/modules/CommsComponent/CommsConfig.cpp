@@ -58,18 +58,23 @@ namespace CommsComponent
         if (!proxy.empty())
         {
             LOGDEBUG("Writing proxy info to file");
-            m_key_value_config.insert(std::pair<std::string,std::string>("proxy",proxy));
+            addKeyToValue(std::pair<std::string,std::string>("proxy",proxy));
 
             if (!credentials.empty())
             {
                 LOGDEBUG("Writing credential info to file");
                 auto deobfuscated = Common::ObfuscationImpl::SECDeobfuscate(credentials);
-                m_key_value_config.insert(std::pair<std::string,std::string>("username",username));
-                m_key_value_config.insert(std::pair<std::string,std::string>("password",deobfuscated));
+                addKeyToValue(std::pair<std::string,std::string>("username",username));
+                addKeyToValue(std::pair<std::string,std::string>("password",deobfuscated));
 
             }
         }
     }
     const std::map<std::string,std::string> CommsConfig::getKeyValue() const { return m_key_value_config;}
     const std::map<std::string,std::vector<std::string>> CommsConfig::getKeyList() const { return m_key_composed_values_config;}
+
+
+
+    void CommsConfig::addKeyToValue(std::pair<std::string,std::string> keyValue){ m_key_value_config.insert(keyValue);}
+    void CommsConfig::addKeyToList(std::pair<std::string,std::vector<std::string>> keyList){m_key_composed_values_config.insert(keyList);}
 }

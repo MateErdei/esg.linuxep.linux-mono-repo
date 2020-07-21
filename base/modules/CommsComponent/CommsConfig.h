@@ -23,6 +23,8 @@ namespace CommsComponent
         static std::tuple<std::string, std::string,std::string> readCurrentProxyInfo();
         const std::map<std::string,std::string> getKeyValue() const;
         const std::map<std::string,std::vector<std::string>> getKeyList() const;
+        void addKeyToValue(std::pair<std::string,std::string>);
+        void addKeyToList(std::pair<std::string,std::vector<std::string>>);
         CommsConfig(){addProxyInfoToConfig();};
         ~CommsConfig() = default;
 

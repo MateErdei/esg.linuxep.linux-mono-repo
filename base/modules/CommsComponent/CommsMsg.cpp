@@ -41,8 +41,10 @@ namespace
         void operator()(const CommsComponent::CommsConfig& config)
         {
             auto proto = m_msg.mutable_config();
+
             std::map<std::string,std::string> key_value = config.getKeyValue();
-            for(auto [key,value] : key_value){
+            for (auto [key,value] : key_value)
+            {
                 CommsMsgProto::KeyValue keyvalue;
                 keyvalue.add_value(value);
                 keyvalue.set_key(key);
@@ -50,6 +52,17 @@ namespace
                 proto->add_keyvalue();
             }
 
+            std::map<std::string,std::vector<std::string>> key_list = config.getKeyList();
+            for (auto [key,list] : key_list)
+            {
+                CommsMsgProto::KeyValue keyvalue;
+                keyvalue.set_key(key);
+                for (const auto& value: list)
+                {
+                    keyvalue.add_value(value);
+                }
+                proto->add_keyvalue();
+            }
         }
     };
 
@@ -79,6 +92,28 @@ namespace
         return httpResponse;
     }
 
+    CommsConfig from(const CommsMsgProto::Config& configProto)
+    {
+        CommsConfig config;
+        for (const auto& pair : configProto.keyvalue())
+        {
+            if (pair.value().size() > 1)
+            {
+                std::vector<std::string> values;
+                for (const auto& value : pair.value())
+                {
+                    values.emplace_back(value);
+                }
+                config.addKeyToList(std::pair<std::string,std::vector<std::string>>(pair.key(),values));
+            }
+            else
+            {
+                config.addKeyToValue(std::pair<std::string,std::string>(pair.key(),pair.value(0)));
+            }
+        }
+        return config;
+    }
+
 }
 
 namespace CommsComponent{
@@ -100,13 +135,18 @@ namespace CommsComponent{
             if (protoMsg.has_httprequest())
             {
                 commsMsg.content = from(protoMsg.httprequest());
-
             }
+
             if(protoMsg.has_httpresponse())
             {
                 commsMsg.content = from(protoMsg.httpresponse());
-
             }
+
+            if(protoMsg.has_config())
+            {
+                commsMsg.content = from(protoMsg.config());
+            }
+
             return commsMsg; 
         }
 
