@@ -186,9 +186,5 @@ Check Base Processes Are Not Running
 Verify Sophos Users And Sophos Groups Are Created
     Verify User Created   sophos-spl-user
     Verify Group Created  sophos-spl-group
-
     Verify User Created   sophos-spl-network
-    Verify Group Created  sophos-spl-network
-
     Verify User Created   sophos-spl-local
-    Verify Group Created  sophos-spl-local

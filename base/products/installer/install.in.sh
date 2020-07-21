@@ -259,16 +259,12 @@ export SOPHOS_INSTALL
 
 ## Add a low-privilege groups
 GROUP_NAME=@SOPHOS_SPL_GROUP@
-NETWORK_GROUP_NAME=@SOPHOS_SPL_NETWORK@
-LOCAL_GROUP_NAME=@SOPHOS_SPL_LOCAL@
 
 GETENT=/usr/bin/getent
 [[ -x "${GETENT}" ]] || GETENT=$(which getent)
 [[ -x "${GETENT}" ]] || failure ${EXIT_FAIL_FIND_GETENT} "Failed to find getent"
 
 add_group "${GROUP_NAME}"
-add_group "${NETWORK_GROUP_NAME}"
-add_group "${LOCAL_GROUP_NAME}"
 
 makeRootDirectory "${SOPHOS_INSTALL}"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}"
@@ -281,8 +277,8 @@ USER_NAME=@SOPHOS_SPL_USER@
 NETWORK_USER_NAME=@SOPHOS_SPL_NETWORK@
 LOCAL_USER_NAME=@SOPHOS_SPL_LOCAL@
 add_user "${USER_NAME}" "${GROUP_NAME}"
-add_user "${NETWORK_USER_NAME}" "${NETWORK_GROUP_NAME}"
-add_user "${LOCAL_USER_NAME}" "${LOCAL_GROUP_NAME}"
+add_user "${NETWORK_USER_NAME}" "${GROUP_NAME}"
+add_user "${LOCAL_USER_NAME}" "${GROUP_NAME}"
 
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
