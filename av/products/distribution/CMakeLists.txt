@@ -64,6 +64,17 @@ add_custom_target(
         COMMAND ${PYTHON} ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
+set(SDDS "${CMAKE_BINARY_DIR}/sdds")
+
+add_custom_target(
+        sdds
+        COMMAND rsync -a --delete --delete-excluded
+            --exclude files/plugins/av/chroot/susi/distribution_version/version1/vdb/
+            --exclude files/plugins/av/chroot/susi/distribution_version/version1/lrdata/
+            ${DIST}/ ${SDDS}
+        COMMAND ${PYTHON} ${GENERATE_TOOL} ${SDDS} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+)
+
 install(FILES  ${third_party_libs}
         DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 

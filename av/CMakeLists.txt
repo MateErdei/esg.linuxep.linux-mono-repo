@@ -63,7 +63,7 @@ set(MEMORYCHECK_COMMAND_OPTIONS
 include (CTest)
 enable_testing()
 
-set(REL_DIST sdds)
+set(REL_DIST installset)
 set(DIST "${CMAKE_BINARY_DIR}/${REL_DIST}")
 set(CMAKE_INSTALL_PREFIX "${REL_DIST}")
 
