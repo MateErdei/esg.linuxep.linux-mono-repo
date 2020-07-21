@@ -18,7 +18,7 @@ namespace filewalker
          *
          * @param filepath
          */
-        virtual void processFile(const sophos_filesystem::path& filepath) = 0;
+        virtual void processFile(const sophos_filesystem::path& filepath, bool symlinkTarget=false) = 0;
 
         /**
          * Callback for new directories - should we recurse into them?

@@ -62,16 +62,30 @@ namespace
     public:
         explicit CallbackImpl(
                 ScanClient scanner,
+                std::vector<fs::path> mountExclusions,
                 NamedScanConfig& config,
                 std::vector<std::shared_ptr<IMountPoint>> allMountPoints
                 )
                 : BaseFileWalkCallbacks(std::move(scanner))
+                , m_mountExclusions(std::move(mountExclusions))
                 , m_config(config)
                 , m_allMountPoints(std::move(allMountPoints))
         {}
 
-        void processFile(const sophos_filesystem::path& p) override
+        void processFile(const sophos_filesystem::path& p, bool symlinkTarget) override
         {
+            if (symlinkTarget)
+            {
+                for (const auto& e : m_mountExclusions)
+                {
+                    if (PathUtils::startswith(p, e))
+                    {
+                        LOGINFO("Symlink to file on excluded mount point: " << e);
+                        return;
+                    }
+                }
+            }
+
             for (const auto& exclusion : m_config.m_excludePaths)
             {
                 if (exclusion.appliesToPath(p))
@@ -111,6 +125,7 @@ namespace
         }
 
     private:
+        std::vector<fs::path> m_mountExclusions;
         NamedScanConfig& m_config;
         std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
     };
@@ -148,10 +163,20 @@ int NamedScanRunner::run()
     LOGINFO("Found "<< allMountpoints.size() << " mount points");
     std::vector<std::shared_ptr<IMountPoint>> includedMountpoints = getIncludedMountpoints(allMountpoints);
 
+    std::vector<fs::path> excludedMountPoints;
+    excludedMountPoints.reserve(allMountpoints.size());
+    for (const auto& mp : allMountpoints)
+    {
+        if (mp->isSpecial())
+        {
+            excludedMountPoints.emplace_back(mp->mountPoint());
+        }
+    }
+
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
     ScanClient scanner(*getSocket(), scanCallbacks, m_config.m_scanArchives, E_SCAN_TYPE_SCHEDULED);
-    CallbackImpl callbacks(std::move(scanner), m_config, allMountpoints);
+    CallbackImpl callbacks(std::move(scanner), excludedMountPoints, m_config, allMountpoints);
 
     // for each select included mount point call filewalker for that mount point
     for (auto & mp : includedMountpoints)

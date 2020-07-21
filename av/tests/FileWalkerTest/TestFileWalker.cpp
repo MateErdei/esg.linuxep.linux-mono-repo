@@ -28,7 +28,7 @@ namespace
     public:
         FakeCallbacks() = default;
 
-        void processFile(const sophos_filesystem::path& filepath) override
+        void processFile(const sophos_filesystem::path& filepath, bool /*symlinkTarget*/) override
         {
             FAIL() << "Managed to get a file" << filepath;
         }
@@ -44,7 +44,7 @@ namespace
     public:
         CollectCallbacks() = default;
         std::vector<fs::path> m_paths;
-        void processFile(const sophos_filesystem::path& filepath) override
+        void processFile(const sophos_filesystem::path& filepath, bool /*symlinkTarget*/) override
         {
             m_paths.emplace_back(filepath);
         }

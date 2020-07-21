@@ -13,7 +13,7 @@ class CallbackImpl : public filewalker::IFileWalkCallbacks
 {
 public:
     CallbackImpl() = default;
-    void processFile(const sophos_filesystem::path& p) override
+    void processFile(const sophos_filesystem::path& p, bool /*symlinkTarget*/) override
     {
         std::cout << "FILE:" << p << '\n';
     }

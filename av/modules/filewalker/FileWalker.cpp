@@ -66,7 +66,16 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
 
         if (isRegularFile)
         {
-            m_callback.processFile(p);
+            if (fs::is_symlink(p.symlink_status()))
+            {
+                // Symlink to a regular file
+                m_callback.processFile(fs::read_symlink(p), true);
+            }
+            else
+            {
+                // Regular file
+                m_callback.processFile(p);
+            }
         }
         else if (fs::is_symlink(p.symlink_status()))
         {
