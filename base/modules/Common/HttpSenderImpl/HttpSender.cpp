@@ -101,7 +101,7 @@ namespace Common::HttpSenderImpl
         using HttResponse = Common::HttpSender::HttpResponse; 
         auto onError=[this, curlCode](int errorCode) -> HttResponse{ *curlCode = errorCode; return HttpResponse{errorCode,  m_curlWrapper->curlEasyStrError(static_cast<CURLcode>(errorCode))}; }; 
         curl_slist* headers = nullptr;
-        LOGINFO("Running easyPerform early code ");
+
         std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>> > curlOptions;
 
         CURL* curl = m_curlWrapper->curlEasyInit();

@@ -147,6 +147,12 @@ namespace CommsComponent
 
                 int status;
                 wait(&status);
+                int childExitCode = WEXITSTATUS(status); 
+                if ( childExitCode != 0 )
+                {
+                    LOGINFO( "Detected that child finished with status: " << status); 
+                    exitCode = childExitCode; 
+                }
                 LOGINFO("Detected that parent process has finished");
                 thread.join();
             }

@@ -208,6 +208,33 @@ TEST_F(TestSplitProcesses, ExchangeMessagesAndStop) // NOLINT
 
 }
 
+TEST_F(TestSplitProcesses, ParentProcessExportTheErrorCodeOfTheChild) // NOLINT
+{
+    testing::FLAGS_gtest_death_test_style = "threadsafe";
+    MAYSKIP;
+    ASSERT_EXIT(
+            {
+                setupAfterSkipIfNotRoot();
+                auto childProcess = [](std::shared_ptr<MessageChannel> , OtherSideApi &)
+                {
+                    exit(3); 
+                };
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &) {
+                    std::string message;
+                    channel->pop(message);
+                };
+
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
+                                                std::vector<ReadOnlyMount>());
+                int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
+                exit(exitCode);
+            },
+            ::testing::ExitedWithCode(3), ".*");
+
+}
+
+
+
 TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
 {
     MAYSKIP;
