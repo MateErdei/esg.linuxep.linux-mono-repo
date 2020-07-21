@@ -83,6 +83,17 @@ Verify Sockets Have Correct Permissions
 
     Dictionaries Should Be Equal  ${ActualDictOfSockets}  ${ExpectedDictOfSockets}
 
+Verify MCS Folders Have Correct Permissions
+    [Tags]    DEBUG  INSTALLER
+    Require Fresh Install
+
+    Check Expected Base Processes Are Running
+
+    ${ActualDictOfSockets} =    Get Dictionary Of Actual Mcs Folders And Permissions
+    ${ExpectedDictOfSockets} =  Get Directory Of Expected Mcs Folders And Permissions
+
+    Dictionaries Should Be Equal  ${ActualDictOfSockets}  ${ExpectedDictOfSockets}
+
 Verify Base Logs Have Correct Permissions
     [Tags]    DEBUG  INSTALLER
     Require Fresh Install

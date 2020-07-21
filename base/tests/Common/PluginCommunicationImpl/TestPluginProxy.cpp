@@ -7,12 +7,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "MockSocketRequester.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/PluginProtocol/Protocol.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 using Common::PluginCommunicationImpl::PluginProxy;
 
@@ -68,15 +72,20 @@ private:
 
 TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
     auto applyPolicyMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "thisisapolicy");
     // Command REQUEST_PLUGIN_DO_ACTION instead of the expected REQUEST_PLUGIN_APPLY_POLICY
     auto ackMsg = createAcknowledgementMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION);
     auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
+    std::string policyXmlFilePath("/opt/sophos-spl/base/mcs/policy/policy.xml");
+    EXPECT_CALL(*mockFileSystem, readFile(policyXmlFilePath)).WillOnce(Return("thisisapolicy"));
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     EXPECT_THROW( // NOLINT
-        m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"),
+        m_pluginProxy->applyNewPolicy("plugin_one", policyXmlFilePath),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
@@ -95,6 +104,11 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage) // NOLINT
 
 TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return("thisisapolicy"));
     EXPECT_CALL(*m_mockSocketRequester, write(_)).WillOnce(Throw(std::exception()));
     EXPECT_THROW( // NOLINT
         m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"),
@@ -105,25 +119,37 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException) // NOLINT
 
 TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    std::string policyXmlFilePath("/opt/sophos-spl/base/mcs/policy/policy.xml");
+
     auto applyPolicyMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "thisisapolicy");
     auto ackMsg = createAcknowledgementMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY);
     auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
+    EXPECT_CALL(*mockFileSystem, readFile(policyXmlFilePath)).WillOnce(Return("thisisapolicy"));
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    ASSERT_NO_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy")); // NOLINT
+    ASSERT_NO_THROW(m_pluginProxy->applyNewPolicy("plugin_one", policyXmlFilePath)); // NOLINT
 }
 
 TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    std::string policyXmlFilePath("/opt/sophos-spl/base/mcs/policy/policy.xml");
+
     auto applyPolicyMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "thisisapolicy");
     auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "NOACK");
     auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
+    EXPECT_CALL(*mockFileSystem, readFile(policyXmlFilePath)).WillOnce(Return("thisisapolicy"));
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     EXPECT_THROW( // NOLINT
-        m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"),
+        m_pluginProxy->applyNewPolicy("plugin_one", policyXmlFilePath),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
@@ -131,26 +157,38 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck) // NOLINT
 
 TEST_F(TestPluginProxy, TestPluginProxyDoAction) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    std::string actionXmlFilePath("/opt/sophos-spl/base/mcs/action/action.xml");
+
     auto doActionMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "thisisanaction");
     doActionMsg.m_correlationId = "correlation-id";
     auto ackMsg = createAcknowledgementMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION);
     auto serialisedMsg = m_Protocol.serialize(doActionMsg);
+    EXPECT_CALL(*mockFileSystem, readFile(actionXmlFilePath)).WillOnce(Return("thisisanaction"));
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    ASSERT_NO_THROW(m_pluginProxy->queueAction("plugin_one", "thisisanaction", "correlation-id"));
+    ASSERT_NO_THROW(m_pluginProxy->queueAction("plugin_one", actionXmlFilePath, "correlation-id"));
 }
 
 TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck) // NOLINT
 {
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    std::string actionXmlFilePath("/opt/sophos-spl/base/mcs/action/action.xml");
+
     auto doActionMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "thisisanaction");
     auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "NOACK");
     auto serialisedMsg = m_Protocol.serialize(doActionMsg);
+    EXPECT_CALL(*mockFileSystem, readFile(actionXmlFilePath)).WillOnce(Return("thisisanaction"));
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     EXPECT_THROW( // NOLINT
-        m_pluginProxy->queueAction("plugin_one", "thisisanaction", ""),
+        m_pluginProxy->queueAction("plugin_one", actionXmlFilePath, ""),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 

@@ -180,6 +180,20 @@ class Computer:
             # We want to introduce actions to the system in the order in which they were received.
             actions = glob.glob(os.path.join(path_manager.actions_temp_dir(), "*.*"))
             actions.sort(key=lambda a: os.path.basename(a).split("_", 1)[0])
+
+            # actions are no longer removed when processed by the management agent.
+            # clean-up previous actions, there should have been enough time for them to be processed between each command poll.
+            # for old_action_file_path in glob.glob(os.path.join(path_manager.action_dir(), "*.xml")):
+            #     try:
+            #         os.remove(old_action_file_path)
+            #     except OSError as ex:
+            #         LOGGER.warning("Failed to remove a action file: {}. Reason: {}".format(old_action_file_path, ex))
+            for old_action_file in os.listdir(path_manager.action_dir):
+                try:
+                    os.remove(old_action_file)
+                except OSError as ex:
+                    LOGGER.warning("Failed to remove a action file: {}. Reason: {}".format(old_action_file, ex))
+
             for filepath in actions:
                 try:
                     # This removes the timestamp (tag to sort by) from the front of the filename.

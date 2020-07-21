@@ -120,9 +120,17 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillThrowExceptionIfSophosUp
 TEST_F(TestWatchdogServiceLine, WatchdogServiceWillShouldIgnoreInvalidRequests) // NOLINT
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    std::string policyXmlFilePath("anypolicy.xml");
+
+    EXPECT_CALL(*mockFileSystem, readFile(policyXmlFilePath)).WillOnce(Return("anypolicy"));
+
     auto pluginProxy = getPluginProxyToTest();
     pluginProxy.queueAction("", "NotValidAction","");
-    pluginProxy.applyNewPolicy("", "anypolicy");
+    pluginProxy.applyNewPolicy("", policyXmlFilePath);
     std::vector<Common::PluginApi::StatusInfo> returnedStatus = pluginProxy.getStatus();
     ASSERT_EQ(returnedStatus.size(), 1);
     EXPECT_EQ(returnedStatus.at(0).statusWithoutTimestampsXml, "");

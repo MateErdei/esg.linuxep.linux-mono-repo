@@ -63,18 +63,6 @@ function removeWatchdogSystemdService()
 }
 
 
-function unmountCommsComponentDependencies()
-{
-  CommsComponentChroot=$1
-  umount --force ${CommsComponentChroot}/etc/resolv.conf 2>/dev/null >/dev/null
-  umount --force  ${CommsComponentChroot}/etc/hosts 2>/dev/null >/dev/null
-  umount --force ${CommsComponentChroot}/usr/lib 2>/dev/null >/dev/null
-  umount --force ${CommsComponentChroot}/lib 2>/dev/null >/dev/null
-  umount --force ${CommsComponentChroot}/etc/ssl/certs 2>/dev/null >/dev/null
-  umount --force ${CommsComponentChroot}/etc/pki/tls/certs 2>/dev/null >/dev/null
-  umount --force ${CommsComponentChroot}/base/mcs/certs/ 2>/dev/null >/dev/null
-}
-
 removeUpdaterSystemdService
 
 # Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
@@ -93,64 +81,40 @@ fi
 
 removeWatchdogSystemdService
 
-CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
-unmountCommsComponentDependencies ${CommsComponentChroot}
 rm -rf "$SOPHOS_INSTALL"
 
 PATH=$PATH:/usr/sbin:/sbin
 
-function removeUser()
-{
-  local USERNAME=$1
-  DELUSER=$(which deluser 2>/dev/null)
-  USERDEL=$(which userdel 2>/dev/null)
-
-  if [[ -x "$DELUSER" ]]
-  then
-      "$DELUSER" "$USERNAME" 2>/dev/null >/dev/null  || echo "Failed to delete user: $USERNAME"
-  elif [[ -x "$USERDEL" ]]
-  then
-      "$USERDEL" "$USERNAME" 2>/dev/null >/dev/null  || echo "Failed to delete user: $USERNAME"
-  else
-      echo "Unable to delete user $USERNAME" >&2
-  fi
-}
-
-function removeGroup()
-{
-  function check_group_exists()
-  {
-    grep  $1 /etc/group &>/dev/null
-  }
-
-  local GROUPNAME=$1
-
-  GROUP_DELETER=$(which delgroup 2>/dev/null)
-  [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
-  if [[ -x "$GROUP_DELETER" ]]
-  then
-      check_group_exists  $GROUPNAME
-      if [[ $? -eq 0 ]]
-      then
-          "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null || echo "Failed to delete group: $GROUPNAME"
-      fi
-  else
-      echo "Unable to delete group $GROUPNAME" >&2
-  fi
-}
-
+USERNAME="@SOPHOS_SPL_USER@"
+LOCAL_USERNAME="@SOPHOS_SPL_LOCAL@"
+GROUPNAME="@SOPHOS_SPL_GROUP@"
 if [[ -z $NO_REMOVE_USER ]]
 then
-  SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
-  removeUser    ${SOPHOS_SPL_USER_NAME}
+    DELUSER=$(which deluser 2>/dev/null)
+    USERDEL=$(which userdel 2>/dev/null)
 
-  NETWORK_USER_NAME="@SOPHOS_SPL_NETWORK@"
-  removeUser    ${NETWORK_USER_NAME}
+    if [[ -x "$DELUSER" ]]
+    then
+        "$DELUSER" "$USERNAME" 2>/dev/null >/dev/null
+        "$DELUSER" "LOCAL_USERNAME" 2>/dev/null >/dev/null
+    elif [[ -x "$USERDEL" ]]
+    then
+        "$USERDEL" "$USERNAME" 2>/dev/null >/dev/null
+        "$USERDEL" "LOCAL_USERNAME" 2>/dev/null >/dev/null
+    else
+        echo "Unable to delete user $USERNAME" >&2
+    fi
 
-  LOCAL_USER_NAME="@SOPHOS_SPL_LOCAL@"
-  removeUser    ${LOCAL_USER_NAME}
-
-  SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
-  removeGroup   ${SOPHOS_SPL_GROUP_NAME}
-
+    ## Can't delete the group if we aren't deleting the user
+    if [[ -z $NO_REMOVE_GROUP ]]
+    then
+        GROUP_DELETER=$(which delgroup 2>/dev/null)
+        [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
+        if [[ -x "$GROUP_DELETER" ]]
+        then
+            "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null
+        else
+            echo "Unable to delete group $GROUPNAME" >&2
+        fi
+    fi
 fi

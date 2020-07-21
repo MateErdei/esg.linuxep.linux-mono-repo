@@ -96,6 +96,7 @@ class TestComputer(unittest.TestCase):
         self.assertFalse(c.has_status_changed())
 
     @mock.patch("os.path.isdir", return_value=True)
+    @mock.patch("os.listdir", return_value=[])
     def test_run_commands_move_action_files_to_the_expected_path(self, *mockarg):
         """Test to demonstrate that the finalization of Computer.run_commands will move any file found in
         /tmp/sophos-spl/tmp/action to  /tmp/sophos-spl/base/mcs/action folder
@@ -113,11 +114,11 @@ class TestComputer(unittest.TestCase):
             temp_file_name = "/tmp/sophos-spl/tmp/action/" + initial_file_name
             final_file_name = "/tmp/sophos-spl/base/mcs/action/" + final_file_name
             glog_action = mock.MagicMock(side_effect=[[], [temp_file_name]])
+
             with mock.patch("mcsrouter.computer.os.rename", mocked_open_function) as mock_i:
                 with mock.patch("mcsrouter.computer.glob.glob", glog_action) as glob_i:
                     c.run_commands(commands)
             mock_i.assert_called_once_with(temp_file_name, final_file_name)
-
 
 if __name__ == '__main__':
     unittest.main()

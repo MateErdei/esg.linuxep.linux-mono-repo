@@ -11,6 +11,8 @@ namespace sophos
 {
     std::string user();
 
+    std::string localUser();
+
     std::string group();
 
     /*

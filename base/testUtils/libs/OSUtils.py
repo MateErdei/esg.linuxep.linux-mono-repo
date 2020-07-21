@@ -306,6 +306,36 @@ def get_dictionary_of_actual_base_logs_and_permissions():
 
     return dictionary_of_logs
 
+def get_dictionary_of_actual_mcs_folders_and_permissions():
+    dictionary_of_mcs_folders = {}
+
+    mcs_folders = ["/opt/sophos-spl/base/mcs/action",
+                   "/opt/sophos-spl/base/mcs/certs",
+                   "/opt/sophos-spl/base/mcs/event",
+                   "/opt/sophos-spl/base/mcs/policy",
+                   "/opt/sophos-spl/base/mcs/response",
+                   "/opt/sophos-spl/base/mcs/status",
+                   "/opt/sophos-spl/base/mcs/tmp"
+                   ]
+
+    for mcs_folder in mcs_folders:
+        permissions = get_all_permissions(mcs_folder)
+
+        dictionary_of_mcs_folders[mcs_folder] = permissions
+        logger.info("The following mcs folder was added to the dictionary: {}".format(mcs_folder))
+
+    return dictionary_of_mcs_folders
+
+def get_directory_of_expected_mcs_folders_and_permissions():
+    return {
+        "/opt/sophos-spl/base/mcs/action":      ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/certs":       ["root", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/event":       ["sophos-spl-local", "sophos-spl-group", "drwxrwx---"],
+        "/opt/sophos-spl/base/mcs/policy":      ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/response":    ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/status":      ["sophos-spl-local", "sophos-spl-group", "drwxrwx---"],
+        "/opt/sophos-spl/base/mcs/tmp":         ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+    }
 
 def get_dictionary_of_expected_sockets_and_permissions():
     return {

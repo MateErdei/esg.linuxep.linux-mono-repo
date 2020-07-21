@@ -90,8 +90,9 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
 
     Tests::TestExecutionSynchronizer sync(2);
     auto notifySync= [&sync](std::string, std::string, std::string=""){sync.notify(); return 1;};
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", "Hello")).WillOnce(Invoke(notifySync));
-    EXPECT_CALL(m_mockPluginManager, queueAction("appId1", "Hello", "")).WillOnce(Invoke(notifySync));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", m_tempDir->absPath(policyFile1))).WillOnce(Invoke(notifySync));
+    EXPECT_CALL(m_mockPluginManager, queueAction("appId1",  m_tempDir->absPath(actionFile1), "")).WillOnce(Invoke(notifySync));
+
 
     std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> listener1(
         new ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener(
@@ -150,13 +151,13 @@ TEST_F( // NOLINT
     m_tempDir->createFile(actionFileTmp2, "Hello");
     m_tempDir->createFile(actionFileTmp3, "Hello");
 
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", "Hello")).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId2", "Hello")).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId3", "Hello")).Times(0);
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", m_tempDir->absPath(policyFile1))).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId2", m_tempDir->absPath(policyFile2))).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId3", m_tempDir->absPath(policyFile3))).Times(0);
 
-    EXPECT_CALL(m_mockPluginManager, queueAction("appId1", "Hello", "")).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, queueAction("appId2", "Hello", "")).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, queueAction("appId3", "Hello", "")).Times(0);
+    EXPECT_CALL(m_mockPluginManager, queueAction("appId1", m_tempDir->absPath(actionFile1), "")).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, queueAction("appId2",  m_tempDir->absPath(actionFile2), "")).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, queueAction("appId3",  m_tempDir->absPath(actionFile3), "")).Times(0);
 
     std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> listener1(
         new ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener(

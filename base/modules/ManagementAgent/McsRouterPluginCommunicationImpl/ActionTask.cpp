@@ -103,26 +103,6 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
         return;
     }
 
-    std::string payload;
-    try
-    {
-        payload = Common::FileSystem::fileSystem()->readFile(m_filePath);
-    }
-    catch (Common::FileSystem::IFileSystemException& e)
-    {
-        LOGERROR("Failed to read " << m_filePath << " with error: " << e.what());
-        throw;
-    }
-
-    if (payload.empty())
-    {
-        LOGWARN("Action is empty: " << m_filePath);
-    }
-    else
-    {
-        int pluginsNotified = m_pluginManager.queueAction(actionFilenameFields.m_appId, payload, actionFilenameFields.m_correlationId);
-        LOGINFO("Action " << m_filePath << " sent to " << pluginsNotified << " plugins");
-    }
-
-    Common::FileSystem::fileSystem()->removeFile(m_filePath);
+    int pluginsNotified = m_pluginManager.queueAction(actionFilenameFields.m_appId, m_filePath, actionFilenameFields.m_correlationId);
+    LOGINFO("Action " << m_filePath << " sent to " << pluginsNotified << " plugins");
 }

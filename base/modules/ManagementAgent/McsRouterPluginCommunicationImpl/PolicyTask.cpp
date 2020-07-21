@@ -28,19 +28,8 @@ namespace ManagementAgent
                 return;
             }
 
-            std::string payload;
 
-            try
-            {
-                payload = Common::FileSystem::fileSystem()->readFile(m_filePath);
-            }
-            catch (Common::FileSystem::IFileSystemException& e)
-            {
-                LOGERROR("Failed to read " << m_filePath << " with error: " << e.what());
-                throw;
-            }
-
-            int newPolicyResult = m_pluginManager.applyNewPolicy(appId, payload);
+            int newPolicyResult = m_pluginManager.applyNewPolicy(appId, m_filePath);
             LOGINFO("Policy " << m_filePath << " applied to " << newPolicyResult << " plugins");
         }
 
