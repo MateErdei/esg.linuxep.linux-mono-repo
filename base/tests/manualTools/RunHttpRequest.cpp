@@ -17,9 +17,14 @@ void printUsageAndExit(std::string name, int code)
 {
     std::string usage{R"(RunHttpRequest can either run a normal request or run an http request inside the jail root. 
     
-    Usage: ./RunHttpRequest -i jsonfile1 [ -i jsonfile2 ... ]
-           ./RunHttpRequest -i jsonfile1 --child-user <name> --child-group <name> --parent-user <name> --parent-group <name> --jail-root
+    Usage: Option1: ./RunHttpRequest -i jsonfile1 [ -i jsonfile2 ... ]
+           Option2: ./RunHttpRequest -i jsonfile1 --child-user <name> --child-group <name> --parent-user <name> --parent-group <name> --jail-root <path>
+           Option3: ./RunHttpRequest --jail-root <path> 
            Either all the options for the jail needs to be given, or none of them should be provided. 
+    Option1: will run the requests as configured by the json file. 
+    Option2: does the same thing of option1, but before applies the chroot and drop-privileges. 
+    Option3: Only execute the Configurator::cleanDefaultMountedPaths to clean up mounted paths. 
+
     The json files should be eiter relative or absolute path and must be visible to the parent process (in case of a jail run). 
     
     A request should be a json file like:
@@ -42,6 +47,8 @@ void printUsageAndExit(std::string name, int code)
 
 
 struct Config{
+    enum RunOption{Option1, Option2, Option3}; 
+    RunOption runOption; 
     std::string childUser; 
     std::string childGroup; 
     std::string parentUser; 
@@ -106,33 +113,41 @@ Config parseArguments(int argc, char* argv[])
         }
     }
 
-    // confirm is it a valid config: 
-    if ( config.requestFiles.empty())
-    {
-        std::cerr << "No file provided for http request" << std::endl;  
-        printUsageAndExit(argv[0], 2); 
-    }
+    std::vector<bool> usersConfig{ config.childGroup.empty(), 
+        config.childUser.empty(),
+        config.parentUser.empty(), 
+        config.parentGroup.empty() }; 
+    
+    bool allUserConfigNotEmpty = std::all_of(usersConfig.begin(), usersConfig.end(), [](bool b){return !b; });
+    bool allUserConfigEmpty = std::all_of(usersConfig.begin(), usersConfig.end(), [](bool b){return b; });
 
-    if ( !config.childGroup.empty() 
-        || !config.childUser.empty()
-        || !config.parentGroup.empty()
-        || !config.parentUser.empty()
-        || !config.jailRoot.empty() 
-    )
+
+    if (config.jailRoot.empty())
     {
-        // if anyone was provided, all need to be given
-        if( config.childGroup.empty() 
-        || config.childUser.empty()
-        || config.parentGroup.empty()
-        || config.parentUser.empty()
-        || config.jailRoot.empty() )
+        if ( allUserConfigEmpty && !config.requestFiles.empty())
         {
-            std::cerr << "all arguments for the jail configuration must be passed or none of them" << std::endl; 
-            printUsageAndExit(argv[0], 3); 
+            config.runOption = Config::RunOption::Option1; 
+            return config; 
+        }        
+    }
+    else
+    {
+        if ( allUserConfigNotEmpty && !config.requestFiles.empty())
+        {
+            config.runOption = Config::RunOption::Option2; 
+            return config; 
+        }
+
+        if ( allUserConfigEmpty && config.requestFiles.empty())
+        {
+            config.runOption = Config::RunOption::Option3; 
+            return config; 
         }
     }
-    return config; 
+    std::cerr << "Invalid combination of arguments. " << std::endl; 
+    printUsageAndExit(argv[0], 3); 
 
+    return config; 
 }
 
 void serialize(const Common::HttpSender::HttpResponse &response , const std::string& filename)
@@ -143,7 +158,7 @@ void serialize(const Common::HttpSender::HttpResponse &response , const std::str
 }
 
 
-void runSimpleHttpRequests(const std::vector<std::string> & files)
+int runSimpleHttpRequests(const std::vector<std::string> & files)
 {
     Common::Logging::ConsoleLoggingSetup consoleSetup; 
     LOGINFO("Running runSimpleHttpRequests"); 
@@ -155,9 +170,17 @@ void runSimpleHttpRequests(const std::vector<std::string> & files)
         auto response = networkSide->performRequest( CommsComponent::CommsMsg::requestConfigFromJson(content)); 
         serialize(response, Common::FileSystem::basename(filePath));
     }    
+    return 0; 
 }
 
-void runHttpRequestsInTheJail(Config& config)
+int runUnmountPaths(const std::string & chroot)
+{
+    Common::Logging::ConsoleLoggingSetup consoleSetup; 
+    CommsComponent::CommsConfigurator::cleanDefaultMountedPaths(chroot);
+    return 0; 
+}
+
+int runHttpRequestsInTheJail(Config& config)
 {
     using namespace CommsComponent; 
     CommsComponent::UserConf parentConf{config.parentUser, config.parentGroup, "logparent" }; 
@@ -202,17 +225,27 @@ void runHttpRequestsInTheJail(Config& config)
     std::cout << "Running the splitProcesses Reactors" << std::endl; 
     int code =  CommsComponent::splitProcessesReactors(parentProc, std::move(childProc), configurator); 
     std::cout << "Return code: " << code << std::endl; 
+    return code; 
 }
+
+
  
 int main(int argc, char * argv[])
 {
     auto config = parseArguments(argc, argv); 
-    if ( config.jailRoot.empty())
+    switch (config.runOption)
     {
-        runSimpleHttpRequests(config.requestFiles);             
+    case Config::RunOption::Option1:
+        return runSimpleHttpRequests(config.requestFiles);
+        break;
+    case Config::RunOption::Option2:
+        return  runHttpRequestsInTheJail(config); 
+        break; 
+    case Config::RunOption::Option3:
+        return runUnmountPaths(config.jailRoot); 
+        break;
+    default:
+        break;
     }
-    else
-    {
-        runHttpRequestsInTheJail(config); 
-    }
+    return 1; 
 }

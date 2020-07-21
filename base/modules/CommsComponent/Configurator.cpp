@@ -156,10 +156,10 @@ namespace CommsComponent
     std::vector<ReadOnlyMount> CommsConfigurator::getListOfDependenciesToMount()
     {
         std::vector<ReadOnlyMount> deps{
-                {"/lib",             "/lib"},
-                {"/usr/lib",         "/usr/lib"},
-                {"/etc/hosts",       "/etc/hosts"},
-                {"/etc/resolv.conf", "/etc/resolv.conf"}
+                {"/lib",             "lib"},
+                {"/usr/lib",         "usr/lib"},
+                {"/etc/hosts",       "etc/hosts"},
+                {"/etc/resolv.conf", "etc/resolv.conf"}
         };
 
         //add default certifcate store path
@@ -179,6 +179,27 @@ namespace CommsComponent
         }
 
         return deps;
+    }
+
+
+    std::vector<std::string> CommsConfigurator::getListOfMountedEntities(const std::string& chrootDir)
+    { 
+        std::vector<std::string> mountedPaths;    
+        for( auto & mountOption : getListOfDependenciesToMount())
+        {
+            std::string pathMounted = Common::UtilityImpl::StringUtils::startswith(mountOption.second, "/") ? mountOption.second.substr(1) : mountOption.second; 
+            mountedPaths.emplace_back( Common::FileSystem::join( chrootDir, mountOption.second )); 
+        }
+        return mountedPaths; 
+    }
+    void CommsConfigurator::cleanDefaultMountedPaths(const std::string & chrootDir)
+    {
+        auto listOfMountedPaths = getListOfMountedEntities(chrootDir); 
+        for( auto & mountedPath : listOfMountedPaths)
+        {
+            LOGINFO("Unmount path: " << mountedPath); 
+            Common::SecurityUtils::unMount(mountedPath);
+        }
     }
 
 }

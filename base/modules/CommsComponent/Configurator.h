@@ -54,8 +54,12 @@ namespace CommsComponent
 
         void mountDependenciesReadOnly(UserConf userConf);
 
-        std::vector<ReadOnlyMount> getListOfDependenciesToMount();
+        
     public:
+        static std::vector<ReadOnlyMount> getListOfDependenciesToMount();
+        static std::vector<std::string> getListOfMountedEntities(const std::string& chrootDir); 
+        static void cleanDefaultMountedPaths(const std::string & chrootDir); 
+
         CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser,
                           std::vector<ReadOnlyMount> dependenciesToMount);
 
