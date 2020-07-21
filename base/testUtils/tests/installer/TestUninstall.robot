@@ -8,10 +8,11 @@ Resource  ../mdr_plugin/MDRResources.robot
 Resource  ../liveresponse_plugin/LiveResponseResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Default Tags  UNINSTALL  LIVERESPONSE_PLUGIN   EDR_PLUGIN   MDR_PLUGIN
+Default Tags  UNINSTALL
 
 *** Test Cases ***
 Uninstallation of base removes all plugins cleanly
+    [Tags]  LIVERESPONSE_PLUGIN   EDR_PLUGIN   MDR_PLUGIN  UNINSTALL
     Require Fresh Install
 
     Check Expected Base Processes Are Running
@@ -36,3 +37,11 @@ Uninstallation of base removes all plugins cleanly
     Check MDR Plugin Uninstalled
 
     Directory Should Not Exist  ${SOPHOS_INSTALL}
+
+Test Uninstall Script Gives Return Code Zero
+    [Tags]  UNINSTALL  TAP_TESTS  TAP_TESTS
+    Require Fresh Install
+    Check Expected Base Processes Are Running
+
+    ${result} =  Run Process  ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
+    Should Be Equal As Strings  ${result.rc}  0  "Return code was not 0, instead: ${result.rc}\nstdout: ${result.stdout}\nstderr: ${result.stderr}
