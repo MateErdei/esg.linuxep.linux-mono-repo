@@ -90,15 +90,9 @@ class TestCommsMsg : public LogOffInitializedTests
 {
     if (expected.getKeyList() != actual.getKeyList())
     {
-        //s << "KeyList differs. expected: " << expected.getKeyList() << " actual " << actual.getKeyList();
+        s << "KeyList differs. expected: " << expected.getKeyList().size() << " actual " << actual.getKeyList().size();
         return ::testing::AssertionFailure() << s.str();
     }
-
-//    actual.readCurrentProxyInfo();
-//    expected.readCurrentProxyInfo();
-//    std::cout << s.str() << std::endl;
-
-
 
     return ::testing::AssertionSuccess();
 }
