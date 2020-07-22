@@ -19,6 +19,14 @@ using namespace avscanner::avscannerimpl;
 
 int main(int argc, char* argv[])
 {
+    enum E_ERROR_CODES: int
+    {
+        E_CLEAN_EXIT,
+        E_GENERAL_ERROR,
+        E_UNKNOWN_OPTION,
+        E_BAD_OPTION
+    };
+
     LogSetup logging;
 
     try
@@ -30,7 +38,7 @@ int main(int argc, char* argv[])
         if(options.help())
         {
             PRINT(Options::getHelp());
-            return 0;
+            return E_CLEAN_EXIT;
         }
 
         std::unique_ptr<IRunner> runner;
@@ -45,18 +53,23 @@ int main(int argc, char* argv[])
 
         return runner->run();
     }
-    catch (boost::program_options::unknown_option& e)
+    catch (const boost::program_options::unknown_option& e)
     {
         PRINT(Options::getHelp());
         PRINT("Unrecognised option: " << e.get_option_name());
 
-        return 1;
+        return E_UNKNOWN_OPTION;
     }
-    catch (boost::program_options::error& e)
+    catch (const boost::program_options::error& e)
     {
         PRINT(Options::getHelp());
         PRINT("Failed to parse command line options: " << e.what());
 
-        return 1;
+        return E_BAD_OPTION;
+    }
+    catch (const std::exception& e) {
+        PRINT("Command Line Scanner failed: " << e.what());
+
+        return E_GENERAL_ERROR;
     }
 }

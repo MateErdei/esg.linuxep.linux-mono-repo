@@ -26,7 +26,10 @@ ${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${CLEAN_STRING}     not an eicar
 ${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
 ${LONG_DIRECTORY}   0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-
+${CLEAN_RESULT}     0
+${VIRUS_DETECTED_RESULT}    69
+${UKNOWN_OPTION_RESULT}     2
+${BAD_OPTION_RESULT}        3
 *** Test Cases ***
 CLS Can Scan Clean File
     Start AV
@@ -36,7 +39,7 @@ CLS Can Scan Clean File
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     Stop AV
 
@@ -48,7 +51,7 @@ CLS Can Scan Infected File
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal As Integers  ${rc}  69
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
    Stop AV
 
@@ -61,7 +64,7 @@ CLS Can Scan Archive File
 
       Log To Console  return code is ${rc}
       Log To Console  output is ${output}
-      Should Be Equal As Integers  ${rc}  69
+      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
       Stop AV
 
@@ -73,7 +76,7 @@ AV Log Contains No Errors When Scanning File
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be Equal As Integers  ${rc}  69
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
     Wait Until AV Plugin Log Contains  Sending threat detection notification to central
 
@@ -91,7 +94,7 @@ CLS Can Scan Infected And Clean File With The Same Name
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal As Integers  ${rc}  69
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
    Log To Console  ${NORMAL_DIRECTORY}
 
@@ -117,7 +120,7 @@ CLS Can Scan Zero Byte File
 
      Log To Console  return code is ${rc}
      Log To Console  output is ${output}
-     Should Be Equal As Integers  ${rc}  0
+     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
      Stop AV
 
@@ -130,7 +133,7 @@ CLS Can Scan Long Path
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     Stop AV
 
@@ -157,7 +160,7 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     Stop AV
 
@@ -169,7 +172,7 @@ CLS Creates Threat Report
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal As Integers  ${rc}  69
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
    Wait Until AV Plugin Log Contains  Sending threat detection notification to central
    AV Plugin Log Contains  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
@@ -193,7 +196,7 @@ CLS Encoded Eicars
    ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
    Should Be Equal As Integers  ${result.rc}  0
    ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
-   Should Be Equal As Integers  ${result.rc}  69
+   Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
 
    # Once CORE-1517 has been fixed, uncomment the check below
    #Threat Detector Does Not Log Contain  Failed to parse response from SUSI
@@ -225,7 +228,7 @@ CLS Exclusions Filename
    Should Contain       ${output.replace("\n", " ")}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
    Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar"
    Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
-   Should Be Equal As Integers  ${rc}  0
+   Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
    Stop AV
 
@@ -245,7 +248,7 @@ CLS Exclusions Folder
    Should Contain      ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar"
    Should Contain      ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/naugthy_eicar_folder"
    Should Contain      ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder"
-   Should Be Equal As Integers  ${rc}  0
+   Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
    Stop AV
 
@@ -265,7 +268,7 @@ CLS Exclusions Folder And File
    Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar"
    Should Contain       ${output.replace("\n", " ")}  Scanning ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
    Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
-   Should Be Equal As Integers  ${rc}  69
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
    Stop AV
 
@@ -274,12 +277,15 @@ CLS Prints Help and Failure When Options Are Spaced Incorrectly
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --exclude= file
     Should Contain       ${output}   Failed to parse command line options: the argument for option '--exclude' should follow immediately after the equal sign
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --files= file
     Should Contain       ${output}   Failed to parse command line options: the argument for option '--files' should follow immediately after the equal sign
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --config= config
     Should Contain       ${output}   Failed to parse command line options: the argument for option '--config' should follow immediately after the equal sign
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
 
 CLS Prints Help and Failure When Parsing Incomplete Arguments
@@ -287,20 +293,26 @@ CLS Prints Help and Failure When Parsing Incomplete Arguments
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --exclude
     Should Contain       ${output}   Failed to parse command line options: the required argument for option '--exclude' is missing
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --files
     Should Contain       ${output}   Failed to parse command line options: the required argument for option '--files' is missing
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --config
     Should Contain       ${output}   Failed to parse command line options: the required argument for option '--config' is missing
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} -x
     Should Contain       ${output}   Failed to parse command line options: the required argument for option '--exclude' is missing
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} -f
     Should Contain       ${output}   Failed to parse command line options: the required argument for option '--files' is missing
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} -c
     Should Contain       ${output}   Failed to parse command line options: the required argument for option '--config' is missing
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
     Stop AV
