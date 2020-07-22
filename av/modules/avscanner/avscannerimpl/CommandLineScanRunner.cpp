@@ -179,8 +179,13 @@ int CommandLineScanRunner::run()
     {
         LOGINFO("Exclusions: ");
     }
-    for (const auto& exclusion : m_exclusions)
+    for (auto& exclusion : m_exclusions)
     {
+        if(exclusion.compare(".") == 0)
+        {
+            exclusion = fs::current_path().append("/");
+        }
+
         LOGINFO("        " << exclusion);
         cmdExclusions.emplace_back(exclusion);
     }
