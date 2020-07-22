@@ -37,7 +37,7 @@ TEST_F(TestConfigurator, MountDependenciesReadOnly) // NOLINT
                    {
                        exit(1);
                    }
-                   auto expectedMountedPath = tempDir.absPath("usr/lib/x86_64-linux-gnu/");
+                   auto expectedMountedPath = tempDir.absPath("usr/lib/systemd/");
                    // mounted, hence, folder should be available anymore. as the path /usr/lib has been mounted.
                    if (!Common::FileSystem::fileSystem()->exists(expectedMountedPath))
                    {
