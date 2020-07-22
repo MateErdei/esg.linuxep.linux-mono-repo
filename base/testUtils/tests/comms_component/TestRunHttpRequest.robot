@@ -33,6 +33,8 @@ ${PORT}        10560
 ${HTTPS_LOG_FILE}     https_server.log
 ${HTTPS_LOG_FILE_PATH}     /tmp/${HTTPS_LOG_FILE}
 ${JAIL_PATH}   /tmp/jail
+${CHILD_LOG_PATH}  /opt/sophos-spl/var/sophos-spl-comms/logs/base/logchild.log
+${PARENT_LOG_PATH}  /opt/sophos-spl/logs/base/sophosspl/logparent.log
 
 
 *** Test Cases ***
@@ -89,7 +91,8 @@ Test RunHttpRequest with Jail produces mounts that should be cleared when Watchd
     ...  Directory Should Not Exist     /opt/sophos-spl/var/sophos-spl-comms/usr/lib/systemd/
 
     Verify All Mounts Have Been Removed  jailPath=/opt/sophos-spl/var/sophos-spl-comms
-
+    Check Log Contains  Successfully read only mounted   ${CHILD_LOG_PATH}   child log
+    Check Log Contains  Waiting for network process to finish   ${PARENT_LOG_PATH}   parent log
     
 
 
@@ -123,8 +126,8 @@ Test Teardown
     Run Keyword If Test Failed  LogUtils.Dump Log  ${FileNameRequest1}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${ExpectedResponse1}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${HTTPS_LOG_FILE_PATH}
-    Run Keyword If Test Failed  LogUtils.Dump Log    /opt/sophos-spl/logs/base/sophosspl/logparent.log
-    Run Keyword If Test Failed  LogUtils.Dump Log    /opt/sophos-spl/var/sophos-spl-comms/logs/base/logchild.log
+    Run Keyword If Test Failed  LogUtils.Dump Log    ${PARENT_LOG_PATH}
+    Run Keyword If Test Failed  LogUtils.Dump Log    ${CHILD_LOG_PATH}
     Run Keyword If Test Failed  Log    ${RunHttpRequestLog}
     Remove File   ${FileNameRequest1}
     Remove File   ${ExpectedResponse1}
