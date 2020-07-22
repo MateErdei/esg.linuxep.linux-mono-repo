@@ -29,8 +29,9 @@ Exclusion::Exclusion(const std::string& path)
         exclusionPath = exclusionPath.substr(0, exclusionPath.size() - 1);
     }
 
+    // if exclusionPath is '*/' skip this
     // if exclusionPath starts with '*/' remove the '*/'
-    if (exclusionPath.size() > 1 && exclusionPath.compare(0, 2, "*/") == 0)
+    if ((exclusionPath.size() > 1 && exclusionPath.size() != 2) && exclusionPath.compare(0, 2, "*/") == 0)
     {
         exclusionPath = exclusionPath.substr(2, exclusionPath.size() - 2);
     }
