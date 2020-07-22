@@ -236,6 +236,28 @@ TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), "/tmp/sandbox/a/f/file2.txt");
 }
 
+TEST(CommandLineScanRunner, excludeNamedFolders) // NOLINT
+{
+    fs::create_directories("/tmp/sandbox/a/b/d/e");
+    fs::create_directories("/tmp/sandbox/a/f");
+    std::ofstream("/tmp/sandbox/a/b/file1.txt");
+    std::ofstream("/tmp/sandbox/a/f/file2.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("/tmp/sandbox");
+    std::vector<std::string> exclusions;
+    exclusions.push_back("*/");
+    Options options(false, paths, exclusions, true);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    EXPECT_NO_THROW( runner.run());
+    fs::remove_all("/tmp/sandbox");
+
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
 TEST(CommandLineScanRunner, excludeSpecialMounts) // NOLINT
 {
     fs::path startingpoint = fs::absolute("sandbox");
