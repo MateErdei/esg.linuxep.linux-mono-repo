@@ -18,6 +18,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Common::HttpSenderImpl
 {
+    struct ProxySettings
+    {
+        // should contain the server and the port. 
+        // credentials should be user:password
+        std::string proxy; 
+        std::string credentials; 
+    };
 
     class HttpSender : public Common::HttpSender::IHttpSender
     {
@@ -28,13 +35,10 @@ namespace Common::HttpSenderImpl
         ~HttpSender() override;
 
         int doHttpsRequest(const Common::HttpSender::RequestConfig& requestConfig) override;
+        Common::HttpSender::HttpResponse fetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, const ProxySettings&, bool captureBody, long * curlCode);
         Common::HttpSender::HttpResponse fetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, bool captureBody, long * curlCode);
-
     private:
-        CURLcode setCurlOptions(
-            CURL* curl,
-            RequestConfig& requestConfig);
-
+        Common::HttpSender::HttpResponse doFetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, const ProxySettings&, bool captureBody, long * curlCode);    
         std::shared_ptr<Common::HttpSender::ICurlWrapper> m_curlWrapper;
     };
 } // namespace Common::HttpSenderImpl

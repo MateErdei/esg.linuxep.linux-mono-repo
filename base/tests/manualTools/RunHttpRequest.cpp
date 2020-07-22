@@ -20,6 +20,9 @@ void printUsageAndExit(std::string name, int code)
     Usage: Option1: ./RunHttpRequest -i jsonfile1 [ -i jsonfile2 ... ]
            Option2: ./RunHttpRequest -i jsonfile1 --child-user <name> --child-group <name> --parent-user <name> --parent-group <name> --jail-root <path> --parent-root <path>
            Option3: ./RunHttpRequest --jail-root <path>
+
+           For Option1 and 2 additional proxy can be provided: 
+           --proxy <hostname:port>   --proxy_auth <user:password>
            Either all the options for the jail needs to be given, or none of them should be provided. 
     Option1: will run the requests as configured by the json file.
     Option2: does the same thing of option1, but before applies the chroot and drop-privileges.
@@ -59,6 +62,8 @@ struct Config
     std::string parentGroup;
     std::string jailRoot;
     std::string parentRoot;
+    std::string proxy; 
+    std::string proxyCredential; 
     std::vector<std::string> requestFiles;
 };
 
@@ -77,7 +82,9 @@ Config parseArguments(int argc, char* argv[])
             ParentGroup = 3,
             RequestFile = 4,
             JailRoot = 5,
-            ParentRoot = 6
+            ParentRoot = 6,
+            Proxy = 7, 
+            ProxyCreds = 8
         };
         static struct option long_options[] = {
                 {"child-user",   required_argument, 0, 0},
@@ -87,6 +94,8 @@ Config parseArguments(int argc, char* argv[])
                 {"request-file", required_argument, 0, 0},
                 {"jail-root",    required_argument, 0, 0},
                 {"parent-root",  required_argument, 0, 0},
+                {"proxy",        required_argument, 0, 0},
+                {"proxy-auth",   required_argument, 0, 0},            
                 {0, 0,                              0, 0}
         };
 
@@ -120,6 +129,12 @@ Config parseArguments(int argc, char* argv[])
             case Option::ParentRoot:
                 config.parentRoot = optarg;
                 break;
+            case Option::Proxy:
+                config.proxy = optarg; 
+                break; 
+            case Option::ProxyCreds:
+                config.proxyCredential = optarg; 
+                break; 
             case Option::RequestFile:
             case 'i':
                 config.requestFiles.push_back(optarg);
@@ -178,11 +193,12 @@ void serialize(const Common::HttpSender::HttpResponse &response , const std::str
 }
 
 
-int runSimpleHttpRequests(const std::vector<std::string> & files)
+int runSimpleHttpRequests(const std::vector<std::string> & files, const Common::HttpSenderImpl::ProxySettings& proxy)
 {
     Common::Logging::ConsoleLoggingSetup consoleSetup; 
     LOGINFO("Running runSimpleHttpRequests"); 
     auto networkSide = CommsComponent::NetworkSide::createOrShareNetworkSide(); 
+    networkSide->setProxy(proxy); 
     for(auto & filePath : files)
     {
         LOGINFO("Process file: " << filePath); 
@@ -259,10 +275,13 @@ int runHttpRequestsInTheJail(Config& config)
 int main(int argc, char * argv[])
 {
     auto config = parseArguments(argc, argv); 
+    Common::HttpSenderImpl::ProxySettings proxy; 
+    proxy.proxy = config.proxy; 
+    proxy.credentials = config.proxyCredential; 
     switch (config.runOption)
     {
-        case Config::RunOption::Option1:
-            return runSimpleHttpRequests(config.requestFiles);
+        case Config::RunOption::Option1:            
+            return runSimpleHttpRequests(config.requestFiles, proxy);
             break;
         case Config::RunOption::Option2:
             return runHttpRequestsInTheJail(config);

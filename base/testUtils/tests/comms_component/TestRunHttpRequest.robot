@@ -5,6 +5,7 @@ Resource  ../watchdog/WatchdogResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
 Resource  CommsComponentResources.robot
 Resource  ../installer/InstallerResources.robot
+Resource  ../mcs_router/McsRouterResources.robot
 
 Library   ${LIBS_DIRECTORY}/CommsComponentUtils.py
 Library   ${LIBS_DIRECTORY}/LogUtils.py
@@ -35,16 +36,38 @@ ${HTTPS_LOG_FILE_PATH}     /tmp/${HTTPS_LOG_FILE}
 ${JAIL_PATH}   /tmp/jail
 ${CHILD_LOG_PATH}  /opt/sophos-spl/var/sophos-spl-comms/logs/base/logchild.log
 ${PARENT_LOG_PATH}  /opt/sophos-spl/logs/base/sophosspl/logparent.log
-
+${PROXY_LOG_PATH}  ./tmp/proxy_server.log
 
 *** Test Cases ***
 
 Test RunHttpRequest without Jail can perform a GET request with pinned Certificate
     Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${CERT_PATH}
-    ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1}   "Failed to run http request"  30  expectedExitCode=0
+    ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1}   "Failed to run http request"  30  expectedExitCode=0    
+    Set Test Variable  ${RunHttpRequestLog}   ${output}    
+    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=200
+    Should Contain   ${content}   Response From HttpsServer
+
+
+Test RunHttpRequest with Proxy and Basic Authentication works When Passing Correct Credential
+    Start Proxy Server With Basic Auth    3000    username    password
+    Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${CERT_PATH}
+    ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --proxy localhost:3000 --proxy-auth username:password   "Failed to run http request"  30  expectedExitCode=0
     Set Test Variable  ${RunHttpRequestLog}   ${output}
     ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=200
     Should Contain   ${content}   Response From HttpsServer
+    Check Log Contains    connection success          ${PROXY_LOG_PATH}     Proxy Log
+
+Test RunHttpRequest with Proxy and Basic Authentication works
+    Start Proxy Server With Basic Auth    3000    username    password
+    Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${CERT_PATH}
+    ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --proxy localhost:3000 --proxy-auth username:wrongpassword   "Failed to run http request"  30  expectedExitCode=0
+    Set Test Variable  ${RunHttpRequestLog}   ${output}
+    #FIXME after the try direct, the expected code would be 200
+    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=56
+    #${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=200
+    #Should Contain   ${content}   Response From HttpsServer
+    Check Log Contains    bad authorization info          ${PROXY_LOG_PATH}     Proxy Log
+
 
 
 Test RunHttpRequest without Jail can perform a PUT request with pinned Certificate
@@ -128,11 +151,15 @@ Test Teardown
     Run Keyword If Test Failed  LogUtils.Dump Log    ${HTTPS_LOG_FILE_PATH}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${PARENT_LOG_PATH}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${CHILD_LOG_PATH}
+    Run Keyword If Test Failed  LogUtils.Dump Log    ${PROXY_LOG_PATH}
     Run Keyword If Test Failed  Log    ${RunHttpRequestLog}
     Remove File   ${FileNameRequest1}
     Remove File   ${ExpectedResponse1}
     Remove File   ${HTTPS_LOG_FILE_PATH}
+    Remove File   ${PROXY_LOG_PATH}
     Stop Https Server
+    Stop Proxy Servers
+    Stop Proxy If Running
     Verify All Mounts Have Been Removed
     General Test Teardown
 

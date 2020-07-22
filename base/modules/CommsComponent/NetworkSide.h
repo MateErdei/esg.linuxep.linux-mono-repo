@@ -19,10 +19,12 @@ namespace CommsComponent
         NetworkSide();
 
         std::unique_ptr<Common::HttpSenderImpl::HttpSender> m_sender;
+        Common::HttpSenderImpl::ProxySettings m_proxy; 
     public:
         static std::shared_ptr<NetworkSide> createOrShareNetworkSide();
 
         Common::HttpSender::HttpResponse performRequest(const Common::HttpSender::RequestConfig& request);
+        void setProxy(const Common::HttpSenderImpl::ProxySettings& ); 
 
         NetworkSide(const NetworkSide&) = delete;
 

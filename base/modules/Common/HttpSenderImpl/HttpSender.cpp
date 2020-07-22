@@ -92,11 +92,24 @@ namespace Common::HttpSenderImpl
     int HttpSender::doHttpsRequest(const RequestConfig& requestConfig)
     {
         long curlCode; 
-        fetchHttpRequest(requestConfig, false, &curlCode); 
+        ProxySettings emptyProxy; 
+        doFetchHttpRequest(requestConfig, emptyProxy, false, &curlCode); 
         return static_cast<int>(curlCode);   
     }
 
-    Common::HttpSenderImpl::HttpResponse HttpSender::fetchHttpRequest(const RequestConfig& requestConfig, bool captureBody, long* curlCode)
+    Common::HttpSender::HttpResponse HttpSender::fetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, bool captureBody, long * curlCode)
+    {
+        ProxySettings emptyProxy; 
+        return doFetchHttpRequest(requestConfig, emptyProxy, captureBody, curlCode);
+    }
+
+    Common::HttpSender::HttpResponse HttpSender::fetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, const ProxySettings& proxySettings, bool captureBody, long * curlCode)
+    {
+        // FIXME: handle try directly if proxy fails. 
+        return doFetchHttpRequest(requestConfig, proxySettings, captureBody, curlCode);
+    }
+
+    Common::HttpSender::HttpResponse HttpSender::doFetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, const ProxySettings& proxySettings, bool captureBody, long * curlCode)
     {
         using HttResponse = Common::HttpSender::HttpResponse; 
         auto onError=[this, curlCode](int errorCode) -> HttResponse{ *curlCode = errorCode; return HttpResponse{errorCode,  m_curlWrapper->curlEasyStrError(static_cast<CURLcode>(errorCode))}; }; 
@@ -196,6 +209,21 @@ namespace Common::HttpSenderImpl
             curlOptions.emplace_back("Specify a custom PUT request", CURLOPT_CUSTOMREQUEST, "PUT");
             curlOptions.emplace_back("Specify data to PUT to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
         }
+
+        // how to use proxy: 
+        // https://curl.haxx.se/libcurl/c/libcurl-tutorial.html
+        // curl_easy_setopt(easyhandle, CURLOPT_PROXY, "proxy-host.com:8080");
+        //curl_easy_setopt(easyhandle, CURLOPT_PROXYUSERPWD, "user:password");
+        if ( !proxySettings.proxy.empty())
+        {
+            curlOptions.emplace_back("Configure the Proxy Option", CURLOPT_PROXY, proxySettings.proxy); 
+        }
+
+        if ( !proxySettings.credentials.empty())
+        {
+            curlOptions.emplace_back("Configure proxy credentials", CURLOPT_PROXYUSERPWD, proxySettings.credentials);
+        }
+
 
         for (const auto& curlOption : curlOptions)
         {
