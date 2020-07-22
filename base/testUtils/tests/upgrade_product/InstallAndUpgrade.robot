@@ -95,7 +95,7 @@ We Can Install From A Ballista Warehouse
 #    Fail
 
 We Can Upgrade From A Release To Master Without Unexpected Errors
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EXCLUDE_UBUNTU20
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
 
@@ -157,7 +157,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Check Update Reports Have Been Processed
 
 VersionCopy File in the Wrong Location Is Removed
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
 
@@ -208,8 +208,7 @@ VersionCopy File in the Wrong Location Is Removed
 
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
-
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
     # Note, if updating test make sure that at least one compnent will be un-installed during downgrade
     # There should be no errors in management agent relating to registering components which have been uninstalled
     # during the downgrade
@@ -446,7 +445,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
 
 Version Copy Versions All Changed Files When Upgrading
-    [Tags]      INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
+    [Tags]      INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
     [Documentation]  LINUXDAR-771 - check versioned copy works as expected.
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}

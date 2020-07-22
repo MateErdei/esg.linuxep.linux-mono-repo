@@ -22,7 +22,7 @@ ${BetaOnlyPolicy}                           ${GeneratedWarehousePolicies}/base_b
 
 *** Test Cases ***
 Thin Installer Installs Recommended Base When Only a Recommended Version is Available
-    [Tags]  THIN_INSTALLER   OSTIA  EXCLUDE_UBUNTU20
+    [Tags]  THIN_INSTALLER   OSTIA
     Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyRecommendedPolicy}
 
     Should Not Exist    ${SOPHOS_INSTALL}

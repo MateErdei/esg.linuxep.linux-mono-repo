@@ -223,7 +223,7 @@ EDR Uninstalled When Removed From ALC Policy
     File Should Not Exist   ${CACHED_STATUS_XML}
 
 Install Base And MTR Then Migrate To EDR
-    [Tags]   THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN  EXCLUDE_UBUNTU20
+    [Tags]   THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
