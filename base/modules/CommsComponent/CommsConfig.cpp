@@ -23,19 +23,23 @@ namespace CommsComponent
                 , "current_proxy");
         auto fileSystem = Common::FileSystem::fileSystem();
 
-
         std::string proxy = "";
         std::string credentials = "";
         std::string username = "";
-        if (fileSystem->isFile(filepath)) {
+
+        if (fileSystem->isFile(filepath))
+        {
             std::ifstream my_file(filepath);
 
-            try {
+            try
+            {
                 nlohmann::json j = nlohmann::json::parse(my_file);
 
-                if (j.find("proxy") != j.end()) {
+                if (j.find("proxy") != j.end())
+                {
                     proxy = j["proxy"];
-                    if (j.find("credentials") != j.end()) {
+                    if (j.find("credentials") != j.end())
+                    {
                         username = j["username"];
                         credentials = j["credentials"];
                     }
@@ -52,25 +56,29 @@ namespace CommsComponent
 
     void CommsConfig::addProxyInfoToConfig()
     {
-
         auto [proxy,credentials,username] = readCurrentProxyInfo();
 
         if (!proxy.empty())
         {
-            LOGDEBUG("Writing proxy info to file");
-            addKeyToList(std::pair<std::string,std::vector<std::string>>("proxy",{proxy}));
+            LOGDEBUG("Storing proxy info");
+            addKeyValueToList(std::pair<std::string,std::vector<std::string>>("proxy",{proxy}));
 
             if (!credentials.empty())
             {
-                LOGDEBUG("Writing credential info to file");
+                LOGDEBUG("Storing credential info");
                 auto deobfuscated = Common::ObfuscationImpl::SECDeobfuscate(credentials);
-                addKeyToList(std::pair<std::string,std::vector<std::string>>("username",{username}));
-                addKeyToList(std::pair<std::string,std::vector<std::string>>("password",{deobfuscated}));
-
+                addKeyValueToList(std::pair<std::string,std::vector<std::string>>("username",{username}));
+                addKeyValueToList(std::pair<std::string,std::vector<std::string>>("password",{deobfuscated}));
             }
         }
     }
-    const std::map<std::string,std::vector<std::string>> CommsConfig::getKeyList() const { return m_key_composed_values_config;}
+    const std::map<std::string,std::vector<std::string>> CommsConfig::getKeyList() const
+    {
+        return m_key_composed_values_config;
+    }
 
-    void CommsConfig::addKeyToList(std::pair<std::string,std::vector<std::string>> keyList){m_key_composed_values_config.insert(keyList);}
+    void CommsConfig::addKeyValueToList(std::pair<std::string,std::vector<std::string>> keyList)
+    {
+        m_key_composed_values_config.insert(keyList);
+    }
 }

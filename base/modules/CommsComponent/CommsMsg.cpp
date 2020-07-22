@@ -93,7 +93,7 @@ namespace
             {
                 values.emplace_back(value);
             }
-            config.addKeyToList(std::pair<std::string,std::vector<std::string>>(pair.key(),values));
+            config.addKeyValueToList(std::pair<std::string,std::vector<std::string>>(pair.key(),values));
 
         }
         return config;

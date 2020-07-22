@@ -273,9 +273,11 @@ TEST_F(TestCommsMsg, keyValueOfConfigCanBeProcessedCorrectly) // NOLINT
 {
     CommsMsg input;
     CommsConfig config;
-    config.addKeyToList(std::pair<std::string,std::vector<std::string>>("stuff1",{"stuff"}));
+    config.addKeyValueToList(std::pair<std::string,std::vector<std::string>>("stuff1",{"stuff"}));
     input.content = config;
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
-    //EXPECT_EQ(std::get<CommsComponent::CommsConfig>(result.content).getKeyList(),std::pair<std::string,std::string>("stuff1","stuff"));
+    std::map<std::string, std::vector<std::string>> key_composed_values;
+    key_composed_values.insert(std::pair<std::string,std::vector<std::string>>("stuff1",{"stuff"}));
+    EXPECT_EQ(std::get<CommsComponent::CommsConfig>(result.content).getKeyList(),key_composed_values);
 }
