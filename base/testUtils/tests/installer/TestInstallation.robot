@@ -258,8 +258,5 @@ Verify Sophos Users And Groups are Removed
     Verify Group Removed  sophos-spl-group
     Verify User Removed   sophos-spl-user
 
-    Verify Group Removed  sophos-spl-network
     Verify User Removed   sophos-spl-network
-
-    Verify Group Removed  sophos-spl-local
     Verify User Removed   sophos-spl-local
