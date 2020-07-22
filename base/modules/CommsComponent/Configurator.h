@@ -17,7 +17,7 @@ namespace CommsComponent
 {
     class NullConfigurator
     {
-        std::shared_ptr<Common::Logging::ConsoleLoggingSetup> m_console; 
+        std::shared_ptr<Common::Logging::ConsoleLoggingSetup> m_console;
     public:
         void applyParentSecurityPolicy();
 
@@ -47,14 +47,23 @@ namespace CommsComponent
          * Sets logger.conf and logs directory
          */
         void setupLoggingFiles();
-       
+
     public:
         static std::vector<ReadOnlyMount> getListOfDependenciesToMount();
-        static std::vector<std::string> getListOfMountedEntities(const std::string& chrootDir); 
-        static void cleanDefaultMountedPaths(const std::string & chrootDir);
-        static std::string chrootPathForSSPL(const std::string & ssplRootDir); 
-        enum MountOperation{MountSucceeded, MountFailed}; 
-        static MountOperation mountDependenciesReadOnly(const UserConf&  userConf, const std::vector<ReadOnlyMount> &, const std::string & chrootDir, std::ostream & );        
+
+        static std::vector<std::string> getListOfMountedEntities(const std::string& chrootDir);
+
+        static void cleanDefaultMountedPaths(const std::string& chrootDir);
+
+        static std::string chrootPathForSSPL(const std::string& ssplRootDir);
+
+        enum MountOperation
+        {
+            MountSucceeded, MountFailed
+        };
+
+        static MountOperation mountDependenciesReadOnly(const UserConf& userConf, const std::vector<ReadOnlyMount>&,
+                                                        const std::string& chrootDir, std::ostream&);
 
         CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser,
                           std::vector<ReadOnlyMount> dependenciesToMount);

@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
+
 #include "Configurator.h"
 #include "MessageChannel.h"
 #include "ReactorAdapter.h"
@@ -54,7 +55,7 @@ namespace CommsComponent
      *   exists to provide simpler ways to interact with the splitProcesss.
      * */
     template<typename ParentExecutor, typename ChildExecutor, typename Config>
-    int splitProcesses( ParentExecutor parent, ChildExecutor && child, Config config)
+    int splitProcesses(ParentExecutor parent, ChildExecutor&& child, Config config)
     {
         // setup the io_service and the socket/pair.
         boost::asio::io_service io_service;
@@ -63,7 +64,7 @@ namespace CommsComponent
                 [&child](std::string message) { child.onMessageFromOtherSide(std::move(message)); });
 
         // shutdown all threads before fork.
-        
+
         io_service.notify_fork(boost::asio::io_context::fork_prepare);
         int exitCode = 0;
 
@@ -91,14 +92,14 @@ namespace CommsComponent
 
                 LOGINFO("Entering main process: pid " << getpid());
                 thread = CommsContext::startThread(io_service);
-                exitCode = child.run(parentService); 
+                exitCode = child.run(parentService);
                 LOGINFO("End of the main process, shutting down");
 
                 // teardown and close
                 parentService.notifyOtherSideAndClose(); // notify the other side and close connection.
-                thread.join(); 
+                thread.join();
             }
-            catch (std::exception &ex)
+            catch (std::exception& ex)
             {
                 LOGERROR("Child process exception: " << ex.what());
                 if (exitCode == 0)
@@ -141,16 +142,16 @@ namespace CommsComponent
 
                 int status;
                 wait(&status);
-                int childExitCode = WEXITSTATUS(status); 
-                if ( childExitCode != 0 )
+                int childExitCode = WEXITSTATUS(status);
+                if (childExitCode != 0)
                 {
-                    LOGINFO( "Detected that child finished with status: " << status); 
-                    exitCode = childExitCode; 
+                    LOGINFO("Detected that child finished with status: " << status);
+                    exitCode = childExitCode;
                 }
                 LOGINFO("Detected that parent process has finished");
                 thread.join();
             }
-            catch (std::exception &ex)
+            catch (std::exception& ex)
             {
                 LOGERROR("Parent process exception: " << ex.what());
                 if (exitCode == 0)
@@ -175,8 +176,8 @@ namespace CommsComponent
     *   received by the parent. 
     */
 
-    template<typename ParentExecutor,typename Config>
-    int splitProcessesSimpleReactor(ParentExecutor parent, SimpleReactor child, Config config )
+    template<typename ParentExecutor, typename Config>
+    int splitProcessesSimpleReactor(ParentExecutor parent, SimpleReactor child, Config config)
     {
         return splitProcesses(parent, ReactorAdapter{std::move(child), "child"}, config);
     }
@@ -186,14 +187,14 @@ namespace CommsComponent
     It is likely to be used only in tests. But, given that it is only a template function, no code is 
     generated in production if not used, hence, no harm to have it here. 
     */
-    template<typename ParentExecutor>    
-    int splitProcessesSimpleReactor(ParentExecutor parent, SimpleReactor child )
+    template<typename ParentExecutor>
+    int splitProcessesSimpleReactor(ParentExecutor parent, SimpleReactor child)
     {
         return splitProcessesSimpleReactor(parent, ReactorAdapter{std::move(child), "child"}, NullConfigurator{});
     }
 
     template<typename Config>
-    int splitProcessesReactors(SimpleReactor parent, SimpleReactor child, Config config )
+    int splitProcessesReactors(SimpleReactor parent, SimpleReactor child, Config config)
     {
         return splitProcesses(ReactorAdapter{std::move(parent), "parent"}, ReactorAdapter{std::move(child), "child"},
                               config);
@@ -206,7 +207,6 @@ namespace CommsComponent
     {
         return splitProcessesReactors(std::move(parent), std::move(child), NullConfigurator{});
     }
-
 
 
 } // namespace CommsComponent

@@ -24,13 +24,13 @@ class TestSplitProcesses : public ::testing::Test
 public:
     static void SetUpTestCase()
     {
-        Common::FileSystem::fileSystem()->makedirs(TestSplitProc); 
-        Common::FileSystem::filePermissions()->chmod(TestSplitProc, 0777); 
+        Common::FileSystem::fileSystem()->makedirs(TestSplitProc);
+        Common::FileSystem::filePermissions()->chmod(TestSplitProc, 0777);
     }
 
     static void TearDownTestCase()
     {
-        Common::FileSystem::fileSystem()->removeFileOrDirectory(TestSplitProc); 
+        Common::FileSystem::fileSystem()->removeFileOrDirectory(TestSplitProc);
     }
 
     TestSplitProcesses() : m_rootPath(TestSplitProc)
@@ -48,7 +48,7 @@ public:
 
     void setupAfterSkipIfNotRoot()
     {
-        m_tempDir.reset( new Tests::TempDir(m_rootPath, "TestSplitProcesses")); 
+        m_tempDir.reset(new Tests::TempDir(m_rootPath, "TestSplitProcesses"));
 
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir->dirPath());
@@ -66,7 +66,7 @@ VERBOSITY=DEBUG
 
 
         std::string sophosInstall = m_tempDir->dirPath();
-        m_chrootSophosInstall =  CommsConfigurator::chrootPathForSSPL(sophosInstall);
+        m_chrootSophosInstall = CommsConfigurator::chrootPathForSSPL(sophosInstall);
 
         //local user dirs permissions to be done by the installer
         for (auto path : std::vector<std::string>{
@@ -95,7 +95,7 @@ public:
 
     // this becomes the 'main' function of the CommNetworkSide,
     // it can create threads, do whatever the business logic of that process is required.
-    void operator()(std::shared_ptr<MessageChannel> channel, OtherSideApi &parentProxy)
+    void operator()(std::shared_ptr<MessageChannel> channel, OtherSideApi& parentProxy)
     {
         while (true)
         {
@@ -142,7 +142,7 @@ TEST_F(TestSplitProcessesWithNullConfigurator, ExchangeMessagesAndStop) // NOLIN
     ASSERT_EXIT(
             {
                 auto childProcess = CommNetworkSide();
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& childProxy) {
                     childProxy.pushMessage("hello");
                     std::string message;
                     channel->pop(message);
@@ -169,7 +169,7 @@ TEST_F(TestSplitProcesses, ExchangeMessagesAndStop) // NOLINT
             {
                 setupAfterSkipIfNotRoot();
                 auto childProcess = CommNetworkSide();
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& childProxy) {
                     childProxy.pushMessage("hello");
                     std::string message;
                     channel->pop(message);
@@ -196,11 +196,10 @@ TEST_F(TestSplitProcesses, ParentProcessExportTheErrorCodeOfTheChild) // NOLINT
     ASSERT_EXIT(
             {
                 setupAfterSkipIfNotRoot();
-                auto childProcess = [](std::shared_ptr<MessageChannel> , OtherSideApi &)
-                {
-                    exit(3); 
+                auto childProcess = [](std::shared_ptr<MessageChannel>, OtherSideApi&) {
+                    exit(3);
                 };
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi&) {
                     std::string message;
                     channel->pop(message);
                 };
@@ -215,7 +214,6 @@ TEST_F(TestSplitProcesses, ParentProcessExportTheErrorCodeOfTheChild) // NOLINT
 }
 
 
-
 TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
 {
     MAYSKIP;
@@ -225,7 +223,7 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
                 setupAfterSkipIfNotRoot();
                 auto childProcess = CommNetworkSide();
 
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& childProxy) {
                     childProxy.pushMessage("stop");
                     std::string message;
                     try
@@ -255,7 +253,7 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
                 setupAfterSkipIfNotRoot();
                 auto childProcess = CommNetworkSide();
 
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& childProxy) {
                     childProxy.pushMessage("abort");
                     std::string message;
                     try
@@ -287,7 +285,7 @@ TEST_F(TestSplitProcesses, ChildCanRecieveMoreThanOneMessageAndConcurrently) // 
                 setupAfterSkipIfNotRoot();
                 auto childProcess = CommNetworkSide();
 
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi &childProxy) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& childProxy) {
                     auto message1 = std::async(std::launch::async, [&channel, &childProxy]() {
                         childProxy.pushMessage("getuid");
                         std::string message;
@@ -347,12 +345,12 @@ TEST_F(TestSplitProcesses, ParentAndChildShouldBeAbleToUseLog4) // NOLINT
                     setupAfterSkipIfNotRoot();
                     captureTempPath = m_tempDir->dirPath();
                     auto parentProcess = [](std::shared_ptr<MessageChannel> /*channel*/,
-                                            OtherSideApi & /*childProxy*/) {
+                                            OtherSideApi& /*childProxy*/) {
                         LOGDEBUG("Log from Parent");
 
                     };
 
-                    auto childProcess = [](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi & /*parentProxy*/) {
+                    auto childProcess = [](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi& /*parentProxy*/) {
                         LOGDEBUG("Log from Child");
                         std::cout << "also log from here" << std::endl;
                         try
@@ -378,7 +376,7 @@ TEST_F(TestSplitProcesses, ParentAndChildShouldBeAbleToUseLog4) // NOLINT
                     {
                         exitCode = 2;
                     }
-                    for (auto &name : fs->listFilesAndDirectories(
+                    for (auto& name : fs->listFilesAndDirectories(
                             Common::FileSystem::join(m_chrootSophosInstall, "logs/base/")))
                     {
                         std::cout << "files inside the child log base: " << name << std::endl;

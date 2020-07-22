@@ -5,14 +5,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
-#include "CommsConfig.h"
-
-#include <HttpSender/RequestConfig.h>
-#include <HttpSender/HttpResponse.h>
-
 #include <string>
 #include <variant>
 #include <map>
+#include <HttpSender/RequestConfig.h>
+#include <HttpSender/HttpResponse.h>
 namespace CommsComponent
 {
     class InvalidCommsMsgException : public std::runtime_error
@@ -23,15 +20,19 @@ namespace CommsComponent
 
     struct CommsMsg
     {
-        static CommsMsg fromString(const std::string & ); 
-        static std::string serialize(const CommsMsg& ); 
+        static CommsMsg fromString(const std::string&);
 
-        static std::string toJson(const Common::HttpSender::RequestConfig& ); 
-        static std::string toJson( const Common::HttpSender::HttpResponse&  ); 
-        static Common::HttpSender::RequestConfig requestConfigFromJson( const std::string & jsonContent); 
-        static Common::HttpSender::HttpResponse httpResponseFromJson( const std::string & jsonContent); 
+        static std::string serialize(const CommsMsg&);
 
-        std::string id; 
-        std::variant<Common::HttpSender::RequestConfig, Common::HttpSender::HttpResponse, CommsComponent::CommsConfig> content;
-    };    
+        static std::string toJson(const Common::HttpSender::RequestConfig&);
+
+        static std::string toJson(const Common::HttpSender::HttpResponse&);
+
+        static Common::HttpSender::RequestConfig requestConfigFromJson(const std::string& jsonContent);
+
+        static Common::HttpSender::HttpResponse httpResponseFromJson(const std::string& jsonContent);
+
+        std::string id;
+        std::variant<Common::HttpSender::RequestConfig, Common::HttpSender::HttpResponse> content;
+    };
 }

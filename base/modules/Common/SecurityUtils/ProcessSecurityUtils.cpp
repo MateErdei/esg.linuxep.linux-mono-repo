@@ -19,57 +19,59 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace Common::SecurityUtils
 {
-    void FatalSecuritySetupFailureException::onError(const std::string & errMsg)
+    void FatalSecuritySetupFailureException::onError(const std::string& errMsg)
     {
-            int e = errno; 
-            std::stringstream err; 
-            err << errMsg << strerror(e);  
-            throw FatalSecuritySetupFailureException(err.str()); 
+        int e = errno;
+        std::stringstream err;
+        err << errMsg << strerror(e);
+        throw FatalSecuritySetupFailureException(err.str());
     }
 
-    void dropPrivileges(uid_t newuid, gid_t newgid, std::ostream & out)
-    {       
+    void dropPrivileges(uid_t newuid, gid_t newgid, std::ostream& out)
+    {
         gid_t oldgid = getegid();
         uid_t olduid = geteuid();
 
         std::stringstream errorString;
         if (oldgid != 0)
         {
-            FatalSecuritySetupFailureException::onError("Process requesting to drop privilege needs to be root");            
+            FatalSecuritySetupFailureException::onError("Process requesting to drop privilege needs to be root");
         }
         /* Pare down the ancillary groups for the process before doing anything else because the setgroups()
          * system call requires root privileges.
          * Ref: https://people.eecs.berkeley.edu/~daw/papers/setuid-usenix02.pdf
          */
 
-        if (!olduid && setgroups(1, &newgid) == -1)
+        if (!olduid&&setgroups(1, &newgid) == -1)
         {
             FatalSecuritySetupFailureException::onError("Failed to drop other associated group ids: ");
         }
 
-        if (newgid != oldgid && (setregid(newgid, newgid) == -1))
+        if (newgid != oldgid&&(setregid(newgid, newgid) == -1))
         {
-            FatalSecuritySetupFailureException::onError("Failed to set the new real and effective group ids, "); 
+            FatalSecuritySetupFailureException::onError("Failed to set the new real and effective group ids, ");
         }
 
-        if (newuid != olduid && (setreuid(newuid, newuid) == -1))
+        if (newuid != olduid&&(setreuid(newuid, newuid) == -1))
         {
             FatalSecuritySetupFailureException::onError("Failed to set the new real and effective user ids,");
         }
         /* verify that the changes were successful */
-        if (newgid != oldgid && (setegid(oldgid) != -1 || getegid() != newgid))
-        {            
-            FatalSecuritySetupFailureException::onError("Process should fail to set effective user ids after dropping privilege ");
-        }
-        if (newuid != olduid && (seteuid(olduid) != -1 || geteuid() != newuid))
+        if (newgid != oldgid&&(setegid(oldgid) != -1||getegid() != newgid))
         {
-            FatalSecuritySetupFailureException::onError("Process should fail to set effective group ids after dropping privilege");
+            FatalSecuritySetupFailureException::onError(
+                    "Process should fail to set effective user ids after dropping privilege ");
         }
-        out << "Droped privilege to user_id: " << newuid << " group_id: " <<  newgid << "\n";
+        if (newuid != olduid&&(seteuid(olduid) != -1||geteuid() != newuid))
+        {
+            FatalSecuritySetupFailureException::onError(
+                    "Process should fail to set effective group ids after dropping privilege");
+        }
+        out << "Droped privilege to user_id: " << newuid << " group_id: " << newgid << "\n";
 
     }
 
-    void dropPrivileges(const std::string &userString, const std::string &groupString, std::ostream & out)
+    void dropPrivileges(const std::string& userString, const std::string& groupString, std::ostream& out)
     {
         auto runUser = getUserIdAndGroupId(userString, groupString, out);
         if (!runUser.has_value())
@@ -88,12 +90,12 @@ namespace Common::SecurityUtils
      * Ref: https://wiki.sophos.net/display/~MoritzGrimm/Validate+Transitive+Trust+in+Endpoints
      * Ref: http://www.unixwiz.net/techtips/chroot-practices.html
      */
-    void setupJailAndGoIn(const std::string &chrootDirPath, std::ostream & out)
+    void setupJailAndGoIn(const std::string& chrootDirPath, std::ostream& out)
     {
         if (chdir(chrootDirPath.c_str()) == -1)
         {
             std::stringstream chdirErrorMsg;
-            chdirErrorMsg << "chdir to jail: " << chrootDirPath << " failed: ";            
+            chdirErrorMsg << "chdir to jail: " << chrootDirPath << " failed: ";
             FatalSecuritySetupFailureException::onError(chdirErrorMsg.str());
         }
         if (chroot(chrootDirPath.c_str()) == -1)
@@ -104,10 +106,11 @@ namespace Common::SecurityUtils
         {
             FatalSecuritySetupFailureException::onError("failed to sync PWD environment variable");
         }
-        out << "Chroot to " << chrootDirPath << "\n"; 
+        out << "Chroot to " << chrootDirPath << "\n";
     }
 
-    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string &groupName, std::ostream & out )
+    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string& groupName,
+                                                    std::ostream& out)
     {
         try
         {
@@ -125,15 +128,15 @@ namespace Common::SecurityUtils
     }
 
 
-    void chrootAndDropPrivileges(const std::string &userName, const std::string &groupName,
-                                 const std::string &chrootDirPath, std::ostream& out)
+    void chrootAndDropPrivileges(const std::string& userName, const std::string& groupName,
+                                 const std::string& chrootDirPath, std::ostream& out)
     {
         auto runAsUser = getUserIdAndGroupId(userName, groupName, out);
 
         //do user lookup before chroot
-        if (!runAsUser.has_value() || getuid() != 0U)
+        if (!runAsUser.has_value()||getuid() != 0U)
         {
-            if ( !runAsUser.has_value())
+            if (!runAsUser.has_value())
             {
                 out << "User not identified" << std::endl;
             }
@@ -143,13 +146,13 @@ namespace Common::SecurityUtils
                 out << "Identified user: " << v.m_userid << " and group: " << v.m_groupid << std::endl;
             }
 
-            if ( getuid() != 0U)
+            if (getuid() != 0U)
             {
                 out << "Running not as root" << std::endl;
             }
 
 
-            throw  FatalSecuritySetupFailureException("Current user needs to be root and target user must exist");
+            throw FatalSecuritySetupFailureException("Current user needs to be root and target user must exist");
         }
         setupJailAndGoIn(chrootDirPath, out);
         dropPrivileges(runAsUser->m_userid, runAsUser->m_groupid, out);
@@ -163,7 +166,7 @@ namespace Common::SecurityUtils
         if (isAlreadyMounted(targetMountLocation, out))
         {
             out << "Source '" << sourceFile << "' is already mounted on '" << targetMountLocation << " Error: "
-                         << std::strerror(errno);
+                << std::strerror(errno);
             return true;
         }
 
@@ -181,21 +184,21 @@ namespace Common::SecurityUtils
             == -1)
         {
             out << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
-                         << std::strerror(errno) << "\n";
+                << std::strerror(errno) << "\n";
             return false;
         }
 
         if (mount("none", targetMountLocation.c_str(), nullptr, MS_RDONLY | MS_REMOUNT | MS_BIND, nullptr) == -1)
         {
             out << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
-                         << std::strerror(errno) << "\n";
+                << std::strerror(errno) << "\n";
             return false;
         }
         out << "Successfully read only mounted '" << sourceFile << "' to path: '" << targetMountLocation << "\n";
         return true;
     }
 
-    bool isFreeMountLocation(const std::string& targetFile, std::ostream & out)
+    bool isFreeMountLocation(const std::string& targetFile, std::ostream& out)
     {
         //we will alway create a file to indicated mounted in our mount directories
         auto fs = Common::FileSystem::fileSystem();
@@ -211,11 +214,11 @@ namespace Common::SecurityUtils
             try
             {
                 auto nomounted = fs->readFile(targetFile, FILENAME_MAX);
-                return nomounted.empty()||nomounted.compare(GL_NOTMOUNTED_MARKER) == 0;
+                return nomounted.empty()||nomounted == GL_NOTMOUNTED_MARKER;
             }
             catch (const Common::FileSystem::IFileSystemException& fileSystemException)
             {
-                out << "Failed to check if mounted. Reason: " << fileSystemException.what() << "\n"; 
+                out << "Failed to check if mounted. Reason: " << fileSystemException.what() << "\n";
                 return false;
             }
         }
@@ -230,7 +233,7 @@ namespace Common::SecurityUtils
             if (!expectedValue)
             {
                 out << "Warning file is mounted test on: '" << targetMountLocation
-                             << "' unexpected errro. Error: " << std::strerror(errno);
+                    << "' unexpected errro. Error: " << std::strerror(errno);
             }
             return false;
         }

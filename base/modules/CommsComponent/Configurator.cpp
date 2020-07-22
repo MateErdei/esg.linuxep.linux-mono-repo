@@ -32,41 +32,47 @@ namespace CommsComponent
 
     void CommsConfigurator::applyChildSecurityPolicy()
     {
-        std::stringstream output; 
+        std::stringstream output;
         setupLoggingFiles();
-        try{
-            if ( mountDependenciesReadOnly(m_childUser, m_listOfDependencyPairs, m_chrootDir, output) == CommsConfigurator::MountOperation::MountFailed)
-            {
-                throw Common::SecurityUtils::FatalSecuritySetupFailureException( "Failed to configure the mount points"); 
-            }
-            Common::SecurityUtils::chrootAndDropPrivileges(m_childUser.userName, m_childUser.userGroup, m_chrootDir, output);
-        }catch( Common::SecurityUtils::FatalSecuritySetupFailureException & ex )
+        try
         {
-            std::cout << output.str() << std::endl; 
-            std::cerr << ex.what() << std::endl; 
-            exit(EXIT_FAILURE); 
-        }        
+            if (mountDependenciesReadOnly(m_childUser, m_listOfDependencyPairs, m_chrootDir, output)
+                == CommsConfigurator::MountOperation::MountFailed)
+            {
+                throw Common::SecurityUtils::FatalSecuritySetupFailureException("Failed to configure the mount points");
+            }
+            Common::SecurityUtils::chrootAndDropPrivileges(m_childUser.userName, m_childUser.userGroup, m_chrootDir,
+                                                           output);
+        }
+        catch (Common::SecurityUtils::FatalSecuritySetupFailureException& ex)
+        {
+            std::cout << output.str() << std::endl;
+            std::cerr << ex.what() << std::endl;
+            exit(EXIT_FAILURE);
+        }
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/");
         m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_childUser.logName));
-        LOGINFO(output.str()); 
+        LOGINFO(output.str());
     }
 
 
     void CommsConfigurator::applyParentSecurityPolicy()
     {
-        std::stringstream output; 
-        try{
-            Common::SecurityUtils::dropPrivileges(m_parentUser.userName, m_parentUser.userGroup, output);
-        }catch( Common::SecurityUtils::FatalSecuritySetupFailureException & ex )
+        std::stringstream output;
+        try
         {
-            std::cout << output.str() << std::endl; 
-            std::cerr << ex.what() << std::endl; 
-            exit(EXIT_FAILURE); 
+            Common::SecurityUtils::dropPrivileges(m_parentUser.userName, m_parentUser.userGroup, output);
         }
-        
+        catch (Common::SecurityUtils::FatalSecuritySetupFailureException& ex)
+        {
+            std::cout << output.str() << std::endl;
+            std::cerr << ex.what() << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
         m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_parentUser.logName, true));
-        LOGINFO(output.str()); 
+        LOGINFO(output.str());
     }
 
     CommsConfigurator::CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser,
@@ -80,7 +86,7 @@ namespace CommsComponent
         {
             std::string oldSophosInstall = Common::ApplicationConfiguration::applicationConfiguration().getData(
                     Common::ApplicationConfiguration::SOPHOS_INSTALL);
-            std::vector<Path> loggingDirectories = {"","base", "base/etc/", "logs", "logs/base"};
+            std::vector<Path> loggingDirectories = {"", "base", "base/etc/", "logs", "logs/base"};
             for (auto& dirpath : loggingDirectories)
             {
                 std::string path = Common::FileSystem::join(m_chrootDir, dirpath);
@@ -105,8 +111,9 @@ namespace CommsComponent
     }
 
 
-    CommsConfigurator::MountOperation CommsConfigurator::mountDependenciesReadOnly(const CommsComponent::UserConf&  userConf,
-      const std::vector<ReadOnlyMount>& listOfDependencyPairs, const std::string & chrootDir, std::ostream & out)
+    CommsConfigurator::MountOperation CommsConfigurator::mountDependenciesReadOnly(
+            const CommsComponent::UserConf& userConf,
+            const std::vector<ReadOnlyMount>& listOfDependencyPairs, const std::string& chrootDir, std::ostream& out)
     {
         auto fs = Common::FileSystem::fileSystem();
         auto ifperms = Common::FileSystem::FilePermissionsImpl();
@@ -125,7 +132,7 @@ namespace CommsComponent
             auto targetPath = Common::FileSystem::join(chrootDir, targetRelPath);
 
             //attempting to mount to an existing file will overwrite
-            if (fs->exists(targetPath) && !Common::SecurityUtils::isFreeMountLocation(targetPath, out))
+            if (fs->exists(targetPath)&&!Common::SecurityUtils::isFreeMountLocation(targetPath, out))
             {
                 if (Common::SecurityUtils::isAlreadyMounted(targetPath, out))
                 {
@@ -151,7 +158,7 @@ namespace CommsComponent
             }
             if (!Common::SecurityUtils::bindMountReadOnly(sourcePath, targetPath, out))
             {
-                return MountOperation::MountFailed; 
+                return MountOperation::MountFailed;
             };
         }
         return MountOperation::MountSucceeded;
@@ -189,30 +196,32 @@ namespace CommsComponent
 
 
     std::vector<std::string> CommsConfigurator::getListOfMountedEntities(const std::string& chrootDir)
-    { 
-        std::vector<std::string> mountedPaths;    
-        for( auto & mountOption : getListOfDependenciesToMount())
-        {
-            std::string pathMounted = Common::UtilityImpl::StringUtils::startswith(mountOption.second, "/") ? mountOption.second.substr(1) : mountOption.second; 
-            mountedPaths.emplace_back( Common::FileSystem::join( chrootDir, mountOption.second )); 
-        }
-        return mountedPaths; 
-    }
-    void CommsConfigurator::cleanDefaultMountedPaths(const std::string & chrootDir)
     {
-        std::stringstream out; 
-        auto listOfMountedPaths = getListOfMountedEntities(chrootDir); 
-        for( auto & mountedPath : listOfMountedPaths)
+        std::vector<std::string> mountedPaths;
+        for (auto& mountOption : getListOfDependenciesToMount())
         {
-            LOGINFO("Unmount path: " << mountedPath); 
-            Common::SecurityUtils::unMount(mountedPath, out);
+            std::string pathMounted = Common::UtilityImpl::StringUtils::startswith(mountOption.second, "/")
+                                      ? mountOption.second.substr(1) : mountOption.second;
+            mountedPaths.emplace_back(Common::FileSystem::join(chrootDir, mountOption.second));
         }
-        LOGINFO(out.str()); 
+        return mountedPaths;
     }
 
-    std::string CommsConfigurator::chrootPathForSSPL(const std::string & ssplRootDir)
+    void CommsConfigurator::cleanDefaultMountedPaths(const std::string& chrootDir)
     {
-        return Common::FileSystem::join(ssplRootDir, "var/sophos-spl-comms"); 
+        std::stringstream out;
+        auto listOfMountedPaths = getListOfMountedEntities(chrootDir);
+        for (auto& mountedPath : listOfMountedPaths)
+        {
+            LOGINFO("Unmount path: " << mountedPath);
+            Common::SecurityUtils::unMount(mountedPath, out);
+        }
+        LOGINFO(out.str());
+    }
+
+    std::string CommsConfigurator::chrootPathForSSPL(const std::string& ssplRootDir)
+    {
+        return Common::FileSystem::join(ssplRootDir, "var/sophos-spl-comms");
     }
 
 }

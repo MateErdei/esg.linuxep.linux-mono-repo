@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "CommsMsg.h"
 #include <CommsMsg.pb.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -21,15 +22,18 @@ namespace
 
     struct CommsMsgVisitorSerializer
     {
-        CommsMsgProto::CommsMsg & m_msg; 
-        CommsMsgVisitorSerializer(CommsMsgProto::CommsMsg& msg): m_msg(msg){}
+        CommsMsgProto::CommsMsg& m_msg;
+
+        explicit CommsMsgVisitorSerializer(CommsMsgProto::CommsMsg& msg) : m_msg(msg) {}
+
         void operator()(const HttpResponse& httpResponse)
         {
-            auto proto = m_msg.mutable_httpresponse(); 
-            proto->set_httpcode(httpResponse.httpCode); 
-            proto->set_description( httpResponse.description); 
-            proto->set_bodycontent( httpResponse.bodyContent);
+            auto proto = m_msg.mutable_httpresponse();
+            proto->set_httpcode(httpResponse.httpCode);
+            proto->set_description(httpResponse.description);
+            proto->set_bodycontent(httpResponse.bodyContent);
         }
+
         void operator()(const RequestConfig& requestConfig)
         {
             auto proto = m_msg.mutable_httprequest();
@@ -40,7 +44,7 @@ namespace
             proto->set_port(requestConfig.getPort());
             proto->set_certpath(requestConfig.getCertPath());
 
-            for(const auto& header : requestConfig.getAdditionalHeaders())
+            for (const auto& header : requestConfig.getAdditionalHeaders())
             {
                 proto->add_headers(header);
             }
@@ -56,14 +60,15 @@ namespace
         requestConfig.setData(requestProto.bodycontent());
         requestConfig.setPort(requestProto.port());
         requestConfig.setCertPath(requestProto.certpath());
-        std::vector<std::string> headers; 
-        for(auto& header: requestProto.headers())
+        std::vector<std::string> headers;
+        for (auto& header: requestProto.headers())
         {
-            headers.push_back(header);             
+            headers.push_back(header);
         }
         requestConfig.setAdditionalHeaders(std::move(headers));
         return requestConfig;
     }
+
     Common::HttpSender::HttpResponse from(const CommsMsgProto::HttpResponse& responseProto)
     {
         Common::HttpSender::HttpResponse httpResponse;
@@ -75,95 +80,97 @@ namespace
 
 }
 
-namespace CommsComponent{
+namespace CommsComponent
+{
 
-        CommsMsg CommsMsg::fromString(const std::string & serializedString)
+    CommsMsg CommsMsg::fromString(const std::string& serializedString)
+    {
+        CommsMsgProto::CommsMsg protoMsg;
+        if (!protoMsg.ParseFromString(serializedString))
         {
-            CommsMsgProto::CommsMsg protoMsg; 
-            if (!protoMsg.ParseFromString(serializedString))
-            {
-                throw InvalidCommsMsgException("failed");
-            }
-            if (!protoMsg.has_id())
-            {
-                throw InvalidCommsMsgException("failed");
-            }
-
-            CommsMsg commsMsg; 
-            commsMsg.id = protoMsg.id(); 
-            if (protoMsg.has_httprequest())
-            {
-                commsMsg.content = from(protoMsg.httprequest());
-
-            }
-            else if(protoMsg.has_httpresponse())
-            {
-                commsMsg.content = from(protoMsg.httpresponse());
-
-            }
-            else
-            {
-                throw std::logic_error("Developer forgot to implement one of the fields");
-            }
-            return commsMsg; 
+            throw InvalidCommsMsgException("failed");
+        }
+        if (!protoMsg.has_id())
+        {
+            throw InvalidCommsMsgException("failed");
         }
 
-        std::string CommsMsg::serialize(const CommsMsg& commsMsg)
+        CommsMsg commsMsg;
+        commsMsg.id = protoMsg.id();
+        if (protoMsg.has_httprequest())
         {
-            CommsMsgProto::CommsMsg protoMsg; 
-            
-            protoMsg.set_id(commsMsg.id); 
-            
-            CommsMsgVisitorSerializer visitor{protoMsg}; 
+            commsMsg.content = from(protoMsg.httprequest());
 
-            std::visit(visitor, commsMsg.content); 
-
-            return protoMsg.SerializeAsString();  
         }
-
-
-        std::string CommsMsg::toJson(const Common::HttpSender::RequestConfig& requestConfig )
+        else if (protoMsg.has_httpresponse())
         {
-            CommsMsgProto::CommsMsg protoMsg;                       
-            CommsMsgVisitorSerializer visitor{protoMsg};
-            visitor(requestConfig); 
-            return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoMsg.httprequest()); 
+            commsMsg.content = from(protoMsg.httpresponse());
+
         }
-
-        std::string CommsMsg::toJson( const Common::HttpSender::HttpResponse& httpResponse   )
+        else
         {
-            CommsMsgProto::CommsMsg protoMsg;                       
-            CommsMsgVisitorSerializer visitor{protoMsg};
-            visitor(httpResponse); 
-            return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoMsg.httpresponse());
+            throw std::logic_error("Developer forgot to implement one of the fields");
         }
+        return commsMsg;
+    }
 
-        Common::HttpSender::RequestConfig CommsMsg::requestConfigFromJson( const std::string & jsonContent)
+    std::string CommsMsg::serialize(const CommsMsg& commsMsg)
+    {
+        CommsMsgProto::CommsMsg protoMsg;
+
+        protoMsg.set_id(commsMsg.id);
+
+        CommsMsgVisitorSerializer visitor{protoMsg};
+
+        std::visit(visitor, commsMsg.content);
+
+        return protoMsg.SerializeAsString();
+    }
+
+
+    std::string CommsMsg::toJson(const Common::HttpSender::RequestConfig& requestConfig)
+    {
+        CommsMsgProto::CommsMsg protoMsg;
+        CommsMsgVisitorSerializer visitor{protoMsg};
+        visitor(requestConfig);
+        return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoMsg.httprequest());
+    }
+
+    std::string CommsMsg::toJson(const Common::HttpSender::HttpResponse& httpResponse)
+    {
+        CommsMsgProto::CommsMsg protoMsg;
+        CommsMsgVisitorSerializer visitor{protoMsg};
+        visitor(httpResponse);
+        return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoMsg.httpresponse());
+    }
+
+    Common::HttpSender::RequestConfig CommsMsg::requestConfigFromJson(const std::string& jsonContent)
+    {
+        CommsMsgProto::HttpRequest protoHttpRequest;
+        google::protobuf::util::JsonParseOptions jsonParseOptions;
+        jsonParseOptions.ignore_unknown_fields = true;
+
+        auto status = google::protobuf::util::JsonStringToMessage(jsonContent, &protoHttpRequest, jsonParseOptions);
+
+        if (!status.ok())
         {
-            CommsMsgProto::HttpRequest protoHttpRequest;
-            google::protobuf::util::JsonParseOptions jsonParseOptions;
-            jsonParseOptions.ignore_unknown_fields = true; 
-
-            auto status = google::protobuf::util::JsonStringToMessage(jsonContent, &protoHttpRequest, jsonParseOptions);
-
-            if (!status.ok())
-            {
-                throw InvalidCommsMsgException(std::string("Failed to load json string: ") + status.ToString());
-            }
-            return from(protoHttpRequest); 
-        } 
-        Common::HttpSender::HttpResponse CommsMsg::httpResponseFromJson( const std::string & jsonContent)
-        {
-            CommsMsgProto::HttpResponse protoHttpResponse;
-            google::protobuf::util::JsonParseOptions jsonParseOptions;
-            jsonParseOptions.ignore_unknown_fields = true; 
-
-            auto status = google::protobuf::util::JsonStringToMessage(jsonContent, &protoHttpResponse, jsonParseOptions);
-
-            if (!status.ok())
-            {
-                throw InvalidCommsMsgException(std::string("Failed to load json string: ") + status.ToString());
-            }
-            return from(protoHttpResponse); 
+            throw InvalidCommsMsgException(std::string("Failed to load json string: ") + status.ToString());
         }
+        return from(protoHttpRequest);
+    }
+
+    Common::HttpSender::HttpResponse CommsMsg::httpResponseFromJson(const std::string& jsonContent)
+    {
+        CommsMsgProto::HttpResponse protoHttpResponse;
+        google::protobuf::util::JsonParseOptions jsonParseOptions;
+        jsonParseOptions.ignore_unknown_fields = true;
+
+        auto status = google::protobuf::util::JsonStringToMessage(jsonContent, &protoHttpResponse, jsonParseOptions);
+
+        if (!status.ok())
+        {
+            throw InvalidCommsMsgException(std::string("Failed to load json string: ") + status.ToString());
+        }
+        return from(protoHttpResponse);
+    }
 }
