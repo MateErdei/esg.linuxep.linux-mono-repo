@@ -72,7 +72,7 @@ namespace
                 {
                     if (PathUtils::startswith(p, e))
                     {
-                        PRINT("Symlink to file on excluded mount point: " << e);
+                        LOGINFO("Symlink to file on excluded mount point: " << e);
                         return;
                     }
                 }
