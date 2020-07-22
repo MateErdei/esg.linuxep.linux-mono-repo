@@ -110,8 +110,8 @@ Threat Detector Does Not Log Contain
 Wait until threat detector running
     # wait for AV Plugin to initialize
     Wait Until Keyword Succeeds
-        ...  20 secs
-        ...  1 secs
+        ...  40 secs
+        ...  2 secs
         ...  Threat Detector Log Contains  UnixSocket <> Listener started
 
 Increase Threat Detector Log To Max Size
@@ -218,15 +218,14 @@ Display All SSPL Files Installed
     Log  ${result.stderr}
 
 AV And Base Teardown
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
     Run Keyword If Test Failed   Display All SSPL Files Installed
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
     ...  Plugin Log Contains      av <> Plugin Finished
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Remove File    ${AV_LOG_PATH}
