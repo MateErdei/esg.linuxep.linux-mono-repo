@@ -221,8 +221,8 @@ AV And Base Teardown
     Run Keyword If Test Failed   Display All SSPL Files Installed
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
     Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
+    ...  30 secs
+    ...  2 secs
     ...  Plugin Log Contains      av <> Plugin Finished
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
