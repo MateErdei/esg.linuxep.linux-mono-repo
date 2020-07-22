@@ -12,7 +12,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "PathUtils.h"
 #include "ScanClient.h"
 
-#include "datatypes/Print.h"
 #include "filewalker/FileWalker.h"
 
 #include <common/StringUtils.h>
@@ -37,7 +36,7 @@ namespace
         {
             std::string escapedPath(p);
             common::escapeControlCharacters(escapedPath);
-            PRINT("\"" << escapedPath << "\" is infected with " << threatName);
+            LOGWARN("\"" << escapedPath << "\" is infected with " << threatName);
             m_returnCode = E_VIRUS_FOUND;
         }
 
@@ -86,19 +85,19 @@ namespace
             {
                 if (exclusion.appliesToPath(p))
                 {
-                    PRINT("Exclusion applied to: " << p);
+                    LOGINFO("Exclusion applied to: " << p);
                     return;
                 }
             }
 
-            PRINT("Scanning " << escapedPath);
+            LOGINFO("Scanning " << escapedPath);
 
             try
             {
                 m_scanner.scan(p);
             } catch (const std::exception& e)
             {
-                PRINT("Scanner failed to scan: " << escapedPath << " [" << e.what() << "]");
+                LOGERROR("Scanner failed to scan: " << escapedPath << " [" << e.what() << "]");
 
                 m_returnCode = E_GENERIC_FAILURE;
             }
@@ -118,7 +117,7 @@ namespace
             {
                 if (exclusion.appliesToPath(p, true))
                 {
-                    PRINT("Exclusion applied to: " << p);
+                    LOGINFO("Exclusion applied to: " << p);
                     return false;
                 }
             }
@@ -150,13 +149,14 @@ CommandLineScanRunner::CommandLineScanRunner(const Options& options)
         : m_paths(options.paths())
         , m_exclusions(options.exclusions())
         , m_archiveScanning(options.archiveScanning())
+        , m_logger(options.logFile(), true)
 {
 }
 
 int CommandLineScanRunner::run()
 {
     std::string printArchiveScanning = m_archiveScanning?"yes":"no";
-    PRINT("Archive scanning enabled: " << printArchiveScanning);
+    LOGINFO("Archive scanning enabled: " << printArchiveScanning);
 
     // evaluate mount information
     std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
@@ -177,11 +177,11 @@ int CommandLineScanRunner::run()
     cmdExclusions.reserve(m_exclusions.size());
     if (!m_exclusions.empty())
     {
-        PRINT("Exclusions: ");
+        LOGINFO("Exclusions: ");
     }
     for (const auto& exclusion : m_exclusions)
     {
-        PRINT("        " << exclusion);
+        LOGINFO("        " << exclusion);
         cmdExclusions.emplace_back(exclusion);
     }
 

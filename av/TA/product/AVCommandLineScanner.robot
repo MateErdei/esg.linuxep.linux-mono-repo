@@ -1,6 +1,6 @@
 *** Settings ***
-Documentation   Product tests for SSPL-AV Command line scanner
-Default Tags    PRODUCT  AVSCANNER
+Documentation   Product tests for AVP Command line scanner
+Default Tags    PRODUCT
 Library         Process
 Library         Collections
 Library         OperatingSystem
@@ -10,49 +10,11 @@ Library         ../Libs/AVScanner.py
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 
-Suite Setup     AVCommandLineScanner Suite Setup
-Suite Teardown  AVCommandLineScanner Suite TearDown
-
-Test Setup      AVCommandLineScanner Test Setup
-Test Teardown   AVCommandLineScanner Test TearDown
-
-
 *** Keywords ***
 
-AVCommandLineScanner Suite Setup
-    Run Keyword And Ignore Error   Empty Directory   ${COMPONENT_ROOT_PATH}/log
-    Run Keyword And Ignore Error   Empty Directory   ${SOPHOS_INSTALL}/tmp
-    Start Fake Management
-    Start AV
-
-AVCommandLineScanner Suite TearDown
-    Stop AV
-    Stop Fake Management
-    Terminate All Processes  kill=True
-
-Reset AVCommandLineScanner Suite
-    AVCommandLineScanner Suite TearDown
-    AVCommandLineScanner Suite Setup
-
-AVCommandLineScanner Test Setup
-    Log  AVCommandLineScanner Test Setup
-
-AVCommandLineScanner Test TearDown
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log  encoding_errors=replace
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
-
-Clear threat detector log
-    Remove File   ${THREAT_DETECTOR_LOG_PATH}
-
-Clear logs
-    Clear threat detector log
-
 Start AV
-    Clear logs
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
-    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
+    Set Test Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
     Wait until threat detector running
 
@@ -67,6 +29,7 @@ ${LONG_DIRECTORY}   000000000000000000000000000000000000000000000000000000000000
 
 *** Test Cases ***
 CLS Can Scan Clean File
+    Start AV
 
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_eicar
@@ -75,8 +38,11 @@ CLS Can Scan Clean File
     Log To Console  output is ${output}
     Should Be Equal As Integers  ${rc}  0
 
+    Stop AV
 
 CLS Can Scan Infected File
+   Start AV
+
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
@@ -84,7 +50,11 @@ CLS Can Scan Infected File
    Log To Console  output is ${output}
    Should Be Equal As Integers  ${rc}  69
 
+   Stop AV
+
 CLS Can Scan Archive File
+      Start AV
+
       Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
       Run Process     tar  -cf  ${NORMAL_DIRECTORY}/naugthy_eicar.tar  ${NORMAL_DIRECTORY}/naugthy_eicar
       ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar.tar --scan-archives
@@ -93,8 +63,12 @@ CLS Can Scan Archive File
       Log To Console  output is ${output}
       Should Be Equal As Integers  ${rc}  69
 
+      Stop AV
+
 
 AV Log Contains No Errors When Scanning File
+    Start AV
+
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
     Log To Console  return code is ${rc}
@@ -105,7 +79,11 @@ AV Log Contains No Errors When Scanning File
 
     AV Plugin Log Does Not Contain  ERROR
 
+    Stop AV
+
 CLS Can Scan Infected And Clean File With The Same Name
+   Start AV
+
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
@@ -117,15 +95,23 @@ CLS Can Scan Infected And Clean File With The Same Name
 
    Log To Console  ${NORMAL_DIRECTORY}
 
+   Stop AV
+
 
 CLS Will Not Scan Non-Existent File
+   Start AV
+
    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/i_do_not_exist
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
    Should Be Equal As Integers  ${rc}  2
 
+   Stop AV
+
 CLS Can Scan Zero Byte File
+     Start AV
+
      Create File  ${NORMAL_DIRECTORY}/zero_bytes
      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zero_bytes
 
@@ -133,8 +119,12 @@ CLS Can Scan Zero Byte File
      Log To Console  output is ${output}
      Should Be Equal As Integers  ${rc}  0
 
+     Stop AV
+
 # Long Path is 4064 characters long
 CLS Can Scan Long Path
+    Start AV
+
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  clean_file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/clean_file
 
@@ -142,8 +132,12 @@ CLS Can Scan Long Path
     Log To Console  output is ${output}
     Should Be Equal As Integers  ${rc}  0
 
+    Stop AV
+
 # Huge Path is over 4064 characters long
 CLS Cannot Scan Huge Path
+    Start AV
+
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  clean_file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/clean_file
 
@@ -151,8 +145,12 @@ CLS Cannot Scan Huge Path
     Log To Console  output is ${output}
     Should Be Equal As Integers  ${rc}  36
 
+    Stop AV
+
 # Huge Path is over 4064 characters long
 CLS Can Scan Normal Path But Not SubFolders With a Huge Path
+    Start AV
+
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  clean_file
     create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  clean_file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/
@@ -161,7 +159,11 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
     Log To Console  output is ${output}
     Should Be Equal As Integers  ${rc}  0
 
+    Stop AV
+
 CLS Creates Threat Report
+   Start AV
+
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
@@ -183,7 +185,11 @@ CLS Creates Threat Report
    AV Plugin Log Contains  path="${NORMAL_DIRECTORY}/"/>
    AV Plugin Log Contains  <action action="101"/>
 
+   Stop AV
+
 CLS Encoded Eicars
+   Start AV
+
    ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
    Should Be Equal As Integers  ${result.rc}  0
    ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
@@ -201,7 +207,11 @@ CLS Encoded Eicars
 
    Remove Directory  /tmp/encoded_eicars  true
 
+   Stop AV
+
 CLS Exclusions Filename
+   Start AV
+
    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
@@ -217,7 +227,11 @@ CLS Exclusions Filename
    Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
    Should Be Equal As Integers  ${rc}  0
 
+   Stop AV
+
 CLS Exclusions Folder
+   Start AV
+
    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
@@ -233,7 +247,11 @@ CLS Exclusions Folder
    Should Contain      ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder"
    Should Be Equal As Integers  ${rc}  0
 
+   Stop AV
+
 CLS Exclusions Folder And File
+   Start AV
+
    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
@@ -248,3 +266,22 @@ CLS Exclusions Folder And File
    Should Contain       ${output.replace("\n", " ")}  Scanning ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
    Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
    Should Be Equal As Integers  ${rc}  69
+
+   Stop AV
+
+CLS Can Log To A File
+   Start AV
+
+   ${LOG_FILE}      Set Variable   ${NORMAL_DIRECTORY}/scan.log
+   ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
+
+   Create File     ${THREAT_FILE}    ${EICAR_STRING}
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${LOG_FILE}
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+   Should Be Equal As Integers  ${rc}  69
+
+   File Log Contains    ${LOG_FILE}    "${THREAT_FILE}" is infected with EICAR-AV-Test
+
+   Stop AV

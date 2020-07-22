@@ -53,8 +53,14 @@ namespace avscanner::avscannerimpl
             return returnString.str();
         }
 
+        [[nodiscard]] std::string logFile() const
+        {
+            return m_logFile;
+        }
+
     private:
         std::string m_config;
+        std::string m_logFile;
 
         bool m_printHelp = false;
         std::vector <std::string> m_paths;

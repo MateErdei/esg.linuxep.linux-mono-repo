@@ -37,7 +37,8 @@ void Options::constructOptions()
             ("files,f", po::value<std::vector<std::string>>()->value_name("file [file...]")->multitoken(), "Files to scan")
             ("config,c", po::value<std::string>()->value_name("config_file"), "Input configuration file for scheduled scans")
             ("scan-archives,s", "Scan inside archives")
-            ("exclude,x",po::value<std::vector<std::string>>()->value_name("exclusion [exclusion...]")->multitoken(),"Exclude these locations from being scanned");
+            ("exclude,x",po::value<std::vector<std::string>>()->value_name("exclusion [exclusion...]")->multitoken(),"Exclude these locations from being scanned")
+            ("output,o", po::value<std::string>()->value_name("output"), "Filepath to log to");
     }
 }
 
@@ -67,6 +68,11 @@ Options::Options(int argc, char** argv)
         if (variableMap.count("config"))
         {
             m_config = variableMap["config"].as<std::string>();
+        }
+
+        if (variableMap.count("output"))
+        {
+            m_logFile = variableMap["output"].as<std::string>();
         }
 
         if (variableMap.count("help"))

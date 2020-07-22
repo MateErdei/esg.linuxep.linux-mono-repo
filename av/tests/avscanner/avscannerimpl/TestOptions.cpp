@@ -126,9 +126,22 @@ TEST(Options, TestExclusions) // NOLINT
     EXPECT_EQ(exclusions.at(0), "file.txt");
 }
 
+TEST(Options, TestOutput) // NOLINT
+{
+    std::string expectedLogFile = "scan.log";
+    const int argc = 3;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--output";
+    argv[2] = expectedLogFile.c_str();
+    Options o(argc, const_cast<char**>(argv));
+    EXPECT_EQ(o.logFile(), expectedLogFile);
+}
+
 TEST(Options, TestShortArguments) // NOLINT
 {
-    const int argc = 11;
+    std::string logFile = "scan.log";
+    const int argc = 13;
     const char* argv[argc];
     argv[0] = "/usr/bin/avscanner";
     argv[1] = "-c";
@@ -139,8 +152,10 @@ TEST(Options, TestShortArguments) // NOLINT
     argv[6] = "file.txt";
     argv[7] = "-f";
     argv[8] = "/foo";
-    argv[9] = "--";
-    argv[10] = "/baz";
+    argv[9] = "-o";
+    argv[10] = logFile.c_str();
+    argv[11] = "--";
+    argv[12] = "/baz";
     Options o(argc, const_cast<char**>(argv));
     EXPECT_EQ(o.config(), "/bar");
     EXPECT_TRUE(o.archiveScanning());
@@ -152,6 +167,7 @@ TEST(Options, TestShortArguments) // NOLINT
     ASSERT_EQ(paths.size(), 2);
     EXPECT_EQ(paths.at(0), "/foo");
     EXPECT_EQ(paths.at(1), "/baz");
+    EXPECT_EQ(o.logFile(), logFile);
 }
 
 TEST(Options, TestGetHelp) // NOLINT

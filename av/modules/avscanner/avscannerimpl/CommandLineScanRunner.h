@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "BaseRunner.h"
+#include "Logger.h"
 #include "Options.h"
 
 #include <string>
@@ -26,5 +27,6 @@ namespace avscanner::avscannerimpl
         bool m_archiveScanning;
 
         int m_returnCode = 0;
+        Logger m_logger;
     };
 }

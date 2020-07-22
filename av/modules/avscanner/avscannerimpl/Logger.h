@@ -21,7 +21,7 @@ log4cplus::Logger& getNamedScanRunnerLogger();
 class Logger
 {
 public:
-    explicit Logger(const std::string& scanName);
+    explicit Logger(const std::string& scanName, bool isCommandLine=false);
     ~Logger();
 };
 

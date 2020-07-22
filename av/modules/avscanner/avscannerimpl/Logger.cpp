@@ -23,12 +23,16 @@ log4cplus::Logger& getNamedScanRunnerLogger()
     return STATIC_LOGGER;
 }
 
-Logger::Logger(const std::string& scanName)
+Logger::Logger(const std::string& fileName, bool isCommandLine)
 {
-    std::string logfilepath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-    logfilepath += "/plugins/av/log/";
-    logfilepath += scanName;
-    logfilepath += ".log";
+    std::string logfilepath = fileName;
+    if (!isCommandLine)
+    {
+        logfilepath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        logfilepath += "/plugins/av/log/";
+        logfilepath += fileName;
+        logfilepath += ".log";
+    }
 
     if (GL_CONSOLE_LOGGING_SETUP)
     {
