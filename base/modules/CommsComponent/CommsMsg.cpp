@@ -42,16 +42,6 @@ namespace
         {
             auto proto = m_msg.mutable_config();
 
-            std::map<std::string,std::string> key_value = config.getKeyValue();
-            for (auto [key,value] : key_value)
-            {
-                CommsMsgProto::KeyValue keyvalue;
-                keyvalue.add_value(value);
-                keyvalue.set_key(key);
-
-                proto->add_keyvalue();
-            }
-
             std::map<std::string,std::vector<std::string>> key_list = config.getKeyList();
             for (auto [key,list] : key_list)
             {
@@ -61,7 +51,7 @@ namespace
                 {
                     keyvalue.add_value(value);
                 }
-                proto->add_keyvalue();
+                (*proto->add_keyvalue()) = keyvalue;
             }
         }
     };
@@ -97,19 +87,14 @@ namespace
         CommsConfig config;
         for (const auto& pair : configProto.keyvalue())
         {
-            if (pair.value().size() > 1)
+
+            std::vector<std::string> values;
+            for (const auto& value : pair.value())
             {
-                std::vector<std::string> values;
-                for (const auto& value : pair.value())
-                {
-                    values.emplace_back(value);
-                }
-                config.addKeyToList(std::pair<std::string,std::vector<std::string>>(pair.key(),values));
+                values.emplace_back(value);
             }
-            else
-            {
-                config.addKeyToValue(std::pair<std::string,std::string>(pair.key(),pair.value(0)));
-            }
+            config.addKeyToList(std::pair<std::string,std::vector<std::string>>(pair.key(),values));
+
         }
         return config;
     }

@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include <gtest/gtest.h>
 #include <modules/CommsComponent/CommsMsg.h>
+#include <modules/CommsComponent/CommsConfig.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
 
 using namespace CommsComponent;
@@ -82,6 +83,25 @@ class TestCommsMsg : public LogOffInitializedTests
     return ::testing::AssertionSuccess();
 }
 
+::testing::AssertionResult configAreEquivalent(
+        std::stringstream & s,
+        const CommsComponent::CommsConfig& expected,
+        const CommsComponent::CommsConfig& actual)
+{
+    if (expected.getKeyList() != actual.getKeyList())
+    {
+        //s << "KeyList differs. expected: " << expected.getKeyList() << " actual " << actual.getKeyList();
+        return ::testing::AssertionFailure() << s.str();
+    }
+
+//    actual.readCurrentProxyInfo();
+//    expected.readCurrentProxyInfo();
+//    std::cout << s.str() << std::endl;
+
+
+
+    return ::testing::AssertionSuccess();
+}
 ::testing::AssertionResult commsMsgAreEquivalent(
         const char* m_expr,
         const char* n_expr,
@@ -103,9 +123,13 @@ class TestCommsMsg : public LogOffInitializedTests
     {
         return requestAreEquivalent(s, std::get<Common::HttpSender::RequestConfig>(expected.content), std::get<Common::HttpSender::RequestConfig>(actual.content));
     }
-    else
+    else if (std::holds_alternative<Common::HttpSender::HttpResponse>(expected.content))
     {
         return responseAreEquivalent(s, std::get<Common::HttpSender::HttpResponse>(expected.content), std::get<Common::HttpSender::HttpResponse>(actual.content));
+    }
+    else
+    {
+        return configAreEquivalent(s, std::get<CommsComponent::CommsConfig>(expected.content), std::get<CommsComponent::CommsConfig>(actual.content));
     }
 
 }
@@ -243,4 +267,15 @@ TEST_F(TestCommsMsg, portOfHttpRequestCanBeProcessedCorrectly) // NOLINT
     CommsMsg result = serializeAndDeserialize(input);
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
     EXPECT_EQ(std::get<Common::HttpSender::RequestConfig>(result.content).getPort(),433);
+}
+
+TEST_F(TestCommsMsg, keyValueOfConfigCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    CommsConfig config;
+    config.addKeyToList(std::pair<std::string,std::vector<std::string>>("stuff1",{"stuff"}));
+    input.content = config;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    //EXPECT_EQ(std::get<CommsComponent::CommsConfig>(result.content).getKeyList(),std::pair<std::string,std::string>("stuff1","stuff"));
 }
