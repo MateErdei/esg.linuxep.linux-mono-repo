@@ -8,7 +8,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/PluginApi/ApiException.h>
+#include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 namespace Common
@@ -26,6 +29,48 @@ namespace Common
         {
         }
 
+        std::string PluginCallBackHandler::GetContentFromPayload(Common::PluginProtocol::Commands commandType, const std::string& payload) const
+        {
+            // If the payload does not contain .xml extension assume payload is not a file name but the data
+            // if the payload is the data, this should only be for commands such as TriggerUpdate from watchdog.
+
+            std::string payloadData(payload);
+            if(std::count(payload.begin(), payload.end(), '.') > 1)
+            {
+                throw PluginCommunication::IPluginCommunicationException("Invalid payload in message");
+            }
+
+            if (payload.find(".xml") != std::string::npos)
+            {
+                std::string rootPath("");
+                if(commandType == Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY)
+                {
+                    rootPath = Common::ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
+                }
+                else if (commandType == Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION)
+                {
+                    rootPath = Common::ApplicationConfiguration::applicationPathManager().getMcsActionFilePath();
+                }
+                else
+                {
+                    throw PluginCommunication::IPluginCommunicationException("Unable to determine payload path");
+                }
+
+                try
+                {
+                    payloadData = Common::FileSystem::fileSystem()->readFile(Common::FileSystem::join(rootPath, payload));
+                    return payloadData;
+                }
+                catch(Common::FileSystem::IFileSystemException&)
+                {
+                    std::stringstream errorMessage;
+                    errorMessage << "Failed to read action file" << payload;
+                    throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
+                }
+            }
+            return payloadData;
+        }
+
         Common::PluginProtocol::DataMessage PluginCallBackHandler::process(
             const Common::PluginProtocol::DataMessage& request) const
         {
@@ -35,11 +80,21 @@ namespace Common
                 {
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY:
                         LOGSUPPORT("Received new policy");
-                        m_pluginCallback->applyNewPolicy(m_messageBuilder.requestExtractPolicy(request));
+
+                        // Some actions are passed as content when not comming from MCS communication channel.
+                        // i.e. when comming directly from watchdog
+
+                        m_pluginCallback->applyNewPolicy(
+                            GetContentFromPayload(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
+                                                  m_messageBuilder.requestExtractPolicy(request)));
+
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION:
                         LOGSUPPORT("Received new Action");
-                        m_pluginCallback->queueActionWithCorrelation(m_messageBuilder.requestExtractAction(request), request.m_correlationId);
+
+                        m_pluginCallback->queueActionWithCorrelation(
+                            GetContentFromPayload(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION,
+                                                  m_messageBuilder.requestExtractAction(request)), request.m_correlationId);
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS:
                     {

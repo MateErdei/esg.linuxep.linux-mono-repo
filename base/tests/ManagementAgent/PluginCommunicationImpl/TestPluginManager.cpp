@@ -157,7 +157,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPlugi
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
     EXPECT_CALL(fileSystemMock, readFile("testpolicyone.xml")).WillOnce(Return("testpolicyone"));
-    EXPECT_CALL(fileSystemMock, readFile("testpolicytwo.xml")).WillOnce(Return("testpolicytwo"));
+    //EXPECT_CALL(fileSystemMock, readFile("testpolicytwo.xml")).WillOnce(Return("testpolicytwo"));
 
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))  // Registeer
@@ -186,7 +186,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromR
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
     EXPECT_CALL(fileSystemMock, readFile("testpolicyone.xml")).WillOnce(Return("testpolicyone"));
-    EXPECT_CALL(fileSystemMock, readFile("testpolicytwo.xml")).WillOnce(Return("testpolicytwo"));
+    //EXPECT_CALL(fileSystemMock, readFile("testpolicytwo.xml")).WillOnce(Return("testpolicytwo"));
 
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))   // Registeer
@@ -266,7 +266,7 @@ TEST_F(TestPluginManager, TestDoActionOnFailedPluginLeavesItInRegisteredPluginLi
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
     EXPECT_CALL(fileSystemMock, readFile("testactionone.xml")).WillOnce(Return("testactionone"));
-    EXPECT_CALL(fileSystemMock, readFile("testactiontwo.xml")).WillOnce(Return("testactiontwo"));
+    //EXPECT_CALL(fileSystemMock, readFile("testactiontwo.xml")).WillOnce(Return("testactiontwo"));
 
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))  // Register it
@@ -295,7 +295,7 @@ TEST_F(TestPluginManager, TestDoActionOnPluginNoLongerInstalledRemovesItFromRegi
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
     EXPECT_CALL(fileSystemMock, readFile("testactionone.xml")).WillOnce(Return("testactionone"));
-    EXPECT_CALL(fileSystemMock, readFile("testactiontwo.xml")).WillOnce(Return("testactiontwo"));
+    //EXPECT_CALL(fileSystemMock, readFile("testactiontwo.xml")).WillOnce(Return("testactiontwo"));
 
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))   // Register it
@@ -391,6 +391,7 @@ TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName) // NO
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
     EXPECT_CALL(fileSystemMock, readFile("testactionone.xml")).WillOnce(Return("testactionone"));
+    EXPECT_CALL(fileSystemMock, readFile("testaction_after_re-registration.xml")).WillOnce(Return("testaction_after_re-registration"));
 
     auto secondMockedPluginApiCallback = std::make_shared<StrictMock<MockedPluginApiCallback>>();
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
@@ -429,7 +430,7 @@ TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName) // NO
         }
         ASSERT_TRUE(m_pluginApi) << "Failed to create a new plugin api binding to the same address. ";
 
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testaction_after_re-registration",""), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testaction_after_re-registration.xml",""), 1);
     });
     secondRegistration.join();
 }

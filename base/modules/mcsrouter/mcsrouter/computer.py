@@ -8,6 +8,8 @@ computer Module
 import glob
 import logging
 import os
+import datetime
+
 
 from .mcsclient import status_cache
 from .utils import timestamp, path_manager
@@ -182,15 +184,14 @@ class Computer:
             actions.sort(key=lambda a: os.path.basename(a).split("_", 1)[0])
 
             # actions are no longer removed when processed by the management agent.
-            # clean-up previous actions, there should have been enough time for them to be processed between each command poll.
-            # for old_action_file_path in glob.glob(os.path.join(path_manager.action_dir(), "*.xml")):
-            #     try:
-            #         os.remove(old_action_file_path)
-            #     except OSError as ex:
-            #         LOGGER.warning("Failed to remove a action file: {}. Reason: {}".format(old_action_file_path, ex))
+            # clean-up previous actions which are older than one hour,
+            # this should give them enough time to be processed.
             for old_action_file in os.listdir(path_manager.action_dir):
                 try:
-                    os.remove(old_action_file)
+                    full_action_file_path = os.path.join(path_manager.action_dir(), old_action_file)
+                    if os.path.isfile(full_action_file_path):
+                        if os.stat(full_action_file_path).st_mtime < datetime.datetime.now() - 60 * 60:
+                            os.remove(full_action_file_path)
                 except OSError as ex:
                     LOGGER.warning("Failed to remove a action file: {}. Reason: {}".format(old_action_file, ex))
 
