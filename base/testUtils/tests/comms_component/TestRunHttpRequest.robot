@@ -149,7 +149,7 @@ Verify All Mounts Have Been Removed
     Check Not A MountPoint  ${JAIL_PATH}/etc/resolv.conf
     Check Not A MountPoint  ${JAIL_PATH}/etc/hosts
     Check Not A MountPoint  ${JAIL_PATH}/usr/lib
-    Check Not A MountPoint  {JAIL_PATH}/lib
+    Check Not A MountPoint  ${JAIL_PATH}/lib
     Check Not A MountPoint  ${JAIL_PATH}/etc/ssl/certs
     Check Not A MountPoint  ${JAIL_PATH}/etc/pki/tls/certs
     Check Not A MountPoint  ${JAIL_PATH}/base/mcs/certs

@@ -24,14 +24,14 @@ TEST_F(TestSecurityUtils, TestDropPrivilegeToNobody) // NOLINT
    MAYSKIP;
 
    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-   ASSERT_EXIT({                    
-                   auto userNobody = getUserIdAndGroupId("nobody", "ssh", m_out);
-                   dropPrivileges("nobody", "ssh", m_out);
+   ASSERT_EXIT({
+                   auto userNobody = getUserIdAndGroupId("lp", "lp", m_out);
+                   dropPrivileges("lp", "lp", m_out);
 
                    auto current_uid = getuid();
                    auto current_gid = getgid();
 
-                   if (current_uid == userNobody->m_userid && current_gid == userNobody->m_groupid)
+                   if (current_uid == userNobody->m_userid&&current_gid == userNobody->m_groupid)
                    {
                        exit(0);
                    }
@@ -46,16 +46,18 @@ TEST_F(TestSecurityUtils, TestDropPrivilegeLowPrivCanNotDrop) // NOLINT
 
    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
    ASSERT_EXIT({
-                   auto userSshd = getUserIdAndGroupId("sshd", "ssh", m_out);
-                   dropPrivileges("sshd", "ssh", m_out);
+                   auto userSshd = getUserIdAndGroupId("lp", "lp", m_out);
+                   dropPrivileges("lp", "lp", m_out);
 
                    auto current_uid = getuid();
                    auto current_gid = getgid();
-                   if (current_uid == userSshd->m_userid && current_gid == userSshd->m_groupid)
+                   if (current_uid == userSshd->m_userid&&current_gid == userSshd->m_groupid)
                    {
-                       try{
-                        dropPrivileges("sshd", "ssh", m_out);
-                       }catch( FatalSecuritySetupFailureException& )
+                       try
+                       {
+                           dropPrivileges("lp", "lpl", m_out);
+                       }
+                       catch (FatalSecuritySetupFailureException&)
                        {
                            exit(3); 
                        }
@@ -173,11 +175,11 @@ TEST_F(TestSecurityUtils, TestChrootAndDropPrivilegesSuccessfully) // NOLINT
 
    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
    ASSERT_EXIT({
-                   auto userNobody = getUserIdAndGroupId("nobody", "ssh",m_out);
+                   auto userNobody = getUserIdAndGroupId("lp", "lp", m_out);
                    auto nobodyUid = userNobody->m_userid;
                    auto nobodyGid = userNobody->m_groupid;
 
-                   chrootAndDropPrivileges("nobody", "ssh", "/tmp", m_out);
+                   chrootAndDropPrivileges("lp", "lp", "/tmp", m_out);
 
                    auto current_uid = getuid();
                    auto current_gid = getgid();
