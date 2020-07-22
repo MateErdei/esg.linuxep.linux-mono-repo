@@ -65,13 +65,13 @@ class ManagementAgentPluginRequester(object):
         else:
             return response.contents[0]
 
-    def get_status(self, app_id):
+    def get_status(self, app_id, sleep_period=0.5, max_number_of_retries=10):
         self.logger.info("Request Status for {}".format( self.name))
         request_message = self.build_message(Messages.REQUEST_STATUS, app_id, [])
         self.send_message(request_message)
         raw_response = None
         count = 0
-        while count < 10:
+        while count < max_number_of_retries:
             try:
                 count += 1
                 raw_response = self.__m_socket.recv(flags=0, copy=True)
@@ -79,7 +79,7 @@ class ManagementAgentPluginRequester(object):
             except zmq.ZMQError as ex:
                 if ex.errno == zmq.EAGAIN:
                     self.logger.error("Got EAGAIN from socket.recv: %d", count)
-                    time.sleep(0.5)
+                    time.sleep(sleep_period)
                     continue
                 else:
                     raise
