@@ -5,7 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "Logger.h"
 #include "MonitorDir.h"
-
+#include <Common/FileSystem/IFileSystem.h>
 namespace CommsComponent {
     MonitorDir::MonitorDirListener::MonitorDirListener(const std::string& directoryPath, const std::string& fileNameContainsFilter):
         m_directoryPath(directoryPath), m_fileNameContainsFilter(fileNameContainsFilter)
@@ -28,7 +28,7 @@ namespace CommsComponent {
         if ( m_fileNameContainsFilter.empty() || filename.find(m_fileNameContainsFilter) != std::string::npos)
         {
             LOGINFO("Detected new file to process: " << filename); 
-            m_channel.push(filename); 
+            m_channel.push( Common::FileSystem::join(m_directoryPath,filename)); 
         }
         else
         {
