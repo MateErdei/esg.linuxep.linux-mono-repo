@@ -13,8 +13,9 @@ def get_install_location():
 
 
 def ipc_dir():
-    print('inside ipc_dir: {}'.format(get_install_location()))
-    return os.path.join(get_install_location(), "var/ipc")
+    ipc_dir = os.path.join(get_install_location(), "var/ipc")
+    print('inside ipc_dir: {}'.format(ipc_dir))
+    return ipc_dir
 
 
 def management_agent_socket_path():

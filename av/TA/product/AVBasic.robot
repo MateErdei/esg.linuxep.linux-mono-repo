@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for AVP
-Default Tags    PRODUCT
+Default Tags    PRODUCT  AV_BASIC
 Library         DateTime
 Library         Process
 Library         OperatingSystem
@@ -32,11 +32,12 @@ AV Plugin Can Receive Actions
     ${result} =   Terminate Process  ${handle}
 
 AV plugin Can Send Status
+    [Tags]    PRODUCT  AV_BASIC_STATUS
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
     ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
 
-    ${status}=  Get Plugin Status  av  sav
+    ${status}=  Get Plugin Status  av  SAV
     Should Contain  ${status}   RevID=""
     Should Contain  ${status}   Res="NoRef"
     Should Contain  ${status}   <product-version>${version}</product-version>
@@ -44,7 +45,7 @@ AV plugin Can Send Status
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="123" policyType="2"/></config>
     Send Plugin Policy  av  sav  ${policyContent}
 
-    Wait For Plugin Status  av  sav  RevID="123"  Res="Same"  <product-version>${version}</product-version>
+    Wait For Plugin Status  av  SAV  RevID="123"  Res="Same"  <product-version>${version}</product-version>
 
     ${telemetry}=  Get Plugin Telemetry  av
     Should Contain  ${telemetry}   Number of Scans
@@ -186,4 +187,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 
 Product Test Teardown
     ${usingFakeAVScanner} =  Get Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}
+    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log  encoding_errors=replace
+    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}  encoding_errors=replace
+    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
     Run Keyword If  '${usingFakeAVScanner}'=='true'  Undo Use Fake AVScanner

@@ -10,6 +10,7 @@ from Libs.PluginCommunicationTools.common import PathsLocation
 from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
 
 import time
+import traceback
 
 class ManagementAgentPluginRequester(object):
     def __init__(self, plugin_name, logger):
@@ -68,7 +69,23 @@ class ManagementAgentPluginRequester(object):
         self.logger.info("Request Status for {}".format( self.name))
         request_message = self.build_message(Messages.REQUEST_STATUS, app_id, [])
         self.send_message(request_message)
-        raw_response = self.__m_socket.recv()
+        raw_response = None
+        count = 0
+        while count < 10:
+            try:
+                count += 1
+                raw_response = self.__m_socket.recv(flags=0, copy=True)
+                break
+            except zmq.ZMQError as ex:
+                if ex.errno == zmq.EAGAIN:
+                    self.logger.error("Got EAGAIN from socket.recv: %d", count)
+                    time.sleep(0.5)
+                    continue
+                else:
+                    raise
+        if raw_response is None:
+            self.logger.fatal("Failed to get status from plugin")
+            raise Exception("Failed to get status from plugin")
         response = deserialise_message(raw_response)
         if response.acknowledge or response.error or (response.contents and len(response.contents) < 2):
             self.logger.error("No status in message from plugin: {}, contents: {}".format(response.plugin_name, response.contents))
@@ -126,8 +143,14 @@ class FakeManagement(object):
         plugin.action(appid, correlation, content)
 
     def get_plugin_status(self, plugin_name, appid):
-        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
-        return plugin.get_status(appid)
+        try:
+            plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+            return plugin.get_status(appid)
+        except Exception as ex:
+            self.logger.error("Failed to get_plugin_status: %s", str(ex))
+            trace = traceback.format_exc()
+            self.logger.error("Traceback %s", trace)
+            raise
 
     def wait_for_plugin_status(self, plugin_name, appid, *texts):
         timeout = 15
