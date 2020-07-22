@@ -1,3 +1,7 @@
+*** Settings ***
+
+Resource    BaseResources.robot
+
 *** Keywords ***
 
 AV and Base Setup

@@ -157,15 +157,6 @@ AV Deletes Scan Correctly
     Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
     Wait Until AV Plugin Log Contains  No of Scheduled Scans Configured: 0
 
-Diagnose collects the correct files
-    Check AV Plugin Installed With Base
-    Configure and check scan now
-    Run Diagnose
-    Check Diagnose Tar Created
-    Check Diagnose Collects Correct AV Files
-    Check Diagnose Logs
-    Remove Directory  /tmp/DiagnoseOutput  true
-
 AV Plugin Reports Threat XML To Base
    Check AV Plugin Installed With Base
 
