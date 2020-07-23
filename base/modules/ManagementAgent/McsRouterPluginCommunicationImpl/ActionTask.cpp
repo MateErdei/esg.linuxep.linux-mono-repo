@@ -103,6 +103,6 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
         return;
     }
 
-    int pluginsNotified = m_pluginManager.queueAction(actionFilenameFields.m_appId, m_filePath, actionFilenameFields.m_correlationId);
+    int pluginsNotified = m_pluginManager.queueAction(actionFilenameFields.m_appId,  Common::FileSystem::basename(m_filePath), actionFilenameFields.m_correlationId);
     LOGINFO("Action " << m_filePath << " sent to " << pluginsNotified << " plugins");
 }

@@ -28,8 +28,7 @@ namespace ManagementAgent
                 return;
             }
 
-
-            int newPolicyResult = m_pluginManager.applyNewPolicy(appId, m_filePath);
+            int newPolicyResult = m_pluginManager.applyNewPolicy(appId, Common::FileSystem::basename(m_filePath));
             LOGINFO("Policy " << m_filePath << " applied to " << newPolicyResult << " plugins");
         }
 

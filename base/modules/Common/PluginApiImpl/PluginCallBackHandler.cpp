@@ -40,7 +40,7 @@ namespace Common
                 throw PluginCommunication::IPluginCommunicationException("Invalid payload in message");
             }
 
-            if (payload.find(".xml") != std::string::npos)
+            if ((payload.find(".xml") != std::string::npos) || (payload.find(".json") != std::string::npos))
             {
                 std::string rootPath("");
                 if(commandType == Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY)
@@ -61,14 +61,26 @@ namespace Common
                     payloadData = Common::FileSystem::fileSystem()->readFile(Common::FileSystem::join(rootPath, payload));
                     return payloadData;
                 }
-                catch(Common::FileSystem::IFileSystemException&)
+                catch(Common::FileSystem::IFileSystemException& ex)
                 {
                     std::stringstream errorMessage;
-                    errorMessage << "Failed to read action file" << payload;
+                    errorMessage << "Failed to read action file" << payload << ", error, " << ex.what();
                     throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
                 }
             }
-            return payloadData;
+            else
+            {
+                // Allowed list of non file name strings
+                for(auto& allowedStringData : {"TriggerUpdate"})
+                {
+                    if(payloadData == allowedStringData)
+                    {
+                        return payloadData;
+                    }
+                }
+            }
+
+            throw PluginCommunication::IPluginCommunicationException("Invalid command sent.");
         }
 
         Common::PluginProtocol::DataMessage PluginCallBackHandler::process(

@@ -68,8 +68,8 @@ namespace
 
             std::thread registration(handleRegistration, pluginResourceManagement.getSocketContext());
 
-            auto mockFileSystem = new StrictMock<MockFileSystem>();
-            m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));            
+            //auto mockFileSystem = new StrictMock<MockFileSystem>();
+            //m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));
 
             auto mockFilePermissions = new StrictMock<MockFilePermissions>();
             std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
@@ -169,8 +169,11 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction) // NOLINT
     {
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));
+        EXPECT_CALL(*mockFileSystem, readFile("contentOfAction.xml")).WillRepeatedly(Return("contentOfAction"));
         Common::PluginProtocol::DataMessage dataMessage =
-            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction");
+            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction.xml");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         expectedAnswer.m_payload.clear();
@@ -181,12 +184,16 @@ namespace
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
 
         EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedAnswer, reply);
+
     }
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicy) // NOLINT
     {
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));
+        EXPECT_CALL(*mockFileSystem, readFile("contentOfPolicy.xml")).WillRepeatedly(Return("contentOfPolicy"));
         Common::PluginProtocol::DataMessage dataMessage =
-            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy");
+            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy.xml");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         expectedAnswer.m_payload.clear();

@@ -34,7 +34,6 @@ namespace ManagementAgent
         void TaskDirectoryListener::fileMoved(const std::string& filename)
         {
             assert(Common::FileSystem::basename(filename) == filename);
-            std::string fullPath = Common::FileSystem::join(getPath(), filename);
 
             Common::TaskQueue::ITaskPtr task;
 
@@ -42,11 +41,11 @@ namespace ManagementAgent
 
             if (filename.find("policy") != std::string::npos)
             {
-                task.reset(new PolicyTask(m_pluginManager, fullPath));
+                task.reset(new PolicyTask(m_pluginManager, filename));
             }
             else if (filename.find("action") != std::string::npos || filename.find("request") != std::string::npos)
             {
-                task.reset(new ActionTask(m_pluginManager, fullPath));
+                task.reset(new ActionTask(m_pluginManager, filename));
             }
             else
             {

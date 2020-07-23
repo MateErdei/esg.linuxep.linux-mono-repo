@@ -124,11 +124,12 @@ TEST_F(TestWatchdogServiceLine, WatchdogServiceWillShouldIgnoreInvalidRequests) 
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-    std::string policyXml("anypolicy");
+
+    EXPECT_CALL(*mockFileSystem, readFile(_)).Times(2).WillRepeatedly(Return("SomeContent"));
 
     auto pluginProxy = getPluginProxyToTest();
-    pluginProxy.queueAction("", "NotValidAction","");
-    pluginProxy.applyNewPolicy("", policyXml);
+    pluginProxy.queueAction("", "NotValidAction.xml","");
+    pluginProxy.applyNewPolicy("", "anypolicy.xml");
     std::vector<Common::PluginApi::StatusInfo> returnedStatus = pluginProxy.getStatus();
     ASSERT_EQ(returnedStatus.size(), 1);
     EXPECT_EQ(returnedStatus.at(0).statusWithoutTimestampsXml, "");

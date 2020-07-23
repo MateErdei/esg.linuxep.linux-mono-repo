@@ -16,9 +16,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/TempDir.h>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+
 #include <future>
 
 class McsRouterPluginCommunicationImplTests : public ::testing::Test
@@ -88,10 +90,17 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
     m_tempDir->createFile(policyFileTmp1, "Hello");
     m_tempDir->createFile(actionFileTmp1, "Hello");
 
+    MockedApplicationPathManager* mockApplicationPathManager = new NiceMock<MockedApplicationPathManager>();
+    Common::ApplicationConfiguration::replaceApplicationPathManager(
+        std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockApplicationPathManager));
+
+    EXPECT_CALL(*mockApplicationPathManager, getMcsPolicyFilePath()).WillOnce(Return(m_tempDir->absPath(m_policyFilePath)));
+    EXPECT_CALL(*mockApplicationPathManager, getMcsActionFilePath()).WillOnce(Return(m_tempDir->absPath(actionFile1)));
+
     Tests::TestExecutionSynchronizer sync(2);
     auto notifySync= [&sync](std::string, std::string, std::string=""){sync.notify(); return 1;};
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", m_tempDir->absPath(policyFile1))).WillOnce(Invoke(notifySync));
-    EXPECT_CALL(m_mockPluginManager, queueAction("appId1",  m_tempDir->absPath(actionFile1), "")).WillOnce(Invoke(notifySync));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", "appId1-1_policy.xml")).WillOnce(Invoke(notifySync));
+    EXPECT_CALL(m_mockPluginManager, queueAction("appId1",  "appId1_action_.xml", "")).WillOnce(Invoke(notifySync));
 
 
     std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> listener1(
@@ -127,13 +136,22 @@ TEST_F( // NOLINT
     McsRouterPluginCommunicationImplTests,
     TaskQueueProcessorCanProcessMultipleFilesFromMultipleDirectoriesAndWillNotThrowForUnknownFiles)
 {
-    std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, "appId1_policy.xml");
-    std::string policyFile2 = Common::FileSystem::join(m_policyFilePath, "appId2-3_policy.xml");
-    std::string policyFile3 = Common::FileSystem::join(m_policyFilePath, "appId3_unknown.xml");
+    std::string policyFileName1("appId1_policy.xml");
+    std::string policyFileName2("appId2-3_policy.xml");
+    std::string policyFileName3("appId3_unknown.xml");
 
-    std::string actionFile1 = Common::FileSystem::join(m_actionFilePath, "appId1_action_.xml");
-    std::string actionFile2 = Common::FileSystem::join(m_actionFilePath, "appId2_action_.xml");
-    std::string actionFile3 = Common::FileSystem::join(m_actionFilePath, "appId3-unknown.xml");
+    std::string actionFileName1("appId1_action_.xml");
+    std::string actionFileName2( "appId2_action_.xml");
+    std::string actionFileName3("appId3-unknown.xml");
+
+
+    std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, policyFileName1);
+    std::string policyFile2 = Common::FileSystem::join(m_policyFilePath, policyFileName2);
+    std::string policyFile3 = Common::FileSystem::join(m_policyFilePath, policyFileName3);
+
+    std::string actionFile1 = Common::FileSystem::join(m_actionFilePath, actionFileName1);
+    std::string actionFile2 = Common::FileSystem::join(m_actionFilePath, actionFileName2);
+    std::string actionFile3 = Common::FileSystem::join(m_actionFilePath, actionFileName3);
 
     std::string policyFileTmp1 = Common::FileSystem::join(m_policyFilePath, "policyFileTmp1.txt");
     std::string policyFileTmp2 = Common::FileSystem::join(m_policyFilePath, "policyFileTmp2.txt");
@@ -151,13 +169,20 @@ TEST_F( // NOLINT
     m_tempDir->createFile(actionFileTmp2, "Hello");
     m_tempDir->createFile(actionFileTmp3, "Hello");
 
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", m_tempDir->absPath(policyFile1))).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId2", m_tempDir->absPath(policyFile2))).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId3", m_tempDir->absPath(policyFile3))).Times(0);
+    MockedApplicationPathManager* mockApplicationPathManager = new NiceMock<MockedApplicationPathManager>();
+    Common::ApplicationConfiguration::replaceApplicationPathManager(
+        std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockApplicationPathManager));
 
-    EXPECT_CALL(m_mockPluginManager, queueAction("appId1", m_tempDir->absPath(actionFile1), "")).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, queueAction("appId2",  m_tempDir->absPath(actionFile2), "")).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, queueAction("appId3",  m_tempDir->absPath(actionFile3), "")).Times(0);
+    EXPECT_CALL(*mockApplicationPathManager, getMcsPolicyFilePath()).WillRepeatedly(Return(m_tempDir->absPath(m_policyFilePath)));
+    EXPECT_CALL(*mockApplicationPathManager, getMcsActionFilePath()).WillRepeatedly(Return(m_tempDir->absPath(m_actionFilePath)));
+
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", policyFileName1)).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId2", policyFileName2)).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId3", policyFileName3)).Times(0);
+
+    EXPECT_CALL(m_mockPluginManager, queueAction("appId1", actionFileName1, "")).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, queueAction("appId2",  actionFileName2, "")).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, queueAction("appId3",  actionFileName3, "")).Times(0);
 
     std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> listener1(
         new ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener(
