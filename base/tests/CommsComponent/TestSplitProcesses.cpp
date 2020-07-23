@@ -176,17 +176,9 @@ TEST_F(TestSplitProcessesWithNullConfigurator, ParentExportsErrorCodeOfTheChild)
     ASSERT_EXIT(
             {
                 auto childProcess = [](std::shared_ptr<MessageChannel>, OtherSideApi&) {
-                    std::cout << "just exit2" << std::endl;
-                    LOGINFO("LEVEL INFO"); 
-                    LOGWARN("LEVEL warn");
-                    LOGERROR("LEVEL error");
-                    log4cplus::Logger::getRoot().log(log4cplus::INFO_LOG_LEVEL, "Just exit"); 
                     return 3; 
                 };
                 auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi&) {
-                    log4cplus::Logger::getRoot().log(log4cplus::INFO_LOG_LEVEL, "Running from inside parent"); 
-
-                    std::cout << "just exit3" << std::endl; 
                     std::string message;
                     channel->pop(message);
                     return 0; 
