@@ -67,7 +67,14 @@ namespace CommsComponent
                     comms.content = response; 
                     parentProxy.pushMessage(CommsMsg::serialize(comms)); 
                 }
-                
+                else if(std::holds_alternative<CommsComponent::CommsConfig>(comms.content))
+                {
+                    auto config = std::get<CommsComponent::CommsConfig>(comms.content);
+                    Common::HttpSenderImpl::ProxySettings proxy; 
+                    proxy.proxy = config.proxy(); 
+                    proxy.credentials = config.credentials(); 
+                    m_networkSide->setProxy(proxy); 
+                }
 
             }
 

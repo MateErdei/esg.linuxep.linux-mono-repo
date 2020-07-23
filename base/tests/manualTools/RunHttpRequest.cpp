@@ -216,7 +216,7 @@ int runUnmountPaths(const std::string & chroot)
     return 0;
 }
 
-int runHttpRequestsInTheJail(Config& config)
+int runHttpRequestsInTheJail(Config& config, const Common::HttpSenderImpl::ProxySettings & proxy)
 {
     using namespace CommsComponent; 
     CommsComponent::UserConf parentConf{config.parentUser, config.parentGroup, "logparent" }; 
@@ -230,6 +230,16 @@ int runHttpRequestsInTheJail(Config& config)
             chdir(config.parentRoot.c_str());
         }
 
+        if ( !proxy.proxy.empty() )
+        {
+            CommsMsg comms;
+            comms.id = "ProxyConfig"
+            CommsComponent::CommsMsg::Config config; 
+            config.x = proxy.proxy; 
+            comms.content = config;
+            childProxy.pushMessage(CommsMsg::serialize(comms));
+            
+        }
         for (auto& filePath : config.requestFiles)
         {
             auto content = Common::FileSystem::fileSystem()->readFile(filePath);
@@ -247,22 +257,9 @@ int runHttpRequestsInTheJail(Config& config)
             CommsMsg comms = CommsComponent::CommsMsg::fromString(message);  
             serialize(std::get<Common::HttpSender::HttpResponse>(comms.content), comms.id ); 
         }
-        return 0; 
     };
 
-    auto childProc = [](std::shared_ptr<MessageChannel> channel, OtherSideApi & parentProxy){
-        auto networkSide = CommsComponent::NetworkSide::createOrShareNetworkSide(); 
-        while(true)
-        {
-            std::string message; 
-            channel->pop(message); 
-            CommsMsg comms = CommsComponent::CommsMsg::fromString(message);
-            auto response = networkSide->performRequest(std::get<Common::HttpSender::RequestConfig>(comms.content));
-            comms.content = response; 
-            parentProxy.pushMessage(CommsMsg::serialize(comms)); 
-        }
-        return 0; 
-    };
+    CommsComponent::CommsNetwork childProc;
 
     std::cout << "Running the splitProcesses Reactors" << std::endl; 
     int code =  CommsComponent::splitProcessesReactors(parentProc, std::move(childProc), configurator); 
