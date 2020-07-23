@@ -381,6 +381,7 @@ chmod u+x "${SOPHOS_INSTALL}/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 chown -h root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/lib64"/*
 chmod g+r "${SOPHOS_INSTALL}/base/lib64"/*
+chmod o+r "${SOPHOS_INSTALL}/base/lib64/libcrypto.so"/*
 
 @INSTALL_ADJUST@
 
