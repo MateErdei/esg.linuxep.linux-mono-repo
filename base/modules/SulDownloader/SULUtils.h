@@ -29,7 +29,7 @@ namespace SulDownloader
     {
     public:
         static bool isSuccess(SU_Result result);
-        static void displayLogs(SU_Handle ses);
+        static void displayLogs(SU_Handle ses, std::vector<std::string>& sulLogs);
         static std::vector<std::string> SulLogs(SU_Handle ses);
     };
 } // namespace SulDownloader

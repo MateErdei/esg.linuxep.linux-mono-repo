@@ -176,6 +176,8 @@ namespace SulDownloader
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
 
+        std::vector<std::string> sulLogs;
+
         for (auto& connectionSetup : candidates)
         {
             auto warehouse = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(true));
@@ -188,25 +190,25 @@ namespace SulDownloader
 
             if (warehouse->hasError())
             {
-                SULUtils::displayLogs(warehouse->session());
+                SULUtils::displayLogs(warehouse->session(), sulLogs);
                 continue;
             }
 
             if (!SULUtils::isSuccess(SU_readRemoteMetadata(warehouse->session())))
             {
-                SULUtils::displayLogs(warehouse->session());
+                SULUtils::displayLogs(warehouse->session(), sulLogs);
                 LOGINFO("Failed to connect to: " << warehouse->m_connectionSetup->toString());
                 continue;
             }
 
             if (!SulDownloader::SulSetLanguage(warehouse->session(), "en"))
             {
-                SULUtils::displayLogs(warehouse->session());
+                SULUtils::displayLogs(warehouse->session(), sulLogs);
                 LOGWARN("Failed to set language for warehouse session: " << warehouse->m_connectionSetup->toString());
             }
 
             // for verbose it will list the entries in the warehouse
-            SULUtils::displayLogs(warehouse->session());
+            SULUtils::displayLogs(warehouse->session(), sulLogs);
             LOGINFO("Successfully connected to: " << warehouse->m_connectionSetup->toString());
             warehouse->m_state = State::Connected;
 
@@ -219,6 +221,16 @@ namespace SulDownloader
         auto warehouseEmpty = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(false));
         warehouseEmpty->setError("Failed to connect to warehouse");
         warehouseEmpty->m_error.status = WarehouseStatus::CONNECTIONERROR;
+
+        LOGINFO("Sul Library log output:");
+
+        for(auto& sulLog : sulLogs)
+        {
+            LOGINFO(sulLog);
+        }
+
+        LOGINFO("End of Sul Library log output.");
+
         return warehouseEmpty;
     }
 
@@ -297,7 +309,6 @@ namespace SulDownloader
             auto& productPair = productInformationList[index];
             if (!SULUtils::isSuccess(SU_removeProduct(productPair.first)))
             {
-                SULUtils::displayLogs(session());
                 LOGERROR("Failed to remove product: " << productPair.second.getLine());
             }
         }
@@ -309,8 +320,6 @@ namespace SulDownloader
             m_error.status = WarehouseStatus::DOWNLOADFAILED;
             return;
         }
-
-        SULUtils::displayLogs(session());
 
         std::vector<std::string> missingProducts = selectedIndexes.missing;
         if (!missingProducts.empty())
@@ -350,8 +359,6 @@ namespace SulDownloader
             m_products.emplace_back(productPair.first, DownloadedProduct(productPair.second));
         }
 
-        SULUtils::displayLogs(session());
-
         if (!syncSucceeded)
         {
             LOGERROR(failedProductErrorMessage.str());
@@ -378,7 +385,6 @@ namespace SulDownloader
             setError("Failed to distribute products");
             m_error.status = WarehouseStatus ::DOWNLOADFAILED;
         }
-        SULUtils::displayLogs(session());
 
         bool distSucceeded = true;
         std::stringstream failedProductErrorMessage;
@@ -403,7 +409,6 @@ namespace SulDownloader
         }
         LOGINFO("Products downloaded and synchronized with warehouse.");
 
-        SULUtils::displayLogs(session());
     }
 
     void WarehouseRepository::distributeProduct(
@@ -416,7 +421,6 @@ namespace SulDownloader
         // SDDS-Import file.
         if (!SULUtils::isSuccess(SU_addDistribution(productPair.first, distributePath.c_str(), 0, empty, empty)))
         {
-            SULUtils::displayLogs(session());
             productPair.second.setError(fetchSulError("Failed to set distribution path"));
         }
     }
@@ -428,7 +432,6 @@ namespace SulDownloader
         LOGDEBUG("DISTRIBUTE status" << result);
         if (!SULUtils::isSuccess(result))
         {
-            SULUtils::displayLogs(session());
             productPair.second.setError(
                 fetchSulError(std::string("Product distribution failed: ") + productPair.second.getLine()));
         }
@@ -450,11 +453,6 @@ namespace SulDownloader
 
     void WarehouseRepository::setError(const std::string& error)
     {
-        if (m_session)
-        {
-            SULUtils::displayLogs(session());
-        }
-
         m_error = fetchSulError(error);
 
         m_state = State::Failure;

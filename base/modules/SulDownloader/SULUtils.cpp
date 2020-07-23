@@ -103,7 +103,7 @@ namespace SulDownloader
         return result == SU_Result_OK || result == SU_Result_nullSuccess || result == SU_Result_notAttempted;
     }
 
-    void SULUtils::displayLogs(SU_Handle ses)
+    void SULUtils::displayLogs(SU_Handle ses, std::vector<std::string>& sulLogs)
     {
         if (!isSuccess(SU_getLastError(ses)))
         {
@@ -112,14 +112,7 @@ namespace SulDownloader
 
         for (auto& log : SulLogs(ses))
         {
-            if ( Common::UtilityImpl::StringUtils::startswith(log, "[E") )
-            {
-                LOGINFO(log); 
-            }
-            else
-            {           
-                LOGSUPPORT(log);
-            }
+            sulLogs.push_back(log);
         }
     }
 
