@@ -39,6 +39,10 @@ Liveresponse Plugin Proxy
     ...  5 secs
     ...  Should Exist  /opt/sophos-spl/base/etc/sophosspl/current_proxy
     Log File  /opt/sophos-spl/base/etc/sophosspl/current_proxy
+    Wait Until Keyword Succeeds
+        ...  10
+        ...  1
+        ...  File Should Exist    ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
     ${correlationId} =  Get Correlation Id
 
     Mark Managementagent Log
@@ -56,33 +60,4 @@ Liveresponse Plugin Proxy
     ...  5 secs
     ...  1 secs
     ...  Check Sessions Log Contains   Connected to subscriber, url: wss://localhost
-
-
-
-*** Keywords ***
-LiveResponse Suite Setup
-    Require Fresh Install
-    Override LogConf File as Global Level  DEBUG
-    Set Local CA Environment Variable
-    Install LT Server Certificates
-
-    Start Local Cloud Server
-
-LiveResponse Suite Teardown
-    Stop Local Cloud Server
-    Uninstall SSPL
-
-LiveResponse Test Setup
-    Require Installed
-    Start Websocket Server
-
-LiveResponse Test Teardown
-    General Test Teardown
-    Restart Liveresponse Plugin  True
-    Stop Websocket Server
-    Stop Proxy Servers
-    Remove Environment Variable    https_proxy
-    ${files} =  List Directory   ${MCS_DIR}/action/
-    ${liveterminal_server_log} =  Liveterminal Server Log File
-    Log File  ${liveterminal_server_log}
 

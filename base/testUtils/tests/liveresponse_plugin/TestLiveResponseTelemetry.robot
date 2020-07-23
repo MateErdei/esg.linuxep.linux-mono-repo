@@ -18,7 +18,7 @@ Test Setup  LiveResponse Telemetry Test Setup
 Test Teardown  LiveResponse Telemetry Test Teardown
 
 Suite Setup   LiveResponse Telemetry Suite Setup
-Suite Teardown   LiveResponse Telemetry Suite Teardown
+Suite Teardown   Liveresponse Suite Teardown
 
 Default Tags   LIVERESPONSE_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
 
@@ -189,12 +189,8 @@ LiveResponse Telemetry Suite Setup
     Require Fresh Install
     Override LogConf File as Global Level  DEBUG
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log   liveresponse   DEBUG
-    Install Live Response Directly
+    Liveresponse Suite Setup
     Copy Telemetry Config File in To Place
-
-
-LiveResponse Telemetry Suite Teardown
-    Uninstall SSPL
 
 LiveResponse Telemetry Test Setup
     Require Installed

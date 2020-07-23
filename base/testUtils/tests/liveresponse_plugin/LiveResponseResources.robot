@@ -1,3 +1,7 @@
+*** Settings ***
+Library     ${LIBS_DIRECTORY}/PushServerUtils.py
+Library     ${LIBS_DIRECTORY}/WebsocketWrapper.py
+
 *** Variables ***
 ${LIVE_RESPONSE_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/liveresponse
 ${LIVE_RESPONSE_LOG_FILE} =                   ${LIVE_RESPONSE_PLUGIN_PATH}/log/liveresponse.log
@@ -48,3 +52,41 @@ Setup Suite Tmp Dir
     Set Suite Variable   ${SUITE_TMP_DIR}   ${directory_path}
     Remove Directory    ${SUITE_TMP_DIR}   recursive=True
     Create Directory    ${SUITE_TMP_DIR}
+
+Liveresponse Test Setup
+    Require Installed
+    Start Websocket Server
+    Restart Liveresponse Plugin  True
+    Check Live Response Plugin Installed
+
+Liveresponse Test Teardown
+    Stop Websocket Server
+    ${files} =  List Directory   ${MCS_DIR}/action/
+    ${liveterminal_server_log} =  Liveterminal Server Log File
+    Log File  ${liveterminal_server_log}
+    General Test Teardown
+
+Liveresponse Suite Setup
+    Generate Local Fake Cloud Certificates
+    Setup Suite Tmp Dir   ./tmp
+    Setup Base FakeCloud And FakeCentral-LT Servers
+    Install Live Response Directly
+
+Liveresponse Suite Teardown
+    Shutdown MCS Push Server
+    Stop Proxy Servers
+    Stop Local Cloud Server
+    Uninstall SSPL
+    uninstall LT Server Certificates
+
+Setup Base FakeCloud And FakeCentral-LT Servers
+    Install LT Server Certificates
+    Start MCS Push Server
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Set Local CA Environment Variable
+
+    Require Fresh Install
+    create file  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
+    Register With Local Cloud Server
+    Override LogConf File as Global Level  DEBUG
+    Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log   liveresponse   DEBUG
