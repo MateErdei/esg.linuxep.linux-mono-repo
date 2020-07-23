@@ -16,16 +16,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace CommsComponent
 {
-    std::tuple<std::string, std::string, std::string> CommsConfig::readCurrentProxyInfo() {
+    std::tuple<std::string, std::string> CommsConfig::readCurrentProxyInfo(const std::string filepath) {
 
-        std::string filepath = Common::FileSystem::join(
-                Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory()
-                , "current_proxy");
         auto fileSystem = Common::FileSystem::fileSystem();
 
         std::string proxy = "";
         std::string credentials = "";
-        std::string username = "";
 
         if (fileSystem->isFile(filepath))
         {
@@ -40,7 +36,6 @@ namespace CommsComponent
                     proxy = j["proxy"];
                     if (j.find("credentials") != j.end())
                     {
-                        username = j["username"];
                         credentials = j["credentials"];
                     }
                 }
@@ -51,12 +46,15 @@ namespace CommsComponent
                 LOGWARN(errorMessage.str());
             }
         }
-        return {proxy, credentials, username};
+        return {proxy, credentials};
     }
 
     void CommsConfig::addProxyInfoToConfig()
     {
-        auto [proxy,credentials,username] = readCurrentProxyInfo();
+        std::string filepath = Common::FileSystem::join(
+                Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory()
+                , "current_proxy");
+        auto [proxy,credentials,username] = readCurrentProxyInfo(filepath);
 
         if (!proxy.empty())
         {
@@ -67,12 +65,11 @@ namespace CommsComponent
             {
                 LOGDEBUG("Storing credential info");
                 auto deobfuscated = Common::ObfuscationImpl::SECDeobfuscate(credentials);
-                addKeyValueToList(std::pair<std::string,std::vector<std::string>>("username",{username}));
-                addKeyValueToList(std::pair<std::string,std::vector<std::string>>("password",{deobfuscated}));
+                addKeyValueToList(std::pair<std::string,std::vector<std::string>>("credentials",{deobfuscated}));
             }
         }
     }
-    const std::map<std::string,std::vector<std::string>> CommsConfig::getKeyList() const
+    std::map<std::string, std::vector<std::string>> CommsConfig::getKeyList() const
     {
         return m_key_composed_values_config;
     }

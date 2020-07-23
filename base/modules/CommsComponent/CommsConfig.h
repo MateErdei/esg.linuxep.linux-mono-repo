@@ -20,15 +20,14 @@ namespace CommsComponent
         * @param fileSystem, to check if file exists
         * @return returns the address and password of proxy in a tuple
         */
-        static std::tuple<std::string, std::string,std::string> readCurrentProxyInfo();
-        const std::map<std::string,std::vector<std::string>> getKeyList() const;
+        static std::tuple<std::string, std::string> readCurrentProxyInfo(const std::string filepath);
+        std::map<std::string, std::vector<std::string>> getKeyList() const;
         void addKeyValueToList(std::pair<std::string,std::vector<std::string>>);
-        CommsConfig(){addProxyInfoToConfig();};
+        void addProxyInfoToConfig();
+        CommsConfig() = default;
         ~CommsConfig() = default;
 
     private:
-        void addProxyInfoToConfig();
-
         std::map<std::string, std::vector<std::string>> m_key_composed_values_config;
     };
 }
