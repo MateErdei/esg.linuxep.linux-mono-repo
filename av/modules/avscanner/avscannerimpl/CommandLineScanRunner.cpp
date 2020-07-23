@@ -185,7 +185,11 @@ int CommandLineScanRunner::run()
             or exclusion.find("/./") != std::string::npos
             or exclusion.find("/../") != std::string::npos)
         {
-                exclusion = fs::canonical(exclusion).append("/");
+                exclusion = fs::canonical(exclusion);
+                if(fs::is_directory(exclusion))
+                {
+                    exclusion.append("/");
+                }
         }
 
         LOGINFO("        " << exclusion);

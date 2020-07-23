@@ -260,6 +260,30 @@ TEST(CommandLineScanRunner, nonCanonicalExclusions) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
+TEST(CommandLineScanRunner, nonCanonicalExclusionsWithFilename) // NOLINT
+{
+    fs::create_directories("/tmp/sandbox/a/b/d/e");
+    fs::create_directories("/tmp/sandbox/a/f");
+    std::ofstream("/tmp/sandbox/a/b/file1.txt");
+    std::ofstream("/tmp/sandbox/a/f/file2.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("/tmp/sandbox");
+    std::vector<std::string> exclusions;
+    exclusions.push_back("/tmp/sandbox/./a/f/file2.txt");
+    exclusions.push_back("/tmp/sandbox/../sandbox/a/b/file1.txt");
+    Options options(false, paths, exclusions, true);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    fs::remove_all("/tmp/sandbox");
+
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
 TEST(CommandLineScanRunner, excludeSpecialMounts) // NOLINT
 {
     fs::path startingpoint = fs::absolute("sandbox");
