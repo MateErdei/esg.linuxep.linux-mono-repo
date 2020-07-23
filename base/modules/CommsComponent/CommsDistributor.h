@@ -10,6 +10,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "OtherSideApi.h"
 #include "MonitorDir.h"
 
+#include <Common/FileSystem/IFileSystem.h>
+
 namespace CommsComponent
 {
     class CommsDistributor
@@ -29,8 +31,12 @@ namespace CommsComponent
         void handleResponses();
 
         MonitorDir m_monitorDir;
+        std::string m_monitorDirPath;
         MessageChannel& m_messageChannel;
+//        MessageChannel& outchannel;
+//        MessageChannel& inchannel;
         bool m_done;
+        std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;
 
     };
 } // namespace CommsComponent
