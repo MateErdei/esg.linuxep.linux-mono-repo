@@ -236,7 +236,7 @@ TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), "/tmp/sandbox/a/f/file2.txt");
 }
 
-TEST(CommandLineScanRunner, excludeNamedFolders) // NOLINT
+TEST(CommandLineScanRunner, nonCanonicalExclusions) // NOLINT
 {
     fs::create_directories("/tmp/sandbox/a/b/d/e");
     fs::create_directories("/tmp/sandbox/a/f");
@@ -246,13 +246,15 @@ TEST(CommandLineScanRunner, excludeNamedFolders) // NOLINT
     std::vector<std::string> paths;
     paths.emplace_back("/tmp/sandbox");
     std::vector<std::string> exclusions;
-    exclusions.push_back("*/");
+    exclusions.push_back("/tmp/sandbox/./a/f/");
+    exclusions.push_back("/tmp/sandbox/../sandbox/a/b/");
     Options options(false, paths, exclusions, true);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
-    EXPECT_NO_THROW( runner.run());
+    runner.run();
+
     fs::remove_all("/tmp/sandbox");
 
     ASSERT_EQ(socket->m_paths.size(), 0);
