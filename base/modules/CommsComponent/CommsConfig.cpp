@@ -54,7 +54,7 @@ namespace CommsComponent
         std::string filepath = Common::FileSystem::join(
                 Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory()
                 , "current_proxy");
-        auto [proxy,credentials,username] = readCurrentProxyInfo(filepath);
+        auto [proxy,credentials] = readCurrentProxyInfo(filepath);
 
         if (!proxy.empty())
         {

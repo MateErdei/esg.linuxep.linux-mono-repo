@@ -5,8 +5,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include <modules/CommsComponent/CommsConfig.h>
 #include <tests/Common/Helpers/TempDir.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <gtest/gtest.h>
-TEST(TestCommsConfig, readCurrentProxyInfo) // NOLINT
+class TestCommsConfig : public LogInitializedTests
+{};
+TEST_F(TestCommsConfig, readCurrentProxyInfo) // NOLINT
 {
 auto m_tempDir = Tests::TempDir::makeTempDir();
 std::string content = R"({"proxy":"localhost","credentials":"password"})";
@@ -18,7 +21,7 @@ EXPECT_EQ(proxy,"localhost");
 EXPECT_EQ(credentials,"password");
 }
 
-TEST(TestCommsConfig, readCurrentProxyInfoHandlesInvalidJson) // NOLINT
+TEST_F(TestCommsConfig, readCurrentProxyInfoHandlesInvalidJson) // NOLINT
 {
 auto m_tempDir = Tests::TempDir::makeTempDir();
 std::string content = R"({"proxy":"localhost",})";
@@ -29,7 +32,8 @@ auto [proxy,credentials] = CommsComponent::CommsConfig::readCurrentProxyInfo(fil
 EXPECT_EQ(proxy,"");
 EXPECT_EQ(credentials,"");
 }
-TEST(TestCommsConfig, readCurrentProxyInfoHandlesInvalidFilepath) // NOLINT
+
+TEST_F(TestCommsConfig, readCurrentProxyInfoHandlesInvalidFilepath) // NOLINT
 {
 std::string filepath = "/file/does/not/exist";
 
@@ -38,7 +42,7 @@ EXPECT_EQ(proxy,"");
 EXPECT_EQ(credentials,"");
 }
 
-TEST(TestCommsConfig, readCurrentProxyInfoHandlesIrrelevantJsonFields) // NOLINT
+TEST_F(TestCommsConfig, readCurrentProxyInfoHandlesIrrelevantJsonFields) // NOLINT
 {
 auto m_tempDir = Tests::TempDir::makeTempDir();
 std::string content = R"({"notproxy":"localhost","credentials":"password"})";
@@ -50,7 +54,7 @@ EXPECT_EQ(proxy,"");
 EXPECT_EQ(credentials,"");
 }
 
-TEST(TestCommsConfig, readCurrentProxyInfoHandlesIrrelevantJsonFieldsWhenProxyFieldIsCorrect) // NOLINT
+TEST_F(TestCommsConfig, readCurrentProxyInfoHandlesIrrelevantJsonFieldsWhenProxyFieldIsCorrect) // NOLINT
 {
 auto m_tempDir = Tests::TempDir::makeTempDir();
 std::string content = R"({"proxy":"localhost","credentials":"password","proxystuff":"localhost2"})";
@@ -62,7 +66,7 @@ EXPECT_EQ(proxy,"localhost");
 EXPECT_EQ(credentials,"password");
 }
 
-TEST(TestCommsConfig, readCurrentProxyInfoReturnsNoProxyIfTwoProxyFields) // NOLINT
+TEST_F(TestCommsConfig, readCurrentProxyInfoReturnsNoProxyIfTwoProxyFields) // NOLINT
 {
 auto m_tempDir = Tests::TempDir::makeTempDir();
 std::string content = R"({proxy":"localhost","credentials":"password","proxy":"localhost2"})";
@@ -74,7 +78,7 @@ EXPECT_EQ(proxy,"");
 EXPECT_EQ(credentials,"");
 }
 
-TEST(TestCommsConfig, readCurrentProxyInfoProxyIsStillSavedIfCredentialsAreEmpty) // NOLINT
+TEST_F(TestCommsConfig, readCurrentProxyInfoProxyIsStillSavedIfCredentialsAreEmpty) // NOLINT
 {
 auto m_tempDir = Tests::TempDir::makeTempDir();
 std::string content = R"({"proxy":"localhost"})";
@@ -86,7 +90,7 @@ EXPECT_EQ(proxy,"localhost");
 EXPECT_EQ(credentials,"");
 }
 
-TEST(TestCommsConfig, readCurrentProxyInfoCredentialsAreNotStoreIfProxyIsEmpty) // NOLINT
+TEST_F(TestCommsConfig, readCurrentProxyInfoCredentialsAreNotStoreIfProxyIsEmpty) // NOLINT
 {
 auto m_tempDir = Tests::TempDir::makeTempDir();
 std::string content = R"({"credentials":"password"})";
@@ -98,7 +102,7 @@ EXPECT_EQ(proxy,"");
 EXPECT_EQ(credentials,"");
 }
 
-TEST(TestCommsConfig, readCurrentProxyInfoEmptyJsonIshandledCorrectly) // NOLINT
+TEST_F(TestCommsConfig, readCurrentProxyInfoEmptyJsonIshandledCorrectly) // NOLINT
 {
 auto m_tempDir = Tests::TempDir::makeTempDir();
 
