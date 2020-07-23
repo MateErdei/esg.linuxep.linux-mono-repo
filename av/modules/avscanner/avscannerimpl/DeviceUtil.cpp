@@ -6,8 +6,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "DeviceUtil.h"
 
-#include "datatypes/Print.h"
-
 // Standard C++
 #include <cerrno>
 #include <climits>
@@ -182,7 +180,6 @@ bool DeviceUtil::isOptical(const std::string& devicePath, const std::string& mou
         result = true;
     }
 
-    //PRINT("  isOptical " << devicePath << " result=" << result);
     return result;
 }
 

@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Mounts.h"
 
 #include "DeviceUtil.h"
-#include "datatypes/Print.h"
+#include "Logger.h"
 
 // Standard C++
 #include <cstdlib>
@@ -101,7 +101,7 @@ void Mounts::parseProcMounts()
 
         std::getline(mountstream, line);
 
-        //PRINT("line: " << line);
+        //LOGDEBUG("line: " << line);
 
         if (!parseLinuxProcMountsLine(line, device, mountPoint, type))
         {
@@ -109,7 +109,7 @@ void Mounts::parseProcMounts()
         }
 
         device = realMountPoint(device);
-        //PRINT("dev " << device << " on " << mountPoint << " type " << type);
+        //LOGDEBUG("dev " << device << " on " << mountPoint << " type " << type);
         m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type));
     }
 
@@ -225,7 +225,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                     execv(path.c_str(), argv);
                     // never returns
-                    PRINT("execv failed");
+                    LOGERROR("execv failed");
                     _exit(1);
                 }
                 default:
@@ -268,7 +268,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                     if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
                     {
-                        PRINT(path << " failed to execute");
+                        LOGWARN(path << " failed to execute");
                         result = "";
                     }
                     break;
@@ -296,8 +296,6 @@ std::string Mounts::realMountPoint(const std::string& device)
             std::ifstream cmdlinestream("/proc/cmdline");
             std::string entry;
 
-
-            PRINT("realMountPoint(" << device << ")");
             while (!cmdlinestream.eof())
             {
                 cmdlinestream >> entry;
@@ -338,7 +336,6 @@ bool Mounts::parseLinuxProcMountsLine(const std::string& line, std::string& devi
  */
 std::string Mounts::fixDeviceWithMount(const std::string& device)
 {
-    PRINT("fixDeviceWithMount(" << device << ")");
     size_t equals = device.find('=');
     std::string result = device;
 

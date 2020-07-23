@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SocketUtils.h"
 #include "SocketUtilsImpl.h"
 
-#include "datatypes/Print.h"
+#include "Logger.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -39,7 +39,7 @@ bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
     ssize_t bytes_written = ::write(socket_fd, buffer.c_str(), buffer.size());
     if (static_cast<unsigned>(bytes_written) != buffer.size())
     {
-        PRINT("Failed to write buffer to unix socket");
+        LOGWARN("Failed to write buffer to unix socket");
         return false;
     }
     return true;

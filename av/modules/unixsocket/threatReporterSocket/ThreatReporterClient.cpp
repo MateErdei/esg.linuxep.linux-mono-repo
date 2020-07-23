@@ -8,11 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
-#include "datatypes/Print.h"
 #include "scan_messages/ThreatDetected.h"
 #include <ScanResponse.capnp.h>
-
-#include <capnp/serialize.h>
 
 #include <string>
 #include <cstdio>
@@ -21,8 +18,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <unistd.h>
-#include <fcntl.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 

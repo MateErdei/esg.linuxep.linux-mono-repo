@@ -8,9 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "../Logger.h"
 
-#include "datatypes/Print.h"
 #include "unixsocket/SocketUtils.h"
-#include <unixsocket/StringUtils.h>
+#include "unixsocket/StringUtils.h"
 
 #include "ThreatDetected.capnp.h"
 

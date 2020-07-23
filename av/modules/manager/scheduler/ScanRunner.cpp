@@ -9,7 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 // Module
 #include "Logger.h"
 // Product
-#include "datatypes/Print.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Time.h"
 // Base
@@ -19,7 +18,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 // 3rd party
 // C++ std
 #include <fstream>
-#include <ctime>
 #include <algorithm>
 // C std
 
@@ -45,7 +43,7 @@ ScanRunner::ScanRunner(std::string name, std::string scan, IScanComplete& comple
     }
     catch (const std::out_of_range&)
     {
-        PRINT("Using default plugin install directory");
+        LOGWARN("Using default plugin install directory");
         m_pluginInstall = "/opt/sophos-spl/plugins/av";
     }
     m_scanExecutable = m_pluginInstall / "sbin/scheduled_file_walker_launcher";

@@ -11,7 +11,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
-#include <datatypes/Print.h>
 
 using namespace scan_messages;
 
@@ -60,7 +59,7 @@ void ThreatDetected::setFilePath(const std::string& filePath)
 {
     if (filePath.empty())
     {
-        PRINT("ERROR: Attempting to set threat report with empty path");
+        LOGERROR("Attempting to set threat report with empty path");
     }
 
     m_filePath = filePath;
@@ -88,7 +87,7 @@ std::string ThreatDetected::serialise() const
 
     if (m_filePath.empty())
     {
-        PRINT("ERROR: Attempting to serialise threat report with empty path");
+        LOGERROR("Attempting to serialise threat report with empty path");
     }
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
@@ -98,7 +97,7 @@ std::string ThreatDetected::serialise() const
     auto reader = threatDetectedBuilder.asReader();
     if (!reader.hasThreatName())
     {
-        PRINT("ERROR: as reader has not got threat name!");
+        LOGERROR("Did not receive a threat name");
     }
 
     return dataAsString;

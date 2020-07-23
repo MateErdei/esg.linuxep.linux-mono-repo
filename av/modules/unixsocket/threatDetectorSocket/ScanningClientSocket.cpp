@@ -7,7 +7,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanningClientSocket.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
-#include "datatypes/Print.h"
 #include "scan_messages/ClientScanRequest.h"
 #include <ScanResponse.capnp.h>
 
@@ -42,7 +41,7 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket
     int count = 0;
     while (ret != 0)
     {
-        PRINT("Failed to connect to unix socket - retrying in 1 second");
+        LOGINFO("Failed to connect to unix socket - retrying in 1 second");
         sleep(1);
         if (++count >= MAX_CONN_RETRIES)
         {
@@ -127,7 +126,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     int32_t length = unixsocket::readLength(m_socket_fd);
     if (length < 0)
     {
-        PRINT("Aborting connection: failed to read length");
+        LOGERROR("Aborting connection: failed to read length");
         handle_error ("Failed to read length");
     }
 
@@ -139,7 +138,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     ssize_t bytes_read = ::read(m_socket_fd, proto_buffer.begin(), length);
     if (bytes_read != length)
     {
-        PRINT("Aborting connection: failed to read capn proto");
+        LOGERROR("Aborting connection: failed to read capn proto");
         handle_error ("Failed to read capn proto");
     }
 

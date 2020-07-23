@@ -15,7 +15,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #endif
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
-#include <datatypes/Print.h>
 #include "datatypes/sophos_filesystem.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>

@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "ScanRequest.capnp.h"
-#include "datatypes/Print.h"
 #include <capnp/serialize.h>
 
 #include <stdexcept>
@@ -133,7 +132,6 @@ void unixsocket::ScanningServerConnectionThread::run()
     announceThreadStarted();
 
     datatypes::AutoFd socket_fd(std::move(m_fd));
-    PRINT("Got connection " << socket_fd.fd());
     LOGDEBUG("Got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);

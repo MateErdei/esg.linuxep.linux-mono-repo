@@ -7,9 +7,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "FileWalker.h"
 #include "Logger.h"
 
-#include "datatypes/Print.h"
-
-#include <utility>
 #include <set>
 #include <sys/stat.h>
 
@@ -21,13 +18,13 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
 {
     if(starting_point.string().size() > 4096)
     {
-        PRINT("Starting path too long, aborting scan");
+        LOGERROR("Starting path too long, aborting scan");
         std::error_code ec (ENAMETOOLONG, std::system_category());
         throw fs::filesystem_error("Starting Path too long", ec);
     }
     else if (!fs::exists(starting_point))
     {
-        PRINT("File does not exist");
+        LOGERROR("File does not exist");
         std::error_code ec (ENOENT, std::system_category());
         throw fs::filesystem_error("File/Folder does not exist", ec);
     }
@@ -59,7 +56,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         catch(fs::filesystem_error& e)
         {
-            PRINT("Path too long, wont scan anything inside this directory: " << p);
+            LOGERROR("Path too long, wont scan anything inside this directory: " << p);
             iterator.disable_recursion_pending();
             continue;
         }
@@ -79,7 +76,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         else if (fs::is_symlink(p.symlink_status()))
         {
-//            PRINT("Directory symlink " << p);
+            // Directory symlink
             struct stat statbuf{};
             int ret = ::lstat(p.path().c_str(), &statbuf);
             if (ret == 0)
@@ -91,7 +88,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
                 }
                 else
                 {
-//                    PRINT("First time " << p << " " << statbuf.st_ino);
                     seen_symlinks.insert(statbuf.st_ino);
                     if (!m_callback.includeDirectory(p))
                     {
@@ -106,7 +102,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         else if (fs::is_directory(p.status()))
         {
-//            PRINT("Not calling with " << p);
             if (!m_callback.includeDirectory(p))
             {
                 iterator.disable_recursion_pending();
