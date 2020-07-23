@@ -8,6 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Logging/ConsoleFileLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
+#include "../common/config.h"
 
 #include <log4cplus/logger.h>
 
@@ -17,6 +19,7 @@ LogSetup::LogSetup()
     logfilepath += "/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log";
 
     Common::Logging::ConsoleFileLoggingSetup::setupConsoleFileLoggingWithPath(logfilepath);
+    Common::Logging::applyGeneralConfig(PLUGIN_NAME);
 }
 
 LogSetup::~LogSetup()
