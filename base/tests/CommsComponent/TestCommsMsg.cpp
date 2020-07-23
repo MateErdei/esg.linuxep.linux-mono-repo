@@ -7,6 +7,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/CommsComponent/CommsMsg.h>
 #include <modules/CommsComponent/CommsConfig.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 
 using namespace CommsComponent;
 
@@ -273,5 +275,24 @@ TEST_F(TestCommsMsg, keyValueOfConfigCanBeProcessedCorrectly) // NOLINT
     EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
     std::map<std::string, std::vector<std::string>> key_composed_values;
     key_composed_values.insert(std::pair<std::string,std::vector<std::string>>("stuff1",{"stuff"}));
+    EXPECT_EQ(std::get<CommsComponent::CommsConfig>(result.content).getKeyList(),key_composed_values);
+}
+TEST_F(TestCommsMsg, keyValueOfProxyConfigCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    CommsConfig config;
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::string content = R"({"proxy":"localhost","credentials":"CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw"})";
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(content));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    config.addProxyInfoToConfig();
+    input.content = config;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    std::map<std::string, std::vector<std::string>> key_composed_values;
+    key_composed_values.insert(std::pair<std::string,std::vector<std::string>>("proxy",{"localhost"}));
+    key_composed_values.insert(std::pair<std::string,std::vector<std::string>>("credentials",{"username:password"}));
     EXPECT_EQ(std::get<CommsComponent::CommsConfig>(result.content).getKeyList(),key_composed_values);
 }

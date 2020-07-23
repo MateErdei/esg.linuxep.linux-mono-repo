@@ -25,11 +25,10 @@ namespace CommsComponent
 
         if (fileSystem->isFile(filepath))
         {
-            std::ifstream my_file(filepath);
-
+            std::string fileContents = fileSystem->readFile(filepath);
             try
             {
-                nlohmann::json j = nlohmann::json::parse(my_file);
+                nlohmann::json j = nlohmann::json::parse(fileContents);
 
                 if (j.find("proxy") != j.end())
                 {
