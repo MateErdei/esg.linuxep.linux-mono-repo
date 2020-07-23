@@ -97,7 +97,8 @@ function unpack_scaffold_gcc_make()
 
     if [[ -x $(which yum) ]]
     then
-        yum -y install libcap-devel
+        cat /etc/yum.repos.d/CentOS-Base.repo
+        yum -y install libcap-devel || true
     fi
 }
 
