@@ -53,8 +53,14 @@ namespace
             m_chroot = CommsComponent::CommsConfigurator::chrootPathForSSPL(installDir);
         }
         ~UnmountOnClosure()
-        {            
-            CommsComponent::CommsConfigurator::cleanDefaultMountedPaths(m_chroot); 
+        {       
+            try{
+                CommsComponent::CommsConfigurator::cleanDefaultMountedPaths(m_chroot); 
+            }catch(std::exception& )
+            {
+                
+            }  
+            
         }
     };
 

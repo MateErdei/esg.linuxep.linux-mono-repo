@@ -9,6 +9,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/HttpSender/RequestConfig.h>
 #include <Common/HttpSender/HttpResponse.h>
 #include <Common/HttpSenderImpl/HttpSender.h>
+#include "MessageChannel.h"
+#include "OtherSideApi.h"
 #include <memory>
 
 namespace CommsComponent
@@ -29,6 +31,12 @@ namespace CommsComponent
         NetworkSide(const NetworkSide&) = delete;
 
         NetworkSide& operator=(const NetworkSide&) = delete;
+    };
 
+    class CommsNetwork{
+        std::shared_ptr<NetworkSide> m_networkSide; 
+        public: 
+        CommsNetwork(); 
+        void operator()(std::shared_ptr<MessageChannel> channel, OtherSideApi & parentProxy);
     };
 }

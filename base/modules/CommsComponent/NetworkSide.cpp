@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "NetworkSide.h"
 #include "Logger.h"
+#include "CommsMsg.h"
 #include <Common/HttpSenderImpl/CurlWrapper.h>
 
 namespace
@@ -47,4 +48,34 @@ namespace CommsComponent
     {
         m_proxy = proxy; 
     }
+
+    CommsNetwork::CommsNetwork():m_networkSide{ CommsComponent::NetworkSide::createOrShareNetworkSide()}
+    {
+
+    } 
+    void CommsNetwork::operator()(std::shared_ptr<MessageChannel> channel, OtherSideApi & parentProxy)
+    {
+        try{
+            while(true)
+            {
+                std::string message; 
+                channel->pop(message); 
+                CommsMsg comms = CommsComponent::CommsMsg::fromString(message);
+                if (std::holds_alternative<Common::HttpSender::RequestConfig>(comms.content))
+                {
+                    auto response = m_networkSide->performRequest(std::get<Common::HttpSender::RequestConfig>(comms.content));
+                    comms.content = response; 
+                    parentProxy.pushMessage(CommsMsg::serialize(comms)); 
+                }
+                
+
+            }
+
+        }catch( CommsComponent::ChannelClosedException& )
+        {
+
+        }
+    }
+
+
 }

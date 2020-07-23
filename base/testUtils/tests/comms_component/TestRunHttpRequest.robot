@@ -48,6 +48,15 @@ Test RunHttpRequest without Jail can perform a GET request with pinned Certifica
     Should Contain   ${content}   Response From HttpsServer
 
 
+Test RunHttpRequest with Proxy Wihtout Authentication works
+    Start Simple Proxy Server    3000
+    Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${CERT_PATH}
+    ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --proxy localhost:3000   "Failed to run http request"  30  expectedExitCode=0
+    Set Test Variable  ${RunHttpRequestLog}   ${output}
+    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=200
+    Should Contain   ${content}   Response From HttpsServer
+    Check Log Contains    connection success          ${PROXY_LOG_PATH}     Proxy Log
+
 Test RunHttpRequest with Proxy and Basic Authentication works When Passing Correct Credential
     Start Proxy Server With Basic Auth    3000    username    password
     Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${CERT_PATH}
@@ -57,7 +66,7 @@ Test RunHttpRequest with Proxy and Basic Authentication works When Passing Corre
     Should Contain   ${content}   Response From HttpsServer
     Check Log Contains    connection success          ${PROXY_LOG_PATH}     Proxy Log
 
-Test RunHttpRequest with Proxy and Basic Authentication works
+Test RunHttpRequest with Proxy and Basic Authentication With Wrong Password Should Be Refused
     Start Proxy Server With Basic Auth    3000    username    password
     Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${CERT_PATH}
     ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --proxy localhost:3000 --proxy-auth username:wrongpassword   "Failed to run http request"  30  expectedExitCode=0
