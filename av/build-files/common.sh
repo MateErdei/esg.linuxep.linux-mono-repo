@@ -22,7 +22,8 @@ function unpack_scaffold_gcc_make()
 {
     local INPUT="$1"
 
-    local GCC_TARFILE=$(ls $INPUT/gcc-*-$PLATFORM.tar.gz)
+    local GCC_TARFILE
+    GCC_TARFILE=$(ls $INPUT/gcc-*-$PLATFORM.tar.gz)
     if [[ -f $GCC_TARFILE ]]
     then
         if [[ -z "$NO_REMOVE_GCC" ]]
@@ -63,7 +64,8 @@ function unpack_scaffold_gcc_make()
     GCC=$(which gcc)
     [[ -x $GCC ]] || exitFailure 50 "No gcc is available"
 
-    local MAKE_TARFILE=$(ls $INPUT/make-*-$PLATFORM.tar.gz 2>/dev/null)
+    local MAKE_TARFILE
+    MAKE_TARFILE=$(ls $INPUT/make-*-$PLATFORM.tar.gz 2>/dev/null)
     if [[ -f $MAKE_TARFILE ]]
     then
         if [[ -z "$NO_REMOVE_MAKE" ]]
@@ -73,9 +75,9 @@ function unpack_scaffold_gcc_make()
         fi
 
         mkdir -p /build/input
-        pushd /build/input
+        pushd /build/input || exitFailure 50 "Failed to pushd /build/input"
         tar xzf $MAKE_TARFILE
-        popd
+        popd || exitFailure 50 "Failed to popd"
 
         export PATH=/build/input/make/bin:$PATH
     else
@@ -85,7 +87,8 @@ function unpack_scaffold_gcc_make()
     MAKE=$(which make)
     [[ -x $MAKE ]] || exitFailure 51 "No make is available"
 
-    local BINUTILS_TARFILE=$(ls $INPUT/binutils*-$PLATFORM.tar.gz 2>/dev/null)
+    local BINUTILS_TARFILE
+    BINUTILS_TARFILE=$(ls $INPUT/binutils*-$PLATFORM.tar.gz 2>/dev/null)
     if [[ -f $BINUTILS_TARFILE ]]
     then
         tar xzf $BINUTILS_TARFILE
