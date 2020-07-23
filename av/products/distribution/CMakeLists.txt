@@ -71,6 +71,8 @@ add_custom_target(
         COMMAND rsync -a --delete --delete-excluded
             --exclude files/plugins/av/chroot/susi/distribution_version/version1/vdb/
             --exclude files/plugins/av/chroot/susi/distribution_version/version1/lrdata/
+            --exclude SDDS-Import.xml
+            --exclude manifest.dat
             ${DIST}/ ${SDDS}
         COMMAND ${PYTHON} ${GENERATE_TOOL} ${SDDS} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
