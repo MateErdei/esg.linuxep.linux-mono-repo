@@ -71,8 +71,8 @@ namespace CommsComponent
                 {
                     auto config = std::get<CommsComponent::CommsConfig>(comms.content);
                     Common::HttpSenderImpl::ProxySettings proxy; 
-                    proxy.proxy = config.proxy(); 
-                    proxy.credentials = config.credentials(); 
+                    proxy.proxy = config.getProxy(); 
+                    proxy.credentials = config.getDeobfuscatedCredential(); 
                     m_networkSide->setProxy(proxy); 
                 }
 

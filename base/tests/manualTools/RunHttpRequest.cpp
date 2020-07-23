@@ -224,7 +224,7 @@ int runHttpRequestsInTheJail(Config& config, const Common::HttpSenderImpl::Proxy
     CommsComponent::CommsConfigurator configurator(config.jailRoot, childConf, parentConf, CommsComponent::CommsConfigurator::getListOfDependenciesToMount());
 
 
-    auto parentProc = [&config](std::shared_ptr<MessageChannel> channel, OtherSideApi & childProxy) {
+    auto parentProc = [&config,proxy](std::shared_ptr<MessageChannel> channel, OtherSideApi & childProxy) {
         if (!config.parentRoot.empty())
         {
             chdir(config.parentRoot.c_str());
@@ -233,29 +233,37 @@ int runHttpRequestsInTheJail(Config& config, const Common::HttpSenderImpl::Proxy
         if ( !proxy.proxy.empty() )
         {
             CommsMsg comms;
-            comms.id = "ProxyConfig"
-            CommsComponent::CommsMsg::Config config; 
-            config.x = proxy.proxy; 
+            comms.id = "ProxyConfig";
+            CommsComponent::CommsConfig config; 
+            config.setProxy(proxy.proxy); 
+            config.setDeobfuscatedCredential(proxy.credentials); 
             comms.content = config;
             childProxy.pushMessage(CommsMsg::serialize(comms));
+            LOGINFO("Send the config message for proxy"); 
             
         }
         for (auto& filePath : config.requestFiles)
         {
+            LOGINFO("Sending the request related to the filePath: " << filePath ); 
             auto content = Common::FileSystem::fileSystem()->readFile(filePath);
             CommsMsg comms;
             comms.id = Common::FileSystem::basename(filePath);
             comms.content = CommsComponent::CommsMsg::requestConfigFromJson(content);
             childProxy.pushMessage(CommsMsg::serialize(comms));
+            LOGINFO("Request sent filePath: " << filePath ); 
         }
+
         size_t responses = 0; 
         while(responses < config.requestFiles.size())
         {
             responses++; 
             std::string message;
-            channel->pop(message); 
+            channel->pop(message);
+            LOGINFO("Received response from child: " << message.size());  
             CommsMsg comms = CommsComponent::CommsMsg::fromString(message);  
+            LOGINFO("Received response from with id: " << comms.id);  
             serialize(std::get<Common::HttpSender::HttpResponse>(comms.content), comms.id ); 
+            LOGINFO("File produced " << comms.id); 
         }
     };
 
@@ -281,7 +289,7 @@ int main(int argc, char * argv[])
             return runSimpleHttpRequests(config.requestFiles, proxy);
             break;
         case Config::RunOption::Option2:
-            return runHttpRequestsInTheJail(config);
+            return runHttpRequestsInTheJail(config, proxy);
             break;
         case Config::RunOption::Option3:
             return runUnmountPaths(config.jailRoot);

@@ -77,8 +77,6 @@ Test RunHttpRequest with Proxy and Basic Authentication With Wrong Password Shou
     #Should Contain   ${content}   Response From HttpsServer
     Check Log Contains    bad authorization info          ${PROXY_LOG_PATH}     Proxy Log
 
-
-
 Test RunHttpRequest without Jail can perform a PUT request with pinned Certificate
     ${headers} =   Create List   info1: header1  info2: header2
     Create Http Json Request  ${FileNameRequest1}  requestType=PUT  server=localhost  port=${PORT}   certPath=${CERT_PATH}   headers=${headers}  bodyContent=test RunHttpRequest
@@ -97,6 +95,19 @@ Test RunHttpRequest with Jail can perform a GET request with pinned Certificate
     Run Jailed Https Request
     ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1Jail}  httpCode=200
     Should Contain   ${content}   Response From HttpsServer
+
+
+Test RunHttpRequest with Jail can perform a GET request with pinned Certificate Using Proxy
+    Start Proxy Server With Basic Auth    3000    username    password
+    Copy File And Set Permissions   ${CERT_PATH}  ${MCS_CERTS_DIR}
+    Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${JAIL_PINNED_CERT_PATH}    
+    ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --proxy localhost:3000 --proxy-auth username:password --child-user sophos-spl-network --child-group sophos-spl-group --parent-user sophos-spl-local --parent-group sophos-spl-group --jail-root ${JAIL_PATH} --parent-root /tmp/parent   "Failed to run http request"  30  expectedExitCode=0
+    Set Test Variable  ${RunHttpRequestLog}   ${output}
+    ${output} =  Run Shell Process  ${RunHttpRequestExecutable} --jail-root ${JAIL_PATH}  "Failed to unmount path"  5  expectedExitCode=0
+    Log   ${output}
+    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=200
+    Should Contain   ${content}   Response From HttpsServer
+    Check Log Contains    connection success          ${PROXY_LOG_PATH}     Proxy Log
 
 
 #FIXME LINUXDAR-1954: After the comms start to use the Configurator this test should be 'traslated' to use the comms plugin istead of the runhttprequest 
@@ -157,6 +168,7 @@ Test Setup
 Test Teardown
     Run Keyword If Test Failed  LogUtils.Dump Log  ${FileNameRequest1}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${ExpectedResponse1}
+    Run Keyword If Test Failed  LogUtils.Dump Log    ${ExpectedResponse1}    
     Run Keyword If Test Failed  LogUtils.Dump Log    ${HTTPS_LOG_FILE_PATH}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${PARENT_LOG_PATH}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${CHILD_LOG_PATH}
