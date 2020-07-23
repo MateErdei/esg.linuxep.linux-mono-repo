@@ -23,7 +23,7 @@ function unpack_scaffold_gcc_make()
     local INPUT="$1"
 
     local GCC_TARFILE
-    GCC_TARFILE=$(ls $INPUT/gcc-*-$PLATFORM.tar.gz)
+    GCC_TARFILE=$(ls $INPUT/gcc-*-$PLATFORM.tar.gz || true)
     if [[ -f $GCC_TARFILE ]]
     then
         if [[ -z "$NO_REMOVE_GCC" ]]
@@ -65,7 +65,7 @@ function unpack_scaffold_gcc_make()
     [[ -x $GCC ]] || exitFailure 50 "No gcc is available"
 
     local MAKE_TARFILE
-    MAKE_TARFILE=$(ls $INPUT/make-*-$PLATFORM.tar.gz 2>/dev/null)
+    MAKE_TARFILE=$(ls $INPUT/make-*-$PLATFORM.tar.gz 2>/dev/null || true)
     if [[ -f $MAKE_TARFILE ]]
     then
         if [[ -z "$NO_REMOVE_MAKE" ]]
@@ -81,21 +81,21 @@ function unpack_scaffold_gcc_make()
 
         export PATH=/build/input/make/bin:$PATH
     else
-        echo "WARNING: Building with OS make"
+        echo "INFO: Building with OS make"
     fi
     which make
     MAKE=$(which make)
     [[ -x $MAKE ]] || exitFailure 51 "No make is available"
 
     local BINUTILS_TARFILE
-    BINUTILS_TARFILE=$(ls $INPUT/binutils*-$PLATFORM.tar.gz 2>/dev/null)
+    BINUTILS_TARFILE=$(ls $INPUT/binutils*-$PLATFORM.tar.gz 2>/dev/null || true)
     if [[ -f $BINUTILS_TARFILE ]]
     then
         tar xzf $BINUTILS_TARFILE
         export PATH=/build/input/binutils/bin:$PATH
         export LD_LIBRARY_PATH=/build/input/binutils/lib:$LD_LIBRARY_PATH
     else
-        echo "Warning: Building with OS binutils"
+        echo "INFO: Building with OS binutils"
     fi
 
     if [[ -x $(which yum) ]]
@@ -115,14 +115,14 @@ function unpack_scaffold_autotools()
     local INPUT="$1"
 
     mkdir -p /build/input
-    pushd /build/input
+    pushd /build/input || exitFailure 50 "Failed to pushd /build/input"
 
     [[ -f $INPUT/autotools-$PLATFORM.tar.gz ]] || exitFailure 9 "No autotools tarfile"
 
     tar xzf $INPUT/autotools-$PLATFORM.tar.gz
     export PATH=/build/input/autotools/bin:$PATH
 
-    popd
+    popd || exitFailure 50 "Failed to popd"
 }
 
 function unpack_scaffold_m4()
