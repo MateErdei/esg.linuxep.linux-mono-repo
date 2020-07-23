@@ -14,9 +14,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <fstream>
 
+namespace
+{
+    const char * GL_PROXY = "proxy"; 
+    const char * GL_CRED = "credentials"; 
+}
+
+
 namespace CommsComponent
 {
-    std::tuple<std::string, std::string> CommsConfig::readCurrentProxyInfo(const std::string filepath) {
+    std::tuple<std::string, std::string> CommsConfig::readCurrentProxyInfo(const std::string& filepath) {
 
         auto fileSystem = Common::FileSystem::fileSystem();
 
@@ -30,12 +37,12 @@ namespace CommsComponent
             {
                 nlohmann::json j = nlohmann::json::parse(fileContents);
 
-                if (j.find("proxy") != j.end())
+                if (j.find(GL_PROXY) != j.end())
                 {
-                    proxy = j["proxy"];
-                    if (j.find("credentials") != j.end())
+                    proxy = j[GL_PROXY];
+                    if (j.find(GL_CRED) != j.end())
                     {
-                        credentials = j["credentials"];
+                        credentials = j[GL_CRED];
                     }
                 }
             }
@@ -57,14 +64,11 @@ namespace CommsComponent
 
         if (!proxy.empty())
         {
-            LOGDEBUG("Storing proxy info");
-            addKeyValueToList(std::pair<std::string,std::vector<std::string>>("proxy",{proxy}));
-
+            setProxy(proxy); 
             if (!credentials.empty())
-            {
-                LOGDEBUG("Storing credential info");
+            {                
                 auto deobfuscated = Common::ObfuscationImpl::SECDeobfuscate(credentials);
-                addKeyValueToList(std::pair<std::string,std::vector<std::string>>("credentials",{deobfuscated}));
+                setDeobfuscatedCredential(deobfuscated); 
             }
         }
     }
@@ -77,4 +81,43 @@ namespace CommsComponent
     {
         m_key_composed_values_config.insert(keyList);
     }
+
+    void CommsConfig::setProxy(const std::string & proxy)
+    {
+        LOGDEBUG("Storing proxy info");
+        addKeyValueToList(std::pair<std::string,std::vector<std::string>>(GL_PROXY,{proxy}));
+
+    }
+    void CommsConfig::setDeobfuscatedCredential(const std::string & credential)
+    {
+        LOGDEBUG("Storing credential info");
+        addKeyValueToList(std::pair<std::string,std::vector<std::string>>(GL_CRED,{credential}));
+
+    }
+    std::string CommsConfig::getProxy() const
+    {
+        return getSimpleConfigValue(GL_PROXY); 
+    }
+    std::string CommsConfig::getDeobfuscatedCredential() const
+    {
+        return getSimpleConfigValue(GL_CRED); 
+    }
+    std::string  CommsConfig::getSimpleConfigValue(const std::string & key) const
+    {
+        auto found = m_key_composed_values_config.find(key); 
+        if ( found == m_key_composed_values_config.end())
+        {
+            return std::string{}; 
+        }
+        if (found->second.empty())
+        {
+            return std::string{}; 
+        }
+        if (found->second.size()>1)
+        {
+            throw std::logic_error("The key does not refer to a simple string value"); 
+        }
+        return found->second.at(0); 
+    }
+
 }
