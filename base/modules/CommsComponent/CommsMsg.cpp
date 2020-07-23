@@ -42,7 +42,6 @@ namespace
             proto->set_resourcepath(requestConfig.getResourcePath());
             proto->set_requesttype(requestConfig.getRequestTypeAsString());
             proto->set_port(requestConfig.getPort());
-            proto->set_certpath(requestConfig.getCertPath());
 
             for (const auto& header : requestConfig.getAdditionalHeaders())
             {
