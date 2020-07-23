@@ -105,8 +105,35 @@ namespace Common::HttpSenderImpl
 
     Common::HttpSender::HttpResponse HttpSender::fetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, const ProxySettings& proxySettings, bool captureBody, long * curlCode)
     {
-        // FIXME: handle try directly if proxy fails. 
-        return doFetchHttpRequest(requestConfig, proxySettings, captureBody, curlCode);
+        if (proxySettings.proxy.empty())
+        {
+            return doFetchHttpRequest(requestConfig, proxySettings, captureBody, curlCode);
+        }
+        else
+        {
+            auto response = doFetchHttpRequest(requestConfig, proxySettings, captureBody, curlCode);
+            switch( *curlCode )
+            {
+                // there is no reason to re-try for all the possible errors as they 
+                // are not all caused by proxies... 
+                case CURLE_COULDNT_RESOLVE_PROXY:
+                case CURLE_COULDNT_RESOLVE_HOST:
+                case CURLE_COULDNT_CONNECT:
+                case CURLE_OPERATION_TIMEDOUT:
+                case CURLE_SEND_ERROR:
+                case CURLE_RECV_ERROR:
+                    {
+                        LOGINFO("Trying direct connection to resource"); 
+                        ProxySettings emptyProxy; 
+                        return doFetchHttpRequest(requestConfig, emptyProxy, captureBody, curlCode);
+                    }
+                    break;
+                default:
+                break;
+                    
+            }
+            return response; 
+        }
     }
 
     Common::HttpSender::HttpResponse HttpSender::doFetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, const ProxySettings& proxySettings, bool captureBody, long * curlCode)
@@ -223,7 +250,10 @@ namespace Common::HttpSenderImpl
         if ( !proxySettings.credentials.empty())
         {
             curlOptions.emplace_back("Configure proxy credentials", CURLOPT_PROXYUSERPWD, proxySettings.credentials);
+            long optionValue = CURLAUTH_ANY;
+            curlOptions.emplace_back("Set curl to allow any authentication available", CURLOPT_PROXYAUTH, optionValue);
         }
+
 
 
         for (const auto& curlOption : curlOptions)

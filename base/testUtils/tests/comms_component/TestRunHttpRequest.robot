@@ -66,15 +66,22 @@ Test RunHttpRequest with Proxy and Basic Authentication works When Passing Corre
     Should Contain   ${content}   Response From HttpsServer
     Check Log Contains    connection success          ${PROXY_LOG_PATH}     Proxy Log
 
-Test RunHttpRequest with Proxy and Basic Authentication With Wrong Password Should Be Refused
+Test RunHttpRequest with Proxy and Digest Authentication works When Passing Correct Credential
+    Start Proxy Server With Digest Auth    3000    username    password
+    Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${CERT_PATH}
+    ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --proxy localhost:3000 --proxy-auth username:password   "Failed to run http request"  30  expectedExitCode=0
+    Set Test Variable  ${RunHttpRequestLog}   ${output}
+    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=200
+    Should Contain   ${content}   Response From HttpsServer
+    Check Log Contains    connection success          ${PROXY_LOG_PATH}     Proxy Log    
+
+Test RunHttpRequest with Proxy and Basic Authentication With Wrong Password Will Retry Directly
     Start Proxy Server With Basic Auth    3000    username    password
     Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${CERT_PATH}
     ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --proxy localhost:3000 --proxy-auth username:wrongpassword   "Failed to run http request"  30  expectedExitCode=0
     Set Test Variable  ${RunHttpRequestLog}   ${output}
-    #FIXME after the try direct, the expected code would be 200
-    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=56
-    #${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=200
-    #Should Contain   ${content}   Response From HttpsServer
+    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=200
+    Should Contain   ${content}   Response From HttpsServer
     Check Log Contains    bad authorization info          ${PROXY_LOG_PATH}     Proxy Log
 
 Test RunHttpRequest without Jail can perform a PUT request with pinned Certificate
@@ -105,7 +112,7 @@ Test RunHttpRequest with Jail can perform a GET request with pinned Certificate 
     Set Test Variable  ${RunHttpRequestLog}   ${output}
     ${output} =  Run Shell Process  ${RunHttpRequestExecutable} --jail-root ${JAIL_PATH}  "Failed to unmount path"  5  expectedExitCode=0
     Log   ${output}
-    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1}  httpCode=200
+    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1Jail}  httpCode=200
     Should Contain   ${content}   Response From HttpsServer
     Check Log Contains    connection success          ${PROXY_LOG_PATH}     Proxy Log
 
