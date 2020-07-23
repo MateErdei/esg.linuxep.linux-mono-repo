@@ -254,12 +254,19 @@ function untar_input()
 
 function unzip_lrdata()
 {
-    local ZIP=${INPUT}/lrdata/reputation.zip
-    local DEST=${REDIST}/lrdata
+    local LRDATA_ZIP=${INPUT}/lrdata/reputation.zip
+    local DEST="${REDIST}/lrdata"
+    rm -rf "${DEST}"
+    mkdir -p "$DEST"
 
-    mkdir -p $DEST
-    pushd $DEST
-    unzip $ZIP
+    if [[ ! -f "$LRDATA_ZIP" ]]
+    then
+        echo "Can't find $LRDATA_ZIP - expected if we have a production build"
+        return
+    fi
+
+    pushd "$DEST"
+    unzip "$LRDATA_ZIP"
     popd
 }
 
