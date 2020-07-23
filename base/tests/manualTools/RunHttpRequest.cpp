@@ -231,6 +231,7 @@ int runHttpRequestsInTheJail(Config& config)
             CommsMsg comms = CommsComponent::CommsMsg::fromString(message);  
             serialize(std::get<Common::HttpSender::HttpResponse>(comms.content), comms.id ); 
         }
+        return 0; 
     };
 
     auto childProc = [](std::shared_ptr<MessageChannel> channel, OtherSideApi & parentProxy){
@@ -244,6 +245,7 @@ int runHttpRequestsInTheJail(Config& config)
             comms.content = response; 
             parentProxy.pushMessage(CommsMsg::serialize(comms)); 
         }
+        return 0; 
     };
 
     std::cout << "Running the splitProcesses Reactors" << std::endl; 

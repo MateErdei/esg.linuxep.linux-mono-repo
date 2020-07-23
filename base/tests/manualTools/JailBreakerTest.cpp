@@ -105,10 +105,12 @@ int main(int argc, char * argv[])
         {
             perror("Failed to run system"); 
         }
+        return code; 
     };
 
     auto parentProc = [](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi &/*childProxy*/){
         std::cout << "Parent proc executed" << std::endl; 
+        return 0; 
     };
     std::cout << "Running the splitProcesses Reactors" << std::endl; 
     int code =  CommsComponent::splitProcessesReactors(parentProc, std::move(childProc), configurator); 

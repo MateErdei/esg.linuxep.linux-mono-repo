@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "MessageChannel.h"
 namespace CommsComponent
 {
-    using SimpleReactor = std::function<void(std::shared_ptr<MessageChannel>, OtherSideApi &)>;
+    using SimpleReactor = std::function<int(std::shared_ptr<MessageChannel>, OtherSideApi &)>;
 
     /*
      * Implement the interface required for ParentExecutor or ChildExecutor in terms of the SimpleReactor functor above defined.

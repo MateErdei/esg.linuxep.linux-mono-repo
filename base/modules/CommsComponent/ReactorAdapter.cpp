@@ -30,9 +30,9 @@ namespace CommsComponent
         othersideApi.setNotifyOnClosure([this]() { m_channel->pushStop(); });
         try
         {
-            m_reactor(m_channel, othersideApi);
+            int exitCode = m_reactor(m_channel, othersideApi);
             othersideApi.setNotifyOnClosure([]() {});
-            return 0;
+            return exitCode;
         }
         catch (const ChannelClosedException &channelClosedException)
         { //explicitly capture the ChannelClosedException as a normal case scenario.
@@ -43,7 +43,7 @@ namespace CommsComponent
         {
             othersideApi.setNotifyOnClosure([]() {});
             LOGERROR(m_name << " process reported error: " << ex.what());
-            return 1;
+            return EXIT_FAILURE;
         }
 
     }
