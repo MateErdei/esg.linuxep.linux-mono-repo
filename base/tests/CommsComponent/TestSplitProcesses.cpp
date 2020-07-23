@@ -8,10 +8,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/SecurityUtils/ProcessSecurityUtils.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystem/IFileSystem.h>
 #include <boost/thread/thread.hpp>
 #include <gtest/gtest.h>
 #include <modules/CommsComponent/SplitProcesses.h>
+#include <tests/Common/Helpers/TempDir.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <tests/Common/Helpers/TestMacros.h>
 
@@ -101,7 +101,7 @@ public:
 
     // this becomes the 'main' function of the CommNetworkSide,
     // it can create threads, do whatever the business logic of that process is required.
-    int operator()(std::shared_ptr<MessageChannel> channel, OtherSideApi& parentProxy)
+    void operator()(std::shared_ptr<MessageChannel> channel, OtherSideApi& parentProxy)
     {
         while (true)
         {
@@ -125,7 +125,7 @@ public:
             }
             else if (message == "stop")
             {
-                break;
+                return;
             }
             else if (message == "hello")
             {
@@ -133,7 +133,6 @@ public:
             }
             parentProxy.pushMessage(message + " fromchild");
         }
-        return 0; 
     }
 
 };
@@ -159,7 +158,6 @@ TEST_F(TestSplitProcessesWithNullConfigurator, ExchangeMessagesAndStop) // NOLIN
                         throw std::runtime_error("Did not receive world");
                     }
                     childProxy.pushMessage("stop");
-                    return 0; 
                 };
                 int exitCode = splitProcessesReactors(parentProcess, childProcess);
                 exit(exitCode);
@@ -169,22 +167,24 @@ TEST_F(TestSplitProcessesWithNullConfigurator, ExchangeMessagesAndStop) // NOLIN
 }
 
 
-TEST_F(TestSplitProcessesWithNullConfigurator, ParentExportsErrorCodeOfTheChild) // NOLINT
+TEST_F(TestSplitProcesses, ParentExportsErrorCodeOfTheChild) // NOLINT
 {
     testing::FLAGS_gtest_death_test_style = "threadsafe";
     MAYSKIP;
     ASSERT_EXIT(
             {
+                setupAfterSkipIfNotRoot();
                 auto childProcess = [](std::shared_ptr<MessageChannel>, OtherSideApi&) {
-                    return 3; 
+                    exit(3);
                 };
                 auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi&) {
                     std::string message;
                     channel->pop(message);
-                    return 0; 
                 };
 
-                int exitCode = splitProcessesReactors(parentProcess, childProcess);
+                auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
+                                                std::vector<ReadOnlyMount>());
+                int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
                 exit(exitCode);
             },
             ::testing::ExitedWithCode(3), ".*");
@@ -210,10 +210,9 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
                     }
                     catch (ChannelClosedException&)
                     {
-                        return 0;
+                        return;
                     }
-                    throw std::runtime_error("Did not receive closed channel exception");       
-                    return 0;              
+                    throw std::runtime_error("Did not receive closed channel exception");
                 };
                 auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
                                                 std::vector<ReadOnlyMount>());
@@ -241,10 +240,9 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
                     }
                     catch (ChannelClosedException&)
                     {
-                        return 0;
+                        return;
                     }
                     throw std::runtime_error("Did not receive closed channel exception");
-                    return 0; 
                 };
                 auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
                                                 std::vector<ReadOnlyMount>());
@@ -283,7 +281,7 @@ TEST_F(TestSplitProcesses, ChildCanRecieveMoreThanOneMessageAndConcurrently) // 
                     std::string message;
                     childProxy.pushMessage("stop");
                     channel->pop(message);
-                    return 0;
+                    return;
                 };
 
                 auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
@@ -304,7 +302,6 @@ TEST_F(TestSplitProcesses, ParentStopIfChildSendStopNoHanging) // NOLINT
                 setupAfterSkipIfNotRoot();
                 auto childProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& /*parentProxy*/) {
                     channel->pushStop();
-                    return 0; 
                 };
 
                 auto parentProcess = CommNetworkSide();
@@ -315,58 +312,4 @@ TEST_F(TestSplitProcesses, ParentStopIfChildSendStopNoHanging) // NOLINT
                 exit(exitCode);
             },
             ::testing::ExitedWithCode(0), ".*");
-}
-
-TEST_F(TestSplitProcesses, ParentAndChildCanUseLog4) // NOLINT
-{
-    MAYSKIP;
-    testing::FLAGS_gtest_death_test_style = "threadsafe";
-    ASSERT_EXIT({
-                    setupAfterSkipIfNotRoot();
-                    auto parentProcess = [](std::shared_ptr<MessageChannel> /*channel*/,
-                                            OtherSideApi& /*childProxy*/) {
-                        LOGDEBUG("Log from Parent");
-                        return 0; 
-                    };
-
-                    auto childProcess = [](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi& /*parentProxy*/) {
-                        LOGDEBUG("Log from Child");
-                        std::cout << "also log from here" << std::endl;
-                        try
-                        {
-                            Common::FileSystem::fileSystem()->writeFile("/logs/base/another_child.log", "testing123");
-                        }
-                        catch (std::exception& ex)
-                        {
-                            std::cerr << "failed to write file: " << ex.what() << std::endl;
-                        }
-                        return 0;  
-                    };
-                    auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
-                                                    std::vector<ReadOnlyMount>());
-                    int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
-
-
-                    std::string childLog = Common::FileSystem::join(m_chrootSophosInstall,
-                                                                    "logs/base/child.log");
-                    std::string parentLog = Common::FileSystem::join(m_sophosInstall, "logs/base/sophosspl/parent.log");
-                    auto fs = Common::FileSystem::fileSystem();
-                    std::string parentLogContent = fs->readFile(parentLog);
-                    if (parentLogContent.find("Log from Parent") == std::string::npos)
-                    {
-                        exitCode = 2;
-                    }
-                    for (auto& name : fs->listFilesAndDirectories(
-                            Common::FileSystem::join(m_chrootSophosInstall, "logs/base/")))
-                    {
-                        std::cout << "files inside the child log base: " << name << std::endl;
-                    }
-                    std::string childLogContent = fs->readFile(childLog);
-                    if (childLogContent.find("Log from Child") == std::string::npos)
-                    {
-                        exitCode = 3;
-                    }
-                    exit(exitCode);
-                },
-                ::testing::ExitedWithCode(0), ".*");
 }
