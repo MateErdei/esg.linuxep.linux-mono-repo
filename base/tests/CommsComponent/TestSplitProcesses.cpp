@@ -174,9 +174,7 @@ TEST_F(TestSplitProcesses, ParentExportsErrorCodeOfTheChild) // NOLINT
     ASSERT_EXIT(
             {
                 setupAfterSkipIfNotRoot();
-                auto childProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi&) {
-                    std::string message;
-                    channel->pop(message, std::chrono::milliseconds(500));
+                auto childProcess = [](std::shared_ptr<MessageChannel>, OtherSideApi&) {
                     exit(3);
                 };
                 auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi&) {
