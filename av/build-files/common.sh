@@ -97,6 +97,10 @@ function unpack_scaffold_gcc_make()
 
     if [[ -x $(which yum) ]]
     then
+        echo "Before Edit:"
+        cat /etc/yum.repos.d/CentOS-Base.repo
+        sed -i -e's/abn-engrepo.eng.sophos/abn-centosrepo/g' /etc/yum.repos.d/CentOS-Base.repo
+        echo "After Edit:"
         cat /etc/yum.repos.d/CentOS-Base.repo
         yum -y install libcap-devel || true
     fi
