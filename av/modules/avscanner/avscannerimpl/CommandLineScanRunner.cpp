@@ -181,9 +181,11 @@ int CommandLineScanRunner::run()
     }
     for (auto& exclusion : m_exclusions)
     {
-        if(exclusion.compare(".") == 0)
+        if( exclusion.at(0) == '.'
+            or exclusion.find("/./") != std::string::npos
+            or exclusion.find("/../") != std::string::npos)
         {
-            exclusion = fs::current_path().append("/");
+                exclusion = fs::canonical(exclusion).append("/");
         }
 
         LOGINFO("        " << exclusion);
@@ -199,7 +201,7 @@ int CommandLineScanRunner::run()
     {
         try
         {
-            auto p = fs::absolute(path);
+            auto p = fs::canonical(path);
             callbacks.setCurrentInclude(p);
             filewalker::walk(p, callbacks);
         } catch (fs::filesystem_error& e)
