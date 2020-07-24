@@ -245,16 +245,14 @@ namespace Common::HttpSenderImpl
         {
             LOGINFO("Setup proxy for the connection"); 
             curlOptions.emplace_back("Configure the Proxy Option", CURLOPT_PROXY, proxySettings.proxy); 
+            if ( !proxySettings.credentials.empty())
+            {
+                curlOptions.emplace_back("Configure proxy credentials", CURLOPT_PROXYUSERPWD, proxySettings.credentials);
+                long optionValue = CURLAUTH_ANY;
+                curlOptions.emplace_back("Set curl to allow any authentication available", CURLOPT_PROXYAUTH, optionValue);
+            }
+
         }
-
-        if ( !proxySettings.credentials.empty())
-        {
-            curlOptions.emplace_back("Configure proxy credentials", CURLOPT_PROXYUSERPWD, proxySettings.credentials);
-            long optionValue = CURLAUTH_ANY;
-            curlOptions.emplace_back("Set curl to allow any authentication available", CURLOPT_PROXYAUTH, optionValue);
-        }
-
-
 
         for (const auto& curlOption : curlOptions)
         {
