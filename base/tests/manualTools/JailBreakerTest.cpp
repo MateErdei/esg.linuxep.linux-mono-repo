@@ -96,7 +96,7 @@ int main(int argc, char * argv[])
     CommsComponent::CommsConfigurator configurator(jailRoot, childConf, parentConf,
                                                 std::vector<ReadOnlyMount>() ); 
 
-    auto childProc = [jailBreaker](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi &/*childProxy*/){
+    auto childProc = [jailBreaker](std::shared_ptr<MessageChannel>/*channel*/, IOtherSideApi &/*childProxy*/){
         std::string jailBreakerPath = Common::FileSystem::join("/",jailBreaker); 
         std::cout << "Running jail breaker" << std::endl; 
         char *newargv[] = { jailBreakerPath.data(), NULL };
@@ -108,7 +108,7 @@ int main(int argc, char * argv[])
         return code; 
     };
 
-    auto parentProc = [](std::shared_ptr<MessageChannel>/*channel*/, OtherSideApi &/*childProxy*/){
+    auto parentProc = [](std::shared_ptr<MessageChannel>/*channel*/, IOtherSideApi &/*childProxy*/){
         std::cout << "Parent proc executed" << std::endl; 
         return 0; 
     };

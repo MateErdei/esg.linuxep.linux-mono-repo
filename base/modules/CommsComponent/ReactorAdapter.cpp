@@ -25,7 +25,7 @@ namespace CommsComponent
         m_channel->pushStop();
     }
 
-    int ReactorAdapter::run(OtherSideApi &othersideApi)
+    int ReactorAdapter::run(IOtherSideApi &othersideApi)
     {
         othersideApi.setNotifyOnClosure([this]() { m_channel->pushStop(); });
         try

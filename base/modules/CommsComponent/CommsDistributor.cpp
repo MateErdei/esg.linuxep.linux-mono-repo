@@ -24,27 +24,32 @@ namespace CommsComponent
 //
 //    }
 
-    CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, MessageChannel& messageChannel) :
+    CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, const std::string& responseDirPath, MessageChannel& messageChannel, IOtherSideApi& childProxy) :
         m_monitorDir(dirPath,positiveFilter),
         m_monitorDirPath(dirPath),
+        m_responseDirPath(responseDirPath),
         m_messageChannel(messageChannel),
-        m_done(false)
-
-    {}
+        m_childProxy(childProxy) {}
 
 
 
 
     void CommsDistributor::handleResponses()
     {
-        while (!m_done)
+        try
         {
-            std::string incoming_message;
-            m_messageChannel.pop(incoming_message, std::chrono::milliseconds(10));
-            if (!incoming_message.empty())
-            {
-                LOGINFO("We got a response: " << incoming_message);
+            while (true) {
+                std::string incoming_message;
+                m_messageChannel.pop(incoming_message);
+                LOGDEBUG("Got response" << incoming_message);
+                if (!incoming_message.empty()) {
+                    forwardResponse(incoming_message);
+                }
             }
+        }
+        catch (ChannelClosedException& exception)
+        {
+            LOGDEBUG("Exiting Response Handler Loop");
         }
     }
 
@@ -52,40 +57,26 @@ namespace CommsComponent
 
     void CommsDistributor::handleRequests()
     {
-        while (!m_done)
+        try
         {
-            std::optional<std::string> request_id_optional_filename = m_monitorDir.next(std::chrono::milliseconds(10));
-
-            if (request_id_optional_filename.has_value())
+            while (true)
             {
-                std::string requestIdFilename = request_id_optional_filename.value();
-                if (Common::UtilityImpl::StringUtils::startswith(requestIdFilename, "request_") &&
-                    Common::UtilityImpl::StringUtils::endswith(requestIdFilename, ".json"))
+                std::optional<std::string> request_id_optional_filename = m_monitorDir.next(std::chrono::milliseconds(-1));
+
+                if (request_id_optional_filename.has_value())
                 {
-                    LOGINFO("We got a request : " << requestIdFilename);
-                    int nameSize = requestIdFilename.size();
-                    std::string id = requestIdFilename.substr(8,nameSize-(9+5));
-                    std::stringstream requestBodyFileName;
-                    requestBodyFileName << "request_" << id << "_body";
-
-                    Path requestIdFilePath = Common::FileSystem::join(m_monitorDirPath, requestIdFilename);
-                    Path requestBodyFilePath = Common::FileSystem::join(m_monitorDirPath, requestBodyFileName.str());
 
 
-                    std::string requestFileContents = m_fileSystem->readFile(requestIdFilePath);
-                    std::string bodyFileContents = m_fileSystem->readFile(requestBodyFilePath);
-
-                    Common::HttpSender::RequestConfig requestConfig = CommsComponent::CommsMsg::requestConfigFromJson(requestFileContents);
-                    requestConfig.setData(bodyFileContents);
-                    CommsMsg msg;
-                    msg.content = requestConfig;
-                    msg.id = id;
-
-                    std::string serializedRequestMessage = CommsComponent::CommsMsg::serialize(msg);
-                    //m_messageChannel.push("We got a request : " << requestIdFilename)
+                    std::string requestIdBasename = Common::FileSystem::basename(request_id_optional_filename.value());
+                    LOGINFO("Got a file with value: " << request_id_optional_filename.value());
+                    forwardRequest(requestIdBasename);
                 }
-            }
 
+            }
+        }
+        catch (MonitorDirClosedException& exception)
+        {
+            LOGDEBUG("Exiting Request Handler Loop");
         }
     }
 
@@ -101,6 +92,66 @@ namespace CommsComponent
 
     void CommsDistributor::stop()
     {
-        m_done = true;
+        m_childProxy.notifyOtherSideAndClose();
+        m_monitorDir.stop();
+        m_messageChannel.pushStop();
+    }
+
+    void CommsDistributor::forwardResponse(const std::string& incomingMessage)
+    {
+        CommsMsg msg = CommsMsg::fromString(incomingMessage);
+        std::string responseId = msg.id;
+        // TODO - To be completed in LINUXDAR-1954
+//        if (std::holds_alternative<Common::HttpSender::HttpResponse>(msg.content))
+//        {
+//            if (!std::get<Common::HttpSender::HttpResponse>(msg.content).bodyContent.empty())
+//            {
+//                std::stringstream responseBodyBasename;
+//                responseBodyBasename << "response_" << responseId << "_body";
+//                Path responseBodyPath = Common::FileSystem::join(m_responseDirPath, responseBodyBasename.str());
+//                m_fileSystem->writeFile(responseBodyPath, std::get<Common::HttpSender::HttpResponse>(msg.content).bodyContent);
+//            }
+//            std::string json = CommsMsg::toJson(std::get<Common::HttpSender::HttpResponse>(msg.content));
+//            std::stringstream responseBasename;
+//            responseBasename << "response_" << responseId << ".json";
+//            Path responsePath = Common::FileSystem::join(m_responseDirPath, responseBasename.str());
+//            m_fileSystem->writeFile(responsePath, json);
+
+
+//            LOGINFO(json);
+//        }
+    }
+
+    void CommsDistributor::forwardRequest(const std::string& requestBaseName)
+    {
+        if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, m_leadingRequestIdString) &&
+            Common::UtilityImpl::StringUtils::endswith(requestBaseName, m_trailingRequestIdString))
+        {
+            LOGINFO("We got a request : " << requestBaseName);
+            int nameSize = requestBaseName.size();
+            std::string id = requestBaseName.substr(m_leadingRequestIdString.size(), nameSize - (m_leadingRequestIdString.size() + m_trailingRequestIdString.size()));
+            std::stringstream requestBodyFileName;
+            requestBodyFileName << m_leadingRequestBodyString << id << m_trailingRequestBodyString;
+
+            Path requestIdFilePath = Common::FileSystem::join(m_monitorDirPath, requestBaseName);
+            Path requestBodyFilePath = Common::FileSystem::join(m_monitorDirPath, requestBodyFileName.str());
+
+
+            std::string requestFileContents = m_fileSystem->readFile(requestIdFilePath);
+            std::string bodyFileContents = m_fileSystem->readFile(requestBodyFilePath);
+
+            Common::HttpSender::RequestConfig requestConfig = CommsComponent::CommsMsg::requestConfigFromJson(requestFileContents);
+            requestConfig.setData(bodyFileContents);
+            CommsMsg msg;
+            msg.content = requestConfig;
+            msg.id = id;
+
+            std::string serializedRequestMessage = CommsComponent::CommsMsg::serialize(msg);
+            m_childProxy.pushMessage(serializedRequestMessage);
+            LOGDEBUG("Deleting: " << requestIdFilePath << " & " << requestIdFilePath);
+            m_fileSystem->removeFile(requestIdFilePath);
+            m_fileSystem->removeFile(requestBodyFilePath);
+
+        }
     }
 } // namespace CommsComponent

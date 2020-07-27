@@ -20,9 +20,6 @@ void printUsageAndExit(std::string name, int code)
     Usage: Option1: ./RunHttpRequest -i jsonfile1 [ -i jsonfile2 ... ]
            Option2: ./RunHttpRequest -i jsonfile1 --child-user <name> --child-group <name> --parent-user <name> --parent-group <name> --jail-root <path> --parent-root <path>
            Option3: ./RunHttpRequest --jail-root <path>
-
-           For Option1 and 2 additional proxy can be provided: 
-           --proxy <hostname:port>   --proxy_auth <user:password>
            Either all the options for the jail needs to be given, or none of them should be provided. 
     Option1: will run the requests as configured by the json file.
     Option2: does the same thing of option1, but before applies the chroot and drop-privileges.
@@ -62,8 +59,6 @@ struct Config
     std::string parentGroup;
     std::string jailRoot;
     std::string parentRoot;
-    std::string proxy; 
-    std::string proxyCredential; 
     std::vector<std::string> requestFiles;
 };
 
@@ -82,9 +77,7 @@ Config parseArguments(int argc, char* argv[])
             ParentGroup = 3,
             RequestFile = 4,
             JailRoot = 5,
-            ParentRoot = 6,
-            Proxy = 7, 
-            ProxyCreds = 8
+            ParentRoot = 6
         };
         static struct option long_options[] = {
                 {"child-user",   required_argument, 0, 0},
@@ -94,8 +87,6 @@ Config parseArguments(int argc, char* argv[])
                 {"request-file", required_argument, 0, 0},
                 {"jail-root",    required_argument, 0, 0},
                 {"parent-root",  required_argument, 0, 0},
-                {"proxy",        required_argument, 0, 0},
-                {"proxy-auth",   required_argument, 0, 0},            
                 {0, 0,                              0, 0}
         };
 
@@ -129,12 +120,6 @@ Config parseArguments(int argc, char* argv[])
             case Option::ParentRoot:
                 config.parentRoot = optarg;
                 break;
-            case Option::Proxy:
-                config.proxy = optarg; 
-                break; 
-            case Option::ProxyCreds:
-                config.proxyCredential = optarg; 
-                break; 
             case Option::RequestFile:
             case 'i':
                 config.requestFiles.push_back(optarg);
@@ -193,12 +178,11 @@ void serialize(const Common::HttpSender::HttpResponse &response , const std::str
 }
 
 
-int runSimpleHttpRequests(const std::vector<std::string> & files, const Common::HttpSenderImpl::ProxySettings& proxy)
+int runSimpleHttpRequests(const std::vector<std::string> & files)
 {
     Common::Logging::ConsoleLoggingSetup consoleSetup; 
     LOGINFO("Running runSimpleHttpRequests"); 
     auto networkSide = CommsComponent::NetworkSide::createOrShareNetworkSide(); 
-    networkSide->setProxy(proxy); 
     for(auto & filePath : files)
     {
         LOGINFO("Process file: " << filePath); 
@@ -216,7 +200,7 @@ int runUnmountPaths(const std::string & chroot)
     return 0;
 }
 
-int runHttpRequestsInTheJail(Config& config, const Common::HttpSenderImpl::ProxySettings & proxy)
+int runHttpRequestsInTheJail(Config& config)
 {
     using namespace CommsComponent; 
     CommsComponent::UserConf parentConf{config.parentUser, config.parentGroup, "logparent" }; 
@@ -224,50 +208,45 @@ int runHttpRequestsInTheJail(Config& config, const Common::HttpSenderImpl::Proxy
     CommsComponent::CommsConfigurator configurator(config.jailRoot, childConf, parentConf, CommsComponent::CommsConfigurator::getListOfDependenciesToMount());
 
 
-    auto parentProc = [&config,proxy](std::shared_ptr<MessageChannel> channel, OtherSideApi & childProxy) {
+    auto parentProc = [&config](std::shared_ptr<MessageChannel> channel, IOtherSideApi & childProxy) {
         if (!config.parentRoot.empty())
         {
             chdir(config.parentRoot.c_str());
         }
 
-        if ( !proxy.proxy.empty() )
-        {
-            CommsMsg comms;
-            comms.id = "ProxyConfig";
-            CommsComponent::CommsConfig config; 
-            config.setProxy(proxy.proxy); 
-            config.setDeobfuscatedCredential(proxy.credentials); 
-            comms.content = config;
-            childProxy.pushMessage(CommsMsg::serialize(comms));
-            LOGINFO("Send the config message for proxy"); 
-            
-        }
         for (auto& filePath : config.requestFiles)
         {
-            LOGINFO("Sending the request related to the filePath: " << filePath ); 
             auto content = Common::FileSystem::fileSystem()->readFile(filePath);
             CommsMsg comms;
             comms.id = Common::FileSystem::basename(filePath);
             comms.content = CommsComponent::CommsMsg::requestConfigFromJson(content);
             childProxy.pushMessage(CommsMsg::serialize(comms));
-            LOGINFO("Request sent filePath: " << filePath ); 
         }
-
         size_t responses = 0; 
         while(responses < config.requestFiles.size())
         {
             responses++; 
             std::string message;
-            channel->pop(message);
-            LOGINFO("Received response from child: " << message.size());  
+            channel->pop(message); 
             CommsMsg comms = CommsComponent::CommsMsg::fromString(message);  
-            LOGINFO("Received response from with id: " << comms.id);  
             serialize(std::get<Common::HttpSender::HttpResponse>(comms.content), comms.id ); 
-            LOGINFO("File produced " << comms.id); 
         }
+        return 0; 
     };
 
-    CommsComponent::CommsNetwork childProc;
+    auto childProc = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi & parentProxy){
+        auto networkSide = CommsComponent::NetworkSide::createOrShareNetworkSide(); 
+        while(true)
+        {
+            std::string message; 
+            channel->pop(message); 
+            CommsMsg comms = CommsComponent::CommsMsg::fromString(message);
+            auto response = networkSide->performRequest(std::get<Common::HttpSender::RequestConfig>(comms.content));
+            comms.content = response; 
+            parentProxy.pushMessage(CommsMsg::serialize(comms)); 
+        }
+        return 0; 
+    };
 
     std::cout << "Running the splitProcesses Reactors" << std::endl; 
     int code =  CommsComponent::splitProcessesReactors(parentProc, std::move(childProc), configurator); 
@@ -280,16 +259,13 @@ int runHttpRequestsInTheJail(Config& config, const Common::HttpSenderImpl::Proxy
 int main(int argc, char * argv[])
 {
     auto config = parseArguments(argc, argv); 
-    Common::HttpSenderImpl::ProxySettings proxy; 
-    proxy.proxy = config.proxy; 
-    proxy.credentials = config.proxyCredential; 
     switch (config.runOption)
     {
-        case Config::RunOption::Option1:            
-            return runSimpleHttpRequests(config.requestFiles, proxy);
+        case Config::RunOption::Option1:
+            return runSimpleHttpRequests(config.requestFiles);
             break;
         case Config::RunOption::Option2:
-            return runHttpRequestsInTheJail(config, proxy);
+            return runHttpRequestsInTheJail(config);
             break;
         case Config::RunOption::Option3:
             return runUnmountPaths(config.jailRoot);

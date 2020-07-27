@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ReactorAdapter.h"
 #include "AsyncMessager.h"
 #include "Logger.h"
+#include "OtherSideApi.h"
 #include <modules/Common/Logging/FileLoggingSetup.h>
 #include <log4cplus/logger.h>
 #include <functional>

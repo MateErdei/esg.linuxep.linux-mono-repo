@@ -6,11 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 #include <string>
-#include "OtherSideApi.h"
+#include "IOtherSideApi.h"
 #include "MessageChannel.h"
 namespace CommsComponent
 {
-    using SimpleReactor = std::function<int(std::shared_ptr<MessageChannel>, OtherSideApi &)>;
+    using SimpleReactor = std::function<int(std::shared_ptr<MessageChannel>, IOtherSideApi &)>;
 
     /*
      * Implement the interface required for ParentExecutor or ChildExecutor in terms of the SimpleReactor functor above defined.
@@ -25,7 +25,7 @@ namespace CommsComponent
 
         void onOtherSideStop();
 
-        int run(OtherSideApi &);
+        int run(IOtherSideApi &);
 
     private:
         SimpleReactor m_reactor;

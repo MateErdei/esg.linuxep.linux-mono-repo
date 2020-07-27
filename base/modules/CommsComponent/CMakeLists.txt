@@ -28,7 +28,9 @@ add_library(commscomponentimpl SHARED
         CommsComponentUtils.h
         CommsDistributor.cpp
         CommsDistributor.h
-        )
+        CommsConfig.cpp
+        CommsConfig.h
+        IOtherSideApi.h)
 
 
 target_link_libraries(commscomponentimpl PUBLIC
@@ -38,8 +40,10 @@ target_link_libraries(commscomponentimpl PUBLIC
         utilityimpl
         protobufutil
         httpsenderimpl
+        obfuscationimpl
         filesystemimpl
         directorywatcherimpl)
+
 
 SET_TARGET_PROPERTIES( commscomponentimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
@@ -49,7 +53,9 @@ target_include_directories(commscomponentimpl PUBLIC
         ../Common/utilityimpl
         ../Common
         ${BOOST_INCLUDE_DIR}
-        ${CURL_INCLUDE_DIR})
+        ${CURL_INCLUDE_DIR}
+        ../../thirdparty/nlohmann-json
+)
 
 install(TARGETS commscomponentimpl
         LIBRARY DESTINATION files/base/lib64)

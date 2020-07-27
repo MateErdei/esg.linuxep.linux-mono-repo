@@ -57,7 +57,6 @@ namespace CommsComponent {
 
     MonitorDir::~MonitorDir()
     {
-        //m_monitorDirListener.channel().pushStop(); 
     }
 
     /* may throw MonitorDirClosedException after stop is issued*/

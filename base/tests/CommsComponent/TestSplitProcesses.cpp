@@ -101,7 +101,7 @@ public:
 
     // this becomes the 'main' function of the CommNetworkSide,
     // it can create threads, do whatever the business logic of that process is required.
-    int operator()(std::shared_ptr<MessageChannel> channel, OtherSideApi& parentProxy)
+    int operator()(std::shared_ptr<MessageChannel> channel, IOtherSideApi& parentProxy)
     {
         while (true)
         {
@@ -149,7 +149,7 @@ TEST_F(TestSplitProcessesWithNullConfigurator, ExchangeMessagesAndStop) // NOLIN
     ASSERT_EXIT(
             {
                 auto childProcess = CommNetworkSide();
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& childProxy) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi& childProxy) {
                     childProxy.pushMessage("hello");
                     std::string message;
                     channel->pop(message);
@@ -175,10 +175,10 @@ TEST_F(TestSplitProcessesWithNullConfigurator, ParentExportsErrorCodeOfTheChild)
     MAYSKIP;
     ASSERT_EXIT(
             {
-                auto childProcess = [](std::shared_ptr<MessageChannel>, OtherSideApi&) {
+                auto childProcess = [](std::shared_ptr<MessageChannel>, IOtherSideApi&) {
                     return 3; 
                 };
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi&) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi&) {
                     std::string message;
                     channel->pop(message);
                     return 0; 
@@ -201,7 +201,7 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
                 setupAfterSkipIfNotRoot();
                 auto childProcess = CommNetworkSide();
 
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& childProxy) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi& childProxy) {
                     childProxy.pushMessage("stop");
                     std::string message;
                     try
@@ -232,7 +232,7 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
                 setupAfterSkipIfNotRoot();
                 auto childProcess = CommNetworkSide();
 
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& childProxy) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi& childProxy) {
                     childProxy.pushMessage("abort");
                     std::string message;
                     try
@@ -265,7 +265,7 @@ TEST_F(TestSplitProcesses, ChildCanRecieveMoreThanOneMessageAndConcurrently) // 
                 setupAfterSkipIfNotRoot();
                 auto childProcess = CommNetworkSide();
 
-                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& childProxy) {
+                auto parentProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi& childProxy) {
                     auto message1 = std::async(std::launch::async, [&channel, &childProxy]() {
                         childProxy.pushMessage("getuid");
                         std::string message;
@@ -302,7 +302,7 @@ TEST_F(TestSplitProcesses, ParentStopIfChildSendStopNoHanging) // NOLINT
     ASSERT_EXIT(
             {
                 setupAfterSkipIfNotRoot();
-                auto childProcess = [](std::shared_ptr<MessageChannel> channel, OtherSideApi& /*parentProxy*/) {
+                auto childProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi& /*parentProxy*/) {
                     channel->pushStop();
                     return 0; 
                 };

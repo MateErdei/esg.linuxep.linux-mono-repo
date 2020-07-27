@@ -11,13 +11,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "MonitorDir.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 namespace CommsComponent
 {
     class CommsDistributor
     {
     public:
-        CommsDistributor(const std::string& path, const std::string& filter, MessageChannel& channel);
+        CommsDistributor(const std::string& path, const std::string& filter, const std::string& responseDirPath, MessageChannel& channel, IOtherSideApi& childProxy);
         void handleRequestsAndResponses();
         void stop();
         //void operator()(const std::shared_ptr<MessageChannel>& channel, OtherSideApi &parentProxy);
@@ -30,13 +31,21 @@ namespace CommsComponent
         // pick up responses sent from the network component through m_messageChannel and create files for them in response directory
         void handleResponses();
 
+        virtual void forwardRequest(const std::string& requestFilename);
+
+        virtual void forwardResponse(const std::string& incomingMessage);
+
         MonitorDir m_monitorDir;
         std::string m_monitorDirPath;
+        std::string m_responseDirPath;
         MessageChannel& m_messageChannel;
-//        MessageChannel& outchannel;
-//        MessageChannel& inchannel;
-        bool m_done;
-        std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;
+        IOtherSideApi& m_childProxy;
+        Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
+        const std::string m_leadingRequestIdString = "request_";
+        const std::string m_trailingRequestIdString = ".json";
+        const std::string m_leadingRequestBodyString = "request_";
+        const std::string m_trailingRequestBodyString = "_body";
+
 
     };
 } // namespace CommsComponent

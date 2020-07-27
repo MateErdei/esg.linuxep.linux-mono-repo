@@ -6,37 +6,95 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
+#include <modules/CommsComponent/AsyncMessager.h>
+#include "MockOtherSideApi.h"
+#include "MockCommsDistributor.h"
+#include <utility>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+#include <modules/CommsComponent/CommsMsg.h>
 #include "CommsComponent/CommsDistributor.h"
 #include "Common/FileSystem/IFileSystem.h"
 
 class TestCommsDistributor : public LogInitializedTests
 {};
-TEST_F(TestCommsDistributor, testDistributorCanBeConstructed) // NOLINT
+
+std::string getSerializedBasicResponse()
 {
-    const std::string path = "/tmp";
-    const std::string filter = "filter";
-    CommsComponent::MessageChannel messageChannel;
-    CommsComponent::CommsDistributor distributor(path, filter, std::ref(messageChannel));
+    std::string responseJson = R"({"httpCode": 3})";
+
+    Common::HttpSender::HttpResponse response = CommsComponent::CommsMsg::httpResponseFromJson(responseJson);
+    CommsComponent::CommsMsg responseMsg;
+    int responseId = 1;
+    responseMsg.id = responseId;
+    responseMsg.content = response;
+    return CommsComponent::CommsMsg::serialize(responseMsg);
 }
 
-TEST_F(TestCommsDistributor, testdoRequestCanBeConstructed) // NOLINT
+TEST_F(TestCommsDistributor, testDistributorCanBeConstructed) // NOLINT
 {
-    const std::string filter = ".log";
-    auto m_tempDir = Tests::TempDir::makeTempDir();
-    std::string filepath = m_tempDir->dirPath();
-
+    const std::string requestPath = "/tmp";
+    const std::string filter = "filter";
+    const std::string responsePath = "/tmp";
     CommsComponent::MessageChannel messageChannel;
-    CommsComponent::CommsDistributor distributor(filepath, filter, std::ref(messageChannel));
-    m_tempDir->createFile("test.log","blah");
-    std::string  source = m_tempDir->absPath("test.log");
-    std::string  destination = m_tempDir->absPath("test1.log");
+
+    MockOtherSideApi mockOthersideApi{};
+    CommsComponent::CommsDistributor distributor(requestPath, filter, responsePath, messageChannel, mockOthersideApi);
+}
+
+TEST_F(TestCommsDistributor, testDistributorHandlesRequestFilesAndResponses) // NOLINT
+{
+    CommsComponent::MessageChannel messageChannel;
+    auto m_requestTempDir = Tests::TempDir::makeTempDir();
+    auto m_responseTempDir = Tests::TempDir::makeTempDir();
+    const std::string filter = ".json";
+    std::string requestTempDirPath = m_requestTempDir->dirPath();
+    std::string responseTempDirPath = m_responseTempDir->dirPath();
+
+    MockOtherSideApi mockOthersideApi{};
+
+    //TODO LINUXDAR-1954 this mock will no longer be neccessary once this tickets work has been done
+    // please remove the mock and adjust this test to expect the proper response/response body file to be created
+    MockCommsDistributor distributor(requestTempDirPath, filter, responseTempDirPath, messageChannel,
+                                                 mockOthersideApi);
+
+    std::string requestJson = R"({"requestType": "POST"})";
+    std::string serialisedResponseJson = getSerializedBasicResponse();
+
+    m_requestTempDir->createFile("testFile1", requestJson);
+    m_requestTempDir->createFile("testFile2", requestJson);
+    m_requestTempDir->createFile("request_test1_body", "body contents for test1");
+    m_requestTempDir->createFile("request_test2_body", "body contents for test2");
+    std::string source1 = m_requestTempDir->absPath("testFile1");
+    std::string source2 = m_requestTempDir->absPath("testFile2");
+    std::string requestFilePath1 = m_requestTempDir->absPath("request_test1.json");
+    std::string requestBodyPath1 = m_requestTempDir->absPath("request_test1_body");
+    std::string requestFilePath2 = m_requestTempDir->absPath("request_test2.json");
+    std::string requestBodyPath2 = m_requestTempDir->absPath("request_test2_body");
     auto fileSystem = Common::FileSystem::fileSystem();
 
-
+    // start handling responses/requests
     std::thread handlerThread(&CommsComponent::CommsDistributor::handleRequestsAndResponses, &distributor);
-    messageChannel.push("request_test");
-    fileSystem->moveFile(source,destination);
-    std::this_thread::sleep_for(std::chrono::milliseconds (100));
+
+    EXPECT_CALL(distributor, forwardResponse(serialisedResponseJson)).Times(2);
+    messageChannel.push(serialisedResponseJson);
+    messageChannel.push(serialisedResponseJson);
+
+    std::string serializedRequest1;
+    std::string serializedRequest2;
+    EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("body contents for test1"))).Times(1).WillOnce(SaveArg<0>(&serializedRequest2));
+    EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("body contents for test2"))).Times(1).WillOnce(SaveArg<0>(&serializedRequest1)).RetiresOnSaturation();
+    fileSystem->moveFile(source1, requestFilePath1);
+    fileSystem->moveFile(source2, requestFilePath2);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    EXPECT_CALL(mockOthersideApi, notifyOtherSideAndClose());
+
+    // stop the distributor
     distributor.stop();
     handlerThread.join();
+
+    EXPECT_FALSE(fileSystem->isFile(requestFilePath1));
+    EXPECT_FALSE(fileSystem->isFile(requestBodyPath1));
+    EXPECT_FALSE(fileSystem->isFile(requestFilePath2));
+    EXPECT_FALSE(fileSystem->isFile(requestBodyPath2));
 }
