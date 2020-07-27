@@ -16,6 +16,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
+#include <unistd.h>
+
+using namespace unixsocket;
 
 static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
 
@@ -24,7 +28,8 @@ namespace
     class MockScanner : public threat_scanner::IThreatScanner
     {
     public:
-        MOCK_METHOD2(scan, scan_messages::ScanResponse(datatypes::AutoFd&, const std::string&));
+        MOCK_METHOD4(scan, scan_messages::ScanResponse(datatypes::AutoFd&, const std::string&, int64_t,
+            const std::string& userID));
     };
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {
@@ -58,4 +63,30 @@ TEST(TestScanningServerConnectionThread, fail_construction_with_null_factory) //
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     ASSERT_THROW(ScanningServerConnectionThread(fdHolder, nullptr), std::runtime_error);
+}
+
+TEST(TestScanningServerConnectionThread, stop_while_running) //NOLINT
+{
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
+    ASSERT_GE(fdHolder.get(), 0);
+    ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
+    connectionThread.start();
+    struct timespec req{.tv_sec=0, .tv_nsec=500000};
+    nanosleep(&req, nullptr);
+    connectionThread.requestStop();
+    connectionThread.join();
+}
+
+TEST(TestScanningServerConnectionThread, send_zero_length) //NOLINT
+{
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
+    ASSERT_GE(fdHolder.get(), 0);
+    ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
+    connectionThread.start();
+    struct timespec req{.tv_sec=0, .tv_nsec=500000};
+    nanosleep(&req, nullptr);
+    connectionThread.requestStop();
+    connectionThread.join();
 }
