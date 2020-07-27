@@ -100,8 +100,6 @@ TEST(TestFileWalker, excludeDirectory) // NOLINT
     fs::remove_all("sandbox");
 }
 
-
-
 TEST(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
 {
     FakeCallbacks callbacks;
@@ -190,3 +188,4 @@ TEST(TestFileWalker, hugeStartingFilePath) // NOLINT
     traverse_and_delete_huge_directory(startingPath, 35);
     fs::remove_all("TestHugePathFileWalker");
 }
+
