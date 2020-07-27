@@ -53,35 +53,30 @@ namespace CommsComponent
     {
 
     } 
-    void CommsNetwork::operator()(std::shared_ptr<MessageChannel> channel, OtherSideApi & parentProxy)
+    int CommsNetwork::operator()(std::shared_ptr<MessageChannel> channel, IOtherSideApi & parentProxy)
     {
-        try{
-            while(true)
+        while(true)
+        {
+            std::string message; 
+            channel->pop(message); 
+            CommsMsg comms = CommsComponent::CommsMsg::fromString(message);
+            if (std::holds_alternative<Common::HttpSender::RequestConfig>(comms.content))
             {
-                std::string message; 
-                channel->pop(message); 
-                CommsMsg comms = CommsComponent::CommsMsg::fromString(message);
-                if (std::holds_alternative<Common::HttpSender::RequestConfig>(comms.content))
-                {
-                    auto response = m_networkSide->performRequest(std::get<Common::HttpSender::RequestConfig>(comms.content));
-                    comms.content = response; 
-                    parentProxy.pushMessage(CommsMsg::serialize(comms)); 
-                }
-                else if(std::holds_alternative<CommsComponent::CommsConfig>(comms.content))
-                {
-                    auto config = std::get<CommsComponent::CommsConfig>(comms.content);
-                    Common::HttpSenderImpl::ProxySettings proxy; 
-                    proxy.proxy = config.getProxy(); 
-                    proxy.credentials = config.getDeobfuscatedCredential(); 
-                    m_networkSide->setProxy(proxy); 
-                }
-
+                auto response = m_networkSide->performRequest(std::get<Common::HttpSender::RequestConfig>(comms.content));
+                comms.content = response; 
+                parentProxy.pushMessage(CommsMsg::serialize(comms)); 
+            }
+            else if(std::holds_alternative<CommsComponent::CommsConfig>(comms.content))
+            {
+                auto config = std::get<CommsComponent::CommsConfig>(comms.content);
+                Common::HttpSenderImpl::ProxySettings proxy; 
+                proxy.proxy = config.getProxy(); 
+                proxy.credentials = config.getDeobfuscatedCredential(); 
+                m_networkSide->setProxy(proxy); 
             }
 
-        }catch( CommsComponent::ChannelClosedException& )
-        {
-
         }
+        return 0; 
     }
 
 

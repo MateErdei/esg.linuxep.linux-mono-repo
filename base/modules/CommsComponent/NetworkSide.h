@@ -37,6 +37,6 @@ namespace CommsComponent
         std::shared_ptr<NetworkSide> m_networkSide; 
         public: 
         CommsNetwork(); 
-        void operator()(std::shared_ptr<MessageChannel> channel, OtherSideApi & parentProxy);
+        int operator()(std::shared_ptr<MessageChannel> channel, IOtherSideApi & parentProxy);
     };
 }
