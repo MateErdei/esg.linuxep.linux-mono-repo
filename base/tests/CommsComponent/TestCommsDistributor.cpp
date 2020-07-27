@@ -79,20 +79,20 @@ TEST_F(TestCommsDistributor, testDistributorHandlesRequestFilesAndResponses) // 
     messageChannel.push(serialisedResponseJson);
     messageChannel.push(serialisedResponseJson);
 
-    std::string serializedRequest1;
-    std::string serializedRequest2;
-    EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("body contents for test1"))).Times(1).WillOnce(SaveArg<0>(&serializedRequest2));
-    EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("body contents for test2"))).Times(1).WillOnce(SaveArg<0>(&serializedRequest1)).RetiresOnSaturation();
+    Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
+    EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("body contents for test1"))).Times(1).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&) { testExecutionSynchronizer.notify(); }));
+    EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("body contents for test2"))).Times(1).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&) { testExecutionSynchronizer.notify(); }));
     fileSystem->moveFile(source1, requestFilePath1);
     fileSystem->moveFile(source2, requestFilePath2);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     EXPECT_CALL(mockOthersideApi, notifyOtherSideAndClose());
 
+    testExecutionSynchronizer.waitfor();
     // stop the distributor
     distributor.stop();
     handlerThread.join();
 
+    // these files should have been cleaned up by the distributor after being used
     EXPECT_FALSE(fileSystem->isFile(requestFilePath1));
     EXPECT_FALSE(fileSystem->isFile(requestBodyPath1));
     EXPECT_FALSE(fileSystem->isFile(requestFilePath2));

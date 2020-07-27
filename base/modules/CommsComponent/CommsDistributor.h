@@ -11,7 +11,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "MonitorDir.h"
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystem.h>
 
 namespace CommsComponent
 {
@@ -21,7 +20,6 @@ namespace CommsComponent
         CommsDistributor(const std::string& path, const std::string& filter, const std::string& responseDirPath, MessageChannel& channel, IOtherSideApi& childProxy);
         void handleRequestsAndResponses();
         void stop();
-        //void operator()(const std::shared_ptr<MessageChannel>& channel, OtherSideApi &parentProxy);
     private:
 
 
@@ -41,9 +39,8 @@ namespace CommsComponent
         MessageChannel& m_messageChannel;
         IOtherSideApi& m_childProxy;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
-        const std::string m_leadingRequestIdString = "request_";
-        const std::string m_trailingRequestIdString = ".json";
-        const std::string m_leadingRequestBodyString = "request_";
+        const std::string m_leadingRequestFileNameString = "request_";
+        const std::string m_trailingRequestJsonString = ".json";
         const std::string m_trailingRequestBodyString = "_body";
 
 

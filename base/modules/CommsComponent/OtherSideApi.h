@@ -18,11 +18,11 @@ namespace CommsComponent
 
         ~OtherSideApi();
 
-        virtual void pushMessage(const std::string &);
+        void pushMessage(const std::string &) override;
 
-        void notifyOtherSideAndClose();
+        void notifyOtherSideAndClose() override;
 
-        void setNotifyOnClosure(NotifySocketClosed);
+        void setNotifyOnClosure(NotifySocketClosed) override;
 
     private:
         std::unique_ptr<AsyncMessager> m_messager;
