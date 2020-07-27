@@ -26,7 +26,7 @@ using namespace unixsocket;
 
 ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(datatypes::AutoFd& fd,
                                                                            std::shared_ptr<IMessageCallback> callback)
-        : m_fd(fd.release())
+        : m_fd(std::move(fd))
         , m_callback(std::move(callback))
 {
 }
