@@ -25,6 +25,14 @@ void AutoFd::close()
     m_fd = -1;
 }
 
+AutoFd& AutoFd::operator=(AutoFd&& other) noexcept
+{
+    int tempfd = other.m_fd;
+    other.m_fd = m_fd;
+    m_fd = tempfd;
+    return *this;
+}
+
 AutoFd::AutoFd(int fd)
         : m_fd(fd)
 {

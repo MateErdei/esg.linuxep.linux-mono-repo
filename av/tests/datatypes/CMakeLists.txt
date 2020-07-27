@@ -2,6 +2,7 @@ include(GoogleTest)
 
 SophosAddTest(TestDatatypes
         TestTime.cpp
+        TestAutoFD.cpp
         PROJECTS datatypes
         LIBS ${datatypes} rt
         INC_DIRS
