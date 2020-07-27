@@ -17,6 +17,6 @@ TEST(TestAutoFD, equalsOperator) // NOLINT
     fd = AutoFd(2);
     fd2 = AutoFd(3);
 
-    EXPECT_EQ(fd.release(),2);
-    EXPECT_EQ(fd2.release(),3);
+    EXPECT_EQ(fd.get(),2);
+    EXPECT_EQ(fd2.get(),3);
 }
