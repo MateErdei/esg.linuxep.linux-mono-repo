@@ -44,6 +44,7 @@ namespace CommsComponent
 
         MonitorDirListener m_monitorDirListener; 
         std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> m_directoryWatcher;
+        const std::chrono::milliseconds NO_TIMEOUT{-1};
 
         public: 
         MonitorDir(const std::string & directoryPath, const std::string & fileNameContainsFilter); 
@@ -51,7 +52,8 @@ namespace CommsComponent
 
         /* may throw MonitorDirClosedException after stop is issued*/
         std::optional<std::string> next(std::chrono::milliseconds); 
-        void stop(); 
+        std::optional<std::string> next();
+        void stop();
     };
 } // namespace CommsComponent
 

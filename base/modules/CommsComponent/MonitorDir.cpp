@@ -81,4 +81,9 @@ namespace CommsComponent {
         m_monitorDirListener.channel().pushStop();         
     }
 
+    std::optional<std::string> MonitorDir::next()
+    {
+        return next(NO_TIMEOUT);
+    }
+
 } // namespace CommsComponent

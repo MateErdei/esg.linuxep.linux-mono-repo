@@ -9,6 +9,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/FileSystem/IFileSystemException.h>
 
+#include <utility>
+
 #include "Logger.h"
 
 namespace CommsComponent
@@ -45,17 +47,19 @@ namespace CommsComponent
     }
 
     void CommsDistributor::handleRequests()
+    /*
+     * handleRequests requires body files to be created in the monitored directory prior to the request json being
+     * moved in to successfully pick up both together
+     */
     {
         try
         {
             while (true)
             {
-                std::optional<std::string> requestIdOptionalFilename = m_monitorDir.next(std::chrono::milliseconds(-1));
+                std::optional<std::string> requestIdOptionalFilename = m_monitorDir.next();
 
                 if (requestIdOptionalFilename.has_value())
                 {
-
-
                     std::string requestIdBasename = Common::FileSystem::basename(requestIdOptionalFilename.value());
                     LOGINFO("Received a request file with value: " << requestIdOptionalFilename.value());
                     forwardRequest(requestIdBasename);
@@ -113,19 +117,50 @@ namespace CommsComponent
 //        }
     }
 
+    std::string CommsDistributor::getSerializedRequest(const std::string& requestFileContents, const std::string& bodyFileContents, std::string id)
+    {
+        Common::HttpSender::RequestConfig requestConfig = CommsComponent::CommsMsg::requestConfigFromJson(
+                requestFileContents);
+        requestConfig.setData(bodyFileContents);
+        CommsMsg msg;
+        msg.content = requestConfig;
+        msg.id = std::move(id);
+
+        return CommsComponent::CommsMsg::serialize(msg);
+    }
+
+    std::string CommsDistributor::getIdFromRequestBaseName(
+            const std::string& baseName,
+            const std::string& prepender,
+            const std::string& appender)
+    {
+        size_t nameSize = baseName.size();
+        size_t idLength = nameSize - (prepender.size() + appender.size());
+        if (idLength >= nameSize)
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to extract id between: " << prepender << " & " << appender << " from " << baseName;
+            throw std::runtime_error(errorMsg.str());
+        }
+        return baseName.substr(prepender.size(), idLength);
+    }
+
+    std::string CommsDistributor::getExpectedRequestBodyBaseNameFromId(
+            const std::string& id,
+            const std::string& prepender,
+            const std::string& appender)
+    {
+        std::stringstream requestBodyFileName;
+        requestBodyFileName << prepender << id << appender;
+        return requestBodyFileName.str();
+    }
+
     void CommsDistributor::forwardRequest(const std::string& requestBaseName)
     {
-        Path requestIdFilePath;
-        Path requestBodyFilePath;
-
-        size_t nameSize = requestBaseName.size();
-        size_t idLength = nameSize - (m_leadingRequestFileNameString.size() + m_trailingRequestJsonString.size());
-        std::string id = requestBaseName.substr(m_leadingRequestFileNameString.size(), idLength);
-        std::stringstream requestBodyFileName;
-        requestBodyFileName << m_leadingRequestFileNameString << id << m_trailingRequestBodyString;
-
-        requestIdFilePath = Common::FileSystem::join(m_monitorDirPath, requestBaseName);
-        requestBodyFilePath = Common::FileSystem::join(m_monitorDirPath, requestBodyFileName.str());
+        Path requestJsonFilePath = Common::FileSystem::join(m_monitorDirPath, requestBaseName);
+        std::string id = getIdFromRequestBaseName(requestBaseName, m_leadingRequestFileNameString, m_trailingRequestJsonString);
+        std::string requestBodyBaseName = getExpectedRequestBodyBaseNameFromId(id, m_leadingRequestFileNameString, m_trailingRequestBodyString);
+        Path requestBodyFilePath = Common::FileSystem::join(m_monitorDirPath, requestBodyBaseName);
 
         try {
             if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, m_leadingRequestFileNameString) &&
@@ -133,44 +168,49 @@ namespace CommsComponent
             {
                 LOGINFO("Received a request: " << requestBaseName);
 
-                std::string requestFileContents = m_fileSystem->readFile(requestIdFilePath);
+                std::string requestFileContents = m_fileSystem->readFile(requestJsonFilePath);
                 std::string bodyFileContents = m_fileSystem->readFile(requestBodyFilePath);
 
-                Common::HttpSender::RequestConfig requestConfig = CommsComponent::CommsMsg::requestConfigFromJson(
-                        requestFileContents);
-                requestConfig.setData(bodyFileContents);
-                CommsMsg msg;
-                msg.content = requestConfig;
-                msg.id = id;
-
-                std::string serializedRequestMessage = CommsComponent::CommsMsg::serialize(msg);
+                std::string serializedRequestMessage = getSerializedRequest(requestFileContents, bodyFileContents, id);
                 m_childProxy.pushMessage(serializedRequestMessage);
             }
             else
             {
                 LOGDEBUG("Received request: " << requestBaseName << ", that did not match expected format. Discarding.");
             }
+            // attempt to clean up request body here because we cannot guarantee we have calculated it at the end of this function
+            cleanupFile(requestBodyFilePath);
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
             LOGERROR("Failed to forward request: " << requestBaseName << ", Reason: " << exception.what());
         }
-
-        std::array<Path,2> filesToCleanUp = {requestIdFilePath, requestBodyFilePath};
-        for(int i = 0; i < 2; i++)
+        catch (std::runtime_error& exception)
         {
-            try
+            LOGERROR("Failed to forward request: " << requestBaseName << ", Reason: " << exception.what());
+        }
+
+        // attempt to clean up request json
+        cleanupFile(requestJsonFilePath);
+    }
+
+    void CommsDistributor::cleanupFile(const Path& filePath)
+    {
+        try
+        {
+            if (m_fileSystem->isFile(filePath))
             {
-                if (m_fileSystem->isFile(filesToCleanUp[i]))
-                {
-                    LOGDEBUG("Deleting: " << filesToCleanUp[i]);
-                    m_fileSystem->removeFile(filesToCleanUp[i]);
-                }
+                LOGDEBUG("Deleting: " << filePath);
+                m_fileSystem->removeFile(filePath);
             }
-            catch (Common::FileSystem::IFileSystemException& exception)
+            else
             {
-                LOGWARN("Failed to delete: " << filesToCleanUp[i] << ", Reason: " << exception.what());
+                LOGWARN("Could not remove: " << filePath << ", file does not exist");
             }
+        }
+        catch(Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGWARN("Failed to clean up file: " << filePath << ", reason: " << exception.what());
         }
     }
 } // namespace CommsComponent
