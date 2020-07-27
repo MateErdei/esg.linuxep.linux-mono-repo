@@ -34,6 +34,8 @@ ${PORT}        10560
 ${HTTPS_LOG_FILE}     https_server.log
 ${HTTPS_LOG_FILE_PATH}     /tmp/${HTTPS_LOG_FILE}
 ${JAIL_PATH}   /tmp/jail
+${CHILD_JAIL_LOG_PATH}  /tmp/jail/logs/base/logchild.log
+${PARENT_JAIL_LOG_PATH}  /tmp/parent/logs/base/logchild.log
 ${CHILD_LOG_PATH}  /opt/sophos-spl/var/sophos-spl-comms/logs/base/logchild.log
 ${PARENT_LOG_PATH}  /opt/sophos-spl/logs/base/sophosspl/logparent.log
 ${PROXY_LOG_PATH}  ./tmp/proxy_server.log
@@ -102,6 +104,17 @@ Test RunHttpRequest with Jail can perform a GET request with pinned Certificate
     Run Jailed Https Request
     ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1Jail}  httpCode=200
     Should Contain   ${content}   Response From HttpsServer
+
+
+Test RunHttpRequest With Strace to See the Internals Of it
+    Copy File And Set Permissions   ${CERT_PATH}  ${MCS_CERTS_DIR}
+    Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${JAIL_PINNED_CERT_PATH}    
+    ${output}=  Run Shell Process  strace -f ${RunHttpRequestExecutable} -i ${FileNameRequest1} --child-user sophos-spl-network --child-group sophos-spl-group --parent-user sophos-spl-local --parent-group sophos-spl-group --jail-root ${JAIL_PATH} --parent-root /tmp/parent 2> /tmp/fullreport.txt   "Failed to run http request"  200  expectedExitCode=0
+    Set Test Variable  ${RunHttpRequestLog}   ${output}   
+    ${output} =  Run Shell Process  ${RunHttpRequestExecutable} --jail-root ${JAIL_PATH}  "Failed to unmount path"    expectedExitCode=0
+    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1Jail}  httpCode=200
+    Should Contain   ${content}   Response From HttpsServer
+    Fail
 
 
 Test RunHttpRequest with Jail can perform a GET request with pinned Certificate Using Proxy
@@ -175,11 +188,14 @@ Test Setup
 Test Teardown
     Run Keyword If Test Failed  LogUtils.Dump Log  ${FileNameRequest1}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${ExpectedResponse1}
-    Run Keyword If Test Failed  LogUtils.Dump Log    ${ExpectedResponse1}    
+    Run Keyword If Test Failed  LogUtils.Dump Log    ${ExpectedResponse1Jail}    
     Run Keyword If Test Failed  LogUtils.Dump Log    ${HTTPS_LOG_FILE_PATH}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${PARENT_LOG_PATH}
     Run Keyword If Test Failed  LogUtils.Dump Log    ${CHILD_LOG_PATH}
-    Run Keyword If Test Failed  LogUtils.Dump Log    ${PROXY_LOG_PATH}
+    Run Keyword If Test Failed  LogUtils.Dump Log    ${PARENT_JAIL_LOG_PATH}
+    Run Keyword If Test Failed  LogUtils.Dump Log    ${CHILD_JAIL_LOG_PATH}    
+    Run Keyword If Test Failed  LogUtils.Dump Log    ${PROXY_LOG_PATH}    
+    Run Keyword If Test Failed  LogUtils.Dump Log    /tmp/fullreport.txt
     Run Keyword If Test Failed  Log    ${RunHttpRequestLog}
     Remove File   ${FileNameRequest1}
     Remove File   ${ExpectedResponse1}
@@ -189,6 +205,7 @@ Test Teardown
     Stop Proxy Servers
     Stop Proxy If Running
     Verify All Mounts Have Been Removed
+    Run Keyword If Test Failed   Display All files in the Jail
     General Test Teardown
 
 
@@ -239,6 +256,14 @@ Run Jailed Https Request
     Set Test Variable  ${RunHttpRequestLog}   ${output}
     ${output} =  Run Shell Process  ${RunHttpRequestExecutable} --jail-root ${jailPath}  "Failed to unmount path"  5  expectedExitCode=0
     Log   ${output}
+
+Display All files in the Jail
+    ${output}=  Run Shell Process  find ${JAIL_PATH}   "Failed to list file in the jail path"  30  expectedExitCode=0
+    Log  ${output}
+
+    ${output}=  Run Shell Process  find /tmp/parent   "Failed to list file in the parent path"  30  expectedExitCode=0
+    Log  ${output}
+
 
 
 Verify All Mounts Have Been Removed
