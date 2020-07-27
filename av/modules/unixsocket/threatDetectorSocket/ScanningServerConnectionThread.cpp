@@ -22,7 +22,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::AutoFd& fd,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
-    : m_fd(fd.release())
+    : m_fd(std::move(fd))
     , m_scannerFactory(std::move(scannerFactory))
 {
     if (m_fd < 0)

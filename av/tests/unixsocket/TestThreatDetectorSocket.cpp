@@ -55,6 +55,7 @@ TEST(TestScanningServerSocket, test_connect) // NOLINT
     unixsocket::ScanningServerSocket server(path, 0666, scannerFactory);
     server.start();
 
+    // Create client connection
 
     server.requestStop();
     server.join();
