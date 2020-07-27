@@ -8,6 +8,7 @@ add_custom_target(echogTest
         )
 add_subdirectory(avscanner)
 add_subdirectory(commonTest)
+add_subdirectory(datatypes)
 add_subdirectory(FDTransfer)
 add_subdirectory(FileWalkerTest)
 add_subdirectory(manager)

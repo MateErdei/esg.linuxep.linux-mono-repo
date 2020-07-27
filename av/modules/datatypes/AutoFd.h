@@ -15,7 +15,6 @@ namespace datatypes
         AutoFd(const AutoFd&) = delete;
         AutoFd& operator=(const AutoFd&) = delete;
         AutoFd(AutoFd&&) noexcept;
-        AutoFd& operator=(AutoFd&&) noexcept;
 
         ~AutoFd();
 
