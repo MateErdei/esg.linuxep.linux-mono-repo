@@ -168,18 +168,28 @@ namespace CommsComponent
     //throws handle
     std::vector<ReadOnlyMount> CommsConfigurator::getListOfDependenciesToMount()
     {
-        std::vector<ReadOnlyMount> deps{
+        std::vector<ReadOnlyMount> allPossiblePaths{
                 {"/lib",             "lib"},
                 {"/usr/lib",         "usr/lib"},
                 {"/etc/hosts",       "etc/hosts"},
-                {"/etc/resolv.conf", "etc/resolv.conf"}
+                {"/etc/resolv.conf", "etc/resolv.conf"},
+                {"/usr/lib64",       "usr/lib64"}
         };
+
+        std::vector<ReadOnlyMount>  validDeps; 
+        for( auto & dep: allPossiblePaths)
+        {
+            if( Common::FileSystem::fileSystem()->exists(dep.first))
+            {
+                validDeps.emplace_back(dep); 
+            }
+        }
 
         //add default certifcate store path
         auto certStorePath = CommsComponent::getCertificateStorePath();
         if (certStorePath.has_value())
         {
-            deps.emplace_back(std::make_pair(certStorePath.value(), certStorePath->substr(1)));
+            validDeps.emplace_back(std::make_pair(certStorePath.value(), certStorePath->substr(1)));
         }
 
         //add mcs certs folder
@@ -188,10 +198,10 @@ namespace CommsComponent
         auto mcsCertPathSource = Common::FileSystem::join(sophosInstall, "base/mcs/certs");
         if (Common::FileSystem::fileSystem()->isDirectory(mcsCertPathSource))
         {
-            deps.emplace_back(std::make_pair(mcsCertPathSource, "base/mcs/certs"));
+            validDeps.emplace_back(std::make_pair(mcsCertPathSource, "base/mcs/certs"));
         }
 
-        return deps;
+        return validDeps;
     }
 
 

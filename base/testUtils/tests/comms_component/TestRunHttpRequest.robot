@@ -196,6 +196,7 @@ Test Teardown
 Cleanup mounts
     Run Process  umount  ${JAIL_PATH}/etc/hosts
     Run Process  umount  ${JAIL_PATH}/etc/resolv.conf
+    Run Process  umount  ${JAIL_PATH}/usr/lib64
     Run Process  umount  ${JAIL_PATH}/lib
     Run Process  umount  ${JAIL_PATH}/usr/lib
     Run Process  umount  ${JAIL_PATH}/etc/ssl/certs
@@ -243,6 +244,7 @@ Run Jailed Https Request
 Verify All Mounts Have Been Removed
     [Arguments]   ${jailPath}=${JAIL_PATH}
     Check Not A MountPoint  ${jailPath}/etc/resolv.conf
+    Check Not A MountPoint  ${jailPath}/usr/lib64
     Check Not A MountPoint  ${jailPath}/etc/hosts
     Check Not A MountPoint  ${jailPath}/usr/lib
     Check Not A MountPoint  ${jailPath}/lib
