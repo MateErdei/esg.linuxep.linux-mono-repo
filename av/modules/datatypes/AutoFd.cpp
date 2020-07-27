@@ -26,7 +26,7 @@ void AutoFd::close()
 }
 
 
-AutoFd::AutoFd(int fd)
+AutoFd::AutoFd(int fd) noexcept
         : m_fd(fd)
 {
 }
