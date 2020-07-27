@@ -13,16 +13,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace CommsComponent
 {
-//    void CommsDistributor::operator()(const std::shared_ptr<MessageChannel>& channel, OtherSideApi &parentProxy)
-//    {
-////        run_thread_that_moves_data_from_the_MessageChannel_to_response(channel);
-////        auto mesagequeue = createMessagequeue();
-////        run_thread_that_move_request_from_the_queue_to_other_side(mesagequeue, parentProxy);
-//        // if shutdown received, close the two threads
-//
-//
-//
-//    }
 
     CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, const std::string& responseDirPath, MessageChannel& messageChannel, IOtherSideApi& childProxy) :
         m_monitorDir(dirPath,positiveFilter),
