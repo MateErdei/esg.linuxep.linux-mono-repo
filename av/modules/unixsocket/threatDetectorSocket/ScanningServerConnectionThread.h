@@ -28,7 +28,7 @@ namespace unixsocket
         ScanningServerConnectionThread(const ScanningServerConnectionThread&) = delete;
         ScanningServerConnectionThread& operator=(const ScanningServerConnectionThread&) = delete;
         explicit ScanningServerConnectionThread(
-                int fd,
+                datatypes::AutoFd& fd,
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory);
         void run() override;
 

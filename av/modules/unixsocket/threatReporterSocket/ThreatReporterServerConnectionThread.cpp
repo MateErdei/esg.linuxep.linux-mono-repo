@@ -24,9 +24,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace unixsocket;
 
-ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(int fd,
+ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(datatypes::AutoFd& fd,
                                                                            std::shared_ptr<IMessageCallback> callback)
-        : m_fd(fd)
+        : m_fd(fd.release())
         , m_callback(std::move(callback))
 {
 }

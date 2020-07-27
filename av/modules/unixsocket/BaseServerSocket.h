@@ -39,7 +39,7 @@ namespace unixsocket
          * @return True if we should terminate.
          */
 
-        virtual bool handleConnection(int fd) = 0;
+        virtual bool handleConnection(datatypes::AutoFd& fd) = 0;
         virtual void killThreads() = 0;
 
         datatypes::AutoFd m_socket_fd;
@@ -55,9 +55,9 @@ namespace unixsocket
     protected:
         using TPtr = std::unique_ptr<T>;
 
-        virtual TPtr makeThread(int fd) = 0;
+        virtual TPtr makeThread(datatypes::AutoFd& fd) = 0;
 
-        bool handleConnection(int fd) override
+        bool handleConnection(datatypes::AutoFd& fd) override
         {
             // first, tidy up any stale threads
             for (auto it = m_threadVector.begin(); it != m_threadVector.end(); )

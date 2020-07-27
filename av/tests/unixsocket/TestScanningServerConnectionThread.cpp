@@ -13,11 +13,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
 
 namespace
 {
-
     class MockScanner : public threat_scanner::IThreatScanner
     {
     public:
@@ -35,18 +38,24 @@ using namespace ::testing;
 TEST(TestScanningServerConnectionThread, successful_construction) //NOLINT
 {
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    EXPECT_NO_THROW(unixsocket::ScanningServerConnectionThread connectionThread(2, scannerFactory));
+    datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
+    ASSERT_GE(fdHolder.get(), 0);
+    EXPECT_NO_THROW(unixsocket::ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory));
 }
 
 TEST(TestScanningServerConnectionThread, fail_construction_with_bad_fd) //NOLINT
 {
     using namespace unixsocket;
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    ASSERT_THROW(ScanningServerConnectionThread(-1, scannerFactory), std::runtime_error);
+    datatypes::AutoFd fdHolder;
+    ASSERT_EQ(fdHolder.get(), -1);
+    ASSERT_THROW(ScanningServerConnectionThread(fdHolder, scannerFactory), std::runtime_error);
 }
 
 TEST(TestScanningServerConnectionThread, fail_construction_with_null_factory) //NOLINT
 {
     using namespace unixsocket;
-    ASSERT_THROW(ScanningServerConnectionThread(2, nullptr), std::runtime_error);
+    datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
+    ASSERT_GE(fdHolder.get(), 0);
+    ASSERT_THROW(ScanningServerConnectionThread(fdHolder, nullptr), std::runtime_error);
 }

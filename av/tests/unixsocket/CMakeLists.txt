@@ -29,8 +29,7 @@ SophosAddTest(TestThreatDetectorSocket
         TestScanningServerConnectionThread.cpp
         TestThreatDetectorSocket.cpp
         PROJECTS unixsocket
-        INC_DIRS
-        ${CMAKE_SOURCE_DIR}/modules
+        INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
         )
 SET_TARGET_PROPERTIES(TestThreatDetectorSocket
         PROPERTIES

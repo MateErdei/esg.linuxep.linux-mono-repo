@@ -9,6 +9,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
+#include "tests/common/WaitForEvent.h"
+
 #include <memory>
 
 namespace
@@ -34,3 +36,27 @@ TEST(TestScanningServerSocket, test_construction) //NOLINT
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     EXPECT_NO_THROW(unixsocket::ScanningServerSocket server(path, 0666, scannerFactory));
 }
+
+TEST(TestScanningServerSocket, test_running) // NOLINT
+{
+    std::string path = "TestThreatDetectorSocket_socket_test_running";
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    unixsocket::ScanningServerSocket server(path, 0666, scannerFactory);
+    server.start();
+    server.requestStop();
+    server.join();
+}
+
+TEST(TestScanningServerSocket, test_connect) // NOLINT
+{
+    WaitForEvent serverWaitGuard;
+    std::string path = "TestThreatDetectorSocket_socket_test_running";
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    unixsocket::ScanningServerSocket server(path, 0666, scannerFactory);
+    server.start();
+
+
+    server.requestStop();
+    server.join();
+}
+

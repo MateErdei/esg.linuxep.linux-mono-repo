@@ -20,9 +20,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
-        int fd,
+        datatypes::AutoFd& fd,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
-    : m_fd(fd)
+    : m_fd(fd.release())
     , m_scannerFactory(std::move(scannerFactory))
 {
     if (m_fd < 0)

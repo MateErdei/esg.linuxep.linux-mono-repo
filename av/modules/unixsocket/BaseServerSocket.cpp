@@ -117,16 +117,18 @@ void unixsocket::BaseServerSocket::run()
 
         if(fd_isset(m_socket_fd, &tempRead))
         {
-            int socket = ::accept(m_socket_fd, nullptr, nullptr);
+            datatypes::AutoFd client_socket(
+                ::accept(m_socket_fd, nullptr, nullptr)
+            );
 
-            if (socket < 0)
+            if (client_socket.get() < 0)
             {
                 perror("Failed to accept connection");
                 terminate = true;
             }
             else
             {
-                terminate = handleConnection(socket);
+                terminate = handleConnection(client_socket);
             }
         }
     }

@@ -19,7 +19,7 @@ namespace unixsocket
         ThreatReporterServerSocket(const std::string& path, const mode_t mode, std::shared_ptr<IMessageCallback> callback);
 
     protected:
-        TPtr makeThread(int fd) override
+        TPtr makeThread(datatypes::AutoFd& fd) override
         {
             return std::make_unique<ThreatReporterServerConnectionThread>(fd, m_callback);
         }

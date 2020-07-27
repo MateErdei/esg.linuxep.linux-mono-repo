@@ -23,7 +23,7 @@ namespace unixsocket
                 );
     protected:
 
-        TPtr makeThread(int fd) override
+        TPtr makeThread(datatypes::AutoFd& fd) override
         {
             return std::make_unique<ScanningServerConnectionThread>(fd, m_scannerFactory);
         }
