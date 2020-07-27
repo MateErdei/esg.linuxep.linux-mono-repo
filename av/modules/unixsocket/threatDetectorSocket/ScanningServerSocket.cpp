@@ -17,3 +17,9 @@ unixsocket::ScanningServerSocket::ScanningServerSocket(
         throw std::runtime_error("Attempting to create ScanningServerSocket without scanner factory");
     }
 }
+unixsocket::ScanningServerSocket::~ScanningServerSocket()
+{
+    // Need to do this before our members are destroyed
+    requestStop();
+    join();
+}

@@ -21,6 +21,7 @@ namespace unixsocket
                 const std::string& path, const mode_t mode,
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
                 );
+        virtual ~ScanningServerSocket();
     protected:
 
         TPtr makeThread(datatypes::AutoFd& fd) override

@@ -11,6 +11,17 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <fcntl.h>
 #include <datatypes/Print.h>
 
+static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int file_fd, const std::string& filename)
+{
+    datatypes::AutoFd fd(file_fd);
+    scan_messages::ClientScanRequest request;
+    request.setPath(filename);
+    request.setScanInsideArchives(false);
+    request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    request.setUserID(0);
+    return socket.scan(fd, request);
+}
+
 int main(int argc, char* argv[])
 {
     std::string filename = "/etc/fstab";
@@ -24,8 +35,7 @@ int main(int argc, char* argv[])
 
     const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
     unixsocket::ScanningClientSocket socket(path);
-    auto response = socket.scan(file_fd, filename); // takes ownership of file_fd
-    static_cast<void>(response);
+    auto response = scan(socket, file_fd, filename); // takes ownership of file_fd
 
     if (response.clean())
     {

@@ -79,29 +79,6 @@ void send_fd(int socket, int fd)  // send fd by socket
     }
 }
 
-
-scan_messages::ScanResponse unixsocket::ScanningClientSocket::scan(int file_fd, const std::string& filename)
-{
-    datatypes::AutoFd fd(file_fd);
-    return scan(fd, filename);
-}
-
-scan_messages::ScanResponse
-unixsocket::ScanningClientSocket::scan(
-    datatypes::AutoFd& fd,
-    const std::string& file_path,
-    bool scanInsideArchives,
-    scan_messages::E_SCAN_TYPE scanType,
-    const std::string& userID)
-{
-    scan_messages::ClientScanRequest request;
-    request.setPath(file_path);
-    request.setScanInsideArchives(scanInsideArchives);
-    request.setScanType(scanType);
-    request.setUserID(userID);
-    return scan(fd, request);
-}
-
 scan_messages::ScanResponse
 unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request)
 {
