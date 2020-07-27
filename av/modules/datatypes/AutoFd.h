@@ -11,7 +11,7 @@ namespace datatypes
     class AutoFd
     {
     public:
-        explicit AutoFd(int fd=-1);
+        explicit AutoFd(int fd=-1) noexcept;
         AutoFd(const AutoFd&) = delete;
         AutoFd& operator=(const AutoFd&) = delete;
         AutoFd(AutoFd&&) noexcept;
