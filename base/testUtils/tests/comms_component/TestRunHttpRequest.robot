@@ -114,7 +114,6 @@ Test RunHttpRequest With Strace to See the Internals Of it
     ${output} =  Run Shell Process  ${RunHttpRequestExecutable} --jail-root ${JAIL_PATH}  "Failed to unmount path"    expectedExitCode=0
     ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1Jail}  httpCode=200
     Should Contain   ${content}   Response From HttpsServer
-    Fail
 
 
 Test RunHttpRequest with Jail can perform a GET request with pinned Certificate Using Proxy
