@@ -178,26 +178,45 @@ class FakePlugin(object):
     def handle_do_action(self, message):
         self.logger.info("Received do action: {}".format(message))
         if len(message.contents) < 1:
+            error_msg = "No filename for action"
+            self.logger.error(error_msg)
+            message.set_error_with_payload(error_msg)
+            self.send_reply_to_management_agent(message)
+            return
+        filepath = os.path.join("/opt/sophos-spl/base/mcs/action", message.contents[0].decode())
+        with open(filepath, 'r') as f:
+            content = f.read()
+        if len(content) < 1:
             error_msg = "No contents set in do action message"
             self.logger.error(error_msg)
             message.set_error_with_payload(error_msg)
             self.send_reply_to_management_agent(message)
             return
-        self.set_action(message.contents[0])
+        self.set_action(content)
         message.set_ack()
+        message.contents = [self.get_action()]
         self.send_reply_to_management_agent(message)
 
     def handle_apply_policy(self, message):
         self.logger.info("Received apply policy: {}".format(message))
         if len(message.contents) < 1:
+            error_msg = "No filename for policy"
+            self.logger.error(error_msg)
+            message.set_error_with_payload(error_msg)
+            self.send_reply_to_management_agent(message)
+            return
+        filepath = os.path.join("/opt/sophos-spl/base/mcs/policy", message.contents[0].decode())
+        with open(filepath, 'r') as f:
+            content = f.read()
+        if len(content) < 1:
             error_msg = "No contents set in apply policy message"
             self.logger.error(error_msg)
             message.set_error_with_payload(error_msg)
             self.send_reply_to_management_agent(message)
             return
-        policy = message.contents[0]
-        self.set_policy(policy)
+        self.set_policy(content)
         message.set_ack()
+        message.contents = [self.get_policy()]
         self.send_reply_to_management_agent(message)
 
     def handle_request_status(self, message):

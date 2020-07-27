@@ -190,7 +190,8 @@ class Computer:
                 try:
                     full_action_file_path = os.path.join(path_manager.action_dir(), old_action_file)
                     if os.path.isfile(full_action_file_path):
-                        if os.stat(full_action_file_path).st_mtime < datetime.datetime.now() - 60 * 60:
+                        one_hour_ago = int(datetime.datetime.now().strftime('%s')) - 60 * 60
+                        if os.stat(full_action_file_path).st_mtime < one_hour_ago:
                             os.remove(full_action_file_path)
                 except OSError as ex:
                     LOGGER.warning("Failed to remove a action file: {}. Reason: {}".format(old_action_file, ex))
