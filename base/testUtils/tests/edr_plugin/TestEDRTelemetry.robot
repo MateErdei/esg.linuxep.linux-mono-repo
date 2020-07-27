@@ -126,7 +126,7 @@ EDR Plugin Counts Osquery Database Purges
     ${file_number} =  Count Files In Directory  /opt/sophos-spl/plugins/edr/var/osquery.db/
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  1  0  0  ignore_cpu_restarts=True  ignore_memory_restarts=True
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  1  0  0  ignore_cpu_restarts=True  ignore_memory_restarts=True
 
 *** Keywords ***
 EDR Telemetry Suite Setup
