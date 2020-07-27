@@ -186,7 +186,7 @@ class Computer:
             # actions are no longer removed when processed by the management agent.
             # clean-up previous actions which are older than one hour,
             # this should give them enough time to be processed.
-            for old_action_file in os.listdir(path_manager.action_dir):
+            for old_action_file in os.listdir(path_manager.action_dir()):
                 try:
                     full_action_file_path = os.path.join(path_manager.action_dir(), old_action_file)
                     if os.path.isfile(full_action_file_path):
