@@ -17,13 +17,16 @@ plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(soph
 {
     if (m_scanner_path.empty())
     {
+        LOGWARN("scanner_path is empty... Attempting to load default configuration");
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        m_scanner_path = appConfig.getData("SCANNER_PATH"); // throws exception if SCANNER_PATH not specified
-    }
-
-    if (m_scanner_path.empty())
-    {
-        throw std::runtime_error("SCANNER_PATH is empty in arguments/configuration");
+        try
+        {
+            m_scanner_path = appConfig.getData("SCANNER_PATH"); // throws exception if SCANNER_PATH not specified
+        }
+        catch (std::exception& e)
+        {
+            throw std::runtime_error("SCANNER_PATH is empty in arguments/configuration");
+        }
     }
 
     if (! fs::is_regular_file(m_scanner_path))
@@ -94,11 +97,12 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
             restartBackoff.tv_sec += 1;
         }
     }
+
+    LOGINFO("Exiting sophos_thread_detector monitor");
+
     process->kill();
     process->waitUntilProcessEnds();
     process.reset();
-
-    LOGINFO("Exiting sophos_thread_detector monitor");
 }
 
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::subprocess_exited()
