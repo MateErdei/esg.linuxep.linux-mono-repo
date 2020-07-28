@@ -24,8 +24,16 @@ namespace CommsComponent {
         }; 
 
         CommsNetwork commsNetwork; 
-        //CommsConfigurator configurator{CommsConfigurator::chrootPathForSSPL(sophosInstall), sophos::networkUser(), sophos::localUser(), CommsConfigurator::getListOfDependenciesToMount()};
-        //return splitProcessesReactors(commnsProcess, std::move(commsNetwork), configurator ); 
-        return splitProcessesReactors(commnsProcess, std::move(commsNetwork) ); 
+        UserConf childUser; 
+        UserConf parentUser;
+        childUser.logName="comms-network"; 
+        childUser.userName = sophos::networkUser(); 
+        childUser.userGroup = sophos::localGroup(); 
+        
+        parentUser.logName = "comms_component"; 
+        parentUser.userName = sophos::localUser(); 
+        parentUser.userGroup = sophos::localUser(); 
+        CommsConfigurator configurator{CommsConfigurator::chrootPathForSSPL(sophosInstall), childUser, parentUser, CommsConfigurator::getListOfDependenciesToMount()};
+        return splitProcessesReactors(commnsProcess, std::move(commsNetwork), configurator ); 
     }
 } // namespace CommsComponent
