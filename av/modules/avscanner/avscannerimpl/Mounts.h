@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IMountInfo.h"
+#include "SystemPaths.h"
 
 #include <memory>
 
@@ -66,7 +67,7 @@ namespace avscanner::avscannerimpl
         /**
          * constructor
          */
-        Mounts();
+        Mounts(std::shared_ptr<ISystemPaths> systemPaths = std::make_shared<SystemPaths>());
 
         /**
          * destructor
@@ -90,7 +91,7 @@ namespace avscanner::avscannerimpl
          * @param path    Command to run
          * @param args    arguments.
          */
-        static std::string scrape(const std::string& path, const std::vector<std::string>& args);
+        std::string scrape(const std::string& path, const std::vector<std::string>& args);
 
         /**
          * Iterator for the list of mount points.
@@ -98,6 +99,7 @@ namespace avscanner::avscannerimpl
         std::vector<std::shared_ptr<IMountPoint> > mountPoints() override;
 
     private:
+        std::shared_ptr<ISystemPaths> m_systemPaths;
         std::vector<std::shared_ptr<IMountPoint> > m_devices;
 
         /**
@@ -105,18 +107,18 @@ namespace avscanner::avscannerimpl
          * @param device    a line from /proc/mounts.
          *
          */
-        static std::string realMountPoint(const std::string& device);
+        std::string realMountPoint(const std::string& device);
 
         /**
          * Use mount -f -n -v to determine the real mount point if the
          * device begins with 'LABEL=' or 'UUID='.
          */
-        static std::string fixDeviceWithMount(const std::string& device);
+        std::string fixDeviceWithMount(const std::string& device);
 
         /**
          * Parse one line of /proc/mounts on Linux.
          */
-        static bool parseLinuxProcMountsLine(const std::string& line, std::string& device, std::string& mountpoint,
+        bool parseLinuxProcMountsLine(const std::string& line, std::string& device, std::string& mountpoint,
                                              std::string& filesystem);
 
         /**

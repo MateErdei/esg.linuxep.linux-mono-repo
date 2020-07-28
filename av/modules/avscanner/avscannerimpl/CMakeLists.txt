@@ -14,6 +14,7 @@ add_library(avscannerimpl SHARED
         IMountInfo.h
         IMountPoint.h
         IRunner.h
+        ISystemPaths.h
         Mounts.cpp
         Mounts.h
         NamedScanConfig.cpp
@@ -26,7 +27,7 @@ add_library(avscannerimpl SHARED
         PathUtils.h
         ScanClient.cpp
         ScanClient.h
-        )
+        SystemPaths.h)
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)

@@ -121,6 +121,11 @@ TEST(Exclusion, TestGlobTypes) // NOLINT
     EXPECT_TRUE(regexMetaCharExcl.appliesToPath("/tmp/regex[^\\\\]+$filename"));
     EXPECT_TRUE(regexMetaCharExcl.appliesToPath("/tmp/regex[^\\\\]+$filename.txt"));
     EXPECT_FALSE(regexMetaCharExcl.appliesToPath("/tmp/regex[^\\\\+$filename.txt"));
+
+    Exclusion regexMetaCharExcl2("/tmp/(e|E)ic{2,3}ar*");
+    EXPECT_EQ(regexMetaCharExcl2.type(), GLOB);
+    EXPECT_EQ(regexMetaCharExcl2.path(), "/tmp/(e|E)ic{2,3}ar*");
+    EXPECT_TRUE(regexMetaCharExcl2.appliesToPath("/tmp/(e|E)ic{2,3}ar.com"));
 }
 
 TEST(Exclusion, TestFilenameTypes) // NOLINT
@@ -195,11 +200,9 @@ TEST(Exclusion, TestRelativeGlobTypes) // NOLINT
 
 }
 
-
-    TEST(Exclusion, TestInvalidTypes) // NOLINT
+TEST(Exclusion, TestInvalidTypes) // NOLINT
 {
     Exclusion invalidExcl("");
     EXPECT_EQ(invalidExcl.type(), INVALID);
     EXPECT_FALSE(invalidExcl.appliesToPath("/tmp/foo.txt"));
-
 }

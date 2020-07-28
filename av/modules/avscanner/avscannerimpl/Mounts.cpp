@@ -73,7 +73,8 @@ std::string octalUnescape(const std::string& input)
 /**
  * constructor
  */
-Mounts::Mounts()
+Mounts::Mounts(std::shared_ptr<ISystemPaths> systemPaths)
+: m_systemPaths(systemPaths)
 {
     parseProcMounts();
 }
@@ -83,7 +84,7 @@ Mounts::Mounts()
  */
 void Mounts::parseProcMounts()
 {
-    std::ifstream mountstream("/proc/mounts");
+    std::ifstream mountstream(m_systemPaths->mountInfoFilePath());
     std::string line;
 
 
@@ -246,7 +247,8 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                             if (bytes > 0)
                             {
-                                result.append(buf, bytes);
+                                // remove trailing newline
+                                result.append(buf, bytes-1);
                             }
                         } while (waitpid(child, &status, WNOHANG) != child);
 
@@ -293,7 +295,7 @@ std::string Mounts::realMountPoint(const std::string& device)
         if (device == "/dev/root" || device == "rootfs")
         {
             // SPECIAL CASE
-            std::ifstream cmdlinestream("/proc/cmdline");
+            std::ifstream cmdlinestream(m_systemPaths->cmdlineInfoFilePath());
             std::string entry;
 
             while (!cmdlinestream.eof())
@@ -350,7 +352,7 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
             args.push_back(device);
 
             // result is "" if findfs doesn't exist.
-            result = Mounts::scrape("/sbin/findfs", args);
+            result = Mounts::scrape(m_systemPaths->findfsCmdPath(), args);
 
             if (result.empty())
             {
@@ -369,7 +371,7 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
                 args.emplace_back("/");
 
 
-                std::string output = Mounts::scrape("/bin/mount", args);
+                std::string output = Mounts::scrape(m_systemPaths->mountCmdPath(), args);
                 // output is probably going to be "" if user is not root.  But
                 // its worth a shot.
                 if (output.empty())
