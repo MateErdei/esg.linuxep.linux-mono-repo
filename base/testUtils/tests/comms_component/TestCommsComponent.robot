@@ -16,7 +16,6 @@ Test Comms Component Starts
     Require Installed
     File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
     Check Watchdog Starts Comms Component
-    Fail
 
 
 *** Keywords ***
