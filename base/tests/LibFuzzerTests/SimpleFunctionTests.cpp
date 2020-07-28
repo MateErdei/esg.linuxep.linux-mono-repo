@@ -16,6 +16,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "google/protobuf/text_format.h"
 #include <modules/Common/UtilityImpl/StringUtils.h>
 #include <modules/Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/Logging/LoggerConfig.h>
+
 #include <simplefunction.pb.h>
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
@@ -267,6 +270,11 @@ void verifyTelemetryConfig(const std::string & input)
     }
 }
 
+class LogConf{
+    public: 
+    LogConf(): m_consoleSetup{Common::Logging::LOGOFFFORTEST()}{}
+    Common::Logging::ConsoleLoggingSetup m_consoleSetup;
+};
 
 #ifdef HasLibFuzzer
 DEFINE_PROTO_FUZZER(const SimpleFunctionProto::TestCase& testCase)
@@ -275,7 +283,7 @@ DEFINE_PROTO_FUZZER(const SimpleFunctionProto::TestCase& testCase)
 void mainTest(const SimpleFunctionProto::TestCase& testCase)
 {
 #endif
-
+    static LogConf logconf;
     switch (testCase.functiontarget())
     {
         case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_enforceUTF8:

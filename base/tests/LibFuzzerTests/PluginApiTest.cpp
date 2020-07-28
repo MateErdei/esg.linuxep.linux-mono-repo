@@ -10,6 +10,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "google/protobuf/text_format.h"
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/Logging/LoggerConfig.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <modules/Common/FileSystem/IFileSystem.h>
@@ -118,7 +119,7 @@ public:
     ~DummyPluginRunner()
     {}
 
-    DummyPluginRunner() : Runner()
+    DummyPluginRunner() : Runner(), m_consoleSetup{Common::Logging::LOGOFFFORTEST()}
     {
         ScopedFilePermission scopedFilePermission;
 
@@ -206,6 +207,7 @@ public:
     bool dummyPluginRunning() { return threadRunning(); }
 
 private:
+    Common::Logging::ConsoleLoggingSetup m_consoleSetup;
     Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr;
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
 };

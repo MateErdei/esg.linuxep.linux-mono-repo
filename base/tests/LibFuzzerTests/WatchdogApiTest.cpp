@@ -251,7 +251,7 @@ void setupTestFiles(Tests::TempDir& tempdir)
 class WatchdogRunner : public Runner
 {
 public:
-    WatchdogRunner() : Runner(), m_tempdir{ "/tmp" }
+    WatchdogRunner() : Runner(), m_consoleSetup{Common::Logging::LOGOFFFORTEST()}, m_tempdir{ "/tmp" }
     {
         m_contextPtr = Common::ZMQWrapperApi::createContext();
         setupTestFiles(m_tempdir);
@@ -391,6 +391,7 @@ public:
     bool managemementAgentRunning() { return threadRunning(); }
 
 private:
+    Common::Logging::ConsoleLoggingSetup m_consoleSetup;
     Tests::TempDir m_tempdir;
     Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr;
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
