@@ -83,8 +83,9 @@ namespace CommsComponent
         std::thread responseThread(&CommsDistributor::handleResponses, this);
         std::thread requestThread(&CommsDistributor::handleRequests, this);
 
-        requestThread.join();
         responseThread.join();
+        stop(); 
+        requestThread.join();
 
     }
 

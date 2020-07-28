@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "AsyncMessager.h"
 #include "Logger.h"
 #include "OtherSideApi.h"
-#include <modules/Common/Logging/FileLoggingSetup.h>
+#include <Common/Logging/FileLoggingSetup.h>
 #include <log4cplus/logger.h>
 #include <functional>
 #include <unistd.h>
@@ -118,7 +118,7 @@ namespace CommsComponent
         else
         {
             io_service.notify_fork(boost::asio::io_context::fork_parent);
-            boost::asio::signal_set signalSet{io_service, SIGCHLD};
+            boost::asio::signal_set signalSet{io_service, SIGCHLD, SIGTERM, SIGINT};
 
             childChannel->justShutdownSocket();
             OtherSideApi childService(std::move(parentChannel));

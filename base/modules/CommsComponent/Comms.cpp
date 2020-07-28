@@ -3,35 +3,29 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "Logger.h"
-#include <Common/Logging/FileLoggingSetup.h>
-#include <thread>
-#include <csignal>
-
-bool stop = false;
-namespace
-{
-    void s_signal_handler(int)
-    {
-        LOGSUPPORT("Handling signal");
-        stop = true;
-    }
-
-} // namespace
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/ProjectNames.h>
+#include "SplitProcesses.h"
+#include "ReactorAdapter.h"
+#include "NetworkSide.h"
+#include "CommsDistributor.h"
+#include "Configurator.h"
 
 namespace CommsComponent {
-    int main_entry() {
-        Common::Logging::FileLoggingSetup loggerSetup("comms_component");
-        LOGINFO("Started Comms Component");
-        while (!stop) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            struct sigaction action;
-            action.sa_handler = s_signal_handler;
-            action.sa_flags = 0;
-            sigemptyset(&action.sa_mask);
-            sigaction(SIGINT, &action, NULL);
-            sigaction(SIGTERM, &action, NULL);
-        }
-        return 0;
+
+    int main_entry() {        
+        std::string sophosInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall(); 
+
+        auto commnsProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi & api){
+            CommsDistributor distributor{ Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath(), "",
+                Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath(), *channel, api}; 
+            distributor.handleRequestsAndResponses(); 
+            return 0; 
+        }; 
+
+        CommsNetwork commsNetwork; 
+        //CommsConfigurator configurator{CommsConfigurator::chrootPathForSSPL(sophosInstall), sophos::networkUser(), sophos::localUser(), CommsConfigurator::getListOfDependenciesToMount()};
+        //return splitProcessesReactors(commnsProcess, std::move(commsNetwork), configurator ); 
+        return splitProcessesReactors(commnsProcess, std::move(commsNetwork) ); 
     }
 } // namespace CommsComponent
