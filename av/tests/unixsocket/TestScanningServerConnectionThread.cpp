@@ -101,7 +101,7 @@ TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
-    wait_for_log(expected);
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -120,7 +120,7 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
-    wait_for_log(expected);
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -141,7 +141,7 @@ TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
-    wait_for_log(expected);
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
