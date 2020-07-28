@@ -81,11 +81,13 @@ TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
+    EXPECT_FALSE(connectionThread.isRunning());
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     // No waiting...
     connectionThread.requestStop();
     connectionThread.join();
+    EXPECT_FALSE(connectionThread.isRunning());
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(appenderContains(expected));
