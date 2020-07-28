@@ -165,3 +165,15 @@ TEST(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
     int ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -1);
 }
+
+TEST(TestSocketUtils, environmentInterruptionReportsWhat) // NOLINT
+{
+    try
+    {
+        throw unixsocket::environmentInterruption();
+    }
+    catch (const unixsocket::environmentInterruption& ex)
+    {
+        EXPECT_EQ(ex.what(), "Environment interruption");
+    }
+}

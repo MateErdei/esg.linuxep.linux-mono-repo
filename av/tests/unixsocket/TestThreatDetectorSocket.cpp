@@ -97,15 +97,3 @@ TEST(TestThreatDetectorSocket, test_scan) // NOLINT
     testing::Mock::VerifyAndClearExpectations(scannerFactory.get());
 
 }
-
-TEST(TestSocketUtils, environmentInterruptionReportsWhat) // NOLINT
-{
-    try
-    {
-        throw unixsocket::environmentInterruption();
-    }
-    catch (const unixsocket::environmentInterruption& ex)
-    {
-        EXPECT_EQ(ex.what(), "Environment interruption");
-    }
-}
