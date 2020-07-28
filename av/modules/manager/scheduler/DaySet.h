@@ -38,7 +38,7 @@ namespace manager::scheduler
         }
         void sort();
 
-        int getNextDay(struct tm now, bool forceTomorrow) const;
+        int getNextScanTimeDelta(struct tm now, bool forceTomorrow) const;
 
         [[nodiscard]] std::string str() const;
 

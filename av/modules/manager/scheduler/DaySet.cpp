@@ -104,7 +104,7 @@ void DaySet::sort()
     std::sort(m_days.begin(), m_days.end());
 }
 
-int DaySet::getNextDay(struct tm now, bool forceTomorrow) const
+int DaySet::getNextScanTimeDelta(struct tm now, bool forceTomorrow) const
 {
     for (const auto& day : m_days)
     {

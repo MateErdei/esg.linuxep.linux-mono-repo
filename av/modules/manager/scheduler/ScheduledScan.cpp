@@ -137,7 +137,7 @@ time_t ScheduledScan::calculateNextTime(time_t now) const
     static_cast<void>(nextTime);
 
     // Now we need to work out which day
-    auto nextDayDelta = m_days.getNextDay(now_struct, forceTomorrow);
+    auto nextDayDelta = m_days.getNextScanTimeDelta(now_struct, forceTomorrow);
 
     if (nextDayDelta > 0)
     {
