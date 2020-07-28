@@ -134,15 +134,18 @@ namespace CommsComponent
             const std::string& prepender,
             const std::string& appender)
     {
-        size_t nameSize = baseName.size();
-        size_t idLength = nameSize - (prepender.size() + appender.size());
-        if (idLength >= nameSize)
+        int nameSize = baseName.size();
+        int prependerSize = prepender.size();
+        int appenderSize = appender.size();
+        int idLength = nameSize - (prependerSize + appenderSize);
+
+        if (idLength <= 0)
         {
             std::stringstream errorMsg;
             errorMsg << "Failed to extract id between: " << prepender << " & " << appender << " from " << baseName;
             throw std::runtime_error(errorMsg.str());
         }
-        return baseName.substr(prepender.size(), idLength);
+        return baseName.substr(prependerSize, idLength);
     }
 
     std::string CommsDistributor::getExpectedRequestBodyBaseNameFromId(
