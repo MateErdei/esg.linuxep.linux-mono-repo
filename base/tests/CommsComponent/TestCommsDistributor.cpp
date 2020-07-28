@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/CommsComponent/CommsMsg.h>
 #include "CommsComponent/CommsDistributor.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "CommsMsgUtils.h"
 
 class TestCommsDistributor : public LogInitializedTests
 {};
@@ -181,4 +182,30 @@ TEST_F(TestCommsDistributor, testGetIdFromRequestBaseName)
     EXPECT_THROW(
             CommsComponent::CommsDistributor::getIdFromRequestBaseName(baseName, prepender, appender),
             std::runtime_error);
+}
+
+TEST_F(TestCommsDistributor, testGetSerializedRequest)
+{
+    std::string requestContents = R"({
+ "requestType": "POST",
+ "server": "domain.com",
+ "resourcePath": "/index.html",
+ "port": "335",
+ "certPath" : "certPath1",
+ "headers": [
+  "header1",
+  "header2"
+ ]
+})";
+
+    Common::HttpSender::RequestConfig expectedRequest = CommsComponent::CommsMsg::requestConfigFromJson(requestContents);
+    std::string bodyContents = "body contents";
+    expectedRequest.setData(bodyContents);
+    std::string id = "test";
+    std::string serializedRequest = CommsComponent::CommsDistributor::getSerializedRequest(requestContents, bodyContents, id);
+    CommsComponent::CommsMsg msg = CommsComponent::CommsMsg::fromString(serializedRequest);
+    EXPECT_TRUE(std::holds_alternative<Common::HttpSender::RequestConfig>(msg.content));
+    std::stringstream s;
+    EXPECT_TRUE(requestAreEquivalent(s, expectedRequest, std::get<Common::HttpSender::RequestConfig>(msg.content)));
+    EXPECT_EQ(id, msg.id);
 }

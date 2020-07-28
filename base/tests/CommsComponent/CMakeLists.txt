@@ -8,7 +8,9 @@ add_executable(TestCommsComponent
         TestCommsDistributor.cpp
         TestCommsConfig.cpp
         MockOtherSideApi.h
-        MockCommsDistributor.h)
+        MockCommsDistributor.h
+        CommsMsgUtils.h
+        CommsMsgUtils.cpp)
 
 target_include_directories(TestCommsComponent SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(TestCommsComponent BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" ${CMAKE_SOURCE_DIR})

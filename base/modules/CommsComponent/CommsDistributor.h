@@ -22,6 +22,8 @@ namespace CommsComponent
         void stop();
         static std::string getExpectedRequestBodyBaseNameFromId(const std::string& id, const std::string& prepender, const std::string& appender);
         static std::string getIdFromRequestBaseName(const std::string& baseName, const std::string& prepender, const std::string& appender);
+        static std::string getSerializedRequest(const std::string& requestFileContents, const std::string& bodyFileContents, std::string id);
+
     private:
 
         // pick up files moved into response directory and forward the requests to the network component through m_messageChannel
@@ -31,8 +33,6 @@ namespace CommsComponent
         void handleResponses();
 
         void cleanupFile(const Path& filePath);
-
-        std::string getSerializedRequest(const std::string& requestFileContents, const std::string& bodyFileContents, std::string id);
         virtual void forwardRequest(const std::string& requestFilename);
 
         virtual void forwardResponse(const std::string& incomingMessage);
