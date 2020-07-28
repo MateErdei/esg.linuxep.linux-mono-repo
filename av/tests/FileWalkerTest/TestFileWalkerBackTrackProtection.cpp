@@ -43,6 +43,17 @@ public:
     }
 };
 
+static int count = 0;
+static void path_vector_contains(std::vector<fs::path> paths, std::string value)
+{
+    if( std::find(paths.begin()
+            , paths.end()
+            , value) != paths.end())
+    {
+        count++;
+    }
+}
+
 #define BASE "/tmp/TestFileWalkerBackTrackProtection"
 
 /**
@@ -79,26 +90,12 @@ TEST(TestFileWalkerBacktTrackProtection, backtrackProtection)
 
     ASSERT_EQ(callbacks.m_paths.size(), 3);
 
-    if(std::find(callbacks.m_paths.begin()
-            , callbacks.m_paths.end()
-            , "/tmp/TestFileWalkerBackTrackProtection/a/d/c") == callbacks.m_paths.end())
-    {
-        FAIL();
-    }
+    path_vector_contains(callbacks.m_paths, "/tmp/TestFileWalkerBackTrackProtection/a/b/c");
+    path_vector_contains(callbacks.m_paths, "/tmp/TestFileWalkerBackTrackProtection/a/b/e/c");
+    path_vector_contains(callbacks.m_paths, "/tmp/TestFileWalkerBackTrackProtection/a/d/c");
+    path_vector_contains(callbacks.m_paths, "/tmp/TestFileWalkerBackTrackProtection/a/d/e/c");
 
-    if(std::find(callbacks.m_paths.begin()
-            , callbacks.m_paths.end()
-            , "/tmp/TestFileWalkerBackTrackProtection/a/d/e/c") == callbacks.m_paths.end())
-    {
-        FAIL();
-    }
-
-    if(std::find(callbacks.m_paths.begin()
-            , callbacks.m_paths.end()
-            , "/tmp/TestFileWalkerBackTrackProtection/a/b/c") == callbacks.m_paths.end())
-    {
-        FAIL();
-    }
+    ASSERT_EQ(count, 3);
 
     fs::remove_all(BASE);
 }
