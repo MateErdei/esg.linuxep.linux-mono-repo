@@ -87,7 +87,7 @@ TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
     connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appender_contains(expected));
+    EXPECT_TRUE(appenderContains(expected));
     clearMemoryAppender();
 }
 
@@ -106,7 +106,7 @@ TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
     connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appender_contains(expected));
+    EXPECT_TRUE(appenderContains(expected));
     clearMemoryAppender();
 }
 
@@ -125,7 +125,7 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
     connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appender_contains(expected));
+    EXPECT_TRUE(appenderContains(expected));
     clearMemoryAppender();
 }
 
@@ -146,6 +146,6 @@ TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
     connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appender_contains(expected));
+    EXPECT_TRUE(appenderContains(expected));
     clearMemoryAppender();
 }

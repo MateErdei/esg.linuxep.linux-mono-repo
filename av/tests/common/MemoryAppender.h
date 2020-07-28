@@ -67,7 +67,7 @@ namespace
 
         [[nodiscard]] log4cplus::Logger getLogger() const;
 
-        [[nodiscard]] bool appender_contains(const std::string& expected) const
+        [[nodiscard]] bool appenderContains(const std::string& expected) const
         {
             assert(m_memoryAppender != nullptr);
             return m_memoryAppender->contains(expected);
@@ -81,7 +81,7 @@ namespace
             while (count > 0)
             {
                 count--;
-                if (appender_contains(expected))
+                if (appenderContains(expected))
                 {
                     return;
                 }
