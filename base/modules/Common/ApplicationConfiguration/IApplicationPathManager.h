@@ -78,6 +78,9 @@ namespace Common::ApplicationConfiguration
         virtual std::string getPreviousUpdateConfigFileName() const = 0;
         virtual std::string getSulDownloaderPreviousConfigFilePath() const = 0;
 
+        virtual std::string getCommsRequestDirPath() const = 0;
+        virtual std::string getCommsResponseDirPath() const = 0;
+
         /**
          * @brief the sophos_alias.txt file is a file containing a url override for connecting to a
          * different customer file location such as ostia instead of going to sophos.

@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <CommsComponent/CommsComponentUtils.h>
 
 #include <sstream>
@@ -232,6 +233,36 @@ namespace CommsComponent
     std::string CommsConfigurator::chrootPathForSSPL(const std::string& ssplRootDir)
     {
         return Common::FileSystem::join(ssplRootDir, "var/sophos-spl-comms");
+    }
+
+    std::string CommsConfigurator::outboundDirectory()
+    {
+        return Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath();
+    }
+
+    std::string CommsConfigurator::inboundDirectory()
+    {
+        return Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath();
+    }
+
+    void CommsConfigurator::clearFilesOlderThan1Hour()
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
+        std::vector<Path> outboundFiles = fileSystem->listFiles(outboundDirectory());
+        std::vector<Path> inboundFiles = fileSystem->listFiles(inboundDirectory());
+        std::vector<Path> combinedFiles = std::move(outboundFiles);
+
+        combinedFiles.insert(combinedFiles.end(), inboundFiles.begin(), combinedFiles.end());
+        std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        for (size_t i = 0; i < combinedFiles.size(); i++)
+        {
+            std::time_t lastModifiedTime = fileSystem->lastModifiedTime(combinedFiles[0]);
+            const std::time_t hour = 60*60;
+            if ((lastModifiedTime + hour) < now)
+            {
+                fileSystem->removeFile(combinedFiles[i]);
+            }
+        }
     }
 
 }

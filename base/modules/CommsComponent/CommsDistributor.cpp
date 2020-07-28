@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "CommsDistributor.h"
 #include "CommsMsg.h"
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/FileSystem/IFileSystemException.h>
 
@@ -15,6 +16,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace CommsComponent
 {
+
+    const std::string CommsDistributor::m_leadingRequestFileNameString = "request_";
+    const std::string CommsDistributor::m_trailingRequestJsonString = ".json";
+    const std::string CommsDistributor::m_trailingRequestBodyString = "_body";
 
     CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, const std::string& responseDirPath, MessageChannel& messageChannel, IOtherSideApi& childProxy) :
         m_monitorDir(dirPath,positiveFilter),
@@ -148,21 +153,25 @@ namespace CommsComponent
         return baseName.substr(prependerSize, idLength);
     }
 
-    std::string CommsDistributor::getExpectedRequestBodyBaseNameFromId(
-            const std::string& id,
-            const std::string& prepender,
-            const std::string& appender)
+    std::string CommsDistributor::getExpectedRequestBodyBaseNameFromId(const std::string &id)
     {
         std::stringstream requestBodyFileName;
-        requestBodyFileName << prepender << id << appender;
+        requestBodyFileName << m_leadingRequestFileNameString << id << m_trailingRequestBodyString;
         return requestBodyFileName.str();
+    }
+
+    std::string CommsDistributor::getExpectedRequestJsonBaseNameFromId(const std::string &id)
+    {
+        std::stringstream requestJsonFileName;
+        requestJsonFileName << m_leadingRequestFileNameString << id << m_trailingRequestJsonString;
+        return requestJsonFileName.str();
     }
 
     void CommsDistributor::forwardRequest(const std::string& requestBaseName)
     {
         Path requestJsonFilePath = Common::FileSystem::join(m_monitorDirPath, requestBaseName);
         std::string id = getIdFromRequestBaseName(requestBaseName, m_leadingRequestFileNameString, m_trailingRequestJsonString);
-        std::string requestBodyBaseName = getExpectedRequestBodyBaseNameFromId(id, m_leadingRequestFileNameString, m_trailingRequestBodyString);
+        std::string requestBodyBaseName = getExpectedRequestBodyBaseNameFromId(id);
         Path requestBodyFilePath = Common::FileSystem::join(m_monitorDirPath, requestBodyBaseName);
 
         try {
@@ -216,4 +225,16 @@ namespace CommsComponent
             LOGWARN("Failed to clean up file: " << filePath << ", reason: " << exception.what());
         }
     }
+
+    InboundFiles CommsDistributor::getExpectedPath(const std::string& id)
+    {
+        Path expectedRequestDir = Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath();
+        std::string expectedRequestJsonName = getExpectedRequestJsonBaseNameFromId(id);
+        std::string expectedRequestBodyName = getExpectedRequestBodyBaseNameFromId(id);
+        Path expectedRequestJsonPath = Common::FileSystem::join(expectedRequestDir, expectedRequestJsonName);
+        Path expectedRequestBodyPath = Common::FileSystem::join(expectedRequestDir, expectedRequestBodyName);
+        return InboundFiles{expectedRequestJsonPath, expectedRequestBodyPath};
+    }
+
+
 } // namespace CommsComponent

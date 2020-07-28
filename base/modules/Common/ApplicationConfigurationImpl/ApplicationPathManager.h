@@ -67,6 +67,9 @@ namespace Common::ApplicationConfigurationImpl
         std::string getPreviousUpdateConfigFileName() const override;
         std::string getSulDownloaderPreviousConfigFilePath() const override;
 
+        std::string getCommsRequestDirPath() const override;
+        std::string getCommsResponseDirPath() const override;
+
     private:
         std::string socketPath(const std::string& relative) const;
     };

@@ -26,10 +26,15 @@ namespace CommsComponent
         CommsDistributor(const std::string& path, const std::string& filter, const std::string& responseDirPath, MessageChannel& channel, IOtherSideApi& childProxy);
         void handleRequestsAndResponses();
         void stop();
-        static std::string getExpectedRequestBodyBaseNameFromId(const std::string& id, const std::string& prepender, const std::string& appender);
+        static std::string getExpectedRequestBodyBaseNameFromId(const std::string &id);
+        static std::string getExpectedRequestJsonBaseNameFromId(const std::string &id);
         static std::string getIdFromRequestBaseName(const std::string& baseName, const std::string& prepender, const std::string& appender);
         static std::string getSerializedRequest(const std::string& requestFileContents, const std::string& bodyFileContents, std::string id);
-        static InboundFiles getExpectedPath(const std::string & id); 
+        static InboundFiles getExpectedPath(const std::string & id);
+
+        static const std::string m_leadingRequestFileNameString;
+        static const std::string m_trailingRequestJsonString;
+        static const std::string m_trailingRequestBodyString;
         
     private:
 
@@ -50,9 +55,7 @@ namespace CommsComponent
         MessageChannel& m_messageChannel;
         IOtherSideApi& m_childProxy;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
-        const std::string m_leadingRequestFileNameString = "request_";
-        const std::string m_trailingRequestJsonString = ".json";
-        const std::string m_trailingRequestBodyString = "_body";
+
 
 
     };

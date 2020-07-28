@@ -37,12 +37,13 @@ namespace CommsComponent
         Common::HttpSender::HttpResponse response = CommsMsg::httpResponseFromJson(fileContent); 
 
         // TODO: handle error conditions
-        return response; 
+        return response;
     }
 
     std::string HttpRequester::generateId(const std::string & requesterName)
     {
         //TODO create the method to generate the id
+        // name+time+counter
         return "a" + requesterName; 
     }
 

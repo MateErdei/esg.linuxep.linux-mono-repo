@@ -249,6 +249,16 @@ namespace Common
             return Common::FileSystem::join(getSulDownloaderReportPath(), getPreviousUpdateConfigFileName());
         }
 
+        std::string ApplicationPathManager::getCommsRequestDirPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/var/comms/responses");
+        }
+
+        std::string ApplicationPathManager::getCommsResponseDirPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/var/comms/requests");
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

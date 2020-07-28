@@ -153,18 +153,27 @@ TEST_F(TestCommsDistributor, testDistributorHandlesIncorrectRequests) // NOLINT
 TEST_F(TestCommsDistributor, testGetExpectedRequestBodyBaseNameFromId)
 {
     std::string id = "id";
-    std::string prepender = "request_";
-    std::string appender = "_body";
     EXPECT_EQ(
-            CommsComponent::CommsDistributor::getExpectedRequestBodyBaseNameFromId(id, prepender, appender),
+            CommsComponent::CommsDistributor::getExpectedRequestBodyBaseNameFromId(id),
             "request_id_body");
 
     id = "differentid";
-    prepender = "notarequest_";
-    appender = "_notabody";
     EXPECT_EQ(
-            CommsComponent::CommsDistributor::getExpectedRequestBodyBaseNameFromId(id, prepender, appender),
-            "notarequest_differentid_notabody");
+            CommsComponent::CommsDistributor::getExpectedRequestBodyBaseNameFromId(id),
+            "request_differentid_body");
+}
+
+TEST_F(TestCommsDistributor, testGetExpectedRequestJsonBaseNameFromId)
+{
+    std::string id = "id";
+    EXPECT_EQ(
+            CommsComponent::CommsDistributor::getExpectedRequestJsonBaseNameFromId(id),
+            "request_id.json");
+
+    id = "differentid";
+    EXPECT_EQ(
+            CommsComponent::CommsDistributor::getExpectedRequestJsonBaseNameFromId(id),
+            "request_differentid.json");
 }
 
 TEST_F(TestCommsDistributor, testGetIdFromRequestBaseName)
