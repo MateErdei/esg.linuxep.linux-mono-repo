@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <unixsocket/SocketUtils.h>
 
 #include <fcntl.h>
 #include <memory>
@@ -95,4 +96,16 @@ TEST(TestThreatDetectorSocket, test_scan) // NOLINT
     testing::Mock::VerifyAndClearExpectations(scannerPtr);
     testing::Mock::VerifyAndClearExpectations(scannerFactory.get());
 
+}
+
+TEST(TestSocketUtils, environmentInterruptionReportsWhat) // NOLINT
+{
+    try
+    {
+        throw unixsocket::environmentInterruption();
+    }
+    catch (const unixsocket::environmentInterruption& ex)
+    {
+        EXPECT_EQ(ex.what(), "Environment interruption");
+    }
 }
