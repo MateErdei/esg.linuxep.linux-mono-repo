@@ -10,6 +10,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace
 {
+    using EventVector = std::vector<std::string>;
+
     class MemoryAppender : public log4cplus::Appender
     {
     public:
@@ -17,9 +19,9 @@ namespace
         ~MemoryAppender() override;
 
         bool contains(const std::string& expected) const;
-        std::vector<std::string> m_events;
+        EventVector m_events;
         void close() override {}
-        std::vector<std::string>::size_type size() const { return m_events.size(); }
+        EventVector::size_type size() const { return m_events.size(); }
 
         void clear() noexcept
         {
@@ -73,6 +75,12 @@ namespace
             return m_memoryAppender->contains(expected);
         }
 
+        [[nodiscard]] EventVector::size_type appenderSize() const
+        {
+            assert(m_memoryAppender != nullptr);
+            return m_memoryAppender->size();
+        }
+
         void waitForLog(const std::string& expected) const
         {
             assert(m_memoryAppender != nullptr);
@@ -121,4 +129,20 @@ namespace
     {
         return Common::Logging::getInstance(m_loggerInstanceName);
     }
+
+    class UsingMemoryAppender
+    {
+    private:
+        MemoryAppenderUsingTests& m_testClass;
+    public:
+        explicit UsingMemoryAppender(MemoryAppenderUsingTests& testClass)
+            : m_testClass(testClass)
+        {
+            m_testClass.setupMemoryAppender();
+        }
+        ~UsingMemoryAppender()
+        {
+            m_testClass.clearMemoryAppender();
+        }
+    };
 }

@@ -75,7 +75,7 @@ TEST_F(TestScanningServerConnectionThread, fail_construction_with_null_factory) 
 TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
 {
     const std::string expected = "Closing scanning socket thread";
-    setupMemoryAppender();
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -91,13 +91,12 @@ TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(appenderContains(expected));
-    clearMemoryAppender();
 }
 
 TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
 {
     const std::string expected = "Scanning Server Connection closed: EOF";
-    setupMemoryAppender();
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -110,13 +109,12 @@ TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(appenderContains(expected));
-    clearMemoryAppender();
 }
 
 TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
 {
     const std::string expected = "Ignoring length of zero / No new messages";
-    setupMemoryAppender();
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -129,13 +127,12 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(appenderContains(expected));
-    clearMemoryAppender();
 }
 
 TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
 {
     const std::string expected = "Socket failed: 9";
-    setupMemoryAppender();
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -150,5 +147,4 @@ TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(appenderContains(expected));
-    clearMemoryAppender();
 }

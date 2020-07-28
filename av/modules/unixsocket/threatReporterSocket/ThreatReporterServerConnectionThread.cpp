@@ -29,6 +29,15 @@ ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(datat
         : m_fd(std::move(fd))
         , m_callback(std::move(callback))
 {
+    if (m_fd < 0)
+    {
+        throw std::runtime_error("Attempting to construct ThreatReporterServerConnectionThread with invalid socket fd");
+    }
+
+    if (!m_callback)
+    {
+        throw std::runtime_error("Attempting to construct ThreatReporterServerConnectionThread with null callback");
+    }
 }
 
 static inline bool fd_isset(int fd, fd_set* fds)
