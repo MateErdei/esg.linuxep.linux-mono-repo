@@ -11,48 +11,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/serialize.h>
 #include "unixsocket/StringUtils.h"
 
+#include "tests/common/LogInitializedTests.h"
+
 
 using namespace unixsocket;
 using namespace scan_messages;
 
-TEST(TestStringUtils, TestXMLEscapeEscapesControlCharacters) // NOLINT
-{
-    std::string threatPath = "abc \1 \2 \3 \4 \5 \6 \016 \017 \020 \021 \022 \023 \024 \025 \026 \027 \030 \031 \032 \033 \034 \035 \036 \037 \177 \\ abc \a \b \t \n \v \f \r abc";
-    escapeControlCharacters(threatPath);
-    EXPECT_EQ(threatPath, "abc \\1 \\2 \\3 \\4 \\5 \\6 \\016 \\017 \\020 \\021 \\022 \\023 \\024 \\025 \\026 \\027 \\030 \\031 \\032 \\033 \\034 \\035 \\036 \\037 \\177 \\\\ abc \\a \\b \\t \\n \\v \\f \\r abc");
-}
-
-TEST(TestStringUtils, TestXMLEscapeEscapesSpecialXMLCharacters) // NOLINT
-{
-    std::string threatPath = "abc & < > \' \" abc";
-    escapeControlCharacters(threatPath);
-    EXPECT_EQ(threatPath, "abc &amp; &lt; &gt; &apos; &quot; abc");
-}
-
-TEST(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharacters) // NOLINT
-{
-    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \016 \017 \020 \021 \022 \023 \024 \025 \026 \027 \030 \031 \032 \033 \034 \035 \036 \037 \177 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
-    escapeControlCharacters(threatPath);
-    EXPECT_EQ(threatPath, "ありったけの夢をかき集め \\1 \\2 \\3 \\4 \\5 \\6 \\016 \\017 \\020 \\021 \\022 \\023 \\024 \\025 \\026 \\027 \\030 \\031 \\032 \\033 \\034 \\035 \\036 \\037 \\177 \\\\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
-}
-
-TEST(TestStringUtils, TestToUtf8) // NOLINT
-{
-    std::string threatPath = "abc  \1 \2 \3 \4 \5 \6 \\ efg \a \b \t \n \v \f \r hik";
-    std::string utf8Path = toUtf8(threatPath);
-    EXPECT_EQ(utf8Path, threatPath);
-}
-
-TEST(TestStringUtils, TestToUtf8WeirdCharacters) // NOLINT
-{
-    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
-    std::string utf8Path = toUtf8(threatPath);
-    EXPECT_EQ(utf8Path, threatPath);
-}
-
 namespace
 {
-    class TestStringUtilsXML : public ::testing::Test
+    class TestStringUtilsXML : public LogInitializedTests
     {
     public:
         std::string m_englishsXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
@@ -179,4 +146,49 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharacters) // N
     std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
 
     EXPECT_EQ(result, m_japaneseXML);
+}
+
+static scan_messages::ServerThreatDetected createEvent(
+    const std::string& threatName = "",
+    const std::string& threatPath = "",
+    const std::string& userID = ""
+    )
+{
+    scan_messages::ThreatDetected threatDetected;
+    threatDetected.setUserID(userID);
+    threatDetected.setDetectionTime(m_detectionTimeStamp);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setThreatName(threatName);
+    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+    threatDetected.setFilePath(threatPath);
+    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+
+    std::string dataAsString = threatDetected.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
+        messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+
+    return scan_messages::ServerThreatDetected(deSerialisedData);
+}
+
+TEST_F(TestStringUtilsXML, TestEmptyPath) // NOLINT
+{
+    scan_messages::ServerThreatDetected serverThreatDetectedMessage(createEvent());
+    std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
+
+    static const std::string expectedXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<notification description="Found '' in ''" timestamp="19700101 000203" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
+  <user domain="local" userId=""/>
+  <threat id="Te3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" idSource="Tsha256(path,name)" name="" scanType="201" status="50" type="1">
+    <item file="" path=""/>
+    <action action="104"/>
+  </threat>
+</notification>)sophos";
+
+    EXPECT_EQ(result, expectedXML);
 }
