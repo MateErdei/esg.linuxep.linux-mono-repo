@@ -7,7 +7,7 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 #include "IResponseDispatcher.h"
 #include "QueryResponse.h"
-#include "Telemetry.h"
+#include "modules/queryrunner/Telemetry.h"
 
 namespace livequery
 {

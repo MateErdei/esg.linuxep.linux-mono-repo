@@ -7,7 +7,7 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 #include "ResponseData.h"
 #include "ResponseMetaData.h"
-#include "ResponseStatus.h"
+#include "modules/queryrunner/ResponseStatus.h"
 
 #include <string>
 namespace livequery

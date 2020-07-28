@@ -10,7 +10,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <livequery/ResponseData.h>
-#include <livequery/ResponseStatus.h>
+#include <modules/queryrunner/ResponseStatus.h>
 #include <thrift/transport/TTransportException.h>
 
 #include <iostream>

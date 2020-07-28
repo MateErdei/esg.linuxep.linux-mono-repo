@@ -3,7 +3,7 @@
 Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-
+#pragma once
 #include "IQueryRunner.h"
 
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>

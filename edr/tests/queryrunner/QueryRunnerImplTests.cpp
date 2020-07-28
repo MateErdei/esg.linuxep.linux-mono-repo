@@ -4,10 +4,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <modules/queryrunner/QueryRunnerImpl.h>
-#include <modules/livequery/ResponseStatus.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Helpers/LogInitializedTests.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <modules/queryrunner/QueryRunnerImpl.h>
+#include <modules/queryrunner/ResponseStatus.h>
+
 #include <gtest/gtest.h>
 using namespace ::testing;
     
