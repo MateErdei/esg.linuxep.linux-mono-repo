@@ -4,7 +4,6 @@ include(GoogleTest)
 SophosAddTest(TestSocketUtils
         TestSocketUtils.cpp
         TestStringUtils.cpp
-        TestThreatReporterSocket.cpp
         PROJECTS unixsocket avscannerimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
@@ -32,6 +31,18 @@ SophosAddTest(TestThreatDetectorSocket
         INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
         )
 SET_TARGET_PROPERTIES(TestThreatDetectorSocket
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )
+
+SophosAddTest(TestThreatReporterSocket
+        TestThreatReporterServerConnectionThread.cpp
+        TestThreatReporterSocket.cpp
+        PROJECTS unixsocket
+        INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
+        )
+SET_TARGET_PROPERTIES(TestThreatReporterSocket
         PROPERTIES
         INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
