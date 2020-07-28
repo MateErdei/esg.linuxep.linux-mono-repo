@@ -66,6 +66,28 @@ namespace
         void clearMemoryAppender();
 
         [[nodiscard]] log4cplus::Logger getLogger() const;
+
+        [[nodiscard]] bool appender_contains(const std::string& expected) const
+        {
+            assert(m_memoryAppender != nullptr);
+            return m_memoryAppender->contains(expected);
+        }
+
+        void wait_for_log(const std::string& expected)
+        {
+            assert(m_memoryAppender != nullptr);
+            struct timespec req{.tv_sec=0, .tv_nsec=10000};
+            int count = 50;
+            while (count > 0)
+            {
+                count--;
+                if (appender_contains(expected))
+                {
+                    return;
+                }
+                nanosleep(&req, nullptr);
+            }
+        }
     };
 
     MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName)

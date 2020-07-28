@@ -28,6 +28,7 @@ namespace
         TestScanningServerConnectionThread()
             : MemoryAppenderUsingTests("UnixSocket")
         {}
+
     };
 
     class MockScanner : public threat_scanner::IThreatScanner
@@ -73,6 +74,7 @@ TEST_F(TestScanningServerConnectionThread, fail_construction_with_null_factory) 
 
 TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
 {
+    const std::string expected = "Closing scanning socket thread";
     setupMemoryAppender();
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
@@ -80,16 +82,18 @@ TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
+    // No waiting...
     connectionThread.requestStop();
     connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(m_memoryAppender->contains("Closing scanning socket thread"));
+    EXPECT_TRUE(appender_contains(expected));
     clearMemoryAppender();
 }
 
 TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
 {
+    const std::string expected = "Scanning Server Connection closed: EOF";
     setupMemoryAppender();
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
@@ -97,18 +101,18 @@ TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
-    struct timespec req{.tv_sec=0, .tv_nsec=200000};
-    nanosleep(&req, nullptr);
+    wait_for_log(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(m_memoryAppender->contains("Scanning Server Connection closed: EOF"));
+    EXPECT_TRUE(appender_contains(expected));
     clearMemoryAppender();
 }
 
 TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
 {
+    const std::string expected = "Ignoring length of zero / No new messages";
     setupMemoryAppender();
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
@@ -116,18 +120,18 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
-    struct timespec req{.tv_sec=0, .tv_nsec=100000};
-    nanosleep(&req, nullptr);
+    wait_for_log(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(m_memoryAppender->contains("Ignoring length of zero / No new messages"));
+    EXPECT_TRUE(appender_contains(expected));
     clearMemoryAppender();
 }
 
 TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
 {
+    const std::string expected = "Socket failed: 9";
     setupMemoryAppender();
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
@@ -137,12 +141,11 @@ TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
-    struct timespec req{.tv_sec=0, .tv_nsec=100000};
-    nanosleep(&req, nullptr);
+    wait_for_log(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(m_memoryAppender->contains("Socket failed: 9"));
+    EXPECT_TRUE(appender_contains(expected));
     clearMemoryAppender();
 }
