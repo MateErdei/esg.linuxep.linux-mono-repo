@@ -72,7 +72,18 @@ TEST(TestScanningServerConnectionThread, stop_while_running) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
-    struct timespec req{.tv_sec=0, .tv_nsec=500000};
+    connectionThread.requestStop();
+    connectionThread.join();
+}
+
+TEST(TestScanningServerConnectionThread, eof_while_running) //NOLINT
+{
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
+    ASSERT_GE(fdHolder.get(), 0);
+    ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
+    connectionThread.start();
+    struct timespec req{.tv_sec=0, .tv_nsec=100000};
     nanosleep(&req, nullptr);
     connectionThread.requestStop();
     connectionThread.join();
@@ -85,7 +96,7 @@ TEST(TestScanningServerConnectionThread, send_zero_length) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
-    struct timespec req{.tv_sec=0, .tv_nsec=500000};
+    struct timespec req{.tv_sec=0, .tv_nsec=100000};
     nanosleep(&req, nullptr);
     connectionThread.requestStop();
     connectionThread.join();
