@@ -23,6 +23,7 @@ namespace {
                     <day>friday</day>
                     <day>saturday</day>
                     <day>sunday</day>
+                    <day>not a day</day>
                 </daySet>)MULTILINE");
     };
 }
@@ -31,4 +32,5 @@ namespace {
 TEST_F(TestDaySet, construction) // NOLINT
 {
     DaySet set(m_days, "daySet/day");
+    ASSERT_EQ(set.str(), "Days: INVALID Sunday Monday Tuesday Wednesday Thursday Friday Saturday ");
 }
