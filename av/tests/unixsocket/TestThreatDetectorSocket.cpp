@@ -4,12 +4,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "UnixSocketMemoryAppenderUsingTests.h"
+
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 #include <unixsocket/SocketUtils.h>
 
 #include "tests/common/WaitForEvent.h"
-#include "tests/common/LogInitializedTests.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -17,8 +18,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <fcntl.h>
 #include <memory>
 
+using namespace ::testing;
+
 namespace
 {
+    class TestThreatDetectorSocket : public UnixSocketMemoryAppenderUsingTests
+    {};
 
     class MockScanner : public threat_scanner::IThreatScanner
     {
@@ -32,11 +37,7 @@ namespace
         MOCK_METHOD1(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives));
     };
 
-    class TestThreatDetectorSocket : public LogInitializedTests
-    {};
 }
-
-using namespace ::testing;
 
 TEST_F(TestThreatDetectorSocket, test_construction) //NOLINT
 {
@@ -47,12 +48,16 @@ TEST_F(TestThreatDetectorSocket, test_construction) //NOLINT
 
 TEST_F(TestThreatDetectorSocket, test_running) // NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
     std::string path = "TestThreatDetectorSocket_socket_test_running";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     unixsocket::ScanningServerSocket server(path, 0666, scannerFactory);
     server.start();
     server.requestStop();
     server.join();
+
+    EXPECT_TRUE(appenderContains("Listener started"));
+    EXPECT_TRUE(appenderContains("Closing socket"));
 }
 
 static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, datatypes::AutoFd& file_fd, const std::string& filename)

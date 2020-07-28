@@ -4,7 +4,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "tests/common/MemoryAppender.h"
+#include "UnixSocketMemoryAppenderUsingTests.h"
+
 #include "unixsocket/threatReporterSocket/ThreatReporterServerConnectionThread.h"
 
 #include <gmock/gmock.h>
@@ -17,12 +18,8 @@ using namespace ::testing;
 
 namespace
 {
-    class TestThreatReporterServerConectionThread : public MemoryAppenderUsingTests
+    class TestThreatReporterServerConectionThread : public UnixSocketMemoryAppenderUsingTests
     {
-    public:
-        TestThreatReporterServerConectionThread()
-            : MemoryAppenderUsingTests("UnixSocket")
-        {}
     };
 
     class MockIThreatReportCallbacks : public IMessageCallback
@@ -70,7 +67,7 @@ TEST_F(TestThreatReporterServerConectionThread, fail_construction_with_null_fact
 TEST_F(TestThreatReporterServerConectionThread, stop_while_running) //NOLINT
 {
     const std::string expected = "Closing scanning socket thread";
-    setupMemoryAppender();
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -86,7 +83,6 @@ TEST_F(TestThreatReporterServerConectionThread, stop_while_running) //NOLINT
 
     EXPECT_GT(appenderSize(), 0);
     EXPECT_TRUE(appenderContains(expected));
-    clearMemoryAppender();
 }
 
 TEST_F(TestThreatReporterServerConectionThread, eof_while_running) //NOLINT
