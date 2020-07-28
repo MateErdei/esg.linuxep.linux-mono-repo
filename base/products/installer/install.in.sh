@@ -226,6 +226,28 @@ function build_version_less_than_system_version()
     test "$(printf '%s\n' ${BUILD_LIBC_VERSION} ${system_libc_version} | sort -V | head -n 1)" != ${BUILD_LIBC_VERSION}
 }
 
+function add_group()
+{
+  local groupname="$1"
+
+  GROUPADD="$(which groupadd)"
+  [[ -x "${GROUPADD}" ]] || GROUPADD=/usr/sbin/groupadd
+  [[ -x "${GROUPADD}" ]] || failure ${EXIT_FAIL_FIND_GROUPADD} "Failed to find groupadd to add low-privilege group"
+  "${GETENT}" group "${groupname}" 2>&1 > /dev/null || "${GROUPADD}" -r "${groupname}" || failure ${EXIT_FAIL_ADD_GROUP} "Failed to add group $groupname"
+}
+
+function add_user()
+{
+  local username="$1"
+  local groupname="$2"
+
+  USERADD="$(which useradd)"
+  [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
+  [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
+  "${GETENT}" passwd "${username}" 2>&1 > /dev/null || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${groupname}" -M -N -r -s /bin/false "${username}" \
+      || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username"
+}
+
 if build_version_less_than_system_version
 then
     failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
@@ -235,17 +257,14 @@ fi
 export DIST
 export SOPHOS_INSTALL
 
-## Add a low-privilege group
+## Add a low-privilege groups
 GROUP_NAME=@SOPHOS_SPL_GROUP@
 
 GETENT=/usr/bin/getent
 [[ -x "${GETENT}" ]] || GETENT=$(which getent)
 [[ -x "${GETENT}" ]] || failure ${EXIT_FAIL_FIND_GETENT} "Failed to find getent"
 
-GROUPADD="$(which groupadd)"
-[[ -x "${GROUPADD}" ]] || GROUPADD=/usr/sbin/groupadd
-[[ -x "${GROUPADD}" ]] || failure ${EXIT_FAIL_FIND_GROUPADD} "Failed to find groupadd to add low-privilege group"
-"${GETENT}" group "${GROUP_NAME}" 2>&1 > /dev/null || "${GROUPADD}" -r "${GROUP_NAME}" || failure ${EXIT_FAIL_ADD_GROUP} "Failed to add group $GROUP_NAME"
+add_group "${GROUP_NAME}"
 
 makeRootDirectory "${SOPHOS_INSTALL}"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}"
@@ -253,17 +272,13 @@ chown root:${GROUP_NAME} "${SOPHOS_INSTALL}"
 # Adds a hidden file to mark the install directory which is used by the uninstaller.
 touch "${SOPHOS_INSTALL}/.sophos" || failure ${EXIT_FAIL_DIR_MARKER} "Failed to create install directory marker file"
 
+## Add a low-privilege users
 USER_NAME=@SOPHOS_SPL_USER@
-LOCAL_USER_NAME=@SOPHOS_SPL_LOCAL@
-
-USERADD="$(which useradd)"
-[[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
-[[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
-"${GETENT}" passwd "${USER_NAME}" 2>&1 > /dev/null || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" \
-    || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $USER_NAME"
-
-"${GETENT}" passwd "${LOCAL_USER_NAME}" 2>&1 > /dev/null || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${LOCAL_USER_NAME}" \
-    || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $LOCAL_USER_NAME"
+NETWORK_USER_NAME=@SOPHOS_SPL_NETWORK@
+LOCAL_USER_NAME=@SOPHOS_SPL_USER@
+add_user "${USER_NAME}" "${GROUP_NAME}"
+add_user "${NETWORK_USER_NAME}" "${GROUP_NAME}"
+add_user "@SOPHOS_SPL_LOCAL@" "${GROUP_NAME}"
 
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
@@ -369,6 +384,7 @@ chmod u+x "${SOPHOS_INSTALL}/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 chown -h root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/lib64"/*
 chmod g+r "${SOPHOS_INSTALL}/base/lib64"/*
+chmod o+r "${SOPHOS_INSTALL}/base/lib64/libcrypto.so"*
 
 @INSTALL_ADJUST@
 
