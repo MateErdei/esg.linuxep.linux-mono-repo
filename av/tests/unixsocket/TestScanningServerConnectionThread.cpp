@@ -4,6 +4,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "UnixSocketMemoryAppenderUsingTests.h"
+
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include "tests/common/MemoryAppender.h"
@@ -11,10 +13,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include <memory>
-#include <ctime>
 
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -22,14 +22,8 @@ using namespace unixsocket;
 
 namespace
 {
-    class TestScanningServerConnectionThread : public MemoryAppenderUsingTests
-    {
-    public:
-        TestScanningServerConnectionThread()
-            : MemoryAppenderUsingTests("UnixSocket")
-        {}
-
-    };
+    class TestScanningServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
+    {};
 
     class MockScanner : public threat_scanner::IThreatScanner
     {
