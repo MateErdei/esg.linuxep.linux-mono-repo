@@ -202,29 +202,96 @@ def run_central_live_query_perf_test(email, password, region):
         record_result(event_name, date_time, result["start_time"], result["end_time"])
 
 
+def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
+    logging.info("Running local Live Response terminal performance test")
+    wait_for_liveresponse_to_be_installed()
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    local_live_terminal_script = os.path.join(this_dir, "RunLocalLiveTerminal.py")
+    message_contents_file_path = "1000Chars"
+    date_time = get_current_date_time_string()
+    command = ['python3.7', local_live_terminal_script,
+               "-f", message_contents_file_path,
+               "-n", str(number_of_terminals),
+               "-k", str(keep_alive)]
+
+    process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
+    if process_result.returncode != 0:
+        logging.error("Running local live response terminal failed. return code: {}, stdout: {}, stderr: {}".format(
+            process_result.returncode, process_result.stdout, process_result.stderr))
+
+    # We get lots of logging to stdout from the ltserver, we need to identify the results only. Example results line:
+    # RESULTS:{"start_time": 1595956922.316, "end_time": 1595956922.328, "duration": 0.0111, "success": true}
+    result = None
+    results_tag = "RESULTS:"
+    for line in process_result.stdout.splitlines():
+        if line.startswith(results_tag):
+            result = json.loads(line.lstrip(results_tag))
+            break
+    if not result:
+        return
+
+    print(result)
+
+    # Have to handle the two variety of tests here:
+    # 1) Test plan wants a session to remain open for 5 mins to check for resource usage during that time
+    # 2) Test plan also wants to time how long a number of characters take to be sent
+    # The way these results are processed means that we need a result start and end to cover the 5 mins we want
+    # resource stats for and we need a separate result with a start and end for sending of X characters test.
+    # Decided to do two separate tests to cover this instead of trying to get a single test to cover both requirements
+    # and then having to add a fake result in. Event name examples:
+    # local-liveresponse_x1 -> one terminal receiving a string and then closing, not held open for any extra time.
+    # local-liveresponse_x10 -> ten terminals receiving a string and then closing, not held open for any extra time.
+    # local-liveresponse-keepalive_x1 -> one terminal receiving a string and then being held open for e.g. 5 mins.
+    # local-liveresponse-keepalive_x10 -> ten terminals receiving a string and then being held open for e.g. 5 mins.
+
+    # NB start_time and end_time are unix epochs (in seconds)
+    event_name = "local-liveresponse_x{}".format(number_of_terminals)
+    if keep_alive != 0:
+        event_name = "local-liveresponse-keepalive_x{}".format(number_of_terminals)
+    record_result(event_name, date_time, result["start_time"], result["end_time"])
+
+
 def add_options():
     parser = argparse.ArgumentParser(description='Performance test runner for EDR')
-    parser.add_argument('-s', '--suite', action='store', choices=['gcc', 'local-livequery', 'central-livequery'],
+
+    parser.add_argument('-s', '--suite', action='store',
+                        choices=['gcc',
+                                 'local-livequery',
+                                 'central-livequery',
+                                 'local-liveresponse_x1',
+                                 'local-liveresponse_x10'],
                         help="Select which performance test suite to run")
+
     parser.add_argument('-e', '--email', default='darwinperformance@sophos.xmas.testqa.com', action='store',
                         help="Central account email address to use to run live queries")
+
     parser.add_argument('-p', '--password', action='store', help="Central account password to use to run live queries")
+
     parser.add_argument('-r', '--region', action='store', help="Central region (q, p)")
     return parser
 
 
-def wait_for_edr_to_be_installed():
-    edr_path = "/opt/sophos-spl/plugins/edr"
-    if not os.path.exists(edr_path):
-        logging.info("Waiting for EDR to be installed")
-
-    timeout = 200
+def wait_for_dir_to_exist(dir: str, timeout: int):
+    if not os.path.exists(dir):
+        logging.info("Waiting for dir to be created: {}".format(dir))
     while time.time() < timeout:
-        if os.path.exists(edr_path):
+        if os.path.exists(dir):
             return
         time.sleep(1)
 
 
+def wait_for_edr_to_be_installed():
+    edr_path = "/opt/sophos-spl/plugins/edr"
+    wait_for_dir_to_exist(edr_path, 4000)
+
+
+def wait_for_liveresponse_to_be_installed():
+    lr_path = "/opt/sophos-spl/plugins/liveresponse"
+    wait_for_dir_to_exist(lr_path, 4000)
+
+
+# Example usage:
+# python3.7 ./RunLocalLiveTerminal.py -f ./1000Chars -n 2 -k 10
 def main():
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
@@ -235,10 +302,16 @@ def main():
 
     if args.suite == 'gcc':
         run_gcc_perf_test()
-    if args.suite == 'local-livequery':
+    elif args.suite == 'local-livequery':
         run_local_live_query_perf_test()
-    if args.suite == 'central-livequery':
+    elif args.suite == 'central-livequery':
         run_central_live_query_perf_test(args.email, args.password, args.region)
+    elif args.suite == 'local-liveresponse_x1':
+        run_local_live_response_test(1, 0)
+        run_local_live_response_test(1, 30)
+    elif args.suite == 'local-liveresponse_x10':
+        run_local_live_response_test(10, 0)
+        run_local_live_response_test(10, 30)
 
     logging.info("Finished")
 

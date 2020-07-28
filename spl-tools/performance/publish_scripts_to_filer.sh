@@ -19,6 +19,12 @@ function copy_file()
   echo "Copied $1"
 }
 
+function copy_dir()
+{
+  cp -r "$THIS_DIR/$1" "$PERF_DIR/" || failure "Could not copy $THIS_DIR/$1 to $PERF_DIR/"
+  echo "Copied directory $1"
+}
+
 # Default to this is running on Linux.
 PLATFORM="LINUX"
 PERF_DIR=/mnt/filer6/linux/SSPL/performance
@@ -48,3 +54,9 @@ copy_file install-edr.sh
 
 copy_file ../everest-base/testUtils/SupportFiles/CloudAutomation/cloudClient.py
 copy_file ../everest-base/testUtils/SupportFiles/CloudAutomation/SophosHTTPSClient.py
+
+# Live Response terminal tests
+copy_file RunLocalLiveTerminal.py
+copy_dir ../liveterminal/ta/scripts/utils/websocket_server
+
+echo -e "\nDone copying to: $PERF_DIR"

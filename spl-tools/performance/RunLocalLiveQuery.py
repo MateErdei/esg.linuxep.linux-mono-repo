@@ -58,7 +58,7 @@ def make_file_readable_by_mcs(file_path):
 def run_live_query(query, name):
     random_correlation_id = "correlation-id-{}".format(randrange(10000000))
     query_json = '{"type": "sophos.mgt.action.RunLiveQuery", "name": "' + name + '", "query": "' + query + '"}'
-    query_file_name = "LiveQuery_{}_2013-05-02T09:50:08Z_request.json".format(random_correlation_id)
+    query_file_name = "LiveQuery_{}_request_2020-01-01T09:50:08Z_1698305948.json".format(random_correlation_id)
     query_file_path = os.path.join(TMP_ACTIONS_DIR, query_file_name)
     with open(query_file_path, 'w') as action_file:
         action_file.write(query_json)
