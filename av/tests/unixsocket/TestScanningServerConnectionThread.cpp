@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
-#include "tests/common/LogInitializedTests.h"
+#include "tests/common/MemoryAppender.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
