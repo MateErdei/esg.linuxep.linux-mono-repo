@@ -51,7 +51,7 @@ Liveresponse Plugin Proxy
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  5 secs
-    ...   Check Marked Managementagent Log Contains   Action /opt/sophos-spl/base/mcs/action/LiveTerminal_${correlationId}_action_
+    ...   Check Marked Managementagent Log Contains   Action LiveTerminal_${correlationId}_action_
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
