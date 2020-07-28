@@ -82,6 +82,7 @@ TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
+    EXPECT_TRUE(connectionThread.isRunning());
     // No waiting...
     connectionThread.requestStop();
     connectionThread.join();
