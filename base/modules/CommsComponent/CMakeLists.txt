@@ -30,7 +30,9 @@ add_library(commscomponentimpl SHARED
         CommsDistributor.h
         CommsConfig.cpp
         CommsConfig.h
-        IOtherSideApi.h)
+        IOtherSideApi.h
+        HttpRequester.h 
+        HttpRequester.cpp)
 
 
 target_link_libraries(commscomponentimpl PUBLIC

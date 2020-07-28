@@ -14,6 +14,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace CommsComponent
 {
+
+    struct InboundFiles
+    {
+        std::string requestPath; 
+        std::string bodyPath; 
+    }; 
     class CommsDistributor
     {
     public:
@@ -23,7 +29,8 @@ namespace CommsComponent
         static std::string getExpectedRequestBodyBaseNameFromId(const std::string& id, const std::string& prepender, const std::string& appender);
         static std::string getIdFromRequestBaseName(const std::string& baseName, const std::string& prepender, const std::string& appender);
         static std::string getSerializedRequest(const std::string& requestFileContents, const std::string& bodyFileContents, std::string id);
-
+        static InboundFiles getExpectedPath(const std::string & id); 
+        
     private:
 
         // pick up files moved into response directory and forward the requests to the network component through m_messageChannel
