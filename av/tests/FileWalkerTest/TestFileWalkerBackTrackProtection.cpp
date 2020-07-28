@@ -75,11 +75,30 @@ TEST(TestFileWalkerBacktTrackProtection, backtrackProtection)
     CallbackImpl callbacks;
     filewalker::FileWalker w(callbacks);
     w.followSymlinks();
-    w.walk(BASE);
+    ASSERT_NO_THROW(w.walk(BASE));
 
     ASSERT_EQ(callbacks.m_paths.size(), 3);
-    EXPECT_EQ(callbacks.m_paths.at(0), "/tmp/TestFileWalkerBackTrackProtection/a/d/c");
-    EXPECT_EQ(callbacks.m_paths.at(1), "/tmp/TestFileWalkerBackTrackProtection/a/d/e/c");
-    EXPECT_EQ(callbacks.m_paths.at(2), "/tmp/TestFileWalkerBackTrackProtection/a/b/c");
+
+    if(std::find(callbacks.m_paths.begin()
+            , callbacks.m_paths.end()
+            , "/tmp/TestFileWalkerBackTrackProtection/a/d/c") == callbacks.m_paths.end())
+    {
+        FAIL();
+    }
+
+    if(std::find(callbacks.m_paths.begin()
+            , callbacks.m_paths.end()
+            , "/tmp/TestFileWalkerBackTrackProtection/a/d/e/c") == callbacks.m_paths.end())
+    {
+        FAIL();
+    }
+
+    if(std::find(callbacks.m_paths.begin()
+            , callbacks.m_paths.end()
+            , "/tmp/TestFileWalkerBackTrackProtection/a/b/c") == callbacks.m_paths.end())
+    {
+        FAIL();
+    }
+
     fs::remove_all(BASE);
 }
