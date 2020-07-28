@@ -25,12 +25,6 @@ namespace
     class TestScanningServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
     {};
 
-    class MockScanner : public threat_scanner::IThreatScanner
-    {
-    public:
-        MOCK_METHOD4(scan, scan_messages::ScanResponse(datatypes::AutoFd&, const std::string&, int64_t,
-            const std::string& userID));
-    };
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {
     public:

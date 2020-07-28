@@ -129,9 +129,13 @@ void ThreatReporterServerConnectionThread::run()
             LOGINFO("Closing scanning socket thread");
             break;
         }
-
-        if (fd_isset(socket_fd, &tempRead))
+        else
+        // if (fd_isset(socket_fd, &tempRead))
         {
+            // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
+            // exitFD will cause break
+            // therefore "else" must be fd_isset(socket_fd, &tempRead)
+            assert(fd_isset(socket_fd, &tempRead));
 
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
@@ -145,8 +149,7 @@ void ThreatReporterServerConnectionThread::run()
                 LOGERROR("ThreatReporter Connection Thread aborting connection: failed to read length");
                 break;
             }
-
-            if (length == 0)
+            else if (length == 0)
             {
                 if (not loggedLengthOfZero)
                 {

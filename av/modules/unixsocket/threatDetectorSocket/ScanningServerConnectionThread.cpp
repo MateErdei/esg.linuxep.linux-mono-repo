@@ -157,16 +157,20 @@ void unixsocket::ScanningServerConnectionThread::run()
             LOGERROR("Socket failed: " << errno);
             break;
         }
+        // We don't set a timeout so something should have happened
+        assert(activity != 0);
 
         if (fd_isset(exitFD, &tempRead))
         {
             LOGINFO("Closing scanning socket thread");
             break;
         }
-
-        // TO DO: EXTRACT METHODS
-        if(fd_isset(socket_fd, &tempRead))
+        else // if(fd_isset(socket_fd, &tempRead))
         {
+            // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
+            // exitFD will cause break
+            // therefore "else" must be fd_isset(socket_fd, &tempRead)
+            assert(fd_isset(socket_fd, &tempRead));
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
