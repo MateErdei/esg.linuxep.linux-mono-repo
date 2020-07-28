@@ -4,6 +4,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
 #include <datatypes/Print.h>
 #include <filewalker/FileWalker.h>
@@ -14,15 +15,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <fstream>
 
-#include <sys/stat.h>
-
+using namespace testing;
 namespace fs = sophos_filesystem;
 
 class CallbackImpl : public filewalker::IFileWalkCallbacks
 {
 public:
     CallbackImpl() = default;
-    std::vector<fs::path> m_paths;
+    std::vector<std::string> m_paths;
 
     void processFile(const sophos_filesystem::path& filepath, bool symlinkTarget) override
     {
@@ -42,17 +42,6 @@ public:
         return true;
     }
 };
-
-static int count = 0;
-static void path_vector_contains(std::vector<fs::path> paths, std::string value)
-{
-    if( std::find(paths.begin()
-            , paths.end()
-            , value) != paths.end())
-    {
-        count++;
-    }
-}
 
 #define BASE "/tmp/TestFileWalkerBackTrackProtection"
 
@@ -89,13 +78,10 @@ TEST(TestFileWalkerBacktTrackProtection, backtrackProtection)
     ASSERT_NO_THROW(w.walk(BASE));
 
     ASSERT_EQ(callbacks.m_paths.size(), 3);
-
-    path_vector_contains(callbacks.m_paths, "/tmp/TestFileWalkerBackTrackProtection/a/b/c");
-    path_vector_contains(callbacks.m_paths, "/tmp/TestFileWalkerBackTrackProtection/a/b/e/c");
-    path_vector_contains(callbacks.m_paths, "/tmp/TestFileWalkerBackTrackProtection/a/d/c");
-    path_vector_contains(callbacks.m_paths, "/tmp/TestFileWalkerBackTrackProtection/a/d/e/c");
-
-    ASSERT_EQ(count, 3);
+    EXPECT_THAT(callbacks.m_paths, Contains("/tmp/TestFileWalkerBackTrackProtection/a/d/c"));
+    EXPECT_THAT(callbacks.m_paths, Contains("/tmp/TestFileWalkerBackTrackProtection/a/b/c"));
+    EXPECT_THAT(callbacks.m_paths, AnyOf(Contains("/tmp/TestFileWalkerBackTrackProtection/a/d/e/c")
+                                                     , Contains("/tmp/TestFileWalkerBackTrackProtection/a/b/e/c")));
 
     fs::remove_all(BASE);
 }
