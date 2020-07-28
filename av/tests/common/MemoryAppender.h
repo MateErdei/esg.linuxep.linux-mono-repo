@@ -73,7 +73,7 @@ namespace
             return m_memoryAppender->contains(expected);
         }
 
-        void wait_for_log(const std::string& expected)
+        void wait_for_log(const std::string& expected) const
         {
             assert(m_memoryAppender != nullptr);
             struct timespec req{.tv_sec=0, .tv_nsec=10000};
