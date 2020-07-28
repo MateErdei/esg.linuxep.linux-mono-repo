@@ -257,7 +257,7 @@ fi
 export DIST
 export SOPHOS_INSTALL
 
-## Add a low-privilege groups
+## Add a low-privilege group
 GROUP_NAME=@SOPHOS_SPL_GROUP@
 
 GETENT=/usr/bin/getent
