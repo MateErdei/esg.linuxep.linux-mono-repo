@@ -11,7 +11,7 @@ using namespace datatypes;
 
 TEST(TestTime, CurrentToCentralTime) // NOLINT
 {
-    ASSERT_NO_THROW(Time::currentToCentralTime());
+    ASSERT_NE(Time::currentToCentralTime(), "");
 }
 
 TEST(TestTime, EpochToCentralTimeThrowsFailedToConvert) // NOLINT
