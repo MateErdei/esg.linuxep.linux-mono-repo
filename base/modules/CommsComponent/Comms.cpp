@@ -14,7 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 namespace CommsComponent {
 
     int main_entry() {        
-        std::string sophosInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall(); 
+        std::string sophosInstall = "/opt/sophos-spl";
 
         auto commnsProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi & api){
             CommsDistributor distributor{ Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath(), "",

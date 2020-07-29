@@ -14,6 +14,19 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
+namespace
+{
+    class StopOnEndScope{
+        CommsComponent::CommsDistributor & m_ref; 
+        public: 
+        StopOnEndScope(CommsComponent::CommsDistributor& ref): m_ref{ref}{}
+        ~StopOnEndScope()
+        {
+            m_ref.stop(); 
+        }
+    };
+}
+
 namespace CommsComponent
 {
 
@@ -26,10 +39,12 @@ namespace CommsComponent
         m_monitorDirPath(dirPath),
         m_responseDirPath(responseDirPath),
         m_messageChannel(messageChannel),
-        m_childProxy(childProxy) {}
+        m_childProxy(childProxy),m_stopRequested{ATOMIC_FLAG_INIT}
+        {}
 
     void CommsDistributor::handleResponses()
     {
+        StopOnEndScope stopOnEnd{*this}; 
         try
         {
             while (true) {
@@ -57,6 +72,7 @@ namespace CommsComponent
      * moved in to successfully pick up both together
      */
     {
+        StopOnEndScope stopOnEnd{*this}; 
         try
         {
             while (true)
@@ -79,21 +95,32 @@ namespace CommsComponent
     }
 
     void CommsDistributor::handleRequestsAndResponses()
-    {
-        std::thread responseThread(&CommsDistributor::handleResponses, this);
-        std::thread requestThread(&CommsDistributor::handleRequests, this);
+    {        
+        auto future1 = std::async(std::launch::async, [this](){this->handleResponses();}); 
+        auto future2 = std::async(std::launch::async, [this](){this->handleRequests();}); 
 
-        responseThread.join();
-        stop(); 
-        requestThread.join();
-
+        try{
+            future1.get(); 
+        }catch(std::exception& ex)
+        {
+            LOGERROR("Failure in handling responses: " << ex.what()); 
+        }
+        try{
+            future2.get(); 
+        }catch(std::exception& ex)
+        {
+            LOGERROR("Failure in handling requests " << ex.what()); 
+        }        
     }
 
     void CommsDistributor::stop()
     {
-        m_childProxy.notifyOtherSideAndClose();
-        m_monitorDir.stop();
-        m_messageChannel.pushStop();
+        if (!m_stopRequested.test_and_set())
+        {
+            m_childProxy.notifyOtherSideAndClose();
+            m_monitorDir.stop();
+            m_messageChannel.pushStop();
+        }
     }
 
     void CommsDistributor::forwardResponse(const std::string& incomingMessage)

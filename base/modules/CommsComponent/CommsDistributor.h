@@ -55,6 +55,7 @@ namespace CommsComponent
         MessageChannel& m_messageChannel;
         IOtherSideApi& m_childProxy;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
+        std::atomic_flag m_stopRequested; 
 
 
 
