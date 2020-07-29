@@ -233,7 +233,6 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
         logging.error("No result from RunLocalLiveTerminal.py")
         return
 
-
     # Have to handle the two variety of tests here:
     # 1) Test plan wants a session to remain open for 5 mins to check for resource usage during that time
     # 2) Test plan also wants to time how long a number of characters take to be sent
@@ -245,8 +244,6 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
     # local-liveresponse_x10 -> ten terminals receiving a string and then closing, not held open for any extra time.
     # local-liveresponse-keepalive_x1 -> one terminal receiving a string and then being held open for e.g. 5 mins.
     # local-liveresponse-keepalive_x10 -> ten terminals receiving a string and then being held open for e.g. 5 mins.
-
-    # NB start_time and end_time are unix epochs (in seconds)
     event_name = "local-liveresponse_x{}".format(number_of_terminals)
     if keep_alive != 0:
         event_name = "local-liveresponse-keepalive_x{}".format(number_of_terminals)
