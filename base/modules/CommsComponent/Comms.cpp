@@ -4,6 +4,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#
 #include <Common/UtilityImpl/ProjectNames.h>
 #include "SplitProcesses.h"
 #include "ReactorAdapter.h"
@@ -14,7 +15,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 namespace CommsComponent {
 
     int main_entry() {        
-        std::string sophosInstall = "/opt/sophos-spl";
+        std::string sophosInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+
 
         auto commnsProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi & api){
             CommsDistributor distributor{ Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath(), "",
@@ -33,10 +35,7 @@ namespace CommsComponent {
         parentUser.logName = "comms_component"; 
         parentUser.userName = sophos::localUser(); 
         parentUser.userGroup = sophos::localGroup(); 
-
-        // FIXME: warning is being shown that Failed to read the config file /opt/sophos-spl/base/etc/logger.conf. All settings will be set to their default value
-        // Need to work out if it is related to the parent or child process.
-        
+     
         CommsConfigurator configurator{CommsConfigurator::chrootPathForSSPL(sophosInstall), childUser, parentUser, CommsConfigurator::getListOfDependenciesToMount()};
         return splitProcessesReactors(commnsProcess, std::move(commsNetwork), configurator ); 
     }

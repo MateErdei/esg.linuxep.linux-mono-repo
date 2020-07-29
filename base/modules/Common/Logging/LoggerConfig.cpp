@@ -194,7 +194,7 @@ namespace Common
             }
             // uses fstream as logging can not depend on Common::FileSystem
             int backup_errno = errno;
-            std::fstream i(confFilePath);
+            std::fstream i(confFilePath, std::ifstream::in);
             if (i)
             {
                 pt::read_ini(i, m_ptree);
