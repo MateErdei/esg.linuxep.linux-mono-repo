@@ -105,11 +105,14 @@ UpdateScheduler Report Failure On Versig Error
     Simulate Update Now
     ${eventPath} =  Check Event File Generated  120
 
-    SulDownloader Should Report Verification Failed
+    Wait Until Keyword Succeeds
+    ...  50 secs
+    ...  5 secs
+    ...  SulDownloader Should Report Verification Failed
     Remove File    ${logpath}
 
     ${eventContent} =   Get File   ${eventPath}
-    Should Contain   ${eventContent}  <number>103</number>
+    Should Not Contain   ${eventContent}  <number>0</number>
 
     File Should Not Exist  ${statusPath}
     Remove File    ${eventPath}
@@ -128,6 +131,12 @@ UpdateScheduler Report Failure On Versig Error
 
     Replace Sophos URLS to Localhost
     Simulate Update Now
+
+    Wait Until Keyword Succeeds
+    ...  50 secs
+    ...  5 secs
+    ...  SulDownloader Should Report Update Success
+
     ${eventPath} =  Check Event File Generated  120
     Check Event Report Success  ${eventPath}
     File Should Not Exist  ${statusPath}
@@ -196,6 +205,10 @@ UpdateScheduler Can Detect SulDownloader Service Runs Without Error After Error 
 SulDownloader Should Report Verification Failed
     ${sullog} =   Get File  ${logpath}
     Should Contain   ${sullog}   failed signature verification
+
+SulDownloader Should Report Update Success
+    ${sullog} =   Get File  ${logpath}
+    Should Contain   ${sullog}   Update success
 
 Display Permissions of SulDownloader Files
     ${result} =    Run Process   ls -lZ /opt/sophos-spl/base/bin/ /opt/sophos-spl/base/update/var     shell=yes

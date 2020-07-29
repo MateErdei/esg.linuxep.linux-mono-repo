@@ -577,12 +577,10 @@ Unreachable proxy
     ...     UPGRADED
 
     # Following three message show that we failed to connect through a proxy and so went direct and suceeded.
-    ${Proxy_Message} =  Set Variable  Proxy used was: "${proxy_url}"
-    ${Fail_Connect_Message} =  Set Variable  Failed to connect to:
-    ${Succeed_To_Download_Directly} =  Set Variable  Successfully downloaded customer file
+    ${Fail_Connect_Message} =  Set Variable  Failed to connect to: Sophos at https://localhost:1233 via proxy: http://localhost:1235/
+    ${Succeed_To_Download_Directly} =  Set Variable  Successfully connected to: Sophos at https://localhost:1233
 
     Check Suldownloader Log Contains In Order
-    ...  ${Proxy_Message}
     ...  ${Fail_Connect_Message}
     ...  ${Succeed_To_Download_Directly}
 
