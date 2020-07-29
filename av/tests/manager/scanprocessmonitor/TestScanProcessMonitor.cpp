@@ -16,24 +16,28 @@ using namespace plugin::manager::scanprocessmonitor;
 using ScanProcessMonitorPtr = std::unique_ptr<ScanProcessMonitor>;
 namespace fs = sophos_filesystem;
 
-namespace {
-    class ThreadRunner {
-    public:
-        explicit ThreadRunner(Common::Threads::AbstractThread &thread, std::string name)
-                : m_thread(thread), m_name(std::move(name)) {
-            LOGINFO("Starting " << m_name);
-            m_thread.start();
-        }
+namespace
+{
+    class ThreadRunner
+    {
+        public:
+            explicit ThreadRunner(Common::Threads::AbstractThread &thread, std::string name)
+                    : m_thread(thread), m_name(std::move(name))
+            {
+                LOGINFO("Starting " << m_name);
+                m_thread.start();
+            }
 
-        ~ThreadRunner() {
-            LOGINFO("Stopping " << m_name);
-            m_thread.requestStop();
-            LOGINFO("Joining " << m_name);
-            m_thread.join();
-        }
+            void killThreads()
+            {
+                LOGINFO("Stopping " << m_name);
+                m_thread.requestStop();
+                LOGINFO("Joining " << m_name);
+                m_thread.join();
+            }
 
-        Common::Threads::AbstractThread &m_thread;
-        std::string m_name;
+            Common::Threads::AbstractThread &m_thread;
+            std::string m_name;
     };
 }
 
@@ -87,8 +91,8 @@ TEST(TestScanProcessMonitor, testRunner) // NOLINT
     try
     {
         ThreadRunner sophos_thread_detector(*m, "scanProcessMonitor");
-        sleep(5);
-        sophos_thread_detector.~ThreadRunner();
+        sleep(2);
+        sophos_thread_detector.killThreads();
     }
     catch (std::exception& e)
     {
@@ -104,7 +108,7 @@ TEST(TestScanProcessMonitor, testRunnerCallTerminateImmediately) // NOLINT
     try
     {
         ThreadRunner sophos_thread_detector(*m, "scanProcessMonitor");
-        sophos_thread_detector.~ThreadRunner();
+        sophos_thread_detector.killThreads();
     }
     catch (std::exception& e)
     {

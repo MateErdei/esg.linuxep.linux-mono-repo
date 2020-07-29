@@ -98,11 +98,11 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         }
     }
 
-    LOGINFO("Exiting sophos_thread_detector monitor");
-
     process->kill();
     process->waitUntilProcessEnds();
     process.reset();
+
+    LOGINFO("Exiting sophos_thread_detector monitor");
 }
 
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::subprocess_exited()
