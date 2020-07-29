@@ -19,6 +19,12 @@ public:
     MockCommsDistributor(const std::string& path, const std::string& filter, const std::string& responseDirPath, CommsComponent::MessageChannel& channel, CommsComponent::IOtherSideApi& childProxy) :
             CommsDistributor(path, filter, responseDirPath,channel, childProxy){};
 
-    MOCK_METHOD1(forwardResponse, void(const std::string &));
+    void createResponseJsonFile(const std::string& jsonContent, const std::string& destination, const std::string& midPoint)
+    {
+        // silence unused variable warning
+        (void)midPoint;
+        // use the response directory as a midpoint for the atomic write so we don't have to create /opt/sophos-spl/tmp
+        CommsComponent::CommsDistributor::createResponseJsonFile(jsonContent, destination, m_responseDirPath);
+    }
 };
 

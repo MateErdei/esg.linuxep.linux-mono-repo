@@ -17,7 +17,7 @@ namespace CommsComponent
     class HttpRequester
     {
         public: 
-        static Common::HttpSender::HttpResponse  triggerRequest(const std::string& requesterName, Common::HttpSender::RequestConfig&& , std::string && body); 
+        static Common::HttpSender::HttpResponse triggerRequest(const std::string& requesterName, Common::HttpSender::RequestConfig&& , std::string && body);
         static std::string generateId(const std::string& requesterName); 
     };
 }

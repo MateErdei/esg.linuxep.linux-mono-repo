@@ -28,13 +28,15 @@ namespace CommsComponent
         void stop();
         static std::string getExpectedRequestBodyBaseNameFromId(const std::string &id);
         static std::string getExpectedRequestJsonBaseNameFromId(const std::string &id);
+        static std::string getExpectedResponseJsonBaseNameFromId(const std::string &id);
         static std::string getIdFromRequestBaseName(const std::string& baseName, const std::string& prepender, const std::string& appender);
         static std::string getSerializedRequest(const std::string& requestFileContents, const std::string& bodyFileContents, std::string id);
         static InboundFiles getExpectedPath(const std::string & id);
 
-        static const std::string m_leadingRequestFileNameString;
-        static const std::string m_trailingRequestJsonString;
-        static const std::string m_trailingRequestBodyString;
+        static const std::string m_requestPrepender;
+        static const std::string m_responsePrepender;
+        static const std::string m_jsonAppender;
+        static const std::string m_bodyAppender;
         
     private:
 
@@ -51,14 +53,16 @@ namespace CommsComponent
 
         MonitorDir m_monitorDir;
         std::string m_monitorDirPath;
-        std::string m_responseDirPath;
         MessageChannel& m_messageChannel;
         IOtherSideApi& m_childProxy;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
-        std::atomic_flag m_stopRequested; 
+        std::atomic_flag m_stopRequested;
 
 
+    protected:
+        virtual void createResponseJsonFile(const std::string& jsonContent, const std::string& destination, const std::string& midPoint);
 
+        std::string m_responseDirPath;
     };
 } // namespace CommsComponent
 

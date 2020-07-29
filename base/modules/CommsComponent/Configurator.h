@@ -50,9 +50,7 @@ namespace CommsComponent
 
     public:
         static void clearFilesOlderThan1Hour();
-        static std::string inboundDirectory(); 
-        static std::string outboundDirectory();  
-        
+
         static std::vector<ReadOnlyMount> getListOfDependenciesToMount();
 
         static std::vector<std::string> getListOfMountedEntities(const std::string& chrootDir);

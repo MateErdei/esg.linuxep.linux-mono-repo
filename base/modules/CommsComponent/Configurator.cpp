@@ -235,21 +235,11 @@ namespace CommsComponent
         return Common::FileSystem::join(ssplRootDir, "var/sophos-spl-comms");
     }
 
-    std::string CommsConfigurator::outboundDirectory()
-    {
-        return Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath();
-    }
-
-    std::string CommsConfigurator::inboundDirectory()
-    {
-        return Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath();
-    }
-
     void CommsConfigurator::clearFilesOlderThan1Hour()
     {
         auto fileSystem = Common::FileSystem::fileSystem();
-        std::vector<Path> outboundFiles = fileSystem->listFiles(outboundDirectory());
-        std::vector<Path> inboundFiles = fileSystem->listFiles(inboundDirectory());
+        std::vector<Path> outboundFiles = fileSystem->listFiles(Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath());
+        std::vector<Path> inboundFiles = fileSystem->listFiles(Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath());
         std::vector<Path> combinedFiles = std::move(outboundFiles);
 
         combinedFiles.insert(combinedFiles.end(), inboundFiles.begin(), combinedFiles.end());

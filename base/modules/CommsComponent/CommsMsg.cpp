@@ -87,11 +87,11 @@ namespace CommsComponent
         CommsMsgProto::CommsMsg protoMsg;
         if (!protoMsg.ParseFromString(serializedString))
         {
-            throw InvalidCommsMsgException("failed");
+            throw InvalidCommsMsgException("failed to parse message from serialized string");
         }
         if (!protoMsg.has_id())
         {
-            throw InvalidCommsMsgException("failed");
+            throw InvalidCommsMsgException("message has no id");
         }
 
         CommsMsg commsMsg;

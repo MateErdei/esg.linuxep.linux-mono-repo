@@ -30,16 +30,18 @@ namespace
 namespace CommsComponent
 {
 
-    const std::string CommsDistributor::m_leadingRequestFileNameString = "request_";
-    const std::string CommsDistributor::m_trailingRequestJsonString = ".json";
-    const std::string CommsDistributor::m_trailingRequestBodyString = "_body";
+    const std::string CommsDistributor::m_requestPrepender = "request_";
+    const std::string CommsDistributor::m_responsePrepender = "response_";
+    const std::string CommsDistributor::m_jsonAppender = ".json";
+    const std::string CommsDistributor::m_bodyAppender = "_body";
 
     CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, const std::string& responseDirPath, MessageChannel& messageChannel, IOtherSideApi& childProxy) :
         m_monitorDir(dirPath,positiveFilter),
         m_monitorDirPath(dirPath),
-        m_responseDirPath(responseDirPath),
         m_messageChannel(messageChannel),
-        m_childProxy(childProxy),m_stopRequested{ATOMIC_FLAG_INIT}
+        m_childProxy(childProxy),
+        m_stopRequested{ATOMIC_FLAG_INIT},
+        m_responseDirPath(responseDirPath)
         {}
 
     void CommsDistributor::handleResponses()
@@ -47,11 +49,13 @@ namespace CommsComponent
         StopOnEndScope stopOnEnd{*this}; 
         try
         {
-            while (true) {
+            while (true)
+            {
                 std::string incomingMessage;
                 m_messageChannel.pop(incomingMessage);
                 LOGDEBUG("Received response of length: " << incomingMessage.size());
-                if (!incomingMessage.empty()) {
+                if (!incomingMessage.empty())
+                {
                     forwardResponse(incomingMessage);
                 }
                 else
@@ -123,31 +127,37 @@ namespace CommsComponent
         }
     }
 
+    void CommsDistributor::createResponseJsonFile(const std::string& jsonContent, const std::string& destination, const std::string& midPoint)
+    {
+        LOGDEBUG("Creating temporary file in: " << midPoint << ", then moving it to: " << destination);
+        Common::FileSystem::fileSystem()->writeFileAtomically(destination, jsonContent, midPoint);
+    }
+
     void CommsDistributor::forwardResponse(const std::string& incomingMessage)
     {
-        CommsMsg msg = CommsMsg::fromString(incomingMessage);
-        std::string responseId = msg.id;
-        // TODO - To be completed in LINUXDAR-1954.
-        //  Also remove line below as it exists only to avoid potential warning about unused variables
-        (void)responseId;
-//        if (std::holds_alternative<Common::HttpSender::HttpResponse>(msg.content))
-//        {
-//            if (!std::get<Common::HttpSender::HttpResponse>(msg.content).bodyContent.empty())
-//            {
-//                std::stringstream responseBodyBasename;
-//                responseBodyBasename << "response_" << responseId << "_body";
-//                Path responseBodyPath = Common::FileSystem::join(m_responseDirPath, responseBodyBasename.str());
-//                m_fileSystem->writeFile(responseBodyPath, std::get<Common::HttpSender::HttpResponse>(msg.content).bodyContent);
-//            }
-//            std::string json = CommsMsg::toJson(std::get<Common::HttpSender::HttpResponse>(msg.content));
-//            std::stringstream responseBasename;
-//            responseBasename << "response_" << responseId << ".json";
-//            Path responsePath = Common::FileSystem::join(m_responseDirPath, responseBasename.str());
-//            m_fileSystem->writeFile(responsePath, json);
+        std::string responseId;
+        try
+        {
+            CommsMsg msg = CommsMsg::fromString(incomingMessage);
+            responseId = msg.id;
 
-
-//            LOGINFO(json);
-//        }
+            if (std::holds_alternative<Common::HttpSender::HttpResponse>(msg.content))
+            {
+                std::string responseJson = CommsMsg::toJson(std::get<Common::HttpSender::HttpResponse>(msg.content));
+                std::string responseBasename = getExpectedResponseJsonBaseNameFromId(responseId);
+                Path responsePath = Common::FileSystem::join(m_responseDirPath, responseBasename);
+                LOGDEBUG("Writing response: " << responseId << " to " << responsePath);
+                createResponseJsonFile(responseJson, responsePath, Common::ApplicationConfiguration::applicationPathManager().getTempPath());
+            }
+        }
+        catch (InvalidCommsMsgException& ex)
+        {
+            LOGERROR("Failed to convert incoming comms response of length: " << incomingMessage.size() << " into CommsMsg, reason: " << ex.what());
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGERROR("Failed to create response file for response with id: " << responseId << ", reason: " << ex.what());
+        }
     }
 
     std::string CommsDistributor::getSerializedRequest(const std::string& requestFileContents, const std::string& bodyFileContents, std::string id)
@@ -184,27 +194,36 @@ namespace CommsComponent
     std::string CommsDistributor::getExpectedRequestBodyBaseNameFromId(const std::string &id)
     {
         std::stringstream requestBodyFileName;
-        requestBodyFileName << m_leadingRequestFileNameString << id << m_trailingRequestBodyString;
+        requestBodyFileName << m_requestPrepender << id << m_bodyAppender;
         return requestBodyFileName.str();
     }
+
+
 
     std::string CommsDistributor::getExpectedRequestJsonBaseNameFromId(const std::string &id)
     {
         std::stringstream requestJsonFileName;
-        requestJsonFileName << m_leadingRequestFileNameString << id << m_trailingRequestJsonString;
+        requestJsonFileName << m_requestPrepender << id << m_jsonAppender;
         return requestJsonFileName.str();
+    }
+
+    std::string CommsDistributor::getExpectedResponseJsonBaseNameFromId(const std::string &id)
+    {
+        std::stringstream responseJsonFileName;
+        responseJsonFileName << m_responsePrepender << id << m_jsonAppender;
+        return responseJsonFileName.str();
     }
 
     void CommsDistributor::forwardRequest(const std::string& requestBaseName)
     {
         Path requestJsonFilePath = Common::FileSystem::join(m_monitorDirPath, requestBaseName);
-        std::string id = getIdFromRequestBaseName(requestBaseName, m_leadingRequestFileNameString, m_trailingRequestJsonString);
+        std::string id = getIdFromRequestBaseName(requestBaseName, m_requestPrepender, m_jsonAppender);
         std::string requestBodyBaseName = getExpectedRequestBodyBaseNameFromId(id);
         Path requestBodyFilePath = Common::FileSystem::join(m_monitorDirPath, requestBodyBaseName);
 
         try {
-            if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, m_leadingRequestFileNameString) &&
-                Common::UtilityImpl::StringUtils::endswith(requestBaseName, m_trailingRequestJsonString))
+            if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, m_requestPrepender) &&
+                Common::UtilityImpl::StringUtils::endswith(requestBaseName, m_jsonAppender))
             {
                 LOGINFO("Received a request: " << requestBaseName);
 
@@ -229,6 +248,10 @@ namespace CommsComponent
         {
             LOGERROR("Failed to forward request: " << requestBaseName << ", Reason: " << exception.what());
         }
+//        catch (InvalidCommsMsgException& exception)
+//        {
+//            LOGERROR("Couldn't convert request: " << requestBaseName << " into CommsMsg, Reason: " << exception.what());
+//        }
 
         // attempt to clean up request json
         cleanupFile(requestJsonFilePath);
@@ -263,6 +286,8 @@ namespace CommsComponent
         Path expectedRequestBodyPath = Common::FileSystem::join(expectedRequestDir, expectedRequestBodyName);
         return InboundFiles{expectedRequestJsonPath, expectedRequestBodyPath};
     }
+
+
 
 
 } // namespace CommsComponent

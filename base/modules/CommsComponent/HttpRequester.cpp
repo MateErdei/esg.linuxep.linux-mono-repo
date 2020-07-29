@@ -9,42 +9,79 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "CommsDistributor.h"
 #include "MonitorDir.h"
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 
+#include "Logger.h"
+
+namespace
+{
+    static int COUNTER=0;
+} // namespace
 
 namespace CommsComponent
 {
     Common::HttpSender::HttpResponse  HttpRequester::triggerRequest(const std::string & requesterName, Common::HttpSender::RequestConfig&& request , std::string && body)
     {
-        std::string id = generateId(requesterName); 
-        auto expectedPaths = CommsDistributor::getExpectedPath(id); 
-        if (!body.empty())
-        {            
-            Common::FileSystem::fileSystem()->writeFile(expectedPaths.bodyPath, body); 
+        LOGDEBUG("Attempting to trigger request on behalf of " << requesterName);
+        Common::HttpSender::HttpResponse response;
+        std::string id = generateId(requesterName);
+        try
+        {
+
+            auto expectedPaths = CommsDistributor::getExpectedPath(id);
+            if (!body.empty())
+            {
+                Common::FileSystem::fileSystem()->writeFile(expectedPaths.bodyPath, body);
+            }
+
+            MonitorDir monitorDir{Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath(), id};
+
+            Common::FileSystem::fileSystem()->writeFileAtomically(expectedPaths.requestPath,  CommsMsg::toJson(request),
+                                                                  Common::ApplicationConfiguration::applicationPathManager().getTempPath());
+
+
+            std::optional<std::string> responseFilePath;
+            try
+            {
+                LOGSUPPORT("Beginning to monitor response directory: " << Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath());
+                responseFilePath = monitorDir.next();
+                LOGDEBUG("Detected response file: " << responseFilePath.value());
+            }
+            catch (MonitorDirClosedException& exception)
+            {
+                LOGINFO("Directory monitor closed while waiting for response with id: " << id);
+            }
+
+            if (responseFilePath.has_value())
+            {
+                std::string fileContent = Common::FileSystem::fileSystem()->readFile(responseFilePath.value());
+                response = CommsMsg::httpResponseFromJson(fileContent);
+            }
+
+            return response;
         }
-
-        Common::FileSystem::fileSystem()->writeFileAtomically(expectedPaths.requestPath,  CommsMsg::toJson(request),
-            Common::ApplicationConfiguration::applicationPathManager().getTempPath()); 
-
-
-        MonitorDir monitorDir{CommsConfigurator::outboundDirectory(), id}; 
-        
-        // TODO handle timeout
-        std::optional<std::string> responseFilePath = monitorDir.next(); 
-
-        std::string fileContent = Common::FileSystem::fileSystem()->readFile(responseFilePath.value()); 
-
-        Common::HttpSender::HttpResponse response = CommsMsg::httpResponseFromJson(fileContent); 
-
-        // TODO: handle error conditions
-        return response;
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            //TODO - is this message appropriate? it doesn't tell us whether we failed to send the request
+            // vs failed to handle the response on the way back
+            LOGERROR("Failed to perform request: " << id << ", reason: " << ex.what());
+            throw;
+        }
     }
 
     std::string HttpRequester::generateId(const std::string & requesterName)
     {
-        //TODO create the method to generate the id
-        // name+time+counter
-        return "a" + requesterName; 
+        std::stringstream id;
+
+        Common::UtilityImpl::FormattedTime time;
+        std::string now = time.currentEpochTimeInSeconds();
+
+        id << requesterName << "_" << now << "_"  << COUNTER;
+        COUNTER += 1;
+
+        return id.str();
     }
 
 

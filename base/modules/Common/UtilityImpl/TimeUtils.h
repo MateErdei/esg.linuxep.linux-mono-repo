@@ -21,6 +21,7 @@ namespace Common
         public:
             virtual ~IFormattedTime() = default;
             virtual std::string currentTime() const = 0;
+            virtual std::string currentEpochTimeInSeconds() const = 0;
             virtual std::string bootTime() const = 0;
         };
 
@@ -61,6 +62,8 @@ namespace Common
              * YYYYMMDD HHMMSS
              * @return timestamp formatted as required above.
              */
+            static std::string fromTime(std::time_t, const char *format);
+            static std::string fromTime(std::tm, const char *format);
             static std::string fromTime(std::time_t);
             static std::string fromTime(std::tm);
         };
@@ -69,6 +72,7 @@ namespace Common
         {
         public:
             std::string currentTime() const override;
+            std::string currentEpochTimeInSeconds() const override;
             std::string bootTime() const override;
         };
     } // namespace UtilityImpl

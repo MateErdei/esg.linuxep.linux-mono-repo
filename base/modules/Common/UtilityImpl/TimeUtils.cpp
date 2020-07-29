@@ -28,7 +28,7 @@ namespace Common
 {
     namespace UtilityImpl
     {
-        std::string TimeUtils::fromTime(std::time_t time_)
+        std::string TimeUtils::fromTime(std::time_t time_, const char *format)
         {
             if (time_ == -1)
             {
@@ -37,12 +37,12 @@ namespace Common
 
             std::tm time_tm;
             (void)::localtime_r(&time_, &time_tm);
-            return fromTime(time_tm);
+            return fromTime(time_tm, format);
         }
 
         std::time_t TimeUtils::getCurrTime() { return staticTimeSource()->getCurrentTime(); }
 
-        std::string TimeUtils::getBootTime() { return fromTime(getBootTimeAsTimet()); }
+        std::string TimeUtils::getBootTime() { return fromTime(getBootTimeAsTimet(), "%Y%m%d %H%M%S"); }
 
         std::time_t TimeUtils::getBootTimeAsTimet()
         {
@@ -55,18 +55,32 @@ namespace Common
             return curr - info.uptime;
         }
 
-        std::string TimeUtils::fromTime(std::tm time_tm)
+        std::string TimeUtils::fromTime(std::tm time_tm, const char *format)
         {
             char formattedTime[16];
-            size_t ret = strftime(formattedTime, 16, "%Y%m%d %H%M%S", &time_tm);
+            size_t ret = strftime(formattedTime, 16, format, &time_tm);
             assert(ret != 0);
             static_cast<void>(ret);
 
             return formattedTime;
         }
 
-        std::string FormattedTime::currentTime() const { return TimeUtils::fromTime(TimeUtils::getCurrTime()); }
+        std::string TimeUtils::fromTime(std::time_t time_)
+        {
+            return fromTime(time_, "%Y%m%d %H%M%S");
+        }
+
+        std::string TimeUtils::fromTime(std::tm time_tm)
+        {
+            return fromTime(time_tm, "%Y%m%d %H%M%S");
+        }
+
+        std::string FormattedTime::currentTime() const { return TimeUtils::fromTime(TimeUtils::getCurrTime(), "%Y%m%d %H%M%S"); }
         std::string FormattedTime::bootTime() const { return TimeUtils::getBootTime(); }
+
+        std::string FormattedTime::currentEpochTimeInSeconds() const {
+            return TimeUtils::fromTime(TimeUtils::getCurrTime(), "%s");
+        }
 
         ScopedReplaceITime::ScopedReplaceITime(std::unique_ptr<ITime> mockTimer)
         {
