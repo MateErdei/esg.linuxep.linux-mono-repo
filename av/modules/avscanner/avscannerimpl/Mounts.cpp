@@ -120,9 +120,21 @@ void Mounts::parseProcMounts()
         // FIXME: getfsfile is obsolete - if we really want to have this block getmntent should be used.
         struct fstab* mountpoint = getfsfile("/");
 
-
         if ((mountpoint != nullptr) && (mountpoint->fs_spec != nullptr))
         {
+            // Remove existing entry for / before adding a new one
+            for (auto it = m_devices.begin(); it != m_devices.end();)
+            {
+                if (it->get()->mountPoint() == "/")
+                {
+                    it = m_devices.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+
             m_devices.push_back(std::make_shared<Drive>(
                         fixDeviceWithMount(mountpoint->fs_spec),
                         mountpoint->fs_file,
