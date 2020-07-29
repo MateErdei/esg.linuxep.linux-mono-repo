@@ -136,7 +136,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
     if parameters.coverage == 'yes' or has_coverage_build(context.branch):
         with stage.parallel('combined'):
             stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=machine)
-            #add other distros here
+            #add other distros here centos77
     else:
         with stage.parallel('integration'):
             stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
