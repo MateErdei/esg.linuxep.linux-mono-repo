@@ -34,10 +34,11 @@ namespace Common
             // If the payload does not contain .xml extension assume payload is not a file name but the data
             // if the payload is the data, this should only be for commands such as TriggerUpdate from watchdog.
 
-            std::string payloadData(payload);
-            if(std::count(payload.begin(), payload.end(), '.') > 1)
+            std::string payloadData(payload);                        
+            if( Common::FileSystem::basename(payload) != payload)
             {
-                throw PluginCommunication::IPluginCommunicationException("Invalid payload in message");
+                LOGINFO(payload); 
+                throw PluginCommunication::IPluginCommunicationException("Invalid payload in message, expected only file name");
             }
 
             if ((payload.find(".xml") != std::string::npos) || (payload.find(".json") != std::string::npos))
@@ -79,6 +80,7 @@ namespace Common
                     }
                 }
             }
+            LOGDEBUG(payload); 
 
             throw PluginCommunication::IPluginCommunicationException("Invalid command sent.");
         }
