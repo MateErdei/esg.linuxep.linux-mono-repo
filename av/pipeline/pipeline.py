@@ -5,7 +5,7 @@ import tap.v1 as tap
 
 COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-av-unit.cov'
 COVFILE_PYTEST = '/opt/test/inputs/av/sspl-plugin-av-pytest.cov'
-COVFILE_ROBOT = '/opt/test/inputs/av/sspl-plugin-av-robot.cov'
+COVFILE_ROBOT = '/sspl-plugin-av-robot.cov' ## Move to root, so that everyone can access it
 COVFILE_COMBINED = '/opt/test/inputs/av/sspl-plugin-av-combined.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 LOGS_DIR = '/opt/test/logs'
@@ -154,6 +154,8 @@ def bullseye_coverage_task(machine: tap.Machine):
             'COVFILE': COVFILE_ROBOT,
             'COVSRCDIR': COVSRCDIR,
         })
+
+        machine.run('chmod','666', COVFILE_ROBOT)
         # set bullseye environment in a file, so that daemons pick up the settings too
         machine.run('bash', '-c',
                     'echo -e "COVFILE={}\\nCOVSRCDIR={}" > /tmp/BullseyeCoverageEnv.txt'.format(COVFILE_ROBOT,
