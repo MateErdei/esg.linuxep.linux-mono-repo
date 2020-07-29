@@ -70,6 +70,8 @@ TEST_P(DeviceUtilParameterizedTest, TestDeviceType) // NOLINT
 
     EXPECT_EQ(DeviceUtil::isNetwork(devicePath, mountPoint, filesystemType), expectedDeviceType == NETWORK);
     EXPECT_EQ(DeviceUtil::isSystem(devicePath, mountPoint, filesystemType), expectedDeviceType == SYSTEM);
+    EXPECT_EQ(DeviceUtil::isOptical(devicePath, mountPoint, filesystemType), expectedDeviceType == OPTICAL);
+    EXPECT_EQ(DeviceUtil::isRemovable(devicePath, mountPoint, filesystemType), expectedDeviceType == OPTICAL);
 }
 
 TEST(DeviceUtil, TestIsNetwork_UnknownType) // NOLINT
@@ -82,4 +84,11 @@ TEST(DeviceUtil, TestIsNetwork_UnknownType) // NOLINT
 TEST(DeviceUtil, TestIsSystem_UnknownType) // NOLINT
 {
     EXPECT_FALSE(DeviceUtil::isSystem("/dev/foo", "/mnt/bar", "unknown"));
+}
+
+TEST(DeviceUtil, TestIsSystem_noTypeButSpecialMount) // NOLINT
+{
+    // Assumes all build machines will have /proc
+    EXPECT_TRUE(DeviceUtil::isSystem("proc", "/proc", "none"));
+    EXPECT_TRUE(DeviceUtil::isSystem("proc", "/proc", ""));
 }
