@@ -11,15 +11,29 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "manager/scheduler/ScanScheduler.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <datatypes/Print.h>
 
 using namespace manager::scheduler;
 
+namespace
+{
+    class FakeScanCompletion : public IScanComplete
+    {
+    public:
+        void processScanComplete(std::string& scanCompletedXml) override
+        {
+            m_xml = scanCompletedXml;
+        }
+        std::string m_xml;
+    };
+}
+
 TEST(TestScanScheduler, scanNow) //NOLINT
 {
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("PLUGIN_INSTALL", "/opt/sophos-spl/plugins/av"); // Fix this if it causes problems
+    FakeScanCompletion scanCompletion;
 
-    ScanScheduler scheduler;
+    ScanScheduler scheduler{scanCompletion};
+
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
@@ -53,4 +67,44 @@ TEST(TestScanScheduler, scanNow) //NOLINT
 
     // Reset stderr
     std::cerr.rdbuf(sbuf);
+}
+
+TEST(TestScanScheduler, findNextTime) //NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <!-- if {{scheduledScanEnabled}} -->
+      <scan>
+        <name>Another scan!</name>
+        <schedule>
+          <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>friday</day>
+          </daySet>
+          <timeSet>
+            <time>20:00:00</time>
+          </timeSet>
+        </schedule>
+       </scan>
+    </scanSet>
+    <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    FakeScanCompletion scanCompletion;
+
+    ScanScheduler scheduler{scanCompletion};
+
+    ScheduledScanConfiguration scheduledScanConfiguration(attributeMap);
+    scheduler.updateConfig(scheduledScanConfiguration);
+
+    struct timespec spec{};
+    ASSERT_NO_THROW(scheduler.findNextTime(spec));
+    ASSERT_EQ(spec.tv_nsec, 0);
+    ASSERT_EQ(spec.tv_sec, 3600);
 }

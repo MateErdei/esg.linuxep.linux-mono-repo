@@ -24,16 +24,6 @@ namespace manager::scheduler
 
         void scanNow();
 
-    private:
-        IScanComplete& m_completionNotifier;
-        Common::Threads::NotifyPipe m_updateConfigurationPipe;
-        Common::Threads::NotifyPipe m_scanNowPipe;
-        ScheduledScanConfiguration m_config;
-        ScheduledScan m_nextScheduledScan;
-        time_t m_nextScheduledScanTime;
-        using ScanRunnerPtr = std::unique_ptr<ScanRunner>;
-        std::map<std::string, ScanRunnerPtr> m_runningScans;
-
         /**
          * Get how long we should wait before waking up.
          *
@@ -43,6 +33,16 @@ namespace manager::scheduler
          * @param timespec Result of the calculation
          */
         void findNextTime(timespec& timespec);
+
+    private:
+        IScanComplete& m_completionNotifier;
+        Common::Threads::NotifyPipe m_updateConfigurationPipe;
+        Common::Threads::NotifyPipe m_scanNowPipe;
+        ScheduledScanConfiguration m_config;
+        ScheduledScan m_nextScheduledScan;
+        time_t m_nextScheduledScanTime;
+        using ScanRunnerPtr = std::unique_ptr<ScanRunner>;
+        std::map<std::string, ScanRunnerPtr> m_runningScans;
 
         /**
          * Start a thread to run a new scan.
