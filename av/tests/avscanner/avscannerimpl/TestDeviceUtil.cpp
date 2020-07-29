@@ -4,11 +4,20 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include "avscanner/avscannerimpl/DeviceUtil.h"
 
+#include <linux/magic.h>
+#include <sys/statfs.h>
+
 using namespace avscanner::avscannerimpl;
+
+using ::testing::Return;
+using ::testing::SetArgPointee;
+using ::testing::SetArgReferee;
+using ::testing::StrictMock;
+using ::testing::_;
 
 enum deviceType
 {
@@ -17,6 +26,14 @@ enum deviceType
     OPTICAL,
     REMOVABLE,
     SYSTEM
+};
+
+class MockSystemCallWrapper : public ISystemCallWrapper
+{
+public:
+    MOCK_METHOD3(_ioctl, int(int __fd, unsigned long int __request, char* buffer));
+    MOCK_METHOD2(_statfs, int(const char *__file, struct ::statfs *__buf));
+    MOCK_METHOD3(_open, int(const char *__file, int __oflag, mode_t mode));
 };
 
 class DeviceUtilParameterizedTest
@@ -86,9 +103,80 @@ TEST(DeviceUtil, TestIsSystem_UnknownType) // NOLINT
     EXPECT_FALSE(DeviceUtil::isSystem("/dev/foo", "/mnt/bar", "unknown"));
 }
 
-TEST(DeviceUtil, TestIsSystem_noTypeButSpecialMount) // NOLINT
+class SpecialMountParameterizedTest
+    : public ::testing::TestWithParam<uint64_t>{
+};
+
+INSTANTIATE_TEST_CASE_P(DeviceUtil, SpecialMountParameterizedTest, ::testing::Values(
+    PROC_SUPER_MAGIC,
+    SYSFS_MAGIC,
+    DEBUGFS_MAGIC,
+    SECURITYFS_MAGIC,
+    SELINUX_MAGIC,
+    USBDEVICE_SUPER_MAGIC,
+    DEVPTS_SUPER_MAGIC,
+    0x62656570, // configfs
+    0x65735543, // fusectl
+    BINFMTFS_MAGIC,
+    SOCKFS_MAGIC,
+    PIPEFS_MAGIC,
+    0x6e667364, // nfsd
+    0x19800202, // mqueue
+    CGROUP_SUPER_MAGIC,
+    CGROUP2_SUPER_MAGIC,
+    0x67596969, // rpc_pipefs
+    HUGETLBFS_MAGIC,
+    0x1373, // devfs
+    TRACEFS_MAGIC
+)); // NOLINT
+
+TEST_P(SpecialMountParameterizedTest, TestIsSystem_noTypeButSpecialMount) // NOLINT
 {
-    // Assumes all build machines will have /proc
-    EXPECT_TRUE(DeviceUtil::isSystem("proc", "/proc", "none"));
-    EXPECT_TRUE(DeviceUtil::isSystem("proc", "/proc", ""));
+    std::string devicePath = "/dev/abc";
+    std::string mountPoint = "/mnt/special";
+    struct statfs sfs;
+    sfs.f_type = GetParam();
+
+    std::shared_ptr<StrictMock<MockSystemCallWrapper>> systemCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    EXPECT_CALL(*systemCallWrapper, _statfs(mountPoint.c_str(), _)).WillRepeatedly(DoAll(SetArgPointee<1>(sfs), Return(0)));
+
+    EXPECT_TRUE(DeviceUtil::isSystem(devicePath, mountPoint, "none", systemCallWrapper));
+    EXPECT_TRUE(DeviceUtil::isSystem(devicePath, mountPoint, "", systemCallWrapper));
+}
+
+TEST(DeviceUtil, TestIsFloppy_FloppyExistsAndHasHardware) // NOLINT
+{
+    std::string devicePath = "/dev/sdb";
+    int fileDescriptor = 123;
+    char driveType[] = "floppy";
+
+    std::shared_ptr<StrictMock<MockSystemCallWrapper>> systemCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    EXPECT_CALL(*systemCallWrapper, _open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644)).WillOnce(Return(fileDescriptor));
+    EXPECT_CALL(*systemCallWrapper, _ioctl(fileDescriptor, _, _)).WillOnce(DoAll(SetArgPointee<2>(*driveType), Return(1)));
+
+    EXPECT_TRUE(DeviceUtil::isFloppy(devicePath, "/mnt/floppy", "", systemCallWrapper));
+}
+
+TEST(DeviceUtil, TestIsFloppy_FloppyDoesNotExist) // NOLINT
+{
+    std::string devicePath = "/dev/sdb";
+    int fileDescriptor = -1;
+
+    std::shared_ptr<StrictMock<MockSystemCallWrapper>> systemCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    EXPECT_CALL(*systemCallWrapper, _open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644)).WillOnce(Return(fileDescriptor));
+
+    EXPECT_FALSE(DeviceUtil::isFloppy(devicePath, "/mnt/floppy", "", systemCallWrapper));
+}
+
+TEST(DeviceUtil, TestIsFloppy_FloppyExistsButHardwareDoesNot) // NOLINT
+{
+    std::string devicePath = "/dev/sdb";
+    int fileDescriptor = 123;
+    char driveType[] = "(null)";
+
+    std::shared_ptr<StrictMock<MockSystemCallWrapper>> systemCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    EXPECT_CALL(*systemCallWrapper, _open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644)).WillOnce(Return(fileDescriptor));
+    EXPECT_CALL(*systemCallWrapper, _ioctl(fileDescriptor, _, _)).WillOnce(DoAll(SetArgPointee<2>(*driveType), Return(1)));
+
+    EXPECT_TRUE(DeviceUtil::isFloppy(devicePath, "/mnt/floppy", "", systemCallWrapper));
 }

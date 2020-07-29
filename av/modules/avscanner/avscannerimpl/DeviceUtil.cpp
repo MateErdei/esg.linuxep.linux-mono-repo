@@ -7,24 +7,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "DeviceUtil.h"
 
 // Standard C++
-#include <cerrno>
-#include <climits>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <algorithm>
 #include <cstring>
 
 // Standard C
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <sys/sysmacros.h>
-#include <sys/wait.h>
 #include <sys/vfs.h>
 #include <fcntl.h>
-#include <fstab.h>
 #include <unistd.h>
 
 extern "C"
@@ -45,14 +33,18 @@ using namespace avscanner::avscannerimpl;
  * @param mountPoint    Optional mount point of the device.
  * @param filesystemType    Optional type of device's filesystem.
  */
-bool DeviceUtil::isFloppy(const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType)
+bool DeviceUtil::isFloppy(
+    const std::string& devicePath,
+    const std::string& mountPoint,
+    const std::string& filesystemType,
+    std::shared_ptr<ISystemCallWrapper> systemCallWrapper)
 {
     bool result = false;
     static_cast<void>(devicePath);
     static_cast<void>(mountPoint);
     static_cast<void>(filesystemType);
 
-    int fd = ::open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644);
+    int fd = systemCallWrapper->_open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644);
 
     if (fd != -1)
     {
@@ -61,7 +53,7 @@ bool DeviceUtil::isFloppy(const std::string& devicePath, const std::string& moun
         char buffer[16];
 
 
-        if (::ioctl(fd, FDGETDRVTYP, &buffer) != -1)
+        if (systemCallWrapper->_ioctl(fd, FDGETDRVTYP, buffer) != -1)
         {
             // this is a floppy drive.
             if (strcmp("(null)", buffer) != 0)
@@ -213,7 +205,11 @@ bool DeviceUtil::isRemovable(const std::string& devicePath, const std::string& m
  * @param mountPoint    Optional mount point of the device.
  * @param filesystemType    Optional type of device's filesystem.
  */
-bool DeviceUtil::isSystem(const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType)
+bool DeviceUtil::isSystem(
+    const std::string& devicePath,
+    const std::string& mountPoint,
+    const std::string& filesystemType,
+    std::shared_ptr<ISystemCallWrapper> systemCallWrapper)
 {
     static_cast<void>(devicePath);
     static_cast<void>(mountPoint);
@@ -247,12 +243,10 @@ bool DeviceUtil::isSystem(const std::string& devicePath, const std::string& moun
         int ret;
         struct statfs sfs;
 
-
-        ret = statfs(mountPoint.c_str(), &sfs);
+        ret = systemCallWrapper->_statfs(mountPoint.c_str(), &sfs);
         if (ret == 0)
         {
             auto sb_type = static_cast<unsigned long>(sfs.f_type);
-
 
             if (sb_type == 0x9fa0 || // proc
                 sb_type == 0x62656572 || // sysfs
