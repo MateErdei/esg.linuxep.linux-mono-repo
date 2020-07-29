@@ -22,7 +22,9 @@ namespace
 
 namespace CommsComponent
 {
-    Common::HttpSender::HttpResponse  HttpRequester::triggerRequest(const std::string & requesterName, Common::HttpSender::RequestConfig&& request , std::string && body)
+    Common::HttpSender::HttpResponse
+    HttpRequester::triggerRequest(const std::string &requesterName, Common::HttpSender::RequestConfig &&request,
+                                  std::string &&body, std::chrono::milliseconds timeout)
     {
         LOGDEBUG("Attempting to trigger request on behalf of " << requesterName);
         Common::HttpSender::HttpResponse response;
@@ -36,6 +38,7 @@ namespace CommsComponent
                 Common::FileSystem::fileSystem()->writeFile(expectedPaths.bodyPath, body);
             }
 
+            LOGDEBUG("Creating monitor dir watching: " << Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath() << " with filter: " << id);
             MonitorDir monitorDir{Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath(), id};
 
             Common::FileSystem::fileSystem()->writeFileAtomically(expectedPaths.requestPath,  CommsMsg::toJson(request),
@@ -46,7 +49,13 @@ namespace CommsComponent
             try
             {
                 LOGSUPPORT("Beginning to monitor response directory: " << Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath());
-                responseFilePath = monitorDir.next();
+                responseFilePath = monitorDir.next(timeout);
+                if (!responseFilePath.has_value())
+                {
+                    std::stringstream errorMsg;
+                    errorMsg << "Timed out while waiting for file with filter: " << id;
+                    throw HttpRequesterException(errorMsg.str());
+                }
                 LOGDEBUG("Detected response file: " << responseFilePath.value());
             }
             catch (MonitorDirClosedException& exception)
@@ -64,8 +73,6 @@ namespace CommsComponent
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
-            //TODO - is this message appropriate? it doesn't tell us whether we failed to send the request
-            // vs failed to handle the response on the way back
             LOGERROR("Failed to perform request: " << id << ", reason: " << ex.what());
             throw;
         }

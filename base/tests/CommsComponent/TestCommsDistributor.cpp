@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <utility>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <modules/CommsComponent/CommsMsg.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include "CommsComponent/CommsDistributor.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "CommsMsgUtils.h"
@@ -60,7 +61,13 @@ TEST_F(TestCommsDistributor, testDistributorHandlesRequestFilesAndResponses) // 
 
     MockOtherSideApi mockOthersideApi{};
 
-    MockCommsDistributor distributor(requestTempDirPath, filter, responseTempDirPath, messageChannel,
+    MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
+    MockedApplicationPathManager& mock(*mockAppManager);
+    ON_CALL(mock, getTempPath()).WillByDefault(Return(requestTempDirPath));
+    Common::ApplicationConfiguration::replaceApplicationPathManager(
+            std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+
+    CommsComponent::CommsDistributor distributor(requestTempDirPath, filter, responseTempDirPath, messageChannel,
                                                  mockOthersideApi);
 
     std::string requestJson = R"({"requestType": "POST"})";
@@ -125,9 +132,13 @@ TEST_F(TestCommsDistributor, testDistributorHandlesIncorrectRequests) // NOLINT
 
     MockOtherSideApi mockOthersideApi{};
 
-    //TODO LINUXDAR-1954 this mock will no longer be neccessary once this tickets work has been done
-    // please remove the mock and adjust this test to expect the proper response/response body file to be created
-    MockCommsDistributor distributor(requestTempDirPath, filter, responseTempDirPath, messageChannel,
+    MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
+    MockedApplicationPathManager& mock(*mockAppManager);
+    ON_CALL(mock, getTempPath()).WillByDefault(Return(requestTempDirPath));
+    Common::ApplicationConfiguration::replaceApplicationPathManager(
+            std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+
+    CommsComponent::CommsDistributor distributor(requestTempDirPath, filter, responseTempDirPath, messageChannel,
                                      mockOthersideApi);
 
     std::string requestJson = R"({"requestType": "POST"})";
