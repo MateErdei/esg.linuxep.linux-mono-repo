@@ -65,6 +65,7 @@ TEST(TestFileWalkerBacktTrackProtection, backtrackProtection)
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
 
     // Create test tree
+    fs::remove_all(BASE);
     fs::create_directories(BASE "/a/b");
     std::ofstream(BASE "/a/b/c");
 

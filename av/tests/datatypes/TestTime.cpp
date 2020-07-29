@@ -42,7 +42,8 @@ TEST(TestTime, EpochToCentralTimeThrowsFailedToFormat) // NOLINT
     {
         EXPECT_EQ(e.what(),std::string("Failed to format timestamp"));
     }
-    catch (...) {
+    catch (...)
+    {
         FAIL() <<  "Unexpected exception type";
     }
 }
