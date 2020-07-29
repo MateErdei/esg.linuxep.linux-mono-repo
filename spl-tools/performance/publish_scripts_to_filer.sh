@@ -57,6 +57,7 @@ copy_file ../everest-base/testUtils/SupportFiles/CloudAutomation/SophosHTTPSClie
 
 # Live Response terminal tests
 copy_file RunLocalLiveTerminal.py
+copy_file 1000Chars
 copy_dir ../liveterminal/ta/scripts/utils/websocket_server
 
 echo -e "\nDone copying to: $PERF_DIR"

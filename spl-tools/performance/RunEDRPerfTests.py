@@ -207,14 +207,14 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
     wait_for_liveresponse_to_be_installed()
     this_dir = os.path.dirname(os.path.realpath(__file__))
     local_live_terminal_script = os.path.join(this_dir, "RunLocalLiveTerminal.py")
-    message_contents_file_path = "1000Chars"
+    message_contents_file_path = os.path.join(this_dir, "1000Chars")
     date_time = get_current_date_time_string()
     command = ['python3.7', local_live_terminal_script,
                "-f", message_contents_file_path,
                "-n", str(number_of_terminals),
                "-k", str(keep_alive)]
 
-    process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
+    process_result = subprocess.run(command, timeout=500, stdout=subprocess.PIPE, encoding="utf-8")
     if process_result.returncode != 0:
         logging.error("Running local live response terminal failed. return code: {}, stdout: {}, stderr: {}".format(
             process_result.returncode, process_result.stdout, process_result.stderr))
