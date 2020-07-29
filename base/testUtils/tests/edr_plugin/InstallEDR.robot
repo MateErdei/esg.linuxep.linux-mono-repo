@@ -772,7 +772,7 @@ EDR Does Not Trigger Query On Update Now Action
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Check Management Agent Log Contains  Action /opt/sophos-spl/base/mcs/action/ALC_action_timestamp.xml sent to 1 plugins
+    ...  Check Management Agent Log Contains  Action ALC_action_timestamp.xml sent to 1 plugins
 
     ${edr_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
     ${edr_length_2} =  Get Length  ${edr_log}
