@@ -27,7 +27,7 @@ INPUT=$BASE/input/telemetry/telemetry-config.json
 [[ -f $INPUT ]] || failure 11 "telemetry-config.json input not found at $INPUT"
 
 VERSION=$(python3 ${BASE}/products/distribution/getReleasePackageVersion.py ${BASE}/build/release-package-telemetry-supplement.xml)
-PRODUCT_VERSION=$(python3 ${BASE}/products/distribution/computeAutoVersion.py ${BASE} $VERSION Jenkinsfile_telemetry_supplement)
+PRODUCT_VERSION=$(python3 ${BASE}/products/distribution/computeAutoVersion.py ${BASE} $VERSION)
 
 TELEMETRY_SUPPLEMENT_COMPONENT=${OUTPUT}/SDDS-SSPL-TELEMSUPP-COMPONENT
 rm -rf ${TELEMETRY_SUPPLEMENT_COMPONENT}

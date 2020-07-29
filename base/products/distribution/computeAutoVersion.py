@@ -10,8 +10,8 @@ import sys
 import os
 
 
-def readAutoVersion(base_path, jenkins_file):
-    assert os.path.isfile(os.path.join(base_path, jenkins_file))
+def readAutoVersion(base_path):
+    assert os.path.isfile(os.path.join(base_path))
 
     autoVersionFile = readVersion.get_valid_auto_version_path(base_path)
 
@@ -30,9 +30,8 @@ def readAutoVersion(base_path, jenkins_file):
 def main(argv):
     base_path = argv[1]
     base_version = argv[2]
-    jenkins_file_path = argv[3]
     ## Get AutoVersion
-    autoVersion = readAutoVersion(base_path, jenkins_file_path)
+    autoVersion = readAutoVersion(base_path)
 
     if autoVersion:
         version = autoVersion
