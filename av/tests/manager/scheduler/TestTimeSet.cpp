@@ -38,10 +38,7 @@ TEST_F(TestTimeSet, lessOperatorEqualValues) // NOLINT
     Time lhs("00:00:00");
     Time rhs("00:00:00");
 
-    if (lhs < rhs)
-    {
-        FAIL() << "Left hand side is not smaller than rhs but operator thinks it is";
-    }
+    ASSERT_FALSE(lhs < rhs);
 }
 
 TEST_F(TestTimeSet, lessOperatorLhsMoreHours) // NOLINT
@@ -90,4 +87,38 @@ TEST_F(TestTimeSet, lessOperatorrhsMoreSeconds) // NOLINT
     Time rhs("00:00:01");
 
     ASSERT_TRUE(lhs < rhs);
+}
+
+TEST_F(TestTimeSet, stillDueTodayReturnsTrue)
+{
+    Time fakeScanTime("11:00:00");
+    struct tm now_struct{};
+    now_struct.tm_hour = 10;
+    ASSERT_TRUE(fakeScanTime.stillDueToday(now_struct));
+}
+
+TEST_F(TestTimeSet, stillDueTodayReturnsFalse)
+{
+    Time fakeScanTime("10:00:00");
+    struct tm now_struct{};
+    now_struct.tm_hour = 11;
+    ASSERT_FALSE(fakeScanTime.stillDueToday(now_struct));
+}
+
+TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsTrue)
+{
+    Time fakeScanTime("10:35:00");
+    struct tm now_struct{};
+    now_struct.tm_hour = 10;
+    now_struct.tm_min = 30;
+    ASSERT_TRUE(fakeScanTime.stillDueToday(now_struct));
+}
+
+TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsFalse)
+{
+    Time fakeScanTime("10:35:00");
+    struct tm now_struct{};
+    now_struct.tm_hour = 10;
+    now_struct.tm_min = 35;
+    ASSERT_FALSE(fakeScanTime.stillDueToday(now_struct));
 }

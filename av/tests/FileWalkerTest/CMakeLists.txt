@@ -9,8 +9,6 @@ target_link_libraries(file_walker_experiment PRIVATE filewalker
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         )
 
-
-
 SET_TARGET_PROPERTIES( file_walker_experiment
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
