@@ -51,7 +51,7 @@ Overwriting Action File Doesn't Cause Crash
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Check Managementagent Log Contains  Action /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml sent to 1 plugins
+    ...  Check Managementagent Log Contains  Action ALC_action_FakeTime.xml sent to 1 plugins
     Check UpdateScheduler Log Contains  Unexpected action xml received: fakecontents
 
 Repeatedly writing the same file into the action folder Does Not Cause A Crash
@@ -78,7 +78,7 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
     sleep  0.01s
     END
 
-    Check Managementagent Log Contains String N Times  Action /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml sent to 1 plugins  ${Actions_to_send}
+    Check Managementagent Log Contains String N Times  Action ALC_action_FakeTime.xml sent to 1 plugins  ${Actions_to_send}
     Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  2
     ${Expected_sul_already_running_logs} =  Evaluate    ${Actions_to_send} - 1
     Check UpdateScheduler Log Contains String N Times  An active instance of SulDownloader is already running, continuing with current instance  ${Expected_sul_already_running_logs}
