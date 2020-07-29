@@ -11,7 +11,7 @@ import os
 
 
 def readAutoVersion(base_path):
-    assert os.path.isfile(os.path.join(base_path))
+    assert os.path.isdir(os.path.join(base_path))
 
     autoVersionFile = readVersion.get_valid_auto_version_path(base_path)
 
