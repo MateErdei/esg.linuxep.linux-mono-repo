@@ -9,7 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "MockSusiWrapper.h"
 #include "MockSusiWrapperFactory.h"
 
-#include "sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h"
 #include "sophos_threat_detector/threat_scanner/SusiScanner.h"
 #include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
 #include "../common/Common.h"
@@ -94,13 +93,6 @@ class MockIThreatReportCallbacks : public IMessageCallback
 public:
     MOCK_METHOD1(processMessage, void(const std::string& threatDetectedXML));
 };
-
-TEST(TestThreatScanner, test_FakeSusiScannerConstruction) //NOLINT
-{
-    threat_scanner::FakeSusiScannerFactory factory;
-    auto scanner = factory.createScanner(false);
-    scanner.reset();
-}
 
 TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
 {

@@ -1,8 +1,4 @@
 add_library(threat_scanner SHARED
-        FakeSusiScanner.cpp
-        FakeSusiScanner.h
-        FakeSusiScannerFactory.cpp
-        FakeSusiScannerFactory.h
         Logger.h
         Logger.cpp
         ISusiWrapper.h
