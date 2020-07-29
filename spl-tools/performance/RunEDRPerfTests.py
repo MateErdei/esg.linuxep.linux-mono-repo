@@ -290,8 +290,6 @@ def wait_for_liveresponse_to_be_installed():
     wait_for_dir_to_exist(lr_path, 4000)
 
 
-# Example usage:
-# python3.7 ./RunLocalLiveTerminal.py -f ./1000Chars -n 2 -k 10
 def main():
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
