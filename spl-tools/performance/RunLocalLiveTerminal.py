@@ -7,19 +7,10 @@ import time
 import subprocess
 import os
 import glob
-# import logging
 
-try:
-    from performance.websocket_server import LTserver, certificates
-except:
-    from websocket_server import LTserver, certificates
+from websocket_server import LTserver, certificates
 
-# log = logging.getLogger('RunLocalLiveTerminal')
-
-# todo consider moving this to go through Management agent - for now trigger it directly to get it working
-# <?xml version="1.0"?><ns:commands xmlns:ns="http://www.sophos.com/xml/mcs/commands" schemaVersion="1.0"><command><id>ABC</id><seq>1</seq><appId>LiveQuery</appId><creationTime>2020-06-09T15:30:08.000Z</creationTime><ttl>PT10000S</ttl><body>{"type": "sophos.mgt.action.RunLiveQuery", "name": "users", "query": "SELECT * from users"}</body></command></ns:commands>
 def trigger_endpoint_terminal(path: str):
-    # log.info("Triggering terminal on path: {}".format(path))
     path_to_write_file = "/opt/sophos-spl/plugins/liveresponse/var/{}".format(path)
 
     trigger = {"url": "https://localhost:4443/{}".format(path),
@@ -36,7 +27,6 @@ def create_server_and_send_string(string_to_send: str, number_of_parallel_termin
     paths = []
     for n in range(0, number_of_parallel_terminals):
         paths.append("path{}".format(n))
-    # log.info(paths)
     with LTserver.LTServer('localhost', 4443, certificates.CERTIFICATE_PEM) as server:
         for path in paths:
             path_with_slash = "/{}".format(path)
@@ -44,7 +34,6 @@ def create_server_and_send_string(string_to_send: str, number_of_parallel_termin
             print("Checking terminal connected to path: {}".format(path))
             while not server.match_message('root@', path_with_slash):
                 time.sleep(1)
-            # log.info("Path connected: {}".format(path))
 
         # For each terminal, which is running on its own path, have a file which is written by the command itself to
         # prove that the string has been sent and also saved to a file, this means we know the command has finished and
@@ -56,9 +45,7 @@ def create_server_and_send_string(string_to_send: str, number_of_parallel_termin
                 os.remove(filePath)
             except:
                 pass
-                # log.info("Error while deleting file : ", filePath)
 
-        # log.info("Sending, path: {}, string: {}".format(path, string_to_send))
         timeout = time.time() + 100
         start_time = get_current_unix_epoch_in_seconds()
         # Write the string to disk on the endpoint so that this script can verify it was received and saved
@@ -100,6 +87,7 @@ def main():
     with open(args.file, 'r') as file_to_read:
         string_to_send = file_to_read.read()
 
+    # Install certs needed for local LTserver
     certificates.InstallCertificates.install_certificate()
 
     start_time, end_time = create_server_and_send_string(string_to_send, int(args.number_of_terminals), int(args.keepalive))
@@ -107,9 +95,7 @@ def main():
     result = {"start_time": start_time,
               "end_time": end_time,
               "duration": end_time - start_time,
-              "success": (end_time - start_time) < 60}
-    # "success" in this case is to make sure it has not timed out, it keeps trying until it has succeed or timed out.
-    # If this took longer than a minute then something is broken, so fail.
+              "success": True}
 
     print("RESULTS:{}".format(json.dumps(result)))
     return 0
