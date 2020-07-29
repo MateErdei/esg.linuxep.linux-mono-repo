@@ -312,7 +312,6 @@ def main():
         run_local_live_response_test(1, 300)
     elif args.suite == 'local-liveresponse_x10':
         run_local_live_response_test(10, 0)
-        run_local_live_response_test(10, 300)
 
     logging.info("Finished")
 
