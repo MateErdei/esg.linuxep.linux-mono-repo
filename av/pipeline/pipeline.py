@@ -159,7 +159,7 @@ def bullseye_coverage_task(machine: tap.Machine):
         # set bullseye environment in a file, so that daemons pick up the settings too
         machine.run('bash', '-c',
                     'echo -e "COVFILE={}\\nCOVSRCDIR={}" > /tmp/BullseyeCoverageEnv.txt'.format(COVFILE_ROBOT,
-                                                                                               COVSRCDIR))
+                                                                                                COVSRCDIR))
         machine.run('chmod', '0644', '/tmp/BullseyeCoverageEnv.txt')
 
         # don't abort immediately if robot tests fail, generate the coverage report, then re-raise the exception
