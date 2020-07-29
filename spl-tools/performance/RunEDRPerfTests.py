@@ -88,7 +88,7 @@ def record_result(event_name, date_time, start_time, end_time):
         "eventname": event_name,
         "start": int(start_time),
         "finish": int(end_time),
-        "duration": str(duration)}
+        "duration": duration}
 
     if edr_product_version and edr_build_date:
         result["edr_product_version"] = edr_product_version
@@ -107,8 +107,9 @@ def record_result(event_name, date_time, start_time, end_time):
         logging.info("Content: {}".format(result))
 
 
+# This is UTC
 def get_current_date_time_string():
-    return time.strftime("%Y/%m/%d %H:%M:%S")
+    return time.strftime("%Y/%m/%d %H:%M:%S", time.gmtime())
 
 
 def get_current_unix_epoch_in_seconds():
@@ -229,6 +230,7 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
             break
 
     if not result:
+        logging.error("No result from RunLocalLiveTerminal.py")
         return
 
 

@@ -207,7 +207,7 @@ def get_results_for_machine(hostname):
         if not event_of_interest(hit["_source"]["eventname"]):
             print("Skipping: {}".format(hit["_source"]))
             continue
-
+        print("Processing: {}".format(hit["_source"]))
         task = create_task(hit["_source"], es)
         if not task:
             continue

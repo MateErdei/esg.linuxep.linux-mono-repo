@@ -51,12 +51,12 @@ def get_current_unix_epoch_in_seconds():
 
 def add_options():
     parser = argparse.ArgumentParser(description='Runs Live Queries via Central')
-    parser.add_argument('-e', '--email', action='store', help="Central account email address to use")
-    parser.add_argument('-p', '--password', action='store', help="Central account password to use to run live queries")
-    parser.add_argument('-r', '--region', action='store', help="Central region (q, p)")
-    parser.add_argument('-n', '--name', action='store', help="Query name")
-    parser.add_argument('-q', '--query', action='store', help="Query string (q, p)")
-    parser.add_argument('-m', '--machine', action='store', help="Hostname of the target machine")
+    parser.add_argument('-e', '--email', required=True, action='store', help="Central account email address to use")
+    parser.add_argument('-p', '--password', required=True, action='store', help="Central account password to use to run live queries")
+    parser.add_argument('-r', '--region', required=True, action='store', help="Central region (q, p)")
+    parser.add_argument('-n', '--name', required=True, action='store', help="Query name")
+    parser.add_argument('-q', '--query', required=True, action='store', help="Query string (q, p)")
+    parser.add_argument('-m', '--machine', required=True, action='store', help="Hostname of the target machine")
     return parser
 
 
