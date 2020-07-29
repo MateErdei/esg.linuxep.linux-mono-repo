@@ -227,10 +227,10 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
         if line.startswith(results_tag):
             result = json.loads(line.lstrip(results_tag))
             break
+
     if not result:
         return
 
-    print(result)
 
     # Have to handle the two variety of tests here:
     # 1) Test plan wants a session to remain open for 5 mins to check for resource usage during that time
@@ -248,6 +248,7 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
     event_name = "local-liveresponse_x{}".format(number_of_terminals)
     if keep_alive != 0:
         event_name = "local-liveresponse-keepalive_x{}".format(number_of_terminals)
+
     record_result(event_name, date_time, result["start_time"], result["end_time"])
 
 
@@ -308,10 +309,10 @@ def main():
         run_central_live_query_perf_test(args.email, args.password, args.region)
     elif args.suite == 'local-liveresponse_x1':
         run_local_live_response_test(1, 0)
-        run_local_live_response_test(1, 30)
+        run_local_live_response_test(1, 300)
     elif args.suite == 'local-liveresponse_x10':
         run_local_live_response_test(10, 0)
-        run_local_live_response_test(10, 30)
+        run_local_live_response_test(10, 300)
 
     logging.info("Finished")
 

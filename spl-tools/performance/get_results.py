@@ -152,8 +152,18 @@ def all_fields_present(to_check):
 
 def event_of_interest(event_name):
     # Any performance tasks / events that start with one of these prefixes will be included in the query.
+    # These are the tasks we want to get resource statistics for the period of duration.
+    # NB for live response: we've added local-liveresponse-keepalive_ but not local-liveresponse_ because we only
+    #    want resource stats from the terminal session we keep alive for 5 mins and not from the non-keepalive test
+    #    which we only want to save the duration to send x characters to elastic search and then display that over time,
+    #    there is little use in querying resource stats over 0.001 seconds, we record stats no more than once per second
     # These should correspond to the event names in the RunEDRPerfTests and in the run_tests.sh
-    event_name_prefixes = ["build_gcc", "copy_files", "local-query_", "central-live-query_", "GCC"]
+    event_name_prefixes = ["build_gcc",
+                           "copy_files",
+                           "local-query_",
+                           "central-live-query_",
+                           "GCC",
+                           "local-liveresponse-keepalive_"]
     for prefix in event_name_prefixes:
         if event_name.startswith(prefix):
             return True
