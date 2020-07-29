@@ -143,3 +143,42 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     testing::Mock::VerifyAndClearExpectations(scannerFactory.get());
 
 }
+
+TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
+{
+    static const std::string THREAT_PATH = "/dev/null";
+    std::string path = "TestThreatDetectorSocket_socket_test_scan_twice";
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    auto scanner = std::make_unique<StrictMock<MockScanner>>();
+
+    auto expected_response = scan_messages::ScanResponse();
+    expected_response.setClean(true);
+
+    auto* scannerPtr = scanner.get();
+    testing::Mock::AllowLeak(scanner.get());
+
+    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillRepeatedly(Return(expected_response));
+    EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
+
+    unixsocket::ScanningServerSocket server(path, 0666, scannerFactory);
+    server.start();
+
+    // Create client connection
+    {
+        unixsocket::ScanningClientSocket client_socket(path);
+        datatypes::AutoFd devNull(::open(THREAT_PATH.c_str(), O_RDONLY));
+        auto response = scan(client_socket, devNull, THREAT_PATH);
+        EXPECT_TRUE(response.clean());
+
+        devNull.reset(::open(THREAT_PATH.c_str(), O_RDONLY));
+        response = scan(client_socket, devNull, THREAT_PATH);
+        EXPECT_TRUE(response.clean());
+    }
+
+    server.requestStop();
+    server.join();
+
+    testing::Mock::VerifyAndClearExpectations(scannerPtr);
+    testing::Mock::VerifyAndClearExpectations(scannerFactory.get());
+
+}
