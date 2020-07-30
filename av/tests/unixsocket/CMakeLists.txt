@@ -2,6 +2,7 @@
 include(GoogleTest)
 
 SophosAddTest(TestSocketUtils
+        ../common/LogInitializedTests.cpp
         TestSocketUtils.cpp
         TestStringUtils.cpp
         PROJECTS unixsocket avscannerimpl
@@ -25,6 +26,7 @@ target_link_libraries(threatReporterServerExecutable  PUBLIC unixsocket)
 target_include_directories(threatReporterServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 SophosAddTest(TestThreatDetectorSocket
+        ../common/LogInitializedTests.cpp
         TestScanningServerConnectionThread.cpp
         TestThreatDetectorSocket.cpp
         PROJECTS unixsocket
@@ -37,6 +39,7 @@ SET_TARGET_PROPERTIES(TestThreatDetectorSocket
         )
 
 SophosAddTest(TestThreatReporterSocket
+        ../common/LogInitializedTests.cpp
         TestThreatReporterServerConnectionThread.cpp
         TestThreatReporterSocket.cpp
         PROJECTS unixsocket

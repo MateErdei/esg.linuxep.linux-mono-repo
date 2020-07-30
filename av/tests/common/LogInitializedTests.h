@@ -9,11 +9,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/LoggerConfig.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
+namespace test_common
+{
+    void initialize_logging();
+}
+
 namespace
 {
     void initialize_logging()
     {
-        static Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+        test_common::initialize_logging();
     }
 
     /** Inherit from this class when the tests 'uses' log4cplus and the messages are used in the tests*/
