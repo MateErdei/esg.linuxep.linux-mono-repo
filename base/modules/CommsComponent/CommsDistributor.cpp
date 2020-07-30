@@ -30,10 +30,10 @@ namespace
 namespace CommsComponent
 {
 
-    const std::string CommsDistributor::m_requestPrepender = "request_";
-    const std::string CommsDistributor::m_responsePrepender = "response_";
-    const std::string CommsDistributor::m_jsonAppender = ".json";
-    const std::string CommsDistributor::m_bodyAppender = "_body";
+    const std::string CommsDistributor::RequestPrepender = "request_";
+    const std::string CommsDistributor::ResponsePrepender = "response_";
+    const std::string CommsDistributor::JsonAppender = ".json";
+    const std::string CommsDistributor::BodyAppender = "_body";
 
     CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, const std::string& responseDirPath, MessageChannel& messageChannel, IOtherSideApi& childProxy, bool withSupportForProxy) :
         m_monitorDir(dirPath,positiveFilter),
@@ -195,7 +195,7 @@ namespace CommsComponent
     std::string CommsDistributor::getExpectedRequestBodyBaseNameFromId(const std::string &id)
     {
         std::stringstream requestBodyFileName;
-        requestBodyFileName << m_requestPrepender << id << m_bodyAppender;
+        requestBodyFileName << RequestPrepender << id << BodyAppender;
         return requestBodyFileName.str();
     }
 
@@ -204,27 +204,27 @@ namespace CommsComponent
     std::string CommsDistributor::getExpectedRequestJsonBaseNameFromId(const std::string &id)
     {
         std::stringstream requestJsonFileName;
-        requestJsonFileName << m_requestPrepender << id << m_jsonAppender;
+        requestJsonFileName << RequestPrepender << id << JsonAppender;
         return requestJsonFileName.str();
     }
 
     std::string CommsDistributor::getExpectedResponseJsonBaseNameFromId(const std::string &id)
     {
         std::stringstream responseJsonFileName;
-        responseJsonFileName << m_responsePrepender << id << m_jsonAppender;
+        responseJsonFileName << ResponsePrepender << id << JsonAppender;
         return responseJsonFileName.str();
     }
 
     void CommsDistributor::forwardRequest(const std::string& requestBaseName)
     {
         Path requestJsonFilePath = Common::FileSystem::join(m_monitorDirPath, requestBaseName);
-        std::string id = getIdFromRequestBaseName(requestBaseName, m_requestPrepender, m_jsonAppender);
+        std::string id = getIdFromRequestBaseName(requestBaseName, RequestPrepender, JsonAppender);
         std::string requestBodyBaseName = getExpectedRequestBodyBaseNameFromId(id);
         Path requestBodyFilePath = Common::FileSystem::join(m_monitorDirPath, requestBodyBaseName);
 
         try {
-            if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, m_requestPrepender) &&
-                Common::UtilityImpl::StringUtils::endswith(requestBaseName, m_jsonAppender))
+            if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, RequestPrepender) &&
+                Common::UtilityImpl::StringUtils::endswith(requestBaseName, JsonAppender))
             {
                 LOGINFO("Received a request: " << requestBaseName);
 
@@ -302,7 +302,10 @@ namespace CommsComponent
         return InboundFiles{expectedRequestJsonPath, expectedRequestBodyPath};
     }
 
+    void CommsDistributor::createErrorResponseFile(std::string message, std::string id)
+    {
 
+    }
 
 
 } // namespace CommsComponent

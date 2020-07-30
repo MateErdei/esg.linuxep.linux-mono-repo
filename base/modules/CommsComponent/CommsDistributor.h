@@ -33,10 +33,12 @@ namespace CommsComponent
         static std::string getSerializedRequest(const std::string& requestFileContents, const std::string& bodyFileContents, std::string id);
         static InboundFiles getExpectedPath(const std::string & id);
 
-        static const std::string m_requestPrepender;
-        static const std::string m_responsePrepender;
-        static const std::string m_jsonAppender;
-        static const std::string m_bodyAppender;
+        static const std::string RequestPrepender;
+        static const std::string ResponsePrepender;
+        static const std::string JsonAppender;
+        static const std::string BodyAppender;
+
+        static void createErrorResponseFile(std::string message, Path responseDir, std::string id);
         
     private:
 

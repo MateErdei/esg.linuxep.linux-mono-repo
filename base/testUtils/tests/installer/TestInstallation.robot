@@ -49,6 +49,9 @@ Verify that the full installer works correctly
     [Teardown]  Install Tests Teardown With Installed File Replacement
     Require Fresh Install
 
+
+#    ${r} =  Run Process  systemctl  stop  sophos-spl
+#    Should Be Equal As Strings  ${r.rc}  0
     ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get file info for installation
     Set Test Variable  ${FileInfo}
     Set Test Variable  ${DirectoryInfo}
