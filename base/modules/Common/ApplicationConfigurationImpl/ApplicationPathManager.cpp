@@ -251,12 +251,12 @@ namespace Common
 
         std::string ApplicationPathManager::getCommsRequestDirPath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "var/comms/responses");
+            return Common::FileSystem::join(sophosInstall(), "var/comms/requests");
         }
 
         std::string ApplicationPathManager::getCommsResponseDirPath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "var/comms/requests");
+            return Common::FileSystem::join(sophosInstall(), "var/comms/responses");
         }
 
     } // namespace ApplicationConfigurationImpl
