@@ -18,7 +18,7 @@ namespace CommsComponent {
         std::string sophosInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
 
 
-        auto commnsProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi & api){
+        auto commsProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi & api){
             CommsDistributor distributor{ Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath(), "",
                 Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath(), *channel, api, true}; 
             distributor.handleRequestsAndResponses(); 
@@ -37,6 +37,6 @@ namespace CommsComponent {
         parentUser.userGroup = sophos::localGroup(); 
      
         CommsConfigurator configurator{CommsConfigurator::chrootPathForSSPL(sophosInstall), childUser, parentUser, CommsConfigurator::getListOfDependenciesToMount()};
-        return splitProcessesReactors(commnsProcess, std::move(commsNetwork), configurator ); 
+        return splitProcessesReactors(commsProcess, std::move(commsNetwork), configurator );
     }
 } // namespace CommsComponent
