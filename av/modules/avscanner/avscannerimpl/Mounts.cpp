@@ -6,8 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Mounts.h"
 
-#include "DeviceUtil.h"
 #include "Logger.h"
+#include "SystemCallWrapperFactory.h"
 
 // Standard C++
 #include <cstdlib>
@@ -74,7 +74,7 @@ std::string octalUnescape(const std::string& input)
  * constructor
  */
 Mounts::Mounts(std::shared_ptr<ISystemPaths> systemPaths)
-: m_systemPaths(systemPaths)
+    : m_systemPaths(systemPaths)
 {
     parseProcMounts();
 }
@@ -167,9 +167,10 @@ std::string Mounts::device(const std::string& mountPoint) const
  * @param type
  */
 Mounts::Drive::Drive(std::string device, std::string mountPoint, std::string type)
-: m_mountPoint(std::move(mountPoint))
-, m_device(std::move(device))
-, m_fileSystem(std::move(type))
+    : m_deviceUtil(std::make_shared<DeviceUtil>(std::make_shared<SystemCallWrapperFactory>()))
+    , m_mountPoint(std::move(mountPoint))
+    , m_device(std::move(device))
+    , m_fileSystem(std::move(type))
 {
 }
 
@@ -416,22 +417,22 @@ std::string Mounts::Drive::filesystemType() const
 
 bool Mounts::Drive::isHardDisc() const
 {
-    return DeviceUtil::isLocalFixed(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isLocalFixed(device(),mountPoint(),filesystemType());
 }
 
 bool Mounts::Drive::isNetwork() const
 {
-    return DeviceUtil::isNetwork(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isNetwork(device(),mountPoint(),filesystemType());
 }
 
 bool Mounts::Drive::isOptical() const
 {
-    return DeviceUtil::isOptical(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isOptical(device(),mountPoint(),filesystemType());
 }
 
 bool Mounts::Drive::isRemovable() const
 {
-    return DeviceUtil::isRemovable(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isRemovable(device(),mountPoint(),filesystemType());
 }
 
 /**
@@ -440,6 +441,6 @@ bool Mounts::Drive::isRemovable() const
  */
 bool Mounts::Drive::isSpecial() const
 {
-    return DeviceUtil::isSystem(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isSystem(device(),mountPoint(),filesystemType());
 }
 

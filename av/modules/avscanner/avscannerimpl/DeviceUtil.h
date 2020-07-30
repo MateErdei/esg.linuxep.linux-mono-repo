@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "ISystemCallWrapperFactory.h"
 #include "SystemCallWrapper.h"
 
 #include <memory>
@@ -16,7 +17,7 @@ namespace avscanner::avscannerimpl
     class DeviceUtil
     {
     public:
-        DeviceUtil() = delete;
+        DeviceUtil(std::shared_ptr<ISystemCallWrapperFactory> systemCallWrapperFactory);
 
         /**
          * Determine if the device specified is a floppy drive.
@@ -28,11 +29,10 @@ namespace avscanner::avscannerimpl
          * @param filesystemType    Optional type of device's filesystem.
          * @param systemCallWrapper Optional way to override ioctl call
          */
-        static bool isFloppy(
+        bool isFloppy(
             const std::string& devicePath,
             const std::string& mountPoint = "",
-            const std::string& filesystemType = "",
-            std::shared_ptr<ISystemCallWrapper> systemCallWrapper = std::make_shared<SystemCallWrapper>());
+            const std::string& filesystemType = "");
 
         /**
          * Determine if the device specified is a local fixed (hard) drive.
@@ -43,7 +43,7 @@ namespace avscanner::avscannerimpl
          * @param mountPoint    Optional mount point of the device.
          * @param filesystemType    Optional type of device's filesystem.
          */
-        static bool isLocalFixed(
+        bool isLocalFixed(
             const std::string& devicePath,
             const std::string& mountPoint = "",
             const std::string& filesystemType = "");
@@ -57,7 +57,7 @@ namespace avscanner::avscannerimpl
          * @param mountPoint    Optional mount point of the device.
          * @param filesystemType    Optional type of device's filesystem.
          */
-        static bool isNetwork(
+        bool isNetwork(
             const std::string& devicePath,
             const std::string& mountPoint = "",
             const std::string& filesystemType = "");
@@ -71,7 +71,7 @@ namespace avscanner::avscannerimpl
          * @param mountPoint    Optional mount point of the device.
          * @param filesystemType    Optional type of device's filesystem.
          */
-        static bool isOptical(
+        bool isOptical(
             const std::string& devicePath,
             const std::string& mountPoint = "",
             const std::string& filesystemType = "");
@@ -85,7 +85,7 @@ namespace avscanner::avscannerimpl
          * @param mountPoint    Optional mount point of the device.
          * @param filesystemType    Optional type of device's filesystem.
          */
-        static bool isRemovable(
+        bool isRemovable(
             const std::string& devicePath,
             const std::string& mountPoint = "",
             const std::string& filesystemType = "");
@@ -100,10 +100,12 @@ namespace avscanner::avscannerimpl
          * @param filesystemType    Optional type of device's filesystem.
          * @param systemCallWrapper Optional way to override ioctl call
          */
-        static bool isSystem(
+        bool isSystem(
             const std::string& devicePath,
             const std::string& mountPoint = "",
-            const std::string& filesystemType = "",
-            std::shared_ptr<ISystemCallWrapper> systemCallWrapper = std::make_shared<SystemCallWrapper>());
+            const std::string& filesystemType = "");
+
+    private:
+        std::shared_ptr<ISystemCallWrapper> m_systemCallWrapper;
     };
 }

@@ -24,6 +24,12 @@ extern "C"
 
 using namespace avscanner::avscannerimpl;
 
+DeviceUtil::DeviceUtil(std::shared_ptr<ISystemCallWrapperFactory> systemCallWrapperFactory)
+: m_systemCallWrapper(systemCallWrapperFactory->createSystemCallWrapper())
+{
+
+}
+
 /**
  * Determine if the device specified is a floppy drive.
  *
@@ -36,15 +42,14 @@ using namespace avscanner::avscannerimpl;
 bool DeviceUtil::isFloppy(
     const std::string& devicePath,
     const std::string& mountPoint,
-    const std::string& filesystemType,
-    std::shared_ptr<ISystemCallWrapper> systemCallWrapper)
+    const std::string& filesystemType)
 {
     bool result = false;
     static_cast<void>(devicePath);
     static_cast<void>(mountPoint);
     static_cast<void>(filesystemType);
 
-    int fd = systemCallWrapper->_open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644);
+    int fd = m_systemCallWrapper->_open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644);
 
     if (fd != -1)
     {
@@ -53,7 +58,7 @@ bool DeviceUtil::isFloppy(
         char buffer[16];
 
 
-        if (systemCallWrapper->_ioctl(fd, FDGETDRVTYP, buffer) != -1)
+        if (m_systemCallWrapper->_ioctl(fd, FDGETDRVTYP, buffer) != -1)
         {
             // this is a floppy drive.
             if (strcmp("(null)", buffer) != 0)
@@ -208,8 +213,7 @@ bool DeviceUtil::isRemovable(const std::string& devicePath, const std::string& m
 bool DeviceUtil::isSystem(
     const std::string& devicePath,
     const std::string& mountPoint,
-    const std::string& filesystemType,
-    std::shared_ptr<ISystemCallWrapper> systemCallWrapper)
+    const std::string& filesystemType)
 {
     static_cast<void>(devicePath);
     static_cast<void>(mountPoint);
@@ -243,7 +247,7 @@ bool DeviceUtil::isSystem(
         int ret;
         struct statfs sfs;
 
-        ret = systemCallWrapper->_statfs(mountPoint.c_str(), &sfs);
+        ret = m_systemCallWrapper->_statfs(mountPoint.c_str(), &sfs);
         if (ret == 0)
         {
             auto sb_type = static_cast<unsigned long>(sfs.f_type);
