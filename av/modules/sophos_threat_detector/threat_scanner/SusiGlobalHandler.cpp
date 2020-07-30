@@ -102,8 +102,19 @@ SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
     throwIfNotOk(res, "Failed to set log callback");
 
     res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
-    LOGINFO("Global Susi constructed res=" << std::hex << res << std::dec);
-    assert(res == SUSI_S_OK);
+    if (res != SUSI_S_OK)
+    {
+        // This can fail for reasons outside the programs control, therefore is an exception
+        // rather then an assert
+        LOGERROR("Global SUSI initialisation failed: " << std::hex << res << std::dec);
+        throw std::runtime_error("Unable to initialize SUSI");
+    }
+    else
+    {
+        LOGINFO("Global Susi initialisation successful");
+
+    }
+
 }
 
 SusiGlobalHandler::~SusiGlobalHandler()
