@@ -25,6 +25,20 @@ TEST_F(TestSusiLoggerCallback, debug_level) // NOLINT
     EXPECT_TRUE(appenderContains("DEBUG - DEBUG_MESSAGE"));
 }
 
+TEST_F(TestSusiLoggerCallback, info_level) // NOLINT
+{
+    UsingMemoryAppender holder(*this);
+    threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_INFO, "INFO_MESSAGE");
+    EXPECT_TRUE(appenderContains("INFO - INFO_MESSAGE"));
+}
+
+TEST_F(TestSusiLoggerCallback, warning_level) // NOLINT
+{
+    UsingMemoryAppender holder(*this);
+    threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_WARNING, "WARNING_MESSAGE");
+    EXPECT_TRUE(appenderContains("WARN - WARNING_MESSAGE"));
+}
+
 TEST_F(TestSusiLoggerCallback, error_level) // NOLINT
 {
     UsingMemoryAppender holder(*this);
@@ -32,4 +46,9 @@ TEST_F(TestSusiLoggerCallback, error_level) // NOLINT
     EXPECT_TRUE(appenderContains("ERROR - ERROR_MESSAGE"));
 }
 
-
+TEST_F(TestSusiLoggerCallback, unknown_level) // NOLINT
+{
+    UsingMemoryAppender holder(*this);
+    threat_scanner::susiLogCallback(nullptr, static_cast<SusiLogLevel>(50), "UNKNOWN_MESSAGE");
+    EXPECT_TRUE(appenderContains("ERROR - 50: UNKNOWN_MESSAGE"));
+}
