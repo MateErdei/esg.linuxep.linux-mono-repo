@@ -8,6 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "sophos_threat_detector/threat_scanner/ISusiWrapperFactory.h"
 
+#include <gmock/gmock.h>
+
 class MockSusiWrapperFactory : public threat_scanner::ISusiWrapperFactory
 {
 public:
