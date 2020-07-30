@@ -2,6 +2,7 @@
 Library    Process
 Library    OperatingSystem
 Library    ../libs/FullInstallerUtils.py
+Library    ../libs/CommsComponentUtils.py
 
 Resource  ../GeneralTeardownResource.robot
 
@@ -154,10 +155,6 @@ Check Telemetry Scheduler Plugin Not Running
 Check Comms Component Not Running
     ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
     Should Not Be Equal As Integers    ${result.rc}    0
-
-Check Comms Component Running
-    ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
-    Should Be Equal As Integers    ${result.rc}    0
 
 Check Expected Base Processes Except Comms Are Running
     Check Watchdog Running

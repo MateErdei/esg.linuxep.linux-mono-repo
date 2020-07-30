@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/LogInitializedTests.h>
 #include <modules/CommsComponent/AsyncMessager.h>
 #include "MockOtherSideApi.h"
-#include "MockCommsDistributor.h"
 #include <utility>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <modules/CommsComponent/CommsMsg.h>

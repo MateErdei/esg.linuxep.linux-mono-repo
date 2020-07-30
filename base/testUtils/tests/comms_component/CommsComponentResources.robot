@@ -11,9 +11,5 @@ Check Watchdog Starts Comms Component
     ...  2s
     ...  Check Comms Component Log Contains  Logger comms_component configured for level: INFO
 
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  Check Comms Component Log Contains  Started Comms Component
 
     Check Watchdog Log Contains  Starting /opt/sophos-spl/base/bin/CommsComponent

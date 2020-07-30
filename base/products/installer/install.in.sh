@@ -336,6 +336,7 @@ makedir 750 "${SOPHOS_INSTALL}/base/mcs/tmp"
 # FIXME: setup the paths related to the commns component. (not quite there yet)
 makedir 750 "${SOPHOS_INSTALL}/var/comms/responses"
 makedir 770 "${SOPHOS_INSTALL}/var/comms/requests"
+chmod   770 "${SOPHOS_INSTALL}/var/comms"
 chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/"
 
 

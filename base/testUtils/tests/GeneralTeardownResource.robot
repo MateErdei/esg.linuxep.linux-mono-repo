@@ -18,7 +18,7 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/register_central.log
 
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/comms_component.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log

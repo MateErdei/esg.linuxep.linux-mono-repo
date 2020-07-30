@@ -2,6 +2,8 @@ import os
 import json
 import base64
 
+from robot.api import logger
+
 COMMS_COMPONENT_EXECUTABLE_NAME="CommsComponent"
 
 class CommsComponentUtils:
@@ -15,6 +17,7 @@ class CommsComponentUtils:
     def _pid_of_comms_component(self):
         pids = []
         for pid in os.listdir("/proc"):
+            logger.info(pid)
             cmdline = self.get_cmdline(pid)
             if cmdline is None:
                 continue
@@ -29,9 +32,8 @@ class CommsComponentUtils:
         pids = self._pid_of_comms_component()
         pid = None
         if pids:
-            # TODO - LINUXDAR-1954: This will fail when there is a parent and child comms process. Change this keyword to look for the new expected behaviour
-            if len(pids) != 1:
-                raise AssertionError("Only one instance of comms component should be running at any given time. Found {}".format(pids))
+            if len(pids) != 2:
+                raise AssertionError("Expected two commscomponent processes. Found {}".format(pids))
             pid = pids[0]
 
         if pid and not require_running:

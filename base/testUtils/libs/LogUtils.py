@@ -321,7 +321,7 @@ class LogUtils(object):
         return os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
 
     def comms_component_log(self):
-        return os.path.join(self.base_logs_dir, "comms_component.log")
+        return os.path.join(self.base_logs_dir, "sophosspl", "comms_component.log")
 
     def dump_mcsrouter_log(self):
         mcsrouter_log = self.mcs_router_log()
@@ -692,6 +692,11 @@ class LogUtils(object):
     def check_comms_component_log_contains(self, string_to_contain):
         log = self.comms_component_log()
         self.check_log_contains(string_to_contain, log, "Comms Component")
+        logger.info(log)
+
+    def check_comms_component_log_does_not_contain_error(self):
+        log = self.comms_component_log()
+        self.check_log_does_not_contain("ERROR", log, "Comms Component")
         logger.info(log)
 
     def check_watchdog_log_contains(self, string_to_contain):
