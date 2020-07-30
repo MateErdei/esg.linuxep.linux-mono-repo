@@ -209,6 +209,7 @@ VersionCopy File in the Wrong Location Is Removed
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Timeout]  600
     # Note, if updating test make sure that at least one compnent will be un-installed during downgrade
     # There should be no errors in management agent relating to registering components which have been uninstalled
     # during the downgrade
@@ -219,7 +220,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
     Wait For Initial Update To Fail
 
-    #Override LogConf File as Global Level  DEBUG
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
     Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
@@ -237,6 +237,12 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     # Products that should be uninstalled after downgrade
     Should Exist  ${InstalledLRPluginVersionFile}
 
+    # Changing the policy here will result in an automatic update
+    # Note when downgrading from a release with live response to a release without live response
+    # results in a second update.  Due to update certificates`being replaced by the first update
+    # the second update will fail.
+    # For now, mark error in the log, and force another update to ensure there are no issues.
+    # Then check the number of update successes to prove everything is OK.
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -245,13 +251,21 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Trigger Update Now
-
 
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  Failed to connect to the warehouse
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  3
 
     # If mtr is installed for the first time, this will appear
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
