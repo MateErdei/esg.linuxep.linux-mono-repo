@@ -17,7 +17,7 @@ namespace avscanner::avscannerimpl
     class DeviceUtil
     {
     public:
-        DeviceUtil(std::shared_ptr<ISystemCallWrapperFactory> systemCallWrapperFactory);
+        explicit DeviceUtil(std::shared_ptr<ISystemCallWrapperFactory> systemCallWrapperFactory);
 
         /**
          * Determine if the device specified is a floppy drive.
@@ -27,7 +27,6 @@ namespace avscanner::avscannerimpl
          * @param devicePath
          * @param mountPoint    Optional mount point of the device.
          * @param filesystemType    Optional type of device's filesystem.
-         * @param systemCallWrapper Optional way to override ioctl call
          */
         bool isFloppy(
             const std::string& devicePath,
@@ -98,7 +97,6 @@ namespace avscanner::avscannerimpl
          * @param devicePath
          * @param mountPoint    Optional mount point of the device.
          * @param filesystemType    Optional type of device's filesystem.
-         * @param systemCallWrapper Optional way to override ioctl call
          */
         bool isSystem(
             const std::string& devicePath,
