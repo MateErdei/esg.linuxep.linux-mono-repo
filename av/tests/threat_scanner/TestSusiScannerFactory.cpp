@@ -73,7 +73,7 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) 
             },
             "scanControl": {
                 "trueFileTypeDetection": true,
-                "puaDetection": true,
+                "puaDetection": false,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true
             }
@@ -109,7 +109,7 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue) /
             },
             "scanControl": {
                 "trueFileTypeDetection": true,
-                "puaDetection": true,
+                "puaDetection": false,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true
             }
