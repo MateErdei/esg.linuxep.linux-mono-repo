@@ -11,7 +11,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "manager/scheduler/ScanScheduler.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <datatypes/Print.h>
 
 using namespace manager::scheduler;
 

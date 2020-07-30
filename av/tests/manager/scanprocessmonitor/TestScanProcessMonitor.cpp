@@ -6,9 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 
 #include <gtest/gtest.h>
+
 #include "datatypes/sophos_filesystem.h"
-#include "modules/pluginimpl/Logger.h"
 #include "modules/manager/scanprocessmonitor/ScanProcessMonitor.h"
+#include "ScanProcessMonitorMemoryAppenderUsingTests.h"
+#include "tests/common/ThreadRunner.h"
 
 #include <fstream>
 
@@ -18,35 +20,17 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class ThreadRunner
+    class TestScanProcessMonitor : public ScanProcessMonitorMemoryAppenderUsingTests
     {
-        public:
-            explicit ThreadRunner(Common::Threads::AbstractThread &thread, std::string name)
-                    : m_thread(thread), m_name(std::move(name))
-            {
-                LOGINFO("Starting " << m_name);
-                m_thread.start();
-            }
-
-            void killThreads()
-            {
-                LOGINFO("Stopping " << m_name);
-                m_thread.requestStop();
-                LOGINFO("Joining " << m_name);
-                m_thread.join();
-            }
-
-            Common::Threads::AbstractThread &m_thread;
-            std::string m_name;
     };
 }
 
-TEST(TestScanProcessMonitor, constructionWithExistingPath) // NOLINT
+TEST_F(TestScanProcessMonitor, constructionWithExistingPath) // NOLINT
 {
     EXPECT_NO_THROW(auto m = std::make_unique<ScanProcessMonitor>("/bin/bash"));
 }
 
-TEST(TestScanProcessMonitor, constructWithNonExistentFile) // NOLINT
+TEST_F(TestScanProcessMonitor, constructWithNonExistentFile) // NOLINT
 {
     try
     {
@@ -63,7 +47,7 @@ TEST(TestScanProcessMonitor, constructWithNonExistentFile) // NOLINT
     }
 }
 
-TEST(TestScanProcessMonitor, constructWithEmptyConfig) // NOLINT
+TEST_F(TestScanProcessMonitor, constructWithEmptyConfig) // NOLINT
 {
     fs::create_directories("sandbox/a/b/");
     std::ofstream("sandbox/a/b/empty.config");
@@ -84,15 +68,18 @@ TEST(TestScanProcessMonitor, constructWithEmptyConfig) // NOLINT
         FAIL() <<  "Unexpected exception type";
     }
 }
-TEST(TestScanProcessMonitor, testRunner) // NOLINT
+TEST_F(TestScanProcessMonitor, testRunner) // NOLINT
 {
     auto m = std::make_unique<ScanProcessMonitor>("/bin/bash");
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     try
     {
         ThreadRunner sophos_thread_detector(*m, "scanProcessMonitor");
-        sleep(2);
+        waitForLog("Starting /bin/bash");
         sophos_thread_detector.killThreads();
+        waitForLog("Exiting sophos_thread_detector monitor");
     }
     catch (std::exception& e)
     {
@@ -101,14 +88,17 @@ TEST(TestScanProcessMonitor, testRunner) // NOLINT
 }
 
 // closest thing to terminating ScanProcessMonitor asap
-TEST(TestScanProcessMonitor, testRunnerCallTerminateImmediately) // NOLINT
+TEST_F(TestScanProcessMonitor, testRunnerCallTerminateImmediately) // NOLINT
 {
     auto m = std::make_unique<ScanProcessMonitor>("/bin/bash");
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     try
     {
         ThreadRunner sophos_thread_detector(*m, "scanProcessMonitor");
         sophos_thread_detector.killThreads();
+        waitForLog("Exiting sophos_thread_detector monitor");
     }
     catch (std::exception& e)
     {
