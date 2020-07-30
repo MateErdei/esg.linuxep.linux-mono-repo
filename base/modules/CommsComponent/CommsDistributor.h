@@ -23,7 +23,7 @@ namespace CommsComponent
     class CommsDistributor
     {
     public:
-        CommsDistributor(const std::string& path, const std::string& filter, const std::string& responseDirPath, MessageChannel& channel, IOtherSideApi& childProxy);
+        CommsDistributor(const std::string& path, const std::string& filter, const std::string& responseDirPath, MessageChannel& channel, IOtherSideApi& childProxy, bool withSupportForProxy=false);
         void handleRequestsAndResponses();
         void stop();
         static std::string getExpectedRequestBodyBaseNameFromId(const std::string &id);
@@ -50,6 +50,7 @@ namespace CommsComponent
         virtual void forwardRequest(const std::string& requestFilename);
 
         virtual void forwardResponse(const std::string& incomingMessage);
+        void setupProxy(); 
 
         MonitorDir m_monitorDir;
         std::string m_monitorDirPath;
@@ -57,6 +58,7 @@ namespace CommsComponent
         IOtherSideApi& m_childProxy;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
         std::atomic_flag m_stopRequested;
+        bool m_withSupportForProxy; 
 
 
     protected:

@@ -35,12 +35,13 @@ namespace CommsComponent
     const std::string CommsDistributor::m_jsonAppender = ".json";
     const std::string CommsDistributor::m_bodyAppender = "_body";
 
-    CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, const std::string& responseDirPath, MessageChannel& messageChannel, IOtherSideApi& childProxy) :
+    CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, const std::string& responseDirPath, MessageChannel& messageChannel, IOtherSideApi& childProxy, bool withSupportForProxy) :
         m_monitorDir(dirPath,positiveFilter),
         m_monitorDirPath(dirPath),
         m_messageChannel(messageChannel),
         m_childProxy(childProxy),
         m_stopRequested{ATOMIC_FLAG_INIT},
+        m_withSupportForProxy(withSupportForProxy),
         m_responseDirPath(responseDirPath)
         {}
 
@@ -231,6 +232,10 @@ namespace CommsComponent
                 std::string bodyFileContents = m_fileSystem->readFile(requestBodyFilePath);
 
                 std::string serializedRequestMessage = getSerializedRequest(requestFileContents, bodyFileContents, id);
+                if ( m_withSupportForProxy)
+                {
+                    setupProxy(); 
+                }
                 m_childProxy.pushMessage(serializedRequestMessage);
             }
             else
@@ -255,6 +260,16 @@ namespace CommsComponent
 
         // attempt to clean up request json
         cleanupFile(requestJsonFilePath);
+    }
+
+    void CommsDistributor::setupProxy()
+    {
+        CommsComponent::CommsConfig config;
+        config.addProxyInfoToConfig(); 
+        CommsMsg comms;
+        comms.id = "ProxyConfig";
+        comms.content = config;
+        m_childProxy.pushMessage(CommsMsg::serialize(comms));
     }
 
     void CommsDistributor::cleanupFile(const Path& filePath)

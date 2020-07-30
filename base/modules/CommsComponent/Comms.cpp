@@ -20,7 +20,7 @@ namespace CommsComponent {
 
         auto commnsProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi & api){
             CommsDistributor distributor{ Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath(), "",
-                Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath(), *channel, api}; 
+                Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath(), *channel, api, true}; 
             distributor.handleRequestsAndResponses(); 
             return 0; 
         }; 

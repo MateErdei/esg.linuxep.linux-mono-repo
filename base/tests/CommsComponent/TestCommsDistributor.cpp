@@ -121,6 +121,82 @@ TEST_F(TestCommsDistributor, testDistributorHandlesRequestFilesAndResponses) // 
     EXPECT_TRUE(checkSerializedMessageIsEquivalentToResponseJsonContent(serialisedResponseJson2, fileSystem->readFile(expectedResponsePath2)));
 }
 
+TEST_F(TestCommsDistributor, testDistributorHandlesRequestFilesAndResponsesAndSetupProxy) // NOLINT
+{
+    CommsComponent::MessageChannel messageChannel;
+    auto m_requestTempDir = Tests::TempDir::makeTempDir();
+    auto m_responseTempDir = Tests::TempDir::makeTempDir();
+    const std::string filter = ".json";
+    std::string requestTempDirPath = m_requestTempDir->dirPath();
+    std::string responseTempDirPath = m_responseTempDir->dirPath();
+
+    MockOtherSideApi mockOthersideApi{};
+
+    MockedApplicationPathManager* mockAppManager = new MockedApplicationPathManager();
+    MockedApplicationPathManager& mock(*mockAppManager);
+    EXPECT_CALL(mock, getTempPath()).WillRepeatedly(Return(requestTempDirPath));
+    
+    // using the tempDirPath to have the current_proxy file for this test
+    EXPECT_CALL(mock, getBaseSophossplConfigFileDirectory()).WillRepeatedly(Return(requestTempDirPath));
+
+    Common::ApplicationConfiguration::replaceApplicationPathManager(
+            std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+
+    // create with support for proxy
+    m_requestTempDir->createFile("current_proxy", R"({"proxy":"localhost:8000"})" ); 
+    CommsComponent::CommsDistributor distributor(requestTempDirPath, filter, responseTempDirPath, messageChannel,
+                                                 mockOthersideApi, true);
+
+    std::string requestJson = R"({"requestType": "POST"})";
+    std::string serialisedResponseJson1 = getSerializedBasicResponse("1");
+
+    m_requestTempDir->createFile("testFile1", requestJson);
+
+   
+    m_requestTempDir->createFile("request_firstTest_body", "body contents for the first test");
+    std::string source1 = m_requestTempDir->absPath("testFile1");
+    std::string source2 = m_requestTempDir->absPath("testFile2");
+    std::string requestFilePath1 = m_requestTempDir->absPath("request_firstTest.json");
+    std::string requestBodyPath1 = m_requestTempDir->absPath("request_firstTest_body");
+    std::string expectedResponsePath1 = m_responseTempDir->absPath("response_1.json");
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // start handling responses/requests
+    std::thread handlerThread(&CommsComponent::CommsDistributor::handleRequestsAndResponses, &distributor);
+
+    messageChannel.push(serialisedResponseJson1);
+
+    Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
+    // first it will send the proxy configuration
+    EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("localhost"))).Times(1).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&) { testExecutionSynchronizer.notify(); }));
+
+    EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("body contents for the first test"))).Times(1).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&) { testExecutionSynchronizer.notify(); }));
+
+    fileSystem->moveFile(source1, requestFilePath1);
+
+    EXPECT_CALL(mockOthersideApi, notifyOtherSideAndClose());
+
+    testExecutionSynchronizer.waitfor();
+    // stop the distributor
+    distributor.stop();
+    handlerThread.join();
+
+    // these files should have been cleaned up by the distributor after being used
+    EXPECT_FALSE(fileSystem->isFile(requestFilePath1));
+    EXPECT_FALSE(fileSystem->isFile(requestBodyPath1));
+    auto files = fileSystem->listFiles(requestTempDirPath); 
+
+    EXPECT_TRUE(fileSystem->isFile(expectedResponsePath1));
+    EXPECT_TRUE(checkSerializedMessageIsEquivalentToResponseJsonContent(serialisedResponseJson1, fileSystem->readFile(expectedResponsePath1)));
+
+    // the current_proxy file created there is not cleared.
+    ASSERT_EQ(files.size(), 1);
+    EXPECT_THAT( files.at(0), ::testing::HasSubstr("current_proxy")); 
+}
+
+
+
+
 TEST_F(TestCommsDistributor, testDistributorHandlesIncorrectRequests) // NOLINT
 {
     CommsComponent::MessageChannel messageChannel;
