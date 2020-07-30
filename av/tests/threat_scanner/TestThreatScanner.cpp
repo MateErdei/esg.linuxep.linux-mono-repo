@@ -10,11 +10,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "MockSusiWrapperFactory.h"
 
 #include "sophos_threat_detector/threat_scanner/SusiScanner.h"
-#include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
-#include "../common/Common.h"
+#include "sophos_threat_detector/threat_scanner/ThrowIfNotOk.h"
 
-#include "../common/WaitForEvent.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
+
+#include "../common/Common.h"
+#include "../common/WaitForEvent.h"
 
 #include "Common/UtilityImpl/StringUtils.h"
 #include <Common/Logging/ConsoleLoggingSetup.h>
@@ -242,4 +243,14 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     threatReporterServer.join();
 
     EXPECT_EQ(response.clean(), false);
+}
+
+TEST(TestThrowIfNotOk, TestOk) // NOLINT
+{
+    EXPECT_NO_THROW(throwIfNotOk(SUSI_S_OK, "Should not throw"));
+}
+
+TEST(TestThrowIfNotOk, TestNotOk) // NOLINT
+{
+    EXPECT_THROW(throwIfNotOk(SUSI_E_BAD_JSON, "Should throw"), std::runtime_error);
 }
