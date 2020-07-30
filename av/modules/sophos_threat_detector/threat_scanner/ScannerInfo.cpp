@@ -28,7 +28,7 @@ std::string threat_scanner::create_scanner_info(bool scanArchives)
             },
             "scanControl": {
                 "trueFileTypeDetection": true,
-                "puaDetection": true,
+                "puaDetection": false,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true
             }
