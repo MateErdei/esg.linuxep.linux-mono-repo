@@ -13,8 +13,12 @@ namespace Telemetry
     int TelemetrySender::doHttpsRequest(const Common::HttpSender::RequestConfig& requestConfig)
     {
         Common::HttpSender::RequestConfig copy{requestConfig}; 
+        if (!copy.getCertPath().empty()){
+            copy.setCertPath(Common::FileSystem::join("/base/mcs/certs/", Common::FileSystem::basename(requestConfig.getCertPath()))); 
+        }        
+
         try{
-            auto response = CommsComponent::HttpRequester::triggerRequest("telemetry", std::move(copy), std::string{}, std::chrono::minutes(5)); 
+            auto response = CommsComponent::HttpRequester::triggerRequest("telemetry", copy, std::chrono::minutes(5)); 
             if ( response.httpCode != 200 )
             {
                 LOGINFO("Response HttpCode: " << response.httpCode); 

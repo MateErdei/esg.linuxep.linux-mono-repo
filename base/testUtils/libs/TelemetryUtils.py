@@ -463,7 +463,10 @@ class TelemetryUtils:
 
     def create_test_telemetry_config_file(self, telemetry_config_file_path, certificate_path, username,
                                           requestType="PUT", port=443):
-        self._default_telemetry_config["telemetryServerCertificatePath"] = certificate_path
+        fixedTelemetryCert="/opt/sophos-spl/base/mcs/certs/telemetry.crt"
+        shutil.copyfile(certificate_path, fixedTelemetryCert)
+        os.chmod(fixedTelemetryCert,0o644)
+        self._default_telemetry_config["telemetryServerCertificatePath"] = fixedTelemetryCert
         self._default_telemetry_config["verb"] = requestType
         self._default_telemetry_config["port"] = int(port)
         with open(telemetry_config_file_path, 'w') as tcf:
