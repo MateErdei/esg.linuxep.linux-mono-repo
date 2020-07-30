@@ -318,7 +318,7 @@ namespace Common
             outFileStream.close();
         }
 
-        void FileSystemImpl::writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir)
+        void FileSystemImpl::writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir, mode_t mode)
             const
         {
             if (!isDirectory(tempDir))
@@ -332,7 +332,10 @@ namespace Common
             try
             {
                 writeFile(tempFilePath, content);
-
+                if ( mode != 0)
+                {
+                    Common::FileSystem::filePermissions()->chmod(tempFilePath, mode); 
+                }
                 moveFile(tempFilePath, path);
             }
             catch (IFileSystemException&)

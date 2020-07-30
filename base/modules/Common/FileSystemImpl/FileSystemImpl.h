@@ -53,7 +53,7 @@ namespace Common
 
             void writeFile(const Path& path, const std::string& content) const override;
 
-            void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir) const override;
+            void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir, mode_t mode) const override;
 
             void makeExecutable(const Path& path) const override;
 

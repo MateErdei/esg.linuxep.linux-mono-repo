@@ -32,6 +32,7 @@ namespace CommsComponent
         static std::string getIdFromRequestBaseName(const std::string& baseName, const std::string& prepender, const std::string& appender);
         static std::string getSerializedRequest(const std::string& requestFileContents, const std::string& bodyFileContents, std::string id);
         static InboundFiles getExpectedPath(const std::string & id);
+        static void writeAndMoveWithGroupReadCapability(const std::string& path, const std::string & fileContent); 
 
         static const std::string RequestPrepender;
         static const std::string ResponsePrepender;
@@ -61,11 +62,6 @@ namespace CommsComponent
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
         std::atomic_flag m_stopRequested;
         bool m_withSupportForProxy; 
-
-
-    protected:
-        virtual void createResponseJsonFile(const std::string& jsonContent, const std::string& destination, const std::string& midPoint);
-
         std::string m_responseDirPath;
     };
 } // namespace CommsComponent

@@ -11,6 +11,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FileSystem/IFilePermissions.h>
+
 #include <Common/UtilityImpl/TimeUtils.h>
 
 #include "Logger.h"
@@ -22,13 +25,14 @@ namespace
 
 namespace CommsComponent
 {
+
     Common::HttpSender::HttpResponse
-    HttpRequester::triggerRequest(const std::string &requesterName, Common::HttpSender::RequestConfig &&request,
-                                  std::string &&body, std::chrono::milliseconds timeout)
+    HttpRequester::triggerRequest(const std::string &requesterName, const Common::HttpSender::RequestConfig &request, std::chrono::milliseconds timeout)
     {
         LOGDEBUG("Attempting to trigger request on behalf of " << requesterName);
         Common::HttpSender::HttpResponse response;
         std::string id = generateId(requesterName);
+        const std::string& body = request.getData(); 
         try
         {
 
@@ -36,14 +40,13 @@ namespace CommsComponent
             if (!body.empty())
             {
                 Common::FileSystem::fileSystem()->writeFile(expectedPaths.bodyPath, body);
+                Common::FileSystem::filePermissions()->chmod(expectedPaths.bodyPath, 0640); 
             }
 
             LOGDEBUG("Creating monitor dir watching: " << Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath() << " with filter: " << id);
             MonitorDir monitorDir{Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath(), id};
 
-            Common::FileSystem::fileSystem()->writeFileAtomically(expectedPaths.requestPath,  CommsMsg::toJson(request),
-                                                                  Common::ApplicationConfiguration::applicationPathManager().getTempPath());
-
+            CommsDistributor::writeAndMoveWithGroupReadCapability(expectedPaths.requestPath, CommsMsg::toJson(request)); 
 
             std::optional<std::string> responseFilePath;
             try

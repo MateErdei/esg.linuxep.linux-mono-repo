@@ -15,6 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FakeTimeUtils.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/TempDir.h>
+#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <thread>
 #include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
@@ -45,6 +46,7 @@ TEST_F(TestHttpRequester, testGenerateId)
 
 TEST_F(TestHttpRequester, testTriggerRequest)
 {
+    Tests::ScopedReplaceFilePermissions replaceFilePermission{Tests::ScopedReplaceFilePermissions::UseNullFilePermission::YES}; 
     bool stop{ false };
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
             new SequenceOfFakeTime{ {t_20200610T12h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
@@ -74,7 +76,7 @@ TEST_F(TestHttpRequester, testTriggerRequest)
 
     std::string actualRequestJsonPath;
     EXPECT_CALL(*filesystemMock, writeFile( MatchesRegex(expectedRequestBodySubstrRegex.str()),"testBody")).WillOnce(SaveArg<0>(&actualRequestJsonPath));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(MatchesRegex(expectedRequestJsonSubstrRegex.str()),_,responseTempDirPath)).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&, const std::string&, const std::string&) { testExecutionSynchronizer.notify(); }));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(MatchesRegex(expectedRequestJsonSubstrRegex.str()),_,responseTempDirPath, 0640)).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&, const std::string&, const std::string&, mode_t) { testExecutionSynchronizer.notify(); }));
     std::string requesterName = "testRequester";
     std::string requestJson = R"({"requestType": "POST"})";
     auto requesterThread = std::async(std::launch::async, [requesterName, requestJson](){ return CommsComponent::HttpRequester::triggerRequest(
@@ -100,6 +102,7 @@ TEST_F(TestHttpRequester, testTriggerRequest)
 
 TEST_F(TestHttpRequester, testRequesterDealsWithInvalidResponse)
 {
+    Tests::ScopedReplaceFilePermissions replaceFilePermission{Tests::ScopedReplaceFilePermissions::UseNullFilePermission::YES};         
     bool stop{ false };
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
             new SequenceOfFakeTime{ {t_20200610T12h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
@@ -129,7 +132,7 @@ TEST_F(TestHttpRequester, testRequesterDealsWithInvalidResponse)
 
     std::string actualRequestJsonPath;
     EXPECT_CALL(*filesystemMock, writeFile( MatchesRegex(expectedRequestBodySubstrRegex.str()),"testBody")).WillOnce(SaveArg<0>(&actualRequestJsonPath));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(MatchesRegex(expectedRequestJsonSubstrRegex.str()),_,responseTempDirPath)).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&, const std::string&, const std::string&) { testExecutionSynchronizer.notify(); }));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(MatchesRegex(expectedRequestJsonSubstrRegex.str()),_,responseTempDirPath, 0640)).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&, const std::string&, const std::string&, mode_t) { testExecutionSynchronizer.notify(); }));
     std::string requesterName = "testRequester";
     std::string requestJson = R"({"requestType": "POST"})";
     auto requesterThread = std::async(std::launch::async, [requesterName, requestJson](){ return CommsComponent::HttpRequester::triggerRequest(
@@ -154,6 +157,7 @@ TEST_F(TestHttpRequester, testRequesterDealsWithInvalidResponse)
 
 TEST_F(TestHttpRequester, testRequesterHandlesNoResponeFileBack)
 {
+    Tests::ScopedReplaceFilePermissions replaceFilePermission{Tests::ScopedReplaceFilePermissions::UseNullFilePermission::YES}; 
     bool stop{ false };
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
             new SequenceOfFakeTime{ {t_20200610T12h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
@@ -183,7 +187,7 @@ TEST_F(TestHttpRequester, testRequesterHandlesNoResponeFileBack)
 
     std::string actualRequestJsonPath;
     EXPECT_CALL(*filesystemMock, writeFile( MatchesRegex(expectedRequestBodySubstrRegex.str()),"testBody")).WillOnce(SaveArg<0>(&actualRequestJsonPath));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(MatchesRegex(expectedRequestJsonSubstrRegex.str()),_,responseTempDirPath)).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&, const std::string&, const std::string&) { testExecutionSynchronizer.notify(); }));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(MatchesRegex(expectedRequestJsonSubstrRegex.str()),_,responseTempDirPath, 0640)).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&, const std::string&, const std::string&, mode_t) { testExecutionSynchronizer.notify(); }));
     std::string requesterName = "testRequester";
     std::string requestJson = R"({"requestType": "POST"})";
     auto requesterThread = std::async(std::launch::async, [requesterName, requestJson](){ return CommsComponent::HttpRequester::triggerRequest(

@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FileSystem/IFilePermissions.h>
 
 #include <utility>
 
@@ -30,10 +31,10 @@ namespace
 namespace CommsComponent
 {
 
-    const std::string CommsDistributor::RequestPrepender = "request_";
-    const std::string CommsDistributor::ResponsePrepender = "response_";
-    const std::string CommsDistributor::JsonAppender = ".json";
-    const std::string CommsDistributor::BodyAppender = "_body";
+    const std::string CommsDistributor::m_requestPrepender = "request_";
+    const std::string CommsDistributor::m_responsePrepender = "response_";
+    const std::string CommsDistributor::m_jsonAppender = ".json";
+    const std::string CommsDistributor::m_bodyAppender = "_body";
 
     CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, const std::string& responseDirPath, MessageChannel& messageChannel, IOtherSideApi& childProxy, bool withSupportForProxy) :
         m_monitorDir(dirPath,positiveFilter),
@@ -128,12 +129,6 @@ namespace CommsComponent
         }
     }
 
-    void CommsDistributor::createResponseJsonFile(const std::string& jsonContent, const std::string& destination, const std::string& midPoint)
-    {
-        LOGDEBUG("Creating temporary file in: " << midPoint << ", then moving it to: " << destination);
-        Common::FileSystem::fileSystem()->writeFileAtomically(destination, jsonContent, midPoint);
-    }
-
     void CommsDistributor::forwardResponse(const std::string& incomingMessage)
     {
         std::string responseId;
@@ -148,7 +143,7 @@ namespace CommsComponent
                 std::string responseBasename = getExpectedResponseJsonBaseNameFromId(responseId);
                 Path responsePath = Common::FileSystem::join(m_responseDirPath, responseBasename);
                 LOGDEBUG("Writing response: " << responseId << " to " << responsePath);
-                createResponseJsonFile(responseJson, responsePath, Common::ApplicationConfiguration::applicationPathManager().getTempPath());
+                writeAndMoveWithGroupReadCapability(responsePath, responseJson); 
             }
         }
         catch (InvalidCommsMsgException& ex)
@@ -195,7 +190,7 @@ namespace CommsComponent
     std::string CommsDistributor::getExpectedRequestBodyBaseNameFromId(const std::string &id)
     {
         std::stringstream requestBodyFileName;
-        requestBodyFileName << RequestPrepender << id << BodyAppender;
+        requestBodyFileName << m_requestPrepender << id << m_bodyAppender;
         return requestBodyFileName.str();
     }
 
@@ -204,32 +199,38 @@ namespace CommsComponent
     std::string CommsDistributor::getExpectedRequestJsonBaseNameFromId(const std::string &id)
     {
         std::stringstream requestJsonFileName;
-        requestJsonFileName << RequestPrepender << id << JsonAppender;
+        requestJsonFileName << m_requestPrepender << id << m_jsonAppender;
         return requestJsonFileName.str();
     }
 
     std::string CommsDistributor::getExpectedResponseJsonBaseNameFromId(const std::string &id)
     {
         std::stringstream responseJsonFileName;
-        responseJsonFileName << ResponsePrepender << id << JsonAppender;
+        responseJsonFileName << m_responsePrepender << id << m_jsonAppender;
         return responseJsonFileName.str();
     }
 
     void CommsDistributor::forwardRequest(const std::string& requestBaseName)
     {
         Path requestJsonFilePath = Common::FileSystem::join(m_monitorDirPath, requestBaseName);
-        std::string id = getIdFromRequestBaseName(requestBaseName, RequestPrepender, JsonAppender);
+        std::string id = getIdFromRequestBaseName(requestBaseName, m_requestPrepender, m_jsonAppender);
         std::string requestBodyBaseName = getExpectedRequestBodyBaseNameFromId(id);
         Path requestBodyFilePath = Common::FileSystem::join(m_monitorDirPath, requestBodyBaseName);
-
+        bool requireCleanup = false; 
         try {
-            if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, RequestPrepender) &&
-                Common::UtilityImpl::StringUtils::endswith(requestBaseName, JsonAppender))
+            if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, m_requestPrepender) &&
+                Common::UtilityImpl::StringUtils::endswith(requestBaseName, m_jsonAppender))
             {
                 LOGINFO("Received a request: " << requestBaseName);
 
                 std::string requestFileContents = m_fileSystem->readFile(requestJsonFilePath);
-                std::string bodyFileContents = m_fileSystem->readFile(requestBodyFilePath);
+                std::string bodyFileContents; 
+                if (m_fileSystem->exists(requestBodyFilePath))
+                {
+                    requireCleanup = true; 
+                    bodyFileContents = m_fileSystem->readFile(requestBodyFilePath);
+                }
+                 
 
                 std::string serializedRequestMessage = getSerializedRequest(requestFileContents, bodyFileContents, id);
                 if ( m_withSupportForProxy)
@@ -243,7 +244,10 @@ namespace CommsComponent
                 LOGDEBUG("Received request: " << requestBaseName << ", that did not match expected format. Discarding.");
             }
             // attempt to clean up request body here because we cannot guarantee we have calculated it at the end of this function
-            cleanupFile(requestBodyFilePath);
+            if ( requireCleanup )
+            {
+                cleanupFile(requestBodyFilePath);
+            }
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
@@ -264,12 +268,17 @@ namespace CommsComponent
 
     void CommsDistributor::setupProxy()
     {
-        CommsComponent::CommsConfig config;
-        config.addProxyInfoToConfig(); 
-        CommsMsg comms;
-        comms.id = "ProxyConfig";
-        comms.content = config;
-        m_childProxy.pushMessage(CommsMsg::serialize(comms));
+        try{
+            CommsComponent::CommsConfig config;
+            config.addProxyInfoToConfig(); 
+            CommsMsg comms;
+            comms.id = "ProxyConfig";
+            comms.content = config;
+            m_childProxy.pushMessage(CommsMsg::serialize(comms));
+        }catch(std::exception & ex)
+        {
+            LOGERROR("Failed to configure proxy. Reason: " << ex.what()); 
+        }
     }
 
     void CommsDistributor::cleanupFile(const Path& filePath)
@@ -302,10 +311,13 @@ namespace CommsComponent
         return InboundFiles{expectedRequestJsonPath, expectedRequestBodyPath};
     }
 
-    void CommsDistributor::createErrorResponseFile(std::string message, std::string id)
-    {
-
+    void CommsDistributor::writeAndMoveWithGroupReadCapability(const std::string& path, const std::string & fileContent)
+    {        
+        Common::FileSystem::fileSystem()->writeFileAtomically(path, fileContent, 
+                Common::ApplicationConfiguration::applicationPathManager().getTempPath(), 0640); 
     }
+
+
 
 
 } // namespace CommsComponent

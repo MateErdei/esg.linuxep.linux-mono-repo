@@ -19,7 +19,6 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/register_central.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/var/sophos-spl-comms/logs/base/comms-network.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
@@ -40,6 +39,7 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/logs/dbos.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/logs/osquery.watcher.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/var/sophos-spl-comms/logs/base/comms-network.log
 
     Dump Teardown Log    ./tmp/proxy_server.log
     Dump Teardown Log    ./tmp/proxy.log

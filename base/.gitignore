@@ -1,3 +1,14 @@
+cmake-fuzz/
+.vscode/
+venv37/
+SupportFiles
+build/
+testUtils/*.html
+testUtils/*.xml
+testUtils/tmp
+testUtils/SystemProductTestOutput/
+testUtils/kittylogs/
+testUtils/robot
 .idea/.name
 .idea/vcs
 .idea/vcs.xml
@@ -26,3 +37,4 @@ tests/googletest/
 *.orig
 products/distribution/include/
 thirdparty/libprotobuf-mutator/
+cmake-afl-fuzz/

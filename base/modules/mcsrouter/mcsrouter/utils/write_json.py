@@ -38,3 +38,4 @@ def write_current_proxy_info(proxy):
 
     with open(filepath, 'w') as outfile:
         json.dump(proxy_info, outfile)
+    os.chmod(filepath,0o640)

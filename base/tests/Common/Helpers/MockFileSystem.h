@@ -40,6 +40,7 @@ public:
     MOCK_CONST_METHOD2(readLines, std::vector<std::string>(const Path& path, unsigned long maxSize));
     MOCK_CONST_METHOD2(writeFile, void(const Path& path, const std::string& content));
     MOCK_CONST_METHOD3(writeFileAtomically, void(const Path& path, const std::string& content, const Path& tempDir));
+    MOCK_CONST_METHOD4(writeFileAtomically, void(const Path& path, const std::string& content, const Path& tempDir, mode_t mode));
     MOCK_CONST_METHOD1(makeExecutable, void(const Path& path));
     MOCK_CONST_METHOD1(listFiles, std::vector<Path>(const Path& directoryPath));
     MOCK_CONST_METHOD2(listFilesAndDirectories, std::vector<Path>(const Path& directoryPath, bool includeSymlinks));
