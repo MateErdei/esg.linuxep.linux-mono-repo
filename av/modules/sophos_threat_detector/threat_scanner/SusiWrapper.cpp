@@ -8,19 +8,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "SusiGlobalHandler.h"
+#include "ThrowIfNotOk.h"
 
 #include <stdexcept>
 #include <iostream>
 
 using namespace threat_scanner;
-
-static void throwIfNotOk(SusiResult res, const std::string& message)
-{
-    if (res != SUSI_S_OK)
-    {
-        throw std::runtime_error(message);
-    }
-}
 
 SusiWrapper::SusiWrapper(SusiGlobalHandlerSharePtr globalHandler, const std::string& scannerConfig)
         : m_globalHandler(std::move(globalHandler)),m_handle(nullptr)

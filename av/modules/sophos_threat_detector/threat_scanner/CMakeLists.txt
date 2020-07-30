@@ -16,7 +16,8 @@ add_library(threat_scanner SHARED
         SusiWrapperFactory.h
         SusiWrapperFactory.cpp
         ScannerInfo.h
-        ScannerInfo.cpp)
+        ScannerInfo.cpp
+        ThrowIfNotOk.h)
 
 find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
 

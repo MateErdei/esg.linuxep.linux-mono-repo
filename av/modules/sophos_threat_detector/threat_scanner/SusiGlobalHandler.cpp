@@ -7,8 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SusiGlobalHandler.h"
 
 #include "Logger.h"
-
-#include <Susi.h>
+#include "ThrowIfNotOk.h"
 
 #include <iostream>
 #include <cassert>
@@ -85,14 +84,6 @@ static const SusiLogCallback GL_log_callback{
     .log = susiLogCallback,
     .minLogLevel = SUSI_LOG_LEVEL_DETAIL
 };
-
-static void throwIfNotOk(SusiResult res, const std::string& message)
-{
-    if (res != SUSI_S_OK)
-    {
-        throw std::runtime_error(message);
-    }
-}
 
 SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
 {
