@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 
 #include "avscanner/avscannerimpl/DeviceUtil.h"
+#include "avscanner/avscannerimpl/SystemCallWrapperFactory.h"
 
 #include <linux/magic.h>
 #include <sys/statfs.h>
@@ -103,6 +104,14 @@ TEST_F(TestDeviceUtil, TestIsFloppy_FloppyExistsButHardwareDoesNot) // NOLINT
     EXPECT_CALL(*m_systemCallWrapper, _ioctl(fileDescriptor, _, _)).WillOnce(DoAll(SetArgPointee<2>(*driveType), Return(1)));
 
     EXPECT_TRUE(m_deviceUtil->isFloppy(devicePath, "/mnt/floppy", ""));
+}
+
+TEST_F(TestDeviceUtil, TestIsSystem_noTypeButSpecialMount) // NOLINT
+{
+    std::shared_ptr<DeviceUtil> deviceUtil = std::make_shared<DeviceUtil>(std::make_shared<SystemCallWrapperFactory>());
+    // Assumes all build machines will have /proc
+    EXPECT_TRUE(deviceUtil->isSystem("proc", "/proc", "none"));
+    EXPECT_TRUE(deviceUtil->isSystem("proc", "/proc", ""));
 }
 
 class DeviceUtilParameterizedTest
