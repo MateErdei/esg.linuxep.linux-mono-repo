@@ -8,8 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "sophos_threat_detector/threat_scanner/ISusiWrapperFactory.h"
 
-class MockSusiWrapperFactory : public ISusiWrapperFactory
+class MockSusiWrapperFactory : public threat_scanner::ISusiWrapperFactory
 {
 public:
-    MOCK_METHOD1(createSusiWrapper, std::shared_ptr<ISusiWrapper>(const std::string& /*scannerConfig*/));
+    MOCK_METHOD1(createSusiWrapper, threat_scanner::ISusiWrapperSharedPtr(const std::string& /*scannerConfig*/));
 };

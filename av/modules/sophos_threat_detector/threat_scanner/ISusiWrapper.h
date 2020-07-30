@@ -10,14 +10,20 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Susi.h>
 
-class ISusiWrapper
+#include <memory>
+
+namespace threat_scanner
 {
-public:
-    virtual SusiResult scanFile(
+    class ISusiWrapper
+    {
+    public:
+        virtual SusiResult scanFile(
             const char* metaData,
             const char* filename,
             datatypes::AutoFd& fd,
             SusiScanResult** scanResult) = 0;
 
-    virtual void freeResult(SusiScanResult* scanResult) = 0;
-};
+        virtual void freeResult(SusiScanResult* scanResult) = 0;
+    };
+    using ISusiWrapperSharedPtr = std::shared_ptr<ISusiWrapper>;
+}

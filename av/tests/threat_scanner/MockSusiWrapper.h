@@ -10,10 +10,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 
-class MockSusiWrapper : public ISusiWrapper
+#include <utility>
+
+class MockSusiWrapper : public threat_scanner::ISusiWrapper
 {
 public:
-    explicit MockSusiWrapper(const std::string& scannerConfig)
+    explicit MockSusiWrapper(std::string scannerConfig)
     : m_scannerConfig(std::move(scannerConfig))
     {
     }

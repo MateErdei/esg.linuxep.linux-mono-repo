@@ -8,10 +8,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ISusiWrapper.h"
 
-#include <memory>
-
-class ISusiWrapperFactory
+namespace threat_scanner
 {
-public:
-    virtual std::shared_ptr<ISusiWrapper> createSusiWrapper(const std::string& scannerConfig) = 0;
-};
+    class ISusiWrapperFactory
+    {
+    public:
+        virtual ISusiWrapperSharedPtr createSusiWrapper(const std::string& scannerConfig) = 0;
+    };
+
+    using ISusiWrapperFactorySharedPtr = std::shared_ptr<ISusiWrapperFactory>;
+}

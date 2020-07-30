@@ -27,7 +27,6 @@ TEST(TestSusiScannerFactory, testWithoutPLUGIN_INSTALL) // NOLINT
 
 TEST(TestSusiScannerFactory, testConstruction) // NOLINT
 {
-
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
 

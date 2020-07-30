@@ -16,7 +16,13 @@ IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives)
     return std::make_unique<SusiScanner>(m_wrapperFactory, scanArchives);
 }
 
-SusiScannerFactory::SusiScannerFactory()
-    : m_wrapperFactory(std::make_shared<SusiWrapperFactory>())
+SusiScannerFactory::SusiScannerFactory(ISusiWrapperFactorySharedPtr wrapperFactory)
+    : m_wrapperFactory(std::move(wrapperFactory))
 {
 }
+
+SusiScannerFactory::SusiScannerFactory()
+    : SusiScannerFactory(std::make_shared<SusiWrapperFactory>())
+{
+}
+
