@@ -123,11 +123,11 @@ INSTANTIATE_TEST_CASE_P(DeviceUtil, SpecialMountParameterizedTest, ::testing::Va
     0x6e667364, // nfsd
     0x19800202, // mqueue
     CGROUP_SUPER_MAGIC,
-    CGROUP2_SUPER_MAGIC,
+    0x63677270, // CGROUP2_SUPER_MAGIC,
     0x67596969, // rpc_pipefs
     HUGETLBFS_MAGIC,
     0x1373, // devfs
-    TRACEFS_MAGIC
+    0x74726163 // TRACEFS_MAGIC
 )); // NOLINT
 
 TEST_P(SpecialMountParameterizedTest, TestIsSystem_noTypeButSpecialMount) // NOLINT
