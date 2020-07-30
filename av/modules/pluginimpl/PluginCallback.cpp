@@ -37,7 +37,7 @@ namespace Plugin
     void PluginCallback::queueAction(const std::string& actionXml )
     {
         LOGSUPPORT("Queueing action");
-        m_task->push(Task{.taskType=Task::TaskType::Action, actionXml });
+        m_task->push(Task{Task::TaskType::Action, actionXml });
     }
 
     void PluginCallback::onShutdown()
@@ -55,12 +55,6 @@ namespace Plugin
         std::string status = generateSAVStatusXML();
         m_statusInfo = { status, status, "SAV" };
         return m_statusInfo;
-    }
-
-    void PluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
-    {
-        LOGSUPPORT("Setting status");
-        m_statusInfo = std::move(statusInfo);
     }
 
     std::string PluginCallback::getTelemetry()

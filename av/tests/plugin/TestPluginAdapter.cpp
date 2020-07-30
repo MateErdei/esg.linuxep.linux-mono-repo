@@ -51,14 +51,15 @@ namespace
             fs::remove_all("/tmp/TestPluginAdapter/");
         }
 
-        std::string generatePolicyXML(const std::string& revID)
+        std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2")
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
                     R"sophos(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="@@REV_ID@@" policyType="2"/>
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="@@REV_ID@@" policyType="@@POLICY_ID@@"/>
 </config>
-)sophos", {{"@@REV_ID@@", revID}});
+)sophos", {{"@@REV_ID@@", revID},
+           {"@@POLICY_ID@@", policyID}});
         }
 
         std::string generateStatusXML(const std::string& res, const std::string& revID)
@@ -147,6 +148,39 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_THAT(logs, HasSubstr("Received new policy with revision ID: 123"));
 }
 
+TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+
+    std::string policy1revID = "12345678901";
+    std::string policy2revID = "12345678902";
+    std::string policy1Xml = generatePolicyXML(policy1revID, "1");
+    std::string policy2Xml = generatePolicyXML(policy2revID);
+
+    Task policy1Task = {Task::TaskType::Policy, policy1Xml};
+    Task policy2Task = {Task::TaskType::Policy, policy2Xml};
+    m_queueTask->push(policy1Task);
+    m_queueTask->push(policy2Task);
+
+    std::string initialStatusXml = generateStatusXML("NoRef", "");
+    std::string status1Xml = generateStatusXML("Same", policy1revID);
+    std::string status2Xml = generateStatusXML("Same", policy2revID);
+    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status2Xml, status2Xml)).WillOnce(QueueStopTask(m_queueTask));
+
+    EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
+
+    pluginAdapter.mainLoop();
+    std::string logs = testing::internal::GetCapturedStderr();
+
+    EXPECT_THAT(logs, HasSubstr("Process policy: " + policy1Xml));
+    EXPECT_THAT(logs, HasSubstr("Process policy: " + policy2Xml));
+    EXPECT_THAT(logs, HasSubstr("Ignoring policy of incorrect type"));
+    EXPECT_THAT(logs, HasSubstr("Received new policy with revision ID: 123"));
+}
 
 TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
 {
