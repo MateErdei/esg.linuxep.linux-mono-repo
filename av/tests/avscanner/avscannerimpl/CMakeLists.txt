@@ -9,6 +9,8 @@ SophosAddTest(TestAVScannerImpl
         TestMounts.cpp
         TestNamedScanRunner.cpp
         TestOptions.cpp
+        TestScanClient.cpp
+        TestSystemPaths.cpp
         PROJECTS avscannerimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
