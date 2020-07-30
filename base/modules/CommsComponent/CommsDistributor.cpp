@@ -31,10 +31,10 @@ namespace
 namespace CommsComponent
 {
 
-    const std::string CommsDistributor::m_requestPrepender = "request_";
-    const std::string CommsDistributor::m_responsePrepender = "response_";
-    const std::string CommsDistributor::m_jsonAppender = ".json";
-    const std::string CommsDistributor::m_bodyAppender = "_body";
+    const std::string CommsDistributor::RequestPrepender = "request_";
+    const std::string CommsDistributor::ResponsePrepender = "response_";
+    const std::string CommsDistributor::JsonAppender = ".json";
+    const std::string CommsDistributor::BodyAppender = "_body";
 
     CommsDistributor::CommsDistributor(const std::string& dirPath, const std::string& positiveFilter, const std::string& responseDirPath, MessageChannel& messageChannel, IOtherSideApi& childProxy, bool withSupportForProxy) :
         m_monitorDir(dirPath,positiveFilter),
@@ -143,16 +143,22 @@ namespace CommsComponent
                 std::string responseBasename = getExpectedResponseJsonBaseNameFromId(responseId);
                 Path responsePath = Common::FileSystem::join(m_responseDirPath, responseBasename);
                 LOGDEBUG("Writing response: " << responseId << " to " << responsePath);
-                writeAndMoveWithGroupReadCapability(responsePath, responseJson); 
+                writeAndMoveWithGroupReadCapability(responsePath, responseJson);
             }
         }
         catch (InvalidCommsMsgException& ex)
         {
-            LOGERROR("Failed to convert incoming comms response of length: " << incomingMessage.size() << " into CommsMsg, reason: " << ex.what());
+            std::stringstream errorMsg;
+            errorMsg << "Failed to convert incoming comms response of length: " << incomingMessage.size() << " into CommsMsg, reason: " << ex.what();
+            LOGERROR(errorMsg.str());
+            createErrorResponseFile(errorMsg.str(), m_responseDirPath, responseId);
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
-            LOGERROR("Failed to create response file for response with id: " << responseId << ", reason: " << ex.what());
+            std::stringstream errorMsg;
+            errorMsg << "Failed to create response file for response with id: " << responseId << ", reason: " << ex.what();
+            LOGERROR(errorMsg.str());
+            createErrorResponseFile(errorMsg.str(), m_responseDirPath, responseId);
         }
     }
 
@@ -190,7 +196,7 @@ namespace CommsComponent
     std::string CommsDistributor::getExpectedRequestBodyBaseNameFromId(const std::string &id)
     {
         std::stringstream requestBodyFileName;
-        requestBodyFileName << m_requestPrepender << id << m_bodyAppender;
+        requestBodyFileName << RequestPrepender << id << BodyAppender;
         return requestBodyFileName.str();
     }
 
@@ -199,38 +205,36 @@ namespace CommsComponent
     std::string CommsDistributor::getExpectedRequestJsonBaseNameFromId(const std::string &id)
     {
         std::stringstream requestJsonFileName;
-        requestJsonFileName << m_requestPrepender << id << m_jsonAppender;
+        requestJsonFileName << RequestPrepender << id << JsonAppender;
         return requestJsonFileName.str();
     }
 
     std::string CommsDistributor::getExpectedResponseJsonBaseNameFromId(const std::string &id)
     {
         std::stringstream responseJsonFileName;
-        responseJsonFileName << m_responsePrepender << id << m_jsonAppender;
+        responseJsonFileName << ResponsePrepender << id << JsonAppender;
         return responseJsonFileName.str();
     }
 
     void CommsDistributor::forwardRequest(const std::string& requestBaseName)
     {
         Path requestJsonFilePath = Common::FileSystem::join(m_monitorDirPath, requestBaseName);
-        std::string id = getIdFromRequestBaseName(requestBaseName, m_requestPrepender, m_jsonAppender);
+        std::string id = getIdFromRequestBaseName(requestBaseName, RequestPrepender, JsonAppender);
         std::string requestBodyBaseName = getExpectedRequestBodyBaseNameFromId(id);
         Path requestBodyFilePath = Common::FileSystem::join(m_monitorDirPath, requestBodyBaseName);
-        bool requireCleanup = false; 
         try {
-            if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, m_requestPrepender) &&
-                Common::UtilityImpl::StringUtils::endswith(requestBaseName, m_jsonAppender))
+            if (Common::UtilityImpl::StringUtils::startswith(requestBaseName, RequestPrepender) &&
+                Common::UtilityImpl::StringUtils::endswith(requestBaseName, JsonAppender))
             {
                 LOGINFO("Received a request: " << requestBaseName);
 
                 std::string requestFileContents = m_fileSystem->readFile(requestJsonFilePath);
-                std::string bodyFileContents; 
+                std::string bodyFileContents;
                 if (m_fileSystem->exists(requestBodyFilePath))
                 {
-                    requireCleanup = true; 
                     bodyFileContents = m_fileSystem->readFile(requestBodyFilePath);
                 }
-                 
+
 
                 std::string serializedRequestMessage = getSerializedRequest(requestFileContents, bodyFileContents, id);
                 if ( m_withSupportForProxy)
@@ -243,41 +247,39 @@ namespace CommsComponent
             {
                 LOGDEBUG("Received request: " << requestBaseName << ", that did not match expected format. Discarding.");
             }
-            // attempt to clean up request body here because we cannot guarantee we have calculated it at the end of this function
-            if ( requireCleanup )
-            {
-                cleanupFile(requestBodyFilePath);
-            }
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
-            LOGERROR("Failed to forward request: " << requestBaseName << ", Reason: " << exception.what());
+            std::stringstream errorMsg;
+            errorMsg << "Failed to forward request: " << requestBaseName << ", Reason: " << exception.what();
+            LOGERROR(errorMsg.str());
+            createErrorResponseFile(errorMsg.str(), m_responseDirPath, id);
         }
         catch (std::runtime_error& exception)
         {
-            LOGERROR("Failed to forward request: " << requestBaseName << ", Reason: " << exception.what());
+            std::stringstream errorMsg;
+            errorMsg << "Failed to forward request: " << requestBaseName << ", Reason: " << exception.what();
+            LOGERROR(errorMsg.str());
+            createErrorResponseFile(errorMsg.str(), m_responseDirPath, id);
         }
-//        catch (InvalidCommsMsgException& exception)
-//        {
-//            LOGERROR("Couldn't convert request: " << requestBaseName << " into CommsMsg, Reason: " << exception.what());
-//        }
 
-        // attempt to clean up request json
+        // attempt to clean up request json and body
         cleanupFile(requestJsonFilePath);
+        cleanupFile(requestBodyFilePath);
     }
 
     void CommsDistributor::setupProxy()
     {
         try{
             CommsComponent::CommsConfig config;
-            config.addProxyInfoToConfig(); 
+            config.addProxyInfoToConfig();
             CommsMsg comms;
             comms.id = "ProxyConfig";
             comms.content = config;
             m_childProxy.pushMessage(CommsMsg::serialize(comms));
         }catch(std::exception & ex)
         {
-            LOGERROR("Failed to configure proxy. Reason: " << ex.what()); 
+            LOGERROR("Failed to configure proxy. Reason: " << ex.what());
         }
     }
 
@@ -312,12 +314,30 @@ namespace CommsComponent
     }
 
     void CommsDistributor::writeAndMoveWithGroupReadCapability(const std::string& path, const std::string & fileContent)
-    {        
-        Common::FileSystem::fileSystem()->writeFileAtomically(path, fileContent, 
-                Common::ApplicationConfiguration::applicationPathManager().getTempPath(), 0640); 
+    {
+        Common::FileSystem::fileSystem()->writeFileAtomically(path, fileContent,
+                Common::ApplicationConfiguration::applicationPathManager().getTempPath(), 0640);
     }
 
-
+    void CommsDistributor::createErrorResponseFile(std::string message, Path responseDir, std::string id)
+    {
+        std::stringstream fileBaseName;
+        if (id.empty())
+        {
+            id = "unknownId";
+        }
+        fileBaseName << ResponsePrepender << id << "_error";
+        Path responsePath = Common::FileSystem::join(responseDir, fileBaseName.str());
+        LOGINFO("Creating error response file: " << responsePath);
+        try
+        {
+            writeAndMoveWithGroupReadCapability(responsePath, message);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGERROR("Failed to create error response file: " << responsePath << ", reason: " << ex.what());
+        }
+    }
 
 
 } // namespace CommsComponent

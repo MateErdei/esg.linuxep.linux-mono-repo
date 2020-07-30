@@ -12,8 +12,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <modules/CommsComponent/CommsMsg.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include "CommsComponent/CommsDistributor.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "CommsMsgUtils.h"
 
 class TestCommsDistributor : public LogInitializedTests
@@ -196,7 +199,7 @@ TEST_F(TestCommsDistributor, testDistributorHandlesRequestFilesAndResponsesAndSe
 
 
 
-TEST_F(TestCommsDistributor, testDistributorHandlesIncorrectRequests) // NOLINT
+TEST_F(TestCommsDistributor, testDistributorHandlesBadRequestsAndBadResponses) // NOLINT
 {
     CommsComponent::MessageChannel messageChannel;
     const std::string filter = ".json";
@@ -216,24 +219,35 @@ TEST_F(TestCommsDistributor, testDistributorHandlesIncorrectRequests) // NOLINT
     CommsComponent::CommsDistributor distributor(requestTempDirPath, filter, responseTempDirPath, messageChannel,
                                      mockOthersideApi);
 
-    std::string requestJson = R"({"requestType": "POST"})";
+    std::string requestJson1 = R"({"requestType": "POST"})";
+    std::string requestJson2 = R"({"port": "thisIsMeanToBeAnInt"})";
     std::string serialisedResponseJson = getSerializedBasicResponse("1");
 
-    m_requestTempDir->createFile("testFile1", requestJson);
+    m_requestTempDir->createFile("testFile1", requestJson1);
+    m_requestTempDir->createFile("testFile2", requestJson2);
     m_requestTempDir->createFile("notarequest_firstTest_body", "body contents for the first test");
+    m_requestTempDir->createFile("request_secondTest_body", "body contents for the second");
     std::string source1 = m_requestTempDir->absPath("testFile1");
+    std::string source2 = m_requestTempDir->absPath("testFile2");
     std::string badRequestFilePath1 = m_requestTempDir->absPath("notarequest_firstTest.json");
+    std::string badRequestFilePath2 = m_requestTempDir->absPath("request_secondTest.json");
     std::string requestBodyPath1 = m_requestTempDir->absPath("notarequest_firstTest_body");
+    std::string requestBodyPath2 = m_requestTempDir->absPath("request_secondTest_body");
     auto fileSystem = Common::FileSystem::fileSystem();
+
 
     // start handling responses/requests
     std::thread handlerThread(&CommsComponent::CommsDistributor::handleRequestsAndResponses, &distributor);
 
     // push empty message
     messageChannel.push("");
+    // push garbage message
+    messageChannel.push("garbageMessage");
 
     EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("body contents for the first test"))).Times(0);
+    EXPECT_CALL(mockOthersideApi, pushMessage(HasSubstr("body contents for the second"))).Times(0);
     fileSystem->moveFile(source1, badRequestFilePath1);
+    fileSystem->moveFile(source2, badRequestFilePath2);
 
     EXPECT_CALL(mockOthersideApi, notifyOtherSideAndClose());
 
@@ -246,7 +260,10 @@ TEST_F(TestCommsDistributor, testDistributorHandlesIncorrectRequests) // NOLINT
     EXPECT_FALSE(fileSystem->isFile(badRequestFilePath1));
     // we cannot remove the body in this case as we expect it to fit: request_<id>_body
     EXPECT_TRUE(fileSystem->isFile(requestBodyPath1));
-    EXPECT_EQ(fileSystem->listFiles(responseTempDirPath).size(), 0);
+    //expect two response error files
+    EXPECT_EQ(fileSystem->listFiles(responseTempDirPath).size(), 2);
+    EXPECT_TRUE(fileSystem->isFile(m_responseTempDir->absPath("response_unknownId_error")));
+    EXPECT_TRUE(fileSystem->isFile(m_responseTempDir->absPath("response_secondTest_error")));
     // only file is the body we fail to clean up
     EXPECT_EQ(fileSystem->listFiles(requestTempDirPath).size(), 1);
 }
@@ -318,4 +335,24 @@ TEST_F(TestCommsDistributor, testGetSerializedRequest)
     std::stringstream s;
     EXPECT_TRUE(requestAreEquivalent(s, expectedRequest, std::get<Common::HttpSender::RequestConfig>(msg.content)));
     EXPECT_EQ(id, msg.id);
+}
+
+TEST_F(TestCommsDistributor, testCreateErrorResponseFile)
+{
+    MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
+    MockedApplicationPathManager& mock(*mockAppManager);
+    Common::ApplicationConfiguration::replaceApplicationPathManager(
+            std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+
+
+    auto responseTempDir = Tests::TempDir::makeTempDir();
+    ON_CALL(mock, getTempPath()).WillByDefault(Return(responseTempDir->dirPath()));
+    std::string message = "error message";
+    Path responseDir = responseTempDir->dirPath();
+    std::string id = "errorId";
+    CommsDistributor::createErrorResponseFile(message, responseDir, id);
+
+    Path expectedResponsePath = responseTempDir->absPath("response_errorId_error");
+    EXPECT_TRUE(Common::FileSystem::fileSystem()->isFile(expectedResponsePath));
+    EXPECT_EQ(Common::FileSystem::fileSystem()->readFile(expectedResponsePath), message);
 }
