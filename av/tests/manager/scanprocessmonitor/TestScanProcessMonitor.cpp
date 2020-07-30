@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 #include "modules/manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "ScanProcessMonitorMemoryAppenderUsingTests.h"
-#include "tests/common/ThreadRunner.h"
+#include "modules/common/ThreadRunner.h"
 
 #include <fstream>
 

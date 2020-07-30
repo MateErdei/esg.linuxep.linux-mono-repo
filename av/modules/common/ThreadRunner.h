@@ -1,4 +1,5 @@
 #include "modules/pluginimpl/Logger.h"
+#include "Common/Threads/AbstractThread.h"
 
 namespace
 {
@@ -10,6 +11,11 @@ namespace
         {
             LOGINFO("Starting " << m_name);
             m_thread.start();
+        }
+
+        ~ThreadRunner()
+        {
+            killThreads();
         }
 
         void killThreads()

@@ -10,8 +10,10 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "Telemetry.h"
 
 #include "datatypes/sophos_filesystem.h"
+#include "modules/common/ThreadRunner.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+
 
 namespace fs = sophos_filesystem;
 
@@ -34,29 +36,6 @@ namespace
     {
         return pluginInstall() /  "sbin/sophos_threat_detector_launcher";
     }
-
-    class ThreadRunner
-    {
-    public:
-        explicit ThreadRunner(Common::Threads::AbstractThread& thread, std::string name)
-                : m_thread(thread), m_name(std::move(name))
-        {
-            LOGINFO("Starting " << m_name);
-            m_thread.start();
-        }
-
-        ~ThreadRunner()
-        {
-            LOGINFO("Stopping " << m_name);
-            m_thread.requestStop();
-            LOGINFO("Joining " << m_name);
-            m_thread.join();
-        }
-
-    private:
-        Common::Threads::AbstractThread& m_thread;
-        std::string m_name;
-    };
 
     class ThreatReportCallbacks : public IMessageCallback
     {
