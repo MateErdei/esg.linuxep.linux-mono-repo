@@ -6,7 +6,7 @@ import LiveQueryUtils
 
 import BaseInfo as base_info
 
-TMP_ACTIONS_DIR = os.path.join("/tmp", "actions")
+TMP_ACTIONS_DIR = os.path.join("/opt/tmp/", "actions")
 BASE_ACTION_DIR = os.path.join(base_info.get_install(), "base", "mcs", "action")
 os.makedirs(TMP_ACTIONS_DIR, exist_ok=True)
 
