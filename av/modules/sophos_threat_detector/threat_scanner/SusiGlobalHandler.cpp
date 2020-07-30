@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SusiGlobalHandler.h"
 
 #include "Logger.h"
+#include "SusiLogger.h"
 #include "ThrowIfNotOk.h"
 
 #include <iostream>
@@ -51,37 +52,10 @@ static SusiCallbackTable my_susi_callbacks{
         .IsWhitelistedCert = isWhitelistedCert
 };
 
-void susiLogCallback(void* token, SusiLogLevel level, const char* message)
-{
-    static_cast<void>(token);
-    std::string m(message);
-    if (!m.empty())
-    {
-        switch (level)
-        {
-            case SUSI_LOG_LEVEL_DETAIL:
-                LOGDEBUG(m);
-                break;
-            case SUSI_LOG_LEVEL_INFO:
-                LOGINFO(m);
-                break;
-            case SUSI_LOG_LEVEL_WARNING:
-                LOGWARN(m);
-                break;
-            case SUSI_LOG_LEVEL_ERROR:
-                LOGERROR(m);
-                break;
-            default:
-                LOGERROR(level << ": " << m);
-                break;
-        }
-    }
-}
-
 static const SusiLogCallback GL_log_callback{
     .version = SUSI_LOG_CALLBACK_VERSION,
     .token = nullptr,
-    .log = susiLogCallback,
+    .log = threat_scanner::susiLogCallback,
     .minLogLevel = SUSI_LOG_LEVEL_DETAIL
 };
 
@@ -105,9 +79,7 @@ SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
     else
     {
         LOGINFO("Global Susi initialisation successful");
-
     }
-
 }
 
 SusiGlobalHandler::~SusiGlobalHandler()

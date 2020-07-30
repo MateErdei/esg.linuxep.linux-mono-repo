@@ -4,6 +4,7 @@ include(GoogleTest)
 SophosAddTest(TestThreatScanner
         MockSusiWrapper.h
         MockSusiWrapperFactory.h
+        TestSusiGlobalHandler.cpp
         TestSusiResponseParsing.cpp
         TestThreatScanner.cpp
         TestSusiScannerFactory.cpp

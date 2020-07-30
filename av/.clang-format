@@ -16,7 +16,7 @@ AlignOperands: true
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortFunctionsOnASingleLine: Inline
 AlwaysBreakAfterReturnType: None
-AlwaysBreakTemplateDeclarations: true
+AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBraces: Allman
@@ -32,12 +32,18 @@ IncludeCategories:
     Priority: -1
   - Regex: '"[^/]*"'
     Priority: 2
+  - Regex: '"Common/.*"'
+    Priority: 5
   - Regex: '".*"'
     Priority: 3
+  - Regex: '<sys/[^/]*.h>'
+    Priority: 10
+  - Regex: '<[^/]*.h>'
+    Priority: 10
   - Regex: '<[^/]*>'
-    Priority: 5
+    Priority: 9
   - Regex: '<.*>'
-    Priority: 4
+    Priority: 8
 IndentCaseLabels: true
 IndentPPDirectives: AfterHash
 IndentWidth: 4
@@ -63,7 +69,7 @@ SpacesInParentheses: false
 SpacesInSquareBrackets: false
 SortIncludes: true
 SortUsingDeclarations: true
-Standard: Cpp11
+Standard: c++11
 TabWidth: 4
 UseTab: Never
 

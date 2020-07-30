@@ -15,6 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include "../common/Common.h"
+#include "../common/LogInitializedTests.h"
 #include "../common/WaitForEvent.h"
 
 #include "Common/UtilityImpl/StringUtils.h"
@@ -24,20 +25,23 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace testing;
 
-static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
+static SetupTestLogging consoleLoggingSetup;
 
-class IgnoreSigPipe
+namespace
 {
-public:
-    IgnoreSigPipe() noexcept
+    class IgnoreSigPipe
     {
-        signal(SIGPIPE, SIG_IGN);
-    }
-    ~IgnoreSigPipe() noexcept
-    {
-        signal(SIGPIPE, SIG_DFL);
-    }
-};
+    public:
+        IgnoreSigPipe() noexcept
+        {
+            signal(SIGPIPE, SIG_IGN);
+        }
+        ~IgnoreSigPipe() noexcept
+        {
+            signal(SIGPIPE, SIG_DFL);
+        }
+    };
+}
 
 static IgnoreSigPipe sig_pipe_ignorer;
 

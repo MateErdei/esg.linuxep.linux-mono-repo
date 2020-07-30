@@ -7,6 +7,8 @@ add_library(threat_scanner SHARED
         IThreatScannerFactory.h
         SusiGlobalHandler.h
         SusiGlobalHandler.cpp
+        SusiLogger.h
+        SusiLogger.cpp
         SusiScanner.h
         SusiScanner.cpp
         SusiScannerFactory.h

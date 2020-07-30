@@ -26,4 +26,13 @@ namespace
         }
     };
 
+    class SetupTestLogging
+    {
+    public:
+        SetupTestLogging()
+        {
+            initialize_logging();
+        }
+    };
+
 }
