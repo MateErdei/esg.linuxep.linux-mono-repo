@@ -707,7 +707,7 @@ def get_file_info_for_installation(plugin=None):
             if not result.endswith('pyc.0'):
                 details.append(result)
 
-    key = lambda x : x.replace(".", "").lower()
+    key = lambda x : x.replace(".", "")
     symlinks.sort(key=key)
     details.sort(key=key)
 
