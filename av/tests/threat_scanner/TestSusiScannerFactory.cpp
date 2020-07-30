@@ -12,6 +12,19 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace threat_scanner;
 
+TEST(TestSusiScannerFactory, testWithoutPLUGIN_INSTALL) // NOLINT
+{
+    try
+    {
+        SusiScannerFactory factory;
+        FAIL() << "Able to construct SusiScannerFactory!";
+    }
+    catch (const std::exception& ex)
+    {
+        PRINT("Unable to construct factory: " << ex.what() << '\n');
+    }
+}
+
 TEST(TestSusiScannerFactory, testConstruction) // NOLINT
 {
 
@@ -21,10 +34,10 @@ TEST(TestSusiScannerFactory, testConstruction) // NOLINT
     try
     {
         SusiScannerFactory factory;
-        FAIL() << "Able to construct SusiScannerFactory";
+        FAIL() << "Able to construct SusiScannerFactory!";
     }
     catch (const std::exception& ex)
     {
-        PRINT("Unable to construct factory" << ex.what() << '\n');
+        PRINT("Unable to construct factory: " << ex.what() << '\n');
     }
 }
