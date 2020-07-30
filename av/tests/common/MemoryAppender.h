@@ -8,6 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "LogInitializedTests.h"
 
+#include "datatypes/Print.h"
+
 namespace
 {
     using EventVector = std::vector<std::string>;
@@ -81,6 +83,8 @@ namespace
             return m_memoryAppender->size();
         }
 
+        [[maybe_unused]] void dumpLog() const;
+
         void waitForLog(const std::string& expected) const
         {
             assert(m_memoryAppender != nullptr);
@@ -129,6 +133,24 @@ namespace
     {
         return Common::Logging::getInstance(m_loggerInstanceName);
     }
+
+    void MemoryAppenderUsingTests::dumpLog() const
+    {
+        PRINT("Memory appender contains " << appenderSize() << " items");
+        for (const auto& item : m_memoryAppender->m_events)
+        {
+            PRINT("ITEM: " << item);
+        }
+    }
+
+    template<const char* loggerInstanceName>
+    class MemoryAppenderUsingTestsTemplate : public MemoryAppenderUsingTests
+    {
+    public:
+        MemoryAppenderUsingTestsTemplate()
+            : MemoryAppenderUsingTests(loggerInstanceName)
+        {}
+    };
 
     class UsingMemoryAppender
     {
