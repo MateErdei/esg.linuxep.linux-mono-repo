@@ -333,7 +333,6 @@ makedir 750 "${SOPHOS_INSTALL}/base/mcs/status/cache"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/event"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/certs"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/tmp"
-# FIXME: setup the paths related to the commns component. (not quite there yet)
 makedir 750 "${SOPHOS_INSTALL}/var/comms/responses"
 makedir 770 "${SOPHOS_INSTALL}/var/comms/requests"
 chmod   770 "${SOPHOS_INSTALL}/var/comms"
