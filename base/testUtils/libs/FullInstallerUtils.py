@@ -686,7 +686,7 @@ def get_file_info_for_installation(plugin=None):
         for d in dirs:
             include = True
             for e in exclusions:
-                if e in d:
+                if e in d or e in base:
                     include = False
                     break
             if include:
@@ -707,7 +707,7 @@ def get_file_info_for_installation(plugin=None):
             if not result.endswith('pyc.0'):
                 details.append(result)
 
-    key = lambda x : x.replace(".", "")
+    key = lambda x : x.replace(".", "").lower()
     symlinks.sort(key=key)
     details.sort(key=key)
 
