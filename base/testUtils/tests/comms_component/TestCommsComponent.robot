@@ -16,8 +16,8 @@ Test Comms Component Starts
     Require Installed
     File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
 
-    Check Comms Component Log Does Not Contain Error
     Check Watchdog Starts Comms Component
+    Check Comms Component Log Does Not Contain Error
 
 
 *** Keywords ***
