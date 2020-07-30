@@ -216,6 +216,7 @@ Display Permissions of SulDownloader Files
 
 Setup For Test
     Setup Servers For Update Scheduler
+    Empty Directory  ${SOPHOS_INSTALL}/base/mcs/event
 
 Teardown For Test
     Run Keyword If Test Failed   Display Permissions of SulDownloader Files
@@ -224,4 +225,3 @@ Teardown For Test
 Replace Original Sul Downloader
     Remove File  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0
     Copy File  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0.bak  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0
-

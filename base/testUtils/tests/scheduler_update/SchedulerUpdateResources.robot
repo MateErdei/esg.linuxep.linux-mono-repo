@@ -123,6 +123,7 @@ Check Status and Events Are Created
     [Return]  ${eventPath}
 
 Simulate Update Now
+    Empty Directory  ${SOPHOS_INSTALL}/base/mcs/event
     Copy File   ${SUPPORT_FILES}/CentralXml/ALC_update_now.xml  ${SOPHOS_INSTALL}/tmp
     ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/ALC_update_now.xml    shell=True
     Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
