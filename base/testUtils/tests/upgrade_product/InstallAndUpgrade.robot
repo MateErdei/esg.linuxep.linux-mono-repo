@@ -136,6 +136,10 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
     # This is only an issue with versions of base before we started using boost process
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+
+    Check Mtr Reconnects To Management Agent After Upgrade
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -494,6 +498,10 @@ Version Copy Versions All Changed Files When Upgrading
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
     # This is only an issue with versions of base before we started using boost process
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+
+    Check Mtr Reconnects To Management Agent After Upgrade
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -841,3 +849,11 @@ Get Pid Of Process
     ${result} =    Run Process  pidof  ${process_name}
     Should Be Equal As Integers    ${result.rc}    0   msg=${result.stderr}
     [Return]  ${result.stdout}
+
+Check Mtr Reconnects To Management Agent After Upgrade
+    Check Log Contains In Order
+    ...  ${mdr_log_file}
+    ...  mtr <> Plugin Finished.
+    ...  mtr <> Entering the main loop
+    ...  Received new policy
+    ...  RevID of the new policy
