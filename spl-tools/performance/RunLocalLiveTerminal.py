@@ -27,13 +27,17 @@ def create_server_and_send_string(string_to_send: str, number_of_parallel_termin
     paths = []
     for n in range(0, number_of_parallel_terminals):
         paths.append("path{}".format(n))
+    connected = False
     with LTserver.LTServer('localhost', 4443, certificates.CERTIFICATE_PEM) as server:
         for path in paths:
             path_with_slash = "/{}".format(path)
             trigger_endpoint_terminal(path)
             print("Checking terminal connected to path: {}".format(path))
-            while not server.match_message('root@', path_with_slash):
-                time.sleep(1)
+            connected = server.match_message('root@', path_with_slash, 60)
+
+        if not connected:
+            print("Endpoint not connected to fake terminal server")
+            exit(1)
 
         # For each terminal, which is running on its own path, have a file which is written by the command itself to
         # prove that the string has been sent and also saved to a file, this means we know the command has finished and
