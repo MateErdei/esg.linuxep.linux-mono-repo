@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "DeviceUtil.h"
 #include "IMountInfo.h"
-#include "SystemPaths.h"
+#include "ISystemPathsFactory.h"
 
 #include <memory>
 
@@ -69,7 +69,7 @@ namespace avscanner::avscannerimpl
         /**
          * constructor
          */
-        Mounts(std::shared_ptr<ISystemPaths> systemPaths = std::make_shared<SystemPaths>());
+        Mounts(std::shared_ptr<ISystemPathsFactory> systemPathsFactory);
 
         /**
          * destructor

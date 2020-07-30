@@ -5,7 +5,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "BaseRunner.h"
+
 #include "Mounts.h"
+#include "SystemPathsFactory.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
@@ -54,7 +56,7 @@ std::shared_ptr<IMountInfo> BaseRunner::getMountInfo()
 {
     if (!m_mountInfo)
     {
-        m_mountInfo = std::make_shared<Mounts>();
+        m_mountInfo = std::make_shared<Mounts>(std::make_shared<SystemPathsFactory>());
     }
     return m_mountInfo;
 }

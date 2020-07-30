@@ -73,8 +73,8 @@ std::string octalUnescape(const std::string& input)
 /**
  * constructor
  */
-Mounts::Mounts(std::shared_ptr<ISystemPaths> systemPaths)
-    : m_systemPaths(systemPaths)
+Mounts::Mounts(std::shared_ptr<ISystemPathsFactory> systemPathsFactory)
+    : m_systemPaths(systemPathsFactory->createSystemPaths())
 {
     parseProcMounts();
 }
@@ -337,12 +337,7 @@ bool Mounts::parseLinuxProcMountsLine(const std::string& line, std::string& devi
     device = octalUnescape(device);
     mountpoint = octalUnescape(mountpoint);
 
-    if (device.empty() || mountpoint.empty() || filesystem.empty())
-    {
-        return false;
-    }
-
-    return true;
+    return !(device.empty() || mountpoint.empty() || filesystem.empty());
 }
 
 /**
