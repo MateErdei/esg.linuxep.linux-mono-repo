@@ -60,6 +60,17 @@ TEST_F(TestCommsMsg, httpCodeOfHttpResponseCanBeProcessedCorrectly) // NOLINT
     EXPECT_EQ(std::get<Common::HttpSender::HttpResponse>(result.content).httpCode,400);
 }
 
+TEST_F(TestCommsMsg, exitCodefHttpResponseCanBeProcessedCorrectly) // NOLINT
+{
+    CommsMsg input;
+    Common::HttpSender::HttpResponse httpResponse;
+    httpResponse.exitCode = 3;
+    input.content = httpResponse;
+    CommsMsg result = serializeAndDeserialize(input);
+    EXPECT_PRED_FORMAT2(commsMsgAreEquivalent, input, result);
+    EXPECT_EQ(std::get<Common::HttpSender::HttpResponse>(result.content).exitCode,3);
+}
+
 TEST_F(TestCommsMsg, descriptionOfHttpResponseCanBeProcessedCorrectly) // NOLINT
 {
     CommsMsg input;

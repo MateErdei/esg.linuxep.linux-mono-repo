@@ -125,13 +125,14 @@ namespace Common::HttpSenderImpl
                     {
                         LOGINFO("Trying direct connection to resource"); 
                         ProxySettings emptyProxy; 
-                        return doFetchHttpRequest(requestConfig, emptyProxy, captureBody, curlCode);
+                        response = doFetchHttpRequest(requestConfig, emptyProxy, captureBody, curlCode);
                     }
                     break;
                 default:
                 break;
                     
             }
+            response.exitCode = *curlCode; 
             return response; 
         }
     }

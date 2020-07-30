@@ -30,6 +30,7 @@ message HttpResponse
     optional int64 httpCode = 1; 
     optional string description = 2; 
     optional bytes bodyContent = 3; 
+    optional int64 exitCode = 10; 
     // optional string bodyFilePath = 4; 
     // repeated KeyValue headers = 8;
 }

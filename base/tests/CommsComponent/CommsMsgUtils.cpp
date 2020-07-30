@@ -61,6 +61,11 @@ using namespace CommsComponent;
         s << "httpCode differs. expected: " << expected.httpCode << " actual " << actual.httpCode;
         return ::testing::AssertionFailure() << s.str();
     }
+    if (expected.exitCode != actual.exitCode)
+    {
+        s << "exitCode differs. expected: " << expected.exitCode << " actual " << actual.exitCode;
+        return ::testing::AssertionFailure() << s.str();
+    }
     if (expected.description != actual.description)
     {
         s << "description differs. expected: " << expected.description << " actual " << actual.description;

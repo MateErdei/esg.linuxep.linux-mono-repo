@@ -32,6 +32,7 @@ namespace
             proto->set_httpcode(httpResponse.httpCode);
             proto->set_description(httpResponse.description);
             proto->set_bodycontent(httpResponse.bodyContent);
+            proto->set_exitcode(httpResponse.exitCode); 
         }
 
         void operator()(const RequestConfig& requestConfig)
@@ -74,6 +75,7 @@ namespace
         httpResponse.httpCode = responseProto.httpcode();
         httpResponse.bodyContent = responseProto.bodycontent();
         httpResponse.description = responseProto.description();
+        httpResponse.exitCode = responseProto.exitcode();
         return httpResponse;
     }
 

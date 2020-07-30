@@ -16,6 +16,7 @@ namespace Common::HttpSender
         HttpResponse(int code, std::string desc): httpCode(code),description(desc){}
         HttpResponse() = default; 
         int httpCode =0 ; 
+        int exitCode = 0; 
         std::string description;
         std::string bodyContent; 
     };
