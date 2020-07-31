@@ -114,7 +114,6 @@ class ManagementAgentPluginRequester(object):
         creation_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         return f"{creation_time}_{ttl}"
 
-
 class FakeManagement(object):
 
     def __init__(self):

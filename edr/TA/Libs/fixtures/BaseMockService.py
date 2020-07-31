@@ -40,7 +40,7 @@ def install_component(sophos_install):
     create_users_and_group()
 
     plugin_dir_path = os.path.join(sophos_install, 'plugins/edr')
-    for rel_path in ['tmp', 'var/ipc', 'var/ipc/plugins', 'base/etc', 'base/mcs/response', 'base/mcs/action']:
+    for rel_path in ['tmp', 'var/ipc', 'var/ipc/plugins', 'base/etc', 'base/mcs/response','base/mcs/action']:
         full_path = os.path.join(sophos_install, rel_path)
         os.makedirs(full_path, exist_ok=True)
     write_file(os.path.join(sophos_install, 'base/etc/logger.conf'), "VERBOSITY=DEBUG")
