@@ -154,10 +154,7 @@ namespace Common
             virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir, mode_t mode)
                 const = 0;
             /** Keep the interface without mode_t, by setting it to 0 (do not change it) */
-            virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir) const
-            {
-                return writeFileAtomically(path, content, tempDir, 0); 
-            }
+            virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir) const = 0;
 
             /**
              * Provide the fullPath of the files under the directoryPath given.

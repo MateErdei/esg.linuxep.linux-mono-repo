@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 
 #include <utility>
+#include <Common/UtilityImpl/TimeUtils.h>
 
 #include "Logger.h"
 
@@ -83,13 +84,18 @@ namespace CommsComponent
         {
             while (true)
             {
-                std::optional<std::string> requestIdOptionalFilename = m_monitorDir.next();
+                std::chrono::milliseconds oneHourInMilliseconds{3600000};
+                std::optional<std::string> requestIdOptionalFilename = m_monitorDir.next(oneHourInMilliseconds);
 
                 if (requestIdOptionalFilename.has_value())
                 {
                     std::string requestIdBasename = Common::FileSystem::basename(requestIdOptionalFilename.value());
                     LOGINFO("Received a request file with value: " << requestIdOptionalFilename.value());
                     forwardRequest(requestIdBasename);
+                }
+                else
+                {
+                    clearFilesOlderThan1Hour();
                 }
 
             }
@@ -336,6 +342,26 @@ namespace CommsComponent
         catch (Common::FileSystem::IFileSystemException& ex)
         {
             LOGERROR("Failed to create error response file: " << responsePath << ", reason: " << ex.what());
+        }
+    }
+
+    void CommsDistributor::clearFilesOlderThan1Hour()
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
+        std::vector<Path> outboundFiles = fileSystem->listFiles(Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath());
+        std::vector<Path> inboundFiles = fileSystem->listFiles(Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath());
+        std::vector<Path> combinedFiles = std::move(outboundFiles);
+
+        combinedFiles.insert(combinedFiles.end(), inboundFiles.begin(), inboundFiles.end());
+        std::time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
+        for (size_t i = 0; i < combinedFiles.size(); i++)
+        {
+            std::time_t lastModifiedTime = fileSystem->lastModifiedTime(combinedFiles[0]);
+            const std::time_t hour = 60*60;
+            if ((lastModifiedTime + hour) < now)
+            {
+                fileSystem->removeFile(combinedFiles[i]);
+            }
         }
     }
 

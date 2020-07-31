@@ -348,6 +348,12 @@ namespace Common
             }
         }
 
+        void FileSystemImpl::writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir)
+            const
+        {
+            return FileSystemImpl::writeFileAtomically(path, content, tempDir, 0);
+        }
+
         bool FileSystemImpl::isExecutable(const Path& path) const
         {
             struct stat statbuf; // NOLINT

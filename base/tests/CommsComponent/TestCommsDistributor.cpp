@@ -14,6 +14,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <modules/Common/UtilityImpl/TimeUtils.h>
+#include <tests/Common/Helpers/FakeTimeUtils.h>
 #include "CommsComponent/CommsDistributor.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -355,4 +357,42 @@ TEST_F(TestCommsDistributor, testCreateErrorResponseFile)
     Path expectedResponsePath = responseTempDir->absPath("response_errorId_error");
     EXPECT_TRUE(Common::FileSystem::fileSystem()->isFile(expectedResponsePath));
     EXPECT_EQ(Common::FileSystem::fileSystem()->readFile(expectedResponsePath), message);
+}
+
+TEST_F(TestCommsDistributor, testClearFilesOlderThan1Hour)
+{
+    MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
+    MockedApplicationPathManager& mock(*mockAppManager);
+    Common::ApplicationConfiguration::replaceApplicationPathManager(
+            std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+
+
+    auto fileSystem = Common::FileSystem::fileSystem();
+    auto requestTempDir = Tests::TempDir::makeTempDir();
+    auto responseTempDir = Tests::TempDir::makeTempDir();
+    ON_CALL(mock, getCommsRequestDirPath()).WillByDefault(Return(requestTempDir->dirPath()));
+    ON_CALL(mock, getCommsResponseDirPath()).WillByDefault(Return(responseTempDir->dirPath()));
+
+    requestTempDir->createFile("oldRequestFile", "content");
+    responseTempDir->createFile("oldResponseFile", "content");
+
+    EXPECT_TRUE(fileSystem->isFile(requestTempDir->absPath("oldRequestFile")));
+    EXPECT_TRUE(fileSystem->isFile(requestTempDir->absPath("oldRequestFile")));
+    CommsDistributor::clearFilesOlderThan1Hour();
+    // we don't clear yet because the files aren't old
+    EXPECT_TRUE(fileSystem->isFile(requestTempDir->absPath("oldRequestFile")));
+    EXPECT_TRUE(fileSystem->isFile(requestTempDir->absPath("oldRequestFile")));
+
+
+    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::time_t twoHoursInFuture = now + 60*60*2;
+    bool stop{ false };
+    // mock time to be 2 hours ahead
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime{ {twoHoursInFuture}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
+
+    CommsDistributor::clearFilesOlderThan1Hour();
+    // we clear now because the files are considered old
+    EXPECT_FALSE(fileSystem->isFile(requestTempDir->absPath("oldRequestFile")));
+    EXPECT_FALSE(fileSystem->isFile(requestTempDir->absPath("oldRequestFile")));
 }

@@ -53,7 +53,7 @@ namespace CommsComponent
         virtual void forwardRequest(const std::string& requestFilename);
 
         virtual void forwardResponse(const std::string& incomingMessage);
-        void setupProxy(); 
+        void setupProxy();
 
         MonitorDir m_monitorDir;
         std::string m_monitorDirPath;

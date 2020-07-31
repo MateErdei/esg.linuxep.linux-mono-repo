@@ -234,25 +234,4 @@ namespace CommsComponent
     {
         return Common::FileSystem::join(ssplRootDir, "var/sophos-spl-comms");
     }
-
-    void CommsConfigurator::clearFilesOlderThan1Hour()
-    {
-        auto fileSystem = Common::FileSystem::fileSystem();
-        std::vector<Path> outboundFiles = fileSystem->listFiles(Common::ApplicationConfiguration::applicationPathManager().getCommsRequestDirPath());
-        std::vector<Path> inboundFiles = fileSystem->listFiles(Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath());
-        std::vector<Path> combinedFiles = std::move(outboundFiles);
-
-        combinedFiles.insert(combinedFiles.end(), inboundFiles.begin(), combinedFiles.end());
-        std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        for (size_t i = 0; i < combinedFiles.size(); i++)
-        {
-            std::time_t lastModifiedTime = fileSystem->lastModifiedTime(combinedFiles[0]);
-            const std::time_t hour = 60*60;
-            if ((lastModifiedTime + hour) < now)
-            {
-                fileSystem->removeFile(combinedFiles[i]);
-            }
-        }
-    }
-
 }
