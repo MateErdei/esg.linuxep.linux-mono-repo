@@ -1,6 +1,7 @@
 include(GoogleTest)
 
 SophosAddTest(TestScanProcessMonitor
+        ../../common/LogInitializedTests.cpp
         TestScanProcessMonitor.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt
