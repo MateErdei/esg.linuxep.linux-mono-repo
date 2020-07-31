@@ -32,6 +32,10 @@ def pip(machine: tap.Machine):
     return "pip3"
 
 
+def python(machine: tap.Machine):
+    return "python3"
+
+
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
     pip_index = os.environ.get('TAP_PIP_INDEX_URL')
@@ -54,21 +58,9 @@ def package_install(machine: tap.Machine, *install_args: str):
                     # log_mode=tap.LoggingMode.ON_ERROR)
 
 
-def needs_python37_dev(machine: tap.Machine):
-    return is_debian_based(machine)
-
-
-def install_pip3_dependencies(machine: tap.Machine):
-    if needs_python37_dev(machine):
-        package_install(machine, 'python3.7-dev')
-
-    if is_redhat_based(machine):
-        package_install(machine, "gcc", "gcc-c++", "make", "capnproto-devel", "capnproto-libs", "capnproto")
-
-
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
-    install_pip3_dependencies(machine)
+    machine.run('bash', machine.inputs.test_scripts / "bin/install_pip_prerequisites.sh")
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
     try:
         machine.run('useradd', 'sophos-spl-user')
@@ -96,7 +88,7 @@ def robot_task(machine: tap.Machine):
 def pytest_task_with_env(machine: tap.Machine, environment=None):
     try:
         tests_dir = str(machine.inputs.test_scripts)
-        args = ['python', '-u', '-m', 'pytest', tests_dir,
+        args = [python(machine), '-u', '-m', 'pytest', tests_dir,
                 '-o', 'log_cli=true',
                 '--html=/opt/test/results/report.html'
                 ]
