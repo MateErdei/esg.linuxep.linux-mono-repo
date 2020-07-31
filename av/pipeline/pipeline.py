@@ -50,8 +50,8 @@ def package_install(machine: tap.Machine, *install_args: str):
         machine.run('apt-get', '-y', 'install', *install_args,
                     log_mode=tap.LoggingMode.ON_ERROR)
     elif is_redhat_based(machine):
-        machine.run('yum', '-y', 'install', *install_args,
-                    log_mode=tap.LoggingMode.ON_ERROR)
+        machine.run('yum', '-y', 'install', *install_args)
+                    # log_mode=tap.LoggingMode.ON_ERROR)
 
 
 def needs_python37_dev(machine: tap.Machine):
@@ -63,7 +63,7 @@ def install_pip3_dependencies(machine: tap.Machine):
         package_install(machine, 'python3.7-dev')
 
     if is_redhat_based(machine):
-        package_install(machine, "gcc", "g++", "make")
+        package_install(machine, "gcc", "gcc-c++", "make", "capnproto-devel", "capnproto-libs", "capnproto")
 
 
 def install_requirements(machine: tap.Machine):
