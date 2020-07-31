@@ -83,6 +83,7 @@ Check and Dump Journalctl
 General Test Teardown
     Require No Unhandled Exception
     Check For Coredumps  ${TEST NAME}
+    Check Dmesg For Segfaults
     Run Keyword If Test Failed    Dump All Logs
     Run Keyword If Test Failed    Check and Dump Journalctl
     Run Keyword If Test Passed    Check Journalctl
@@ -90,5 +91,4 @@ General Test Teardown
     Run Keyword If Test Failed    Display All SSPL Files Installed
     Run Keyword If Test Failed    Dump All Sophos Processes
     Force Teardown Logging If Env Set
-    Check Dmesg For Segfaults
     Combine Coverage If Present
