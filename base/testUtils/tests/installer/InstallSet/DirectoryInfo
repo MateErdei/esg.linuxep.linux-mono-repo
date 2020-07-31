@@ -69,7 +69,6 @@ o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/tmp
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/cache
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/var
-o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/comms/responses
 o755, root, root, /opt/sophos-spl/var/sophos-spl-comms/etc/ssl/certs
 o755, root, root, /opt/sophos-spl/var/sophos-spl-comms/lib
 o755, root, root, /opt/sophos-spl/var/sophos-spl-comms/usr/lib
@@ -85,3 +84,4 @@ o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/update/var/process
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/logs/base/sophosspl
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/comms
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/comms/requests
+o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/comms/responses
