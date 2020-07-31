@@ -40,6 +40,8 @@ namespace CommsComponent
         static const std::string BodyAppender;
 
         static void createErrorResponseFile(std::string message, Path responseDir, std::string id);
+
+        static void clearFilesOlderThan1Hour();
         
     private:
 
