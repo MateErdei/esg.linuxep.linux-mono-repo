@@ -143,7 +143,7 @@ TEST_F(TestHttpRequester, testRequesterDealsWithInvalidResponse)
 
     scopedReplaceFileSystem.reset();
     std::stringstream expectedResponseBaseNameSS;
-    expectedResponseBaseNameSS << "response_" << Common::FileSystem::basename(actualRequestJsonPath).substr(8,actualRequestJsonPath.size()-8);
+    expectedResponseBaseNameSS << "response_" << Common::FileSystem::basename(actualRequestJsonPath).substr(8,Common::FileSystem::basename(actualRequestJsonPath).size()-8);
     std::string expectedResponseBaseName = expectedResponseBaseNameSS.str();
     Path expectedResponsePath = m_responseTempDir->absPath(expectedResponseBaseName);
     Path tempPath = m_responseTempDir->absPath("temp_response");
@@ -209,4 +209,62 @@ TEST_F(TestHttpRequester, testRequesterHandlesNoResponeFileBack)
     fileSystem()->moveFile(tempPath, expectedResponsePath);
 
     EXPECT_THROW(requesterThread.get(), CommsComponent::HttpRequesterException);
+}
+
+
+TEST_F(TestHttpRequester, testRequesterHandlesErrorResponseFile)
+{
+    Tests::ScopedReplaceFilePermissions replaceFilePermission{Tests::ScopedReplaceFilePermissions::UseNullFilePermission::YES};
+    bool stop{ false };
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime{ {t_20200610T12h}, std::chrono::milliseconds(10), [&stop]() { stop = true; } }));
+
+    auto m_requestTempDir = Tests::TempDir::makeTempDir();
+    auto m_responseTempDir = Tests::TempDir::makeTempDir();
+    std::string requestTempDirPath = m_requestTempDir->dirPath();
+    std::string responseTempDirPath = m_responseTempDir->dirPath();
+
+    MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
+    MockedApplicationPathManager& mock(*mockAppManager);
+    ON_CALL(mock, getCommsRequestDirPath()).WillByDefault(Return(requestTempDirPath));
+    ON_CALL(mock, getCommsResponseDirPath()).WillByDefault(Return(responseTempDirPath));
+    ON_CALL(mock, getTempPath()).WillByDefault(Return(responseTempDirPath));
+    Common::ApplicationConfiguration::replaceApplicationPathManager(
+            std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+
+
+    auto filesystemMock = new NiceMock<MockFileSystem>();
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
+    Tests::TestExecutionSynchronizer testExecutionSynchronizer(1);
+    std::stringstream expectedRequestJsonSubstrRegex;
+    expectedRequestJsonSubstrRegex << requestTempDirPath << R"(/request_testRequester_1591790400_[0-9]*\.json)";
+    std::stringstream expectedRequestBodySubstrRegex;
+    expectedRequestBodySubstrRegex << requestTempDirPath << R"(/request_testRequester_1591790400_[0-9]*_body)";
+
+    std::string actualRequestJsonPath;
+    EXPECT_CALL(*filesystemMock, writeFile( MatchesRegex(expectedRequestBodySubstrRegex.str()),"testBody")).WillOnce(SaveArg<0>(&actualRequestJsonPath));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(MatchesRegex(expectedRequestJsonSubstrRegex.str()),_,responseTempDirPath, 0640)).WillOnce(Invoke([&testExecutionSynchronizer](const std::string&, const std::string&, const std::string&, mode_t) { testExecutionSynchronizer.notify(); }));
+    std::string requesterName = "testRequester";
+    std::string requestJson = R"({"requestType": "POST"})";
+    auto requesterThread = std::async(std::launch::async, [requesterName, requestJson](){ return CommsComponent::HttpRequester::triggerRequest(
+            requesterName, CommsComponent::CommsMsg::requestConfigFromJson(requestJson), "testBody",
+            std::chrono::milliseconds(500));});
+
+    EXPECT_TRUE(testExecutionSynchronizer.waitfor(500));
+
+    scopedReplaceFileSystem.reset();
+    std::stringstream errorResponseBaseNameSS;
+    std::string requestID = Common::FileSystem::basename(actualRequestJsonPath).substr(8,Common::FileSystem::basename(actualRequestJsonPath).size()-13);
+    errorResponseBaseNameSS << "response_" << requestID << "_error";
+    std::string errorResponseBaseName = errorResponseBaseNameSS.str();
+    Path errorResponsePath = m_responseTempDir->absPath(errorResponseBaseName);
+    Path tempPath = m_responseTempDir->absPath("temp_response");
+    std::string responseContent = R"(failed to do something)";
+
+
+    fileSystem()->writeFile(tempPath, responseContent);
+    fileSystem()->moveFile(tempPath, errorResponsePath);
+
+    EXPECT_THROW(requesterThread.get(), std::runtime_error);
 }

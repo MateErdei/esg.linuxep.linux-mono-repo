@@ -15,6 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include "Logger.h"
 
@@ -69,6 +70,12 @@ namespace CommsComponent
             if (responseFilePath.has_value())
             {
                 std::string fileContent = Common::FileSystem::fileSystem()->readFile(responseFilePath.value());
+                if (Common::UtilityImpl::StringUtils::endswith(responseFilePath.value(), "_error"))
+                {
+                    std::stringstream errorMsg;
+                    errorMsg << "Received error response: " << fileContent;
+                    throw std::runtime_error(errorMsg.str());
+                }
                 response = CommsMsg::httpResponseFromJson(fileContent);
             }
 
