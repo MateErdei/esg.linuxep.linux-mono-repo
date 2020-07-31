@@ -41,7 +41,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
                        "--disable-pip-version-check",
                        "--default-timeout", "120"]
     machine.run(pip(machine), '--log', '/opt/test/logs/pip.log',
-                'install', '-vvv', *install_args, *pip_index_args,
+                'install', '-v', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
 
@@ -63,7 +63,7 @@ def install_pip3_dependencies(machine: tap.Machine):
         package_install(machine, 'python3.7-dev')
 
     if is_redhat_based(machine):
-        package_install(machine, "gcc", "make")
+        package_install(machine, "gcc", "g++", "make")
 
 
 def install_requirements(machine: tap.Machine):
