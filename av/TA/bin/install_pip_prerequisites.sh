@@ -12,7 +12,7 @@ then
     sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' /etc/yum.repos.d/CentOS-Base.repo
     cat /etc/yum.repos.d/CentOS-Base.repo
     cat /etc/yum.conf
-    grep -r abn-engrepo.eng.sophos /etc/yum.repos.d/* /etc/yum.conf || true
+    grep -r abn-centosrepo /etc/yum.repos.d/* /etc/yum.conf || true
 
     yum install -y "gcc" "gcc-c++" "make" "capnproto-devel" "capnproto-libs" "capnproto" nfs-utils
 else
