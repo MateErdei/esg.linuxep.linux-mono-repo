@@ -76,6 +76,7 @@ Liveresponse Suite Setup
 Liveresponse Suite Teardown
     Shutdown MCS Push Server
     Stop Proxy Servers
+    Remove Environment Variable    https_proxy
     Stop Local Cloud Server
     Uninstall SSPL
     uninstall LT Server Certificates
