@@ -27,6 +27,7 @@ Mock Base Installation
     Remove Directory   ${SOPHOS_INSTALL}   recursive=True
     Create Directory   ${SOPHOS_INSTALL}
     Create Directory   ${SOPHOS_INSTALL}/tmp
+    Create Directory   ${SOPHOS_INSTALL}/base/mcs/action
     Create Directory   ${SOPHOS_INSTALL}/var/ipc
     Create Directory   ${SOPHOS_INSTALL}/var/ipc/plugins
     Create File        ${SOPHOS_INSTALL}/base/etc/logger.conf   VERBOSITY=DEBUG
