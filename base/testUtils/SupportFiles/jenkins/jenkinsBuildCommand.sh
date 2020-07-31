@@ -142,8 +142,8 @@ LASTGOODBUILD () {
 [[ ! -z  ${MDR_COMPONENT_SUITE_SOURCE_SUITE} ]]    || MDR_COMPONENT_SUITE_SOURCE_SUITE="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT-SUITE/"
 # The System Product Test Output must be from the build of base being used. It is found in the directory above the SDDS-COMPONENT
 [[ ! -z  ${SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE} ]]   || SYSTEM_PRODUCT_TEST_OUTPUT_SOURCE="$(dirname ${BASE_SOURCE})/SystemProductTestOutput.tar.gz"
-[[ ! -z  ${LIVERESPONSE_PLUGIN_SOURCE} ]]          || LIVERESPONSE_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/liveterminal_linux/${LIVERESPONSE_PLUGIN_BRANCH}" )/liveterminal_linux11/*/output/SDDS-COMPONENT)
-[[ ! -z  ${WEBSOCKET_SERVER_SOURCE} ]]             || WEBSOCKET_SERVER_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/liveterminal_linux/${LIVERESPONSE_PLUGIN_BRANCH}" )/liveterminal_linux11/*/websocket_server)
+[[ ! -z  ${LIVERESPONSE_PLUGIN_SOURCE} ]]          || LIVERESPONSE_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/liveterminal_linux/${LIVERESPONSE_PLUGIN_BRANCH}" )/liveterminal_linux/*/output/SDDS-COMPONENT)
+[[ ! -z  ${WEBSOCKET_SERVER_SOURCE} ]]             || WEBSOCKET_SERVER_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/liveterminal_linux/${LIVERESPONSE_PLUGIN_BRANCH}" )/liveterminal_linux/*/websocket_server)
 
 # Check everything exists
 
