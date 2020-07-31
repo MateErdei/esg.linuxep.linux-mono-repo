@@ -15,7 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FakeTimeUtils.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/TempDir.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
+#include "ScopedFilePermissionsReplaceAndRestore.h"
 #include <thread>
 #include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>

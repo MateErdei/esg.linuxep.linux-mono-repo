@@ -10,7 +10,10 @@ add_executable(TestCommsComponent
         MockOtherSideApi.h
         CommsMsgUtils.h
         CommsMsgUtils.cpp
-        TestHttpRequester.cpp)
+        TestHttpRequester.cpp
+        ScopedFilePermissionsReplaceAndRestore.h
+        ScopedFilePermissionsReplaceAndRestore.cpp
+        )
 
 target_include_directories(TestCommsComponent SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(TestCommsComponent BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" ${CMAKE_SOURCE_DIR})
