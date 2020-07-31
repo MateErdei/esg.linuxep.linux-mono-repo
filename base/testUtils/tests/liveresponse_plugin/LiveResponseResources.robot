@@ -59,6 +59,7 @@ Liveresponse Test Setup
     Restart Liveresponse Plugin  True
     Check Live Response Plugin Installed
     Empty Directory  ${MCS_DIR}/action/
+    Empty Directory  ${LIVE_RESPONSE_PLUGIN_PATH}}/var/
 
 Liveresponse Test Teardown
     Stop Websocket Server
