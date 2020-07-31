@@ -74,7 +74,8 @@ UpdateScheduler Install Base and MDR With the ALC Policy With MDR
     Check MDR Installed
     Check ALC Status Sent To Central Contains MDR Subscription
 
-#To Do Replace by extending an OSTIA Test [LINUXDAR-2012]
+#To Do [LINUXDAR-2012]
+#Replace by extending an OSTIA Test UpdateScheduler Update Against Ostia, I am working on this
 UpdateScheduler Update That Has no Change Does Not ReInstall The Product
     [Tags]  UPDATE_SCHEDULER TESTFAILURE
     [Setup]  Setup For Test With Warehouse Containing Base
