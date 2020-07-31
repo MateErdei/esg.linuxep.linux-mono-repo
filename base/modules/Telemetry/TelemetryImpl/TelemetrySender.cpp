@@ -24,7 +24,7 @@ namespace Telemetry
                 LOGINFO("Response HttpCode: " << response.httpCode); 
                 LOGINFO(response.description);
             }
-            return response.exitCode; 
+            return response.httpCode;
         }
         catch(std::exception & ex)
         {

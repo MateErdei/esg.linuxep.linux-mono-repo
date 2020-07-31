@@ -257,7 +257,7 @@ fi
 export DIST
 export SOPHOS_INSTALL
 
-## Add a low-privilege groups
+## Add a low-privilege group
 GROUP_NAME=@SOPHOS_SPL_GROUP@
 
 GETENT=/usr/bin/getent
@@ -275,10 +275,10 @@ touch "${SOPHOS_INSTALL}/.sophos" || failure ${EXIT_FAIL_DIR_MARKER} "Failed to 
 ## Add a low-privilege users
 USER_NAME=@SOPHOS_SPL_USER@
 NETWORK_USER_NAME=@SOPHOS_SPL_NETWORK@
-LOCAL_USER_NAME=@SOPHOS_SPL_LOCAL@
+LOCAL_USER_NAME=@SOPHOS_SPL_USER@
 add_user "${USER_NAME}" "${GROUP_NAME}"
 add_user "${NETWORK_USER_NAME}" "${GROUP_NAME}"
-add_user "${LOCAL_USER_NAME}" "${GROUP_NAME}"
+add_user "@SOPHOS_SPL_LOCAL@" "${GROUP_NAME}"
 
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
@@ -333,11 +333,9 @@ makedir 750 "${SOPHOS_INSTALL}/base/mcs/status/cache"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/event"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/certs"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/tmp"
-# FIXME: setup the paths related to the commns component. (not quite there yet)
-makedir 750 "${SOPHOS_INSTALL}/var/comms/responses"
+makedir 770 "${SOPHOS_INSTALL}/var/comms/responses"
 makedir 770 "${SOPHOS_INSTALL}/var/comms/requests"
-chmod 770 "${SOPHOS_INSTALL}/var/comms"
-chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/"
+chmod   770 "${SOPHOS_INSTALL}/var/comms"
 chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/"
 
 

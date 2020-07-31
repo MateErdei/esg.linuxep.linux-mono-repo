@@ -41,7 +41,9 @@ namespace CommsComponent
     {
         LOGINFO("Perform " << request.getRequestTypeAsString() << " request to " << request.getServer());
         long curlCode;
-        return m_sender->fetchHttpRequest(request, m_proxy,  true, &curlCode);
+        auto response = m_sender->fetchHttpRequest(request, m_proxy,  true, &curlCode);
+        LOGDEBUG("Curl exit code: " << curlCode);
+        return response;
     }
 
     void NetworkSide::setProxy(const Common::HttpSenderImpl::ProxySettings& proxy)

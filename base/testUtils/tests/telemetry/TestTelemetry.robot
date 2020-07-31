@@ -154,8 +154,10 @@ Telemetry Executable Generates System Telemetry Without Cpu Cores
 Telemetry Executable Telemetry Config File Certificate Path Empty
     [Documentation]    Telemetry Executable Creates Fails to Send Telemetry Data if Certificate Path Key in Config File is Empty
     Create Test Telemetry Config File     ${EXE_CONFIG_FILE}    ""  ${USERNAME}
-    ${result} =    Run Process  sudo  -u  ${USERNAME}    ${SOPHOS_INSTALL}/base/bin/telemetry      ${EXE_CONFIG_FILE}
 
+
+
+    ${result} =    Run Process  sudo  -u  ${USERNAME}    ${SOPHOS_INSTALL}/base/bin/telemetry      ${EXE_CONFIG_FILE}
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Should Be Equal As Integers   ${result.rc}       ${FAILED}      Telemetry executable returned an unexpected error code

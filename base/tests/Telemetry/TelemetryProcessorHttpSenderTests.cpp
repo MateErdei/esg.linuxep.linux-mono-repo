@@ -52,7 +52,7 @@ public:
         EXPECT_EQ(requestConfig.getAdditionalHeaders(), m_defaultExpectedRequestConfig->getAdditionalHeaders());
         EXPECT_EQ(requestConfig.getData(), m_defaultExpectedRequestConfig->getData());
         EXPECT_EQ(requestConfig.getServer(), m_defaultExpectedRequestConfig->getServer());
-        return 0;
+        return 200;
     }
 
     int CompareGetRequestConfig(const RequestConfig& requestConfig)
