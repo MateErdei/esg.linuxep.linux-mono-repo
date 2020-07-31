@@ -211,15 +211,19 @@ def bullseye_coverage_task(machine: tap.Machine):
 
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
 def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+    ubuntu1804_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+    centos7_machine = tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+
     global BRANCH_NAME
     BRANCH_NAME = context.branch
 
     with stage.parallel('component'):
-        stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
+        stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
+        stage.task(task_name='centos77_x64',   func=pytest_task, machine=centos7_machine)
 
     with stage.parallel('integration'):
-        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
+        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
+        stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
 
     with stage.parallel('coverage'):
         if parameters.run_tests_on_coverage == 'yes' or has_coverage_build(BRANCH_NAME):
