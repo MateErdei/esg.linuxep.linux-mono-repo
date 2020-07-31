@@ -5,6 +5,8 @@ add_library(threat_scanner SHARED
         ISusiWrapperFactory.h
         IThreatScanner.h
         IThreatScannerFactory.h
+        SusiCertificateFunctions.h
+        SusiCertificateFunctions.cpp
         SusiGlobalHandler.h
         SusiGlobalHandler.cpp
         SusiLogger.h
