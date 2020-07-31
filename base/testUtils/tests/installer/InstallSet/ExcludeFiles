@@ -10,7 +10,6 @@ wdctl.log
 tscheduler.log
 ALC_status.xml
 ALC.xml
-
 sophos-spl-comms/etc/resolv.conf
 sophos-spl-comms/etc/hosts
 sophos-spl-comms/usr/lib
