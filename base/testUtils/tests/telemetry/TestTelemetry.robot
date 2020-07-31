@@ -64,6 +64,10 @@ Telemetry Test Teardown
     Remove File   ${SOPHOS_INSTALL}/base/update/var/update_config.json
     Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
+Teardown With Proxy Clear
+    Remove File   /opt/sophos-spl/base/etc/sophosspl/current_proxy
+    Telemetry Test Teardown
+
 
 
 Reset MachineID Permissions
@@ -314,3 +318,14 @@ Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less 
     ...     5 seconds
     ...     1 seconds
     ...     Check Log Contains   SSL connect error   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
+
+Test With Proxy
+    [Teardown]  Teardown With Proxy Clear
+    Start Proxy Server With Basic Auth    3000    username   password
+    Create file   /opt/sophos-spl/base/etc/sophosspl/current_proxy  {"proxy": "localhost:3000", "credentials": "CCDHOz/vaDoMYy4SMijJh2K3ur0RB+w1Z+zNeJOq2dGM9X2+ZNqHKz1qri2KFGltImEpsGXGFJGkyhSeAbkYXcM6"}
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Check System Telemetry Json Is Correct  ${telemetryFileContents}
+
+    Check Log Contains   Setup proxy for the connection    ${SOPHOS_INSTALL}/var/sophos-spl-comms/logs/base/comms-network.log    comms network
