@@ -31,11 +31,6 @@ namespace scan_messages
             return m_threatName;
         }
 
-        [[nodiscard]] std::string fullScanResult() const
-        {
-            return m_fullScanResult;
-        }
-
     private:
         bool m_clean;
         std::string m_threatName;

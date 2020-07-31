@@ -60,3 +60,26 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected) //NOLINT
     EXPECT_EQ(deSerialisedData.getFilePath(), m_filePath);
     EXPECT_EQ(deSerialisedData.getActionCode(), E_SMT_THREAT_ACTION_SHRED);
 }
+
+TEST_F(TestThreatDetectedMessages, CreateThreatDetected_emptyThreatName) //NOLINT
+{
+    m_threatDetected.setThreatName("");
+    std::string dataAsString = m_threatDetected.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
+        messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+
+    EXPECT_EQ(deSerialisedData.getUserID(), m_userID);
+    EXPECT_EQ(deSerialisedData.getDetectionTime(), m_testTimeStamp);
+    EXPECT_EQ(deSerialisedData.getThreatType(), E_VIRUS_THREAT_TYPE);
+    EXPECT_EQ(deSerialisedData.getThreatName(), "");
+    EXPECT_EQ(deSerialisedData.getScanType(), E_SCAN_TYPE_ON_ACCESS);
+    EXPECT_EQ(deSerialisedData.getNotificationStatus(), E_NOTIFICATION_STATUS_CLEANED_UP);
+    EXPECT_EQ(deSerialisedData.getFilePath(), m_filePath);
+    EXPECT_EQ(deSerialisedData.getActionCode(), E_SMT_THREAT_ACTION_SHRED);
+}
