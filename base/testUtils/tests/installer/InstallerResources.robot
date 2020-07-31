@@ -42,7 +42,9 @@ Kill Sophos Processes That Arent Watchdog
     ${result} =  Run Process   pgrep   liveresponse
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
     ${result} =  Run Process   pgrep   -f   ${COMMS_COMPONENT}
-    Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
+    Return from keyword if  ${result.rc} == 1  even
+    ${r} =  Run Process  kill -9 ${result.stdout.replace("\n", " ")}  shell=True
+    Should Be Equal As Strings  ${r.rc}  0
 
 Kill Sophos Processes
     ${result} =  Run Process   pgrep   sophos_watchdog

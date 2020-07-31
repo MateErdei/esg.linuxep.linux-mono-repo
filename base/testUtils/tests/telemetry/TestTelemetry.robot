@@ -308,4 +308,9 @@ Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less 
     Wait Until Keyword Succeeds
     ...     5 seconds
     ...     1 seconds
-    ...     Check Log Contains   Error: HTTP request failed with CURL result 35   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
+    ...     Check Log Contains   Response HttpCode: 35   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
+
+    Wait Until Keyword Succeeds
+    ...     5 seconds
+    ...     1 seconds
+    ...     Check Log Contains   SSL connect error   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
