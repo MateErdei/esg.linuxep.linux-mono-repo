@@ -18,7 +18,7 @@ sspl-base-component:
 sspl-liveterminal:
     build:
         branch: develop
-        name: liveterminal
+        name: liveterminal_linux
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Plugin-liveresponse
     line-id: ServerProtectionLinux-Plugin-liveresponse
