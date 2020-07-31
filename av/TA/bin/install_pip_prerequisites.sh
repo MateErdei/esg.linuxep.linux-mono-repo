@@ -11,6 +11,7 @@ then
     ping -c2 abn-engrepo.eng.sophos || true
     sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' /etc/yum.repos.d/CentOS-Base.repo
     cat /etc/yum.repos.d/CentOS-Base.repo
+    yum update
     yum install -y "gcc" "gcc-c++" "make" "capnproto-devel" "capnproto-libs" "capnproto" nfs-utils
 else
     echo "Can't find package management system"
