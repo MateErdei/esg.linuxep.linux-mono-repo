@@ -7,7 +7,6 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 #include "IResponseDispatcher.h"
 #include "QueryResponse.h"
-#include "modules/queryrunner/Telemetry.h"
 
 namespace livequery
 {
@@ -15,10 +14,10 @@ namespace livequery
     {
     public:
         void sendResponse(const std::string& correlationId, const QueryResponse& response) override;
-        std::unique_ptr<IResponseDispatcher> clone() override ;
+        std::unique_ptr<IResponseDispatcher> clone() override;
         std::string serializeToJson(const QueryResponse& response);
-        std::string getTelemetry();
-        void setTelemetry(const std::string& json);
+        std::string getTelemetry() override;
+        void setTelemetry(const std::string& json) override;
 
 
     private:
