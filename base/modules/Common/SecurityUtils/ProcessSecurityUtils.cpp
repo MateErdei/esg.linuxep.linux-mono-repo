@@ -47,12 +47,12 @@ namespace Common::SecurityUtils
             FatalSecuritySetupFailureException::onError("Failed to drop other associated group ids: ");
         }
 
-        if (newgid != oldgid&&(setregid(newgid, newgid) == -1))
+        if (newgid != oldgid&&(setresgid(newgid, newgid, newgid) == -1))
         {
             FatalSecuritySetupFailureException::onError("Failed to set the new real and effective group ids, ");
         }
 
-        if (newuid != olduid&&(setreuid(newuid, newuid) == -1))
+        if (newuid != olduid&&(setresuid(newuid, newuid, newuid) == -1))
         {
             FatalSecuritySetupFailureException::onError("Failed to set the new real and effective user ids,");
         }
