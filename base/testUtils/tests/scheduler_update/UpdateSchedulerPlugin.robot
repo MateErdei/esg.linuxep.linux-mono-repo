@@ -122,8 +122,6 @@ UpdateScheduler Report Failure to Update Multiple Times In Telemetry
 
     Setup Plugin Install Failed  startTime=3  syncTime=3
     Simulate Update Now
-    ${eventPath} =  Check Status and Events Are Created
-    Check Event Report Install Failed   ${eventPath}
 
     ${time} =  Get Current Time
     Prepare To Run Telemetry Executable
@@ -140,8 +138,6 @@ UpdateScheduler Report Failure to Update Multiple Times In Telemetry
 
     Setup Plugin Install Failed  startTime=4  syncTime=4
     Simulate Update Now
-    ${eventPath} =  Check Status and Events Are Created
-    Check Event Report Install Failed   ${eventPath}
 
     ${time} =  Get Current Time
     Prepare To Run Telemetry Executable
