@@ -62,6 +62,8 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/w
 o750, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs
 o750, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry
 o750, sophos-spl-group, root, /opt/sophos-spl/var/sophos-spl-comms/base/mcs/certs
+o750, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/var/comms
+o750, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/var/comms/responses
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/action
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/policy
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/response
@@ -69,6 +71,7 @@ o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/tmp
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/cache
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/var
+o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/comms/requests
 o755, root, root, /opt/sophos-spl/var/sophos-spl-comms/etc/ssl/certs
 o755, root, root, /opt/sophos-spl/var/sophos-spl-comms/lib
 o755, root, root, /opt/sophos-spl/var/sophos-spl-comms/usr/lib
@@ -82,6 +85,3 @@ o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/update/certs
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/update/var
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/update/var/processedReports
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/logs/base/sophosspl
-o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/comms
-o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/comms/requests
-o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/comms/responses
