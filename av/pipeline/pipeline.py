@@ -244,11 +244,11 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     BRANCH_NAME = context.branch
 
     with stage.parallel('component'):
-        stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
+        # stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
         stage.task(task_name='centos77_x64',   func=pytest_task, machine=centos7_machine)
 
     with stage.parallel('integration'):
-        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
+        # stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
         stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
 
     with stage.parallel('coverage'):
