@@ -93,6 +93,9 @@ namespace Plugin
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
 
         void processQuery(const std::string& query, const std::string& correlationId);
+
+        // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
+        // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
         void setUpOsqueryMonitor();
         void stopOsquery();
         void cleanUpOldOsqueryFiles();
