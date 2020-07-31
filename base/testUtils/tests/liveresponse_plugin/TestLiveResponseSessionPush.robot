@@ -112,7 +112,8 @@ Multiple Liveresponse Sessions Work Concurrently
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id9}
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id10}
 
-    Log All Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
+    ${files} =  List Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
+    Log  ${files}
 
     ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
     Should Be Equal As Integers  ${count}  10
