@@ -54,9 +54,18 @@ def package_install(machine: tap.Machine, *install_args: str):
                     log_mode=tap.LoggingMode.ON_ERROR)
 
 
+def needs_python37_dev(machine: tap.Machine):
+    return is_debian_based(machine)
+
+
+def install_python37_dev_if_required(machine: tap.Machine):
+    if needs_python37_dev(machine):
+        package_install(machine, 'python3.7-dev')
+
+
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
-    package_install(machine, 'python3.7-dev')
+    install_python37_dev_if_required(machine)
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
     try:
         machine.run('useradd', 'sophos-spl-user')
