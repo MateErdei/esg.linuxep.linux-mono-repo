@@ -74,9 +74,9 @@ UpdateScheduler Install Base and MDR With the ALC Policy With MDR
     Check MDR Installed
     Check ALC Status Sent To Central Contains MDR Subscription
 
-
+#To Do Replace by extending an OSTIA Test [LINUXDAR-2012]
 UpdateScheduler Update That Has no Change Does Not ReInstall The Product
-    [Tags]  UPDATE_SCHEDULER
+    [Tags]  UPDATE_SCHEDULER TESTFAILURE
     [Setup]  Setup For Test With Warehouse Containing Base
     Send Policy With Host Redirection And Run Update And Check Success     remove_subscriptions=SENSORS MDR
 
@@ -84,8 +84,8 @@ UpdateScheduler Update That Has no Change Does Not ReInstall The Product
     ...  60 secs
     ...  5 secs
     ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   1
-   
-    Override LogConf File as Global Level  DEBUG   
+
+    Override LogConf File as Global Level  DEBUG
     Replace Sophos URLS to Localhost
     Simulate Update Now
 
