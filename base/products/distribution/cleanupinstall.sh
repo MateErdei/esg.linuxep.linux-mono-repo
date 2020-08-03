@@ -215,9 +215,10 @@ function perform_cleanup()
     fi
 
     # clean up all broken symlinks created by deleting installed files
-    find ${SOPHOS_INSTALL}/base -xtype l -delete
-    find ${SOPHOS_INSTALL}/plugins -xtype l -delete
-
+    for dirname in base plugins bin; do
+        find ${SOPHOS_INSTALL}/${dirname} -xtype l -delete
+    done
+    
     if [[ ! -z "${FILES_OR_DIRECTORIES_DELETED}" ]]
     then
       echo "List of files or directories removed during upgrade${FILES_OR_DIRECTORIES_DELETED}"
