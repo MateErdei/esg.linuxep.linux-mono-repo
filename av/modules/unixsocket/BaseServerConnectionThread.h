@@ -17,6 +17,6 @@ namespace unixsocket
         bool isRunning() { return m_isRunning; }
 
     protected:
-        bool m_isRunning;
+        bool m_isRunning = false;
     };
 }
