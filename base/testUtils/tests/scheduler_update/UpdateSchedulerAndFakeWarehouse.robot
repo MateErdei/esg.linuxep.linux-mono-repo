@@ -39,6 +39,13 @@ UpdateScheduler Update Against Ostia
 
     File Should Exist    ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
 
+    #update without any change does not require fresh install
+    Simulate Send Policy And Run Update  ${BasePolicy}
+
+    Check Log Contains String N Times   ${logpath}   SULDownloader Log    Installing product: ServerProtectionLinux-Base   1
+    Check Log Contains String N Times   ${logpath}   SULDownloader Log   Downloaded Product line: 'ServerProtectionLinux-Base' is up to date  1
+
+
 UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
     Register Current Sul Downloader Config Time
     Simulate Send Policy   ALC_policy_invalid.xml
