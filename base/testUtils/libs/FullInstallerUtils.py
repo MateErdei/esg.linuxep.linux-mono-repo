@@ -303,14 +303,15 @@ def run_full_installer_from_location_expecting_code(install_script_location, exp
         pop = subprocess.Popen(arg_list, env=os.environ, stdout=logfile, stderr=logfile)
         pop.communicate()
         actual_code = pop.returncode
-
+    
+    with open(logfilename, 'r') as logfile:
+        output = logfile.read()
+        
     if actual_code != expected_code:
-        with open(logfilename, 'r') as logfile:
-            output = logfile.read()
-            logger.info(output)
+        logger.info(output)
         raise AssertionError("Installer exited with {} rather than {}".format(actual_code, expected_code))
 
-    return output+all_steps
+    return output
 
 def filter_trace_from_installer_output(console_output):
     lines = console_output.split("\n")
