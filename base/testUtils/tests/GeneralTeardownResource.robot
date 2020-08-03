@@ -48,6 +48,7 @@ Dump All Logs
     Dump Teardown Log    ./tmp/update_server.log
     Dump Teardown Log    ./tmp/CapnSubscriber.log
     Dump Teardown Log    ./tmp/warehouseGenerator.log
+    Dump Teardown Log    /tmp/unmount.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/addedFiles_manifest.dat
     Dump Teardown Log    ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat

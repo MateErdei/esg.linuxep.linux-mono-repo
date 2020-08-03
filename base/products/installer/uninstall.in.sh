@@ -8,7 +8,12 @@ if [[ "$SCRIPTDIR" == "$0" ]]
 then
     SCRIPTDIR="${STARTINGDIR}"
 fi
-
+EXIT_CODE=0
+function failure()
+{
+  echo $1
+  EXIT_CODE=$2
+}
 ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 SOPHOS_INSTALL="${ABS_SCRIPTDIR%/bin*}"
 
@@ -67,11 +72,11 @@ function unmountCommsComponentDependencies()
 {
   CommsComponentChroot=$1
   for entry in etc/resolv.conf etc/hosts usr/lib usr/lib64 lib etc/ssl/certs etc/pki/tls/certs base/mcs/certs; do
-    umount --force ${CommsComponentChroot}/${entry}  > /dev/null 2>&1 
+    umount --force ${CommsComponentChroot}/${entry}  > /tmp/unmount.log 2>&1
   done
 }
 
-removeUpdaterSystemdService
+removeUpdaterSystemdService || failure "Failed to remove updating service files"  1
 
 # Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
 # can stop the plugin process via wdctl.
@@ -81,17 +86,17 @@ then
     for UNINSTALLER in "$PLUGIN_UNINSTALL_DIR"/*
     do
         UNINSTALLER_BASE=${UNINSTALLER##*/}
-        bash "$UNINSTALLER" || echo "Failed to uninstall $(UNINSTALLER_BASE): $?"
+        bash "$UNINSTALLER" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
     done
 else
     echo "Can't uninstall plugins: $PLUGIN_UNINSTALL_DIR doesn't exist"
 fi
 
-removeWatchdogSystemdService
+removeWatchdogSystemdService || failure "Failed to remove watchdog service files"  2
 
 CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
 unmountCommsComponentDependencies ${CommsComponentChroot}
-rm -rf "$SOPHOS_INSTALL"
+rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  3
 
 PATH=$PATH:/usr/sbin:/sbin
 
@@ -103,10 +108,10 @@ function removeUser()
 
   if [[ -x "$DELUSER" ]]
   then
-      "$DELUSER" "$USERNAME" 2>/dev/null >/dev/null  || echo "Failed to delete user: $USERNAME"
+      "$DELUSER" "$USERNAME" 2>/dev/null >/dev/null  || failure "Failed to delete user: $USERNAME"  4
   elif [[ -x "$USERDEL" ]]
   then
-      "$USERDEL" "$USERNAME" 2>/dev/null >/dev/null  || echo "Failed to delete user: $USERNAME"
+      "$USERDEL" "$USERNAME" 2>/dev/null >/dev/null  || failure "Failed to delete user: $USERNAME"  5
   else
       echo "Unable to delete user $USERNAME" >&2
   fi
@@ -128,7 +133,7 @@ function removeGroup()
       check_group_exists  $GROUPNAME
       if [[ $? -eq 0 ]]
       then
-          "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null || echo "Failed to delete group: $GROUPNAME"
+          "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null || failure "Failed to delete group: $GROUPNAME"  6
       fi
   else
       echo "Unable to delete group $GROUPNAME" >&2
@@ -150,3 +155,5 @@ then
   removeGroup   ${SOPHOS_SPL_GROUP_NAME}
 
 fi
+
+exit $EXIT_CODE
