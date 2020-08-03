@@ -297,15 +297,17 @@ def run_full_installer_from_location_expecting_code(install_script_location, exp
     arg_list += list(args)
     logger.debug("Env Variables: {}".format(os.environ))
     logger.info("Run installer: {}".format(arg_list))
-    pop = subprocess.Popen(arg_list, env=os.environ, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, all_steps = pop.communicate()
-    actual_code = pop.returncode
-    logger.info(output)
-    logger.debug(all_steps)
+    filename=os.path.basename(install_script_location)
+    logfilename="/tmp/installer_"+filename+".log"
+    with open(logfilename, 'w') as logfile:
+        pop = subprocess.Popen(arg_list, env=os.environ, stdout=logfilename, stderr=logfilename)
+        pop.communicate()
+        actual_code = pop.returncode
 
     if actual_code != expected_code:
-        logger.error(output)
-        logger.error(all_steps)
+        with open(logfilename, 'r') as logfile:
+            output = logfile.read()
+            logger.info(output)
         raise AssertionError("Installer exited with {} rather than {}".format(actual_code, expected_code))
 
     return output+all_steps

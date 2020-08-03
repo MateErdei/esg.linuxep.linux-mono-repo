@@ -9,10 +9,12 @@ ${LIVE_RESPONSE_LOG_FILE} =                   ${LIVE_RESPONSE_PLUGIN_PATH}/log/l
 *** Keywords ***
 Install Live Response Directly
     ${LIVE_RESPONSE_SDDS_DIR} =  Get SSPL Live Response Plugin SDDS
-    ${result} =    Run Process  bash -x ${LIVE_RESPONSE_SDDS_DIR}/install.sh   shell=True
-    Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}"
-    Log  ${result.stdout}
+    ${result} =    Run Process  bash -x ${LIVE_RESPONSE_SDDS_DIR}/install.sh 2> /tmp/liveresponse_install.log   shell=True
+    ${error} =  Get File  /tmp/liveresponse_install.log
+    Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}, ${error}"
+    Log  ${error}
     Log  ${result.stderr}
+    Log  ${result.stdout}
     Check Live Response Plugin Installed
 
 Check Live Response Plugin Installed

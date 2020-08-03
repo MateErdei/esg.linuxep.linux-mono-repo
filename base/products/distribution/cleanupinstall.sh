@@ -215,7 +215,8 @@ function perform_cleanup()
     fi
 
     # clean up all broken symlinks created by deleting installed files
-    find ${SOPHOS_INSTALL} -xtype l -delete
+    find ${SOPHOS_INSTALL}/base -xtype l -delete
+    find ${SOPHOS_INSTALL}/plugins -xtype l -delete
 
     if [[ ! -z "${FILES_OR_DIRECTORIES_DELETED}" ]]
     then
