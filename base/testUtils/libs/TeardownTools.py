@@ -243,6 +243,59 @@ class TeardownTools(object):
             returncode = popen.returncode
             if returncode != 0:
                 return returncode
+    
+
+    def _run_proc(self, args):
+        logger.info('Run Command: {}'.format(args))
+        p=sp.Popen(args, stdout=sp.PIPE)
+        p.wait()
+        stdout, stderr = p.communicate()
+        return stdout, stderr
+
+    def _umount_path(self,fullpath):
+        stdout, stderr = self._run_proc(['umount', fullpath])
+        if 'not mounted' in stderr: 
+            return
+        logger.info(stdout)
+        logger.info(stderr)
+
+    def _stop_commscomponent(self):       
+        stdout, stderr = self._run_proc(["/opt/sophos-spl/bin/wdctl", "stop", "commscomponent"])
+        if stdout:
+            logger.info(stdout)
+        if stderr:
+            if not 'Watchdog is not running' in stderr:
+                logger.info(stderr)
+
+    def unmount_all_comms_component_folders(self):
+        if not os.path.exists('/opt/sophos-spl/bin/wdctl'):
+            return
+        # stop the comms component as it could be holding the mounted paths and 
+        # would not allow them to be unmounted. 
+        stdout, stderr = self._run_proc(['pidof', 'CommsComponent'])
+        if len(stdout)>1:
+            logger.info("Commscomponent running {}".format(stdout))
+            self._stop_commscomponent()    
+        else:
+            logger.info("Skip stop comms componenent")
+
+        dirpath = '/opt/sophos-spl/var/sophos-spl-comms'
+
+        for subdir, dirs, files in os.walk(dirpath):
+            for subdir in dirs:
+                fullpath = subdir + os.sep + subdir
+                if os.path.isdir(fullpath):
+                    self._umount_path(fullpath)
+        
+        # after the first run of unmount to not try to unmount all the files under the mounted directories. 
+        for subdir, dirs, files in os.walk(dirpath):
+            for filename in files:
+                fullpath = subdir + os.sep + filename
+                if os.path.isdir(fullpath):
+                    self._umount_path(fullpath)
+
+
+
 
 
 
