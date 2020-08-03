@@ -58,7 +58,6 @@ Diagnose Tool Gathers Logs When Run From Installation
 
 Diagnose Tool Gathers MDR Logs When Run From Installation
     [Tags]  DIAGNOSE  MDR_PLUGIN
-    [Timeout]  1 minutes
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
     Create Directory  ${TAR_FILE_DIRECTORY}
