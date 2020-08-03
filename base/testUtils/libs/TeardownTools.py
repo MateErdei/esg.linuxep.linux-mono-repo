@@ -243,6 +243,4 @@ class TeardownTools(object):
             returncode = popen.returncode
             if returncode != 0:
                 return returncode
-
-
-
+    

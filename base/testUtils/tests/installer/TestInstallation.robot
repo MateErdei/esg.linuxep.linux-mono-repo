@@ -48,10 +48,9 @@ Verify that the full installer works correctly
     [Tags]    DEBUG  INSTALLER  SMOKE  TAP_TESTS
     [Teardown]  Install Tests Teardown With Installed File Replacement
     Require Fresh Install
+    Check Expected Base Processes Are Running
+    Unmount All Comms Component Folders
 
-
-#    ${r} =  Run Process  systemctl  stop  sophos-spl
-#    Should Be Equal As Strings  ${r.rc}  0
     ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get file info for installation
     Set Test Variable  ${FileInfo}
     Set Test Variable  ${DirectoryInfo}
@@ -78,8 +77,8 @@ Verify that the full installer works correctly
 Verify Sockets Have Correct Permissions
     [Tags]    DEBUG  INSTALLER
     Require Fresh Install
-
     Check Expected Base Processes Are Running
+    Unmount All Comms Component Folders
 
     ${ActualDictOfSockets} =    Get Dictionary Of Actual Sockets And Permissions
     ${ExpectedDictOfSockets} =  Get Dictionary Of Expected Sockets And Permissions
@@ -91,6 +90,7 @@ Verify MCS Folders Have Correct Permissions
     Require Fresh Install
 
     Check Expected Base Processes Are Running
+    Unmount All Comms Component Folders
 
     ${ActualDictOfSockets} =    Get Dictionary Of Actual Mcs Folders And Permissions
     ${ExpectedDictOfSockets} =  Get Directory Of Expected Mcs Folders And Permissions
@@ -102,6 +102,7 @@ Verify Base Logs Have Correct Permissions
     Require Fresh Install
 
     Check Expected Base Processes Are Running
+    Unmount All Comms Component Folders    
 
     ${ActualDictOfLogs} =    Get Dictionary Of Actual Base Logs And Permissions
     ${ExpectedDictOfLogs} =  Get Dictionary Of Expected Base Logs And Permissions
@@ -139,6 +140,7 @@ Verify repeat installation doesnt change permissions
     Should Not Exist   ${SOPHOS_INSTALL}
     Run Full Installer Expecting Code  0
     Should Exist   ${SOPHOS_INSTALL}
+    Unmount All Comms Component Folders
     ${DirectoryInfo}=  Run Process  find  ${SOPHOS_INSTALL}  -type  d  -exec  stat  -c  %a, %G, %U, %n  {}  +
     Create File    ./tmp/NewDirInfo  ${DirectoryInfo.stdout}
     ${DirectoryInfo}=  Run Process  sort  ./tmp/NewDirInfo
@@ -146,6 +148,7 @@ Verify repeat installation doesnt change permissions
 
     Run Full Installer Expecting Code  0
     Should Exist   ${SOPHOS_INSTALL}
+    Unmount All Comms Component Folders    
     ${DirectoryInfo2}=  Run Process  find  ${SOPHOS_INSTALL}  -type  d  -exec  stat  -c  %a, %G, %U, %n  {}  +
     Create File    ./tmp/NewDirInfo  ${DirectoryInfo2.stdout}
     ${DirectoryInfo2}=  Run Process  sort  ./tmp/NewDirInfo
@@ -226,6 +229,7 @@ VersionCopy Teardown
     Remove Directory  /tmp/testVersionCopy  recursive=True
 
 Install Tests Teardown
+    Unmount All Comms Component Folders
     General Test Teardown
     Remove Environment Variable  https_proxy
     Run Keyword If Test Failed  Dump All Processes

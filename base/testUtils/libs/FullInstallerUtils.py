@@ -15,6 +15,7 @@ import stat
 import xml.dom.minidom
 import re
 import configparser
+import time
 
 import PathManager
 
@@ -883,3 +884,64 @@ def check_version_files_report_a_valid_upgrade(previous_ini_files, recent_ini_fi
     upgrades = [_is_valid_upgrade(previous,latest) for previous,latest in zip(previous_ini_files,recent_ini_files)]
     if not any(upgrades):
         raise AssertionError('No upgrade found in the input VERSION files')
+
+
+def unmount_all_comms_component_folders():
+    def _run_proc(args):
+        logger.info('Run Command: {}'.format(args))
+        p=subprocess.Popen(args, stdout=subprocess.PIPE)
+        p.wait()
+        stdout, stderr = p.communicate()
+        if stdout is None:
+            stdout = ''
+        if stderr is None:
+            stderr = ''
+        return stdout, stderr
+
+    def _umount_path(fullpath):
+
+        stdout, stderr = _run_proc(['umount', fullpath])
+        if 'not mounted' in stderr: 
+            return
+        logger.info(stdout)
+        logger.info(stderr)
+
+    def _stop_commscomponent():
+        stdout, stderr = _run_proc(["/opt/sophos-spl/bin/wdctl", "stop", "commscomponent"])
+        if stdout:
+            logger.info(stdout)
+        if stderr:
+            if not 'Watchdog is not running' in stderr:
+                logger.info(stderr)
+
+
+    if not os.path.exists('/opt/sophos-spl/bin/wdctl'):
+        return
+    # stop the comms component as it could be holding the mounted paths and 
+    # would not allow them to be unmounted. 
+    while True:
+        stdout, stderr = _run_proc(['pidof', 'CommsComponent'])
+        if len(stdout)>1:
+            logger.info("Commscomponent running {}".format(stdout))
+            _stop_commscomponent()    
+            time.sleep(1)
+        else:
+            logger.info("Skip stop comms componenent")
+            break
+
+    dirpath = '/opt/sophos-spl/var/sophos-spl-comms/'
+    
+    mounted_entries = ['etc/resolv.conf', 'etc/hosts', 'usr/lib', 'usr/lib64', 'lib', 
+                        'etc/ssl/certs', 'etc/pki/tls/certs', 'base/mcs/certs']
+    for entry in mounted_entries:        
+        try:
+            fullpath = os.path.join(dirpath, entry)
+            if not os.path.exists(fullpath):
+                continue
+            _umount_path(fullpath)
+            if os.path.isfile(fullpath):
+                os.remove(fullpath)
+            else:
+                shutil.rmtree(fullpath)
+        except Exception as ex: 
+            logger.error(str(ex))
