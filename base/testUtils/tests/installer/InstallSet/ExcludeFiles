@@ -10,11 +10,4 @@ wdctl.log
 tscheduler.log
 ALC_status.xml
 ALC.xml
-sophos-spl-comms/etc/resolv.conf
-sophos-spl-comms/etc/hosts
-sophos-spl-comms/usr/lib
-sophos-spl-comms/usr/lib64
-sophos-spl-comms/lib
-sophos-spl-comms/etc/ssl/certs
-sophos-spl-comms/etc/pki/tls/certs
-sophos-spl-comms/base/mcs/certs
+sophos-spl-comms/
