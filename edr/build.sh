@@ -341,6 +341,9 @@ function build()
 
     if [[ ${BULLSEYE} == 1 ]]
     then
+      #move the coverage build produced and replace sdds with previous last good build
+      mv output/SDDS-COMPONENT output/SDDS-COMPONENT-COVERAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to move coverage SDDS component to output"
+      cp -a ${INPUT}/edr-sdds  output/edr-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
       if [[ ${UNITTEST} == 1 ]]
       then
             ## Process bullseye output
