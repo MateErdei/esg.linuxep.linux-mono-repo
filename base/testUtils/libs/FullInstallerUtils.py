@@ -300,7 +300,7 @@ def run_full_installer_from_location_expecting_code(install_script_location, exp
     filename=os.path.basename(install_script_location)
     logfilename="/tmp/installer_"+filename+".log"
     with open(logfilename, 'w') as logfile:
-        pop = subprocess.Popen(arg_list, env=os.environ, stdout=logfilename, stderr=logfilename)
+        pop = subprocess.Popen(arg_list, env=os.environ, stdout=logfile, stderr=logfile)
         pop.communicate()
         actual_code = pop.returncode
 
