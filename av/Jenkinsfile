@@ -8,6 +8,17 @@ project_builddir = project
 project_release_xml = 'build-files/release-package.xml'
 buildAgentTemplate = 'JenkinsLinuxTemplate5'
 
+if(env.DEPLOYMENT_TYPE){
+    echo 'Doing a dev build'
+    prodbuild = false
+    devbuild = true
+}
+else {
+    echo 'Doing a production build'
+    prodbuild = true
+    devbuild = false
+}
+
 properties([
   parameters([
     string(name: 'CommitHash', defaultValue: ''),
@@ -23,7 +34,7 @@ try{
     PreBuild(params, version_number, project)
     git_branch = "${env.BRANCH_NAME}"
     echo git_branch
-    if (git_branch == 'bugfix/get_coverage_builds_working' || git_branch == 'master')
+    if (devbuild && (git_branch.endsWith("coverage") || git_branch == 'master'))
     {
         parallel Build:
         {
