@@ -65,7 +65,6 @@ MCS Reports Failure To Update From Central Credentials Correctly
 
     # Register with Nova and wait for ALC policy so that it doesn't come down and interfere with update tests
     Require Registered  waitForALCPolicy=${True}
-    Simulate Update Now
     ${starttime} =  Get Cloud Time
 
     Wait Nova Report New UpdateSuccess   1
