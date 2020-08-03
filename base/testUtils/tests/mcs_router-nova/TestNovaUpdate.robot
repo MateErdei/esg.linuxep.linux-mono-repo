@@ -39,7 +39,6 @@ MCS Reports Update From Central Credentials Correctly
     Setup Fresh Install Nova
     Require Warehouse In Localhost
     Require Registered    waitForALCPolicy=${True}
-    Simulate Update Now
     Wait Nova Report New UpdateSuccess   1
 
 Nova Reports Reboot Required When MCS Sends Reboot Required Event
