@@ -423,7 +423,7 @@ def Uninstall_SSPL(installdir=None):
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
         counter = 0
-        while counter < 5:
+        while counter < 5 and os.path.exists(installdir):
             counter = counter + 1
             try:
                 logger.info("try to rm all")
@@ -433,7 +433,6 @@ def Uninstall_SSPL(installdir=None):
                 break
             except Exception as ex:
                 logger.error(str(ex))
-                unmount_all_comms_component_folders()
                 time.sleep(1)
 
 
