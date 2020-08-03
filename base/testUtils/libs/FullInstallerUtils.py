@@ -417,8 +417,8 @@ def Uninstall_SSPL(installdir=None):
                 p = subprocess.Popen([ p, "--force"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 (output, err) = p.communicate()
                 if not p.returncode == 0:
-                    logger.error(output)
-                    logger.error(err)
+                    logger.info(output)
+                    logger.info(err)
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
 
