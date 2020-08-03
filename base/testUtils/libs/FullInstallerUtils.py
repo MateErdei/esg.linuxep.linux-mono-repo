@@ -323,7 +323,7 @@ def filter_trace_from_installer_output(console_output):
     return "\n".join(filtered_lines)
 
 def validate_incorrect_glibc_console_output(console_output):
-    filtered_console_output = filter_trace_from_installer_output(console_output.decode('utf-8'))
+    filtered_console_output = filter_trace_from_installer_output(console_output)
 
     # This regex may seem like slight overkill for the test.
     # The logic in the installer relies on the glibc version being of the form [0-9]*\.[0-9]
