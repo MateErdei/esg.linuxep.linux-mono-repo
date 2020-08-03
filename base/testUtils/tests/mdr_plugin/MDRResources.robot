@@ -354,7 +354,7 @@ Install Directly From Component Suite
     ${result} =  Run Process    rsync   -r   -v   ${MDR_COMPONENT_SUITE.mdr_suite.sdds}/  ${COMPONENT_TEMP_DIR}/
     Should Be Equal As Integers    ${result.rc}    0    Failed to copy ${MDR_COMPONENT_SUITE.mdr_suite.sdds} to ${COMPONENT_TEMP_DIR}
     LIST FILES IN DIRECTORY  ${COMPONENT_TEMP_DIR}
-    ${result} =  Run Process    ${COMPONENT_TEMP_DIR}/install.sh
+    ${result} =  Run Process    ${COMPONENT_TEMP_DIR}/install.sh  >  /tmp/install.log  shell=True
     Should Be Equal As Integers  ${result.rc}  0    "MDR installer failed: stdout: ${result.stdout} stderr: ${result.stderr}"
 
 Insert MTR Policy
