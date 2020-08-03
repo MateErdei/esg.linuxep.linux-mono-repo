@@ -25,9 +25,11 @@ ${OSqueryPurgeMsg}     Osquery database watcher purge completed
 
 Install MDR Directly
     ${MDR_SDDS_DIR} =  Get SSPL MDR Plugin SDDS
-    ${result} =    Run Process  bash -x ${MDR_SDDS_DIR}/install.sh   shell=True
-    Should Be Equal As Integers    ${result.rc}    20   "Installer failed: Reason ${result.stderr}"
+    ${result} =    Run Process  bash -x ${MDR_SDDS_DIR}/install.sh 2> /tmp/install_mdr.log   shell=True
+    ${stderr} =  Get File  /tmp/install_mdr.log
+    Should Be Equal As Integers    ${result.rc}    20   "Installer failed: Reason ${result.stderr} ${stderr}"
     Log  ${result.stdout}
+    Log  ${stderr}
     Log  ${result.stderr}
     Check MDR Plugin Installed
 
@@ -318,8 +320,9 @@ Uninstall MDR Plugin
     # tail -f will keep reference to the mtr.log inode. Even after the mtr directory is removed.
     # this is to allow detecting issues with the uninstaller.
     ${handle}=  Start Process  tail -f ${MDR_LOG_FILE}  shell=True
-    ${result} =  Run Process     bash -x ${MDR_PLUGIN_PATH}/bin/uninstall.sh   shell=True
-    Log  ${result.stderr}
+    ${result} =  Run Process     bash -x ${MDR_PLUGIN_PATH}/bin/uninstall.sh 2> /tmp/mdr_uninstall.log   shell=True
+    ${stderr} =  Get File   /tmp/mdr_uninstall.log
+    Log  ${stderr}
     ${logresult}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  "Last mdr logs:\n${logresult.stdout}"
     Should Be Equal As Strings   ${result.rc}  0   msg="output:${result.stdout}\nerror:${result.stderr}."

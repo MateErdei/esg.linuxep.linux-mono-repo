@@ -180,9 +180,11 @@ Wait For EDR Status
 
 Install EDR Directly
     ${EDR_SDDS_DIR} =  Get SSPL EDR Plugin SDDS
-    ${result} =    Run Process  bash -x ${EDR_SDDS_DIR}/install.sh   shell=True
-    Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}"
+    ${result} =    Run Process  bash -x ${EDR_SDDS_DIR}/install.sh 2> /tmp/edr_install.log   shell=True
+    ${stderr} =   Get File  /tmp/edr_install.log
+    Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr} ${stderr}"
     Log  ${result.stdout}
+    Log  ${stderr}
     Log  ${result.stderr}
     Wait For EDR to be Installed
 
