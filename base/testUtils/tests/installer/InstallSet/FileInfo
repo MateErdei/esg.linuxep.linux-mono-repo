@@ -18,7 +18,6 @@ o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/tscheduler.jso
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/updatescheduler.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/VERSION.ini.0
 o640, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/etc/logger.conf.0
-o670, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/base/etc/logger.conf
 o700, root, root, /opt/sophos-spl/base/bin/CommsComponent.0
 o700, root, root, /opt/sophos-spl/base/bin/manifestdiff.0
 o700, root, root, /opt/sophos-spl/base/bin/registerCentral.0

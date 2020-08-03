@@ -9,9 +9,6 @@ o700, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component
 o700, root, root, /opt/sophos-spl/var/lock
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/base
-o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/base/etc
-o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/base/mcs
-o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/etc/ssl
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/logs
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/usr
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/ipc
