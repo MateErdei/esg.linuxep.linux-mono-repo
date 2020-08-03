@@ -74,31 +74,6 @@ UpdateScheduler Install Base and MDR With the ALC Policy With MDR
     Check MDR Installed
     Check ALC Status Sent To Central Contains MDR Subscription
 
-#To Do [LINUXDAR-2012]
-#Replace by extending an OSTIA Test UpdateScheduler Update Against Ostia, I am working on this
-UpdateScheduler Update That Has no Change Does Not ReInstall The Product
-    [Tags]  UPDATE_SCHEDULER TESTFAILURE
-    [Setup]  Setup For Test With Warehouse Containing Base
-    Send Policy With Host Redirection And Run Update And Check Success     remove_subscriptions=SENSORS MDR
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   1
-
-    Override LogConf File as Global Level  DEBUG
-    Replace Sophos URLS to Localhost
-    Simulate Update Now
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   2
-
-    Run Keyword And Expect Error   *1 times not the requested 2 times*   Upgrade Installs Product Twice
-
-    Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Downloaded Product line: 'ServerProtectionLinux-Base' is up to date  1
-
 
 *** Keywords ***
 Upgrade Installs Product Twice   
