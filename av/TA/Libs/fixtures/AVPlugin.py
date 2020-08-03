@@ -74,6 +74,8 @@ class AVPlugin(object):
     def start_av(self):
         logger.debug("Start start_av")
         self.prepare_for_test()
+        output = subprocess.check_output(['ldd', _av_exec_path()]) ## check we can load all the libraries
+        logger.debug("ldd output: %s", output)
         self._proc = subprocess.Popen([_av_exec_path()])
         logger.debug("Finish start_av")
 

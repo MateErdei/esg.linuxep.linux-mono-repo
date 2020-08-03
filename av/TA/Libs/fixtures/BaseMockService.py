@@ -128,6 +128,7 @@ def install_base(sophos_install):
         create_library_symlinks(dest)
     #
     copy_lib("libstdc++.so.6.*")
+    copy_lib("libcrypto.so.*")
     # copy_lib("liblog4cplus-2.0.so.*")
     # copy_lib("libprotobuf.so.*")
     # copy_lib("libzmq.so.*")
