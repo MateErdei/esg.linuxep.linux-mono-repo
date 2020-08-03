@@ -45,6 +45,10 @@
         <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
+        <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
+        <package name="sspl-plugin-edr-component" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.0.2/output" dest="input" buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="edr-sdds" />
+        </package>
     </inputs>
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
