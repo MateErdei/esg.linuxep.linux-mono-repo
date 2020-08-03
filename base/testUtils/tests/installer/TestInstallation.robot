@@ -229,7 +229,6 @@ VersionCopy Teardown
     Remove Directory  /tmp/testVersionCopy  recursive=True
 
 Install Tests Teardown
-    Unmount All Comms Component Folders
     General Test Teardown
     Remove Environment Variable  https_proxy
     Run Keyword If Test Failed  Dump All Processes
