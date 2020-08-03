@@ -90,7 +90,7 @@ Reset Sophos Install Environment Variable Cache Exists
     ...         ELSE  Set Environment Variable  SOPHOS_INSTALL  ${SOPHOS_INSTALL_ENVIRONMENT_CACHE}
 
 Display All SSPL Files Installed
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses | grep -v sophos-spl-comms | xargs ls -al  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses | grep -v sophos-spl-comms  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
