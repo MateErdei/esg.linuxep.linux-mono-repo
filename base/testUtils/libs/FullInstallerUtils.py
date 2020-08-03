@@ -414,11 +414,11 @@ def Uninstall_SSPL(installdir=None):
         p = os.path.join(installdir, "bin", "uninstall.sh")
         if os.path.isfile(p):
             try:
-                p = subprocess.Popen([ p, "--force"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                (output, err) = p.communicate()
+                p = subprocess.Popen([ p, "--force"], stdout="/tmp/install.log", stderr=subprocess.STDOUT)
                 if not p.returncode == 0:
-                    logger.info(output)
-                    logger.info(err)
+                    with open("/tmp/install.log", "r") as f:
+                        contents = f.read()
+                    logger.info(contents)
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
 
