@@ -83,6 +83,7 @@ def combined_task(machine: tap.Machine):
             machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
             # run component pytests and integration robot tests with coverage file to get combined coverage
+            machine.run('mv', os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT-COVERAGE'), os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT'))
             machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
             machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
             try:
