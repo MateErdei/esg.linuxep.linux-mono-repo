@@ -215,8 +215,7 @@ function perform_cleanup()
     fi
 
     # clean up all broken symlinks created by deleting installed files
-    # exclude ${SOPHOS_INSTALL}/var/sophos-spl-comms/ as it is the mount point for system libraries we use for comms sandboxing
-    find ${SOPHOS_INSTALL} -path ${SOPHOS_INSTALL}/var/sophos-spl-comms -prune -o -xtype l -delete
+    find ${SOPHOS_INSTALL} -xtype l -delete
 
     if [[ ! -z "${FILES_OR_DIRECTORIES_DELETED}" ]]
     then
