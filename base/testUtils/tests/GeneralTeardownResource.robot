@@ -81,7 +81,6 @@ Check and Dump Journalctl
 
 
 General Test Teardown
-    Unmount All Comms Component Folders
     Require No Unhandled Exception
     Check For Coredumps  ${TEST NAME}
     Check Dmesg For Segfaults

@@ -9,8 +9,11 @@ o700, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component
 o700, root, root, /opt/sophos-spl/var/lock
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/base
-o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/lib
+o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/base/etc
+o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/base/mcs
+o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/etc/ssl
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/logs
+o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/logs/base
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/usr
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/ipc
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/ipc/plugins
@@ -58,6 +61,7 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/w
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.7/site-packages/watchdog/utils
 o750, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs
 o750, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry
+o750, sophos-spl-group, root, /opt/sophos-spl/var/sophos-spl-comms/base/mcs/certs
 o750, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/var/comms
 o750, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/var/comms/responses
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/action
@@ -67,6 +71,9 @@ o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/tmp
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/cache
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/var
+o755, root, root, /opt/sophos-spl/var/sophos-spl-comms/etc/ssl/certs
+o755, root, root, /opt/sophos-spl/var/sophos-spl-comms/lib
+o755, root, root, /opt/sophos-spl/var/sophos-spl-comms/usr/lib
 o755, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/etc
 o770, sophos-spl-group, root, /opt/sophos-spl/base/etc/sophosspl
 o770, sophos-spl-group, root, /opt/sophos-spl/base/update
