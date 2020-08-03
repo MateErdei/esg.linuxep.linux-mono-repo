@@ -54,7 +54,6 @@ MCS Reports Update From Central Credentials Correctly and Includes Update Time
     Setup Fresh Install Nova
     Require Warehouse In Localhost
     Require Registered   waitForALCPolicy=${True}
-    Simulate Update Now
     ${starttime} =  Get Cloud Time
     Wait Nova Report New UpdateSuccess   1
     Check Server Last Success Update Time  ${starttime}
