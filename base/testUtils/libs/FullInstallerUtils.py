@@ -422,8 +422,20 @@ def Uninstall_SSPL(installdir=None):
                     logger.info(contents)
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
+        counter = 0
+        while counter < 5:
+            counter = counter + 1
+            try:
+                logger.info("try to rm all")
+                unmount_all_comms_component_folders(True)
+                with open(os.devnull, "w") as devnull:
+                    subprocess.check_call(['rm', '-rf', installdir], stderr=devnull, stdout=devnull)
+                break
+            except Exception as ex:
+                logger.error(str(ex))
+                unmount_all_comms_component_folders()
+                time.sleep(1)
 
-        subprocess.call(['rm', '-rf', installdir])
 
     # Attempts to uninstall based on the env variables in the sophos-spl .service file
     p = subprocess.Popen(["systemctl", "show", "-p", "Environment", "sophos-spl"], stdout=subprocess.PIPE)
@@ -886,7 +898,7 @@ def check_version_files_report_a_valid_upgrade(previous_ini_files, recent_ini_fi
         raise AssertionError('No upgrade found in the input VERSION files')
 
 
-def unmount_all_comms_component_folders():
+def unmount_all_comms_component_folders(skip_stop_proc=False):
     def _run_proc(args):
         logger.info('Run Command: {}'.format(args))
         p=subprocess.Popen(args, stdout=subprocess.PIPE)
@@ -919,7 +931,9 @@ def unmount_all_comms_component_folders():
         return
     # stop the comms component as it could be holding the mounted paths and 
     # would not allow them to be unmounted. 
-    while True:
+    counter = 0
+    while not skip_stop_proc and counter < 5:
+        counter = counter + 1
         stdout, stderr = _run_proc(['pidof', 'CommsComponent'])
         if len(stdout)>1:
             logger.info("Commscomponent running {}".format(stdout))
