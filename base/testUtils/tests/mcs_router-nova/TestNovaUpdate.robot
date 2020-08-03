@@ -137,14 +137,9 @@ MDR Plugin Installed On Update And Status Sent On Receiving MDR Policy From Nova
     Setup Fresh Install Nova
     Require Warehouse In Localhost
     Require Registered    waitForALCPolicy=${True}
-
-    Simulate Update Now
-
     Wait Nova Report New UpdateSuccess   1
-
     Wait until MDR policy is Downloaded
     Wait For MDR Status
-
     ${MDRStatus} =  Get File  ${MDR_STATUS_XML}
     Should Contain  ${MDRStatus}   Res='Same'
     Should Not Contain  ${MDRStatus}   RevID=''
