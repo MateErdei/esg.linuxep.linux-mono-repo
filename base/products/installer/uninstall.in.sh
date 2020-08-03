@@ -72,7 +72,9 @@ function unmountCommsComponentDependencies()
 {
   CommsComponentChroot=$1
   for entry in etc/resolv.conf etc/hosts usr/lib usr/lib64 lib etc/ssl/certs etc/pki/tls/certs base/mcs/certs; do
-    umount --force ${CommsComponentChroot}/${entry}  > /tmp/unmount.log 2>&1
+    echo ${entry}  >> /tmp/unmount.log
+    umount --force ${CommsComponentChroot}/${entry}  >> /tmp/unmount.log 2>&1
+    echo $?  >> /tmp/unmount.log
   done
 }
 
