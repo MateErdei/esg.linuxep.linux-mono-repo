@@ -49,15 +49,6 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 log_mode=tap.LoggingMode.ON_ERROR)
 
 
-def package_install(machine: tap.Machine, *install_args: str):
-    if is_debian_based(machine):
-        machine.run('apt-get', '-y', 'install', *install_args,
-                    log_mode=tap.LoggingMode.ON_ERROR)
-    elif is_redhat_based(machine):
-        machine.run('yum', '-y', 'install', *install_args)
-                    # log_mode=tap.LoggingMode.ON_ERROR)
-
-
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     machine.run('bash', machine.inputs.test_scripts / "bin/install_pip_prerequisites.sh")
@@ -72,7 +63,7 @@ def install_requirements(machine: tap.Machine):
 
 def robot_task_with_env(machine: tap.Machine, environment=None):
     try:
-        package_install(machine, 'nfs-kernel-server')
+        machine.run('bash', machine.inputs.test_scripts / "bin/install_nfs_server.sh")
         machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py', environment=environment)
     finally:
         machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
