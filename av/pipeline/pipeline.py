@@ -7,8 +7,9 @@ COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-av-unit.cov'
 COVFILE_PYTEST = '/opt/test/inputs/av/sspl-plugin-av-pytest.cov'
 COVFILE_ROBOT = '/sspl-plugin-av-robot.cov' ## Move to root, so that everyone can access it
 COVFILE_COMBINED = '/opt/test/inputs/av/sspl-plugin-av-combined.cov'
-UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
-UPLOAD_ROBOT_LOG_SCRIPT = '/opt/test/inputs/bullseye_files/uploadRobotLog.sh'
+BULLSEYE_SCRIPT_DIR = '/opt/test/inputs/bullseye_files'
+UPLOAD_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadResults.sh')
+UPLOAD_ROBOT_LOG_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadRobotLog.sh')
 LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
 INPUTS_DIR = '/opt/test/inputs'
@@ -166,12 +167,10 @@ def bullseye_coverage_task(machine: tap.Machine):
             'COVSRCDIR': COVSRCDIR,
         })
 
-        machine.run('chmod','666', COVFILE_ROBOT)
+        machine.run('chmod', '666', COVFILE_ROBOT)
         # set bullseye environment in a file, so that daemons pick up the settings too
-        machine.run('bash', '-c',
-                    'echo -e "COVFILE={}\\nCOVSRCDIR={}" > /tmp/BullseyeCoverageEnv.txt'.format(COVFILE_ROBOT,
-                                                                                                COVSRCDIR))
-        machine.run('chmod', '0644', '/tmp/BullseyeCoverageEnv.txt')
+        machine.run('bash', os.path.join(BULLSEYE_SCRIPT_DIR, "createBullseyeCoverageEnv.sh"),
+                    COVFILE_ROBOT, COVSRCDIR)
 
         # don't abort immediately if robot tests fail, generate the coverage report, then re-raise the exception
         try:
