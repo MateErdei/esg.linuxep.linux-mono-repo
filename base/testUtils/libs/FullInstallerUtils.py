@@ -401,6 +401,10 @@ def get_delete_user_cmd():
         if subprocess.call(["which", "userdel"], stderr=devnull, stdout=devnull) == 0:
             return "userdel"
 
+#def remove_user(delete_user_cmd, user):
+# TODO remove user call remove and if the remove fail, send a kill to all process owned by that user. 
+
+
 
 def get_delete_group_cmd():
     with open(os.devnull, "w") as devnull:
@@ -466,8 +470,7 @@ def Uninstall_SSPL(installdir=None):
     # Find delete user command, deluser on ubuntu and userdel on centos/rhel.
     delete_user_cmd = get_delete_user_cmd()
     logger.debug("Using delete user command:{}".format(delete_user_cmd))
-    with open(os.devnull, "w") as devnull:
-        subprocess.call([delete_user_cmd, SOPHOS_USER], stderr=devnull)
+
 
     # Find delete group command, delgroup on ubuntu and groupdel on centos/rhel.
     delete_group_cmd = get_delete_group_cmd()
@@ -475,11 +478,15 @@ def Uninstall_SSPL(installdir=None):
     counter2 = 0 
     time.sleep(0.2)
     while does_group_exist() and counter2 < 5:
-        logger.info("removing group, it should have already been removed by now. Counter: {}".format(counter))
+        logger.info("removing group, it should have already been removed by now. Counter: {}".format(counter))        
         counter2 = counter2 + 1
+        for user in ['sophos-spl-user', 'sophos-spl-network', 'sophos-spl-local']:
+            if does_user_exist(user):
+                subprocess.call([delete_user_cmd, user], stderr=subprocess.STDOUT)
+
         with open(os.devnull, "w") as devnull:
-            subprocess.call([delete_group_cmd, SOPHOS_GROUP], stderr=devnull)
-        time.sleep(0.2)
+            subprocess.call([delete_group_cmd, SOPHOS_GROUP], stderr=subprocess.STDOUT)
+        time.sleep(0.5)
     if uninstaller_executed and ( counter>0  or counter2>0):
         with open("/tmp/install.log", "r") as f:
             logger.info(f.read())
@@ -498,6 +505,13 @@ def uninstall_sspl_unless_cleanup_disabled(installdir=None):
 def does_group_exist(group=SOPHOS_GROUP):
     try:
         grp.getgrnam(group)
+        return True
+    except KeyError:
+        return False
+
+def does_user_exist(user):
+    try:
+        pwd.getpwnam(user)
         return True
     except KeyError:
         return False
