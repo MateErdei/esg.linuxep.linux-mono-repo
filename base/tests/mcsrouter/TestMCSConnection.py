@@ -9,6 +9,7 @@ from types import SimpleNamespace
 import PathManager
 import TestMCSResponse
 from TestUtils import assert_message_in_logs
+from TestUtils import assert_message_not_in_logs
 
 import logging
 logger = logging.getLogger("TestMCSConnection")
@@ -306,6 +307,8 @@ class TestMCSConnection(unittest.TestCase):
         with self.assertLogs(level="DEBUG") as logs:
             connection._try_create_connection(proxy=fake_proxy, host="localhost", port=443)
         assert_message_in_logs("WARNING:mcsrouter.mcsclient.mcs_connection:Failed direct connection to localhost:443", logs.output, log_level="WARNING")
+        assert_message_not_in_logs("Traceback", logs.output)
+
 
 
 if __name__ == '__main__':

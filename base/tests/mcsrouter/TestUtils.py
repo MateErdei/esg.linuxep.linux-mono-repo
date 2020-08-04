@@ -219,6 +219,13 @@ def assert_message_in_logs(message, logArray, log_level=None):
             return
     raise AssertionError( "Messsage: {}, not found in logs: {}".format(message, logArray))
 
+
+def assert_message_not_in_logs(message, log_array):
+    for log_message in log_array:
+        if message in log_message:
+            raise AssertionError("Messsage: {}, found in logs: {}".format(message, log_array))
+
+
 if __name__ == '__main__':
     import logging
     unittest.main()
