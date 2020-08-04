@@ -63,7 +63,8 @@ def get_inputs(context: tap.PipelineContext):
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./testUtils'),
         base=context.artifact.build() / 'output',
-        openssl=context.artifact.build() / 'openssl'
+        openssl=context.artifact.build() / 'openssl',
+        websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
     )
     return test_inputs
 

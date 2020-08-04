@@ -29,6 +29,7 @@ def main():
     os.environ['BASE_DIST'] = '/opt/test/inputs/base/SDDS-COMPONENT/'
     os.environ['OUTPUT'] = '/opt/test/inputs/base/'
     os.environ['CAPNP_INPUT'] = 'IGNORE'
+    os.environ['WEBSOCKET_SERVER'] = '/opt/test/inputs/websocket_server'
 
     try:
         # Create the TAP Robot result listener.
