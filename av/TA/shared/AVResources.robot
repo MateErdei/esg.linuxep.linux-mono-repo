@@ -41,6 +41,10 @@ Check sophos_threat_detector Running
 Check AV Plugin Running
     Check Plugin Running
 
+Check AV Plugin Not Running
+    ${result} =   Run Process  pidof  ${PLUGIN_BINARY}  timeout=3
+    Should Not Be Equal As Integers  ${result.rc}  0
+
 Count File Log Lines
     [Arguments]  ${path}
     ${content} =  Get File   ${path}  encoding_errors=replace
@@ -223,7 +227,7 @@ AV And Base Teardown
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Plugin Log Contains      av <> Plugin Finished
+    ...  Check AV Plugin Not Running
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
