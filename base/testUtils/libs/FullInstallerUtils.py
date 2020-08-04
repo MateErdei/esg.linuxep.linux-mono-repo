@@ -501,7 +501,8 @@ def Uninstall_SSPL(installdir=None):
         logger.info( _get_file_content( '/tmp/install.log'))
         message = "Uninstaller failed to properly clean everything. Attempt to remove /opt/sophos-spl {} attempt to remove group {}".format(counter, counter2)
         logger.warn(message)
-        #raise RuntimeError(message)
+        # FIXME: LINUXDAR-2098 remove the comment below to make tests to fail if the uninstaller is not able to remove the /opt/sophos-spl or the users and groups. 
+        raise RuntimeError(message)
     
 
 def uninstall_sspl_unless_cleanup_disabled(installdir=None):
