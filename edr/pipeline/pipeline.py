@@ -85,6 +85,8 @@ def combined_task(machine: tap.Machine):
             # run component pytests and integration robot tests with coverage file to get combined coverage
             machine.run('mv', os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT-COVERAGE'), os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT'))
             machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
+
+            #run component pytest
             machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
             try:
                 machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
@@ -137,7 +139,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
 
     if parameters.coverage == 'yes' or has_coverage_build(context.branch):
         with stage.parallel('combined'):
-            stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=ubuntu_machine)
+            #stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=ubuntu_machine)
             stage.task(task_name='centos77_x64_combined', func=robot_task, machine=centos_machine)
     else:
         with stage.parallel('integration'):
