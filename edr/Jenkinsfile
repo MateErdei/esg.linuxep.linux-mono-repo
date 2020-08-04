@@ -36,17 +36,6 @@ try{
                 project_builddir)
             echo 'Finished edr coverage build'
         }
-//         coverity_build:
-//         {
-//             echo 'Starting edr coverity build on ' + git_branch
-//             ArtisanBuild(
-//                 buildAgentTemplate,
-//                 project_release_xml,
-//                 'coverity',
-//                 version_number,
-//                 project_builddir)
-//             echo 'Finished edr coverity build'
-//         }
     }
     else
     {
