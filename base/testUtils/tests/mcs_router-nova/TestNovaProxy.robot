@@ -64,32 +64,6 @@ Register in central with localhost proxy
     ...  Check MCS Router log contains proxy success  localhost:3333
 
 
-Register in cloud through pretend message relay
-    [Documentation]  Derived from CLOUD.PROXY.006_Register_in_cloud_through_message_relay.sh
-    ...              Using proxy server to pretend to be a message relay
-    ${proxies} =  Set Variable  ${FAKE_PROXY_HOST}:${FAKE_PROXY_PORT},0,1;${SECURE_PROXY_HOST}:${SECURE_PROXY_PORT},1,2
-    Log To Console  ${regCommand} --messagerelay ${proxies}
-    Register With Central  ${regCommand} --messagerelay ${proxies}
-    Wait For MCS Router To Be Running
-    Wait For Server In Cloud
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Check MCS Router log contains message relay success  ${SECURE_PROXY_HOST}:${SECURE_PROXY_PORT}
-
-
-Register in cloud through real message relay
-    [Documentation]  Derived from CLOUD.PROXY.011_register_in_cloud_real_message_relay.sh
-    ...              SavLinuxUC1 is on SavLinuxTrunkNet so not accessible to our test machines
-    [Tags]  CENTRAL  MCS  EXCLUDE_AWS  MANUAL
-    ${proxies} =  Set Variable  ${REAL_MR_HOST}:${REAL_MR_PORT},0,1
-    Log To Console  ${regCommand} --messagerelay ${proxies}
-    Register With Central  ${regCommand} --messagerelay ${proxies}
-    Wait For MCS Router To Be Running
-    Wait For Server In Cloud
-    Check MCS Router log contains message relay success  ${REAL_MR_HOST}:${REAL_MR_PORT}
-
-
 Register in cloud through basic auth proxy
     [Documentation]  Derived from CLOUD.PROXY.007_basic_auth.sh
     ${proxy_port} =  Set Variable  5003
