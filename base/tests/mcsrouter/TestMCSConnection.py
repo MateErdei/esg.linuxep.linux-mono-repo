@@ -260,7 +260,7 @@ class TestMCSConnection(unittest.TestCase):
         with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
             responses = [bad_response1, bad_response2]
             with self.assertLogs(level="DEBUG") as logs:
-                   mcsrouter.mcsclient.mcs_connection.MCSConnection.send_responses(mcs_connection, responses)
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.send_responses(mcs_connection, responses)
 
         self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.call_count, 2)
         self.assertEqual(len(logs.output), 6)
@@ -271,6 +271,41 @@ class TestMCSConnection(unittest.TestCase):
         assert_message_in_logs("Failed to send response (bad_app_id503 : bad_corellation_id503) : MCS HTTP Error: code=503", logs.output, log_level="ERROR")
         assert_message_in_logs("Discarding response 'bad_corellation_id503' due to rejection by central", logs.output, log_level="DEBUG")
         assert_message_in_logs("Removed bad_app_id503 response file: fake/path503", logs.output, log_level="DEBUG")
+
+
+    @mock.patch('mcsrouter.sophos_https.socket.create_connection')
+    def test_try_create_connection_logs_socket_error(self, mock_connect):
+
+        def throw_socket_timeout(address, timeout, source_address):
+            import socket
+            raise socket.timeout
+
+        mock_connect.side_effect = throw_socket_timeout
+
+        policy_config = mcsrouter.utils.config.Config()
+        with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
+            connection = mcsrouter.mcsclient.mcs_connection.MCSConnection(config=policy_config)
+
+        class NoneHostFakeProxy(object):
+            def auth_header(self):
+                return "Fake Auth Header"
+
+            def host(self):
+                return None
+
+            def username(self):
+                return "username"
+
+            def password(self):
+                return "password"
+
+            def port(self):
+                return 8080
+
+        fake_proxy = NoneHostFakeProxy()
+        with self.assertLogs(level="DEBUG") as logs:
+            connection._try_create_connection(proxy=fake_proxy, host="localhost", port=443)
+        assert_message_in_logs("WARNING:mcsrouter.mcsclient.mcs_connection:Failed direct connection to localhost:443", logs.output, log_level="WARNING")
 
 
 if __name__ == '__main__':

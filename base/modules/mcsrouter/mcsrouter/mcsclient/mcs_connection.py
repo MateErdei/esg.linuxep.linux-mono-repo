@@ -472,7 +472,7 @@ class MCSConnection:
             self.__m_proxy_authenticators[key] = auth
         return auth
 
-    def __try_create_connection(self, proxy, host, port):
+    def _try_create_connection(self, proxy, host, port):
         """
         __try_create_connection
         """
@@ -737,7 +737,7 @@ class MCSConnection:
             """
             get_response_with_url
             """
-            self.__m_connection = self.__try_create_connection(
+            self.__m_connection = self._try_create_connection(
                 proxy, host, port)
             if self.__m_connection is not None:
                 self.__m_current_path = path
