@@ -306,7 +306,7 @@ def run_full_installer_from_location_expecting_code(install_script_location, exp
     
     with open(logfilename, 'r') as logfile:
         output = logfile.read()
-        
+    logger.debug(output)
     if actual_code != expected_code:
         logger.info(output)
         raise AssertionError("Installer exited with {} rather than {}".format(actual_code, expected_code))
@@ -413,18 +413,19 @@ def get_delete_group_cmd():
 def Uninstall_SSPL(installdir=None):
     if installdir is None:
         installdir = get_sophos_install()
-
+    uninstaller_executed=False
     if os.path.isdir(installdir):
         p = os.path.join(installdir, "bin", "uninstall.sh")
         if os.path.isfile(p):
             try:
                 install_log = open("/tmp/install.log", "w")
-                p = subprocess.Popen([ p, "--force"], stdout=install_log, stderr=subprocess.STDOUT)
+                p = subprocess.Popen([ "bash", "-x", p, "--force"], stdout=install_log, stderr=subprocess.STDOUT)
                 install_log.close()
                 if not p.returncode == 0:
                     with open("/tmp/install.log", "r") as f:
                         contents = f.readlines()
                     logger.info(contents)
+                uninstaller_executed = True
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
         counter = 0
@@ -470,9 +471,21 @@ def Uninstall_SSPL(installdir=None):
     # Find delete group command, delgroup on ubuntu and groupdel on centos/rhel.
     delete_group_cmd = get_delete_group_cmd()
     logger.debug("Using delete group command:{}".format(delete_group_cmd))
-    if does_group_exist():
+    counter2 = 0 
+    time.sleep(0.2)
+    while does_group_exist() and counter2 < 5:
+        logger.info("removing group, it should have already been removed by now. Counter: {}".format(counter))
+        counter2 = counter2 + 1
         with open(os.devnull, "w") as devnull:
             subprocess.call([delete_group_cmd, SOPHOS_GROUP], stderr=devnull)
+        time.sleep(0.2)
+    if uninstaller_executed and ( counter>0  or counter2>0):
+        with open("/tmp/install.log", "r") as f:
+            logger.info(f.read())
+        message = "Uninstaller failed to properly clean everything. Attempt to remove /opt/sophos-spl {} attempt to remove group {}".format(counter, counter2)
+        logger.warn(message)
+        #raise RuntimeError(message)
+    
 
 def uninstall_sspl_unless_cleanup_disabled(installdir=None):
     if os.path.isfile("/leave_installed"):
