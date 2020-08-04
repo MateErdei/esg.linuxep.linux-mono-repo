@@ -63,6 +63,13 @@ def install_requirements(machine: tap.Machine):
         print("On adding user and group: {}".format(ex))
 
 
+def get_suffix():
+    global BRANCH_NAME
+    if BRANCH_NAME == "master":
+        return ""
+    return "-" + BRANCH_NAME
+
+
 def robot_task_with_env(machine: tap.Machine, environment=None):
     try:
         machine.run('bash', machine.inputs.test_scripts / "bin/install_nfs_server.sh")
@@ -71,6 +78,7 @@ def robot_task_with_env(machine: tap.Machine, environment=None):
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html", "robot-log"+get_suffix()+".html")
 
 
 def robot_task(machine: tap.Machine):
@@ -101,23 +109,19 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
     print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
+        bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
         av=context.artifact.build() / 'output'
     )
     # override the av input and get the bullseye coverage build instead
     if coverage:
         assert has_coverage_build(context.branch)
         test_inputs['av'] = context.artifact.build() / 'coverage'
-        test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
 
     return test_inputs
 
 
 def bullseye_coverage_task(machine: tap.Machine):
-    global BRANCH_NAME
-    if BRANCH_NAME == "master":
-        suffix = ""
-    else:
-        suffix = "-" + BRANCH_NAME
+    suffix = get_suffix()
 
     try:
         exception = None
