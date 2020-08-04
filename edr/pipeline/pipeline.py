@@ -137,18 +137,17 @@ def get_inputs(context: tap.PipelineContext):
 
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    ubuntu_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
-    centos_machine = tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+    machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
 
     if parameters.coverage == 'yes' or has_coverage_build(context.branch):
         with stage.parallel('combined'):
-            stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=ubuntu_machine)
-            stage.task(task_name='centos77_x64_combined', func=robot_task, machine=centos_machine)
+            stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=machine)
+            #add other distros here
     else:
         with stage.parallel('integration'):
-            stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu_machine)
-            stage.task(task_name='centos77_x64', func=robot_task, machine=centos_machine)
+            stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
+            #add other distros here
 
         with stage.parallel('component'):
-            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu_machine)
-            stage.task(task_name='centos77_x64', func=robot_task, machine=centos_machine)
+            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
+            #add other distros here
