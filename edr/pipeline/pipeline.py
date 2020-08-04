@@ -28,7 +28,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return branch_name == 'develop' or branch_name.endswith('coverage-build')
+    return branch_name == 'develop' or branch_name.endswith('coverage')
 
 def has_coverage_file(machine: tap.Machine):
     """If the downloaded build output has a coverage file then its a bullseye build"""
@@ -83,7 +83,10 @@ def combined_task(machine: tap.Machine):
             machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
             # run component pytests and integration robot tests with coverage file to get combined coverage
-            machine.run('mv', os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT-COVERAGE'), os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT'))
+            sdds = os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT')
+            sdds_coverage = os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT-COVERAGE')
+            machine.run('rm', '-rf', sdds)
+            machine.run('mv', sdds_coverage, sdds)
             machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
 
             #run component pytest
@@ -139,7 +142,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
 
     if parameters.coverage == 'yes' or has_coverage_build(context.branch):
         with stage.parallel('combined'):
-            #stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=ubuntu_machine)
+            stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=ubuntu_machine)
             stage.task(task_name='centos77_x64_combined', func=robot_task, machine=centos_machine)
     else:
         with stage.parallel('integration'):
