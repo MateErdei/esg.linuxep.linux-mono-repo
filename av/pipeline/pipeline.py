@@ -8,6 +8,7 @@ COVFILE_PYTEST = '/opt/test/inputs/av/sspl-plugin-av-pytest.cov'
 COVFILE_ROBOT = '/sspl-plugin-av-robot.cov' ## Move to root, so that everyone can access it
 COVFILE_COMBINED = '/opt/test/inputs/av/sspl-plugin-av-combined.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
+UPLOAD_ROBOT_LOG_SCRIPT = '/opt/test/inputs/bullseye_files/uploadRobotLog.sh'
 LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
 INPUTS_DIR = '/opt/test/inputs'
@@ -111,6 +112,12 @@ def get_inputs(context: tap.PipelineContext, coverage=False):
 
 
 def bullseye_coverage_task(machine: tap.Machine):
+    global BRANCH_NAME
+    if BRANCH_NAME == "master":
+        suffix = ""
+    else:
+        suffix = "-" + BRANCH_NAME
+
     try:
         exception = None
 
@@ -119,11 +126,6 @@ def bullseye_coverage_task(machine: tap.Machine):
         coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
         machine.run('rm', '-rf', coverage_results_dir)
         machine.run('mkdir', coverage_results_dir)
-
-        global BRANCH_NAME
-        suffix = "-" + BRANCH_NAME
-        if BRANCH_NAME == "master":
-            suffix = ""
 
         # upload unit test coverage html results to allegro
         unitest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage_html')
@@ -216,6 +218,7 @@ def bullseye_coverage_task(machine: tap.Machine):
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html", "robot-coverage-log"+suffix+".html")
 
 
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
