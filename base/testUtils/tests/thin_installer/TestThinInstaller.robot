@@ -130,49 +130,6 @@ Thin Installer fails to install to a folder within the temp folder
     Run Default Thininstaller With Args  19  --instdir=${Install_Path}
     Check Thininstaller Log Contains  The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent
 
-#The sophos-spl-user requires the right to execute files in the install directory.
-#It can't do this unless execute all permissions are set on all directories that contain the install.
-Thin Installer fails to install to a custom location with short path with the wrong permissions
-    [Tags]  CUSTOM_LOCATION  THIN_INSTALLER
-    ${Install_Path}=  Set Variable  ${CUSTOM_DIR_BASE}
-    Create Directory  ${Install_Path}
-    Run Process  chmod  700  ${Install_Path}
-    Run Default Thininstaller With Args  19  --instdir=${Install_Path}
-    Check Thininstaller Log Contains  because ${CUSTOM_DIR_BASE} does not have correct
-
-Thin Installer fails to install to a custom location which already exists but is not a previous install location
-    [Tags]  CUSTOM_LOCATION  THIN_INSTALLER
-    ${Install_Path}=  Set Variable  ${CUSTOM_DIR_BASE}/tmp/dir1/dir2/dir3
-    Create Directory  ${Install_Path}/sophos-spl
-    Run Default Thininstaller With Args  19  --instdir=${Install_Path}
-    Check Thininstaller Log Contains  already exists. Please either delete this folder or choose another location
-
-Thin Installer fails to install to a custom location with long path with the wrong permissions in end folder
-    [Tags]  CUSTOM_LOCATION  THIN_INSTALLER
-    ${Install_Path}=  Set Variable  ${CUSTOM_DIR_BASE}/tmp/dir1/dir2/dir3
-    Create Directory  ${Install_Path}
-    Run Process  chmod  700  ${Install_Path}
-    Run Default Thininstaller With Args  19  --instdir=${Install_Path}
-    Check Thininstaller Log Contains  because ${Install_Path} does not have correct
-
-Thin Installer fails to install to a custom location with long path with the wrong permissions in middle-ish folder
-    [Tags]  CUSTOM_LOCATION  THIN_INSTALLER
-    ${Install_Path}=  Set Variable  ${CUSTOM_DIR_BASE}/tmp/dir1/dir2/dir3/dir4/dir5/dir6
-    ${Bad_Perm_Dir}=  Set Variable  ${CUSTOM_DIR_BASE}/tmp/dir1/dir2
-    Create Directory  ${Install_Path}
-    Run Process  chmod  700  ${Bad_Perm_Dir}
-    Run Default Thininstaller With Args  19  --instdir=${Install_Path}
-    Check Thininstaller Log Contains  because ${Bad_Perm_Dir} does not have correct
-
-Thin Installer fails to install to a custom location with a path 51 Or Greater Characters Long
-    [Tags]  CUSTOM_LOCATION  THIN_INSTALLER
-    ${Install_Path}=  Set Variable  ${CUSTOM_DIR_BASE}/345678920234567893023456789402345678950
-    Run Default Thininstaller With Args  19  --instdir=${Install_Path}
-    Check Thininstaller Log Contains  The --instdir path provided is too long and needs to be 50 characters or less. ${Install_Path} is 51
-    ${Install_Path}=  Set Variable  ${CUSTOM_DIR_BASE}/92023456789302345678945678941234567895023456789602
-    Run Default Thininstaller With Args  19  --instdir=${Install_Path}
-    Check Thininstaller Log Contains  The --instdir path provided is too long and needs to be 50 characters or less. ${Install_Path} is 62
-
 Thin Installer fails to install alongside SAV
     [Tags]  SAV  THIN_INSTALLER
     [Teardown]  SAV Teardown
@@ -213,17 +170,6 @@ Thin Installer Fails With Invalid Paths
     Run ThinInstaller Instdir And Check It Fails   /abc;def
     Run ThinInstaller Instdir And Check It Fails   /abc def
     Run ThinInstaller Instdir And Check It Fails   /abc=def
-
-Thin Installer Does Not Install When Existing Install Different To Intsdir Argument
-    [Tags]  CUSTOM_LOCATION  THIN_INSTALLER
-    # Install to default location
-    Require Fresh Install
-    # Install to custom location, check we get error code 7
-    Run Default Thininstaller With Args  7  --instdir=/customdir
-    Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
-    Check Thininstaller Log Contains  Please uninstall Sophos Linux Protection before using this installer. You can run /opt/sophos-spl/bin/uninstall.sh
-    remove_thininstaller_log
-
 
 Thin Installer Tells Us It Is Governed By A License
     Run Default Thininstaller    3

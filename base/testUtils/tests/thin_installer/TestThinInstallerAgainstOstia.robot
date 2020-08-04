@@ -123,17 +123,6 @@ Create Initial Installation
 
 
 *** Test Case ***
-Thin Installer Reregisters Existing Install
-    Create Initial Installation
-    # MCS Password and ID should not be saved
-    Run Keyword And Expect Error  No MCS Config - registration failed.  Check Correct MCS Password And ID For Local Cloud Saved
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}
-    Check Thininstaller Log Contains  Attempting to register existing installation with Sophos Central
-    Check Thininstaller Log Contains  Now managed by Sophos Central
-    Check Correct MCS Password And ID For Local Cloud Saved
-    Check Thininstaller Log Does Not Contain  ERROR
-    Check Root Directory Permissions Are Not Changed
-
 Thin Installer Repairs Broken Existing Installation
     # Install to default location and break it
     Create Initial Installation
@@ -196,71 +185,6 @@ Thin Installer Installs Base And Services Start
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
-
-Thin Installer Installs To Custom Location And Services Start
-    [Tags]    THIN_INSTALLER  CUSTOM_LOCATION  OSTIA
-    Install Local SSL Server Cert To System
-    Should Not Exist    ${SOPHOS_INSTALL}
-    ${Install_Path}=  Set Variable  ${CUSTOM_DIR_BASE}/with-sub/with-sub2
-
-    Set Sophos Install Environment Variable  ${Install_Path}/sophos-spl
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  args=--instdir=${Install_Path}
-
-    Should Exist  ${Install_Path}
-    Should Not Exist  /opt/sophos-spl
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check All Sophos-spl Services Running
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check All Relevant Logs Contain Install Path  ${Install_Path}
-
-    Check Thininstaller Log Does Not Contain  ERROR
-    Check Root Directory Permissions Are Not Changed
-
-Thin Installer installs to a custom location with and deletes sophos-spl directory on uninstall
-    [Tags]    THIN_INSTALLER  CUSTOM_LOCATION  OSTIA
-    ${Install_Path}=  Set Variable  ${CUSTOM_DIR_BASE}/dir1/dir2/
-
-    Set Sophos Install Environment Variable  ${Install_Path}/sophos-spl
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  args=--instdir=${Install_Path}
-
-    Directory Should Exist  ${Install_Path}/sophos-spl
-
-    Require Uninstalled
-
-    Directory Should Exist  ${Install_Path}
-    Directory Should Not Exist  ${Install_Path}/sophos-spl
-
-    Check Thininstaller Log Does Not Contain  ERROR
-    Check Root Directory Permissions Are Not Changed
-
-Thin Installer Installs With A Path Length Of 50 Chars
-    [Tags]     THIN_INSTALLER  CUSTOM_LOCATION  OSTIA
-    ${Install_Path}=  Set Variable  ${CUSTOM_DIR_BASE}/34567892023456789302345678940234567895
-
-    Set Sophos Install Environment Variable  ${Install_Path}/sophos-spl
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  args=--instdir=${Install_Path}
-
-    Should Exist  ${Install_Path}
-    Should Not Exist  /opt/sophos-spl
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check All Sophos-spl Services Running
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check All Relevant Logs Contain Install Path  ${Install_Path}
-
-    Check Thininstaller Log Does Not Contain  ERROR
-    Check Root Directory Permissions Are Not Changed
 
 
 Thin Installer Attempts Install And Register Through Message Relays
