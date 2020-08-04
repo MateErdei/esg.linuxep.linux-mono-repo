@@ -304,9 +304,11 @@ def run_full_installer_from_location_expecting_code(install_script_location, exp
         pop = subprocess.Popen(arg_list, env=os.environ, stdout=logfile, stderr=logfile)
         pop.communicate()
         actual_code = pop.returncode
-    
-    with open(logfilename, 'r') as logfile:
-        output = logfile.read()
+    counter=0
+    while not os.path.exists(logfilename) and counter < 5:
+        counter = counter + 1
+        time.sleep(0.1)
+    output = _get_file_content(logfilename)
     logger.debug(output)
     if actual_code != expected_code:
         logger.info(output)
@@ -437,8 +439,7 @@ def Uninstall_SSPL(installdir=None):
             finally:
                 install_log.close()
             if not p.returncode == 0:
-                with open("/tmp/install.log", "r") as f:
-                    contents = f.readlines()
+                contents = _get_file_content('/tmp/install.log')
                 logger.info(contents)
         while counter < 5 and os.path.exists(installdir):
             counter = counter + 1
@@ -490,12 +491,10 @@ def Uninstall_SSPL(installdir=None):
             if does_user_exist(user):
                 remove_user(delete_user_cmd,user)
 
-        with open(os.devnull, "w") as devnull:
-            subprocess.call([delete_group_cmd, SOPHOS_GROUP], stderr=subprocess.STDOUT)
+        subprocess.call([delete_group_cmd, SOPHOS_GROUP], stderr=subprocess.STDOUT)
         time.sleep(0.5)
     if uninstaller_executed and ( counter>0  or counter2>0):
-        with open("/tmp/install.log", "r") as f:
-            logger.info(f.read())
+        logger.info( _get_file_content( '/tmp/install.log'))
         message = "Uninstaller failed to properly clean everything. Attempt to remove /opt/sophos-spl {} attempt to remove group {}".format(counter, counter2)
         logger.warn(message)
         #raise RuntimeError(message)
