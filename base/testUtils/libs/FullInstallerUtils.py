@@ -19,6 +19,7 @@ import time
 import psutil
 
 import PathManager
+import tempfile
 
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
@@ -26,6 +27,17 @@ import robot.libraries.BuiltIn
 
 PUB_SUB_LOGGING_DIST_LOCATION = "/tmp/pub_sub_logging_dist"
 
+# using the subprocess.PIPE can make the robot test to hang as the buffer could be filled up. 
+# this auxiliary method ensure that this does not happen. It also uses a temporary file in 
+# order not to keep files or other stuff around. 
+def run_proc_with_safe_output(args):
+    logger.debug('Run Command: {}'.format(args))
+    with tempfile.TemporaryFile() as tmpfile: 
+        p = subprocess.Popen(args, stdout=tmpfile, stderr=tmpfile)
+        p.wait()        
+        tmpfile.seek(0)
+        output = tmpfile.read().decode()
+        return output, p.returncode
 
 def get_variable(varName, defaultValue=None):
     try:
@@ -298,17 +310,7 @@ def run_full_installer_from_location_expecting_code(install_script_location, exp
     arg_list += list(args)
     logger.debug("Env Variables: {}".format(os.environ))
     logger.info("Run installer: {}".format(arg_list))
-    filename=os.path.basename(install_script_location)
-    logfilename="/tmp/installer_"+filename+".log"
-    with open(logfilename, 'w') as logfile:
-        pop = subprocess.Popen(arg_list, env=os.environ, stdout=logfile, stderr=logfile)
-        pop.communicate()
-        actual_code = pop.returncode
-    counter=0
-    while not os.path.exists(logfilename) and counter < 5:
-        counter = counter + 1
-        time.sleep(0.1)
-    output = _get_file_content(logfilename)
+    output, actual_code = run_proc_with_safe_output(arg_list)
     logger.debug(output)
     if actual_code != expected_code:
         logger.info(output)
@@ -405,11 +407,14 @@ def get_delete_user_cmd():
             return "userdel"
 
 def remove_user(delete_user_cmd, user):
-    retCode = subprocess.call([delete_user_cmd, user], stderr=subprocess.STDOUT)
-    if not retCode == 0:
+    output, retCode = run_proc_with_safe_output([delete_user_cmd, user])    
+    if retCode != 0:
+        logger.info(output)
         pids = [process.pid for process in psutil.process_iter() if process.username == user]
         for pid in pids:
-            subprocess.call(["kill",pid])
+            output,retCode = run_proc_with_safe_output(["kill",pid])
+            if retCode != 0:
+                logger.info(output)
 
 
 
@@ -431,33 +436,29 @@ def Uninstall_SSPL(installdir=None):
         p = os.path.join(installdir, "bin", "uninstall.sh")
         if os.path.isfile(p):
             try:
-                install_log = open("/tmp/install.log", "w")
-                p = subprocess.Popen([ "bash", "-x", p, "--force"], stdout=install_log, stderr=subprocess.STDOUT)
+                contents, returncode = run_proc_with_safe_output(['bash', '-x', p, '--force'])
                 uninstaller_executed = True
             except EnvironmentError as e:
                 print("Failed to run uninstaller", e)
-            finally:
-                install_log.close()
-            if not p.returncode == 0:
-                contents = _get_file_content('/tmp/install.log')
+            if returncode != 0:
                 logger.info(contents)
+
         while counter < 5 and os.path.exists(installdir):
             counter = counter + 1
             try:
                 logger.info("try to rm all")
                 unmount_all_comms_component_folders(True)
-                with open(os.devnull, "w") as devnull:
-                    subprocess.check_call(['rm', '-rf', installdir], stderr=devnull, stdout=devnull)
-                break
+                output, returncode = run_proc_with_safe_output(['rm', '-rf', installdir])
+                if returncode != 0:
+                    logger.error(output)
+                    time.sleep(1)
             except Exception as ex:
                 logger.error(str(ex))
                 time.sleep(1)
 
 
     # Attempts to uninstall based on the env variables in the sophos-spl .service file
-    p = subprocess.Popen(["systemctl", "show", "-p", "Environment", "sophos-spl"], stdout=subprocess.PIPE)
-    out, err = p.communicate()
-    output = out.decode('utf-8')
+    output, returncode = run_proc_with_safe_output(["systemctl", "show", "-p", "Environment", "sophos-spl"])
     installdir_string = "SOPHOS_INSTALL="
     installdir_name = "sophos-spl"
     if installdir_string in output:
@@ -491,7 +492,10 @@ def Uninstall_SSPL(installdir=None):
             if does_user_exist(user):
                 remove_user(delete_user_cmd,user)
 
-        subprocess.call([delete_group_cmd, SOPHOS_GROUP], stderr=subprocess.STDOUT)
+        out, code = run_proc_with_safe_output([delete_group_cmd, SOPHOS_GROUP])
+        if code != 0:
+            logger.info(out)
+
         time.sleep(0.5)
     if uninstaller_executed and ( counter>0  or counter2>0):
         logger.info( _get_file_content( '/tmp/install.log'))
@@ -550,12 +554,8 @@ def require_uninstalled(*args):
 
 def start_system_watchdog():
     logger.info("Start SSPL Service")
-    p = subprocess.Popen(['systemctl', 'start', 'sophos-spl'], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-    out, err = p.communicate()
-    if out:
-        logger.info(out)
-    if err:
-        logger.info(err)
+    out, _ = run_proc_with_safe_output(['systemctl', 'start', 'sophos-spl'])
+    logger.info(out)
 
 
 def _remove_files_recursively(directory_path):
@@ -575,12 +575,9 @@ def _remove_files_recursively(directory_path):
 def require_fresh_startup():
     installdir = get_sophos_install()
     logger.info("Stop SSPL Service")
-    p = subprocess.Popen(['systemctl', 'stop', 'sophos-spl'], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-    out, err = p.communicate()
+    out, _ = run_proc_with_safe_output(['systemctl', 'stop', 'sophos-spl'])
     if out:
         logger.info(out)
-    if err:
-        logger.info(err)
     mcs_dir = os.path.join(installdir, 'base/mcs')
     logger.info("Clean up mcs files")
     for folder in ['event', 'policy', 'status', 'action']:
@@ -936,33 +933,17 @@ def check_version_files_report_a_valid_upgrade(previous_ini_files, recent_ini_fi
 
 
 def unmount_all_comms_component_folders(skip_stop_proc=False):
-    def _run_proc(args):
-        logger.info('Run Command: {}'.format(args))
-        p=subprocess.Popen(args, stdout=subprocess.PIPE)
-        p.wait()
-        stdout, stderr = p.communicate()
-        if stdout is None:
-            stdout = ''
-        if stderr is None:
-            stderr = ''
-        return stdout, stderr
-
     def _umount_path(fullpath):
-
-        stdout, stderr = _run_proc(['umount', fullpath])
-        if 'not mounted' in stderr: 
+        stdout, code = run_proc_with_safe_output(['umount', fullpath])
+        if 'not mounted' in stdout: 
             return
-        logger.info(stdout)
-        logger.info(stderr)
+        if code != 0:
+            logger.info(stdout)
 
     def _stop_commscomponent():
-        stdout, stderr = _run_proc(["/opt/sophos-spl/bin/wdctl", "stop", "commscomponent"])
-        if stdout:
+        stdout, code = run_proc_with_safe_output(["/opt/sophos-spl/bin/wdctl", "stop", "commscomponent"])
+        if code != 0 and not 'Watchdog is not running' in stdout:
             logger.info(stdout)
-        if stderr:
-            if not 'Watchdog is not running' in stderr:
-                logger.info(stderr)
-
 
     if not os.path.exists('/opt/sophos-spl/bin/wdctl'):
         return
@@ -971,8 +952,8 @@ def unmount_all_comms_component_folders(skip_stop_proc=False):
     counter = 0
     while not skip_stop_proc and counter < 5:
         counter = counter + 1
-        stdout, stderr = _run_proc(['pidof', 'CommsComponent'])
-        if len(stdout)>1:
+        stdout, errcode = run_proc_with_safe_output(['pidof', 'CommsComponent'])
+        if errcode == 0:
             logger.info("Commscomponent running {}".format(stdout))
             _stop_commscomponent()    
             time.sleep(1)
