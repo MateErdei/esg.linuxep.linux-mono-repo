@@ -48,9 +48,9 @@ def install_requirements(machine: tap.Machine):
 def robot_task(machine: tap.Machine):
     try:
         install_requirements(machine)
-        machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py')
+        machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
-        machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
+        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
 
@@ -60,15 +60,15 @@ def combined_task(machine: tap.Machine):
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
 
-        args = ['python', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
+        args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
         if not has_coverage_file(machine):
             #run pytests
             machine.run(*args)
             try:
                 #run robot tests
-                machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py')
+                machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py')
             finally:
-                machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
+                machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
         else:
             # upload unit test coverage html results to allegro
@@ -87,7 +87,7 @@ def combined_task(machine: tap.Machine):
             machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
             machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
             try:
-                machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py',
+                machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
                             environment={'COVFILE': COVFILE_COMBINED})
             finally:
                 machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
@@ -112,7 +112,7 @@ def pytest_task(machine: tap.Machine):
 
         # To run the pytest with additional verbosity add following to arguments
         # '-o', 'log_cli=true'
-        args = ['python', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
+        args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
         machine.run(*args)
         machine.run('ls', '/opt/test/logs')
     finally:
@@ -132,17 +132,18 @@ def get_inputs(context: tap.PipelineContext):
 
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+    ubuntu_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+    centos_machine = tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
 
     if parameters.coverage == 'yes' or has_coverage_build(context.branch):
         with stage.parallel('combined'):
-            stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=machine)
-            #add other distros here centos77
+            stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=ubuntu_machine)
+            stage.task(task_name='centos77_x64_combined', func=robot_task, machine=centos_machine)
     else:
         with stage.parallel('integration'):
-            stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
-            #add other distros here
+            stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu_machine)
+            stage.task(task_name='centos77_x64', func=robot_task, machine=centos_machine)
 
         with stage.parallel('component'):
-            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
-            #add other distros here
+            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu_machine)
+            stage.task(task_name='centos77_x64', func=robot_task, machine=centos_machine)
