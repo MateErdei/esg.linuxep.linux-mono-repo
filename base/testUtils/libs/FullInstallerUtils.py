@@ -16,6 +16,7 @@ import xml.dom.minidom
 import re
 import configparser
 import time
+import psutil
 
 import PathManager
 
@@ -401,8 +402,13 @@ def get_delete_user_cmd():
         if subprocess.call(["which", "userdel"], stderr=devnull, stdout=devnull) == 0:
             return "userdel"
 
-#def remove_user(delete_user_cmd, user):
-# TODO remove user call remove and if the remove fail, send a kill to all process owned by that user. 
+def remove_user(delete_user_cmd, user):
+    retCode = subprocess.call([delete_user_cmd, user], stderr=subprocess.STDOUT)
+    if not retCode == 0:
+        pids = [process.pid for process in psutil.process_iter() if process.username == user]
+        for pid in pids:
+            subprocess.call(["kill",pid])
+
 
 
 
@@ -482,7 +488,7 @@ def Uninstall_SSPL(installdir=None):
         counter2 = counter2 + 1
         for user in ['sophos-spl-user', 'sophos-spl-network', 'sophos-spl-local']:
             if does_user_exist(user):
-                subprocess.call([delete_user_cmd, user], stderr=subprocess.STDOUT)
+                remove_user(delete_user_cmd,user)
 
         with open(os.devnull, "w") as devnull:
             subprocess.call([delete_group_cmd, SOPHOS_GROUP], stderr=subprocess.STDOUT)
