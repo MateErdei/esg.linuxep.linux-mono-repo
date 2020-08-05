@@ -35,7 +35,10 @@ try{
                 version_number,
                 project_builddir)
             echo 'Finished edr coverage build'
-        },
+        }
+    }
+   else if ( params.mode == 'analysis' )
+    {
         analysis_build:
         {
             echo 'Starting edr cppcheck build on ' + git_branch
