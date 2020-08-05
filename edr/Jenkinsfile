@@ -35,6 +35,17 @@ try{
                 version_number,
                 project_builddir)
             echo 'Finished edr coverage build'
+        },
+        analysis_build:
+        {
+            echo 'Starting edr cppcheck build on ' + git_branch
+            ArtisanBuild(
+                buildAgentTemplate,
+                project_release_xml,
+                'analysis',
+                version_number,
+                project_builddir)
+            echo 'Finished edr cppcheck build'
         }
     }
     else

@@ -59,7 +59,7 @@
         to save us launching a extra machine and have both results in one place-->
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr --bullseye --analysis</args>
+            <args>./build.sh --clean --name edr --bullseye</args>
             <workingdir>sspl-plugin-edr-component-build</workingdir>
         </command>
 

@@ -293,6 +293,12 @@ function build()
     export CC
     export CXX
 
+    #run static analysis
+    if [[ $ANALYSIS == 1 ]]
+    then
+      cppcheck_build  build${BITS} || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
+    fi
+
     if [[ $NO_BUILD == 1 ]]
     then
         exit 0
@@ -370,12 +376,6 @@ function build()
             bash -x build/bullseye/uploadResults.sh || exit $?
         fi
       cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
-    fi
-
-    #run static analysis
-    if [[ $ANALYSIS == 1 ]]
-    then
-      cppcheck_build  build${BITS} || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
     fi
 
     if [[ -d build${BITS}/symbols ]]
