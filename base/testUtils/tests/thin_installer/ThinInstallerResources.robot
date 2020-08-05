@@ -25,7 +25,15 @@ Ostia Suite Setup
     Set Local CA Environment Variable
     Setup Ostia Warehouse Environment
 
-
 Ostia Suite Teardown
     Teardown Ostia Warehouse Environment
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
+
+Create Initial Installation
+    Require Fresh Install
+    Set Local CA Environment Variable
+
+Check Root Directory Permissions Are Not Changed
+    ${result}=  Run Process  stat  -c  "%A"  /
+    ${ExpectedPerms}=  Set Variable  "dr[w-]xr-xr-x"
+    Should Match Regexp  ${result.stdout}  ${ExpectedPerms}

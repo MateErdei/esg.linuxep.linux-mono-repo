@@ -27,6 +27,7 @@ Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../installer/InstallerResources.robot
 Resource    ../upgrade_product/UpgradeResources.robot
 Resource    ../GeneralTeardownResource.robot
+Resource    ThinInstallerResources.robot
 
 Default Tags  THIN_INSTALLER  OSTIA
 *** Variables ***
@@ -104,10 +105,6 @@ Check For Single Process Running
     ${lines}=  Get Lines Matching Pattern  ${result.stdout}  *${ProcessName}*
     Should Contain X Times  ${lines}  ${ProcessName}  1  Zero or more than one process with name: ${ProcessName}
 
-Check Root Directory Permissions Are Not Changed
-    ${result}=  Run Process  stat  -c  "%A"  /
-    ${ExpectedPerms}=  Set Variable  "dr[w-]xr-xr-x"
-    Should Match Regexp  ${result.stdout}  ${ExpectedPerms}
 
 Check All Relevant Logs Contain Install Path
     [Arguments]   ${Install_Path}
@@ -116,11 +113,6 @@ Check All Relevant Logs Contain Install Path
     Check Log Contains  ${Install_Path}  ${Install_Path}/sophos-spl/logs/base/wdctl.log  WDCTL
     Check Log Contains  ${Install_Path}  ${Install_Path}/sophos-spl/logs/base/sophosspl/sophos_managementagent.log  Management Agent
     Check Log Contains  ${Install_Path}  ${Install_Path}/sophos-spl/logs/base/sophosspl/mcsrouter.log  MCS Router
-
-Create Initial Installation
-    Require Fresh Install
-    Set Local CA Environment Variable
-
 
 *** Test Case ***
 Thin Installer Repairs Broken Existing Installation
@@ -143,27 +135,6 @@ Thin Installer Repairs Broken Existing Installation
     Remove File  ${mcsrouter_log}
     Check Expected Base Processes Are Running
 
-Thin Installer Fails When No Path In Systemd File
-    # Install to default location and break it
-    Create Initial Installation
-
-    Log File  /lib/systemd/system/sophos-spl.service
-
-    ${result}=  Run Process  sed  -i  s/SOPHOS_INSTALL.*/SOPHbroken/  /lib/systemd/system/sophos-spl.service
-    Should Be Equal As Integers    ${result.rc}    0
-
-    Log File  /lib/systemd/system/sophos-spl.service
-
-    ${result}=  Run Process  systemctl  daemon-reload
-
-    Log File  /lib/systemd/system/sophos-spl.service
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  20  ${BaseVUTPolicy}
-    Check Thininstaller Log Contains  An existing installation of Sophos Linux Protection was found but could not find the installed path.
-    Check Thininstaller Log Does Not Contain  ERROR
-    remove_thininstaller_log
-    Check Root Directory Permissions Are Not Changed
-    
 Thin Installer Installs Base And Services Start
     Should Not Exist    ${SOPHOS_INSTALL}
 

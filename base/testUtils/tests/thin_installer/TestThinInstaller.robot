@@ -10,11 +10,13 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library     Process
 Library     OperatingSystem
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
+Resource  ThinInstallerResources.robot
 
 Default Tags  THIN_INSTALLER
 
@@ -263,3 +265,25 @@ Thin Installer With Space In Name Works
     Setup Warehouse
     Run Default Thininstaller With Different Name    SophosSetup (1).sh    0    https://localhost:1233
     Check Thininstaller Log Contains    INSTALLER EXECUTED
+
+Thin Installer Fails When No Path In Systemd File
+    # Install to default location and break it
+    Create Initial Installation
+
+    Log File  /lib/systemd/system/sophos-spl.service
+
+    ${result}=  Run Process  sed  -i  s/SOPHOS_INSTALL.*/SOPHbroken/  /lib/systemd/system/sophos-spl.service
+    Should Be Equal As Integers    ${result.rc}    0
+
+    Log File  /lib/systemd/system/sophos-spl.service
+
+    ${result}=  Run Process  systemctl  daemon-reload
+
+    Log File  /lib/systemd/system/sophos-spl.service
+
+    Build Default Creds Thininstaller From Sections
+    Run Default Thininstaller  20
+
+    Check Thininstaller Log Contains  An existing installation of Sophos Linux Protection was found but could not find the installed path.
+    Check Thininstaller Log Does Not Contain  ERROR
+    Check Root Directory Permissions Are Not Changed
