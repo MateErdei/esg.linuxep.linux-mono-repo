@@ -219,6 +219,7 @@ find_library(OPENSSLCRYPTO_LIBRARY
         NO_DEFAULT_PATH
         )
 
+include(cppcheck.cmake)
 add_subdirectory(modules)
 add_subdirectory(products)
 add_subdirectory(tests)

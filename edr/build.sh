@@ -72,9 +72,9 @@ do
         --no-build)
             NO_BUILD=1
             ;;
-        --coverity)
+        --analysis)
             NO_BUILD=1
-            COVERITY=1
+            ANALYSIS=1
             ;;
         --no-unpack)
             NO_UNPACK=1
@@ -201,6 +201,25 @@ function untar_input()
     fi
 }
 
+function cppcheck_build() {
+    local BUILD_BITS_DIR=$1
+
+#    yum -y install cppcheck
+#    yum -y install python36-pygments
+
+    [[ -d ${BUILD_BITS_DIR} ]] || mkdir -p ${BUILD_BITS_DIR}
+    cd ${BUILD_BITS_DIR}
+    cmake -v "${BASE}"
+    CPP_XML_REPORT="err.xml"
+    CPP_REPORT_DIR="cppcheck"
+    make cppcheck 2> ${CPP_XML_REPORT}
+    python3 "$BASE/build/analysis/cppcheck-htmlreport.py" --file=${CPP_XML_REPORT} --report-dir=${CPP_REPORT_DIR} --source-dir=${BASE}
+
+    ANALYSIS_OUTPUT_DIR="${OUTPUT}/coverage/"
+    [[ -d ${ANALYSIS_OUTPUT_DIR} ]] || mkdir -p ${ANALYSIS_OUTPUT_DIR}
+    cp -a ${CPP_REPORT_DIR}  ${ANALYSIS_OUTPUT_DIR} || exitFailure $FAILURE_COPY_CPPCHECK_RESULT_FAILED  "Failed to copy cppcheck report to output"
+}
+
 function build()
 {
     local BITS=$1
@@ -273,11 +292,11 @@ function build()
 
     if [[ $NO_BUILD == 1 ]]
     then
-      if [[ $COVERITY == 1 ]]
+      if [[ $ANALYSIS == 1 ]]
       then
-        bash -x $BASE/build/coverity/testCoverity.sh || {
+        cppcheck_build  build${BITS} || {
             EXIT=$?
-            echo " Coverity build failed: $EXIT"
+            echo " Cppcheck static analysis build failed: $EXIT"
             exit ${EXIT}
         }
       fi
