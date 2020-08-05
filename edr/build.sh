@@ -205,8 +205,8 @@ function untar_input()
 function cppcheck_build() {
     local BUILD_BITS_DIR=$1
 
-#    yum -y install cppcheck
-#    yum -y install python36-pygments
+    yum -y install cppcheck
+    yum -y install python36-pygments
 
     [[ -d ${BUILD_BITS_DIR} ]] || mkdir -p ${BUILD_BITS_DIR}
     CURR_WD=$(pwd)
