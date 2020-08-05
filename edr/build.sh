@@ -8,6 +8,8 @@ FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
 FAILURE_UNIT_TESTS=54
 FAILURE_COPY_SDDS_FAILED=60
+FAILURE_COPY_CPPCHECK_RESULT_FAILED=61
+FAILURE_CPPCHECK=62
 
 source /etc/profile
 set -ex
@@ -73,7 +75,6 @@ do
             NO_BUILD=1
             ;;
         --analysis)
-            NO_BUILD=1
             ANALYSIS=1
             ;;
         --no-unpack)
@@ -208,16 +209,18 @@ function cppcheck_build() {
 #    yum -y install python36-pygments
 
     [[ -d ${BUILD_BITS_DIR} ]] || mkdir -p ${BUILD_BITS_DIR}
+    CURR_WD=$(pwd)
     cd ${BUILD_BITS_DIR}
-    cmake -v "${BASE}"
+    cmake "${BASE}"
     CPP_XML_REPORT="err.xml"
     CPP_REPORT_DIR="cppcheck"
     make cppcheck 2> ${CPP_XML_REPORT}
     python3 "$BASE/build/analysis/cppcheck-htmlreport.py" --file=${CPP_XML_REPORT} --report-dir=${CPP_REPORT_DIR} --source-dir=${BASE}
 
     ANALYSIS_OUTPUT_DIR="${OUTPUT}/coverage/"
-    [[ -d ${ANALYSIS_OUTPUT_DIR} ]] || mkdir -p ${ANALYSIS_OUTPUT_DIR}
-    cp -a ${CPP_REPORT_DIR}  ${ANALYSIS_OUTPUT_DIR} || exitFailure $FAILURE_COPY_CPPCHECK_RESULT_FAILED  "Failed to copy cppcheck report to output"
+    [[ -d ${ANALYSIS_OUTPUT_DIR} ]] || mkdir -p "${ANALYSIS_OUTPUT_DIR}"
+    cp -a ${CPP_REPORT_DIR}  "${ANALYSIS_OUTPUT_DIR}" || exitFailure $FAILURE_COPY_CPPCHECK_RESULT_FAILED  "Failed to copy cppcheck report to output"
+    cd "${CURR_WD}"
 }
 
 function build()
@@ -292,14 +295,6 @@ function build()
 
     if [[ $NO_BUILD == 1 ]]
     then
-      if [[ $ANALYSIS == 1 ]]
-      then
-        cppcheck_build  build${BITS} || {
-            EXIT=$?
-            echo " Cppcheck static analysis build failed: $EXIT"
-            exit ${EXIT}
-        }
-      fi
         exit 0
     fi
 
@@ -375,6 +370,12 @@ function build()
             bash -x build/bullseye/uploadResults.sh || exit $?
         fi
       cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
+    fi
+
+    #run static analysis
+    if [[ $ANALYSIS == 1 ]]
+    then
+      cppcheck_build  build${BITS} || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
     fi
 
     if [[ -d build${BITS}/symbols ]]

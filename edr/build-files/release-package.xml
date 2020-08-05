@@ -45,10 +45,6 @@
         <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
-        <!--Get last good build as input, this will only be used by the coverage builds to keep the instrumented builds out of the warehouse-->
-        <package name="sspl-plugin-edr-component" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.0.2/output" mode="coverage" dest="input" buildtype="dev">
-            <include src="SDDS-COMPONENT"   dest="edr-sdds" />
-        </package>
     </inputs>
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
@@ -59,15 +55,17 @@
             <workingdir>sspl-plugin-edr-component-build</workingdir>
         </command>
 
+        <!-- bundle bullseye coverage with static analysis build together
+        to save us launching a extra machine and have both results in one place-->
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr --bullseye</args>
+            <args>./build.sh --clean --name edr --bullseye --analysis</args>
             <workingdir>sspl-plugin-edr-component-build</workingdir>
         </command>
 
-        <command mode="coverity">
+        <command mode="analysis">
             <program>/bin/bash</program>
-            <args>./build.sh --no-build --name edr --coverity</args>
+            <args>./build.sh --no-build --name edr --analysis</args>
             <workingdir>sspl-plugin-edr-component-build</workingdir>
         </command>
         <!--<command buildtype="dev">>
@@ -81,11 +79,8 @@
         <destdir>sspl-plugin-edr-component</destdir>
         <buildoutputs>
             <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release,coverage,analysis"> </output>
             <output name="build_log" srcfolder="log" mode="debug,release"> </output>
-
-            <!-- Coverage -->
-            <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
 
         </buildoutputs>
         <publishbranches>master,feature,bugfix,release,develop</publishbranches>

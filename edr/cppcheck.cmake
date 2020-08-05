@@ -1,7 +1,7 @@
 set (EXCLUDED_DIRS ${CMAKE_SOURCE_DIR}/tests/googletest ${CMAKE_SOURCE_DIR}/cmake-build-debug ${CMAKE_SOURCE_DIR}/redist
-        ${CMAKE_SOURCE_DIR}/CMakeFiles ${CMAKE_SOURCE_DIR}/sspl-plugin-edr-component-build)
+        ${CMAKE_SOURCE_DIR}/CMakeFiles ${CMAKE_SOURCE_DIR}/sspl-plugin-edr-component-build ${CMAKE_SOURCE_DIR}/tests)
 
-file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.h *.hpp)
+file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.h)
 
 list (REMOVE_ITEM  ALL_SOURCE_FILES ${EXCLUDED_DIRS})
 
