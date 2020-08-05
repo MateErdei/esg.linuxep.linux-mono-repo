@@ -89,6 +89,29 @@ Verify Sockets Have Correct Permissions
 
     Dictionaries Should Be Equal  ${ActualDictOfSockets}  ${ExpectedDictOfSockets}
 
+Verify Base Processes Have Correct Permissions
+    Require Fresh Install
+    Check Expected Base Processes Are Running
+    Check owner of process   sophos_managementagent   sophos-spl-user    sophos-spl-group
+    Check owner of process   UpdateScheduler   sophos-spl-user    sophos-spl-group
+    Check owner of process   tscheduler   sophos-spl-user    sophos-spl-group
+    Check owner of process   sophos_watchdog   root  root
+    ${watchdog_pid}=     Run Process    pgrep    -f  sophos_watchdog
+
+    ${FirstCommspid} =     Run Process    pgrep    -P  ${watchdog_pid.stdout}  -f      CommsComponent
+    log   ${FirstCommspid}
+    ${result} =     Run Process    ps    -o    user   -p   ${FirstCommspid.stdout}
+    Should Contain  ${result.stdout}   sophos-spl-local
+    ${result} =     Run Process    ps    -o    group   -p   ${FirstCommspid.stdout}
+    Should Contain  ${result.stdout}   sophos-spl-group
+
+    ${SecondCommspid} =     Run Process    pgrep    -P  ${FirstCommspid.stdout}  -f      CommsComponent
+    log   ${SecondCommspid}
+    ${result} =     Run Process    ps    -o    user   -p   ${SecondCommspid.stdout}
+    Should Contain  ${result.stdout}   sophos-spl-network
+    ${result} =     Run Process    ps    -o    group   -p   ${SecondCommspid.stdout}
+    Should Contain  ${result.stdout}   sophos-spl-group
+
 Verify MCS Folders Have Correct Permissions
     [Tags]    DEBUG  INSTALLER
     Require Fresh Install
@@ -257,6 +280,14 @@ Fake Ldd Teardown
     Install Tests Teardown
     Clean Up Fake Ldd Executable
 
+Check owner of process
+    [Arguments]  ${process_name}  ${user_name}  ${group_name}
+    ${pid} =     Run Process    pgrep    -f      ${process_name}
+    log   ${pid.stdout}
+    ${result} =     Run Process    ps    -o    user   -p   ${pid.stdout}
+    Should Contain  ${result.stdout}   ${user_name}
+    ${result} =     Run Process    ps    -o    group   -p   ${pid.stdout}
+    Should Contain  ${result.stdout}   ${group_name}
 Create Fake Ldd Executable With Version As Argument And Add It To Path
     [Arguments]  ${version}
     ${FakeLddDirectory} =  Add Temporary Directory  FakeExecutable
