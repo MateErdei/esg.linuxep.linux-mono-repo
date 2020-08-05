@@ -9,8 +9,8 @@ elif [[ -x $(which yum) ]]
 then
     ping -c2 abn-centosrepo || true
     ping -c2 abn-engrepo.eng.sophos || true
-    sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' /etc/yum.repos.d/CentOS-Base.repo
-    sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' /etc/yum.repos.d/epel.repo
+#    sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' /etc/yum.repos.d/CentOS-Base.repo
+#    sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' /etc/yum.repos.d/epel.repo
     cat /etc/yum.repos.d/CentOS-Base.repo
     cat /etc/yum.conf
     grep -r abn-centosrepo /etc/yum.repos.d/* /etc/yum.conf || true
