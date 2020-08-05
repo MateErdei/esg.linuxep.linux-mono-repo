@@ -31,6 +31,10 @@ int main()
 
 *     build it: g++ hello.cpp -o hello -static
 *     ./JailBreakerTest  pair pair  /tmp/hello
+* 
+* 
+*  In order to clear /tmp/testBreak/jail you will need to run first: 
+*  umount  /tmp/testBreak/jail/lib
 */
 int main(int argc, char * argv[])
 {
@@ -93,8 +97,7 @@ int main(int argc, char * argv[])
 
 
     fs->copyFileAndSetPermissions(execPath, targetExec, 0777, childConf.userName, childConf.userGroup); 
-    CommsComponent::CommsConfigurator configurator(jailRoot, childConf, parentConf,
-                                                std::vector<ReadOnlyMount>() ); 
+    CommsComponent::CommsConfigurator configurator(jailRoot, childConf, parentConf, {{"/lib", "lib"}});
 
     auto childProc = [jailBreaker](std::shared_ptr<MessageChannel>/*channel*/, IOtherSideApi &/*childProxy*/){
         std::string jailBreakerPath = Common::FileSystem::join("/",jailBreaker); 
