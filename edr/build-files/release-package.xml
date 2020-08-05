@@ -46,7 +46,7 @@
             <include src="protobuf.tar" dest="."/>
         </package>
         <!--Get last good build as input, this will only be used by the coverage builds to keep the instrumented builds out of the warehouse-->
-        <package name="sspl-plugin-edr-component" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.0.2/output" dest="input" buildtype="dev">
+        <package name="sspl-plugin-edr-component" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.0.2/output" mode="coverage" dest="input" buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="edr-sdds" />
         </package>
     </inputs>

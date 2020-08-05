@@ -62,12 +62,6 @@ def combined_task(machine: tap.Machine):
 
         args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
         if not has_coverage_file(machine):
-
-            #if we explicity want to run coverage fail the test session
-            if tap.Parameters.coverage == 'yes':
-                logger.error("Could not find the coverage build on this branch. build with mode==coverage first")
-                raise ValueError("Build under test is not a coverage build. build with mode==coverage first")
-
             #run pytests
             machine.run(*args)
             try:
