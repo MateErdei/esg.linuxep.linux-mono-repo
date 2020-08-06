@@ -97,7 +97,7 @@ rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  $
 
 PATH=$PATH:/usr/sbin:/sbin
 
-Ufunction removeUser()
+function removeUser()
 {
   local USERNAME=$1
   DELUSER=$(which deluser 2>/dev/null)
