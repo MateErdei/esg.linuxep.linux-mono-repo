@@ -33,3 +33,18 @@ Note: the 4 first steps can be simplified by running from sspl-tools
 The project name etc, can be customised by the build.sh and CMakeLists.txt
 but a default is passed from release-package.xml
 
+#coverage build with bullseye and static anaylsis with cppcheck
+1. Trigger CI coverage build with bullseye:
+    * on build pipeline build edr with mode=coverage
+    * on the test pipeline build edr and select coverage=yes the link above will be updated with the latest results
+    * static anaylsis is also done whenever coverage is build is run, this so we save on spinning an extra machine 
+       and we publish the results together in one place
+
+    * RESULTS for both static analysis and coverage are published to:
+      * output/coverage or artificatory and filer6
+      
+1. Trigger CI static analysis with cppcheck only:
+    * on build pipeline build edr with mode=analysis
+    * RESULTS published to folder "analysis" both on filer6 & artifactory
+
+

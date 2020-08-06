@@ -25,6 +25,8 @@ try{
     git_branch = "${env.BRANCH_NAME}"
     if ( params.mode == 'coverage' || git_branch.endsWith('coverage') )
     {
+        //coverage build in project_release_xml also runs static analysis, so we can publish the results in one place
+        //and we need not spin a separate machine just for the cppcheck.
         parallel coverage_build:
         {
             echo 'Starting edr coverage build  on ' + git_branch
