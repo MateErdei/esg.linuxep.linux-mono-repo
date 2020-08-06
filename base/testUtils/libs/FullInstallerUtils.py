@@ -447,7 +447,7 @@ def Uninstall_SSPL(installdir=None):
             counter = counter + 1
             try:
                 logger.info("try to rm all")
-                # TODO REVERTCOMMS
+                # FIXME: LINUXDAR-2120 restore
                 # unmount_all_comms_component_folders(True)
                 output, returncode = run_proc_with_safe_output(['rm', '-rf', installdir])
                 if returncode != 0:
@@ -933,7 +933,7 @@ def check_version_files_report_a_valid_upgrade(previous_ini_files, recent_ini_fi
     if not any(upgrades):
         raise AssertionError('No upgrade found in the input VERSION files')
 
-# TODO REVERTCOMMS
+# FIXME: LINUXDAR-2120 restore
 # def unmount_all_comms_component_folders(skip_stop_proc=False):
 #     def _umount_path(fullpath):
 #         stdout, code = run_proc_with_safe_output(['umount', fullpath])
