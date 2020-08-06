@@ -272,13 +272,8 @@ chown root:${GROUP_NAME} "${SOPHOS_INSTALL}"
 # Adds a hidden file to mark the install directory which is used by the uninstaller.
 touch "${SOPHOS_INSTALL}/.sophos" || failure ${EXIT_FAIL_DIR_MARKER} "Failed to create install directory marker file"
 
-## Add a low-privilege users
 USER_NAME=@SOPHOS_SPL_USER@
-NETWORK_USER_NAME=@SOPHOS_SPL_NETWORK@
-LOCAL_USER_NAME=@SOPHOS_SPL_LOCAL@
 add_user "${USER_NAME}" "${GROUP_NAME}"
-add_user "${NETWORK_USER_NAME}" "${GROUP_NAME}"
-add_user "${LOCAL_USER_NAME}" "${GROUP_NAME}"
 
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
@@ -333,12 +328,6 @@ makedir 750 "${SOPHOS_INSTALL}/base/mcs/status/cache"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/event"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/certs"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/tmp"
-makedir 750 "${SOPHOS_INSTALL}/var/comms/responses"
-makedir 770 "${SOPHOS_INSTALL}/var/comms/requests"
-chmod   750 "${SOPHOS_INSTALL}/var/comms"
-chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/"
-chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/requests"
-
 
 makedir 711 "${SOPHOS_INSTALL}/plugins"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins"
@@ -382,7 +371,7 @@ ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
 chown -h "root:${GROUP_NAME}" ${SOPHOS_INSTALL}/base/etc/telemetry-config.json*
 chmod 440 ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
-chmod g+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
+
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*

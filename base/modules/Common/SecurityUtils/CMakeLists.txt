@@ -11,5 +11,6 @@ target_link_libraries(securityutils PUBLIC filesystemimpl)
 SET_TARGET_PROPERTIES(securityutils
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
-install(TARGETS securityutils
-        LIBRARY DESTINATION files/base/lib64)
+# FIXME: LINUXDAR-2120 restore
+#install(TARGETS securityutils
+#        LIBRARY DESTINATION files/base/lib64)

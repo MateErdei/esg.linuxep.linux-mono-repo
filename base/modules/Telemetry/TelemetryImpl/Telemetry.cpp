@@ -12,9 +12,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
 #include "BaseTelemetryReporter.h"
-#include "TelemetrySender.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/HttpSenderImpl/HttpSender.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/PluginCommunication/IPluginProxy.h>
 #include <Common/PluginCommunicationImpl/PluginProxy.h>
@@ -85,6 +85,9 @@ namespace Telemetry
     std::unique_ptr<TelemetryProcessor> initialiseTelemetryProcessor(
         std::shared_ptr<Common::TelemetryConfigImpl::Config> telemetryConfig)
     {
+        std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::HttpSenderImpl::CurlWrapper>();
+
         std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
 
         // System telemetry provider
@@ -105,7 +108,7 @@ namespace Telemetry
         appendTelemetryProvidersForPlugins(telemetryProviders, telemetryConfig);
 
         std::unique_ptr<TelemetryProcessor> telemetryProcessor = std::make_unique<TelemetryProcessor>(
-            telemetryConfig, std::make_unique<TelemetrySender>(), telemetryProviders);
+            telemetryConfig, std::make_unique<Common::HttpSenderImpl::HttpSender>(curlWrapper), telemetryProviders);
 
         return telemetryProcessor;
     }

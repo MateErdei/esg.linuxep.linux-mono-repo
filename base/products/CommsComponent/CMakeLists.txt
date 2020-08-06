@@ -10,11 +10,12 @@ target_link_libraries(CommsComponent
 SET_TARGET_PROPERTIES(CommsComponent
         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
 
-install(TARGETS CommsComponent
-        DESTINATION files/base/bin)
+# FIXME: LINUXDAR-2120 restore
+#install(TARGETS CommsComponent
+#        DESTINATION files/base/bin)
+#
+#configure_file(commscomponent.json.in  commscomponent.json @ONLY)
 
-configure_file(commscomponent.json.in  commscomponent.json @ONLY)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/commscomponent.json
-        DESTINATION installer/plugins
-        PERMISSIONS OWNER_READ)
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/commscomponent.json
+#        DESTINATION installer/plugins
+#        PERMISSIONS OWNER_READ)

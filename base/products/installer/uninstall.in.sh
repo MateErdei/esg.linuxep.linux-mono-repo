@@ -75,14 +75,6 @@ function removeWatchdogSystemdService()
 }
 
 
-function unmountCommsComponentDependencies()
-{
-  CommsComponentChroot=$1
-  for entry in etc/resolv.conf etc/hosts usr/lib usr/lib64 lib etc/ssl/certs etc/pki/tls/certs base/mcs/certs; do
-    umount --force ${CommsComponentChroot}/${entry}  > /dev/null 2>&1
-  done
-}
-
 removeUpdaterSystemdService || failure "Failed to remove updating service files"  ${FAILURE_REMOVE_UPDATE_SERVICE_FILES}
 
 # Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
@@ -101,13 +93,11 @@ fi
 
 removeWatchdogSystemdService || failure "Failed to remove watchdog service files"  ${FAILURE_REMOVE_WATCHDOG_SERVICE_FILES}
 
-CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
-unmountCommsComponentDependencies ${CommsComponentChroot}
 rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
 
 PATH=$PATH:/usr/sbin:/sbin
 
-function removeUser()
+Ufunction removeUser()
 {
   local USERNAME=$1
   DELUSER=$(which deluser 2>/dev/null)
@@ -151,12 +141,6 @@ if [[ -z $NO_REMOVE_USER ]]
 then
   SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
   removeUser    ${SOPHOS_SPL_USER_NAME}
-
-  NETWORK_USER_NAME="@SOPHOS_SPL_NETWORK@"
-  removeUser    ${NETWORK_USER_NAME}
-
-  LOCAL_USER_NAME="@SOPHOS_SPL_LOCAL@"
-  removeUser    ${LOCAL_USER_NAME}
 
   SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
   removeGroup   ${SOPHOS_SPL_GROUP_NAME}

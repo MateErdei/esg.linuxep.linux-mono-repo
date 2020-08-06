@@ -15,8 +15,10 @@ add_library(telemetryimpl SHARED
         PluginTelemetryReporter.h
         BaseTelemetryReporter.cpp
         BaseTelemetryReporter.h
-        TelemetrySender.h 
-        TelemetrySender.cpp)
+        # FIXME: LINUXDAR-2120 restore
+        #TelemetrySender.h 
+        #TelemetrySender.cpp
+        )
 
 include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json ../../ManagementAgent ${BOOST_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
 
@@ -29,7 +31,8 @@ target_link_libraries(telemetryimpl PUBLIC
         threads
         plugincommunicationimpl
         xmlutilities
-        commscomponentimpl
+        # FIXME: LINUXDAR-2120 restore
+        #commscomponentimpl
         )
 
 SET_TARGET_PROPERTIES(telemetryimpl
