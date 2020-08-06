@@ -310,7 +310,7 @@ Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less 
     Wait Until Keyword Succeeds
     ...     5 seconds
     ...     1 seconds
-    ...     Error: HTTP request failed with CURL result 35   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
+    ...     Check Log Contains   Error: HTTP request failed with CURL result 35   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
 
 # FIXME: LINUXDAR-2120 restore
 #Test With Proxy
