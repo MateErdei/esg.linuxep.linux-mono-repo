@@ -233,7 +233,10 @@ class TemplateConfig:
 
         if self.remote_connection_address in OSTIA_ADDRESSES:
             self.ps_root_ca = DEV_PS_ROOT_CA
+            self.thininstaller_cert = DEV_PS_ROOT_CA
         else:
+            # we take the dirname of this, which is why there is a slash
+            self.thininstaller_cert = "system/"
             self.ps_root_ca = PROD_PS_ROOT_CA
 
     def install_upgrade_certs(self, root_ca=None, ps_root_ca=None):
@@ -308,22 +311,22 @@ class WarehouseUtils(object):
         "base_edr_vut_and_mtr_999.xml": TemplateConfig("BASE_EDR_AND_MTR_999", "mtr_user_999", DEV_BUILD_CERTS, OSTIA_MTR_999_ADDRESS ),
         "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "user_mtr_vut_edr_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
         "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
-        "base_and_mtr_VUT.xml": TemplateConfig("BASE_AND_MTR_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_and_mtr_VUT.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_edr_and_mtr_VUT-1.xml": TemplateConfig("BASE_EDR_AND_MTR_VUT_PREV", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_and_mtr_GA.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_mtr_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
         "base_and_broken_edr.xml": TemplateConfig("BASE_AND_MTR_GA", "ga_base_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
-        "base_and_edr_VUT.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_edr_and_mtr.xml": TemplateConfig("BASE_ONLY_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_and_edr_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_edr_and_mtr.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_0_6_0.xml": TemplateConfig("BASE_ONLY_0_6_0", "base_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
-        "base_only_VUT.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_only_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_VUT-1.xml": TemplateConfig("BASE_ONLY_VUT_PREV", "base_user_vut", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_only_GA.xml": TemplateConfig("BASE_ONLY_GA", "ga_base_user", DEV_BUILD_CERTS, OSTIA_GA_ADDRESS),
-        "base_VUT_and_fake_plugins.xml": TemplateConfig("BASE_VUT_AND_FAKE_PLUGINS", "fake_plugin_user", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_VUT_and_fake_plugins.xml": TemplateConfig("BALLISTA_VUT", "fake_plugin_user", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_paused_update_VUT-1.xml": TemplateConfig("BASE_PAUSED_VUT_PREV", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
-        "base_paused_update_VUT.xml": TemplateConfig("BASE_PAUSED_VUT", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
+        "base_paused_update_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
         "base_paused_update_999.xml": TemplateConfig("BASE_PAUSED_999", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
-        "base_only_VUT_without_SDU_Feature.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_only_VUT_without_SDU_Feature.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_beta_only.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_BETA_ONLY_ADDRESS),
         "base_edr_old_wh_format.xml": TemplateConfig("BASE_EDR_OLD_WH", "base_user_vut", DEV_BUILD_CERTS, OSTIA_BASE_EDR_OLD_WH_ADDRESS),
     }

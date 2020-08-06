@@ -187,7 +187,7 @@ class ThinInstallerUtils(object):
             template_config = warehouse_utils.get_template_config(policy_file_name)
             hashed_credentials = template_config.hashed_credentials
             connection_address = template_config.get_connection_address()
-            warehouse_certs_dir = os.path.dirname(template_config.ps_root_ca)
+            warehouse_certs_dir = os.path.dirname(template_config.thininstaller_cert)
         except KeyError:
             hashed_credentials, connection_address = extract_hashed_credentials_from_alc_policy(policy_file_path)
             warehouse_certs_dir = "system"
