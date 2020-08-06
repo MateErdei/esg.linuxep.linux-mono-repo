@@ -5,14 +5,14 @@ Resource  CommsComponentResources.robot
 Library   ${LIBS_DIRECTORY}/CommsComponentUtils.py
 Library   ${LIBS_DIRECTORY}/LogUtils.py
 
-Default Tags  COMMS
+Default Tags  COMMS  TESTFAILURE
+
 Test Setup  Test Setup
 Test Teardown  Test Teardown
 
 *** Test Cases ***
 
 Test Comms Component Starts
-    [Tags]   COMMS
     Require Installed
     File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
 
