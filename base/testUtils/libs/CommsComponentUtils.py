@@ -64,7 +64,7 @@ class CommsComponentUtils:
             json.dump(entry,f)
 
     def extract_bodyContent_of_json_response(self,filename, httpCode=""):
-        with open(filename,'r') as f:
+        with open(filename, 'r') as f:
             content = json.load(f)
             if (httpCode != ""):
                 if content['httpCode'] != httpCode:
@@ -72,4 +72,4 @@ class CommsComponentUtils:
             return base64.b64decode(content['bodyContent']).decode(errors='replace')
         return ""
         
-    
+

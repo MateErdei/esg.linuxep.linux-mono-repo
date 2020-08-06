@@ -754,12 +754,18 @@ Check EAP Release Installed Correctly
 Check Installed Correctly
     Should Exist    ${SOPHOS_INSTALL}
 
-    Check Expected Base Processes Are Running
     Check Correct MCS Password And ID For Local Cloud Saved
 
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
+    Check Expected Base Processes Are Running
+    # TODO REVERTCOMMS
+#    ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
+#    ${base_version_above_1_1_2} =  check_version_over_1_1_2  ${version_number}
+#    Run Keyword If  ${base_version_above_1_1_2} == ${True}
+#    ...  Check Expected Base Processes Are Running
+#    ...  ELSE  Check Expected Base Processes Except Comms Are Running
 
 Check Files Before Upgrade
     # This is a selection of files from Base product, based on the version initialy installed
@@ -852,10 +858,10 @@ Check Update Reports Have Been Processed
 
    ${ProcessedFileCount}=  Get length   ${files_in_processed_dir}
    Should Be Equal As Numbers  ${ProcessedFileCount}   1
-   Should Contain  @{files_in_processed_dir}[0]  update_report
-   Should Not Contain  @{files_in_processed_dir}[0]  update_report.json
+   Should Contain  ${files_in_processed_dir}[0]  update_report
+   Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
 
-   Should Contain  ${filesInUpdateVar}   @{files_in_processed_dir}[0]
+   Should Contain  ${filesInUpdateVar}   ${files_in_processed_dir}[0]
 
 Get Pid Of Process
     [Arguments]  ${process_name}

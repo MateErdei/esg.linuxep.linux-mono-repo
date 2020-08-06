@@ -447,7 +447,8 @@ def Uninstall_SSPL(installdir=None):
             counter = counter + 1
             try:
                 logger.info("try to rm all")
-                unmount_all_comms_component_folders(True)
+                # TODO REVERTCOMMS
+                # unmount_all_comms_component_folders(True)
                 output, returncode = run_proc_with_safe_output(['rm', '-rf', installdir])
                 if returncode != 0:
                     logger.error(output)
@@ -932,49 +933,49 @@ def check_version_files_report_a_valid_upgrade(previous_ini_files, recent_ini_fi
     if not any(upgrades):
         raise AssertionError('No upgrade found in the input VERSION files')
 
-
-def unmount_all_comms_component_folders(skip_stop_proc=False):
-    def _umount_path(fullpath):
-        stdout, code = run_proc_with_safe_output(['umount', fullpath])
-        if 'not mounted' in stdout: 
-            return
-        if code != 0:
-            logger.info(stdout)
-
-    def _stop_commscomponent():
-        stdout, code = run_proc_with_safe_output(["/opt/sophos-spl/bin/wdctl", "stop", "commscomponent"])
-        if code != 0 and not 'Watchdog is not running' in stdout:
-            logger.info(stdout)
-
-    if not os.path.exists('/opt/sophos-spl/bin/wdctl'):
-        return
-    # stop the comms component as it could be holding the mounted paths and 
-    # would not allow them to be unmounted. 
-    counter = 0
-    while not skip_stop_proc and counter < 5:
-        counter = counter + 1
-        stdout, errcode = run_proc_with_safe_output(['pidof', 'CommsComponent'])
-        if errcode == 0:
-            logger.info("Commscomponent running {}".format(stdout))
-            _stop_commscomponent()    
-            time.sleep(1)
-        else:
-            logger.info("Skip stop comms componenent")
-            break
-
-    dirpath = '/opt/sophos-spl/var/sophos-spl-comms/'
-    
-    mounted_entries = ['etc/resolv.conf', 'etc/hosts', 'usr/lib', 'usr/lib64', 'lib', 
-                        'etc/ssl/certs', 'etc/pki/tls/certs', 'base/mcs/certs']
-    for entry in mounted_entries:        
-        try:
-            fullpath = os.path.join(dirpath, entry)
-            if not os.path.exists(fullpath):
-                continue
-            _umount_path(fullpath)
-            if os.path.isfile(fullpath):
-                os.remove(fullpath)
-            else:
-                shutil.rmtree(fullpath)
-        except Exception as ex: 
-            logger.error(str(ex))
+# TODO REVERTCOMMS
+# def unmount_all_comms_component_folders(skip_stop_proc=False):
+#     def _umount_path(fullpath):
+#         stdout, code = run_proc_with_safe_output(['umount', fullpath])
+#         if 'not mounted' in stdout:
+#             return
+#         if code != 0:
+#             logger.info(stdout)
+#
+#     def _stop_commscomponent():
+#         stdout, code = run_proc_with_safe_output(["/opt/sophos-spl/bin/wdctl", "stop", "commscomponent"])
+#         if code != 0 and not 'Watchdog is not running' in stdout:
+#             logger.info(stdout)
+#
+#     if not os.path.exists('/opt/sophos-spl/bin/wdctl'):
+#         return
+#     # stop the comms component as it could be holding the mounted paths and
+#     # would not allow them to be unmounted.
+#     counter = 0
+#     while not skip_stop_proc and counter < 5:
+#         counter = counter + 1
+#         stdout, errcode = run_proc_with_safe_output(['pidof', 'CommsComponent'])
+#         if errcode == 0:
+#             logger.info("Commscomponent running {}".format(stdout))
+#             _stop_commscomponent()
+#             time.sleep(1)
+#         else:
+#             logger.info("Skip stop comms componenent")
+#             break
+#
+#     dirpath = '/opt/sophos-spl/var/sophos-spl-comms/'
+#
+#     mounted_entries = ['etc/resolv.conf', 'etc/hosts', 'usr/lib', 'usr/lib64', 'lib',
+#                         'etc/ssl/certs', 'etc/pki/tls/certs', 'base/mcs/certs']
+#     for entry in mounted_entries:
+#         try:
+#             fullpath = os.path.join(dirpath, entry)
+#             if not os.path.exists(fullpath):
+#                 continue
+#             _umount_path(fullpath)
+#             if os.path.isfile(fullpath):
+#                 os.remove(fullpath)
+#             else:
+#                 shutil.rmtree(fullpath)
+#         except Exception as ex:
+#             logger.error(str(ex))

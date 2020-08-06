@@ -12,7 +12,7 @@ Test Teardown  Test Teardown
 *** Test Cases ***
 
 Test Comms Component Starts
-    [Tags]   COMMS  TAP_TESTS
+    [Tags]   COMMS
     Require Installed
     File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
 

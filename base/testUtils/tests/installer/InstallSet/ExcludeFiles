@@ -10,5 +10,4 @@ wdctl.log
 tscheduler.log
 ALC_status.xml
 ALC.xml
-sophos-spl-comms/
 telemetry/cache
