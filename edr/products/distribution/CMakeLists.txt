@@ -84,7 +84,7 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
-        COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION}
+        COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
         OUTPUT_VARIABLE PRODUCT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
