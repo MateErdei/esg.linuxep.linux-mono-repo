@@ -320,8 +320,9 @@ function build()
     #install analysis build depenecies before we mess-up with LD_LIBRARY path
     if [[ $ANALYSIS == 1 ]]
     then
-      yum -y install cppcheck
-      yum -y install python36-pygments
+      PKG_MANAGER=$( command -v yum || command -v apt-get )
+      sudo $PKG_MANAGER -y install cppcheck
+      sudo $PKG_MANAGER -y install python3-pygments
     fi
 
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}:${REDIST}/curl/lib64:${REDIST}/log4cplus/lib:${REDIST}/zeromq/lib:${REDIST}/protobuf/install${BITS}/lib
