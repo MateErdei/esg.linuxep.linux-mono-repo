@@ -198,9 +198,6 @@ function untar_input()
 function cppcheck_build() {
     local BUILD_BITS_DIR=$1
 
-    yum -y install cppcheck
-    yum -y install python36-pygments
-
     [[ -d ${BUILD_BITS_DIR} ]] || mkdir -p ${BUILD_BITS_DIR}
     CURR_WD=$(pwd)
     cd ${BUILD_BITS_DIR}
@@ -318,6 +315,13 @@ function build()
         else
             exitFailure $FAILURE_INPUT_NOT_AVAILABLE "telemetry-config.json not available"
         fi
+    fi
+
+    #install analysis build depenecies before we mess-up with LD_LIBRARY path
+    if [[ $ANALYSIS == 1 ]]
+    then
+      yum -y install cppcheck
+      yum -y install python36-pygments
     fi
 
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}:${REDIST}/curl/lib64:${REDIST}/log4cplus/lib:${REDIST}/zeromq/lib:${REDIST}/protobuf/install${BITS}/lib
