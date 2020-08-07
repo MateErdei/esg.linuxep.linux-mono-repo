@@ -112,9 +112,19 @@
         <workingdir>sspl-base-build</workingdir>
         <destdir>sspl-base</destdir>
         <buildoutputs>
-            <output name="output" srcfolder="output" artifactpath="output"> </output>
-            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl"> </output>
-            <output name="build_log" srcfolder="log"> </output>
+            <!-- Release -->
+            <output name="output" srcfolder="output" artifactpath="output"></output>
+            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl"></output>
+            <output name="build_log" srcfolder="log"></output>
+
+            <!-- coverage(bullseye) -->
+            <output name="output" srcfolder="output" artifactpath="coverage" mode="coverage"></output>
+            <output name="build_log" srcfolder="log" artifactpath="coverage/build_log" mode="coverage"></output>
+
+            <!-- Analysis -->
+            <output name="output" srcfolder="output" artifactpath="analysis" mode="analysis"></output>
+            <output name="build_log" srcfolder="log" artifactpath="analysis/build_log" mode="analysis"></output>
+
         </buildoutputs>
         <publishbranches>master,feature,release,develop,bugfix</publishbranches>
     </publish>

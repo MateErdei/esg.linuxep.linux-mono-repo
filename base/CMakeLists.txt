@@ -254,7 +254,7 @@ else()
     SET(PYTHON_COMMAND ${PYTHON_EXECUTABLE})
 endif()
 
-
+include(cppcheck.cmake)
 add_subdirectory(modules)
 add_subdirectory(products)
 add_subdirectory(tests)
