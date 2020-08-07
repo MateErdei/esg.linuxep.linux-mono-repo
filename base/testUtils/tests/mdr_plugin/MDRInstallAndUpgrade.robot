@@ -44,7 +44,7 @@ Install Release Candidate And Basic Services are Working
     Start Local Cloud Server   --initial-alc-policy=${NextALC}   --initial-mdr-policy  ${TEST_MDR_POLICY_PATH}
     Log To Console   "Release Candidate Credential: ${ReleaseCandidateCredential}"
     Send Policy File  alc  ${NextALC}
-    Configure And Run Thininstaller Using Real Warehouse Policy  0   ${NextALC}   real=True
+    Configure And Run Thininstaller Using Real Warehouse Policy  0   ${NextALC}
     Wait For MTR to be Installed   ${NextALC}
 
     VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini   Sophos Managed Threat Response plug-in
@@ -60,7 +60,7 @@ Upgrade to Release Candidate And Basic Services are Working
     Start Local Cloud Server   --initial-alc-policy=${PreviousALC}  --initial-mdr-policy  ${TEST_MDR_POLICY_PATH}
     Log To Console   "Previous Released version: ${PreviousReleaseCredential}"
     Send Policy File  alc  ${PreviousALC}
-    Configure And Run Thininstaller Using Real Warehouse Policy  0   ${PreviousALC}   real=True
+    Configure And Run Thininstaller Using Real Warehouse Policy  0   ${PreviousALC}
     Wait For MTR to be Installed   ${PreviousALC}
     Check Osquery Is Sending Scheduled Query Results
     Copy File   ${SOPHOS_INSTALL}/base/VERSION.ini  /tmp/BASEVERSION.ini
