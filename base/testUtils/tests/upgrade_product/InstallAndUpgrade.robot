@@ -620,6 +620,24 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
 
+Install VUT Base Using Osita
+    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
+    #Configure And Run Thininstaller Using Real Warehouse Policy And In Built Certs  0  ${BaseOnlyVUTPolicy}
+    Wait For Initial Update To Fail
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseOnlyVUTPolicy}
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
 *** Keywords ***
 
 Simulate Previous Scheduled Update Success

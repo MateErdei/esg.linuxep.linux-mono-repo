@@ -206,6 +206,43 @@ class ThinInstallerUtils(object):
         self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca,
                                override_location=connection_address, certs_dir=warehouse_certs_dir, proxy=proxy, real=real)
 
+    def configure_and_run_thininstaller_using_real_warehouse_policy_and_in_built_certs(self, expected_return_code, policy_file_path, message_relays=None,
+                                                                    proxy=None, update_caches=None, bad_url=False, args=None, mcs_ca=None, real=False):
+        command = [self.default_installsh_path]
+        if args:
+            split_args = args.split(" ")
+            for arg in split_args:
+                command.append(arg)
+
+        self.get_thininstaller()
+
+        if not os.path.isfile(policy_file_path):
+            raise OSError("%s file does not exist", policy_file_path)
+
+        policy_file_name = os.path.basename(policy_file_path)
+        warehouse_utils = WarehouseUtils.WarehouseUtils()
+        try:
+            template_config = warehouse_utils.get_template_config(policy_file_name)
+            hashed_credentials = template_config.hashed_credentials
+            connection_address = template_config.get_connection_address()
+            warehouse_certs_dir = "system"
+        except KeyError:
+            hashed_credentials, connection_address = extract_hashed_credentials_from_alc_policy(policy_file_path)
+            warehouse_certs_dir = "system"
+
+
+        logger.info("using creds: {}".format(hashed_credentials))
+        logger.info("using certs: {}".format(warehouse_certs_dir))
+
+
+        if bad_url:
+            connection_address = None
+        logger.info("connection address: {}".format(connection_address))
+
+        self.create_default_credentials_file(update_creds=hashed_credentials, message_relays=message_relays, update_caches=update_caches)
+        self.build_default_creds_thininstaller_from_sections()
+        self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca,
+                               override_location=connection_address, certs_dir=warehouse_certs_dir, proxy=proxy, real=real)
 
 
     def build_default_creds_thininstaller_from_sections(self):
@@ -245,7 +282,18 @@ class ThinInstallerUtils(object):
             except KeyError:
                 pass
         else:
-            self.env["OVERRIDE_SOPHOS_CERTS"] = sophos_certs_dir
+            test_using_prod = ""
+            try:
+                test_using_prod = os.environ['TEST_USING_PROD']
+            except KeyError:
+                pass
+            if test_using_prod != "":
+                self.env["OVERRIDE_SOPHOS_CERTS"] = sophos_certs_dir
+            else:
+                try:
+                    del self.env['OVERRIDE_SOPHOS_CERTS']
+                except KeyError:
+                    pass
         self.env["MCS_CA"] = mcs_ca
         if command[-1] not in ("--help", "-h", "--version") and not real:
             command.append("--allow-override-mcs-ca")
