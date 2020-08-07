@@ -97,11 +97,24 @@
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command  buildtype="prod"> -->
-        <command>
+        <command mode="release">
             <program>/bin/bash</program>
             <args>./build.sh --clean</args>
             <workingdir>sspl-base-build</workingdir>
         </command>
+
+        <command mode="coverage">
+            <program>/bin/bash</program>
+            <args>./build.sh --clean --bullseye</args>
+            <workingdir>sspl-base-build</workingdir>
+        </command>
+
+        <command mode="analysis">
+            <program>/bin/bash</program>
+            <args>./build.sh --no-build --analysis</args>
+            <workingdir>sspl-base-build</workingdir>
+        </command>
+
         <!--<command buildtype="dev">
             <program>/bin/bash</program>
             <args>./build.sh - -clean - -debug</args> 'when put back remove space between hyphens'
@@ -113,9 +126,9 @@
         <destdir>sspl-base</destdir>
         <buildoutputs>
             <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output"></output>
-            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl"></output>
-            <output name="build_log" srcfolder="log"></output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="release"></output>
+            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl" mode="release"></output>
+            <output name="build_log" srcfolder="log" mode="release"></output>
 
             <!-- coverage(bullseye) -->
             <output name="output" srcfolder="output" artifactpath="coverage" mode="coverage"></output>
