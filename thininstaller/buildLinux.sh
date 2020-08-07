@@ -112,6 +112,17 @@ function prepare_dependencies()
         untar_input boost
         untar_input expat
         untar_input zlib
+
+        if [[ -f ${INPUT}/update_certs/ps_rootca.crt ]]
+        then
+          # copy prod certs into expected location.
+          cp ${INPUT}/update_certs/ps_rootca.crt ./ps_rootca.crt
+          cp ${INPUT}/update_certs/ps_rootca.crt ./rootca.crt
+        else
+          # copy eng certs to expected location
+          cp ./eng_rootca.crt ./rootca.crt
+          cp ./eng_ps_rootca.crt ./ps_rootca.crt
+        fi
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get dependencies"
     fi
