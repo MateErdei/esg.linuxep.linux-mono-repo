@@ -71,9 +71,15 @@ def get_inputs(context: tap.PipelineContext):
 
 @tap.pipeline(version=1, component='sspl-base')
 def sspl_base(stage: tap.Root, context: tap.PipelineContext):
-    machine=tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
-    with stage.group('integration'):
-        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
+    machines = (
+        ("ubuntu1804",
+         tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)),
+        ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux))
+        # add other distros here
+    )
+    with stage.parallel('integration'):
+        for template_name, machine in machines:
+            stage.task(task_name=template_name, func=robot_task, machine=machine)
+
     # with stage.group('component'):
     #     stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
-
