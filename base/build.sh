@@ -114,7 +114,6 @@ do
             BULLSEYE_UPLOAD=1
             BULLSEYE_SYSTEM_TESTS=1
             COVFILE="/tmp/root/sspl-combined.cov"
-            BULLSEYE_UPLOAD=1
             COV_HTML_BASE=sspl-functional
             ;;
         --bullseye-system-test-selector)
