@@ -10,7 +10,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
                        "--progress-bar", "off",
                        "--disable-pip-version-check",
                        "--default-timeout", "120"]
-    machine.run('pip3', '--log', '/opt/test/logs/pip.log',
+    machine.run('pip', '--log', '/opt/test/logs/pip.log',
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
@@ -20,6 +20,7 @@ def package_install(machine: tap.Machine, *install_args: str):
         machine.run('apt-get', '-y', 'install', *install_args,
                     log_mode=tap.LoggingMode.ON_ERROR)
     else:
+        print("installing on centos")
         machine.run('yum', '-y', 'install', *install_args,
                     log_mode=tap.LoggingMode.ON_ERROR)
 
