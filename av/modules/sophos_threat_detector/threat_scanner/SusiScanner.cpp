@@ -106,7 +106,7 @@ SusiScanner::scan(
             {
                 for (auto detection : result["detections"])
                 {
-                    LOGERROR("Detected " << detection["threatName"] << " in " << detection["path"]);
+                    LOGERROR("Detected " << detection["threatName"] << " in " << result["path"]);
                     response.setThreatName(detection["threatName"]);
                     response.setFullScanResult(scanResultUTF8);
                 }
