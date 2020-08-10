@@ -10,13 +10,18 @@ def pip_install(machine: tap.Machine, *install_args: str):
                        "--progress-bar", "off",
                        "--disable-pip-version-check",
                        "--default-timeout", "120"]
-    machine.run('pip', '--log', '/opt/test/logs/pip.log',
+    machine.run('pip3', '--log', '/opt/test/logs/pip.log',
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
+
 def package_install(machine: tap.Machine, *install_args: str):
-    machine.run('apt-get', '-y', 'install', *install_args,
-                log_mode=tap.LoggingMode.ON_ERROR)
+    if machine.run('which', 'apt-get', return_exit_code=True) == 0:
+        machine.run('apt-get', '-y', 'install', *install_args,
+                    log_mode=tap.LoggingMode.ON_ERROR)
+    else:
+        machine.run('yum', '-y', 'install', *install_args,
+                    log_mode=tap.LoggingMode.ON_ERROR)
 
 
 
