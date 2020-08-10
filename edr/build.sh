@@ -205,8 +205,17 @@ function untar_input()
 function cppcheck_build() {
     local BUILD_BITS_DIR=$1
 
-    yum -y install cppcheck
-    yum -y install python36-pygments
+    PKG_MANAGER="$( command -v yum || command -v apt-get )"
+    case "${PKG_MANAGER}" in
+      *yum*)
+        "${PKG_MANAGER}" -y install cppcheck
+        "${PKG_MANAGER}" -y install python36-pygments
+      ;;
+      *apt*)
+        sudo "${PKG_MANAGER}" -y install python3-pygments
+        sudo "${PKG_MANAGER}" -y install cppcheck
+      ;;
+    esac
 
     [[ -d ${BUILD_BITS_DIR} ]] || mkdir -p ${BUILD_BITS_DIR}
     CURR_WD=$(pwd)
@@ -292,6 +301,8 @@ function build()
     [[ -n $CXX ]] || CXX=$(which g++)
     export CC
     export CXX
+
+    [[ $CLEAN == 1 ]] && rm -rf build${BITS}
 
     #run static analysis
     if [[ $ANALYSIS == 1 ]]

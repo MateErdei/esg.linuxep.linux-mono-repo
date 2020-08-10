@@ -63,7 +63,7 @@
         to save us launching a extra machine and have both results in one place-->
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr --bullseye --analysis</args>
+            <args>./build.sh --clean --name edr --bullseye </args>
             <workingdir>sspl-plugin-edr-component-build</workingdir>
         </command>
 
@@ -84,10 +84,11 @@
         <buildoutputs>
             <!-- Release -->
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release,coverage"> </output>
-            <output name="build_log" srcfolder="log" mode="debug,release"> </output>
+            <output name="build_log" srcfolder="log" mode="debug,release,coverage"> </output>
             
             <!-- Analysis -->
-            <output name="output" srcfolder="output" artifactpath="analysis" mode="analysis"> </output>
+            <output name="analysis" srcfolder="output" artifactpath="analysis" mode="analysis"> </output>
+            <output name="analysis_build_log" srcfolder="log" artifactpath="analysis" mode="analysis"> </output>
 
         </buildoutputs>
         <publishbranches>master,feature,bugfix,release,develop</publishbranches>
