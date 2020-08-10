@@ -34,7 +34,8 @@ def install_requirements(machine: tap.Machine):
 
 def robot_task(machine: tap.Machine):
     try:
-        package_install(machine, 'python3.7-dev')
+        if machine.run('which', 'apt-get', return_exit_code=True) == 0:
+            package_install(machine, 'python3.7-dev')
         install_requirements(machine)
         machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
