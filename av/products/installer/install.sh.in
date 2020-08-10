@@ -70,7 +70,6 @@ chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 chmod 0711 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64"
 chmod 0755 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64"/*
 # Lock down libraries which are not needed by avscanner
-chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/liblockedqueue.so"*
 chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/libpluginimpl.so"*
 chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/libscanscheduler.so"*
 chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64/libsophosthreatdetectorimpl.so"*
