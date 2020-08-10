@@ -10,7 +10,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
                        "--progress-bar", "off",
                        "--disable-pip-version-check",
                        "--default-timeout", "120"]
-    machine.run('pip', '--log', '/opt/test/logs/pip.log',
+    machine.run('pip3', '--log', '/opt/test/logs/pip.log',
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
@@ -43,9 +43,9 @@ def robot_task(machine: tap.Machine):
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
         install_requirements(machine)
-        machine.run('python', machine.inputs.test_scripts / 'RobotFramework.py')
+        machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
-        machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
+        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
 
@@ -54,7 +54,7 @@ def pytest_task(machine: tap.Machine):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
-        args = ['python', '-u', '-m', 'pytest', tests_dir,
+        args = ['python3', '-u', '-m', 'pytest', tests_dir,
                 '-o', 'log_cli=true',
                 '--html=/opt/test/results/report.html'
                 ]
