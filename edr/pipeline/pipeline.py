@@ -21,7 +21,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
                        "--progress-bar", "off",
                        "--disable-pip-version-check",
                        "--default-timeout", "120"]
-    machine.run('pip', '--log', '/opt/test/logs/pip.log',
+    machine.run('pip3', '--log', '/opt/test/logs/pip.log',
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
@@ -102,7 +102,7 @@ def combined_task(machine: tap.Machine):
                 machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
                             environment={'COVFILE': COVFILE_COMBINED})
             finally:
-                machine.run('python', machine.inputs.test_scripts / 'move_robot_results.py')
+                machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
             # generate combined coverage html results and upload to allegro
             combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
