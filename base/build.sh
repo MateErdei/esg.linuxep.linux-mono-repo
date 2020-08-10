@@ -99,7 +99,6 @@ do
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
-            #BULLSEYE_UPLOAD=1
             ;;
         --covfile)
             shift
