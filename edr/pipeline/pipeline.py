@@ -30,9 +30,11 @@ def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
     return branch_name == 'develop' or branch_name.endswith('coverage')
 
+
 def has_coverage_file(machine: tap.Machine):
     """If the downloaded build output has a coverage file then its a bullseye build"""
     return machine.run('test', '-f', COVFILE_UNITTEST, return_exit_code=True) == 0
+
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
@@ -62,10 +64,10 @@ def combined_task(machine: tap.Machine):
 
         args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
         if not has_coverage_file(machine):
-            #run pytests
+            # run pytests
             machine.run(*args)
             try:
-                #run robot tests
+                # run robot tests
                 machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py')
             finally:
                 machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
@@ -89,7 +91,7 @@ def combined_task(machine: tap.Machine):
             machine.run('mv', sdds_coverage, sdds)
             machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
 
-            #run component pytest
+            # run component pytest
             machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
             try:
                 machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
@@ -137,17 +139,22 @@ def get_inputs(context: tap.PipelineContext):
 
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
+    machines = (
+        ("ubuntu1804",
+         tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)),
+        ("centos7.7", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux))
+        # add other distros here
+    )
 
     if parameters.coverage == 'yes' or has_coverage_build(context.branch):
         with stage.parallel('combined'):
-            stage.task(task_name='ubuntu1804_x64_combined', func=combined_task, machine=machine)
-            #add other distros here
+            for template_name, machine in machines:
+                stage.task(task_name=template_name, func=combined_task, machine=machine)
     else:
         with stage.parallel('integration'):
-            stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=machine)
-            #add other distros here
+            for template_name, machine in machines:
+                stage.task(task_name=template_name, func=robot_task, machine=machine)
 
         with stage.parallel('component'):
-            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
-            #add other distros here
+            for template_name, machine in machines:
+                stage.task(task_name=template_name, func=pytest_task, machine=machine)
