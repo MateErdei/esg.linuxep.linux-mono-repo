@@ -107,7 +107,7 @@ def combined_task(machine: tap.Machine):
             # generate combined coverage html results and upload to allegro
             combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
             machine.run('bash', '-x', UPLOAD_SCRIPT,
-                        environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': upload_results, 'htmldir': combined_htmldir})
+                        environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': f'{upload_results}', 'htmldir': combined_htmldir})
 
             # publish combined html results and coverage file to artifactory
             machine.run('mv', combined_htmldir, coverage_results_dir)
