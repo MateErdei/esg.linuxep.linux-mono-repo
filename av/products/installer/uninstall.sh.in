@@ -7,8 +7,6 @@
 
 PLUGIN_NAME=@PLUGIN_NAME@
 PRODUCT_LINE_ID="@PRODUCT_LINE_ID@"
-
-
 SCRIPT_LOCATION="${BASH_SOURCE[0]}"
 
 # if file is symbolic link

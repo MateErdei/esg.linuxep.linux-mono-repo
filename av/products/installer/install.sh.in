@@ -14,10 +14,6 @@ EXIT_FAIL_FIND_GETENT=15
 EXIT_FAIL_WDCTL_FAILED_TO_COPY=16
 EXIT_FAIL_WDCTL_FAILED_TO_START=17
 EXIT_FAIL_VERSIONEDCOPY=20
-EXIT_FAIL_INSTALL_PACKAGE=21
-EXIT_FAIL_COPY_MANIFEST=22
-EXIT_FAIL_DELETE_REMOVED_FILES=23
-EXIT_FAIL_NONVERSIONEDCOPY=24
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -27,6 +23,8 @@ then
 fi
 
 ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
+
+source ${ABS_SCRIPTDIR}/cleanupinstall.sh
 
 [[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
@@ -42,316 +40,44 @@ export DIST
 export SOPHOS_INSTALL
 export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"
 
-USER_NAME=sophos-spl-av
+USER_NAME=sophos-spl-user
 GROUP_NAME=sophos-spl-group
-
-# Use a safe umask while copying files before correcting permissions
-umask 077
-
-[[ -d $SOPHOS_INSTALL ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
-
-if [[ ! -x $(which setcap) ]]
-then
-    echo "Installing setcap"
-    if [[ -x $(which apt) ]]
-    then
-        apt install -y libcap2-bin || failure ${EXIT_FAIL_INSTALL_PACKAGE} "Failed to install libcap2-bin"
-    elif [[ -x $(which yum) ]]
-    then
-        failure ${EXIT_FAIL_INSTALL_PACKAGE} "Unable to install setcap using yum"
-    else
-        failure ${EXIT_FAIL_INSTALL_PACKAGE} "Unable to install setcap"
-    fi
-fi
-PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
-VAR="${PLUGIN_INSTALL}/var"
-SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
-SUSI_DIST_VERS="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
-SUSI_V1DIR="${SUSI_DIST_VERS}version1/"
-
-function delete_removed_vdl()
-{
-    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/vdl"
-    local dest_dir="${SUSI_UPDATE_SRC}/vdl"
-
-    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" --notVersioned || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed files"
-}
-
-function delete_removed_libraries()
-{
-    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/libglobalrep"
-    local dest_dir="${SUSI_UPDATE_SRC}/libglobalrep"
-
-    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed libglobalrep files"
-
-    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/libsavi"
-    local dest_dir="${SUSI_UPDATE_SRC}/libsavi"
-
-    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed libsavi files"
-
-    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/libsophtainer"
-    local dest_dir="${SUSI_UPDATE_SRC}/libsophtainer"
-
-    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed libsophtainer files"
-
-    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/libupdater"
-    local dest_dir="${SUSI_UPDATE_SRC}/libupdater"
-
-    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed libupdater files"
-
-    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/lrlib"
-    local dest_dir="${SUSI_UPDATE_SRC}/lrlib"
-
-    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed lrlib files"
-
-    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/mllib"
-    local dest_dir="${SUSI_UPDATE_SRC}/mllib"
-
-    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed mllib files"
-
-    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/susicore"
-    local dest_dir="${SUSI_UPDATE_SRC}/susicore"
-
-    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed susicore files"
-}
-
-function generate_susi_package_manifest()
-{
-    local nonsupplement_manifest="${SUSI_UPDATE_SRC}/nonsupplement_manifest.txt"
-    local temp_manifest="${SUSI_UPDATE_SRC}/temp_manifest.txt"
-    local package_manifest="${SUSI_UPDATE_SRC}/package_manifest.txt"
-    cp ${nonsupplement_manifest} ${temp_manifest}
-
-    vdl_version=$(grep "Version=" ${SUSI_UPDATE_SRC}/vdl/vvf.xml | awk -F'"' '{print $2}')
-    ide_list=$(ls ${SUSI_UPDATE_SRC}/vdl/*.ide | sort)
-    vdl_hash=$({ echo "${ide_list}"; echo "${vdl_version}"; } | sha256sum | awk '{print $1}')
-    echo "vdl ${vdl_hash}" >> ${temp_manifest}
-
-    model_hash=$(sha256sum ${SUSI_UPDATE_SRC}/model/model.dat | awk '{print $1}')
-    echo "model ${model_hash}" >> ${temp_manifest}
-
-    lrdata_hash=$(cat ${SUSI_UPDATE_SRC}/reputation/filerep.dat ${SUSI_UPDATE_SRC}/reputation/signerrep.dat | sha256sum | awk '{print $1}')
-    echo "reputation ${lrdata_hash}" >> ${temp_manifest}
-
-    libupdater_hash=$(sha256sum ${SUSI_UPDATE_SRC}/libupdater/libupdater.so | awk '{print $1}')
-    echo "libupdater ${libupdater_hash}" >> ${temp_manifest}
-
-    manifest_hash=$(sha256sum ${temp_manifest} | awk '{print $1}')
-    echo $manifest_hash > $package_manifest
-    cat $temp_manifest >> $package_manifest
-
-    chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
-}
-
-function bootstrap_susi_from_update_source()
-{
-    ${PLUGIN_INSTALL}/sbin/susi_bootstrapper
-    chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_DIST_VERS}"
-}
 
 function is_already_installed()
 {
-    [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/${PLUGIN_NAME}.json" ]]
+    [[ -d "$SOPHOS_INSTALL/plugins/${PLUGIN_NAME}" ]]
 }
 
-function install_product()
-{
-    useradd ${USER_NAME} --no-create-home --no-user-group --gid ${GROUP_NAME} --groups sophos-spl-ipc --system --shell=/bin/false
+[[ -d $SOPHOS_INSTALL ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
 
-    if is_already_installed
-    then
-        "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
-        # Wait up to 10 seconds for AV Plugin to stop before changing ownership of log files etc
-        timeout 10 tail --pid=$(pgrep -G ${GROUP_NAME} av) -f /dev/null 2> /dev/null
-    fi
-
-    #Create plugin registration file
-    local TEMP_REG_FILE=${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json
-    sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json" >  "${TEMP_REG_FILE}"
-    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_REG_FILE}"
-    rm -f ${TEMP_REG_FILE}
-
-    #Install files using versioned copy (apart from SUSI)
-    find "$DIST/files/plugins" -type f -not -path "$DIST/files/plugins/av/chroot/susi/*" -print0 \
-        | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
-
-    if [[ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi" ]]
-    then
-        rm -rf "$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
-        delete_removed_libraries
-    fi
-
-    #Install SUSI
-    [ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl" ] && rm "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl/"*
-    mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot/susi"
-    cp -arfv $DIST/files/plugins/av/chroot/susi/* "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
-
-    #Install SUSI libraries (with version copy)
-    find "$DIST/files/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
-        | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
-
-    ln -snf "${PLUGIN_INSTALL}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
-    ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
-
-    chmod 0751 "${PLUGIN_INSTALL}"
-    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}"
-
-    chmod 0644 "${PLUGIN_INSTALL}/VERSION.ini"*
-    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/VERSION.ini"
-
-    chmod 0751 "${PLUGIN_INSTALL}/lib64"
-    chmod 0755 "${PLUGIN_INSTALL}/lib64"/*
-    # Lock down libraries which are not needed by avscanner
-    chmod 0750 "${PLUGIN_INSTALL}/lib64/libpluginimpl.so"*
-    chmod 0750 "${PLUGIN_INSTALL}/lib64/libscanscheduler.so"*
-    chmod 0750 "${PLUGIN_INSTALL}/lib64/libsophosthreatdetectorimpl.so"*
-    chmod 0750 "${PLUGIN_INSTALL}/lib64/libthreat_scanner.so"*
-    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/lib64"
-
-    chmod -R 0711 "${PLUGIN_INSTALL}/bin"
-    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/bin"
-
-    chmod -R 0710 "${PLUGIN_INSTALL}/sbin"
-    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/sbin"
-
-    mkdir -p "${PLUGIN_INSTALL}/log"
-    chmod 0770 "${PLUGIN_INSTALL}/log"
-    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
-    # Also change ownership of sophos_threat_detector log which gets missed by above chown
-    chown ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/log/sophos_threat_detector/sophos_threat_detector.log"
-    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
-
-    mkdir -p "${PLUGIN_INSTALL}/var"
-    chmod 0770 "${PLUGIN_INSTALL}/var"
-    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
-    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
-
-    CHROOT="${PLUGIN_INSTALL}/chroot"
-    CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL#/}"
-    mkdir -p ${CHROOT_LINK_DIR}
-    chmod 0770 ${CHROOT_LINK_DIR}
-    chmod 0710 ${CHROOT_LINK_DIR%/*}
-    ln -snf / ${CHROOT_LINK_DIR}/chroot
-
-    mkdir -p "${CHROOT_LINK_DIR}/log"
-    chmod 0770 "${CHROOT_LINK_DIR}/log"
-    chown root:${GROUP_NAME} "${CHROOT_LINK_DIR}/log"
-
-    mkdir -p "${CHROOT_LINK_DIR}/var"
-    chmod 0770 "${CHROOT_LINK_DIR}/var"
-    chown root:${GROUP_NAME} "${CHROOT_LINK_DIR}/var"
-
-    mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
-    mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
-
-    p=${CHROOT}/${SOPHOS_INSTALL#/}/base/update
-    while [[ $p == ${CHROOT}/* ]]
-    do
-      chmod 0710 $p
-      chown root:${GROUP_NAME} $p
-      p=${p%/*}
-    done
-
-    chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
-    chown -R ${USER_NAME}:${GROUP_NAME} ${CHROOT}/${SOPHOS_INSTALL}
-    chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
-    find ${CHROOT}/${SOPHOS_INSTALL} -type d -exec chown root:${GROUP_NAME} {} \;
-
-    mkdir -p ${CHROOT}/etc
-    chmod 0770 ${CHROOT}/etc
-    chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/etc"
-    chown root:${GROUP_NAME} "${CHROOT}/etc"
-
-    mkdir -p "${CHROOT}/log"
-    chmod 0770 "${CHROOT}/log"
-    chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/log"
-    chown root:${GROUP_NAME} "${CHROOT}/log"
-
-    chmod 0750 ${CHROOT}/susi
-    chown root:${GROUP_NAME} "${CHROOT}/susi"
-
-    mkdir -p ${CHROOT}/tmp
-    chmod 0770 ${CHROOT}/tmp
-    chown root:${GROUP_NAME} "${CHROOT}/tmp"
-
-    mkdir -p ${CHROOT}/var
-    chmod 0771 ${CHROOT}/var
-    chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/var"
-    chown root:${GROUP_NAME} "${CHROOT}/var"
-
-    chmod 0711 ${CHROOT}
-    chown root:${GROUP_NAME} "${CHROOT}"
-
-    ## Create logging symlinks for sophos_threat_detector
-    ln -snf "$CHROOT/log" "${PLUGIN_INSTALL}/log/sophos_threat_detector"
-    BACKLINK="$(echo "${PLUGIN_INSTALL%/}" | sed -e "s:[^/]*:..:g;s:^/::")"
-    ln -snf "${BACKLINK}/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector" \
-        ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create symlink ${CHROOT_LINK_DIR}/log/sophos_threat_detector: $?"
-    # Create empty log file so that symlink to it will not be cleaned up by the SSPL Base installer
-    mkdir -p sophos_threat_detector
-    touch "sophos_threat_detector/sophos_threat_detector.log"
-    chown ${USER_NAME}:${GROUP_NAME} "sophos_threat_detector/sophos_threat_detector.log"
-    ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
-
-    pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
-    THREAT_DETECTOR="sophos_threat_detector_launcher"
-    [[ -h "$THREAT_DETECTOR" ]] && THREAT_DETECTOR=$(readlink "$THREAT_DETECTOR")
-    [[ -f "$THREAT_DETECTOR" ]] && setcap cap_sys_chroot=eip "$THREAT_DETECTOR"
-    SCHEDULED_FILE_WALKER="scheduled_file_walker_launcher"
-    [[ -h "$SCHEDULED_FILE_WALKER" ]] && SCHEDULED_FILE_WALKER=$(readlink "$SCHEDULED_FILE_WALKER")
-    [[ -f "$SCHEDULED_FILE_WALKER" ]] && setcap cap_dac_read_search=eip "$SCHEDULED_FILE_WALKER"
-    popd || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to return from sbin directory"
-
-    ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
-
-    delete_removed_vdl
-    generate_susi_package_manifest
-    bootstrap_susi_from_update_source
-
-    #After install start the plugin
-    "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
-
-    cp "$DIST/manifest.dat" "${VAR}/manifest.dat" || failure ${EXIT_FAIL_COPY_MANIFEST} "Failed to copy manifest from install-set to installation"
-}
-
-function update_supplement()
-{
-    # Copy supplement updates
-    UPDATE_SRC="plugins/av/chroot/susi/update_source"
-    cp -auv "$DIST/files/$UPDATE_SRC/vdl/"* "$SOPHOS_INSTALL/$UPDATE_SRC/vdl/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Virus Data to installation"
-    cp -auv "$DIST/files/$UPDATE_SRC/model/"* "$SOPHOS_INSTALL/$UPDATE_SRC/model/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy ML Model to installation"
-    cp -auv "$DIST/files/$UPDATE_SRC/reputation/"* "$SOPHOS_INSTALL/$UPDATE_SRC/reputation/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Local reputation data to installation"
-    cp -auv "$DIST/files/$UPDATE_SRC/rules/"* "$SOPHOS_INSTALL/$UPDATE_SRC/rules/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy LUA files to installation"
-    delete_removed_vdl
-
-    generate_susi_package_manifest
-
-    # reload sophos_threat_detector
-    local PID=$(ps -C sophos_threat_d -o pid=)
-    if [[ -n "$PID" ]]
-    then
-        kill -SIGUSR1 $PID
-    else
-        echo "sophos_threat_detector not running"
-    fi
-}
-
-function supplement_only_update()
-{
-    if [[ -f "${VAR}/manifest.dat" ]]
-    then
-        cmp "$DIST/manifest.dat" "${VAR}/manifest.dat"
-    else
-        return 1
-    fi
-}
-
-if supplement_only_update
+# In case this is an upgrade (not a clean install) request the watchdog stops the plugin
+if is_already_installed
 then
-    # no changes in product
-    # supplement only update
-    # if sophos_threat_detector is running, then send it a signal
-    update_supplement
-else
-    install_product
+    "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
 fi
+
+#Create plugin registration file
+TEMP_REG_FILE=${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json
+sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json" >  "${TEMP_REG_FILE}"
+"${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_REG_FILE}"
+rm -f ${TEMP_REG_FILE}
+
+#Install files
+find "$DIST/files/plugins" -type f -print0 | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy"  || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
+
+generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
+
+chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
+chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+
+ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
+
+if software_changed ${DIST} ${PRODUCT_LINE_ID}
+then
+    perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
+fi
+
+copy_manifests ${DIST} ${PRODUCT_LINE_ID}
+
+#After install start the plugin
+"${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
