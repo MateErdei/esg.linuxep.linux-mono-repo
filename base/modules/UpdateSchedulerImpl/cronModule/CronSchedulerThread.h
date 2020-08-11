@@ -31,7 +31,7 @@ namespace UpdateSchedulerImpl
                 int scheduledUpdateOffsetInMinutes = 8,
                 DurationTime onDelayUpdateWaitTime = std::chrono::minutes(15));
 
-            ~CronSchedulerThread() override;
+            ~CronSchedulerThread();
 
             void start() override;
 
