@@ -7,9 +7,6 @@ function exitFailure()
     shift
     echo "FAILURE - $*" | tee -a $LOG | tee -a /tmp/build.log
     # chmod at the end so scaffold can delete its files
-    if [[ "$unamestr" == "HP-UX" ]]; then
-        chown -R bldsav "$BASE"
-    fi
     exit $CODE
 }
 
@@ -180,12 +177,6 @@ function find_full_library_name()
     exit 1
 }
 
-# pipefail is only supported on bash 3 and later; some build
-# machines have 2.
-if ((BASH_VERSINFO[0] > 2)); then
-    set -o pipefail
-fi
-
 mkdir -p log
 LOG=$BASE/log/build.log
 date | tee -a $LOG | tee /tmp/build.log
@@ -193,12 +184,6 @@ date | tee -a $LOG | tee /tmp/build.log
 unamestr=$(uname)
 PLATFORM=`uname -s | LC_ALL=C tr '[:upper:]' '[:lower:]' | LC_ALL=C tr -d '-'`
 
-# Ah HP-UX, always so excitingly different
-if [[ "$unamestr" == "HP-UX" ]]; then
-    cpustr=$(uname -m)
-else
-    cpustr=$(uname -p)
-fi
 
 BUILDARCH=$unamestr-$cpustr
 

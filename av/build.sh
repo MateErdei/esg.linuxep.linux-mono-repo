@@ -11,7 +11,6 @@ FAILURE_BAD_ARGUMENT=53
 FAILURE_UNIT_TESTS=54
 
 
-source /etc/profile
 set -ex
 set -o pipefail
 
