@@ -4,8 +4,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "LogSetup.h"
-
 #include "avscanner/avscannerimpl/Options.h"
 #include <avscanner/avscannerimpl/CommandLineScanRunner.h>
 #include <avscanner/avscannerimpl/NamedScanRunner.h>
@@ -26,8 +24,6 @@ int main(int argc, char* argv[])
         E_UNKNOWN_OPTION,
         E_BAD_OPTION
     };
-
-    LogSetup logging;
 
     try
     {

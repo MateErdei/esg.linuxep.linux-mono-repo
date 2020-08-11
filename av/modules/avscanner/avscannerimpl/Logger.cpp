@@ -12,7 +12,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/Logging/ConsoleFileLoggingSetup.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
+#include <Common/Logging/LoggingSetup.h>
 
+#include <log4cplus/configurator.h>
+#include <log4cplus/consoleappender.h>
 #include <log4cplus/logger.h>
 
 static bool GL_CONSOLE_LOGGING_SETUP = false;
@@ -40,7 +43,17 @@ Logger::Logger(const std::string& fileName, bool isCommandLine)
     }
     else
     {
-        Common::Logging::ConsoleFileLoggingSetup::setupConsoleFileLoggingWithPath(logfilepath);
+        // Log non-error messages to stdout
+        log4cplus::SharedAppenderPtr stdout_appender(new log4cplus::ConsoleAppender(false));
+        Common::Logging::LoggingSetup::applyPattern(stdout_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
+        log4cplus::Logger::getRoot().addAppender(stdout_appender);
+
+        // Log error messages to stderr
+        log4cplus::SharedAppenderPtr stderr_appender(new log4cplus::ConsoleAppender(true));
+        stderr_appender->setThreshold(log4cplus::ERROR_LOG_LEVEL);
+        Common::Logging::LoggingSetup::applyPattern(stderr_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
+        log4cplus::Logger::getRoot().addAppender(stderr_appender);
+
         GL_CONSOLE_LOGGING_SETUP = true;
     }
     Common::Logging::applyGeneralConfig(PLUGIN_NAME);
