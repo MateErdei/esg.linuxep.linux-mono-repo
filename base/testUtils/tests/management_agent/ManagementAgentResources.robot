@@ -32,7 +32,7 @@ Wait For Management Agent To Stop
     ...  Check Managment Agent Is Not Running
 
 Setup Tmpdir
-    Set Test Variable    ${tmpdir}     ./tmp
+    Set Test Variable    ${tmpdir}     ${TEST_TEMP_DIR}
     Remove Directory   ${tmpdir}    recursive=True
     Create Directory   ${tmpdir}
 

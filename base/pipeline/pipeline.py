@@ -20,7 +20,6 @@ def package_install(machine: tap.Machine, *install_args: str):
         machine.run('apt-get', '-y', 'install', *install_args,
                     log_mode=tap.LoggingMode.ON_ERROR)
     else:
-        print("installing on centos")
         machine.run('yum', '-y', 'install', *install_args,
                     log_mode=tap.LoggingMode.ON_ERROR)
 
@@ -66,7 +65,6 @@ def pytest_task(machine: tap.Machine):
 
 
 def get_inputs(context: tap.PipelineContext):
-    print(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./testUtils'),
         base=context.artifact.build() / 'output',
@@ -86,10 +84,8 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext):
         # add other distros here
     )
     with stage.parallel('integration'):
-        machine = tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
-        stage.task(task_name='centos77', func=robot_task, machine=machine)
-        # for template_name, machine in machines:
-        #     stage.task(task_name=template_name, func=robot_task, machine=machine)
+        for template_name, machine in machines:
+            stage.task(task_name=template_name, func=robot_task, machine=machine)
 
     # with stage.group('component'):
     #     stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)

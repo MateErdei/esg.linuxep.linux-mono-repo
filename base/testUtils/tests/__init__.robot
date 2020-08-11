@@ -54,6 +54,7 @@ Global Setup Tasks
     Set Global Variable  ${BASE_RIGID_NAME}             ServerProtectionLinux-Base
     Set Global Variable  ${EXAMPLE_PLUGIN_RIGID_NAME}   ServerProtectionLinux-Plugin-Example
     Set Global Variable  ${TEMPORARY_DIRECTORIES}       /tmp
+    Set Global Variable  ${TEST_TEMP_DIR}       ${CURDIR}/temp
 
     ${placeholder} =  PathManager.get_support_file_path
     Set Global Variable  ${SUPPORT_FILES}     ${placeholder}

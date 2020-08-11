@@ -210,6 +210,11 @@ class TelemetryUtils:
     def check_system_telemetry_json_is_correct(self, json_string, missing_key=None):
         expected_system_telemetry_dict = self.generate_system_telemetry_dict()
         actual_system_telemetry_dict = json.loads(json_string)["system-telemetry"]
+
+        # an extra tmpfs block can appear in the actual, pop it and compare the rest
+        if len(actual_system_telemetry_dict["disks"]) > len(expected_system_telemetry_dict["disks"]):
+            _ = actual_system_telemetry_dict["disks"].pop()
+
         self.check_system_telemetry_is_correct(actual_system_telemetry_dict, expected_system_telemetry_dict,
                                                missing_key)
 
