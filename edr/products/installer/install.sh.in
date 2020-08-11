@@ -14,7 +14,6 @@ EXIT_FAIL_FIND_GETENT=15
 EXIT_FAIL_WDCTL_FAILED_TO_COPY=16
 EXIT_FAIL_WDCTL_FAILED_TO_START=17
 EXIT_FAIL_VERSIONEDCOPY=20
-EXIT_FAIL_SERVICE=40
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -27,6 +26,7 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
 source ${ABS_SCRIPTDIR}/cleanupinstall.sh
 
+[[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
 
 failure()
@@ -40,8 +40,8 @@ export DIST
 export SOPHOS_INSTALL
 export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"
 
-USER_NAME=root
-GROUP_NAME=root
+USER_NAME=sophos-spl-user
+GROUP_NAME=sophos-spl-group
 
 function is_already_installed()
 {
@@ -67,14 +67,7 @@ find "$DIST/files/plugins" -type f -print0 | xargs -0 "$SOPHOS_INSTALL/base/bin/
 
 generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr etc dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr log dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions  || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr extensions dir"
-
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
-#chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/osquery/bin/"*
-
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
@@ -86,55 +79,5 @@ fi
 
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 
-# Create config file to manage if AuditD should be stopped by the plugin
-CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
-INSTALL_OPTIONS_FILE="${SOPHOS_INSTALL}/base/etc/install_options"
-
-if [[ ! -f "${CONFIG_FILE}" && -f "${INSTALL_OPTIONS_FILE}" ]]
-then
-    # Default to disabling auditd
-    AUDITD_OPTION="disable_auditd=1"
-    if grep -q "^--disable-auditd" "${INSTALL_OPTIONS_FILE}"
-    then
-        AUDITD_OPTION="disable_auditd=1"
-    elif grep -q "^--do-not-disable-auditd" "${INSTALL_OPTIONS_FILE}"
-    then
-        AUDITD_OPTION="disable_auditd=0"
-    fi
-    echo ${AUDITD_OPTION} >> "${CONFIG_FILE}"
-fi
-
 #After install start the plugin
 "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
-
-# perform final checks to ensure plugin has been installed and is running.
-function confirmProcessRunning()
-{
-    pgrep -f "$1" &> /dev/null
-}
-
-function waitForProcess()
-{
-    for (( deadline = $SECONDS + 30; $SECONDS < $deadline; ))
-    do
-        confirmProcessRunning "$@" && return 0
-        sleep 1
-    done
-
-    return 1
-}
-
-# Check key files have been installed
-[[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/edr" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr executable failed to be installed"
-[[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr osquery executable failed to be installed"
-[[ -f "${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr uninstall link file failed to be created"
-[[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr uninstall script failed to be installed"
-
-# Check services are running after install
-waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/edr" || failure ${EXIT_FAIL_SERVICE} "EDR plugin not running"
-waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" || failure ${EXIT_FAIL_SERVICE} "EDR plugin not running"
-
-
-
-
-
