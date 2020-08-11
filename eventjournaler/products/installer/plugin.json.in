@@ -1,6 +1,8 @@
 {
   "policyAppIds": [
   ],
+  "actionAppIds": [
+  ],
   "statusAppIds": [
   ],
   "pluginName": "@PLUGIN_NAME@",
