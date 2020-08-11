@@ -360,10 +360,6 @@ We Can Upgrade From A Release With EDR To Master With Live Response
 
 
 
-
-
-
-
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
     [Timeout]   10 minutes
@@ -500,7 +496,7 @@ Version Copy Versions All Changed Files When Upgrading
     Mark Watchdog Log
     Mark Managementagent Log
 
-    Trigger Update Now
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -513,6 +509,8 @@ Version Copy Versions All Changed Files When Upgrading
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+    # FIXME LINUXDAR-2136 remove this line
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to connect to the warehouse
 
     Check Mtr Reconnects To Management Agent After Upgrade
 
@@ -542,6 +540,15 @@ Version Copy Versions All Changed Files When Upgrading
 
     Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestBase}       ${AfterManifestBase}        ${combinedBaseChanges}
     Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestPluginMdr}  ${AfterManifestPluginMdr}   ${combinedPluginMdrChanges}
+
+    # FIXME LINUXDAR-2136   remove this section when we switch to prod builds
+    #confirm product can still update after failed update
+    Prepare Installation For Upgrade Using Policy  ${BaseAndMtrVUTPolicy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   100 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  5
 
 
 Update Will Be Forced When Feature List Changes Without Unexpected Errors
