@@ -247,7 +247,7 @@ Check Status And Event Message Sent
     ...  10 secs
     ...  Check Cloud Server Log Contains   www.sophos.com/xml/mansys/AutoUpdateStatus  1
     Check Cloud Server Log Contains   ServerProtectionLinux-MDR-DBOS-Component  1
-    Check Cloud Server Log Contains   Sophos Live Query  1
+    Check Cloud Server Log Contains   Sophos Query Component  1
 
 
 
