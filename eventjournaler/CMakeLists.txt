@@ -84,6 +84,7 @@ endif()
 if(NOT DEFINED PLUGINAPIPATH)
     SET( PLUGINAPIPATH ${INPUT}/pluginapi)
 endif()
+set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)

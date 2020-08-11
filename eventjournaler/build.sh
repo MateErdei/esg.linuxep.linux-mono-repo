@@ -8,7 +8,6 @@ FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
 
-source /etc/profile
 set -ex
 set -o pipefail
 
