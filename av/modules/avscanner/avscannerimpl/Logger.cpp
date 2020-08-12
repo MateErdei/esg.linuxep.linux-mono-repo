@@ -9,10 +9,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "../common/config.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/Logging/ConsoleFileLoggingSetup.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
-#include <Common/Logging/LoggingSetup.h>
+#include "Common/Logging/LoggingSetup.h"
 
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
