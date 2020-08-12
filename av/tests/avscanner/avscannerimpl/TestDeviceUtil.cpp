@@ -4,12 +4,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gmock/gmock.h>
-
-#include "avscanner/avscannerimpl/DeviceUtil.h"
 #include "avscanner/avscannerimpl/SystemCallWrapperFactory.h"
+#include "avscanner/mountinfoimpl/DeviceUtil.h"
 
+#include <gmock/gmock.h>
 #include <linux/magic.h>
+
 #include <sys/statfs.h>
 
 using namespace avscanner::avscannerimpl;

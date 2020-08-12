@@ -6,8 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ISystemCallWrapperFactory.h"
-#include "SystemCallWrapper.h"
+#include "avscanner/avscannerimpl/ISystemCallWrapperFactory.h"
+#include "avscanner/avscannerimpl/SystemCallWrapper.h"
 
 #include <memory>
 #include <string>
