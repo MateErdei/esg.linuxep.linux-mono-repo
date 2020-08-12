@@ -62,7 +62,7 @@ bool DeviceUtil::isFloppy(
         char buffer[16];
 
 
-        if (m_systemCallWrapper->_ioctl(fd, FDGETDRVTYP, buffer) != -1)
+        if (m_systemCallWrapper->_ioctl(fd, FDGETDRVTYP, buffer) != -1) // NOLINT(hicpp-signed-bitwise)
         {
             // this is a floppy drive.
             if (strcmp("(null)", buffer) != 0)
@@ -161,7 +161,7 @@ bool DeviceUtil::isOptical(const std::string& devicePath, const std::string& mou
 
     if (fd != -1)
     {
-        struct cdrom_volctrl vol;
+        struct cdrom_volctrl vol{};
 
         // I'd like to use CDROMREADTOCHDR and assume success or EIO means its
         // a CDROM drive.  Unfortuantely, on Redhat 8.0 (see [FML1384]) all
@@ -246,12 +246,11 @@ bool DeviceUtil::isSystem(
     {
         return true;
     }
-    else if (filesystemType == "none" || filesystemType == "")
+    else if (filesystemType == "none" || filesystemType.empty())
     {
-        int ret;
-        struct statfs sfs;
+        struct statfs sfs{};
 
-        ret = m_systemCallWrapper->_statfs(mountPoint.c_str(), &sfs);
+        int ret = m_systemCallWrapper->_statfs(mountPoint.c_str(), &sfs);
         if (ret == 0)
         {
             auto sb_type = static_cast<unsigned long>(sfs.f_type);
