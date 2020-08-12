@@ -193,7 +193,7 @@ class ThinInstallerUtils(object):
             warehouse_certs_dir = "system"
         if override_certs_dir:
             warehouse_certs_dir = override_certs_dir
-            logger.info("Overrideing the certs dir to: {}".format(warehouse_certs_dir))
+            logger.info("Overriding the certs dir to: {}".format(warehouse_certs_dir))
 
 
         logger.info("using creds: {}".format(hashed_credentials))
@@ -235,7 +235,7 @@ class ThinInstallerUtils(object):
         if not certs_dir:
             sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
             logger.info("sophos_certs_dir: {}".format(sophos_certs_dir))
-        else:
+        else:            
             sophos_certs_dir = certs_dir
         if not mcs_ca:
             mcs_ca = os.path.join(PathManager.get_support_file_path(), "CloudAutomation/root-ca.crt.pem")
@@ -246,16 +246,19 @@ class ThinInstallerUtils(object):
             except KeyError:
                 pass
         else:
+            logger.info("Set sophos_certs_dir to: {}".format(sophos_certs_dir))
             test_using_prod = ""
             try:
                 test_using_prod = os.environ['TEST_USING_PROD']
             except KeyError:
                 pass
             if test_using_prod != "":
+                logger.info("set override_sophos_certs environment variable")
                 self.env["OVERRIDE_SOPHOS_CERTS"] = sophos_certs_dir
             else:
                 try:
                     del self.env['OVERRIDE_SOPHOS_CERTS']
+                    logger.info("cleared override_sophos_certs environment variable")
                 except KeyError:
                     pass
         self.env["MCS_CA"] = mcs_ca
