@@ -4,8 +4,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "avscanner/avscannerimpl/SystemCallWrapperFactory.h"
 #include "avscanner/mountinfoimpl/DeviceUtil.h"
+#include "avscanner/mountinfoimpl/SystemCallWrapperFactory.h"
 
 #include <gmock/gmock.h>
 #include <linux/magic.h>

@@ -14,8 +14,8 @@ add_library(avscannerimpl SHARED
         ../mountinfo/IMountInfo.h
         ../mountinfo/IMountPoint.h
         IRunner.h
-        ISystemCallWrapper.h
-        ISystemCallWrapperFactory.h
+        ../mountinfoimpl/ISystemCallWrapper.h
+        ../mountinfoimpl/ISystemCallWrapperFactory.h
         ../mountinfo/ISystemPaths.h
         ISystemPathsFactory.h
         ../mountinfoimpl/Mounts.cpp
@@ -31,9 +31,9 @@ add_library(avscannerimpl SHARED
         ScanClient.cpp
         ScanClient.h
         ../mountinfoimpl/SystemPaths.h
-        SystemCallWrapper.h
-        SystemCallWrapperFactory.cpp
-        SystemCallWrapperFactory.h
+        ../mountinfoimpl/SystemCallWrapper.h
+        ../mountinfoimpl/SystemCallWrapperFactory.cpp
+        ../mountinfoimpl/SystemCallWrapperFactory.h
         SystemPathsFactory.cpp
         SystemPathsFactory.h)
 
