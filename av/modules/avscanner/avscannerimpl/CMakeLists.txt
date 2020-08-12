@@ -11,7 +11,7 @@ add_library(avscannerimpl SHARED
         Exclusion.h
         Logger.cpp
         Logger.h
-        IMountInfo.h
+        ../mountinfo/IMountInfo.h
         ../mountinfo/IMountPoint.h
         IRunner.h
         ISystemCallWrapper.h

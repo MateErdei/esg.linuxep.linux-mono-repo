@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IMountInfo.h"
+#include "avscanner/mountinfo/IMountInfo.h"
 
 #include <unixsocket/threatDetectorSocket/IScanningClientSocket.h>
 

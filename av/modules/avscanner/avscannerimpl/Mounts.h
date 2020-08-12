@@ -7,8 +7,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "DeviceUtil.h"
-#include "IMountInfo.h"
 #include "ISystemPaths.h"
+
+#include "avscanner/mountinfo/IMountInfo.h"
 
 #include <memory>
 
