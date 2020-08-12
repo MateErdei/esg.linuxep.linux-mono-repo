@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "DeviceUtil.h"
 #include "IMountInfo.h"
-#include "ISystemPathsFactory.h"
+#include "ISystemPaths.h"
 
 #include <memory>
 
