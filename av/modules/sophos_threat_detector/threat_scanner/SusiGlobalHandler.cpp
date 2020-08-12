@@ -54,8 +54,9 @@ SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
         // This can fail for reasons outside the programs control, therefore is an exception
         // rather then an assert
         std::ostringstream ost;
-        ost << "Unable to initialize SUSI: 0x" << std::hex << res << std::dec;
-        LOGERROR(ost.str());
+        ost << "SUSI failed: 0x" << std::hex << res << std::dec;
+        LOGERROR("Initializing    " << ost.str());
+        ost << "Initializing " << ost.str();
         throw std::runtime_error(ost.str());
     }
     else

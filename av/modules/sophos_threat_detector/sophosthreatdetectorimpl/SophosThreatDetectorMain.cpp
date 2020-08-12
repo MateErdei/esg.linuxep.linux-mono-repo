@@ -43,7 +43,7 @@ static int inner_main()
     int ret = ::chroot(chrootPath.c_str());
     if (ret != 0)
     {
-        LOGERROR("Failed to chroot to " << chrootPath);
+        LOGERROR("Running    chroot to " << chrootPath << " failed");
         exit(EXIT_FAILURE);
     }
 
@@ -72,12 +72,12 @@ int sspl::sophosthreatdetectorimpl::sophos_threat_detector_main()
     }
     catch (std::exception& ex)
     {
-        LOGERROR("Caught std::exception: "<<ex.what() << " at top level");
+        LOGERROR("Caught    std::exception: "<<ex.what() << " at top level");
         return 101;
     }
     catch(...)
     {
-        LOGERROR("Caught exception at top-level");
+        LOGERROR("Caught    unknown exception at top-level");
         return 100;
     }
 }

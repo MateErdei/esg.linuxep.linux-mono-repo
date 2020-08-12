@@ -59,7 +59,8 @@ void ThreatDetected::setFilePath(const std::string& filePath)
 {
     if (filePath.empty())
     {
-        LOGERROR("Attempting to set threat report with empty path");
+        // TODO: Should this be a warning?
+        LOGERROR("Missing    path in threat report: empty string");
     }
 
     m_filePath = filePath;
@@ -87,7 +88,8 @@ std::string ThreatDetected::serialise() const
 
     if (m_filePath.empty())
     {
-        LOGERROR("Attempting to serialise threat report with empty path");
+        // TODO: Should this be a warning?
+        LOGERROR("Missing    path while serialising threat report: empty string");
     }
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
@@ -97,7 +99,8 @@ std::string ThreatDetected::serialise() const
     auto reader = threatDetectedBuilder.asReader();
     if (!reader.hasThreatName())
     {
-        LOGERROR("Did not receive a threat name");
+        // TODO: Should this be a warning?
+        LOGERROR("Missing    did not receive a threat name in threat report");
     }
 
     return dataAsString;

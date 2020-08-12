@@ -63,7 +63,7 @@ void manager::scheduler::ScanScheduler::run()
         if (ret < 0)
         {
             // handle error
-            LOGERROR("Scheduled failed: " << errno);
+            LOGERROR("Starting    scheduled scan failed: " << errno);
             break;
         }
         else if (ret > 0)

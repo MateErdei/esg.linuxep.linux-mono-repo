@@ -49,7 +49,7 @@ int main()
     }
     catch (const Common::PluginApi::ApiException & apiException)
     {
-        LOGERROR("Plugin Api could not be instantiated: " << apiException.what());
+        LOGERROR("Instantiating    Plugin Api failed: " << apiException.what());
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
@@ -61,7 +61,7 @@ int main()
     }
     catch (const std::exception& ex)
     {
-        LOGERROR("Plugin threw an exception at top level: " << ex.what());
+        LOGERROR("Caught    exception that plugin threw at top level: " << ex.what());
         ret = 40;
     }
     LOGINFO("Plugin Finished.");

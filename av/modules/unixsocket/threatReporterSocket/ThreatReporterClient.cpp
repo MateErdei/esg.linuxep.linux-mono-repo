@@ -53,6 +53,6 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGERROR("Threat Report Client cannot write to socket: " << e.what());
+        LOGERROR("Writing    to socket by Threat Report Client failed: " << e.what());
     }
 }

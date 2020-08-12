@@ -220,7 +220,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                     execv(path.c_str(), argv);
                     // never returns
-                    LOGERROR("execv failed");
+                    LOGERROR("Running    \"execv : " << path.c_str() << "\" failed");
                     _exit(1);
                 }
                 default:
@@ -263,7 +263,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                     if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) // NOLINT(hicpp-signed-bitwise)
                     {
-                        LOGWARN("Executing    " << path << " failed");
+                        LOGWARN("Running    " << path << " failed");
                         result = "";
                     }
                     break;

@@ -99,7 +99,7 @@ namespace
             }
             catch (const std::exception& e)
             {
-                LOGERROR("Scanner failed to scan: " << p << " [" << e.what() << "]");
+                LOGERROR("Scanning    " << p << " [" << e.what() << "] failed");
                 m_returnCode = E_GENERIC_FAILURE;
             }
         }

@@ -115,7 +115,8 @@ std::string unixsocket::generateThreatDetectedXml(const scan_messages::ServerThr
     std::string path = detection.getFilePath();
     if (path.size() == 0)
     {
-        LOGERROR("Received threat report with empty path!");
+        // TODO: Should this be a warning?
+        LOGERROR("Missing    path from threat report while generating xml: empty string");
     }
 
     std::string utf8Path = toUtf8(path);

@@ -88,7 +88,8 @@ static scan_messages::ServerThreatDetected parseDetection(kj::Array<capnp::word>
 
     if (!requestReader.hasFilePath())
     {
-        LOGERROR("parseDetection: report ( size=" << bytes_read <<") doesn't have file path!");
+        // TODO: Should this be a warning?
+        LOGERROR("Missing    file path while parsing binary threat");
     }
     return scan_messages::ServerThreatDetected(requestReader);
 }
@@ -120,7 +121,7 @@ void ThreatReporterServerConnectionThread::run()
 
         if (activity < 0)
         {
-            LOGERROR("Socket failed: " << errno);
+            LOGERROR("Closing    socket because it failed: " << errno);
             break;
         }
 
@@ -146,7 +147,7 @@ void ThreatReporterServerConnectionThread::run()
             }
             else if (length < 0)
             {
-                LOGERROR("ThreatReporter Connection Thread aborting connection: failed to read length");
+                LOGERROR("Aborting    ThreatReporter Connection Thread: failed to read length");
                 break;
             }
             else if (length == 0)
@@ -170,7 +171,7 @@ void ThreatReporterServerConnectionThread::run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read != length)
             {
-                LOGERROR("Aborting connection: failed to read capn proto");
+                LOGERROR("Aborting    connection: failed to read capn proto");
                 break;
             }
 
@@ -179,11 +180,13 @@ void ThreatReporterServerConnectionThread::run()
 
             if (!detectionReader.hasFilePath())
             {
-                LOGERROR("Detection report ( size=" << bytes_read <<") doesn't have file path!");
+                // TODO: Should this be a warning?
+                LOGERROR("Missing    file path in detection report");
             }
             else if (detectionReader.getFilePath() == "")
             {
-                LOGERROR("Detection report has empty file path!");
+                // TODO: Should this be a warning?
+                LOGERROR("Missing    file path in detection report: empty file path");
             }
             m_callback->processMessage(generateThreatDetectedXml(detectionReader));
 

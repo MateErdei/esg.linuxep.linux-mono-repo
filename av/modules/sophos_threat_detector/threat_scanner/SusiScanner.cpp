@@ -49,7 +49,8 @@ void SusiScanner::sendThreatReport(
 {
     if (threatPath.empty())
     {
-        LOGERROR("ERROR: sendThreatReport with empty path!");
+        // TODO: Should this be a warning?
+        LOGERROR("Missing    path while sending Threat Report: empty string");
     }
 
     fs::path threatReporterSocketPath = threat_reporter_socket();
@@ -106,7 +107,7 @@ SusiScanner::scan(
             {
                 for (auto detection : result["detections"])
                 {
-                    LOGERROR("Detected " << detection["threatName"] << " in " << result["path"]);
+                    LOGERROR("Detected    " << detection["threatName"] << " in " << detection["path"]);
                     response.setThreatName(detection["threatName"]);
                     response.setFullScanResult(scanResultUTF8);
                 }
@@ -115,7 +116,7 @@ SusiScanner::scan(
         catch (const std::exception& e)
         {
             // CORE-1517 - Until SUSI responses are always valid JSON
-            LOGERROR("Failed to parse response from SUSI: " << e.what());
+            LOGERROR("Parsing    SUSI response failed: " << e.what());
         }
     }
 

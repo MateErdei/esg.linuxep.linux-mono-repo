@@ -123,7 +123,7 @@ time_t ScheduledScan::calculateNextTime(time_t now) const
     result = ::localtime_r(&now, &now_struct);
     if (result == nullptr)
     {
-        LOGERROR("Failed get localtime for now");
+        LOGERROR("Scheduling    scan failed: could not get localtime to calculate next scan time");
         // Throw exception?
         return static_cast<time_t>(-1);
     }

@@ -105,7 +105,7 @@ void unixsocket::BaseServerSocket::run()
         if (activity < 0)
         {
             // handle error
-            LOGERROR("Socket failed: " << errno);
+            LOGERROR("Closing    socket because it failed: " << errno);
             break;
         }
 

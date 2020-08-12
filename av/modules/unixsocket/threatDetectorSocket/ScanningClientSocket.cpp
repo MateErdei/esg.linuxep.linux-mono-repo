@@ -94,7 +94,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGERROR("Failed to write capn buffer to unix socket, scan request not send to the socket : " << e.what());
+        LOGERROR("Writing   capnp buffer to unix socket failed, no scan request sent: " << e.what());
         handle_error("Scan terminated failed to initiate scan");
     }
 
@@ -103,7 +103,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     int32_t length = unixsocket::readLength(m_socket_fd);
     if (length < 0)
     {
-        LOGERROR("Aborting connection: failed to read length");
+        LOGERROR("Aborting    connection: failed to read length");
         handle_error ("Failed to read length");
     }
 
@@ -115,7 +115,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     ssize_t bytes_read = ::read(m_socket_fd, proto_buffer.begin(), length);
     if (bytes_read != length)
     {
-        LOGERROR("Aborting connection: failed to read capn proto");
+        LOGERROR("Aborting    connection: failed to read capn proto");
         handle_error ("Failed to read capn proto");
     }
 

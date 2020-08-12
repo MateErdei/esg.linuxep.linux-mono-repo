@@ -88,10 +88,10 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         {
             std::string output = process->output();
             process->waitUntilProcessEnds();
-            LOGERROR("sophos_threat_detector exiting with "<< process->exitCode());
+            LOGERROR("Exiting    sophos_threat_detector with code: "<< process->exitCode());
             if (!output.empty())
             {
-                LOGERROR("Output: " << output);
+                LOGERROR("Exiting    sophos_threat_detector output: " << output);
             }
             nanosleep(&restartBackoff, nullptr);
             restartBackoff.tv_sec += 1;

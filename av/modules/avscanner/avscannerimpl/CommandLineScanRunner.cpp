@@ -97,7 +97,7 @@ namespace
                 m_scanner.scan(p);
             } catch (const std::exception& e)
             {
-                LOGERROR("Scanner failed to scan: " << escapedPath << " [" << e.what() << "]");
+                LOGERROR("Scanning    " << escapedPath << " [" << e.what() << "] failed");
 
                 m_returnCode = E_GENERIC_FAILURE;
             }
