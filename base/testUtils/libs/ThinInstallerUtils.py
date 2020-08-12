@@ -169,7 +169,7 @@ class ThinInstallerUtils(object):
         os.chmod(target_path, 0o700)
 
     def configure_and_run_thininstaller_using_real_warehouse_policy(self, expected_return_code, policy_file_path, message_relays=None,
-                                                                    proxy=None, update_caches=None, bad_url=False, args=None, mcs_ca=None, real=False):
+                                                                    proxy=None, update_caches=None, bad_url=False, args=None, mcs_ca=None, real=False, override_certs_dir=None):
         command = [self.default_installsh_path]
         if args:
             split_args = args.split(" ")
@@ -191,6 +191,9 @@ class ThinInstallerUtils(object):
         except KeyError:
             hashed_credentials, connection_address = extract_hashed_credentials_from_alc_policy(policy_file_path)
             warehouse_certs_dir = "system"
+        if override_certs_dir:
+            warehouse_certs_dir = override_certs_dir
+            logger.info("Overrideing the certs dir to: {}".format(warehouse_certs_dir))
 
 
         logger.info("using creds: {}".format(hashed_credentials))
