@@ -16,7 +16,7 @@ add_library(avscannerimpl SHARED
         IRunner.h
         ISystemCallWrapper.h
         ISystemCallWrapperFactory.h
-        ISystemPaths.h
+        ../mountinfo/ISystemPaths.h
         ISystemPathsFactory.h
         Mounts.cpp
         Mounts.h

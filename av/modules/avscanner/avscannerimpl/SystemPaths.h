@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ISystemPaths.h"
+#include "avscanner/mountinfo/ISystemPaths.h"
 
 namespace avscanner::avscannerimpl
 {
