@@ -18,8 +18,8 @@ add_library(avscannerimpl SHARED
         ISystemCallWrapperFactory.h
         ../mountinfo/ISystemPaths.h
         ISystemPathsFactory.h
-        Mounts.cpp
-        Mounts.h
+        ../mountinfoimpl/Mounts.cpp
+        ../mountinfoimpl/Mounts.h
         NamedScanConfig.cpp
         NamedScanConfig.h
         NamedScanRunner.cpp

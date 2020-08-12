@@ -4,13 +4,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gmock/gmock.h>
-
-#include "avscanner/avscannerimpl/Mounts.h"
-
+#include "avscanner/mountinfoimpl/Mounts.h"
 #include "datatypes/sophos_filesystem.h"
 
+#include <gmock/gmock.h>
+
 #include <fstream>
+
 #include <sys/stat.h>
 
 namespace fs = sophos_filesystem;

@@ -7,17 +7,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "NamedScanRunner.h"
 
 #include "BaseFileWalkCallbacks.h"
-#include "Mounts.h"
 #include "PathUtils.h"
 #include "ScanClient.h"
 
-#include <filewalker/FileWalker.h>
+#include "avscanner/mountinfoimpl/Mounts.h"
 
 #include <capnp/message.h>
+#include <common/StringUtils.h>
+#include <filewalker/FileWalker.h>
 
 #include <fstream>
-#include <common/StringUtils.h>
-
 
 using namespace avscanner::avscannerimpl;
 

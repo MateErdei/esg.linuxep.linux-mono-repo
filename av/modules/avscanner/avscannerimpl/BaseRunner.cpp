@@ -6,9 +6,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "BaseRunner.h"
 
-#include "Mounts.h"
 #include "SystemPathsFactory.h"
 
+#include "avscanner/mountinfoimpl/Mounts.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
