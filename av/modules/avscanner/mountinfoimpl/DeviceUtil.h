@@ -18,6 +18,7 @@ namespace avscanner::avscannerimpl
     {
     public:
         explicit DeviceUtil(std::shared_ptr<ISystemCallWrapperFactory> systemCallWrapperFactory);
+        explicit DeviceUtil(std::shared_ptr<ISystemCallWrapper> systemCallWrapper);
 
         /**
          * Determine if the device specified is a floppy drive.

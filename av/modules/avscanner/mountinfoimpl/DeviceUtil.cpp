@@ -25,9 +25,13 @@ extern "C"
 using namespace avscanner::avscannerimpl;
 
 DeviceUtil::DeviceUtil(std::shared_ptr<ISystemCallWrapperFactory> systemCallWrapperFactory)
-: m_systemCallWrapper(systemCallWrapperFactory->createSystemCallWrapper())
+: DeviceUtil(systemCallWrapperFactory->createSystemCallWrapper())
 {
+}
 
+DeviceUtil::DeviceUtil(std::shared_ptr<ISystemCallWrapper> systemCallWrapper)
+    : m_systemCallWrapper(std::move(systemCallWrapper))
+{
 }
 
 /**
@@ -128,7 +132,7 @@ bool DeviceUtil::isNetwork(const std::string& devicePath, const std::string& mou
     }
 
     // Also look at the device path
-    if (devicePath[0] != '/' && devicePath.find_first_of(":") != std::string::npos)
+    if (devicePath[0] != '/' && devicePath.find_first_of(':') != std::string::npos)
     {
         return true;
     }
