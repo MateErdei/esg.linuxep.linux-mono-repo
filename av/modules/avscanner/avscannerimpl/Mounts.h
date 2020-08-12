@@ -86,6 +86,13 @@ namespace avscanner::avscannerimpl
 
 
         /**
+         * Iterator for the list of mount points.
+         */
+        std::vector<std::shared_ptr<IMountPoint> > mountPoints() override;
+
+    private:
+
+        /**
          * Run a command and collect the output.
          * @return an empty string on error.  This is obviously ambiguous with
          * successfully running a command which returns no output; however for our needs
@@ -96,12 +103,7 @@ namespace avscanner::avscannerimpl
          */
         std::string scrape(const std::string& path, const std::vector<std::string>& args);
 
-        /**
-         * Iterator for the list of mount points.
-         */
-        std::vector<std::shared_ptr<IMountPoint> > mountPoints() override;
 
-    private:
         std::shared_ptr<ISystemPaths> m_systemPaths;
         std::vector<std::shared_ptr<IMountPoint> > m_devices;
 
