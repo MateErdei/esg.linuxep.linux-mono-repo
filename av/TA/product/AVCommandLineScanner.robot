@@ -82,7 +82,7 @@ CLS No args
 CLS Can Scan Clean File
 
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_eicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
@@ -92,7 +92,7 @@ CLS Can Scan Clean File
 CLS Does Not Ordinarily Output To Stderr
 
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_eicar 1>/dev/null
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file 1>/dev/null
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
