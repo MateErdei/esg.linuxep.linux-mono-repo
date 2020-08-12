@@ -70,6 +70,7 @@ namespace avscanner::avscannerimpl
          * constructor
          */
         explicit Mounts(ISystemPathsSharedPtr systemPaths);
+        Mounts(const Mounts&) = delete;
 
 
         /**
