@@ -19,17 +19,17 @@ namespace avscanner::avscannerimpl
     public:
         void setSocket(std::shared_ptr<unixsocket::IScanningClientSocket> ptr) override;
 
-        void setMountInfo(std::shared_ptr<IMountInfo> ptr) override;
+        void setMountInfo(mountinfo::IMountInfoSharedPtr ptr) override;
 
     protected:
         std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;
-        std::shared_ptr<IMountInfo> m_mountInfo;
+        mountinfo::IMountInfoSharedPtr m_mountInfo;
 
         /**
          * Get or create mount info.
          * @return
          */
-        std::shared_ptr<IMountInfo> getMountInfo();
+        mountinfo::IMountInfoSharedPtr getMountInfo();
         /**
          * Get or create a scanning socket
          * @return

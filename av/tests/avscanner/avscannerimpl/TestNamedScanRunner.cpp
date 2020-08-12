@@ -18,6 +18,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/message.h>
 
 using namespace avscanner::avscannerimpl;
+using namespace avscanner::mountinfo;
 using ::testing::Return;
 using ::testing::StrictMock;
 
@@ -124,7 +125,7 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
     EXPECT_CALL(*specialDevice, isSpecial()).WillOnce(Return(true));
 
     ::capnp::MallocMessageBuilder message;
-    IMountPointSharedVector allMountpoints;
+    avscanner::mountinfo::IMountPointSharedVector allMountpoints;
     allMountpoints.push_back(localFixedDevice);
     allMountpoints.push_back(networkDevice);
     allMountpoints.push_back(opticalDevice);

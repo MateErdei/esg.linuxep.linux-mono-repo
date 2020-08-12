@@ -47,12 +47,12 @@ std::shared_ptr<unixsocket::IScanningClientSocket> BaseRunner::getSocket()
     return m_socket;
 }
 
-void BaseRunner::setMountInfo(std::shared_ptr<IMountInfo> ptr)
+void BaseRunner::setMountInfo(mountinfo::IMountInfoSharedPtr ptr)
 {
     m_mountInfo = std::move(ptr);
 }
 
-std::shared_ptr<IMountInfo> BaseRunner::getMountInfo()
+avscanner::mountinfo::IMountInfoSharedPtr BaseRunner::getMountInfo()
 {
     if (!m_mountInfo)
     {

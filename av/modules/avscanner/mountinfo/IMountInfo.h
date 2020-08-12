@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <vector>
 
-namespace avscanner::avscannerimpl
+namespace avscanner::mountinfo
 {
     using IMountPointSharedVector = std::vector<mountinfo::IMountPointSharedPtr>;
 
@@ -28,4 +28,6 @@ namespace avscanner::avscannerimpl
         virtual IMountPointSharedVector mountPoints() = 0;
 
     };
+
+    using IMountInfoSharedPtr = std::shared_ptr<IMountInfo>;
 }

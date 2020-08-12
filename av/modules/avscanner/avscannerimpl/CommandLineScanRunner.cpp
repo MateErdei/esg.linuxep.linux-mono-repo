@@ -159,7 +159,7 @@ int CommandLineScanRunner::run()
     LOGINFO("Archive scanning enabled: " << printArchiveScanning);
 
     // evaluate mount information
-    std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
+    auto mountInfo = getMountInfo();
     auto allMountpoints = mountInfo->mountPoints();
 
     std::vector<fs::path> excludedMountPoints;

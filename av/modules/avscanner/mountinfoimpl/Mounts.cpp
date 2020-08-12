@@ -374,7 +374,7 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
 /**
  * Iterator for the list of mount points.
  */
-IMountPointSharedVector Mounts::mountPoints()
+avscanner::mountinfo::IMountPointSharedVector Mounts::mountPoints()
 {
     return m_devices;
 }

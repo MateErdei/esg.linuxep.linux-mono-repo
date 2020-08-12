@@ -63,7 +63,7 @@ namespace
                 ScanClient scanner,
                 std::vector<fs::path> mountExclusions,
                 NamedScanConfig& config,
-                IMountPointSharedVector allMountPoints
+                avscanner::mountinfo::IMountPointSharedVector allMountPoints
                 )
                 : BaseFileWalkCallbacks(std::move(scanner))
                 , m_mountExclusions(std::move(mountExclusions))
@@ -126,13 +126,14 @@ namespace
     private:
         std::vector<fs::path> m_mountExclusions;
         NamedScanConfig& m_config;
-        IMountPointSharedVector m_allMountPoints;
+        avscanner::mountinfo::IMountPointSharedVector m_allMountPoints;
     };
 }
 
-IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(const IMountPointSharedVector& allMountpoints)
+avscanner::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(
+    const avscanner::mountinfo::IMountPointSharedVector& allMountpoints)
 {
-    IMountPointSharedVector includedMountpoints;
+    avscanner::mountinfo::IMountPointSharedVector includedMountpoints;
     for (const auto & mp : allMountpoints)
     {
         if ((mp->isHardDisc() && m_config.m_scanHardDisc) ||
@@ -157,10 +158,10 @@ IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(const IMountPoin
 int NamedScanRunner::run()
 {
     // work out which filesystems are included based of config and mount information
-    std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
-    IMountPointSharedVector allMountpoints = mountInfo->mountPoints();
+    mountinfo::IMountInfoSharedPtr mountInfo = getMountInfo();
+    mountinfo::IMountPointSharedVector allMountpoints = mountInfo->mountPoints();
     LOGINFO("Found "<< allMountpoints.size() << " mount points");
-    IMountPointSharedVector includedMountpoints = getIncludedMountpoints(allMountpoints);
+    mountinfo::IMountPointSharedVector includedMountpoints = getIncludedMountpoints(allMountpoints);
 
     std::vector<fs::path> excludedMountPoints;
     excludedMountPoints.reserve(allMountpoints.size());

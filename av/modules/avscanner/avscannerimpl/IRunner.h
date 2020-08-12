@@ -19,6 +19,6 @@ namespace avscanner::avscannerimpl
     public:
         virtual int run() = 0;
         virtual void setSocket(std::shared_ptr<unixsocket::IScanningClientSocket>) = 0;
-        virtual void setMountInfo(std::shared_ptr<IMountInfo>) = 0;
+        virtual void setMountInfo(mountinfo::IMountInfoSharedPtr) = 0;
     };
 }

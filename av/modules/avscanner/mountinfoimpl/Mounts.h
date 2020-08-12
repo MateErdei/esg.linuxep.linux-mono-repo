@@ -15,7 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace avscanner::avscannerimpl
 {
-    class Mounts : virtual public IMountInfo
+    class Mounts : virtual public mountinfo::IMountInfo
     {
 
     public:
@@ -90,7 +90,7 @@ namespace avscanner::avscannerimpl
         /**
          * Iterator for the list of mount points.
          */
-        IMountPointSharedVector mountPoints() override;
+        mountinfo::IMountPointSharedVector mountPoints() override;
 
     private:
 
@@ -107,7 +107,7 @@ namespace avscanner::avscannerimpl
 
 
         std::shared_ptr<ISystemPaths> m_systemPaths;
-        IMountPointSharedVector m_devices;
+        mountinfo::IMountPointSharedVector m_devices;
 
         /**
          * Returns the path to the real mount point for a listing in /proc/mounts
