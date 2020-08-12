@@ -300,6 +300,8 @@ function build()
         untar_input susi "" "" optional
         untar_input openssl
         unzip_lrdata
+    else
+        set_gcc_make
     fi
 
     addpath "$REDIST/cmake/bin"

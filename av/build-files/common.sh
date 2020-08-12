@@ -18,6 +18,27 @@ function failure()
     exitFailure 1 "$@"
 }
 
+function set_gcc_make()
+{
+    if [[ -d /build/input/gcc ]]
+    then
+        ## Already unpacked
+        echo "WARNING: Using existing unpacked gcc"
+        export PATH=/build/input/gcc/bin:$PATH
+        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
+        export CC=/build/input/gcc/bin/gcc
+        export CXX=/build/input/gcc/bin/g++
+    elif [[ -f /usr/local/bin/gcc ]]
+    then
+        ## Locally built gcc
+        echo "WARNING: Using gcc from /usr/local/bin"
+        export PATH=/usr/local/bin:$PATH
+        export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH
+        export CC=/usr/local/bin/gcc
+        export CXX=/usr/local/bin/g++
+    fi
+}
+
 function unpack_scaffold_gcc_make()
 {
     local INPUT="$1"
