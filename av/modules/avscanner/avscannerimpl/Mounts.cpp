@@ -159,30 +159,6 @@ std::string Mounts::device(const std::string& mountPoint) const
 }
 
 /**
- *
- * @param device
- * @param mountPoint
- * @param type
- */
-Mounts::Drive::Drive(std::string device, std::string mountPoint, std::string type)
-    : m_deviceUtil(std::make_shared<DeviceUtil>(std::make_shared<SystemCallWrapperFactory>()))
-    , m_mountPoint(std::move(mountPoint))
-    , m_device(std::move(device))
-    , m_fileSystem(std::move(type))
-{
-}
-
-std::string Mounts::Drive::mountPoint() const
-{
-    return m_mountPoint;
-}
-
-std::string Mounts::Drive::device() const
-{
-    return m_device;
-}
-
-/**
  * Run a command and collect the output.
  * @return an empty string on error.  This is obviously ambiguous with
  * successfully running a command which returns no output; however for our needs
@@ -400,6 +376,34 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
 std::vector<std::shared_ptr<IMountPoint>> Mounts::mountPoints()
 {
     return m_devices;
+}
+
+//======================================================================================================================
+// DRIVE
+//======================================================================================================================
+
+/**
+ *
+ * @param device
+ * @param mountPoint
+ * @param type
+ */
+Mounts::Drive::Drive(std::string device, std::string mountPoint, std::string type)
+    : m_deviceUtil(std::make_shared<DeviceUtil>(std::make_shared<SystemCallWrapperFactory>()))
+    , m_mountPoint(std::move(mountPoint))
+    , m_device(std::move(device))
+    , m_fileSystem(std::move(type))
+{
+}
+
+std::string Mounts::Drive::mountPoint() const
+{
+    return m_mountPoint;
+}
+
+std::string Mounts::Drive::device() const
+{
+    return m_device;
 }
 
 std::string Mounts::Drive::filesystemType() const
