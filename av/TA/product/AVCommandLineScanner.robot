@@ -96,7 +96,7 @@ CLS Does Not Ordinarily Output To Stderr
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
-    Should Not Be Empty  ${output}
+    Should Be Empty  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
