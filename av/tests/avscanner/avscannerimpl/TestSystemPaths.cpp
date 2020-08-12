@@ -4,9 +4,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
+#include "avscanner/mountinfoimpl/SystemPaths.h"
 
-#include "avscanner/avscannerimpl/SystemPaths.h"
+#include <gtest/gtest.h>
 
 using namespace avscanner::avscannerimpl;
 

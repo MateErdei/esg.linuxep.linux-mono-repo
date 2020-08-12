@@ -30,7 +30,7 @@ add_library(avscannerimpl SHARED
         PathUtils.h
         ScanClient.cpp
         ScanClient.h
-        SystemPaths.h
+        ../mountinfoimpl/SystemPaths.h
         SystemCallWrapper.h
         SystemCallWrapperFactory.cpp
         SystemCallWrapperFactory.h
