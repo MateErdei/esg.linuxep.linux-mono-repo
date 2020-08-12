@@ -81,11 +81,22 @@ CLS No args
 
 CLS Can Scan Clean File
 
-    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_eicar
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+
+CLS Does Not Ordinarily Output To Stderr
+
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_eicar 1>/dev/null
+
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
+    Should Not Be Empty  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
