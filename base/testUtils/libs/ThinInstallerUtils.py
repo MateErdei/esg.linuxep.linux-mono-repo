@@ -253,7 +253,7 @@ class ThinInstallerUtils(object):
             except KeyError:
                 pass
             logger.info("test_using_prod {}".format(test_using_prod))
-            if test_using_prod != "":
+            if not test_using_prod:
                 logger.info("set override_sophos_certs environment variable")
                 self.env["OVERRIDE_SOPHOS_CERTS"] = sophos_certs_dir
             else:
