@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IMountPoint.h"
+#include "avscanner/mountinfo/IMountPoint.h"
 
 #include <memory>
 #include <vector>

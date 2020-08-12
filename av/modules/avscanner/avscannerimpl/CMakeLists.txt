@@ -12,7 +12,7 @@ add_library(avscannerimpl SHARED
         Logger.cpp
         Logger.h
         IMountInfo.h
-        IMountPoint.h
+        ../mountinfo/IMountPoint.h
         IRunner.h
         ISystemCallWrapper.h
         ISystemCallWrapperFactory.h

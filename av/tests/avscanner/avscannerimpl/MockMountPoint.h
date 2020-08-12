@@ -6,9 +6,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <gmock/gmock.h>
+#include "avscanner/mountinfo/IMountPoint.h"
 
-#include "avscanner/avscannerimpl/IMountPoint.h"
+#include <gmock/gmock.h>
 
 class MockMountPoint : public avscanner::avscannerimpl::IMountPoint
 {
