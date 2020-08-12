@@ -85,6 +85,15 @@ do
             CLEAN=0
             UNITTEST=1
             ;;
+        --centos7-local|--centos7|--centos)
+            export ENABLE_STRIP=0
+            CMAKE_BUILD_TYPE=Debug
+            LOCAL_GCC=0
+            LOCAL_CMAKE=0
+            NPROC=1
+            CLEAN=0
+            UNITTEST=1
+            ;;
         --no-debug)
             export ENABLE_STRIP=1
             CMAKE_BUILD_TYPE=RelWithDebInfo
