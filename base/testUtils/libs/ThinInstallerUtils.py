@@ -252,11 +252,14 @@ class ThinInstallerUtils(object):
                 test_using_prod = os.environ['TEST_USING_PROD']
             except KeyError:
                 pass
+            logger.info("test_using_prod {}".format(test_using_prod))
             if test_using_prod != "":
                 logger.info("set override_sophos_certs environment variable")
                 self.env["OVERRIDE_SOPHOS_CERTS"] = sophos_certs_dir
             else:
+                logger.info("branch not usng prod")
                 try:
+                    logger.info("try to remove override_sophos_certs")
                     del self.env['OVERRIDE_SOPHOS_CERTS']
                     logger.info("cleared override_sophos_certs environment variable")
                 except KeyError:
