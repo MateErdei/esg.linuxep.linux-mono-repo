@@ -22,3 +22,15 @@ SET_TARGET_PROPERTIES(TestAVScannerImpl
         INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
+
+
+add_executable(PrintMounts
+        PrintMounts.cpp
+        )
+target_link_libraries(PrintMounts PRIVATE
+        avscannerimpl
+        )
+target_include_directories(PrintMounts PUBLIC
+        ${CMAKE_SOURCE_DIR}/modules
+        ${pluginapiinclude}
+        ${CMAKE_CURRENT_BINARY_DIR})
