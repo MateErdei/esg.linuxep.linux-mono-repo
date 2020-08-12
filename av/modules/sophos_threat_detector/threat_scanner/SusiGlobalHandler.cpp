@@ -61,13 +61,15 @@ SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
     }
     else
     {
-        LOGINFO("Global Susi initialisation successful");
+        // TODO: Should this be LOGSUPPORT?
+        LOGINFO("Initialising    Global Susi successful");
     }
 }
 
 SusiGlobalHandler::~SusiGlobalHandler()
 {
     SusiResult res = SUSI_Terminate();
-    LOGINFO("Global Susi destroyed res=" << std::hex << res << std::dec);
+    // TODO: Should this be LOGSUPPORT?
+    LOGINFO("Exiting    Global Susi result =" << std::hex << res << std::dec);
     assert(res == SUSI_S_OK);
 }

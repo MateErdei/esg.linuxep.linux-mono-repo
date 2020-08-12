@@ -160,7 +160,7 @@ int NamedScanRunner::run()
     // work out which filesystems are included based of config and mount information
     std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
-    LOGINFO("Found "<< allMountpoints.size() << " mount points");
+    LOGINFO("Found    "<< allMountpoints.size() << " mount points");
     std::vector<std::shared_ptr<IMountPoint>> includedMountpoints = getIncludedMountpoints(allMountpoints);
 
     std::vector<fs::path> excludedMountPoints;
@@ -182,7 +182,7 @@ int NamedScanRunner::run()
     for (auto & mp : includedMountpoints)
     {
         std::string mountpointToScan = mp->mountPoint();
-        LOGINFO("Scanning mount point: " << mountpointToScan);
+        LOGINFO("Scanning    mount point: " << mountpointToScan);
         try
         {
             filewalker::walk(mountpointToScan, callbacks);

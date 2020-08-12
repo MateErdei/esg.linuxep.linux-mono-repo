@@ -93,7 +93,8 @@ void unixsocket::BaseServerSocket::run()
 
     // Announce after we have started listening
     announceThreadStarted();
-    LOGINFO("Listener started");
+    // TODO: Should this be LOGSUPPORT?
+    LOGINFO("Starting    listening on socket");
 
     while (!terminate)
     {
@@ -111,7 +112,8 @@ void unixsocket::BaseServerSocket::run()
 
         if (fd_isset(exitFD, &tempRead))
         {
-            LOGINFO("Closing socket");
+            // TODO: Should this be LOGSUPPORT?
+            LOGINFO("Closing    socket");
             break;
         }
 

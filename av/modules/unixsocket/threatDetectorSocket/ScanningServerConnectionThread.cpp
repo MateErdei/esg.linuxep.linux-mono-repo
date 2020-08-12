@@ -162,7 +162,8 @@ void unixsocket::ScanningServerConnectionThread::run()
 
         if (fd_isset(exitFD, &tempRead))
         {
-            LOGINFO("Closing scanning socket thread");
+            // TODO: Should this be LOGSUPPORT?
+            LOGINFO("Closing    scanning socket thread");
             break;
         }
         else // if(fd_isset(socket_fd, &tempRead))

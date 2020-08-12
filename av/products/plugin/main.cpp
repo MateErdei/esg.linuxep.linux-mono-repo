@@ -64,6 +64,7 @@ int main()
         LOGERROR("Caught    exception that plugin threw at top level: " << ex.what());
         ret = 40;
     }
-    LOGINFO("Plugin Finished.");
+    // TODO: Should this be LOGSUPPORT?
+    LOGINFO("Exiting    plugin");
     return ret;
 }

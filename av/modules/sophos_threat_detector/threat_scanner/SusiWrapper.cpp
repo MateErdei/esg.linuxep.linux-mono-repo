@@ -20,7 +20,8 @@ SusiWrapper::SusiWrapper(SusiGlobalHandlerSharePtr globalHandler, const std::str
 {
     auto res = SUSI_CreateScanner(scannerConfig.c_str(), &m_handle);
     throwIfNotOk(res, "Failed to create SUSI Scanner");
-    LOGINFO("Susi scanner constructed");
+    // TODO: Should this be LOGSUPPORT?
+    LOGINFO("Creating    SUSI scanner");
 }
 
 SusiWrapper::~SusiWrapper()
@@ -29,7 +30,8 @@ SusiWrapper::~SusiWrapper()
     {
         auto res = SUSI_DestroyScanner(m_handle);
         throwIfNotOk(res, "Failed to destroy SUSI Scanner");
-        LOGINFO("Susi scanner destroyed");
+        // TODO: Should this be LOGSUPPORT?
+        LOGINFO("Destroying    SUSI scanner");
     }
 }
 

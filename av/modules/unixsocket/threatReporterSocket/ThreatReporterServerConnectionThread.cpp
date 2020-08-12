@@ -121,13 +121,15 @@ void ThreatReporterServerConnectionThread::run()
 
         if (activity < 0)
         {
+
             LOGERROR("Closing    socket because it failed: " << errno);
             break;
         }
 
         if (fd_isset(exitFD, &tempRead))
         {
-            LOGINFO("Closing scanning socket thread");
+            // TODO: Should this be LOGSUPPORT?
+            LOGINFO("Closing    scanning socket thread");
             break;
         }
         else

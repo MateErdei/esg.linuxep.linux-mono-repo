@@ -92,22 +92,22 @@ SusiScanner::scan(
     SusiScanResult* scanResult = nullptr;
     SusiResult res = m_susi->scanFile(metaDataJson.c_str(), file_path.c_str(), fd, &scanResult);
 
-    LOGINFO("Scan result " << std::hex << res << std::dec);
+    LOGINFO("Scanning    " << file_path.c_str() << " result: " << std::hex << res << std::dec);
     if (scanResult != nullptr)
     {
         try
         {
-            LOGINFO("Details: " << scanResult->version << ", " << scanResult->scanResultJson);
+            LOGINFO("Scanning    result details: " << scanResult->version << ", " << scanResult->scanResultJson);
             std::string scanResultUTF8 = common::toUtf8(scanResult->scanResultJson, false);
 
-            LOGINFO("Converted: " << scanResultUTF8);
+            LOGINFO("Converted    to UTF8: " << scanResultUTF8);
 
             json parsedScanResult = json::parse(scanResultUTF8);
             for (auto result : parsedScanResult["results"])
             {
                 for (auto detection : result["detections"])
                 {
-                    LOGERROR("Detected    " << detection["threatName"] << " in " << detection["path"]);
+                    LOGERROR("Detected    " << detection["threatName"] << " in " << result["path"]);
                     response.setThreatName(detection["threatName"]);
                     response.setFullScanResult(scanResultUTF8);
                 }

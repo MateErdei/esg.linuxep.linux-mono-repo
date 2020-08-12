@@ -39,7 +39,9 @@ ScanScheduler::ScanScheduler(IScanComplete& completionNotifier)
 void manager::scheduler::ScanScheduler::run()
 {
     announceThreadStarted();
-    LOGINFO("Starting scan scheduler");
+
+    // TODO: Should this be LOGSUPPORT?
+    LOGINFO("Starting    scan scheduler");
 
     int exitFD = m_notifyPipe.readFd();
     int configFD = m_updateConfigurationPipe.readFd();
@@ -70,20 +72,21 @@ void manager::scheduler::ScanScheduler::run()
         {
             if (fd_isset(exitFD, &tempRead))
             {
-                LOGINFO("Exiting from scan scheduler");
+                // TODO: Should this be LOGSUPPORT?
+                LOGINFO("Exiting    from scan scheduler");
                 break;
             }
             if (fd_isset(configFD, &tempRead))
             {
-                LOGINFO("Updating scheduled scan configuration");
-                LOGINFO("No of Scheduled Scans Configured: " << m_config.scans().size());
+                LOGINFO("Updating    scheduled scan configuration");
+                LOGINFO("Config    no of Scheduled Scans: " << m_config.scans().size());
                 for (const auto& scan : m_config.scans() )
                 {
                     LOGINFO(scan.str());
                 }
-                LOGINFO("No of Exclusions Configured: " << m_config.exclusions().size());
-                LOGINFO("No of Sophos Defined Extension Exclusions Configured: " << m_config.sophosExtensionExclusions().size());
-                LOGINFO("No of User Defined Extension Exclusions Configured: " << m_config.userDefinedExtensionInclusions().size());
+                LOGINFO("Config    no of Exclusions Configured: " << m_config.exclusions().size());
+                LOGINFO("Config    no of Sophos Defined Extension Exclusions Configured: " << m_config.sophosExtensionExclusions().size());
+                LOGINFO("Config    no of User Defined Extension Exclusions Configured: " << m_config.userDefinedExtensionInclusions().size());
 
                 while (m_updateConfigurationPipe.notified())
                 {
@@ -92,7 +95,8 @@ void manager::scheduler::ScanScheduler::run()
             }
             if (fd_isset(scanNowFD, &tempRead))
             {
-                LOGINFO("Starting Scan Now scan");
+                // TODO: Should this be LOGSUPPORT?
+                LOGINFO("Starting    Scan Now scan");
                 runNextScan(m_config.scanNowScan());
                 while (m_scanNowPipe.notified())
                 {
@@ -116,7 +120,8 @@ void manager::scheduler::ScanScheduler::run()
     {
         item.second->join();
     }
-    LOGINFO("Exiting scan scheduler");
+    // TODO: Should this be LOGSUPPORT?
+    LOGINFO("Exiting    scan scheduler");
 }
 
 void ScanScheduler::runNextScan(const ScheduledScan& nextScan)

@@ -85,12 +85,12 @@ namespace
             {
                 if (exclusion.appliesToPath(p))
                 {
-                    LOGINFO("Exclusion applied to: " << p);
+                    LOGINFO("Excluding    " << p);
                     return;
                 }
             }
 
-            LOGINFO("Scanning " << escapedPath);
+            LOGINFO("Scanning    " << escapedPath);
 
             try
             {
@@ -117,7 +117,7 @@ namespace
             {
                 if (exclusion.appliesToPath(p, true))
                 {
-                    LOGINFO("Exclusion applied to: " << p);
+                    LOGINFO("Excluding    " << p);
                     return false;
                 }
             }
@@ -156,7 +156,7 @@ CommandLineScanRunner::CommandLineScanRunner(const Options& options)
 int CommandLineScanRunner::run()
 {
     std::string printArchiveScanning = m_archiveScanning?"yes":"no";
-    LOGINFO("Archive scanning enabled: " << printArchiveScanning);
+    LOGINFO("Config    Archive scanning enabled: " << printArchiveScanning);
 
     // evaluate mount information
     auto mountInfo = getMountInfo();
@@ -177,7 +177,7 @@ int CommandLineScanRunner::run()
     cmdExclusions.reserve(m_exclusions.size());
     if (!m_exclusions.empty())
     {
-        LOGINFO("Exclusions: ");
+        LOGINFO("Config    exclusions: ");
     }
     for (auto& exclusion : m_exclusions)
     {

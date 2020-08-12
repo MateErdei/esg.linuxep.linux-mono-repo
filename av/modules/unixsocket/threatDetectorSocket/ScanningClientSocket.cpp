@@ -41,7 +41,7 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket
     int count = 0;
     while (ret != 0)
     {
-        LOGINFO("Failed to connect to unix socket - retrying in 1 second");
+        LOGINFO("Connecting    to unix socket failed - retrying in 1 second");
         sleep(1);
         if (++count >= MAX_CONN_RETRIES)
         {

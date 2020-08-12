@@ -38,7 +38,8 @@ plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(soph
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 {
     announceThreadStarted();
-    LOGINFO("Starting sophos_thread_detector monitor");
+    // TODO: Should this be LOGSUPPORT?
+    LOGINFO("Starting    sophos_thread_detector monitor");
 
     auto process = Common::Process::createProcess();
 
@@ -68,7 +69,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
         if (process->getStatus() != Common::Process::ProcessStatus::RUNNING)
         {
-            LOGINFO("Starting " << m_scanner_path);
+            // TODO: Should this be LOGSUPPORT?
+            LOGINFO("Starting    " << m_scanner_path);
             process->exec(m_scanner_path, {});
         }
 
@@ -102,7 +104,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     process->waitUntilProcessEnds();
     process.reset();
 
-    LOGINFO("Exiting sophos_thread_detector monitor");
+    // TODO: Should this be LOGSUPPORT?
+    LOGINFO("Exiting    sophos_thread_detector monitor");
 }
 
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::subprocess_exited()

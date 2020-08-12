@@ -37,7 +37,7 @@ static int inner_main()
     std::string loggerConfFile = "/base/etc/logger.conf";
     std::string sourceFile = sophosInstall.string() + loggerConfFile;
     std::string targetFile = chrootPath.string() + sophosInstall.string() + loggerConfFile;
-    LOGINFO("Copying: " << sourceFile << " to: " << targetFile);
+    LOGINFO("Copying     " << sourceFile << " to: " << targetFile);
     fs::copy_file(sourceFile, targetFile, fs::copy_options::overwrite_existing);
 
     int ret = ::chroot(chrootPath.c_str());
