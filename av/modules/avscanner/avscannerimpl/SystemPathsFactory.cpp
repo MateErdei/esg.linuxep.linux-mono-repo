@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 
-std::shared_ptr<ISystemPaths> SystemPathsFactory::createSystemPaths()
+ISystemPathsSharedPtr SystemPathsFactory::createSystemPaths() const
 {
     return std::make_shared<SystemPaths>();
 }

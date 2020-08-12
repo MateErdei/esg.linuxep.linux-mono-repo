@@ -69,7 +69,7 @@ namespace avscanner::avscannerimpl
         /**
          * constructor
          */
-        explicit Mounts(std::shared_ptr<ISystemPathsFactory> systemPathsFactory);
+        explicit Mounts(const std::shared_ptr<ISystemPathsFactory>& systemPathsFactory);
 
         /**
          * destructor

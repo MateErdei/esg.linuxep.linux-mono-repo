@@ -27,18 +27,16 @@ using namespace avscanner::avscannerimpl;
 
 std::string octalUnescape(const std::string& input)
 {
-    char *ptr;
     std::string out;
 
-
-    ptr = const_cast<char *>(input.c_str()); // We just want to read
+    char* ptr = const_cast<char *>(input.c_str()); // We just want to read
     while (*ptr != 0)
     {
         char ch = *ptr++;
         if (ch == '\\')
         {
             std::string buf("\\");
-            size_t i;
+            size_t i; // NOLINT(cppcoreguidelines-init-variables)
             unsigned int val = 0;
 
 
@@ -73,7 +71,7 @@ std::string octalUnescape(const std::string& input)
 /**
  * constructor
  */
-Mounts::Mounts(std::shared_ptr<ISystemPathsFactory> systemPathsFactory)
+Mounts::Mounts(const std::shared_ptr<ISystemPathsFactory>& systemPathsFactory)
     : m_systemPaths(systemPathsFactory->createSystemPaths())
 {
     parseProcMounts();
@@ -150,7 +148,7 @@ void Mounts::parseProcMounts()
  */
 std::string Mounts::device(const std::string& mountPoint) const
 {
-    for (auto & it : m_devices)
+    for (const auto & it : m_devices)
     {
         if (it->mountPoint() == mountPoint)
         {
@@ -229,7 +227,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
                     int index = 0;
 
 
-                    for (auto & it : args)
+                    for (const auto & it : args)
                     {
                         argv[index] = new char[it.size() + 1];
                         memcpy(argv[index], it.c_str(), it.size() + 1);
@@ -244,15 +242,14 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
                 }
                 default:
                 {
-                    int status;
+                    int status = 0;
 
 
                     close(fd[1]);
 
                     {
                         char buf[64];
-                        ssize_t bytes;
-
+                        ssize_t bytes; // NOLINT(cppcoreguidelines-init-variables)
                         do
                         {
                             bytes = ::read(fd[0], buf, 64);
@@ -281,7 +278,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                     close(fd[0]);
 
-                    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+                    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) // NOLINT(hicpp-signed-bitwise)
                     {
                         LOGWARN(path << " failed to execute");
                         result = "";
@@ -301,7 +298,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
  */
 std::string Mounts::realMountPoint(const std::string& device)
 {
-    struct stat st;
+    struct stat st{};
 
     if (stat(device.c_str(), &st) == -1)
     {

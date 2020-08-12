@@ -32,7 +32,7 @@ public:
 class MockSystemPathsFactory : public ISystemPathsFactory
 {
 public:
-    MOCK_METHOD0(createSystemPaths, std::shared_ptr<ISystemPaths>());
+    MOCK_CONST_METHOD0(createSystemPaths, ISystemPathsSharedPtr());
 };
 
 class TestMounts : public ::testing::Test

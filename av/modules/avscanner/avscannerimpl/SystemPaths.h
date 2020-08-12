@@ -13,22 +13,22 @@ namespace avscanner::avscannerimpl
     class SystemPaths : public ISystemPaths
     {
     public:
-        std::string mountInfoFilePath() const
+        [[nodiscard]] std::string mountInfoFilePath() const override
         {
             return "/proc/mounts";
         }
 
-        std::string cmdlineInfoFilePath() const
+        [[nodiscard]] std::string cmdlineInfoFilePath() const override
         {
             return "/proc/cmdline";
         }
 
-        std::string findfsCmdPath() const
+        [[nodiscard]] std::string findfsCmdPath() const override
         {
             return "/sbin/findfs";
         }
 
-        std::string mountCmdPath() const
+        [[nodiscard]] std::string mountCmdPath() const override
         {
             return "/bin/mount";
         }

@@ -8,13 +8,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ISystemPaths.h"
 
-#include <memory>
-
 namespace avscanner::avscannerimpl
 {
     class ISystemPathsFactory
     {
     public:
-        virtual std::shared_ptr<ISystemPaths> createSystemPaths() = 0;
+        [[nodiscard]] virtual ISystemPathsSharedPtr createSystemPaths() const = 0;
     };
+
+    using ISystemPathsFactorySharedPtr = std::shared_ptr<ISystemPathsFactory>;
 }
