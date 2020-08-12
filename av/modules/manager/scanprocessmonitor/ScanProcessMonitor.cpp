@@ -17,7 +17,7 @@ plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(soph
 {
     if (m_scanner_path.empty())
     {
-        LOGWARN("No configuration given, attempting to load default configuration");
+        LOGWARN("Defaulting    to default configuration: no config given");
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         try
         {

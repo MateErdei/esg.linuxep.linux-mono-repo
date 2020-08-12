@@ -39,7 +39,7 @@ bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
     ssize_t bytes_written = ::write(socket_fd, buffer.c_str(), buffer.size());
     if (static_cast<unsigned>(bytes_written) != buffer.size())
     {
-        LOGWARN("Failed to write buffer to unix socket");
+        LOGWARN("Writing    buffer to unix socket failed");
         return false;
     }
     return true;

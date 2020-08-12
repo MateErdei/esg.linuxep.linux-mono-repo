@@ -7,16 +7,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "NamedScanRunner.h"
 
 #include "BaseFileWalkCallbacks.h"
+#include "Mounts.h"
 #include "PathUtils.h"
 #include "ScanClient.h"
 
-#include "avscanner/mountinfoimpl/Mounts.h"
-
-#include <capnp/message.h>
-#include <common/StringUtils.h>
 #include <filewalker/FileWalker.h>
 
+#include <capnp/message.h>
+
 #include <fstream>
+#include <common/StringUtils.h>
+
 
 using namespace avscanner::avscannerimpl;
 
@@ -43,7 +44,7 @@ namespace
         {
             std::string escapedPath(p);
             common::escapeControlCharacters(escapedPath);
-            LOGINFO("\"" << escapedPath << "\" is infected with " << threatName);
+            LOGWARN("Found    \"" << escapedPath << "\" is infected with " << threatName);
             m_returnCode = E_VIRUS_FOUND;
         }
 
@@ -63,7 +64,7 @@ namespace
                 ScanClient scanner,
                 std::vector<fs::path> mountExclusions,
                 NamedScanConfig& config,
-                avscanner::mountinfo::IMountPointSharedVector allMountPoints
+                std::vector<std::shared_ptr<IMountPoint>> allMountPoints
                 )
                 : BaseFileWalkCallbacks(std::move(scanner))
                 , m_mountExclusions(std::move(mountExclusions))
@@ -126,15 +127,14 @@ namespace
     private:
         std::vector<fs::path> m_mountExclusions;
         NamedScanConfig& m_config;
-        avscanner::mountinfo::IMountPointSharedVector m_allMountPoints;
+        std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
     };
 }
 
-avscanner::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(
-    const avscanner::mountinfo::IMountPointSharedVector& allMountpoints)
+std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoints(const std::vector<std::shared_ptr<IMountPoint>>& allMountpoints)
 {
-    avscanner::mountinfo::IMountPointSharedVector includedMountpoints;
-    for (const auto & mp : allMountpoints)
+    std::vector<std::shared_ptr<IMountPoint>> includedMountpoints;
+    for (auto & mp : allMountpoints)
     {
         if ((mp->isHardDisc() && m_config.m_scanHardDisc) ||
             (mp->isNetwork() && m_config.m_scanNetwork) ||
@@ -158,10 +158,10 @@ avscanner::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountp
 int NamedScanRunner::run()
 {
     // work out which filesystems are included based of config and mount information
-    mountinfo::IMountInfoSharedPtr mountInfo = getMountInfo();
-    mountinfo::IMountPointSharedVector allMountpoints = mountInfo->mountPoints();
+    std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
+    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
     LOGINFO("Found "<< allMountpoints.size() << " mount points");
-    mountinfo::IMountPointSharedVector includedMountpoints = getIncludedMountpoints(allMountpoints);
+    std::vector<std::shared_ptr<IMountPoint>> includedMountpoints = getIncludedMountpoints(allMountpoints);
 
     std::vector<fs::path> excludedMountPoints;
     excludedMountPoints.reserve(allMountpoints.size());

@@ -263,7 +263,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                     if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) // NOLINT(hicpp-signed-bitwise)
                     {
-                        LOGWARN(path << " failed to execute");
+                        LOGWARN("Executing    " << path << " failed");
                         result = "";
                     }
                     break;

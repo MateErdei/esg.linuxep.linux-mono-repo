@@ -43,7 +43,7 @@ ScanRunner::ScanRunner(std::string name, std::string scan, IScanComplete& comple
     }
     catch (const std::out_of_range&)
     {
-        LOGWARN("Using default plugin install directory");
+        LOGWARN("Defaulting    to default plugin install directory");
         m_pluginInstall = "/opt/sophos-spl/plugins/av";
     }
     m_scanExecutable = m_pluginInstall / "sbin/scheduled_file_walker_launcher";
