@@ -65,9 +65,9 @@ TEST_F(TestMounts, TestMountInfoFile_Exists) // NOLINT
 
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(mountInfoFile));
 
-    std::shared_ptr<Mounts> mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
     EXPECT_EQ(mountInfo->device("/"), "/dev/abc1");
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    auto allMountpoints = mountInfo->mountPoints();
     EXPECT_GT(allMountpoints.size(), 0);
 }
 
@@ -87,7 +87,7 @@ TEST_F(TestMounts, TestMountPoint_rootDirNotInMountInfoFile) // NOLINT
     std::shared_ptr<Mounts> mountInfo = std::make_shared<Mounts>(m_systemPaths);
     EXPECT_NE(mountInfo->device("/"), "");
     EXPECT_EQ(mountInfo->device("/run"), "tmpfs");
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    auto allMountpoints = mountInfo->mountPoints();
     EXPECT_EQ(allMountpoints.size(), 2);
 }
 
@@ -107,9 +107,9 @@ TEST_F(TestMounts, TestMountPoint_rootfs_uuid) // NOLINT
     EXPECT_CALL(*m_systemPaths, findfsCmdPath()).WillRepeatedly(Return(m_findfsCmdPath));
     EXPECT_CALL(*m_systemPaths, mountCmdPath()).WillRepeatedly(Return(m_mountCmdPath));
 
-    std::shared_ptr<Mounts> mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
     EXPECT_EQ(mountInfo->device("/"), "/dev/abc1");
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    auto allMountpoints = mountInfo->mountPoints();
     EXPECT_EQ(allMountpoints.size(), 1);
 }
 
@@ -129,9 +129,9 @@ TEST_F(TestMounts, TestMountPoint_rootfs_label) // NOLINT
     EXPECT_CALL(*m_systemPaths, findfsCmdPath()).WillRepeatedly(Return(m_findfsCmdPath));
     EXPECT_CALL(*m_systemPaths, mountCmdPath()).WillRepeatedly(Return(m_mountCmdPath));
 
-    std::shared_ptr<Mounts> mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
     EXPECT_EQ(mountInfo->device("/"), "/dev/abc1");
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    auto allMountpoints = mountInfo->mountPoints();
     EXPECT_EQ(allMountpoints.size(), 1);
 }
 
@@ -151,9 +151,9 @@ TEST_F(TestMounts, TestMountPoint_rootfs_noLabelOrUUID) // NOLINT
     EXPECT_CALL(*m_systemPaths, findfsCmdPath()).WillRepeatedly(Return(m_findfsCmdPath));
     EXPECT_CALL(*m_systemPaths, mountCmdPath()).WillRepeatedly(Return(m_mountCmdPath));
 
-    std::shared_ptr<Mounts> mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
     EXPECT_EQ(mountInfo->device("/"), "rootfs");
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    auto allMountpoints = mountInfo->mountPoints();
     EXPECT_EQ(allMountpoints.size(), 1);
 }
 
@@ -173,7 +173,7 @@ TEST_F(TestMounts, TestMountPoint_findfsAndMountNotExecutable) // NOLINT
     EXPECT_CALL(*m_systemPaths, findfsCmdPath()).WillRepeatedly(Return(m_findfsCmdPath));
     EXPECT_CALL(*m_systemPaths, mountCmdPath()).WillRepeatedly(Return(m_mountCmdPath));
 
-    std::shared_ptr<IMountInfo> mountInfo = std::make_shared<Mounts>(m_systemPaths);
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    auto allMountpoints = mountInfo->mountPoints();
     EXPECT_EQ(allMountpoints.size(), 1);
 }

@@ -35,11 +35,11 @@ namespace avscanner::avscannerimpl
          * @param allMountpoints
          * @return mount points that we are going to include, based on the config
          */
-        std::vector<std::shared_ptr<IMountPoint>> getIncludedMountpoints(const std::vector<std::shared_ptr<IMountPoint>>& allMountpoints);
-
+        IMountPointSharedVector getIncludedMountpoints(const IMountPointSharedVector& allMountpoints);
     private:
         NamedScanConfig m_config;
         Logger m_logger;
+        int m_returnCode = 0;
     };
 }
 

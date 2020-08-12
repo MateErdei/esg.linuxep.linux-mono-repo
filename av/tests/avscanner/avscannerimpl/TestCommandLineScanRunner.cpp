@@ -289,6 +289,7 @@ TEST(CommandLineScanRunner, excludeSpecialMounts) // NOLINT
     fs::path startingpoint = fs::absolute("sandbox");
 
     using namespace avscanner::avscannerimpl;
+    using namespace avscanner::mountinfo;
     class MockMountPoint : public IMountPoint
     {
     public:

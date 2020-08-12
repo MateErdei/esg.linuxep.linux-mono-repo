@@ -160,7 +160,7 @@ int CommandLineScanRunner::run()
 
     // evaluate mount information
     std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    auto allMountpoints = mountInfo->mountPoints();
 
     std::vector<fs::path> excludedMountPoints;
     excludedMountPoints.reserve(allMountpoints.size());

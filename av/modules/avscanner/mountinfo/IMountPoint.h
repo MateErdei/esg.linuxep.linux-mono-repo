@@ -6,9 +6,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <memory>
 #include <string>
 
-namespace avscanner::avscannerimpl
+namespace avscanner::mountinfo
 {
     class IMountPoint
     {
@@ -39,4 +40,6 @@ namespace avscanner::avscannerimpl
         [[nodiscard]] virtual std::string mountPoint() const = 0;
 
     };
+
+    using IMountPointSharedPtr = std::shared_ptr<IMountPoint>;
 }

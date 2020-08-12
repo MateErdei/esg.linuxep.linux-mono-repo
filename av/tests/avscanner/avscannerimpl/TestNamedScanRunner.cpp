@@ -124,7 +124,7 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
     EXPECT_CALL(*specialDevice, isSpecial()).WillOnce(Return(true));
 
     ::capnp::MallocMessageBuilder message;
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints;
+    IMountPointSharedVector allMountpoints;
     allMountpoints.push_back(localFixedDevice);
     allMountpoints.push_back(networkDevice);
     allMountpoints.push_back(opticalDevice);

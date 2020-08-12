@@ -63,7 +63,7 @@ namespace
                 ScanClient scanner,
                 std::vector<fs::path> mountExclusions,
                 NamedScanConfig& config,
-                std::vector<std::shared_ptr<IMountPoint>> allMountPoints
+                IMountPointSharedVector allMountPoints
                 )
                 : BaseFileWalkCallbacks(std::move(scanner))
                 , m_mountExclusions(std::move(mountExclusions))
@@ -126,14 +126,14 @@ namespace
     private:
         std::vector<fs::path> m_mountExclusions;
         NamedScanConfig& m_config;
-        std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
+        IMountPointSharedVector m_allMountPoints;
     };
 }
 
-std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoints(const std::vector<std::shared_ptr<IMountPoint>>& allMountpoints)
+IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(const IMountPointSharedVector& allMountpoints)
 {
-    std::vector<std::shared_ptr<IMountPoint>> includedMountpoints;
-    for (auto & mp : allMountpoints)
+    IMountPointSharedVector includedMountpoints;
+    for (const auto & mp : allMountpoints)
     {
         if ((mp->isHardDisc() && m_config.m_scanHardDisc) ||
             (mp->isNetwork() && m_config.m_scanNetwork) ||
@@ -158,9 +158,9 @@ int NamedScanRunner::run()
 {
     // work out which filesystems are included based of config and mount information
     std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    IMountPointSharedVector allMountpoints = mountInfo->mountPoints();
     LOGINFO("Found "<< allMountpoints.size() << " mount points");
-    std::vector<std::shared_ptr<IMountPoint>> includedMountpoints = getIncludedMountpoints(allMountpoints);
+    IMountPointSharedVector includedMountpoints = getIncludedMountpoints(allMountpoints);
 
     std::vector<fs::path> excludedMountPoints;
     excludedMountPoints.reserve(allMountpoints.size());

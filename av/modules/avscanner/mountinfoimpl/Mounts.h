@@ -25,7 +25,7 @@ namespace avscanner::avscannerimpl
          * @version 1.0
          * @updated 04-Feb-2008 15:41:14
          */
-        class Drive : virtual public IMountPoint
+        class Drive : virtual public mountinfo::IMountPoint
         {
 
         public:
@@ -90,7 +90,7 @@ namespace avscanner::avscannerimpl
         /**
          * Iterator for the list of mount points.
          */
-        std::vector<std::shared_ptr<IMountPoint> > mountPoints() override;
+        IMountPointSharedVector mountPoints() override;
 
     private:
 
@@ -107,7 +107,7 @@ namespace avscanner::avscannerimpl
 
 
         std::shared_ptr<ISystemPaths> m_systemPaths;
-        std::vector<std::shared_ptr<IMountPoint> > m_devices;
+        IMountPointSharedVector m_devices;
 
         /**
          * Returns the path to the real mount point for a listing in /proc/mounts
