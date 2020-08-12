@@ -56,7 +56,8 @@ std::shared_ptr<IMountInfo> BaseRunner::getMountInfo()
 {
     if (!m_mountInfo)
     {
-        m_mountInfo = std::make_shared<Mounts>(std::make_shared<SystemPathsFactory>());
+        auto pathsFactory = std::make_shared<SystemPathsFactory>();
+        m_mountInfo = std::make_shared<Mounts>(pathsFactory->createSystemPaths());
     }
     return m_mountInfo;
 }
