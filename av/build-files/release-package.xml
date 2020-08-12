@@ -43,10 +43,13 @@
             <include src="openssl.tar" dest="."/>
         </package>
 
-        <!-- SUSI imports -->
+        <!-- SUSI imports
+
         <package name="sspl-plugin-av-susi-component"
                  version="master/%LASTGOODCOMPONENTBUILD%/sspl-plugin-av-susi-component/0.5.0/output"
                  dest="input" buildtype="dev">
+        -->
+        <package name="sspl-plugin-av-susi-component" version="0-5-0-32/219527/output" dest="input">
             <include src="susi.tar" dest="."/>
         </package>
 
@@ -84,6 +87,6 @@
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
-        <publishbranches>master,feature/LINUXDAR-1479_ostia_experiment</publishbranches>
+        <publishbranches>master,bugfix/LINUXDAR-2122_fix_mount_rhel_7_aws</publishbranches>
     </publish>
 </package>
