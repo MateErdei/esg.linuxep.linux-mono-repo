@@ -301,7 +301,7 @@ function build()
         untar_input openssl
         unzip_lrdata
     else
-        set_gcc_make
+        (( LOCAL_GCC == 0 )) && set_gcc_make
     fi
 
     addpath "$REDIST/cmake/bin"
