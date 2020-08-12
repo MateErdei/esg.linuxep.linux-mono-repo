@@ -18,8 +18,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/logger.h>
 
-static bool GL_CONSOLE_LOGGING_SETUP = false;
-
 log4cplus::Logger& getNamedScanRunnerLogger()
 {
     static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("NamedScanRunner");
@@ -37,24 +35,20 @@ Logger::Logger(const std::string& fileName, bool isCommandLine)
         logfilepath += ".log";
     }
 
-    if (GL_CONSOLE_LOGGING_SETUP)
+    // Log non-error messages to stdout
+    log4cplus::SharedAppenderPtr stdout_appender(new log4cplus::ConsoleAppender(false));
+    Common::Logging::LoggingSetup::applyPattern(stdout_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
+    log4cplus::Logger::getRoot().addAppender(stdout_appender);
+
+    // Log error messages to stderr
+    log4cplus::SharedAppenderPtr stderr_appender(new log4cplus::ConsoleAppender(true));
+    stderr_appender->setThreshold(log4cplus::ERROR_LOG_LEVEL);
+    Common::Logging::LoggingSetup::applyPattern(stderr_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
+    log4cplus::Logger::getRoot().addAppender(stderr_appender);
+
+    if (!logfilepath.empty())
     {
         Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(logfilepath);
-    }
-    else
-    {
-        // Log non-error messages to stdout
-        log4cplus::SharedAppenderPtr stdout_appender(new log4cplus::ConsoleAppender(false));
-        Common::Logging::LoggingSetup::applyPattern(stdout_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
-        log4cplus::Logger::getRoot().addAppender(stdout_appender);
-
-        // Log error messages to stderr
-        log4cplus::SharedAppenderPtr stderr_appender(new log4cplus::ConsoleAppender(true));
-        stderr_appender->setThreshold(log4cplus::ERROR_LOG_LEVEL);
-        Common::Logging::LoggingSetup::applyPattern(stderr_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
-        log4cplus::Logger::getRoot().addAppender(stderr_appender);
-
-        GL_CONSOLE_LOGGING_SETUP = true;
     }
     Common::Logging::applyGeneralConfig(PLUGIN_NAME);
 }
