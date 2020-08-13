@@ -5,21 +5,12 @@ add_library(avscannerimpl SHARED
         BaseRunner.h
         CommandLineScanRunner.cpp
         CommandLineScanRunner.h
-        ../mountinfoimpl/DeviceUtil.cpp
-        ../mountinfoimpl/DeviceUtil.h
         Exclusion.cpp
         Exclusion.h
         Logger.cpp
         Logger.h
-        ../mountinfo/IMountInfo.h
-        ../mountinfo/IMountPoint.h
         IRunner.h
-        ../mountinfoimpl/ISystemCallWrapper.h
-        ../mountinfoimpl/ISystemCallWrapperFactory.h
-        ../mountinfo/ISystemPaths.h
         ISystemPathsFactory.h
-        ../mountinfoimpl/Mounts.cpp
-        ../mountinfoimpl/Mounts.h
         NamedScanConfig.cpp
         NamedScanConfig.h
         NamedScanRunner.cpp
@@ -30,12 +21,22 @@ add_library(avscannerimpl SHARED
         PathUtils.h
         ScanClient.cpp
         ScanClient.h
+        SystemPathsFactory.cpp
+        SystemPathsFactory.h
+        ../mountinfoimpl/DeviceUtil.cpp
+        ../mountinfoimpl/DeviceUtil.h
+        ../mountinfoimpl/ISystemCallWrapper.h
+        ../mountinfoimpl/ISystemCallWrapperFactory.h
+        ../mountinfoimpl/Mounts.cpp
+        ../mountinfoimpl/Mounts.h
         ../mountinfoimpl/SystemPaths.h
         ../mountinfoimpl/SystemCallWrapper.h
         ../mountinfoimpl/SystemCallWrapperFactory.cpp
         ../mountinfoimpl/SystemCallWrapperFactory.h
-        SystemPathsFactory.cpp
-        SystemPathsFactory.h)
+        ../mountinfo/IMountInfo.h
+        ../mountinfo/IMountPoint.h
+        ../mountinfo/ISystemPaths.h
+        )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
