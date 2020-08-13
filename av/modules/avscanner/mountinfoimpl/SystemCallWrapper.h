@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
 
-namespace avscanner::avscannerimpl
+namespace avscanner::mountinfoimpl
 {
     class SystemCallWrapper : public mountinfoimpl::ISystemCallWrapper
     {
