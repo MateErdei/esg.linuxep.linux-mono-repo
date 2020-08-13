@@ -25,6 +25,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 
 using namespace avscanner::avscannerimpl;
+using namespace avscanner::mountinfo;
 
 std::string octalUnescape(const std::string& input)
 {

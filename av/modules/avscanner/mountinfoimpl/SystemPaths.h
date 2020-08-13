@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace avscanner::avscannerimpl
 {
-    class SystemPaths : public ISystemPaths
+    class SystemPaths : public mountinfo::ISystemPaths
     {
     public:
         [[nodiscard]] std::string mountInfoFilePath() const override

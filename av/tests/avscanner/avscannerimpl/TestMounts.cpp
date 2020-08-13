@@ -16,11 +16,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 namespace fs = sophos_filesystem;
 
 using namespace avscanner::avscannerimpl;
+using namespace avscanner::mountinfo;
 
 using ::testing::Return;
 using ::testing::StrictMock;
 
-class MockSystemPaths : public ISystemPaths
+class MockSystemPaths : public avscanner::mountinfo::ISystemPaths
 {
 public:
     MOCK_CONST_METHOD0(mountInfoFilePath, std::string());

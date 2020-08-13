@@ -70,7 +70,7 @@ namespace avscanner::avscannerimpl
         /**
          * constructor
          */
-        explicit Mounts(ISystemPathsSharedPtr systemPaths);
+        explicit Mounts(mountinfo::ISystemPathsSharedPtr systemPaths);
         Mounts(const Mounts&) = delete;
 
 
@@ -106,7 +106,7 @@ namespace avscanner::avscannerimpl
         std::string scrape(const std::string& path, const std::vector<std::string>& args);
 
 
-        std::shared_ptr<ISystemPaths> m_systemPaths;
+        mountinfo::ISystemPathsSharedPtr m_systemPaths;
         mountinfo::IMountPointSharedVector m_devices;
 
         /**

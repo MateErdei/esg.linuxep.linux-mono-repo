@@ -15,6 +15,6 @@ namespace avscanner::avscannerimpl
     class SystemPathsFactory : public ISystemPathsFactory
     {
     public:
-        [[nodiscard]] ISystemPathsSharedPtr createSystemPaths() const override;
+        [[nodiscard]] mountinfo::ISystemPathsSharedPtr createSystemPaths() const override;
     };
 }
