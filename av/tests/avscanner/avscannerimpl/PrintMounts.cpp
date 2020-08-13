@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "avscanner/mountinfoimpl/Mounts.h"
 
-#include <avscanner/avscannerimpl/SystemPathsFactory.h>
+#include <avscanner/mountinfoimpl/SystemPathsFactory.h>
 
 #include <iostream>
 

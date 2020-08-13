@@ -21,18 +21,18 @@ add_library(avscannerimpl SHARED
         PathUtils.h
         ScanClient.cpp
         ScanClient.h
-        SystemPathsFactory.cpp
-        SystemPathsFactory.h
         ../mountinfoimpl/DeviceUtil.cpp
         ../mountinfoimpl/DeviceUtil.h
         ../mountinfoimpl/ISystemCallWrapper.h
         ../mountinfoimpl/ISystemCallWrapperFactory.h
         ../mountinfoimpl/Mounts.cpp
         ../mountinfoimpl/Mounts.h
-        ../mountinfoimpl/SystemPaths.h
         ../mountinfoimpl/SystemCallWrapper.h
         ../mountinfoimpl/SystemCallWrapperFactory.cpp
         ../mountinfoimpl/SystemCallWrapperFactory.h
+        ../mountinfoimpl/SystemPaths.h
+        ../mountinfoimpl/SystemPathsFactory.cpp
+        ../mountinfoimpl/SystemPathsFactory.h
         ../mountinfo/IMountInfo.h
         ../mountinfo/IMountPoint.h
         ../mountinfo/ISystemPaths.h

@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ISystemPathsFactory.h"
+#include "avscanner/avscannerimpl/ISystemPathsFactory.h"
 
 #include <memory>
 
