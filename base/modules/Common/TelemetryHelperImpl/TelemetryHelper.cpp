@@ -119,21 +119,21 @@ namespace Common::Telemetry
 
     TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath)
     {
-        return getTelemetryObjectByKey(keyPath, m_root);
+        std::reference_wrapper<TelemetryObject> currentTelemObj = m_root;
+        return getTelemetryObjectByKey(keyPath, currentTelemObj);
     }
 
-    TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath, TelemetryObject& root)
+    TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath, std::reference_wrapper<TelemetryObject> root)
     {
-        std::reference_wrapper<TelemetryObject> currentTelemObj = root;
         for (const auto& key : Common::UtilityImpl::StringUtils::splitString(keyPath, "."))
         {
-            if (!currentTelemObj.get().keyExists(key))
+            if (!root.get().keyExists(key))
             {
-                currentTelemObj.get().set(key, TelemetryObject());
+                root.get().set(key, TelemetryObject());
             }
-            currentTelemObj = currentTelemObj.get().getObject(key);
+            root = root.get().getObject(key);
         }
-        return currentTelemObj;
+        return root;
     }
 
 
@@ -211,7 +211,7 @@ namespace Common::Telemetry
         telemetryObject = object;
         if ( stick)
         {
-            TelemetryObject& telemetryObjectStick = getTelemetryObjectByKey(key, m_resetToThis);
+            TelemetryObject& telemetryObjectStick = getTelemetryObjectByKey(key, std::ref<TelemetryObject>(m_resetToThis));
             telemetryObjectStick = object;
         }
     }

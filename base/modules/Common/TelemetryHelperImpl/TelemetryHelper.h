@@ -178,7 +178,7 @@ namespace Common::Telemetry
         }
 
         TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
-        TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath, TelemetryObject & root);
+        TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath, std::reference_wrapper<TelemetryObject> root);
         void clearData();
 
         // The following set of lockedXxx... methods do not lock the mutex before access.
