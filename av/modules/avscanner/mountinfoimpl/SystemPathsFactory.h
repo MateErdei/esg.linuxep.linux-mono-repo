@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace avscanner::avscannerimpl
 {
-    class SystemPathsFactory : public ISystemPathsFactory
+    class SystemPathsFactory : public avscanner::mountinfo::ISystemPathsFactory
     {
     public:
         [[nodiscard]] mountinfo::ISystemPathsSharedPtr createSystemPaths() const override;
