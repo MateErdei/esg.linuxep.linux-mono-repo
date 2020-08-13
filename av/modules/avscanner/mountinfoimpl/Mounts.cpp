@@ -384,6 +384,18 @@ avscanner::mountinfo::IMountPointSharedVector Mounts::mountPoints()
 // DRIVE
 //======================================================================================================================
 
+static avscanner::mountinfoimpl::ISystemCallWrapperSharedPtr createSystemCallWrapper()
+{
+    static auto factory = std::make_shared<avscanner::mountinfoimpl::SystemCallWrapperFactory>();
+    return factory->createSystemCallWrapper();
+}
+
+static DeviceUtilSharedPtr getDeviceUtil()
+{
+    static auto util = std::make_shared<DeviceUtil>(createSystemCallWrapper());
+    return util;
+}
+
 /**
  *
  * @param device
@@ -391,7 +403,7 @@ avscanner::mountinfo::IMountPointSharedVector Mounts::mountPoints()
  * @param type
  */
 Mounts::Drive::Drive(std::string device, std::string mountPoint, std::string type)
-    : m_deviceUtil(std::make_shared<DeviceUtil>(std::make_shared<SystemCallWrapperFactory>()))
+    : m_deviceUtil(getDeviceUtil())
     , m_mountPoint(std::move(mountPoint))
     , m_device(std::move(device))
     , m_fileSystem(std::move(type))

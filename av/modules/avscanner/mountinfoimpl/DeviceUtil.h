@@ -107,4 +107,6 @@ namespace avscanner::avscannerimpl
     private:
         mountinfoimpl::ISystemCallWrapperSharedPtr m_systemCallWrapper;
     };
+
+    using DeviceUtilSharedPtr = std::shared_ptr<DeviceUtil>;
 }
