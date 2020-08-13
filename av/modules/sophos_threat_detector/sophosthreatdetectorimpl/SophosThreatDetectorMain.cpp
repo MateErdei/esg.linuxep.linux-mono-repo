@@ -37,13 +37,13 @@ static int inner_main()
     std::string loggerConfFile = "/base/etc/logger.conf";
     std::string sourceFile = sophosInstall.string() + loggerConfFile;
     std::string targetFile = chrootPath.string() + sophosInstall.string() + loggerConfFile;
-    LOGINFO("Copying     " << sourceFile << " to: " << targetFile);
+    LOGINFO("Copying " << sourceFile << " to: " << targetFile);
     fs::copy_file(sourceFile, targetFile, fs::copy_options::overwrite_existing);
 
     int ret = ::chroot(chrootPath.c_str());
     if (ret != 0)
     {
-        LOGERROR("Running    chroot to " << chrootPath << " failed");
+        LOGERROR("Failed to chroot to " << chrootPath.c_str() << " (" << errno << "): Check permissions");
         exit(EXIT_FAILURE);
     }
 
@@ -72,12 +72,12 @@ int sspl::sophosthreatdetectorimpl::sophos_threat_detector_main()
     }
     catch (std::exception& ex)
     {
-        LOGERROR("Caught    std::exception: "<<ex.what() << " at top level");
+        LOGERROR("Caught std::exception: "<<ex.what() << " at top level");
         return 101;
     }
     catch(...)
     {
-        LOGERROR("Caught    unknown exception at top-level");
+        LOGERROR("Caught unknown exception at top-level");
         return 100;
     }
 }

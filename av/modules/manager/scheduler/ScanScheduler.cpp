@@ -40,8 +40,7 @@ void manager::scheduler::ScanScheduler::run()
 {
     announceThreadStarted();
 
-    // TODO: Should this be LOGSUPPORT?
-    LOGINFO("Starting    scan scheduler");
+    LOGSUPPORT("Starting scan scheduler");
 
     int exitFD = m_notifyPipe.readFd();
     int configFD = m_updateConfigurationPipe.readFd();
@@ -65,28 +64,26 @@ void manager::scheduler::ScanScheduler::run()
         if (ret < 0)
         {
             // handle error
-            LOGERROR("Starting    scheduled scan failed: " << errno);
+            LOGERROR("Failed to start scheduled scan: " << errno);
             break;
         }
         else if (ret > 0)
         {
             if (fd_isset(exitFD, &tempRead))
             {
-                // TODO: Should this be LOGSUPPORT?
-                LOGINFO("Exiting    from scan scheduler");
+                LOGSUPPORT("Exiting from scan scheduler");
                 break;
             }
             if (fd_isset(configFD, &tempRead))
             {
-                LOGINFO("Updating    scheduled scan configuration");
-                LOGINFO("Config    no of Scheduled Scans: " << m_config.scans().size());
+                LOGINFO("Configured number of Scheduled Scans: " << m_config.scans().size());
                 for (const auto& scan : m_config.scans() )
                 {
                     LOGINFO(scan.str());
                 }
-                LOGINFO("Config    no of Exclusions Configured: " << m_config.exclusions().size());
-                LOGINFO("Config    no of Sophos Defined Extension Exclusions Configured: " << m_config.sophosExtensionExclusions().size());
-                LOGINFO("Config    no of User Defined Extension Exclusions Configured: " << m_config.userDefinedExtensionInclusions().size());
+                LOGINFO("Configured number of Exclusions: " << m_config.exclusions().size());
+                LOGINFO("Configured number of Sophos Defined Extension Exclusions: " << m_config.sophosExtensionExclusions().size());
+                LOGINFO("Configured number of User Defined Extension Exclusions: " << m_config.userDefinedExtensionInclusions().size());
 
                 while (m_updateConfigurationPipe.notified())
                 {
@@ -95,8 +92,7 @@ void manager::scheduler::ScanScheduler::run()
             }
             if (fd_isset(scanNowFD, &tempRead))
             {
-                // TODO: Should this be LOGSUPPORT?
-                LOGINFO("Starting    Scan Now scan");
+                LOGINFO("Starting Scan Now");
                 runNextScan(m_config.scanNowScan());
                 while (m_scanNowPipe.notified())
                 {
@@ -120,8 +116,7 @@ void manager::scheduler::ScanScheduler::run()
     {
         item.second->join();
     }
-    // TODO: Should this be LOGSUPPORT?
-    LOGINFO("Exiting    scan scheduler");
+    LOGSUPPORT("Exiting scan scheduler");
 }
 
 void ScanScheduler::runNextScan(const ScheduledScan& nextScan)

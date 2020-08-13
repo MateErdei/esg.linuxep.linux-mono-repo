@@ -51,7 +51,6 @@ namespace
         {
             return SUNDAY;
         }
-        // TODO: Should this be a warning instead of an error?
         LOGERROR("Invalid day from policy: "<< day);
         return INVALID;
     }

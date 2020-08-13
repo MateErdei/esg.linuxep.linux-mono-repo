@@ -17,7 +17,7 @@ plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(soph
 {
     if (m_scanner_path.empty())
     {
-        LOGWARN("Defaulting    to default configuration: no config given");
+        LOGWARN("Defaulting configuration: no configuration given");
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         try
         {
@@ -38,8 +38,7 @@ plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(soph
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 {
     announceThreadStarted();
-    // TODO: Should this be LOGSUPPORT?
-    LOGINFO("Starting    sophos_thread_detector monitor");
+    LOGSUPPORT("Starting sophos_threat_detector monitor");
 
     auto process = Common::Process::createProcess();
 
@@ -69,8 +68,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
         if (process->getStatus() != Common::Process::ProcessStatus::RUNNING)
         {
-            // TODO: Should this be LOGSUPPORT?
-            LOGINFO("Starting    " << m_scanner_path);
+            LOGINFO("Starting " << m_scanner_path);
             process->exec(m_scanner_path, {});
         }
 
@@ -90,10 +88,10 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         {
             std::string output = process->output();
             process->waitUntilProcessEnds();
-            LOGERROR("Exiting    sophos_threat_detector with code: "<< process->exitCode());
+            LOGERROR("Exiting sophos_threat_detector with code: "<< process->exitCode());
             if (!output.empty())
             {
-                LOGERROR("Exiting    sophos_threat_detector output: " << output);
+                LOGERROR("Exiting sophos_threat_detector output: " << output);
             }
             nanosleep(&restartBackoff, nullptr);
             restartBackoff.tv_sec += 1;
@@ -104,8 +102,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     process->waitUntilProcessEnds();
     process.reset();
 
-    // TODO: Should this be LOGSUPPORT?
-    LOGINFO("Exiting    sophos_thread_detector monitor");
+    LOGSUPPORT("Exiting sophos_threat_detector monitor");
 }
 
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::subprocess_exited()

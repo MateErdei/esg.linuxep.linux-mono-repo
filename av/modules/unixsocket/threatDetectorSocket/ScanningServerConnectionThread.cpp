@@ -154,7 +154,7 @@ void unixsocket::ScanningServerConnectionThread::run()
 
         if (activity < 0)
         {
-            LOGERROR("Closing    socket because it failed: " << errno);
+            LOGFATAL("Closing socket because pselect failed: " << errno);
             break;
         }
         // We don't set a timeout so something should have happened
@@ -162,8 +162,7 @@ void unixsocket::ScanningServerConnectionThread::run()
 
         if (fd_isset(exitFD, &tempRead))
         {
-            // TODO: Should this be LOGSUPPORT?
-            LOGINFO("Closing    scanning socket thread");
+            LOGSUPPORT("Closing scanning socket thread");
             break;
         }
         else // if(fd_isset(socket_fd, &tempRead))
@@ -181,7 +180,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             }
             else if (length < 0)
             {
-                LOGERROR("Aborting     Scanning Server Connection Thread: failed to read length");
+                LOGERROR("Aborting Scanning Server Connection Thread: failed to read length");
                 break;
             }
             else if (length == 0)
@@ -203,9 +202,14 @@ void unixsocket::ScanningServerConnectionThread::run()
             }
 
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
-            if (bytes_read != length)
+            if (bytes_read < 0)
             {
-                LOGERROR("Aborting    socket connection: failed to read capn proto");
+                LOGERROR("Aborting socket connection: " << errno);
+                break;
+            }
+            else if (bytes_read != length)
+            {
+                LOGERROR("Aborting socket connection: failed to read entire message");
                 break;
             }
 
@@ -224,7 +228,7 @@ void unixsocket::ScanningServerConnectionThread::run()
             int file_fd = recv_fd(socket_fd);
             if (file_fd < 0)
             {
-                LOGERROR("Aborting    socket connection: failed to read fd");
+                LOGERROR("Aborting socket connection: failed to read fd");
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd);
@@ -240,12 +244,12 @@ void unixsocket::ScanningServerConnectionThread::run()
             {
                 if (!writeLengthAndBuffer(socket_fd, serialised_result))
                 {
-                    LOGERROR("Writing    result to unix socket failed");
+                    LOGERROR("Failed to write result to unix socket");
                 }
             }
             catch (unixsocket::environmentInterruption& e)
             {
-                LOGERROR("Exiting    Scanning Connection Thread: " << e.what());
+                LOGERROR("Exiting Scanning Connection Thread: " << e.what());
                 break;
             }
         }

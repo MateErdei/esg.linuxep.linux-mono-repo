@@ -43,7 +43,7 @@ ScanRunner::ScanRunner(std::string name, std::string scan, IScanComplete& comple
     }
     catch (const std::out_of_range&)
     {
-        LOGWARN("Defaulting    to default plugin install directory");
+        LOGWARN("Defaulting plugin install directory");
         m_pluginInstall = "/opt/sophos-spl/plugins/av";
     }
     m_scanExecutable = m_pluginInstall / "sbin/scheduled_file_walker_launcher";
@@ -53,8 +53,7 @@ void ScanRunner::run()
 {
     announceThreadStarted();
 
-    // TODO: Should this be LOGSUPPORT?
-    LOGINFO("Starting    scan " << m_name);
+    LOGINFO("Starting scan " << m_name);
 
     fs::path config_dir = m_pluginInstall / "var";
     fs::path config_file = config_dir / m_configFilename;
@@ -70,12 +69,11 @@ void ScanRunner::run()
     process->waitUntilProcessEnds();
     int exitCode = process->exitCode();
 
-    // TODO: Should this be LOGSUPPORT?
-    LOGINFO("Scanning    completed scan " << m_name << " with exit code: " << exitCode);
+    LOGINFO("Completed scan " << m_name << " with exit code: " << exitCode);
     process.reset();
     fs::remove(config_file);
 
-    LOGINFO("Sending    scan complete event to Central");
+    LOGINFO("Sending scan complete event to Central");
     std::string scanCompletedXml = generateScanCompleteXml(m_name);
     LOGDEBUG("XML" << scanCompletedXml);
     m_completionNotifier.processScanComplete(scanCompletedXml);

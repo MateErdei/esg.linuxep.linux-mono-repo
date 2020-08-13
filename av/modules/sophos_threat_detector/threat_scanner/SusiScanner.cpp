@@ -49,8 +49,7 @@ void SusiScanner::sendThreatReport(
 {
     if (threatPath.empty())
     {
-        // TODO: Should this be a warning?
-        LOGERROR("Missing    path while sending Threat Report: empty string");
+        LOGERROR("Missing path while sending Threat Report: empty string");
     }
 
     fs::path threatReporterSocketPath = threat_reporter_socket();
@@ -92,22 +91,22 @@ SusiScanner::scan(
     SusiScanResult* scanResult = nullptr;
     SusiResult res = m_susi->scanFile(metaDataJson.c_str(), file_path.c_str(), fd, &scanResult);
 
-    LOGINFO("Scanning    " << file_path.c_str() << " result: " << std::hex << res << std::dec);
+    LOGTRACE("Scanning " << file_path.c_str() << " result: " << std::hex << res << std::dec);
     if (scanResult != nullptr)
     {
         try
         {
-            LOGINFO("Scanning    result details: " << scanResult->version << ", " << scanResult->scanResultJson);
+            LOGTRACE("Scanning result details: " << scanResult->version << ", " << scanResult->scanResultJson);
             std::string scanResultUTF8 = common::toUtf8(scanResult->scanResultJson, false);
 
-            LOGINFO("Converted    to UTF8: " << scanResultUTF8);
+            LOGTRACE("Converted to UTF8: " << scanResultUTF8);
 
             json parsedScanResult = json::parse(scanResultUTF8);
             for (auto result : parsedScanResult["results"])
             {
                 for (auto detection : result["detections"])
                 {
-                    LOGERROR("Detected    " << detection["threatName"] << " in " << result["path"]);
+                    LOGWARN("Detected " << detection["threatName"] << " in " << result["path"]);
                     response.setThreatName(detection["threatName"]);
                     response.setFullScanResult(scanResultUTF8);
                 }
@@ -116,7 +115,7 @@ SusiScanner::scan(
         catch (const std::exception& e)
         {
             // CORE-1517 - Until SUSI responses are always valid JSON
-            LOGERROR("Parsing    SUSI response failed: " << e.what());
+            LOGERROR("Failed to parse SUSI response: " << e.what() << " SUSI Response:" << scanResult->scanResultJson);
         }
     }
 

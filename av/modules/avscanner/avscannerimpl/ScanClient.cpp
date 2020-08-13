@@ -35,7 +35,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     datatypes::AutoFd file_fd(::open(fileToScanPath.c_str(), O_RDONLY));
     if (!file_fd.valid())
     {
-        LOGERROR("Opening    "<< fileToScanPath << "failed");
+        LOGERROR("Failed to open"<< fileToScanPath);
         return scan_messages::ScanResponse();
     }
 

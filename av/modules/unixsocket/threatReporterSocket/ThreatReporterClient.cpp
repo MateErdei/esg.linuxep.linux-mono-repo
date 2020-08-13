@@ -48,11 +48,12 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
     {
         if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
+            LOGERROR("Failed to write Threat Report Client to socket. Exception caught: " << errno);
             handle_error("Failed to write capn buffer to unix socket");
         }
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGERROR("Writing    to socket by Threat Report Client failed: " << e.what());
+        LOGERROR("Failed to write Threat Report Client to socket. Exception caught: " << e.what());
     }
 }

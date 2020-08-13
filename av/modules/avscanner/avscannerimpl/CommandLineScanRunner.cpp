@@ -36,7 +36,7 @@ namespace
         {
             std::string escapedPath(p);
             common::escapeControlCharacters(escapedPath);
-            LOGWARN("Found    \"" << escapedPath << "\" is infected with " << threatName);
+            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName);
             m_returnCode = E_VIRUS_FOUND;
         }
 
@@ -85,19 +85,19 @@ namespace
             {
                 if (exclusion.appliesToPath(p))
                 {
-                    LOGINFO("Excluding    " << p);
+                    LOGINFO("Excluding " << p);
                     return;
                 }
             }
 
-            LOGINFO("Scanning    " << escapedPath);
+            LOGINFO("Scanning " << escapedPath);
 
             try
             {
                 m_scanner.scan(p);
             } catch (const std::exception& e)
             {
-                LOGERROR("Scanning    " << escapedPath << " [" << e.what() << "] failed");
+                LOGERROR("Failed to scan " << escapedPath << " [" << e.what() << "] failed");
 
                 m_returnCode = E_GENERIC_FAILURE;
             }
@@ -117,7 +117,7 @@ namespace
             {
                 if (exclusion.appliesToPath(p, true))
                 {
-                    LOGINFO("Excluding    " << p);
+                    LOGINFO("Excluding " << p);
                     return false;
                 }
             }
@@ -156,7 +156,7 @@ CommandLineScanRunner::CommandLineScanRunner(const Options& options)
 int CommandLineScanRunner::run()
 {
     std::string printArchiveScanning = m_archiveScanning?"yes":"no";
-    LOGINFO("Config    Archive scanning enabled: " << printArchiveScanning);
+    LOGINFO("Archive scanning enabled: " << printArchiveScanning);
 
     // evaluate mount information
     auto mountInfo = getMountInfo();
@@ -175,10 +175,9 @@ int CommandLineScanRunner::run()
 
     std::vector<Exclusion> cmdExclusions;
     cmdExclusions.reserve(m_exclusions.size());
-    if (!m_exclusions.empty())
-    {
-        LOGINFO("Config    exclusions: ");
-    }
+
+    std::ostringstream oss;
+
     for (auto& exclusion : m_exclusions)
     {
         if( exclusion.at(0) == '.'
@@ -192,8 +191,13 @@ int CommandLineScanRunner::run()
                 }
         }
 
-        LOGINFO("        " << exclusion);
+        oss << oss.str() << exclusion << ", ";
         cmdExclusions.emplace_back(exclusion);
+    }
+
+    if (!m_exclusions.empty())
+    {
+        LOGINFO("Exclusions: " << oss.str());
     }
 
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();

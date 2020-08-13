@@ -88,8 +88,7 @@ static scan_messages::ServerThreatDetected parseDetection(kj::Array<capnp::word>
 
     if (!requestReader.hasFilePath())
     {
-        // TODO: Should this be a warning?
-        LOGERROR("Missing    file path while parsing binary threat");
+        LOGERROR("Missing file path while parsing report ( size=" << bytes_read << " )");
     }
     return scan_messages::ServerThreatDetected(requestReader);
 }
@@ -122,14 +121,13 @@ void ThreatReporterServerConnectionThread::run()
         if (activity < 0)
         {
 
-            LOGERROR("Closing    socket because it failed: " << errno);
+            LOGERROR("Closing socket, error: " << errno);
             break;
         }
 
         if (fd_isset(exitFD, &tempRead))
         {
-            // TODO: Should this be LOGSUPPORT?
-            LOGINFO("Closing    scanning socket thread");
+            LOGSUPPORT("Closing    scanning socket thread");
             break;
         }
         else
@@ -149,7 +147,7 @@ void ThreatReporterServerConnectionThread::run()
             }
             else if (length < 0)
             {
-                LOGERROR("Aborting    ThreatReporter Connection Thread: failed to read length");
+                LOGERROR("Aborting ThreatReporter Connection Thread: failed to read length");
                 break;
             }
             else if (length == 0)
@@ -171,9 +169,14 @@ void ThreatReporterServerConnectionThread::run()
             }
 
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
-            if (bytes_read != length)
+            if (bytes_read < 0)
             {
-                LOGERROR("Aborting    connection: failed to read capn proto");
+                LOGERROR("Aborting socket connection: " << errno);
+                break;
+            }
+            else if (bytes_read != length)
+            {
+                LOGERROR("Aborting socket connection: failed to read entire message");
                 break;
             }
 
@@ -182,13 +185,11 @@ void ThreatReporterServerConnectionThread::run()
 
             if (!detectionReader.hasFilePath())
             {
-                // TODO: Should this be a warning?
-                LOGERROR("Missing    file path in detection report");
+                LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
             }
             else if (detectionReader.getFilePath() == "")
             {
-                // TODO: Should this be a warning?
-                LOGERROR("Missing    file path in detection report: empty file path");
+                LOGERROR("Missing file path in detection report: empty file path");
             }
             m_callback->processMessage(generateThreatDetectedXml(detectionReader));
 

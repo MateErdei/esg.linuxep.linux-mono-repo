@@ -93,8 +93,7 @@ void unixsocket::BaseServerSocket::run()
 
     // Announce after we have started listening
     announceThreadStarted();
-    // TODO: Should this be LOGSUPPORT?
-    LOGINFO("Starting    listening on socket");
+    LOGSUPPORT("Starting listening on socket");
 
     while (!terminate)
     {
@@ -106,14 +105,13 @@ void unixsocket::BaseServerSocket::run()
         if (activity < 0)
         {
             // handle error
-            LOGERROR("Closing    socket because it failed: " << errno);
+            LOGERROR("Failed socket, closing. Error: " << errno);
             break;
         }
 
         if (fd_isset(exitFD, &tempRead))
         {
-            // TODO: Should this be LOGSUPPORT?
-            LOGINFO("Closing    socket");
+            LOGDEBUG("Closing socket");
             break;
         }
 

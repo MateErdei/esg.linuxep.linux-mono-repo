@@ -71,8 +71,7 @@ PluginAdapter::PluginAdapter(
 
 void PluginAdapter::mainLoop()
 {
-    // TODO: Should this be LOGSUPPORT?
-    LOGINFO("Starting    the main program loop");
+    LOGSUPPORT("Starting the main program loop");
     ThreadRunner scheduler(m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
     ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
     ThreadRunner sophos_thread_detector(*m_sophosThreadDetector, "threatDetector");

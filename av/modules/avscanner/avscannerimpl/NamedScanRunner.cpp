@@ -44,7 +44,7 @@ namespace
         {
             std::string escapedPath(p);
             common::escapeControlCharacters(escapedPath);
-            LOGWARN("Found    \"" << escapedPath << "\" is infected with " << threatName);
+            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName);
             m_returnCode = E_VIRUS_FOUND;
         }
 
@@ -99,7 +99,7 @@ namespace
             }
             catch (const std::exception& e)
             {
-                LOGERROR("Scanning    " << p << " [" << e.what() << "] failed");
+                LOGERROR("Failed to scan" << p << " [" << e.what() << "]");
                 m_returnCode = E_GENERIC_FAILURE;
             }
         }
@@ -160,7 +160,7 @@ int NamedScanRunner::run()
     // work out which filesystems are included based of config and mount information
     std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
     std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
-    LOGINFO("Found    "<< allMountpoints.size() << " mount points");
+    LOGDEBUG("Found "<< allMountpoints.size() << " mount points");
     std::vector<std::shared_ptr<IMountPoint>> includedMountpoints = getIncludedMountpoints(allMountpoints);
 
     std::vector<fs::path> excludedMountPoints;
@@ -170,6 +170,7 @@ int NamedScanRunner::run()
         if (mp->isSpecial())
         {
             excludedMountPoints.emplace_back(mp->mountPoint());
+            LOGINFO("Excluding: " << mp->mountPoint());
         }
     }
 
@@ -182,7 +183,7 @@ int NamedScanRunner::run()
     for (auto & mp : includedMountpoints)
     {
         std::string mountpointToScan = mp->mountPoint();
-        LOGINFO("Scanning    mount point: " << mountpointToScan);
+        LOGINFO("Scanning mount point: " << mountpointToScan);
         try
         {
             filewalker::walk(mountpointToScan, callbacks);
