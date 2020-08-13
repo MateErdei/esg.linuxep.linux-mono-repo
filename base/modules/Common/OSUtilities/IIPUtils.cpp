@@ -133,7 +133,7 @@ namespace Common
             uint32_t hostEquivalent = ntohl(ip4addr);
             for (int i = 31; i >= 0; i--)
             {
-                uint32_t mask = 1 << i;
+                uint32_t mask = 1U << i;
                 if (hostEquivalent & mask)
                 {
                     return i + 1;
