@@ -202,7 +202,7 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     std::string logs = testing::internal::GetCapturedStderr();
 
     EXPECT_THAT(logs, HasSubstr(expectedLog));
-    EXPECT_THAT(logs, HasSubstr("Starting Scan Now scan"));
+    EXPECT_THAT(logs, HasSubstr("Starting Scan Now"));
 }
 
 TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
@@ -225,7 +225,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     std::string logs = testing::internal::GetCapturedStderr();
 
     EXPECT_THAT(logs, HasSubstr(expectedLog));
-    EXPECT_THAT(logs, Not(HasSubstr("Starting Scan Now scan")));
+    EXPECT_THAT(logs, Not(HasSubstr("Starting Scan Now")));
 }
 
 TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT

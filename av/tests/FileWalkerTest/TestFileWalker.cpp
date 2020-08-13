@@ -110,7 +110,8 @@ TEST(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
     catch (fs::filesystem_error& e)
     {
         EXPECT_EQ(e.what(),
-                std::string("filesystem error: File/Folder does not exist: No such file or directory"));
+                  std::string("filesystem error: Aborted scan: file/folder does not exist - "
+                              "\"FileThatDoesNotExist\": No such file or directory"));
         EXPECT_EQ(e.code().value(), ENOENT);
     }
 }

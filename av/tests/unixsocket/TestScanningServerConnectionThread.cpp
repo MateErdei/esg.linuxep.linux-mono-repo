@@ -119,7 +119,7 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
 
 TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
 {
-    const std::string expected = "Socket failed: 9";
+    const std::string expected = "Closing socket because pselect failed: 9";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();

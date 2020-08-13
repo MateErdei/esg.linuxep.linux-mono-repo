@@ -56,7 +56,7 @@ TEST_F(TestThreatDetectorSocket, test_running) // NOLINT
     server.requestStop();
     server.join();
 
-    EXPECT_TRUE(appenderContains("Listener started"));
+    EXPECT_TRUE(appenderContains("Starting listening on socket"));
     EXPECT_TRUE(appenderContains("Closing socket"));
 }
 

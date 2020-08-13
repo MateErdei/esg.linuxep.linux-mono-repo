@@ -191,7 +191,7 @@ int CommandLineScanRunner::run()
                 }
         }
 
-        oss << oss.str() << exclusion << ", ";
+        oss << exclusion << ", ";
         cmdExclusions.emplace_back(exclusion);
     }
 

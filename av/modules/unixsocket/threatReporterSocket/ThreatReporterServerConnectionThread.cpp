@@ -127,7 +127,7 @@ void ThreatReporterServerConnectionThread::run()
 
         if (fd_isset(exitFD, &tempRead))
         {
-            LOGSUPPORT("Closing    scanning socket thread");
+            LOGSUPPORT("Closing scanning socket thread");
             break;
         }
         else

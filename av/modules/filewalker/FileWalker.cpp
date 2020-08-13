@@ -27,7 +27,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         std::ostringstream oss;
         oss << "Aborted scan: file/folder does not exist";
         LOGERROR(oss.str());
-        oss << oss.str() << " - " << starting_point;
+        oss << " - " << starting_point;
         std::error_code ec (ENOENT, std::system_category());
         throw fs::filesystem_error(oss.str(), ec);
     }

@@ -123,7 +123,7 @@ TEST_F(TestThreatReporterServerConectionThread, send_zero_length) //NOLINT
 
 TEST_F(TestThreatReporterServerConectionThread, closed_fd) //NOLINT
 {
-    const std::string expected = "Socket failed: 9";
+    const std::string expected = "Closing socket, error: 9";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
