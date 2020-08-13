@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace avscanner::avscannerimpl
+namespace avscanner::mountinfoimpl
 {
     class SystemPathsFactory : public avscanner::mountinfo::ISystemPathsFactory
     {

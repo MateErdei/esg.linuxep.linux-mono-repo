@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "avscanner/mountinfoimpl/SystemPaths.h"
 
-using namespace avscanner::avscannerimpl;
 using namespace avscanner::mountinfoimpl;
 
 avscanner::mountinfo::ISystemPathsSharedPtr SystemPathsFactory::createSystemPaths() const
