@@ -13,22 +13,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace avscanner::avscannerimpl
 {
-    class SystemCallWrapper : public ISystemCallWrapper
+    class SystemCallWrapper : public mountinfoimpl::ISystemCallWrapper
     {
     public:
-        int _ioctl(int __fd, unsigned long int __request, char* buffer)
+        int _ioctl(int fd, unsigned long int request, char* buffer) override
         {
-            return ioctl(__fd, __request, buffer);
+            return ioctl(fd, request, buffer);
         }
 
-        int _statfs(const char *__file, struct ::statfs *__buf)
+        int _statfs(const char *file, struct ::statfs *buf) override
         {
-            return ::statfs(__file, __buf);
+            return ::statfs(file, buf);
         }
 
-        int _open(const char *__file, int __oflag, mode_t mode)
+        int _open(const char *file, int oflag, mode_t mode) override
         {
-            return ::open(__file, __oflag, mode);
+            return ::open(file, oflag, mode);
         }
     };
 }

@@ -15,6 +15,6 @@ namespace avscanner::avscannerimpl
     class SystemCallWrapperFactory : public ISystemCallWrapperFactory
     {
     public:
-        std::shared_ptr<ISystemCallWrapper> createSystemCallWrapper();
+        mountinfoimpl::ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
     };
 }

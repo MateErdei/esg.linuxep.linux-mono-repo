@@ -8,9 +8,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SystemCallWrapper.h"
 
+using namespace avscanner::mountinfoimpl;
 using namespace avscanner::avscannerimpl;
 
-std::shared_ptr<ISystemCallWrapper> SystemCallWrapperFactory::createSystemCallWrapper()
+ISystemCallWrapperSharedPtr SystemCallWrapperFactory::createSystemCallWrapper()
 {
     return std::make_shared<SystemCallWrapper>();
 }
