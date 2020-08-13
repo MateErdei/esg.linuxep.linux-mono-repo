@@ -16,8 +16,6 @@ SET_TARGET_PROPERTIES(TestMountInfoImpl
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
-
-
 add_executable(PrintMounts
         PrintMounts.cpp
         )

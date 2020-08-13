@@ -5,8 +5,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "avscanner/mountinfoimpl/Mounts.h"
+#include "avscanner/mountinfoimpl/SystemPathsFactory.h"
 
-#include <avscanner/mountinfoimpl/SystemPathsFactory.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 #include <iostream>
 
@@ -14,6 +15,7 @@ using namespace avscanner::mountinfoimpl;
 
 int main()
 {
+    static Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     auto pathsFactory = std::make_shared<SystemPathsFactory>();
     auto mounts = std::make_shared<Mounts>(pathsFactory->createSystemPaths());
 
