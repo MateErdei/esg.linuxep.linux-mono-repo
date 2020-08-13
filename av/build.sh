@@ -424,6 +424,12 @@ function build()
     then
         cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
+    if [[ -x build64/tests/avscanner/mountinfoimpl/PrintMounts ]]
+    then
+        mkdir -p output/componenttests
+        cp -a build64/tests/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
+            || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy PrintMounts"
+    fi
 
     python3 TA/process_capnp_files.py
 
