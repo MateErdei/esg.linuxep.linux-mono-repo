@@ -22,7 +22,6 @@ extern "C"
 #include <linux/hdreg.h>
 }
 
-using namespace avscanner::avscannerimpl;
 using namespace avscanner::mountinfoimpl;
 
 DeviceUtil::DeviceUtil(const ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory)

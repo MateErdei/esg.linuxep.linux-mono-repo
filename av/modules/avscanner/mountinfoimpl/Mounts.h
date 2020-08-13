@@ -60,7 +60,7 @@ namespace avscanner::avscannerimpl
             [[nodiscard]] bool isSpecial() const override;
 
         private:
-            std::shared_ptr<DeviceUtil> m_deviceUtil;
+            mountinfoimpl::DeviceUtilSharedPtr m_deviceUtil;
             std::string m_mountPoint;
             std::string m_device;
             std::string m_fileSystem;

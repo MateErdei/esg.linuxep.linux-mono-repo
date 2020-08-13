@@ -12,7 +12,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <sys/statfs.h>
 
-using namespace avscanner::avscannerimpl;
 using namespace avscanner::mountinfoimpl;
 
 using ::testing::Return;

@@ -26,6 +26,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 using namespace avscanner::mountinfo;
+using namespace avscanner::mountinfoimpl;
 
 std::string octalUnescape(const std::string& input)
 {
@@ -390,9 +391,9 @@ static avscanner::mountinfoimpl::ISystemCallWrapperSharedPtr createSystemCallWra
     return factory->createSystemCallWrapper();
 }
 
-static DeviceUtilSharedPtr getDeviceUtil()
+static avscanner::mountinfoimpl::DeviceUtilSharedPtr getDeviceUtil()
 {
-    static auto util = std::make_shared<DeviceUtil>(createSystemCallWrapper());
+    static auto util = std::make_shared<avscanner::mountinfoimpl::DeviceUtil>(createSystemCallWrapper());
     return util;
 }
 
