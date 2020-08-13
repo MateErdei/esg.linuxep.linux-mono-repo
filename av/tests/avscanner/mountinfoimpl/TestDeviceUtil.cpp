@@ -7,6 +7,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "avscanner/mountinfoimpl/DeviceUtil.h"
 #include "avscanner/mountinfoimpl/SystemCallWrapperFactory.h"
 
+#include "tests/common/LogInitializedTests.h"
+
 #include <gmock/gmock.h>
 #include <linux/magic.h>
 
@@ -43,7 +45,7 @@ public:
     MOCK_METHOD0(createSystemCallWrapper, std::shared_ptr<ISystemCallWrapper>());
 };
 
-class TestDeviceUtil : public ::testing::Test
+class TestDeviceUtil : public LogInitializedTests
 {
 public:
     void SetUp() override

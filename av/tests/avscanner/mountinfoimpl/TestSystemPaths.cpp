@@ -6,11 +6,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "avscanner/mountinfoimpl/SystemPaths.h"
 
+#include "tests/common/LogInitializedTests.h"
+
 #include <gtest/gtest.h>
 
 using namespace avscanner::mountinfoimpl;
 
-TEST(SystemPaths, TestSystemPaths) // NOLINT
+class TestSystemPaths : public LogInitializedTests
+{
+};
+
+TEST_F(TestSystemPaths, test_paths_are_correct) // NOLINT
 {
     SystemPaths systemPaths;
     EXPECT_EQ(systemPaths.mountInfoFilePath(), "/proc/mounts");

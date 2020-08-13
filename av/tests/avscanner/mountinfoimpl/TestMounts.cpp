@@ -5,15 +5,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "avscanner/mountinfoimpl/Mounts.h"
-#include "datatypes/sophos_filesystem.h"
+
+#include "tests/common/LogInitializedTests.h"
 
 #include <gmock/gmock.h>
 
 #include <fstream>
 
 #include <sys/stat.h>
-
-namespace fs = sophos_filesystem;
 
 using namespace avscanner::mountinfo;
 using namespace avscanner::mountinfoimpl;
@@ -30,7 +29,7 @@ public:
     MOCK_CONST_METHOD0(mountCmdPath, std::string());
 };
 
-class TestMounts : public ::testing::Test
+class TestMounts : public LogInitializedTests
 {
 public:
     void SetUp() override

@@ -2,13 +2,12 @@ include(GoogleTest)
 
 SophosAddTest(TestMountInfoImpl
         ../../common/LogInitializedTests.cpp
-        ../avscannerimpl/SetupLogging.cpp
         ../mountinfoimpl/TestDeviceUtil.cpp
         ../mountinfoimpl/TestMounts.cpp
         ../mountinfoimpl/TestSystemPaths.cpp
         PROJECTS mountinfoimpl
         INC_DIRS
-        ${CMAKE_SOURCE_DIR}/modules
+        ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
         )
 
 SET_TARGET_PROPERTIES(TestMountInfoImpl
