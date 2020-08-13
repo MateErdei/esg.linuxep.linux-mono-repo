@@ -10,7 +10,6 @@ add_library(avscannerimpl SHARED
         Logger.cpp
         Logger.h
         IRunner.h
-        ISystemPathsFactory.h
         NamedScanConfig.cpp
         NamedScanConfig.h
         NamedScanRunner.cpp
