@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 
-using namespace avscanner::avscannerimpl;
+using namespace avscanner::mountinfoimpl;
 
 TEST(SystemPaths, TestSystemPaths) // NOLINT
 {
