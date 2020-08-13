@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SystemCallWrapperFactory.h"
 
-#include "avscanner/avscannerimpl/Logger.h"
+#include "Logger.h"
 
 // Standard C++
 #include <cstdlib>

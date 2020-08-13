@@ -25,6 +25,7 @@ add_library(avscannerimpl SHARED
         ../mountinfoimpl/DeviceUtil.h
         ../mountinfoimpl/ISystemCallWrapper.h
         ../mountinfoimpl/ISystemCallWrapperFactory.h
+        ../mountinfoimpl/Logger.cpp
         ../mountinfoimpl/Mounts.cpp
         ../mountinfoimpl/Mounts.h
         ../mountinfoimpl/SystemCallWrapper.h
@@ -49,6 +50,7 @@ target_include_directories(avscannerimpl PUBLIC
         "${CAPNPROTO_INCLUDE_DIR}"
         ${CMAKE_BINARY_DIR}/modules/scan_messages
         ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_BINARY_DIR}/modules
         ${BOOSTPATH})
 
 target_link_libraries(avscannerimpl
