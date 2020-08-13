@@ -21,22 +21,6 @@ add_library(avscannerimpl SHARED
         PathUtils.h
         ScanClient.cpp
         ScanClient.h
-        ../mountinfoimpl/DeviceUtil.cpp
-        ../mountinfoimpl/DeviceUtil.h
-        ../mountinfoimpl/ISystemCallWrapper.h
-        ../mountinfoimpl/ISystemCallWrapperFactory.h
-        ../mountinfoimpl/Logger.cpp
-        ../mountinfoimpl/Mounts.cpp
-        ../mountinfoimpl/Mounts.h
-        ../mountinfoimpl/SystemCallWrapper.h
-        ../mountinfoimpl/SystemCallWrapperFactory.cpp
-        ../mountinfoimpl/SystemCallWrapperFactory.h
-        ../mountinfoimpl/SystemPaths.h
-        ../mountinfoimpl/SystemPathsFactory.cpp
-        ../mountinfoimpl/SystemPathsFactory.h
-        ../mountinfo/IMountInfo.h
-        ../mountinfo/IMountPoint.h
-        ../mountinfo/ISystemPaths.h
         )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
@@ -50,7 +34,6 @@ target_include_directories(avscannerimpl PUBLIC
         "${CAPNPROTO_INCLUDE_DIR}"
         ${CMAKE_BINARY_DIR}/modules/scan_messages
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_BINARY_DIR}/modules
         ${BOOSTPATH})
 
 target_link_libraries(avscannerimpl
@@ -58,6 +41,7 @@ target_link_libraries(avscannerimpl
         scanmessages
         unixsocket
         filewalker
+        mountinfoimpl
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         ${Boost_LIBRARIES})
 
