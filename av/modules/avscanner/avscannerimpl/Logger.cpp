@@ -34,16 +34,10 @@ Logger::Logger(const std::string& fileName, bool isCommandLine)
         logfilepath += ".log";
     }
 
-    // Log non-error messages to stdout
+    // Log to stdout (Common::Logging::ConsoleLoggingSetup logs to stderr)
     log4cplus::SharedAppenderPtr stdout_appender(new log4cplus::ConsoleAppender(false));
     Common::Logging::LoggingSetup::applyPattern(stdout_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
     log4cplus::Logger::getRoot().addAppender(stdout_appender);
-
-    // Log error messages to stderr
-    log4cplus::SharedAppenderPtr stderr_appender(new log4cplus::ConsoleAppender(true));
-    stderr_appender->setThreshold(log4cplus::ERROR_LOG_LEVEL);
-    Common::Logging::LoggingSetup::applyPattern(stderr_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
-    log4cplus::Logger::getRoot().addAppender(stderr_appender);
 
     if (!logfilepath.empty())
     {
