@@ -337,7 +337,7 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
             // result is "" if findfs doesn't exist.
             result = Mounts::scrape(m_systemPaths->findfsCmdPath(), args);
 
-            if (result.empty())
+            if (!result.empty())
             {
                 // first line only please.
                 equals = result.find('\n');
