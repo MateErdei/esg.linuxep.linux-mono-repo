@@ -119,8 +119,8 @@ namespace Common::Telemetry
 
     TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath)
     {
-        std::reference_wrapper<TelemetryObject> currentTelemObj = m_root;
-        return getTelemetryObjectByKey(keyPath, currentTelemObj);
+
+        return getTelemetryObjectByKey(keyPath, std::ref<TelemetryObject>(m_root));
     }
 
     TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath, std::reference_wrapper<TelemetryObject> root)
