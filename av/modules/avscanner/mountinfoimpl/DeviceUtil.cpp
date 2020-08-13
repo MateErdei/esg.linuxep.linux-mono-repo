@@ -25,7 +25,7 @@ extern "C"
 using namespace avscanner::avscannerimpl;
 using namespace avscanner::mountinfoimpl;
 
-DeviceUtil::DeviceUtil(const std::shared_ptr<ISystemCallWrapperFactory>& systemCallWrapperFactory)
+DeviceUtil::DeviceUtil(const ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory)
 : DeviceUtil(systemCallWrapperFactory->createSystemCallWrapper())
 {
 }

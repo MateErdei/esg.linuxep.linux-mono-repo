@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace avscanner::avscannerimpl
 {
-    class SystemCallWrapperFactory : public ISystemCallWrapperFactory
+    class SystemCallWrapperFactory : public mountinfoimpl::ISystemCallWrapperFactory
     {
     public:
         mountinfoimpl::ISystemCallWrapperSharedPtr createSystemCallWrapper() override;

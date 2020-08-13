@@ -17,7 +17,7 @@ namespace avscanner::avscannerimpl
     class DeviceUtil
     {
     public:
-        explicit DeviceUtil(const std::shared_ptr<ISystemCallWrapperFactory>& systemCallWrapperFactory);
+        explicit DeviceUtil(const mountinfoimpl::ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory);
         explicit DeviceUtil(mountinfoimpl::ISystemCallWrapperSharedPtr systemCallWrapper);
 
         /**

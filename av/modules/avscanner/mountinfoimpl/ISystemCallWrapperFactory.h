@@ -10,11 +10,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace avscanner::avscannerimpl
+namespace avscanner::mountinfoimpl
 {
     class ISystemCallWrapperFactory
     {
     public:
         virtual mountinfoimpl::ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
     };
+
+    using ISystemCallWrapperFactorySharedPtr = std::shared_ptr<ISystemCallWrapperFactory>;
 }
