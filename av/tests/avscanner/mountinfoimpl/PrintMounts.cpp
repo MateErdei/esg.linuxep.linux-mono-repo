@@ -10,7 +10,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <iostream>
 
-using namespace avscanner::avscannerimpl;
 using namespace avscanner::mountinfoimpl;
 
 int main()

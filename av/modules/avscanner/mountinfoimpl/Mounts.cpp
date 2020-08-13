@@ -24,7 +24,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/wait.h>
 #include <unistd.h>
 
-using namespace avscanner::avscannerimpl;
 using namespace avscanner::mountinfo;
 using namespace avscanner::mountinfoimpl;
 

@@ -13,7 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace avscanner::avscannerimpl
+namespace avscanner::mountinfoimpl
 {
     class Mounts : virtual public mountinfo::IMountInfo
     {

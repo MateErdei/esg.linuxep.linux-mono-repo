@@ -56,7 +56,7 @@ avscanner::mountinfo::IMountInfoSharedPtr BaseRunner::getMountInfo()
     if (!m_mountInfo)
     {
         auto pathsFactory = std::make_shared<mountinfoimpl::SystemPathsFactory>();
-        m_mountInfo = std::make_shared<Mounts>(pathsFactory->createSystemPaths());
+        m_mountInfo = std::make_shared<mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
     }
     return m_mountInfo;
 }
