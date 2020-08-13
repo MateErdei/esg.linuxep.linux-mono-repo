@@ -152,6 +152,7 @@ Thin Installer Installs Base And Services Start
     Check Correct MCS Password And ID For Local Cloud Saved
 
     Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Does Not Contain  /tmp/SophosCentralInstall
 
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
