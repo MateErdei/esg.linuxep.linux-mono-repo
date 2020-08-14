@@ -34,9 +34,12 @@ Mock Base Installation
     Create Directory   ${SOPHOS_INSTALL}/tmp
     Create Directory   ${SOPHOS_INSTALL}/var/ipc
     Create Directory   ${SOPHOS_INSTALL}/var/ipc/plugins
-    Create File        ${SOPHOS_INSTALL}/base/etc/logger.conf   VERBOSITY=DEBUG
+    Set Log Level  DEBUG
     Run Process   groupadd  sophos-spl-group
 
+Set Log Level
+    [Arguments]  ${logLevel}
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  VERBOSITY=${logLevel}
 
 Setup Component For Testing
     Run  pgrep -f sophos-spl | xargs kill -9

@@ -170,7 +170,7 @@ Check Plugin Installed and Running
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs
-    ...  Plugin Log Contains  ${COMPONENT} <> Entering the main loop
+    ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
     Wait until threat detector running
 
 Check AV Plugin Installed
@@ -184,6 +184,7 @@ Install With Base SDDS
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
     Install Base For Component Tests
+    Set Log Level  SUPPORT
     Install AV Directly from SDDS
 
 Uninstall All
