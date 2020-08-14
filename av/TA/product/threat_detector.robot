@@ -30,7 +30,7 @@ Start AV
     Wait Until Keyword Succeeds
         ...  30 secs
         ...  2 secs
-        ...  Threat Detector Log Contains  UnixSocket <> Listener started
+        ...  Threat Detector Log Contains  UnixSocket <> Started listening on socket
 
 Stop AV
      ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
