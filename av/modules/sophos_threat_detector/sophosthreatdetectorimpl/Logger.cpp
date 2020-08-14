@@ -7,7 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/Logging/LoggerConfig.h>
 
-log4cplus::Logger& getSophosThreadDetectorImplLogger()
+log4cplus::Logger& getSophosThreatDetectorImplLogger()
 {
     static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("SophosThreatDetectorImpl");
     return STATIC_LOGGER;
