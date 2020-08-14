@@ -2,10 +2,11 @@ include(GoogleTest)
 
 SophosAddTest(TestMountInfoImpl
         ../../common/LogInitializedTests.cpp
-        ../mountinfoimpl/TestDeviceUtil.cpp
-        ../mountinfoimpl/TestMounts.cpp
-        ../mountinfoimpl/TestSystemPaths.cpp
+        TestDeviceUtil.cpp
+        TestMounts.cpp
+        TestSystemPaths.cpp
         PROJECTS mountinfoimpl
+        LIBS ${pluginapilib}
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
         )
@@ -21,6 +22,7 @@ add_executable(PrintMounts
         )
 target_link_libraries(PrintMounts PRIVATE
         mountinfoimpl
+        ${pluginapilib}
         )
 target_include_directories(PrintMounts PUBLIC
         ${CMAKE_SOURCE_DIR}/modules
