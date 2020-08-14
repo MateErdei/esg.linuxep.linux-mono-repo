@@ -332,7 +332,7 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
         {
             std::vector<std::string> args;
             args.emplace_back("findfs");
-            args.push_back(device);
+            args.emplace_back(device);
 
             // result is "" if findfs doesn't exist.
             result = Mounts::scrape(m_systemPaths->findfsCmdPath(), args);
@@ -348,23 +348,21 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
             }
             else
             {
+                assert(result.empty()); // Only want to do this if findfs failed
                 args.clear();
                 args.emplace_back("mount -f -n -v");
-                args.push_back(device);
+                args.emplace_back(device);
                 args.emplace_back("/");
 
 
                 std::string output = Mounts::scrape(m_systemPaths->mountCmdPath(), args);
                 // output is probably going to be "" if user is not root.  But
                 // its worth a shot.
-                if (output.empty())
-                {
-                    equals = output.find(' ');
+                equals = output.find(' ');
 
-                    if (equals != std::string::npos)
-                    {
-                        result = output.substr(0 ,equals);
-                    }
+                if (equals != std::string::npos)
+                {
+                    result = output.substr(0 ,equals); // only replaces result if we got something back
                 }
             }
         }
