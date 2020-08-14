@@ -46,12 +46,7 @@ namespace avscanner::avscannerimpl
             return m_printHelp;
         }
 
-        static std::string getHelp()
-        {
-            std::ostringstream returnString;
-            returnString << *m_optionsDescription;
-            return returnString.str();
-        }
+        static std::string getHelp();
 
         [[nodiscard]] std::string logFile() const
         {
@@ -67,7 +62,8 @@ namespace avscanner::avscannerimpl
         std::vector <std::string> m_exclusions;
         bool m_archiveScanning = false;
 
-        inline static std::unique_ptr<po::options_description> m_optionsDescription = nullptr;
+        inline static std::unique_ptr<po::options_description> m_nonHiddenOptionsDescription = nullptr;
+        inline static std::unique_ptr<po::options_description> m_allOptionsDescription = nullptr;
         static boost::program_options::variables_map parseCommandLine(int argc, char** argv);
         static void constructOptions();
     };
