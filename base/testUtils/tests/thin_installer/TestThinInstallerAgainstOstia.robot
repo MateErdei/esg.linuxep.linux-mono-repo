@@ -179,6 +179,13 @@ Thin Installer Attempts Install And Register Through Message Relays
     # Add Message Relays to Thin Installer
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
 
+    # Check current proxy file is written with correct content and permissions.
+    # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
+    ${currentProxyFilePath} =  Set Variable  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
+    ${currentProxyContents} =  Get File  ${currentProxyFilePath}
+    Should Contain  ${currentProxyContents}  localhost:20000
+    Ensure Owner and Group Matches  ${currentProxyFilePath}  sophos-spl-user  sophos-spl-group
+
     # Check the MCS Capabilities check is performed with the Message Relays in the right order
     Check Thininstaller Log Contains    Message Relays: dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
     # Thininstaller orders only by priority, localhost is only one with low priority
@@ -208,6 +215,12 @@ Thin Installer Attempts Install And Register Through Message Relays
         ...  65 secs
         ...  5 secs
         ...  Check MCS Router Log Contains  Successfully connected to localhost:4443 via localhost:20000
+
+    # Also to prove MCS is working correctly check that we get an ALC policy
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseVUTPolicy}
 
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
