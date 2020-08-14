@@ -116,7 +116,7 @@ Wait until threat detector running
     Wait Until Keyword Succeeds
         ...  40 secs
         ...  2 secs
-        ...  Threat Detector Log Contains  UnixSocket <> Started listening on socket
+        ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
 
 Increase Threat Detector Log To Max Size
     increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}
