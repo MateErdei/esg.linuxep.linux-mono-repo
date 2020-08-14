@@ -332,7 +332,7 @@ bool Mounts::parseLinuxProcMountsLine(const std::string& line, std::string& devi
  */
 std::string Mounts::fixDeviceWithMount(const std::string& device)
 {
-    size_t equals = device.find('=');
+    auto equals = device.find('=');
     std::string result;
 
 
@@ -351,10 +351,10 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
             if (!result.empty())
             {
                 // first line only please.
-                equals = result.find('\n');
-                if (equals != std::string::npos)
+                auto newline = result.find('\n');
+                if (newline != std::string::npos)
                 {
-                    result = result.substr(0, equals);
+                    result = result.substr(0, newline);
                 }
             }
             else
@@ -368,13 +368,19 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
 
 
                 std::string output = Mounts::scrape(m_systemPaths->mountCmdPath(), args);
+                // "mount: /dev/rootfs mounted on /." on Ubuntu 18.04
                 // output is probably going to be "" if user is not root.  But
                 // its worth a shot.
-                equals = output.find(' ');
-
-                if (equals != std::string::npos)
+                auto first_space = output.find(' ');
+                if (first_space != std::string::npos)
                 {
-                    result = output.substr(0 ,equals); // only replaces result if we got something back
+                    first_space += 1;
+                    auto second_space = output.find(' ', first_space);
+                    assert(first_space != second_space);
+                    if (second_space != std::string::npos)
+                    {
+                        result = output.substr(first_space, second_space-first_space); // only replaces result if we got something back
+                    }
                 }
             }
         }

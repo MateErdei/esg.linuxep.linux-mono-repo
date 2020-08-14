@@ -202,6 +202,49 @@ TEST_F(TestMounts, TestMountPoint_findfs_fails) // NOLINT
     EXPECT_CALL(*m_systemPaths, mountCmdPath()).Times(1).WillRepeatedly(Return(m_mountCmdPath));
 
     auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    EXPECT_EQ(mountInfo->device("/"), "/dev/abc1");
+    auto allMountpoints = mountInfo->mountPoints();
+    EXPECT_EQ(allMountpoints.size(), 1);
+}
+
+
+TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_empty) // NOLINT
+{
+    std::string mountInfoFile = "mountInfo.txt";
+    std::string cmdlineInfoFile = "cmdlineInfo.txt";
+    CreateFile(mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
+    CreateFile(cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
+    CreateFile(m_findfsCmdPath, "#!/bin/bash\nexit 77", S_IRWXU);
+    CreateFile(m_mountCmdPath, "#!/bin/bash\nexit 0", S_IRWXU);
+
+    EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(mountInfoFile));
+    EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(cmdlineInfoFile));
+    EXPECT_CALL(*m_systemPaths, findfsCmdPath()).Times(1).WillRepeatedly(Return(m_findfsCmdPath));
+    EXPECT_CALL(*m_systemPaths, mountCmdPath()).Times(1).WillRepeatedly(Return(m_mountCmdPath));
+
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    EXPECT_EQ(mountInfo->device("/"), "UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4"); // Failed to resolve to device
+    auto allMountpoints = mountInfo->mountPoints();
+    EXPECT_EQ(allMountpoints.size(), 1);
+}
+
+
+TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_one_space) // NOLINT
+{
+    std::string mountInfoFile = "mountInfo.txt";
+    std::string cmdlineInfoFile = "cmdlineInfo.txt";
+    CreateFile(mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
+    CreateFile(cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
+    CreateFile(m_findfsCmdPath, "#!/bin/bash\nexit 77", S_IRWXU);
+    CreateFile(m_mountCmdPath, "#!/bin/bash\necho mount: foobar", S_IRWXU);
+
+    EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(mountInfoFile));
+    EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(cmdlineInfoFile));
+    EXPECT_CALL(*m_systemPaths, findfsCmdPath()).Times(1).WillRepeatedly(Return(m_findfsCmdPath));
+    EXPECT_CALL(*m_systemPaths, mountCmdPath()).Times(1).WillRepeatedly(Return(m_mountCmdPath));
+
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    EXPECT_EQ(mountInfo->device("/"), "UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4"); // Failed to resolve to device
     auto allMountpoints = mountInfo->mountPoints();
     EXPECT_EQ(allMountpoints.size(), 1);
 }
