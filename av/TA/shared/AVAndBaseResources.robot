@@ -31,7 +31,7 @@ Configure scan now
 Check scan now
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180
-    AV Plugin Log Contains  Starting Scan Now scan
+    AV Plugin Log Contains  Starting Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
 
 Validate latest Event

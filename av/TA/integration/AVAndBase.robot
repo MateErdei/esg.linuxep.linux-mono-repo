@@ -41,7 +41,7 @@ AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
     Send Sav Action To Base  ScanNow_Action.xml
     AV Plugin Log Does Not Contain  Starting scan scanNow
-    AV Plugin Log Contains  Starting Scan Now scan
+    AV Plugin Log Contains  Starting Scan Now
 
 AV plugin SAV Status contains revision ID of policy
     Check AV Plugin Installed With Base
