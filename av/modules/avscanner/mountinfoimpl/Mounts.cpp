@@ -327,69 +327,69 @@ bool Mounts::parseLinuxProcMountsLine(const std::string& line, std::string& devi
 }
 
 /**
- * Use mount -f -n -v to determine the real mount point if the
+ * Use findfs or mount -f -n -v to determine the real mount point if the
  * device begins with 'LABEL=' or 'UUID='.
  */
 std::string Mounts::fixDeviceWithMount(const std::string& device)
 {
     auto equals = device.find('=');
-    std::string result;
-
-
-    if (equals != std::string::npos)
+    if (equals == std::string::npos)
     {
-        std::string prefix = device.substr(0, equals);
-        if (prefix == "LABEL" || prefix == "UUID")
+        // not key=value
+        return device;
+    }
+
+    std::string prefix = device.substr(0, equals);
+    if (prefix != "LABEL" && prefix != "UUID")
+    {
+        // Not actually LABEL= or UUID=
+        return device;
+    }
+
+    // Try findfs first
+    std::vector<std::string> args;
+    args.emplace_back("findfs");
+    args.emplace_back(device);
+
+    // result is "" if findfs doesn't exist.
+    std::string result = Mounts::scrape(m_systemPaths->findfsCmdPath(), args);
+
+    if (!result.empty())
+    {
+        // first line only please.
+        auto newline = result.find('\n');
+        if (newline != std::string::npos)
         {
-            std::vector<std::string> args;
-            args.emplace_back("findfs");
-            args.emplace_back(device);
+            result = result.substr(0, newline);
+        }
+        return result;
+    }
 
-            // result is "" if findfs doesn't exist.
-            result = Mounts::scrape(m_systemPaths->findfsCmdPath(), args);
+    // findfs failed - try mount instead
+    assert(result.empty()); // Only want to do this if findfs failed
+    args.clear();
+    args.emplace_back("mount");
+    args.emplace_back("-fnv");
+    args.emplace_back(device);
+    args.emplace_back("/");
 
-            if (!result.empty())
-            {
-                // first line only please.
-                auto newline = result.find('\n');
-                if (newline != std::string::npos)
-                {
-                    result = result.substr(0, newline);
-                }
-            }
-            else
-            {
-                assert(result.empty()); // Only want to do this if findfs failed
-                args.clear();
-                args.emplace_back("mount");
-                args.emplace_back("-fnv");
-                args.emplace_back(device);
-                args.emplace_back("/");
-
-
-                std::string output = Mounts::scrape(m_systemPaths->mountCmdPath(), args);
-                // "mount: /dev/rootfs mounted on /." on Ubuntu 18.04
-                // output is probably going to be "" if user is not root.  But
-                // its worth a shot.
-                auto first_space = output.find(' ');
-                if (first_space != std::string::npos)
-                {
-                    first_space += 1;
-                    auto second_space = output.find(' ', first_space);
-                    assert(first_space != second_space);
-                    if (second_space != std::string::npos)
-                    {
-                        result = output.substr(first_space, second_space-first_space); // only replaces result if we got something back
-                    }
-                }
-            }
+    std::string output = Mounts::scrape(m_systemPaths->mountCmdPath(), args);
+    // "mount: /dev/rootfs mounted on /." on Ubuntu 18.04
+    // output is probably going to be "" if user is not root.
+    // But it's worth a shot.
+    auto first_space = output.find(' ');
+    if (first_space != std::string::npos)
+    {
+        first_space += 1;
+        auto second_space = output.find(' ', first_space);
+        assert(first_space != second_space);
+        if (second_space != std::string::npos)
+        {
+            return output.substr(first_space, second_space-first_space); // only return if we got something useful.
         }
     }
-    if (result.empty())
-    {
-        result = device;
-    }
-    return result;
+
+    return device;
 }
 
 /**
