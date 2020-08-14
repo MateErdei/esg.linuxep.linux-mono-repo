@@ -84,8 +84,12 @@ Mounts::Mounts(ISystemPathsSharedPtr systemPaths)
  */
 void Mounts::parseProcMounts()
 {
-    std::ifstream mountstream(m_systemPaths->mountInfoFilePath());
-    std::string line;
+    std::string mountInfoFilePath = m_systemPaths->mountInfoFilePath();
+    if (mountInfoFilePath.empty())
+    {
+        throw std::runtime_error("SystemPaths return empty string for mountInfoFilePath!");
+    }
+    std::ifstream mountstream(mountInfoFilePath);
 
 
     if (!mountstream)
@@ -100,6 +104,7 @@ void Mounts::parseProcMounts()
         std::string mountPoint;
 
 
+        std::string line;
         std::getline(mountstream, line);
 
         //LOGDEBUG("line: " << line);
@@ -283,7 +288,13 @@ std::string Mounts::realMountPoint(const std::string& device)
         if (device == "/dev/root" || device == "rootfs")
         {
             // SPECIAL CASE
-            std::ifstream cmdlinestream(m_systemPaths->cmdlineInfoFilePath());
+            std::string cmdlineInfoFilePath = m_systemPaths->cmdlineInfoFilePath();
+            if (cmdlineInfoFilePath.empty())
+            {
+                throw std::runtime_error("System Paths had empty cmdline Info file Path!");
+            }
+
+            std::ifstream cmdlinestream(cmdlineInfoFilePath);
             std::string entry;
 
             while (!cmdlinestream.eof())
@@ -322,7 +333,7 @@ bool Mounts::parseLinuxProcMountsLine(const std::string& line, std::string& devi
 std::string Mounts::fixDeviceWithMount(const std::string& device)
 {
     size_t equals = device.find('=');
-    std::string result = device;
+    std::string result;
 
 
     if (equals != std::string::npos)
@@ -367,6 +378,10 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
                 }
             }
         }
+    }
+    if (result.empty())
+    {
+        result = device;
     }
     return result;
 }
