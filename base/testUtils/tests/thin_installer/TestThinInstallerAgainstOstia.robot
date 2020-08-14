@@ -181,10 +181,7 @@ Thin Installer Attempts Install And Register Through Message Relays
 
     # Check current proxy file is written with correct content and permissions.
     # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
-    ${currentProxyFilePath} =  Set Variable  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
-    ${currentProxyContents} =  Get File  ${currentProxyFilePath}
-    Should Contain  ${currentProxyContents}  localhost:20000
-    Ensure Owner and Group Matches  ${currentProxyFilePath}  sophos-spl-user  sophos-spl-group
+    Check Current Proxy Is Created With Correct Content And Permissions  localhost:20000
 
     # Check the MCS Capabilities check is performed with the Message Relays in the right order
     Check Thininstaller Log Contains    Message Relays: dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3

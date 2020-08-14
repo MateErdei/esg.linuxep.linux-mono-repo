@@ -250,3 +250,10 @@ Register With Fake Cloud Without Starting MCSRouter
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Check Correct MCS Password And ID For Local Cloud Saved
+
+Check Current Proxy Is Created With Correct Content And Permissions
+    [Arguments]  ${content}
+    ${currentProxyFilePath} =  Set Variable  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
+    ${currentProxyContents} =  Get File  ${currentProxyFilePath}
+    Should Contain  ${currentProxyContents}  ${content}
+    Ensure Owner and Group Matches  ${currentProxyFilePath}  sophos-spl-user  sophos-spl-group
