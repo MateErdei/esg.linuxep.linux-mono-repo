@@ -18,12 +18,12 @@ Run Scheduled Scan
     Create Sav Policy With Scheduled Scan  ${TEMP_SAV_POLICY_FILENAME}  ${time}
     ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
     Send Plugin Policy  av  sav  ${policy_contents}
-    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration  timeout=240
+    Wait until scheduled scan updated
 
 Run Scan Now Scan
     Create Complete Sav Policy  ${TEMP_SAV_POLICY_FILENAME}
     ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
     Send Plugin Policy  av  sav  ${policy_contents}
-    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration  timeout=240
+    Wait until scheduled scan updated
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 

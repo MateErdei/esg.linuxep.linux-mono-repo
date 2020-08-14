@@ -1,5 +1,5 @@
 *** Settings ***
-
+Resource    AVResources.robot
 Resource    BaseResources.robot
 
 *** Keywords ***
@@ -26,7 +26,7 @@ Configure and check scan now
 
 Configure scan now
     Send Sav Policy To Base  SAV_Policy_Scan_Now.xml
-    Wait Until AV Plugin Log Contains  Updating scheduled scan configuration
+    Wait until scheduled scan updated
 
 Check scan now
     Send Sav Action To Base  ScanNow_Action.xml
