@@ -238,8 +238,8 @@ CLS Exclusions Filename
    Log To Console  output is ${output}
 
    Should Contain       ${output.replace("\n", " ")}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
-   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar"
-   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
+   Should Contain       ${output.replace("\n", " ")}  Excluding "${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar"
+   Should Contain       ${output.replace("\n", " ")}  Excluding "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Exclusions Folder
@@ -253,9 +253,9 @@ CLS Exclusions Folder
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
 
-   Should Contain      ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar"
-   Should Contain      ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/naugthy_eicar_folder"
-   Should Contain      ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder"
+   Should Contain      ${output.replace("\n", " ")}  Excluding "${NORMAL_DIRECTORY}/clean_eicar"
+   Should Contain      ${output.replace("\n", " ")}  Excluding "${NORMAL_DIRECTORY}/naugthy_eicar_folder"
+   Should Contain      ${output.replace("\n", " ")}  Excluding "${NORMAL_DIRECTORY}/clean_eicar_folder"
    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Exclusions Folder And File
@@ -269,9 +269,9 @@ CLS Exclusions Folder And File
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
 
-   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar"
+   Should Contain       ${output.replace("\n", " ")}  Excluding "${NORMAL_DIRECTORY}/clean_eicar"
    Should Contain       ${output.replace("\n", " ")}  Scanning ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
-   Should Contain       ${output.replace("\n", " ")}  Exclusion applied to: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
+   Should Contain       ${output.replace("\n", " ")}  Excluding "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 CLS Prints Help and Failure When Options Are Spaced Incorrectly
