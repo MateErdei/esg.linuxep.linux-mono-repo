@@ -69,6 +69,16 @@ ${VIRUS_DETECTED_RESULT}    69
 ${UKNOWN_OPTION_RESULT}     2
 ${BAD_OPTION_RESULT}        3
 *** Test Cases ***
+
+CLS No args
+    ${result} =  Run Process  ${CLI_SCANNER_PATH}  timeout=120s  stderr=STDOUT
+
+    Log To Console  return code is ${result.rc}
+    Log To Console  output is ${result.stdout}
+
+    Should Not Contain  ${result.stdout.replace("\n", " ")}  "failed to execute"
+
+
 CLS Can Scan Clean File
 
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
