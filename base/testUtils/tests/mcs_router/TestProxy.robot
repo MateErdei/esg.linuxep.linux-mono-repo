@@ -205,6 +205,12 @@ Policy proxy overrides local proxy
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
     Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
 
+    # Check current proxy file is written with correct content and permissions.
+    # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
+    ${currentProxyFilePath} =  Set Variable  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
+    ${currentProxyContents} =  Get File  ${currentProxyFilePath}
+    Should Contain  ${currentProxyContents}  localhost:${Proxy_Port_One}
+    Ensure Owner and Group Matches  ${currentProxyFilePath}  sophos-spl-user  sophos-spl-group
 
 Fallback to direct connection when policy proxy fails
     [Tags]  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_TESTS
