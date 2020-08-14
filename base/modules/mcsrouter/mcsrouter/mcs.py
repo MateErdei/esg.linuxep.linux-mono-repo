@@ -648,8 +648,8 @@ class MCS:
                                 LOGGER.error("Failed to send responses: {}".format(str(exception)))
 
                     # reset command poll
-                except socket.error:
-                    LOGGER.warning("Got socket error")
+                except socket.error as ex:
+                    LOGGER.warning("Got socket error: {}".format(str(ex)))
                     error_count += 1
 
                     self.on_error(push_client, error_count)

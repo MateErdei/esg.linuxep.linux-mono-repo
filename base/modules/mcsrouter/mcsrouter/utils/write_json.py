@@ -3,6 +3,7 @@
 
 from . import sec_obfuscation
 from . import path_manager
+from .get_ids import get_gid, get_uid
 
 import logging
 import json
@@ -38,4 +39,8 @@ def write_current_proxy_info(proxy):
 
     with open(filepath, 'w') as outfile:
         json.dump(proxy_info, outfile)
-    os.chmod(filepath,0o640)
+    os.chmod(filepath, 0o640)
+
+    # If registering with a proxy/mr this will be run as root so need to change ownership
+    if os.getuid() == 0:
+        os.chown(filepath, get_uid("sophos-spl-user"), get_gid("sophos-spl-group"))
