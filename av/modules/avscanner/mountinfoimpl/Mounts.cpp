@@ -351,9 +351,7 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
                 assert(result.empty()); // Only want to do this if findfs failed
                 args.clear();
                 args.emplace_back("mount");
-                args.emplace_back("-f");
-                args.emplace_back("-n");
-                args.emplace_back("-v");
+                args.emplace_back("-fnv");
                 args.emplace_back(device);
                 args.emplace_back("/");
 
