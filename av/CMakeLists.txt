@@ -135,3 +135,4 @@ find_library(CRYPTO_LIBRARY
 add_subdirectory(modules)
 add_subdirectory(products)
 add_subdirectory(tests)
+add_subdirectory(tools/avscanner/mountinfoimpl)
