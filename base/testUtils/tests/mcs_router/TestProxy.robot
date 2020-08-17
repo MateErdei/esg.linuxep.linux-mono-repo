@@ -451,7 +451,11 @@ Central Mcs Policy Should Control Proxy Used
     ...  5 secs
     ...  1 secs
     ...  Check MCSRouter Log Contains   ${Success_Direct_Connection_Message}
-    Check MCSRouter Log Contains   ${Success_Push_Direct_Connection_Message}
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check MCSRouter Log Contains   ${Success_Push_Direct_Connection_Message}
 
     # Check log contains failed connection message only once
     ${MCS_Router_Log} =  Get File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
