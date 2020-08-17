@@ -3,8 +3,11 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 #include <cassert>
+
+#define P(_X) std::cerr << _X << '\n';
 
 static bool isWhitelistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
 {
@@ -12,6 +15,7 @@ static bool isWhitelistedFile(void *token, SusiHashAlg algorithm, const char *fi
     (void)algorithm;
     (void)fileChecksum;
     (void)size;
+    P("isWhitelistedFile: " << fileChecksum);
     return false;
 }
 
@@ -22,6 +26,8 @@ static SusiCertTrustType isTrustedCert(void *token, SusiHashAlg algorithm, const
     (void)pkcs7;
     (void)size;
 
+    P("isTrustedCert: " << size);
+
     return SUSI_TRUSTED;
 }
 
@@ -30,6 +36,8 @@ static bool isWhitelistedCert(void *token, const char *fileTopLevelCert, size_t 
     (void)token;
     (void)fileTopLevelCert;
     (void)size;
+
+    P("isWhitelistedCert: " << size);
 
     return false;
 }
@@ -58,7 +66,7 @@ SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
     assert(res == SUSI_S_OK);
 }
 
-SusiGlobalHandler::~SusiGlobalHandler()
+SusiGlobalHandler::~SusiGlobalHandler() noexcept
 {
     SusiResult res = SUSI_Terminate();
     std::cerr << "Global Susi destroyed res=" << std::hex << res << std::dec << std::endl;
@@ -116,97 +124,107 @@ static const SusiLogCallback GL_log_callback{
     .minLogLevel = SUSI_LOG_LEVEL_DETAIL
 };
 
-static std::string replace(std::string& source, const std::string& target, const std::string& replacement)
+using KeyValueCollection = std::vector<std::pair<std::string, std::string>>;
+
+static std::string orderedStringReplace(const std::string& pattern, const KeyValueCollection& keyvalues)
 {
-    std::string::size_type pos = source.find(target);
-    std::string::size_type len = target.length();
+    std::string result;
+    size_t beginPos = 0;
 
-    source.replace(pos, len, replacement);
+    for (const auto& keyvalue : keyvalues)
+    {
+        const auto& key = keyvalue.first;
+        size_t pos = pattern.find(key, beginPos);
+        if (pos == std::string::npos)
+        {
+            break;
+        }
+        result += pattern.substr(beginPos, pos - beginPos);
+        result += keyvalue.second;
+        beginPos = pos + key.length();
+    }
 
-    return source;
+    result += pattern.substr(beginPos);
+    return result;
 }
 
-int main(int argc, char* argv[])
+static std::string create_scanner_info(bool scanArchives)
 {
-    // std::cout << "SUSI_E_INITIALISING=0x" << std::hex << SUSI_E_INITIALISING << std::dec << std::endl;
+    std::string scannerInfo = orderedStringReplace(R"sophos("scanner": {
+        "signatureBased": {
+            "fileTypeCategories": {
+                "archive": @@SCAN_ARCHIVES@@,
+                "selfExtractor": true,
+                "executable": true,
+                "office": true,
+                "adobe": true,
+                "android": true,
+                "internet": true,
+                "webArchive": true,
+                "webEncoding": true,
+                "media": true,
+                "macintosh": true
+            },
+            "scanControl": {
+                "trueFileTypeDetection": true,
+                "puaDetection": false,
+                "archiveRecursionDepth": 16,
+                "stopOnArchiveBombs": true
+            }
+        }
+    })sophos", {{"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"}});
 
-    SusiResult ret;
-    ret = SUSI_SetLogCallback(&GL_log_callback);
-    throwIfNotOk(ret, "Failed to set log callback");
+    return scannerInfo;
+}
 
-    static const std::string config = R"({
+static std::string create_runtime_config(const std::string& libraryPath, const std::string& scannerInfo)
+{
+    std::string runtimeConfig = orderedStringReplace(R"sophos({
     "library": {
-        "libraryPath": "<<LIBRARY_PATH>>",
+        "libraryPath": "@@LIBRARY_PATH@@",
         "tempPath": "/tmp",
         "product": {
-            "name": "DLCL_Experiment",
+            "name": "SSPL AV Plugin",
             "context": "File",
             "version": "1.0.0"
         },
         "customerID": "0123456789abcdef",
         "machineID": "fedcba9876543210"
     },
-    "scanner": {
-        "signatureBased": {
-            "fileTypeCategories": {
-                "archive": true,
-                "selfExtractor": true,
-                "executable": true,
-                "office": true,
-                "adobe": true,
-                "android": true,
-                "internet": true,
-                "webArchive": true,
-                "webEncoding": true,
-                "media": true,
-                "macintosh": true
-            },
-            "scanControl": {
-                "trueFileTypeDetection": true,
-                "puaDetection": true,
-                "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true
-            }
-        }
-    }
-})";
+    @@SCANNER_CONFIG@@
+})sophos", {{"@@LIBRARY_PATH@@", libraryPath},
+            {"@@SCANNER_CONFIG@@", scannerInfo}
+    });
+    return runtimeConfig;
+}
+
+static std::string create_scanner_config(const std::string& scannerInfo)
+{
+    return "{"+scannerInfo+"}";
+}
+
+int main(int argc, char* argv[])
+{
+    // std::cout << "SUSI_E_INITIALISING=0x" << std::hex << SUSI_E_INITIALISING << std::dec << std::endl;
+
+    SusiResult ret = SUSI_SetLogCallback(&GL_log_callback);
+    throwIfNotOk(ret, "Failed to set log callback");
+
     std::string libraryPath = "/home/pair/gitrepos/sspl-tools/sspl-plugin-mav-susi-component/sspl-plugin-mav-susi-component-build/output/susi";
     if (argc > 1)
     {
         libraryPath = argv[1];
     }
 
-    std::string runtimeConfig = config;
-    replace(runtimeConfig, "<<LIBRARY_PATH>>", libraryPath);
+    static const std::string scannerInfo = create_scanner_info(true);
+    static const std::string runtimeConfig = create_runtime_config(
+        libraryPath,
+        scannerInfo
+    );
 
     SusiGlobalHandler global_susi(runtimeConfig);
 
-    static const std::string scannerConfig = R"({
-    "scanner": {
-        "signatureBased": {
-            "fileTypeCategories": {
-                "archive": true,
-                "selfExtractor": true,
-                "executable": true,
-                "office": true,
-                "adobe": true,
-                "android": true,
-                "internet": true,
-                "webArchive": true,
-                "webEncoding": true,
-                "media": true,
-                "macintosh": true
-            },
-            "scanControl": {
-                "trueFileTypeDetection": true,
-                "puaDetection": true,
-                "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true
-            }
-        }
-    }
-})";
-
+    static const std::string scannerConfig = create_scanner_config(scannerInfo);
     SusiHolder susi(scannerConfig);
 
     static const std::string metaDataJson = R"({
