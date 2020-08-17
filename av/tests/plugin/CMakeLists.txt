@@ -1,6 +1,7 @@
 include(GoogleTest)
 
 SophosAddTest(TestPlugin
+        ../common/LogInitializedTests.cpp
         TestPlugin.cpp
         TestPluginAdapter.cpp
         TestPubSub.cpp

@@ -17,6 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/common/LogInitializedTests.h>
 
 #include <atomic>
 #include <memory>
@@ -29,7 +30,7 @@ using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::StrictMock;
 
-class RawDataCallbackTests : public ::testing::Test
+class RawDataCallbackTests : public LogInitializedTests
 {
 public:
     void TearDown() override
@@ -46,8 +47,6 @@ public:
         subscriber->start();
         rawDataPublisher = pluginResourceManagement->createRawDataPublisher();
     }
-
-    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 
     Tests::PubSubPathReplacement m_pathReplacement; // This provides data channels for testing
     std::unique_ptr<IPluginResourceManagement> pluginResourceManagement;

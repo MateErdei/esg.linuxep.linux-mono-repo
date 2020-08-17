@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "manager/scheduler/ScanScheduler.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <tests/common/LogInitializedTests.h>
 
 using namespace manager::scheduler;
 
@@ -25,22 +26,51 @@ namespace
         }
         std::string m_xml;
     };
+
+    class TestScanScheduler : public LogInitializedTests
+    {
+        public:
+            Common::XmlUtilities::AttributesMap m_scheduledScanPolicy = Common::XmlUtilities::parseXml(
+                R"MULTILINE(<?xml version="1.0"?>
+                            <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+                              <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+                              <onDemandScan>
+                                <scanSet>
+                                  <!-- if {{scheduledScanEnabled}} -->
+                                  <scan>
+                                    <name>Another scan!</name>
+                                    <schedule>
+                                      <daySet>
+                                        <!-- for day in {{scheduledScanDays}} -->
+                                        <day>friday</day>
+                                      </daySet>
+                                      <timeSet>
+                                        <time>20:00:00</time>
+                                      </timeSet>
+                                    </schedule>
+                                   </scan>
+                                </scanSet>
+                                <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
+                              </onDemandScan>
+                            </config>
+                            )MULTILINE");
+
+        Common::XmlUtilities::AttributesMap m_emptyPolicy = Common::XmlUtilities::parseXml(
+                R"MULTILINE(<?xml version="1.0"?>
+                            <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+                              <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+                            </config>
+                            )MULTILINE");
+    };
 }
 
-TEST(TestScanScheduler, scanNow) //NOLINT
+TEST_F(TestScanScheduler, scanNow) //NOLINT
 {
     FakeScanCompletion scanCompletion;
 
     ScanScheduler scheduler{scanCompletion};
 
-    auto attributeMap = Common::XmlUtilities::parseXml(
-            R"MULTILINE(<?xml version="1.0"?>
-<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
-</config>
-)MULTILINE");
-
-    ScheduledScanConfiguration scheduledScanConfiguration(attributeMap);
+    ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
 
     scheduler.start();
 
@@ -68,38 +98,13 @@ TEST(TestScanScheduler, scanNow) //NOLINT
     std::cerr.rdbuf(sbuf);
 }
 
-TEST(TestScanScheduler, findNextTime) //NOLINT
+TEST_F(TestScanScheduler, findNextTime) //NOLINT
 {
-    auto attributeMap = Common::XmlUtilities::parseXml(
-            R"MULTILINE(<?xml version="1.0"?>
-<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
-  <onDemandScan>
-    <scanSet>
-      <!-- if {{scheduledScanEnabled}} -->
-      <scan>
-        <name>Another scan!</name>
-        <schedule>
-          <daySet>
-            <!-- for day in {{scheduledScanDays}} -->
-            <day>friday</day>
-          </daySet>
-          <timeSet>
-            <time>20:00:00</time>
-          </timeSet>
-        </schedule>
-       </scan>
-    </scanSet>
-    <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
-  </onDemandScan>
-</config>
-)MULTILINE");
-
     FakeScanCompletion scanCompletion;
 
     ScanScheduler scheduler{scanCompletion};
 
-    ScheduledScanConfiguration scheduledScanConfiguration(attributeMap);
+    ScheduledScanConfiguration scheduledScanConfiguration(m_scheduledScanPolicy);
     scheduler.updateConfig(scheduledScanConfiguration);
 
     struct timespec spec{};

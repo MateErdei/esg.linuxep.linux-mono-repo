@@ -15,8 +15,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <fstream>
 #include <tests/common/Common.h>
+#include <tests/common/LogInitializedTests.h>
 
 using namespace testing;
 using namespace Plugin;
@@ -27,12 +27,11 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class TestPluginAdapter : public ::testing::Test
+    class TestPluginAdapter : public LogInitializedTests
     {
     public:
         void SetUp() override
         {
-            Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
             testing::internal::CaptureStderr();
 
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();

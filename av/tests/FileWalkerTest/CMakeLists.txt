@@ -16,6 +16,7 @@ SET_TARGET_PROPERTIES( file_walker_experiment
         )
 
 SophosAddTest(TestFileWalker
+        ../common/LogInitializedTests.cpp
         TestFileWalker.cpp
         TestFileWalkerBackTrackProtection.cpp
         PROJECTS filewalker

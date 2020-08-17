@@ -7,12 +7,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <datatypes/Print.h>
 #include "manager/scheduler/DaySet.h"
+#include <tests/common/LogInitializedTests.h>
 
 using namespace manager::scheduler;
 
 namespace
 {
-    class TestDaySet : public ::testing::Test
+    class TestDaySet : public LogInitializedTests
     {
         public:
             Common::XmlUtilities::AttributesMap m_days = Common::XmlUtilities::parseXml(

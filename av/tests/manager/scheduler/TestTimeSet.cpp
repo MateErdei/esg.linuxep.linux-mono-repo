@@ -5,12 +5,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include <gtest/gtest.h>
 #include "manager/scheduler/TimeSet.h"
+#include <tests/common/LogInitializedTests.h>
 
 using namespace manager::scheduler;
 
 namespace
 {
-    class TestTimeSet : public ::testing::Test
+    class TestTimeSet : public LogInitializedTests
     {
         public:
             Common::XmlUtilities::AttributesMap m_time = Common::XmlUtilities::parseXml(

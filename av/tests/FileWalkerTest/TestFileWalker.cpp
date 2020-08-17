@@ -19,8 +19,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace fs = sophos_filesystem;
 
-static Common::Logging::ConsoleLoggingSetup consoleLoggingSetup; // NOLINT(cert-err58-cpp)
-
 namespace
 {
     class FakeCallbacks : public filewalker::IFileWalkCallbacks

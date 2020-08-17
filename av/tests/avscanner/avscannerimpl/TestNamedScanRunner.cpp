@@ -16,6 +16,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 #include <capnp/message.h>
+#include <tests/common/LogInitializedTests.h>
 
 using namespace avscanner::avscannerimpl;
 using namespace avscanner::mountinfo;
@@ -24,7 +25,7 @@ using ::testing::StrictMock;
 
 namespace fs = sophos_filesystem;
 
-class TestNamedScanRunner : public ::testing::Test
+class TestNamedScanRunner : public LogInitializedTests
 {
 public:
     void SetUp() override
