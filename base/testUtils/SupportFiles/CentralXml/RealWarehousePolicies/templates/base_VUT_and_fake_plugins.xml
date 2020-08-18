@@ -4,7 +4,7 @@
     <AUConfig platform="Linux">
         <sophos_address address="http://es-web.sophos.com/update"/>
         <primary_location>
-            <server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="@PASSWORD@" UserName="@USERNAME@" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="@CONNECTIONADDRESS@" AllowLocalConfig="false"/>
+            <server BandwidthLimit="256" AutoDial="false" Algorithm="@ALGORITHM@" UserPassword="@PASSWORD@" UserName="@USERNAME@" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="@CONNECTIONADDRESS@" AllowLocalConfig="false"/>
             <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
         </primary_location>
         <secondary_location>

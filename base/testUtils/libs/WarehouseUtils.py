@@ -170,11 +170,14 @@ class TemplateConfig:
             self.password = env_values[1]
             self.remote_connection_address = BALLISTA_ADDRESS
             self.build_type = PROD_BUILD_CERTS
+            #allows the use of obfuscated creds instead of plaintext
+            self.algorithm = "AES256"
         else:
             self.username = username
             self.password = PASSWORD
             self.remote_connection_address = ostia_adress
             self.build_type = build_type
+            self.algorithm = "Clear"
         self._define_valid_update_certs()
         self._define_hashed_creds()
         self.local_connection_address = None
@@ -200,7 +203,8 @@ class TemplateConfig:
     def _set_local_connection_address_to_use_local_customer_address_if_using_local_ostia_warehouses(self):
         # If we have local copies of the ostia warehouses, we want to set the connection address to use
         # the localhost:2233 address which customer file update servers will use
-        if self.use_local_warehouses:
+        # don't do this if using a ballista override
+        if self.use_local_warehouses and self.remote_connection_address != BALLISTA_ADDRESS:
             self.local_customer_file_port = OSTIA_ADDRESSES[self.remote_connection_address]
             self.local_connection_address = "https://localhost:{}".format(self.local_customer_file_port)
             logger.info("setting {} local connection address to {} as local warehouse directory was found".format(
@@ -268,12 +272,14 @@ class TemplateConfig:
         password_marker = "@PASSWORD@"
         username_marker = "@USERNAME@"
         connection_address_marker = "@CONNECTIONADDRESS@"
+        algorithm_marker="@ALGORITHM@"
 
         with open(template_policy) as template_file:
             template_string = template_file.read()
             template_string_with_replaced_values = template_string.replace(password_marker, self.password) \
                 .replace(username_marker, self.username) \
-                .replace(connection_address_marker, self.get_connection_address())
+                .replace(connection_address_marker, self.get_connection_address()) \
+                .replace(algorithm_marker, self.algorithm)
             with open(output_policy, "w+") as output_file:  # replaces existing file if exists
                 output_file.write(template_string_with_replaced_values)
                 logger.info(
