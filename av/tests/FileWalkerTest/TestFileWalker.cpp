@@ -7,9 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include <filewalker/FileWalker.h>
-#include <datatypes/Print.h>
-
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <tests/common/LogInitializedTests.h>
 
 #include <string>
 #include <fstream>
@@ -54,9 +52,14 @@ namespace
 
 
     };
+
+    class TestFileWalker : public LogInitializedTests
+    {
+
+    };
 }
 
-TEST(TestFileWalker, includeFiles) // NOLINT
+TEST_F (TestFileWalker, includeFiles) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
@@ -70,7 +73,7 @@ TEST(TestFileWalker, includeFiles) // NOLINT
 }
 
 
-TEST(TestFileWalker, absoluteIncludePath) // NOLINT
+TEST_F(TestFileWalker, absoluteIncludePath) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
@@ -88,7 +91,7 @@ TEST(TestFileWalker, absoluteIncludePath) // NOLINT
 }
 
 
-TEST(TestFileWalker, excludeDirectory) // NOLINT
+TEST_F(TestFileWalker, excludeDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
@@ -98,7 +101,7 @@ TEST(TestFileWalker, excludeDirectory) // NOLINT
     fs::remove_all("sandbox");
 }
 
-TEST(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
+TEST_F(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
 {
     FakeCallbacks callbacks;
     try
@@ -114,7 +117,7 @@ TEST(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
     }
 }
 
-TEST(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
+TEST_F(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
 {
     const fs::path& startingPath = fs::current_path();
     fs::create_directories("TestHugePathFileWalker");
@@ -146,7 +149,7 @@ TEST(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
     fs::remove_all("TestHugePathFileWalker");
 }
 
-TEST(TestFileWalker, hugeStartingFilePath) // NOLINT
+TEST_F(TestFileWalker, hugeStartingFilePath) // NOLINT
 {
     const fs::path& startingPath = fs::current_path();
     fs::create_directories("TestHugePathFileWalker");
