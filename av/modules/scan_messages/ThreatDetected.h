@@ -7,6 +7,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "ScanType.h"
+
 #include <string>
 
 namespace scan_messages
@@ -15,15 +17,6 @@ namespace scan_messages
     {
         // SAV Linux always uses 1, but we might to add more threat types in the future
         E_VIRUS_THREAT_TYPE = 1
-    };
-
-    enum E_SCAN_TYPE: int
-    {
-        E_SCAN_TYPE_UNKNOWN = 200,
-        E_SCAN_TYPE_ON_ACCESS = 201,
-        E_SCAN_TYPE_ON_DEMAND = 203,
-        E_SCAN_TYPE_SCHEDULED = 205,
-        E_SCAN_TYPE_MEMORY = 206
     };
 
     enum E_NOTIFCATION_STATUS: int

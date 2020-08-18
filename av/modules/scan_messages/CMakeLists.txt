@@ -13,6 +13,7 @@ add_library(scanmessages SHARED
         ScanRequest.h
         ScanResponse.cpp
         ScanResponse.h
+        ScanType.h
         ClientScanRequest.cpp
         ClientScanRequest.h
         ServerThreatDetected.cpp
