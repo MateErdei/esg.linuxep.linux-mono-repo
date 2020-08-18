@@ -1,11 +1,13 @@
 
 #include <Susi.h>
 
-#include <string>
+#include <cassert>
 #include <iostream>
+#include <string>
 #include <vector>
 
-#include <cassert>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define P(_X) std::cerr << _X << '\n';
 
@@ -207,20 +209,29 @@ int main(int argc, char* argv[])
 {
     // std::cout << "SUSI_E_INITIALISING=0x" << std::hex << SUSI_E_INITIALISING << std::dec << std::endl;
 
-    SusiResult ret = SUSI_SetLogCallback(&GL_log_callback);
-    throwIfNotOk(ret, "Failed to set log callback");
-
     std::string libraryPath = "/home/pair/gitrepos/sspl-tools/sspl-plugin-mav-susi-component/sspl-plugin-mav-susi-component-build/output/susi";
     if (argc > 1)
     {
         libraryPath = argv[1];
     }
 
+    const char* filename = "/etc/fstab";
+    if (argc > 2)
+    {
+        filename = argv[2];
+    }
+
+    int fd = ::open(filename, O_RDONLY);
+    assert(fd >= 0);
+
     static const std::string scannerInfo = create_scanner_info(true);
     static const std::string runtimeConfig = create_runtime_config(
         libraryPath,
         scannerInfo
     );
+
+    SusiResult ret = SUSI_SetLogCallback(&GL_log_callback);
+    throwIfNotOk(ret, "Failed to set log callback");
 
     SusiGlobalHandler global_susi(runtimeConfig);
 
@@ -233,14 +244,10 @@ int main(int argc, char* argv[])
     }
     })";
 
-    const char* filename = "/etc/fstab";
-    if (argc > 2)
-    {
-        filename = argv[2];
-    }
-
     SusiScanResult* result = nullptr;
-    SusiResult res = SUSI_ScanFile(susi.m_handle, metaDataJson.c_str(), filename, &result);
+    SusiResult res = SUSI_ScanHandle(susi.m_handle, metaDataJson.c_str(), filename, fd, &result);
+
+    ::close(fd);
 
     std::cerr << "Scan result " << std::hex << res << std::dec << std::endl;
     if (result != nullptr)
