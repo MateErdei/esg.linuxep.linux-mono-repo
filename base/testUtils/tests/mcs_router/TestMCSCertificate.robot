@@ -1,7 +1,7 @@
 *** Settings ***
 Resource  McsRouterResources.robot
 
-Suite Setup  Setup
+Test Setup  Setup
 Suite Teardown  Remove Directory  /tmp/tempcertdir   True
 Test Teardown  Run Keywords
 ...            Unset CA Environment Variable   AND
