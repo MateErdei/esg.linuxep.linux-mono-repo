@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "BaseFileWalkCallbacks.h"
 #include "Options.h"
 #include "PathUtils.h"
+#include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
@@ -25,30 +26,6 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class ScanCallbackImpl : public IScanCallbacks
-    {
-    public:
-        void cleanFile(const path&) override
-        {
-        }
-
-        void infectedFile(const path& p, const std::string& threatName) override
-        {
-            std::string escapedPath(p);
-            common::escapeControlCharacters(escapedPath);
-            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName);
-            m_returnCode = E_VIRUS_FOUND;
-        }
-
-        [[nodiscard]] int returnCode() const
-        {
-            return m_returnCode;
-        }
-
-    private:
-        int m_returnCode = E_CLEAN;
-    };
-
     class CallbackImpl : public BaseFileWalkCallbacks
     {
     public:
@@ -94,8 +71,9 @@ namespace
 
             try
             {
-                m_scanner.scan(p);
-            } catch (const std::exception& e)
+                m_scanner.scan(p, symlinkTarget);
+            }
+            catch (const std::exception& e)
             {
                 LOGERROR("Failed to scan " << escapedPath << " [" << e.what() << "] failed");
 
@@ -209,10 +187,11 @@ int CommandLineScanRunner::run()
     {
         try
         {
-            auto p = fs::canonical(path);
+            auto p = fs::absolute(path);
             callbacks.setCurrentInclude(p);
             filewalker::walk(p, callbacks);
-        } catch (fs::filesystem_error& e)
+        }
+        catch (fs::filesystem_error& e)
         {
             m_returnCode = e.code().value();
         }

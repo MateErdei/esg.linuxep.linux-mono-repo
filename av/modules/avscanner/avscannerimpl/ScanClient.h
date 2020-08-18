@@ -22,7 +22,7 @@ namespace avscanner::avscannerimpl
     public:
         virtual ~IScanCallbacks() = default;
         virtual void cleanFile(const path&) = 0;
-        virtual void infectedFile(const path&, const std::string& threatName) = 0;
+        virtual void infectedFile(const path&, const std::string& threatName, bool isSymlink) = 0;
     };
 
     class ScanClient
@@ -42,7 +42,7 @@ namespace avscanner::avscannerimpl
          * @param p Path to open and scan
          * @return Scan response
          */
-        scan_messages::ScanResponse scan(const path& fileToScanPath);
+        scan_messages::ScanResponse scan(const path& fileToScanPath, bool isSymlink=false);
 
     private:
         unixsocket::IScanningClientSocket& m_socket;

@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "BaseFileWalkCallbacks.h"
 #include "Mounts.h"
 #include "PathUtils.h"
+#include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
 #include <filewalker/FileWalker.h>
@@ -35,28 +36,6 @@ NamedScanRunner::NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedS
 
 namespace
 {
-    class ScanCallbackImpl : public IScanCallbacks
-    {
-    public:
-        void cleanFile(const path&) override
-        {}
-        void infectedFile(const path& p, const std::string& threatName) override
-        {
-            std::string escapedPath(p);
-            common::escapeControlCharacters(escapedPath);
-            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName);
-            m_returnCode = E_VIRUS_FOUND;
-        }
-
-        [[nodiscard]] int returnCode() const
-        {
-            return m_returnCode;
-        }
-
-    private:
-        int m_returnCode = E_CLEAN;
-    };
-
     class CallbackImpl : public BaseFileWalkCallbacks
     {
     public:
@@ -95,7 +74,7 @@ namespace
             }
             try
             {
-                m_scanner.scan(p);
+                m_scanner.scan(p, symlinkTarget);
             }
             catch (const std::exception& e)
             {

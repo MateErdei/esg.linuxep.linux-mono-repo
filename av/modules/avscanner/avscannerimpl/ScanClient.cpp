@@ -30,7 +30,7 @@ ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
 {
 }
 
-scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& fileToScanPath)
+scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& fileToScanPath, bool isSymlink)
 {
     datatypes::AutoFd file_fd(::open(fileToScanPath.c_str(), O_RDONLY));
     if (!file_fd.valid())
@@ -56,7 +56,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
         }
         else
         {
-            m_callbacks->infectedFile(fileToScanPath, response.threatName());
+            m_callbacks->infectedFile(fileToScanPath, response.threatName(), isSymlink);
         }
     }
     return response;

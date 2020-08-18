@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include "avscanner/avscannerimpl/ScanCallbackImpl.h"
 #include "avscanner/avscannerimpl/ScanClient.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "tests/common/Common.h"
@@ -32,12 +33,8 @@ namespace
     class MockIScanCallbacks : public avscanner::avscannerimpl::IScanCallbacks
     {
     public:
-        /*
-        virtual void cleanFile(const path&) = 0;
-        virtual void infectedFile(const path&, const std::string& threatName) = 0;
-         */
         MOCK_METHOD1(cleanFile, void(const path&));
-        MOCK_METHOD2(infectedFile, void(const path&, const std::string&));
+        MOCK_METHOD3(infectedFile, void(const path&, const std::string&, bool isSymlink));
     };
 }
 
@@ -120,7 +117,7 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
             new StrictMock<MockIScanCallbacks>()
     );
 
-    EXPECT_CALL(*mock_callbacks, infectedFile(Eq("/etc/passwd"), Eq(THREAT)))
+    EXPECT_CALL(*mock_callbacks, infectedFile(Eq("/etc/passwd"), Eq(THREAT), false))
             .Times(1);
 
     ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);

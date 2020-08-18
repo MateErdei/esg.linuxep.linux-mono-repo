@@ -18,6 +18,8 @@ add_library(avscannerimpl SHARED
         Options.h
         PathUtils.cpp
         PathUtils.h
+        ScanCallbackImpl.cpp
+        ScanCallbackImpl.h
         ScanClient.cpp
         ScanClient.h
         )
