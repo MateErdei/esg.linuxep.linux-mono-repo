@@ -733,6 +733,24 @@ class MCSRouter(object):
             raise AssertionError("Unexpected return code: {}".format(result.rc))
         return result
 
+    def fail_register_with_junk_token(self, token):
+        command = [self.register_central_path, token, self.local_proxy_URL]
+        class Result(object):
+            pass
+
+        result = Result()
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=self.devnull)
+        result.stdout, result.stderr  = proc.communicate()
+        result.stdout = result.stdout.decode("utf-8")
+        result.stderr = result.stderr.decode("utf-8")
+        result.stdout_path = None
+        result.stderr_path = None
+        result.rc = proc.wait()
+        if result.rc == 0:
+            raise AssertionError("Registration was successful with bad address")
+        if result.rc != 4:
+            raise AssertionError("Unexpected return code: {}".format(result.rc))
+        return result
     def deregister(self):
         command = [self.register_central_path, "--deregister"]
         subprocess.check_call(command, stdout=self.devnull)

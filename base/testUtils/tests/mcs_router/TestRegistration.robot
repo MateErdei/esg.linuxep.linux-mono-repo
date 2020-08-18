@@ -84,6 +84,15 @@ Unsuccessful Registration, followed by Successful Registration
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
 
+Register Fails with bad token
+    [Documentation]  Derived from CLOUD.ERROR.003_Bad_token.sh
+    Fail Register With Junk Token  badtoken
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check MCS Router Not Running
+
 Successful Deregistration
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved

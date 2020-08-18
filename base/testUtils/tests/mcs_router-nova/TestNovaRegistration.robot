@@ -41,11 +41,3 @@ Successful Register With Central And Correct Status Is Sent Up In Amazon
 
     Check Register Central Log Contains In Order   <aws>  <region>  </region>  <accountId>  </accountId>  <instanceId>  </instanceId>  </aws>
 
-Register Fails with bad token against Central
-    [Documentation]  Derived from CLOUD.ERROR.003_Bad_token.sh
-    Fail Register With Central With Bad Token
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Check MCS Router Not Running
