@@ -8,8 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <datatypes/Print.h>
 #include <filewalker/FileWalker.h>
-
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <tests/common/LogInitializedTests.h>
 
 #include <iostream>
 #include <string>
@@ -43,6 +42,11 @@ public:
     }
 };
 
+class TestFileWalkerBackTrackProtection : public LogInitializedTests
+{
+
+};
+
 #define BASE "/tmp/TestFileWalkerBackTrackProtection"
 
 /**
@@ -60,7 +64,7 @@ public:
 *       Once from: /tmp/TestFileWalkerBackTrackProtection/a/d/e/c
 *       Once from: /tmp/TestFileWalkerBackTrackProtection/a/b/c
 */
-TEST(TestFileWalkerBacktTrackProtection, backtrackProtection)
+TEST_F(TestFileWalkerBackTrackProtection, backtrackProtection)
 {
     // Create test tree
     fs::remove_all(BASE);

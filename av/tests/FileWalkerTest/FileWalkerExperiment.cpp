@@ -27,6 +27,7 @@ public:
 
 int main(int argc, char* argv[])
 {
+    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
     CallbackImpl callbacks;
     for(int i=1; i < argc; i++)
     {
