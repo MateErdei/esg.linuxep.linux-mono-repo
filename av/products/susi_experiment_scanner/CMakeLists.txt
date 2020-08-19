@@ -19,5 +19,6 @@ target_include_directories(susi_scanner2 PRIVATE ${susi_include})
 target_link_libraries(susi_scanner2 PRIVATE threat_scanner)
 SET_TARGET_PROPERTIES( susi_scanner2
         PROPERTIES
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
         )
