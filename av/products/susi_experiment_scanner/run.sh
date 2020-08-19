@@ -1,5 +1,10 @@
 #!/bin/bash
 
+STARTINGDIR=$(pwd)
+cd ${0%/*}
+BASE=$(pwd)
+cd "${STARTINGDIR}"
+
 export SRC_DIR=~/gitrepos/sspl-tools/sspl-plugin-modular-anti-virus
 export REDIST=$SRC_DIR/redist
 
