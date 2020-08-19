@@ -11,4 +11,5 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 namespace threat_scanner
 {
     void susiLogCallback(void* token, SusiLogLevel level, const char* message);
+    void fallbackSusiLogCallback(void* token, SusiLogLevel level, const char* message);
 }

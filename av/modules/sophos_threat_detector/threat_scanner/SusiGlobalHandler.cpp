@@ -28,7 +28,7 @@ static bool isWhitelistedFile(void *token, SusiHashAlg algorithm, const char *fi
     return false;
 }
 
-static SusiCallbackTable my_susi_callbacks{
+static SusiCallbackTable my_susi_callbacks{ // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
         .version = CALLBACK_TABLE_VERSION,
         .token = nullptr,
         .IsWhitelistedFile = isWhitelistedFile,
@@ -41,6 +41,13 @@ static const SusiLogCallback GL_log_callback{
     .token = nullptr,
     .log = threat_scanner::susiLogCallback,
     .minLogLevel = SUSI_LOG_LEVEL_DETAIL
+};
+
+static const SusiLogCallback GL_fallback_log_callback{
+    .version = SUSI_LOG_CALLBACK_VERSION,
+    .token = nullptr,
+    .log = threat_scanner::fallbackSusiLogCallback,
+    .minLogLevel = SUSI_LOG_LEVEL_INFO
 };
 
 SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
@@ -70,5 +77,8 @@ SusiGlobalHandler::~SusiGlobalHandler()
 {
     SusiResult res = SUSI_Terminate();
     LOGSUPPORT("Exiting Global Susi result =" << std::hex << res << std::dec);
+    assert(res == SUSI_S_OK);
+
+    res = SUSI_SetLogCallback(&GL_fallback_log_callback);
     assert(res == SUSI_S_OK);
 }

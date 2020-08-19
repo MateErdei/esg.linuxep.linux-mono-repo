@@ -37,3 +37,29 @@ void threat_scanner::susiLogCallback(void* token, SusiLogLevel level, const char
         }
     }
 }
+void threat_scanner::fallbackSusiLogCallback(void*, SusiLogLevel level, const char* message)
+{
+
+    std::string m(message);
+    if (!m.empty())
+    {
+        switch (level)
+        {
+            case SUSI_LOG_LEVEL_DETAIL:
+                std::cout << "DEBUG: " << m;
+                break;
+            case SUSI_LOG_LEVEL_INFO:
+                std::cout << "INFO: " << m;
+                break;
+            case SUSI_LOG_LEVEL_WARNING:
+                std::cout << "WARNING: " << m;
+                break;
+            case SUSI_LOG_LEVEL_ERROR:
+                std::cerr << "ERROR: " << m;
+                break;
+            default:
+                std::cerr << level << ": " << m;
+                break;
+        }
+    }
+}
