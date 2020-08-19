@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
 
 #include "datatypes/sophos_filesystem.h"
+#include "datatypes/Print.h"
 
 #include <scan_messages/ThreatDetected.h>
 
@@ -19,8 +20,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <fcntl.h>
 #include <unistd.h>
-
-#define P(_X) std::cerr << _X << '\n';
 
 namespace fs = sophos_filesystem;
 
@@ -45,14 +44,14 @@ static int scan(const char* filename)
     auto scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND;
     auto result = scanner->scan(fd, filename, scanType, "root");
     bool clean = result.clean();
-    P("SCAN CLEAN:" << clean);
+    PRINT("SCAN CLEAN:" << clean);
 
     decltype(scannerFactory)::weak_type weak_scanner_factory = scannerFactory;
 
     scanner.reset();
     scannerFactory.reset();
 
-    P("Completed reset: Scanner Factory deleted: "<<weak_scanner_factory.expired());
+    PRINT("Completed reset: Scanner Factory deleted: "<<weak_scanner_factory.expired());
 
     return clean ? 0 : 1;
 }
