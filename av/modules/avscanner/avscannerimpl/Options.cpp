@@ -104,7 +104,7 @@ std::string Options::getHelp()
     helpText << "Examples:" << std::endl;
     helpText << "  avscanner / --scan-archives            Scan the Root Directory (recursively including dot files/directories) including the contents of any archive files found" << std::endl;
     helpText << "  avscanner /usr --exclude /usr/local    Scan the /usr directory excluding /usr/local" << std::endl;
-    helpText << "  avscanner folder --exclude \"*.log\"     Scan the directory named 'folder' but exclude any filenames ending with .log" << std::endl;
+    helpText << "  avscanner folder --exclude '*.log'     Scan the directory named 'folder' but exclude any filenames ending with .log" << std::endl;
     helpText << "  avscanner foo.exe -o scan.log          Scan the file 'foo.exe' and redirect the output to a log file named 'scan.log'" << std::endl;
     return helpText.str();
 }
