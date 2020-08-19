@@ -336,11 +336,7 @@ Check ALC Policy Contains MDR
     Should Contain  ${alcPolicy}   MDR
 
 
-Wait For MCS Router To Be Running
-    Wait Until Keyword Succeeds
-    ...  30
-    ...  1
-    ...  Check MCS Router Running
+
 
 Wait For MDR Status
     Wait Until Keyword Succeeds

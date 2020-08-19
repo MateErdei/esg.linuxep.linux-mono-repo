@@ -1,6 +1,7 @@
 *** Settings ***
 Resource  McsRouterResources.robot
 Library     ${LIBS_DIRECTORY}/PushServerUtils.py
+Library     ${LIBS_DIRECTORY}/ProxyUtils.py
 
 Suite Setup      Run Keywords  Setup MCS Tests  AND  Start MCS Push Server
 Suite Teardown   Run Keywords  Uninstall SSPL Unless Cleanup Disabled  AND  Server Close
@@ -19,8 +20,41 @@ Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
 
 *** Variables ***
 ${push_server_address}  localhost:4443
+${SECURE_PROXY_HOST}       ssplsecureproxyserver.eng.sophos
+${SECURE_PROXY_PORT}       8888
+${PROXY_USER}              proxyuser
+${PROXY_PASSWORD}          proxypassword
+
 
 *** Test Case ***
+Register in cloud with localhost proxy
+    [Documentation]  Derived from  CLOUD.PROXY.003_localhost_proxy.sh
+    Start Simple Proxy Server    3333
+    Set Environment Variable  https_proxy   http://localhost:3333
+    Register With Local Cloud Server
+    Start MCSRouter
+    Check MCS Router log contains proxy success  localhost:3333
+
+
+Register in cloud through basic auth proxy
+    [Documentation]  Derived from CLOUD.PROXY.007_basic_auth.sh
+    ${proxy_port} =  Set Variable  5003
+    Require Proxy With Basic Authentication  ${proxy_port}
+    Set Environment Variable  http_proxy  http://${PROXY_USER}:${PROXY_PASSWORD}@localhost:${proxy_port}
+    Register With Local Cloud Server
+    Start MCSRouter
+    Check MCS Router log contains proxy success  localhost:${proxy_port}
+
+
+Register in cloud through digest auth proxy
+    [Documentation]  Derived from CLOUD.PROXY.009_digest_auth.sh
+    ${proxy_port} =  Set Variable  5004
+    start proxy server with digest auth  ${proxy_port}  ${PROXY_USER}  ${PROXY_PASSWORD}
+    Set Environment Variable  http_proxy  http://${PROXY_USER}:${PROXY_PASSWORD}@localhost:${proxy_port}
+    Register With Local Cloud Server
+    Start MCSRouter
+    Check MCS Router log contains proxy success  localhost:${proxy_port}
+
 Disable direct option stops direct connection
     [Documentation]  Derived from CLOUD.PROXY.012_useDirect_option_stops_direct_connection.sh
     Register With Local Cloud Server
@@ -496,3 +530,14 @@ Check MCSRouter Does Not Retry Direct Connection
     Run Keyword And Expect Error
     ...   STARTS: Remainder of MCS Router log doesn't contain Trying connection
     ...   MCSRouter tries direct connection after proxy
+
+Check MCS Router log contains proxy success
+    [Arguments]    ${PROXY_HOST_PORT}
+    Wait Until Keyword Succeeds
+    ...  40 seconds
+    ...  5 secs
+    ...  Check Mcsrouter Log Contains  Successfully connected to ${push_server_address} via ${PROXY_HOST_PORT}
+
+Require Proxy With Basic Authentication
+    [Arguments]    ${proxy_port}
+    Start Proxy Server With Basic Auth  ${proxy_port}  ${PROXY_USER}  ${PROXY_PASSWORD}

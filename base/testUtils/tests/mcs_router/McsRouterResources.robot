@@ -24,6 +24,12 @@ Clean McsRouter Log File
     ${result} =  Run Process   >   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   shell=True
     Should Be Equal As Integers  ${result.rc}   0   msg=Failed to truncate mcsrouter log file
 
+Wait For MCS Router To Be Running
+    Wait Until Keyword Succeeds
+    ...  30
+    ...  1
+    ...  Check MCS Router Running
+
 Cleanup Certificates
     Run Process    make   cleanCerts    cwd=${SUPPORT_FILES}/CloudAutomation/
     Remove Directory  ../everest-base/modules/mcsrouter/base  recursive=True

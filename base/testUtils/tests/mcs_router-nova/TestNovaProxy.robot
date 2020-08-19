@@ -51,40 +51,6 @@ Register in Central through environment proxy
     ...  Check MCS Router log contains proxy success  ${SECURE_PROXY_HOST}:8888
 
 
-Register in central with localhost proxy
-    [Documentation]  Derived from  CLOUD.PROXY.003_localhost_proxy.sh
-    Start Simple Proxy Server    3333
-    Set Environment Variable  https_proxy   http://localhost:3333
-    Register With Central  ${regCommand}
-    Wait For MCS Router To Be Running
-    Wait For Server In Cloud
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  10 secs
-    ...  Check MCS Router log contains proxy success  localhost:3333
-
-
-Register in cloud through basic auth proxy
-    [Documentation]  Derived from CLOUD.PROXY.007_basic_auth.sh
-    ${proxy_port} =  Set Variable  5003
-    Require Proxy With Basic Authentication  ${proxy_port}
-    Set Environment Variable  http_proxy  http://${PROXY_USER}:${PROXY_PASSWORD}@localhost:${proxy_port}
-    Register With Central  ${regCommand}
-    Wait For MCS Router To Be Running
-    Wait For Server In Cloud
-    Check MCS Router log contains proxy success  localhost:${proxy_port}
-
-
-Register in cloud through digest auth proxy
-    [Documentation]  Derived from CLOUD.PROXY.009_digest_auth.sh
-    ${proxy_port} =  Set Variable  5004
-    start proxy server with digest auth  ${proxy_port}  ${PROXY_USER}  ${PROXY_PASSWORD}
-    Set Environment Variable  http_proxy  http://${PROXY_USER}:${PROXY_PASSWORD}@localhost:${proxy_port}
-    Register With Central  ${regCommand}
-    Wait For MCS Router To Be Running
-    Wait For Server In Cloud
-    Check MCS Router log contains proxy success  localhost:${proxy_port}
-
 Register in cloud through pretend message relay in correct order
     [Documentation]  Derived from CLOUD.PROXY.008_Check_message_relay_ordering.sh
     ...              Using proxy server to pretend to be a message relay
@@ -123,9 +89,6 @@ Check MCS Router log contains message relay success
     [Arguments]    ${MESSAGE_RELAY}
     Check Mcsrouter Log Contains  Successfully connected to ${MCS_ADDRESS} via ${MESSAGE_RELAY}
 
-Require Proxy With Basic Authentication
-    [Arguments]    ${proxy_port}
-    Start Proxy Server With Basic Auth  ${proxy_port}  ${PROXY_USER}  ${PROXY_PASSWORD}
 
 Check MCS Router log contains proxy success
     [Arguments]    ${PROXY_HOST_PORT}
