@@ -22,6 +22,7 @@ try{
 	version_number = GetVersionNumber(version_key, project)
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
+    env.CI_REPO_RELATIVE = 'true' // builds are configured for Unified Pipeline
     git_branch = "${env.BRANCH_NAME}"
     if ( params.mode == 'coverage' || git_branch.endsWith('coverage') )
     {

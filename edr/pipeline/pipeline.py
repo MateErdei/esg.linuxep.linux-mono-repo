@@ -76,7 +76,7 @@ def combined_task(machine: tap.Machine):
             # upload unit test coverage html results to allegro
             unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
 
-            # only upload centod7.7
+            # only upload centos7.7 to allegro
             upload_results = 0
             if machine.run('which', 'yum', return_exit_code=True) == 0:
                 upload_results = 1
@@ -144,22 +144,29 @@ def get_inputs(context: tap.PipelineContext):
 
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    machines = (
-        ("ubuntu1804",
-         tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)),
-        ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux))
-        # add other distros here
-    )
+    component = tap.Component(name='edr', base_version='1.0.2')
+    with stage.parallel('build'):
+        release = stage.artisan_build(name='release', component=component, image='JenkinsLinuxTemplate5', mode='release'
+                                      , release_package='./build-files/release-package.xml')
+        #add coverage, analysis here
 
-    if parameters.coverage == 'yes' or has_coverage_build(context.branch):
-        with stage.parallel('combined'):
-            for template_name, machine in machines:
-                stage.task(task_name=template_name, func=combined_task, machine=machine)
-    else:
-        with stage.parallel('integration'):
-            for template_name, machine in machines:
-                stage.task(task_name=template_name, func=robot_task, machine=machine)
+    with stage.parallel('test'):
+        machines = (
+            ("ubuntu1804",
+             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)),
+            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux))
+            # add other distros here
+        )
 
-        with stage.parallel('component'):
-            for template_name, machine in machines:
-                stage.task(task_name=template_name, func=pytest_task, machine=machine)
+        if parameters.coverage == 'yes' or has_coverage_build(context.branch):
+            with stage.parallel('combined'):
+                for template_name, machine in machines:
+                    stage.task(task_name=template_name, func=combined_task, machine=machine)
+        else:
+            with stage.parallel('integration'):
+                for template_name, machine in machines:
+                    stage.task(task_name=template_name, func=robot_task, machine=machine)
+
+            with stage.parallel('component'):
+                for template_name, machine in machines:
+                    stage.task(task_name=template_name, func=pytest_task, machine=machine)

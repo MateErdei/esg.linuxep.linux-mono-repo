@@ -16,3 +16,6 @@ In order to run these tests in tap do from local machine or CI portal:
         choose -> "Build with Parameters" -> coverage = yes
 
 For information on running outside TAP see PytestScripts/README
+Unified pipeline
+--build-backend
+tap fetch <entry point> to fetch inputs
