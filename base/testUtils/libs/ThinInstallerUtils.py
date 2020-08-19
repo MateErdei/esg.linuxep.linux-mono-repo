@@ -248,7 +248,7 @@ class ThinInstallerUtils(object):
         else:
             logger.info("Set sophos_certs_dir to: {}".format(sophos_certs_dir))
             test_using_prod = os.environ.get('TEST_USING_PROD', None)
-            if not test_using_prod:
+            if test_using_prod:
                 self.env["OVERRIDE_SOPHOS_CERTS"] = sophos_certs_dir
             else:
                 try:
