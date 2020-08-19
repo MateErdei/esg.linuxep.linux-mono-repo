@@ -14,7 +14,8 @@ Test Teardown    Run Keywords
 ...			     Stop System Watchdog  AND
 ...              Stop Proxy Servers  AND
 ...              Stop Proxy If Running  AND
-...              Remove Environment Variable    https_proxy
+...              Remove Environment Variable    https_proxy  AND
+...              Remove Environment Variable    http_proxy
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
 
@@ -27,6 +28,25 @@ ${PROXY_PASSWORD}          proxypassword
 
 
 *** Test Case ***
+Disable direct option stops direct connection
+    [Documentation]  Derived from CLOUD.PROXY.012_useDirect_option_stops_direct_connection.sh
+    Register With Local Cloud Server
+    Start MCSRouter
+    Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3345' address='localhost' id='eee'/>
+    Send Mcs Policy With Direct Disabled
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  2 secs
+    ...  Check MCS Policy Config Contains    useDirect=false
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check MCSRouter Log Contains   No proxies/message relays set to communicate
+    Check MCSRouter Log Contains   with Central - useDirect is False
+    Check MCSRouter Log Contains   Failed to connect to Central
+
 Register in cloud with localhost proxy
     [Documentation]  Derived from  CLOUD.PROXY.003_localhost_proxy.sh
     Start Simple Proxy Server    3333
@@ -54,25 +74,6 @@ Register in cloud through digest auth proxy
     Register With Local Cloud Server
     Start MCSRouter
     Check MCS Router log contains proxy success  localhost:${proxy_port}
-
-Disable direct option stops direct connection
-    [Documentation]  Derived from CLOUD.PROXY.012_useDirect_option_stops_direct_connection.sh
-    Register With Local Cloud Server
-    Start MCSRouter
-    Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3345' address='localhost' id='eee'/>
-    Send Mcs Policy With Direct Disabled
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  2 secs
-    ...  Check MCS Policy Config Contains    useDirect=false
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check MCSRouter Log Contains   No proxies/message relays set to communicate
-    Check MCSRouter Log Contains   with Central - useDirect is False
-    Check MCSRouter Log Contains   Failed to connect to Central
 
 Proxy Creds And Message Relay Information Used On Registration
     [Documentation]  Derived from  CLOUD.MCS.007_mcs_handles_message_relay_policy.sh
