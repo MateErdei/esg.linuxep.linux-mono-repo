@@ -13,6 +13,7 @@ namespace filewalker
     class IFileWalkCallbacks
     {
     public:
+        virtual ~IFileWalkCallbacks() = default;
         /**
          * Callback for regular files.
          *

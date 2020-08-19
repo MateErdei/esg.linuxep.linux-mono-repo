@@ -13,6 +13,7 @@ namespace avscanner::mountinfo
     class ISystemPathsFactory
     {
     public:
+        virtual ~ISystemPathsFactory() = default;
         [[nodiscard]] virtual ISystemPathsSharedPtr createSystemPaths() const = 0;
     };
 

@@ -20,6 +20,7 @@ namespace avscanner::avscannerimpl
     class IScanCallbacks
     {
     public:
+        virtual ~IScanCallbacks() = default;
         virtual void cleanFile(const path&) = 0;
         virtual void infectedFile(const path&, const std::string& threatName) = 0;
     };

@@ -17,6 +17,7 @@ namespace unixsocket
     class IScanningClientSocket
     {
     public:
+        virtual ~IScanningClientSocket() = default;
         virtual scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest&) = 0;
 
     };

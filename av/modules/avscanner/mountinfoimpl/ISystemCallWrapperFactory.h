@@ -15,6 +15,7 @@ namespace avscanner::mountinfoimpl
     class ISystemCallWrapperFactory
     {
     public:
+        virtual ~ISystemCallWrapperFactory() = default;
         virtual mountinfoimpl::ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
     };
 

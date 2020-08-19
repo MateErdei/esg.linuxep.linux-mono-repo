@@ -17,6 +17,7 @@ namespace avscanner::avscannerimpl
     class IRunner
     {
     public:
+        virtual ~IRunner() = default;
         virtual int run() = 0;
         virtual void setSocket(std::shared_ptr<unixsocket::IScanningClientSocket>) = 0;
         virtual void setMountInfo(mountinfo::IMountInfoSharedPtr) = 0;

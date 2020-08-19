@@ -14,6 +14,7 @@ namespace avscanner::mountinfo
     class ISystemPaths
     {
     public:
+        virtual ~ISystemPaths() = default;
         [[nodiscard]] virtual std::string mountInfoFilePath() const = 0;
         [[nodiscard]] virtual std::string cmdlineInfoFilePath() const = 0;
         [[nodiscard]] virtual std::string findfsCmdPath() const = 0;
