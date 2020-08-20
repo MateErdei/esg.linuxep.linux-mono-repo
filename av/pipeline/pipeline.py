@@ -78,7 +78,8 @@ def robot_task_with_env(machine: tap.Machine, environment=None):
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html", "robot-log"+get_suffix()+".html")
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
+                    "robot-log" + get_suffix() + "_" + machine.template + ".html")
 
 
 def robot_task(machine: tap.Machine):
