@@ -132,11 +132,12 @@ def pytest_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext):
+def get_inputs(context: tap.PipelineContext, build, parameters: tap.Parameters):
     logger.info(str(context.artifact.build()))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
-        edr=context.artifact.build() / 'output',
+        #edr=context.artifact.build() / 'output',
+        edr=build / 'output' if parameters.mode != 'analysis' else build / 'analysis',
         bullseye_files=context.artifact.from_folder('./build/bullseye')
     )
     return test_inputs
@@ -145,16 +146,18 @@ def get_inputs(context: tap.PipelineContext):
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     component = tap.Component(name='edr', base_version='1.0.2')
+    edr_build = context.artifact.build()
+    print(parameters.items())
     with stage.parallel('build'):
-        release = stage.artisan_build(name='release', component=component, image='JenkinsLinuxTemplate5', mode='release'
-                                      , release_package='./build-files/release-package.xml')
+        edr_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
+                                        mode=parameters.mode, release_package='./build-files/release-package.xml')
         #add coverage, analysis here
 
     with stage.parallel('test'):
         machines = (
             ("ubuntu1804",
-             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)),
-            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux))
+             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, edr_build, parameters), platform=tap.Platform.Linux)),
+            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, parameters), platform=tap.Platform.Linux))
             # add other distros here
         )
 
