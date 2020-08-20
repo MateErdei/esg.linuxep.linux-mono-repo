@@ -52,10 +52,9 @@ Options::Options(int argc, char** argv)
     {
         auto variableMap = parseCommandLine(argc, argv);
 
-        m_paths.reserve(argc);
-
         if (variableMap.count("files"))
         {
+            m_paths.reserve(variableMap.count("files"));
             m_paths = variableMap["files"].as<std::vector<std::string>>();
         }
 
@@ -66,6 +65,7 @@ Options::Options(int argc, char** argv)
 
         if (variableMap.count("exclude"))
         {
+            m_exclusions.reserve(variableMap.count("exclude"));
             m_exclusions = variableMap["exclude"].as<std::vector<std::string>>();
         }
 
@@ -98,7 +98,7 @@ Options::Options(bool printHelp, std::vector<std::string> paths, std::vector<std
 std::string Options::getHelp()
 {
     std::ostringstream helpText;
-    helpText << "Usage: avscanner PATH [OPTION]..." << std::endl;
+    helpText << "Usage: avscanner PATH [PATH...] [OPTION]..." << std::endl;
     helpText << "Perform an on-demand scan of PATH" << std::endl << std::endl;
     helpText << *m_nonHiddenOptionsDescription << std::endl << std::endl;
     helpText << "Examples:" << std::endl;
