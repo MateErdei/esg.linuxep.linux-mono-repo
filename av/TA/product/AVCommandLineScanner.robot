@@ -326,3 +326,31 @@ CLS Can Log To A File
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
    File Log Contains    ${LOG_FILE}    "${THREAT_FILE}" is infected with EICAR-AV-Test
+
+
+CLS Can Scan Infected File Via Symlink To Directory
+   ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
+   ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
+   Create Directory   ${targetDir}
+   Create Directory   ${sourceDir}
+   Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
+   Run Process   ln  -snf  ${targetDir}  ${sourceDir}/b
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/b
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+   Should Contain       ${output.replace("\n", " ")}  Detected "${sourceDir}/b/eicar.com" (symlinked to ${targetDir}/eicar.com) is infected with EICAR-AV-Test
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${sourceDir}/b/eicar.com"
+
+
+CLS Can Scan Infected File Via Symlink To File
+   Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+   Run Process   ln  -snf  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+   Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToEicar" (symlinked to ${NORMAL_DIRECTORY}/eicar.com) is infected with EICAR-AV-Test
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${NORMAL_DIRECTORY}/symlinkToEicar"
