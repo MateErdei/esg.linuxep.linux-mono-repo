@@ -281,7 +281,7 @@ namespace SulDownloader
             auto found = productReport.find(subscriptionInfo.rigidName);
             if (found != productReport.end())
             {
-                LOGDEBUG("Product Report merged to subscrition: " << found->second.rigidName << " " << found->second.statusToString() << " err: " << found->second.errorDescription);                 
+                LOGDEBUG("Product Report merged to subscription: " << found->second.rigidName << " " << found->second.statusToString() << " err: " << found->second.errorDescription);
                 productsRep.push_back(found->second);
             }
             else
@@ -318,7 +318,7 @@ namespace SulDownloader
                 }
                 productReportEntry.productStatus = combinedStatus;
                 productReportEntry.errorDescription = combinedError;
-                LOGDEBUG("Product Report merget to subscrition: " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription); 
+                LOGDEBUG("Product Report merged to subscription: " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription);
 
                 productsRep.push_back(productReportEntry);
             }
