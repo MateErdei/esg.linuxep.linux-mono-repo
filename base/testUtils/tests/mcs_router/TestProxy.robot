@@ -379,7 +379,10 @@ Policy Basic Auth Proxy Credentials Deobfuscated And Used
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
-    Check MCSRouter Log Contains  Push client successfully connected to ${push_server_address} via localhost:3000
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check MCSRouter Log Contains  Push client successfully connected to ${push_server_address} via localhost:3000
 
     Check MCSRouter Log Does Not Contain  Successfully directly connected to localhost:4443
     Check MCSRouter Log Does Not Contain  Push client successfully connected to ${push_server_address} directly

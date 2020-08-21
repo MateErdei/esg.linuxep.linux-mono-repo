@@ -258,6 +258,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  Failed to connect to the warehouse
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
 
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Trigger Update Now
@@ -511,6 +512,7 @@ Version Copy Versions All Changed Files When Upgrading
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     # FIXME LINUXDAR-2136 remove this line
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to connect to the warehouse
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
 
     Check Mtr Reconnects To Management Agent After Upgrade
 
