@@ -2,6 +2,7 @@
 
 Library         ../Libs/BaseInteractionTools/DiagnoseUtils.py
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
+Library         ../Libs/HttpsServer.py
 Library         String
 Library         DateTime
 
