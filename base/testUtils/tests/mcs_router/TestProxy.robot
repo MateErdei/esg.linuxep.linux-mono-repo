@@ -423,6 +423,9 @@ Status Sent After Message Relay Changed
     Check Log Contains    message_relay_address2=localhost          ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config     Mcs_policy_config
     Check Log Contains    message_relay_port2=${Proxy_Port_Two}     ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config     Mcs_policy_config
 
+    ${fileContent}  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Should Contain  ${fileContent}  current_relay_id=${Proxy_Name_One}
+
     # Check status associated with first proxy connection is received in fake cloud before stopping proxy
     # to avoid potential race condition where a status is sent twice when the connection fails during send.
     Wait Until Keyword Succeeds
