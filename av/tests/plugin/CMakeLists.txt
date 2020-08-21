@@ -4,6 +4,7 @@ SophosAddTest(TestPlugin
         ../common/LogInitializedTests.cpp
         TestPlugin.cpp
         TestPluginAdapter.cpp
+        TestPluginCallback.cpp
         TestPubSub.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt

@@ -61,6 +61,8 @@ namespace Plugin
     {
         LOGSUPPORT("Received get telemetry request");
         auto& telemetry = Telemetry::instance();
+        telemetry.setVersion(getPluginVersion());
+
         std::string telemetryJson = telemetry.getJson();
         telemetry.clear();
         return telemetryJson;

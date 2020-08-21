@@ -23,12 +23,15 @@ namespace Plugin
 	"Number of Files Scanned" : NOFILESKEY,
 	"Number of Infections" : NOINFECTIONSKEY,
 	"Average Performance" : AVGPERFKEY,
-    "Average Performance Unit" : "MB/s"
+    "Average Performance Unit" : "MB/s",
+    "Version Number" : VERSION
 })sophos" };
         KeyValueCollection keyvalues = { { "NOSCANSKEY", std::to_string(m_info.NoScans) },
                                          { "NOFILESKEY", std::to_string(m_info.NoFilesScanned) },
                                          { "NOINFECTIONSKEY", std::to_string(m_info.NoInfections) },
-                                         { "AVGPERFKEY", std::to_string(m_info.AvgPerformance) } };
+                                         { "AVGPERFKEY", std::to_string(m_info.AvgPerformance) },
+                                         { "VERSION", m_info.Version }, };
+
         return orderedStringReplace(jsonTemplate, keyvalues);
     }
 
