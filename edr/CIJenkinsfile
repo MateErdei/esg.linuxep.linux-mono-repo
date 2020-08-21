@@ -3,7 +3,7 @@
 
 def params = [
     string(name: 'UPSTREAM_CONTEXT', defaultValue: '{}', description: 'Information about the build which triggered this in JSON.'),
-    string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release|coverage]'),
+    string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release|coverage|analysis]'),
     string(name: 'ENABLE_COVERAGE', defaultValue: false, description: 'enables or disable running tests against coverage build'),
 ]
 

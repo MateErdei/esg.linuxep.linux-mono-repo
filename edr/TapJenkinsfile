@@ -5,9 +5,8 @@ def params = [
     string(name: 'UPSTREAM_CONTEXT',
            defaultValue: '{}',
            description: 'Information about the build which triggered this in JSON.'),
-    choice(name: 'coverage',
-           choices: 'no\nyes',
-           defaultValue: 'no',
-           description: 'If the we should also run tests against the coverage build')
+    string(name: 'mode',
+           defaultValue: 'release',
+           description: 'Build mode [release, coverage, analysis]')
 ]
 tapPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'edr_plugin'; buildParameters = params }
