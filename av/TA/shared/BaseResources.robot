@@ -56,7 +56,7 @@ Prepare To Run Telemetry Executable With HTTPS Protocol
     [Arguments]  ${port}=443  ${TLSProtocol}=tlsv1_2
     HttpsServer.Start Https Server  ${CERT_PATH}  ${port}  ${TLSProtocol}
     Wait Until Keyword Succeeds  10 seconds  1.0 seconds  File Should Exist  ${MACHINE_ID_FILE}
-    Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}  sophos-spl-user  port=${port}
+    Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}
 
 Run Telemetry Executable
     [Arguments]  ${telemetryConfigFilePath}  ${expectedResult}   ${checkResult}=1

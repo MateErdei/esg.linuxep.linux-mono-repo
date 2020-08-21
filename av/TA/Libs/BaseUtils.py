@@ -46,7 +46,7 @@ def uninstall_sspl_if_installed():
     subprocess.check_call(["bash", uninstaller, "--force"], timeout=20)
 
 
-def create_test_telemetry_config_file(self, telemetry_config_file_path, certificate_path, username,
+def create_test_telemetry_config_file(self, telemetry_config_file_path, certificate_path, username="sophos-spl-user",
                                       requestType="PUT", port=443):
     default_telemetry_config = {
         "telemetryServerCertificatePath": certificate_path,
