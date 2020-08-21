@@ -8,9 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "RecordingMockSocket.h"
 
+#include "avscanner/avscannerimpl/BaseFileWalkCallbacks.h"
 #include "avscanner/avscannerimpl/CommandLineScanRunner.h"
 #include "datatypes/sophos_filesystem.h"
-#include "datatypes/Print.h"
 
 #include <fstream>
 
@@ -378,3 +378,23 @@ TEST(CommandLineScanRunner, excludeSpecialMounts) // NOLINT
     EXPECT_EQ(socket->m_paths.size(), 0);
 }
 
+TEST(CommandLineScanRunner, optionsButNoPathProvided) // NOLINT
+{
+    std::vector<std::string> emptyPathList;
+    std::vector<std::string> exclusionList;
+    exclusionList.push_back("/proc");
+    Options options(false, emptyPathList, exclusionList, true);
+    CommandLineScanRunner runner(options);
+
+    EXPECT_EQ(runner.run(), E_GENERIC_FAILURE);
+}
+
+TEST(CommandLineScanRunner, noPathProvided) // NOLINT
+{
+    std::vector<std::string> emptyPathList;
+    std::vector<std::string> emptyExclusionList;
+    Options options(false, emptyPathList, emptyExclusionList, false);
+    CommandLineScanRunner runner(options);
+
+    EXPECT_EQ(runner.run(), E_GENERIC_FAILURE);
+}

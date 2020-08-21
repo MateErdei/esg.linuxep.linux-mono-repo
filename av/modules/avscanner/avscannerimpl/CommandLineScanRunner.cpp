@@ -135,7 +135,9 @@ int CommandLineScanRunner::run()
 {
     if (m_paths.empty())
     {
-        LOGWARN("Missing a file path from the command line arguments. See --help.");
+        LOGWARN("Missing a file path from the command line arguments.");
+        LOGWARN(Options::getHelp());
+        return E_GENERIC_FAILURE;
     }
 
     std::string printArchiveScanning = m_archiveScanning?"yes":"no";
