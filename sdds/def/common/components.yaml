@@ -16,10 +16,7 @@ sspl-base-component:
     line-id: ServerProtectionLinux-Base-component
     mountpoint: ServerProtectionLinux-Base-component
 sspl-liveterminal:
-    build:
-        branch: develop
-        name: liveterminal_linux
-        output: output\SDDS-COMPONENT
+    fileset: redist\liveterminal
     canonical-name: ServerProtectionLinux-Plugin-liveresponse
     line-id: ServerProtectionLinux-Plugin-liveresponse
     mountpoint: ServerProtectionLinux-Plugin-liveresponse

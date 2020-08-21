@@ -280,6 +280,7 @@ def main(argv=None):
 
     # read and parse the input file
     input = file(args[0]).read()
+    logging.debug("input : {}".format(input))
     model = yaml.safe_load(input)
 
     if options.dry_run:
