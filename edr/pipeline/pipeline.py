@@ -145,12 +145,13 @@ def get_inputs(context: tap.PipelineContext, build, parameters: tap.Parameters):
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     component = tap.Component(name='edr', base_version='1.0.2')
-    edr_build = context.artifact.build()
-    build_name=parameters.mode if parameters.mode else 'release'
-    print(parameters.items())
-    with stage.parallel('build'):
-        edr_build = stage.artisan_build(name=build_name, component=component, image='JenkinsLinuxTemplate5',
-                                        mode=build_name, release_package='./build-files/release-package.xml')
+
+    if parameters.mode:
+        with stage.parallel('build'):
+            edr_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
+                                            mode=parameters.mode, release_package='./build-files/release-package.xml')
+    else:
+        edr_build = context.artifact.build()
 
     with stage.parallel('test'):
         machines = (
