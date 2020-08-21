@@ -41,37 +41,19 @@ MCS Communicates With Nova Via Message Relay
     Wait For Server In Cloud
     Check Marked Mcsrouter Log Contains   Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_1_HOSTNAME_LOWER}:${MESSAGE_RELAY_1_PORT}
 
-MCS Sends Status to Nova when Message Relay Changes
-    [Documentation]  Derived from CLOUD.MCS.012
+Message Relays in MCS Policy Are Written into MCS Config File
+    [Documentation]  Derived from CLOUD.MCS.007_mcs_handles_message_relay_policy.sh
     Register With Real Update Cache and Message Relay Account
     Wait For MCS Router To Be Running
-    Check MCSRouter Log Contains  Successfully directly connected to mcs.sandbox.sophos:443
-    Mark Log File  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log
-    Mark MCS Envelope Log
     Wait New MCS Policy Downloaded
     Wait For Server In Cloud
 
-    Wait Until Keyword Succeeds
-    ...  180 secs
-    ...  20 secs
-    ...  Check Marked Mcsrouter Log Contains   Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_1_HOSTNAME_LOWER}:${MESSAGE_RELAY_1_PORT}
-    Wait Until Keyword Succeeds
-    ...  180 secs
-    ...  20 secs
-    ...  Check Marked MCS Envelope Log Contains  PUT /statuses/endpoint
-    Check Marked MCS Envelope Log Contains  messageRelay endpointId=&amp;quot;${MESSAGE_RELAY_1_ID}
+    ${fileContent}  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    Should Contain  ${fileContent}  message_relay_priority1=0  message_relay_port1=${MESSAGE_RELAY_1_PORT}  message_relay_address1=${MESSAGE_RELAY_1_HOSTNAME_LOWER}  message_relay_id1=${MESSAGE_RELAY_1_ID}
+    Should Contain  ${fileContent}  message_relay_priority2=0  message_relay_port2=${MESSAGE_RELAY_2_PORT}  message_relay_address2=${MESSAGE_RELAY_2_HOSTNAME_LOWER}  message_relay_id2=${MESSAGE_RELAY_2_ID}
 
-    Block Traffic to Message Relay  ${MESSAGE_RELAY_1_HOSTNAME_LOWER}
-    Mark MCS Envelope Log
-    Wait Until Keyword Succeeds
-    ...  180 secs
-    ...  20 secs
-    ...  Check Marked Mcsrouter Log Contains   Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_2_HOSTNAME_LOWER}:${MESSAGE_RELAY_2_PORT}
-    Wait Until Keyword Succeeds
-    ...  180 secs
-    ...  20 secs
-    ...  Check Marked MCS Envelope Log Contains  messageRelay endpointId=&amp;quot;${MESSAGE_RELAY_2_ID}
-
+    ${fileContent}  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Should Contain  ${fileContent}  current_relay_id=${MESSAGE_RELAY_1_ID}
 
 *** Keywords ***
 Real UCMR Test Teardown
