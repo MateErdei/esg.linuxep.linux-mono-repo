@@ -11,8 +11,6 @@ Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Resource  SchedulerUpdateResources.robot
 Resource  ../watchdog/LogControlResources.robot
-Resource    ../management_agent-audit_plugin/AuditPluginResources.robot
-Resource    ../management_agent-event_processor/EventProcessorResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../mdr_plugin/MDRResources.robot
 Resource  ../GeneralTeardownResource.robot
@@ -28,20 +26,6 @@ ${BASE_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/Generated
 ${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 *** Test Cases ***
-
-UpdateScheduler Install Base and Sensors With the ALC Policy With Sensors
-    [Tags]  SULDOWNLOADER  UPDATE_SCHEDULER  EVENT_PLUGIN  AUDIT_PLUGIN
-    [Setup]  Setup For Test With Warehouse Containing Base and Sensors
-    Send Policy With Host Redirection And Run Update And Check Success     add_features=SENSORS   remove_subscriptions=MDR
-    Check Sensors Installed
-
-
-UpdateScheduler Install Base Only With the ALC Policy For Core Only
-    [Tags]  SULDOWNLOADER  UPDATE_SCHEDULER  EVENT_PLUGIN  AUDIT_PLUGIN
-    [Setup]  Setup For Test With Warehouse Containing Base and Sensors
-    Send Policy With Host Redirection And Run Update And Check Success     remove_subscriptions=SENSORS MDR
-    Check Sensors Not Installed
-
 UpdateScheduler Delayed Updating
     [Tags]  UPDATE_SCHEDULER
     [Setup]  Setup For Test With Warehouse Containing Base
@@ -58,14 +42,6 @@ UpdateScheduler Should Fail if Warehouse Does not Have Required Feature
     Should Contain   ${content}  <number>113</number>   msg=Error does not contain missing package
     Check Sensors Not Installed
 
-
-UpdateScheduler Should Fail if Warehouse Does not Have Core Feature
-    [Tags]  SULDOWNLOADER  UPDATE_SCHEDULER  EVENT_PLUGIN  AUDIT_PLUGIN
-    [Setup]  Setup For Test With Warehouse Containing Sensors
-    ${eventPath} =  Send Policy With Host Redirection And Run Update And Return Event Path     add_features=SENSORS   remove_subscriptions=MDR
-    ${content} =   Get File  ${eventPath}
-    Should Contain   ${content}  <number>111</number>   msg=Error does not contain missing package
-    Check Sensors Not Installed
 
 UpdateScheduler Install Base and MDR With the ALC Policy With MDR
     [Tags]  SULDOWNLOADER  UPDATE_SCHEDULER  MDR_PLUGIN

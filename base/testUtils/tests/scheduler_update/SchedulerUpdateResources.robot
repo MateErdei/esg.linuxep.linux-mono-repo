@@ -307,7 +307,7 @@ Send Policy With Host Redirection And Run Update
     [Arguments]    &{kwargs}
     Remove File   ${statusPath}
     Log And Remove SulDownloader Log
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml  &{kwargs}
+    Send Policy To UpdateScheduler  ALC_policy_direct_local_warehouse.xml  &{kwargs}
     Replace Sophos URLS to Localhost
     Simulate Update Now
     Wait Until Keyword Succeeds
