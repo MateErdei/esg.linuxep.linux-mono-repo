@@ -54,7 +54,6 @@ Options::Options(int argc, char** argv)
 
         if (variableMap.count("files"))
         {
-            m_paths.reserve(variableMap.count("files"));
             m_paths = variableMap["files"].as<std::vector<std::string>>();
         }
 
@@ -65,7 +64,6 @@ Options::Options(int argc, char** argv)
 
         if (variableMap.count("exclude"))
         {
-            m_exclusions.reserve(variableMap.count("exclude"));
             m_exclusions = variableMap["exclude"].as<std::vector<std::string>>();
         }
 
