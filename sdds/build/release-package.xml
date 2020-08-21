@@ -25,6 +25,10 @@
   <package name="eng-certs" version="1-0-3" build="95246" dest="redist">
     <include src="rootca\ps_rootca.crt" dest="eng_certs"/>
   </package>
+  <build-asset project="winep" repo="liveterminal">
+    <development-version branch="develop"/>
+    <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
+  </build-asset>
 </inputs>
 
 <buildcommands>
