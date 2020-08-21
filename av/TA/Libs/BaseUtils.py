@@ -3,7 +3,9 @@
 # Copyright (C) 2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import json
 import os
+import pwd
 import shutil
 import subprocess
 
@@ -43,4 +45,24 @@ def uninstall_sspl_if_installed():
 
     subprocess.check_call(["bash", uninstaller, "--force"], timeout=20)
 
+
+def create_test_telemetry_config_file(self, telemetry_config_file_path, certificate_path, username,
+                                      requestType="PUT", port=443):
+    default_telemetry_config = {
+        "telemetryServerCertificatePath": certificate_path,
+        "externalProcessWaitRetries": 10,
+        "externalProcessWaitTime": 100,
+        "additionalHeaders": ["x-amz-acl: bucket-owner-full-control"],
+        "maxJsonSize": 100000,
+        "messageRelays": [],
+        "port": int(port),
+        "proxies": [],
+        "resourcePath": "linux/dev",
+        "server": "localhost",
+        "verb": requestType}
+
+    with open(telemetry_config_file_path, 'w') as tcf:
+        tcf.write(json.dumps(default_telemetry_config))
+    uid = pwd.getpwnam(username).pw_uid
+    os.chown(telemetry_config_file_path, uid, -1)
 

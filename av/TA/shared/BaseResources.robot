@@ -9,6 +9,11 @@ Library         DateTime
 
 ${TEMP_SAV_POLICY_FILENAME} =  TempSAVpolicy.xml
 
+${EXE_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/telemetry/var/telemetry-exe.json
+${CERT_PATH}   /tmp/cert.pem
+${MACHINE_ID_FILE}  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
+
+
 *** Keywords ***
 
 Send Sav Policy With Imminent Scheduled Scan To Base
@@ -42,3 +47,26 @@ Send Sav Action To Base
     [Arguments]  ${actionFile}
     ${savActionFilename}  Generate Random String
     Copy File  ${RESOURCES_PATH}/${actionFile}  ${MCS_PATH}/action/SAV_action_${savActionFilename}.xml
+
+Prepare To Run Telemetry Executable
+    Prepare To Run Telemetry Executable With HTTPS Protocol
+
+Prepare To Run Telemetry Executable With HTTPS Protocol
+    [Arguments]  ${port}=443  ${TLSProtocol}=tlsv1_2
+    HttpsServer.Start Https Server  ${CERT_PATH}  ${port}  ${TLSProtocol}
+    Wait Until Keyword Succeeds  10 seconds  1.0 seconds  File Should Exist  ${MACHINE_ID_FILE}
+    Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}  ${USERNAME}  port=${port}
+
+Run Telemetry Executable
+    [Arguments]  ${telemetryConfigFilePath}  ${expectedResult}   ${checkResult}=1
+
+    Remove File  ${TELEMETRY_EXECUTABLE_LOG}
+
+    ${result} =  Run Process  sudo  -u  ${USERNAME}  ${SOPHOS_INSTALL}/base/bin/telemetry  ${telemetryConfigFilePath}
+
+    Log  "stdout = ${result.stdout}"
+    Log  "stderr = ${result.stderr}"
+
+    Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code
+
+    Run Keyword If   ${checkResult}==1  Check Telemetry Content
