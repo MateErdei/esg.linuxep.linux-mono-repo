@@ -45,6 +45,7 @@ class LogUtils(object):
         self.install_path = _get_variable("SOPHOS_INSTALL", os.path.join("/", "opt", "sophos-spl"))
         self.router_path = _get_variable("MCS_DIR", os.path.join(self.install_path, "base", "mcs"))
         self.base_logs_dir = _get_variable("BASE_LOGS_DIR", os.path.join(self.install_path, "logs", "base"))
+        self.av_plugin_logs_dir = os.path.join(self.install_path, "plugins", "av", "log")
         self.thin_install_log = os.path.join(self.tmp_path, "thin_installer", "ThinInstaller.log")
         self.suldownloader_log = os.path.join(self.base_logs_dir, "suldownloader.log")
         self.update_scheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "updatescheduler.log")
@@ -384,6 +385,9 @@ class LogUtils(object):
     def managementagent_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "sophos_managementagent.log")
 
+    def scheduled_scan_log(self, scanname="MyScan"):
+        return os.path.join(self.av_plugin_logs_dir, scanname+".log")
+
     def dump_mcsrouter_log(self):
         mcsrouter_log = self.mcs_router_log()
         self.dump_log(mcsrouter_log)
@@ -399,6 +403,10 @@ class LogUtils(object):
     def dump_managementagent_log(self):
         managementagent_log = self.managementagent_log()
         self.dump_log(managementagent_log)
+
+    def dump_scheduled_scan_log(self, scanname="MyScan"):
+        scan_log = self.scheduled_scan_log(scanname)
+        self.dump_log(scan_log)
 
     def mark_mcs_envelope_log(self):
         mcs_envelope_log = self.mcs_envelope_log()

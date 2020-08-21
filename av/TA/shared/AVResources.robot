@@ -79,10 +79,10 @@ File Log Should Not Contain
     Should Not Contain  ${content}  ${input}
 
 Wait Until File Log Contains
-    [Arguments]  ${logCheck}  ${input}  ${timeout}=15
+    [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=1
     Wait Until Keyword Succeeds
     ...  ${timeout} secs
-    ...  1 secs
+    ...  ${interval} secs
     ...  ${logCheck}  ${input}
 
 File Log Does Not Contain
@@ -126,8 +126,8 @@ Wait Until AV Plugin Log Contains With Offset
     Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}
 
 Wait Until AV Plugin Log Contains
-    [Arguments]  ${input}  ${timeout}=15
-    Wait Until File Log Contains  AV Plugin Log Contains   ${input}   timeout=${timeout}
+    [Arguments]  ${input}  ${timeout}=15  ${interval}=1
+    Wait Until File Log Contains  AV Plugin Log Contains   ${input}   timeout=${timeout}  interval=${interval}
 
 AV Plugin Log Does Not Contain
     [Arguments]  ${input}

@@ -6,6 +6,7 @@ Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/LogUtils.py
+Library         ../Libs/OnFail.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ../shared/ComponentSetup.robot
@@ -164,6 +165,8 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
 
+    run_on_failure  dump_scheduled_scan_log
+
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
@@ -172,7 +175,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=120
+    Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=120  interval=5
     AV Plugin Log Contains  Starting scan MyScan
     File Should Exist  ${myscan_log}
     File Log Should Not Contain  ${myscan_log}  "${eicar_path1}" is infected with EICAR-AV-Test
@@ -190,4 +193,5 @@ Product Test Teardown
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log  encoding_errors=replace
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
+    Run Keyword If Test Failed  run_failure_functions_if_failed
     Run Keyword If  '${usingFakeAVScanner}'=='true'  Undo Use Fake AVScanner
