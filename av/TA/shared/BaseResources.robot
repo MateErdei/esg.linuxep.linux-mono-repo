@@ -71,5 +71,3 @@ Run Telemetry Executable
     Log  "stderr = ${result.stderr}"
 
     Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code
-
-    Run Keyword If   ${checkResult}==1  Check Telemetry Content
