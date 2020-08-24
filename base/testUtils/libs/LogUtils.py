@@ -317,6 +317,20 @@ class LogUtils(object):
         with open(log_location, "w") as log:
             log.write(contents)
 
+    def mark_expected_critical_in_log(self, log_location, error_message):
+        error_string = "CRITICAL"
+        mark_string = "expected-error"
+        index = 0
+        contents = get_log_contents(log_location)
+        while True:
+            index = contents.find(error_message, index)
+            if index == -1:
+                break
+            error_index = contents.rfind(error_string, index - 40, index)
+            contents = contents[:error_index] + mark_string + contents[error_index + len(error_string):]
+            index += len(error_message) + len(error_string) - len(mark_string)
+        with open(log_location, "w") as log:
+            log.write(contents)
     def mcs_router_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
 
