@@ -214,7 +214,7 @@ AV Plugin Can Send Telemetry
     Log  ${telemetryFileContents}
 
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
-    Should Contain   ${telemetryLogContents}    "Gathered telemetry for av"
-    Should Contain   ${telemetryFileContents}   "av"
-    Should Contain   ${telemetryFileContents}   "version"
+    Should Contain   ${telemetryLogContents}    Gathered telemetry for av
+    Should Contain   ${telemetryFileContents}   av
+    Should Contain   ${telemetryFileContents}   version
 
