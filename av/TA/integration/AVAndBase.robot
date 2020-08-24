@@ -212,3 +212,5 @@ AV Plugin Can Send Telemetry
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
+    Should Contain   ${telemetryFileContents}   "version"
+

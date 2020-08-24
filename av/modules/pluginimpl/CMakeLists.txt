@@ -9,8 +9,6 @@ sophos_add_library(pluginimpl SHARED
         PluginAdapter.h
         StringReplace.cpp
         StringReplace.h
-        Telemetry.cpp
-        Telemetry.h
         ../common/config.h
         ../manager/scanprocessmonitor/ScanProcessMonitor.cpp
         ../manager/scanprocessmonitor/ScanProcessMonitor.h

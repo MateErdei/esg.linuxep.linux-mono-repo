@@ -7,7 +7,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "PluginAdapter.h"
 
 #include "Logger.h"
-#include "Telemetry.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "modules/common/ThreadRunner.h"

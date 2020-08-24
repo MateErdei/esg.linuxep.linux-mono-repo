@@ -7,10 +7,10 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "PluginCallback.h"
 
 #include "Logger.h"
-#include "Telemetry.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
 #include <fstream>
@@ -60,12 +60,9 @@ namespace Plugin
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
-        auto& telemetry = Telemetry::instance();
-        telemetry.setVersion(getPluginVersion());
+        Common::Telemetry::TelemetryHelper::getInstance().set("version", getPluginVersion());
 
-        std::string telemetryJson = telemetry.getJson();
-        telemetry.clear();
-        return telemetryJson;
+        return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     }
 
     std::string PluginCallback::getPluginVersion()

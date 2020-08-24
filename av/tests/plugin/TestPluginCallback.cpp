@@ -46,14 +46,7 @@ namespace
 
 TEST_F(TestPluginCallback, getTelemetry) //NOLINT
 {
-    std::string expectedJson{ R"sophos({
-	"Number of Scans" : 0,
-	"Number of Files Scanned" : 0,
-	"Number of Infections" : 0,
-	"Average Performance" : 0.000000,
-    "Average Performance Unit" : "MB/s",
-    "Version Number" : 1.2.3.456
-})sophos" };
+    std::string expectedJson{ R"sophos({"version":"1.2.3.456"})sophos" };
 
     std::shared_ptr<Plugin::QueueTask> task = nullptr;
     Plugin::PluginCallback pluginCallback(task);
