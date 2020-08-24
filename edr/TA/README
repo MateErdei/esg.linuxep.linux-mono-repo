@@ -15,7 +15,19 @@ In order to run these tests in tap do from local machine or CI portal:
       b) Test Pipeline for EDR - manually run coverage on any branch with a valid build
         choose -> "Build with Parameters" -> coverage = yes
 
-For information on running outside TAP see PytestScripts/README
 Unified pipeline
---build-backend
-tap fetch <entry point> to fetch inputs
+1) Fetch build inputs as specified in release xml
+    tap fetch edr_plugin
+2) build edr on local machine
+    tap run edr_plugin.build --build-backend=local
+3) build edr on local machine and run tests
+    export TAP_PARAMETER_MODE=mode -> one of "release|analysis"
+    tap run edr_plugin --build-backend=local
+4) run tests on branch with unified pipelie build
+    export TAP_PARAMETER_MODE=mode -> one of "release|coverage"
+    tap run edr_plugin
+5) Run tap test on branch with classic pipline build.
+    unset TAP_PARAMETER_MODE (if its set)
+    tap run edr_plugin... (usual options are optional)
+    
+For information on running outside TAP see PytestScripts/README
