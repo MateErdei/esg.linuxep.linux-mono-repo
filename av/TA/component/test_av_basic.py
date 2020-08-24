@@ -30,5 +30,5 @@ def test_av_can_send_telemetry(sspl_mock, av_plugin_instance):
     av_plugin_instance.start_av()
     agent = sspl_mock.management
     av_telemetry = agent.get_plugin_telemetry('av')
-    assert "Number of Scans" in av_telemetry
+    assert "version" in av_telemetry
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)
