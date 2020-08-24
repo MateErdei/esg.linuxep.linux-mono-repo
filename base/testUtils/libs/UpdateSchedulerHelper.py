@@ -385,20 +385,15 @@ class UpdateSchedulerHelper(object):
     def replace_version(self,old_version, new_version, base_dist):
         sdds_import_path = os.path.join(base_dist, "SDDS-Import.xml")
         version_file_path = os.path.join(base_dist, "files/base/VERSION.ini")
-        if not os.path.isfile(version_file_path):
-            raise AssertionError("Version file not found {}".format(version_file_path))
-        if not os.path.isfile(sdds_import_path):
-            raise AssertionError("Version file not found {}".format(sdds_import_path))
+        self.replace_version_in_file(old_version, new_version, sdds_import_path)
+        self.replace_version_in_file(old_version, new_version, version_file_path)
 
 
-        with open(version_file_path, "rt") as f:
+    def replace_version_in_file(self,old_version, new_version,file):
+        if not os.path.isfile(file):
+            raise AssertionError("File not found {}".format(file))
+        with open(file, "rt") as f:
             content = f.read()
         content = content.replace(old_version,new_version)
-        with open(version_file_path, "wt") as f:
-                f.write(content)
-
-        with open(sdds_import_path, "rt") as f:
-            content = f.read()
-        content = content.replace(old_version,new_version)
-        with open(sdds_import_path, "wt") as f:
+        with open(file, "wt") as f:
             f.write(content)
