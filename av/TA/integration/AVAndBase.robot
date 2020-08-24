@@ -212,5 +212,10 @@ AV Plugin Can Send Telemetry
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
+
+    ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
+    Should Contain   ${telemetryLogContents}    "Gather Telemetry via IPC for av"
+    Should Contain   ${telemetryLogContents}    "Gathered telemetry for av"
+    Should Contain   ${telemetryFileContents}   "av"
     Should Contain   ${telemetryFileContents}   "version"
 
