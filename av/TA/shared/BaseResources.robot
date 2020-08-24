@@ -65,7 +65,7 @@ Run Telemetry Executable
 
     Remove File  ${TELEMETRY_EXECUTABLE_LOG}
 
-    ${result} =  Run Process  sudo  -u  sophos-spl-user  ${SOPHOS_INSTALL}/base/bin/telemetry  ${telemetryConfigFilePath}
+    ${result} =  Run Process  ${SOPHOS_INSTALL}/base/bin/telemetry  ${telemetryConfigFilePath}
 
     Log  "stdout = ${result.stdout}"
     Log  "stderr = ${result.stderr}"
