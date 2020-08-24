@@ -382,18 +382,10 @@ class UpdateSchedulerHelper(object):
         with open(newest, "r") as report:
             return json.load(report)
 
-    def replace_version(self,old_version, new_version, base_dist):
+    def replace_version(self, old_version, new_version, base_dist):
         sdds_import_path = os.path.join(base_dist, "SDDS-Import.xml")
         version_file_path = os.path.join(base_dist, "files/base/VERSION.ini")
-        self.replace_version_in_file(old_version, new_version, sdds_import_path)
-        self.replace_version_in_file(old_version, new_version, version_file_path)
+        logUtils = LogUtils.LogUtils()
+        logUtils.replace_string_in_file(old_version, new_version, sdds_import_path)
+        logUtils.replace_string_in_file(old_version, new_version, version_file_path)
 
-
-    def replace_version_in_file(self,old_version, new_version,file):
-        if not os.path.isfile(file):
-            raise AssertionError("File not found {}".format(file))
-        with open(file, "rt") as f:
-            content = f.read()
-        content = content.replace(old_version,new_version)
-        with open(file, "wt") as f:
-            f.write(content)

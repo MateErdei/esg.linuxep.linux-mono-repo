@@ -717,3 +717,12 @@ class LogUtils(object):
         log = self.watchdog_log()
         self.check_log_contains(string_to_contain, log, "Watchdog")
         logger.info(log)
+
+    def replace_string_in_file(self, old_string, new_string, file):
+        if not os.path.isfile(file):
+            raise AssertionError("File not found {}".format(file))
+        with open(file, "rt") as f:
+            content = f.read()
+        content = content.replace(old_string, new_string)
+        with open(file, "wt") as f:
+            f.write(content)
