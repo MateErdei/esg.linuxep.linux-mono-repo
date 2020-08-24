@@ -48,7 +48,7 @@ AV plugin Can Send Status
     Wait For Plugin Status  av  SAV  RevID="123"  Res="Same"  <product-version>${version}</product-version>
 
     ${telemetry}=  Get Plugin Telemetry  av
-    Should Contain  ${telemetry}   Number of Scans
+    Should Contain  ${telemetry}   {"version":"${version}"}
 
     ${result} =   Terminate Process  ${handle}
 
