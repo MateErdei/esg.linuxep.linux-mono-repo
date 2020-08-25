@@ -14,6 +14,8 @@ Simple Upgrade Test
     ${BaseDevVersion} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
     Copy Directory  ${result}  /opt/tmp/version2
     Replace Version  ${BaseDevVersion}   9.99.999  /opt/tmp/version2
+    ${result} =  Run Process  chmod  +x  /opt/tmp/version2/install.sh
+    Should Be Equal As Integers    ${result.rc}    0
     ${result} =  Run Process  /opt/tmp/version2/install.sh
     Should Be Equal As Integers    ${result.rc}    0
     ${BaseDevVersion2} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
