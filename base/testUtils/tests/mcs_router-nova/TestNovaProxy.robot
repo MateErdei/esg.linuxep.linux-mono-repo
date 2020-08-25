@@ -50,39 +50,6 @@ Register in Central through environment proxy
     ...  10 secs
     ...  Check MCS Router log contains proxy success  ${SECURE_PROXY_HOST}:8888
 
-
-Register in cloud through pretend message relay in correct order
-    [Documentation]  Derived from CLOUD.PROXY.008_Check_message_relay_ordering.sh
-    ...              Using proxy server to pretend to be a message relay
-
-
-    ${distance25} =  Calculate Proxy IP at distance  25
-    ${distance9} =   Calculate Proxy IP at distance   9
-    ${distance5} =   Calculate Proxy IP at distance   5
-    ${distance1} =   Calculate Proxy IP at distance   1
-
-    Modify Hosts File  FakeRelayTwentyFive=${distance25}  FakeRelayFive=${distance5}  FakeRelayOne=${distance1}  FakeRelayNine=${distance9}
-
-    ${proxies} =  Set Variable  FakeRelayTwentyFive:6666,0,1;FakeRelayFive:6666,0,2;FakeRelayOne:6666,1,3;FakeRelayNine:6666,0,4;${SECURE_PROXY_HOST}:${SECURE_PROXY_PORT},1,5
-
-    ${full_reg_command} =  Set Variable  ${regCommand} --messagerelay ${proxies}
-
-    Log To Console  ${full_reg_command}
-    Register With Central  ${full_reg_command}
-    Wait For MCS Router To Be Running
-
-    Wait Until Keyword Succeeds
-    ...  120 seconds
-    ...  5 secs
-    ...  Check MCS Router log contains message relay success  ${SECURE_PROXY_HOST}:${SECURE_PROXY_PORT}
-
-    Unmodify Hosts File  FakeRelayTwentyFive=${distance25}  FakeRelayFive=${distance5}  FakeRelayOne=${distance1}  FakeRelayNine=${distance9}
-
-    Verify Message Relay Failure In Order  FakeRelayFive:6666  FakeRelayNine:6666  FakeRelayTwentyFive:6666  FakeRelayOne:6666
-
-
-
-
 *** Keywords ***
 
 Check MCS Router log contains message relay success
