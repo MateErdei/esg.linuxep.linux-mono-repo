@@ -60,6 +60,15 @@
             <include artifact-path="websocket_server" dest-dir="websocket_server" />
         </build-asset>
     </inputs>
+
+    <buildcommands>
+        <command>
+            <program>./setOstiaVutBranch.sh</program>
+            <args>master</args>
+            <workingdir>SupportFiles/jenkins</workingdir>
+        </command>
+    </buildcommands>
+
     <publish>
         <workingdir>sspl-base-build</workingdir>
         <destdir>sspl-base</destdir>
