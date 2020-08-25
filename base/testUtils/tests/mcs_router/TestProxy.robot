@@ -62,6 +62,7 @@ Register in cloud through basic auth proxy
     Require Proxy With Basic Authentication  ${proxy_port}
     Set Environment Variable  http_proxy  http://${PROXY_USER}:${PROXY_PASSWORD}@localhost:${proxy_port}
     Register With Local Cloud Server
+    Check Current Proxy Is Created With Correct Content And Permissions     localhost:${proxy_port}
     Start MCSRouter
     Check MCS Router log contains proxy success  localhost:${proxy_port}
 

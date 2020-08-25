@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+    <meta protocolVersion="1.1"/>
+    <csc:Comp RevID="0e09e27cfc21f8d7510d562c56e34507711bdce48bfdfd3846965f130fef142a" policyType="25"/>
+    <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
+        <registrationToken>PolicyRegToken</registrationToken>
+        <servers>
+            <server>https://localhost:4443/mcs</server>
+        </servers>
+        <messageRelays><messageRelay priority='0' port='3345' address='localhost' id='eee'/></messageRelays>
+        <useSystemProxy>true</useSystemProxy>
+        <useAutomaticProxy>true</useAutomaticProxy>
+        <useDirect>true</useDirect>
+        <randomSkewFactor>1</randomSkewFactor>
+        <commandPollingDelay default="5"/>
+        <policyChangeServers/>
+        <pushServers/>
+    </configuration>
+</policy>

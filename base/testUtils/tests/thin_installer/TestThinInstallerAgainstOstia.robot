@@ -162,6 +162,8 @@ Thin Installer Installs Base And Services Start
 Thin Installer Attempts Install And Register Through Message Relays
     Start Message Relay
     Should Not Exist    ${SOPHOS_INSTALL}
+    Stop Local Cloud Server
+    Start Local Cloud Server   --initial-mcs-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudMCS_policy_Message_Relay.xml   --initial-alc-policy    ${BaseVUTPolicy}
 
     Check MCS Router Not Running
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
@@ -178,6 +180,10 @@ Thin Installer Attempts Install And Register Through Message Relays
 
     # Add Message Relays to Thin Installer
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
+
+    # Check current proxy file is written with correct content and permissions.
+    # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
+    Check Current Proxy Is Created With Correct Content And Permissions  localhost:20000
 
     # Check the MCS Capabilities check is performed with the Message Relays in the right order
     Check Thininstaller Log Contains    Message Relays: dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
