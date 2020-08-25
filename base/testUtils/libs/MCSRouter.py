@@ -256,6 +256,7 @@ class MCSRouter(object):
 
     # Fake Cloud Utils
     def start_local_cloud_server(self, *args):
+        self.stop_local_cloud_server()
         self.ensure_fake_cloud_certs_generated()
         command = [sys.executable, os.path.join(self.cloud_server_path, "cloudServer.py")]
         self._launch_local_fake_cloud_process(command, args)
@@ -283,8 +284,6 @@ class MCSRouter(object):
             self.cloud_server_process.wait()
             self.cloud_server_process = None
             logger.info("Local cloud server stopped: pid={}".format(pid))
-        else:
-            logger.warn("Local cloud server not running!")
 
     # Start fake Cloud server with kitty fuzzer
     def start_fuzzed_local_cloud_server(self, *args):
