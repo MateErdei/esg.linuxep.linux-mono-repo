@@ -29,5 +29,5 @@ Unified pipeline
 5) Run tap test on branch with classic pipline build.
     unset TAP_PARAMETER_MODE (if its set)
     tap run edr_plugin... (usual options are optional)
-    
+
 For information on running outside TAP see PytestScripts/README
