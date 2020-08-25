@@ -60,6 +60,10 @@ Verify Status Message Sent When Registering With Central
     ...  1 secs
     ...  File Should Exist  ${sulConfigPath}
 
+    @{policyValues} =  Get Alc Policy File Info  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    @{configValues} =  Get Sul Config File Info  ${sulConfigPath}
+    Lists Should Be Equal  ${policyValues}  ${configValues}
+
     Log File  ${MCS_DIR}/status/ALC_status.xml
     Remove File  ${MCS_DIR}/status/ALC_status.xml
 
@@ -231,6 +235,34 @@ Verify Status Message And Event Is Sent On First Update And Not On Following Upd
 
     #Status cache means that the status will not be written again
     Should Not Exist    ${statusPath}
+
+Verify Failure Event Is Sent on Update Failed
+    [Tags]  MCS  FAKE_CLOUD  UPDATE_SCHEDULER  MCS_ROUTER  OSTIA
+    Start Local Cloud Server  --initial-alc-policy  ${BASE_VUT_POLICY}
+
+    Set Local CA Environment Variable
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+
+    Override LogConf File as Global Level  DEBUG
+    Start System Watchdog
+
+    Wait Until Keyword Succeeds
+    ...  2 min
+    ...  10 secs
+    ...  Check MCSenvelope Log Contains  ThisIsAnMCSID+1001
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BASE_VUT_POLICY}
+
+    #Update occurs on receiving first policy
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Fail On N Event Sent  1
+
 
 Verify Status Message Is Sent When New Policy Received Even If Product Update Is Not Executed
     Start Local Cloud Server  --initial-alc-policy  ${BASE_VUT_POLICY}
