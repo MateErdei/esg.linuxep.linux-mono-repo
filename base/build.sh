@@ -306,12 +306,12 @@ function build()
             exitFailure $FAILURE_INPUT_NOT_AVAILABLE "rootca.crt not available"
         fi
 
+        mkdir -p ${REDIST}/telemetry
         if [[ -f ${INPUT}/telemetry/telemetry-config.json ]]
         then
-            mkdir -p ${REDIST}/telemetry
             cp "${INPUT}/telemetry/telemetry-config.json" "${REDIST}/telemetry/"
         else
-            exitFailure $FAILURE_INPUT_NOT_AVAILABLE "telemetry-config.json not available"
+            cp "$BASE/build/dev-telemetry-config.json" "${REDIST}/telemetry/"
         fi
     fi
 

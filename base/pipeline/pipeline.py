@@ -2,6 +2,9 @@ import tap.v1 as tap
 
 import os
 
+from tap._pipeline.tasks import ArtisanInput
+
+
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
     pip_index = os.environ.get('TAP_PIP_INDEX_URL')
@@ -64,23 +67,34 @@ def pytest_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext):
+def get_inputs(context: tap.PipelineContext, build: ArtisanInput):
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./testUtils'),
-        base=context.artifact.build() / 'output',
-        openssl=context.artifact.build() / 'openssl',
+        base=build / 'output',
+        openssl=build / 'sspl-base' / 'openssl',
         websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
     )
+
     return test_inputs
 
 
 @tap.pipeline(version=1, component='sspl-base')
-def sspl_base(stage: tap.Root, context: tap.PipelineContext):
+def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    component = tap.Component(name='sspl-base', base_version='1.1.3')
+    # section include to allow classic build to continue to work. To run unified pipeline local bacause of this close
+    # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
+    if parameters.mode:
+        with stage.parallel('build'):
+            base_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
+                                             mode=parameters.mode, release_package='./build/release-package.xml')
+    else:
+        base_build = context.artifact.build()
     machines = (
         ("ubuntu1804",
-         tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)),
+         tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, base_build),
+                     platform=tap.Platform.Linux)),
         ("centos77",
-         tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux))
+         tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, base_build), platform=tap.Platform.Linux))
         # add other distros here
     )
     with stage.parallel('integration'):

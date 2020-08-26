@@ -1,0 +1,8 @@
+@Library("tap-pipe")
+
+def params = [
+    string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release|coverage]'),
+    string(name: 'test_type', defaultValue: 'regression', description: 'Test type [regression|faultinjection]'),
+]
+
+CIPipeline { pipelineEntryPoint = 'sspl_base'; buildParameters = params }
