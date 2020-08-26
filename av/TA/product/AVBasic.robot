@@ -162,8 +162,8 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     Create File      ${eicar_path5}    ${EICAR_STRING}
     ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/MyScan.log
 
-    Check AV Plugin Installed
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
 
     run_on_failure  dump_scheduled_scan_log
 
