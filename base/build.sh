@@ -311,7 +311,7 @@ function build()
         then
             cp "${INPUT}/telemetry/telemetry-config.json" "${REDIST}/telemetry/"
         else
-            cp "$BASE/build/dev-telemetry-config.json" "${REDIST}/telemetry/"
+            cp "$BASE/build/dev-telemetry-config.json" "${REDIST}/telemetry/telemetry-config.json"
         fi
     fi
 
