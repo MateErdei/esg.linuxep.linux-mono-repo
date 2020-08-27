@@ -30,4 +30,5 @@ export SDDS_SSPL_MDR_COMPONENT_SUITE_RELEASE_1_0=$SYSTEMPRODUCT_TEST_INPUT/sspl-
 export SAV_INPUT=$SYSTEMPRODUCT_TEST_INPUT/savlinux9-package
 
 # get ostia vut address and export it
-export OSTIA_VUT_OVERRIDE=$(cat ${WORKSPACE}/testUtils/SupportFiles/jenkins/OstiaVUTAddress) || fail "Error: Failed to export ostia vut address"
+export OSTIA_VUT_OVERRIDE=$(cat $TEST_UTILS/SupportFiles/jenkins/OstiaVUTAddress) || fail "Error: Failed to export ostia vut address"
+[[ -n $OSTIA_VUT_OVERRIDE ]] || fail "Error: Failed to export ostia vut address"
