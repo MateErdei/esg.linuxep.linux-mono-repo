@@ -90,7 +90,7 @@
         <workingdir>.</workingdir>
         <!-- new unified pipeline -->
         <!-- change edr/sdds to a release asset -->
-        <build-asset artifact-path="edr/sdds" source-dir="output/SDDS-COMPONENT" mode="release,coverage"/>
+        <release-asset artifact-path="edr/sdds" source-dir="output/SDDS-COMPONENT" mode="release,coverage"/>
 
         <build-asset artifact-path="edr/symbols" source-dir="output/symbols" mode="release,coverage"/>
         <build-asset artifact-path="edr/componenttests" source-dir="output/componenttests" mode="release,coverage"/>
