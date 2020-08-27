@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 
-
 import fileInfo
 import generateManifestDat
 import generateSDDSImport
 
 import os
 import sys
+import subprocess
 
 
 def main(argv):
@@ -21,16 +21,25 @@ def main(argv):
     else:
         BASE = os.environ.get("BASE", None)
 
-    file_objects = fileInfo.load_file_info(dist, distribution_list)
+    # file_objects = fileInfo.load_file_info(dist, distribution_list)
 
-    changed = generateManifestDat.generate_manifest(dist, file_objects)
+    exclusions = 'SDDS-Import.xml,manifest.dat'  # comma separated string
+    env = dict(os.environ)
+    env['LD_LIBRARY_PATH'] = "/usr/lib:/usr/lib64"
+    proc = subprocess.Popen(
+        ['sb_manifest_sign', '--folder', f'{dist}', '--output', f'{dist}/manifest.dat', '--exclusions', f'{exclusions}']
+        , stderr=subprocess.PIPE, stdout=subprocess.PIPE, env=env)
+    try:
+        outs, errs = proc.communicate(timeout=15)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        outs, errs = proc.communicate()
 
-    sdds_import_path = os.path.join(dist, "SDDS-Import.xml")
-    if os.path.isfile(sdds_import_path) and not changed:
-        print("Contents not changed: not regenerating manifest.dat and SDDS-Import.xml")
-        return 0
+    if proc.returncode != 0:
+        raise AssertionError(errs)
 
     ## Add manifest.dat to file_list
+    file_objects = fileInfo.load_file_info(dist, distribution_list)
     file_objects.append(fileInfo.FileInfo(dist, "manifest.dat"))
 
     generateSDDSImport.generate_sdds_import(dist, file_objects, BASE)

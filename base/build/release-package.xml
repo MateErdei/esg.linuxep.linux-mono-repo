@@ -128,13 +128,13 @@
         <release-asset artifact-path="sspl-base/openssl" source-dir="redist/openssl" mode="release"/>
 
         <!-- coverage(bullseye) -->
-        <!--        <build-asset artifact-path="sspl-base/openssl" source-dir="redist/openssl" mode="coverage"/>-->
-        <!--        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="coverage" />-->
+        <build-asset artifact-path="sspl-base/openssl" source-dir="redist/openssl" mode="coverage"/>
+        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="coverage"/>
 
-        <!--        <build-asset artifact-path="sspl-base/sdds" source-dir="output/SDDS-COMPONENT" mode="coverage"/>-->
-        <!--        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="coverage">-->
-        <!--            <include glob="pluginapi.tar.gz"/>-->
-        <!--        </build-asset>-->
+        <build-asset artifact-path="sspl-base/sdds" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
+        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="coverage">
+            <include glob="pluginapi.tar.gz"/>
+        </build-asset>
 
         <build-asset artifact-path="sspl-base/testoutput" source-dir="output" mode="coverage,release">
             <include glob="SystemProductTestOutput.tar.gz"/>
