@@ -20,11 +20,12 @@ set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/addSymbols.sh)
 set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
 set(GENERATE_SDDS_IMPORT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImport.py)
+set(SD_MANIFEST_SIGN LD_LIBRARY_PATH=/usr/lib:/usr/lib64 sb_manifest_sign)
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
         COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND sb_manifest_sign --folder ${DIST} --output ${DIST}/manifest.dat
+        COMMAND ${SD_MANIFEST_SIGN} --folder ${DIST} --output ${DIST}/manifest.dat
         COMMAND python3 ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
         )
 
@@ -32,7 +33,7 @@ add_custom_target(
         dist
         COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND sb_manifest_sign --folder ${DIST} --output ${DIST}/manifest.dat
+        COMMAND ${SD_MANIFEST_SIGN} --folder ${DIST} --output ${DIST}/manifest.dat
         COMMAND python3 ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
@@ -42,7 +43,7 @@ add_custom_target(
         COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
         COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND sb_manifest_sign --folder ${DIST} --output ${DIST}/manifest.dat
+        COMMAND ${SD_MANIFEST_SIGN} --folder ${DIST} --output ${DIST}/manifest.dat
         COMMAND python3 ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
