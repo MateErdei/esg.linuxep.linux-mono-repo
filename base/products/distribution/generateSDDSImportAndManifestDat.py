@@ -21,22 +21,21 @@ def main(argv):
     else:
         BASE = os.environ.get("BASE", None)
 
-    # file_objects = fileInfo.load_file_info(dist, distribution_list)
-
-    exclusions = 'SDDS-Import.xml,manifest.dat'  # comma separated string
-    env = dict(os.environ)
-    env['LD_LIBRARY_PATH'] = "/usr/lib:/usr/lib64"
-    proc = subprocess.Popen(
-        ['sb_manifest_sign', '--folder', f'{dist}', '--output', f'{dist}/manifest.dat', '--exclusions', f'{exclusions}']
-        , stderr=subprocess.PIPE, stdout=subprocess.PIPE, env=env)
-    try:
-        outs, errs = proc.communicate(timeout=15)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        outs, errs = proc.communicate()
-
-    if proc.returncode != 0:
-        raise AssertionError(errs)
+    # exclusions = 'SDDS-Import.xml,manifest.dat'  # comma separated string
+    # env = dict(os.environ)
+    # env['LD_LIBRARY_PATH'] = "/usr/lib:/usr/lib64"
+    # proc = subprocess.Popen(
+    #     ['sb_manifest_sign', '--folder', f'{dist}', '--output', f'{dist}/manifest.dat', '--exclusions', f'{exclusions}']
+    #     , stderr=subprocess.PIPE, stdout=subprocess.PIPE, env=env)
+    # try:
+    #     outs, errs = proc.communicate(timeout=15)
+    # except subprocess.TimeoutExpired:
+    #     proc.kill()
+    #     outs, errs = proc.communicate()
+    #
+    # if proc.returncode != 0:
+    #     raise AssertionError(errs)
+    generateManifestDat.generate_manifest(dist)
 
     ## Add manifest.dat to file_list
     file_objects = fileInfo.load_file_info(dist, distribution_list)

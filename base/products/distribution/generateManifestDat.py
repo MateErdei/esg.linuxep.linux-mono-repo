@@ -6,6 +6,7 @@
 import os
 import socket
 import sys
+import subprocess
 
 import xmlrpc.client as xmlrpc_client
 import fileInfo
@@ -71,7 +72,8 @@ def ensure_bytes(s):
         return s.encode("UTF-8")
     return s
 
-def generate_manifest(dist, file_objects):
+
+def generate_manifest_old_api(dist, file_objects):
     options = Options()
     MANIFEST_NAME = os.environ.get("MANIFEST_NAME", "manifest.dat")
     manifest_path = os.path.join(dist, MANIFEST_NAME)
@@ -112,6 +114,24 @@ def generate_manifest(dist, file_objects):
     output.close()
     return True
 
+
+def generate_manifest(dist, file_objects=None):
+    exclusions = 'SDDS-Import.xml,manifest.dat'  # comma separated string
+    env = dict(os.environ)
+    env['LD_LIBRARY_PATH'] = "/usr/lib:/usr/lib64"
+    proc = subprocess.Popen(
+        ['sb_manifest_sign', '--folder', f'{dist}', '--output', f'{dist}/manifest.dat', '--exclusions', f'{exclusions}']
+        , stderr=subprocess.PIPE, stdout=subprocess.PIPE, env=env)
+    try:
+        outs, errs = proc.communicate(timeout=15)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        outs, errs = proc.communicate()
+
+    if proc.returncode != 0:
+        raise AssertionError(errs)
+
+
 def main(argv):
     dist = argv[1]
     if len(argv) > 2:
@@ -120,7 +140,7 @@ def main(argv):
         distribution_list = None
 
     file_objects = fileInfo.load_file_info(dist, distribution_list)
-    generate_manifest(dist, file_objects)
+    generate_manifest(dist)
 
     return 0
 
