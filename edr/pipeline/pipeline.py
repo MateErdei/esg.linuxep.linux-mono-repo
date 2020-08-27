@@ -146,6 +146,8 @@ def get_inputs(context: tap.PipelineContext, build, parameters: tap.Parameters):
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     component = tap.Component(name='edr', base_version='1.0.2')
 
+    #section include to allow classic build to continue to work. To run unified pipeline local bacause of this close
+    #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     if parameters.mode:
         with stage.parallel('build'):
             edr_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
@@ -155,8 +157,8 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
 
     with stage.parallel('test'):
         machines = (
-            # ("ubuntu1804",
-            #  tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, edr_build, parameters), platform=tap.Platform.Linux)),
+            ("ubuntu1804",
+             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, edr_build, parameters), platform=tap.Platform.Linux)),
             ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, parameters), platform=tap.Platform.Linux)),
             # add other distros here
         )

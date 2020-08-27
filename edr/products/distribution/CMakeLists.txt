@@ -69,7 +69,7 @@ add_custom_target(
         COMMAND rm -f ${DIST}/SDDS-Import.xml
         COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND sb_manifest_sign  --folder ${DIST} --output ${DIST}/manifest.dat
+        COMMAND  sb_manifest_sign  --folder ${DIST} --output ${DIST}/manifest.dat --excludes "SDDS-Import.xml,manifest.dat"
         COMMAND python3 ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
