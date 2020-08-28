@@ -14,11 +14,6 @@
             <!--release-version branch="release/2014.1" build-id="" /-->
             <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs" />
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
-        </build-asset>
-
-        <build-asset project="linuxep" repo="everest-base">
-            <!--release-version branch="release/2014.1" build-id="" /-->
-            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs" />
             <include artifact-path="sspl-base/sdds" dest-dir="input/base-sdds" />
         </build-asset>
         <!--Plugin Api Production Build - Change values below to match the latest production build of base.
