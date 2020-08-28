@@ -31,7 +31,7 @@
   </build-asset>
   <build-asset project="linuxep" repo="everest-base">
     <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-    <include artifact-path="sspl/sdds" dest-dir="redist/sspl-base"/>
+    <include artifact-path="sspl-base/sdds" dest-dir="redist/sspl-base"/>
   </build-asset>
   <build-asset project="linuxep" repo="sspl-plugin-edr-component">
     <development-version branch="feature/LINUXDAR-2159-change-edr-plugin-repo-to-use-unified-pipeline"/>
