@@ -39,7 +39,7 @@ def uninstall_sspl_if_installed():
 
     uninstaller = os.path.join(SOPHOS_INSTALL, "bin", "uninstall.sh")
     if not os.path.isfile(uninstaller):
-        logger.warning("SOPHOS_INSTALL exists but uninstaller doesn't")
+        logger.info("{} exists but uninstaller doesn't - removing directory".format(SOPHOS_INSTALL))
         shutil.rmtree(SOPHOS_INSTALL)
         return 0
 

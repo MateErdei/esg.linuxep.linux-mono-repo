@@ -62,7 +62,7 @@ AV Plugin Can Process Scan Now
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Policy  av  sav  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=120
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180
     AV Plugin Log Contains  Received new Action
     AV Plugin Log Contains  Starting Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
@@ -175,7 +175,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=180  interval=5
+    Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
     AV Plugin Log Contains  Starting scan MyScan
     File Should Exist  ${myscan_log}
     File Log Should Not Contain  ${myscan_log}  "${eicar_path1}" is infected with EICAR-AV-Test
