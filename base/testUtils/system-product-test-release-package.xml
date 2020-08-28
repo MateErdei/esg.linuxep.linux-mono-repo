@@ -64,7 +64,7 @@
     <buildcommands>
         <command>
             <program>./setOstiaVutBranch.sh</program>
-            <args>master</args>
+            <args>develop</args>
             <workingdir>SupportFiles/jenkins</workingdir>
         </command>
     </buildcommands>
