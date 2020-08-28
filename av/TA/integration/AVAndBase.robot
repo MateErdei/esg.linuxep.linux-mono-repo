@@ -170,7 +170,10 @@ AV Plugin Reports Threat XML To Base
 
    Should Be Equal As Integers  ${rc}  69
 
-   check threat event received by base  1   naugthyEicarThreatReport
+   Wait Until Keyword Succeeds
+         ...  60 secs
+         ...  3 secs
+         ...  check threat event received by base  1  naugthyEicarThreatReport
 
 AV Plugin Reports encoded eicars To Base
    Check AV Plugin Installed With Base
@@ -186,10 +189,9 @@ AV Plugin Reports encoded eicars To Base
    Should Be Equal As Integers  ${result.rc}  69
    Log  ${result.stdout}
 
-
    #make sure base has generated all events before checking
    Wait Until Keyword Succeeds
-         ...  15 secs
+         ...  60 secs
          ...  3 secs
          ...  check_number_of_events_matches  ${expected_count}
 
