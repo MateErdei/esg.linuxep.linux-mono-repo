@@ -29,10 +29,21 @@
     <development-version branch="develop"/>
     <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
   </build-asset>
-  <build-asset project="em" repo="esg">
-    <development-version branch="develop"/>
-<!--    <include artifact-path="scheduled-query-pack-sdds" dest-dir="inputs/scheduled-query-pack-sdds"/>-->
-    <include artifact-path="winepflags" dest-dir="redist/winepflags"/>
+  <build-asset project="linuxep" repo="everest-base">
+    <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+    <include artifact-path="sspl/sdds" dest-dir="redist/sspl-base"/>
+  </build-asset>
+  <build-asset project="linuxep" repo="sspl-plugin-edr-component">
+    <development-version branch="feature/LINUXDAR-2159-change-edr-plugin-repo-to-use-unified-pipeline"/>
+    <include artifact-path="edr/sdds" dest-dir="redist/sspl-plugin-edr-component"/>
+  </build-asset>
+  <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
+    <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+    <include artifact-path="output" dest-dir="redist/sspl-plugin-mdr-componentsuite"/>
+  </build-asset>
+  <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
+    <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+    <include artifact-path="sspl-componentsuite/sdds" dest-dir="redist/sspl-plugin-edr-componentsuite"/>
   </build-asset>
 </inputs>
 
