@@ -64,6 +64,15 @@
             <include artifact-path="websocket_server" dest-dir="websocket_server" />
         </build-asset>
     </inputs>
+
+    <buildcommands>
+        <command>
+            <program>./setOstiaVutBranch.sh</program>
+            <args>feature-LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs-to-use-unified</args>
+            <workingdir>SupportFiles/jenkins</workingdir>
+        </command>
+    </buildcommands>
+
     <publish>
         <workingdir>sspl-base-build</workingdir>
         <destdir>sspl-base</destdir>
