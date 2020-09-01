@@ -11,7 +11,7 @@ Library   ${LIBS_DIRECTORY}/CommsComponentUtils.py
 Library   ${LIBS_DIRECTORY}/LogUtils.py
 Library   ${LIBS_DIRECTORY}/HttpsServer.py
 
-Default Tags  COMMS  TESTFAILURE
+Default Tags  COMMS
 
 Suite Setup  Suite Setup
 Suite Teardown  Suite Teardown
@@ -107,7 +107,7 @@ Test RunHttpRequest with Jail can perform a GET request with pinned Certificate
 
 
 Test RunHttpRequest With Strace to See the Internals Of it
-    [Tags]  MANUAL  COMMS  TESTFAILURE
+    [Tags]  MANUAL  COMMS
     Copy File And Set Permissions   ${CERT_PATH}  ${MCS_CERTS_DIR}
     Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${JAIL_PINNED_CERT_PATH}    
     ${output}=  Run Shell Process  strace -f ${RunHttpRequestExecutable} -i ${FileNameRequest1} --child-user sophos-spl-network --child-group sophos-spl-group --parent-user sophos-spl-local --parent-group sophos-spl-group --jail-root ${JAIL_PATH} --parent-root /tmp/parent 2> /tmp/fullreport.txt   "Failed to run http request"  200  expectedExitCode=0
