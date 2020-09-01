@@ -98,7 +98,8 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         else if (fs::is_directory(p.status()))
         {
-            if (!m_callback.includeDirectory(p))
+            //add forward slash to the path because fs library is not adding slashes to the end of directory paths
+            if (!m_callback.includeDirectory(p / "/"))
             {
                 iterator.disable_recursion_pending();
             }
