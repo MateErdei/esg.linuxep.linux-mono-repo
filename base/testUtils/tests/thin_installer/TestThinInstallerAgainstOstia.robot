@@ -122,7 +122,7 @@ Thin Installer Repairs Broken Existing Installation
     Remove File  ${REGISTER_CENTRAL}
     Should Not Exist  ${REGISTER_CENTRAL}
     
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  override_certs_dir=system
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}
 
     Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
     Check Thininstaller Log Does Not Contain  ERROR
