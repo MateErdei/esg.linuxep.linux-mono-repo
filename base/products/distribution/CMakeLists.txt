@@ -107,3 +107,6 @@ configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
 install(FILES ../../build64/products/distribution/VERSION.ini
         DESTINATION files/base/)
+
+install(FILES ../../build64/products/distribution/VERSION.ini
+        DESTINATION .)

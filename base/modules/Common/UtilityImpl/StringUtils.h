@@ -9,6 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cstring>
 #include <string>
 #include <vector>
+#include <optional>
+#include <Common/FileSystem/IFileSystem.h>
+
 
 namespace Common
 {
@@ -139,6 +142,53 @@ namespace Common
 
             static void enforceUTF8(const std::string& input);
 
+            static std::optional<std::string> extractValueFromIniFile(const std::string& filePath, const std::string& key)
+            {
+                auto fs = Common::FileSystem::fileSystem();
+                if (fs->isFile(filePath))
+                {
+                    std::vector<std::string> contents = fs->readLines(filePath);
+                    for (auto const &line: contents)
+                    {
+                        if (startswith(line,key))
+                        {
+                            std::vector<std::string> list = splitString(line,"=");
+                            return list[1];
+                        }
+                    }
+                }
+            }
+            bool isVersionOlder(const std::string& currentVersion, const std::string& newVersion)
+            {
+                if( (currentVersion.find_first_not_of("1234567890.") != std::string::npos ) ||
+                     (newVersion.find_first_not_of("1234567890.") != std::string::npos ))
+                {
+                    throw std::runtime_error("Invalid version data provided version" + currentVersion + ":" + newVersion );
+                }
+
+                if(currentVersion == newVersion)
+                {
+                    return false;
+                }
+
+                std::vector<std::string> version1 = splitString(currentVersion,".");
+                std::vector<std::string> version2 = splitString(newVersion,".");
+
+                int maxIndex = std::min(version1.size(), version2.size());
+
+                for (int i = 0; i < maxIndex; i++)
+                {
+                    if (std::stoi(version1[i]) > std::stoi(version2[i]))
+                    {
+                        return true;
+                    }
+                }
+                if (version2.size() > version1.size())
+                {
+                    return true;
+                }
+                return false;
+            }
 
             using KeyValueCollection = std::vector<std::pair<std::string, std::string>>;
 

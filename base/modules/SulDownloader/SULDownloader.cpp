@@ -135,6 +135,13 @@ namespace SulDownloader
             SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
                 configurationData, previousConfigurationData, false);
 
+        for(auto& product : products)
+        {
+            std::string rigidName = product.getProductMetadata().getLine();
+            std::string filePath = Common::FileSystem::join( product.distributePath(),"VERSION.ini");
+            Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(filePath);
+        }
+
         for (auto& product : products)
         {
             bool forceReinstallThisProduct = forceInstallOfProduct(product, previousDownloadReport);

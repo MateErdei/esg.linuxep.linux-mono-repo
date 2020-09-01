@@ -21,6 +21,8 @@ namespace Common::ApplicationConfiguration
         virtual std::string sophosInstall() const = 0;
 
         virtual std::string getLogConfFilePath() const = 0;
+        virtual std::string getTelemetryOutputFilePath() const = 0;
+        virtual std::string getVersionIniFileForComponent(const std::string& component) const = 0;
 
         /**
          * Get the directory to store root logs for base processes.
@@ -67,7 +69,7 @@ namespace Common::ApplicationConfiguration
 
         virtual std::string getSavedEnvironmentProxyFilePath() const = 0;
 
-        virtual std::string getTelemetrySchedulerConfigFilePath() const = 0;
+        virtual std::string getTelemetrySchedulerStatusFilePath() const = 0;
         virtual std::string getTelemetrySupplementaryFilePath() const = 0;
         virtual std::string getTelemetryExeConfigFilePath() const = 0;
         virtual std::string getTelemetryExecutableFilePath() const = 0;

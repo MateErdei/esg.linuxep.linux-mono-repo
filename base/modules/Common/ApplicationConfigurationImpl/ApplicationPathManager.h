@@ -70,6 +70,8 @@ namespace Common::ApplicationConfigurationImpl
         std::string getCommsRequestDirPath() const override;
         std::string getCommsResponseDirPath() const override;
 
+        std::string getVersionIniFileForComponent(const std::string& component) const override;
+
     private:
         std::string socketPath(const std::string& relative) const;
     };

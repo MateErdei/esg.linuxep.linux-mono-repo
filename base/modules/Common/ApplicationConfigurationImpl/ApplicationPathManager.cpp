@@ -258,6 +258,29 @@ namespace Common
         {
             return Common::FileSystem::join(sophosInstall(), "var/comms/responses");
         }
+        std::string ApplicationPathManager::getVersionIniFileForComponent(const std::string& component) const
+        {
+            if (component == "ServerProtectionLinux-Base-component")
+            {
+                return Common::FileSystem::join(sophosInstall(), "vase/VERSION.ini");
+            }
+            else if (component == "ServerProtectionLinux-Plugin-EDR")
+            {
+                return Common::FileSystem::join(sophosInstall(), "plugins/edr/VERSION.ini");
+            }
+            else if (component == "ServerProtectionLinux-Plugin-liveresponse")
+            {
+                return Common::FileSystem::join(sophosInstall(), "plugins/liveresponse/VERSION.ini");
+            }
+            else if (component == "ServerProtectionLinux-Plugin-MDR")
+            {
+                return Common::FileSystem::join(sophosInstall(), "plugins/mtr/VERSION.ini");
+            }
+            else
+            {
+                throw std::runtime_error("Component " + component + " not recognized.");
+            }
+        }
 
     } // namespace ApplicationConfigurationImpl
 
