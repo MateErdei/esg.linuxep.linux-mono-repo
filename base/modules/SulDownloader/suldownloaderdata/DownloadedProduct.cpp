@@ -172,6 +172,15 @@ void DownloadedProduct::setProductHasChanged(bool productHasChanged)
     m_productHasChanged = productHasChanged;
 }
 
+bool DownloadedProduct::productWillBeDowngraded() const
+{
+    return m_productDowngrade;
+}
+
+void DownloadedProduct::setProductWillBeDowngraded(bool willBeDowngraded)
+{
+    m_productDowngrade = willBeDowngraded;
+}
 void DownloadedProduct::setProductIsBeingUninstalled(bool IsBeingUninstalled)
 {
     m_productUninstall = IsBeingUninstalled;

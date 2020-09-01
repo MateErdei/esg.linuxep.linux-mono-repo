@@ -19,6 +19,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
@@ -138,8 +139,14 @@ namespace SulDownloader
         for(auto& product : products)
         {
             std::string rigidName = product.getProductMetadata().getLine();
-            std::string filePath = Common::FileSystem::join( product.distributePath(),"VERSION.ini");
-            Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(filePath);
+            std::string warehouseVersionIni = Common::FileSystem::join( product.distributePath(),"VERSION.ini");
+            std::string localVersionIni = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(rigidName);
+
+            std::string currentVersion = StringUtils::extractValueFromIniFile(localVersionIni,"PRODUCT_VERSION");
+            std::string newVersion = StringUtils::extractValueFromIniFile(warehouseVersionIni,"PRODUCT_VERSION");
+
+            bool isDowngrade = StringUtils::isVersionOlder(currentVersion,newVersion);
+            product.setProductWillBeDowngraded(isDowngrade);
         }
 
         for (auto& product : products)

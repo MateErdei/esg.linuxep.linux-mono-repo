@@ -108,6 +108,12 @@ namespace SulDownloader
             bool productHasChanged() const;
 
             /**
+             *
+             * @return Flag configured by ::setProductWillBeDowngraded
+             */
+            bool productWillBeDowngraded() const;
+
+            /**
              * Set by the WarehouseRepository to signal that at the distribution the WarehouseRepository found that
              * there are updates for the downloaded product.
              *
@@ -139,6 +145,12 @@ namespace SulDownloader
             void setForceProductReinstall(bool forceReinstall);
 
             /**
+             * set if the product will be downgraded, used to force partial uninstallation before install.sh called.
+             * @param willBeDowngraded
+             */
+            void setProductWillBeDowngraded(bool willBeDowngraded);
+
+            /**
              * @return true of the product needs to be reinstalled, false otherwise
              */
             bool forceProductReinstall() const;
@@ -158,6 +170,7 @@ namespace SulDownloader
             bool m_productHasChanged;
             bool m_productUninstall;
             bool m_forceProductReinstall;
+            bool m_productDowngrade = false;
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader

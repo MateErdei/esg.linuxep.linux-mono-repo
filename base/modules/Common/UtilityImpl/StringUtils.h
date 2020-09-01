@@ -142,7 +142,7 @@ namespace Common
 
             static void enforceUTF8(const std::string& input);
 
-            static std::optional<std::string> extractValueFromIniFile(const std::string& filePath, const std::string& key)
+            static std::string extractValueFromIniFile(const std::string& filePath, const std::string& key)
             {
                 auto fs = Common::FileSystem::fileSystem();
                 if (fs->isFile(filePath))
@@ -156,9 +156,10 @@ namespace Common
                             return list[1];
                         }
                     }
+                    throw std::runtime_error("key doesn't exist");
                 }
             }
-            bool isVersionOlder(const std::string& currentVersion, const std::string& newVersion)
+            static bool isVersionOlder(const std::string& currentVersion, const std::string& newVersion)
             {
                 if( (currentVersion.find_first_not_of("1234567890.") != std::string::npos ) ||
                      (newVersion.find_first_not_of("1234567890.") != std::string::npos ))
