@@ -115,7 +115,7 @@ fi
 
 PATH=$PATH:/usr/sbin:/sbin
 
-function removeUser()
+Ufunction removeUser()
 {
   local USERNAME=$1
   DELUSER=$(which deluser 2>/dev/null)
