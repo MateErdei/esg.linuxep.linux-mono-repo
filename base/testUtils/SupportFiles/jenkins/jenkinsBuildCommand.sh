@@ -12,7 +12,7 @@ JENKINS_DIR=$(dirname ${0})
 #   BASE_BRANCH=bugfix/LINUXDAR-999-pluginapi-fix MDR_PLUGIN_SOURCE=/uk-filer5/prodro/bir/sspl-mdr-control-plugin/1-0-0-45/217122/output/SDDS-COMPONENT/ jenkinsBuildCommand.sh -s mdr_plugin
 #
 #   this example would run the mdr_plugin suite with overrides for a dev branch of base and
-#   using a production build of mdr plugin, with all else being the master branch builds
+#   using a production build of mdr plugin, with all else being the develop branch builds
 #   from JenkinsBuildOutput on filer6
 #
 #  Overrides will also be picked up from environment variables set via "export" commands/etc.
@@ -101,7 +101,7 @@ HasFailure=false
 inputArguments="$@"
 
 platform_exclude_tag
-EXCLUDED_BY_DEFAULT_TAGS="MANUAL PUB_SUB FUZZ AUDIT_PLUGIN EVENT_PLUGIN TESTFAILURE MCS_FUZZ CUSTOM_LOCATION AMAZON_LINUX EXAMPLE_PLUGIN "$PLATFORM_EXCLUDE_TAG
+EXCLUDED_BY_DEFAULT_TAGS="MANUAL PUB_SUB FUZZ AUDIT_PLUGIN EVENT_PLUGIN TESTFAILURE MCS_FUZZ AMAZON_LINUX EXAMPLE_PLUGIN "$PLATFORM_EXCLUDE_TAG
 
 EXTRA_ARGUMENTS=""
 for EXCLUDED_TAG in ${EXCLUDED_BY_DEFAULT_TAGS}; do
@@ -130,14 +130,6 @@ fi
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
 then
     sudo chown -R jenkins:jenkins ${WORKSPACE} || fail "ERROR: failed to chown "$WORKSPACE
-fi
-
-#Copy segfault core dumps onto filer 6 at the end of test runs
-if [[ `ls -al /tmp | grep core- | wc -l` != 0 ]]
-then
-    CRASH_DUMP_FILER6=/mnt/filer6/linux/SSPL/CoreDumps/${NODE_NAME}_${BUILD_TAG}
-    sudo mkdir -p ${CRASH_DUMP_FILER6}
-    sudo cp /tmp/core-* ${CRASH_DUMP_FILER6}
 fi
 
 sudo find /home/jenkins/jenkins_slave -name "*-cleanup_*" -exec rm -rf {} \; || exit 0

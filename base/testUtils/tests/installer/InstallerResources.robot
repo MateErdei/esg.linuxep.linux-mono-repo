@@ -2,8 +2,7 @@
 Library    Process
 Library    OperatingSystem
 Library    ../libs/FullInstallerUtils.py
-# TODO REVERTCOMMS
-#Library    ../libs/CommsComponentUtils.py
+Library    ../libs/CommsComponentUtils.py
 
 Resource  ../GeneralTeardownResource.robot
 
@@ -42,11 +41,10 @@ Kill Sophos Processes That Arent Watchdog
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
     ${result} =  Run Process   pgrep   liveresponse
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
-    # TODO REVERTCOMMS
-#    ${result} =  Run Process   pgrep   -f   ${COMMS_COMPONENT}
-#    Return from keyword if  ${result.rc} == 1  even
-#    ${r} =  Run Process  kill -9 ${result.stdout.replace("\n", " ")}  shell=True
-#    Should Be Equal As Strings  ${r.rc}  0
+    ${result} =  Run Process   pgrep   -f   ${COMMS_COMPONENT}
+    Return from keyword if  ${result.rc} == 1  even
+    ${r} =  Run Process  kill -9 ${result.stdout.replace("\n", " ")}  shell=True
+    Should Be Equal As Strings  ${r.rc}  0
 
 Kill Sophos Processes
     ${result} =  Run Process   pgrep   sophos_watchdog
@@ -92,7 +90,7 @@ Reset Sophos Install Environment Variable Cache Exists
     ...         ELSE  Set Environment Variable  SOPHOS_INSTALL  ${SOPHOS_INSTALL_ENVIRONMENT_CACHE}
 
 Display All SSPL Files Installed
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses | grep -v sophos-spl-comms  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
@@ -160,20 +158,22 @@ Check Comms Component Not Running
     ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
     Should Not Be Equal As Integers    ${result.rc}    0
 
-# TODO REVERTCOMMS
-#Check Expected Base Processes Except Comms Are Running
-#    Check Watchdog Running
-#    Check Management Agent Running
-#    Check Update Scheduler Running
-#    Check Telemetry Scheduler Is Running
+Check Expected Base Processes Except Comms Are Running
+    Check Watchdog Running
+    Check Management Agent Running
+    Check Update Scheduler Running
+    Check Telemetry Scheduler Is Running
+
+Check Expected Base Processes Including Comms Are Running
+    Check Expected Base Processes Except Comms Are Running Are Running
+    Check Comms Component Running
 
 Check Expected Base Processes Are Running
     Check Watchdog Running
     Check Management Agent Running
     Check Update Scheduler Running
     Check Telemetry Scheduler Is Running
-    # TODO REVERTCOMMS
-#    Check Comms Component Running
+    Check Comms Component Running
 
 Check Base Processes Are Not Running
     Check Watchdog Not Running

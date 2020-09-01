@@ -767,13 +767,11 @@ Check Installed Correctly
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
-    Check Expected Base Processes Are Running
-    # TODO REVERTCOMMS
-#    ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
-#    ${base_version_above_1_1_2} =  check_version_over_1_1_2  ${version_number}
-#    Run Keyword If  ${base_version_above_1_1_2} == ${True}
-#    ...  Check Expected Base Processes Are Running
-#    ...  ELSE  Check Expected Base Processes Except Comms Are Running
+    ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
+    ${base_version_above_1_1_2} =  check_version_over_1_1_2  ${version_number}
+    Run Keyword If  ${base_version_above_1_1_2} == ${True}
+    ...  Check Expected Base Processes Are Running
+    ...  ELSE  Check Expected Base Processes Except Comms Are Running
 
 Check Files Before Upgrade
     # This is a selection of files from Base product, based on the version initialy installed
