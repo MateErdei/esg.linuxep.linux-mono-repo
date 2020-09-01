@@ -20,7 +20,7 @@ po::variables_map Options::parseCommandLine(int argc, char** argv)
     po::variables_map vm;
     store(po::command_line_parser(argc, argv)
               .positional(positionalOptions)
-              .options(*m_allOptionsDescription)
+              .options(*m_optionsDescription)
               .run(),
           vm);
 
@@ -29,18 +29,14 @@ po::variables_map Options::parseCommandLine(int argc, char** argv)
 
 void Options::constructOptions()
 {
-    if(!m_allOptionsDescription)
+    if(!m_optionsDescription)
     {
-        m_nonHiddenOptionsDescription = std::make_unique<po::options_description>("Allowed options");
-        m_nonHiddenOptionsDescription->add_options()
+        m_optionsDescription = std::make_unique<po::options_description>("Allowed options");
+        m_optionsDescription->add_options()
             ("help,h", "Print this help message")
             ("scan-archives,s", "Scan inside archives")
-            ("exclude,x",po::value<std::vector<std::string>>()->value_name("exclusion [exclusion...]")->multitoken(),"Exclude these locations from being scanned")
-            ("output,o", po::value<std::string>()->value_name("output"), "Write to log file");
-
-        m_allOptionsDescription = std::make_unique<po::options_description>("All options");
-        m_allOptionsDescription->add(*m_nonHiddenOptionsDescription);
-        m_allOptionsDescription->add_options()
+            ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION...")->multitoken(),"Exclude these locations from being scanned")
+            ("output,o", po::value<std::string>()->value_name("OUTPUT..."), "Write to log file")
             ("files,f", po::value<std::vector<std::string>>()->value_name("file [file...]")->multitoken(), "Files to scan")
             ("config,c", po::value<std::string>()->value_name("config_file"), "Input configuration file for scheduled scans");
     }
@@ -96,12 +92,16 @@ Options::Options(bool printHelp, std::vector<std::string> paths, std::vector<std
 std::string Options::getHelp()
 {
     std::ostringstream helpText;
-    helpText << "Usage: avscanner PATH [PATH...] [OPTION]..." << std::endl;
+    helpText << "Usage: avscanner PATH... [OPTION]..." << std::endl;
     helpText << "Perform an on-demand scan of PATH" << std::endl << std::endl;
-    helpText << *m_nonHiddenOptionsDescription << std::endl << std::endl;
+    helpText << "Allowed options:" << std::endl;
+    helpText << "  -h, --help                  Print this help message" << std::endl;
+    helpText << "  -s, --scan-archives         Scan inside archives" << std::endl;
+    helpText << "  -x, --exclude EXCLUSION...  Exclude these locations from being scanned" << std::endl;
+    helpText << "  -o, --output OUTPUT...      Write to log file" << std::endl << std::endl;
     helpText << "Examples:" << std::endl;
     helpText << "  avscanner / --scan-archives            Scan the Root Directory (recursively including dot files/directories) including the contents of any archive files found" << std::endl;
-    helpText << "  avscanner /usr --exclude /usr/local    Scan the /usr directory excluding /usr/local" << std::endl;
+    helpText << "  avscanner /usr --exclude /usr/local/   Scan the /usr directory excluding /usr/local" << std::endl;
     helpText << "  avscanner folder --exclude '*.log'     Scan the directory named 'folder' but exclude any filenames ending with .log" << std::endl;
     helpText << "  avscanner foo.exe -o scan.log          Scan the file 'foo.exe' and redirect the output to a log file named 'scan.log'" << std::endl;
     return helpText.str();

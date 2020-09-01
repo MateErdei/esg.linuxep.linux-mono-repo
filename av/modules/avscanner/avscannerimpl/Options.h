@@ -62,8 +62,7 @@ namespace avscanner::avscannerimpl
         std::vector <std::string> m_exclusions;
         bool m_archiveScanning = false;
 
-        inline static std::unique_ptr<po::options_description> m_nonHiddenOptionsDescription = nullptr;
-        inline static std::unique_ptr<po::options_description> m_allOptionsDescription = nullptr;
+        inline static std::unique_ptr<po::options_description> m_optionsDescription = nullptr;
         static boost::program_options::variables_map parseCommandLine(int argc, char** argv);
         static void constructOptions();
     };
