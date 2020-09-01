@@ -26,9 +26,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     else if (!fs::exists(starting_point))
     {
         std::ostringstream oss;
-        oss << "Cannot scan ";
-        oss << starting_point;
-        oss << ": file/folder does not exist";
+        oss << "Cannot scan " << starting_point << ": file/folder does not exist";
         LOGERROR(oss.str());
         std::error_code ec (ENOENT, std::system_category());
         throw fs::filesystem_error(oss.str(), ec);
