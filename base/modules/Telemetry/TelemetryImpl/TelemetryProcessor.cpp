@@ -109,12 +109,12 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 
     LOGINFO("Sending telemetry...");
     auto result = m_httpSender->doHttpsRequest(requestConfig);
-    LOGDEBUG("HTTP request resulted in CURL result: " << result);
+    LOGDEBUG("HTTP result: " << result);
 
-    if (result != CURLE_OK)
+    if (result != 200)
     {
         std::stringstream msg;
-        msg << "HTTP request failed with CURL result " << result;
+        msg << "HTTP was expected to be 200, actual: " << result;
         throw std::runtime_error(msg.str());
     }
 

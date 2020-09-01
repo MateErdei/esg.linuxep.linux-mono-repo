@@ -59,7 +59,6 @@ target_include_directories(commscomponentimpl PUBLIC
         ../../thirdparty/nlohmann-json
 )
 
-# FIXME: LINUXDAR-2120 restore
-#install(TARGETS commscomponentimpl
-#        LIBRARY DESTINATION files/base/lib64)
+install(TARGETS commscomponentimpl
+        LIBRARY DESTINATION files/base/lib64)
 

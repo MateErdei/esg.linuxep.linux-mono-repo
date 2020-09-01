@@ -27,7 +27,8 @@ target_link_libraries(watchdogservice PUBLIC
         processmonitoringimpl
         pluginapiimpl
         plugincommunicationimplcommon
-        telemetryhelperimpl        
+        telemetryhelperimpl
+        commscomponentimpl
         )
 
 SET_TARGET_PROPERTIES( watchdogservice

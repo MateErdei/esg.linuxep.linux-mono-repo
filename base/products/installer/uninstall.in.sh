@@ -32,16 +32,11 @@ fi
 
 # Check the customer wants to uninstall
 FORCE=0
-DOWNGRADE=0
-
 while [[ $# -ge 1 ]]
 do
     case $1 in
         --force)
             FORCE=1
-            ;;
-        --downgrade)
-            DOWNGRADE=1
             ;;
     esac
     shift
@@ -80,6 +75,14 @@ function removeWatchdogSystemdService()
 }
 
 
+function unmountCommsComponentDependencies()
+{
+  CommsComponentChroot=$1
+  for entry in etc/resolv.conf etc/hosts usr/lib usr/lib64 lib etc/ssl/certs etc/pki/tls/certs base/mcs/certs; do
+    umount --force ${CommsComponentChroot}/${entry}  > /dev/null 2>&1
+  done
+}
+
 removeUpdaterSystemdService || failure "Failed to remove updating service files"  ${FAILURE_REMOVE_UPDATE_SERVICE_FILES}
 
 # Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
@@ -90,32 +93,21 @@ then
     for UNINSTALLER in "$PLUGIN_UNINSTALL_DIR"/*
     do
         UNINSTALLER_BASE=${UNINSTALLER##*/}
-        if (( $DOWNGRADE == 0 ))
-        then
-          bash "$UNINSTALLER " || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
-        else
-          bash "$UNINSTALLER --downgrade" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
-        fi
+        bash "$UNINSTALLER" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
     done
 else
     echo "Can't uninstall plugins: $PLUGIN_UNINSTALL_DIR doesn't exist"
 fi
 
 removeWatchdogSystemdService || failure "Failed to remove watchdog service files"  ${FAILURE_REMOVE_WATCHDOG_SERVICE_FILES}
-if (( $DOWNGRADE == 0 ))
-then
-  rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
-else
-  input=$SOPHOS_INSTALL/base/etc/DowngradePaths.conf
-  while IFS= read -r line
-  do
-    rm -rf "$SOPHOS_INSTALL/$line" || failure "Failed to remove file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
-  done < "$input"
-fi
+
+CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
+unmountCommsComponentDependencies ${CommsComponentChroot}
+rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
 
 PATH=$PATH:/usr/sbin:/sbin
 
-Ufunction removeUser()
+function removeUser()
 {
   local USERNAME=$1
   DELUSER=$(which deluser 2>/dev/null)
@@ -159,6 +151,12 @@ if [[ -z $NO_REMOVE_USER ]]
 then
   SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
   removeUser    ${SOPHOS_SPL_USER_NAME}
+
+  NETWORK_USER_NAME="@SOPHOS_SPL_NETWORK@"
+  removeUser    ${NETWORK_USER_NAME}
+
+  LOCAL_USER_NAME="@SOPHOS_SPL_LOCAL@"
+  removeUser    ${LOCAL_USER_NAME}
 
   SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
   removeGroup   ${SOPHOS_SPL_GROUP_NAME}
