@@ -33,7 +33,7 @@
             <include src="zlib.tar" dest="."/>
         </package>
 
-        <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input/update_certs" buildtype="prod">
+        <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input/update_certs">
             <include src="ps_rootca.crt" dest="."/>
         </package>
     </inputs>
