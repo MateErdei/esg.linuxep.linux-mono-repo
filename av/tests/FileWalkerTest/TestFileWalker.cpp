@@ -31,7 +31,7 @@ namespace
 
         bool includeDirectory(const sophos_filesystem::path& filepath) override
         {
-            return !(filepath.filename() == "b");
+            return !(filepath.parent_path().filename() == "b");
         }
     };
 
