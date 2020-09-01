@@ -308,7 +308,7 @@ Thin Installer Force Works
 
     # Remove install directory
     Should Exist  ${REGISTER_CENTRAL}
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    Unmount All Comms Component Folders
     Remove Directory  /opt/sophos-spl  recursive=True
     Should Not Exist  ${REGISTER_CENTRAL}

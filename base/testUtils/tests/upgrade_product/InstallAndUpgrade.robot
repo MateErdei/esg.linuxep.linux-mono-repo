@@ -768,7 +768,7 @@ Check Installed Correctly
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
     Check Expected Base Processes Are Running
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
 #    ${base_version_above_1_1_2} =  check_version_over_1_1_2  ${version_number}
 #    Run Keyword If  ${base_version_above_1_1_2} == ${True}

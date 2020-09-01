@@ -312,7 +312,7 @@ Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less 
     ...     1 seconds
     ...     Error: HTTP request failed with CURL result 35   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
 
-# FIXME: LINUXDAR-2120 restore
+# TODO REVERTCOMMS
 #Test With Proxy
 #    [Teardown]  Teardown With Proxy Clear
 #    Start Proxy Server With Basic Auth    3000    username   password

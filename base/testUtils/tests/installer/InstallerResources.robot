@@ -2,7 +2,7 @@
 Library    Process
 Library    OperatingSystem
 Library    ../libs/FullInstallerUtils.py
-# FIXME: LINUXDAR-2120 restore
+# TODO REVERTCOMMS
 #Library    ../libs/CommsComponentUtils.py
 
 Resource  ../GeneralTeardownResource.robot
@@ -42,7 +42,7 @@ Kill Sophos Processes That Arent Watchdog
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
     ${result} =  Run Process   pgrep   liveresponse
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    ${result} =  Run Process   pgrep   -f   ${COMMS_COMPONENT}
 #    Return from keyword if  ${result.rc} == 1  even
 #    ${r} =  Run Process  kill -9 ${result.stdout.replace("\n", " ")}  shell=True
@@ -160,7 +160,7 @@ Check Comms Component Not Running
     ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
     Should Not Be Equal As Integers    ${result.rc}    0
 
-# FIXME: LINUXDAR-2120 restore
+# TODO REVERTCOMMS
 #Check Expected Base Processes Except Comms Are Running
 #    Check Watchdog Running
 #    Check Management Agent Running
@@ -172,7 +172,7 @@ Check Expected Base Processes Are Running
     Check Management Agent Running
     Check Update Scheduler Running
     Check Telemetry Scheduler Is Running
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    Check Comms Component Running
 
 Check Base Processes Are Not Running

@@ -48,7 +48,7 @@ Verify that the full installer works correctly
     [Tags]    DEBUG  INSTALLER  SMOKE  TAP_TESTS
     [Teardown]  Install Tests Teardown With Installed File Replacement
     Require Fresh Install
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    Check Expected Base Processes Are Running
 #    Unmount All Comms Component Folders
 
@@ -81,7 +81,7 @@ Verify Sockets Have Correct Permissions
     Require Fresh Install
 
     Check Expected Base Processes Are Running
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    Unmount All Comms Component Folders
 
     ${ActualDictOfSockets} =    Get Dictionary Of Actual Sockets And Permissions
@@ -102,7 +102,7 @@ Verify MCS Folders Have Correct Permissions
     Require Fresh Install
 
     Check Expected Base Processes Are Running
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    Unmount All Comms Component Folders
 
     ${ActualDictOfSockets} =    Get Dictionary Of Actual Mcs Folders And Permissions
@@ -115,7 +115,7 @@ Verify Base Logs Have Correct Permissions
     Require Fresh Install
 
     Check Expected Base Processes Are Running
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    Unmount All Comms Component Folders
 
     ${ActualDictOfLogs} =    Get Dictionary Of Actual Base Logs And Permissions
@@ -154,7 +154,7 @@ Verify repeat installation doesnt change permissions
     Should Not Exist   ${SOPHOS_INSTALL}
     Run Full Installer Expecting Code  0
     Should Exist   ${SOPHOS_INSTALL}
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    Unmount All Comms Component Folders
     ${DirectoryInfo}=  Run Process  find  ${SOPHOS_INSTALL}  -type  d  -exec  stat  -c  %a, %G, %U, %n  {}  +
     Create File    ./tmp/NewDirInfo  ${DirectoryInfo.stdout}
@@ -163,7 +163,7 @@ Verify repeat installation doesnt change permissions
 
     Run Full Installer Expecting Code  0
     Should Exist   ${SOPHOS_INSTALL}
-    # FIXME: LINUXDAR-2120 restore
+    # TODO REVERTCOMMS
 #    Unmount All Comms Component Folders
     ${DirectoryInfo2}=  Run Process  find  ${SOPHOS_INSTALL}  -type  d  -exec  stat  -c  %a, %G, %U, %n  {}  +
     Create File    ./tmp/NewDirInfo  ${DirectoryInfo2.stdout}

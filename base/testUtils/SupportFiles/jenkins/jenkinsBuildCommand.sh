@@ -123,7 +123,7 @@ eval $ROBOT_BASE_COMMAND $@ . || HasFailure=true
 if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
     echo "Running for re-run"
     sudo -E mv output.xml output1.xml
-    sudo -E python3 -m robot --rerunfailed output1.xml --output output2.xml  . || echo "Failed tests on rerun"
+    sudo -E python3 -m robot --rerunfailed output1.xml --output output2.xml  .
     sudo -E rebot --merge --output output.xml -l log.html -r report.html output1.xml output2.xml
 fi
 
