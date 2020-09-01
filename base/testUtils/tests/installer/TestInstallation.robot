@@ -128,10 +128,7 @@ Verify that uninstall works correctly
     Ensure Uninstalled
     Run Full Installer
     Run Process    ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
-    Wait Until Keyword Succeeds
-    ...  3 secs
-    ...  1 sec
-    ...  Verify Sophos Users And Groups are Removed
+    Verify Sophos Users And Groups are Removed
     Should Not Exist   ${SOPHOS_INSTALL}
 
 Verify Machine Id is created correctly
