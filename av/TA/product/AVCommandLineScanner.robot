@@ -291,8 +291,8 @@ CLS Exclusions Filename
    Log To Console  output is ${output}
 
    Should Contain       ${output.replace("\n", " ")}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
-   Should Contain       ${output.replace("\n", " ")}  Excluding "${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar"
-   Should Contain       ${output.replace("\n", " ")}  Excluding "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
+   Should Contain       ${output.replace("\n", " ")}  Excluding file: "${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar"
+   Should Contain       ${output.replace("\n", " ")}  Excluding file: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Exclusions Folder
