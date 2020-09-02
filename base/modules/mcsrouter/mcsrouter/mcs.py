@@ -222,14 +222,14 @@ class MCS:
             filename=path_manager.mcs_policy_config(),
             parent_config=fixed_config,
             mode=0o600,
-            user_id=get_uid("sophos-spl-user"),
+            user_id=get_uid("sophos-spl-local"),
             group_id=get_gid("sophos-spl-group")
         )
         self.__m_config = config_module.Config(
             filename=path_manager.sophosspl_config(),
             parent_config=self.__m_policy_config,
             mode=0o600,
-            user_id=get_uid("sophos-spl-user"),
+            user_id=get_uid("sophos-spl-local"),
             group_id=get_gid("sophos-spl-group")
         )
         config = self.__m_config

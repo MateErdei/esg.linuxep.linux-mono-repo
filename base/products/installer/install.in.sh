@@ -286,7 +286,7 @@ makedir 700 "${SOPHOS_INSTALL}/var/ipc/plugins"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/ipc"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/ipc/plugins"
 
-makedir 700 "${SOPHOS_INSTALL}/var/lock-sophosspl"
+makedir 770 "${SOPHOS_INSTALL}/var/lock-sophosspl"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/lock-sophosspl"
 
 makedir 700 "${SOPHOS_INSTALL}/var/lock"
@@ -386,6 +386,7 @@ chmod o+r "${SOPHOS_INSTALL}/base/lib64/libcrypto.so"*
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
 chmod 700 "${SOPHOS_INSTALL}/bin/version"*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
+chmod g+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*

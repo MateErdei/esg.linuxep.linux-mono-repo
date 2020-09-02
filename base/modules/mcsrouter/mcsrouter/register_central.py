@@ -195,7 +195,7 @@ def add_options_to_policy(relays, proxycredentials):
     policy_config = utils_config.Config(
         path_manager.mcs_policy_config(),
         mode=0o600,
-        user_id=get_uid("sophos-spl-user"),
+        user_id=get_uid("sophos-spl-local"),
         group_id=get_gid("sophos-spl-group")
     )
 
@@ -386,7 +386,7 @@ def inner_main(argv):
             path_manager.mcs_policy_config(),
             config,
             mode=0o600,
-            user_id=get_uid("sophos-spl-user"),
+            user_id=get_uid("sophos-spl-local"),
             group_id=get_gid("sophos-spl-group")
         )
         try:
@@ -401,7 +401,7 @@ def inner_main(argv):
         client_config = utils_config.Config(
             path_manager.sophosspl_config(),
             mode=0o600,
-            user_id=get_uid("sophos-spl-user"),
+            user_id=get_uid("sophos-spl-local"),
             group_id=get_gid("sophos-spl-group")
         )
         client_config.set("MCSID", "reregister")
