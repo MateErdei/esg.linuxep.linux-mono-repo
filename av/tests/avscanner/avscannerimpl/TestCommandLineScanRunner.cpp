@@ -206,7 +206,7 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
     std::ofstream("/tmp/sandbox/a/f/file2.txt");
 
     std::vector<std::string> paths;
-    paths.emplace_back("/tmp/sandbox");
+    paths.emplace_back("/tmp/sandbox/a/b/");
     std::vector<std::string> exclusions;
     exclusions.push_back("/tmp/sandbox/a/b/");
     Options options(false, paths, exclusions, true);
@@ -218,13 +218,11 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
 
     fs::remove_all("/tmp/sandbox");
 
-    ASSERT_TRUE(appenderContains("Excluding folder: \"/tmp/sandbox/a/b\""));
-    ASSERT_TRUE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
+    ASSERT_TRUE(appenderContains("Excluding folder: \"/tmp/sandbox/a/b/\""));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
     ASSERT_FALSE(appenderContains("Excluding folder: \"/tmp/sandbox/a/b/d\""));
 
-    ASSERT_EQ(socket->m_paths.size(), 1);
-    EXPECT_EQ(socket->m_paths.at(0), "/tmp/sandbox/a/f/file2.txt");
+    ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
 TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOLINT
