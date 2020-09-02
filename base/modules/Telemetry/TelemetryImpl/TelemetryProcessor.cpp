@@ -110,8 +110,8 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     LOGINFO("Sending telemetry...");
     auto result = m_httpSender->doHttpsRequest(requestConfig);
     LOGDEBUG("HTTP result: " << result);
-
-    if (result != 200)
+    const int success_code = 200;
+    if (result != success_code)
     {
         std::stringstream msg;
         msg << "HTTP was expected to be 200, actual: " << result;

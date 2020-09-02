@@ -96,6 +96,21 @@ Verify Base Processes Have Correct Permissions
     Check owner of process   UpdateScheduler   sophos-spl-user    sophos-spl-group
     Check owner of process   tscheduler   sophos-spl-user    sophos-spl-group
     Check owner of process   sophos_watchdog   root  root
+    ${watchdog_pid}=     Run Process    pgrep    -f  sophos_watchdog
+
+    ${FirstCommspid} =     Run Process    pgrep    -P  ${watchdog_pid.stdout}  -f      CommsComponent
+    log   ${FirstCommspid}
+    ${result} =     Run Process    ps    -o    user   -p   ${FirstCommspid.stdout}
+    Should Contain  ${result.stdout}   sophos-spl-local
+    ${result} =     Run Process    ps    -o    group   -p   ${FirstCommspid.stdout}
+    Should Contain  ${result.stdout}   sophos-spl-group
+
+    ${SecondCommspid} =     Run Process    pgrep    -P  ${FirstCommspid.stdout}  -f      CommsComponent
+    log   ${SecondCommspid}
+    ${result} =     Run Process    ps    -o    user   -p   ${SecondCommspid.stdout}
+    Should Contain  ${result.stdout}   sophos-spl-network
+    ${result} =     Run Process    ps    -o    group   -p   ${SecondCommspid.stdout}
+    Should Contain  ${result.stdout}   sophos-spl-group
 
 Verify MCS Folders Have Correct Permissions
     [Tags]    DEBUG  INSTALLER
@@ -266,6 +281,7 @@ Check owner of process
     Should Contain  ${result.stdout}   ${user_name}
     ${result} =     Run Process    ps    -o    group   -p   ${pid.stdout}
     Should Contain  ${result.stdout}   ${group_name}
+
 Create Fake Ldd Executable With Version As Argument And Add It To Path
     [Arguments]  ${version}
     ${FakeLddDirectory} =  Add Temporary Directory  FakeExecutable
