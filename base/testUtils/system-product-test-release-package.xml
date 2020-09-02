@@ -19,6 +19,10 @@
             <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
             <include artifact-path="output" dest-dir="sspl-mdr-componentsuite"/>
         </build-asset>
+        <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
+            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+            <include artifact-path="sspl-componentsuite/sdds" dest-dir="sspl-componentsuite"/>
+        </build-asset>
 
         <package name="sspl-thininstaller"
                  version="feature-LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output"

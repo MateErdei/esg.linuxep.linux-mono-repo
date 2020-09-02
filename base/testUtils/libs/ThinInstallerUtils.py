@@ -198,7 +198,7 @@ class ThinInstallerUtils(object):
 
         logger.info("using creds: {}".format(hashed_credentials))
         logger.info("using certs: {}".format(warehouse_certs_dir))
-
+        warehouse_certs_dir = "/vagrant/everest-base/testUtils/SupportFiles/sophos_certs/jake"
 
         if bad_url:
             connection_address = None
