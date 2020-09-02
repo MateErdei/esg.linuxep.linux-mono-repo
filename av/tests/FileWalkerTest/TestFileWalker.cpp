@@ -33,6 +33,11 @@ namespace
         {
             return !(filepath.filename() == "b");
         }
+
+        bool excludeDirectory(const sophos_filesystem::path& filepath) override
+        {
+            return (filepath.filename() == "b");
+        }
     };
 
     class CollectCallbacks : public filewalker::IFileWalkCallbacks
@@ -50,6 +55,10 @@ namespace
             return true;
         }
 
+        bool excludeDirectory(const sophos_filesystem::path&) override
+        {
+            return false;
+        }
 
     };
 

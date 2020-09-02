@@ -109,6 +109,20 @@ namespace
             return true;
         }
 
+        bool excludeDirectory(const sophos_filesystem::path& p) override
+        {
+            for (const auto& exclusion : m_cmdExclusions)
+            {
+                if (exclusion.appliesToPath(p / "/", true))
+                {
+                    LOGINFO("Excluding folder: " << p);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         void setCurrentInclude(const fs::path& inclusionPath)
         {
             m_currentExclusions.clear();

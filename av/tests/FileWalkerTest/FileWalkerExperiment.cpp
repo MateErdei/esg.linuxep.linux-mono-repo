@@ -22,6 +22,11 @@ public:
         std::cout << "DIR:" << p << '\n';
         return true;
     }
+    bool excludeDirectory(const sophos_filesystem::path& p) override
+    {
+        std::cout << "DIR:" << p << '\n';
+        return false;
+    }
 
 };
 

@@ -41,9 +41,9 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         m_callback.processFile(starting_point, startIsSymlink);
         return;
     }
-    else
+    else if (fs::is_directory(starting_point))
     {
-        if (!m_callback.includeDirectory(starting_point))
+        if (m_callback.excludeDirectory(starting_point))
         {
             return;
         }

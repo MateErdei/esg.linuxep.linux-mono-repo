@@ -43,6 +43,15 @@ namespace filewalker
          */
         virtual bool includeDirectory(const sophos_filesystem::path& filepath) = 0;
 
+        /**
+         * Callback for checking if the directory should be excluded
+         * Does not check if mounts should be excluded
+         *
+         * @param filepath
+         * @return True if we shouldn't recurse into this directory
+         */
+        virtual bool excludeDirectory(const sophos_filesystem::path& filepath) = 0;
+
     protected:
         IFileWalkCallbacks() = default;
     };

@@ -103,6 +103,18 @@ namespace
             return true;
         }
 
+        bool excludeDirectory(const sophos_filesystem::path& p) override
+        {
+            for (const auto& exclusion : m_config.m_excludePaths)
+            {
+                if (exclusion.appliesToPath(p) && exclusion.type() != FILENAME)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     private:
         std::vector<fs::path> m_mountExclusions;
         NamedScanConfig& m_config;

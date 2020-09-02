@@ -40,6 +40,11 @@ public:
     {
         return true;
     }
+
+    bool excludeDirectory(const sophos_filesystem::path&) override
+    {
+        return false;
+    }
 };
 
 class TestFileWalkerBackTrackProtection : public LogInitializedTests
