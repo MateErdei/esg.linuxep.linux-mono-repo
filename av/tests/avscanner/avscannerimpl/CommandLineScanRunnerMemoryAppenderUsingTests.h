@@ -14,7 +14,7 @@ namespace
     {
     public:
         CommandLineScannerMemoryAppenderUsingTests()
-            : MemoryAppenderUsingTests("CommandLineScanRunner")
+            : MemoryAppenderUsingTests("NamedScanRunner")
         {}
     };
 }

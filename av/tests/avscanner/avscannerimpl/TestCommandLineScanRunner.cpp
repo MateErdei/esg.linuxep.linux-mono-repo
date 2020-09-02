@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "avscanner/avscannerimpl/CommandLineScanRunner.h"
 #include "datatypes/sophos_filesystem.h"
 
+
 #include <fstream>
 
 using namespace avscanner::avscannerimpl;
@@ -189,15 +190,16 @@ TEST_F(TestCommandLineScanRunner, exclusionIsFileToScan) // NOLINT
     auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
     runner.run();
-    waitForLog("/tmp/sandbox/a/b/file1.txt");
-    ASSERT_TRUE(appenderContains("/tmp/sandbox/a/b/file1.txt"));
+
     fs::remove_all("/tmp/sandbox");
 
+    ASSERT_TRUE(appenderContains("Excluding file: \"/tmp/sandbox/a/b/file1.txt\""));
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST(CommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
+TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("/tmp/sandbox/a/b/d/e");
     fs::create_directories("/tmp/sandbox/a/f");
     std::ofstream("/tmp/sandbox/a/b/file1.txt");
@@ -215,6 +217,11 @@ TEST(CommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
     runner.run();
 
     fs::remove_all("/tmp/sandbox");
+
+    ASSERT_TRUE(appenderContains("Excluding folder: \"/tmp/sandbox/a/b\""));
+    ASSERT_TRUE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
+    ASSERT_FALSE(appenderContains("Excluding folder: \"/tmp/sandbox/a/b/d\""));
 
     ASSERT_EQ(socket->m_paths.size(), 1);
     EXPECT_EQ(socket->m_paths.at(0), "/tmp/sandbox/a/f/file2.txt");
