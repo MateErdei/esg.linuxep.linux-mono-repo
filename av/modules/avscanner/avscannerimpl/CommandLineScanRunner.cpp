@@ -99,7 +99,7 @@ namespace
 
             for (const auto& exclusion : m_cmdExclusions)
             {
-                if (exclusion.appliesToPath(p / "/", true))
+                if (exclusion.appliesToPath(appendForwardSlashToPath(p), true))
                 {
                     LOGINFO("Excluding folder: " << p);
                     return false;
@@ -111,9 +111,10 @@ namespace
 
         bool excludeDirectory(const sophos_filesystem::path& p) override
         {
+
             for (const auto& exclusion : m_cmdExclusions)
             {
-                if (exclusion.appliesToPath(p, true))
+                if (exclusion.appliesToPath(appendForwardSlashToPath(p), true))
                 {
                     LOGINFO("Excluding folder: " << p);
                     return true;
@@ -134,6 +135,15 @@ namespace
                     m_currentExclusions.emplace_back(e);
                 }
             }
+        }
+
+        static sophos_filesystem::path appendForwardSlashToPath(const sophos_filesystem::path& p)
+        {
+            if (p.string().at(p.string().size()-1) != '/')
+            {
+                return p / "/";
+            }
+            return p;
         }
 
     private:
