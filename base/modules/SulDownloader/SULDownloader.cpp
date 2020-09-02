@@ -140,9 +140,10 @@ namespace SulDownloader
         {
             std::string rigidName = product.getProductMetadata().getLine();
             std::string warehouseVersionIni = Common::FileSystem::join( product.distributePath(),"VERSION.ini");
-            std::string localVersionIni = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(rigidName);
+
             try
             {
+                std::string localVersionIni = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(rigidName);
                 std::string currentVersion = StringUtils::extractValueFromIniFile(localVersionIni, "PRODUCT_VERSION");
                 std::string newVersion = StringUtils::extractValueFromIniFile(warehouseVersionIni, "PRODUCT_VERSION");
 

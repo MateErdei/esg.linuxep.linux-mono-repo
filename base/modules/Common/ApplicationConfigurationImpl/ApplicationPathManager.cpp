@@ -267,7 +267,7 @@ namespace Common
         {
             if (component == "ServerProtectionLinux-Base-component")
             {
-                return Common::FileSystem::join(sophosInstall(), "vase/VERSION.ini");
+                return Common::FileSystem::join(sophosInstall(), "base/VERSION.ini");
             }
             else if (component == "ServerProtectionLinux-Plugin-EDR")
             {
