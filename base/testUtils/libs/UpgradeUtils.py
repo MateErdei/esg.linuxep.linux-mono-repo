@@ -118,7 +118,7 @@ Version copy changed file:
 
 def check_version_over_1_1_3(version_string):
     logger.info(version_string)
-    if version.parse(version_string) > version.parse("1.1.4"):
+    if version.parse(version_string) >= version.parse("1.1.4"):
         return True
     return False
 
