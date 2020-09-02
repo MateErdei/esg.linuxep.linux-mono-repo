@@ -113,7 +113,7 @@ namespace
         {
             for (const auto& exclusion : m_cmdExclusions)
             {
-                if (exclusion.appliesToPath(p / "/", true))
+                if (exclusion.appliesToPath(p, true))
                 {
                     LOGINFO("Excluding folder: " << p);
                     return true;

@@ -201,9 +201,8 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("/tmp/sandbox/a/b/d/e");
-    fs::create_directories("/tmp/sandbox/a/f");
     std::ofstream("/tmp/sandbox/a/b/file1.txt");
-    std::ofstream("/tmp/sandbox/a/f/file2.txt");
+    std::ofstream("/tmp/sandbox/a/b/d/file2.txt");
 
     std::vector<std::string> paths;
     paths.emplace_back("/tmp/sandbox/a/b/");
@@ -220,7 +219,7 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
 
     ASSERT_TRUE(appenderContains("Excluding folder: \"/tmp/sandbox/a/b/\""));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
-    ASSERT_FALSE(appenderContains("Excluding folder: \"/tmp/sandbox/a/b/d\""));
+    ASSERT_FALSE(appenderContains("Excluding file: \"/tmp/sandbox/a/b/d/file2.txt\""));
 
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
