@@ -101,7 +101,7 @@ namespace
             {
                 if (exclusion.appliesToPath(p / "/", true))
                 {
-                    LOGINFO("Excluding " << p);
+                    LOGINFO("Excluding " << p / "/");
                     return false;
                 }
             }
