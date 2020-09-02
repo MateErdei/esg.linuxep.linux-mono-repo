@@ -158,6 +158,7 @@ namespace Common
                     }
                     throw std::runtime_error("key doesn't exist");
                 }
+                throw std::runtime_error("file doesn't exist");
             }
             static bool isVersionOlder(const std::string& currentVersion, const std::string& newVersion)
             {

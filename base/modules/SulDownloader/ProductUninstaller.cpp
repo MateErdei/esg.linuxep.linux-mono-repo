@@ -93,6 +93,41 @@ namespace SulDownloader
         return fileList;
     }
 
+    bool ProductUninstaller::prepareProductForDowngrade(const std::string& uninstallScript)
+    {
+        if (Common::FileSystem::fileSystem()->isFile(uninstallScript) &&
+            Common::FileSystem::fileSystem()->isExecutable(uninstallScript))
+        {
+            auto process = ::Common::Process::createProcess();
+            int exitCode = 0;
+
+            std::stringstream errorMessage;
+            try
+            {
+                process->exec(uninstallScript, {"--downgrade"}, {});
+                auto output = process->output();
+                LOGSUPPORT(output);
+                exitCode = process->exitCode();
+
+                if (exitCode != 0)
+                {
+                    errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript << "', code '" << exitCode
+                                 << "' with error, Process did not complete successfully";
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            catch (Common::Process::IProcessException& ex)
+            {
+                errorMessage << "Failed to prepare product for downgrade'" << uninstallScript << "' with error, "
+                             << ex.what();
+            }
+        }
+        return false;
+    }
+
     std::vector<suldownloaderdata::DownloadedProduct> ProductUninstaller::removeProducts(
         std::map<std::string, suldownloaderdata::DownloadedProduct> uninstallProductInfo)
     {

@@ -127,6 +127,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/var/installedproducts");
         }
 
+        std::string ApplicationPathManager::getLocalBaseUninstallerPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "bin/uninstall.sh");
+        }
+
         std::string ApplicationPathManager::getUpdateCertificatesPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/update/certs");

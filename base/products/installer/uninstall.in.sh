@@ -38,6 +38,10 @@ do
         --force)
             FORCE=1
             ;;
+        --downgrade)
+            shift
+            DOWNGRADE=1
+            ;;
     esac
     shift
 done
@@ -85,15 +89,28 @@ then
     for UNINSTALLER in "$PLUGIN_UNINSTALL_DIR"/*
     do
         UNINSTALLER_BASE=${UNINSTALLER##*/}
-        bash "$UNINSTALLER" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
+        if [[ -n $DOWNGRADE ]]
+        then
+          bash "$UNINSTALLER " || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
+        else
+          bash "$UNINSTALLER --downgrade" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
+        fi
     done
 else
     echo "Can't uninstall plugins: $PLUGIN_UNINSTALL_DIR doesn't exist"
 fi
 
 removeWatchdogSystemdService || failure "Failed to remove watchdog service files"  ${FAILURE_REMOVE_WATCHDOG_SERVICE_FILES}
-
-rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
+if [[ -n $DOWNGRADE ]]
+then
+  rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
+else
+  input=$SOPHOS_INSTALL/base/etc/DowngradePaths.conf
+  while IFS= read -r line
+  do
+    rm -rf "$line" || failure "Failed to remove file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
+  done < "$input"
+fi
 
 PATH=$PATH:/usr/sbin:/sbin
 

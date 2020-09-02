@@ -30,6 +30,15 @@ namespace SulDownloader
             const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts,
             suldownloaderdata::IWarehouseRepository& iWarehouseRepository);
 
+        /***
+         * @brief This function will run the provided uninstall script passing in the hardcoded flag --downgrade
+         * to the uninstall script, this will instruct the script to perform any require tasks needed to ensure
+         * a successful downgrade can occur.
+         *
+         * @return true if successful
+         */
+        bool prepareProductForDowngrade(const std::string& uninstallScript);
+
     private:
         std::vector<std::string> getInstalledProductPathsList();
         std::vector<suldownloaderdata::DownloadedProduct> removeProducts(
