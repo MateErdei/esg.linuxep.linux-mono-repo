@@ -150,22 +150,23 @@ namespace Common
                     std::vector<std::string> contents = fs->readLines(filePath);
                     for (auto const &line: contents)
                     {
-                        if (startswith(line,key))
+                        if (startswith(line, key+" ="))
                         {
-                            std::vector<std::string> list = splitString(line,"=");
-                            return list[1];
+                            std::vector<std::string> list = splitString(line, "=");
+                            return list[1].erase(0,1);
                         }
                     }
-                    throw std::runtime_error("key doesn't exist");
+                    throw std::runtime_error("key "+ key + " doesn't exist in file: "+ filePath);
                 }
-                throw std::runtime_error("file doesn't exist");
+                throw std::runtime_error("File doesn't exist :" + filePath);
             }
+
             static bool isVersionOlder(const std::string& currentVersion, const std::string& newVersion)
             {
                 if( (currentVersion.find_first_not_of("1234567890.") != std::string::npos ) ||
                      (newVersion.find_first_not_of("1234567890.") != std::string::npos ))
                 {
-                    throw std::runtime_error("Invalid version data provided version" + currentVersion + ":" + newVersion );
+                    throw std::invalid_argument("Invalid version data provided version" + currentVersion + ":" + newVersion );
                 }
 
                 if(currentVersion == newVersion)
@@ -185,7 +186,7 @@ namespace Common
                         return true;
                     }
                 }
-                if (version2.size() > version1.size())
+                if (version1.size() > version2.size())
                 {
                     return true;
                 }

@@ -6,6 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/UtilityImpl/StringUtils.h>
 #include <gtest/gtest.h>
+#include "../Helpers/MockFileSystem.h"
+#include "../Helpers/FileSystemReplaceAndRestore.h"
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+
 
 using namespace Common::UtilityImpl;
 
@@ -88,4 +92,61 @@ TEST(TestStringUtils, enforceUTF8) // NOLINT
 {
     EXPECT_THROW(StringUtils::enforceUTF8("\257"),std::invalid_argument);
     EXPECT_NO_THROW(StringUtils::enforceUTF8("FOOBAR"));
+}
+
+TEST(TestStringUtils, extractValueFromIniFileCanGetKeyValue) // NOLINT
+{
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::vector<std::string> contents{{"KEY = stuff"}} ;
+    std::string filePath = "/tmp/file";
+
+    EXPECT_CALL(*filesystemMock, isFile(filePath)).WillOnce(Return(true));
+
+    EXPECT_CALL(*filesystemMock, readLines(filePath)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_EQ(StringUtils::extractValueFromIniFile(filePath,"KEY"),"stuff");
+
+}
+
+TEST(TestStringUtils, extractValueFromIniFileThrowsIfFiledoesntExist) // NOLINT
+{
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::string filePath1 = "/tmp/file1";
+    EXPECT_CALL(*filesystemMock, isFile(filePath1)).WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_THROW(StringUtils::extractValueFromIniFile(filePath1,"KEY"),std::runtime_error);
+}
+TEST(TestStringUtils, extractValueFromIniFileThrowsIfKeydoesntExist) // NOLINT
+{
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::vector<std::string> contents{{"KEY2 = stuff"}} ;
+    std::string filePath = "/tmp/file";
+
+    EXPECT_CALL(*filesystemMock, isFile(filePath)).WillOnce(Return(true));
+
+    EXPECT_CALL(*filesystemMock, readLines(filePath)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_THROW(StringUtils::extractValueFromIniFile(filePath,"KEY"),std::runtime_error);
+}
+
+TEST(TestStringUtils, isVersionOlderthrowsOnNonVersionData) // NOLINT
+{
+    EXPECT_THROW(StringUtils::isVersionOlder("1.2","1.a"),std::invalid_argument);
+
+}
+
+TEST(TestStringUtils, isVersionOlder) // NOLINT
+{
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2","1.2"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2","1.2.3"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2.3","1.2"),true);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2.0","1.2"),true);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.3","1.2"),true);
+
 }
