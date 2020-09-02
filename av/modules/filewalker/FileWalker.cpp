@@ -33,10 +33,20 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     }
 
     bool startIsSymlink = fs::is_symlink(starting_point);
+
+    // if starting point is a file either skip or scan it
+    // else starting point is a directory either skip or continue to traversal
     if (fs::is_regular_file(starting_point))
     {
         m_callback.processFile(starting_point, startIsSymlink);
         return;
+    }
+    else
+    {
+        if (!m_callback.includeDirectory(starting_point))
+        {
+            return;
+        }
     }
 
     std::set<ino_t> seen_symlinks;
@@ -98,7 +108,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         else if (fs::is_directory(p.status()))
         {
-            if (!m_callback.includeDirectory(p ))
+            if (!m_callback.includeDirectory(p))
             {
                 iterator.disable_recursion_pending();
             }

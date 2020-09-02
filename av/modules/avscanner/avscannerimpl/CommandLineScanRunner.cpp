@@ -69,7 +69,7 @@ namespace
             {
                 if (exclusion.appliesToPath(p))
                 {
-                    LOGINFO("Excluding " << p);
+                    LOGINFO("Excluding file: " << p);
                     return;
                 }
             }
@@ -101,7 +101,7 @@ namespace
             {
                 if (exclusion.appliesToPath(p / "/", true))
                 {
-                    LOGINFO("Excluding " << p / "/");
+                    LOGINFO("Excluding folder: " << p);
                     return false;
                 }
             }

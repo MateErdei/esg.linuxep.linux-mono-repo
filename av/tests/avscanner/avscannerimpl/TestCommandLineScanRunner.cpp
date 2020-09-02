@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include "RecordingMockSocket.h"
+#include "CommandLineScanRunnerMemoryAppenderUsingTests.h"
 
 #include "avscanner/avscannerimpl/BaseFileWalkCallbacks.h"
 #include "avscanner/avscannerimpl/CommandLineScanRunner.h"
@@ -16,6 +17,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 namespace fs = sophos_filesystem;
+
+namespace
+{
+    class TestCommandLineScanRunner : public CommandLineScannerMemoryAppenderUsingTests
+    {
+    };
+}
 
 TEST(CommandLineScanRunner, construction) // NOLINT
 {
@@ -163,6 +171,53 @@ TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithFilenameExclusion) // NOLIN
 
     ASSERT_EQ(socket->m_paths.size(), 1);
     EXPECT_EQ(socket->m_paths.at(0), "/tmp/sandbox/a/b/file2.txt");
+}
+
+TEST_F(TestCommandLineScanRunner, exclusionIsFileToScan) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    fs::create_directories("/tmp/sandbox/a/b/d/e");
+    std::ofstream("/tmp/sandbox/a/b/file1.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("/tmp/sandbox/a/b/file1.txt");
+    std::vector<std::string> exclusions;
+    exclusions.push_back("/tmp/sandbox/a/b/file1.txt");
+    Options options(false, paths, exclusions, true);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+    waitForLog("/tmp/sandbox/a/b/file1.txt");
+    ASSERT_TRUE(appenderContains("/tmp/sandbox/a/b/file1.txt"));
+    fs::remove_all("/tmp/sandbox");
+
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST(CommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
+{
+    fs::create_directories("/tmp/sandbox/a/b/d/e");
+    fs::create_directories("/tmp/sandbox/a/f");
+    std::ofstream("/tmp/sandbox/a/b/file1.txt");
+    std::ofstream("/tmp/sandbox/a/f/file2.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("/tmp/sandbox");
+    std::vector<std::string> exclusions;
+    exclusions.push_back("/tmp/sandbox/a/b/");
+    Options options(false, paths, exclusions, true);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    fs::remove_all("/tmp/sandbox");
+
+    ASSERT_EQ(socket->m_paths.size(), 1);
+    EXPECT_EQ(socket->m_paths.at(0), "/tmp/sandbox/a/f/file2.txt");
 }
 
 TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOLINT
