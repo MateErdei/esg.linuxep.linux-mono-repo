@@ -141,7 +141,6 @@ namespace
         {
             if (p.string().at(p.string().size()-1) != '/')
             {
-                LOGINFO("appending / to path");
                 return p.string() + "/";
             }
             return p.string();

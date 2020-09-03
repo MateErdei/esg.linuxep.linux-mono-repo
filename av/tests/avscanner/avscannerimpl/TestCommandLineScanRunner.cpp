@@ -217,9 +217,9 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
 
     fs::remove_all("/tmp/sandbox");
 
-    ASSERT_TRUE(appenderContains("Excluding folder: \"/tmp/sandbox/a/b/\""));
+    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
-    ASSERT_FALSE(appenderContains("Excluding file: \"/tmp/sandbox/a/b/d/file2.txt\""));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/d/file2.txt"));
 
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
