@@ -91,13 +91,13 @@ Exclusion::Exclusion(const std::string& path)
 bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
 {
     LOGINFO("-----applesToPath logger-----");
-    LOGINFO("path: " << path);
-    LOGINFO("exclusion: " << m_exclusionPath);
+    LOGINFO("   path: " << path);
+    LOGINFO("   exclusion: " << m_exclusionPath);
     switch(m_type)
     {
         case STEM:
         {
-            LOGINFO("start with check: " << PathUtils::startswith(path, m_exclusionPath));
+            LOGINFO("   start with check: " << PathUtils::startswith(path, m_exclusionPath));
             if (PathUtils::startswith(path, m_exclusionPath))
             {
                 return true;
@@ -150,6 +150,7 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
         default:
             break;
     }
+    LOGINFO("-----applesToPath logger-----");
     return false;
 }
 

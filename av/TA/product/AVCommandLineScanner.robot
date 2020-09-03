@@ -306,7 +306,7 @@ CLS Exclusions Folder
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
 
-   Should Contain      ${output}  Excluding folder: "${NORMAL_DIRECTORY}"
+   Should Contain      ${output}  Excluding folder: "${NORMAL_DIRECTORY}/"
    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Exclusions Folder And File

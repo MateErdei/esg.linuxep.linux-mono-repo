@@ -141,6 +141,8 @@ namespace
         {
             if (p.string().at(p.string().size()-1) != '/')
             {
+                LOGINFO("Appending to: " << p);
+                LOGINFO("       Result: " << p / "/");
                 return p / "/";
             }
             return p;
