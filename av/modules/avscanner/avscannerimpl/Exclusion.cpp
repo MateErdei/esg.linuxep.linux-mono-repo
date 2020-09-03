@@ -5,7 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "Exclusion.h"
-#include "Logger.h"
+
 #include "PathUtils.h"
 
 #include <regex>
@@ -146,7 +146,6 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
         default:
             break;
     }
-    LOGINFO("-----applesToPath logger-----");
     return false;
 }
 

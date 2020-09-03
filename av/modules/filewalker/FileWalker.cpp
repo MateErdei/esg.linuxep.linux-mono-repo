@@ -63,7 +63,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         ++iterator )
     {
         const auto& p = *iterator;
-        LOGINFO("Reached: " << p);
         bool isRegularFile;
         try
         {
