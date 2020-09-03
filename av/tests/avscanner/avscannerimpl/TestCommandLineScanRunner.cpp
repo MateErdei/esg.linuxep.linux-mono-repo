@@ -224,8 +224,10 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     fs::create_directories("/tmp/sandbox/a/b/d/e");
     fs::create_directories("/tmp/sandbox/a/f");
     std::ofstream("/tmp/sandbox/a/b/file1.txt");
@@ -243,6 +245,10 @@ TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOLINT
     runner.run();
 
     fs::remove_all("/tmp/sandbox");
+
+    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
 
     ASSERT_EQ(socket->m_paths.size(), 1);
     EXPECT_EQ(socket->m_paths.at(0), "/tmp/sandbox/a/f/file2.txt");
@@ -271,8 +277,10 @@ TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithFullPathExclusion) // NOLIN
     EXPECT_EQ(socket->m_paths.at(0), "/tmp/sandbox/a/b/file1.txt");
 }
 
-TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     fs::create_directories("/tmp/sandbox/a/b/d/e");
     fs::create_directories("/tmp/sandbox/a/f");
     std::ofstream("/tmp/sandbox/a/b/file1.txt");
@@ -291,12 +299,18 @@ TEST(CommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOLINT
 
     fs::remove_all("/tmp/sandbox");
 
+    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
+
     ASSERT_EQ(socket->m_paths.size(), 1);
     EXPECT_EQ(socket->m_paths.at(0), "/tmp/sandbox/a/f/file2.txt");
 }
 
-TEST(CommandLineScanRunner, nonCanonicalExclusions) // NOLINT
+TEST_F(TestCommandLineScanRunner, nonCanonicalExclusions) // NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     fs::create_directories("/tmp/sandbox/a/b/d/e");
     fs::create_directories("/tmp/sandbox/a/f");
     std::ofstream("/tmp/sandbox/a/b/file1.txt");
@@ -315,6 +329,13 @@ TEST(CommandLineScanRunner, nonCanonicalExclusions) // NOLINT
     runner.run();
 
     fs::remove_all("/tmp/sandbox");
+
+    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/f/"));
+    ASSERT_FALSE(appenderContains("Scanning /tmp/sandbox/a/b/file1.txt"));
+    ASSERT_FALSE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/f/file2.txt"));
 
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
@@ -339,6 +360,38 @@ TEST(CommandLineScanRunner, nonCanonicalExclusionsWithFilename) // NOLINT
     runner.run();
 
     fs::remove_all("/tmp/sandbox");
+
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, excludeNamedFolders) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("/tmp/sandbox/a/b/d/e");
+    fs::create_directories("/tmp/sandbox/a/f");
+    std::ofstream("/tmp/sandbox/a/b/file1.txt");
+    std::ofstream("/tmp/sandbox/a/f/file2.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("/tmp/sandbox");
+    std::vector<std::string> exclusions;
+    exclusions.push_back("*/");
+    Options options(false, paths, exclusions, true);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    EXPECT_NO_THROW( runner.run());
+    fs::remove_all("/tmp/sandbox");
+
+    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/"));
+    ASSERT_FALSE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
+    ASSERT_FALSE(appenderContains("Excluding folder: /tmp/sandbox/a/f/"));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/f/file2.txt"));
+    ASSERT_FALSE(appenderContains("Scanning /tmp/sandbox/a/b/file1.txt"));
+    ASSERT_FALSE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
 
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
