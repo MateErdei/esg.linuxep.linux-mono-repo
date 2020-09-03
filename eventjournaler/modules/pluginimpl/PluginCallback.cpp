@@ -8,6 +8,9 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "Telemetry.h"
+#include "TelemetryConsts.h"
+
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 namespace Plugin
 {
@@ -53,9 +56,17 @@ namespace Plugin
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
-        auto& telemetry = Telemetry::instance();
-        std::string telemetryJson = telemetry.getJson();
-        telemetry.clear();
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+
+        std::optional<std::string> version = Plugin::getVersion();
+        if (version)
+        {
+            telemetry.set(Plugin::version, version.value());
+        }
+        std::string telemetryJson = telemetry.serialiseAndReset();
+        LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
+
         return telemetryJson;
     }
+
 } // namespace Plugin

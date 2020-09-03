@@ -1,36 +1,34 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "ApplicationPaths.h"
 #include "Telemetry.h"
-
+#include "Logger.h"
 #include "StringReplace.h"
+
+#include <Common/UtilityImpl/StringUtils.h>
+
+namespace
+{
+    const std::string PRODUCT_VERSION_STR = "PRODUCT_VERSION";
+} // namespace
 
 namespace Plugin
 {
-    Telemetry& Telemetry::instance()
+    std::optional<std::string> getVersion()
     {
-        static Telemetry telemetry;
-        return telemetry;
+        try
+        {
+            Path versionIniFilepath = Plugin::getVersionIniFilePath();
+            return Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionIniFilepath,PRODUCT_VERSION_STR);
+        }
+        catch (std::exception& ex)
+        {
+            LOGERROR("Telemetry cannot find the plugin version");
+            return std::nullopt;
+        }
     }
-
-    std::string Telemetry::getJson() const
-    {
-        std::string jsonTemplate{ R"sophos({
-	"Number of Scans" : NOSCANSKEY,
-	"Number of Files Scanned" : NOFILESKEY,
-	"Number of Infections" : NOINFECTIONSKEY,
-	"Average Performance" : AVGPERFKEY,
-    "Average Performance Unit" : "MB/s"
-})sophos" };
-        KeyValueCollection keyvalues = { { "NOSCANSKEY", std::to_string(m_info.NoScans) },
-                                         { "NOFILESKEY", std::to_string(m_info.NoFilesScanned) },
-                                         { "NOINFECTIONSKEY", std::to_string(m_info.NoInfections) },
-                                         { "AVGPERFKEY", std::to_string(m_info.AvgPerformance) } };
-        return orderedStringReplace(jsonTemplate, keyvalues);
-    }
-
-    void Telemetry::clear() { m_info = TelemetryInfo(); }
 } // namespace Plugin
