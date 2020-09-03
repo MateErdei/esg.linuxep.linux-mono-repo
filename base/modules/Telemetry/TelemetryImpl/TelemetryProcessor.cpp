@@ -14,7 +14,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Telemetry/LoggerImpl/Logger.h>
 #include <sys/stat.h>
 
-#include <curl.h>
 #include <utility>
 
 using namespace Telemetry;
@@ -110,8 +109,8 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     LOGINFO("Sending telemetry...");
     auto result = m_httpSender->doHttpsRequest(requestConfig);
     LOGDEBUG("HTTP result: " << result);
-    const int success_code = 200;
-    if (result != success_code)
+    const int successCode = 200;
+    if (result != successCode)
     {
         std::stringstream msg;
         msg << "HTTP was expected to be 200, actual: " << result;
