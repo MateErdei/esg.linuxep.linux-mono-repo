@@ -8,13 +8,13 @@
         <workingdir>sspl-template-plugin-build</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
-        <package name="sspl-base" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.3/output" dest="input" buildtype="dev">
+        <package name="sspl-base" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.4/output" dest="input" buildtype="dev">
             <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
         <!--Plugin Api Production Build - Change values below to match the latest production build of base.
             On release, make sure you build a production build of base first before building any production builds of plugins-->
-        <package name="sspl-base" version="1-1-1-139/219677/output" dest="input" buildtype="prod">
+        <package name="sspl-base" version="1-1-3-703/221007/output" dest="input" buildtype="prod">
             <include src="pluginapi.tar.gz" dest="."/>
             <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
