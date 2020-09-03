@@ -16,7 +16,6 @@ using namespace filewalker;
 
 void FileWalker::walk(const sophos_filesystem::path& starting_point)
 {
-    LOGINFO("Starting point: " << starting_point);
     if(starting_point.string().size() > 4096)
     {
         std::string errorMsg = "Starting Path too long";
@@ -39,16 +38,13 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     // else starting point is a directory either skip or continue to traversal
     if (fs::is_regular_file(starting_point))
     {
-        LOGINFO("Is file");
         m_callback.processFile(starting_point, startIsSymlink);
         return;
     }
     else if (fs::is_directory(starting_point))
     {
-        LOGINFO("Is folder");
         if (m_callback.excludeDirectory(starting_point))
         {
-            LOGINFO("Exclude before starting");
             return;
         }
     }
@@ -60,7 +56,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     {
         options |= fs::directory_options::follow_directory_symlink;
     }
-    LOGINFO("Traverse directory");
+
     for(
         auto iterator = fs::recursive_directory_iterator(starting_point, options);
         iterator != fs::recursive_directory_iterator();
@@ -113,13 +109,10 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         else if (fs::is_directory(p.status()))
         {
-            LOGINFO("Iterator checking if it should stop on this folder");
             if (!m_callback.includeDirectory(p))
             {
                 iterator.disable_recursion_pending();
-                LOGINFO("Stop recursion");
             }
-            LOGINFO("Continue recursion");
         }
         else
         {
