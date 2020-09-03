@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2018 Sophos Limited.  All rights reserved.
+# Copyright 2020 Sophos Limited.  All rights reserved.
 
 # Find the location of where the script is running from
 # Allows the script to be called from anywhere either directly or via symlink
@@ -19,42 +19,24 @@ then
 fi
 
 SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_LOCATION" )" >/dev/null && pwd )"
-BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/sbin}"
-UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
-SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
-SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
-FORCE=0
+BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/bin}"
 DOWNGRADE=0
 while [[ $# -ge 1 ]]
 do
     case $1 in
-        --force)
-            FORCE=1
-            ;;
         --downgrade)
+            shift
             DOWNGRADE=1
             ;;
     esac
     shift
 done
-
-if (( DOWNGRADE == 1 ))
-then
-    # save logs
-    SAVE_DIR="${BASEDIR}/logs/plugins/${PRODUCT_LINE_ID}"
-    mkdir -p ${SAVE_DIR}
-    cp -v ${UNINSTALLDIR}/chroot/log/sophos_threat_detector.log*  ${SAVE_DIR}
-    cp -v ${UNINSTALLDIR}/log/av.log*  ${SAVE_DIR}
-fi
-
-rm -f /usr/local/bin/avscanner
+UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
+SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 
 rm -rf "$UNINSTALLDIR"
-rm -f "$SYMLINK"
-rm -f "$SYMLINKVERSION"
+rm -r "$SYMLINK"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
-
-userdel sophos-spl-av
