@@ -322,7 +322,7 @@ CLS Exclusions Folder And File
 
    Should Contain       ${output}  Excluding file: "${NORMAL_DIRECTORY}/clean_eicar"
    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
-   Should Contain       ${output}  Excluding folder: ${NORMAL_DIRECTORY}/clean_eicar_folder
+   Should Contain       ${output}  Excluding folder: ${NORMAL_DIRECTORY}/clean_eicar_folder/
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 CLS Prints Help and Failure When Options Are Spaced Incorrectly

@@ -101,7 +101,7 @@ namespace
             {
                 if (exclusion.appliesToPath(appendForwardSlashToPath(p), true))
                 {
-                    LOGINFO("Excluding folder: " << p);
+                    LOGINFO("Excluding folder: " << appendForwardSlashToPath(p));
                     return false;
                 }
             }
