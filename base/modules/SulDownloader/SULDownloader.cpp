@@ -139,7 +139,7 @@ namespace SulDownloader
         for (auto& product : products)
         {
             std::string rigidName = product.getProductMetadata().getLine();
-            std::string warehouseVersionIni = Common::FileSystem::join( product.distributePath(),"VERSION.ini");
+            std::string warehouseVersionIni = Common::FileSystem::join(product.distributePath(), "VERSION.ini");
 
             try
             {
@@ -208,40 +208,40 @@ namespace SulDownloader
         }
 
         // design decision: do not install / reinstall if any error happens before this time.
-//        int productIndex = 0;
-//        bool setForceInstallForAllProducts = false;
-//        for (auto& product : products)
-//        {
-//            if(product.productWillBeDowngraded())
-//            {
-//                // Base should always be the first product in the list.
-//                // if base is being downgraded, then all products will be treated as a downgrade
-//                // therefore only need to run the base uninstaller.
-//                // if base is not being downgraded, then need to run the uninstaller for each component.
-//                if (productIndex == 0)
-//                {
-//                    std::string baseUninstallerPath =
-//                        Common::ApplicationConfiguration::applicationPathManager().getLocalBaseUninstallerPath();
-//                    uninstallManager.prepareProductForDowngrade(baseUninstallerPath);
-//                    setForceInstallForAllProducts = true;
-//                }
-//                else
-//                {
-//                    if (setForceInstallForAllProducts)
-//                    {
-//                        product.setForceProductReinstall(true);
-//                    }
-//                    else
-//                    {
-//                        std::string componentPath = Common::FileSystem::join(
-//                            Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath(),
-//                            product.getLine() + ".sh");
-//                        uninstallManager.prepareProductForDowngrade(componentPath);
-//                    }
-//                }
-//            }
-//            productIndex++;
-//        }
+        int productIndex = 0;
+        bool setForceInstallForAllProducts = false;
+        for (auto& product : products)
+        {
+            if(product.productWillBeDowngraded())
+            {
+                // Base should always be the first product in the list.
+                // if base is being downgraded, then all products will be treated as a downgrade
+                // therefore only need to run the base uninstaller.
+                // if base is not being downgraded, then need to run the uninstaller for each component.
+                if (productIndex == 0)
+                {
+                    std::string baseUninstallerPath =
+                        Common::ApplicationConfiguration::applicationPathManager().getLocalBaseUninstallerPath();
+                    uninstallManager.prepareProductForDowngrade(baseUninstallerPath);
+                    setForceInstallForAllProducts = true;
+                }
+                else
+                {
+                    if (setForceInstallForAllProducts)
+                    {
+                        product.setForceProductReinstall(true);
+                    }
+                    else
+                    {
+                        std::string componentPath = Common::FileSystem::join(
+                            Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath(),
+                            product.getLine() + ".sh");
+                        uninstallManager.prepareProductForDowngrade(componentPath);
+                    }
+                }
+            }
+            productIndex++;
+        }
 
         // try to install all products and report error for those that failed (if any)
 
