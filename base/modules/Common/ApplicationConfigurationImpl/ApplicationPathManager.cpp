@@ -263,6 +263,7 @@ namespace Common
         {
             return Common::FileSystem::join(sophosInstall(), "var/comms/responses");
         }
+
         std::string ApplicationPathManager::getVersionIniFileForComponent(const std::string& component) const
         {
             if (component == "ServerProtectionLinux-Base-component")
@@ -281,9 +282,13 @@ namespace Common
             {
                 return Common::FileSystem::join(sophosInstall(), "plugins/mtr/VERSION.ini");
             }
+            else if (component == "ServerProtectionLinux-Plugin-AV")
+            {
+                return Common::FileSystem::join(sophosInstall(), "plugins/av/VERSION.ini");
+            }
             else
             {
-                throw std::runtime_error("Component " + component + " not recognized.");
+                throw std::invalid_argument("Component " + component + " not recognized.");
             }
         }
 

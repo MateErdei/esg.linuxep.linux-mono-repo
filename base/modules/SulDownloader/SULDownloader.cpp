@@ -153,6 +153,10 @@ namespace SulDownloader
             {
                 LOGWARN("Failed to read VERSION.ini , Error: " << ex.what());
             }
+            catch (std::invalid_argument& ex)
+            {
+                LOGWARN("Failed to find VERSION.ini due to: " << ex.what());
+            }
         }
 
         for (auto& product : products)
