@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2018 Sophos Limited.  All rights reserved.
+# Copyright 2020 Sophos Limited.  All rights reserved.
 
 # Find the location of where the script is running from
 # Allows the script to be called from anywhere either directly or via symlink
@@ -21,7 +21,17 @@ fi
 SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_LOCATION" )" >/dev/null && pwd )"
 
 BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/bin}"
-
+DOWNGRADE=0
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+        --downgrade)
+            shift
+            DOWNGRADE=1
+            ;;
+    esac
+    shift
+done
 UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 
