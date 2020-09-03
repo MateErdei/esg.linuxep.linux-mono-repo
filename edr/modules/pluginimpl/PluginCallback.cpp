@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019 Sophos Limited.  All rights reserved.
+Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -16,7 +16,7 @@ namespace Plugin
 {
     PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) : m_task(std::move(task))
     {
-        std::string noPolicySetStatus {
+        std::string noPolicySetStatus{
             R"sophos(<?xml version="1.0" encoding="utf-8" ?>
                     <status xmlns="http://www.sophos.com/EE/EESavStatus">
                         <CompRes xmlns="com.sophos\msys\csc" Res="NoRef" RevID="" policyType="2" />
@@ -30,19 +30,10 @@ namespace Plugin
     void PluginCallback::applyNewPolicy(const std::string& policyXml)
     {
         LOGSUPPORT("Applying new policy");
-        m_task->push(Task { Task::TaskType::Policy, policyXml });
+        m_task->push(Task{ Task::TaskType::Policy, policyXml });
     }
 
-    void PluginCallback::queueAction(const std::string& /* actionXml */)
-    {
-        LOGERROR("This method should never be called.");
-    }
-
-    void PluginCallback::queueActionWithCorrelation(const std::string& queryJson, const std::string& correlationId)
-    {
-        LOGSUPPORT("Receive new query");
-        m_task->push(Task { Task::TaskType::Query, queryJson, correlationId });
-    }
+    void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGSUPPORT("Queueing action"); }
 
     void PluginCallback::onShutdown()
     {
@@ -67,33 +58,15 @@ namespace Plugin
         LOGSUPPORT("Received get telemetry request");
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
-        std::optional<std::string> version = plugin::getVersion();
+        std::optional<std::string> version = Plugin::getVersion();
         if (version)
         {
-            telemetry.set(plugin::version, version.value());
+            telemetry.set(Plugin::version, version.value());
         }
-
-        std::optional<unsigned long> osqueryDatabaseSize = plugin::getOsqueryDatabaseSize();
-        if (osqueryDatabaseSize)
-        {
-            telemetry.set(plugin::telemetryOSQueryDatabaseSize, osqueryDatabaseSize.value());
-        }
-
-        telemetry.updateTelemetryWithStats();
-
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 
-        initialiseTelemetry();
         return telemetryJson;
     }
 
-    void PluginCallback::initialiseTelemetry()
-    {
-        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        telemetry.increment(plugin::telemetryOsqueryRestarts, 0L);
-        telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 0L);
-        telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 0L);
-        telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 0L);
-    }
 } // namespace Plugin

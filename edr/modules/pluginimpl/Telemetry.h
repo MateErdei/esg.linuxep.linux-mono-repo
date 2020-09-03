@@ -1,18 +1,15 @@
 /******************************************************************************************************
 
-Copyright 2020 Sophos Limited.  All rights reserved.
+Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #pragma once
 
-#include <Common/FileSystem/IFileSystem.h>
-
-#include <optional>
 #include <string>
+#include <optional>
 
-namespace plugin
+namespace Plugin
 {
     std::optional<std::string> getVersion();
-    std::optional<unsigned long> getOsqueryDatabaseSize();
 } // namespace Plugin

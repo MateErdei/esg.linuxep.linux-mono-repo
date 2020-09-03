@@ -1,6 +1,8 @@
 sophos_add_library(pluginimpl SHARED
         PluginCallback.cpp
         PluginCallback.h
+        ApplicationPaths.cpp
+        ApplicationPaths.h
         QueueTask.cpp
         QueueTask.h
         Logger.h
