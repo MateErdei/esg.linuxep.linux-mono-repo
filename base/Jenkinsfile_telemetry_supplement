@@ -1,10 +1,11 @@
+
 library "standardPipeline"
 
-project = 'sspl-base-telemetry-supplement'
+project = 'sspl-template-plugin'
 version_key = '1.0.0'
-project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/everest-base.git'
-project_builddir = 'sspl-base-telemetry-supplement-build'
-project_release_xml = 'build/release-package-telemetry-supplement.xml'
+project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-template.git'
+project_builddir = 'sspl-template-plugin-build'
+project_release_xml = 'build-files/release-package.xml'
 
 properties([
   parameters([
