@@ -4,7 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/UtilityImpl/StringUtils.h>
+
+#include "../Helpers/MockFileSystem.h"
+#include "../Helpers/FileSystemReplaceAndRestore.h"
+
 #include <gtest/gtest.h>
 #include "../Helpers/MockFileSystem.h"
 #include "../Helpers/FileSystemReplaceAndRestore.h"

@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 #include <optional>
+
 #include <Common/FileSystem/IFileSystem.h>
 
 
