@@ -60,7 +60,7 @@ TEST(TestScanClient, TestScanEtcPasswd) // NOLINT
 {
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.setClean(true);
+    response.addDetection("/etc/passwd", "");
 
     EXPECT_CALL(mock_socket, scan(_,_))
         .Times(1)
@@ -75,7 +75,38 @@ TEST(TestScanClient, TestScanEtcPasswd) // NOLINT
 
     ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
-    EXPECT_TRUE(result.clean());
+    EXPECT_TRUE(result.allClean());
+}
+
+TEST(TestScanClient, TestScanArchive) // NOLINT
+{
+    path infectedFile1 = "/tmp/test.tar/eicar.com";
+    path infectedFile2 = "/tmp/test.tar/eicar.exe";
+    std::string threatName = "EICAR-AV-Test";
+
+    StrictMock<MockIScanningClientSocket> mock_socket;
+    scan_messages::ScanResponse response;
+    response.addDetection(infectedFile1, threatName);
+    response.addDetection(infectedFile2, threatName);
+
+    EXPECT_CALL(mock_socket, scan(_,_))
+        .Times(1)
+        .WillOnce(Return(response));
+
+    std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
+        new StrictMock<MockIScanCallbacks>()
+    );
+
+    EXPECT_CALL(*mock_callbacks, infectedFile(infectedFile1, threatName, false))
+        .Times(1);
+    EXPECT_CALL(*mock_callbacks, infectedFile(infectedFile2, threatName, false))
+        .Times(1);
+
+    ScanClient s(mock_socket, mock_callbacks, true, E_SCAN_TYPE_ON_DEMAND);
+    // Note: we need to scan a file which exists on all build systems (but will pretend this is an archive for test purposes)
+    auto result = s.scan("/etc/passwd");
+    EXPECT_FALSE(result.allClean());
+    EXPECT_EQ(result.getDetections().size(), 2);
 }
 
 TEST(TestScanClient, TestScanInfectedNoCallback) // NOLINT
@@ -85,8 +116,7 @@ TEST(TestScanClient, TestScanInfectedNoCallback) // NOLINT
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.setClean(false);
-    response.setThreatName(THREAT);
+    response.addDetection("/tmp/eicar.com", THREAT);
 
     EXPECT_CALL(mock_socket, scan(_, _))
             .Times(1)
@@ -95,8 +125,8 @@ TEST(TestScanClient, TestScanInfectedNoCallback) // NOLINT
     std::shared_ptr<avscanner::avscannerimpl::IScanCallbacks> mock_callbacks;
     ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
-    EXPECT_FALSE(result.clean());
-    EXPECT_EQ(result.threatName(), THREAT);
+    EXPECT_FALSE(result.getDetections().empty());
+    EXPECT_EQ(result.getDetections()[0].second, THREAT);
 }
 
 TEST(TestScanClient, TestScanInfected) // NOLINT
@@ -106,8 +136,7 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.setClean(false);
-    response.setThreatName(THREAT);
+    response.addDetection("/etc/passwd", THREAT);
 
     EXPECT_CALL(mock_socket, scan(_, _))
         .Times(1)
@@ -123,6 +152,6 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
 
-    EXPECT_FALSE(result.clean());
-    EXPECT_EQ(result.threatName(), THREAT);
+    EXPECT_FALSE(result.getDetections().empty());
+    EXPECT_EQ(result.getDetections()[0].second, THREAT);
 }

@@ -129,14 +129,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     Sophos::ssplav::FileScanResponse::Reader responseReader =
             messageInput.getRoot<Sophos::ssplav::FileScanResponse>();
 
-
-    scan_messages::ScanResponse response;
-
-    response.setClean(responseReader.getClean());
-    if (responseReader.hasThreatName())
-    {
-        response.setThreatName(responseReader.getThreatName());
-    }
+    scan_messages::ScanResponse response(responseReader);
 
     return response;
 }

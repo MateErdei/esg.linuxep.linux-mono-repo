@@ -203,7 +203,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
     static_cast<void>(fd.release()); // not a real file descriptor
 
-    EXPECT_EQ(response.clean(), true);
+    EXPECT_EQ(response.allClean(), true);
 }
 
 TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
@@ -246,7 +246,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     threatReporterServer.requestStop();
     threatReporterServer.join();
 
-    EXPECT_EQ(response.clean(), false);
+    EXPECT_EQ(response.allClean(), false);
 }
 
 TEST(TestThrowIfNotOk, TestOk) // NOLINT

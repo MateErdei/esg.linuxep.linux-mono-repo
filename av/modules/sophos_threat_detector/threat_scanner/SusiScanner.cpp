@@ -79,8 +79,6 @@ SusiScanner::scan(
     const std::string& userID)
 {
     scan_messages::ScanResponse response;
-    response.setClean(true);
-    response.setThreatName("unknown");
 
     static const std::string metaDataJson = R"({
     "properties": {
@@ -107,8 +105,7 @@ SusiScanner::scan(
                 for (auto detection : result["detections"])
                 {
                     LOGWARN("Detected " << detection["threatName"] << " in " << result["path"]);
-                    response.setThreatName(detection["threatName"]);
-                    response.setFullScanResult(scanResultUTF8);
+                    response.addDetection(result["path"], detection["threatName"]);
                 }
             }
         }
@@ -123,8 +120,19 @@ SusiScanner::scan(
 
     if (res == SUSI_I_THREATPRESENT)
     {
-        response.setClean(false);
-        sendThreatReport(file_path, response.threatName(), scanType, userID);
+        std::vector<std::pair<std::string, std::string>> detections = response.getDetections();
+        if (detections.empty())
+        {
+            response.addDetection(file_path, "unknown");
+            sendThreatReport(file_path, "unknown", scanType, userID);
+        }
+        else
+        {
+            for (const auto& detection: detections)
+            {
+                sendThreatReport(detection.first, detection.second, scanType, userID);
+            }
+        }
     }
 
     return response;

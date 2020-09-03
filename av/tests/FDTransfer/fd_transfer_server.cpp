@@ -30,7 +30,7 @@ namespace
         {
             PRINT(file_path);
             scan_messages::ScanResponse response;
-            response.setClean(true);
+            response.addDetection("/bin/bash", "");
             return response;
         }
     };

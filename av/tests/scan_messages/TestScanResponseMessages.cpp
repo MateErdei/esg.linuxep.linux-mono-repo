@@ -21,12 +21,11 @@ class TestScanResponseMessages : public ::testing::Test
 public:
     void SetUp() override
     {
-        m_scanResponse.setClean(m_clean);
-        m_scanResponse.setThreatName(m_threatName);
+        m_scanResponse.addDetection(m_filePath, m_threatName);
         m_scanResponse.setFullScanResult(m_fullScanResult);
     }
 
-    bool m_clean = true;
+    std::string m_filePath = "/tmp/eicar.com";
     std::string m_threatName = "EICAR-AV-TEST";
     std::string m_fullScanResult = "{\n"
                                    "    \"results\":\n"
@@ -81,17 +80,18 @@ public:
 
 TEST_F(TestScanResponseMessages, CreateScanResponse) //NOLINT
 {
-std::string dataAsString = m_scanResponse.serialise();
+    std::string dataAsString = m_scanResponse.serialise();
 
-const kj::ArrayPtr<const capnp::word> view(
-        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
-        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+    const kj::ArrayPtr<const capnp::word> view(
+            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
 
-capnp::FlatArrayMessageReader messageInput(view);
-Sophos::ssplav::FileScanResponse::Reader deSerialisedData =
-        messageInput.getRoot<Sophos::ssplav::FileScanResponse>();
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::FileScanResponse::Reader deSerialisedData =
+            messageInput.getRoot<Sophos::ssplav::FileScanResponse>();
 
-EXPECT_EQ(deSerialisedData.getClean(), m_clean);
-EXPECT_EQ(deSerialisedData.getThreatName(), m_threatName);
-EXPECT_EQ(deSerialisedData.getFullScanResult(), m_fullScanResult);
+    ::capnp::List<Sophos::ssplav::FileScanResponse::Detection>::Reader detections = deSerialisedData.getDetections();
+
+    EXPECT_EQ(detections[0].getThreatName(), m_threatName);
+    EXPECT_EQ(deSerialisedData.getFullScanResult(), m_fullScanResult);
 }

@@ -11,7 +11,11 @@ $Cxx.namespace("Sophos::ssplav");
 
 ## A FileScanRequest also has a file descriptor send as aux data
 struct FileScanResponse {
-    clean           @0 :Bool;
-    threatName      @1 :Text;
-    fullScanResult  @2 :Text; ## JSON response from SUSI
+    struct Detection {
+        filePath        @0 :Text;
+        threatName      @1 :Text;
+    }
+
+    detections      @0 :List(Detection);
+    fullScanResult  @1 :Text; ## JSON response from SUSI
 }

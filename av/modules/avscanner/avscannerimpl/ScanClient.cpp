@@ -50,13 +50,16 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
 
     if (m_callbacks)
     {
-        if (response.clean())
+        for (const auto& detection: response.getDetections())
         {
-            m_callbacks->cleanFile(fileToScanPath);
-        }
-        else
-        {
-            m_callbacks->infectedFile(fileToScanPath, response.threatName(), isSymlink);
+            if (detection.second.empty())
+            {
+                m_callbacks->cleanFile(fileToScanPath);
+            }
+            else
+            {
+                m_callbacks->infectedFile(detection.first, detection.second, isSymlink);
+            }
         }
     }
     return response;

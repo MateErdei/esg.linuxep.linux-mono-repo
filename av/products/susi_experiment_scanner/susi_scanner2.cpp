@@ -67,7 +67,7 @@ static int scan(const char* filename)
 
     auto scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND;
     auto result = scanner->scan(fd, filename, scanType, "root");
-    bool clean = result.clean();
+    bool clean = result.allClean();
     PRINT("SCAN CLEAN:" << clean);
 
     decltype(scannerFactory)::weak_type weak_scanner_factory = scannerFactory;

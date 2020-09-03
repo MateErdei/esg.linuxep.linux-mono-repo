@@ -4,9 +4,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "Logger.h"
 #include "ScanResponse.h"
-
-#include <ScanResponse.capnp.h>
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
@@ -14,8 +13,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace scan_messages;
 
 ScanResponse::ScanResponse()
-        : m_clean(false)
 {
+}
+
+ScanResponse::ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader)
+{
+    for (Sophos::ssplav::FileScanResponse::Detection::Reader detection : reader.getDetections())
+    {
+        m_detections.emplace_back(std::make_pair(detection.getFilePath(), detection.getThreatName()));
+    }
+    m_fullScanResult = reader.getFullScanResult();
 }
 
 std::string ScanResponse::serialise() const
@@ -24,8 +31,12 @@ std::string ScanResponse::serialise() const
     Sophos::ssplav::FileScanResponse::Builder responseBuilder =
             message.initRoot<Sophos::ssplav::FileScanResponse>();
 
-    responseBuilder.setClean(m_clean);
-    responseBuilder.setThreatName(m_threatName);
+    ::capnp::List<Sophos::ssplav::FileScanResponse::Detection>::Builder detections = responseBuilder.initDetections(m_detections.size());
+    for (unsigned int i=0; i < m_detections.size(); i++)
+    {
+        detections[i].setFilePath(m_detections[i].first);
+        detections[i].setThreatName(m_detections[i].second);
+    }
     responseBuilder.setFullScanResult(m_fullScanResult);
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
@@ -34,14 +45,14 @@ std::string ScanResponse::serialise() const
     return dataAsString;
 }
 
-void ScanResponse::setClean(bool b)
+void ScanResponse::addDetection(std::string filePath, std::string threatName)
 {
-    m_clean = b;
+    m_detections.emplace_back(std::make_pair(filePath, threatName));
 }
 
-void ScanResponse::setThreatName(std::string threatName)
+std::vector<std::pair<std::string, std::string>> ScanResponse::getDetections()
 {
-    m_threatName = std::move(threatName);
+    return m_detections;
 }
 
 void ScanResponse::setFullScanResult(std::string threatName)
@@ -49,3 +60,15 @@ void ScanResponse::setFullScanResult(std::string threatName)
     m_fullScanResult = std::move(threatName);
 }
 
+bool ScanResponse::allClean()
+{
+    bool allClean = true;
+    for (const auto& detection: m_detections)
+    {
+        if (!detection.second.empty())
+        {
+            allClean = false;
+        }
+    }
+    return allClean;
+}

@@ -37,13 +37,16 @@ int main(int argc, char* argv[])
     unixsocket::ScanningClientSocket socket(path);
     auto response = scan(socket, file_fd, filename); // takes ownership of file_fd
 
-    if (response.clean())
+    for (const auto& detection: response.getDetections())
     {
-        PRINT(filename << " is fake clean");
-    }
-    else
-    {
-        PRINT(filename << " is fake infected");
+        if (detection.second.empty())
+        {
+            PRINT(filename << " is fake clean");
+        }
+        else
+        {
+            PRINT(filename << " is fake infected");
+        }
     }
 
     return 0;

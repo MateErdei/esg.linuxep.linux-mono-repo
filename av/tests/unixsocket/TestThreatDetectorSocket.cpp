@@ -78,8 +78,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.setClean(false);
-    expected_response.setThreatName("THREAT");
+    expected_response.addDetection("/tmp/eicar.com", "THREAT");
 
     auto* scannerPtr = scanner.get();
     testing::Mock::AllowLeak(scanner.get());
@@ -96,8 +95,8 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
         datatypes::AutoFd devNull(::open(THREAT_PATH.c_str(), O_RDONLY));
         auto response = scan(client_socket, devNull, THREAT_PATH);
 
-        EXPECT_FALSE(response.clean());
-        EXPECT_EQ(response.threatName(), "THREAT");
+        EXPECT_FALSE(response.allClean());
+        EXPECT_EQ(response.getDetections()[0].second, "THREAT");
     }
 
     server.requestStop();
@@ -116,7 +115,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.setClean(true);
+    expected_response.addDetection("/bin/bash", "");
 
     auto* scannerPtr = scanner.get();
     testing::Mock::AllowLeak(scanner.get());
@@ -133,7 +132,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
         datatypes::AutoFd devNull(::open(THREAT_PATH.c_str(), O_RDONLY));
         auto response = scan(client_socket, devNull, THREAT_PATH);
 
-        EXPECT_TRUE(response.clean());
+        EXPECT_TRUE(response.allClean());
     }
 
     server.requestStop();
@@ -152,7 +151,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.setClean(true);
+    expected_response.addDetection("/bin/bash", "");
 
     auto* scannerPtr = scanner.get();
     testing::Mock::AllowLeak(scanner.get());
@@ -168,11 +167,11 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
         unixsocket::ScanningClientSocket client_socket(path);
         datatypes::AutoFd devNull(::open(THREAT_PATH.c_str(), O_RDONLY));
         auto response = scan(client_socket, devNull, THREAT_PATH);
-        EXPECT_TRUE(response.clean());
+        EXPECT_TRUE(response.allClean());
 
         devNull.reset(::open(THREAT_PATH.c_str(), O_RDONLY));
         response = scan(client_socket, devNull, THREAT_PATH);
-        EXPECT_TRUE(response.clean());
+        EXPECT_TRUE(response.allClean());
     }
 
     server.requestStop();

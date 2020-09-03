@@ -7,6 +7,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
+#include <vector>
+
+#include <ScanResponse.capnp.h>
 
 namespace scan_messages
 {
@@ -14,26 +17,19 @@ namespace scan_messages
     {
     public:
         ScanResponse();
+        ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader);
 
-        void setThreatName(std::string);
-        void setFullScanResult(std::string threatName);
-        void setClean(bool);
+        void addDetection(std::string path, std::string threatName);
+        void setFullScanResult(std::string fullScanResult);
+
+        [[nodiscard]] std::vector<std::pair<std::string, std::string>> getDetections();
 
         [[nodiscard]] std::string serialise() const;
 
-        [[nodiscard]] bool clean() const
-        {
-            return m_clean;
-        }
-
-        [[nodiscard]] std::string threatName() const
-        {
-            return m_threatName;
-        }
+        [[nodiscard]] bool allClean();
 
     private:
-        bool m_clean;
-        std::string m_threatName;
+        std::vector<std::pair<std::string, std::string>> m_detections;
         std::string m_fullScanResult;
     };
 }
