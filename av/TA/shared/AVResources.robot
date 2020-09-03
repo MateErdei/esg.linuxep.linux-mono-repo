@@ -22,6 +22,7 @@ ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
 ${EXPORT_FILE}     /etc/exports
 ${EICAR_STRING}  X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+${CLEAN_STRING}  Hello World 2
 
 ${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 ${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml

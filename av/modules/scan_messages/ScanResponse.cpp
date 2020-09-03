@@ -23,6 +23,7 @@ ScanResponse::ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader)
         m_detections.emplace_back(std::make_pair(detection.getFilePath(), detection.getThreatName()));
     }
     m_fullScanResult = reader.getFullScanResult();
+    m_errorMsg = reader.getErrorMsg();
 }
 
 std::string ScanResponse::serialise() const
@@ -38,6 +39,7 @@ std::string ScanResponse::serialise() const
         detections[i].setThreatName(m_detections[i].second);
     }
     responseBuilder.setFullScanResult(m_fullScanResult);
+    responseBuilder.setErrorMsg(m_errorMsg);
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
     kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
@@ -58,6 +60,16 @@ std::vector<std::pair<std::string, std::string>> ScanResponse::getDetections()
 void ScanResponse::setFullScanResult(std::string threatName)
 {
     m_fullScanResult = std::move(threatName);
+}
+
+void ScanResponse::setErrorMsg(std::string errorMsg)
+{
+    m_errorMsg = std::move(errorMsg);
+}
+
+std::string ScanResponse::getErrorMsg()
+{
+    return m_errorMsg;
 }
 
 bool ScanResponse::allClean()

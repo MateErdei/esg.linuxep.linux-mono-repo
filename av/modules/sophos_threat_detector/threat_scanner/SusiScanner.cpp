@@ -134,6 +134,12 @@ SusiScanner::scan(
             }
         }
     }
+    else if (res == SUSI_E_SCANABORTED)
+    {
+        std::stringstream errorMsg;
+        errorMsg << "Scanning of " << file_path << " was aborted";
+        response.setErrorMsg(errorMsg.str());
+    }
 
     return response;
 }

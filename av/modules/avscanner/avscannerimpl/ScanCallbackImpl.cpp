@@ -35,3 +35,8 @@ void ScanCallbackImpl::infectedFile(const path& p, const std::string& threatName
     }
     m_returnCode = E_VIRUS_FOUND;
 }
+
+void ScanCallbackImpl::scanError(const std::string& errorMsg)
+{
+    LOGERROR(errorMsg);
+}

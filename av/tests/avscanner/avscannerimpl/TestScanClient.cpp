@@ -35,6 +35,7 @@ namespace
     public:
         MOCK_METHOD1(cleanFile, void(const path&));
         MOCK_METHOD3(infectedFile, void(const path&, const std::string&, bool isSymlink));
+        MOCK_METHOD1(scanError, void(const std::string&));
     };
 }
 

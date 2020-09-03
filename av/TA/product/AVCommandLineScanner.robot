@@ -110,14 +110,59 @@ CLS Can Scan Infected File
    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${NORMAL_DIRECTORY}/naugthy_eicar"
 
 CLS Can Scan Archive File
-      Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-      Run Process     tar  -cf  ${NORMAL_DIRECTORY}/naugthy_eicar.tar  ${NORMAL_DIRECTORY}/naugthy_eicar
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar.tar --scan-archives
+      ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+      Create Directory  ${ARCHIVE_DIR}
+      Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
+      Create File  ${ARCHIVE_DIR}/2_clean    ${CLEAN_STRING}
+      Create File  ${ARCHIVE_DIR}/3_eicar    ${EICAR_STRING}
+      Create File  ${ARCHIVE_DIR}/4_clean    ${CLEAN_STRING}
+      Create File  ${ARCHIVE_DIR}/5_eicar    ${EICAR_STRING}
+
+      Run Process     tar  -cf  ${NORMAL_DIRECTORY}/test.tar  ${ARCHIVE_DIR}
+      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.tar --scan-archives
 
       Log To Console  return code is ${rc}
       Log To Console  output is ${output}
       Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
+CLS Can Scan Multiple Archive Files
+      ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+      ${SCAN_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/scan_dir
+
+      Create Directory  ${ARCHIVE_DIR}
+      Create Directory  ${SCAN_DIR}
+
+      Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
+      Create File  ${ARCHIVE_DIR}/2_clean    ${CLEAN_STRING}
+      Create File  ${ARCHIVE_DIR}/3_eicar    ${EICAR_STRING}
+      Create File  ${ARCHIVE_DIR}/4_clean    ${CLEAN_STRING}
+      Create File  ${ARCHIVE_DIR}/5_eicar    ${EICAR_STRING}
+
+      Run Process     tar  -cf  ${SCAN_DIR}/test1.tar  ${ARCHIVE_DIR}
+      Run Process     tar  -czf  ${SCAN_DIR}/test1.tgz  ${ARCHIVE_DIR}
+      Run Process     zip  -r  ${SCAN_DIR}/test2.zip  ${ARCHIVE_DIR}
+      Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
+      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.tar --scan-archives
+
+      Log To Console  return code is ${rc}
+      Log To Console  output is ${output}
+      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+
+CLS Abort Scanning of Zip Bomb
+      Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
+
+      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
+
+      Log To Console  return code is ${rc}
+      Log To Console  output is ${output}
+      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+      Should Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/zipbomb.zip was aborted
 
 AV Log Contains No Errors When Scanning File
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar

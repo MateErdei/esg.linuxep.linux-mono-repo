@@ -17,10 +17,11 @@ namespace scan_messages
     {
     public:
         ScanResponse();
-        ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader);
+        explicit ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader);
 
         void addDetection(std::string path, std::string threatName);
         void setFullScanResult(std::string fullScanResult);
+        void setErrorMsg(std::string errorMsg);
 
         [[nodiscard]] std::vector<std::pair<std::string, std::string>> getDetections();
 
@@ -28,9 +29,12 @@ namespace scan_messages
 
         [[nodiscard]] bool allClean();
 
+        [[nodiscard]] std::string getErrorMsg();
+
     private:
         std::vector<std::pair<std::string, std::string>> m_detections;
         std::string m_fullScanResult;
+        std::string m_errorMsg;
     };
 }
 

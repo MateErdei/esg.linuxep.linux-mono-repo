@@ -18,4 +18,5 @@ struct FileScanResponse {
 
     detections      @0 :List(Detection);
     fullScanResult  @1 :Text; ## JSON response from SUSI
+    errorMsg        @2 :Text;
 }
