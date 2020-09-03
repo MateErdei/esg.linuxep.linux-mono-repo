@@ -89,7 +89,7 @@ then
     for UNINSTALLER in "$PLUGIN_UNINSTALL_DIR"/*
     do
         UNINSTALLER_BASE=${UNINSTALLER##*/}
-        if [[ -n $DOWNGRADE ]]
+        if [[ -z $DOWNGRADE ]]
         then
           bash "$UNINSTALLER " || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
         else
@@ -101,7 +101,7 @@ else
 fi
 
 removeWatchdogSystemdService || failure "Failed to remove watchdog service files"  ${FAILURE_REMOVE_WATCHDOG_SERVICE_FILES}
-if [[ -n $DOWNGRADE ]]
+if [[ -z $DOWNGRADE ]]
 then
   rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
 else
