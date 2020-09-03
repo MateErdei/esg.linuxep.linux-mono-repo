@@ -2,7 +2,6 @@ include(GoogleTest)
 
 SophosAddTest(TestPlugin
         TestPlugin.cpp
-        TestPubSub.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
