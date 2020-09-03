@@ -22,9 +22,7 @@ export OUTPUT
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
-## These can't be exitFailure since it doesn't exist till the sourcing is done
-[ -f "$BASE"/build-files/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
-source "$BASE"/build-files/pathmgr.sh
+
 [ -f "$BASE"/build-files/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build-files/common.sh
 
@@ -215,7 +213,7 @@ function build()
         untar_input $GOOGLETESTTAR
     fi
 
-    addpath "$REDIST/cmake/bin"
+    PATH=$REDIST/cmake/bin:$PATH
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
     if [[ ${BULLSEYE} == 1 ]]
@@ -223,7 +221,7 @@ function build()
         BULLSEYE_DIR=/opt/BullseyeCoverage
         [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
         [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
-        addpath ${BULLSEYE_DIR}/bin:$PATH
+        PATH=${BULLSEYE_DIR}/bin:$PATH
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
         export COV_HTML_BASE
@@ -235,8 +233,9 @@ function build()
     fi
 
     #   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
-    echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
+    export LIBRARY_PATH=/build/input/gcc/lib64/:/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
+    export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
+    export C_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${C_INCLUDE_PATH}
 
     [[ -n $CC ]] || CC=$(which gcc)
     [[ -n $CXX ]] || CXX=$(which g++)
