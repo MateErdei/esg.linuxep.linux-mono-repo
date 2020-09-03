@@ -22,7 +22,7 @@ namespace Plugin
     {
         try
         {
-            Path versionIniFilepath = Plugin::getVersionIniFilePath();
+            std::string versionIniFilepath = Plugin::getVersionIniFilePath();
             return Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionIniFilepath,PRODUCT_VERSION_STR);
         }
         catch (std::exception& ex)
