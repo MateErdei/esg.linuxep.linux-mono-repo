@@ -137,15 +137,14 @@ namespace
             }
         }
 
-        static sophos_filesystem::path appendForwardSlashToPath(const sophos_filesystem::path& p)
+        std::string appendForwardSlashToPath(const sophos_filesystem::path& p)
         {
             if (p.string().at(p.string().size()-1) != '/')
             {
-                LOGINFO("Appending to: " << p);
-                LOGINFO("       Result: " << p / "/");
-                return p / "/";
+                LOGINFO("appending / to path");
+                return p.string() + "/";
             }
-            return p;
+            return p.string();
         }
 
     private:
