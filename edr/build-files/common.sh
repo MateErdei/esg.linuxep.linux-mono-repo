@@ -19,7 +19,7 @@ function unpack_scaffold_gcc_make()
 {
     local INPUT="$1"
 
-    local GCC_TARFILE=$(ls $INPUT/gcc-*-$PLATFORM.tar.gz)
+    local GCC_TARFILE=$(ls $INPUT/gcc-*-linux.tar.gz)
     if [[ -f $GCC_TARFILE ]]
     then
         if [[ -z "$NO_REMOVE_GCC" ]]
@@ -60,7 +60,7 @@ function unpack_scaffold_gcc_make()
     GCC=$(which gcc)
     [[ -x $GCC ]] || exitFailure 50 "No gcc is available"
 
-    local MAKE_TARFILE=$(ls $INPUT/make-*-$PLATFORM.tar.gz 2>/dev/null)
+    local MAKE_TARFILE=$(ls $INPUT/make-*-linux.tar.gz 2>/dev/null)
     if [[ -f $MAKE_TARFILE ]]
     then
         if [[ -z "$NO_REMOVE_MAKE" ]]
@@ -82,7 +82,7 @@ function unpack_scaffold_gcc_make()
     MAKE=$(which make)
     [[ -x $MAKE ]] || exitFailure 51 "No make is available"
 
-    local BINUTILS_TARFILE=$(ls $INPUT/binutils*-$PLATFORM.tar.gz 2>/dev/null)
+    local BINUTILS_TARFILE=$(ls $INPUT/binutils*-linux.tar.gz 2>/dev/null)
     if [[ -f $BINUTILS_TARFILE ]]
     then
         tar xzf $BINUTILS_TARFILE
@@ -101,9 +101,9 @@ function unpack_scaffold_autotools()
     mkdir -p /build/input
     pushd /build/input
 
-    [[ -f $INPUT/autotools-$PLATFORM.tar.gz ]] || exitFailure 9 "No autotools tarfile"
+    [[ -f $INPUT/autotools-linux.tar.gz ]] || exitFailure 9 "No autotools tarfile"
 
-    tar xzf $INPUT/autotools-$PLATFORM.tar.gz
+    tar xzf $INPUT/autotools-linux.tar.gz
     export PATH=/build/input/autotools/bin:$PATH
 
     popd
@@ -115,8 +115,8 @@ function unpack_scaffold_m4()
     mkdir -p /build/input
     pushd /build/input
 
-    local M4_TARFILE=$(ls $INPUT/m4-$PLATFORM.tar.gz)
-    [[ -f $M4_TARFILE ]] || exitFailure 10 "No m4 tarfile $INPUT/m4-$PLATFORM.tar.gz"
+    local M4_TARFILE=$(ls $INPUT/m4-linux.tar.gz)
+    [[ -f $M4_TARFILE ]] || exitFailure 10 "No m4 tarfile $INPUT/m4-linux.tar.gz"
 
     tar xzf $M4_TARFILE
     export PATH=/build/input/m4/bin:$PATH
@@ -147,22 +147,13 @@ mkdir -p log
 LOG=$BASE/log/build.log
 date | tee -a $LOG | tee /tmp/build.log
 
-unamestr=$(uname)
-PLATFORM=`uname -s | LC_ALL=C tr '[:upper:]' '[:lower:]' | LC_ALL=C tr -d '-'`
-
-
-BUILDARCH=$unamestr-$cpustr
-
-echo "Build architecture is $BUILDARCH"
 
 SECURITY_CPP="-D_FORTIFY_SOURCE=2"
 SECURITY_COMPILE="-fstack-protector-all"
 SECURITY_LINK="-Wl,-z,relro,-z,now -fstack-protector-all"
 
-SYMBOLS=-g
-OPTIMIZE=-O2
 CPP_OPTIONS="$SECURITY_CPP -std=c++17"
-COMPILE_OPTIONS="$SYMBOLS $OPTIMIZE $MLP $SECURITY_COMPILE"
+COMPILE_OPTIONS="-g -O2 $SECURITY_COMPILE"
 OPTIONS="$COMPILE_OPTIONS $SECURITY_CPP"
 LINK_OPTIONS="$SECURITY_LINK"
 
