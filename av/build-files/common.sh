@@ -15,33 +15,11 @@ function failure()
     exitFailure 1 "$@"
 }
 
-function set_gcc_make()
-{
-    if [[ -d /build/input/gcc ]]
-    then
-        ## Already unpacked
-        echo "WARNING: Using existing unpacked gcc"
-        export PATH=/build/input/gcc/bin:$PATH
-        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
-        export CC=/build/input/gcc/bin/gcc
-        export CXX=/build/input/gcc/bin/g++
-    elif [[ -f /usr/local/bin/gcc ]]
-    then
-        ## Locally built gcc
-        echo "WARNING: Using gcc from /usr/local/bin"
-        export PATH=/usr/local/bin:$PATH
-        export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH
-        export CC=/usr/local/bin/gcc
-        export CXX=/usr/local/bin/g++
-    fi
-}
-
 function unpack_scaffold_gcc_make()
 {
     local INPUT="$1"
 
-    local GCC_TARFILE
-    GCC_TARFILE=$(ls $INPUT/gcc-*-$PLATFORM.tar.gz || true)
+    local GCC_TARFILE=$(ls $INPUT/gcc-*-linux.tar.gz)
     if [[ -f $GCC_TARFILE ]]
     then
         if [[ -z "$NO_REMOVE_GCC" ]]
@@ -82,8 +60,7 @@ function unpack_scaffold_gcc_make()
     GCC=$(which gcc)
     [[ -x $GCC ]] || exitFailure 50 "No gcc is available"
 
-    local MAKE_TARFILE
-    MAKE_TARFILE=$(ls $INPUT/make-*-$PLATFORM.tar.gz 2>/dev/null || true)
+    local MAKE_TARFILE=$(ls $INPUT/make-*-linux.tar.gz 2>/dev/null)
     if [[ -f $MAKE_TARFILE ]]
     then
         if [[ -z "$NO_REMOVE_MAKE" ]]
@@ -93,37 +70,26 @@ function unpack_scaffold_gcc_make()
         fi
 
         mkdir -p /build/input
-        pushd /build/input || exitFailure 50 "Failed to pushd /build/input"
+        pushd /build/input
         tar xzf $MAKE_TARFILE
-        popd || exitFailure 50 "Failed to popd"
+        popd
 
         export PATH=/build/input/make/bin:$PATH
     else
-        echo "INFO: Building with OS make"
+        echo "WARNING: Building with OS make"
     fi
     which make
     MAKE=$(which make)
     [[ -x $MAKE ]] || exitFailure 51 "No make is available"
 
-    local BINUTILS_TARFILE
-    BINUTILS_TARFILE=$(ls $INPUT/binutils*-$PLATFORM.tar.gz 2>/dev/null || true)
+    local BINUTILS_TARFILE=$(ls $INPUT/binutils*-linux.tar.gz 2>/dev/null)
     if [[ -f $BINUTILS_TARFILE ]]
     then
         tar xzf $BINUTILS_TARFILE
         export PATH=/build/input/binutils/bin:$PATH
         export LD_LIBRARY_PATH=/build/input/binutils/lib:$LD_LIBRARY_PATH
     else
-        echo "INFO: Building with OS binutils"
-    fi
-
-    if [[ -x $(which yum) ]] && (( $(id -u) == 0 ))
-    then
-        echo "Before Edit:"
-        cat /etc/yum.repos.d/CentOS-Base.repo
-        sed -i -e's/abn-engrepo.eng.sophos/abn-centosrepo/g' /etc/yum.repos.d/CentOS-Base.repo
-        echo "After Edit:"
-        cat /etc/yum.repos.d/CentOS-Base.repo
-        yum -y install libcap-devel || true
+        echo "Warning: Building with OS binutils"
     fi
 }
 
@@ -133,14 +99,14 @@ function unpack_scaffold_autotools()
     local INPUT="$1"
 
     mkdir -p /build/input
-    pushd /build/input || exitFailure 50 "Failed to pushd /build/input"
+    pushd /build/input
 
-    [[ -f $INPUT/autotools-$PLATFORM.tar.gz ]] || exitFailure 9 "No autotools tarfile"
+    [[ -f $INPUT/autotools-linux.tar.gz ]] || exitFailure 9 "No autotools tarfile"
 
-    tar xzf $INPUT/autotools-$PLATFORM.tar.gz
+    tar xzf $INPUT/autotools-linux.tar.gz
     export PATH=/build/input/autotools/bin:$PATH
 
-    popd || exitFailure 50 "Failed to popd"
+    popd
 }
 
 function unpack_scaffold_m4()
@@ -149,8 +115,8 @@ function unpack_scaffold_m4()
     mkdir -p /build/input
     pushd /build/input
 
-    local M4_TARFILE=$(ls $INPUT/m4-$PLATFORM.tar.gz)
-    [[ -f $M4_TARFILE ]] || exitFailure 10 "No m4 tarfile $INPUT/m4-$PLATFORM.tar.gz"
+    local M4_TARFILE=$(ls $INPUT/m4-linux.tar.gz)
+    [[ -f $M4_TARFILE ]] || exitFailure 10 "No m4 tarfile $INPUT/m4-linux.tar.gz"
 
     tar xzf $M4_TARFILE
     export PATH=/build/input/m4/bin:$PATH
@@ -181,22 +147,13 @@ mkdir -p log
 LOG=$BASE/log/build.log
 date | tee -a $LOG | tee /tmp/build.log
 
-unamestr=$(uname)
-PLATFORM=`uname -s | LC_ALL=C tr '[:upper:]' '[:lower:]' | LC_ALL=C tr -d '-'`
-
-
-BUILDARCH=$unamestr-$cpustr
-
-echo "Build architecture is $BUILDARCH"
 
 SECURITY_CPP="-D_FORTIFY_SOURCE=2"
 SECURITY_COMPILE="-fstack-protector-all"
 SECURITY_LINK="-Wl,-z,relro,-z,now -fstack-protector-all"
 
-SYMBOLS=-g
-OPTIMIZE=-O2
 CPP_OPTIONS="$SECURITY_CPP -std=c++17"
-COMPILE_OPTIONS="$SYMBOLS $OPTIMIZE $MLP $SECURITY_COMPILE"
+COMPILE_OPTIONS="-g -O2 $SECURITY_COMPILE"
 OPTIONS="$COMPILE_OPTIONS $SECURITY_CPP"
 LINK_OPTIONS="$SECURITY_LINK"
 

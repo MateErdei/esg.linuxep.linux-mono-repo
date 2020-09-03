@@ -22,7 +22,7 @@ export OUTPUT
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
-
+## These can't be exitFailure since it doesn't exist till the sourcing is done
 [ -f "$BASE"/build-files/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build-files/common.sh
 
@@ -190,7 +190,6 @@ function untar_input()
 
 function build()
 {
-    local BITS=$1
 
     echo "STARTINGDIR=$STARTINGDIR"
     echo "BASE=$BASE"
@@ -237,6 +236,10 @@ function build()
     export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
     export C_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${C_INCLUDE_PATH}
 
+    echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
+    echo "After setup: CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH}"
+    echo "After setup: C_INCLUDE_PATH=${C_INCLUDE_PATH}"
+    
     [[ -n $CC ]] || CC=$(which gcc)
     [[ -n $CXX ]] || CXX=$(which g++)
     export CC
@@ -247,9 +250,9 @@ function build()
         exit 0
     fi
 
-    [[ $CLEAN == 1 ]] && rm -rf build${BITS}
-    mkdir -p build${BITS}
-    cd build${BITS}
+    [[ $CLEAN == 1 ]] && rm -rf build64
+    mkdir -p build64
+    cd build64
     [[ -n ${NPROC:-} ]] || NPROC=2
     cmake -v -DREDIST="${REDIST}" \
              -DINPUT="${REDIST}" \
@@ -297,9 +300,9 @@ function build()
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
 
-    if [[ -d build${BITS}/symbols ]]
+    if [[ -d build64/symbols ]]
     then
-        cp -a build${BITS}/symbols output/
+        cp -a build64/symbols output/
     fi
 
     if [[ ${BULLSEYE_UPLOAD} == 1 ]]
@@ -315,7 +318,7 @@ function build()
     return 0
 }
 
-build 64 2>&1 | tee -a $LOG
+build 2>&1 | tee -a $LOG
 EXIT=$?
 cp $LOG $OUTPUT/ || true
 exit $EXIT
