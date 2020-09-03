@@ -31,11 +31,7 @@ JENKINS_DIR=$(dirname ${0})
 # If in doubt, consult the default values under the "## SOURCE OVERRIDES" comment in this file
 # Your directory should contain similar things to the default filer6 directory
 
-
 date
-#Sleep to give machines time to stabilise
-sleep 10
-
 
 function fail {
 local msg=${1:-"ERROR"}
