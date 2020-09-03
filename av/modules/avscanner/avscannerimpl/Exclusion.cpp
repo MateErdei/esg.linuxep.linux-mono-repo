@@ -5,7 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "Exclusion.h"
-
+#include "Logger.h"
 #include "PathUtils.h"
 
 #include <regex>
@@ -90,10 +90,14 @@ Exclusion::Exclusion(const std::string& path)
 // isDirectory defaults to false
 bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
 {
+    LOGINFO("-----applesToPath logger-----");
+    LOGINFO("path: " << path);
+    LOGINFO("exclusion: " << m_exclusionPath);
     switch(m_type)
     {
         case STEM:
         {
+            LOGINFO("start with check: " << PathUtils::startswith(path, m_exclusionPath));
             if (PathUtils::startswith(path, m_exclusionPath))
             {
                 return true;

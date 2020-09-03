@@ -111,12 +111,12 @@ namespace
 
         bool excludeDirectory(const sophos_filesystem::path& p) override
         {
-
+            LOGINFO("Checking if folder should be excluded: " << appendForwardSlashToPath(p));
             for (const auto& exclusion : m_cmdExclusions)
             {
                 if (exclusion.appliesToPath(appendForwardSlashToPath(p), true))
                 {
-                    LOGINFO("Excluding folder: " << p);
+                    LOGINFO("Excluding folder: " << appendForwardSlashToPath(p));
                     return true;
                 }
             }
