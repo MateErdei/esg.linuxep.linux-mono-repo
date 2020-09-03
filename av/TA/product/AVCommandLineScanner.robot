@@ -143,7 +143,7 @@ CLS Can Scan Multiple Archive Files
 
       Run Process     tar  -cf  ${SCAN_DIR}/test.tar  ${ARCHIVE_DIR}
       Run Process     tar  -czf  ${SCAN_DIR}/test.tgz  ${ARCHIVE_DIR}
-      Run Process     zip  -r  ${SCAN_DIR}/test.zip  ${ARCHIVE_DIR}
+      Run Process     tar  -cjf  ${SCAN_DIR}/test.tar.bz2  ${ARCHIVE_DIR}
       ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${SCAN_DIR} --scan-archives
 
       Log To Console  return code is ${rc}
@@ -155,9 +155,9 @@ CLS Can Scan Multiple Archive Files
       Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
       Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
       Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.zip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.zip${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.zip${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
       Remove Directory  ${SCAN_DIR}  recursive=True
       Remove Directory  ${ARCHIVE_DIR}  recursive=True
