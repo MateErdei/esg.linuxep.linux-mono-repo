@@ -43,7 +43,7 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket
     {
         if (++count >= MAX_CONN_RETRIES)
         {
-            handle_error("Failed to connect to Sophos Threat Detector, aborting the scan.");
+            handle_error("Failed to connect to Sophos Threat Detector, aborting the scan");
         }
 
         LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying in 1 second");
