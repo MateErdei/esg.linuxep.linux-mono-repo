@@ -87,7 +87,6 @@
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
-        <publishbranches>master</publishbranches>
-        <publishbranches>bugfix-LINUXDAR-2224-directory-exclusions-don-t-stop-excluded-directory-from-being-walked</publishbranches>
+        <publishbranches>master</publishbranches>>
     </publish>
 </package>
