@@ -22,7 +22,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 #include <fcntl.h>
 
-#define handle_error(msg) do { LOGERROR(msg); exit(EXIT_FAILURE); } while(0)
+#define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
 #define MAX_CONN_RETRIES 10
 
@@ -41,12 +41,14 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket
     int count = 0;
     while (ret != 0)
     {
-        LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying in 1 second");
-        sleep(1);
         if (++count >= MAX_CONN_RETRIES)
         {
             handle_error("Failed to connect to Sophos Threat Detector, aborting the scan.");
         }
+
+        LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying in 1 second");
+
+        sleep(1);
         ret = connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
     }
 }
