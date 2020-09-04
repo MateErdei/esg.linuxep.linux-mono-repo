@@ -41,7 +41,7 @@ public:
         return true;
     }
 
-    bool excludeDirectory(const sophos_filesystem::path&) override
+    bool cmdExclusionCheck(const sophos_filesystem::path&) override
     {
         return false;
     }

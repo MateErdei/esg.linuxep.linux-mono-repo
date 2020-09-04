@@ -93,17 +93,11 @@ namespace
                     return false;
                 }
             }
-            for (const auto& exclusion : m_config.m_excludePaths)
-            {
-                if (exclusion.appliesToPath(p) && exclusion.type() != FILENAME)
-                {
-                    return false;
-                }
-            }
-            return true;
+
+            return !cmdExclusionCheck(p);
         }
 
-        bool excludeDirectory(const sophos_filesystem::path& p) override
+        bool cmdExclusionCheck(const sophos_filesystem::path& p) override
         {
             for (const auto& exclusion : m_config.m_excludePaths)
             {

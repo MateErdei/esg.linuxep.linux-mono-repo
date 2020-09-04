@@ -43,7 +43,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     }
     else if (fs::is_directory(starting_point))
     {
-        if (m_callback.excludeDirectory(starting_point))
+        if (m_callback.cmdExclusionCheck(starting_point))
         {
             return;
         }

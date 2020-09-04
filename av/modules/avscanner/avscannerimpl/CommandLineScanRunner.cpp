@@ -97,19 +97,10 @@ namespace
                 }
             }
 
-            for (const auto& exclusion : m_cmdExclusions)
-            {
-                if (exclusion.appliesToPath(appendForwardSlashToPath(p), true))
-                {
-                    LOGINFO("Excluding directory: " << appendForwardSlashToPath(p));
-                    return false;
-                }
-            }
-
-            return true;
+            return !cmdExclusionCheck(p);
         }
 
-        bool excludeDirectory(const sophos_filesystem::path& p) override
+        bool cmdExclusionCheck(const sophos_filesystem::path& p) override
         {
             for (const auto& exclusion : m_cmdExclusions)
             {

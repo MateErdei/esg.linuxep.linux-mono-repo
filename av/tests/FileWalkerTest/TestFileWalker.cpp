@@ -34,7 +34,7 @@ namespace
             return !(filepath.filename() == "b");
         }
 
-        bool excludeDirectory(const sophos_filesystem::path& filepath) override
+        bool cmdExclusionCheck(const sophos_filesystem::path& filepath) override
         {
             return (filepath.filename() == "b");
         }
@@ -55,7 +55,7 @@ namespace
             return true;
         }
 
-        bool excludeDirectory(const sophos_filesystem::path&) override
+        bool cmdExclusionCheck(const sophos_filesystem::path&) override
         {
             return false;
         }
