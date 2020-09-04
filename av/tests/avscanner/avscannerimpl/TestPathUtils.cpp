@@ -20,10 +20,19 @@ TEST(TestPathUtils, TestAppendForwardSlashToPath) // NOLINT
     EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithSlash), pathWithSlash.string());
 }
 
-TEST(TestPathUtils, TestAppendForwardSlashToPathasd) // NOLINT
+TEST(TestPathUtils, TestAppendForwardSlashToPathWithEscapeCharacters) // NOLINT
 {
     fs::path pathWithNoSlash("\1 \2 \3 \4 \5 \6 \016 \017 \020 \021 \022 \023 \024 \025 \026 \027 \030 \031 \032 \033 \034 \035 \036 \037 \177 \a \b \t \n \v \f \r");
-    fs::path pathWithSlash("/path/with/slash/");
+    fs::path pathWithSlash("\1 \2 \3 \4 \5 \6 \016 \017 \020 \021 \022 \023 \024 \025 \026 \027 \030 \031 \032 \033 \034 \035 \036 \037 \177 \a \b \t \n \v \f \r/");
+    PathUtils::appendForwardSlashToPath(pathWithNoSlash);
+    EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithNoSlash), pathWithNoSlash.string() + "/");
+    EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithSlash), pathWithSlash.string());
+}
+
+TEST(TestPathUtils, TestAppendForwardSlashToPathExtendedUnicodeCharacters) // NOLINT
+{
+    fs::path pathWithNoSlash("大夨天太夫");
+    fs::path pathWithSlash("大夨天太夫/");
     PathUtils::appendForwardSlashToPath(pathWithNoSlash);
     EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithNoSlash), pathWithNoSlash.string() + "/");
     EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithSlash), pathWithSlash.string());
