@@ -41,12 +41,15 @@ namespace CommsComponent
         UserConf m_parentUser;
         std::shared_ptr<Common::Logging::FileLoggingSetup> m_logSetup;
         std::vector<ReadOnlyMount> m_listOfDependencyPairs;
+        std::string m_logsBackup;
 
         /*
          * To be called before chroot to set up files for logging
          * Sets logger.conf and logs directory
          */
-        void setupLoggingFiles();
+//        void setupLoggingFiles();
+        void backupLogs();
+        void restoreLogs();
 
     public:
         static void clearFilesOlderThan1Hour();
@@ -79,6 +82,9 @@ namespace CommsComponent
          * drops to the user facing network and go to jail and configure log4cplus
          */
         void applyChildSecurityPolicy();
+
+        //ToDo Remove
+        void setupLoggingFiles();
 
 
     };
