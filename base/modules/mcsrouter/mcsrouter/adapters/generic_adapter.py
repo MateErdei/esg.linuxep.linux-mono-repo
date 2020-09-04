@@ -10,6 +10,7 @@ import time
 import calendar
 import re
 import xml.dom.minidom
+import stat
 
 import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.atomic_write
@@ -90,6 +91,8 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         policy_path_tmp = os.path.join(path_manager.policy_temp_dir(), policy_name)
         mcsrouter.utils.utf8_write.utf8_write(policy_path_tmp, policy)
 
+        # Make sure that policy is group readable so that Management Agent (or plugins) can read the file.
+        os.chmod(policy_path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP )
         return []
 
     def _get_action_name(self, command):
@@ -117,6 +120,9 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
     def _write_tmp_action(self, action_name, body):
         action_path_tmp = os.path.join(path_manager.actions_temp_dir(), action_name)
         mcsrouter.utils.utf8_write.utf8_write(action_path_tmp, body)
+
+        # Make sure that action is group readable so that Management Agent (or plugins) can read the file.
+        os.chmod(action_path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP )
         return action_path_tmp
 
     def _get_status_xml(self):

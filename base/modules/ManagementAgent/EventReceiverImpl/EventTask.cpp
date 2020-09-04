@@ -13,6 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <chrono>
 #include <sstream>
+#include <sys/stat.h>
 
 ManagementAgent::EventReceiverImpl::EventTask::EventTask(std::string appId, std::string eventXml) :
     m_appId(std::move(appId)),
@@ -53,5 +54,5 @@ void ManagementAgent::EventReceiverImpl::EventTask::run()
     Path dest = Common::FileSystem::join(eventDir, basename);
     assert(!dest.empty());
 
-    Common::FileSystem::fileSystem()->writeFileAtomically(dest, m_eventXml, tmpDir);
+    Common::FileSystem::fileSystem()->writeFileAtomically(dest, m_eventXml, tmpDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 }

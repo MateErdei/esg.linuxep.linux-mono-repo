@@ -139,7 +139,7 @@ Verify MCS Router Running After Installation With Registration
     Set Local CA Environment Variable
     Run Full Installer  --mcs-url  https://localhost:4443/mcs  --mcs-token   ThisIsARegToken  --allow-override-mcs-ca
     ${pid} =  Check MCS Router Running
-    Check Process Running As Sophosspl User And Group  ${pid}
+    Check Process Running As Sophosspl Local And Group  ${pid}
     Stop System Watchdog
     Check MCS Router Not Running
 

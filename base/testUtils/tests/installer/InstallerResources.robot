@@ -59,6 +59,14 @@ Start Watchdog
 
 Check Process Running As Sophosspl User And Group
     [Arguments]    ${pid}
+    Check Process Running As User And Group  ${pid}  sophos-spl-user
+
+Check Process Running As Sophosspl Local And Group
+    [Arguments]    ${pid}
+    Check Process Running As User And Group  ${pid}  sophos-spl-local
+
+Check Process Running As User And Group
+    [Arguments]    ${pid}  ${User}
     ${runningUid} =  Run Process    ps  -o  uid  -p  ${pid}
     Log  ${runningUid.stdout}
     ${runningUid} =  Get Regexp Matches  ${runningUid.stdout}  [0-9]+
@@ -67,7 +75,7 @@ Check Process Running As Sophosspl User And Group
     Log  ${runningGid.stdout}
     ${runningGid} =  Get Regexp Matches  ${runningGid.stdout}  [0-9]+
     Log  ${runningGid[0]}
-    ${idOutput} =  Run Process  id  sophos-spl-user
+    ${idOutput} =  Run Process  id  ${User}
     ${expectedUid} =  Get Regexp Matches  ${idOutput.stdout}  uid=([^\(]*)  1
     Log  ${expectedUid[0]}
     ${expectedGid} =  Get Regexp Matches  ${idOutput.stdout}  gid=([^\(]*)  1

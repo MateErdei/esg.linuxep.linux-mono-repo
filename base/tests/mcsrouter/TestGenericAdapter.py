@@ -70,13 +70,13 @@ policyContent = """<?xml version="1.0"?>
 class TestGenericAdapter(unittest.TestCase):
 
     def testGenericProcessCommand(self):
-
         m = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
         self.assertEqual(m.get_app_id(), 'ALC')
         alc_policy = FakeCommand(policyContent)
         mocked_open_function = mock.mock_open()
         with mock.patch("builtins.open", mocked_open_function):
-            m.process_command(alc_policy)
+            with mock.patch("os.chmod", return_value=True):
+                m.process_command(alc_policy)
 
     def testBrokenPolicyShouldNotCrashGenericAdapter(self):
 

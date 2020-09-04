@@ -92,7 +92,7 @@ Actions Folder Out Of Space Does Not Crash MCSRouter
     Remove Directory  ${SOPHOS_INSTALL}/tmp/actions
     ${mountpoint} =  Make Tiny File System  5MB  ${SOPHOS_INSTALL}/tmp/actions
     Chmod  700  ${SOPHOS_INSTALL}/tmp/actions
-    Chown  sophos-spl-user:sophos-spl-group  ${mountpoint}
+    Chown  sophos-spl-local:sophos-spl-group  ${mountpoint}
 
     Make File Of Size And Expect No Space Error  ${SOPHOS_INSTALL}/tmp/actions/bigFile  10MB
     Trigger Update Now

@@ -40,7 +40,7 @@ TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated) // NOLINT
     EXPECT_CALL(
         *filesystemMock,
         writeFileAtomically(
-            MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp"))
+            MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
         .WillOnce(Return());
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -64,12 +64,12 @@ TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCre
         EXPECT_CALL(
             *filesystemMock,
             writeFileAtomically(
-                MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp"))
+                MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
             .WillOnce(SaveArg<0>(&base1));
         EXPECT_CALL(
             *filesystemMock,
             writeFileAtomically(
-                MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp"))
+                MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
             .WillOnce(SaveArg<0>(&base2));
     }
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
