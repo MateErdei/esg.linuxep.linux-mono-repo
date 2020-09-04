@@ -50,7 +50,7 @@ StringVector wdctl_bootstrap::convertArgv(unsigned int argc, char** argv)
 
 int wdctl_bootstrap::main(const StringVector& args)
 {
-    Common::Logging::FileLoggingSetup logSetup("wdctl");
+    Common::Logging::FileLoggingSetup logSetup("wdctl", false);
     return main_afterLogConfigured(args);
 }
 

@@ -53,7 +53,7 @@ namespace CommsComponent
         }
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/");
-        m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_childUser.logName));
+        m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_childUser.logPath.value()));
         LOGINFO(output.str());
     }
 
@@ -87,7 +87,7 @@ namespace CommsComponent
         {
             std::string oldSophosInstall = Common::ApplicationConfiguration::applicationConfiguration().getData(
                     Common::ApplicationConfiguration::SOPHOS_INSTALL);
-            std::vector<Path> loggingDirectories = {"", "base", "base/etc/", "logs", "logs/base"};
+            std::vector<Path> loggingDirectories = {"", "base", "base/etc/", "logs"};
             for (auto& dirpath : loggingDirectories)
             {
                 std::string path = Common::FileSystem::join(m_chrootDir, dirpath);

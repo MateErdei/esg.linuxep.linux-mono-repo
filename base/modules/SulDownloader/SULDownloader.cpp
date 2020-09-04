@@ -436,7 +436,7 @@ namespace SulDownloader
     {
         umask(S_IRWXG | S_IRWXO);
         // Configure logging
-        Common::Logging::FileLoggingSetup loggerSetup("suldownloader");
+        Common::Logging::FileLoggingSetup loggerSetup("suldownloader", false);
         std::unique_ptr<Common::FileSystem::ILockFileHolder> pidLock;
         try
         {

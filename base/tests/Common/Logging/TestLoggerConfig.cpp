@@ -89,7 +89,7 @@ public:
             Common::FileSystem::fileSystem()->removeFile(tempDir.absPath(logspath));
         }
 
-        Common::Logging::FileLoggingSetup setup(productName);
+        Common::Logging::FileLoggingSetup setup(productName, false);
         auto logger = Common::Logging::getInstance(productName);
         LOGDEBUG("productname debug");
         LOGINFO("productname info");

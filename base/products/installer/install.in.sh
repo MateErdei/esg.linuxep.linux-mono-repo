@@ -294,6 +294,7 @@ makedir 700 "${SOPHOS_INSTALL}/var/lock"
 makedir 711 "${SOPHOS_INSTALL}/logs"
 makedir 711 "${SOPHOS_INSTALL}/logs/base"
 makedir 770 "${SOPHOS_INSTALL}/logs/base/sophosspl"
+ln -s "${SOPHOS_INSTALL}/var/sophos-spl-comms/logs" "${SOPHOS_INSTALL}/logs/base/sophos-spl-comms"
 chown "root:" "${SOPHOS_INSTALL}/logs/base"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl"
 

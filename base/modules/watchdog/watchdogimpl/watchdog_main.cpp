@@ -80,7 +80,7 @@ int watchdog_main::main(int argc, char** argv)
     std::string installDir = work_out_install_directory();
     Common::ApplicationConfiguration::applicationConfiguration().setData(
         Common::ApplicationConfiguration::SOPHOS_INSTALL, installDir);
-    Common::Logging::FileLoggingSetup logSetup("watchdog");
+    Common::Logging::FileLoggingSetup logSetup("watchdog", false);
     if (argc > 1)
     {
         LOGERROR("Error, invalid command line arguments. Usage: watchdog");

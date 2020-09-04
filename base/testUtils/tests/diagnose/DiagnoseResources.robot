@@ -53,6 +53,9 @@ Check Diagnose Base Output
     Should Contain  ${Files}    mcsrouter.json
     Should Contain  ${Files}    VERSION.ini
     Should Contain  ${Files}    diagnose.log
+    Should Contain  ${Files}    comms_component.log
+    Should Contain  ${Files}    comms_network.log
+    Should Contain  ${Files}    commscomponent.json
 
     Should Contain  ${GeneratedComponentFiles}  addedFiles_manifest.dat
     Should Contain  ${GeneratedComponentFiles}  changedFiles_manifest.dat

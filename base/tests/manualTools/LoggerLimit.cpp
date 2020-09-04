@@ -49,7 +49,7 @@ int main(int argc, char * argv[])
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp");
 
-    Common::Logging::FileLoggingSetup setup("testlogging");
+    Common::Logging::FileLoggingSetup setup("testlogging", false);
 
     auto logger = Common::Logging::getInstance("mytest");
     for(unsigned long i =0; i < numLines; i++  )

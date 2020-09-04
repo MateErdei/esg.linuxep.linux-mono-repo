@@ -5,7 +5,7 @@ mcs_envelope.log
 updatescheduler.log
 watchdog.log
 comms_component.log
-comms-network.log
+comms_network.log
 wdctl.log
 tscheduler.log
 ALC_status.xml

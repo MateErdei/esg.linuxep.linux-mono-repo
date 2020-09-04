@@ -23,6 +23,12 @@ Common::Logging::FileLoggingSetup::FileLoggingSetup(const std::string& logbase, 
     applyGeneralConfig(logbase);
 }
 
+Common::Logging::FileLoggingSetup::FileLoggingSetup(const Path& logpath)
+{
+    setupFileLoggingWithPath(logpath);
+    applyGeneralConfig(logpath);
+}
+
 Common::Logging::FileLoggingSetup::~FileLoggingSetup()
 {
     log4cplus::Logger::shutdown();

@@ -16,7 +16,7 @@ TEST(TestLoggingSetup, TestConsoleSetup) // NOLINT
 
 TEST(TestLoggingSetup, TestFileSetup) // NOLINT
 {
-    Common::Logging::FileLoggingSetup setup("testlogging");
+    Common::Logging::FileLoggingSetup setup("testlogging", false);
 }
 
 TEST(TestLoggingSetup, TestPluginSetup) // NOLINT
