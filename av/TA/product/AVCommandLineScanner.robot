@@ -354,3 +354,13 @@ CLS Can Scan Infected File Via Symlink To File
    Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToEicar" (symlinked to ${NORMAL_DIRECTORY}/eicar.com) is infected with EICAR-AV-Test
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${NORMAL_DIRECTORY}/symlinkToEicar"
+
+
+CLS Skips The Scanning Of Symlink Targets On Special Mount Points
+   Run Process   ln  -snf  /proc/uptime  ${NORMAL_DIRECTORY}/symlinkToProcUptime
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToProcUptime
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+   Should Contain       ${output.replace("\n", " ")}  Skipping the scanning of symlink target ("/proc/uptime") which is on excluded mount point: "/proc"
+   Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}

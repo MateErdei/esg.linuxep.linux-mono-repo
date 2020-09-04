@@ -45,11 +45,13 @@ namespace
         {
             if (symlinkTarget)
             {
+                fs::path symlinkTargetPath = fs::read_symlink(p);
                 for (const auto& e : m_mountExclusions)
                 {
-                    if (PathUtils::startswith(p, e))
+
+                    if (PathUtils::startswith(symlinkTargetPath, e))
                     {
-                        LOGINFO("Symlink to file on excluded mount point: " << e);
+                        LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is on excluded mount point: " << e);
                         return;
                     }
                 }
