@@ -45,7 +45,11 @@ namespace
         {
             if (symlinkTarget)
             {
-                fs::path symlinkTargetPath = fs::read_symlink(p);
+                fs::path symlinkTargetPath = p;
+                if (fs::is_symlink(fs::symlink_status(p)))
+                {
+                    symlinkTargetPath = fs::read_symlink(p);
+                }
                 for (const auto& e : m_mountExclusions)
                 {
 
