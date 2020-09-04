@@ -34,9 +34,9 @@ ${PORT}        10560
 ${HTTPS_LOG_FILE}     https_server.log
 ${HTTPS_LOG_FILE_PATH}     /tmp/${HTTPS_LOG_FILE}
 ${JAIL_PATH}   /tmp/jail
-${CHILD_JAIL_LOG_PATH}  /tmp/jail/logs/base/logchild.log
+${CHILD_JAIL_LOG_PATH}  /tmp/jail/logs/logchild.log
 ${PARENT_JAIL_LOG_PATH}  /tmp/parent/logs/base/logchild.log
-${CHILD_LOG_PATH}  /opt/sophos-spl/var/sophos-spl-comms/logs/base/logchild.log
+${CHILD_LOG_PATH}  /opt/sophos-spl/var/sophos-spl-comms/logs/logchild.log
 ${PARENT_LOG_PATH}  /opt/sophos-spl/logs/base/sophosspl/logparent.log
 ${PROXY_LOG_PATH}  ./tmp/proxy_server.log
 
