@@ -15,6 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
+#include <log4cplus/fileappender.h>
 #include <log4cplus/logger.h>
 
 log4cplus::Logger& getNamedScanRunnerLogger()
@@ -41,7 +42,7 @@ Logger::Logger(const std::string& fileName, bool isCommandLine)
 
     if (!logfilepath.empty())
     {
-        Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(logfilepath);
+        setupFileLoggingWithPath(logfilepath);
     }
     Common::Logging::applyGeneralConfig(PLUGIN_NAME);
 }
@@ -49,4 +50,20 @@ Logger::Logger(const std::string& fileName, bool isCommandLine)
 Logger::~Logger()
 {
     log4cplus::Logger::shutdown();
+}
+
+// Same as Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(const std::string& logfilepath) but does not log to stderr
+void Logger::setupFileLoggingWithPath(std::string logfilepath)
+{
+    log4cplus::initialize();
+
+    log4cplus::tstring datePattern;
+    const long maxFileSize = 10 * 1024 * 1024;
+    const int maxBackupIndex = 10;
+    const bool immediateFlush = false;
+    const bool createDirs = true;
+    log4cplus::SharedAppenderPtr appender(
+            new log4cplus::RollingFileAppender(logfilepath, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
+    Common::Logging::LoggingSetup::applyDefaultPattern(appender);
+    log4cplus::Logger::getRoot().addAppender(appender);
 }
