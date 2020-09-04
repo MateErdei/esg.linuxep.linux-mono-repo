@@ -217,7 +217,7 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
 
     fs::remove_all("/tmp/sandbox");
 
-    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Excluding directory: /tmp/sandbox/a/b/"));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/d/file2.txt"));
 
@@ -246,7 +246,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOL
 
     fs::remove_all("/tmp/sandbox");
 
-    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Excluding directory: /tmp/sandbox/a/b/"));
     ASSERT_TRUE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
 
@@ -299,7 +299,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOL
 
     fs::remove_all("/tmp/sandbox");
 
-    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Excluding directory: /tmp/sandbox/a/b/"));
     ASSERT_TRUE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
 
@@ -330,8 +330,8 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusions) // NOLINT
 
     fs::remove_all("/tmp/sandbox");
 
-    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
-    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/a/f/"));
+    ASSERT_TRUE(appenderContains("Excluding directory: /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Excluding directory: /tmp/sandbox/a/f/"));
     ASSERT_FALSE(appenderContains("Scanning /tmp/sandbox/a/b/file1.txt"));
     ASSERT_FALSE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
@@ -385,9 +385,9 @@ TEST_F(TestCommandLineScanRunner, excludeNamedFolders) // NOLINT
     EXPECT_NO_THROW( runner.run());
     fs::remove_all("/tmp/sandbox");
 
-    ASSERT_TRUE(appenderContains("Excluding folder: /tmp/sandbox/"));
-    ASSERT_FALSE(appenderContains("Excluding folder: /tmp/sandbox/a/b/"));
-    ASSERT_FALSE(appenderContains("Excluding folder: /tmp/sandbox/a/f/"));
+    ASSERT_TRUE(appenderContains("Excluding directory: /tmp/sandbox/"));
+    ASSERT_FALSE(appenderContains("Excluding directory: /tmp/sandbox/a/b/"));
+    ASSERT_FALSE(appenderContains("Excluding directory: /tmp/sandbox/a/f/"));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
     ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/f/file2.txt"));
     ASSERT_FALSE(appenderContains("Scanning /tmp/sandbox/a/b/file1.txt"));
