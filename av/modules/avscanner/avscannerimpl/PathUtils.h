@@ -44,6 +44,15 @@ namespace avscanner::avscannerimpl
                 return false;
             }
         }
+
+        static std::string appendForwardSlashToPath(const sophos_filesystem::path& p)
+        {
+            if (p.string().at(p.string().size()-1) != '/')
+            {
+                return p.string() + "/";
+            }
+            return p.string();
+        }
     };
 }
 
