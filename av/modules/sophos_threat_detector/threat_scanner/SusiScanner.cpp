@@ -96,8 +96,8 @@ SusiScanner::scan(
         {
             LOGTRACE("Scanning result details: " << scanResult->version << ", " << scanResult->scanResultJson);
             std::string scanResultUTF8 = common::toUtf8(scanResult->scanResultJson, false);
-
             LOGTRACE("Converted to UTF8: " << scanResultUTF8);
+            response.setFullScanResult(scanResultUTF8);
 
             json parsedScanResult = json::parse(scanResultUTF8);
             for (auto result : parsedScanResult["results"])
@@ -123,6 +123,7 @@ SusiScanner::scan(
         std::vector<std::pair<std::string, std::string>> detections = response.getDetections();
         if (detections.empty())
         {
+            // Failed to parse SUSI scan report but the return code shows that we detected a threat
             response.addDetection(file_path, "unknown");
             sendThreatReport(file_path, "unknown", scanType, userID);
         }
@@ -134,8 +135,9 @@ SusiScanner::scan(
             }
         }
     }
-    else if (res == SUSI_E_SCANABORTED)
+    else if (res == SUSI_E_SCANABORTED || res == SUSI_I_SCANDATAPRESENT)
     {
+        // Return codes that cover zip bombs, corrupted files and password-protected files
         std::stringstream errorMsg;
         errorMsg << "Scanning of " << file_path << " was aborted";
         response.setErrorMsg(errorMsg.str());
