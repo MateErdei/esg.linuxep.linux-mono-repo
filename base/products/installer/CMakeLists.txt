@@ -42,7 +42,11 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/Diagnose/DiagnosePaths.conf
         DESTINATION files/base/etc
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
-install(FILES ${CMAKE_SOURCE_DIR}/products/installer/DowngradePaths.conf
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/downgradepaths.dat
+        DESTINATION files/base/etc
+        PERMISSIONS OWNER_READ OWNER_WRITE)
+
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/backupfileslist.dat
         DESTINATION files/base/etc
         PERMISSIONS OWNER_READ OWNER_WRITE)
 

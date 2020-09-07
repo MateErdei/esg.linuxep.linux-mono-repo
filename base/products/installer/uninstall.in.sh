@@ -32,11 +32,16 @@ fi
 
 # Check the customer wants to uninstall
 FORCE=0
+DOWNGRADE=0
+
 while [[ $# -ge 1 ]]
 do
     case $1 in
         --force)
             FORCE=1
+            ;;
+        --downgrade)
+            DOWNGRADE=1
             ;;
     esac
     shift
@@ -93,7 +98,12 @@ then
     for UNINSTALLER in "$PLUGIN_UNINSTALL_DIR"/*
     do
         UNINSTALLER_BASE=${UNINSTALLER##*/}
-        bash "$UNINSTALLER" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
+        if (( $DOWNGRADE == 0 ))
+        then
+          bash "$UNINSTALLER " || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
+        else
+          bash "$UNINSTALLER --downgrade" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
+        fi
     done
 else
     echo "Can't uninstall plugins: $PLUGIN_UNINSTALL_DIR doesn't exist"
@@ -103,7 +113,31 @@ removeWatchdogSystemdService || failure "Failed to remove watchdog service files
 
 CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
 unmountCommsComponentDependencies ${CommsComponentChroot}
-rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
+
+if (( $DOWNGRADE == 0 ))
+then
+  rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
+else
+  input=$SOPHOS_INSTALL/base/etc/backupfileslist.dat
+  while IFS= read -r line
+  do
+  if [[ -f "$SOPHOS_INSTALL/$line" ]]
+  then
+    DIR=${line%/*}
+    mkdir -p "$SOPHOS_INSTALL/$DIR/backup-logs"
+    mv "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/$DIR/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
+  elif [[ -d "$SOPHOS_INSTALL/$line" ]]
+  then
+    mkdir -p "$SOPHOS_INSTALL/$line/backup-logs"
+    mv "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/$line/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
+  fi
+  done < "$input"
+  input=$SOPHOS_INSTALL/base/etc/downgradepaths.dat
+  while IFS= read -r line
+  do
+    rm -rf "$SOPHOS_INSTALL/$line" || failure "Failed to remove file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
+  done < "$input"
+fi
 
 PATH=$PATH:/usr/sbin:/sbin
 
