@@ -30,7 +30,6 @@ namespace CommsComponent
         std::string userName;
         std::string userGroup;
         std::string logName;
-        std::optional<Path> logPath = std::nullopt;
     };
 
     using ReadOnlyMount = std::pair<std::string, std::string>;

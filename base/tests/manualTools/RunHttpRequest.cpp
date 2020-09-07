@@ -203,8 +203,8 @@ int runUnmountPaths(const std::string & chroot)
 int runHttpRequestsInTheJail(Config& config)
 {
     using namespace CommsComponent; 
-    CommsComponent::UserConf parentConf{config.parentUser, config.parentGroup, "logparent", std::nullopt};
-    CommsComponent::UserConf childConf{config.childUser, config.childGroup, "logchild", "/logs/logchild.log"};
+    CommsComponent::UserConf parentConf{config.parentUser, config.parentGroup, "logparent"};
+    CommsComponent::UserConf childConf{config.childUser, config.childGroup, "logchild"};
     CommsComponent::CommsConfigurator configurator(config.jailRoot, childConf, parentConf, CommsComponent::CommsConfigurator::getListOfDependenciesToMount());
 
 

@@ -53,7 +53,8 @@ namespace CommsComponent
         }
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/");
-        m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_childUser.logPath.value()));
+        Path logPath = Common::FileSystem::join("/logs", m_childUser.logName + ".log");
+        m_logSetup.reset(new Common::Logging::FileLoggingSetup(logPath));
         LOGINFO(output.str());
     }
 

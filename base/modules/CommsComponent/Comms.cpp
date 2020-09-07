@@ -29,7 +29,6 @@ namespace CommsComponent {
         UserConf childUser; 
         UserConf parentUser;
         childUser.logName="comms_network";
-        childUser.logPath = Common::FileSystem::join("/logs", childUser.logName + ".log");
         childUser.userName = sophos::networkUser();
         childUser.userGroup = sophos::localGroup(); 
 
