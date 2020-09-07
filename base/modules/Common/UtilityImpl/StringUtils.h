@@ -165,13 +165,16 @@ namespace Common
 
             static bool isVersionOlder(const std::string& currentVersion, const std::string& newVersion)
             {
-                if( (currentVersion.find_first_not_of("1234567890.") != std::string::npos ) ||
-                     (newVersion.find_first_not_of("1234567890.") != std::string::npos ))
+                // we are using this to check if the new version is older than the current version
+                //  current version = 1.2   new/warehouse version = 1.3 -> false
+                //  current version = 1.2   new/warehouse version = 1 -> true
+                if (currentVersion.find_first_not_of("1234567890.") != std::string::npos  ||
+                     newVersion.find_first_not_of("1234567890.") != std::string::npos)
                 {
                     throw std::invalid_argument("Invalid version data provided version" + currentVersion + ":" + newVersion );
                 }
 
-                if(currentVersion == newVersion)
+                if (currentVersion == newVersion)
                 {
                     return false;
                 }
