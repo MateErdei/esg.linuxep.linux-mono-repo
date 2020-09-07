@@ -52,7 +52,6 @@ namespace
                 return false;
             }
         }
-        std::cout << "isSafeToPurgeChroot" << std::endl;
         return true;
     }
 
