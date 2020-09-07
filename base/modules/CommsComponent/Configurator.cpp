@@ -305,7 +305,7 @@ namespace CommsComponent
     void CommsConfigurator::restoreLogs()
     {
         auto fs = Common::FileSystem::fileSystem();
-        auto logsDir = Common::FileSystem::join(m_chrootDir, "logs/base/");
+        auto logsDir = Common::FileSystem::join(m_chrootDir, "logs");
         auto backup = getLogsBackUpPath(m_childUser.logName);
         if(!fs->exists(logsDir) || !fs->exists(backup))
         {
@@ -327,7 +327,7 @@ namespace CommsComponent
     void CommsConfigurator::backupLogs()
     {
         auto fs = Common::FileSystem::fileSystem();
-        auto logsDir = Common::FileSystem::join(m_chrootDir,"logs/base/");
+        auto logsDir = Common::FileSystem::join(m_chrootDir,"logs");
         if (fs->exists(logsDir))
         {
             auto listOfFiles = fs->listFiles(logsDir);
