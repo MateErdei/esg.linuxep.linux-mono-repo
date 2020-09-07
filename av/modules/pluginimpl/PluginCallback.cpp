@@ -61,7 +61,7 @@ namespace Plugin
         std::optional<std::string> version = Plugin::getVersion();
         if (version)
         {
-            telemetry.set(Plugin::version, version.value());
+            telemetry.set(Plugin::Telemetry::version, version.value());
         }
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);

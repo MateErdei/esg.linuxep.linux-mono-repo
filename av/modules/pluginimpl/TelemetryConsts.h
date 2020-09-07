@@ -6,5 +6,8 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
-    const char* const version = "version";
-}
+    namespace Telemetry
+    {
+        const char *const version = "version";
+    } // namespace Telemetry
+} // namespace Plugin
