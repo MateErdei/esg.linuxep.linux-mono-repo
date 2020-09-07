@@ -86,6 +86,7 @@ CLS Can Scan Clean File
 
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
+    Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/clean_file was aborted
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
