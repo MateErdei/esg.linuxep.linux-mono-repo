@@ -26,7 +26,6 @@ while [[ $# -ge 1 ]]
 do
     case $1 in
         --downgrade)
-            shift
             DOWNGRADE=1
             ;;
     esac
