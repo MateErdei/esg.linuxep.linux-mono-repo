@@ -13,7 +13,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
-#include "common/AbortScanException.h"
 #include "filewalker/FileWalker.h"
 
 #include <common/StringUtils.h>
@@ -46,17 +45,11 @@ namespace
         {
             if (symlinkTarget)
             {
-                fs::path symlinkTargetPath = p;
-                if (fs::is_symlink(fs::symlink_status(p)))
-                {
-                    symlinkTargetPath = fs::read_symlink(p);
-                }
                 for (const auto& e : m_mountExclusions)
                 {
-
-                    if (PathUtils::startswith(symlinkTargetPath, e))
+                    if (PathUtils::startswith(p, e))
                     {
-                        LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is on excluded mount point: " << e);
+                        LOGINFO("Symlink to file on excluded mount point: " << e);
                         return;
                     }
                 }
@@ -69,7 +62,7 @@ namespace
             {
                 if (exclusion.appliesToPath(p))
                 {
-                    LOGINFO("Excluding file: " << p);
+                    LOGINFO("Excluding " << p);
                     return;
                 }
             }
@@ -82,8 +75,9 @@ namespace
             }
             catch (const std::exception& e)
             {
+                LOGERROR("Failed to scan " << escapedPath << " [" << e.what() << "] failed");
+
                 m_returnCode = E_GENERIC_FAILURE;
-                throw AbortScanException(e.what());
             }
         }
 
@@ -97,21 +91,16 @@ namespace
                 }
             }
 
-            return !cmdExclusionCheck(p);
-        }
-
-        bool cmdExclusionCheck(const sophos_filesystem::path& p) override
-        {
             for (const auto& exclusion : m_cmdExclusions)
             {
-                if (exclusion.appliesToPath(appendForwardSlashToPath(p), true))
+                if (exclusion.appliesToPath(p, true))
                 {
-                    LOGINFO("Excluding directory: " << appendForwardSlashToPath(p));
-                    return true;
+                    LOGINFO("Excluding " << p);
+                    return false;
                 }
             }
 
-            return false;
+            return true;
         }
 
         void setCurrentInclude(const fs::path& inclusionPath)
@@ -125,15 +114,6 @@ namespace
                     m_currentExclusions.emplace_back(e);
                 }
             }
-        }
-
-        std::string appendForwardSlashToPath(const sophos_filesystem::path& p)
-        {
-            if (p.string().at(p.string().size()-1) != '/')
-            {
-                return p.string() + "/";
-            }
-            return p.string();
         }
 
     private:
@@ -205,18 +185,29 @@ int CommandLineScanRunner::run()
         LOGINFO("Exclusions: " << oss.str());
     }
 
-    try
-    {
-        auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
-        ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
-        CallbackImpl callbacks(std::move(scanner), excludedMountPoints, cmdExclusions);
+    auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
+    ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
+    CallbackImpl callbacks(std::move(scanner), excludedMountPoints, cmdExclusions);
 
-        // for each select included mount point call filewalker for that mount point
-        for (const auto& path : m_paths)
+    // for each select included mount point call filewalker for that mount point
+    for (auto& path : m_paths)
+    {
+        if( path.at(0) == '.'
+         or path.find("/./") != std::string::npos
+         or path.find("/../") != std::string::npos)
+        {
+            path = fs::canonical(path);
+        }
+
+        try
         {
             auto p = fs::absolute(path);
             callbacks.setCurrentInclude(p);
             filewalker::walk(p, callbacks);
+        }
+        catch (fs::filesystem_error& e)
+        {
+            m_returnCode = e.code().value();
         }
 
         // we want virus found to override any other return code
@@ -228,14 +219,6 @@ int CommandLineScanRunner::run()
         {
             m_returnCode = callbacks.returnCode();
         }
-    }
-    catch (fs::filesystem_error& e)
-    {
-        m_returnCode = e.code().value();
-    }
-    catch (const AbortScanException& e)
-    {
-        LOGERROR(e.what());
     }
 
     return m_returnCode;
