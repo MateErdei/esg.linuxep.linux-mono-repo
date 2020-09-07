@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 #include <optional>
+#include <algorithm>
 
 #include <Common/FileSystem/IFileSystem.h>
 
@@ -143,7 +144,7 @@ namespace Common
 
             static void enforceUTF8(const std::string& input);
 
-            static std::string extractValueFromIniFile(const std::string& filePath, const std::string& key)
+            static std::optional<std::string> extractValueFromIniFile(const std::string& filePath, const std::string& key)
             {
                 auto fs = Common::FileSystem::fileSystem();
                 if (fs->isFile(filePath))
@@ -157,7 +158,7 @@ namespace Common
                             return list[1].erase(0,1);
                         }
                     }
-                    throw std::runtime_error("key "+ key + " doesn't exist in file: "+ filePath);
+                    return std::nullopt;
                 }
                 throw std::runtime_error("File doesn't exist :" + filePath);
             }
@@ -175,8 +176,13 @@ namespace Common
                     return false;
                 }
 
+                std::string space = "";
+
                 std::vector<std::string> version1 = splitString(currentVersion,".");
+                version1.erase(std::remove(version1.begin(), version1.end(), space), version1.end());
+
                 std::vector<std::string> version2 = splitString(newVersion,".");
+                version2.erase(std::remove(version2.begin(), version2.end(), space), version2.end());
 
                 int maxIndex = std::min(version1.size(), version2.size());
 
