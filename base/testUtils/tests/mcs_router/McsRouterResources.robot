@@ -262,4 +262,4 @@ Check Current Proxy Is Created With Correct Content And Permissions
     ${currentProxyFilePath} =  Set Variable  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
     ${currentProxyContents} =  Get File  ${currentProxyFilePath}
     Should Contain  ${currentProxyContents}  ${content}
-    Ensure Owner and Group Matches  ${currentProxyFilePath}  sophos-spl-user  sophos-spl-group
+    Ensure Owner and Group Matches  ${currentProxyFilePath}  sophos-spl-local  sophos-spl-group

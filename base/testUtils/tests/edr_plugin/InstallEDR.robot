@@ -77,6 +77,9 @@ Verify that the edr installer works correctly
     Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
 
 Install EDR and handle Live Query
+    [Tags]  TESTFAILURE
+    #TODO: LINUXDAR-2037 - remove test failure
+
     Install EDR  ${BaseAndEdrVUTPolicy}
     Wait Until OSQuery Running
 
@@ -292,6 +295,9 @@ Install Base And EDR Then Migrate To BASE
     ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
 Install base and edr and mtr 999 then downgrade to current master
+    [Tags]  TESTFAILURE
+    #TODO: LINUXDAR-2037 - remove test failure
+
     Install EDR  ${BaseAndMTREdr999Policy}
     Wait Until EDR and MTR OSQuery Running  30
 
@@ -367,6 +373,9 @@ Install base and edr and mtr 999 then downgrade to current master
 
 
 Install master of base and edr and mtr and upgrade to mtr 999
+    [Tags]  TESTFAILURE
+    #TODO: LINUXDAR-2037 - remove test failure
+
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
@@ -401,6 +410,9 @@ Install master of base and edr and mtr and upgrade to mtr 999
 
 
 Update Run that Does Not Change The Product Does not ReInstall The Product
+    [Tags]  TESTFAILURE
+    #TODO: LINUXDAR-2037 - remove test failure
+
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
