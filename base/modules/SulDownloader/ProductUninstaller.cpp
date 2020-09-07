@@ -104,7 +104,7 @@ namespace SulDownloader
             std::stringstream errorMessage;
             try
             {
-                process->exec(uninstallScript, {"--downgrade"}, {});
+                process->exec(uninstallScript, {"--downgrade", "--force"}, {});
                 auto output = process->output();
                 LOGSUPPORT(output);
                 exitCode = process->exitCode();

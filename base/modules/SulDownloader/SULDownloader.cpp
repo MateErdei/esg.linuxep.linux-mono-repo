@@ -145,9 +145,25 @@ namespace SulDownloader
             {
                 std::string localVersionIni = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(rigidName);
                 std::string currentVersion = StringUtils::extractValueFromIniFile(localVersionIni, "PRODUCT_VERSION");
-                std::string newVersion = StringUtils::extractValueFromIniFile(warehouseVersionIni, "PRODUCT_VERSION");
+                std::string newVersion("");
+                try
+                {
+                    newVersion =
+                        StringUtils::extractValueFromIniFile(warehouseVersionIni, "PRODUCT_VERSION");
+                }
+                catch(std::runtime_error& ex)
+                {
+                    LOGINFO("Failed to read VERSION.ini from warehouse for: '" << rigidName << "', treating as downgrade");
+                }
 
-                product.setProductWillBeDowngraded(StringUtils::isVersionOlder(currentVersion, newVersion));
+                if(newVersion.empty())
+                {
+                    product.setProductWillBeDowngraded(true);
+                }
+                else
+                {
+                    product.setProductWillBeDowngraded(StringUtils::isVersionOlder(currentVersion, newVersion));
+                }
             }
             catch (std::runtime_error& ex)
             {

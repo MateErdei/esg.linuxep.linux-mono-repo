@@ -35,19 +35,20 @@ Simple Downgrade Test
     Create File  ${SOPHOS_INSTALL}/bin/blah
 
     ${result} =  Run Process   ${SOPHOS_INSTALL}/bin/uninstall.sh  --downgrade  --force
-    log to console  ${result.stdout}
+
     Should Be Equal As Integers    ${result.rc}    0
+    Should not exist  ${SOPHOS_INSTALL}/bin/blah
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
     Copy Directory  ${distribution}  /opt/tmp/version2
     Replace Version  ${BaseDevVersion}   0.1.1  /opt/tmp/version2
+
     ${result} =  Run Process  chmod  +x  /opt/tmp/version2/install.sh
-
     Should Be Equal As Integers    ${result.rc}    0
+
     ${result} =  Run Process  /opt/tmp/version2/install.sh
-
     Should Be Equal As Integers    ${result.rc}    0
-    File Should not exist ${SOPHOS_INSTALL}/bin/blah
+
     ${BaseDevVersion2} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
     Should Not Be Equal As Strings  ${BaseDevVersion}  ${BaseDevVersion2}
 
