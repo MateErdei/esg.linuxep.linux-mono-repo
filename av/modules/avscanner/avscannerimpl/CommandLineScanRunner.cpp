@@ -166,14 +166,13 @@ int CommandLineScanRunner::run()
     for (auto& exclusion : m_exclusions)
     {
         if( exclusion.at(0) == '.'
-            or exclusion.find("/./") != std::string::npos
-            or exclusion.find("/../") != std::string::npos)
+            or exclusion.find("/.") != std::string::npos)
         {
-                exclusion = fs::canonical(exclusion);
-                if(fs::is_directory(exclusion))
-                {
-                    exclusion.append("/");
-                }
+            exclusion = fs::canonical(exclusion);
+            if(fs::is_directory(exclusion))
+            {
+                exclusion.append("/");
+            }
         }
 
         oss << exclusion << ", ";
@@ -193,8 +192,7 @@ int CommandLineScanRunner::run()
     for (auto& path : m_paths)
     {
         if( path.at(0) == '.'
-         or path.find("/./") != std::string::npos
-         or path.find("/../") != std::string::npos)
+         or path.find("/.") != std::string::npos)
         {
             path = fs::canonical(path);
         }
