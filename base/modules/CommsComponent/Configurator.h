@@ -47,7 +47,7 @@ namespace CommsComponent
          * To be called before chroot to set up files for logging
          * Sets logger.conf and logs directory
          */
-//        void setupLoggingFiles();
+        void setupLoggingFiles();
         void backupLogs();
         void restoreLogs();
 
@@ -82,9 +82,6 @@ namespace CommsComponent
          * drops to the user facing network and go to jail and configure log4cplus
          */
         void applyChildSecurityPolicy();
-
-        //ToDo Remove
-        void setupLoggingFiles();
 
 
     };

@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/SecurityUtils/ProcessSecurityUtils.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <CommsComponent/CommsComponentUtils.h>
@@ -21,6 +22,47 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 
 #include <thread>
+
+namespace
+{
+    std::string getLogsBackUpPath(const std::string& logName)
+    {
+        std::stringstream backupName;
+        backupName << logName << "_backup";
+
+        return Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getTempPath(), backupName.str());
+    }
+
+    std::vector<std::string> getMountedEntitiesFromDependencies(const std::string& chrootDir, const std::vector<CommsComponent::ReadOnlyMount>& listOfDependencies)
+    {
+        std::vector<std::string> mountedPaths;
+        for (auto& mountOption : listOfDependencies)
+        {
+            std::string pathMounted = Common::UtilityImpl::StringUtils::startswith(mountOption.second, "/")
+                                      ? mountOption.second.substr(1) : mountOption.second;
+            mountedPaths.emplace_back(Common::FileSystem::join(chrootDir, mountOption.second));
+        }
+        return mountedPaths;
+    }
+
+    bool isSafeToPurgeChroot(const std::string& chrootDir, const std::vector<CommsComponent::ReadOnlyMount>& listOfDependencies)
+    {
+        std::stringstream out;
+        auto listOfMountedPaths = getMountedEntitiesFromDependencies(chrootDir, listOfDependencies);
+        for (auto &mountedPath : listOfMountedPaths)
+        {
+            auto isOurFreeMountLocation = Common::SecurityUtils::isFreeMountLocation(mountedPath, out);
+            if (!isOurFreeMountLocation)
+            {
+                std::cerr << "Unexpected files under chroot path: " << out.str();
+                return false;
+            }
+        }
+        std::cout << "isSafeToPurgeChroot" << std::endl;
+        return true;
+    }
+
+}
 namespace CommsComponent
 {
     void NullConfigurator::applyChildSecurityPolicy()
@@ -36,25 +78,42 @@ namespace CommsComponent
     void CommsConfigurator::applyChildSecurityPolicy()
     {
         std::stringstream output;
-        cleanDefaultMountedPaths(m_chrootDir);
-        Common::FileSystem::fileSystem()->removeFileOrDirectory(m_chrootDir);
-
-        //create fresh chroot dir
-        Common::FileSystem::fileSystem()->makedirs(m_chrootDir);
-        Common::FileSystem::filePermissions()->chown(m_chrootDir, m_childUser.userName, m_childUser.userGroup);
-
-        setupLoggingFiles();
-
         try
         {
+            if(Common::FileSystem::fileSystem()->exists(m_chrootDir))
+            {
+                cleanDefaultMountedPaths(m_chrootDir);
+                backupLogs();
+                if(!isSafeToPurgeChroot(m_chrootDir, m_listOfDependencyPairs))
+                {
+                    std::cout << "isSafeToPurgeChroot said false" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                Common::FileSystem::fileSystem()->removeFileOrDirectory(m_chrootDir);
+            }
+
+            //create fresh chroot dir
+            Common::FileSystem::fileSystem()->makedirs(m_chrootDir);
+            Common::FileSystem::filePermissions()->chown(m_chrootDir, m_childUser.userName, m_childUser.userGroup);
+
+            setupLoggingFiles();
+            restoreLogs();
+
             if (mountDependenciesReadOnly(m_childUser, m_listOfDependencyPairs, m_chrootDir, output)
                 == CommsConfigurator::MountOperation::MountFailed)
             {
                 throw Common::SecurityUtils::FatalSecuritySetupFailureException("Failed to configure the mount points");
             }
-            //Common::SecurityUtils::chrootAndDropPrivileges(m_childUser.userName, m_childUser.userGroup, m_chrootDir, output);
+            Common::SecurityUtils::chrootAndDropPrivileges(m_childUser.userName, m_childUser.userGroup, m_chrootDir,
+                                                           output);
         }
         catch (Common::SecurityUtils::FatalSecuritySetupFailureException& ex)
+        {
+            std::cout << output.str() << std::endl;
+            std::cerr << ex.what() << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
         {
             std::cout << output.str() << std::endl;
             std::cerr << ex.what() << std::endl;
@@ -109,7 +168,7 @@ namespace CommsComponent
             Path loggerConfRelativePath = "base/etc/logger.conf";
             auto loggerConfSrc = Common::FileSystem::join(oldSophosInstall, loggerConfRelativePath);
             auto loggerConfDst = Common::FileSystem::join(m_chrootDir, loggerConfRelativePath);
-            Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, 440,
+            Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, 0440,
                                                                         m_childUser.userName, m_childUser.userGroup);
 
         }
@@ -180,14 +239,11 @@ namespace CommsComponent
     std::vector<ReadOnlyMount> CommsConfigurator::getListOfDependenciesToMount()
     {
         std::vector<ReadOnlyMount> allPossiblePaths{
-//                {"/lib",             "lib"},
-//                {"/usr/lib",         "usr/lib"},
-//                {"/etc/hosts",       "etc/hosts"},
-//                {"/etc/resolv.conf", "etc/resolv.conf"},
-//                {"/usr/lib64",       "usr/lib64"}
-
-//                {"/opt/test/test.txt",      "opt/test/test.txt"},
-                {"/opt/foldermount/",       "opt/foldermount/"}
+                {"/lib",             "lib"},
+                {"/usr/lib",         "usr/lib"},
+                {"/etc/hosts",       "etc/hosts"},
+                {"/etc/resolv.conf", "etc/resolv.conf"},
+                {"/usr/lib64",       "usr/lib64"}
         };
 
         std::vector<ReadOnlyMount>  validDeps; 
@@ -199,21 +255,21 @@ namespace CommsComponent
             }
         }
 
-//        //add default certifcate store path
-//        auto certStorePath = CommsComponent::getCertificateStorePath();
-//        if (certStorePath.has_value())
-//        {
-//            validDeps.emplace_back(std::make_pair(certStorePath.value(), certStorePath->substr(1)));
-//        }
-//
-//        //add mcs certs folder
-//        std::string sophosInstall = Common::ApplicationConfiguration::applicationConfiguration().getData(
-//                Common::ApplicationConfiguration::SOPHOS_INSTALL);
-//        auto mcsCertPathSource = Common::FileSystem::join(sophosInstall, "base/mcs/certs");
-//        if (Common::FileSystem::fileSystem()->isDirectory(mcsCertPathSource))
-//        {
-//            validDeps.emplace_back(std::make_pair(mcsCertPathSource, "base/mcs/certs"));
-//        }
+        //add default certifcate store path
+        auto certStorePath = CommsComponent::getCertificateStorePath();
+        if (certStorePath.has_value())
+        {
+            validDeps.emplace_back(std::make_pair(certStorePath.value(), certStorePath->substr(1)));
+        }
+
+        //add mcs certs folder
+        std::string sophosInstall = Common::ApplicationConfiguration::applicationConfiguration().getData(
+                Common::ApplicationConfiguration::SOPHOS_INSTALL);
+        auto mcsCertPathSource = Common::FileSystem::join(sophosInstall, "base/mcs/certs");
+        if (Common::FileSystem::fileSystem()->isDirectory(mcsCertPathSource))
+        {
+            validDeps.emplace_back(std::make_pair(mcsCertPathSource, "base/mcs/certs"));
+        }
 
         return validDeps;
     }
@@ -229,30 +285,20 @@ namespace CommsComponent
             mountedPaths.emplace_back(Common::FileSystem::join(chrootDir, mountOption.second));
         }
         return mountedPaths;
+        //return getMountedEntitiesFromDependencies(chrootDir, getListOfDependenciesToMount());
     }
 
     void CommsConfigurator::cleanDefaultMountedPaths(const std::string& chrootDir)
     {
         std::stringstream out;
         auto listOfMountedPaths = getListOfMountedEntities(chrootDir);
-        for (auto& mountedPath : listOfMountedPaths) {
-            LOGINFO("Unmount path: " << mountedPath);
-            auto unMounted = Common::SecurityUtils::unMount(mountedPath, out);
-
-            LOGINFO(out.str());
-            auto isOurFreeMountLocation = Common::SecurityUtils::isFreeMountLocation(mountedPath, out);
-            if (!isOurFreeMountLocation) {
-                std::cerr << "Not the expected file or directory setup: " << out.str();
-            }
-
-            if (unMounted || isOurFreeMountLocation) {
-                auto fs = Common::FileSystem::fileSystem();
-                if (fs->isFileOrDirectory(mountedPath))
-                {
-                    fs->removeFileOrDirectory(mountedPath);
-                }
-            }
+        for (auto& mountedPath : listOfMountedPaths)
+        {
+            out <<"Unmount path: " << mountedPath;
+            //LOGINFO("Unmount path: " << mountedPath);
+            Common::SecurityUtils::unMount(mountedPath, out);
         }
+        //LOGINFO(out.str());
     }
 
     std::string CommsConfigurator::chrootPathForSSPL(const std::string& ssplRootDir)
@@ -260,47 +306,39 @@ namespace CommsComponent
         return Common::FileSystem::join(ssplRootDir, "var/sophos-spl-comms");
     }
 
-    // file permissions
+    //Restore logs back into chroot path
     void CommsConfigurator::restoreLogs()
     {
-        auto logsDir = Common::FileSystem::join(
-                chrootPathForSSPL(Common::ApplicationConfiguration::applicationPathManager().sophosInstall()),
-                "logs/base/");
         auto fs = Common::FileSystem::fileSystem();
-        if (fs->exists(m_logsBackup))
+        auto logsDir = Common::FileSystem::join(m_chrootDir, "logs/base/");
+        auto backup = getLogsBackUpPath(m_childUser.logName);
+        if(!fs->exists(logsDir) || !fs->exists(backup))
         {
-            if (fs->isDirectory(m_logsBackup))
-                for (auto& logFile : fs->listFiles(m_logsBackup))
-                {
-                    fs->copyFileAndSetPermissions(logFile, logsDir, 600, m_childUser.userName, m_childUser.userGroup);
-                }
-            fs->removeFileOrDirectory(m_logsBackup);
-            m_logsBackup.clear();
+            return;
+        }
+
+        if ( fs->isDirectory(backup))
+        {
+            for (auto& logFile : fs->listFiles(backup))
+            {
+                auto destLogFile = Common::FileSystem::join(logsDir, Common::FileSystem::basename(logFile));
+                fs->copyFileAndSetPermissions(logFile, destLogFile, 0600, m_childUser.userName, m_childUser.userGroup);
+            }
+            fs->removeFileOrDirectory(backup);
         }
     }
 
+    //backup logs in sophos temp
     void CommsConfigurator::backupLogs()
     {
-        auto logsDir = Common::FileSystem::join(
-                chrootPathForSSPL(Common::ApplicationConfiguration::applicationPathManager().sophosInstall()),
-                "logs/base/");
         auto fs = Common::FileSystem::fileSystem();
+        auto logsDir = Common::FileSystem::join(m_chrootDir,"logs/base/");
         if (fs->exists(logsDir))
         {
             auto listOfFiles = fs->listFiles(logsDir);
             if (!listOfFiles.empty())
             {
-                std::stringstream backupName;
-
-                Common::UtilityImpl::FormattedTime time;
-                std::string now = time.currentEpochTimeInSeconds();
-
-                backupName << m_childUser.logName << "_" << now;
-
-                auto sophosTmpDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-
-                m_logsBackup = Common::FileSystem::join(sophosTmpDir, backupName.str());
-                fs->moveFile(logsDir, m_logsBackup);
+                fs->moveFile(logsDir, getLogsBackUpPath(m_childUser.logName));
             }
         }
     }
