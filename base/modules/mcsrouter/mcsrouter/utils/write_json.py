@@ -35,12 +35,10 @@ def write_current_proxy_info(proxy):
         except Exception as e:
             LOGGER.warning("Failed to clean up current proxy file with error {}".format(e))
 
-
-
     with open(filepath, 'w') as outfile:
         json.dump(proxy_info, outfile)
     os.chmod(filepath, 0o640)
 
     # If registering with a proxy/mr this will be run as root so need to change ownership
     if os.getuid() == 0:
-        os.chown(filepath, get_uid("sophos-spl-user"), get_gid("sophos-spl-group"))
+        os.chown(filepath, get_uid("sophos-spl-local"), get_gid("sophos-spl-group"))
