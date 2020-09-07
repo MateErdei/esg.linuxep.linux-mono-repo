@@ -9,7 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "../common/config.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/Logging/FileLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
 #include "Common/Logging/LoggingSetup.h"
 
@@ -55,8 +54,6 @@ Logger::~Logger()
 // Same as Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(const std::string& logfilepath) but does not log to stderr
 void Logger::setupFileLoggingWithPath(std::string logfilepath)
 {
-    log4cplus::initialize();
-
     log4cplus::tstring datePattern;
     const long maxFileSize = 10 * 1024 * 1024;
     const int maxBackupIndex = 10;
