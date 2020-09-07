@@ -13,8 +13,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace Common::SecurityUtils
 {
-    const char *GL_NOTMOUNTED_MARKER = "SPL.NOTMOUNTED_MARKER";
-
     struct UserIdStruct
     {
         uid_t m_userid;

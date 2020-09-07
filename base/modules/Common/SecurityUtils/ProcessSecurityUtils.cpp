@@ -19,6 +19,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace Common::SecurityUtils
 {
+    const char *GL_NOTMOUNTED_MARKER = "SPL.NOTMOUNTED_MARKER";
+
     void FatalSecuritySetupFailureException::onError(const std::string& errMsg)
     {
         int e = errno;

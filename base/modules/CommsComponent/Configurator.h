@@ -48,6 +48,8 @@ namespace CommsComponent
          * Sets logger.conf and logs directory
          */
         void setupLoggingFiles();
+
+        void backupLogsAndRemoveChrootDir(std::ostream& out);
         void backupLogs();
         void restoreLogs();
 
@@ -70,7 +72,7 @@ namespace CommsComponent
         static MountOperation mountDependenciesReadOnly(const UserConf& userConf, const std::vector<ReadOnlyMount>&,
                                                         const std::string& chrootDir, std::ostream&);
 
-        CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser,
+        CommsConfigurator(std::string newRoot, UserConf childUser, UserConf parentUser,
                           std::vector<ReadOnlyMount> dependenciesToMount);
 
         /*

@@ -256,7 +256,7 @@ TEST_F(TestSecurityUtilsBindMount, TestBindMountReadOnlyMountDir) // NOLINT
 
     unMount(m_targetDir, m_output);
     ASSERT_FALSE(Common::FileSystem::fileSystem()->exists(testFileTarget));
-    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(Common::FileSystem::join(m_targetDir, GL_NOTMOUNTED_MARKER)));
+    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(Common::FileSystem::join(m_targetDir, "SPL.NOTMOUNTED_MARKER")));
 }
 
 TEST_F(TestSecurityUtilsBindMount, TestBindMountReadOnlyMountFile) // NOLINT
@@ -275,7 +275,7 @@ TEST_F(TestSecurityUtilsBindMount, TestBindMountReadOnlyMountFile) // NOLINT
 
     unMount(testFileTarget, m_output);
     auto afterUnmount = Common::FileSystem::fileSystem()->readFile(testFileTarget);
-    ASSERT_STREQ(afterUnmount.c_str(), GL_NOTMOUNTED_MARKER);
+    ASSERT_STREQ(afterUnmount.c_str(), "SPL.NOTMOUNTED_MARKER");
 }
 
 TEST_F(TestSecurityUtilsBindMount, WillNotMountIfAlreadyMounted) // NOLINT
@@ -311,7 +311,7 @@ TEST_F(TestSecurityUtilsBindMount, WillUsePreviousilyCreatedMountTargets) // NOL
     //check only a single unmount if required
     unMount(m_targetDir, m_output);
     ASSERT_FALSE(Common::FileSystem::fileSystem()->exists(testFileTarget));
-    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(Common::FileSystem::join(m_targetDir, GL_NOTMOUNTED_MARKER)));
+    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(Common::FileSystem::join(m_targetDir, "SPL.NOTMOUNTED_MARKER")));
 
     //Will mount over previously created file
     bindMountReadOnly(m_sourceDir, m_targetDir, m_output);

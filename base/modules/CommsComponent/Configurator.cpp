@@ -16,12 +16,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <CommsComponent/CommsComponentUtils.h>
 
 #include <sstream>
-#include <sys/stat.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
 
-#include <thread>
 
 namespace
 {
@@ -45,21 +42,27 @@ namespace
         return mountedPaths;
     }
 
-    bool isSafeToPurgeChroot(const std::string& chrootDir, const std::vector<CommsComponent::ReadOnlyMount>& listOfDependencies)
+    bool isSafeToPurgeChroot(const std::vector<std::string>& listOfMountedPaths, std::ostream& out)
     {
-        std::stringstream out;
-        auto listOfMountedPaths = getMountedEntitiesFromDependencies(chrootDir, listOfDependencies);
         for (auto &mountedPath : listOfMountedPaths)
         {
             auto isOurFreeMountLocation = Common::SecurityUtils::isFreeMountLocation(mountedPath, out);
             if (!isOurFreeMountLocation)
             {
-                std::cerr << "Unexpected files under chroot path: " << out.str();
                 return false;
             }
         }
         std::cout << "isSafeToPurgeChroot" << std::endl;
         return true;
+    }
+
+    void cleanMountedPaths(const std::vector<std::string>& listOfMountedPaths, std::ostream& out)
+    {
+        for (auto& mountedPath : listOfMountedPaths)
+        {
+            out <<"Unmount path: " << mountedPath;
+            Common::SecurityUtils::unMount(mountedPath, out);
+        }
     }
 
 }
@@ -80,18 +83,7 @@ namespace CommsComponent
         std::stringstream output;
         try
         {
-            if(Common::FileSystem::fileSystem()->exists(m_chrootDir))
-            {
-                cleanDefaultMountedPaths(m_chrootDir);
-                backupLogs();
-                if(!isSafeToPurgeChroot(m_chrootDir, m_listOfDependencyPairs))
-                {
-                    std::cout << "isSafeToPurgeChroot said false" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-                Common::FileSystem::fileSystem()->removeFileOrDirectory(m_chrootDir);
-            }
-
+            backupLogsAndRemoveChrootDir(output);
             //create fresh chroot dir
             Common::FileSystem::fileSystem()->makedirs(m_chrootDir);
             Common::FileSystem::filePermissions()->chown(m_chrootDir, m_childUser.userName, m_childUser.userGroup);
@@ -145,9 +137,9 @@ namespace CommsComponent
         LOGINFO(output.str());
     }
 
-    CommsConfigurator::CommsConfigurator(const std::string& newRoot, UserConf childUser, UserConf parentUser,
+    CommsConfigurator::CommsConfigurator(std::string newRoot, UserConf childUser, UserConf parentUser,
                                          std::vector<ReadOnlyMount> dependenciesToMount)
-            : m_chrootDir(newRoot), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)),
+            : m_chrootDir(std::move(newRoot)), m_childUser(std::move(childUser)), m_parentUser(std::move(parentUser)),
               m_listOfDependencyPairs(std::move(dependenciesToMount)) {}
 
     void CommsConfigurator::setupLoggingFiles()
@@ -277,33 +269,37 @@ namespace CommsComponent
 
     std::vector<std::string> CommsConfigurator::getListOfMountedEntities(const std::string& chrootDir)
     {
-        std::vector<std::string> mountedPaths;
-        for (auto& mountOption : getListOfDependenciesToMount())
-        {
-            std::string pathMounted = Common::UtilityImpl::StringUtils::startswith(mountOption.second, "/")
-                                      ? mountOption.second.substr(1) : mountOption.second;
-            mountedPaths.emplace_back(Common::FileSystem::join(chrootDir, mountOption.second));
-        }
-        return mountedPaths;
-        //return getMountedEntitiesFromDependencies(chrootDir, getListOfDependenciesToMount());
+        return getMountedEntitiesFromDependencies(chrootDir, getListOfDependenciesToMount());
     }
 
     void CommsConfigurator::cleanDefaultMountedPaths(const std::string& chrootDir)
     {
         std::stringstream out;
         auto listOfMountedPaths = getListOfMountedEntities(chrootDir);
-        for (auto& mountedPath : listOfMountedPaths)
-        {
-            out <<"Unmount path: " << mountedPath;
-            //LOGINFO("Unmount path: " << mountedPath);
-            Common::SecurityUtils::unMount(mountedPath, out);
-        }
-        //LOGINFO(out.str());
+        cleanMountedPaths(listOfMountedPaths, out);
+        LOGINFO(out.str());
     }
 
     std::string CommsConfigurator::chrootPathForSSPL(const std::string& ssplRootDir)
     {
         return Common::FileSystem::join(ssplRootDir, "var/sophos-spl-comms");
+    }
+
+    void CommsConfigurator::backupLogsAndRemoveChrootDir(std::ostream& out)
+    {
+        if (Common::FileSystem::fileSystem()->exists(m_chrootDir))
+        {
+            auto listOfMountedPaths = getMountedEntitiesFromDependencies(m_chrootDir, m_listOfDependencyPairs);
+            cleanMountedPaths(listOfMountedPaths, out);
+
+            if (!isSafeToPurgeChroot(listOfMountedPaths, out))
+            {
+                std::cout << out.rdbuf() << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            backupLogs();
+            Common::FileSystem::fileSystem()->removeFileOrDirectory(m_chrootDir);
+        }
     }
 
     //Restore logs back into chroot path
