@@ -294,6 +294,8 @@ public:
         EXPECT_CALL(mockFileSystem, moveFile(_, "/dir/output.json"));
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
         EXPECT_CALL(*mockFilePermissions, chown(_, sophos::user(), sophos::group()));
+        mode_t expectedFilePermissions =  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
+            EXPECT_CALL(*mockFilePermissions, chmod(_, expectedFilePermissions));
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));

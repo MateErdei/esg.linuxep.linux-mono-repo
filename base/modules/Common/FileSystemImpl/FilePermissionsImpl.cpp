@@ -10,14 +10,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/UtilityImpl/StrError.h>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
-#include <Common/UtilityImpl/ProjectNames.h>
 #include <sys/stat.h>
 
 #include <cstdlib>
 #include <cstring>
 #include <grp.h>
+#include <iostream>
 #include <pwd.h>
 #include <sstream>
 #include <unistd.h>
@@ -251,6 +252,7 @@ void Common::FileSystem::createAtomicFileToSophosUser(const std::string & conten
     {
         fileSystem->writeFile(tempFilePath, content);
         Common::FileSystem::filePermissions()->chown(tempFilePath, sophos::user(), sophos::group());
+        Common::FileSystem::filePermissions()->chmod(tempFilePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
         fileSystem->moveFile(tempFilePath, finalPath);
     }
     catch (Common::FileSystem::IFileSystemException& ex)

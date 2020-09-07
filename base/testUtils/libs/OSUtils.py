@@ -328,13 +328,13 @@ def get_dictionary_of_actual_mcs_folders_and_permissions():
 
 def get_directory_of_expected_mcs_folders_and_permissions():
     return {
-        "/opt/sophos-spl/base/mcs/action":      ["sophos-spl-user", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/action":      ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
         "/opt/sophos-spl/base/mcs/certs":       ["root", "sophos-spl-group", "drwxr-x---"],
-        "/opt/sophos-spl/base/mcs/event":       ["sophos-spl-user", "sophos-spl-group", "drwxrwx---"],
-        "/opt/sophos-spl/base/mcs/policy":      ["sophos-spl-user", "sophos-spl-group", "drwxr-x---"],
-        "/opt/sophos-spl/base/mcs/response":    ["sophos-spl-user", "sophos-spl-group", "drwxr-x---"],
-        "/opt/sophos-spl/base/mcs/status":      ["sophos-spl-user", "sophos-spl-group", "drwxrwx---"],
-        "/opt/sophos-spl/base/mcs/tmp":         ["sophos-spl-user", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/event":       ["sophos-spl-local", "sophos-spl-group", "drwxrwx---"],
+        "/opt/sophos-spl/base/mcs/policy":      ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/response":    ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/status":      ["sophos-spl-local", "sophos-spl-group", "drwxrwx---"],
+        "/opt/sophos-spl/base/mcs/tmp":         ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
     }
 
 def get_dictionary_of_expected_sockets_and_permissions():
@@ -353,8 +353,7 @@ def get_dictionary_of_expected_base_logs_and_permissions():
     return {
         "/opt/sophos-spl/logs/base/watchdog.log":                         ["root", "root", "-rw-------"],
         "/opt/sophos-spl/logs/base/wdctl.log":                            ["root", "root", "-rw-------"],
-        # FIXME: LINUXDAR-2120 restore
-        # "/opt/sophos-spl/logs/base/sophosspl/comms_component.log":        ["sophos-spl-local","sophos-spl-group", "-rw-------"],
+        "/opt/sophos-spl/logs/base/sophosspl/comms_component.log":        ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/mcs_envelope.log":           ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/mcsrouter.log":              ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log": ["sophos-spl-user", "sophos-spl-group", "-rw-------"],
