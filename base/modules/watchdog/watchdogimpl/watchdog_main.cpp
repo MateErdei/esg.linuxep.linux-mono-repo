@@ -44,6 +44,9 @@ namespace
         return "/opt/sophos-spl";
     }
 
+
+    //This class is not in use anymore. Being left in case a generic usage of it can be found
+    //It implemented commscomponent clean of mounts which was required in the case of downgrades
     class UnmountOnClosure
     {
         std::string m_chroot;         
@@ -89,7 +92,6 @@ int watchdog_main::main(int argc, char** argv)
     try
     {        
         Watchdog m;
-        UnmountOnClosure unmountOnClosure{installDir}; 
         return m.initialiseAndRun();
     }
     catch ( Common::UtilityImpl::ConfigException & ex)
