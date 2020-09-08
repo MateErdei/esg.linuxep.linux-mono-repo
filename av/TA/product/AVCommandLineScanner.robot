@@ -298,34 +298,39 @@ CLS Exclusions Filename
    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Exclusions Folder
-   Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
-   Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
-   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
-   Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude ${NORMAL_DIRECTORY}/
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude ${NORMAL_DIRECTORY}/
 
-   Log To Console  return code is ${rc}
-   Log To Console  output is ${output}
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
 
-   Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/
-   Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/
+    File Log Should Not Contain  ${AV_LOG_PATH}   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
+    File Log Should Not Contain  ${AV_LOG_PATH}   Excluding file: ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
+    File Log Should Not Contain  ${AV_LOG_PATH}   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Exclusions Folder And File
-   Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
-   Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
-   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
-   Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude clean_eicar ${NORMAL_DIRECTORY}/clean_eicar_folder/
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude clean_eicar ${NORMAL_DIRECTORY}/clean_eicar_folder/
 
-   Log To Console  return code is ${rc}
-   Log To Console  output is ${output}
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
 
-   Should Contain       ${output}  Excluding file: "${NORMAL_DIRECTORY}/clean_eicar"
-   Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
-   Should Contain       ${output}  Excluding directory: ${NORMAL_DIRECTORY}/clean_eicar_folder/
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain       ${output}  Excluding file: "${NORMAL_DIRECTORY}/clean_eicar"
+    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
+    Should Contain       ${output}  Excluding directory: ${NORMAL_DIRECTORY}/clean_eicar_folder/
+    File Log Should Not Contain  ${AV_LOG_PATH}   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
+    File Log Should Not Contain  ${AV_LOG_PATH}   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 CLS Prints Help and Failure When Options Are Spaced Incorrectly
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --exclude= file
