@@ -67,7 +67,7 @@ namespace Common::SecurityUtils
             FatalSecuritySetupFailureException::onError(
                     "Process should fail to set effective group ids after dropping privilege");
         }
-        out << "Droped privilege to user_id: " << newuid << " group_id: " << newgid << "\n";
+        out << "Dropped privilege to user_id: " << newuid << " group_id: " << newgid << "\n";
 
     }
 
