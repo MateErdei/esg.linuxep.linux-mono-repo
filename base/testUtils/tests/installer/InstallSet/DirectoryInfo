@@ -1,4 +1,6 @@
 1770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/tmp
+o550, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/etc
+o550, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/usr
 o700, root, root, /opt/sophos-spl/base/update/cache
 o700, root, root, /opt/sophos-spl/base/update/cache/primary
 o700, root, root, /opt/sophos-spl/base/update/cache/primarywarehouse
@@ -10,7 +12,6 @@ o700, root, root, /opt/sophos-spl/var/lock
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/base
 o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/logs
-o700, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/usr
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/ipc
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/ipc/plugins
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/lock-sophosspl
@@ -66,7 +67,6 @@ o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/tmp
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/cache
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/var
-o755, sophos-spl-group, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/etc
 o770, sophos-spl-group, root, /opt/sophos-spl/base/etc/sophosspl
 o770, sophos-spl-group, root, /opt/sophos-spl/base/update
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/event
