@@ -17,40 +17,40 @@ ${TestReadOnlyMount}  ${SOPHOS_INSTALL}/var/sophos-spl-comms/test-ro-mount
 ${CommsNetworkLogsPath}  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log
 
 *** Test Cases ***
-#
-#Test Comms Component Starts
-#    [Tags]   COMMS  TAP_TESTS
-#    Require Installed
-#    File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
-#
-#    Check Watchdog Starts Comms Component
-#    Check Comms Component Log Does Not Contain Error
-#
-#    File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log  sophos-spl-local  sophos-spl-group  -rw-------
-#    File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log  sophos-spl-network  sophos-spl-group  -rw-------
-#
-#
-#Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
-#    [Tags]   COMMS  TAP_TESTS
-#    Require Installed
-#
-#    Check Comms Component Is Running
-#
-#    #unmount an unexpected directory read only to prevent comms from starting
-#    Create Read Only Mount Inside Comms Chroot Path
-#
-#    Stop Watchdog
-#    Check Comms Component Not Running
-#    Start Watchdog
-#    Check Comms Component Not Running
-#
-#    #unmount stray file
-#    Unmount Test Directory
-#    #wait for comms to run
-#    Wait Until Keyword Succeeds
-#        ...  20 secs
-#        ...  2 secs
-#        ...  Check Comms Component Is Running
+
+Test Comms Component Starts
+    [Tags]   COMMS  TAP_TESTS
+    Require Installed
+    File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
+
+    Check Watchdog Starts Comms Component
+    Check Comms Component Log Does Not Contain Error
+
+    File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log  sophos-spl-local  sophos-spl-group  -rw-------
+    File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log  sophos-spl-network  sophos-spl-group  -rw-------
+
+
+Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
+    [Tags]   COMMS  TAP_TESTS
+    Require Installed
+
+    Check Comms Component Is Running
+
+    #unmount an unexpected directory read only to prevent comms from starting
+    Create Read Only Mount Inside Comms Chroot Path
+
+    Stop Watchdog
+    Check Comms Component Not Running
+    Start Watchdog
+    Check Comms Component Not Running
+
+    #unmount stray file
+    Unmount Test Directory
+    #wait for comms to run
+    Wait Until Keyword Succeeds
+        ...  20 secs
+        ...  2 secs
+        ...  Check Comms Component Is Running
 
 
 Test Comms Component Backsup and Restore Logs
