@@ -33,6 +33,9 @@ namespace unixsocket
         void run() override;
 
     private:
+
+        void inner_run();
+
         datatypes::AutoFd m_fd;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
     };

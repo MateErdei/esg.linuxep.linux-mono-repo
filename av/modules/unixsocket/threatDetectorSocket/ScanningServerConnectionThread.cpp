@@ -17,7 +17,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <sys/stat.h>
 
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::AutoFd& fd,
@@ -72,10 +71,9 @@ static int addFD(fd_set* fds, int fd, int currentMax)
  */
 static int recv_fd(int socket)
 {
-    int fd;
+    int fd = -1;
 
     struct msghdr msg = {};
-    struct cmsghdr *cmsg;
     char buf[CMSG_SPACE(sizeof(int))];
     char dup[256];
     memset(buf, '\0', sizeof(buf));
@@ -94,7 +92,7 @@ static int recv_fd(int socket)
         return -1;
     }
 
-    cmsg = CMSG_FIRSTHDR(&msg);
+    struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
 
     memcpy (&fd, (int *) CMSG_DATA(cmsg), sizeof(int));
 
@@ -131,6 +129,37 @@ void unixsocket::ScanningServerConnectionThread::run()
     m_isRunning = true;
     announceThreadStarted();
 
+    try
+    {
+        inner_run();
+    }
+    catch (const kj::Exception& ex)
+    {
+        if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
+        {
+            LOGFATAL("ScanningServerConnectionThread terminated with serialisation unimplemented exception: "
+                     << ex.getDescription().cStr());
+        }
+        else
+        {
+            LOGERROR(
+                "ScanningServerConnectionThread terminated with serialisation exception: "
+                << ex.getDescription().cStr());
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        LOGERROR("ScanningServerConnectionThread terminated with exception: " << ex.what());
+    }
+    catch (...)
+    {
+        LOGERROR("ScanningServerConnectionThread terminated with unknown exception");
+    }
+    m_isRunning = false;
+}
+
+void unixsocket::ScanningServerConnectionThread::inner_run()
+{
     datatypes::AutoFd socket_fd(std::move(m_fd));
     LOGDEBUG("Got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
@@ -225,18 +254,17 @@ void unixsocket::ScanningServerConnectionThread::run()
             LOGDEBUG("Scan requested of " << requestReader.pathname);
 
             // read fd
-            int file_fd = recv_fd(socket_fd);
-            if (file_fd < 0)
+            datatypes::AutoFd file_fd(recv_fd(socket_fd));
+            if (file_fd.get() < 0)
             {
                 LOGERROR("Aborting socket connection: failed to read fd");
                 break;
             }
-            LOGDEBUG("Managed to get file descriptor: " << file_fd);
+            LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
 
-            datatypes::AutoFd file_fd_manager(file_fd);
 
-            auto result = scanner->scan(file_fd_manager, requestReader.pathname, requestReader.scanType, requestReader.userID);
-            file_fd_manager.reset();
+            auto result = scanner->scan(file_fd, requestReader.pathname, requestReader.scanType, requestReader.userID);
+            file_fd.reset();
 
             std::string serialised_result = result.serialise();
 
@@ -254,6 +282,4 @@ void unixsocket::ScanningServerConnectionThread::run()
             }
         }
     }
-
-    m_isRunning = false;
 }
