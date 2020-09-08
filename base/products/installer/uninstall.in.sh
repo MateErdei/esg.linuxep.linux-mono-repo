@@ -197,7 +197,7 @@ function removeGroup()
       echo "Unable to delete group $GROUPNAME" >&2
   fi
 }
-echo "step 6" >> /tmp/uninstall.log
+echo "step 7" >> /tmp/uninstall.log
 if [[ -z $NO_REMOVE_USER ]]
 then
   SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"

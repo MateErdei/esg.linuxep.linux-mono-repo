@@ -104,6 +104,7 @@ namespace SulDownloader
             std::stringstream errorMessage;
             try
             {
+                LOGINFO("Executing Uninstaller with --downgrade and --force");
                 process->exec(uninstallScript, {"--downgrade", "--force"}, {});
                 auto output = process->output();
                 LOGSUPPORT(output);
@@ -145,6 +146,7 @@ namespace SulDownloader
             std::stringstream errorMessage;
             try
             {
+                LOGINFO("Uninstalling"+uninstallProduct.first);
                 process->exec(uninstallProduct.first, {}, {});
                 auto output = process->output();
                 LOGSUPPORT(output);
