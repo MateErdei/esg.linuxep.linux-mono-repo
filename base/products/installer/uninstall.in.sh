@@ -47,6 +47,14 @@ do
     shift
 done
 
+if (( $FORCE == 1 ))
+then
+  echo "--force set" >> /tmp/uninstall.sh
+fi
+if (( $DOWNGRADE == 1 ))
+then
+  echo "--downgrade set" >> /tmp/uninstall.sh
+fi
 if (( $FORCE == 0 ))
 then
     ChoiceMade=false
