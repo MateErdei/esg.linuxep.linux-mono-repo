@@ -95,13 +95,6 @@
 
     </inputs>
     <buildcommands>
-
-        <command>
-            <program>./setOstiaVutBranch.sh</program>
-            <args>custom-linuxdar2101</args>
-            <workingdir>SupportFiles/jenkins</workingdir>
-        </command>
-
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command  buildtype="prod"> -->
         <command mode="release">
