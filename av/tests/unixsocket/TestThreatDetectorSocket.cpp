@@ -179,5 +179,47 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
 
     testing::Mock::VerifyAndClearExpectations(scannerPtr);
     testing::Mock::VerifyAndClearExpectations(scannerFactory.get());
-
 }
+
+
+TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
+{
+    static const std::string THREAT_PATH = "/dev/null";
+    std::string path = "TestThreatDetectorSocket_socket_test_scan_throws";
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    auto scanner = std::make_unique<StrictMock<MockScanner>>();
+
+    auto* scannerPtr = scanner.get();
+    testing::Mock::AllowLeak(scanner.get());
+
+    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillRepeatedly(Throw(std::runtime_error("Intentional throw")));
+    EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
+
+    unixsocket::ScanningServerSocket server(path, 0666, scannerFactory);
+    server.start();
+
+    // Create client connection
+    {
+        unixsocket::ScanningClientSocket client_socket(path);
+        datatypes::AutoFd devNull(::open(THREAT_PATH.c_str(), O_RDONLY));
+        try
+        {
+            auto response = scan(client_socket, devNull, THREAT_PATH);
+            FAIL() << "Able to scan with throwing scanner at other end";
+        }
+        catch (const std::exception& ex)
+        {
+            PRINT("Get exception as expected: "<< ex.what());
+        }
+    }
+
+    server.requestStop();
+    server.join();
+
+    testing::Mock::VerifyAndClearExpectations(scannerPtr);
+    testing::Mock::VerifyAndClearExpectations(scannerFactory.get());
+}
+
+
+
+
