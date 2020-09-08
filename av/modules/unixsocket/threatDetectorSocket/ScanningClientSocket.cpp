@@ -18,6 +18,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <cassert>
+#include <cstring>
 
 #include <sys/socket.h>
 #include <sys/un.h>
