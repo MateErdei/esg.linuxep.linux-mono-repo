@@ -135,7 +135,7 @@ SusiScanner::scan(
             }
         }
     }
-    else if (res == SUSI_E_SCANABORTED || res == SUSI_I_SCANDATAPRESENT)
+    else if (res == SUSI_E_SCANABORTED)
     {
         // Return codes that cover zip bombs, corrupted files and password-protected files
         std::stringstream errorMsg;

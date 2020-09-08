@@ -26,6 +26,12 @@ namespace unixsocket
         scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest&) override;
 
     private:
+        void connect();
+        int attemptConnect();
+        scan_messages::ScanResponse attemptScan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest&);
+
+        int m_reconnectAttempts;
+        std::string m_socketPath;
         datatypes::AutoFd m_socket_fd;
     };
 }

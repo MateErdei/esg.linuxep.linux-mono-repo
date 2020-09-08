@@ -5,6 +5,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanningClientSocket.h"
+
+#include "ReconnectScannerException.h"
+
+#include "common/AbortScanException.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
 #include "scan_messages/ClientScanRequest.h"
@@ -13,8 +17,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/serialize.h>
 
 #include <string>
-#include <cstdio>
-#include <cstdlib>
 #include <cassert>
 
 #include <sys/socket.h>
@@ -22,11 +24,44 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 #include <fcntl.h>
 
-#define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
-
-#define MAX_CONN_RETRIES 10
+#define TOTAL_MAX_RECONNECTS 50
+#define MAX_CONN_RETRIES 3
+#define MAX_SCAN_RETRIES 3
 
 unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket_path)
+    : m_reconnectAttempts(0)
+    , m_socketPath(socket_path)
+{
+    connect();
+}
+
+void unixsocket::ScanningClientSocket::connect()
+{
+    int count = 0;
+    int ret = attemptConnect();
+
+    while (ret != 0)
+    {
+        if (++count >= MAX_CONN_RETRIES)
+        {
+            LOGDEBUG("Reached total maximum number of connection attempts.");
+            return;
+        }
+
+        LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying in 1 second");
+
+        sleep(1);
+
+        ret = attemptConnect();
+    }
+
+    if (ret == 0)
+    {
+        m_reconnectAttempts = 0;
+    }
+}
+
+int unixsocket::ScanningClientSocket::attemptConnect()
 {
     m_socket_fd.reset(socket(AF_UNIX, SOCK_STREAM, 0));
     assert(m_socket_fd >= 0);
@@ -34,23 +69,10 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket
     struct sockaddr_un addr = {};
 
     addr.sun_family = AF_UNIX;
-    ::strncpy(addr.sun_path, socket_path.c_str(), sizeof(addr.sun_path));
+    ::strncpy(addr.sun_path, m_socketPath.c_str(), sizeof(addr.sun_path));
     addr.sun_path[sizeof(addr.sun_path) - 1] = '\0';
 
-    int ret = connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
-    int count = 0;
-    while (ret != 0)
-    {
-        if (++count >= MAX_CONN_RETRIES)
-        {
-            handle_error("Failed to connect to Sophos Threat Detector, aborting the scan");
-        }
-
-        LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying in 1 second");
-
-        sleep(1);
-        ret = connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
-    }
+    return ::connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
 }
 
 static
@@ -77,12 +99,51 @@ void send_fd(int socket, int fd)  // send fd by socket
 
     if (sendmsg (socket, &msg, 0) < 0)
     {
-        handle_error ("Failed to send message");
+        LOGERROR("Failed to send message: " << std::strerror(errno));
     }
 }
 
 scan_messages::ScanResponse
 unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request)
+{
+    for (int attempt=0; attempt < MAX_SCAN_RETRIES; attempt++)
+    {
+        if (m_reconnectAttempts >= TOTAL_MAX_RECONNECTS)
+        {
+            throw AbortScanException("Reached total maximum number of reconnection attempts. Aborting scan.");
+        }
+
+        try
+        {
+            scan_messages::ScanResponse response = attemptScan(fd, request);
+            if (m_reconnectAttempts > 0)
+            {
+                m_reconnectAttempts = 0;
+                LOGINFO("Reconnected to Sophos Threat Detector");
+            }
+            return response;
+        }
+        catch (const ReconnectScannerException& e)
+        {
+            LOGERROR(e.what() << " - retrying in 1 second");
+            sleep(1);
+            if (!attemptConnect())
+            {
+                LOGWARN("Failed to reconnect to Sophos Threat Detector - retrying...");
+            }
+            m_reconnectAttempts++;
+        }
+    }
+
+    scan_messages::ScanResponse response;
+    std::stringstream errorMsg;
+    errorMsg << "Failed to scan file after " << MAX_SCAN_RETRIES << " retries";
+    response.setErrorMsg(errorMsg.str());
+    return response;
+}
+
+scan_messages::ScanResponse
+unixsocket::ScanningClientSocket::attemptScan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request)
 {
     assert(m_socket_fd >= 0);
     std::string dataAsString = request.serialise();
@@ -91,13 +152,14 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     {
         if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
-            handle_error("Failed to write capn buffer to unix socket");
+            throw ReconnectScannerException("Failed to send scan request to Sophos Threat Detector");
         }
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGERROR("Failed to write capnp buffer to unix socket, no scan request sent: " << e.what());
-        handle_error("Scan terminated failed to initiate scan");
+        std::stringstream errorMsg;
+        errorMsg << "Failed to send scan request to Sophos Threat Detector (" << e.what() << ")";
+        throw ReconnectScannerException(errorMsg.str());
     }
 
     send_fd(m_socket_fd, fd.get());
@@ -105,11 +167,8 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     int32_t length = unixsocket::readLength(m_socket_fd);
     if (length < 0)
     {
-        LOGERROR("Aborting connection: failed to read length");
-        handle_error ("Failed to read length");
+        throw ReconnectScannerException("Failed to read length");
     }
-
-
 
     uint32_t buffer_size = 1 + length / sizeof(capnp::word);
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
@@ -117,11 +176,8 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     ssize_t bytes_read = ::read(m_socket_fd, proto_buffer.begin(), length);
     if (bytes_read != length)
     {
-        LOGERROR("Aborting connection: failed to read capn proto");
-        handle_error ("Failed to read capn proto");
+        throw ReconnectScannerException("Failed to read message from Sophos Threat Detector");
     }
-
-
 
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 

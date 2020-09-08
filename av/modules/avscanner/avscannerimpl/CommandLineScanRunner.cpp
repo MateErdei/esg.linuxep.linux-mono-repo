@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
+#include "common/AbortScanException.h"
 #include "filewalker/FileWalker.h"
 
 #include <common/StringUtils.h>
@@ -81,9 +82,8 @@ namespace
             }
             catch (const std::exception& e)
             {
-                LOGERROR("Failed to scan " << escapedPath << " [" << e.what() << "] failed");
-
                 m_returnCode = E_GENERIC_FAILURE;
+                throw AbortScanException(e.what());
             }
         }
 
@@ -191,22 +191,18 @@ int CommandLineScanRunner::run()
         LOGINFO("Exclusions: " << oss.str());
     }
 
-    auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
-    ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
-    CallbackImpl callbacks(std::move(scanner), excludedMountPoints, cmdExclusions);
-
-    // for each select included mount point call filewalker for that mount point
-    for (const auto& path : m_paths)
+    try
     {
-        try
+        auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
+        ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
+        CallbackImpl callbacks(std::move(scanner), excludedMountPoints, cmdExclusions);
+
+        // for each select included mount point call filewalker for that mount point
+        for (const auto& path : m_paths)
         {
             auto p = fs::absolute(path);
             callbacks.setCurrentInclude(p);
             filewalker::walk(p, callbacks);
-        }
-        catch (fs::filesystem_error& e)
-        {
-            m_returnCode = e.code().value();
         }
 
         // we want virus found to override any other return code
@@ -218,6 +214,14 @@ int CommandLineScanRunner::run()
         {
             m_returnCode = callbacks.returnCode();
         }
+    }
+    catch (fs::filesystem_error& e)
+    {
+        m_returnCode = e.code().value();
+    }
+    catch (const AbortScanException& e)
+    {
+        LOGERROR(e.what());
     }
 
     return m_returnCode;

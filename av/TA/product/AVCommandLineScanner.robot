@@ -417,3 +417,47 @@ CLS Skips The Scanning Of Symlink Targets On Special Mount Points
    Log To Console  output is ${output}
    Should Contain       ${output.replace("\n", " ")}  Skipping the scanning of symlink target ("/proc/uptime") which is on excluded mount point: "/proc"
    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+
+CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
+   ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
+   ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
+
+   ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=${LOG_FILE}
+   # Rename the sophos threat detector launcher so that it cannot be restarted
+   Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
+   Wait Until Keyword Succeeds
+   ...  60 secs
+   ...  1 secs
+   ...  File Log Contains  ${LOG_FILE}  Scanning
+   ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+   Run Process   /bin/kill   -SIGSEGV   ${output}
+   Wait Until Keyword Succeeds
+   ...  60 secs
+   ...  1 secs
+   ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+
+   Wait For Process   handle=${HANDLE}
+
+   Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
+
+
+CLS Reconnects And Continues Scan If Sophos Threat Detector Is Killed
+   ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
+   ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
+
+   ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=${LOG_FILE}
+   Wait Until Keyword Succeeds
+   ...  60 secs
+   ...  1 secs
+   ...  File Log Contains  ${LOG_FILE}  Scanning
+   ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+   Run Process   /bin/kill   -SIGSEGV   ${output}
+   Start AV
+   Wait Until Keyword Succeeds
+   ...  60 secs
+   ...  1 secs
+   ...  File Log Contains  ${LOG_FILE}  Reconnected to Sophos Threat Detector
+   File Log Should Not Contain  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+
+   Terminate Process   handle=${HANDLE}
