@@ -361,6 +361,7 @@ CLS Scans root with non-canonical path
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /./ -x /boot/ /dev/ /etc/ /home/ /media/ /mnt/ /opt/ /root/ /run/ /srv/ /tmp/ /usr/ /var/ /vagrant/ /lib/ /lib32/ /bin/ /uk-filer5/prodro/ /sbin/
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /boot/.. -x /boot/ /dev/ /etc/ /home/ /media/ /mnt/ /opt/ /root/ /run/ /srv/ /tmp/ /usr/ /var/ /vagrant/ /lib/ /lib32/ /bin/ /uk-filer5/prodro/ /sbin/
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /.. -x /boot/ /dev/ /etc/ /home/ /media/ /mnt/ /opt/ /root/ /run/ /srv/ /tmp/ /usr/ /var/ /vagrant/ /lib/ /lib32/ /bin/ /uk-filer5/prodro/ /sbin/
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} / -x /boot/ /dev/ /etc/ /home/ /media/ /mnt/ /opt/ /root/ /run/ /srv/ /tmp/ /usr/ /var/ /vagrant/ /lib/ /lib32/ /bin/ /uk-filer5/prodro/ /sbin/
 
     File Log Should Not Contain     ${AV_LOG_PATH}      Scanning /proc/
     File Log Should Not Contain     ${AV_LOG_PATH}      Scanning /./proc/
