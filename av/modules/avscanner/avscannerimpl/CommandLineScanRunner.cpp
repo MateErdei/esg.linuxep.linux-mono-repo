@@ -169,7 +169,7 @@ int CommandLineScanRunner::run()
             or exclusion.find("/.") != std::string::npos)
         {
             exclusion = fs::canonical(exclusion);
-            if(fs::is_directory(exclusion))
+            if(fs::is_directory(exclusion) && exclusion != "/")
             {
                 exclusion.append("/");
             }
