@@ -101,6 +101,8 @@ namespace CommsComponent
         }
         catch (Common::SecurityUtils::FatalSecuritySetupFailureException& ex)
         {
+            //There is no logging at this point and
+            // These lines aid when working with this code and unitests
             std::cout << output.str() << std::endl;
             std::cerr << ex.what() << std::endl;
             exit(EXIT_FAILURE);
