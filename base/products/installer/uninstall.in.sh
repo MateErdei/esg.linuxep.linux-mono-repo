@@ -97,20 +97,24 @@ function unmountCommsComponentDependencies()
 }
 echo "step 1" >> /tmp/uninstall.log
 removeUpdaterSystemdService || failure "Failed to remove updating service files"  ${FAILURE_REMOVE_UPDATE_SERVICE_FILES}
-
+echo "step 1.1" >> /tmp/uninstall.log
 # Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
 # can stop the plugin process via wdctl.
 PLUGIN_UNINSTALL_DIR="${SOPHOS_INSTALL}/base/update/var/installedproducts"
+echo "step 1.2" >> /tmp/uninstall.log
 if [[ -d "$PLUGIN_UNINSTALL_DIR" ]]
 then
+    echo "step 1.3" >> /tmp/uninstall.log
     for UNINSTALLER in "$PLUGIN_UNINSTALL_DIR"/*
     do
+        echo "step 1.4" >> /tmp/uninstall.log
         UNINSTALLER_BASE=${UNINSTALLER##*/}
         if (( $DOWNGRADE == 0 ))
         then
+          echo "step 1.5.1" >> /tmp/uninstall.log
           bash "$UNINSTALLER " || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
         else
-          echo "step 1.5" >> /tmp/uninstall.log
+          echo "step 1.5.2" >> /tmp/uninstall.log
           bash "$UNINSTALLER --downgrade" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
         fi
     done
@@ -125,34 +129,39 @@ unmountCommsComponentDependencies ${CommsComponentChroot}
 echo "step 4" >> /tmp/uninstall.log
 if (( $DOWNGRADE == 0 ))
 then
+  echo "step 4.1" >> /tmp/uninstall.log
   rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
 else
   echo "backing up logs\n"
   echo "step 5" >> /tmp/uninstall.log
   if [[ ! -f $SOPHOS_INSTALL/base/etc/backupfileslist.dat ]]
   then
-    echo "back up file missing"
+    echo "back up file missing" >> /tmp/uninstall.log
   fi
 
-  echo "contents of backup dat file\n"
+  echo "contents of backup dat file\n" >> /tmp/uninstall.log
   cat $SOPHOS_INSTALL/base/etc/backupfileslist.dat
 
   input=$SOPHOS_INSTALL/base/etc/backupfileslist.dat
   while IFS= read -r line
   do
+    echo "step 5.1" >> /tmp/uninstall.log
     echo $line
     if [[ -f "$SOPHOS_INSTALL/$line" ]]
     then
+      echo "step 5.2" >> /tmp/uninstall.log
       DIR=${line%/*}
       mkdir -p "$SOPHOS_INSTALL/$DIR/backup-logs"
       mv "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/$DIR/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
     elif [[ -d "$SOPHOS_INSTALL/$line" ]]
     then
+      echo "step 5.3" >> /tmp/uninstall.log
       mkdir -p "$SOPHOS_INSTALL/tmp/backup-logs"
       cp -r "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/tmp/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
       rm -rf ${SOPHOS_INSTALL}/${line}/*  || failure "Failed to remove file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
       mv "$SOPHOS_INSTALL/tmp/backup-logs" "$SOPHOS_INSTALL/$line/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
     else
+      echo "step 5.4" >> /tmp/uninstall.log
       echo "Not file or dir"
     fi
   done < "$input"
