@@ -18,6 +18,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sstream>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <sys/stat.h>
 
 
 namespace
@@ -44,7 +45,7 @@ namespace
 
     bool isSafeToPurgeChroot(const std::vector<std::string>& listOfMountedPaths, std::ostream& out)
     {
-        for (auto &mountedPath : listOfMountedPaths)
+        for (auto& mountedPath : listOfMountedPaths)
         {
             auto isOurFreeMountLocation = Common::SecurityUtils::isFreeMountLocation(mountedPath, out);
             if (!isOurFreeMountLocation)
@@ -59,7 +60,7 @@ namespace
     {
         for (auto& mountedPath : listOfMountedPaths)
         {
-            out <<"Unmount path: " << mountedPath;
+            out <<"Unmount path: " << mountedPath << std::endl;
             Common::SecurityUtils::unMount(mountedPath, out);
         }
     }
@@ -159,7 +160,7 @@ namespace CommsComponent
             Path loggerConfRelativePath = "base/etc/logger.conf";
             auto loggerConfSrc = Common::FileSystem::join(oldSophosInstall, loggerConfRelativePath);
             auto loggerConfDst = Common::FileSystem::join(m_chrootDir, loggerConfRelativePath);
-            Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, 0440,
+            Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, S_IRUSR| S_IRGRP,
                                                                         m_childUser.userName, m_childUser.userGroup);
 
         }
@@ -208,14 +209,14 @@ namespace CommsComponent
             if (fs->isFile(sourcePath))
             {
                 makeDirsAndSetPermissions(chrootDir, Common::FileSystem::dirName(targetRelPath), userConf.userName,
-                                          userConf.userGroup, 0755);
+                                          userConf.userGroup, S_IXUSR | S_IRUSR | S_IXGRP | S_IRGRP);
                 fs->writeFile(targetPath, "");
                 ifperms.chown(targetPath, userConf.userName, userConf.userGroup); //test-spl-user //test-spl-grp
             }
             else if (fs->isDirectory(sourcePath))
             {
                 CommsComponent::makeDirsAndSetPermissions(chrootDir, targetRelPath, userConf.userName,
-                                                          userConf.userGroup, 0700);
+                                                          userConf.userGroup, S_IXUSR | S_IRUSR | S_IXGRP | S_IRGRP);
             }
             if (!Common::SecurityUtils::bindMountReadOnly(sourcePath, targetPath, out))
             {
@@ -293,7 +294,6 @@ namespace CommsComponent
 
             if (!isSafeToPurgeChroot(listOfMountedPaths, out))
             {
-                std::cout << out.rdbuf() << std::endl;
                 exit(EXIT_FAILURE);
             }
             backupLogs();
@@ -317,7 +317,7 @@ namespace CommsComponent
             for (auto& logFile : fs->listFiles(backup))
             {
                 auto destLogFile = Common::FileSystem::join(logsDir, Common::FileSystem::basename(logFile));
-                fs->copyFileAndSetPermissions(logFile, destLogFile, 0600, m_childUser.userName, m_childUser.userGroup);
+                fs->copyFileAndSetPermissions(logFile, destLogFile, S_IRUSR | S_IWUSR, m_childUser.userName, m_childUser.userGroup);
             }
             fs->removeFileOrDirectory(backup);
         }

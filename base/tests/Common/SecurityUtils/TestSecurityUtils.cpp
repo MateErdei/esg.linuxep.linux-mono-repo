@@ -159,7 +159,7 @@ TEST_F(TestSecurityUtils, TestchrootAndDropPrivilegesAbortIfNotRealUser) // NOLI
    ASSERT_EXIT({
                     try{
                         chrootAndDropPrivileges("notArealUser", "notArealGrp", "/tmp", m_out);
-                    }catch(FatalSecuritySetupFailureException&)
+                    }catch(FatalSecuritySetupFailureException& fsex)
                     {
                         exit(3); 
                     }

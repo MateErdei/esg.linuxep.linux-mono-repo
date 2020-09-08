@@ -77,7 +77,7 @@ namespace Common::SecurityUtils
             FatalSecuritySetupFailureException::onError(
                     "Process should fail to set effective group ids after dropping privilege.");
         }
-        out << "Dropped privilege to user_id: " << newuid << " group_id: " << newgid << "\n";
+        out << "Droped privilege to user_id: " << newuid << " group_id: " << newgid << std::endl;
 
     }
 
@@ -114,9 +114,9 @@ namespace Common::SecurityUtils
         }
         if (setenv("PWD", "/", 1) == -1)
         {
-            FatalSecuritySetupFailureException::onError("Pailed to sync PWD environment variable.");
+            FatalSecuritySetupFailureException::onError("Failed to sync PWD environment variable.");
         }
-        out << "Chroot to " << chrootDirPath << "\n";
+        out << "Chroot to " << chrootDirPath << std::endl;
     }
 
     std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string& groupName,
