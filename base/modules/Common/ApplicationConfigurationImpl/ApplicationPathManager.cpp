@@ -266,7 +266,11 @@ namespace Common
 
         std::string ApplicationPathManager::getVersionIniFileForComponent(const std::string& component) const
         {
-            if (component == "ServerProtectionLinux-Base-component")
+            if (component == "ServerProtectionLinux-Base")
+            {
+                return Common::FileSystem::join(sophosInstall(), "base/VERSION.ini");
+            }
+            else if (component == "ServerProtectionLinux-Base-component")
             {
                 return Common::FileSystem::join(sophosInstall(), "base/VERSION.ini");
             }
