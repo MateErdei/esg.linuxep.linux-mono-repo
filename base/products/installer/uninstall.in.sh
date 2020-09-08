@@ -118,20 +118,35 @@ if (( $DOWNGRADE == 0 ))
 then
   rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
 else
+  echo "backing up logs\n"
+  if [[ ! -f $SOPHOS_INSTALL/base/etc/backupfileslist.dat ]]
+  then
+    echo "back up file missing"
+  fi
+
+  echo "contents of backup dat file\n"
+  cat $SOPHOS_INSTALL/base/etc/backupfileslist.dat
+
   input=$SOPHOS_INSTALL/base/etc/backupfileslist.dat
   while IFS= read -r line
   do
-  if [[ -f "$SOPHOS_INSTALL/$line" ]]
-  then
-    DIR=${line%/*}
-    mkdir -p "$SOPHOS_INSTALL/$DIR/backup-logs"
-    mv "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/$DIR/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
-  elif [[ -d "$SOPHOS_INSTALL/$line" ]]
-  then
-    mkdir -p "$SOPHOS_INSTALL/$line/backup-logs"
-    mv "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/$line/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
-  fi
+    echo $line
+    if [[ -f "$SOPHOS_INSTALL/$line" ]]
+    then
+      DIR=${line%/*}
+      mkdir -p "$SOPHOS_INSTALL/$DIR/backup-logs"
+      mv "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/$DIR/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
+    elif [[ -d "$SOPHOS_INSTALL/$line" ]]
+    then
+      mkdir -p "$SOPHOS_INSTALL/tmp/backup-logs"
+      cp -r "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/tmp/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
+      rm -rf ${SOPHOS_INSTALL}/${line}/*  || failure "Failed to remove file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
+      mv "$SOPHOS_INSTALL/tmp/backup-logs" "$SOPHOS_INSTALL/$line/backup-logs" || failure "Failed to move file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
+    else
+      echo "Not file or dir"
+    fi
   done < "$input"
+
   input=$SOPHOS_INSTALL/base/etc/downgradepaths.dat
   while IFS= read -r line
   do
