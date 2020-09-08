@@ -239,6 +239,7 @@ namespace SulDownloader
                     std::string baseUninstallerPath =
                         Common::ApplicationConfiguration::applicationPathManager().getLocalBaseUninstallerPath();
                     uninstallManager.prepareProductForDowngrade(baseUninstallerPath);
+                    LOGDEBUG("Prepared base for downgrade");
                     setForceInstallForAllProducts = true;
                 }
                 else

@@ -113,6 +113,7 @@ namespace SulDownloader
                 {
                     errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript << "', code '" << exitCode
                                  << "' with error, Process did not complete successfully";
+                    LOGERROR(errorMessage.str());
                 }
                 else
                 {
@@ -123,6 +124,7 @@ namespace SulDownloader
             {
                 errorMessage << "Failed to prepare product for downgrade'" << uninstallScript << "' with error, "
                              << ex.what();
+                LOGERROR(errorMessage.str());
             }
         }
         return false;
