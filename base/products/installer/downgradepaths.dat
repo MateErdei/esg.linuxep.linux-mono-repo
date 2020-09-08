@@ -1,5 +1,4 @@
 base/lib
-base/bin
 base/mcs/status/cache
 base/pluginRegistry
 base/telemetery

@@ -62,7 +62,7 @@ then
 fi
 
 export SOPHOS_FULL_PRODUCT_UNINSTALL=1
-
+echo "starting" >> /tmp/uninstall.log
 function removeUpdaterSystemdService()
 {
     systemctl stop sophos-spl-update.service
@@ -87,7 +87,7 @@ function unmountCommsComponentDependencies()
     umount --force ${CommsComponentChroot}/${entry}  > /dev/null 2>&1
   done
 }
-
+echo "step 1" >> /tmp/uninstall.log
 removeUpdaterSystemdService || failure "Failed to remove updating service files"  ${FAILURE_REMOVE_UPDATE_SERVICE_FILES}
 
 # Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
@@ -102,23 +102,25 @@ then
         then
           bash "$UNINSTALLER " || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
         else
+          echo "step 1.5" >> /tmp/uninstall.log
           bash "$UNINSTALLER --downgrade" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
         fi
     done
 else
     echo "Can't uninstall plugins: $PLUGIN_UNINSTALL_DIR doesn't exist"
 fi
-
+echo "step 2" >> /tmp/uninstall.log
 removeWatchdogSystemdService || failure "Failed to remove watchdog service files"  ${FAILURE_REMOVE_WATCHDOG_SERVICE_FILES}
-
+echo "step 3" >> /tmp/uninstall.log
 CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
 unmountCommsComponentDependencies ${CommsComponentChroot}
-
+echo "step 4" >> /tmp/uninstall.log
 if (( $DOWNGRADE == 0 ))
 then
   rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
 else
   echo "backing up logs\n"
+  echo "step 5" >> /tmp/uninstall.log
   if [[ ! -f $SOPHOS_INSTALL/base/etc/backupfileslist.dat ]]
   then
     echo "back up file missing"
@@ -146,7 +148,7 @@ else
       echo "Not file or dir"
     fi
   done < "$input"
-
+  echo "step 6" >> /tmp/uninstall.log
   input=$SOPHOS_INSTALL/base/etc/downgradepaths.dat
   while IFS= read -r line
   do
@@ -195,7 +197,7 @@ function removeGroup()
       echo "Unable to delete group $GROUPNAME" >&2
   fi
 }
-
+echo "step 6" >> /tmp/uninstall.log
 if [[ -z $NO_REMOVE_USER ]]
 then
   SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
@@ -210,5 +212,5 @@ then
   SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
   removeGroup   ${SOPHOS_SPL_GROUP_NAME}
 fi
-
+echo "Finished" >> /tmp/uninstall.log
 exit $EXIT_CODE
