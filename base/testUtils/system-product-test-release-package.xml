@@ -64,7 +64,7 @@
     <buildcommands>
         <command>
             <program>./setOstiaVutBranch.sh</program>
-            <args>custom-linuxdar2101</args>
+            <args>develop</args>
             <workingdir>SupportFiles/jenkins</workingdir>
         </command>
     </buildcommands>
