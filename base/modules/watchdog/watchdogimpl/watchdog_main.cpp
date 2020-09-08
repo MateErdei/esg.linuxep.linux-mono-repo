@@ -43,30 +43,6 @@ namespace
         // If we can't get the cwd then use a fixed string.
         return "/opt/sophos-spl";
     }
-
-
-    //This class is not in use anymore. Being left in case a generic usage of it can be found
-    //It implemented commscomponent clean of mounts which was required in the case of downgrades
-    class UnmountOnClosure
-    {
-        std::string m_chroot;         
-        public: 
-        UnmountOnClosure(std::string installDir)
-        {
-            m_chroot = CommsComponent::CommsConfigurator::chrootPathForSSPL(installDir);
-        }
-        ~UnmountOnClosure()
-        {       
-            try{
-                CommsComponent::CommsConfigurator::cleanDefaultMountedPaths(m_chroot); 
-            }catch(std::exception& )
-            {
-                
-            }  
-            
-        }
-    };
-
 } // namespace
 
 /**

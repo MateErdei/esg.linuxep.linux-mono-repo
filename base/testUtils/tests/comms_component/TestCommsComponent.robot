@@ -41,8 +41,15 @@ Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
 
     Stop Watchdog
     Check Comms Component Not Running
+    Directory Should Exist     ${SOPHOS_INSTALL}/var/sophos-spl-comms/usr/lib/systemd/
     Start Watchdog
     Check Comms Component Not Running
+
+    #demonstrate that the start comms will cleanup and unmount known paths left in previous run
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  2 secs
+        ...  Directory Should Not Exist     ${SOPHOS_INSTALL}/var/sophos-spl-comms/usr/lib/systemd/
 
     #unmount stray file
     Unmount Test Directory

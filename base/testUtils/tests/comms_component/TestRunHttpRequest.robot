@@ -128,34 +128,6 @@ Test RunHttpRequest with Jail can perform a GET request with pinned Certificate 
     ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1Jail}  httpCode=200
     Should Contain   ${content}   Response From HttpsServer
     Check Log Contains    connection success          ${PROXY_LOG_PATH}     Proxy Log
-
-
-#FIXME LINUXDAR-1954: After the comms start to use the Configurator this test should be 'traslated' to use the comms plugin istead of the runhttprequest 
-Test RunHttpRequest with Jail produces mounts that should be cleared when Watchdog Stops
-    Copy File And Set Permissions   ${CERT_PATH}  ${MCS_CERTS_DIR}
-    Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${JAIL_PINNED_CERT_PATH}
-    Run Jailed Https Request Without Unmount    jailPath=/opt/sophos-spl/var/sophos-spl-comms
-    ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1Jail}  httpCode=200
-    
-    Should Contain   ${content}   Response From HttpsServer
-    
-    Directory Should Exist     /opt/sophos-spl/var/sophos-spl-comms/usr/lib/systemd/
-    Start Watchdog
-
-    Wait Until Keyword Succeeds
-    ...  3 secs 
-    ...  1 sec 
-    ...  Check Management Agent Running
-
-    Stop System Watchdog
-    Wait Until Keyword Succeeds
-    ...  3 secs 
-    ...  1 sec 
-    ...  Directory Should Not Exist     /opt/sophos-spl/var/sophos-spl-comms/usr/lib/systemd/
-
-    Verify All Mounts Have Been Removed  jailPath=/opt/sophos-spl/var/sophos-spl-comms
-    Check Log Contains  Successfully read only mounted   ${CHILD_LOG_PATH}   child log
-    Check Log Contains  Waiting for network process to finish   ${PARENT_LOG_PATH}   parent log
     
 
 
