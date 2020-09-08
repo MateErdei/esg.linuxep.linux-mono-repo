@@ -213,16 +213,18 @@ class TestStatusCache(unittest.TestCase):
         cache = createCache()
         mock_isfile.return_value = True
         with patch("builtins.open", mock_open(read_data="")) as mock_file:
-            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T15:43:10.74112&quot;')
-            self.assertTrue(ret)
+            with mock.patch("os.chmod", return_value=True):
+                ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T15:43:10.74112&quot;')
+                self.assertTrue(ret)
 
     @patch('os.path.isfile')
     def testInvalidStatusCacheOnDiskDoesNotCrash(self, mock_isfile):
         cache = createCache()
         mock_isfile.return_value = True
         with patch("builtins.open", mock_open(read_data="not json")) as mock_file:
-            ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T15:43:10.74112&quot;')
-            self.assertTrue(ret)
+            with mock.patch("os.chmod", return_value=True):
+                ret = cache.has_status_changed_and_record("FOO", ' timestamp=&quot;2017-09-14T15:43:10.74112&quot;')
+                self.assertTrue(ret)
 
 
 # except ImportError:
