@@ -75,7 +75,7 @@ TEST(CommandLineScanRunner, scanNonCanonicalPath) // NOLINT
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("./sandbox/"));
-    paths.emplace_back(fs::absolute(cwd / "/sandbox/../sandbox/"));
+    paths.emplace_back(fs::absolute(cwd.string() + "/sandbox/../sandbox/"));
     paths.emplace_back(fs::absolute( "sandbox/a/.."));
     std::vector<std::string> exclusions;
     Options options(false, paths, exclusions, false);
