@@ -168,10 +168,17 @@ int CommandLineScanRunner::run()
         if( exclusion.at(0) == '.'
             or exclusion.find("/.") != std::string::npos)
         {
-            exclusion = fs::canonical(exclusion);
-            if(fs::is_directory(exclusion) && exclusion != "/")
+            if (fs::exists(exclusion))
             {
-                exclusion.append("/");
+                exclusion = fs::canonical(exclusion);
+                if(fs::is_directory(exclusion) && exclusion != "/")
+                {
+                    exclusion.append("/");
+                }
+            }
+            else
+            {
+                LOGERROR("Cannot canonicalize: " << exclusion);
             }
         }
 
@@ -191,8 +198,8 @@ int CommandLineScanRunner::run()
     // for each select included mount point call filewalker for that mount point
     for (auto& path : m_paths)
     {
-        if( path.at(0) == '.'
-         or path.find("/.") != std::string::npos)
+        if((path.at(0) == '.' or path.find("/.") != std::string::npos)
+            and fs::exists(path))
         {
             path = fs::canonical(path);
         }
