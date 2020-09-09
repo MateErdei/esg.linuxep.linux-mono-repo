@@ -137,23 +137,25 @@ void unixsocket::ScanningServerConnectionThread::run()
     {
         if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
         {
-            LOGFATAL("ScanningServerConnectionThread terminated with serialisation unimplemented exception: "
+            // Fatal since this means we have a coding error that calls something unimplemented in kj.
+            LOGFATAL("Terminated ScanningServerConnectionThread with serialisation unimplemented exception: "
                      << ex.getDescription().cStr());
         }
         else
         {
             LOGERROR(
-                "ScanningServerConnectionThread terminated with serialisation exception: "
+                "Terminated ScanningServerConnectionThread with serialisation exception: "
                 << ex.getDescription().cStr());
         }
     }
     catch (const std::exception& ex)
     {
-        LOGERROR("ScanningServerConnectionThread terminated with exception: " << ex.what());
+        LOGERROR("Terminated ScanningServerConnectionThread with exception: " << ex.what());
     }
     catch (...)
     {
-        LOGERROR("ScanningServerConnectionThread terminated with unknown exception");
+        // Fatal since this means we have thrown something that isn't a subclass of std::exception
+        LOGFATAL("Terminated ScanningServerConnectionThread with unknown exception");
     }
     m_isRunning = false;
 }
