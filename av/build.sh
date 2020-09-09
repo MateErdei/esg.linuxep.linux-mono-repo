@@ -161,10 +161,10 @@ do
         --clean-log)
             : >$LOG
             ;;
-        --unit-test|--unittest)
+        --unit-test|--unittest|--test)
             UNITTEST=1
             ;;
-        --no-unit-test)
+        --no-unit-test|--no-test)
             UNITTEST=0
             ;;
         --esg-ci-coverage)

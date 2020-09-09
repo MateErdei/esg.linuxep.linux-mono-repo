@@ -1,0 +1,7 @@
+@Library("tap-pipe")
+
+def params = [
+    string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release|coverage]'),
+]
+
+CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params }

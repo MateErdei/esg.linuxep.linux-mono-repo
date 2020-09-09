@@ -2,6 +2,8 @@ import logging
 import os
 
 import tap.v1 as tap
+from tap._pipeline.tasks import ArtisanInput
+
 
 COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-av-unit.cov'
 COVFILE_PYTEST = '/opt/test/inputs/av/sspl-plugin-av-pytest.cov'
@@ -107,17 +109,17 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 
-def get_inputs(context: tap.PipelineContext, coverage=False):
-    print(str(context.artifact.build()))
+def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False):
+    print(str(build))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
-        av=context.artifact.build() / 'output'
+        av=build / 'output'
     )
     # override the av input and get the bullseye coverage build instead
     if coverage:
         assert has_coverage_build(context.branch)
-        test_inputs['av'] = context.artifact.build() / 'coverage'
+        test_inputs['av'] = build / 'coverage'
 
     return test_inputs
 
@@ -228,23 +230,43 @@ def bullseye_coverage_task(machine: tap.Machine):
 
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
 def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    ubuntu1804_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
-    centos7_machine = tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context), platform=tap.Platform.Linux)
 
     global BRANCH_NAME
     BRANCH_NAME = context.branch
+    do_coverage = parameters.run_tests_on_coverage == 'yes' or has_coverage_build(BRANCH_NAME)
+    coverage_build = None
 
-    with stage.parallel('component'):
-        stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
-        stage.task(task_name='centos77_x64',   func=pytest_task, machine=centos7_machine)
+    component = tap.Component(name='sspl-plugin-anti-virus', base_version='0.5.0')
+    # section include to allow classic build to continue to work. To run unified pipeline local because of this check
+    # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
+    if parameters.mode:
+        with stage.parallel('build'):
+            av_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
+                                           mode=parameters.mode, release_package='./build/release-package.xml')
+            if do_coverage:
+                coverage_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
+                                               mode="coverage", release_package='./build/release-package.xml')
+    else:
+        # Non-unified build
+        av_build = context.artifact.build()
 
-    with stage.parallel('integration'):
-        stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
-        stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
+    with stage.parallel('testing'):
+        test_inputs = get_inputs(context, av_build)
+        ubuntu1804_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        centos7_machine = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
 
-    with stage.parallel('coverage'):
-        if parameters.run_tests_on_coverage == 'yes' or has_coverage_build(BRANCH_NAME):
-            machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
-                                                inputs=get_inputs(context, coverage=True),
-                                                platform=tap.Platform.Linux)
-            stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)
+        with stage.parallel('component'):
+            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
+            stage.task(task_name='centos77_x64',   func=pytest_task, machine=centos7_machine)
+
+        with stage.parallel('integration'):
+            stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
+            stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
+
+        with stage.parallel('coverage'):
+            if do_coverage:
+                coverage_inputs = get_inputs(context, coverage_build, coverage=True)
+                machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
+                                                    inputs=coverage_inputs,
+                                                    platform=tap.Platform.Linux)
+                stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)

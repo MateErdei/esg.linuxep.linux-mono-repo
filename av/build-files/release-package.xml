@@ -5,7 +5,7 @@
     </versioning>
 
     <inputs>
-        <workingdir>sspl-plugin-anti-virus</workingdir>
+        <workingdir>.</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
         <!-- <package name="sspl-base" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.4/output" dest="input" buildtype="dev">
@@ -70,17 +70,25 @@
         <command mode="release">
             <program>/bin/bash</program>
             <args>./build.sh --ci --name av</args>
-            <workingdir>sspl-plugin-anti-virus</workingdir>
+            <workingdir>.</workingdir>
         </command>
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./build.sh --ci --name av --esg-ci-coverage</args>
-            <workingdir>sspl-plugin-anti-virus</workingdir>
+            <workingdir>.</workingdir>
         </command>
     </buildcommands>
     <publish>
-        <workingdir>sspl-plugin-anti-virus</workingdir>
+        <workingdir>.</workingdir>
         <destdir>sspl-plugin-anti-virus</destdir>
+
+        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
+        <build-asset artifact-path="sspl-plugin-anti-virus" source-dir="output" mode="release,debug,coverage">
+            <exclude glob="./SDDS-COMPONENT"/>
+        </build-asset>
+        <logs name="build_log" source-dir="log" mode="debug,release" />
+        <logs name="coverage_log" source-dir="log" mode="coverage" />
+
         <buildoutputs>
             <!-- rename logs for coverage builds -->
             <output name="build_log" srcfolder="log" mode="debug,release"> </output>
