@@ -176,6 +176,14 @@ else
   do
     rm -rf "$SOPHOS_INSTALL/$line" || failure "Failed to remove file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
   done < "$input"
+  chown sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/policy
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/event
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/status
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/response
+  chown root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/mcs.config
+  chown root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 fi
 
 PATH=$PATH:/usr/sbin:/sbin
@@ -222,17 +230,22 @@ function removeGroup()
 echo "step 7" >> /tmp/uninstall.log
 if [[ -z $NO_REMOVE_USER ]]
 then
-  SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
-  removeUser    ${SOPHOS_SPL_USER_NAME}
-
+  if [[ ${DOWNGRADE} == 0 ]]
+  then
+    SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
+    removeUser    ${SOPHOS_SPL_USER_NAME}
+  fi
   NETWORK_USER_NAME="@SOPHOS_SPL_NETWORK@"
   removeUser    ${NETWORK_USER_NAME}
 
   LOCAL_USER_NAME="@SOPHOS_SPL_LOCAL@"
   removeUser    ${LOCAL_USER_NAME}
 
-  SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
-  removeGroup   ${SOPHOS_SPL_GROUP_NAME}
+  if [[ ${DOWNGRADE} == 0 ]]
+  then
+    SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
+    removeGroup   ${SOPHOS_SPL_GROUP_NAME}
+  fi
 fi
 echo "Finished" >> /tmp/uninstall.log
 exit $EXIT_CODE
