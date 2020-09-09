@@ -24,8 +24,9 @@ namespace CommsComponent
         return std::nullopt;
     }
 
-    std::optional<Path> getCaCertificateBundleFile()
+    std::vector<Path> getCaCertificateStorePaths()
     {
+        std::vector<Path> caStorePaths;
         const std::vector<Path> caCertBundlePaths = {
                 "/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt"
         };
@@ -33,10 +34,10 @@ namespace CommsComponent
         {
             if (Common::FileSystem::fileSystem()->isFile(caCertBundlePath))
             {
-                return caCertBundlePath;
+                caStorePaths.emplace_back(Common::FileSystem::dirName(caCertBundlePath));
             }
         }
-        return std::nullopt;
+        return caStorePaths;
     }
 
     void makeDirsAndSetPermissions(const Path& rootDir, const Path& pathRelToRootDir, const std::string& userName,
