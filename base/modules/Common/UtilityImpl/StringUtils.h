@@ -9,7 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cstring>
 #include <string>
 #include <vector>
-#include <optional>
 #include <algorithm>
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -144,7 +143,7 @@ namespace Common
 
             static void enforceUTF8(const std::string& input);
 
-            static std::optional<std::string> extractValueFromIniFile(const std::string& filePath, const std::string& key)
+            static std::string extractValueFromIniFile(const std::string& filePath, const std::string& key)
             {
                 auto fs = Common::FileSystem::fileSystem();
                 if (fs->isFile(filePath))
@@ -158,7 +157,7 @@ namespace Common
                             return list[1].erase(0,1);
                         }
                     }
-                    return std::nullopt;
+                    return "";
                 }
                 throw std::runtime_error("File doesn't exist :" + filePath);
             }

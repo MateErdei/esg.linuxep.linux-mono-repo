@@ -137,7 +137,7 @@ TEST(TestStringUtils, extractValueFromIniFileThrowsIfKeydoesntExist) // NOLINT
     EXPECT_CALL(*filesystemMock, readLines(filePath)).WillOnce(Return(contents));
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
-    EXPECT_EQ(StringUtils::extractValueFromIniFile(filePath,"KEY"),std::nullopt);
+    EXPECT_EQ(StringUtils::extractValueFromIniFile(filePath,"KEY"),"");
 }
 
 TEST(TestStringUtils, isVersionOlderthrowsOnNonVersionData) // NOLINT
