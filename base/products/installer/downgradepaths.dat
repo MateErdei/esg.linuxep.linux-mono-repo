@@ -1,6 +1,7 @@
 base/lib
 base/mcs/status/cache
 base/mcs/tmp
+base/etc/sophosspl/mcs_policy.config
 base/pluginRegistry
 base/telemetery
 base/VERSION.ini*
