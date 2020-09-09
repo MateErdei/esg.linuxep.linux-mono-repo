@@ -6,30 +6,21 @@ JENKINS_DIR=$(dirname ${0})
 
 ## USAGE
 
-#  <repo>_BRANCH=<desired_branch> <repo>_SOURCE=<build_path> jenkinsBuildCommand.sh  [Robot Arguments]
-#
+#  WORKSPACE=<path_to_base_repo_root>  jenkinsBuildCommand.sh  [Robot Arguments]
+#  WORKSPACE is implicit in jenkins jobs
+#  "s in robot args must be escaped
 # example:
-#   BASE_BRANCH=bugfix/LINUXDAR-999-pluginapi-fix MDR_PLUGIN_SOURCE=/uk-filer5/prodro/bir/sspl-mdr-control-plugin/1-0-0-45/217122/output/SDDS-COMPONENT/ jenkinsBuildCommand.sh -s mdr_plugin
+#   WORKSPACE=/vagrant/everest-base jenkinsBuildCommand.sh -t \"test name\"
 #
-#   this example would run the mdr_plugin suite with overrides for a dev branch of base and
-#   using a production build of mdr plugin, with all else being the develop branch builds
-#   from JenkinsBuildOutput on filer6
-#
-#  Overrides will also be picked up from environment variables set via "export" commands/etc.
+#  build inputs are defined in testUtils/system-product-test-release-package.xml
+#  the ostia VUT warehouse can also be set there by changing the args for the build step which calls ./setOstiaVutBranch.sh
 
-# Valid <repo> values are:
-#   BASE
-#   EXAMPLE_PLUGIN
-#   AUDIT_PLUGIN
-#   EVENT_PROCESSOR
-#   MDR_PLUGIN
-#   EDR_PLUGIN
-#   THININSTALLER
-#   MDR_COMPONENT_SUITE
+#  AWS runner jobs which checkout this branch of base will inherit inputs from testUtils/system-product-test-release-package.xml
 
-# Valid <build_path> values are usually to the SDDS_COMPONENT directory (if one exists)
-# If in doubt, consult the default values under the "## SOURCE OVERRIDES" comment in this file
-# Your directory should contain similar things to the default filer6 directory
+#  When running a custom jenkins job, testUtils/system-product-test-release-package.xml could be changed/overwritten
+#  in place before running this script to change the inputs without pushing code. This will not trickle down
+#  into any aws runner jobs.
+
 
 date
 
