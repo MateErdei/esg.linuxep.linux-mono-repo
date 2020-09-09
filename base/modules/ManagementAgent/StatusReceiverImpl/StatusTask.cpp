@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
-
+#include <sys/stat.h>
 #include <cassert>
 
 namespace
@@ -31,7 +31,7 @@ void ManagementAgent::StatusReceiverImpl::StatusTask::run()
         Path filepath = Common::FileSystem::join(m_statusDir, basename);
         assert(!filepath.empty());
         // write file to directory
-        Common::FileSystem::fileSystem()->writeFileAtomically(filepath, m_statusXml, m_tempDir);
+        Common::FileSystem::fileSystem()->writeFileAtomically(filepath, m_statusXml, m_tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     }
 }
 

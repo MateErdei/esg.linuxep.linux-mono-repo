@@ -32,7 +32,7 @@ TEST_F(TestStatusTask, Construction) // NOLINT
 TEST_F(TestStatusTask, checkTaskWritesOutNewStatusToFile) // NOLINT
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml", "StatusWithTimestamp", "tempDir"))
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml", "StatusWithTimestamp", "tempDir", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
         .WillOnce(Return());
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> cache =
@@ -55,7 +55,7 @@ TEST_F(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) // NOLINT
     std::string fullPath = Common::FileSystem::join(
         Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath(),
         appId + ".xml");
-    EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml", "StatusWithTimestamp", "tempDir"))
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml", "StatusWithTimestamp", "tempDir", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
         .WillOnce(Return());
     EXPECT_CALL(*filesystemMock, writeFile(fullPath, contents)).WillOnce(Return());
 
@@ -79,7 +79,7 @@ TEST_F(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
     std::string fullPath = Common::FileSystem::join(
         Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath(),
         appId + ".xml");
-    EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/_status.xml", "", "tempDir")).WillOnce(Return());
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/_status.xml", "", "tempDir", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).WillOnce(Return());
     EXPECT_CALL(*filesystemMock, writeFile(fullPath, contents)).WillOnce(Return());
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> cache =

@@ -54,7 +54,7 @@ TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAS
 
     EXPECT_CALL(
         *filesystemMock,
-        writeFileAtomically("/opt/sophos-spl/base/mcs/status/APPID_status.xml", "WithTimestamp", "/opt/sophos-spl/tmp"))
+        writeFileAtomically("/opt/sophos-spl/base/mcs/status/APPID_status.xml", "WithTimestamp", "/opt/sophos-spl/tmp", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
         .WillOnce(Return());
 
     std::string fullPath =

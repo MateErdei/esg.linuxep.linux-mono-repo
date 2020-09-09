@@ -92,7 +92,6 @@ class StatusCache:
 
         with open(cached_status_file_path, 'w') as cached_status_json_outfile:
             json.dump(adapter_status_cache, cached_status_json_outfile)
-        os.chmod(cached_status_file_path, 0o660)
 
         return True
 

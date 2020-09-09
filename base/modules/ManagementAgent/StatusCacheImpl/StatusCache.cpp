@@ -7,9 +7,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "StatusCache.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
+#include <sys/stat.h>
 
 using namespace ManagementAgent::StatusCache;
 
@@ -78,6 +80,7 @@ namespace ManagementAgent
             try
             {
                 Common::FileSystem::fileSystem()->writeFile(statusCacheFullFilePath, statusForComparison);
+                Common::FileSystem::filePermissions()->chmod(statusCacheFullFilePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
             }
             catch (Common::FileSystem::IFileSystemException& e)
             {
