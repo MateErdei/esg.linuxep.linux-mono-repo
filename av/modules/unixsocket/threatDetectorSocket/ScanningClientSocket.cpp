@@ -25,9 +25,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 #include <fcntl.h>
 
-#define TOTAL_MAX_RECONNECTS 50
-#define MAX_CONN_RETRIES 3
-#define MAX_SCAN_RETRIES 3
+#define TOTAL_MAX_RECONNECTS 100
+#define MAX_CONN_RETRIES 5
+#define MAX_SCAN_RETRIES 10
 
 unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket_path)
     : m_reconnectAttempts(0)
