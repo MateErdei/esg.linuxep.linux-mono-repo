@@ -87,6 +87,6 @@
             <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
-        <publishbranches>master</publishbranches>
+        <publishbranches>master,feature/LINUXDAR-2246-move-to-using-develop-branch-of-sspl-base</publishbranches>
     </publish>
 </package>
