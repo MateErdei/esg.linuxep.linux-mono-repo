@@ -117,10 +117,10 @@ then
         if (( $DOWNGRADE == 0 ))
         then
           echo "step 1.5.1" >> /tmp/uninstall.log
-          bash "$UNINSTALLER " || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
+          bash "$UNINSTALLER " || failure "Failed to uninstall ${UNINSTALLER_BASE}: $?"
         else
           echo "step 1.5.2" >> /tmp/uninstall.log
-          bash "$UNINSTALLER --downgrade" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
+          bash $UNINSTALLER --downgrade || failure "Failed to uninstall ${UNINSTALLER_BASE}: $?"
         fi
     done
 else
