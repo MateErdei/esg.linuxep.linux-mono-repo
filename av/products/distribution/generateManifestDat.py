@@ -152,7 +152,7 @@ def main(argv):
         distribution_list = None
 
     file_objects = fileInfo.load_file_info(dist, distribution_list)
-    generate_manifest(dist)
+    generate_manifest(dist, file_objects)
 
     return 0
 
