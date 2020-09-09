@@ -96,7 +96,12 @@ function unmountCommsComponentDependencies()
   done
 }
 echo "step 1" >> /tmp/uninstall.log
-removeUpdaterSystemdService || failure "Failed to remove updating service files"  ${FAILURE_REMOVE_UPDATE_SERVICE_FILES}
+
+if (( $DOWNGRADE == 0 ))
+then
+  removeUpdaterSystemdService || failure "Failed to remove updating service files"  ${FAILURE_REMOVE_UPDATE_SERVICE_FILES}
+fi
+
 echo "step 1.1" >> /tmp/uninstall.log
 # Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
 # can stop the plugin process via wdctl.
