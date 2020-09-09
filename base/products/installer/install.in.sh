@@ -425,7 +425,6 @@ ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
 chown -h "root:${GROUP_NAME}" ${SOPHOS_INSTALL}/base/etc/telemetry-config.json*
 chmod 440 ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
-chmod g+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
@@ -440,7 +439,7 @@ chmod o+r "${SOPHOS_INSTALL}/base/lib64/libcrypto.so"*
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
 chmod 700 "${SOPHOS_INSTALL}/bin/version"*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
-chmod g+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
+chmod go+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
