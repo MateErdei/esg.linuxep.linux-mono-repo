@@ -123,6 +123,7 @@ def generate_manifest_new_api(dist, file_objects=None):
     exclusions = 'SDDS-Import.xml,'+MANIFEST_NAME  # comma separated string
     env = os.environ.copy()
     env['LD_LIBRARY_PATH'] = "/usr/lib:/usr/lib64"
+    env['OPENSSL_PATH'] = "/usr/bin/openssl"
     previous_contents = read(manifest_path)
     result = subprocess.run(
         ['sb_manifest_sign', '--folder', dist, '--output', manifest_path, '--exclusions', exclusions]
@@ -138,7 +139,8 @@ def generate_manifest(dist, file_objects=None):
     try:
         return generate_manifest_new_api(dist, file_objects)
     except subprocess.CalledProcessError as ex:
-        print("Unable to generate manifest.dat file with new-api")
+        print("Unable to generate manifest.dat file with new-api: ", ex.returncode, str(ex))
+        print("Output:", ex.output.decode("UTF-8", errors='replace'))
     return generate_manifest_old_api(dist, file_objects)
 
 
