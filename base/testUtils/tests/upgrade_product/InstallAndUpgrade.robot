@@ -219,6 +219,11 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
     Wait For Initial Update To Fail
 
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   5 secs
+    ...   Check MCS Envelope Contains Event Fail On N Event Sent  1
+
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
     Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
@@ -232,7 +237,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
-
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/backup-logs
     # Products that should be uninstalled after downgrade
     Should Exist  ${InstalledLRPluginVersionFile}
 
@@ -254,7 +259,12 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/backup-logs
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  Failed to connect to the warehouse
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
@@ -265,7 +275,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
-    ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  3
+    ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
     # If mtr is installed for the first time, this will appear
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
@@ -293,8 +303,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
 
-    # check that at least one component was uninstalled during downgrade
-    Check SulDownloader Log Contains  Uninstalling
     # Ensure products which should have been removed are removed.
     Should Not Exist  ${InstalledLRPluginVersionFile}
 
