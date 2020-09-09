@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "datatypes/sophos_filesystem.h"
 #include "tests/common/Common.h"
+#include "tests/common/LogInitializedTests.h"
 #include "tests/common/WaitForEvent.h"
 
 #include <unixsocket/threatReporterSocket/ThreatReporterClient.h>
@@ -22,7 +23,7 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class TestThreatReporterSocket : public ::testing::Test
+    class TestThreatReporterSocket : public LogInitializedTests
     {
     public:
         void SetUp() override

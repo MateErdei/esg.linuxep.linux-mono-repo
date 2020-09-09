@@ -7,17 +7,29 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include "manager/scheduler/ScheduledScanConfiguration.h"
+#include "tests/common/LogInitializedTests.h"
+
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 using namespace manager::scheduler;
 
+class TestScheduledScanConfiguration : public LogInitializedTests
+{
+public:
+    void SetUp() override
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        appConfig.setData("PLUGIN_INSTALL", "/tmp/TestScheduledScanConfiguration");
+    }
+};
 
-TEST(ScheduledScanConfiguration, constructionWithArg) // NOLINT
+TEST_F(TestScheduledScanConfiguration, constructionWithArg) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml></xml>");
     auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
 }
 
-TEST(ScheduledScanConfiguration, testWholePolicy) // NOLINT
+TEST_F(TestScheduledScanConfiguration, testWholePolicy) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -263,7 +275,7 @@ TEST(ScheduledScanConfiguration, testWholePolicy) // NOLINT
     auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
 }
 
-TEST(ScheduledScanConfiguration, justOndemandPolicy) // NOLINT
+TEST_F(TestScheduledScanConfiguration, justOndemandPolicy) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -344,7 +356,7 @@ TEST(ScheduledScanConfiguration, justOndemandPolicy) // NOLINT
     EXPECT_EQ(exclusions.at(0),"Exclusion1");
 }
 
-TEST(ScheduledScanConfiguration, multipleExclusions) // NOLINT
+TEST_F(TestScheduledScanConfiguration, multipleExclusions) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -368,7 +380,7 @@ TEST(ScheduledScanConfiguration, multipleExclusions) // NOLINT
     EXPECT_EQ(exclusions.at(1),"Exclusion2");
 }
 
-TEST(ScheduledScanConfiguration, TestEmptyXml) // NOLINT
+TEST_F(TestScheduledScanConfiguration, TestEmptyXml) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -386,21 +398,21 @@ TEST(ScheduledScanConfiguration, TestEmptyXml) // NOLINT
     EXPECT_FALSE(m->scanFilesWithNoExtensions());
 }
 
-TEST(ScheduledScanConfiguration, TestSimpleParsing) //NOLINT
+TEST_F(TestScheduledScanConfiguration, TestSimpleParsing) //NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml><key>value</key></xml>");
     auto attributes = attributeMap.lookup("xml/key");
     EXPECT_EQ(attributes.value(attributes.TextId), "value");
 }
 
-TEST(ScheduledScanConfiguration, TestTextIdAttribute) //NOLINT
+TEST_F(TestScheduledScanConfiguration, TestTextIdAttribute) //NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml><key TestId=\"foo\">bar</key></xml>");
     auto attributes = attributeMap.lookup("xml/key");
     EXPECT_EQ(attributes.value(attributes.TextId), "bar"); // Rather than foo
 }
 
-TEST(ScheduledScanConfiguration, ScanNowConstructed) //NOLINT
+TEST_F(TestScheduledScanConfiguration, ScanNowConstructed) //NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml><key TestId=\"foo\">bar</key></xml>");
     auto scanConfiguration = ScheduledScanConfiguration(attributeMap);
@@ -421,7 +433,7 @@ TEST(ScheduledScanConfiguration, ScanNowConstructed) //NOLINT
     EXPECT_EQ(scanNowScan.isScanNow(), true);
 }
 
-TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
+TEST_F(TestScheduledScanConfiguration, MultipleScans) // NOLINT
 {
 
     auto attributeMap = Common::XmlUtilities::parseXml(
@@ -576,7 +588,7 @@ TEST(ScheduledScanConfiguration, MultipleScans) // NOLINT
     EXPECT_EQ(scanNowScan.isScanNow(), true);
 }
 
-TEST(ScheduledScanConfiguration, TestArchiveSettingTrue) // NOLINT
+TEST_F(TestScheduledScanConfiguration, TestArchiveSettingTrue) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -605,7 +617,7 @@ TEST(ScheduledScanConfiguration, TestArchiveSettingTrue) // NOLINT
     EXPECT_TRUE(scanArchives);
 }
 
-TEST(ScheduledScanConfiguration, TestArchiveSettingFalse) // NOLINT
+TEST_F(TestScheduledScanConfiguration, TestArchiveSettingFalse) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -634,7 +646,7 @@ TEST(ScheduledScanConfiguration, TestArchiveSettingFalse) // NOLINT
     EXPECT_FALSE(scanArchives);
 }
 
-TEST(ScheduledScanConfiguration, MissingArchiveSettings) // NOLINT
+TEST_F(TestScheduledScanConfiguration, MissingArchiveSettings) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -658,7 +670,7 @@ TEST(ScheduledScanConfiguration, MissingArchiveSettings) // NOLINT
     EXPECT_FALSE(scanArchives);
 }
 
-TEST(ScheduledScanConfiguration, allFilesFalse) // NOLINT
+TEST_F(TestScheduledScanConfiguration, allFilesFalse) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -680,7 +692,7 @@ TEST(ScheduledScanConfiguration, allFilesFalse) // NOLINT
     EXPECT_FALSE(allFiles);
 }
 
-TEST(ScheduledScanConfiguration, allFilesTrue) // NOLINT
+TEST_F(TestScheduledScanConfiguration, allFilesTrue) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -699,7 +711,7 @@ TEST(ScheduledScanConfiguration, allFilesTrue) // NOLINT
     EXPECT_TRUE(allFiles);
 }
 
-TEST(ScheduledScanConfiguration, noExtensionsFalse) // NOLINT
+TEST_F(TestScheduledScanConfiguration, noExtensionsFalse) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -717,7 +729,7 @@ TEST(ScheduledScanConfiguration, noExtensionsFalse) // NOLINT
     EXPECT_FALSE(m->scanFilesWithNoExtensions());
 }
 
-TEST(ScheduledScanConfiguration, noExtensionsTrue) // NOLINT
+TEST_F(TestScheduledScanConfiguration, noExtensionsTrue) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -738,7 +750,7 @@ TEST(ScheduledScanConfiguration, noExtensionsTrue) // NOLINT
 //"onDemandScan/extensions/excludeSophosDefined/extension"
 
 
-TEST(ScheduledScanConfiguration, extensionExclusion) // NOLINT
+TEST_F(TestScheduledScanConfiguration, extensionExclusion) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -758,7 +770,7 @@ TEST(ScheduledScanConfiguration, extensionExclusion) // NOLINT
     EXPECT_EQ(e.at(0), "exe");
 }
 
-TEST(ScheduledScanConfiguration, multipleExtensionExclusion) // NOLINT
+TEST_F(TestScheduledScanConfiguration, multipleExtensionExclusion) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -782,7 +794,7 @@ TEST(ScheduledScanConfiguration, multipleExtensionExclusion) // NOLINT
     EXPECT_EQ(e.at(1), "jpg");
 }
 
-TEST(ScheduledScanConfiguration, extensionInclusion) // NOLINT
+TEST_F(TestScheduledScanConfiguration, extensionInclusion) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -802,7 +814,7 @@ TEST(ScheduledScanConfiguration, extensionInclusion) // NOLINT
     EXPECT_EQ(e.at(0), "exe");
 }
 
-TEST(ScheduledScanConfiguration, scanLocalDisks) // NOLINT
+TEST_F(TestScheduledScanConfiguration, scanLocalDisks) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -837,7 +849,7 @@ TEST(ScheduledScanConfiguration, scanLocalDisks) // NOLINT
     EXPECT_FALSE(scan.removableDrives());
 }
 
-TEST(ScheduledScanConfiguration, scanEverythingButLocalDisks) // NOLINT
+TEST_F(TestScheduledScanConfiguration, scanEverythingButLocalDisks) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -872,7 +884,7 @@ TEST(ScheduledScanConfiguration, scanEverythingButLocalDisks) // NOLINT
     EXPECT_TRUE(scan.removableDrives());
 }
 
-TEST(ScheduledScanConfiguration, scanNetworkOnly) // NOLINT
+TEST_F(TestScheduledScanConfiguration, scanNetworkOnly) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -907,7 +919,7 @@ TEST(ScheduledScanConfiguration, scanNetworkOnly) // NOLINT
     EXPECT_FALSE(scan.removableDrives());
 }
 
-TEST(ScheduledScanConfiguration, scanRemovableOnly) // NOLINT
+TEST_F(TestScheduledScanConfiguration, scanRemovableOnly) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
