@@ -332,6 +332,11 @@ then
     chmod -R 660 "${SOPHOS_INSTALL}/base/mcs/status"
 fi
 
+if [[ -d "${SOPHOS_INSTALL}/base/mcs/policy" ]]
+then
+    chmod -R 640 "${SOPHOS_INSTALL}/base/mcs/policy"
+fi
+
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/policy"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/response"
