@@ -301,28 +301,6 @@ ln -sf "${SOPHOS_INSTALL}/var/sophos-spl-comms/logs" "${SOPHOS_INSTALL}/logs/bas
 chown "root:" "${SOPHOS_INSTALL}/logs/base"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl"
 
-if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log" ]]
-then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log"
-fi
-
-if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log" ]]
-then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log"
-fi
-
-if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config" ]]
-then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config"
-    chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config"
-fi
-
-if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config" ]]
-then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
-    chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
-fi
-
 makedir 711 "${SOPHOS_INSTALL}/base"
 
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
@@ -356,20 +334,7 @@ fi
 
 if [[ -d "${SOPHOS_INSTALL}/base/mcs/policy" ]]
 then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/policy"
     chmod -R 640 "${SOPHOS_INSTALL}/base/mcs/policy"
-fi
-
-if [[ -d "${SOPHOS_INSTALL}/base/mcs/action" ]]
-then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/action"
-    chmod 640 "${SOPHOS_INSTALL}/base/mcs/action"
-fi
-
-if [[ -d "${SOPHOS_INSTALL}/tmp/actions" ]]
-then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp/actions"
-    chmod 640 "${SOPHOS_INSTALL}/tmp/actions"
 fi
 
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
@@ -425,6 +390,7 @@ ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
 chown -h "root:${GROUP_NAME}" ${SOPHOS_INSTALL}/base/etc/telemetry-config.json*
 chmod 440 ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
+chmod g+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
@@ -439,7 +405,7 @@ chmod o+r "${SOPHOS_INSTALL}/base/lib64/libcrypto.so"*
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
 chmod 700 "${SOPHOS_INSTALL}/bin/version"*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
-chmod go+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
+chmod g+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
