@@ -343,6 +343,8 @@ chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/requests"
 
 chmod 660 "${SOPHOS_INSTALL}/base/mcs/status"/*
 chmod 660 "${SOPHOS_INSTALL}/base/mcs/status/cache"/*
+chmod 770 "${SOPHOS_INSTALL}/base/mcs/status"
+chmod 770 "${SOPHOS_INSTALL}/base/mcs/status/cache"
 
 makedir 711 "${SOPHOS_INSTALL}/plugins"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins"
