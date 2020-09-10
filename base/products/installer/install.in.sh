@@ -327,6 +327,11 @@ chown -R "root:root"  "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 makedir 711 "${SOPHOS_INSTALL}/base/bin"
 makedir 711 "${SOPHOS_INSTALL}/base/lib64"
 
+if [[ -d "${SOPHOS_INSTALL}/base/mcs/status" ]]
+then
+    chmod -R 660 "${SOPHOS_INSTALL}/base/mcs/status"
+fi
+
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/policy"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/response"
@@ -340,11 +345,6 @@ makedir 770 "${SOPHOS_INSTALL}/var/comms/requests"
 chmod   750 "${SOPHOS_INSTALL}/var/comms"
 chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/"
 chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/requests"
-
-chmod 660 "${SOPHOS_INSTALL}/base/mcs/status"/*
-chmod 660 "${SOPHOS_INSTALL}/base/mcs/status/cache"/*
-chmod 770 "${SOPHOS_INSTALL}/base/mcs/status"
-chmod 770 "${SOPHOS_INSTALL}/base/mcs/status/cache"
 
 makedir 711 "${SOPHOS_INSTALL}/plugins"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins"
