@@ -303,12 +303,17 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl"
 
 if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log" ]]
 then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log"
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log"
 fi
 
 if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log" ]]
 then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log"
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log"
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config" ]]
+then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config"
 fi
 
 makedir 711 "${SOPHOS_INSTALL}/base"
