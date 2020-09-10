@@ -49,20 +49,36 @@ def uninstall_sspl_if_installed():
 def create_test_telemetry_config_file(telemetry_config_file_path, certificate_path, username="sophos-spl-user",
                                       requestType="PUT", port=443):
     default_telemetry_config = {
-        "telemetryServerCertificatePath": certificate_path,
+        "telemetryServerCertificatePath": "",
         "externalProcessWaitRetries": 10,
         "externalProcessWaitTime": 100,
         "additionalHeaders": ["x-amz-acl: bucket-owner-full-control"],
         "maxJsonSize": 100000,
         "messageRelays": [],
-        "port": int(port),
+        "port": 443,
         "proxies": [],
         "resourcePath": "linux/dev",
         "server": "localhost",
-        "verb": requestType}
+        "verb": "PUT"
+    }
+
+    fixedTelemetryCert="/opt/sophos-spl/base/mcs/certs/telemetry.crt"
+
+    logger.info(certificate_path)
+
+    if certificate_path != '""':
+        shutil.copyfile(certificate_path, fixedTelemetryCert)
+        default_telemetry_config["telemetryServerCertificatePath"] = fixedTelemetryCert
+    else:
+        default_telemetry_config["telemetryServerCertificatePath"] = ""
+
+    os.chmod(fixedTelemetryCert, 0o644)
+    default_telemetry_config["verb"] = requestType
+    default_telemetry_config["port"] = int(port)
 
     with open(telemetry_config_file_path, 'w') as tcf:
         tcf.write(json.dumps(default_telemetry_config))
+
     uid = pwd.getpwnam(username).pw_uid
     os.chown(telemetry_config_file_path, uid, -1)
 
