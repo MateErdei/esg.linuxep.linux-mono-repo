@@ -59,15 +59,6 @@
             <include src="susi.tar" dest="."/>
         </package>
 
-        <!--
-            lrdata comes from a supplement for real installs.
-            But for testing we need to have our own copy.
-            [LINUXDAR-1793] For the moment add to the SDDS we generate to get tests working.
-        -->
-        <package buildtype="dev" name="lrdata" version="sophos-susi-lrdata/%LASTGOODBUILD%/lrdata/2019061901" dest="input" >
-            <include src="reputation.zip" dest="lrdata" />
-        </package>
-
     </inputs>
     <buildcommands>
         <command mode="release">
