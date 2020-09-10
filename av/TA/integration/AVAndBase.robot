@@ -212,6 +212,11 @@ AV Plugin Can Send Telemetry
     Prepare To Run Telemetry Executable
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
+    Wait Until Keyword Succeeds
+             ...  10 secs
+             ...  1 secs
+             ...  File Should Exist  ${EXE_CONFIG_FILE}
+
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
 
