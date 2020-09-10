@@ -43,6 +43,27 @@ namespace
         // If we can't get the cwd then use a fixed string.
         return "/opt/sophos-spl";
     }
+
+    class UnmountOnClosure
+    {
+        std::string m_chroot;
+        public:
+        explicit UnmountOnClosure(const std::string& installDir)
+        {
+            m_chroot = CommsComponent::CommsConfigurator::chrootPathForSSPL(installDir);
+        }
+        ~UnmountOnClosure()
+        {
+            try{
+                CommsComponent::CommsConfigurator::cleanDefaultMountedPaths(m_chroot);
+            }catch(std::exception& )
+            {
+
+            }
+
+        }
+    };
+
 } // namespace
 
 /**
@@ -68,6 +89,7 @@ int watchdog_main::main(int argc, char** argv)
     try
     {        
         Watchdog m;
+        UnmountOnClosure unmountOnClosure{installDir};
         return m.initialiseAndRun();
     }
     catch ( Common::UtilityImpl::ConfigException & ex)

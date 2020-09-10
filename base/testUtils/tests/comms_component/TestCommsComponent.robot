@@ -13,8 +13,10 @@ Test Teardown  Test Teardown
 
 
 *** Variables ***
-${TestReadOnlyMount}  ${SOPHOS_INSTALL}/var/sophos-spl-comms/test-ro-mount
-${CommsNetworkLogsPath}  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log
+${TestReadOnlyMount}        ${SOPHOS_INSTALL}/var/sophos-spl-comms/test-ro-mount
+${CommsNetworkLogsPath}     ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log
+${CommsLocalLogsPath}     ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log
+${CommsJailPath}        ${SOPHOS_INSTALL}/var/sophos-spl-comms
 
 *** Test Cases ***
 
@@ -30,6 +32,26 @@ Test Comms Component Starts
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log  sophos-spl-network  sophos-spl-group  -rw-------
 
 
+Test CommsComponent Produces Mounts That Should Be Cleared When Watchdog Stops
+    [Tags]   COMMS  TAP_TESTS
+    Directory Should Exist     ${CommsJailPath}/usr/lib/systemd/
+    Wait Until Keyword Succeeds
+    ...  3 secs
+    ...  1 sec
+    ...  Check Management Agent Running
+    Check Comms Component Is Running
+
+    Stop System Watchdog
+    Wait Until Keyword Succeeds
+    ...  3 secs
+    ...  1 sec
+    ...  Directory Should Not Exist     ${CommsJailPath}/usr/lib/systemd/
+
+    Verify All Mounts Have Been Removed  jailPath=${CommsJailPath}
+    Check Log Contains  Successfully read only mounted   ${CommsNetworkLogsPath}   network log
+    Check Log Contains  Waiting for network process to finish  ${CommsLocalLogsPath}  local log
+
+
 Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
     [Tags]   COMMS  TAP_TESTS
     Require Installed
@@ -41,7 +63,7 @@ Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
 
     Stop Watchdog
     Check Comms Component Not Running
-    Directory Should Exist     ${SOPHOS_INSTALL}/var/sophos-spl-comms/usr/lib/systemd/
+    Directory Should Exist     ${CommsJailPath}/usr/lib/systemd/
     Start Watchdog
     Check Comms Component Not Running
 
@@ -49,7 +71,7 @@ Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
     Wait Until Keyword Succeeds
         ...  10 secs
         ...  2 secs
-        ...  Directory Should Not Exist     ${SOPHOS_INSTALL}/var/sophos-spl-comms/usr/lib/systemd/
+        ...  Directory Should Not Exist     ${CommsJailPath}/usr/lib/systemd/
 
     #unmount stray file
     Unmount Test Directory
