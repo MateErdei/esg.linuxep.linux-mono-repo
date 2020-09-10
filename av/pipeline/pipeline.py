@@ -234,18 +234,20 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     global BRANCH_NAME
     BRANCH_NAME = context.branch
     do_coverage = parameters.run_tests_on_coverage == 'yes' or has_coverage_build(BRANCH_NAME)
-    coverage_build = None
+    coverage_build = context.artifact.build()
 
-    component = tap.Component(name='sspl-plugin-anti-virus', base_version='0.5.0')
     # section include to allow classic build to continue to work. To run unified pipeline local because of this check
     # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     if parameters.mode:
+        component = tap.Component(name='sspl-plugin-anti-virus', base_version='0.5.0')
+        build_image = 'JenkinsLinuxTemplate5'
+        release_package = "./build-files/release-package.xml"
         with stage.parallel('build'):
-            av_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
-                                           mode=parameters.mode, release_package='./build/release-package.xml')
+            av_build = stage.artisan_build(name=parameters.mode, component=component, image=build_image,
+                                           mode=parameters.mode, release_package=release_package)
             if do_coverage:
-                coverage_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
-                                               mode="coverage", release_package='./build/release-package.xml')
+                coverage_build = stage.artisan_build(name=parameters.mode, component=component, image=build_image,
+                                               mode="coverage", release_package=release_package)
     else:
         # Non-unified build
         av_build = context.artifact.build()
