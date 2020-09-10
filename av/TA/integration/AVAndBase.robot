@@ -57,7 +57,7 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     ${now} =  Get Current Date  result_format=epoch
     Send Sav Policy To Base  SAV_Policy.xml
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until Management Log Contains  Action /opt/sophos-spl/base/mcs/action/SAV_action
+    Wait Until Management Log Contains  Action SAV_action
     Wait Until AV Plugin Log Contains  Starting scan
     Wait Until AV Plugin Log Contains  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains  Sending scan complete
