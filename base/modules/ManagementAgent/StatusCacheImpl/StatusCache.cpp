@@ -79,6 +79,10 @@ namespace ManagementAgent
 
             try
             {
+                if (Common::FileSystem::fileSystem()->exists(statusCacheFullFilePath))
+                {
+                    Common::FileSystem::fileSystem()->removeFile(statusCacheFullFilePath);
+                }
                 Common::FileSystem::fileSystem()->writeFile(statusCacheFullFilePath, statusForComparison);
                 Common::FileSystem::filePermissions()->chmod(statusCacheFullFilePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
             }

@@ -57,6 +57,7 @@ TEST_F(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) // NOLINT
         appId + ".xml");
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml", "StatusWithTimestamp", "tempDir", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
         .WillOnce(Return());
+    EXPECT_CALL(*filesystemMock, exists(fullPath)).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, writeFile(fullPath, contents)).WillOnce(Return());
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -80,6 +81,7 @@ TEST_F(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
         Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath(),
         appId + ".xml");
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/_status.xml", "", "tempDir", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).WillOnce(Return());
+    EXPECT_CALL(*filesystemMock, exists(fullPath)).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, writeFile(fullPath, contents)).WillOnce(Return());
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> cache =
