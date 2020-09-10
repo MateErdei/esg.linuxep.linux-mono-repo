@@ -30,11 +30,21 @@ namespace CommsComponent
         const std::vector<Path> caCertBundlePaths = {
                 "/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt"
         };
+        auto fs = Common::FileSystem::fileSystem();
         for (const auto& caCertBundlePath : caCertBundlePaths)
         {
-            if (Common::FileSystem::fileSystem()->isFile(caCertBundlePath))
+            if (fs->isFile(caCertBundlePath))
             {
                 caStorePaths.emplace_back(Common::FileSystem::dirName(caCertBundlePath));
+                //follow symlinks to depth of one only
+                if( fs->isSymlink(caCertBundlePath))
+                {
+                    auto actualBundlePath = fs->readlink(caCertBundlePath);
+                    if(!actualBundlePath.empty())
+                    {
+                        caStorePaths.emplace_back(Common::FileSystem::dirName(actualBundlePath));
+                    }
+                }
             }
         }
         return caStorePaths;
