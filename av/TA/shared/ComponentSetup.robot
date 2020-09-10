@@ -1,7 +1,6 @@
 *** Settings ***
 Library         Process
 Library         OperatingSystem
-Library         ../Libs/FakeManagement.py
 
 Resource    GlobalSetup.robot
 
@@ -30,6 +29,7 @@ Mock Base Installation
     Remove Directory   ${SOPHOS_INSTALL}   recursive=True
     Create Directory   ${SOPHOS_INSTALL}
     Create Directory   ${SOPHOS_INSTALL}/base/lib64
+    Create Directory   ${SOPHOS_INSTALL}/base/mcs/action
     Copy File  ${BASE_SDDS}/files/base/lib64/libcrypto.so.1.1  ${SOPHOS_INSTALL}/base/lib64/
     Create Directory   ${SOPHOS_INSTALL}/tmp
     Create Directory   ${SOPHOS_INSTALL}/var/ipc

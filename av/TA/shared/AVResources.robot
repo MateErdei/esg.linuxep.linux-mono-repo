@@ -4,7 +4,6 @@ Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
 Library         ../Libs/LogUtils.py
-Library         ../Libs/FakeManagement.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
@@ -203,7 +202,7 @@ Uninstall and full reinstall
 
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
-    ${result} =   Run Process   bash  -x  ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT
+    ${result} =   Run Process   ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install base.\noutput: \n${result.stdout}"
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
