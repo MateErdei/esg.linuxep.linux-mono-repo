@@ -18,7 +18,7 @@ class Config(object):
     Simple key=value configuration file
     """
 
-    def __init__(self, filename=None, parent_config=None, mode=0o640, user_id=0, group_id=0):
+    def __init__(self, filename=None, parent_config=None, mode=0o600, user_id=0, group_id=0):
         """
         __init__
         """
@@ -96,9 +96,11 @@ class Config(object):
         """
         save
         """
+
         if filename is None:
             filename = self.__m_filename
         assert filename is not None
+        LOGGER.info("Saving config file: {}".format(filename))
         old_umask = os.umask(0o777 ^ self.__mode)
         try:
             temp_filename = os.path.join(path_manager.temp_dir(), os.path.basename(filename))
@@ -106,8 +108,12 @@ class Config(object):
             for (key, value) in self.__m_options.items():
                 file_to_write.write("{}={}\n".format(key, value))
             file_to_write.close()
+            LOGGER.info("written config")
             os.chown(temp_filename, self.__user_id, self.__group_id)
+            LOGGER.info("chowned config to: {} {}".format(self.__user_id, self.__group_id))
+            LOGGER.info("old umask: {}, new: {}".format(old_umask, 0o777 ^ self.__mode ))
             os.rename(temp_filename, filename)
+            LOGGER.info("renamaing {} to {}".format(temp_filename, filename))
         finally:
             os.umask(old_umask)
         self.__m_filename = filename
