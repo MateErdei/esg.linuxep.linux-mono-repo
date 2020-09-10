@@ -433,7 +433,7 @@ namespace UpdateSchedulerImpl
         {
             std::string eventXml = serializeUpdateEvent(
                 reportAndFiles.reportCollectionResult.SchedulerEvent, m_policyTranslator, m_formattedTime);
-            LOGINFO("Sending event to Central event:"+eventXml);
+            LOGINFO("Sending event to Central");
 
             m_baseService->sendEvent(ALC_API, eventXml);
         }

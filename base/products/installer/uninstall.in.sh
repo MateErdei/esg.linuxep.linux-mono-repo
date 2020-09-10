@@ -15,6 +15,7 @@ FAILURE_REMOVE_WATCHDOG_SERVICE_FILES=3
 FAILURE_REMOVE_PRODUCT_FILES=4
 FAILURE_REMOVE_USER=5
 FAILURE_REMOVE_GROUP=6
+FAILURE_TO_BACKUP_FILES=7
 
 function failure()
 {
@@ -32,11 +33,16 @@ fi
 
 # Check the customer wants to uninstall
 FORCE=0
+DOWNGRADE=0
+
 while [[ $# -ge 1 ]]
 do
     case $1 in
         --force)
             FORCE=1
+            ;;
+        --downgrade)
+            DOWNGRADE=1
             ;;
     esac
     shift
@@ -83,7 +89,10 @@ function unmountCommsComponentDependencies()
   done
 }
 
-removeUpdaterSystemdService || failure "Failed to remove updating service files"  ${FAILURE_REMOVE_UPDATE_SERVICE_FILES}
+if (( $DOWNGRADE == 0 ))
+then
+  removeUpdaterSystemdService || failure "Failed to remove updating service files"  ${FAILURE_REMOVE_UPDATE_SERVICE_FILES}
+fi
 
 # Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
 # can stop the plugin process via wdctl.
@@ -93,7 +102,12 @@ then
     for UNINSTALLER in "$PLUGIN_UNINSTALL_DIR"/*
     do
         UNINSTALLER_BASE=${UNINSTALLER##*/}
-        bash "$UNINSTALLER" || failure "Failed to uninstall $(UNINSTALLER_BASE): $?"
+        if (( $DOWNGRADE == 0 ))
+        then
+          bash "$UNINSTALLER" || failure "Failed to uninstall ${UNINSTALLER_BASE}: $?"
+        else
+          bash $UNINSTALLER --downgrade || failure "Failed to uninstall ${UNINSTALLER_BASE}: $?"
+        fi
     done
 else
     echo "Can't uninstall plugins: $PLUGIN_UNINSTALL_DIR doesn't exist"
@@ -103,7 +117,41 @@ removeWatchdogSystemdService || failure "Failed to remove watchdog service files
 
 CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
 unmountCommsComponentDependencies "${CommsComponentChroot}"
-rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
+
+if (( $DOWNGRADE == 0 ))
+then
+  rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
+else
+  input=$SOPHOS_INSTALL/base/etc/backupfileslist.dat
+  while IFS= read -r line
+  do
+    if [[ -f "$SOPHOS_INSTALL/$line" ]]
+    then
+      DIR=${line%/*}
+      mkdir -p "$SOPHOS_INSTALL/$DIR/backup-logs"
+      mv "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/$DIR/backup-logs" || failure "Failed to copy $line"  ${FAILURE_TO_BACKUP_FILES}
+    elif [[ -d "$SOPHOS_INSTALL/$line" ]]
+    then
+      mkdir -p "$SOPHOS_INSTALL/tmp/backup-logs"
+      cp -r "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/tmp/backup-logs" || failure "Failed to copy $line"  ${FAILURE_TO_BACKUP_FILES}
+      rm -rf ${SOPHOS_INSTALL}/${line}/*  || failure "Failed to remove $line"  ${FAILURE_TO_BACKUP_FILES}
+      mv "$SOPHOS_INSTALL/tmp/backup-logs" "$SOPHOS_INSTALL/$line/backup-logs" || failure "Failed to move $line"  ${FAILURE_TO_BACKUP_FILES}
+    fi
+  done < "$input"
+  input=$SOPHOS_INSTALL/base/etc/downgradepaths.dat
+  while IFS= read -r line
+  do
+    rm -rf "$SOPHOS_INSTALL/$line" || failure "Failed to remove file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
+  done < "$input"
+  chown sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/policy
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/event
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/status
+  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/response
+  chown root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/mcs.config
+  chown root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
+fi
 
 PATH=$PATH:/usr/sbin:/sbin
 
@@ -166,17 +214,22 @@ function removeGroup()
 
 if [[ -z $NO_REMOVE_USER ]]
 then
-  SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
-  removeUser    ${SOPHOS_SPL_USER_NAME}
-
+  if [[ ${DOWNGRADE} == 0 ]]
+  then
+    SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
+    removeUser    ${SOPHOS_SPL_USER_NAME}
+  fi
   NETWORK_USER_NAME="@SOPHOS_SPL_NETWORK@"
   removeUser    ${NETWORK_USER_NAME}
 
   LOCAL_USER_NAME="@SOPHOS_SPL_LOCAL@"
   removeUser    ${LOCAL_USER_NAME}
 
-  SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
-  removeGroup   ${SOPHOS_SPL_GROUP_NAME}
+  if [[ ${DOWNGRADE} == 0 ]]
+  then
+    SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
+    removeGroup   ${SOPHOS_SPL_GROUP_NAME}
+  fi
 fi
 
 exit $EXIT_CODE

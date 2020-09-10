@@ -181,6 +181,7 @@ void DownloadedProduct::setProductWillBeDowngraded(bool willBeDowngraded)
 {
     m_productDowngrade = willBeDowngraded;
 }
+
 void DownloadedProduct::setProductIsBeingUninstalled(bool IsBeingUninstalled)
 {
     m_productUninstall = IsBeingUninstalled;

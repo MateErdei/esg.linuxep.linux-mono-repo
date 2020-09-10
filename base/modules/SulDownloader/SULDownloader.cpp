@@ -151,13 +151,13 @@ namespace SulDownloader
                     newVersion =
                         StringUtils::extractValueFromIniFile(warehouseVersionIni, "PRODUCT_VERSION");
                 }
-                catch(std::runtime_error& ex)
+                catch (std::runtime_error& ex)
                 {
                     LOGINFO("Failed to read VERSION.ini from warehouse for: '" << rigidName << "', treating as downgrade");
                     product.setProductWillBeDowngraded(true);
                 }
 
-                if(newVersion.empty())
+                if (newVersion.empty())
                 {
                     product.setProductWillBeDowngraded(true);
                 }

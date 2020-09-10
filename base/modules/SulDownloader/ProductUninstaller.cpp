@@ -104,7 +104,7 @@ namespace SulDownloader
             std::stringstream errorMessage;
             try
             {
-                LOGINFO("Executing Uninstaller with --downgrade and --force");
+                LOGDEBUG("Executing " << uninstallScript << " with --downgrade and --force");
                 process->exec(uninstallScript, {"--downgrade", "--force"}, {});
                 auto output = process->output();
                 LOGSUPPORT(output);
@@ -113,7 +113,7 @@ namespace SulDownloader
                 if (exitCode != 0)
                 {
                     errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript << "', code '" << exitCode
-                                 << "' with error, Process did not complete successfully";
+                                 << "' with error, Process did not complete successfully.";
                     LOGERROR(errorMessage.str());
                 }
                 else
@@ -123,8 +123,8 @@ namespace SulDownloader
             }
             catch (Common::Process::IProcessException& ex)
             {
-                errorMessage << "Failed to prepare product for downgrade'" << uninstallScript << "' with error, "
-                             << ex.what();
+                errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript <<
+                    "' with error, " << ex.what();
                 LOGERROR(errorMessage.str());
             }
         }
@@ -146,7 +146,6 @@ namespace SulDownloader
             std::stringstream errorMessage;
             try
             {
-                LOGINFO("Uninstalling"+uninstallProduct.first);
                 process->exec(uninstallProduct.first, {}, {});
                 auto output = process->output();
                 LOGSUPPORT(output);
