@@ -54,6 +54,11 @@ TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAS
 
     EXPECT_CALL(
         *filesystemMock,
+        exists("/opt/sophos-spl/base/mcs/status/cache/APPID.xml"))
+        .WillOnce(Return(false));
+
+    EXPECT_CALL(
+        *filesystemMock,
         writeFileAtomically("/opt/sophos-spl/base/mcs/status/APPID_status.xml", "WithTimestamp", "/opt/sophos-spl/tmp", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
         .WillOnce(Return());
 

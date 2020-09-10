@@ -43,6 +43,7 @@ TEST_F(TestStatusTask, checkTaskWritesOutNewStatusToFile) // NOLINT
     std::string fullPath = Common::FileSystem::join(
         Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath(),
         appId + ".xml");
+    EXPECT_CALL(*filesystemMock, exists(fullPath)).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, writeFile(fullPath, contents));
     task.run();
 }
