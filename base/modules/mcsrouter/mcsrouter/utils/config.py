@@ -18,7 +18,7 @@ class Config(object):
     Simple key=value configuration file
     """
 
-    def __init__(self, filename=None, parent_config=None, mode=0o600, user_id=0, group_id=0):
+    def __init__(self, filename=None, parent_config=None, mode=0o640, user_id=0, group_id=0):
         """
         __init__
         """
