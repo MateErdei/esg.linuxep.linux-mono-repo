@@ -207,7 +207,7 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  TESTFAILURE
     [Timeout]  600
     # Note, if updating test make sure that at least one compnent will be un-installed during downgrade
     # There should be no errors in management agent relating to registering components which have been uninstalled
