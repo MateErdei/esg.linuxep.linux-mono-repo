@@ -15,7 +15,8 @@ ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 ${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
-${SCANNOW_LOG_PATH}  ${AV_PLUGIN_PATH}/log/Scan Now.log
+${SCANNOW_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Scan Now.log
+${TELEMETRY_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
@@ -233,6 +234,7 @@ AV And Base Teardown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Empty Directory  /opt/sophos-spl/base/mcs/event/
