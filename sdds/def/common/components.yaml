@@ -9,7 +9,7 @@ sspl-base:
     line-id: ServerProtectionLinux-Base
 sspl-base-component:
     build:
-        branch: feature/management-agent-status-cache-permissions
+        branch: feature-management-agent-status-cache-permissions
         name: sspl-base
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base-component
