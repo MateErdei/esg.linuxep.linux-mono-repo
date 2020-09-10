@@ -249,9 +249,7 @@ namespace CommsComponent
             }
         }
 
-        //add default certifcate store paths
-        //auto certStorePath = CommsComponent::getCertificateStorePath();
-        //ToDo test this method
+        //add all possible default certifcate store paths
         for(auto& certStorePath : getCaCertificateStorePaths())
         {
             validDeps.emplace_back(std::make_pair(certStorePath, certStorePath.substr(1)));

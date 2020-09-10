@@ -60,7 +60,7 @@ public:
 
 class RealHttpSenderTest : public LogInitializedTests{};
 // disabled because it fetches resources from the internet
-TEST_F(RealHttpSenderTest, realGetRequestShouldBeAbleToExtractTheBody)
+TEST_F(RealHttpSenderTest, DISABLED_realGetRequestShouldBeAbleToExtractTheBody)
 {
     auto curlWrapper = std::make_shared<CurlWrapper>(); 
     auto httpSender = std::make_shared<HttpSender>(curlWrapper);
