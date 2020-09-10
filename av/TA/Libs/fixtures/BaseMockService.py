@@ -109,7 +109,7 @@ def create_library_symlinks_from_glob(*p):
 
 def install_base(sophos_install):
     create_users_and_group()
-    for rel_path in ['tmp', 'var/ipc', 'var/ipc/plugins', 'base/etc', 'base/mcs/action', 'base/mcs/response', "base/lib64"]:
+    for rel_path in ['tmp', 'var/ipc', 'var/ipc/plugins', 'base/etc', 'base/mcs/action', 'base/mcs/policy', 'base/mcs/response', "base/lib64"]:
         full_path = os.path.join(sophos_install, rel_path)
         os.makedirs(full_path, exist_ok=True)
 

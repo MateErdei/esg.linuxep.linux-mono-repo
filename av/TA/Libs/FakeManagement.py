@@ -39,9 +39,9 @@ class ManagementAgentPluginRequester(object):
                                                                                   correlation,
                                                                                   self.name,
                                                                                   self.__m_socket_path))
-        filename = "LiveQuery_{}_request_{}.json".format(correlation, self.get_valid_creation_time_and_ttl())
+        filename = "ScanNow_Action.xml"
         sophos_install = os.environ['SOPHOS_INSTALL']
-        with open(os.path.join(sophos_install,"base/mcs/action/"+filename), "a") as f:
+        with open(os.path.join(sophos_install,"base/mcs/action/"+filename), "w") as f:
             f.write(action)
         message = self.build_message(Messages.DO_ACTION, app_id, [filename])
         message.correlationId = correlation
@@ -60,7 +60,12 @@ class ManagementAgentPluginRequester(object):
 
     def policy(self, app_id, policy_xml):
         self.logger.info("Sending policy XML to {} via {}, XML:{}".format(self.name, self.__m_socket_path, policy_xml))
-        message = self.build_message(Messages.APPLY_POLICY, app_id, [policy_xml])
+
+        filename = "SAV_Policy.xml"
+        sophos_install = os.environ['SOPHOS_INSTALL']
+        with open(os.path.join(sophos_install,"base/mcs/policy/"+filename), "w") as f:
+            f.write(policy_xml)
+        message = self.build_message(Messages.APPLY_POLICY, app_id, [filename])
         self.send_message(message)
 
         raw_response = self.__m_socket.recv()
