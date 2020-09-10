@@ -2,6 +2,9 @@
   "policyAppIds": [
         "SAV"
   ],
+  "actionAppIds": [
+        "SAV"
+  ],
   "statusAppIds": [
         "SAV"
   ],
