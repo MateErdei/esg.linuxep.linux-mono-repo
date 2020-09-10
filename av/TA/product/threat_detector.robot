@@ -5,6 +5,7 @@ Default Tags    PRODUCT
 Library         Process
 Library         OperatingSystem
 Library         String
+Library         ../Libs/FakeManagement.py
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
