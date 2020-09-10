@@ -206,6 +206,7 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
+#ToDo remove TESTFAILURE tag after LINUXDAR-2037 is submitted
 We Can Downgrade From Master To A Release Without Unexpected Errors
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  TESTFAILURE
     [Timeout]  600
