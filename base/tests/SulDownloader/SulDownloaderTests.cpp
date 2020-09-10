@@ -289,6 +289,12 @@ public:
 
     void setupFileVersionCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
     {
+        setupBaseVersionFileCalls(fileSystemMock, currentVersion, newVersion);
+        setupPluginVersionFileCalls(fileSystemMock, currentVersion, newVersion);
+    }
+
+    void setupBaseVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
+    {
         std::vector<std::string> currentVersionContents{{ currentVersion }} ;
         std::vector<std::string> newVersionContents{{newVersion}} ;
 
@@ -301,6 +307,12 @@ public:
         EXPECT_CALL(fileSystemMock, readLines("/installroot/base/VERSION.ini"))
             .WillOnce(Return(currentVersionContents));
 
+    }
+
+    void setupPluginVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
+    {
+        std::vector<std::string> currentVersionContents{{ currentVersion }} ;
+        std::vector<std::string> newVersionContents{{newVersion}} ;
 
         EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/VERSION.ini"))
             .WillOnce(Return(true));
@@ -1205,6 +1217,317 @@ TEST_F( // NOLINT
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         }
+    });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    auto calculatedReport =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+    EXPECT_PRED_FORMAT2(downloadReportSimilar, expectedDownloadReport, calculatedReport);
+    auto productsAndSubscriptions = calculatedReport.getProducts();
+    ASSERT_EQ(productsAndSubscriptions.size(), 2);
+    EXPECT_EQ(productsAndSubscriptions[0].rigidName, products[0].getLine());
+    EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
+}
+
+TEST_F( // NOLINT
+    SULDownloaderTest,
+    runSULDownloader_SuccessfulUpdateToNewVersionShouldNotRunUninstallScriptsAndShouldResultInValidSuccessReport)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    MockWarehouseRepository& mock = warehouseMocked();
+
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(true);
+    }
+
+    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+      if (counter++ == 0)
+      {
+          auto mockProcess = new StrictMock<MockProcess>();
+
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
+          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("bin/uninstall.sh"), _, _)).Times(0);
+          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+      }
+      else
+      {
+          auto mockProcess = new StrictMock<MockProcess>();
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
+          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/erverProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
+          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+      }
+    });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    auto calculatedReport =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+    EXPECT_PRED_FORMAT2(downloadReportSimilar, expectedDownloadReport, calculatedReport);
+    auto productsAndSubscriptions = calculatedReport.getProducts();
+    ASSERT_EQ(productsAndSubscriptions.size(), 2);
+    EXPECT_EQ(productsAndSubscriptions[0].rigidName, products[0].getLine());
+    EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
+
+}
+
+
+TEST_F( // NOLINT
+    SULDownloaderTest,
+    runSULDownloader_SuccessfulUpdateToOlderVersionShouldRunUninstallScriptsAndShouldResultInValidSuccessReport)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    MockWarehouseRepository& mock = warehouseMocked();
+
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(true);
+    }
+
+    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/bin/uninstall.sh")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isExecutable("/installroot/bin/uninstall.sh")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.0");
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+        if (counter == 0)
+        {
+            counter++;
+          auto mockProcess = new StrictMock<MockProcess>();
+
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("bin/uninstall.sh"), _, _)).Times(1);
+          EXPECT_CALL(*mockProcess, output()).Times(1);
+          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+        else if (counter == 1)
+        {
+            counter++;
+            auto mockProcess = new StrictMock<MockProcess>();
+
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+        else if (counter == 2)
+        {
+            counter++;
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+        else
+        {
+            counter++;
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+    });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+                                                     "",
+                                                     productReports,
+                                                     true,
+                                                     productsInfo({ products[0], products[1] }) };
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    auto calculatedReport =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+    EXPECT_PRED_FORMAT2(downloadReportSimilar, expectedDownloadReport, calculatedReport);
+    auto productsAndSubscriptions = calculatedReport.getProducts();
+    ASSERT_EQ(productsAndSubscriptions.size(), 2);
+    EXPECT_EQ(productsAndSubscriptions[0].rigidName, products[0].getLine());
+    EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
+}
+
+TEST_F( // NOLINT
+    SULDownloaderTest,
+    runSULDownloader_SuccessfulUpdateToOlderVersionOfPluginShouldOnlyRunPluginUninstallScriptsAndShouldResultInValidSuccessReport)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    MockWarehouseRepository& mock = warehouseMocked();
+
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(true);
+    }
+
+    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isExecutable("/installroot/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.7", "PRODUCT_VERSION = 1.1.3.7");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.7", "PRODUCT_VERSION = 1.1.3.0");
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+      if (counter == 0)
+      {
+          counter++;
+          auto mockProcess = new StrictMock<MockProcess>();
+
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(1);
+          EXPECT_CALL(*mockProcess, output()).Times(1);
+          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+      }
+      else if (counter == 1)
+      {
+          counter++;
+          auto mockProcess = new StrictMock<MockProcess>();
+
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
+          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+      }
+      else if (counter == 2)
+      {
+          counter++;
+          auto mockProcess = new StrictMock<MockProcess>();
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
+          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+      }
+      else
+      {
+          counter++;
+          auto mockProcess = new StrictMock<MockProcess>();
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
+          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+      }
     });
 
     ProductReportVector productReports = defaultProductReports();

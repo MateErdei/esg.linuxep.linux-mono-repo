@@ -163,7 +163,8 @@ namespace SulDownloader
                 }
                 else
                 {
-                    product.setProductWillBeDowngraded(StringUtils::isVersionOlder(currentVersion, newVersion));
+                    bool willBeDowngraded = StringUtils::isVersionOlder(currentVersion, newVersion);
+                    product.setProductWillBeDowngraded(willBeDowngraded);
                 }
             }
             catch (std::runtime_error& ex)
