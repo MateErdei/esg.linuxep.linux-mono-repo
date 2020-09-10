@@ -306,6 +306,11 @@ then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log"
 fi
 
+if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log" ]]
+then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log"
+fi
+
 makedir 711 "${SOPHOS_INSTALL}/base"
 
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
