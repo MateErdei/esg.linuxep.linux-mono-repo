@@ -160,9 +160,9 @@ Copy Telemetry Config File in To Place
 Drop sophos-spl-local File Into Place
     [Arguments]  ${sourceFilePath}  ${destFilepath}
     Copy File   ${sourceFilePath}   ${destFilepath}
-    Run Process  chmod  600  ${destFilepath}
+    Run Process  chmod  640  ${destFilepath}
     Run Process  chown  sophos-spl-local:sophos-spl-group  ${destFilepath}
-    File Exists With Permissions   ${destFilepath}   sophos-spl-local  sophos-spl-group  -rw-------
+    File Exists With Permissions   ${destFilepath}   sophos-spl-local  sophos-spl-group  -rw-r-----
 
 Drop ALC Policy Into Place
     Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
