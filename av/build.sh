@@ -184,9 +184,14 @@ do
         --valgrind)
             VALGRIND=1
             ;;
-        --get-input)
+        --get-input-old)
             rm -rf ${BUILD_DIR}/input
             python3 -m build_scripts.artisan_fetch build-files/release-package.xml
+            ;;
+        --get-input-new)
+            rm -rf ${BUILD_DIR}/input
+            export TAP_PARAMETER_MODE=release
+            tap fetch av_plugin.build.normal_build
             ;;
         --setup)
             rm -rf ${BUILD_DIR}/input

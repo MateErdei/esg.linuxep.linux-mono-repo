@@ -243,10 +243,10 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         build_image = 'JenkinsLinuxTemplate5'
         release_package = "./build-files/release-package.xml"
         with stage.parallel('build'):
-            av_build = stage.artisan_build(name=parameters.mode, component=component, image=build_image,
+            av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
                                            mode=parameters.mode, release_package=release_package)
             if do_coverage:
-                coverage_build = stage.artisan_build(name=parameters.mode, component=component, image=build_image,
+                coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
                                                mode="coverage", release_package=release_package)
     else:
         # Non-unified build
