@@ -215,7 +215,7 @@ AV Plugin Can Send Telemetry
     Wait Until Keyword Succeeds
              ...  10 secs
              ...  1 secs
-             ...  File Should Exist  ${EXE_CONFIG_FILE}
+             ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
@@ -224,4 +224,3 @@ AV Plugin Can Send Telemetry
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
     Should Contain   ${telemetryFileContents}   av
     Should Contain   ${telemetryFileContents}   version
-
