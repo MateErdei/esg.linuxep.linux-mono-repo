@@ -249,7 +249,7 @@ namespace CommsComponent
             }
         }
 
-        //add all possible default certifcate store paths
+        //add all possible default certificate store paths
         for(auto& certStorePath : getCaCertificateStorePaths())
         {
             validDeps.emplace_back(std::make_pair(certStorePath, certStorePath.substr(1)));
