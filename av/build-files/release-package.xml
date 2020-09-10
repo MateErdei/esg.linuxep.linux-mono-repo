@@ -25,6 +25,10 @@
                  buildtype="dev"
                  dest="input">
                  -->
+            <include artifact-path="sspl-base/pluginapi" dest-dir="." />
+            <include artifact-path="sspl-base/sdds" dest-dir="./base-sdds" />
+        </package>
+
         <package name="boostlinux11" version="1-72-0-39/220673/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
