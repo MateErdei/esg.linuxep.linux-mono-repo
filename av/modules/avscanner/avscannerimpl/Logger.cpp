@@ -34,6 +34,8 @@ Logger::Logger(const std::string& fileName, bool isCommandLine)
         logfilepath += ".log";
     }
 
+    log4cplus::initialize();
+
     // Log to stdout (Common::Logging::ConsoleLoggingSetup logs to stderr)
     log4cplus::SharedAppenderPtr stdout_appender(new log4cplus::ConsoleAppender(false));
     Common::Logging::LoggingSetup::applyPattern(stdout_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
