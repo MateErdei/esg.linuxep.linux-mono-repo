@@ -33,7 +33,7 @@ ${MCS_CERTS_DIR}   ${SOPHOS_INSTALL}/base/mcs/certs/
 ${PORT}        10560
 ${HTTPS_LOG_FILE}     https_server.log
 ${HTTPS_LOG_FILE_PATH}     /tmp/${HTTPS_LOG_FILE}
-${JAIL_PATH}   /tmp/jail
+${JAIL_PATH}   /opt/tmp/jail
 ${CHILD_JAIL_LOG_PATH}  /tmp/jail/logs/logchild.log
 ${PARENT_JAIL_LOG_PATH}  /tmp/parent/logs/base/logchild.log
 ${CHILD_LOG_PATH}  /opt/sophos-spl/var/sophos-spl-comms/logs/logchild.log
@@ -146,9 +146,10 @@ Test RunHttpRequest with Jail can perform a PUT request with pinned Certificate
 Suite Setup
     Require Fresh Install
     Stop System Watchdog
+    Create Directory And Setup Permissions   ${JAIL_PATH}  sophos-spl-local   sophos-spl-group
 
 Suite Teardown
-    Cleanup mounts
+    Cleanup mounts  ${JAIL_PATH}
 
 
 Test Setup
@@ -176,21 +177,10 @@ Test Teardown
     Stop Https Server
     Stop Proxy Servers
     Stop Proxy If Running
-    Verify All Mounts Have Been Removed
+    Verify All Mounts Have Been Removed  ${JAIL_PATH}
     Run Keyword If Test Failed   Display All files in the Jail
     General Test Teardown
 
-
-
-Cleanup mounts
-    Run Process  umount  ${JAIL_PATH}/etc/hosts
-    Run Process  umount  ${JAIL_PATH}/etc/resolv.conf
-    Run Process  umount  ${JAIL_PATH}/usr/lib64
-    Run Process  umount  ${JAIL_PATH}/lib
-    Run Process  umount  ${JAIL_PATH}/usr/lib
-    Run Process  umount  ${JAIL_PATH}/etc/ssl/certs
-    Run Process  umount  ${JAIL_PATH}/etc/pki/tls/certs
-    Run Process  umount  ${JAIL_PATH}/base/mcs/certs/
 
 Chmod
     [Arguments]  ${settings}  ${path}

@@ -15,7 +15,7 @@ Check Watchdog Starts Comms Component
     Check Watchdog Log Contains  Starting /opt/sophos-spl/base/bin/CommsComponent
 
 Verify All Mounts Have Been Removed
-    [Arguments]   ${jailPath}=${JAIL_PATH}
+    [Arguments]   ${jailPath}
     Check Not A MountPoint  ${jailPath}/etc/resolv.conf
     Check Not A MountPoint  ${jailPath}/usr/lib64
     Check Not A MountPoint  ${jailPath}/etc/hosts
@@ -24,6 +24,19 @@ Verify All Mounts Have Been Removed
     Check Not A MountPoint  ${jailPath}/etc/ssl/certs
     Check Not A MountPoint  ${jailPath}/etc/pki/tls/certs
     Check Not A MountPoint  ${jailPath}/base/mcs/certs
+
+
+Cleanup mounts
+    [Arguments]   ${jailPath}
+    Run Process  umount  ${jailPath}/etc/hosts
+    Run Process  umount  ${jailPath}/etc/resolv.conf
+    Run Process  umount  ${jailPath}/usr/lib64
+    Run Process  umount  ${jailPath}/lib
+    Run Process  umount  ${jailPath}/usr/lib
+    Run Process  umount  ${jailPath}/etc/ssl/certs
+    Run Process  umount  ${jailPath}/etc/pki/tls/certs
+    Run Process  umount  ${jailPath}/base/mcs/certs/
+    Run Process  umount  ${jailPath}/etc/pki/ca-trust/extracted
 
 Check Not A MountPoint
     [Arguments]  ${mount}
