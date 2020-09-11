@@ -4,6 +4,7 @@ Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
 Library         ../Libs/LogUtils.py
+Library         ../Libs/FakeManagement.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 

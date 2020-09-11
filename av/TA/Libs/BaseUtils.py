@@ -49,17 +49,17 @@ def uninstall_sspl_if_installed():
 def create_test_telemetry_config_file(telemetry_config_file_path, certificate_path, username="sophos-spl-user",
                                       requestType="PUT", port=443):
     default_telemetry_config = {
-        "telemetryServerCertificatePath": "",
+        "telemetryServerCertificatePath": certificate_path,
         "externalProcessWaitRetries": 10,
         "externalProcessWaitTime": 100,
         "additionalHeaders": ["x-amz-acl: bucket-owner-full-control"],
         "maxJsonSize": 100000,
         "messageRelays": [],
-        "port": 443,
+        "port": int(port),
         "proxies": [],
         "resourcePath": "linux/dev",
         "server": "localhost",
-        "verb": "PUT"
+        "verb": requestType
     }
 
     fixedTelemetryCert="/opt/sophos-spl/base/mcs/certs/telemetry.crt"
