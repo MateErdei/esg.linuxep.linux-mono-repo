@@ -30,7 +30,7 @@ namespace CommsComponent {
         UserConf parentUser;
         childUser.logName="comms_network";
         childUser.userName = sophos::networkUser();
-        childUser.userGroup = sophos::localGroup(); 
+        childUser.userGroup = sophos::networkGroup();
 
         parentUser.logName = "comms_component"; 
         parentUser.userName = sophos::localUser(); 

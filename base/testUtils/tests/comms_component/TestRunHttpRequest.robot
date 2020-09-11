@@ -173,6 +173,8 @@ Test Teardown
     Remove File   ${ExpectedResponse1}
     Remove File   ${HTTPS_LOG_FILE_PATH}
     Remove File   ${PROXY_LOG_PATH}
+    Remove File   ${PARENT_JAIL_LOG_PATH}
+    Remove File   ${CHILD_JAIL_LOG_PATH}
     Stop Https Server
     Stop Proxy Servers
     Stop Proxy If Running
@@ -209,6 +211,8 @@ Copy File And Set Permissions
 
     Copy File  ${srcfile}    ${dstdir}/${basename}
     ${r} =  Run Process  chown  root:sophos-spl-group  ${dstdir}/${basename}
+    Should Be Equal As Strings  ${r.rc}  0
+    ${r} =  Run Process  chmod  go+r  ${dstdir}/${basename}
     Should Be Equal As Strings  ${r.rc}  0
 
 Create Directory And Setup Permissions

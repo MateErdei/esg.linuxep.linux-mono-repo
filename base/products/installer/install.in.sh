@@ -389,7 +389,7 @@ makedir 770 "${SOPHOS_INSTALL}/base/mcs/datafeed"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/status"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/status/cache"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/event"
-makedir 750 "${SOPHOS_INSTALL}/base/mcs/certs"
+makedir 751 "${SOPHOS_INSTALL}/base/mcs/certs"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/tmp"
 makedir 750 "${SOPHOS_INSTALL}/var/comms/responses"
 makedir 770 "${SOPHOS_INSTALL}/var/comms/requests"
@@ -487,7 +487,7 @@ chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/machineid"*
 chmod 710 "${SOPHOS_INSTALL}/base/bin/machineid"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/"*
-chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
+chmod go+r  "${SOPHOS_INSTALL}/base/mcs/certs/"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
