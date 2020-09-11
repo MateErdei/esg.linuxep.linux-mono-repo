@@ -20,8 +20,8 @@ namespace unixsocket
     public:
         ScanningClientSocket& operator=(const ScanningClientSocket&) = delete;
         ScanningClientSocket(const ScanningClientSocket&) = delete;
-        explicit ScanningClientSocket(const std::string& socket_path);
-        ~ScanningClientSocket() = default;
+        explicit ScanningClientSocket(std::string socket_path, const struct timespec& sleepTime={1,0});
+        ~ScanningClientSocket() override = default;
 
         scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest&) override;
 
@@ -33,5 +33,6 @@ namespace unixsocket
         int m_reconnectAttempts;
         std::string m_socketPath;
         datatypes::AutoFd m_socket_fd;
+        struct timespec m_sleepTime;
     };
 }

@@ -251,6 +251,10 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             if (!scanner)
             {
                 scanner = m_scannerFactory->createScanner(requestReader.scanArchives);
+                if (!scanner)
+                {
+                    throw std::runtime_error("Failed to create scanner");
+                }
             }
 
             LOGDEBUG("Scan requested of " << requestReader.pathname);

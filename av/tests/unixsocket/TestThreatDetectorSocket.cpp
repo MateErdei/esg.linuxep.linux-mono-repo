@@ -193,24 +193,19 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
     testing::Mock::AllowLeak(scanner.get());
 
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillRepeatedly(Throw(std::runtime_error("Intentional throw")));
-    EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(*scannerFactory, createScanner(false))
+            .WillOnce(Return(ByMove(std::move(scanner))))
+            .WillRepeatedly([](bool)->threat_scanner::IThreatScannerPtr{ return nullptr; });
 
-    unixsocket::ScanningServerSocket server(path, 0666, scannerFactory);
+    unixsocket::ScanningServerSocket server(path, 0600, scannerFactory);
     server.start();
 
     // Create client connection
     {
-        unixsocket::ScanningClientSocket client_socket(path);
+        unixsocket::ScanningClientSocket client_socket(path, {0, 10000000});
         datatypes::AutoFd devNull(::open(THREAT_PATH.c_str(), O_RDONLY));
-        try
-        {
-            auto response = scan(client_socket, devNull, THREAT_PATH);
-            FAIL() << "Able to scan with throwing scanner at other end";
-        }
-        catch (const std::exception& ex)
-        {
-            PRINT("Get exception as expected: "<< ex.what());
-        }
+        auto response = scan(client_socket, devNull, THREAT_PATH);
+        EXPECT_NE(response.getErrorMsg(), "");
     }
 
     server.requestStop();
@@ -218,6 +213,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
 
     testing::Mock::VerifyAndClearExpectations(scannerPtr);
     testing::Mock::VerifyAndClearExpectations(scannerFactory.get());
+    scannerFactory.reset();
 }
 
 

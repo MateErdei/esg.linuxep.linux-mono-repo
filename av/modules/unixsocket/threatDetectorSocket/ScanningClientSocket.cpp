@@ -29,12 +29,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define MAX_CONN_RETRIES 5
 #define MAX_SCAN_RETRIES 10
 
-unixsocket::ScanningClientSocket::ScanningClientSocket(const std::string& socket_path)
+unixsocket::ScanningClientSocket::ScanningClientSocket(std::string socket_path, const struct timespec& sleepTime)
     : m_reconnectAttempts(0)
-    , m_socketPath(socket_path)
+    , m_socketPath(std::move(socket_path))
+    , m_sleepTime(sleepTime)
 {
     connect();
 }
+
 
 void unixsocket::ScanningClientSocket::connect()
 {
@@ -49,17 +51,14 @@ void unixsocket::ScanningClientSocket::connect()
             return;
         }
 
-        LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying in 1 second");
-
-        sleep(1);
+        LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying after sleep");
+        nanosleep(&m_sleepTime, nullptr);
 
         ret = attemptConnect();
     }
 
-    if (ret == 0)
-    {
-        m_reconnectAttempts = 0;
-    }
+    assert(ret == 0);
+    m_reconnectAttempts = 0;
 }
 
 int unixsocket::ScanningClientSocket::attemptConnect()
@@ -80,7 +79,6 @@ static
 void send_fd(int socket, int fd)  // send fd by socket
 {
     struct msghdr msg = {};
-    struct cmsghdr *cmsg;
     char buf[CMSG_SPACE(sizeof(fd))];
     char dup[256];
     memset(buf, '\0', sizeof(buf));
@@ -91,7 +89,7 @@ void send_fd(int socket, int fd)  // send fd by socket
     msg.msg_control = buf;
     msg.msg_controllen = sizeof(buf);
 
-    cmsg = CMSG_FIRSTHDR(&msg);
+    struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
     cmsg->cmsg_level = SOL_SOCKET;
     cmsg->cmsg_type = SCM_RIGHTS;
     cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
@@ -128,8 +126,8 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
         }
         catch (const ReconnectScannerException& e)
         {
-            LOGERROR(e.what() << " - retrying in 1 second");
-            sleep(1);
+            LOGERROR(e.what() << " - retrying after sleep");
+            nanosleep(&m_sleepTime, nullptr);
             if (!attemptConnect())
             {
                 LOGWARN("Failed to reconnect to Sophos Threat Detector - retrying...");
