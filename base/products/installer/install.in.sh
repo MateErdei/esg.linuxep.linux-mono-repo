@@ -356,7 +356,20 @@ fi
 
 if [[ -d "${SOPHOS_INSTALL}/base/mcs/policy" ]]
 then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/policy"
     chmod -R 640 "${SOPHOS_INSTALL}/base/mcs/policy"
+fi
+
+if [[ -d "${SOPHOS_INSTALL}/base/mcs/action" ]]
+then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/action"
+    chmod 640 "${SOPHOS_INSTALL}/base/mcs/action"
+fi
+
+if [[ -d "${SOPHOS_INSTALL}/tmp/actions" ]]
+then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp/actions"
+    chmod 640 "${SOPHOS_INSTALL}/tmp/actions"
 fi
 
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
