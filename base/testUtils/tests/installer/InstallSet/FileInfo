@@ -11,13 +11,13 @@ o600, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component/remov
 o600, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/etc/datafeed-config-scheduled_query.json.0
 o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/var/tscheduler-status.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/etc/machine_id.txt
-o640, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs/mcs_rootca.crt.0
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/commscomponent.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/managementagent.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/mcsrouter.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/tscheduler.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/updatescheduler.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/VERSION.ini.0
+o644, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs/mcs_rootca.crt.0
 o644, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/etc/logger.conf.0
 o700, root, root, /opt/sophos-spl/base/bin/CommsComponent.0
 o700, root, root, /opt/sophos-spl/base/bin/manifestdiff.0
