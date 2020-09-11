@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
+#include "common/AbortScanException.h"
 #include "filewalker/FileWalker.h"
 
 #include <common/StringUtils.h>
@@ -45,11 +46,17 @@ namespace
         {
             if (symlinkTarget)
             {
+                fs::path symlinkTargetPath = p;
+                if (fs::is_symlink(fs::symlink_status(p)))
+                {
+                    symlinkTargetPath = fs::read_symlink(p);
+                }
                 for (const auto& e : m_mountExclusions)
                 {
-                    if (PathUtils::startswith(p, e))
+
+                    if (PathUtils::startswith(symlinkTargetPath, e))
                     {
-                        LOGINFO("Symlink to file on excluded mount point: " << e);
+                        LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is on excluded mount point: " << e);
                         return;
                     }
                 }
@@ -62,7 +69,7 @@ namespace
             {
                 if (exclusion.appliesToPath(p))
                 {
-                    LOGINFO("Excluding " << p);
+                    LOGINFO("Excluding file: " << p);
                     return;
                 }
             }
@@ -75,9 +82,8 @@ namespace
             }
             catch (const std::exception& e)
             {
-                LOGERROR("Failed to scan " << escapedPath << " [" << e.what() << "] failed");
-
                 m_returnCode = E_GENERIC_FAILURE;
+                throw AbortScanException(e.what());
             }
         }
 
@@ -91,16 +97,21 @@ namespace
                 }
             }
 
+            return !cmdExclusionCheck(p);
+        }
+
+        bool cmdExclusionCheck(const sophos_filesystem::path& p) override
+        {
             for (const auto& exclusion : m_cmdExclusions)
             {
-                if (exclusion.appliesToPath(p, true))
+                if (exclusion.appliesToPath(appendForwardSlashToPath(p), true))
                 {
-                    LOGINFO("Excluding " << p);
-                    return false;
+                    LOGINFO("Excluding directory: " << appendForwardSlashToPath(p));
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
 
         void setCurrentInclude(const fs::path& inclusionPath)
@@ -114,6 +125,15 @@ namespace
                     m_currentExclusions.emplace_back(e);
                 }
             }
+        }
+
+        std::string appendForwardSlashToPath(const sophos_filesystem::path& p)
+        {
+            if (p.string().at(p.string().size()-1) != '/')
+            {
+                return p.string() + "/";
+            }
+            return p.string();
         }
 
     private:
@@ -198,8 +218,7 @@ int CommandLineScanRunner::run()
     // for each select included mount point call filewalker for that mount point
     for (auto& path : m_paths)
     {
-        if((path.at(0) == '.' or path.find("/.") != std::string::npos)
-            and fs::exists(path))
+        if ((path.at(0) == '.' or path.find("/.") != std::string::npos) and fs::exists(path))
         {
             path = fs::canonical(path);
         }
@@ -214,16 +233,20 @@ int CommandLineScanRunner::run()
         {
             m_returnCode = e.code().value();
         }
+        catch (const AbortScanException& e)
+        {
+            LOGERROR(e.what());
+        }
+    }
 
-        // we want virus found to override any other return code
-        if (scanCallbacks->returnCode() != E_CLEAN)
-        {
-            m_returnCode = scanCallbacks->returnCode();
-        }
-        else if (callbacks.returnCode() != E_CLEAN)
-        {
-            m_returnCode = callbacks.returnCode();
-        }
+    // we want virus found to override any other return code
+    if (scanCallbacks->returnCode() != E_CLEAN)
+    {
+        m_returnCode = scanCallbacks->returnCode();
+    }
+    else if (callbacks.returnCode() != E_CLEAN)
+    {
+        m_returnCode = callbacks.returnCode();
     }
 
     return m_returnCode;
