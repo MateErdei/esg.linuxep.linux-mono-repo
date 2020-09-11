@@ -449,7 +449,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
    Run Process   /bin/kill   -SIGSEGV   ${output}
    Wait Until Keyword Succeeds
-   ...  60 secs
+   ...  120 secs
    ...  1 secs
    ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
@@ -471,7 +471,7 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
    Stop AV
    Start AV
    Wait Until Keyword Succeeds
-   ...  60 secs
+   ...  120 secs
    ...  1 secs
    ...  File Log Contains  ${LOG_FILE}  Reconnected to Sophos Threat Detector
    File Log Should Not Contain  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
