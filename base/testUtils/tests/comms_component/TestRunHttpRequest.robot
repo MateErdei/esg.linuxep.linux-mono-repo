@@ -223,7 +223,7 @@ Run Jailed Https Request Without Unmount
     Set Test Variable  ${RunHttpRequestLog}   ${output}
 
 Run Jailed Https Request
-    ${output} =  Run Shell Process With Env  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --child-user sophos-spl-network --child-group sophos-spl-group --parent-user sophos-spl-local --parent-group sophos-spl-group --jail-root ${jailPath} --parent-root /tmp/parent  "Failed to run http request"  SOPHOS_INSTALL\=/tmp  30  expectedExitCode=0
+    ${output} =  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --child-user sophos-spl-network --child-group sophos-spl-group --parent-user sophos-spl-local --parent-group sophos-spl-group --jail-root ${jailPath} --parent-root /tmp/parent  "Failed to run http request"  30  expectedExitCode=0
     Log   ${output}
     Set Test Variable  ${RunHttpRequestLog}   ${output}
     ${output} =  Run Shell Process  ${RunHttpRequestExecutable} --jail-root ${jailPath}  "Failed to unmount path"  5  expectedExitCode=0
@@ -255,9 +255,3 @@ Check Not A MountPoint
     ${res} =  Run Process  findmnt  -M  ${mount}
     Should Not Be Equal As Integers   ${res.rc}  0
     
-
-Run Shell Process With Env
-    [Arguments]  ${Command}   ${OnError}   ${env}  ${timeout}=20s   ${expectedExitCode}=0
-    ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}  env:${env}
-    Should Be Equal As Integers  ${result.rc}  ${expectedExitCode}   "${OnError}.\nstdout: \n${result.stdout} \n.stderr: \n${result.stderr}"
-    [Return]  ${result.stdout} + ${result.stderr}
