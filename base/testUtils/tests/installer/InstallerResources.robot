@@ -147,8 +147,15 @@ Check Telemetry Scheduler Is Running
     Should Be Equal As Integers     ${result.rc}    0
 
 Check Comms Component Is Running
-    ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
-    Should Be Equal As Integers    ${result.rc}    0
+    ${result_is_running} =     Run Process     pgrep  -f   ${COMMS_COMPONENT}
+    Log  ${result_is_running.stdout}
+    Should Be Equal As Integers     ${result_is_running.rc}    0
+
+    ${result_2_processes} =    Run Process  pgrep -f ${COMMS_COMPONENT} | wc -w  shell=true
+    Log  ${result_2_processes.stdout}
+    Log  ${result_2_processes.stderr}
+    Should Be Equal As Integers    ${result_2_processes.rc}    0
+    Should Be Equal As Integers    ${result_2_processes.stdout}    3
 
 Check Watchdog Not Running
     ${result} =    Run Process  pgrep  sophos_watchdog

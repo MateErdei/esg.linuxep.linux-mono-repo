@@ -306,13 +306,6 @@ Telemetry Executable Will Do A Successful Send To Splunk With Defualt System Cer
     [Documentation]    Telemetry Executable Will Do A Successful Send To Splunk
     Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  server=t1.sophosupd.com
     Run Telemetry Executable    ${EXE_CONFIG_FILE}  ${SUCCESS}  checkResult=0
-    ${result} =  Run Process  ls  -l  /opt/sophos-spl/var/sophos-spl-comms/etc/pki/tls/certs/
-    Log    "stdout = ${result.stdout}"
-    Log    "stderr = ${result.stderr}"
-
-    ${result} =  Run Process  ls  -l  /opt/sophos-spl/var/sophos-spl-comms/etc/pki/
-    Log    "stdout = ${result.stdout}"
-    Log    "stderr = ${result.stderr}"
 
 
 Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less Than TLSv1_2

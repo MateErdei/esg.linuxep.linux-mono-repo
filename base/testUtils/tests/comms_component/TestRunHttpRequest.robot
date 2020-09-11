@@ -33,7 +33,7 @@ ${MCS_CERTS_DIR}   ${SOPHOS_INSTALL}/base/mcs/certs/
 ${PORT}        10560
 ${HTTPS_LOG_FILE}     https_server.log
 ${HTTPS_LOG_FILE_PATH}     /tmp/${HTTPS_LOG_FILE}
-${JAIL_PATH}   /opt/tmp/jail
+${JAIL_PATH}   /tmp/jail
 ${CHILD_JAIL_LOG_PATH}  /tmp/jail/logs/logchild.log
 ${PARENT_JAIL_LOG_PATH}  /tmp/parent/logs/base/logchild.log
 ${CHILD_LOG_PATH}  /opt/sophos-spl/var/sophos-spl-comms/logs/logchild.log
@@ -128,7 +128,7 @@ Test RunHttpRequest with Jail can perform a GET request with pinned Certificate 
     ${content}=  Extract BodyContent Of Json Response  ${ExpectedResponse1Jail}  httpCode=200
     Should Contain   ${content}   Response From HttpsServer
     Check Log Contains    connection success          ${PROXY_LOG_PATH}     Proxy Log
-
+    
 
 
 Test RunHttpRequest with Jail can perform a PUT request with pinned Certificate
@@ -146,10 +146,9 @@ Test RunHttpRequest with Jail can perform a PUT request with pinned Certificate
 Suite Setup
     Require Fresh Install
     Stop System Watchdog
-    Create Directory And Setup Permissions   ${JAIL_PATH}  sophos-spl-local   sophos-spl-group
 
 Suite Teardown
-    Cleanup mounts  ${JAIL_PATH}
+    Cleanup mounts
 
 
 Test Setup
@@ -177,10 +176,21 @@ Test Teardown
     Stop Https Server
     Stop Proxy Servers
     Stop Proxy If Running
-    Verify All Mounts Have Been Removed  ${JAIL_PATH}
+    Verify All Mounts Have Been Removed
     Run Keyword If Test Failed   Display All files in the Jail
     General Test Teardown
 
+
+
+Cleanup mounts
+    Run Process  umount  ${JAIL_PATH}/etc/hosts
+    Run Process  umount  ${JAIL_PATH}/etc/resolv.conf
+    Run Process  umount  ${JAIL_PATH}/usr/lib64
+    Run Process  umount  ${JAIL_PATH}/lib
+    Run Process  umount  ${JAIL_PATH}/usr/lib
+    Run Process  umount  ${JAIL_PATH}/etc/ssl/certs
+    Run Process  umount  ${JAIL_PATH}/etc/pki/tls/certs
+    Run Process  umount  ${JAIL_PATH}/base/mcs/certs/
 
 Chmod
     [Arguments]  ${settings}  ${path}
@@ -201,6 +211,10 @@ Copy File And Set Permissions
     ${r} =  Run Process  chown  root:sophos-spl-group  ${dstdir}/${basename}
     Should Be Equal As Strings  ${r.rc}  0
 
+Create Directory And Setup Permissions
+    [Arguments]   ${directoryPath}  ${user}  ${group}
+    Create Directory   ${directoryPath}
+    ${r} =  Run Process  chown  ${user}:${group}  ${directoryPath}
 
 Run Jailed Https Request Without Unmount
     [Arguments]   ${jailPath}
@@ -209,7 +223,7 @@ Run Jailed Https Request Without Unmount
     Set Test Variable  ${RunHttpRequestLog}   ${output}
 
 Run Jailed Https Request
-    ${output} =  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --child-user sophos-spl-network --child-group sophos-spl-group --parent-user sophos-spl-local --parent-group sophos-spl-group --jail-root ${jailPath} --parent-root /tmp/parent  "Failed to run http request"  30  expectedExitCode=0
+    ${output} =  Run Shell Process With Env  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --child-user sophos-spl-network --child-group sophos-spl-group --parent-user sophos-spl-local --parent-group sophos-spl-group --jail-root ${jailPath} --parent-root /tmp/parent  "Failed to run http request"  SOPHOS_INSTALL\=/tmp  30  expectedExitCode=0
     Log   ${output}
     Set Test Variable  ${RunHttpRequestLog}   ${output}
     ${output} =  Run Shell Process  ${RunHttpRequestExecutable} --jail-root ${jailPath}  "Failed to unmount path"  5  expectedExitCode=0
@@ -223,4 +237,27 @@ Display All files in the Jail
     Log  ${output}
 
 
+
+Verify All Mounts Have Been Removed
+    [Arguments]   ${jailPath}=${JAIL_PATH}
+    Check Not A MountPoint  ${jailPath}/etc/resolv.conf
+    Check Not A MountPoint  ${jailPath}/usr/lib64
+    Check Not A MountPoint  ${jailPath}/etc/hosts
+    Check Not A MountPoint  ${jailPath}/usr/lib
+    Check Not A MountPoint  ${jailPath}/lib
+    Check Not A MountPoint  ${jailPath}/etc/ssl/certs
+    Check Not A MountPoint  ${jailPath}/etc/pki/tls/certs
+    Check Not A MountPoint  ${jailPath}/etc/pki/ca-trust/extracted
+    Check Not A MountPoint  ${jailPath}/base/mcs/certs
+
+Check Not A MountPoint
+    [Arguments]  ${mount}
+    ${res} =  Run Process  findmnt  -M  ${mount}
+    Should Not Be Equal As Integers   ${res.rc}  0
     
+
+Run Shell Process With Env
+    [Arguments]  ${Command}   ${OnError}   ${env}  ${timeout}=20s   ${expectedExitCode}=0
+    ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}  env:${env}
+    Should Be Equal As Integers  ${result.rc}  ${expectedExitCode}   "${OnError}.\nstdout: \n${result.stdout} \n.stderr: \n${result.stderr}"
+    [Return]  ${result.stdout} + ${result.stderr}
