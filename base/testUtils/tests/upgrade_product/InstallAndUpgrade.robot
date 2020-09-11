@@ -277,17 +277,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  10 secs
     ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
-#    # If mtr is installed for the first time, this will appear
-#    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
-#    # We have a race condition when stopping and starting mtr plugin, so sometimes this appears
-#    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr exited when not expected
-#    # We fail to stop mtr because the old watchdog is unable to stop the VUT mtr with it's actionAppId pluginRegistry entry
-#    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Failed to stop mtr: Error: Plugin not found
-#    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Failed to stop edr: Error: Plugin not found
-#    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-#    # This is only an issue with versions of base before we started using boost process
-#    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
     Check All Product Logs Do Not Contain Error
