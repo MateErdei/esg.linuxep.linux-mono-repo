@@ -27,24 +27,17 @@ namespace CommsComponent
     std::vector<Path> getCaCertificateStorePaths()
     {
         std::vector<Path> caStorePaths;
+        //The classic path expected by openssl is symlinked to dynamically generated
+        //"/etc/pki/ca-trust/extracted" on later rhel based systems
         const std::vector<Path> caCertBundlePaths = {
-                "/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt"
+                "/etc/ssl/certs/", "/etc/pki/tls/certs/", "/etc/pki/ca-trust/extracted"
         };
         auto fs = Common::FileSystem::fileSystem();
         for (const auto& caCertBundlePath : caCertBundlePaths)
         {
-            if (fs->isFile(caCertBundlePath))
+            if (fs->exists(caCertBundlePath))
             {
-                caStorePaths.emplace_back(Common::FileSystem::dirName(caCertBundlePath));
-                //follow symlinks to depth of one only
-                if( fs->isSymlink(caCertBundlePath))
-                {
-                    auto actualBundlePath = fs->readlink(caCertBundlePath);
-                    if(!actualBundlePath.empty())
-                    {
-                        caStorePaths.emplace_back(Common::FileSystem::dirName(actualBundlePath));
-                    }
-                }
+                caStorePaths.emplace_back(caCertBundlePath);
             }
         }
         return caStorePaths;
