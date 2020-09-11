@@ -365,3 +365,17 @@ CLS Scans root with non-canonical path
 
     File Log Should Not Contain     ${AV_LOG_PATH}      Scanning /proc/
     File Log Should Not Contain     ${AV_LOG_PATH}      Scanning /./proc/
+
+CLS Scans root with non-canonical path
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+    Create File     ${NORMAL_DIRECTORY}/.clean_eicar_folder/eicar    ${CLEAN_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/.clean_eicar_folder/eicar ${NORMAL_DIRECTORY}/.dont_exist/eicar ${NORMAL_DIRECTORY}/.doesnot_exist ${NORMAL_DIRECTORY}/clean_eicar
+
+    Should Contain      ${output}  Scanning /home/vagrant/this/is/a/directory/for/scanning/.clean_eicar_folder/eicar
+    Should Contain      ${output}  Cannot scan "/home/vagrant/this/is/a/directory/for/scanning/.dont_exist/eicar": file/folder does not exist
+    Should Contain      ${output}  Cannot scan "/home/vagrant/this/is/a/directory/for/scanning/.doesnot_exist": file/folder does not exist
+    Should Contain      ${output}  Scanning /home/vagrant/this/is/a/directory/for/scanning/clean_eicar
+
+    Should Be Equal As Integers  ${rc}  2

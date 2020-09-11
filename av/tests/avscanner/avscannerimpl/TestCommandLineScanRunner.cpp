@@ -370,6 +370,45 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusions) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
+TEST_F(TestCommandLineScanRunner, nonCanonicalNonExistentExclusions) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("/tmp/sandbox/a/b/d/e");
+    fs::create_directories("/tmp/sandbox/a/f");
+    std::ofstream("/tmp/sandbox/a/b/file1.txt");
+    std::ofstream("/tmp/sandbox/a/f/file2.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("/tmp/sandbox");
+    std::vector<std::string> exclusions;
+    exclusions.push_back("/tmp/sandbox/./a/f/");
+    exclusions.push_back("/tmp/does_not_exist/./a/f/");
+    exclusions.push_back("/tmp/sandbox/a/f/.");
+    exclusions.push_back("/tmp/.does_not_exist/a/f/");
+    exclusions.push_back("/tmp/sandbox/../sandbox/a/b/");
+    Options options(false, paths, exclusions, true);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    fs::remove_all("/tmp/sandbox");
+    ASSERT_TRUE(appenderContains("Exclusions: /tmp/sandbox/a/f/, /tmp/does_not_exist/./a/f/, /tmp/sandbox/a/f/, /tmp/.does_not_exist/a/f/, /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Excluding directory: /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Cannot canonicalize: /tmp/does_not_exist/./a/f/"));
+    ASSERT_TRUE(appenderContains("Excluding directory: /tmp/sandbox/a/b/"));
+    ASSERT_TRUE(appenderContains("Cannot canonicalize: /tmp/.does_not_exist/a/f/"));
+    ASSERT_TRUE(appenderContains("Excluding directory: /tmp/sandbox/a/f/"));
+    ASSERT_FALSE(appenderContains("Scanning /tmp/sandbox/a/b/file1.txt"));
+    ASSERT_FALSE(appenderContains("Scanning /tmp/sandbox/a/f/file2.txt"));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
+    ASSERT_FALSE(appenderContains("Excluding file: /tmp/sandbox/a/f/file2.txt"));
+
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
 TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsRootExclusion) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
