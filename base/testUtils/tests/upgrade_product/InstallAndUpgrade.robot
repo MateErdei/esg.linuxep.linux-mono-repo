@@ -237,7 +237,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/backup-logs
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
     # Products that should be uninstalled after downgrade
     Should Exist  ${InstalledLRPluginVersionFile}
 
@@ -259,7 +259,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/backup-logs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
     Wait Until Keyword Succeeds
     ...   200 secs

@@ -33,11 +33,11 @@ Simple Downgrade Test
     Require Fresh Install
     ${distribution} =   Get Folder With Installer
     Create File  ${SOPHOS_INSTALL}/bin/blah
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/backup-logs
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
     ${result} =  Run Process   ${SOPHOS_INSTALL}/bin/uninstall.sh  --downgrade  --force
 
     Should Be Equal As Integers    ${result.rc}    0
-    Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/backup-logs
+    Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
     Should not exist  ${SOPHOS_INSTALL}/bin/blah
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini

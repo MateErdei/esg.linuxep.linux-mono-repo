@@ -128,14 +128,14 @@ else
     if [[ -f "$SOPHOS_INSTALL/$line" ]]
     then
       DIR=${line%/*}
-      mkdir -p "$SOPHOS_INSTALL/$DIR/backup-logs"
-      mv "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/$DIR/backup-logs" || failure "Failed to copy $line"  ${FAILURE_TO_BACKUP_FILES}
+      mkdir -p "$SOPHOS_INSTALL/$DIR/downgrade-backup"
+      mv "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/$DIR/downgrade-backup" || failure "Failed to copy $line"  ${FAILURE_TO_BACKUP_FILES}
     elif [[ -d "$SOPHOS_INSTALL/$line" ]]
     then
-      mkdir -p "$SOPHOS_INSTALL/tmp/backup-logs"
-      cp -r "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/tmp/backup-logs" || failure "Failed to copy $line"  ${FAILURE_TO_BACKUP_FILES}
+      mkdir -p "$SOPHOS_INSTALL/tmp/downgrade-backup"
+      cp -r "$SOPHOS_INSTALL/$line" "$SOPHOS_INSTALL/tmp/downgrade-backup" || failure "Failed to copy $line"  ${FAILURE_TO_BACKUP_FILES}
       rm -rf ${SOPHOS_INSTALL}/${line}/*  || failure "Failed to remove $line"  ${FAILURE_TO_BACKUP_FILES}
-      mv "$SOPHOS_INSTALL/tmp/backup-logs" "$SOPHOS_INSTALL/$line/backup-logs" || failure "Failed to move $line"  ${FAILURE_TO_BACKUP_FILES}
+      mv "$SOPHOS_INSTALL/tmp/downgrade-backup" "$SOPHOS_INSTALL/$line/downgrade-backup" || failure "Failed to move $line"  ${FAILURE_TO_BACKUP_FILES}
     fi
   done < "$input"
   input=$SOPHOS_INSTALL/base/etc/downgradepaths.dat
