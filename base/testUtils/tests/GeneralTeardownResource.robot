@@ -12,10 +12,12 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/updatescheduler.log
     # new location
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/base/sophosspl/updatescheduler.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/wdctl.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/base/suldownloader.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/register_central.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log
