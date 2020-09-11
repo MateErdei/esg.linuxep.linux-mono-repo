@@ -22,9 +22,13 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_LOCATION" )" >/dev/null && pwd )"
 
 BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/bin}"
 DOWNGRADE=0
+FORCE=0
 while [[ $# -ge 1 ]]
 do
     case $1 in
+        --force)
+            FORCE=1
+            ;;
         --downgrade)
             DOWNGRADE=1
             ;;
