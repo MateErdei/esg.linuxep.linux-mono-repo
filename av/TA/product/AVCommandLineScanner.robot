@@ -366,7 +366,7 @@ CLS Scans root with non-canonical path
     File Log Should Not Contain     ${AV_LOG_PATH}      Scanning /proc/
     File Log Should Not Contain     ${AV_LOG_PATH}      Scanning /./proc/
 
-CLS Scans root with non-canonical path
+CLS Scans Paths That Exist and Dont Exist
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     Create File     ${NORMAL_DIRECTORY}/.clean_eicar_folder/eicar    ${CLEAN_STRING}
