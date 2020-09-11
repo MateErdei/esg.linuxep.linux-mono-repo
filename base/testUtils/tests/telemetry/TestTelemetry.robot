@@ -303,7 +303,6 @@ Telemetry Executable Will Do A Successful HTTP PUT Request When Server Run TLSv1
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
 
 Telemetry Executable Will Do A Successful Send To Splunk With Defualt System Cert Store CA Certs
-    [Tags]  FAULTINJECTION   TELEMETRY  TAP_TESTS
     [Documentation]    Telemetry Executable Will Do A Successful Send To Splunk
     Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  server=t1.sophosupd.com
     Run Telemetry Executable    ${EXE_CONFIG_FILE}  ${SUCCESS}  checkResult=0
@@ -314,7 +313,6 @@ Telemetry Executable Will Do A Successful Send To Splunk With Defualt System Cer
     ${result} =  Run Process  ls  -l  /opt/sophos-spl/var/sophos-spl-comms/etc/pki/
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
-    Fail
 
 
 Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less Than TLSv1_2
