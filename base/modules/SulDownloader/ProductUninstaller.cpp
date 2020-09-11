@@ -99,7 +99,6 @@ namespace SulDownloader
             Common::FileSystem::fileSystem()->isExecutable(uninstallScript))
         {
             auto process = ::Common::Process::createProcess();
-            int exitCode = 0;
 
             std::stringstream errorMessage;
             try
@@ -108,7 +107,7 @@ namespace SulDownloader
                 process->exec(uninstallScript, {"--downgrade", "--force"}, {});
                 auto output = process->output();
                 LOGSUPPORT(output);
-                exitCode = process->exitCode();
+                int exitCode = process->exitCode();
 
                 if (exitCode != 0)
                 {

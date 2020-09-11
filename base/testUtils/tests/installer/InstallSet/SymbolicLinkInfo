@@ -4,7 +4,9 @@ o777, root, root, /opt/sophos-spl/base/bin/registerCentral
 o777, root, root, /opt/sophos-spl/base/bin/sophos_watchdog
 o777, root, root, /opt/sophos-spl/base/bin/SulDownloader
 o777, root, root, /opt/sophos-spl/base/bin/versionedcopy
+o777, root, root, /opt/sophos-spl/base/etc/backupfileslist.dat
 o777, root, root, /opt/sophos-spl/base/etc/DiagnosePaths.conf
+o777, root, root, /opt/sophos-spl/base/etc/downgradepaths.dat
 o777, root, root, /opt/sophos-spl/base/etc/licenses.txt
 o777, root, root, /opt/sophos-spl/base/etc/logger.conf
 o777, root, root, /opt/sophos-spl/base/update/certs/ps_rootca.crt

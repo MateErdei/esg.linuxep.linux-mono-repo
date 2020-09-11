@@ -1,5 +1,7 @@
 o440, sophos-spl-group, root, /opt/sophos-spl/base/etc/telemetry-config.json.0
+o600, root, root, /opt/sophos-spl/base/etc/backupfileslist.dat.0
 o600, root, root, /opt/sophos-spl/base/etc/DiagnosePaths.conf.0
+o600, root, root, /opt/sophos-spl/base/etc/downgradepaths.dat.0
 o600, root, root, /opt/sophos-spl/base/etc/licenses.txt.0
 o600, root, root, /opt/sophos-spl/base/update/certs/ps_rootca.crt.0
 o600, root, root, /opt/sophos-spl/base/update/certs/rootca.crt.0
