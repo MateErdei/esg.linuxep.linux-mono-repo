@@ -35,10 +35,27 @@ UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
+CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
+if (( $DOWNGRADE == 0 ))
+then
+  if [[ -f $CONFIG_FILE ]]
+  then
+    cp $CONFIG ${SOPHOS_INSTALL}/tmp
+  fi
+fi
 
 rm -rf "$UNINSTALLDIR"
 rm -r "$SYMLINK"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
+
+if (( $DOWNGRADE == 0 ))
+then
+  if [[ -f ${SOPHOS_INSTALL}/tmp/plugin.conf ]]
+  then
+    mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc
+    mv ${SOPHOS_INSTALL}/tmp/plugin.conf ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc
+  fi
+fi
 
 STATUS_XML=${BASEDIR}/base/mcs/status/LiveQuery_status.xml
 [ -f ${STATUS_XML} ] && rm -f ${STATUS_XML}
