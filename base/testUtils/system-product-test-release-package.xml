@@ -2,41 +2,24 @@
 <package name="system-product-tests">
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
-        <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
-            <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-            <development-version branch="feature/LINUXDAR-2159-change-edr-plugin-repo-to-use-unified-pipeline"/>
-            <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
-            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-            <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
-            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-            <include artifact-path="output" dest-dir="sspl-mdr-componentsuite"/>
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
-            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-            <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
-        </build-asset>
-
-        <package name="sspl-thininstaller"
-                 version="feature-LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output"
-                 dest="." buildtype="dev">
-            <include src="." dest="sspl-thininstaller"/>
+        <package name="sspl-base" version="feature-LINUXDAR-2072-implement-improvements-always-chroot-into-an-empty-directory/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.4/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-base" />
+            <include src="SystemProductTestOutput.tar.gz"   dest="SystemProductTestOutput" />
         </package>
-
-        <!--        <package name="sspl-thininstaller" version="sspl-thininstaller/1-0-6-5/220942/output" dest="." buildtype="prod">-->
-        <!--            <include src="." dest="sspl-thininstaller"/>-->
-        <!--        </package>-->
-
-        <package name="sspl-exampleplugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-exampleplugin/0.5.1/output"
-                 dest="." buildtype="dev">
-            <include src="SDDS-COMPONENT" dest="sspl-exampleplugin"/>
+        <package name="sspl-plugin-edr-component" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.0.2/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-edr-plugin" />
+        </package>
+        <package name="sspl-mdr-control-plugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-control-plugin/1.0.6/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-mdr-control-plugin" />
+        </package>
+        <package name="sspl-mdr-componentsuite" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-componentsuite/1.0.6/output" dest="." buildtype="dev">
+            <include src="."   dest="sspl-mdr-componentsuite" />
+        </package>
+        <package name="sspl-thininstaller" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output" dest="." buildtype="dev">
+            <include src="."   dest="sspl-thininstaller" />
+        </package>
+        <package name="sspl-exampleplugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-exampleplugin/0.5.1/output" dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT"   dest="sspl-exampleplugin" />
         </package>
         <package name="sspl-audit" version="master/%LASTGOODCOMPONENTBUILD%/sspl-audit/0.5.1/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-audit" />
@@ -81,7 +64,7 @@
     <buildcommands>
         <command>
             <program>./setOstiaVutBranch.sh</program>
-            <args>feature-LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs-to-use-unified</args>
+            <args>develop</args>
             <workingdir>SupportFiles/jenkins</workingdir>
         </command>
     </buildcommands>
