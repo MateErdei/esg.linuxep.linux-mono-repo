@@ -100,7 +100,9 @@ void send_fd(int socket, int fd)  // send fd by socket
 
     if (sendmsg (socket, &msg, 0) < 0)
     {
-        LOGERROR("Failed to send message: " << std::strerror(errno));
+        std::stringstream errorMsg;
+        errorMsg << "Failed to send message: " << std::strerror(errno);
+        throw AbortScanException(errorMsg.str());
     }
 }
 
