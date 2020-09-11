@@ -67,6 +67,7 @@ ${LONG_DIRECTORY}   000000000000000000000000000000000000000000000000000000000000
 ${CLEAN_RESULT}     0
 ${VIRUS_DETECTED_RESULT}    69
 ${UKNOWN_OPTION_RESULT}     2
+${FILE_NOT_FOUND_RESULT}     2
 ${BAD_OPTION_RESULT}        3
 *** Test Cases ***
 
@@ -148,7 +149,7 @@ CLS Will Not Scan Non-Existent File
 
    Log To Console  return code is ${rc}
    Log To Console  output is ${output}
-   Should Be Equal As Integers  ${rc}  2
+   Should Be Equal As Integers  ${rc}  ${FILE_NOT_FOUND_RESULT}
 
 CLS Can Scan Zero Byte File
      Create File  ${NORMAL_DIRECTORY}/zero_bytes
@@ -378,4 +379,4 @@ CLS Scans Paths That Exist and Dont Exist
     Should Contain      ${output}  Cannot scan "/home/vagrant/this/is/a/directory/for/scanning/.doesnot_exist": file/folder does not exist
     Should Contain      ${output}  Scanning /home/vagrant/this/is/a/directory/for/scanning/clean_eicar
 
-    Should Be Equal As Integers  ${rc}  2
+    Should Be Equal As Integers  ${rc}  ${FILE_NOT_FOUND_RESULT}
