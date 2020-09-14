@@ -114,7 +114,11 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
-        av=build / 'output'
+        av=build / 'output',
+        # tapartifact upload-file
+        # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
+        # /mnt/filer6/lrdata/sophos-susi-lrdata/20200219/lrdata/2020021901/reputation.zip
+        local_rep=context.artifact.from_component('ssplav-localrep', 'released', '20200219') / 'reputation.zip'
     )
     # override the av input and get the bullseye coverage build instead
     if coverage:
