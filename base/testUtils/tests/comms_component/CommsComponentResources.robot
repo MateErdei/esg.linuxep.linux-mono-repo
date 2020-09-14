@@ -45,9 +45,3 @@ Check Not A MountPoint
     [Arguments]  ${mount}
     ${res} =  Run Process  findmnt  -M  ${mount}
     Should Not Be Equal As Integers   ${res.rc}  0
-
-
-Create Directory And Setup Permissions
-    [Arguments]   ${directoryPath}  ${user}  ${group}
-    Create Directory   ${directoryPath}
-    ${r} =  Run Process  chown  ${user}:${group}  ${directoryPath}
