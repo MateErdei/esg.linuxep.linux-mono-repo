@@ -228,7 +228,7 @@ class MCS:
         self.__m_config = config_module.Config(
             filename=path_manager.sophosspl_config(),
             parent_config=self.__m_policy_config,
-            mode=0o600,
+            mode=0o640,
             user_id=get_uid("sophos-spl-local"),
             group_id=get_gid("sophos-spl-group")
         )
