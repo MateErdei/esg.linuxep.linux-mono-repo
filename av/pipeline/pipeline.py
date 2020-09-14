@@ -1,8 +1,10 @@
 import logging
 import os
+from typing import Dict
 
 import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
+from tap._backend import Input
 
 
 COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-av-unit.cov'
@@ -109,7 +111,7 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False):
+def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False) -> Dict[str, Input]:
     print(str(build))
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
@@ -120,7 +122,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         # /mnt/filer6/lrdata/sophos-susi-lrdata/20200219/lrdata/2020021901/reputation.zip
         local_rep=context.artifact.from_component('ssplav-localrep', 'released', '20200219') / 'reputation',
         vdl=context.artifact.from_component('ssplav-vdl', '5-78', '') / 'vdl',
-        ml_model=context.artifact.from_component('ssplav-mlmodel', '20200117', '') / 'model',
+        ml_model=context.artifact.from_component('ssplav-mlmodel', 'released', '20200117') / 'model',
     )
     # override the av input and get the bullseye coverage build instead
     if coverage:
