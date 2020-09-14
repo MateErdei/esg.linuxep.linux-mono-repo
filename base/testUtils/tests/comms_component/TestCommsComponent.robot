@@ -13,10 +13,8 @@ Test Teardown  Test Teardown
 
 
 *** Variables ***
-${TestReadOnlyMount}        ${SOPHOS_INSTALL}/var/sophos-spl-comms/test-ro-mount
-${CommsNetworkLogsPath}     ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log
-${CommsLocalLogsPath}     ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log
-${CommsJailPath}        ${SOPHOS_INSTALL}/var/sophos-spl-comms
+${TestReadOnlyMount}  ${SOPHOS_INSTALL}/var/sophos-spl-comms/test-ro-mount
+${CommsNetworkLogsPath}  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log
 
 *** Test Cases ***
 
@@ -31,49 +29,27 @@ Test Comms Component Starts
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log  sophos-spl-local  sophos-spl-group  -rw-------
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log  sophos-spl-network  sophos-spl-group  -rw-------
 
-#FIXME LINUXDAR-2183: After downgrade is updated to run uninstall consider changing the test and watchdog code
-Test CommsComponent Produces Mounts That Should Be Cleared When Watchdog Stops
-    [Tags]   COMMS  TAP_TESTS
-    Require Installed
-    Wait Until Keyword Succeeds
-    ...  3 secs
-    ...  1 sec
-    ...  Check Management Agent Running
-
-    Check Comms Component Is Running
-    Directory Should Exist     ${CommsJailPath}/usr/lib/systemd/
-
-    Stop Watchdog
-    Wait Until Keyword Succeeds
-    ...  3 secs
-    ...  1 sec
-    ...  Directory Should Not Exist     ${CommsJailPath}/usr/lib/systemd/
-
-    Verify All Mounts Have Been Removed  jailPath=${CommsJailPath}
-    Check Log Contains  Successfully read only mounted   ${CommsNetworkLogsPath}   network log
-    Check Log Contains  Waiting for network process to finish  ${CommsLocalLogsPath}  local log
-
 
 Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
     [Tags]   COMMS  TAP_TESTS
     Require Installed
+
     Check Comms Component Is Running
 
-    Directory Should Exist     ${CommsJailPath}/usr/lib/systemd/
     #unmount an unexpected directory read only to prevent comms from starting
     Create Read Only Mount Inside Comms Chroot Path
 
     Stop Watchdog
     Check Comms Component Not Running
-
-    #watch dog should have cleared the mounts
-    Wait Until Keyword Succeeds
-    ...  3 secs
-    ...  1 sec
-    ...  Directory Should Not Exist     ${CommsJailPath}/usr/lib/systemd/
-
+    Directory Should Exist     ${SOPHOS_INSTALL}/var/sophos-spl-comms/usr/lib/systemd/
     Start Watchdog
     Check Comms Component Not Running
+
+    #demonstrate that the start comms will cleanup and unmount known paths left in previous run
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  2 secs
+        ...  Directory Should Not Exist     ${SOPHOS_INSTALL}/var/sophos-spl-comms/usr/lib/systemd/
 
     #unmount stray file
     Unmount Test Directory
