@@ -35,9 +35,11 @@ EDR Test Setup
 
 EDR Test Teardown
     Stop Local Cloud Server
+    Run Keyword if Test Failed    Report Audit Link Ownership
     Run Keyword If Test Failed    Dump Cloud Server Log
     General Test Teardown
     Uninstall EDR Plugin
+    Remove File   tmp/last_query_response.json
 
 EDR Suite Setup
     Regenerate Certificates
