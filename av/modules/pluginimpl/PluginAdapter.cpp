@@ -66,6 +66,7 @@ PluginAdapter::PluginAdapter(
         m_sophosThreadDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             sophos_threat_detector_launcher()))
 {
+    m_baseService->requestPolicies("SAV");
 }
 
 void PluginAdapter::mainLoop()
