@@ -119,6 +119,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
     std::string policy1revID = "12345678901";
@@ -153,6 +154,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
     std::string policy1revID = "12345678901";
@@ -256,6 +258,7 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
             )sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
     pluginAdapter.processThreatReport(threatDetectedXML);
