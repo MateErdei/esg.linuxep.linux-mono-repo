@@ -110,7 +110,12 @@ ACTION_P(QueueStopTask, taskQueue) {
 
 TEST_F(TestPluginAdapter, testConstruction) //NOLINT
 {
-    PluginAdapter pluginAdapter(m_queueTask, std::move(m_baseService), m_callback);
+    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
@@ -185,7 +190,13 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
 
 TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
 {
-    PluginAdapter pluginAdapter(m_queueTask, std::move(m_baseService), m_callback);
+    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
     std::string actionXml =
             R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
@@ -208,7 +219,12 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
 
 TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
 {
-    PluginAdapter pluginAdapter(m_queueTask, std::move(m_baseService), m_callback);
+    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
     std::string actionXml =
             R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="NONE" id="" subtype="MALFORMED" replyRequired="0"/>)";
