@@ -122,19 +122,6 @@ Install EDR and handle Live Query
     Check Cloud Server Log Contains    "columnMetaData": [{"name":"name","type":"TEXT"}],  1
     Check Cloud Server Log Contains    "columnData": [["systemd"],  1
 
-Install EDR And Get Historic Event Data
-    Install EDR  ${BaseAndEdrVUTPolicy}
-    Wait Until OSQuery Running
-    Run Shell Process   /opt/sophos-spl/bin/wdctl stop edr     OnError=Failed to stop edr
-    Override LogConf File as Global Level  DEBUG
-    Run Shell Process   /opt/sophos-spl/bin/wdctl start edr    OnError=Failed to start edr
-
-    Wait Until OSQuery Running
-
-    Wait Until Keyword Succeeds
-    ...   7x
-    ...   10 secs
-    ...   Run Query Until It Gives Expected Results  select pid from process_events LIMIT 1  {"columnMetaData":[{"name":"pid","type":"BIGINT"}],"queryMetaData":{"errorCode":0,"errorMessage":"OK","rows":1}}
 
 A broken edr installation will fail update
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EXCLUDE_UBUNTU20

@@ -156,7 +156,6 @@ Report Audit Link Ownership
 
 
 EDR Test Teardown
-    Run Keyword if Test Failed    Log File   ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.INFO
     Run Keyword if Test Failed    Report Audit Link Ownership
     Run Keyword if Test Failed    Report On MCS_CA
     Run Keyword if Test Failed    Log File  ${SOPHOS_INSTALL}/base/update/var/update_config.json

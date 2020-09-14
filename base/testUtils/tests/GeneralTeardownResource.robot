@@ -36,6 +36,9 @@ Dump All Logs
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.INFO
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.results.log
+
     Dump Teardown Log    ${LIVERESPONSE_DIR}/log/liveresponse.log
     Dump Teardown Log    ${LIVERESPONSE_DIR}/log/sessions.log
 
