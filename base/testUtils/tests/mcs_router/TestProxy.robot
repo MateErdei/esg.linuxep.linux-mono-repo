@@ -414,7 +414,10 @@ Status Sent After Message Relay Changed
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains   Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
-    Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
 
     Check MCSRouter Log Does Not Contain   Successfully connected to localhost:4443 via localhost:${Proxy_Port_Two}
     Check MCSRouter Log Does Not Contain   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_Two}

@@ -7,7 +7,7 @@
         <servers>
             <server>https://localhost:4443/mcs</server>
         </servers>
-        <messageRelays><messageRelay priority='0' port='3345' address='localhost' id='eee'/></messageRelays>
+        <messageRelays><messageRelay priority='0' port='20000' address='localhost' id='eee'/></messageRelays>
         <useSystemProxy>true</useSystemProxy>
         <useAutomaticProxy>true</useAutomaticProxy>
         <useDirect>true</useDirect>
