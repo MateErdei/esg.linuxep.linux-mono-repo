@@ -377,7 +377,7 @@ Install master of base and edr and mtr and upgrade to mtr 999
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  60 secs
+    ...  120 secs
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
 
@@ -432,7 +432,7 @@ Install master of base and edr and mtr and upgrade to edr 999
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  60 secs
+    ...  120 secs
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
 
@@ -481,23 +481,28 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version: 99.9.9
 
+    # When waiting for install messages, the order here may not be the actual order, although we are waiting 120 seconds
+    # each time, this should take a lot less time overall, max time should be around 120 seconds total for all installing send messages
+    # to appear.
     Wait Until Keyword Succeeds
-    ...  60 secs
+    ...  120 secs
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
     Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
+    ...  120 secs
+    ...  2 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  EDR Plugin Is Running
 
     Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
+    ...  120 secs
+    ...  2 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
+
+    # check plugins are running.
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  EDR Plugin Is Running
 
     Wait Until Keyword Succeeds
     ...  30 secs
