@@ -27,7 +27,7 @@ Test Comms Component Starts
     Check Comms Component Log Does Not Contain Error
 
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log  sophos-spl-local  sophos-spl-group  -rw-------
-    File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log  sophos-spl-network  sophos-spl-network  -rw-------
+    File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log  sophos-spl-network  sophos-spl-group  -rw-------
 
 
 Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
