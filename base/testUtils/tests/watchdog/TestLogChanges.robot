@@ -69,6 +69,7 @@ Logger Conf should note crash MCSRouter if it has incorrect permissions
     ${debugLevelLogs} =  Get Log Content For Component And Clear It  mcs_router
     Should Contain   ${debugLevelLogs}  DEBUG
     Run Process  chown  root:root  ${SOPHOS_INSTALL}/base/etc/logger.conf
+    Run Process  chmod  0660  ${SOPHOS_INSTALL}/base/etc/logger.conf
     #Restart Plugin And Return Its Log File  mcsrouter  mcs_router
     Run Keyword and Ignore Error   Wdctl stop plugin  mcsrouter
     Wdctl Start Plugin  mcsrouter
