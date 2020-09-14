@@ -19,7 +19,8 @@ function failure()
 
 INPUTS_ROOT=$BASE/../..
 AV_ROOT=${INPUTS_ROOT}/av
-[[ ! -d $AV_ROOT ]] && AV_ROOT=${INPUTS_ROOT}/output
+[[ ! -d $AV_ROOT/INSTALL-SET ]] && AV_ROOT=${INPUTS_ROOT}/output
+[[ ! -d $AV_ROOT/INSTALL-SET ]] && AV_ROOT=/opt/test/inputs/av
 TEST_SUITE=${BASE}/..
 
 export MCS_CA=${MCS_CA:-${TEST_SUITE}/resources/certs/hmr-dev-sha1.pem}
@@ -28,7 +29,6 @@ SDDS_BASE=${AV_ROOT}/base-sdds
 [[ -d $SDDS_BASE ]] || failure 1 "Can't find SDDS_BASE: $SDDS_BASE"
 [[ -f $SDDS_BASE/install.sh ]] || failure 1 "Can't find SDDS_BASE/install.sh: $SDDS_BASE/install.sh"
 SDDS_AV=${AV_ROOT}/INSTALL-SET
-[[ -d $SDDS_AV ]] || SDDS_AV=${AV_ROOT}/SDDS-COMPONENT
 [[ -d $SDDS_AV ]] || failure 2 "Can't find SDDS_AV: $SDDS_AV"
 [[ -f $SDDS_AV/install.sh ]] || failure 2 "Can't find $SDDS_AV/install.sh"
 
