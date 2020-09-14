@@ -1,7 +1,7 @@
 *** Settings ***
 
 Library         OperatingSystem
-Resource        ComponentSetup.robot
+Library         ../Libs/InstallSet.py
 
 *** Variables ***
 ${COMPONENT}        av
@@ -36,6 +36,8 @@ Global Setup Tasks
 
     Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}            UsingFakeAvScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false
+
+    Create Install Set If Required
 
 
 
