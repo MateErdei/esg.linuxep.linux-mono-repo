@@ -201,10 +201,6 @@ Copy File And Set Permissions
     ${r} =  Run Process  chown  root:sophos-spl-group  ${dstdir}/${basename}
     Should Be Equal As Strings  ${r.rc}  0
 
-Create Directory And Setup Permissions
-    [Arguments]   ${directoryPath}  ${user}  ${group}
-    Create Directory   ${directoryPath}
-    ${r} =  Run Process  chown  ${user}:${group}  ${directoryPath}
 
 Run Jailed Https Request Without Unmount
     [Arguments]   ${jailPath}

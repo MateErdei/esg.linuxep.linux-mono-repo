@@ -89,7 +89,7 @@ namespace CommsComponent
             Common::FileSystem::filePermissions()->chown(m_chrootDir, m_childUser.userName, m_childUser.userGroup);
 
             setupLoggingFiles();
-            restoreLogs();
+            restoreLogs(output);
 
             if (mountDependenciesReadOnly(m_childUser, m_listOfDependencyPairs, m_chrootDir, output)
                 == CommsConfigurator::MountOperation::MountFailed)
@@ -240,12 +240,12 @@ namespace CommsComponent
                 {"/usr/lib64",       "usr/lib64"}
         };
 
-        std::vector<ReadOnlyMount>  validDeps; 
+        std::vector<ReadOnlyMount>  validDeps;
         for( auto & dep: allPossiblePaths)
         {
             if( Common::FileSystem::fileSystem()->exists(dep.first))
             {
-                validDeps.emplace_back(dep); 
+                validDeps.emplace_back(dep);
             }
         }
 
@@ -298,45 +298,76 @@ namespace CommsComponent
             {
                 exit(EXIT_FAILURE);
             }
-            backupLogs();
+            backupLogs(out);
             Common::FileSystem::fileSystem()->removeFileOrDirectory(m_chrootDir);
         }
     }
 
     //Restore logs back into chroot path
-    void CommsConfigurator::restoreLogs()
+    void CommsConfigurator::restoreLogs(std::ostream &out)
     {
         auto fs = Common::FileSystem::fileSystem();
         auto logsDir = Common::FileSystem::join(m_chrootDir, "logs");
         auto backup = getLogsBackUpPath(m_childUser.logName);
-        if(!fs->exists(logsDir) || !fs->exists(backup))
+        if (!fs->exists(logsDir) || !fs->exists(backup))
         {
             return;
         }
 
-        if ( fs->isDirectory(backup))
+        if (fs->isDirectory(backup))
         {
-            for (auto& logFile : fs->listFiles(backup))
+            try
             {
-                auto destLogFile = Common::FileSystem::join(logsDir, Common::FileSystem::basename(logFile));
-                fs->copyFileAndSetPermissions(logFile, destLogFile, S_IRUSR | S_IWUSR, m_childUser.userName, m_childUser.userGroup);
+                for (auto& logFile : fs->listFiles(backup))
+                {
+                    //ignore directories
+                    if(!fs->isFile(logFile))
+                    {
+                        continue;
+                    }
+                    auto destLogFile = Common::FileSystem::join(logsDir, Common::FileSystem::basename(logFile));
+                    fs->copyFileAndSetPermissions(logFile, destLogFile, S_IRUSR | S_IWUSR, m_childUser.userName,
+                                                  m_childUser.userGroup);
+                }
             }
-            fs->removeFileOrDirectory(backup);
+            catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
+            {
+                out << "Failed to restore logs from: '" << backup <<"'. " << iFileSystemException.what();
+            }
+
+            //cleanup the backup away the backup
+            try
+            {
+                fs->removeFileOrDirectory(backup);
+            }
+            catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
+            {
+                out << "Failed to cleanup logs backup from: '" << backup <<"'. " << iFileSystemException.what();
+            }
         }
     }
 
     //backup logs in sophos temp
-    void CommsConfigurator::backupLogs()
+    void CommsConfigurator::backupLogs(std::ostream &out)
     {
-        auto fs = Common::FileSystem::fileSystem();
-        auto logsDir = Common::FileSystem::join(m_chrootDir,"logs");
-        if (fs->exists(logsDir))
+        auto logsDir = Common::FileSystem::join(m_chrootDir, "logs");
+        try
         {
-            auto listOfFiles = fs->listFiles(logsDir);
-            if (!listOfFiles.empty())
+            auto fs = Common::FileSystem::fileSystem();
+            if (fs->exists(logsDir) && fs->isDirectory(logsDir))
             {
-                fs->moveFile(logsDir, getLogsBackUpPath(m_childUser.logName));
+                auto logsBackUpPath = getLogsBackUpPath(m_childUser.logName);
+                if (fs->exists(logsBackUpPath))
+                {
+                    fs->removeFileOrDirectory(logsBackUpPath);
+                }
+                fs->moveFile(logsDir, logsBackUpPath);
+                out << "Backup logs from: '" << logsDir <<"', to: '" << logsBackUpPath <<"'\n";
             }
         }
+        catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
+        {
+           out << "Failed to backup logs from: '" << logsDir <<"'. " << iFileSystemException.what();
+        }
     }
-}
+}   //namesapce

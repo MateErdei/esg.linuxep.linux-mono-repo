@@ -27,7 +27,7 @@ Test Comms Component Starts
     Check Comms Component Log Does Not Contain Error
 
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log  sophos-spl-local  sophos-spl-group  -rw-------
-    File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log  sophos-spl-network  sophos-spl-group  -rw-------
+    File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log  sophos-spl-network  sophos-spl-network  -rw-------
 
 
 Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
@@ -92,6 +92,38 @@ Test Comms Component Backsup and Restore Logs
         ...  2 secs
         ...  Check Log Contains String N Times   ${CommsNetworkLogsPath}   comms-network.log   Successfully read only mounted '/lib' to path: '/opt/sophos-spl/var/sophos-spl-comms/lib  3
     Check Comms Component Log Does Not Contain Error
+
+
+Test Comms Component Recovers From Previous Logs Backsup Failures
+    [Tags]   COMMS  TAP_TESTS
+    Require Installed
+
+    Check Comms Component Is Running
+
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  2 secs
+        ...  Check Log Contains String N Times  ${CommsNetworkLogsPath}  comms-network.log   Successfully read only mounted '/lib' to path: '/opt/sophos-spl/var/sophos-spl-comms/lib  1
+
+    #restart with systemctl
+    Stop Watchdog
+    Check Comms Component Not Running
+
+    #create previous backup file thats not been cleaned up
+    ${comms_backup}=  Set Variable  ${SOPHOS_INSTALL}/tmp/comms_network_backup
+    Create Directory And Setup Permissions   ${comms_backup}  sophos-spl-local   sophos-spl-group
+    Copy File  ${CommsNetworkLogsPath}    ${comms_backup}
+    Start Watchdog
+
+    #check logs restore and retain from previous start
+    #each start is mounting the dependencies afresh
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  2 secs
+        ...  Check Log Contains String N Times   ${CommsNetworkLogsPath}   comms-network.log   Successfully read only mounted '/lib' to path: '/opt/sophos-spl/var/sophos-spl-comms/lib  2
+
+    Directory Should Not Exist  ${comms_backup}
+
 
 *** Keywords ***
 Test Setup

@@ -49,9 +49,10 @@ namespace CommsComponent
          */
         void setupLoggingFiles();
 
+        //use ostream to append logs to be passed to logger once initialised
         void backupLogsAndRemoveChrootDir(std::ostream& out);
-        void backupLogs();
-        void restoreLogs();
+        void backupLogs(std::ostream& out);
+        void restoreLogs(std::ostream& out);
 
     public:
         static void clearFilesOlderThan1Hour();

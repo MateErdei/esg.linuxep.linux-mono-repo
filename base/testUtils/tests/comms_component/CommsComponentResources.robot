@@ -1,10 +1,13 @@
+*** Settings ***
+Resource  ../installer/InstallerResources.robot
+
 *** Keywords ***
 
 Check Watchdog Starts Comms Component
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
-    ...  Check Comms Component Running
+    ...  Check Comms Component Is Running
 
     Wait Until Keyword Succeeds
     ...  10s
@@ -42,3 +45,9 @@ Check Not A MountPoint
     [Arguments]  ${mount}
     ${res} =  Run Process  findmnt  -M  ${mount}
     Should Not Be Equal As Integers   ${res.rc}  0
+
+
+Create Directory And Setup Permissions
+    [Arguments]   ${directoryPath}  ${user}  ${group}
+    Create Directory   ${directoryPath}
+    ${r} =  Run Process  chown  ${user}:${group}  ${directoryPath}
