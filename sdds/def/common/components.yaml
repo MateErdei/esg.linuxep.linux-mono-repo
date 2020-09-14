@@ -9,7 +9,7 @@ sspl-base:
     line-id: ServerProtectionLinux-Base
 sspl-base-component:
     build:
-        branch: feature-2101-wh
+        branch: bugfix-LINUXDAR-2072-fix-logs-backup
         name: sspl-base
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base-component
