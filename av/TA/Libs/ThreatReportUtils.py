@@ -28,6 +28,21 @@ GL_EXPECTED_CONTENTS = {
         '''action="101"'''
     ],
 
+    "naugthyEicarThreatReportAsVagrant": [
+        '''description="Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar''',
+        '''type="sophos.mgt.msg.event.threat"''',
+        '''userId="vagrant"''',
+        '''domain="local"''',
+        '''name="EICAR-AV-Test"''',
+        '''scanType="203"''',
+        '''status="200"''',
+        '''id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8"''',
+        '''idSource="Tsha256(path,name)"''',
+        '''file="naugthy_eicar"''',
+        '''path="/home/vagrant/this/is/a/directory/for/scanning/"/>''',
+        '''action="101"'''
+    ],
+
     #TODO: uncomment when LINUXDAR-1721 fixed and also update list_of_expected_encoded_eicars file
     "encoded_eicars": [
         '''" " path="/tmp/encoded_eicars/"''',
