@@ -185,6 +185,28 @@ AV Plugin Reports Threat XML To Base
          ...  3 secs
          ...  check threat event received by base  1  naugthyEicarThreatReport
 
+Avscanner runs as non-root
+   Check AV Plugin Installed With Base
+
+   ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
+
+   Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+   ${rc}   ${output} =    Run And Return Rc And Output   su -c "/usr/local/bin/avscanner ${SCAN_DIRECTORY}/naugthy_eicar" vagrant
+
+   Log To Console  ${output}
+
+   Should Be Equal As Integers  ${rc}  69
+   Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/naugthy_eicar" is infected with EICAR-AV-Test
+
+   Should Not Contain    ${output}    Failed to read the config file
+   Should Not Contain    ${output}    All settings will be set to their default value
+   Should Contain   ${output}    Logger av configured for level: SUPPORT
+
+   Wait Until Keyword Succeeds
+         ...  60 secs
+         ...  3 secs
+         ...  check threat event received by base  1  naugthyEicarThreatReportAsVagrant
+
 AV Plugin Reports encoded eicars To Base
    Check AV Plugin Installed With Base
 
