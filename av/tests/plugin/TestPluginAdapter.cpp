@@ -118,6 +118,17 @@ TEST_F(TestPluginAdapter, testConstruction) //NOLINT
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 }
 
+TEST_F(TestPluginAdapter, testConstructionWithNoPolicy) //NOLINT
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1).WillOnce(Throw(std::exception()));
+
+    ASSERT_NO_THROW(PluginAdapter(m_queueTask, std::move(mockBaseService), m_callback));
+}
+
 TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 {
     auto mockBaseService = std::make_unique<StrictMock<MockBase>>();

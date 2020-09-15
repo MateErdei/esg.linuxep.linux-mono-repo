@@ -66,7 +66,14 @@ PluginAdapter::PluginAdapter(
         m_sophosThreadDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             sophos_threat_detector_launcher()))
 {
-    m_baseService->requestPolicies("SAV");
+    try
+    {
+        m_baseService->requestPolicies("SAV");
+    }
+    catch (std::exception& e)
+    {
+        LOGERROR("Failed to get SAV policy at startup");
+    }
 }
 
 void PluginAdapter::mainLoop()
