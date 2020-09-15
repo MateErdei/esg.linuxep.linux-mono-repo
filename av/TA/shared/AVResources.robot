@@ -69,12 +69,6 @@ File Log Contains With Offset
     ${content} =  Catenate  SEPARATOR=\n  @{lines}
     Should Contain  ${content}  ${input}
 
-File Log Contains
-    [Arguments]  ${path}  ${input}
-    File Should Exist  ${path}
-    ${content} =  Get File   ${path}  encoding_errors=replace
-    Should Contain  ${content}  ${input}
-
 File Log Should Not Contain
     [Arguments]  ${path}  ${input}
     ${content} =  Get File   ${path}  encoding_errors=replace
@@ -103,7 +97,7 @@ AV Plugin Log Contains With Offset
 
 AV Plugin Log Contains
     [Arguments]  ${input}
-    File Log Contains  ${AV_LOG_PATH}   ${input}
+    LogUtils.File Log Contains  ${AV_LOG_PATH}   ${input}
 
 Threat Detector Log Contains
     [Arguments]  ${input}
@@ -137,7 +131,7 @@ AV Plugin Log Does Not Contain
 
 Plugin Log Contains
     [Arguments]  ${input}
-    File Log Contains  ${AV_LOG_PATH}   ${input}
+    LogUtils.check_log_contains  ${input}  ${AV_LOG_PATH}
 
 FakeManagement Log Contains
     [Arguments]  ${input}

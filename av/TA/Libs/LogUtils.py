@@ -80,7 +80,10 @@ class LogUtils(object):
         server_log = self.cloud_server_log
         self.dump_log(server_log)
 
-    def check_log_contains(self, string_to_contain, pathToLog, log_name):
+    def check_log_contains(self, string_to_contain, pathToLog, log_name=None):
+        if log_name is None:
+            log_name = os.path.basename(pathToLog)
+
         if not (os.path.isfile(pathToLog)):
             raise AssertionError("Log file {} at location {} does not exist ".format(log_name, pathToLog))
 
@@ -88,6 +91,24 @@ class LogUtils(object):
         if string_to_contain not in contents:
             self.dump_log(pathToLog)
             raise AssertionError("{} Log at \"{}\" does not contain: {}".format(log_name, pathToLog, string_to_contain))
+
+    def file_log_contains(self, path, expected):
+        """
+        Reimplement:
+File Log Contains
+    [Arguments]  ${path}  ${input}
+    File Should Exist  ${path}
+    ${content} =  Get File   ${path}  encoding_errors=replace
+    Should Contain  ${content}  ${input}
+
+        Without error cases
+
+        :param path:
+        :param expected:
+        :return:
+        """
+        return self.check_log_contains(expected, path)
+
 
     def check_log_and_return_nth_occurence_between_strings(self, string_to_contain_start, string_to_contain_end, pathToLog,
                                                            occurs=1):
@@ -267,7 +288,6 @@ class LogUtils(object):
         log_occurrences = reg_expression.findall(string)
         return len(log_occurrences)
 
-
     def check_string_matching_regex_in_file(self, file_path, reg_expression_str):
         if not os.path.exists(file_path):
             raise AssertionError("File not found '{}'".format(file_path))
@@ -275,7 +295,6 @@ class LogUtils(object):
             self.dump_log(file_path)
             raise AssertionError(
                 "The file: '{}', did not have any lines match the regex: '{}'".format(file_path, reg_expression_str))
-
 
     def mark_expected_error_in_log(self, log_location, error_message):
         error_string = "ERROR"
