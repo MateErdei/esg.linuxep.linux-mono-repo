@@ -71,6 +71,7 @@ File Log Contains With Offset
 
 File Log Contains
     [Arguments]  ${path}  ${input}
+    File Should Exist  ${path}
     ${content} =  Get File   ${path}  encoding_errors=replace
     Should Contain  ${content}  ${input}
 
@@ -89,7 +90,7 @@ Wait Until File Log Contains
 File Log Does Not Contain
     [Arguments]  ${logCheck}  ${input}
     Run Keyword And Expect Error
-    ...  Keyword '${logCheck}' failed after retrying for 15 seconds.*does not contain '${input}'
+    ...  Keyword '${logCheck}' failed after retrying for .* seconds.*does not contain '${input}'
     ...  Wait Until Keyword Succeeds
     ...    15 secs
     ...    1 secs
