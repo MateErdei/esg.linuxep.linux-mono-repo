@@ -14,6 +14,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/PluginApi/ApiException.h>
 
 namespace Plugin
 {

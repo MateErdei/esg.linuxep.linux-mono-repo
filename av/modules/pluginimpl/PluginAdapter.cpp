@@ -13,7 +13,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
-
 namespace fs = sophos_filesystem;
 
 using namespace Plugin;
@@ -70,7 +69,7 @@ PluginAdapter::PluginAdapter(
     {
         m_baseService->requestPolicies("SAV");
     }
-    catch (std::exception& e)
+    catch (Common::PluginApi::ApiException& e)
     {
         LOGERROR("Failed to get SAV policy at startup");
     }

@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/PluginApi/ApiException.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 #include <gtest/gtest.h>
@@ -124,7 +125,7 @@ TEST_F(TestPluginAdapter, testConstructionWithNoPolicy) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1).WillOnce(Throw(std::exception()));
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1).WillOnce(Throw(Common::PluginApi::ApiException("error")));
 
     ASSERT_NO_THROW(PluginAdapter(m_queueTask, std::move(mockBaseService), m_callback));
 }
