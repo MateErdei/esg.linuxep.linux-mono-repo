@@ -63,6 +63,16 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Wait Until AV Plugin Log Contains  Sending scan complete
     Validate latest Event  ${now}
 
+AV Gets Policy When Plugin Restarts
+    Check AV Plugin Installed With Base
+    Send Sav Policy With No Scheduled Scans
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Stop AV Plugin
+    Remove File    ${AV_LOG_PATH}
+    Start AV Plugin
+    Wait until scheduled scan updated
+    Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans: 0
+
 AV Configures No Scheduled Scan Correctly
     Check AV Plugin Installed With Base
     Send Sav Policy With No Scheduled Scans

@@ -10,6 +10,14 @@ AV and Base Setup
 Check avscanner in /usr/local/bin
     File Should Exist  /usr/local/bin/avscanner
 
+Stop AV Plugin
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   av
+    Should Be Equal As Integers    ${result.rc}    0
+
+Start AV Plugin
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   av
+    Should Be Equal As Integers    ${result.rc}    0
+
 Check avscanner not in /usr/local/bin
     File Should Not Exist  /usr/local/bin/avscanner
 
