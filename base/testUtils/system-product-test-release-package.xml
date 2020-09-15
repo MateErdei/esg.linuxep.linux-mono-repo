@@ -9,7 +9,7 @@
         <package name="sspl-plugin-edr-component" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.0.2/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-edr-plugin" />
         </package>
-        <package name="sspl-mdr-control-plugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-control-plugin/1.0.6/output" dest="." buildtype="dev">
+        <package name="sspl-mdr-control-plugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-control-plugin/1.0.7/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-mdr-control-plugin" />
         </package>
         <package name="sspl-mdr-componentsuite" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-componentsuite/1.0.6/output" dest="." buildtype="dev">
