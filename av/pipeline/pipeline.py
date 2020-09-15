@@ -73,7 +73,8 @@ def get_suffix():
 def robot_task_with_env(machine: tap.Machine, environment=None):
     try:
         machine.run('bash', machine.inputs.test_scripts / "bin/install_nfs_server.sh")
-        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', environment=environment, timeout=3600)
+        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', environment=environment,
+                    timeout=3600)
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')

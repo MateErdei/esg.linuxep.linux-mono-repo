@@ -36,8 +36,8 @@ def main():
     if listener is not None:
         robot_args['listener'] = listener
 
-    sys.exit(robot.run(robot_args['path'], **robot_args))
+    return robot.run(robot_args['path'], **robot_args)
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
