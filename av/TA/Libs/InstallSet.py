@@ -75,6 +75,8 @@ class InstallSet(object):
 
         # Read variables
         install_set = BuiltIn().get_variable_value("${COMPONENT_INSTALL_SET}")
-        if not self.verify_install_set(install_set):
-            self.create_install_set(install_set)
+        self.__m_install_set_verified = self.verify_install_set(install_set)
+        if self.__m_install_set_verified:
+            return
+        self.create_install_set(install_set)
 
