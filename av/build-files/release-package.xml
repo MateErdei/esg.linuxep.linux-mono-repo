@@ -52,7 +52,7 @@
                  version="master/%LASTGOODCOMPONENTBUILD%/sspl-plugin-av-susi-component/0.5.0/output"
                  dest="input" buildtype="dev">
         -->
-        <package name="sspl-plugin-av-susi-component" version="0-5-0-52/221211/output" dest="input">
+        <package name="sspl-plugin-av-susi-component" version="0-5-0-55/221220/output" dest="input">
             <include src="susi.tar" dest="."/>
         </package>
 
