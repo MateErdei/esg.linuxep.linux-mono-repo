@@ -1,14 +1,18 @@
 import os
 import glob
 import subprocess
+import time
 from robot.api import logger
 import robot.libraries.BuiltIn
 
 
 def _get_log_contents(path_to_log):
-    with open(path_to_log, "r") as log:
-        contents = log.read()
-    return contents
+    try:
+        with open(path_to_log, "rb") as log:
+            contents = log.read()
+    except EnvironmentError:
+        return None
+    return contents.decode("UTF-8", errors='backslashreplace')
 
 
 def _log_contains_in_order(log_location, log_name, args, log_finds=True):
@@ -109,6 +113,15 @@ File Log Contains
         """
         return self.check_log_contains(expected, path)
 
+    def Over_next_15_seconds_ensure_log_does_not_contain(self, pathToLog, unexpected, period=15, log_name=None):
+        log_name = log_name or os.path.basename(pathToLog)
+        end = time.time() + period
+        while time.time() < end:
+            contents = _get_log_contents(pathToLog) or ""
+            if unexpected in contents:
+                raise AssertionError("{} Log at \"{}\" contains: {}".format(log_name, pathToLog, unexpected))
+            time.sleep(1)
+        logger.info("{} Log at \"{}\" does not contain: {}".format(log_name, pathToLog, unexpected))
 
     def check_log_and_return_nth_occurence_between_strings(self, string_to_contain_start, string_to_contain_end, pathToLog,
                                                            occurs=1):

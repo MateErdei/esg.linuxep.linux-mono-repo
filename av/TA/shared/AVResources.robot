@@ -127,7 +127,7 @@ Wait Until AV Plugin Log Contains
 
 AV Plugin Log Does Not Contain
     [Arguments]  ${input}
-    File Log Does Not Contain  AV Plugin Log Contains  ${input}
+    LogUtils.Over next 15 seconds ensure log does not contain   ${AV_LOG_PATH}  ${input}
 
 Plugin Log Contains
     [Arguments]  ${input}
@@ -147,7 +147,7 @@ Wait Until Management Log Contains
 
 Management Log Does Not Contain
     [Arguments]  ${input}
-    File Log Does Not Contain  Management Log Contains  ${input}
+    LogUtils.Over next 15 seconds ensure log does not contain   ${MANAGEMENT_AGENT_LOG_PATH}  ${input}
 
 SAV Status XML Contains
     [Arguments]  ${input}
