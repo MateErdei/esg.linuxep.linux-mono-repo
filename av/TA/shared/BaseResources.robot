@@ -2,6 +2,7 @@
 
 Library         ../Libs/BaseInteractionTools/DiagnoseUtils.py
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
+Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/HttpsServer.py
 Library         String
 Library         DateTime
@@ -45,6 +46,11 @@ Send Complete Sav Policy
 Send Sav Policy To Base
     [Arguments]  ${policyFile}
     Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/SAV-2_policy.xml
+
+Send Sav Policy To Base With Exclusions Filled In
+    [Arguments]  ${policyFile}
+    ExclusionHelper.Fill In On Demand Posix Exclusions  ${RESOURCES_PATH}/${policyFile}  ${RESOURCES_PATH}/FilledIn.xml
+    Copy File  ${RESOURCES_PATH}/FilledIn.xml  ${MCS_PATH}/policy/SAV-2_policy.xml
 
 Send Sav Action To Base
     [Arguments]  ${actionFile}

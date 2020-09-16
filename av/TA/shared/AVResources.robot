@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
+Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/BaseUtils.py
@@ -274,9 +275,10 @@ Check Scan Now Configuration File is Correct
         ...    15 secs
         ...    1 secs
         ...    File Should Exist  ${configFilename}
+    @{exclusions} =  ExclusionHelper.get exclusions to scan tmp
     CapnpHelper.check named scan object   ${configFilename}
         ...     name=Scan Now
-        ...     exclude_paths=["/bin/", "/boot/", "/dev/", "/etc/", "/home/", "/lib32/", "/lib64/", "/lib/", "/lost+found/", "/media/", "/mnt/", "/oldTarFiles/", "/opt/", "/proc/", "/redist/", "/root/", "/run/", "/sbin/", "/snap/", "/srv/", "/sys/", "/usr/", "/vagrant/", "/var/", "/SophosPackages/", "*.glob", "globExample?.txt", "/stemexample/*"]
+        ...     exclude_paths=@{exclusions}
         ...     sophos_extension_exclusions=["exclusion1", "exclusion2", "exclusion3"]
         ...     user_defined_extension_inclusions=["exclusion1", "exclusion2", "exclusion3", "exclusion4"]
         ...     scan_archives=False
@@ -295,9 +297,10 @@ Check Scheduled Scan Configuration File is Correct
         ...    File Should Exist  ${configFilename}
     # TODO LINUXDAR-1482 Update this to check all the configuration is correct - run the test and see what's outputted first
     # TODO LINUXDAR-1482 Make the check more complicated so we check the list attributes
+    @{exclusions} =  ExclusionHelper.get exclusions to scan tmp
     CapnpHelper.check named scan object   ${configFilename}
         ...     name=Sophos Cloud Scheduled Scan
-        ...     exclude_paths=["/bin/", "/boot/", "/dev/", "/etc/", "/home/", "/lib32/", "/lib64/", "/lib/", "/lost+found/", "/media/", "/mnt/", "/oldTarFiles/", "/opt/", "/proc/", "/redist/", "/root/", "/run/", "/sbin/", "/snap/", "/srv/", "/sys/", "/usr/", "/vagrant/", "/var/", "/SophosPackages/"]
+        ...     exclude_paths=@{exclusions}
         ...     sophos_extension_exclusions=[]
         ...     user_defined_extension_inclusions=[]
         ...     scan_archives=False

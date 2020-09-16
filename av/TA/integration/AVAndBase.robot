@@ -55,7 +55,7 @@ AV plugin SAV Status contains revision ID of policy
 AV plugin sends Scan Complete event and (fake) Report To Central
     Check AV Plugin Installed With Base
     ${now} =  Get Current Date  result_format=epoch
-    Send Sav Policy To Base  SAV_Policy.xml
+    Send Sav Policy To Base With Exclusions Filled In  SAV_Policy.xml
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until Management Log Contains  Action SAV_action
     Wait Until AV Plugin Log Contains  Starting scan

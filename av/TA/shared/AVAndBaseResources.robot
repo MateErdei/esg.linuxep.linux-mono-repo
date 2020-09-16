@@ -33,12 +33,12 @@ Configure and check scan now
     Check scan now
 
 Configure scan now
-    Send Sav Policy To Base  SAV_Policy_Scan_Now.xml
+    Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
     Wait until scheduled scan updated
 
 Check scan now
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180  interval=10
     AV Plugin Log Contains  Starting Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
 
