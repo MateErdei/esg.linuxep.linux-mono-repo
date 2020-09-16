@@ -12,7 +12,7 @@
         <package name="sspl-mdr-control-plugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-control-plugin/1.0.7/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-mdr-control-plugin" />
         </package>
-        <package name="sspl-mdr-componentsuite" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-componentsuite/1.0.6/output" dest="." buildtype="dev">
+        <package name="sspl-mdr-componentsuite" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-componentsuite/1.0.7/output" dest="." buildtype="dev">
             <include src="."   dest="sspl-mdr-componentsuite" />
         </package>
         <package name="sspl-thininstaller" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output" dest="." buildtype="dev">
