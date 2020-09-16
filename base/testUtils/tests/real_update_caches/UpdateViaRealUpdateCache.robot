@@ -11,7 +11,7 @@ Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../mcs_router-nova/McsRouterNovaResources.robot
 Resource  ../mdr_plugin/MDRResources.robot
 
-# TODO - remove this tag when downgrade scenarios work
+# TODO - LINUXDAR-2037 remove this tag when downgrade scenarios work
 Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS  SLOW  TESTFAILURE
 
 *** Variables ***
