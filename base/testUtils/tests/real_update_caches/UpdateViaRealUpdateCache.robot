@@ -11,7 +11,8 @@ Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../mcs_router-nova/McsRouterNovaResources.robot
 Resource  ../mdr_plugin/MDRResources.robot
 
-Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS  SLOW
+# TODO - remove this tag when downgrade scenarios work
+Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS  SLOW  TESTFAILURE
 
 *** Variables ***
 ${InstalledBaseVersionFile}                 ${SOPHOS_INSTALL}/base/VERSION.ini

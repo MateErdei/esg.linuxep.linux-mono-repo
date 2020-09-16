@@ -139,8 +139,11 @@ def get_auditd_status():
     return get_value_from_command(["systemctl", "is-active", "auditd"])
 
 def is_aws_instance():
-    proc = subprocess.Popen(["wget", "http://169.254.169.254/latest/dynamic/instance-identity/document"])
-    output, error = proc.communicate()
-    returncode = proc.returncode
-
-    return returncode == 0
+    try:
+        output = subprocess.check_output(["wget", "http://169.254.169.254/latest/dynamic/instance-identity/document"], timeout=10)
+    except subprocess.CalledProcessError as ex:
+        logger.info(f"failed with rc {ex.returncode}, output: {output}")
+        return False
+    except subprocess.TimeoutExpired:
+        return False
+    return True
