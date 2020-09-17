@@ -210,7 +210,7 @@ static int versig_operation(const Arguments& args)
 
         if (args.checkInstall)
         {
-            if (!(MF.CheckFilePresent(".\\install.sh") || MF.CheckFilePresent("install.sh")))
+            if (!(MF.CheckFilePresent(".\\install.sh") || MF.CheckFilePresent("install.sh") || MF.CheckFilePresent("./install.sh")))
             {
                 Output("install.sh absent from Manifest\n");
                 return g_EXIT_BADFILE;
