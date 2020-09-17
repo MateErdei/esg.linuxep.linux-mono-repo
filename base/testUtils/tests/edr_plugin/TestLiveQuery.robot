@@ -22,6 +22,17 @@ Install EDR And Get Historic Event Data
     ...  1
     ...  Check MCS Router Running
     Wait Until OSQuery Running
+    # force process events to be generated
+    ${result}=  Run Process  python3  --version
+    sleep  1
+    ${result}=  Run Process  python3  --version
+    sleep  1
+    ${result}=  Run Process  python3  --version
+    sleep  1
+    ${result}=  Run Process  python3  --version
+    sleep  1
+    ${result}=  Run Process  python3  --version
+
 
     Wait Until Keyword Succeeds
     ...   7x
