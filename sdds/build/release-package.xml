@@ -45,6 +45,10 @@
     <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
     <include artifact-path="sspl-componentsuite/sdds" dest-dir="redist/sspl-plugin-edr-componentsuite"/>
   </build-asset>
+  <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
+    <development-version branch="feature/LINUXDAR-2242_unified_pipeline"/>
+    <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
+  </build-asset>
 </inputs>
 
 <buildcommands>
