@@ -67,13 +67,15 @@ def pytest_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput):
-    test_inputs = dict(
-        test_scripts=context.artifact.from_folder('./testUtils'),
-        base=build / 'output',
-        openssl=build / 'sspl-base' / 'openssl',
-        websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
-    )
+def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str):
+    if mode == 'release':
+        test_inputs = dict(
+            test_scripts=context.artifact.from_folder('./testUtils'),
+            base_sdds=base_build / 'sspl-base/SDDS-COMPONENT',
+            system_test=base_build / 'sspl-base/system_test',
+            openssl=base_build / 'sspl-base' / 'openssl',
+            websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
+        )
 
     return test_inputs
 
@@ -83,18 +85,17 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     component = tap.Component(name='sspl-base', base_version='1.1.3')
     # section include to allow classic build to continue to work. To run unified pipeline local bacause of this close
     # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
-    if parameters.mode:
-        with stage.parallel('build'):
-            base_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
-                                             mode=parameters.mode, release_package='./build/release-package.xml')
-    else:
-        base_build = context.artifact.build()
+    mode = parameters.mode or 'release'
+    base_build = None
+    with stage.parallel('build'):
+        base_build = stage.artisan_build(name=mode, component=component, image='JenkinsLinuxTemplate5',
+                                         mode=mode, release_package='./build/release-package.xml')
     machines = (
         ("ubuntu1804",
-         tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, base_build),
+         tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, base_build, mode),
                      platform=tap.Platform.Linux)),
-        ("centos77",
-         tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, base_build), platform=tap.Platform.Linux))
+        # ("centos77",
+        #  tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, base_build, mode), platform=tap.Platform.Linux))
         # add other distros here
     )
     with stage.parallel('integration'):

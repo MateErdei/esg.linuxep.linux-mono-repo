@@ -25,8 +25,8 @@ def main():
     }
 
     os.environ['OPENSSL_INPUT'] = '/opt/test/inputs/openssl'
-    os.environ['SYSTEM_PRODUCT_TEST_OUTPUT'] = '/opt/test/inputs/base/'
-    os.environ['BASE_DIST'] = '/opt/test/inputs/base/SDDS-COMPONENT/'
+    os.environ['SYSTEM_PRODUCT_TEST_OUTPUT'] = '/opt/test/inputs/system_test/'
+    os.environ['BASE_DIST'] = '/opt/test/inputs/base_sdds'
     os.environ['OUTPUT'] = '/opt/test/inputs/base/'
     os.environ['CAPNP_INPUT'] = 'IGNORE'
     os.environ['WEBSOCKET_SERVER'] = '/opt/test/inputs/websocket_server'
