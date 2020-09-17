@@ -149,15 +149,15 @@ def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
 
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    mode = os.getenv('TAP_PARAMETER_MODE', default='release')
+    mode = parameters.mode or 'release'
     component = tap.Component(name='edr', base_version='1.0.2')
 
     #section include to allow classic build to continue to work. To run unified pipeline local bacause of this close
     #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     edr_build = None
     with stage.parallel('build'):
-        edr_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
-                                        mode=parameters.mode, release_package='./build-files/release-package.xml')
+        edr_build = stage.artisan_build(name=mode, component=component, image='JenkinsLinuxTemplate5',
+                                        mode=mode, release_package='./build-files/release-package.xml')
 
     with stage.parallel('test'):
         machines = (
