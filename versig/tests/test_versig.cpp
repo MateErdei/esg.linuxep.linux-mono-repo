@@ -169,4 +169,20 @@ namespace
         EXPECT_EQ(ret, 3);
     }
 
+
+    TEST(versig_test, jake) // NOLINT
+    {
+        std::vector<std::string> argv { "versig_test",
+                                        "-c" TESTS "/cert_files/rootca.crt.valid",
+                                        "-f" TESTS "/data_files/manifest.dat.validWithInstallSh",
+                                        "--check-install-sh"
+        };
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret, 0);
+    }
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 0);
+    }
+
 } // namespace
