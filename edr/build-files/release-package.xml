@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-plugin-edr-component" version="1.1.0">
+<package name="sspl-plugin-edr-component" version="1.0.2">
     <versioning>
-        <workingdir>sspl-plugin-edr-component-build/products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
-        <workingdir>sspl-plugin-edr-component-build</workingdir>
+        <workingdir>.</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
-        <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
-        <package name="sspl-base" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.4/output" dest="input" buildtype="dev">
-            <include src="pluginapi.tar.gz" dest="."/>
-             <include src="SDDS-COMPONENT"   dest="base-sdds" />
-        </package>
+        <!-- Todo /LINUXDAR-2186 -->
+        <!-- Plugin Api: the way to pick up other branches changed for unified pipeline. It will only work after base is moved to unified pipeline-->
+        <!-- https://esg-ci-stag.eng.sophos/docs/docs/build-package-file#inputs-from-other-builds -->
+        <build-asset project="linuxep" repo="everest-base">
+            <!--release-version branch="release/2014.1" build-id="" /-->
+            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs" />
+            <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
+            <include artifact-path="sspl-base/sdds" dest-dir="input/base-sdds" />
+        </build-asset>
         <!--Plugin Api Production Build - Change values below to match the latest production build of base.
             On release, make sure you build a production build of base first before building any production builds of plugins-->
+        <!-- allow base prod build to be an input for edr prod build before the promotion system kicks in -->
         <package name="sspl-base" version="1-1-4-332/221210/output" dest="input" buildtype="prod">
             <include src="pluginapi.tar.gz" dest="."/>
              <include src="SDDS-COMPONENT"   dest="base-sdds" />
         </package>
+
         <package name="boostlinux11" version="1-72-0-24/218999//output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
@@ -36,52 +42,72 @@
         <package name="osquerysdklinux11" version="1-0-0-52/220886/output" dest="input">
             <include src="osquerysdk.tar" dest="."/>
         </package>
-        <package name="osquerysdklinux11" version="sophos-linux-sdk-master/%LASTGOODCOMPONENTBUILD%/osquerysdklinux11/1.0.0/output" dest="input" buildtype="dev">
-            <include src="osquerysdk.tar" dest="."/>
-        </package>
+        <!-- Todo /LINUXDAR-2186  update to allow this as input in dev builds after the thirdparty is been turned into unified-->
+        <!--  <package name="osquerysdklinux11" version="sophos-linux-sdk-master/%LASTGOODCOMPONENTBUILD%/osquerysdklinux11/1.0.0/output" dest="input" buildtype="dev">-->
+        <!--  <include src="osquerysdk.tar" dest="."/>-->
+        <!--  </package>-->
         <package name="openssllinux11" version="1-1-1g-6/219531/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
+
     </inputs>
     <buildcommands>
-        <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command buildtype="prod">-->
-        <command mode="release">
+        <command mode="release,release-classic">
             <program>/bin/bash</program>
             <args>./build.sh --clean --name edr</args>
-            <workingdir>sspl-plugin-edr-component-build</workingdir>
+            <workingdir>.</workingdir>
         </command>
 
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr --bullseye</args>
-            <workingdir>sspl-plugin-edr-component-build</workingdir>
+            <args>./build.sh --clean --name edr --bullseye </args>
+            <workingdir>.</workingdir>
         </command>
 
-        <command mode="coverity">
+        <command mode="analysis">
             <program>/bin/bash</program>
-            <args>./build.sh --no-build --name edr --coverity</args>
-            <workingdir>sspl-plugin-edr-component-build</workingdir>
+            <args>./build.sh --no-build --name edr --analysis</args>
+            <workingdir>.</workingdir>
         </command>
+
+        <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command buildtype="dev">>
             <program>/bin/bash</program>
-            <args>./build.sh - -clean - -debug - -name mtr</args> 'When put back remove spaces between hyphens'
-            <workingdir>sspl-plugin-edr-component-build</workingdir>
+            <args>./build.sh - -clean - -debug - -name edr</args> 'When put back remove spaces between hyphens'
+            <workingdir>.</workingdir>
         </command> -->
     </buildcommands>
     <publish>
-        <workingdir>sspl-plugin-edr-component-build</workingdir>
+        <workingdir>.</workingdir>
+        <!-- new unified pipeline -->
+        <!-- change edr/sdds to a release asset -->
+        <release-asset artifact-path="edr/sdds" source-dir="output/SDDS-COMPONENT" mode="release,coverage"/>
+
+        <build-asset artifact-path="edr/symbols" source-dir="output/symbols" mode="release,coverage"/>
+        <build-asset artifact-path="edr/componenttests" source-dir="output/componenttests" mode="release,coverage"/>
+        <build-asset artifact-path="edr/build_log" source-dir="output" mode="release,coverage">
+            <include glob="./build.log" />
+        </build-asset>
+
+        <build-asset artifact-path="analysis" source-dir="output" mode="analysis">
+            <include glob="./coverage/cppcheck" />
+            <include glob="./build.log" />
+        </build-asset>
+
         <destdir>sspl-plugin-edr-component</destdir>
+        <!--  Legacy build outputs to uk-filer6 -->
         <buildoutputs>
             <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
-            <output name="build_log" srcfolder="log" mode="debug,release"> </output>
-
-            <!-- Coverage -->
-            <output name="coverage" srcfolder="output" artifactpath="output" mode="coverage"> </output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release-classic"> </output>
+            <output name="build_log" srcfolder="log" mode="debug,release-classic"> </output>
+            
+            <!-- Analysis -->
+            <output name="analysis" srcfolder="output" artifactpath="_analysis" mode="analysis-classic"> </output>
+            <output name="analysis_build_log" srcfolder="log" artifactpath="analysis/build_log" mode="analysis-classic"> </output>
 
         </buildoutputs>
         <publishbranches>master,feature,bugfix,release,develop</publishbranches>
