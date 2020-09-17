@@ -22,6 +22,7 @@ ${TELEMETRY_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
+${SOPHOS_THREAT_DETECTOR_BINARY}  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
 ${EXPORT_FILE}     /etc/exports
 ${EICAR_STRING}  X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 
@@ -32,20 +33,20 @@ ${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml
 Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
-    Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${0}   "${OnError}.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
 
 Check Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
 
-Check sophos_threat_detector Running
-    Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector   OnError=sophos_threat_detector not running
-
 Check AV Plugin Running
     Check Plugin Running
 
+Check Sophos Threat Detector Running
+    Run Shell Process  pidof ${SOPHOS_THREAT_DETECTOR_BINARY}   OnError=sophos_threat_detector not running
+
 Check AV Plugin Not Running
     ${result} =   Run Process  pidof  ${PLUGIN_BINARY}  timeout=3
-    Should Not Be Equal As Integers  ${result.rc}  0
+    Should Not Be Equal As Integers  ${result.rc}  ${0}
 
 Count File Log Lines
     [Arguments]  ${path}
@@ -108,13 +109,6 @@ Threat Detector Does Not Log Contain
     [Arguments]  ${input}
     File Log Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  ${input}
 
-Wait until threat detector running
-    # wait for AV Plugin to initialize
-    Wait Until Keyword Succeeds
-        ...  40 secs
-        ...  2 secs
-        ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
-
 Increase Threat Detector Log To Max Size
     increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}
 
@@ -160,6 +154,10 @@ Wait Until SAV Status XML Contains
 
 Check Plugin Installed and Running
     File Should Exist   ${PLUGIN_BINARY}
+    Wait until AV Plugin running
+    Wait until threat detector running
+
+Wait until AV Plugin running
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs
@@ -168,7 +166,17 @@ Check Plugin Installed and Running
     ...  15 secs
     ...  3 secs
     ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
-    Wait until threat detector running
+
+Wait until threat detector running
+    # wait for AV Plugin to initialize
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  3 secs
+    ...  Check Sophos Threat Detector Running
+    Wait Until Keyword Succeeds
+    ...  40 secs
+    ...  2 secs
+    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
 
 Check AV Plugin Installed
     Check Plugin Installed and Running

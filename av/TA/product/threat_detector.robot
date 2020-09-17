@@ -26,11 +26,7 @@ Start AV
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Test Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
-    # wait for AV Plugin to initialize
-    Wait Until Keyword Succeeds
-        ...  30 secs
-        ...  2 secs
-        ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
+    # Check AV Plugin Installed checks sophos_threat_detector is started
 
 Stop AV
      ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
@@ -42,6 +38,7 @@ Verify threat detector log rotated
 *** Test Cases ***
 
 Threat Detector Log Rotates
+    # Ensure the log is created
     Start AV
     Stop AV
     Increase Threat Detector Log To Max Size
