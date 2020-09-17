@@ -134,11 +134,24 @@ def pytest_task(machine: tap.Machine):
 
 def get_inputs(context: tap.PipelineContext, build, parameters: tap.Parameters):
     logger.info(str(context.artifact.build()))
-    test_inputs = dict(
-        test_scripts=context.artifact.from_folder('./TA'),
-        edr=build / 'output' if parameters.mode != 'analysis' else build / 'analysis',
-        bullseye_files=context.artifact.from_folder('./build/bullseye')
-    )
+    if parameters.mode == 'release':
+        test_inputs = dict(
+            test_scripts=context.artifact.from_folder('./TA'),
+            edr=build / 'edr/SDDS-COMPONENT',
+        )
+    elif parameters.mode == 'coverage':
+        test_inputs = dict(
+            test_scripts=context.artifact.from_folder('./TA'),
+            edr=build / 'coverage',
+            bullseye_files=context.artifact.from_folder('./build/bullseye')
+        )
+    elif parameters.mode == 'analysis':
+        pass
+    else:
+        test_inputs = dict(
+            test_scripts=context.artifact.from_folder('./TA'),
+            edr=build / 'output'
+        )
     return test_inputs
 
 
