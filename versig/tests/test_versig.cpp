@@ -181,4 +181,16 @@ namespace
         EXPECT_EQ(ret, 0);
     }
 
+
+    TEST(versig_test, windowsStlyeSlashInstallSh) // NOLINT
+    {
+        std::vector<std::string> argv { "versig_test",
+                                        "-c" TESTS "/cert_files/rootca.crt.valid",
+                                        "-f" TESTS "/data_files/manifest.dat.validWithWindowsInstallSh",
+                                        "--check-install-sh"
+        };
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret, 0);
+    }
+
 } // namespace
