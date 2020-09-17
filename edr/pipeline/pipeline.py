@@ -136,9 +136,10 @@ def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
             base_sdds=edr_build / 'base/base-sdds',
         componenttests=edr_build / 'componenttests'
         )
-    if mode == 'coverage':
-        test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
-        test_inputs['coverage'] = edr_build / 'coverage'
+        if mode == 'coverage':
+            test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
+            test_inputs['coverage'] = edr_build / 'coverage'
+            test_inputs['edr_sdds'] = edr_build / 'coverage/SDDS-COMPONENT'
 
     return test_inputs
 
