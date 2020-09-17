@@ -170,7 +170,7 @@ namespace
     }
 
 
-    TEST(versig_test, jake) // NOLINT
+    TEST(versig_test, linuxStlyeSlashInstallSh) // NOLINT
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid",
