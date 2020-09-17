@@ -52,11 +52,6 @@ def robot_task(machine: tap.Machine):
         install_requirements(machine)
         machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
-        machine.run('ls', '/opt/test/inputs/edr')
-        machine.run('ls', '/opt/test/inputs/sdds')
-        machine.run('ls', '/opt/test/inputs')
-        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
-
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
@@ -133,23 +128,19 @@ def pytest_task(machine: tap.Machine):
         machine.run(*args)
         machine.run('ls', '/opt/test/logs')
     finally:
-        machine.run('ls', '/opt/test/inputs/edr')
-        machine.run('ls', '/opt/test/inputs/sdds')
-        machine.run('ls', '/opt/test/inputs')
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext, build, mode: str):
-    logger.info(str(context.artifact.build()))
+def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
     if mode != 'analysis':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./TA'),
-            sdds=build / 'edr/SDDS-COMPONENT'
+            sdds=edr_build / 'edr/SDDS-COMPONENT'
         )
     if mode == 'coverage':
         test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
-        test_inputs['edr'] = build / 'coverage'
+        test_inputs['edr'] = edr_build / 'coverage'
 
     elif mode == 'analysis':
         pass
@@ -163,6 +154,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
 
     #section include to allow classic build to continue to work. To run unified pipeline local bacause of this close
     #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
+    edr_build = None
     with stage.parallel('build'):
         edr_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
                                         mode=parameters.mode, release_package='./build-files/release-package.xml')
