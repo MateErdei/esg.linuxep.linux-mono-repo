@@ -63,51 +63,42 @@ def combined_task(machine: tap.Machine):
         tests_dir = str(machine.inputs.test_scripts)
 
         args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
-        if not has_coverage_file(machine):
-            # run pytests
-            machine.run(*args)
-            try:
-                # run robot tests
-                machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py')
-            finally:
-                machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
-        else:
-            # upload unit test coverage html results to allegro
-            unitest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-unittest')
+        # upload unit test coverage html results to allegro
+        unitest_htmldir = os.path.join(INPUTS_DIR, 'coverage', 'sspl-plugin-edr-unittest')
 
-            # only upload centos7.7 to allegro
-            upload_results = 0
-            if machine.run('which', 'yum', return_exit_code=True) == 0:
-                upload_results = 1
-                machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
+        # only upload centos7.7 to allegro
+        upload_results = 0
+        if machine.run('which', 'yum', return_exit_code=True) == 0:
+            upload_results = 1
+            machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
-            # publish unit test coverage file and results to artifactory results/coverage
-            coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
-            machine.run('rm', '-rf', coverage_results_dir)
-            machine.run('mkdir', coverage_results_dir)
-            machine.run('mv', unitest_htmldir, coverage_results_dir)
-            machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
+        # publish unit test coverage file and results to artifactory results/coverage
+        coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
+        machine.run('rm', '-rf', coverage_results_dir)
+        machine.run('mkdir', coverage_results_dir)
+        machine.run('mv', unitest_htmldir, coverage_results_dir)
+        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
-            # run component pytests and integration robot tests with coverage file to get combined coverage
-            machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
+        # run component pytests and integration robot tests with coverage file to get combined coverage
+        machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
 
-            # run component pytest
-            machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
-            try:
-                machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
-                            environment={'COVFILE': COVFILE_COMBINED})
-            finally:
-                machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+        # run component pytest
+        machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
+        try:
+            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                        environment={'COVFILE': COVFILE_COMBINED})
+        finally:
+            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
-            # generate combined coverage html results and upload to allegro
-            combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
-            machine.run('bash', '-x', UPLOAD_SCRIPT,
-                        environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': f'{upload_results}', 'htmldir': combined_htmldir})
+        # generate combined coverage html results and upload to allegro
+        combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
+        machine.run('bash', '-x', UPLOAD_SCRIPT,
+                    environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': f'{upload_results}', 'htmldir': combined_htmldir})
 
-            # publish combined html results and coverage file to artifactory
-            machine.run('mv', combined_htmldir, coverage_results_dir)
-            machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
+        # publish combined html results and coverage file to artifactory
+        machine.run('mv', combined_htmldir, coverage_results_dir)
+        machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -152,7 +143,6 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
     mode = parameters.mode or 'release'
     component = tap.Component(name='edr', base_version='1.0.2')
 
-    #section include to allow classic build to continue to work. To run unified pipeline local bacause of this close
     #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     edr_build = None
     with stage.parallel('build'):
@@ -167,7 +157,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
             # add other distros here
         )
 
-        if parameters.mode == 'coverage' or has_coverage_build(context.branch):
+        if mode == 'coverage':
             with stage.parallel('combined'):
                 for template_name, machine in machines:
                     stage.task(task_name=template_name, func=combined_task, machine=machine)
