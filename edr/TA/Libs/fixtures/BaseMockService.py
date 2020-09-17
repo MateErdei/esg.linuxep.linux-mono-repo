@@ -8,7 +8,7 @@ from Libs.FakeManagement import FakeManagement
 
 
 def sdds():
-    return "/opt/test/inputs/edr/SDDS-COMPONENT"
+    return "/opt/test/inputs/SDDS-COMPONENT"
 
 def run_shell(args, **kwargs):
     print('run command {}'.format(args))

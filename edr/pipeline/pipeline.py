@@ -52,6 +52,11 @@ def robot_task(machine: tap.Machine):
         install_requirements(machine)
         machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py')
     finally:
+        machine.run('ls', machine.inputs / 'edr')
+        machine.run('python3', machine.inputs / 'sdds')
+        machine.run('python3', machine.inputs)
+        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
@@ -132,47 +137,38 @@ def pytest_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
-def get_inputs(context: tap.PipelineContext, build, parameters: tap.Parameters):
+def get_inputs(context: tap.PipelineContext, build, mode: str):
     logger.info(str(context.artifact.build()))
-    if parameters.mode == 'release':
+    if mode != 'analysis':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./TA'),
-            edr=build / 'edr/SDDS-COMPONENT',
+            sdds=build / 'edr/SDDS-COMPONENT'
         )
-    elif parameters.mode == 'coverage':
-        test_inputs = dict(
-            test_scripts=context.artifact.from_folder('./TA'),
-            edr=build / 'coverage',
-            bullseye_files=context.artifact.from_folder('./build/bullseye')
-        )
-    elif parameters.mode == 'analysis':
+    if mode == 'coverage':
+        test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
+        test_inputs['edr'] = build / 'coverage'
+
+    elif mode == 'analysis':
         pass
-    else:
-        test_inputs = dict(
-            test_scripts=context.artifact.from_folder('./TA'),
-            edr=build / 'output'
-        )
     return test_inputs
 
 
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    mode = os.getenv('TAP_PARAMETER_MODE', default='release')
     component = tap.Component(name='edr', base_version='1.0.2')
 
     #section include to allow classic build to continue to work. To run unified pipeline local bacause of this close
     #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
-    if parameters.mode:
-        with stage.parallel('build'):
-            edr_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
-                                            mode=parameters.mode, release_package='./build-files/release-package.xml')
-    else:
-        edr_build = context.artifact.build()
+    with stage.parallel('build'):
+        edr_build = stage.artisan_build(name=parameters.mode, component=component, image='JenkinsLinuxTemplate5',
+                                        mode=parameters.mode, release_package='./build-files/release-package.xml')
 
     with stage.parallel('test'):
         machines = (
             ("ubuntu1804",
-             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, edr_build, parameters), platform=tap.Platform.Linux)),
-            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, parameters), platform=tap.Platform.Linux)),
+             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
+            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
             # add other distros here
         )
 
