@@ -358,11 +358,12 @@ CLS Can Scan Infected File Via Symlink To File
    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${NORMAL_DIRECTORY}/symlinkToEicar"
 
 CLS Scans root with non-canonical path
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /. -x /boot/ /dev/ /etc/ /home/ /media/ /mnt/ /opt/ /root/ /run/ /srv/ /tmp/ /usr/ /var/ /vagrant/ /lib/ /lib32/ /bin/ /uk-filer5/prodro/ /sbin/
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /./ -x /boot/ /dev/ /etc/ /home/ /media/ /mnt/ /opt/ /root/ /run/ /srv/ /tmp/ /usr/ /var/ /vagrant/ /lib/ /lib32/ /bin/ /uk-filer5/prodro/ /sbin/
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /boot/.. -x /boot/ /dev/ /etc/ /home/ /media/ /mnt/ /opt/ /root/ /run/ /srv/ /tmp/ /usr/ /var/ /vagrant/ /lib/ /lib32/ /bin/ /uk-filer5/prodro/ /sbin/
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /.. -x /boot/ /dev/ /etc/ /home/ /media/ /mnt/ /opt/ /root/ /run/ /srv/ /tmp/ /usr/ /var/ /vagrant/ /lib/ /lib32/ /bin/ /uk-filer5/prodro/ /sbin/
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} / -x /boot/ /dev/ /etc/ /home/ /media/ /mnt/ /opt/ /root/ /run/ /srv/ /tmp/ /usr/ /var/ /vagrant/ /lib/ /lib32/ /bin/ /uk-filer5/prodro/ /sbin/
+    ${exclusions} =  ExclusionHelper.Get Root Exclusions for avscanner except proc
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /. -x ${exclusions}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /./ -x ${exclusions}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /boot/.. -x ${exclusions}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /.. -x ${exclusions}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} / -x ${exclusions}
 
     File Log Should Not Contain     ${AV_LOG_PATH}      Scanning /proc/
     File Log Should Not Contain     ${AV_LOG_PATH}      Scanning /./proc/

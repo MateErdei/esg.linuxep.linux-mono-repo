@@ -3,17 +3,32 @@
 import os
 import xml.dom.minidom
 
-def generate_exclusions_to_scan_tmp():
-    targets = os.listdir("/")
-    for t in targets:
-        if t == "tmp":
-            continue
+
+def __generate_root_exclusions():
+    for t in os.listdir("/"):
         if os.path.isdir("/"+t):
             yield "/%s/" % t
         yield "/%s" % t
 
+
+def __generate_exclusions_to_scan_tmp():
+    for t in __generate_root_exclusions():
+        if t == "/tmp/":
+            continue
+        yield t
+
+
 def get_exclusions_to_scan_tmp():
-    return list(generate_exclusions_to_scan_tmp())
+    return list(__generate_exclusions_to_scan_tmp())
+
+
+def Get_Root_Exclusions_for_avscanner_except_proc():
+    out = []
+    for t in __generate_root_exclusions():
+        if t == "/proc/":
+            continue
+        out.append(t)
+    return " ".join(out)
 
 
 def __remove_blanks(node):
@@ -40,7 +55,7 @@ def Fill_In_On_Demand_Posix_Exclusions(source, destination):
     # remove children
     while fileset_element.hasChildNodes():
         fileset_element.removeChild(fileset_element.lastChild)
-    for e in generate_exclusions_to_scan_tmp():
+    for e in __generate_exclusions_to_scan_tmp():
         fileset_element.appendChild(_filepath_node(e))
 
     open(destination, "w").write(dom.toprettyxml())
