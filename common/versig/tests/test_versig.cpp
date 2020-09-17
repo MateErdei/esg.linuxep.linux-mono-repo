@@ -181,8 +181,4 @@ namespace
         EXPECT_EQ(ret, 0);
     }
 
-    int ret = versig_main(argv);
-    EXPECT_EQ(ret, 0);
-    }
-
 } // namespace
