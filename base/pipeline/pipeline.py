@@ -83,8 +83,8 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
 @tap.pipeline(version=1, component='sspl-base')
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     component = tap.Component(name='sspl-base', base_version='1.1.3')
-    # section include to allow classic build to continue to work. To run unified pipeline local bacause of this close
-    # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
+
+    # export TAP_PARAMETER_MODE=release|analysis
     mode = parameters.mode or 'release'
     base_build = None
     with stage.parallel('build'):
@@ -94,8 +94,8 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         ("ubuntu1804",
          tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, base_build, mode),
                      platform=tap.Platform.Linux)),
-        # ("centos77",
-        #  tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, base_build, mode), platform=tap.Platform.Linux))
+        ("centos77",
+         tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, base_build, mode), platform=tap.Platform.Linux))
         # add other distros here
     )
     with stage.parallel('integration'):
