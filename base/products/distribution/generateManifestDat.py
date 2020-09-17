@@ -19,7 +19,7 @@ class SigningOracleClientSigner(object):
     def __init__(self, options, verbose=False):
         self.m_options = options
         assert(self.m_options.signing_oracle is not None)
-        self.m_server = xmlrpc_client.ServerProxy(self.m_options.signing_oracle, verbose=verbose, allow_none=1)
+        self.m_server = xmlrpc_client.ServerProxy(self.m_options.signing_oracle, verbose=verbose, allow_none=True)
 
     def encodedSignatureForFile(self, filepath):
         data = open(filepath).read()
@@ -78,6 +78,9 @@ def generate_manifest_old_api(dist, file_objects):
     MANIFEST_NAME = os.environ.get("MANIFEST_NAME", "manifest.dat")
     manifest_path = os.path.join(dist, MANIFEST_NAME)
 
+    if file_objects is None:
+        file_objects = fileInfo.load_file_info(dist, None)
+
     previousContents = read(manifest_path)
     newContents = []
 
@@ -86,7 +89,6 @@ def generate_manifest_old_api(dist, file_objects):
         newContents.append('"%s" %d %s\n' % (display_path, f.m_length, f.m_sha1))
         newContents.append('#sha256 %s\n' % f.m_sha256)
         newContents.append('#sha384 %s\n' % f.m_sha384)
-
 
     if newContents == previousContents:
         return False
@@ -115,21 +117,31 @@ def generate_manifest_old_api(dist, file_objects):
     return True
 
 
-def generate_manifest(dist, file_objects=None):
-    exclusions = 'SDDS-Import.xml,manifest.dat'  # comma separated string
-    env = dict(os.environ)
+def generate_manifest_new_api(dist, file_objects=None):
+    MANIFEST_NAME = os.environ.get("MANIFEST_NAME", "manifest.dat")
+    manifest_path = os.path.join(dist, MANIFEST_NAME)
+    exclusions = 'SDDS-Import.xml,'+MANIFEST_NAME  # comma separated string
+    env = os.environ.copy()
     env['LD_LIBRARY_PATH'] = "/usr/lib:/usr/lib64"
-    proc = subprocess.Popen(
-        ['sb_manifest_sign', '--folder', f'{dist}', '--output', f'{dist}/manifest.dat', '--exclusions', f'{exclusions}']
-        , stderr=subprocess.PIPE, stdout=subprocess.PIPE, env=env)
-    try:
-        outs, errs = proc.communicate(timeout=15)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        outs, errs = proc.communicate()
+    env['OPENSSL_PATH'] = "/usr/bin/openssl"
+    previous_contents = read(manifest_path)
+    result = subprocess.run(
+        ['sb_manifest_sign', '--folder', dist, '--output', manifest_path, '--exclusions', exclusions]
+        , stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env,
+        timeout=15
+    )
+    result.check_returncode()
+    new_contents = read(manifest_path)
+    return previous_contents != new_contents
 
-    if proc.returncode != 0:
-        raise AssertionError(errs)
+
+def generate_manifest(dist, file_objects=None):
+    try:
+        return generate_manifest_new_api(dist, file_objects)
+    except subprocess.CalledProcessError as ex:
+        print("Unable to generate manifest.dat file with new-api: ", ex.returncode, str(ex))
+        print("Output:", ex.output.decode("UTF-8", errors='replace'))
+    return generate_manifest_old_api(dist, file_objects)
 
 
 def main(argv):
@@ -140,7 +152,7 @@ def main(argv):
         distribution_list = None
 
     file_objects = fileInfo.load_file_info(dist, distribution_list)
-    generate_manifest(dist)
+    generate_manifest(dist, file_objects)
 
     return 0
 

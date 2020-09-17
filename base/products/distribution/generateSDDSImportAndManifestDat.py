@@ -1,13 +1,7 @@
 #!/usr/bin/env python
 
-
-import fileInfo
-import generateManifestDat
-import generateSDDSImport
-
 import os
 import sys
-import subprocess
 
 
 def main(argv):
@@ -21,25 +15,17 @@ def main(argv):
     else:
         BASE = os.environ.get("BASE", None)
 
-    # exclusions = 'SDDS-Import.xml,manifest.dat'  # comma separated string
-    # env = dict(os.environ)
-    # env['LD_LIBRARY_PATH'] = "/usr/lib:/usr/lib64"
-    # proc = subprocess.Popen(
-    #     ['sb_manifest_sign', '--folder', f'{dist}', '--output', f'{dist}/manifest.dat', '--exclusions', f'{exclusions}']
-    #     , stderr=subprocess.PIPE, stdout=subprocess.PIPE, env=env)
-    # try:
-    #     outs, errs = proc.communicate(timeout=15)
-    # except subprocess.TimeoutExpired:
-    #     proc.kill()
-    #     outs, errs = proc.communicate()
-    #
-    # if proc.returncode != 0:
-    #     raise AssertionError(errs)
+    if len(argv) > 4:
+        sys.path += argv[4:]
+
+    import fileInfo
+    import generateManifestDat
+    import generateSDDSImport
+
     generateManifestDat.generate_manifest(dist)
 
-    ## Add manifest.dat to file_list
-    file_objects = fileInfo.load_file_info(dist, distribution_list)
-    file_objects.append(fileInfo.FileInfo(dist, "manifest.dat"))
+    file_objects = fileInfo.load_file_info(dist, distribution_list, excludeManifest=False)
+    # file_objects will already contain manifest.dat, since it is generated after generating the manifest
 
     generateSDDSImport.generate_sdds_import(dist, file_objects, BASE)
 
