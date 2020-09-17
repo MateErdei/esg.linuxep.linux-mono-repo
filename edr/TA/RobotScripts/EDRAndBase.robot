@@ -44,7 +44,7 @@ Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
     ...  1 secs
     ...  Check Osquery Running
 
-    Copy File  ${TEST_INPUT_PATH}/edr/componenttests/LiveQueryReport  ${COMPONENT_ROOT_PATH}/extensions/
+    Copy File  ${TEST_INPUT_PATH}/componenttests/LiveQueryReport  ${COMPONENT_ROOT_PATH}/extensions/
     Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport
 
     ${result} =  Run Process  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport  ${COMPONENT_ROOT_PATH}/var/osquery.sock  select '1\xfffd' as h;  shell=true

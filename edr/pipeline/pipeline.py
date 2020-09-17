@@ -5,8 +5,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-COVFILE_UNITTEST = '/opt/test/inputs/edr/sspl-plugin-edr-unit.cov'
-COVFILE_COMBINED = '/opt/test/inputs/edr/sspl-edr-combined.cov'
+COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-edr-unit.cov'
+COVFILE_COMBINED = '/opt/test/inputs/coverage/sspl-edr-combined.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
@@ -90,10 +90,6 @@ def combined_task(machine: tap.Machine):
             machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
             # run component pytests and integration robot tests with coverage file to get combined coverage
-            sdds = os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT')
-            sdds_coverage = os.path.join(INPUTS_DIR, 'edr', 'SDDS-COMPONENT-COVERAGE')
-            machine.run('rm', '-rf', sdds)
-            machine.run('mv', sdds_coverage, sdds)
             machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
 
             # run component pytest
@@ -136,14 +132,14 @@ def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
     if mode != 'analysis':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./TA'),
-            sdds=edr_build / 'edr/SDDS-COMPONENT'
+            edr_sdds=edr_build / 'edr/SDDS-COMPONENT',
+            base_sdds=edr_build / 'base/base-sdds',
+        componenttests=edr_build / 'componenttests'
         )
     if mode == 'coverage':
         test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
-        test_inputs['edr'] = edr_build / 'coverage'
+        test_inputs['coverage'] = edr_build / 'coverage'
 
-    elif mode == 'analysis':
-        pass
     return test_inputs
 
 
@@ -176,6 +172,6 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
                 for template_name, machine in machines:
                     stage.task(task_name=template_name, func=robot_task, machine=machine)
 
-            # with stage.parallel('component'):
-            #     for template_name, machine in machines:
-            #         stage.task(task_name=template_name, func=pytest_task, machine=machine)
+            with stage.parallel('component'):
+                for template_name, machine in machines:
+                    stage.task(task_name=template_name, func=pytest_task, machine=machine)

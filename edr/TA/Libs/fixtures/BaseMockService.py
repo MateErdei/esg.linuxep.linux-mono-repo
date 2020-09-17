@@ -8,7 +8,7 @@ from Libs.FakeManagement import FakeManagement
 
 
 def sdds():
-    return "/opt/test/inputs/SDDS-COMPONENT"
+    return "/opt/test/inputs/edr_sdds"
 
 def run_shell(args, **kwargs):
     print('run command {}'.format(args))
@@ -55,7 +55,7 @@ def install_component(sophos_install):
     for dirn in ['var', 'log', 'etc', 'extensions']:
         os.makedirs(os.path.join(plugin_dir_path, dirn), exist_ok=True)
 
-    shutil.copytree('/opt/test/inputs/edr/componenttests', component_tests_dir)
+    shutil.copytree('/opt/test/inputs/componenttests', component_tests_dir)
     extensions_dir = os.path.join(sophos_install, 'plugins/edr/extensions/')
     DelayTable = 'DelayControlledTable'
     shutil.copy(os.path.join(component_tests_dir, DelayTable), os.path.join(extensions_dir, DelayTable))

@@ -13,7 +13,7 @@ ${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${EDR_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/edr.log
 ${LIVEQUERY_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/livequery.log
-${BASE_SDDS}        ${TEST_INPUT_PATH}/edr/base-sdds/
+${BASE_SDDS}        ${TEST_INPUT_PATH}/base_sdds/
 ${EDR_SDDS}         ${COMPONENT_SDDS}
 
 *** Keywords ***

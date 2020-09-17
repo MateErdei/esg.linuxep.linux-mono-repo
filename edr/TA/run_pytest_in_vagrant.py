@@ -17,16 +17,16 @@ then
     ln -s /vagrant/sspl-plugin-edr-component/TA  /opt/test/inputs/test_scripts
 fi
 
-if [[ ! -L /opt/test/inputs/edr/SDDS-COMPONENT ]]
+if [[ ! -L /opt/test/inputs/edr_sdds ]]
 then
     echo 'creating symlink'
-    ln -s /vagrant/sspl-plugin-edr-component/output/SDDS-COMPONENT/  /opt/test/inputs/edr/SDDS-COMPONENT
+    ln -s /vagrant/sspl-plugin-edr-component/output/SDDS-COMPONENT/  /opt/test/inputs/edr_sdds
 fi
 
-if [[ ! -L /opt/test/inputs/edr/componenttests ]]
+if [[ ! -L /opt/test/inputs/componenttests ]]
 then
     echo 'creating symlink'
-    ln -s /vagrant/sspl-plugin-edr-component/output/componenttests/  /opt/test/inputs/edr/componenttests
+    ln -s /vagrant/sspl-plugin-edr-component/output/componenttests/  /opt/test/inputs/componenttests
 fi
 
 pushd /vagrant/sspl-plugin-edr-component/TA

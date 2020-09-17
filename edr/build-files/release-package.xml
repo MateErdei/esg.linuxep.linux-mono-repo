@@ -58,7 +58,7 @@
         <!--<command buildtype="prod">-->
         <command mode="release,release-classic">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr</args>
+            <args>./build.sh --no-clean --no-unit-test --no-unpack --name edr</args>
             <workingdir>.</workingdir>
         </command>
 
@@ -88,14 +88,16 @@
         <release-asset artifact-path="edr/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
 
         <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
+        <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
         <build-asset artifact-path="componenttests" source-dir="output/componenttests" mode="release"/>
         <build-asset artifact-path="build_log" source-dir="output" mode="release,coverage">
             <include glob="./build.log" />
         </build-asset>
 
         <build-asset artifact-path="edr/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
-        <build-asset artifact-path="coverage" source-dir="output" mode="coverage">
-        <exclude glob="./SDDS-COMPONENT" />
+        <build-asset artifact-path="coverage" source-dir="output/" mode="coverage">
+            <include glob="./sspl-plugin-edr-unit.cov" />
+            <include glob="./sspl-edr-combined.cov" />
         </build-asset>
 
         <build-asset artifact-path="analysis" source-dir="output" mode="analysis">
@@ -112,7 +114,7 @@
             
             <!-- Analysis -->
             <output name="analysis" srcfolder="output" artifactpath="_analysis" mode="analysis-classic"> </output>
-            <output name="analysis_build_log" srcfolder="log" artifactpath="analysis/build_log" mode="analysis-classic"></output>
+            <output name="analysis_build_log" srcfolder="log" artifactpath="analysis/build_log" mode="analysis-classic"/>
 
         </buildoutputs>
         <publishbranches>master,feature,bugfix,release,develop</publishbranches>
