@@ -129,17 +129,20 @@ def pytest_task(machine: tap.Machine):
 
 
 def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
-    if mode != 'analysis':
+    if mode == 'release':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./TA'),
             edr_sdds=edr_build / 'edr/SDDS-COMPONENT',
             base_sdds=edr_build / 'base/base-sdds',
-        componenttests=edr_build / 'componenttests'
+            componenttests=edr_build / 'componenttests'
         )
-        if mode == 'coverage':
-            test_inputs['bullseye_files'] = context.artifact.from_folder('./build/bullseye')
-            test_inputs['coverage'] = edr_build / 'coverage'
-            test_inputs['edr_sdds'] = edr_build / 'coverage/SDDS-COMPONENT'
+    if mode == 'coverage':
+        test_inputs = dict(
+            bullseye_files= context.artifact.from_folder('./build/bullseye'),
+            coverage= edr_build / 'coverage',
+            edr_sdds= edr_build / 'coverage/SDDS-COMPONENT',
+            componenttests=edr_build / 'componenttests'
+        )
 
     return test_inputs
 
