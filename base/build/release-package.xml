@@ -96,7 +96,7 @@
         <!--<command  buildtype="prod"> -->
         <command mode="release">
             <program>/bin/bash</program>
-            <args>./build.sh --no-clean --no-unittest --no-unpack</args>
+            <args>./build.sh --clean --name base</args>
             <workingdir>.</workingdir>
         </command>
 
