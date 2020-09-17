@@ -42,7 +42,7 @@ Install EDR And Get Historic Event Data
 *** Keywords ***
 EDR Test Setup
     Install EDR Directly
-    Start Local Cloud Server
+    Start Local Cloud Server   --initial-alc-policy    ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 
 EDR Test Teardown
     Stop Local Cloud Server
