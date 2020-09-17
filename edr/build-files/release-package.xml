@@ -58,7 +58,7 @@
         <!--<command buildtype="prod">-->
         <command mode="release,release-classic">
             <program>/bin/bash</program>
-            <args>./build.sh --no-clean --no-unit-test --no-unpack --name edr</args>
+            <args>./build.sh --clean --name edr</args>
             <workingdir>.</workingdir>
         </command>
 
