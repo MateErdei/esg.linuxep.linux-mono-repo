@@ -4,7 +4,7 @@ import yaml
 op = optparse.OptionParser()
 (options, args) = op.parse_args()
 
-f = open(args[0], 'r')
+f = file(args[0], 'r')
 t = f.read()
 f.close()
 y = yaml.safe_load(t)
@@ -16,6 +16,6 @@ for c in y['components']:
         l.append(c['instance-name'])
 
 for w in r:
-    print("%s contains:" % w)
+    print "%s contains:" % w
     for c in r[w]:
-        print("    %s" % c)
+        print "    %s" % c
