@@ -273,8 +273,8 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
             stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
 
-        with stage.parallel('coverage'):
-            if do_coverage:
+        if do_coverage:
+            with stage.parallel('coverage'):
                 coverage_inputs = get_inputs(context, coverage_build, coverage=True)
                 machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
                                                     inputs=coverage_inputs,
