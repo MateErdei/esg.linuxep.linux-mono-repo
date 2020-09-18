@@ -50,7 +50,7 @@ ssplmdr-osquery-component:
     line-id: ServerProtectionLinux-MDR-osquery-Component
     mountpoint: .
 sspl-av:
-    fileset: ..\redist\sspl-plugin-anti-virus\SDDS-COMPONENT
+    fileset: ..\redist\sspl-plugin-anti-virus
     canonical-name: ServerProtectionLinuxPlugin-AV
     line-id: ServerProtectionLinux-Plugin-AV
     mountpoint: .
