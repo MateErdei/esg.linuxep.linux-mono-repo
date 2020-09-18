@@ -55,18 +55,18 @@
   <command>
     <program>python.exe</program>
     <args>prepare.py</args>
-    <workingdir>.\src</workingdir>
+    <workingdir>src</workingdir>
   </command>
   <command>
     <program>python.exe</program>
     <args>collate.py collate.xml</args>
-    <workingdir>.\src</workingdir>
+    <workingdir>src</workingdir>
   </command>
   <command>
     <program>cmd.exe</program>
     <!-- WARNING the component name in this command line must match the package name at the top of this file -->
     <args>/c python GenerateWarehouse.py sspl-warehouse %SOURCE_CODE_BRANCH% %START_DATE_TIME%-%SOURCE_CODE_COMMIT_HASH% dict-en.xml ..\def\cloud-warehouse-def.yaml</args>
-    <workingdir>.\src</workingdir>
+    <workingdir>src</workingdir>
   </command>
 </buildcommands>
 
