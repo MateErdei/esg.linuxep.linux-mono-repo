@@ -16,7 +16,7 @@ skipDefaultCheckout()
 try
 {
     PreBuild(params, '1.0.0', 'sspl-warehouse', 'warehouse')
-
+    env.CI_REPO_RELATIVE = 'true' // builds are configured for Unified Pipeline
     parallel cloud:
     {
         ArtisanBuild('Warehouse', '\\build\\release-package.xml')

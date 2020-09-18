@@ -1,34 +1,7 @@
-#!/usr/bin/env groovy
-library "tap-pipe"
+@Library("tap-pipe")
 
 def params = [
-    booleanParam(name: 'DEV', defaultValue: true, description: 'Build dev SDDS3 repo? (builds if checked AND NOT on release branches)'),
-    booleanParam(name: 'PROD', defaultValue: false, description: 'Build production SDDS3 repo? (builds if checked OR on release branches)'),
-    booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run TAP tests'),
-    string(name: 'robot_suite', description: 'Optional specific Robot suite to run'),
-    string(name: 'robot_test', description: 'Optional specific Robot test to run'),
-    booleanParam(name: 'run_amazon_2', defaultValue: true, description: 'Run TAP on Amazon Linux 2'),
-    booleanParam(name: 'run_amazon_2023', defaultValue: true, description: 'Run TAP on Amazon Linux 2023'),
-    booleanParam(name: 'run_centos_7', defaultValue: true, description: 'Run TAP on CentOS 7'),
-    booleanParam(name: 'run_centos_stream_8', defaultValue: true, description: 'Run TAP on CentOS 8 Stream'),
-    booleanParam(name: 'run_centos_stream_9', defaultValue: true, description: 'Run TAP on CentOS 9 Stream'),
-    booleanParam(name: 'run_debian_10', defaultValue: true, description: 'Run TAP on Debian 10'),
-    booleanParam(name: 'run_debian_11', defaultValue: true, description: 'Run TAP on Debian 11'),
-    booleanParam(name: 'run_oracle_7', defaultValue: true, description: 'Run TAP on Oracle Linux 7'),
-    booleanParam(name: 'run_oracle_8', defaultValue: true, description: 'Run TAP on Oracle Linux 8'),
-    booleanParam(name: 'run_rhel_7', defaultValue: true, description: 'Run TAP on RHEL 7'),
-    booleanParam(name: 'run_rhel_8', defaultValue: true, description: 'Run TAP on RHEL 8'),
-    booleanParam(name: 'run_rhel_9', defaultValue: true, description: 'Run TAP on RHEL 9'),
-    booleanParam(name: 'run_sles_12', defaultValue: true, description: 'Run TAP on SLES 12'),
-    booleanParam(name: 'run_sles_15', defaultValue: true, description: 'Run TAP on SLES 15'),
-    booleanParam(name: 'run_ubuntu_18_04', defaultValue: true, description: 'Run TAP on Ubuntu 18.04'),
-    booleanParam(name: 'run_ubuntu_20_04', defaultValue: true, description: 'Run TAP on Ubuntu 20.04'),
-    booleanParam(name: 'run_ubuntu_22_04', defaultValue: false, description: 'Run TAP on Ubuntu 22.04'),
-    string(name: 'previous_dogfood_branch', description: 'Override for the release branch used for the dogfood warehouse'),
-    string(name: 'current_shipping_branch', description: 'Override for the release branch used for the current shipping warehouse'),
-    string(name: 'central_api_client_id', description: 'Client ID used to query Central API for fixed versions'),
-    string(name: 'central_api_client_secret', description: 'Client secret used to query Central API for fixed versions'),
-    string(name: 'thininstaller_branch', description: 'Branch to get the thin installer from'),
+    string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release]'),
 ]
 
-CIPipeline { pipelineEntryPoint = 'warehouse'; buildParameters = params }
+CIPipeline { pipelineEntryPoint = 'sspl_warehouse'; buildParameters = params }
