@@ -7,9 +7,8 @@ from glob import glob
 import os
 import os.path
 import logging
-import tempfile
 import shutil
-import sys
+
 
 import filer
 
@@ -49,28 +48,21 @@ class ComponentBuild:
     def __init__(self, attribs):
         if "name" not in attribs:
             # This is the only mandatory item
-            RuntimeError("You must specify a name in the build information", attribs)
+            raise RuntimeError("You must specify a name in the build information", attribs)
 
         def str_or_type(key, default=""):
             ret = attribs.get(key, None)
             return str(ret) if ret is not None else default
 
-        self._name = str_or_type('name')
-        self._branch = str_or_type('branch', None)
-        self._version = str_or_type('version', "")
-        self._build_id = str_or_type('build_id', "")
-        self._build_type = str_or_type('build_type', None)
-        self._output = str_or_type('output', "")
-        (self._filer, self._path, self._branch, self._build_id, self._commit) = filer.locate_package_from_clues(
-            self._name, self._branch, self._version, self._build_id, self._build_type)
-        assert self._filer
+        self.name = str_or_type('name')
+        self.version = str_or_type('version', "")
+        self.build_id = str_or_type('build_id', "")
+        output = str_or_type('output', "")
+        self._path = filer.locate_package_from_clues(self.name, self.version, self.build_id, output)
 
     @property
     def path(self):
-        path = os.path.join(self._filer, self._path)
-        if self._output:
-            path = os.path.join(path, self._output)
-        return path
+        return self._path
 
 
 class Component:
@@ -95,10 +87,15 @@ class Component:
     def fetch_component(self):
         assert self._build_spec and not self._fileset
         remote_root_path = self._build_spec.path
+        logging.info("searching for component SDDS-Import.xml at: {}".format(remote_root_path))
         if not os.path.isfile(os.path.join(remote_root_path, "SDDS-Import.xml")):
             raise Exception("The build for {} is not a valid SDDS import fileset.".format(self._name))
-        local_root_path = tempfile.mkdtemp()
-        fetch_files(remote_root_path, local_root_path)
+        local_root_path = os.path.join(r'..\inputs\filer5', self._name)
+        if os.path.exists(local_root_path):
+            logging.warning(f'Skipping fetch from {remote_root_path} to {local_root_path} - already exists')
+        else:
+            os.makedirs(local_root_path)
+            fetch_files(remote_root_path, local_root_path)
         logging.info("Copied to {}".format(local_root_path))
         self._fileset = local_root_path
 
@@ -120,9 +117,8 @@ class Component:
     @property
     def version(self):
         if self._version is None:
-            f = file(os.path.join(self._fileset, "SDDS-Import.xml"))
-            t = etree.ElementTree(None, f)
-            f.close()
+            with open(os.path.join(self._fileset, "SDDS-Import.xml")) as f:
+                t = etree.ElementTree(None, f)
             self._version = t.find("*/Version").text.strip()
         return self._version
 
