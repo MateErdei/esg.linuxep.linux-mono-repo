@@ -53,4 +53,3 @@ sspl-av:
     fileset: ..\redist\sspl-plugin-anti-virus
     canonical-name: ServerProtectionLinuxPlugin-AV
     line-id: ServerProtectionLinux-Plugin-AV
-    mountpoint: .
