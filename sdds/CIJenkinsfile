@@ -1,0 +1,7 @@
+@Library("tap-pipe")
+
+def params = [
+    string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release]'),
+]
+
+CIPipeline { pipelineEntryPoint = 'sspl_warehouse'; buildParameters = params }
