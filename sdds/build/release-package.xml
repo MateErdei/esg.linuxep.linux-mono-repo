@@ -110,7 +110,7 @@
     <build-asset artifact-path="warehouse" source-dir="output\warehouse"/>
     <build-asset artifact-path="customer" source-dir="output\customer"/>
     <build-asset artifact-path="def" source-dir="output\def"/>
-    <build-asset name="generate-warehouse" source-dir="logs"/>
+    <build-asset name="logs" source-dir="logs"/>
   </publish>
   <signingexclusions>
 
