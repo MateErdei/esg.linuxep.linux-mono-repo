@@ -91,7 +91,7 @@ class Component:
             raise Exception("The build for {} is not a valid SDDS import fileset.".format(self._name))
         local_root_path = os.path.join(r'..\inputs\filer5', self._name)
         if os.path.exists(local_root_path):
-            logging.warning(f'Skipping fetch from {remote_root_path} to {local_root_path} - already exists')
+            logging.warning('Skipping fetch from {} to {} - already exists'.format(remote_root_path, local_root_path))
         else:
             os.makedirs(local_root_path)
             fetch_files(remote_root_path, local_root_path)
