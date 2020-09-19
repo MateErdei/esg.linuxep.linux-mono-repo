@@ -49,9 +49,6 @@ print("Importing dictionary file...")
 sdds_import(path=sys.argv[1], name='dictionary')
 print("Dictionary file imported successfully!")
 
-print("Importing external warehouse...")
-sdds_import(path=r"..\external\def.xml", name='externalcomponents')
-print("External warehouse imported successfully!")
 
 print("Combining warehouse defintion with common component and supplement definitions...")
 definition_merger.merge(r'..\output\def\def.yaml', input_files=sys.argv[2:])
