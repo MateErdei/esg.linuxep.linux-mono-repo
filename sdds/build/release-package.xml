@@ -69,7 +69,9 @@
     <build-asset artifact-path="warehouse" source-dir="output\warehouse"/>
     <build-asset artifact-path="customer" source-dir="output\customer"/>
     <build-asset artifact-path="def" source-dir="output\def"/>
-    <build-asset name="logs" source-dir="logs"/>
+    <build-asset name="build_logs" source-dir="logs">
+      <include glob="./**"/>
+    </build-asset>
 
     <!-- legacy outputs -->
     <publishbranches>master,develop,feature,bugfix,ssplav</publishbranches>
