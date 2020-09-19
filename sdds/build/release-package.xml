@@ -100,8 +100,8 @@
     <!-- a dodgy fix for issue where cannot use same comp twice in a warehouse-->
     <command>
       <program>cmd.exe</program>
-      <args>/c python GenerateWarehouse.py sspl-warehouse %SOURCE_CODE_BRANCH% %START_DATE_TIME%-%SOURCE_CODE_COMMIT_HASH% dict-en.xml ..\def\cloud-warehouse-def.yaml</args>
-<!--      <args>/c py -3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def.yaml</args>-->
+<!--      <args>/c python GenerateWarehouse.py sspl-warehouse %SOURCE_CODE_BRANCH% %START_DATE_TIME%-%SOURCE_CODE_COMMIT_HASH% dict-en.xml ..\def\cloud-warehouse-def.yaml</args>-->
+          <args>/c py -3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def.yaml</args>
       <workingdir>src</workingdir>
     </command>
   </buildcommands>
