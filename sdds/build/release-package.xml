@@ -111,7 +111,7 @@
       <include glob="update/**"/>
       <include glob="content/**"/>
     </build-asset>
-<!--    <logs name="generate-warehouse" source-dir="logs"/>-->
+    <logs name="generate-warehouse" source-dir="logs"/>
   </publish>
   <signingexclusions>
 

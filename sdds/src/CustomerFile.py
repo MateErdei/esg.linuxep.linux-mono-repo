@@ -85,6 +85,7 @@ def create(warehouse_def_file):
     logging.info("Creating customer files at %s", output_folder)
 
     customer_files = model['customer-files']
+    redirects = None
     if "redirects" in model:
         redirects = model['redirects']
 
@@ -114,7 +115,7 @@ def create(warehouse_def_file):
                 split_whs = split_whs + SPLIT_WH_MAGIC_TEXT % wh['warehouse']
 
         wh_block = ""
-        if (split_whs != ""):
+        if split_whs != "":
             wh_block = WH_BLOCK_MAGIC_TEXT % split_whs
 
         redirects_block = ""
