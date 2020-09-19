@@ -199,7 +199,55 @@ def locate_artisan_package_on_filer6(name, branch, build, build_type, version):
 
     return UPSTREAM_DEV, path, branch, build
 
-def locate_package_from_clues(name, branch, version, build, build_type):
+def latest_directory_in_path(path):
+    entries = os.listdir(path)
+    if not entries:
+        raise RuntimeError(f'Unexpected empty folder: {path}')
+    folders = [f for f in entries if os.path.isdir(os.path.join(path, f))]
+    if not folders:
+        raise RuntimeError(f'Path contains no folders: {path}')
+    return sorted(folders, key=lambda f: os.path.getmtime(os.path.join(path, f)))[-1]
+
+
+def locate_package_from_clues(name, version, build_id, output):
+    """
+    Find a build on the production or dev filer from build metadata
+
+    name - the component name (mandatory)
+    branch - the git branch, or build controller name (default: develop)
+    version - the version to use (dash separated, default: latest)
+    build - the build identifier of the build to use (default: last good component build)
+    build_type - release or debug (default: release)
+    sub_component - component name. incase there are multiple components in a repository
+    """
+
+    print(f'Looking for name={name} version={version} build_id={build_id} output={output}')
+
+    assert name, f'Expected a package name, got "{name}"'
+
+    base_path = os.path.join(UPSTREAM_PROD, name)
+    if not os.path.exists(base_path):
+        raise RuntimeError(f'Path not found: {base_path}')
+
+    if not version:
+        version = latest_directory_in_path(base_path)
+    else:
+        version = version.replace('.', '-')
+    base_path = os.path.join(base_path, version)
+
+    if not build_id:
+        build_id = latest_directory_in_path(base_path)
+
+    full_path = os.path.join(base_path, build_id)
+    if output:
+        full_path = os.path.join(full_path, output)
+
+    if not os.path.exists(full_path):
+        raise RuntimeError(f'Path not found: {full_path}')
+
+    return full_path
+
+def locate_package_from_clues_old(name, branch, version, build, build_type):
     """
     Find a build on the production or dev filer from build metadata
 
