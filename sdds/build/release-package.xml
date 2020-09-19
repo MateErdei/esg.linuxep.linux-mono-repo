@@ -12,75 +12,34 @@
          components.
     -->
 
-<inputs version="2">
-  <workingdir>.</workingdir>
-<!--  <package name="signing_client" version="4-2-7" build="99621" dest="signing">-->
-<!--    <include src="acode" dest="acode"/>-->
-<!--  </package>-->
-<!--  <package name="manifest_client" version="1-7-0-1" build="78320" dest="signing">-->
-<!--  </package>-->
-<!--  <package name="sddsimportgen" version="1-0-10" build="53622" dest="scripts">-->
-<!--    <include src="make_sdds_import.py" dest="."/>-->
-<!--  </package>-->
-<!--  <package name="eng-certs" version="1-0-3" build="95246" dest="redist">-->
-<!--    <include src="rootca\ps_rootca.crt" dest="eng_certs"/>-->
-<!--  </package>-->
-  <build-asset project="winep" repo="liveterminal">
-    <development-version branch="develop"/>
-    <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
-  </build-asset>
-  <build-asset project="linuxep" repo="everest-base">
-    <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-    <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
-  </build-asset>
-  <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-    <development-version branch="feature/LINUXDAR-2159-change-edr-plugin-repo-to-use-unified-pipeline"/>
-    <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component"/>
-  </build-asset>
-  <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
-    <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-    <include artifact-path="output" dest-dir="redist/sspl-plugin-mdr-componentsuite"/>
-  </build-asset>
-  <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
-    <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-    <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-edr-componentsuite"/>
-  </build-asset>
-  <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
-    <development-version branch="feature/LINUXDAR-2242_unified_pipeline"/>
-    <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
-  </build-asset>
-</inputs>
+  <inputs version="2">
+    <workingdir>.</workingdir>
+    <build-asset project="winep" repo="liveterminal">
+      <development-version branch="develop"/>
+      <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
+    </build-asset>
+    <build-asset project="linuxep" repo="everest-base">
+      <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+      <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
+    </build-asset>
+    <build-asset project="linuxep" repo="sspl-plugin-edr-component">
+      <development-version branch="feature/LINUXDAR-2159-change-edr-plugin-repo-to-use-unified-pipeline"/>
+      <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component"/>
+    </build-asset>
+    <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
+      <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+      <include artifact-path="output" dest-dir="redist/sspl-plugin-mdr-componentsuite"/>
+    </build-asset>
+    <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
+      <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+      <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-edr-componentsuite"/>
+    </build-asset>
+    <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
+      <development-version branch="feature/LINUXDAR-2242_unified_pipeline"/>
+      <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
+    </build-asset>
+  </inputs>
 
-<!--<buildcommands>-->
-<!--  <command>-->
-<!--    <program>python.exe</program>-->
-<!--    <args>prepare.py</args>-->
-<!--    <workingdir>src</workingdir>-->
-<!--  </command>-->
-<!--  <command>-->
-<!--    <program>python.exe</program>-->
-<!--    <args>collate.py collate.xml</args>-->
-<!--    <workingdir>src</workingdir>-->
-<!--  </command>-->
-<!--  <command>-->
-<!--    <program>cmd.exe</program>-->
-<!--    &lt;!&ndash; WARNING the component name in this command line must match the package name at the top of this file &ndash;&gt;-->
-<!--    <args>/c python GenerateWarehouse.py sspl-warehouse %SOURCE_CODE_BRANCH% %START_DATE_TIME%-%SOURCE_CODE_COMMIT_HASH% dict-en.xml ..\def\cloud-warehouse-def.yaml</args>-->
-<!--    <workingdir>src</workingdir>-->
-<!--  </command>-->
-<!--</buildcommands>-->
-
-<!--  <publish>-->
-<!--    <publishbranches>master,develop,feature,bugfix,ssplav</publishbranches>-->
-<!--    <workingdir>.</workingdir>-->
-<!--    <destdir>.</destdir>-->
-<!--    <buildoutputs>-->
-<!--      <output name="warehouse" srcfolder="output/warehouse" />-->
-<!--      <output name="customer" srcfolder="output/customer" />-->
-<!--      <output name="logs" srcfolder="logs" />-->
-<!--      <output name="def" srcfolder="output/def" />-->
-<!--    </buildoutputs>-->
-<!--  </publish>-->
   <buildcommands>
     <command>
       <program>python.exe</program>
