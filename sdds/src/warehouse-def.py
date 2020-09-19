@@ -4,20 +4,21 @@
 Module docstring.
 """
 
-import sys
-import os
-import optparse
+import json
 import logging
+import optparse
+import os
+import stat
+import sys
 from xml.etree import ElementTree
+
 from xml.dom import minidom
 import yaml
-import json
 
 import components
-import warehouses
 import locations
+import warehouses
 
-import update_all_manifests_and_imports as resign
 
 # TODO: remove this funcdef - only for developement
 
@@ -42,6 +43,7 @@ def make_component_core(c):
         build_spec = components.ComponentBuild(c['build'])
         return components.Component(name, line_id, canonical_name, build_spec=build_spec)
 
+
 def update_component_suite_version(path, description, version):
     sdds_import_file_path = os.path.join(path, "SDDS-Import.xml")
     import_spec = ElementTree.parse(sdds_import_file_path)
@@ -49,19 +51,9 @@ def update_component_suite_version(path, description, version):
     import_spec.find(".//ShortDesc").text = description
     import_spec.find(".//LongDesc").text = description
     import_spec.find(".//Token").text = "{}#{}".format(import_spec.find(".//RigidName").text, version)
+    os.chmod(sdds_import_file_path, stat.S_IWRITE)
     import_spec.write(sdds_import_file_path)
 
-def resign_component(c):
-    sdds_import_file_path = os.path.join(c.path, "SDDS-Import.xml")
-    print(os.getcwd())
-    import_spec = ElementTree.parse(sdds_import_file_path)
-    # The below code needs to be fixed if we want to create a more seamless update process.  ie. tests do not
-    # need swap out prod dev certs in automation / manual tests.
-    #resign.update_ca(import_spec, c.path)
-    manifest_file_path = os.path.join(c.path, "manifest.dat")
-    resign.update_manifest_dat_file(manifest_file_path, c.path)
-    resign.update_manifest_dat_node(import_spec, manifest_file_path)
-    import_spec.write(sdds_import_file_path)
 
 def make_component(c):
     comp = make_component_core(c)
@@ -78,7 +70,6 @@ def make_component(c):
         comp.set_subcomponents(c['subcomponents'])
     if 'import' in c:
         update_component_suite_version(comp.path, c['import']['description'], c['import']['version'])
-    resign_component(comp)
     return comp
 
 
@@ -86,6 +77,7 @@ def check_components(parsed_input):
     for c in parsed_input['components']:
         if 'fileset' not in c:
             print(components.ComponentBuild(c['build']))
+
 
 def make_components(parsed_input):
     comps = dict()
@@ -97,9 +89,9 @@ def make_components(parsed_input):
 
 def resolve_subcomponents(comps):
     index = {}
-    for c in comps.itervalues():
+    for c in comps.values():
         index[c.name] = (c.line_id, c.version, c.mountpoint)
-    for c in comps.itervalues():
+    for c in comps.values():
         c.resolve_subcomponents(index)
 
 
@@ -151,25 +143,24 @@ def make_warehouses(parsed_input):
 
 
 def build_location_element(options):
-    substitutions = {'codeline': options.codeline, 'buildid': options.buildid}
     location = ElementTree.Element("Location")
     ElementTree.SubElement(location, "WriteTo",
                            path=locations.WAREHOUSE_WRITE)
     read_from = ElementTree.SubElement(location, "ReadFrom")
     for s in locations.WAREHOUSE_READ:
-        ElementTree.SubElement(read_from, "URL", path=(s % substitutions))
+        ElementTree.SubElement(read_from, "URL", path=s)
     return location
 
 
 def build_element_tree(comps, whouses, options):
     index = dict()
-    for c in comps.itervalues():
+    for c in comps.values():
         index.setdefault(c.line_id, [])
         index[c.line_id].append(c)
     # render the objects as an xml Element Tree
     root = ElementTree.Element("PublicationsDefinition")
     assemblies = ElementTree.SubElement(root, "Assemblies")
-    for line_id, line in index.iteritems():
+    for line_id, line in index.items():
         logging.debug("Rendering {}".format(line_id))
         line_element = ElementTree.SubElement(assemblies, "Line", id=line_id)
         ElementTree.SubElement(
@@ -181,8 +172,7 @@ def build_element_tree(comps, whouses, options):
     pubs = ElementTree.SubElement(root, "Publications")
     pub = ElementTree.SubElement(pubs,
                                  "Publication",
-                                 id="%s-%s" % (options.codeline,
-                                               options.buildid))
+                                 id="dev")
     repositories = ElementTree.SubElement(pub, "Repositories")
     repository = ElementTree.SubElement(
         repositories, "Repository", id=locations.REPOSITORY_ID)
@@ -201,13 +191,11 @@ def write_bom(f, comps, options):
         logging.debug(comp_name)
         if build_spec:
             bom_components.append({"warehouse_component": comp_name,
-                                    "build_name": build_spec._name,
-                                    "branch": build_spec._branch,
-                                    "version": comps[comp_name]._version,
-                                    "source_id": build_spec._commit,
-                                    "build_id": build_spec._build_id})
+                                   "build_name": build_spec.name,
+                                   "version": comps[comp_name].version,
+                                   })
+
     bom_build = {"branch": os.environ.get('SOURCE_CODE_BRANCH'),
-                 "build_id": options.buildid,
                  "commit": os.environ.get('SOURCE_CODE_COMMIT_HASH'),
                  "jenkins_job_name": os.environ.get('JOB_NAME'),
                  "jenkins_branch_name": os.environ.get('BRANCH_NAME'),
@@ -240,11 +228,6 @@ def process_command_line(argv):
         add_help_option=None)
 
     # define options here:
-    parser.add_option(
-        "-c", "--codeline", dest="codeline",
-        help="Codeline identifier for this build")
-    parser.add_option(
-        "-b", "--buildid", dest="buildid", help="Build identifier")
     parser.add_option("-o", "--output", dest="outputFile",
                       help="Write output to FILE", metavar="FILE")
     parser.add_option("-m", "--bom", dest="bom",
@@ -262,10 +245,6 @@ def process_command_line(argv):
     # check number of arguments, verify values, etc.:
     if len(args) != 1:
         parser.error('input file not specified')
-    if options.codeline is None:
-        parser.error('codeline must be specified')
-    if options.buildid is None:
-        parser.error('buildid must be specified')
 
     # further process settings & args if necessary
 
@@ -309,7 +288,7 @@ def main(argv=None):
     # so write it out here
     logging.debug("Writing def file to {}".format(options.outputFile))
     f.write("<?xml version='1.0' encoding='utf-8'?>")
-    ElementTree.ElementTree(root_element).write(f, 'utf-8')
+    f.write(ElementTree.tostring(root_element).decode('utf-8'))
 
     if options.bom is not None:
         folder = os.path.dirname(options.bom)
