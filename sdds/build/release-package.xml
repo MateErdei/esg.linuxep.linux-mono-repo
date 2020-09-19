@@ -75,8 +75,8 @@
 
     <!-- legacy outputs -->
     <publishbranches>master,develop,feature,bugfix,ssplav</publishbranches>
-    <workingdir>warehouse</workingdir>
-    <destdir>warehouse</destdir>
+    <workingdir>.</workingdir>
+    <destdir>.</destdir>
     <buildoutputs>
       <output name="warehouse" srcfolder="output\warehouse" />
       <output name="customer" srcfolder="output\customer" />
