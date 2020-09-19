@@ -28,7 +28,7 @@ SDDS_IMPORT_PATH = r"c:\program files\Sophos Plc\SDDS\SDDSImport.exe"
 SDDS_SERVER = os.environ['COMPUTERNAME']
 
 
-def sdds_import(*, path, name):
+def sdds_import(path, name):
     os.makedirs('logs', exist_ok=True)
     args = [SDDS_IMPORT_PATH, '-server', SDDS_SERVER, '-user', 'Admin', '-verbose', '-file', path]
     log_path = os.path.join('logs', f'sddsimport_{name}.log')
