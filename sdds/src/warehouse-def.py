@@ -259,9 +259,13 @@ def main(argv=None):
         logging.getLogger('').setLevel(logging.DEBUG)
 
     # read and parse the input file
-    input = file(args[0]).read()
-    logging.debug("input : {}".format(input))
-    model = yaml.safe_load(input)
+    input_file = args[0]
+    logging.debug("input file : {}".format(input_file))
+    with open(input_file, 'r') as infile:
+        yaml_input = infile.read()
+        logging.debug("input : {}".format(yaml_input))
+
+    model = yaml.safe_load(yaml_input)
 
     if options.dry_run:
         check_components(model)
