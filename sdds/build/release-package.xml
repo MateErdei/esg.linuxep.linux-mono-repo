@@ -78,10 +78,10 @@
     <workingdir>warehouse</workingdir>
     <destdir>warehouse</destdir>
     <buildoutputs>
-      <output name="warehouse" srcfolder="output/warehouse" />
-      <output name="customer" srcfolder="output/customer" />
+      <output name="warehouse" srcfolder="output\warehouse" />
+      <output name="customer" srcfolder="output\customer" />
       <output name="logs" srcfolder="logs" />
-      <output name="def" srcfolder="output/def" />
+      <output name="def" srcfolder="output\def" />
     </buildoutputs>
   </publish>
   <signingexclusions>
