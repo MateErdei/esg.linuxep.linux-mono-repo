@@ -4,16 +4,16 @@
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-            <include artifact-path="sspl-base/sdds" dest-dir="sspl-base"/>
-            <include artifact-path="sspl-base/testoutput" dest-dir="SystemProductTestOutput"/>
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
+            <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
             <development-version branch="feature/LINUXDAR-2159-change-edr-plugin-repo-to-use-unified-pipeline"/>
-            <include artifact-path="edr/sdds" dest-dir="sspl-edr-plugin"/>
+            <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-            <include artifact-path="mdr/sdds" dest-dir="sspl-mdr-control-plugin"/>
+            <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
             <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
@@ -21,7 +21,7 @@
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
             <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-            <include artifact-path="sspl-componentsuite/sdds" dest-dir="sspl-componentsuite"/>
+            <include artifact-path="sspl-componentsuite/SSPL-SDDS-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
         </build-asset>
 
         <package name="sspl-thininstaller"
