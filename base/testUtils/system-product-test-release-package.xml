@@ -21,7 +21,7 @@
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
             <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
-            <include artifact-path="sspl-componentsuite/SSPL-SDDS-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
+            <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
         </build-asset>
 
         <package name="sspl-thininstaller"
