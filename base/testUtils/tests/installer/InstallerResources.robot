@@ -147,8 +147,16 @@ Check Telemetry Scheduler Is Running
     Should Be Equal As Integers     ${result.rc}    0
 
 Check Comms Component Is Running
-    ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
-    Should Be Equal As Integers    ${result.rc}    0
+    ${result_is_running} =     Run Process     pgrep  -f   ${COMMS_COMPONENT}
+    Log  ${result_is_running.stdout}
+    Should Be Equal As Integers     ${result_is_running.rc}    0
+    #check its 2 process running.
+    ${result_2_processes} =    Run Process  pgrep -f ${COMMS_COMPONENT} | wc -w  shell=true
+    Log  ${result_2_processes.stdout}
+    Log  ${result_2_processes.stderr}
+    Should Be Equal As Integers    ${result_2_processes.rc}    0
+    #stdout will have <pid1> \n <pid2>.
+    Run Keyword Unless             ${result_2_processes.stdout} > ${2}      Fail
 
 Check Watchdog Not Running
     ${result} =    Run Process  pgrep  sophos_watchdog
@@ -178,14 +186,14 @@ Check Expected Base Processes Except Comms Are Running
 
 Check Expected Base Processes Including Comms Are Running
     Check Expected Base Processes Except Comms Are Running Are Running
-    Check Comms Component Running
+    Check Comms Component Is Running
 
 Check Expected Base Processes Are Running
     Check Watchdog Running
     Check Management Agent Running
     Check Update Scheduler Running
     Check Telemetry Scheduler Is Running
-    Check Comms Component Running
+    Check Comms Component Is Running
 
 Check Base Processes Are Not Running
     Check Watchdog Not Running
