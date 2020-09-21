@@ -85,7 +85,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         catch(fs::filesystem_error& e)
         {
-            LOGERROR("Failed to access " << starting_point << ": " << e.code().message());
+            LOGERROR("Failed to access " << p << ": " << e.code().message());
             iterator.disable_recursion_pending();
             continue;
         }
