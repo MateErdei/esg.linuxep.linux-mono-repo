@@ -120,7 +120,7 @@ TEST_F(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
     catch (fs::filesystem_error& e)
     {
         EXPECT_EQ(e.what(),
-                  std::string("filesystem error: Cannot scan "
+                  std::string("filesystem error: Failed to scan "
                               "\"FileThatDoesNotExist\": file/folder does not exist: No such file or directory"));
         EXPECT_EQ(e.code().value(), ENOENT);
     }
@@ -180,7 +180,7 @@ TEST_F(TestFileWalker, hugeStartingFilePath) // NOLINT
     }
     catch (fs::filesystem_error& e)
     {
-        EXPECT_EQ(e.what(), std::string("filesystem error: Starting Path too long: File name too long"));
+        EXPECT_EQ(e.what(), std::string("filesystem error: Failed to scan starting Path too long: File name too long"));
         EXPECT_EQ(e.code().value(), ENAMETOOLONG);
     }
 
