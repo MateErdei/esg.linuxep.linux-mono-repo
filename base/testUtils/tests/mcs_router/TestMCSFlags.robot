@@ -33,3 +33,4 @@ MCS creates flags file
    Should Contain  ${CONTENTS}  "endpoint.flag1.enabled" : "true",
    Should Contain  ${CONTENTS}  "endpoint.flag2.enabled" : "false",
    Should Contain  ${CONTENTS}  "endpoint.flag3.enabled" : "force"
+   Check Mcsrouter Log Contains  Checking for updates to mcs flags

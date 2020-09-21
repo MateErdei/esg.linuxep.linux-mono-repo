@@ -610,6 +610,7 @@ class MCS:
                     flags_polling = self.__m_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", default_values.get_default_flags_poll())
                     if (time.time() > last_flag_time_check + flags_polling) \
                             or not os.path.exists(path_manager.mcs_flags_file()):
+                        LOGGER.info("Checking for updates to mcs flags")
                         mcs_flags_content = comms.get_flags()
                         if mcs_flags_content:
                             write_json.write_mcs_flags(mcs_flags_content)
