@@ -245,6 +245,7 @@ AV Plugin Can Send Telemetry
     Check AV Plugin Installed With Base
     Prepare To Run Telemetry Executable
 
+    Remove File  ${TELEMETRY_OUTPUT_JSON}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
     Wait Until Keyword Succeeds
              ...  10 secs
