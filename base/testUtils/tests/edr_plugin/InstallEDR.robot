@@ -130,7 +130,6 @@ A broken edr installation will fail update
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BrokenEDRPolicy}   real=True
-    Wait For Initial Update To Fail
     Override LogConf File as Global Level   DEBUG
     Send ALC Policy And Prepare For Upgrade  ${BrokenEDRPolicy}
     Trigger Update Now
@@ -138,7 +137,7 @@ A broken edr installation will fail update
     Wait Until Keyword Succeeds
     ...   100 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Fail On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Fail On N Event Sent  1
     Check SulDownloader Log Contains in Order   Installation failed    Installer exit code: 20
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
 
@@ -152,7 +151,7 @@ A broken edr installation will fail update
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Wait For EDR to be Installed
@@ -214,7 +213,6 @@ Install Base And MTR Then Migrate To EDR
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
-    Wait For Initial Update To Fail
 
     # Install MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
@@ -521,7 +519,6 @@ Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
-    Wait For Initial Update To Fail
 
     # Install MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
@@ -570,7 +567,6 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
-    Wait For Initial Update To Fail
 
     # Install EDR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
@@ -620,7 +616,6 @@ Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrAndMtrVUTPolicy}
-    Wait For Initial Update To Fail
 
     # Install EDR And MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
@@ -663,7 +658,6 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrAndMtrVUTPolicy}
-    Wait For Initial Update To Fail
 
     # Install EDR And MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}

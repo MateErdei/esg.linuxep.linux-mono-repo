@@ -101,15 +101,12 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
-    Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
-    Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Check EAP Release Installed Correctly
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
@@ -129,7 +126,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
 #     If mtr is installed for the first time, this will appear
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
@@ -163,15 +160,12 @@ VersionCopy File in the Wrong Location Is Removed
 
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
-    Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
-    Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Check EAP Release Installed Correctly
 
@@ -218,27 +212,19 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
-    Wait For Initial Update To Fail
 
-    Wait Until Keyword Succeeds
-    ...   30 secs
-    ...   5 secs
-    ...   Check MCS Envelope Contains Event Fail On N Event Sent  1
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
-    Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Check Current Release Installed Correctly
     # products that should change version
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+
     # Products that should be uninstalled after downgrade
     Should Exist  ${InstalledLRPluginVersionFile}
 
@@ -260,13 +246,10 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  Failed to connect to the warehouse
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
 
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Trigger Update Now
@@ -274,12 +257,20 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
-    ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
+    ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  3
+
+    # If mtr is installed for the first time, this will appear
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
+    # We have a race condition when stopping and starting mtr plugin, so sometimes this appears
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr exited when not expected
+    # We fail to stop mtr because the old watchdog is unable to stop the VUT mtr with it's actionAppId pluginRegistry entry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Failed to stop mtr: Error: Plugin not found
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Failed to stop edr: Error: Plugin not found
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
-    # because on a downgrade the install.sh think it is doing a clean install an update will be triggered before we have setup the ostia certs again
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  Failed to connect to the warehouse
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -294,16 +285,10 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
 
+    # check that at least one component was uninstalled during downgrade
+    Check SulDownloader Log Contains  Uninstalling
     # Ensure products which should have been removed are removed.
     Should Not Exist  ${InstalledLRPluginVersionFile}
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
-    Trigger Update Now
-    # waiting for 2nd because the 1st is a guaranteed failure
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
 
 We Can Upgrade From A Release With EDR To Master With Live Response
@@ -313,15 +298,12 @@ We Can Upgrade From A Release With EDR To Master With Live Response
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEDROldWHFormat}
-    Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEDROldWHFormat}
-    Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     # Perform upgrade and make sure Live Response is installed and running after upgrade
 
@@ -377,15 +359,12 @@ Verify Upgrading Will Remove Files Which Are No Longer Required
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
-    Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrWithFakeLibs}
-    Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Check Files Before Upgrade
 
@@ -414,15 +393,11 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
-    Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrWithFakeLibs}
-    Trigger Update Now
-    # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
     Wait Until Keyword Succeeds
@@ -475,14 +450,11 @@ Version Copy Versions All Changed Files When Upgrading
     ...  30 secs
     ...  Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
 
-    Wait For Initial Update To Fail
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrWithFakeLibs}
-    Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   5 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Check EAP Release Installed Correctly
     ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
@@ -507,7 +479,7 @@ Version Copy Versions All Changed Files When Upgrading
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     # If mtr is installed for the first time, this will appear
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
@@ -566,16 +538,13 @@ Update Will Be Forced When Feature List Changes Without Unexpected Errors
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUT_Without_SDU_Policy}
-    Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseOnlyVUT_Without_SDU_Policy}
 
-    Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
@@ -592,7 +561,7 @@ Update Will Be Forced When Feature List Changes Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
@@ -605,15 +574,12 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
-    Wait For Initial Update To Fail
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseOnlyVUTPolicy}
-    Trigger Update Now
     # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
@@ -630,7 +596,7 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2

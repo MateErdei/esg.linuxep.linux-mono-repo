@@ -27,22 +27,20 @@ Test SSPL Will Updated To A Fixed Version When Paused Updating Is Activated And 
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${PausedBaseVUTPrevPolicy}
 
-    Wait For Initial Update To Fail
     Override LogConf File as Global Level  DEBUG
     # Ensure VUT -1 has successfully installed.
-    # waiting for 2nd update success log because the 1st is a guaranteed failure so count starts at 2
     # Updating to VUT -1 using FixedVersion policy
-    Perform Update And Check Expected Version Is Installed  ${PausedBaseVUTPrevPolicy}  2
+    Perform Update And Check Expected Version Is Installed  ${PausedBaseVUTPrevPolicy}  1
 
 
     # Uppgrade to VUT using FixedVersion policy
-    Perform Update And Check Expected Version Is Installed    ${PausedBaseVUTPolicy}  3
+    Perform Update And Check Expected Version Is Installed    ${PausedBaseVUTPolicy}  2
 
     # Ensure version does not upgrade to RECOMMENDED when using FixedVersion policy
-    Perform Update And Check Expected Version Is Installed    ${PausedBaseVUTPolicy}  3
+    Perform Update And Check Expected Version Is Installed    ${PausedBaseVUTPolicy}  2
 
     # Ensure upgrade to RECOMMENDED when using Non FixedVersion policy
-    Perform Update And Check Expected Version Is Installed    ${PausedBase999Policy}  4
+    Perform Update And Check Expected Version Is Installed    ${PausedBase999Policy}  3
 
 *** Keywords ***
 Check Expected Version Is Installed

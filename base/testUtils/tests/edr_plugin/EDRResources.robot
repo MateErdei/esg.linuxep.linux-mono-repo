@@ -49,7 +49,6 @@ Install EDR
     [Arguments]  ${policy}  ${args}=${None}
     Start Local Cloud Server  --initial-alc-policy  ${policy}
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}  args=${args}
-    Wait For Initial Update To Fail
 
     Send ALC Policy And Prepare For Upgrade  ${policy}
     Trigger Update Now
