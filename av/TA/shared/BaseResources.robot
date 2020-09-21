@@ -72,11 +72,17 @@ Run Telemetry Executable
     Remove File  ${TELEMETRY_EXECUTABLE_LOG}
 
     Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/bin/telemetry
-    Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/lib64/libtelemetry*
+    Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/lib64/libtelemetryimpl.so
     ${result} =  Run Process  sudo  -u  sophos-spl-user  ${SOPHOS_INSTALL}/base/bin/telemetry  ${telemetryConfigFilePath}
 
     Log  "stdout = ${result.stdout}"
     Log  "stderr = ${result.stderr}"
+
+    ${ls_result} =  Run Process  ls  -l  ${SOPHOS_INSTALL}/base/lib64/
+    Log To Console  "ls = ${ls_result.stdout}"
+
+    ${ldd_result} =  Run Process  ldd  ${SOPHOS_INSTALL}/base/bin/telemetry
+    Log To Console  "ldd = ${ldd_result.stdout}"
 
     Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code: ${result.stderr}
 
