@@ -241,21 +241,20 @@ AV Plugin uninstalls
     Check AV Plugin Not Installed
     [Teardown]   Install AV Directly from SDDS
 
-# To be fixed by LINUXDAR-2253
-#AV Plugin Can Send Telemetry
-#    Check AV Plugin Installed With Base
-#    Prepare To Run Telemetry Executable
-#
-#    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
-#    Wait Until Keyword Succeeds
-#             ...  10 secs
-#             ...  1 secs
-#             ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
-#
-#    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-#    Log  ${telemetryFileContents}
-#
-#    ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
-#    Should Contain   ${telemetryLogContents}    Gathered telemetry for av
-#    Should Contain   ${telemetryFileContents}   av
-#    Should Contain   ${telemetryFileContents}   version
+AV Plugin Can Send Telemetry
+    Check AV Plugin Installed With Base
+    Prepare To Run Telemetry Executable
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
+    Wait Until Keyword Succeeds
+             ...  10 secs
+             ...  1 secs
+             ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
+
+    ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
+    Should Contain   ${telemetryLogContents}    Gathered telemetry for av
+    Should Contain   ${telemetryFileContents}   av
+    Should Contain   ${telemetryFileContents}   version
