@@ -71,7 +71,7 @@ ${FILE_NOT_FOUND_RESULT}     2
 ${PERMISSION_DENIED_RESULT}  13
 ${BAD_OPTION_RESULT}         3
 ${CUSTOM_OUTPUT_FILE}   /home/vagrant/output
-${PERMISSIONS_TEST} =  Set Variable  ${NORMAL_DIRECTORY}/permissions_test
+${PERMISSIONS_TEST}     ${NORMAL_DIRECTORY}/permissions_test
 *** Test Cases ***
 
 CLS No args
