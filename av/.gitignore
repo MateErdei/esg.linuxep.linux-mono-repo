@@ -11,10 +11,12 @@ log/
 PLUGINNAME
 sspl-plugin-mav-build/
 sspl-plugin-anti-virus/
+susi_experiment/
 tapvenv/
 TA/log.html
 TA/output.xml
 TA/report.html
+TA/resources/FilledIn.xml
 TA/resources/TempSAVpolicy.xml
 TA/resources/sophos_certs/local_certs/https/ca/
 TA/resources/sophos_certs/local_certs/https/newcerts/
