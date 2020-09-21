@@ -113,7 +113,7 @@ def pytest_task(machine: tap.Machine):
 
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False) -> Dict[str, Input]:
     print(str(build))
-    supplement_branch = "z"
+    supplement_branch = "released"
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
