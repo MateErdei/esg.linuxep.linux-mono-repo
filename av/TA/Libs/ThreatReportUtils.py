@@ -28,10 +28,10 @@ GL_EXPECTED_CONTENTS = {
         '''action="101"'''
     ],
 
-    "naugthyEicarThreatReportAsVagrant": [
+    "naugthyEicarThreatReportAsNobody": [
         '''description="Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar''',
         '''type="sophos.mgt.msg.event.threat"''',
-        '''userId="vagrant"''',
+        '''userId="nobody"''',
         '''domain="local"''',
         '''name="EICAR-AV-Test"''',
         '''scanType="203"''',

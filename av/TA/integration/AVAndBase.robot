@@ -191,7 +191,9 @@ Avscanner runs as non-root
    ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
 
    Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output   su -c "/usr/local/bin/avscanner ${SCAN_DIRECTORY}/naugthy_eicar" vagrant
+   ${command} =    Set Variable    /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naugthy_eicar
+   ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
+   ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
 
    Log To Console  ${output}
 
@@ -205,7 +207,7 @@ Avscanner runs as non-root
    Wait Until Keyword Succeeds
          ...  60 secs
          ...  3 secs
-         ...  check threat event received by base  1  naugthyEicarThreatReportAsVagrant
+         ...  check threat event received by base  1  naugthyEicarThreatReportAsNobody
 
 AV Plugin Reports encoded eicars To Base
    Check AV Plugin Installed With Base
