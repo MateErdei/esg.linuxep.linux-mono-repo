@@ -139,9 +139,6 @@ Thin Installer Repairs Broken Existing Installation
 Thin Installer Installs Base And Services Start
     Should Not Exist    ${SOPHOS_INSTALL}
 
-    log to console  go
-    sleep  30000000
-
     Check MCS Router Not Running
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
@@ -161,7 +158,6 @@ Thin Installer Installs Base And Services Start
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
-    fail
 
 
 Thin Installer Attempts Install And Register Through Message Relays

@@ -59,6 +59,15 @@
             <include artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
             <include artifact-path="websocket_server" dest-dir="websocket_server" />
         </build-asset>
+
+
+<!--        local warehouses-->
+
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/jake-2186" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-jake-2186/warehouse" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-jake-2186/warehouse" />
+        </build-asset>
     </inputs>
 
     <buildcommands>

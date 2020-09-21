@@ -43,7 +43,7 @@ DEV_BUILD_CERTS = "dev"
 # You must run the robot command from inside the vagrant box
 # The version under test, usually master dev builds
 OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE = "OSTIA_VUT_OVERRIDE"
-OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "feature-LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs-to-use-unified")
+OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "feature-jake-2186")
 OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_VUT_ADDRESS_BRANCH)
 # Warehouse without RECOMMENDED tag
 OSTIA_BETA_ONLY_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-only-beta"
