@@ -55,7 +55,7 @@
 <!--            <include src="."   dest="websocket_server" />-->
 <!--        </package>-->
         <build-asset project="winep" repo="liveterminal">
-            <development-version branch="develop" />
+            <development-version branch="feature-abelard" />
             <include artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
             <include artifact-path="websocket_server" dest-dir="websocket_server" />
         </build-asset>

@@ -6,8 +6,7 @@ Resource  McsRouterNovaResources.robot
 
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
 
-# TODO - LINUXDAR-2037 remove this tag when downgrade scenarios work
-Default Tags  CENTRAL  MCS  EXCLUDE_AWS  TESTFAILURE
+Default Tags  CENTRAL  MCS  EXCLUDE_AWS
 
 Test Teardown     Real UCMR Test Teardown  requireDeRegister=True
 Suite Teardown    Run Keywords

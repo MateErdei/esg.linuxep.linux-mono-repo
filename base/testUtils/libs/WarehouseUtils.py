@@ -43,7 +43,7 @@ DEV_BUILD_CERTS = "dev"
 # You must run the robot command from inside the vagrant box
 # The version under test, usually master dev builds
 OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE = "OSTIA_VUT_OVERRIDE"
-OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "develop")
+OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "feature-abelard")
 
 OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_VUT_ADDRESS_BRANCH)
 # Warehouse without RECOMMENDED tag

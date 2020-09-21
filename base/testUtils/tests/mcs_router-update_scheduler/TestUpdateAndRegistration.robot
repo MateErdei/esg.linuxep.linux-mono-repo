@@ -36,9 +36,7 @@ ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 
 *** Test Case ***
-#TODO: LINUXDAR-2037 - remove test failure
 Verify Status Message Sent When Registering With Central
-    [Tags]  TESTFAILURE
     Start Local Cloud Server  --initial-alc-policy  ${BASE_VUT_POLICY}
     Prepare Installation For Upgrade Using Policy  ${BASE_VUT_POLICY}
     Set Local CA Environment Variable
@@ -105,9 +103,7 @@ Verify Status Message Sent When Registering With Central
     Wait Until Update Event Has Been Sent
 
 
-#TODO: LINUXDAR-2037 - remove test failure
 Verify Status Message Sent When Registering With Central And Event And Status Sent On Reregister
-    [Tags]  TESTFAILURE
     Start Local Cloud Server  --initial-alc-policy  ${BASE_VUT_POLICY}
     Prepare Installation For Upgrade Using Policy  ${BASE_VUT_POLICY}
     Set Local CA Environment Variable
@@ -171,9 +167,8 @@ Verify Status Message Sent When Registering With Central And Event And Status Se
     ...   Check MCS Envelope for Status Being Same On N Status Sent  ${StatusToCheckForNextResultSame}
 
 
-#TODO: LINUXDAR-2037 - remove test failure
 Verify Status Message And Event Is Sent On First Update And Not On Following Updates If Product Doesnt Change
-    [Tags]  MCS  FAKE_CLOUD  UPDATE_SCHEDULER  MCS_ROUTER  OSTIA  TESTFAILURE
+    [Tags]  MCS  FAKE_CLOUD  UPDATE_SCHEDULER  MCS_ROUTER  OSTIA
     ${defaultpolicy}=  Set Variable   ${SUPPORT_FILES}/CentralXml/ALC_policy_for_upgrade_test_just_base.xml
     ${statusPath}=  Set Variable  ${MCS_DIR}/status/ALC_status.xml
     ${UpdateSchedulerLog} =  Set Variable  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
@@ -269,9 +264,7 @@ Verify Failure Event Is Sent on Update Failed
     ...   Check MCS Envelope Contains Event Fail On N Event Sent  1
 
 
-#TODO: LINUXDAR-2037 - remove test failure
 Verify Status Message Is Sent When New Policy Received Even If Product Update Is Not Executed
-    [Tags]  TESTFAILURE
     Start Local Cloud Server  --initial-alc-policy  ${BASE_VUT_POLICY}
     Prepare Installation For Upgrade Using Policy  ${BASE_VUT_POLICY}
     Set Local CA Environment Variable
@@ -325,9 +318,8 @@ Verify Status Message Is Sent When New Policy Received Even If Product Update Is
     ...   Should Exist    ${MCS_DIR}/status/ALC_status.xml
 
 
-#TODO: LINUXDAR-2037 - remove test failure
 Verify Status Message Is Sent On First Successful Update And On A Following Update Where Product Changes
-    [Tags]  MCS  MCS_ROUTER  EXAMPLE_PLUGIN  FAKE_CLOUD  UPDATE_SCHEDULER  OSTIA  TESTFAILURE
+    [Tags]  MCS  MCS_ROUTER  EXAMPLE_PLUGIN  FAKE_CLOUD  UPDATE_SCHEDULER  OSTIA
     ${statusPath}=  Set Variable  ${MCS_DIR}/status/ALC_status.xml
 
     Start Local Cloud Server  --initial-alc-policy  ${BASE_VUT_POLICY}
@@ -381,10 +373,7 @@ Verify Status Message Is Sent On First Successful Update And On A Following Upda
     #A status should exist as example plugin has been installed
     Should Exist    ${statusPath}
 
-
-
 *** Keywords ***
-
 Check MCS Envelope for Status Being Same On N Status Sent
     [Arguments]  ${Status_Number}
     ${string}=  Check Log And Return Nth Occurence Between Strings   <status><appId>ALC</appId>  </status>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Status_Number}
