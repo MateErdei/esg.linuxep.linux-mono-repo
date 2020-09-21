@@ -83,8 +83,9 @@
 
         <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
         <build-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug,coverage"/>
-        <build-asset artifact-path="sspl-plugin-anti-virus" source-dir="output" mode="release,debug,coverage">
-            <exclude glob="./SDDS-COMPONENT"/>
+        <build-asset artifact-path="output" source-dir="output" mode="release,debug">
+        </build-asset>
+        <build-asset artifact-path="coverage" source-dir="output" mode="coverage">
         </build-asset>
         <logs name="build_log" source-dir="log" mode="debug,release" />
         <logs name="coverage_log" source-dir="log" mode="coverage" />
@@ -92,11 +93,10 @@
         <buildoutputs>
             <!-- rename logs for coverage builds -->
             <output name="build_log" srcfolder="log" mode="oldci"> </output>
-            <output name="coverage_log" srcfolder="log" mode="coverage"> </output>
+            <output name="coverage_log" srcfolder="log" mode="oldcoverage"> </output>
 
             <!-- rename output for coverage builds -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="oldci,release,debug"> </output>
-            <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"> </output>
         </buildoutputs>
         <publishbranches>master,feature/LINUXDAR-2242_unified_pipeline</publishbranches>
     </publish>
