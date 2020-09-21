@@ -76,8 +76,26 @@ def create_test_telemetry_config_file(telemetry_config_file_path, certificate_pa
     default_telemetry_config["verb"] = requestType
     default_telemetry_config["port"] = int(port)
 
+    real_telemetry_config = {
+        "additionalHeaders":["x-amz-acl:bucket-owner-full-control"],
+        "externalProcessWaitRetries":10,
+        "externalProcessWaitTime":100,
+        "interval":0,
+        "maxJsonSize":1000000,
+        "messageRelays":[],
+        "pluginConnectionTimeout":5000,
+        "pluginSendReceiveTimeout":5000,
+        "port":443,
+        "proxies":[],
+        "resourcePath":"linux/dev",
+        "resourceRoot":"",
+        "server":"t1.sophosupd.com",
+        "telemetryServerCertificatePath":"",
+        "verb":"PUT"
+    }
+
     with open(telemetry_config_file_path, 'w') as tcf:
-        tcf.write(json.dumps(default_telemetry_config))
+        tcf.write(json.dumps(real_telemetry_config))
 
     uid = pwd.getpwnam(username).pw_uid
     os.chown(telemetry_config_file_path, uid, -1)
