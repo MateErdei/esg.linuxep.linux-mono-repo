@@ -217,7 +217,7 @@ CLS Will Not Scan Restricted File
 
     Run  chmod -x ${PERMISSIONS_TEST}
 
-    ${command} =    Set Variable    /usr/local/bin/avscanner ${PERMISSIONS_TEST}/eicar
+    ${command} =    Set Variable    ${CLI_SCANNER_PATH} ${PERMISSIONS_TEST}/eicar
     ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
     ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
 
@@ -236,7 +236,7 @@ CLS Will Not Scan Inside Restricted Folder
 
     Run  chmod -x ${PERMISSIONS_TEST}
 
-    ${command} =    Set Variable    /usr/local/bin/avscanner ${PERMISSIONS_TEST}
+    ${command} =    Set Variable    ${CLI_SCANNER_PATH} ${PERMISSIONS_TEST}
     ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
     ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
 
