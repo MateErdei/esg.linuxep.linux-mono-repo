@@ -120,9 +120,9 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         # tapartifact upload-file
         # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
         # /mnt/filer6/lrdata/sophos-susi-lrdata/20200219/lrdata/2020021901/reputation.zip
-        local_rep=context.artifact.from_component('ssplav-localrep', 'released', 'latest') / 'reputation',
-        vdl=context.artifact.from_component('ssplav-vdl', 'released', 'latest') / 'vdl',
-        ml_model=context.artifact.from_component('ssplav-mlmodel', 'released', 'latest') / 'model',
+        local_rep=context.artifact.from_component('ssplav-localrep', 'released', None) / 'reputation',
+        vdl=context.artifact.from_component('ssplav-vdl', 'released', None) / 'vdl',
+        ml_model=context.artifact.from_component('ssplav-mlmodel', 'released', None) / 'model',
     )
     # override the av input and get the bullseye coverage build instead
     if coverage:
