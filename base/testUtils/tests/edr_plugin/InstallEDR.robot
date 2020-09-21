@@ -122,9 +122,9 @@ Install EDR and handle Live Query
     Check Cloud Server Log Contains    "columnMetaData": [{"name":"name","type":"TEXT"}],  1
     Check Cloud Server Log Contains    "columnData": [["systemd"],  1
 
-
+#TODO LINUXDAR-2186 find a way to replicate this test without using this WH as it cannot be reproduced easily on UP
 A broken edr installation will fail update
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EXCLUDE_UBUNTU20
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EXCLUDE_UBUNTU20  TESTFAILURE
 
     Start Local Cloud Server  --initial-alc-policy  ${BrokenEDRPolicy}
 
