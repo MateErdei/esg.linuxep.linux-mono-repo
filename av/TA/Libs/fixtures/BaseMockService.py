@@ -69,9 +69,9 @@ def write_file(file_path, content):
         file_handler.write(content)
 
 
-def create_user(user):
+def create_user(user, group):
     if user not in pwd.getpwall():
-        os.system('useradd {}'.format(user))
+        os.system('useradd {} -g {}'.format(user, group))
 
 
 def create_group(group):
@@ -80,8 +80,8 @@ def create_group(group):
 
 
 def create_users_and_group():
-    create_user('sophos-spl-user')
     create_group('sophos-spl-group')
+    create_user('sophos-spl-user', 'sophos-spl-group')
 
 
 COMPONENT_NAME = "av"
