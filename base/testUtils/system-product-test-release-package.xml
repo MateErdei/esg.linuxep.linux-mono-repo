@@ -2,24 +2,41 @@
 <package name="system-product-tests">
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
-        <package name="sspl-base" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.4/output" dest="." buildtype="dev">
-            <include src="SDDS-COMPONENT"   dest="sspl-base" />
-            <include src="SystemProductTestOutput.tar.gz"   dest="SystemProductTestOutput" />
+        <build-asset project="linuxep" repo="everest-base">
+            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
+            <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-plugin-edr-component">
+            <development-version branch="feature/LINUXDAR-2159-change-edr-plugin-repo-to-use-unified-pipeline"/>
+            <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
+            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+            <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
+            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+            <include artifact-path="output" dest-dir="sspl-mdr-componentsuite"/>
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
+            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs"/>
+            <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
+        </build-asset>
+
+        <package name="sspl-thininstaller"
+                 version="feature-LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output"
+                 dest="." buildtype="dev">
+            <include src="." dest="sspl-thininstaller"/>
         </package>
-        <package name="sspl-plugin-edr-component" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.0.2/output" dest="." buildtype="dev">
-            <include src="SDDS-COMPONENT"   dest="sspl-edr-plugin" />
-        </package>
-        <package name="sspl-mdr-control-plugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-control-plugin/1.0.6/output" dest="." buildtype="dev">
-            <include src="SDDS-COMPONENT"   dest="sspl-mdr-control-plugin" />
-        </package>
-        <package name="sspl-mdr-componentsuite" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-mdr-componentsuite/1.0.6/output" dest="." buildtype="dev">
-            <include src="."   dest="sspl-mdr-componentsuite" />
-        </package>
-        <package name="sspl-thininstaller" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output" dest="." buildtype="dev">
-            <include src="."   dest="sspl-thininstaller" />
-        </package>
-        <package name="sspl-exampleplugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-exampleplugin/0.5.1/output" dest="." buildtype="dev">
-            <include src="SDDS-COMPONENT"   dest="sspl-exampleplugin" />
+
+        <!--        <package name="sspl-thininstaller" version="sspl-thininstaller/1-0-6-5/220942/output" dest="." buildtype="prod">-->
+        <!--            <include src="." dest="sspl-thininstaller"/>-->
+        <!--        </package>-->
+
+        <package name="sspl-exampleplugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-exampleplugin/0.5.1/output"
+                 dest="." buildtype="dev">
+            <include src="SDDS-COMPONENT" dest="sspl-exampleplugin"/>
         </package>
         <package name="sspl-audit" version="master/%LASTGOODCOMPONENTBUILD%/sspl-audit/0.5.1/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-audit" />
@@ -65,15 +82,65 @@
 
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/jake-2186" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-jake-2186/warehouse" />
-            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-jake-2186/warehouse" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-jake-2186/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-jake-2186/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-Base-EDR-Only-OldWarehouseStyle" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-Base-EDR-Only-OldWarehouseStyle/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-Base-EDR-Only-OldWarehouseStyle/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-edr-999" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-999/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-999/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-edr-mdr-999" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-mdr-999/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-mdr-999/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-mdr-999" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-mdr-999/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-mdr-999/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-mdr-999" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-mdr-999/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-mdr-999/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-edr-mdr-999" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-mdr-999/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-mdr-999/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-latest-recommended" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-latest-recommended/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-latest-recommended/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-only-beta" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-only-beta/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-only-beta/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-paused-updating" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-paused-updating/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-paused-updating/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/2186-warehouse-0-6-0" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-warehouse-0-6-0/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-warehouse-0-6-0/warehouse/warehouse" />
         </build-asset>
     </inputs>
 
     <buildcommands>
         <command>
             <program>./setOstiaVutBranch.sh</program>
-            <args>develop</args>
+            <args>feature-jake-2186</args>
             <workingdir>SupportFiles/jenkins</workingdir>
         </command>
     </buildcommands>
