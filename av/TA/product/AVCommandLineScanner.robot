@@ -496,8 +496,8 @@ CLS Scans Paths That Exist and Dont Exist
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/.clean_eicar_folder/eicar ${NORMAL_DIRECTORY}/.dont_exist/eicar ${NORMAL_DIRECTORY}/.doesnot_exist ${NORMAL_DIRECTORY}/clean_eicar
 
     Should Contain      ${output}  Scanning /home/vagrant/this/is/a/directory/for/scanning/.clean_eicar_folder/eicar
-    Should Contain      ${output}  Cannot scan "/home/vagrant/this/is/a/directory/for/scanning/.dont_exist/eicar": file/folder does not exist
-    Should Contain      ${output}  Cannot scan "/home/vagrant/this/is/a/directory/for/scanning/.doesnot_exist": file/folder does not exist
+    Should Contain      ${output}  Failed to scan "/home/vagrant/this/is/a/directory/for/scanning/.dont_exist/eicar": file/folder does not exist
+    Should Contain      ${output}  Failed to scan "/home/vagrant/this/is/a/directory/for/scanning/.doesnot_exist": file/folder does not exist
     Should Contain      ${output}  Scanning /home/vagrant/this/is/a/directory/for/scanning/clean_eicar
 
     Should Be Equal As Integers  ${rc}  ${FILE_NOT_FOUND_RESULT}
