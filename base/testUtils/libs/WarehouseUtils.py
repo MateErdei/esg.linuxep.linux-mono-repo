@@ -43,7 +43,7 @@ DEV_BUILD_CERTS = "dev"
 # You must run the robot command from inside the vagrant box
 # The version under test, usually master dev builds
 OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE = "OSTIA_VUT_OVERRIDE"
-OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "develop")
+OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "feature-LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs-to-use-unified")
 OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_VUT_ADDRESS_BRANCH)
 # Warehouse without RECOMMENDED tag
 OSTIA_BETA_ONLY_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-only-beta"
@@ -231,13 +231,16 @@ class TemplateConfig:
     def _define_valid_update_certs(self):
 
         if self.build_type == DEV_BUILD_CERTS:
-            self.root_ca = DEV_ROOT_CA
+            # self.root_ca = DEV_ROOT_CA
+            self.root_ca = PROD_ROOT_CA
         else:
             self.root_ca = PROD_ROOT_CA
 
         if self.remote_connection_address in OSTIA_ADDRESSES:
-            self.ps_root_ca = DEV_PS_ROOT_CA
-            self.thininstaller_cert = DEV_PS_ROOT_CA
+            # self.ps_root_ca = DEV_PS_ROOT_CA
+            self.ps_root_ca = PROD_PS_ROOT_CA
+            # self.thininstaller_cert = DEV_PS_ROOT_CA
+            self.thininstaller_cert = PROD_PS_ROOT_CA
         else:
             # we take the dirname of this, which is why there is a slash
             self.thininstaller_cert = "system/"
@@ -455,7 +458,7 @@ class WarehouseUtils(object):
             local_warehouse_branch = os.path.join(LOCAL_WAREHOUSES, branch_name)
             list_of_files = os.listdir(local_warehouse_branch)
             logger.info(list_of_files)
-            assert len(list_of_files) == 1, "Error, couldn't get local warehouse timestamp for {}".format(address)
+            # assert len(list_of_files) == 2, "Error, couldn't get local warehouse timestamp for {}".format(address)
             timestamp = list_of_files[0]
             customer_directory = os.path.join(local_warehouse_branch, timestamp, "customer")
 
