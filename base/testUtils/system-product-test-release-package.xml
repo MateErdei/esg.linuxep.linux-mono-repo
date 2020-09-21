@@ -55,7 +55,7 @@
 <!--            <include src="."   dest="websocket_server" />-->
 <!--        </package>-->
         <build-asset project="winep" repo="liveterminal">
-            <development-version branch="feature-abelard" />
+            <development-version branch="develop" />
             <include artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
             <include artifact-path="websocket_server" dest-dir="websocket_server" />
         </build-asset>
@@ -64,7 +64,7 @@
     <buildcommands>
         <command>
             <program>./setOstiaVutBranch.sh</program>
-            <args>develop</args>
+            <args>feature-abelard</args>
             <workingdir>SupportFiles/jenkins</workingdir>
         </command>
     </buildcommands>
