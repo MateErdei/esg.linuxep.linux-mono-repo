@@ -72,6 +72,7 @@ Run Telemetry Executable
     Remove File  ${TELEMETRY_EXECUTABLE_LOG}
 
     Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/bin/telemetry
+    Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/lib64/libtelemetry*
     ${result} =  Run Process  sudo  -u  sophos-spl-user  ${SOPHOS_INSTALL}/base/bin/telemetry  ${telemetryConfigFilePath}
 
     Log  "stdout = ${result.stdout}"
