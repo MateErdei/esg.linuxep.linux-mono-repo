@@ -89,6 +89,11 @@ def policy_dir():
     """
     return os.path.join(mcs_path(), 'policy')
 
+def flags_file():
+    """
+    flags_file
+    """
+    return "flags-mcs.json"
 
 def response_dir():
     """

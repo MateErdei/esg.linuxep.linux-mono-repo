@@ -1080,6 +1080,15 @@ class MCSConnection:
         LOGGER.debug("Request policy from {}".format(base_path + path))
         return self.send_message(path)
 
+    def get_flags(self):
+        """
+        Get flags from MCS
+        """
+        path = "/flags/endpoint/"
+        base_path = self.__m_current_path
+        LOGGER.debug("Request flags from {}".format(base_path + path))
+        return self.send_message_with_id(path)
+
     def get_policy_fragment(self, app_id, fragment_id):
         """
         get_policy_fragment
