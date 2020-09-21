@@ -44,8 +44,8 @@ def write_current_proxy_info(proxy):
         os.chown(filepath, get_uid("sophos-spl-local"), get_gid("sophos-spl-group"))
 
 def write_mcs_flags(info):
-    flag_file_name = path_manager.flags_file()
-    flag_file_path = os.path.join(path_manager.sophos_etc_dir(), flag_file_name)
+
+    flag_file_path = path_manager.mcs_flags_file()
     with open(flag_file_path, 'w') as outfile:
         json.dump(info, outfile)
     if os.getuid() == 0:

@@ -43,6 +43,7 @@ from .utils import default_values
 from .utils import plugin_registry
 from .utils import signal_handler
 from .utils import timestamp
+from .utils import write_json
 
 from .utils.get_ids import get_gid, get_uid
 
@@ -482,6 +483,8 @@ class MCS:
         push_notification_pipe_file_descriptor = push_client.notify_activity_pipe()
 
         last_command_time_check = 0
+        last_flag_time_check = 0
+
 
         running = True
         reregister = False
@@ -602,6 +605,15 @@ class MCS:
                         LOGGER.info("queuing response for %s", app_id)
                         add_response(file_path, app_id, correlation_id, timestamp.timestamp(
                             response_time), response_body)
+
+                    # check for new flags
+                    flags_polling = self.__m_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", self.DEFAULT_MAX_POLLING_INTERVAL)
+                    if (time.time() > last_flag_time_check + flags_polling) \
+                            or not os.path.exists(path_manager.mcs_flags_file()):
+                        mcs_flags_content = comms.get_flags()
+                        if mcs_flags_content:
+                            write_json.write_mcs_flags(mcs_flags_content)
+                        last_flag_time_check = time.time()
 
                     # send statuses, events and responses only if not in error state
                     if error_count == 0:
