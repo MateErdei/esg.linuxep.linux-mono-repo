@@ -85,10 +85,12 @@ Run Telemetry Executable
     Log To Console  "ldd = ${ldd_result.stdout}"
 
     Log To Console  -----PASSWD------
-    Log File  /etc/passwd
+    ${passwd_file} =  Get File  /etc/passwd
+    Log To Console  ${passwd_file}
 
     Log To Console  -----GROUP------
-    Log File  /etc/group
+    ${group_file} =  Get File  /etc/group
+    Log To Console  ${group_file}
 
     Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code: ${result.stderr}
 

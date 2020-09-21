@@ -56,8 +56,8 @@ def install_requirements(machine: tap.Machine):
     machine.run('bash', machine.inputs.test_scripts / "bin/install_pip_prerequisites.sh")
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
     try:
-        machine.run('useradd', 'sophos-spl-user')
         machine.run('groupadd', 'sophos-spl-group')
+        machine.run('useradd', 'sophos-spl-user', '-g', 'sophos-spl-group')
     except Exception as ex:
         # the previous command will fail if user already exists. But this is not an error
         print("On adding user and group: {}".format(ex))
