@@ -78,4 +78,5 @@ Run Telemetry Executable
     Log  "stdout = ${result.stdout}"
     Log  "stderr = ${result.stderr}"
 
-    Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code
+    Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code: ${result.stderr}
+
