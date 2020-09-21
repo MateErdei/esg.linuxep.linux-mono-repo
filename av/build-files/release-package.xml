@@ -61,9 +61,14 @@
 
     </inputs>
     <buildcommands>
-        <command mode="release">
+        <command mode="release,oldci">
             <program>/bin/bash</program>
             <args>./build.sh --ci --name av</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="debug">
+            <program>/bin/bash</program>
+            <args>./build.sh --ci --name av --debug</args>
             <workingdir>.</workingdir>
         </command>
         <command mode="coverage">
@@ -77,6 +82,7 @@
         <destdir>sspl-plugin-anti-virus</destdir>
 
         <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
+        <build-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug,coverage"/>
         <build-asset artifact-path="sspl-plugin-anti-virus" source-dir="output" mode="release,debug,coverage">
             <exclude glob="./SDDS-COMPONENT"/>
         </build-asset>
@@ -85,13 +91,13 @@
 
         <buildoutputs>
             <!-- rename logs for coverage builds -->
-            <output name="build_log" srcfolder="log" mode="debug,release"> </output>
+            <output name="build_log" srcfolder="log" mode="oldci"> </output>
             <output name="coverage_log" srcfolder="log" mode="coverage"> </output>
 
             <!-- rename output for coverage builds -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"> </output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"> </output>
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
-        <publishbranches>master,feature/2020.38_update_inputs</publishbranches>
+        <publishbranches>master,feature/LINUXDAR-2242_unified_pipeline</publishbranches>
     </publish>
 </package>
