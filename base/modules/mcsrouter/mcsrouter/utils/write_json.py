@@ -47,6 +47,6 @@ def write_mcs_flags(info):
 
     flag_file_path = path_manager.mcs_flags_file()
     with open(flag_file_path, 'w') as outfile:
-        json.dump(info, outfile)
+        outfile.write(info)
     if os.getuid() == 0:
         os.chown(flag_file_path, get_uid("sophos-spl-local"), get_gid("sophos-spl-group"))
