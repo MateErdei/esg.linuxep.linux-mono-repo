@@ -62,7 +62,7 @@ namespace
                 {
                     if (PathUtils::startswith(p, e))
                     {
-                        LOGINFO("Skipping the scanning of symlink target (" << escapedPath << ") which is on excluded mount point: " << e);
+                        LOGINFO("Skipping the scanning of symlink target (" << p << ") which is on excluded mount point: " << e);
                         return;
                     }
                 }

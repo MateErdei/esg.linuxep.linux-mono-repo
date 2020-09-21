@@ -221,7 +221,7 @@ TEST_F(TestCommandLineScanRunner, exclusionIsFileToScan) // NOLINT
 
     fs::remove_all("/tmp/sandbox");
 
-    ASSERT_TRUE(appenderContains("Excluding file: \"/tmp/sandbox/a/b/file1.txt\""));
+    ASSERT_TRUE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 

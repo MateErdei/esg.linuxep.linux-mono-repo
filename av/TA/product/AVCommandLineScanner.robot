@@ -324,20 +324,20 @@ CLS Encoded Eicars
    Remove Directory  /tmp/encoded_eicars  true
 
 CLS Exclusions Filename
-   Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
-   Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
-   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
-   Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude eicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude eicar
 
-   Log To Console  return code is ${rc}
-   Log To Console  output is ${output}
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
 
-   Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
-   Should Contain       ${output}  Excluding file: "${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar"
-   Should Contain       ${output}  Excluding file: "${NORMAL_DIRECTORY}/clean_eicar_folder/eicar"
-   Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
+    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
+    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Exclusions Folder
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
@@ -367,7 +367,7 @@ CLS Exclusions Folder And File
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
 
-    Should Contain       ${output}  Excluding file: "${NORMAL_DIRECTORY}/clean_eicar"
+    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
     Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar
     Should Contain       ${output}  Excluding directory: ${NORMAL_DIRECTORY}/clean_eicar_folder/
     File Log Should Not Contain  ${AV_LOG_PATH}   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
