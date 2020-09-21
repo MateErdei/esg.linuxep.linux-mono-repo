@@ -2,7 +2,7 @@
 <package name="system-product-tests">
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
-        <package name="sspl-base" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.4/output" dest="." buildtype="dev">
+        <package name="sspl-base" version="abelard/%LASTGOODCOMPONENTBUILD%/sspl-base/1.1.4/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-base" />
             <include src="SystemProductTestOutput.tar.gz"   dest="SystemProductTestOutput" />
         </package>
