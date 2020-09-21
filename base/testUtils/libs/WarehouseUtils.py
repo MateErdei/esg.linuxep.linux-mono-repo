@@ -72,7 +72,6 @@ OSTIA_ADDRESSES = {
                     OSTIA_VUT_ADDRESS: "2233",
                     OSTIA_PREV_ADDRESS: "3233",
                     OSTIA_0_6_0_ADDRESS: "4233",
-                    OSTIA_GA_ADDRESS: "5233",
                     OSTIA_PAUSED_ADDRESS: "6233",
                     OSTIA_EDR_999_ADDRESS: "7233",
                     OSTIA_MTR_999_ADDRESS: "7237",
