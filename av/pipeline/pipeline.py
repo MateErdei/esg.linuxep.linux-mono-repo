@@ -113,6 +113,7 @@ def pytest_task(machine: tap.Machine):
 
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False) -> Dict[str, Input]:
     print(str(build))
+    supplement_branch = "z"
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
@@ -120,9 +121,9 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         # tapartifact upload-file
         # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
         # /mnt/filer6/lrdata/sophos-susi-lrdata/20200219/lrdata/2020021901/reputation.zip
-        local_rep=context.artifact.from_component('ssplav-localrep', 'released', None) / 'reputation',
-        vdl=context.artifact.from_component('ssplav-vdl', 'released', None) / 'vdl',
-        ml_model=context.artifact.from_component('ssplav-mlmodel', 'released', None) / 'model',
+        local_rep=context.artifact.from_component('ssplav-localrep', supplement_branch, None) / 'reputation',
+        vdl=context.artifact.from_component('ssplav-vdl', supplement_branch, None) / 'vdl',
+        ml_model=context.artifact.from_component('ssplav-mlmodel', supplement_branch, None) / 'model',
     )
     # override the av input and get the bullseye coverage build instead
     if coverage:
