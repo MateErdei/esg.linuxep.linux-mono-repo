@@ -49,14 +49,59 @@
             <include src="openssl.tar" dest="."/>
         </package>
 
-        <!-- SUSI imports
+        <!-- SUSI imports -->
 
-        <package name="sspl-plugin-av-susi-component"
-                 version="master/%LASTGOODCOMPONENTBUILD%/sspl-plugin-av-susi-component/0.5.0/output"
-                 dest="input" buildtype="dev">
-        -->
-        <package name="sspl-plugin-av-susi-component" version="0-5-0-55/221220/output" dest="input">
-            <include src="susi.tar" dest="."/>
+        <package name="libsavi-packages" internal_name="savi" version="3-78-6/218487" dest="input/susi_input" >
+            <include src="packages/linux.amd64.glibc.2.3-gcc4.8.1/libsavi.so.3.*" dest="libsavi" />
+            <include src="packages/linux.amd64.glibc.2.3-gcc4.8.1/libssp.so.0" dest="libsavi"  />
+        </package>
+
+        <package name="model-linux-x64" version="1-3/212025" dest="input/susi_input" >
+            <include src="oempackage/linux-x64-model-gcc4.8.1.tar" dest="mllib"  />
+        </package>
+
+        <package name="liblocalrep-linux-x86_64" version="1-0/212029" dest="input/susi_input" >
+            <include src="release/liblocalrep.so" dest="lrlib" />
+        </package>
+
+        <package name="libsophtainer-linuxamd64-glibc2_3" internal_name="libsophtainer" version="1-0-0/218312" dest="input/susi_input" >
+            <include src="package/libsophtainer.tar" dest="libsophtainer" />
+        </package>
+
+        <package name="susi" version="1-0-0-4589/221205" dest="input/susi_input" >
+            <include src="release/susi-centos7-x64-gcc810/lib" dest="susi/lib"/>
+            <include src="release/susi-centos7-x64-gcc810/include" dest="susi/include"/>
+        </package>
+
+        <package name="susi" version="1-0-0-4498/221037" dest="input/susi_input" >
+            <include src="rules/rules" dest="rules" />
+        </package>
+
+        <package name="httpsrequester" version="1-0-0-757/221146" dest="input/susi_input" >
+            <include src="release/libglobalrep-centos7-x64-gcc810/lib" dest="gr/lib"/>
+        </package>
+
+        <!-- external dependencies -->
+        <package name="openssl" version="1-1-1d-6/219246" dest="input/susi_input" >
+            <include src="release/lib" dest="openssl/lib" />
+        </package>
+
+        <package name="boost" version="1-69-0-93/219328" dest="input/susi_input" >
+            <include src="release/boost.tar.bz2" dest="boost" />
+        </package>
+
+        <package name="icu" version="64-2-50/219250"  dest="input/susi_input" >
+            <include src="lib/libicudata.so.64.*" dest="icu/lib" />
+            <include src="lib/libicui18n.so.64.*" dest="icu/lib" />
+            <include src="lib/libicuuc.so.64.*" dest="icu/lib"/>
+        </package>
+
+        <package name="libarchive" version="64-2-7/219360" dest="input/susi_input" >
+            <include src="lib/libarchive.so.13.*" dest="libarchive/lib" />
+        </package>
+
+        <package name="luajit" version="2-0-5-52/219247" dest="input/susi_input" >
+            <include src="lib/libluajit-5.1.so.*" dest="luajit/lib" />
         </package>
 
     </inputs>

@@ -284,6 +284,11 @@ function unzip_lrdata()
     popd
 }
 
+function setup_susi()
+{
+    python3 $BASE/build/setup_tree.py
+}
+
 function build()
 {
     local BITS=$1
@@ -304,6 +309,7 @@ function build()
     then
         rm -rf "$REDIST"
         mkdir -p "$REDIST"
+        setup_susi
         (( LOCAL_GCC == 0 )) && unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" "${PLUGIN_TAR}"
         python3 "$BASE"/build-files/create_library_links.py $REDIST
@@ -311,9 +317,7 @@ function build()
         untar_input capnproto
         untar_input boost
         untar_input $GOOGLETESTTAR
-        untar_input susi "" "" optional
         untar_input openssl
-        unzip_lrdata
     else
         (( LOCAL_GCC == 0 )) && set_gcc_make
     fi
