@@ -25,7 +25,7 @@ properties([
     string(name: 'CommitHash', defaultValue: ''),
     string(name: 'PortalId', defaultValue: ''),
     string(name: 'PortalAddress', defaultValue: ''),
-    string(name: 'Mode', defaultValue: 'release')
+    string(name: 'Mode', defaultValue: 'oldci')
   ])
 ])
 
