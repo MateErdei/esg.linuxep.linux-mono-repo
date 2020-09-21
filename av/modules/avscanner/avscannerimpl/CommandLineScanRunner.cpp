@@ -44,6 +44,9 @@ namespace
 
         void processFile(const fs::path& p, bool symlinkTarget) override
         {
+            std::string escapedPath(p);
+            common::escapeControlCharacters(escapedPath);
+
             if (symlinkTarget)
             {
                 fs::path symlinkTargetPath = p;
@@ -56,20 +59,18 @@ namespace
 
                     if (PathUtils::startswith(symlinkTargetPath, e))
                     {
-                        LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is on excluded mount point: " << e);
+                        LOGINFO("Skipping the scanning of symlink target (" << escapedPath << ") which is on excluded mount point: " << e);
                         return;
                     }
                 }
             }
 
-            std::string escapedPath(p);
-            common::escapeControlCharacters(escapedPath);
 
             for (const auto& exclusion : m_cmdExclusions)
             {
                 if (exclusion.appliesToPath(p))
                 {
-                    LOGINFO("Excluding file: " << p);
+                    LOGINFO("Excluding file: " << escapedPath);
                     return;
                 }
             }
@@ -104,9 +105,9 @@ namespace
         {
             for (const auto& exclusion : m_cmdExclusions)
             {
-                if (exclusion.appliesToPath(appendForwardSlashToPath(p), true))
+                if (exclusion.appliesToPath(PathUtils::appendForwardSlashToPath(p), true))
                 {
-                    LOGINFO("Excluding directory: " << appendForwardSlashToPath(p));
+                    LOGINFO("Excluding directory: " << PathUtils::appendForwardSlashToPath(p));
                     return true;
                 }
             }
@@ -125,15 +126,6 @@ namespace
                     m_currentExclusions.emplace_back(e);
                 }
             }
-        }
-
-        std::string appendForwardSlashToPath(const sophos_filesystem::path& p)
-        {
-            if (p.string().at(p.string().size()-1) != '/')
-            {
-                return p.string() + "/";
-            }
-            return p.string();
         }
 
     private:

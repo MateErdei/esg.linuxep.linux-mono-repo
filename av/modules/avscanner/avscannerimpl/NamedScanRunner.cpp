@@ -53,13 +53,16 @@ namespace
 
         void processFile(const sophos_filesystem::path& p, bool symlinkTarget) override
         {
+            std::string escapedPath(p);
+            common::escapeControlCharacters(escapedPath);
+
             if (symlinkTarget)
             {
                 for (const auto& e : m_mountExclusions)
                 {
                     if (PathUtils::startswith(p, e))
                     {
-                        LOGINFO("Symlink to file on excluded mount point: " << e);
+                        LOGINFO("Skipping the scanning of symlink target (" << escapedPath << ") which is on excluded mount point: " << e);
                         return;
                     }
                 }
@@ -69,16 +72,20 @@ namespace
             {
                 if (exclusion.appliesToPath(p))
                 {
+                    LOGINFO("Excluding file: " << escapedPath);
                     return;
                 }
             }
+
+            LOGINFO("Scanning " << escapedPath);
+
             try
             {
                 m_scanner.scan(p, symlinkTarget);
             }
             catch (const std::exception& e)
             {
-                LOGERROR("Failed to scan" << p << " [" << e.what() << "]");
+                LOGERROR("Failed to scan" << escapedPath << " [" << e.what() << "]");
                 m_returnCode = E_GENERIC_FAILURE;
             }
         }
@@ -103,6 +110,7 @@ namespace
             {
                 if (exclusion.appliesToPath(p) && exclusion.type() != FILENAME)
                 {
+                    LOGINFO("Excluding directory: " << PathUtils::appendForwardSlashToPath(p));
                     return true;
                 }
             }
@@ -168,7 +176,6 @@ int NamedScanRunner::run()
     for (auto & mp : includedMountpoints)
     {
         std::string mountpointToScan = mp->mountPoint();
-        LOGINFO("Scanning mount point: " << mountpointToScan);
         try
         {
             filewalker::walk(mountpointToScan, callbacks);
