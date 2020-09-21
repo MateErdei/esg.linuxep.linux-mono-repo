@@ -18,15 +18,30 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
 {
     if(starting_point.string().size() > 4096)
     {
-        std::string errorMsg = "Starting Path too long";
+        std::string errorMsg = "Failed to scan: starting Path too long";
         LOGERROR(errorMsg);
         std::error_code ec (ENAMETOOLONG, std::system_category());
         throw fs::filesystem_error(errorMsg, ec);
     }
-    else if (!fs::exists(starting_point))
+
+    bool fileExists;
+
+    try
+    {
+        fileExists = fs::exists(starting_point);
+    }
+    catch(fs::filesystem_error& e)
     {
         std::ostringstream oss;
-        oss << "Cannot scan " << starting_point << ": file/folder does not exist";
+        oss << "Failed to scan " << starting_point << ": " << e.code().message();
+        LOGERROR(oss.str());
+        throw fs::filesystem_error(oss.str(), e.code());
+    }
+
+    if (!fileExists)
+    {
+        std::ostringstream oss;
+        oss << "Failed to scan " << starting_point << ": file/folder does not exist";
         LOGERROR(oss.str());
         std::error_code ec (ENOENT, std::system_category());
         throw fs::filesystem_error(oss.str(), ec);
@@ -70,7 +85,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         catch(fs::filesystem_error& e)
         {
-            LOGERROR("Failed to scan, path too long: " << p);
+            LOGERROR("Failed to access " << starting_point << ": " << e.code().message());
             iterator.disable_recursion_pending();
             continue;
         }
