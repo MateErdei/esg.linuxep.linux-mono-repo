@@ -95,7 +95,7 @@
             <output name="coverage_log" srcfolder="log" mode="coverage"> </output>
 
             <!-- rename output for coverage builds -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"> </output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="oldci,release,debug"> </output>
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"> </output>
         </buildoutputs>
         <publishbranches>master,feature/LINUXDAR-2242_unified_pipeline</publishbranches>
