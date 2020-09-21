@@ -607,7 +607,7 @@ class MCS:
                             response_time), response_body)
 
                     # check for new flags
-                    flags_polling = self.__m_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", self.DEFAULT_MAX_POLLING_INTERVAL)
+                    flags_polling = self.__m_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", default_values.get_default_flags_poll())
                     if (time.time() > last_flag_time_check + flags_polling) \
                             or not os.path.exists(path_manager.mcs_flags_file()):
                         mcs_flags_content = comms.get_flags()

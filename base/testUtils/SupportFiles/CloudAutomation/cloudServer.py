@@ -1178,6 +1178,15 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
         return self.ret(commands)
 
+    def mcs_flags(self):
+        FLAGS = r"""{
+  "endpoint.flag1.enabled" : "true",
+  "endpoint.flag2.enabled" : "false",
+  "endpoint.flag3.enabled" : "force"
+}
+"""
+        return self.ret(FLAGS)
+
     def mcs_policy(self):
         mo = re.match(r"/mcs/policy/application/([^/]+)/([^/]+)", self.path)
         logger.info("Requesting policy - %s   %s", mo.group(1), mo.group(2))
@@ -1314,6 +1323,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.mcs_policy()
         elif self.path.startswith('/mcs/push/endpoint/'):
             return self.push_redirect()
+        elif self.path.startswith("/mcs/flags/endpoint/"):
+            return self.mcs_flags()
 
         return self.ret("Unknown MCS verb", code=500)
 
