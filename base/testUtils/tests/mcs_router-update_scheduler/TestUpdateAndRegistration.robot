@@ -244,6 +244,10 @@ Verify Failure Event Is Sent on Update Failed
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
 
+    # Remove certs so that update fails
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/rootca.crt
+    Remove FILE  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+
     Override LogConf File as Global Level  DEBUG
     Start System Watchdog
 
