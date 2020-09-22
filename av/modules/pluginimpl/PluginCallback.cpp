@@ -61,17 +61,18 @@ namespace Plugin
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
-        Common::Telemetry::TelemetryHelper::getInstance().set("ml-pe-model-hash", getMlModelHash());
-        Common::Telemetry::TelemetryHelper::getInstance().set("version", getPluginVersion());
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        telemetry.set("ml-pe-model-hash", getMlModelHash());
+        telemetry.set("version", getPluginVersion());
 
-        return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+        return telemetry.serialiseAndReset();
     }
 
     std::string PluginCallback::getMlModelHash()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
-        mlModel /= "chroot/susi/distribution_version/version1/mlmodel/model.dat.0";
+        mlModel /= "chroot/susi/distribution_version/version1/mlmodel/model.dat";
 
         std::ifstream ifs (mlModel, std::ifstream::in);
         std::string mlModelContents((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());

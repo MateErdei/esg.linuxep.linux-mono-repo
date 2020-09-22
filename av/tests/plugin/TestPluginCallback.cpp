@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 #include <gtest/gtest.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
 
@@ -20,6 +21,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define BASE "/tmp/TestPluginCallback"
 
 namespace fs = sophos_filesystem;
+using json = nlohmann::json;
 
 namespace
 {
@@ -37,7 +39,7 @@ namespace
             std::ofstream versionFileStream;
             versionFileStream.open(m_versionFile);
             versionFileStream << "PRODUCT_NAME = Sophos Server Protection Linux - av" << std::endl;
-            versionFileStream << "PRODUCT_VERSION = 1.2.3.456" << std::endl;
+            versionFileStream << "PRODUCT_VERSION = " << m_initialExpectedVersion << std::endl;
             versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
             versionFileStream.close();
 
@@ -45,44 +47,60 @@ namespace
             mlDirPath /= "chroot/susi/distribution_version/version1/mlmodel";
             fs::create_directories(mlDirPath);
             m_mlFilePath = mlDirPath;
-            m_mlFilePath /= "model.dat.0";
+            m_mlFilePath /= "model.dat";
 
             std::ofstream mlFilePathStream;
             mlFilePathStream.open(m_mlFilePath);
             mlFilePathStream << "1"  << std::endl;
             mlFilePathStream.close();
+
+            std::shared_ptr<Plugin::QueueTask> task = nullptr;
+            m_pluginCallback = std::make_shared<Plugin::PluginCallback>(task);
         };
 
+
+        std::shared_ptr<Plugin::PluginCallback> m_pluginCallback;
         fs::path m_versionFile;
         fs::path m_mlFilePath;
+        std::string m_initialExpectedVersion = "1.2.3.456";
+        std::string m_initialExpectedMlHash = "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865";
     };
 }
 
-TEST_F(TestPluginCallback, getTelemetry) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_version) //NOLINT
 {
-    // Note: telemetry dictionary appears to be alphabetically sorted
-    std::string initialExpectedJson{ R"sophos({"ml-pe-model-hash":"4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865","version":"1.2.3.456"})sophos" };
-    std::string modifiedExpectedJson{ R"sophos({"ml-pe-model-hash":"53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3","version":"1.2.3.457"})sophos" };
+    std::string modifiedVersion = "1.2.3.457";
 
-    std::shared_ptr<Plugin::QueueTask> task = nullptr;
-    Plugin::PluginCallback pluginCallback(task);
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
-    std::string initialTelemetry = pluginCallback.getTelemetry();
+    EXPECT_EQ(initialTelemetry["version"], m_initialExpectedVersion);
 
     std::ofstream versionFileStream;
     versionFileStream.open(m_versionFile);
     versionFileStream << "PRODUCT_NAME = Sophos Server Protection Linux - av" << std::endl;
-    versionFileStream << "PRODUCT_VERSION = 1.2.3.457" << std::endl;
+    versionFileStream << "PRODUCT_VERSION = " << modifiedVersion << std::endl;
     versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
     versionFileStream.close();
+
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(modifiedTelemetry["version"], modifiedVersion);
+}
+
+TEST_F(TestPluginCallback, getTelemetry_mlData) //NOLINT
+{
+    std::string modifiedExpectedMlHash = "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3";
+
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(initialTelemetry["ml-pe-model-hash"], m_initialExpectedMlHash);
 
     std::ofstream mlFilePathStream;
     mlFilePathStream.open(m_mlFilePath);
     mlFilePathStream << "2"  << std::endl;
     mlFilePathStream.close();
 
-    std::string modifiedTelemetry = pluginCallback.getTelemetry();
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
-    EXPECT_EQ(initialTelemetry, initialExpectedJson);
-    EXPECT_EQ(modifiedTelemetry, modifiedExpectedJson);
+    EXPECT_EQ(modifiedTelemetry["ml-pe-model-hash"], modifiedExpectedMlHash);
 }

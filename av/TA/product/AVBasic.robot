@@ -49,13 +49,6 @@ AV plugin Can Send Status
 
     Wait For Plugin Status  av  SAV  RevID="123"  Res="Same"  <product-version>${version}</product-version>
 
-    ${telemetryString}=  Get Plugin Telemetry  av
-
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
-
-    Dictionary Should Contain Key   ${telemetryJson}   version
-    Dictionary Should Contain Key   ${telemetryJson}   ml-pe-model-hash
-
     ${result} =   Terminate Process  ${handle}
 
 
