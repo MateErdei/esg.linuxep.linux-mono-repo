@@ -4,6 +4,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include "ScanScheduler.h"
 #include "Logger.h"
 #include "ScanRunner.h"
@@ -93,6 +94,7 @@ void manager::scheduler::ScanScheduler::run()
             if (fd_isset(scanNowFD, &tempRead))
             {
                 LOGINFO("Starting Scan Now");
+                Common::Telemetry::TelemetryHelper::getInstance().increment("scan-now-count", (long) 1);
                 runNextScan(m_config.scanNowScan());
                 while (m_scanNowPipe.notified())
                 {

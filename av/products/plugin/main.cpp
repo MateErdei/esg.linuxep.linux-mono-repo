@@ -18,6 +18,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <pluginimpl/PluginAdapter.h>
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 const char* PluginName = PLUGIN_NAME;
 
@@ -55,6 +56,9 @@ int main()
 
     PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
 
+    // this will also se the save file name
+    Common::Telemetry::TelemetryHelper::getInstance().restore("av");
+
     try
     {
         pluginAdapter.mainLoop();
@@ -64,6 +68,9 @@ int main()
         LOGERROR("Exception caught from plugin at top level: " << ex.what());
         ret = 40;
     }
+
+    Common::Telemetry::TelemetryHelper::getInstance().save();
+
     LOGINFO("Exiting AV plugin");
     return ret;
 }
