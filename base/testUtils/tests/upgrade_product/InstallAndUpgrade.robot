@@ -192,7 +192,7 @@ VersionCopy File in the Wrong Location Is Removed
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -419,7 +419,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     # ensure that the list of files to remove contains files which are outside of the components realm
     ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
@@ -520,15 +520,6 @@ Version Copy Versions All Changed Files When Upgrading
 
     Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestBase}       ${AfterManifestBase}        ${combinedBaseChanges}
     Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestPluginMdr}  ${AfterManifestPluginMdr}   ${combinedPluginMdrChanges}
-
-    # FIXME LINUXDAR-2136   remove this section when we switch to prod builds
-    #confirm product can still update after failed update
-    Prepare Installation For Upgrade Using Policy  ${BaseAndMtrVUTPolicy}
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   100 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  5
 
 
 Update Will Be Forced When Feature List Changes Without Unexpected Errors

@@ -55,7 +55,7 @@ OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(
 # The GA Release
 OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone"
 # A version with mocked libraries (to test file removal on upgrade)
-OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-2186-warehouse-0-6-0"
+OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-2186-jake-060"
 # a version with edr 9.99.9 for downgrade tests
 OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-2186-edr-999"
 OSTIA_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-2186-mdr-999"

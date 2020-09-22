@@ -131,9 +131,9 @@
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-paused-updating/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="feature/2186-warehouse-0-6-0" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-warehouse-0-6-0/warehouse/customer" />
-            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-warehouse-0-6-0/warehouse/warehouse" />
+            <development-version branch="feature/2186-jake-060" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-jake-060/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-jake-060/warehouse/warehouse" />
         </build-asset>
     </inputs>
 
