@@ -269,10 +269,13 @@ AV Plugin Can Send Telemetry
 
 AV plugin Saves and Restores Scan Now Counter
     Check AV Plugin Installed With Base
+
     Configure and check scan now
 
     Stop AV Plugin
     Start AV Plugin
+
+    Prepare To Run Telemetry Executable
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
     Wait Until Keyword Succeeds
