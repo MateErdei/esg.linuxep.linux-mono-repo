@@ -274,7 +274,7 @@ Install Base And EDR Then Migrate To BASE
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
 Install base and edr and mtr 999 then downgrade to current master
     Install EDR  ${BaseAndMTREdr999Policy}
@@ -285,7 +285,7 @@ Install base and edr and mtr 999 then downgrade to current master
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
@@ -323,7 +323,7 @@ Install base and edr and mtr 999 then downgrade to current master
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
@@ -374,7 +374,7 @@ Install master of base and edr and mtr and upgrade to mtr 999
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
     Check MDR Plugin Installed
 
     ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
@@ -429,7 +429,7 @@ Install master of base and edr and mtr and upgrade to edr 999
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
@@ -525,9 +525,9 @@ Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
+    ...   200 secs
+    ...   5 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     # ensure MTR plugin is installed and running
     Wait For MDR To Be Installed
@@ -545,9 +545,9 @@ Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR
 
     Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   2
+    ...   20 secs
+    ...   1 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Wait For EDR to be Installed
 
@@ -573,9 +573,9 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
+    ...   200 secs
+    ...   5 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     # ensure EDR plugin is installed and running
     Wait For EDR to be Installed
@@ -595,7 +595,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Wait Until MDR Installed
 
@@ -622,9 +622,9 @@ Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
+    ...   200 secs
+    ...   5 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     # ensure initial plugins are installed and running
     Wait Until MDR Installed
@@ -642,7 +642,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   2
+    ...  Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Wait Until EDR Uninstalled
 
@@ -664,9 +664,9 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   1
+    ...   200 secs
+    ...   5 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     # ensure initial plugins are installed and running
     Wait Until MDR Installed
@@ -686,7 +686,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Update success   2
+    ...  Check MCS Envelope Contains Event Success On N Event Sent  2
 
     # ensure EDR still running after update
     EDR Plugin Is Running
