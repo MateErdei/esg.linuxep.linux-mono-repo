@@ -289,7 +289,7 @@ AV plugin Saves and Restores Scan Now Counter
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
 
-    Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   1
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   1
 
     Configure and check scan now
 
