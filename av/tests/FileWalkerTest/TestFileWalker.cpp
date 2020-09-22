@@ -180,7 +180,7 @@ TEST_F(TestFileWalker, hugeStartingFilePath) // NOLINT
     }
     catch (fs::filesystem_error& e)
     {
-        EXPECT_EQ(e.what(), std::string("filesystem error: Failed to scan starting Path too long: File name too long"));
+        EXPECT_EQ(e.what(), std::string("filesystem error: Failed to start scan: Starting Path too long: File name too long"));
         EXPECT_EQ(e.code().value(), ENAMETOOLONG);
     }
 
