@@ -279,7 +279,7 @@ namespace Common
                 {
                 path = Common::FileSystem::join(
                         getLocalUninstallSymLinkPath(),
-                        component + ".sh");
+                        component + ".ini");
             }
 
             if (!Common::FileSystem::fileSystem()->isFile(path))

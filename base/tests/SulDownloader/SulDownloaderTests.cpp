@@ -303,7 +303,7 @@ public:
         EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/VERSION.ini"))
             .WillOnce(Return(newVersionContents));
         EXPECT_CALL(fileSystemMock, isFile("/installroot/base/VERSION.ini"))
-            .WillOnce(Return(true));
+                .WillRepeatedly(Return(true));
         EXPECT_CALL(fileSystemMock, readLines("/installroot/base/VERSION.ini"))
             .WillOnce(Return(currentVersionContents));
 
@@ -318,9 +318,9 @@ public:
             .WillOnce(Return(true));
         EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/VERSION.ini"))
             .WillOnce(Return(newVersionContents));
-        EXPECT_CALL(fileSystemMock, isFile("/installroot/plugins/edr/VERSION.ini"))
-            .WillOnce(Return(true));
-        EXPECT_CALL(fileSystemMock, readLines("/installroot/plugins/edr/VERSION.ini"))
+        EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.ini"))
+                .WillRepeatedly(Return(true));
+        EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.ini"))
             .WillOnce(Return(currentVersionContents));
     }
 
