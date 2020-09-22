@@ -103,10 +103,17 @@ DEST = ""
 
 
 def process(baseurl, filename, dirname):
-    latest = get_latest(baseurl, filename)
+    global DEST
     zip_file = os.path.join(DEST, ensure_binary(filename))
+    dest_dir = os.path.join(DEST, dirname)
+    if os.path.isdir(dest_dir) and not os.path.isfile(zip_file):
+        # If we don't have a zip file but do have the dir, assume we are running in TAP
+        log("Assuming %s is already suitable" % dest_dir)
+        return
+
+    latest = get_latest(baseurl, filename)
     if download_url(latest, zip_file):
-        unpack(zip_file, os.path.join(DEST, dirname))
+        unpack(zip_file, dest_dir)
 
 
 def run(dest):

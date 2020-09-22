@@ -26,19 +26,6 @@ import downloadSupplements
 downloadSupplements.LOGGER = logger
 ensure_binary = downloadSupplements.ensure_binary
 
-def download_supplements(dest):
-    # ensure manual dir is on sys.path
-    ret = downloadSupplements.run(dest)
-    assert ret == 0
-
-
-def susi_dir(install_set):
-    return createInstallSet.susi_dir(install_set)
-
-
-def setup_install_set(install_set, sdds_component, vdl, ml_model, local_rep):
-    return createInstallSet.setup_install_set(install_set, sdds_component, vdl, ml_model, local_rep)
-
 
 class InstallSet(object):
     def __init__(self):
