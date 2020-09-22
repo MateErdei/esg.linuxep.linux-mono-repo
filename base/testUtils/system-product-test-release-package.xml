@@ -6,13 +6,13 @@
             <include src="SDDS-COMPONENT"   dest="sspl-base" />
             <include src="SystemProductTestOutput.tar.gz"   dest="SystemProductTestOutput" />
         </package>
-        <package name="sspl-plugin-edr-component" version="feature-LINUXDAR-2037-new-downgrade-path/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.1.0/output" dest="." buildtype="dev">
+        <package name="sspl-plugin-edr-component" version="menaga/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.1.0/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-edr-plugin" />
         </package>
-        <package name="sspl-mdr-control-plugin" version="feature-LINUXDAR-2037-new-downgrade-path/%LASTGOODCOMPONENTBUILD%/sspl-mdr-control-plugin/1.0.7/output" dest="." buildtype="dev">
+        <package name="sspl-mdr-control-plugin" version="menaga/%LASTGOODCOMPONENTBUILD%/sspl-mdr-control-plugin/1.0.7/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-mdr-control-plugin" />
         </package>
-        <package name="sspl-mdr-componentsuite" version="feature-LINUXDAR-2037-new-downgrade-path/%LASTGOODCOMPONENTBUILD%/sspl-mdr-componentsuite/1.0.7/output" dest="." buildtype="dev">
+        <package name="sspl-mdr-componentsuite" version="menaga/%LASTGOODCOMPONENTBUILD%/sspl-mdr-componentsuite/1.0.7/output" dest="." buildtype="dev">
             <include src="."   dest="sspl-mdr-componentsuite" />
         </package>
         <package name="sspl-thininstaller" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output" dest="." buildtype="dev">
