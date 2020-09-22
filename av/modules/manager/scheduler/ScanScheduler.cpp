@@ -4,12 +4,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include "ScanScheduler.h"
 #include "Logger.h"
 #include "ScanRunner.h"
 #include "ScanSerialiser.h"
 
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 using namespace manager::scheduler;
 
 const time_t INVALID_TIME = static_cast<time_t>(-1);
