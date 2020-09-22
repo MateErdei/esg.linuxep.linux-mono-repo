@@ -90,6 +90,7 @@ def download_url(url, dest):
 
     log("Downloading from", url, "to", ensure_unicode(dest))
     urllib.request.urlretrieve(url, dest)
+    assert sha256hash(dest) == data['checksums']['sha256']
     return True
 
 
