@@ -1,6 +1,7 @@
 *** Settings ***
 Documentation   Product tests for AVP
 Default Tags    PRODUCT  AV_BASIC
+Library         Collections
 Library         DateTime
 Library         Process
 Library         OperatingSystem
@@ -48,8 +49,14 @@ AV plugin Can Send Status
 
     Wait For Plugin Status  av  SAV  RevID="123"  Res="Same"  <product-version>${version}</product-version>
 
-    ${telemetry}=  Get Plugin Telemetry  av
-    Should Contain  ${telemetry}   {"version":"${version}"}
+    ${telemetryString}=  Get Plugin Telemetry  av
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    Dictionary Should Contain Key   ${avDict}   version
+    Dictionary Should Contain Key   ${avDict}   ml-pe-model-hash
 
     ${result} =   Terminate Process  ${handle}
 

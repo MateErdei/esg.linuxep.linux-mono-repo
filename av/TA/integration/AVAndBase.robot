@@ -1,6 +1,7 @@
 *** Settings ***
 Documentation    Integration tests for AVP and Base
 Default Tags  INTEGRATION
+Library         Collections
 Library         OperatingSystem
 Library         Process
 Library         String

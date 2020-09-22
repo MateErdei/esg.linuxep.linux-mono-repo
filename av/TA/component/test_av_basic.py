@@ -1,6 +1,7 @@
 import inspect
 import sys
 
+import json
 import logging
 logger = logging.getLogger("test_av_basic")
 logger.setLevel(logging.DEBUG)
@@ -30,5 +31,7 @@ def test_av_can_send_telemetry(sspl_mock, av_plugin_instance):
     av_plugin_instance.start_av()
     agent = sspl_mock.management
     av_telemetry = agent.get_plugin_telemetry('av')
-    assert "version" in av_telemetry
+    av_dict = json.loads(av_telemetry)
+    assert "ml-pe-model-hash" in av_dict
+    assert "version" in av_dict
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)
