@@ -266,34 +266,27 @@ namespace Common
 
         std::string ApplicationPathManager::getVersionIniFileForComponent(const std::string& component) const
         {
+            std::string path;
             if (component == "ServerProtectionLinux-Base")
             {
-                return Common::FileSystem::join(sophosInstall(), "base/VERSION.ini");
+                path = Common::FileSystem::join(sophosInstall(), "base/VERSION.ini");
             }
             else if (component == "ServerProtectionLinux-Base-component")
             {
-                return Common::FileSystem::join(sophosInstall(), "base/VERSION.ini");
-            }
-            else if (component == "ServerProtectionLinux-Plugin-EDR")
-            {
-                return Common::FileSystem::join(sophosInstall(), "plugins/edr/VERSION.ini");
-            }
-            else if (component == "ServerProtectionLinux-Plugin-liveresponse")
-            {
-                return Common::FileSystem::join(sophosInstall(), "plugins/liveresponse/VERSION.ini");
-            }
-            else if (component == "ServerProtectionLinux-Plugin-MDR")
-            {
-                return Common::FileSystem::join(sophosInstall(), "plugins/mtr/VERSION.ini");
-            }
-            else if (component == "ServerProtectionLinux-Plugin-AV")
-            {
-                return Common::FileSystem::join(sophosInstall(), "plugins/av/VERSION.ini");
+                path = Common::FileSystem::join(sophosInstall(), "base/VERSION.ini");
             }
             else
-            {
-                throw std::invalid_argument("Component " + component + " not recognized.");
+                {
+                path = Common::FileSystem::join(
+                        getLocalUninstallSymLinkPath(),
+                        component + ".sh");
             }
+
+            if (!Common::FileSystem::fileSystem()->isFile(path))
+            {
+                throw std::invalid_argument("Component " + component + " VERSION.ini not found.");
+            }
+            return path;
         }
 
     } // namespace ApplicationConfigurationImpl
