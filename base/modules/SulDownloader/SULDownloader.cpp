@@ -238,7 +238,7 @@ namespace SulDownloader
                 // if base is not being downgraded, then need to run the uninstaller for each component.
                 if (productIndex == 0)
                 {
-                    LOGDEBUG("Doing preparation base for downgrade");
+                    LOGDEBUG("Preparing base for downgrade");
                     std::string baseUninstallerPath =
                         Common::ApplicationConfiguration::applicationPathManager().getLocalBaseUninstallerPath();
                     uninstallManager.prepareProductForDowngrade(baseUninstallerPath);
@@ -257,6 +257,7 @@ namespace SulDownloader
                             Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath(),
                             product.getLine() + ".sh");
                         uninstallManager.prepareProductForDowngrade(componentPath);
+                        product.setForceProductReinstall(true);
                     }
                 }
             }

@@ -109,15 +109,15 @@ namespace SulDownloader
                 LOGSUPPORT(output);
                 int exitCode = process->exitCode();
 
-                if (exitCode != 0)
+                if (exitCode == 0)
+                {
+                    return true;
+                }
+                else
                 {
                     errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript << "', code '" << exitCode
                                  << "' with error, Process did not complete successfully.";
                     LOGERROR(errorMessage.str());
-                }
-                else
-                {
-                    return true;
                 }
             }
             catch (Common::Process::IProcessException& ex)
