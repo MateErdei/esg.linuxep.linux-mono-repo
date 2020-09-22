@@ -61,23 +61,40 @@ namespace Plugin
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
-        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        telemetry.set("ml-lib-hash", getMlLibHash());
-        telemetry.set("version", getPluginVersion());
+        Common::Telemetry::TelemetryHelper::getInstance().set("lr-data-hash", getLrDataHash());
+        Common::Telemetry::TelemetryHelper::getInstance().set("ml-pe-model-hash", getMlModelHash());
+        Common::Telemetry::TelemetryHelper::getInstance().set("version", getPluginVersion());
 
-        return telemetry.serialiseAndReset();
+        return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     }
 
-    std::string PluginCallback::getMlLibHash()
+    std::string PluginCallback::getLrDataHash()
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        fs::path filerep(appConfig.getData("PLUGIN_INSTALL"));
+        filerep /= "chroot/susi/distribution_version/version1/lrdata/filerep.dat.0";
+        fs::path signerrep(appConfig.getData("PLUGIN_INSTALL"));
+        signerrep /= "chroot/susi/distribution_version/version1/lrdata/signerrep.dat.0";
+
+        std::ifstream filerepFs (filerep, std::ifstream::in);
+        std::ifstream signerrepFs (signerrep, std::ifstream::in);
+        std::stringstream lrDataContents;
+        lrDataContents << filerepFs.rdbuf() << signerrepFs.rdbuf();
+
+        return common::sha256_hash(lrDataContents.str());
+    }
+
+    std::string PluginCallback::getMlModelHash()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
-        mlModel /= "chroot/susi/distribution_version/version1/libmodel.so";
+        mlModel /= "chroot/susi/distribution_version/version1/mlmodel/model.dat.0";
 
-        std::ifstream ifs (mlModel, std::ifstream::in);
-        std::string mlModelContents((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        std::ifstream mlModelFs (mlModel, std::ifstream::in);
+        std::stringstream mlModelContents;
+        mlModelContents << mlModelFs.rdbuf();
 
-        return common::sha256_hash(mlModelContents);
+        return common::sha256_hash(mlModelContents.str());
     }
 
     std::string PluginCallback::getPluginVersion()

@@ -30,8 +30,9 @@ namespace Plugin
 
     private:
         std::string generateSAVStatusXML();
+        std::string getLrDataHash();
+        std::string getMlModelHash();
         std::string getPluginVersion();
-        std::string getMlLibHash();
 
         std::shared_ptr<QueueTask> m_task;
         Common::PluginApi::StatusInfo m_statusInfo;
