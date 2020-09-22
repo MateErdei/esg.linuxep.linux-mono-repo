@@ -1,6 +1,7 @@
 
 import os
 import shutil
+import sys
 import subprocess
 try:
     from robot.api import logger
@@ -10,6 +11,20 @@ except ImportError:
     logger = logging.getLogger(__name__)
 
 from robot.libraries.BuiltIn import BuiltIn
+
+
+def download_supplements(dest):
+    # ensure manual dir is on sys.path
+    Libs = os.path.dirname(__file__)
+    TA = os.path.dirname(Libs)
+    manual = os.path.join(TA, "manual")
+    assert os.path.isdir(manual)
+    if manual not in sys.path:
+        sys.path.append(manual)
+    import downloadSupplements
+    downloadSupplements.LOGGER = logger
+    ret = downloadSupplements.run(dest)
+    assert ret == 0
 
 
 class InstallSet(object):
@@ -32,30 +47,35 @@ class InstallSet(object):
 
     def create_install_set(self, install_set):
         base = BuiltIn().get_variable_value("${TEST_INPUT_PATH}")
-        logger.error("BASE = %s" % base)
-        logger.error("install_set = %s" % install_set)
+        logger.info("BASE = %s" % base)
+        logger.info("install_set = %s" % install_set)
         sdds_component = BuiltIn().get_variable_value("${COMPONENT_SDDS_COMPONENT}")
-        logger.error("sdds_component = %s" % sdds_component)
+        logger.info("sdds_component = %s" % sdds_component)
 
         vdl = os.path.join(base, "vdl")
         ml_model = os.path.join(base, "ml_model")
         local_rep = os.path.join(base, "local_rep")
 
-        for x in (vdl, ml_model, local_rep, sdds_component):
+        if not os.path.isdir(sdds_component):
+            logger.error("Failed to find SDDS_COMONENT for INSTALL_SET: %s" % sdds_component)
+            return
+
+        for x in (vdl, ml_model, local_rep):
             if not os.path.isdir(x):
-                logger.error("Failed to find input for INSTALL_SET: %s" % x)
+                download_supplements(base)
+                assert os.path.isdir(x)
 
         o = subprocess.check_output(['ls', base])
-        logger.error("BASE ls = %s" % o.decode("UTF-8"))
+        logger.info("BASE ls = %s" % o.decode("UTF-8"))
 
         o = subprocess.check_output(['ls', vdl])
-        logger.error("VDL ls = %s" % o.decode("UTF-8"))
+        logger.info("VDL ls = %s" % o.decode("UTF-8"))
 
         o = subprocess.check_output(['ls', ml_model])
-        logger.error("ml_model ls = %s" % o.decode("UTF-8"))
+        logger.info("ml_model ls = %s" % o.decode("UTF-8"))
 
         o = subprocess.check_output(['ls', local_rep])
-        logger.error("local_rep ls = %s" % o.decode("UTF-8"))
+        logger.info("local_rep ls = %s" % o.decode("UTF-8"))
 
         # Copy SDDS-Component
         shutil.rmtree(install_set, ignore_errors=True)
