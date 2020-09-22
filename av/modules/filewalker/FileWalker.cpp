@@ -18,7 +18,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
 {
     if(starting_point.string().size() > 4096)
     {
-        std::string errorMsg = "Failed to scan starting Path too long";
+        std::string errorMsg = "Failed to start scan: Starting Path too long";
         LOGERROR(errorMsg);
         std::error_code ec (ENAMETOOLONG, std::system_category());
         throw fs::filesystem_error(errorMsg, ec);
