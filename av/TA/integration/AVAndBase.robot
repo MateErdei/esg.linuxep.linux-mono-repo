@@ -295,7 +295,7 @@ AV plugin Saves and Restores Scan Now Counter
 
     Stop AV Plugin
 
-    Log To Cosnole   ${TELEMETRY_BACKUP_JSON}
+    Log To Console   ${TELEMETRY_BACKUP_JSON}
     Should Contain   ${TELEMETRY_BACKUP_JSON}    "scan-now-count":1
 
 
