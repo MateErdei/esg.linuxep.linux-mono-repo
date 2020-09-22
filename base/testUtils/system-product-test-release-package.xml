@@ -6,7 +6,7 @@
             <include src="SDDS-COMPONENT"   dest="sspl-base" />
             <include src="SystemProductTestOutput.tar.gz"   dest="SystemProductTestOutput" />
         </package>
-        <package name="sspl-plugin-edr-component" version="menaga/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.1.0/output" dest="." buildtype="dev">
+        <package name="sspl-plugin-edr-component" version="menaga/%LASTGOODCOMPONENTBUILD%/sspl-plugin-edr-component/1.0.2/output" dest="." buildtype="dev">
             <include src="SDDS-COMPONENT"   dest="sspl-edr-plugin" />
         </package>
         <package name="sspl-mdr-control-plugin" version="feature-LINUXDAR-2037-change-sspl-downgrade-process-to-perform-an-un-install-reinstall/%LASTGOODCOMPONENTBUILD%/sspl-mdr-control-plugin/1.0.7/output" dest="." buildtype="dev">
