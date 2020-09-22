@@ -7,6 +7,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include "PluginCallback.h"
 
 #include "Logger.h"
+#include "common/StringUtils.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -60,9 +61,22 @@ namespace Plugin
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
+        Common::Telemetry::TelemetryHelper::getInstance().set("ml-pe-model-hash", getMlModelHash());
         Common::Telemetry::TelemetryHelper::getInstance().set("version", getPluginVersion());
 
         return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    }
+
+    std::string PluginCallback::getMlModelHash()
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
+        mlModel /= "chroot/susi/distribution_version/version1/mlmodel/model.dat.0";
+
+        std::ifstream ifs (mlModel, std::ifstream::in);
+        std::string mlModelContents((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+
+        return common::sha256_hash(mlModelContents);
     }
 
     std::string PluginCallback::getPluginVersion()

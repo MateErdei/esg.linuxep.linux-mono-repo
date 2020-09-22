@@ -256,5 +256,10 @@ AV Plugin Can Send Telemetry
 
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
-    Should Contain   ${telemetryFileContents}   av
-    Should Contain   ${telemetryFileContents}   version
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryLogContents}""")    json
+
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    Dictionary Should Contain Key   ${avDict}   version
+    Dictionary Should Contain Key   ${avDict}   ml-pe-model-hash
