@@ -53,10 +53,8 @@ AV plugin Can Send Status
 
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
 
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-
-    Dictionary Should Contain Key   ${avDict}   version
-    Dictionary Should Contain Key   ${avDict}   ml-pe-model-hash
+    Dictionary Should Contain Key   ${telemetryJson}   version
+    Dictionary Should Contain Key   ${telemetryJson}   ml-pe-model-hash
 
     ${result} =   Terminate Process  ${handle}
 
