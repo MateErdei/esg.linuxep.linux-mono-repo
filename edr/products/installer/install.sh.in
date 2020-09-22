@@ -71,6 +71,7 @@ chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
+ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.ini"
 
 if software_changed ${DIST} ${PRODUCT_LINE_ID}
 then
