@@ -25,13 +25,17 @@ def log(*x):
         LOGGER.info(" ".join(x))
 
 def ensure_binary(s):
+    if s is None:
+        return s
     if isinstance(s, bytes):
         return s
     return s.encode("UTF-8")
 
 
 def ensure_unicode(s):
-    if isinstance(s, str): # fix if we need to work on python2
+    if s is None:
+        return s
+    if isinstance(s, str):  # fix if we need to work on python2
         return s
     return s.decode("UTF-8")
 

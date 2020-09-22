@@ -24,6 +24,7 @@ createInstallSet.LOGGER = logger
 
 import downloadSupplements
 downloadSupplements.LOGGER = logger
+ensure_binary = downloadSupplements.ensure_binary
 
 def download_supplements(dest):
     # ensure manual dir is on sys.path
@@ -49,9 +50,12 @@ class InstallSet(object):
     def create_install_set(self, install_set):
         base = BuiltIn().get_variable_value("${TEST_INPUT_PATH}")
         logger.info("BASE = %s" % base)
+        base = ensure_binary(base)
         logger.info("install_set = %s" % install_set)
+        install_set = ensure_binary(install_set)
         sdds_component = BuiltIn().get_variable_value("${COMPONENT_SDDS_COMPONENT}")
         logger.info("sdds_component = %s" % sdds_component)
+        sdds_component = ensure_binary(sdds_component)
 
         if not os.path.isdir(sdds_component):
             logger.error("Failed to find SDDS_COMPONENT for INSTALL_SET: %s" % sdds_component)

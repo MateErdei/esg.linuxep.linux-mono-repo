@@ -27,6 +27,7 @@ def download_supplements(dest):
 
 
 def susi_dir(install_set):
+    install_set = ensure_binary(install_set)
     return os.path.join(install_set,
                         b"files", b"plugins", b"av", b"chroot", b"susi", b"distribution_version", b"version1")
 
@@ -39,6 +40,7 @@ def is_same(p1, p2):
 
 
 def verify_install_set(install_set, sdds_component=None):
+    install_set = ensure_binary(install_set)
     if not os.path.isdir(install_set):
         return False
 
@@ -49,6 +51,7 @@ def verify_install_set(install_set, sdds_component=None):
 
     # Compare manifest.dat inside sdds_component
     if sdds_component is not None:
+        sdds_component = ensure_binary(sdds_component)
         sdds_manifest = os.path.join(sdds_component, b"manifest.dat")
         install_manifest = os.path.join(install_set, b"manifest.dat")
         if not is_same(sdds_manifest, install_manifest):
