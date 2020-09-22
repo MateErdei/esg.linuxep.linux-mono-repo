@@ -292,5 +292,7 @@ AV plugin Saves and Restores Scan Now Counter
 
     Stop AV Plugin
 
+    Should Contain   ${TELEMETRY_BACKUP_JSON}    "scan-now-count":1
+
 
 

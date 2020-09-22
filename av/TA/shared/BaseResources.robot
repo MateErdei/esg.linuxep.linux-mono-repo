@@ -16,7 +16,7 @@ ${CERT_PATH}   /tmp/cert.pem
 ${MACHINE_ID_FILE}  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${TELEMETRY_OUTPUT_JSON}    ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
 ${TELEMETRY_EXECUTABLE_LOG}    ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
-
+${TELEMETRY_BACKUP_JSON}    ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
 
 *** Keywords ***
 
