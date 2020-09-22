@@ -114,10 +114,16 @@ def pytest_task(machine: tap.Machine):
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False) -> Dict[str, Input]:
     print(str(build))
     supplement_branch = "released"
+    output = 'output'
+    # override the av input and get the bullseye coverage build instead
+    if coverage:
+        assert has_coverage_build(context.branch)
+        output = 'coverage'
+
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
-        av=build / 'output',
+        av=build / output,
         # tapartifact upload-file
         # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
         # /mnt/filer6/lrdata/sophos-susi-lrdata/20200219/lrdata/2020021901/reputation.zip
@@ -125,11 +131,6 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         vdl=context.artifact.from_component('ssplav-vdl', supplement_branch, None) / 'vdl',
         ml_model=context.artifact.from_component('ssplav-mlmodel', supplement_branch, None) / 'model',
     )
-    # override the av input and get the bullseye coverage build instead
-    if coverage:
-        assert has_coverage_build(context.branch)
-        test_inputs['av'] = build / 'coverage'
-
     return test_inputs
 
 
