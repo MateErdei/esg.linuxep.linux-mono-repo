@@ -40,34 +40,24 @@ BUILD_TYPE = "build_type"
 PROD_BUILD_CERTS = "prod"
 DEV_BUILD_CERTS = "dev"
 
-# WARNING: These overrides will not work with locally on pairing station. If you want to use them locally on vagrant
-# You must run the robot command from inside the vagrant box
 # The version under test, usually master dev builds
-OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE = "OSTIA_VUT_OVERRIDE"
-OSTIA_VUT_ADDRESS_BRANCH = os.environ.get(OSTIA_VUT_ADDRESS_BRANCH_OVERRIDE, "feature-jake-2186")
-OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_VUT_ADDRESS_BRANCH)
+OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/vut"
 # Warehouse without RECOMMENDED tag
-OSTIA_BETA_ONLY_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-2186-only-beta"
+OSTIA_BETA_ONLY_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/only-beta"
 # Usually the previous release
-OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PREV_OVERRIDE"
-OSTIA_PREV_ADDRESS_BRANCH = os.environ.get(OSTIA_PREV_ADDRESS_BRANCH_OVERRIDE, "feature-2186-latest-recommended")
-OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_PREV_ADDRESS_BRANCH)
+OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/latest-recommended"
 # The GA Release
 OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone"
 # A version with mocked libraries (to test file removal on upgrade)
-OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-2186-jake-060"
+OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/0-6-0"
 # a version with edr 9.99.9 for downgrade tests
-OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-2186-edr-999"
-OSTIA_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-2186-mdr-999"
-OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-2186-edr-mdr-999"
+OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/edr-999"
+OSTIA_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/mdr-999"
+OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/edr-mdr-999"
 # A warehouse containing 3 base versions for paused updating tests
-OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PAUSED_OVERRIDE"
-OSTIA_PAUSED_ADDRESS_BRANCH = os.environ.get(OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE, "feature-2186-paused-updating")
-OSTIA_PAUSED_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_PAUSED_ADDRESS_BRANCH)
+OSTIA_PAUSED_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/paused-updating"
 # A warehouse containing Base and EDR pre live response
-OSTIA_BASE_EDR_OLD_WH_ADDRESS_BRANCH_OVERRIDE = "OSTIA_BASE_EDR_OLD_WH_OVERRIDE"
-OSTIA_BASE_EDR_OLD_WH_ADDRESS_BRANCH = os.environ.get(OSTIA_BASE_EDR_OLD_WH_ADDRESS_BRANCH_OVERRIDE, "feature-2186-Base-EDR-Only-OldWarehouseStyle")
-OSTIA_BASE_EDR_OLD_WH_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/{}".format(OSTIA_BASE_EDR_OLD_WH_ADDRESS_BRANCH)
+OSTIA_BASE_EDR_OLD_WH_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/old-style"
 # dictionary of ostia addresses against the ports that should be used to serve their customer files locally
 OSTIA_ADDRESSES = {
                     OSTIA_VUT_ADDRESS: "2233",

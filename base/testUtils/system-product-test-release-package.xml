@@ -82,68 +82,50 @@
 
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/jake-2186" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-jake-2186/warehouse/customer" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/vut/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-jake-2186/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/2186-Base-EDR-Only-OldWarehouseStyle" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-Base-EDR-Only-OldWarehouseStyle/warehouse/customer" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/old-style/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-Base-EDR-Only-OldWarehouseStyle/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/2186-edr-999" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-999/warehouse/customer" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/edr-999/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-999/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/2186-edr-mdr-999" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-mdr-999/warehouse/customer" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/edr-mdr-999/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-mdr-999/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/2186-mdr-999" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-mdr-999/warehouse/customer" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/mdr-999/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-mdr-999/warehouse/warehouse" />
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="feature/2186-mdr-999" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-mdr-999/warehouse/customer" />
-            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-mdr-999/warehouse/warehouse" />
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="feature/2186-edr-mdr-999" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-mdr-999/warehouse/customer" />
-            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-edr-mdr-999/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/2186-latest-recommended" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-latest-recommended/warehouse/customer" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/latest-recommended/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-latest-recommended/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/2186-only-beta" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-only-beta/warehouse/customer" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/only-beta/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-only-beta/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/2186-paused-updating" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-paused-updating/warehouse/customer" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/paused-updating/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-paused-updating/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/2186-jake-060" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-jake-060/warehouse/customer" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-2186-jake-060/warehouse/warehouse" />
         </build-asset>
     </inputs>
-
-    <buildcommands>
-        <command>
-            <program>./setOstiaVutBranch.sh</program>
-            <args>feature-jake-2186</args>
-            <workingdir>SupportFiles/jenkins</workingdir>
-        </command>
-    </buildcommands>
 
     <publish>
         <workingdir>sspl-base-build</workingdir>
