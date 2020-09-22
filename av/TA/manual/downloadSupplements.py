@@ -24,6 +24,17 @@ def log(*x):
     else:
         LOGGER.info(" ".join(x))
 
+def ensure_binary(s):
+    if isinstance(s, bytes):
+        return s
+    return s.encode("UTF-8")
+
+
+def ensure_unicode(s):
+    if isinstance(s, str): # fix if we need to work on python2
+        return s
+    return s.decode("UTF-8")
+
 
 def safe_mkdir(d):
     try:
@@ -73,14 +84,14 @@ def download_url(url, dest):
             log("Not downloading - already matches sha256: ", data['checksums']['sha256'])
             return False
 
-    log("Downloading from", url)
+    log("Downloading from", url, "to", ensure_unicode(dest))
     urllib.request.urlretrieve(url, dest)
     return True
 
 
 def unpack(zip_file, dest):
     safe_mkdir(dest)
-    with zipfile.ZipFile(zip_file) as z:
+    with zipfile.ZipFile(open(zip_file, "r")) as z:
         z.extractall(dest)
 
 
@@ -89,7 +100,7 @@ DEST = ""
 
 def process(baseurl, filename, dirname):
     latest = get_latest(baseurl, filename)
-    zip_file = os.path.join(DEST, filename)
+    zip_file = os.path.join(DEST, ensure_binary(filename))
     if download_url(latest, zip_file):
         unpack(zip_file, os.path.join(DEST, dirname))
 
@@ -99,9 +110,9 @@ def run(dest):
     DEST = dest
     safe_mkdir(DEST)
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
-    process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", "vdl")
-    process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", "ml_model")
-    process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", "local_rep")
+    process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", b"vdl")
+    process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", b"ml_model")
+    process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", b"local_rep")
     return 0
 
 
