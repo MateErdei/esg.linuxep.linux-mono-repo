@@ -60,26 +60,26 @@ TEST_F(TestScanningServerConnectionThread, fail_construction_with_null_factory) 
     ASSERT_THROW(ScanningServerConnectionThread(fdHolder, nullptr), std::runtime_error);
 }
 
-TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
-{
-    const std::string expected = "Closing scanning socket thread";
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
-    ASSERT_GE(fdHolder.get(), 0);
-    ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
-    EXPECT_FALSE(connectionThread.isRunning());
-    connectionThread.start();
-    EXPECT_TRUE(connectionThread.isRunning());
-    // No waiting...
-    connectionThread.requestStop();
-    connectionThread.join();
-    EXPECT_FALSE(connectionThread.isRunning());
-
-    EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appenderContains(expected));
-}
+//TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
+//{
+//    const std::string expected = "Closing scanning socket thread";
+//    UsingMemoryAppender memoryAppenderHolder(*this);
+//
+//    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+//    datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
+//    ASSERT_GE(fdHolder.get(), 0);
+//    ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
+//    EXPECT_FALSE(connectionThread.isRunning());
+//    connectionThread.start();
+//    EXPECT_TRUE(connectionThread.isRunning());
+//    // No waiting...
+//    connectionThread.requestStop();
+//    connectionThread.join();
+//    EXPECT_FALSE(connectionThread.isRunning());
+//
+//    EXPECT_GT(m_memoryAppender->size(), 0);
+//    EXPECT_TRUE(appenderContains(expected));
+//}
 
 TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
 {

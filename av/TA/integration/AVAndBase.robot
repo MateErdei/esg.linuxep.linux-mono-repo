@@ -33,6 +33,7 @@ AV plugin runs scan now
     Check AV Plugin Installed With Base
     Configure and check scan now
 
+
 AV plugin runs scan now twice
     Check AV Plugin Installed With Base
     Configure and check scan now
@@ -262,6 +263,34 @@ AV Plugin Can Send Telemetry
 
     ${avDict}=    Set Variable     ${telemetryJson['av']}
 
-    Dictionary Should Contain Key   ${avDict}   lr-data-hash
-    Dictionary Should Contain Key   ${avDict}   ml-pe-model-hash
     Dictionary Should Contain Key   ${avDict}   version
+    Dictionary Should Contain Key   ${avDict}   ml-pe-model-hash
+
+
+AV plugin Saves and Restores Scan Now Counter
+    Check AV Plugin Installed With Base
+    Configure and check scan now
+
+    Stop AV Plugin
+    Start AV Plugin
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   1
+
+    Configure and check scan now
+
+    Stop AV Plugin
+
+
+

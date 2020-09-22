@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <tests/common/LogInitializedTests.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 using namespace manager::scheduler;
 
@@ -93,6 +94,41 @@ TEST_F(TestScanScheduler, scanNow) //NOLINT
 
     scheduler.requestStop();
     scheduler.join();
+
+    // Reset stderr
+    std::cerr.rdbuf(sbuf);
+}
+
+TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
+{
+    FakeScanCompletion scanCompletion;
+
+    ScanScheduler scheduler{scanCompletion};
+
+    ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
+
+    scheduler.start();
+
+    scheduler.updateConfig(scheduledScanConfiguration);
+    scheduler.scanNow();
+
+    // Redirect sderr to buffer
+    std::stringstream buffer;
+    std::streambuf *sbuf = std::cerr.rdbuf();
+    std::cerr.rdbuf(buffer.rdbuf());
+
+    int count = 0;
+    do {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        count++;
+    } while(buffer.str().find("INFO Starting Scan Now") == std::string::npos && count < 200);
+
+    scheduler.requestStop();
+    scheduler.join();
+
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    std::string ExpectedTelemetry{ R"sophos({"scan-now-count":1})sophos" };
+    EXPECT_EQ(telemetryResult, ExpectedTelemetry);
 
     // Reset stderr
     std::cerr.rdbuf(sbuf);

@@ -21,6 +21,7 @@ Test Teardown  Product Test Teardown
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
+${HANDLE}
 
 *** Test Cases ***
 AV Plugin Can Receive Actions
@@ -75,6 +76,30 @@ AV Plugin Can Process Scan Now
     Check ScanNow Log Exists
 
     ${result} =   Terminate Process  ${handle}
+
+
+AV Plugin Scan Now Updates Telemetry Count
+    ${HANDLE} =  Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
+    ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp/
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
+    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
+    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Action  av  sav  corr123  ${actionContent}
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180
+    AV Plugin Log Contains  Received new Action
+    AV Plugin Log Contains  Starting Scan Now
+    AV Plugin Log Contains  Starting scan Scan Now
+    Check ScanNow Log Exists
+
+    ${telemetryString}=  Get Plugin Telemetry  av
+
+    Log To Console      ${telemetryString}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+
+    Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   1
+
 
 Scan Now Configuration Is Correct
     Use Fake AVScanner
