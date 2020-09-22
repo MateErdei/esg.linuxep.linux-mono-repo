@@ -68,6 +68,7 @@ def pytest_task(machine: tap.Machine):
 
 
 def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str):
+    test_inputs = None
     if mode == 'release':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./testUtils'),
@@ -76,13 +77,12 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
             openssl=base_build / 'sspl-base' / 'openssl',
             websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
         )
-
     return test_inputs
 
 
 @tap.pipeline(version=1, component='sspl-base')
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    component = tap.Component(name='sspl-base', base_version='1.1.3')
+    component = tap.Component(name='sspl-base', base_version='1.1.4')
 
     # export TAP_PARAMETER_MODE=release|analysis
     mode = parameters.mode or 'release'

@@ -96,16 +96,3 @@ The following tags can be used to select which tests can be run, using the inclu
 * UPDATE_SCHEDULER - Tests that exercise the Update Scheduler plugin
 * WATCHDOG - Tests that exercise the Watchdog
 * WDCTL - Tests that exercise WDCTL, Watchdog Control
-
-
-Unified pipeline
-1) Fetch build inputs as specified in release xml
-    tap fetch sspl_base
-2) build edr on local machine
-    tap run sspl_base.build --build-backend=local
-3) build edr on local machine and run tests
-    export TAP_PARAMETER_MODE=mode -> one of "release|analysis"
-    tap run sspl_base --build-backend=local
-4) run tests on branch with unified pipelie build
-    export TAP_PARAMETER_MODE=mode -> one of "release|coverage"
-    tap run sspl_base

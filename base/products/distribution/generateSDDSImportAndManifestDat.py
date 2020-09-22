@@ -3,6 +3,9 @@
 import os
 import sys
 
+import fileInfo
+import generateManifestDat
+import generateSDDSImport
 
 def main(argv):
     dist = argv[1]
@@ -17,10 +20,6 @@ def main(argv):
 
     if len(argv) > 4:
         sys.path += argv[4:]
-
-    import fileInfo
-    import generateManifestDat
-    import generateSDDSImport
 
     generateManifestDat.generate_manifest(dist)
 

@@ -21,3 +21,16 @@
     
 3. View the html report:
     * open index.html
+    
+# Unified Pipeline Operations
+1) Fetch build inputs as specified in release xml
+   tap fetch sspl_base
+2) build ever-base on local machine
+   tap run sspl_base.build --build-backend=local
+3) build base on local machine and run tests
+   export TAP_PARAMETER_MODE=mode -> one of "release|analysis"
+   tap run sspl_base --build-backend=local
+4) run tests on branch with unified pipelie build
+   export TAP_PARAMETER_MODE=mode -> one of "release|coverage" - 'release' is the default so no need to export
+   
+   tap run sspl_base
