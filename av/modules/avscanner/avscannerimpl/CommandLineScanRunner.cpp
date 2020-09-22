@@ -44,9 +44,6 @@ namespace
 
         void processFile(const fs::path& p, bool symlinkTarget) override
         {
-            std::string escapedPath(p);
-            common::escapeControlCharacters(escapedPath);
-
             if (symlinkTarget)
             {
                 fs::path symlinkTargetPath = p;
@@ -65,6 +62,8 @@ namespace
                 }
             }
 
+            std::string escapedPath(p);
+            common::escapeControlCharacters(escapedPath);
 
             for (const auto& exclusion : m_cmdExclusions)
             {

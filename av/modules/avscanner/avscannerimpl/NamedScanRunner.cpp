@@ -53,9 +53,6 @@ namespace
 
         void processFile(const sophos_filesystem::path& p, bool symlinkTarget) override
         {
-            std::string escapedPath(p);
-            common::escapeControlCharacters(escapedPath);
-
             if (symlinkTarget)
             {
                 for (const auto& e : m_mountExclusions)
@@ -68,6 +65,9 @@ namespace
                 }
             }
 
+            std::string escapedPath(p);
+            common::escapeControlCharacters(escapedPath);
+
             for (const auto& exclusion : m_config.m_excludePaths)
             {
                 if (exclusion.appliesToPath(p))
@@ -77,7 +77,7 @@ namespace
                 }
             }
 
-            LOGINFO("Scanning " << escapedPath);
+            LOGDEBUG("Scanning " << escapedPath);
 
             try
             {
