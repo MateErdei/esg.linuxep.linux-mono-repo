@@ -284,7 +284,7 @@ AV plugin Saves and Restores Scan Now Counter
                  ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log  ${telemetryFileContents}
+    Log To Console  ${telemetryFileContents}
 
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
@@ -295,6 +295,7 @@ AV plugin Saves and Restores Scan Now Counter
 
     Stop AV Plugin
 
+    Log To Cosnole   ${TELEMETRY_BACKUP_JSON}
     Should Contain   ${TELEMETRY_BACKUP_JSON}    "scan-now-count":1
 
 
