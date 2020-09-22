@@ -114,6 +114,8 @@ exclude \!build/
 exclude \!build64/
 exclude \!redist/
 exclude \!tests/
+exclude \!tools/
+exclude \!products/susi_experiment_scanner/
 
 echo "Exclusions:"
 covselect --list --no-banner
