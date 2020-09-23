@@ -11,8 +11,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/common/LogInitializedTests.h>
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include <gtest/gtest.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
 
@@ -20,6 +22,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define BASE "/tmp/TestPluginCallback"
 
 namespace fs = sophos_filesystem;
+using json = nlohmann::json;
 
 namespace
 {
@@ -37,18 +40,18 @@ namespace
             std::ofstream versionFileStream;
             versionFileStream.open(m_versionFile);
             versionFileStream << "PRODUCT_NAME = Sophos Server Protection Linux - av" << std::endl;
-            versionFileStream << "PRODUCT_VERSION = 1.2.3.456" << std::endl;
+            versionFileStream << "PRODUCT_VERSION = " << m_initialExpectedVersion << std::endl;
             versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
             versionFileStream.close();
 
-            fs::path mlDirPath (BASE);
-            mlDirPath /= "chroot/susi/distribution_version/version1/mlmodel";
-            fs::create_directories(mlDirPath);
-            m_mlFilePath = mlDirPath;
-            m_mlFilePath /= "model.dat.0";
+            fs::path libDirPath (BASE);
+            libDirPath /= "chroot/susi/distribution_version/version1";
+            fs::create_directories(libDirPath);
+            m_mlLibFilePath = libDirPath;
+            m_mlLibFilePath /= "libmodel.so";
 
             std::ofstream mlFilePathStream;
-            mlFilePathStream.open(m_mlFilePath);
+            mlFilePathStream.open(m_mlLibFilePath);
             mlFilePathStream << "1"  << std::endl;
             mlFilePathStream.close();
 
@@ -56,9 +59,9 @@ namespace
             lrDirPath /= "chroot/susi/distribution_version/version1/lrdata";
             fs::create_directories(lrDirPath);
             m_lrFilerepPath = lrDirPath;
-            m_lrFilerepPath /= "filerep.dat.0";
+            m_lrFilerepPath /= "filerep.dat";
             m_lrSignerrepPath = lrDirPath;
-            m_lrSignerrepPath /= "signerrep.dat.0";
+            m_lrSignerrepPath /= "signerrep.dat";
 
             std::ofstream lrFilerepStream;
             lrFilerepStream.open(m_lrFilerepPath);
@@ -69,37 +72,117 @@ namespace
             lrSignerrepStream.open(m_lrSignerrepPath);
             lrSignerrepStream << "1"  << std::endl;
             lrSignerrepStream.close();
+
+            //creating file for vdl version
+            fs::path vdlDirPath (BASE);
+            vdlDirPath /= "chroot/susi/distribution_version/version1/vdb";
+            fs::create_directories(vdlDirPath);
+            m_vdlVersionFilePath = vdlDirPath;
+            m_vdlVersionFilePath /= "vvf.xml";
+            createVvfFile(m_initialExpectedVdlVersion,m_vdlVersionFilePath);
+
+            std::shared_ptr<Plugin::QueueTask> task = nullptr;
+            m_pluginCallback = std::make_shared<Plugin::PluginCallback>(task);
         };
 
-        fs::path m_versionFile;
-        fs::path m_mlFilePath;
+        void createVvfFile(const std::string &version, const std::string &filePath)
+        {
+            std::string vvfContents = Common::UtilityImpl::StringUtils::orderedStringReplace(
+                R"sophos(<?xml version='1.0' encoding='utf-8'?>
+<VVF xmlns:nl="http://www.sophos.com/vdl/namelists" xmlns:sxt="http://www.sophos.com/vdl/sophxtainer" xmlns:vtyp="http://www.sophos.com/vdl/typesandsubtypes">
+  <VirusData Version="@@VERSION@@" date="2020-09-08" />
+  <sxt:sophxtainer>
+    <sxt:section name="vdltypesandsubtypes">
+    </sxt:section>
+  </sxt:sophxtainer>
+</VVF>)sophos",{
+                    {"@@VERSION@@", version}
+                });
+
+            std::ofstream vdlVersionFileStream;
+            vdlVersionFileStream.open(filePath);
+            vdlVersionFileStream << vvfContents << std::endl;
+            vdlVersionFileStream.close();
+        }
+
+        std::shared_ptr<Plugin::PluginCallback> m_pluginCallback;
+
         fs::path m_lrFilerepPath;
         fs::path m_lrSignerrepPath;
+        fs::path m_mlLibFilePath;
+        fs::path m_vdlVersionFilePath;
+        fs::path m_versionFile;
+
+        std::string m_initialExpectedLrHash = "ad0fadf63cc7cd779ce475e345bf4063565b63a3c2efef1eebc89790aaa6acba";
+        std::string m_initialExpectedMlLibHash = "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865";
+        std::string m_initialExpectedVdlVersion = "5.78";
+        std::string m_initialExpectedVersion = "1.2.3.456";
     };
 }
 
-TEST_F(TestPluginCallback, getTelemetry) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_version) //NOLINT
 {
-    // Note: telemetry dictionary appears to be alphabetically sorted
-    std::string initialExpectedJson{ R"sophos({"lr-data-hash":"ad0fadf63cc7cd779ce475e345bf4063565b63a3c2efef1eebc89790aaa6acba","ml-pe-model-hash":"4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865","version":"1.2.3.456"})sophos" };
-    std::string modifiedExpectedJson{ R"sophos({"lr-data-hash":"8d58f634a5b5051db5ee0bb9d005779b382be410e8ebd5144590f2f0429f9220","ml-pe-model-hash":"53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3","version":"1.2.3.457"})sophos" };
+    std::string modifiedVersion = "1.2.3.457";
 
-    std::shared_ptr<Plugin::QueueTask> task = nullptr;
-    Plugin::PluginCallback pluginCallback(task);
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
-    std::string initialTelemetry = pluginCallback.getTelemetry();
+    EXPECT_EQ(initialTelemetry["version"], m_initialExpectedVersion);
 
     std::ofstream versionFileStream;
     versionFileStream.open(m_versionFile);
     versionFileStream << "PRODUCT_NAME = Sophos Server Protection Linux - av" << std::endl;
-    versionFileStream << "PRODUCT_VERSION = 1.2.3.457" << std::endl;
+    versionFileStream << "PRODUCT_VERSION = " << modifiedVersion << std::endl;
     versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
     versionFileStream.close();
 
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(modifiedTelemetry["version"], modifiedVersion);
+}
+
+TEST_F(TestPluginCallback, getTelemetry_version_fileDoesNotExist) //NOLINT
+{
+    fs::remove(m_versionFile);
+
+    json telemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(telemetry["version"], "unknown");
+}
+
+TEST_F(TestPluginCallback, getTelemetry_mlLibHash) //NOLINT
+{
+    std::string modifiedExpectedMlLibHash = "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3";
+
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(initialTelemetry["ml-lib-hash"], m_initialExpectedMlLibHash);
+
     std::ofstream mlFilePathStream;
-    mlFilePathStream.open(m_mlFilePath);
+    mlFilePathStream.open(m_mlLibFilePath);
     mlFilePathStream << "2"  << std::endl;
     mlFilePathStream.close();
+
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(modifiedTelemetry["ml-lib-hash"], modifiedExpectedMlLibHash);
+}
+
+TEST_F(TestPluginCallback, getTelemetry_mlLibHash_fileDoesNotExist) //NOLINT
+{
+    fs::remove(m_mlLibFilePath);
+
+    json telemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(telemetry["ml-lib-hash"], "unknown");
+}
+
+TEST_F(TestPluginCallback, getTelemetry_lrData) //NOLINT
+{
+    std::string modifiedExpectedLrHash = "8d58f634a5b5051db5ee0bb9d005779b382be410e8ebd5144590f2f0429f9220";
+
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(initialTelemetry["lr-data-hash"], m_initialExpectedLrHash);
 
     std::ofstream lrFilerepStream;
     lrFilerepStream.open(m_lrFilerepPath);
@@ -111,8 +194,46 @@ TEST_F(TestPluginCallback, getTelemetry) //NOLINT
     lrSignerrepStream << "2"  << std::endl;
     lrSignerrepStream.close();
 
-    std::string modifiedTelemetry = pluginCallback.getTelemetry();
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
-    EXPECT_EQ(initialTelemetry, initialExpectedJson);
-    EXPECT_EQ(modifiedTelemetry, modifiedExpectedJson);
+    EXPECT_EQ(modifiedTelemetry["lr-data-hash"], modifiedExpectedLrHash);
+}
+
+TEST_F(TestPluginCallback, getTelemetry_lrData_fileDoesNotExist) //NOLINT
+{
+    fs::remove(m_lrFilerepPath);
+
+    json telemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(telemetry["lr-data-hash"], "unknown");
+
+    fs::remove(m_lrSignerrepPath);
+
+    telemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(telemetry["lr-data-hash"], "unknown");
+}
+
+TEST_F(TestPluginCallback, getTelemetry_vdlVersion) //NOLINT
+{
+    std::string modifiedExpectedVdlVersion = "5.79";
+
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(initialTelemetry["vdl-version"], m_initialExpectedVdlVersion);
+
+    createVvfFile(modifiedExpectedVdlVersion,m_vdlVersionFilePath);
+
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(modifiedTelemetry["vdl-version"], modifiedExpectedVdlVersion);
+}
+
+TEST_F(TestPluginCallback, getTelemetry_vdlVersion_fileDoesNotExist) //NOLINT
+{
+    fs::remove(m_vdlVersionFilePath);
+
+    json telemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(telemetry["vdl-version"], "unknown");
 }

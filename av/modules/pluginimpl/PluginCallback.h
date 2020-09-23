@@ -33,6 +33,7 @@ namespace Plugin
         std::string getLrDataHash();
         std::string getMlModelHash();
         std::string getPluginVersion();
+        std::string getVirusDataVersion();
 
         std::shared_ptr<QueueTask> m_task;
         Common::PluginApi::StatusInfo m_statusInfo;

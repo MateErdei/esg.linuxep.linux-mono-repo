@@ -79,7 +79,7 @@ namespace
   <on-access>false</on-access>
   <entity>
     <productId>SSPL-AV</productId>
-    <product-version>Not Found</product-version>
+    <product-version>unknown</product-version>
     <entityInfo>SSPL-AV</entityInfo>
   </entity>
 </status>)sophos", {
