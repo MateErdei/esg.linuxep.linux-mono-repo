@@ -301,12 +301,13 @@ Thin Installer Parses Update Caches Correctly
 
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
-    Log To Console  waiting
-    Sleep   1200
-
+    Log To Console  waiting 0
+    Sleep   180
 
 Thin Installer Force Works
     # Install to default location and break it
+    Log To Console  waiting 1
+    Sleep   300
     Create Initial Installation
 
     # Remove install directory
