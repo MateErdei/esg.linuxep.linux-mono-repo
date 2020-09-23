@@ -24,23 +24,19 @@ namespace CommsComponent
         return std::nullopt;
     }
 
-    std::vector<Path> getCaCertificateStorePaths()
+    std::optional<Path> getCaCertificateBundleFile()
     {
-        std::vector<Path> caStorePaths;
-        //The classic path expected by openssl is symlinked to dynamically generated
-        //"/etc/pki/ca-trust/extracted" on later rhel based systems
         const std::vector<Path> caCertBundlePaths = {
-                "/etc/ssl/certs/", "/etc/pki/tls/certs/", "/etc/pki/ca-trust/extracted"
+                "/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt"
         };
-        auto fs = Common::FileSystem::fileSystem();
         for (const auto& caCertBundlePath : caCertBundlePaths)
         {
-            if (fs->exists(caCertBundlePath))
+            if (Common::FileSystem::fileSystem()->isFile(caCertBundlePath))
             {
-                caStorePaths.emplace_back(caCertBundlePath);
+                return caCertBundlePath;
             }
         }
-        return caStorePaths;
+        return std::nullopt;
     }
 
     void makeDirsAndSetPermissions(const Path& rootDir, const Path& pathRelToRootDir, const std::string& userName,

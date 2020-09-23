@@ -249,10 +249,11 @@ namespace CommsComponent
             }
         }
 
-        //add all possible default certificate store paths
-        for(auto& certStorePath : getCaCertificateStorePaths())
+        //add default certifcate store path
+        auto certStorePath = CommsComponent::getCertificateStorePath();
+        if (certStorePath.has_value())
         {
-            validDeps.emplace_back(std::make_pair(certStorePath, certStorePath.substr(1)));
+            validDeps.emplace_back(std::make_pair(certStorePath.value(), certStorePath->substr(1)));
         }
 
         //add mcs certs folder

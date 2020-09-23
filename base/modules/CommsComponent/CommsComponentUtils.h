@@ -12,7 +12,7 @@ namespace CommsComponent
 {
     std::optional<Path> getCertificateStorePath();
 
-    std::vector<Path> getCaCertificateStorePaths();
+    std::optional<Path> getCaCertificateBundleFile();
 
     void makeDirsAndSetPermissions(const Path& rootDir, const Path& pathRelToRootDir, const std::string& userName,
                                    const std::string& userGroup, __mode_t mode);

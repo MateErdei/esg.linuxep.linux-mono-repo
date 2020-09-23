@@ -84,7 +84,7 @@ function removeWatchdogSystemdService()
 function unmountCommsComponentDependencies()
 {
   CommsComponentChroot=$1
-  for entry in etc/resolv.conf etc/hosts usr/lib usr/lib64 lib etc/ssl/certs etc/pki/tls/certs /etc/pki/ca-trust/extracted base/mcs/certs; do
+  for entry in etc/resolv.conf etc/hosts usr/lib usr/lib64 lib etc/ssl/certs etc/pki/tls/certs base/mcs/certs; do
     umount --force "${CommsComponentChroot}"/${entry}  > /dev/null 2>&1
   done
 }

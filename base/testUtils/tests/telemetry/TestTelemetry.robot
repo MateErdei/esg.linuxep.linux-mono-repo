@@ -302,11 +302,6 @@ Telemetry Executable Will Do A Successful HTTP PUT Request When Server Run TLSv1
     Prepare To Run Telemetry Executable With HTTPS Protocol   TLSProtocol=tlsv1_2
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
 
-Telemetry Executable Will Do A Successful Send To Splunk With Defualt System Cert Store CA Certs
-    [Documentation]    Telemetry Executable Will Do A Successful Send To Splunk
-    Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  server=t1.sophosupd.com
-    Run Telemetry Executable    ${EXE_CONFIG_FILE}  ${SUCCESS}  checkResult=0
-
 
 Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less Than TLSv1_2
     [Documentation]    Telemetry Executable Creates HTTP PUT Request With Collected Telemetry Content
