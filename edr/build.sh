@@ -11,7 +11,6 @@ FAILURE_COPY_SDDS_FAILED=60
 FAILURE_COPY_CPPCHECK_RESULT_FAILED=61
 FAILURE_CPPCHECK=62
 
-source /etc/profile
 set -ex
 set -o pipefail
 
@@ -27,8 +26,6 @@ LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
 ## These can't be exitFailure since it doesn't exist till the sourcing is done
-[ -f "$BASE"/build-files/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
-source "$BASE"/build-files/pathmgr.sh
 [ -f "$BASE"/build-files/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build-files/common.sh
 
@@ -234,7 +231,6 @@ function cppcheck_build() {
 
 function build()
 {
-    local BITS=$1
 
     echo "STARTINGDIR=$STARTINGDIR"
     echo "BASE=$BASE"
@@ -261,11 +257,11 @@ function build()
         untar_input protobuf
 
         mkdir -p "$REDIST"/osquery
-        tar xzf ${INPUT}/osquery-4.4.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
+        tar xzf ${INPUT}/osquery-4.5.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
 
     fi
 
-    addpath "$REDIST/cmake/bin"
+    PATH=$REDIST/cmake/bin:$PATH
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
     if [[ ${BULLSEYE} == 1 ]]
@@ -273,7 +269,7 @@ function build()
         BULLSEYE_DIR=/opt/BullseyeCoverage
         [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
         [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
-        addpath ${BULLSEYE_DIR}/bin:$PATH
+        PATH=${BULLSEYE_DIR}/bin:$PATH
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
         export COV_HTML_BASE
@@ -302,12 +298,12 @@ function build()
     export CC
     export CXX
 
-    [[ $CLEAN == 1 ]] && rm -rf build${BITS}
+    [[ $CLEAN == 1 ]] && rm -rf build64
 
     #run static analysis
     if [[ $ANALYSIS == 1 ]]
     then
-      cppcheck_build  build${BITS} || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
+      cppcheck_build  build64 || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
     fi
 
     if [[ $NO_BUILD == 1 ]]
@@ -315,10 +311,9 @@ function build()
         exit 0
     fi
 
-
-    [[ $CLEAN == 1 ]] && rm -rf build${BITS}
-    mkdir -p build${BITS}
-    cd build${BITS}
+    [[ $CLEAN == 1 ]] && rm -rf build64
+    mkdir -p build64
+    cd build64
     [[ -n ${NPROC:-} ]] || NPROC=$(nproc) ||  [[ -n ${NPROC:-} ]] || NPROC=2
     cmake -v -DREDIST="${REDIST}" \
              -DINPUT="${REDIST}" \
@@ -386,16 +381,16 @@ function build()
       cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
     fi
 
-    if [[ -d build${BITS}/symbols ]]
+    if [[ -d build64/symbols ]]
     then
-        cp -a build${BITS}/symbols output/
+        cp -a build64/symbols output/
     fi
 
     echo "Build Successful"
     return 0
 }
 
-build 64 2>&1 | tee -a $LOG
+build 2>&1 | tee -a $LOG
 EXIT=$?
 cp $LOG $OUTPUT/ || true
 exit $EXIT

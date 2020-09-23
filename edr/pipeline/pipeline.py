@@ -120,6 +120,7 @@ def pytest_task(machine: tap.Machine):
 
 
 def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
+    test_inputs = None
     if mode == 'release':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./TA'),
