@@ -329,7 +329,7 @@ def get_dictionary_of_actual_mcs_folders_and_permissions():
 def get_directory_of_expected_mcs_folders_and_permissions():
     return {
         "/opt/sophos-spl/base/mcs/action":      ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
-        "/opt/sophos-spl/base/mcs/certs":       ["root", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/certs":       ["root", "sophos-spl-group", "drwxr-x--x"],
         "/opt/sophos-spl/base/mcs/event":       ["sophos-spl-local", "sophos-spl-group", "drwxrwx---"],
         "/opt/sophos-spl/base/mcs/policy":      ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
         "/opt/sophos-spl/base/mcs/response":    ["sophos-spl-local", "sophos-spl-group", "drwxrwx---"],
