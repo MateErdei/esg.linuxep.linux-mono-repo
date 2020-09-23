@@ -14,6 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include <algorithm>
 #include <map>
@@ -87,7 +88,14 @@ namespace SulDownloader
             Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath();
         if (Common::FileSystem::fileSystem()->isDirectory(filePath))
         {
-            fileList = Common::FileSystem::fileSystem()->listFiles(filePath);
+            std::vector<std::string> initialfileList = Common::FileSystem::fileSystem()->listFiles(filePath);
+            for (auto & file : initialfileList)
+            {
+                if (Common::UtilityImpl::StringUtils::endswith(file,".sh"))
+                {
+                    fileList.emplace_back(file);
+                }
+            }
         }
 
         return fileList;

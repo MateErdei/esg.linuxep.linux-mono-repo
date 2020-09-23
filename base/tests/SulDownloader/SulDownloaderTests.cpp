@@ -692,7 +692,7 @@ TEST_F( // NOLINT
         fileSystemMock,
         SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
 
-    std::vector<std::string> fileListOfProductsToRemove = { "productRemove1" };
+    std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(fileListOfProductsToRemove));
@@ -758,7 +758,7 @@ TEST_F( // NOLINT
         fileSystemMock,
         SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED));
 
-    std::vector<std::string> fileListOfProductsToRemove = { "productRemove1" };
+    std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(fileListOfProductsToRemove));
