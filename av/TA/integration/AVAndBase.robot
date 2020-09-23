@@ -300,10 +300,10 @@ AV plugin Saves and Restores Scan Now Counter
                  ...  1 secs
                  ...  File Should Exist  ${TELEMETRY_BACKUP_JSON}
 
-
     Log To Console  telemetry backup:
-    Log To Console  ${TELEMETRY_BACKUP_JSON}
-    Should Contain  ${TELEMETRY_BACKUP_JSON}    "scan-now-count":1
+    ${backupfileContents} =  Get File    ${TELEMETRY_BACKUP_JSON}
+    Log To Console  ${backupfileContents}
+    Should Contain  ${backupfileContents}    "scan-now-count":1
 
 
 
