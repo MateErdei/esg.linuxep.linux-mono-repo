@@ -35,7 +35,7 @@
       <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-edr-componentsuite"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
-      <development-version branch="feature/LINUXDAR-2242_unified_pipeline"/>
+      <development-version branch="master"/>
       <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
     </build-asset>
   </inputs>
