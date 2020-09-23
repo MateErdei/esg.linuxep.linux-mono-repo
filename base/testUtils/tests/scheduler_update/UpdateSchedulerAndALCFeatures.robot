@@ -46,7 +46,8 @@ UpdateScheduler Should Fail if Warehouse Does not Have Required Feature
 UpdateScheduler Install Base and MDR With the ALC Policy With MDR
     [Tags]  SULDOWNLOADER  UPDATE_SCHEDULER  MDR_PLUGIN
     [Setup]  Setup For Test With Warehouse Containing Base and MDR
-    Send Policy With Host Redirection And Run Update And Check Success     add_features=MDR   remove_subscriptions=SENSORS
+    Remove Files In Directory  /opt/sophos-spl/base/mcs/event/
+    Send Policy With Host Redirection And Run Update And Check Success Of Oldest Event     add_features=MDR   remove_subscriptions=SENSORS
     Check MDR Installed
     Check ALC Status Sent To Central Contains MDR Subscription
 

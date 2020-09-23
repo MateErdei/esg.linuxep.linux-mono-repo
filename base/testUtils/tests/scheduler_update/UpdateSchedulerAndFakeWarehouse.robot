@@ -94,8 +94,10 @@ UpdateScheduler Report Failure On Versig Error
 
     Replace Sophos URLS to Localhost
 
+    Remove Files In Directory  /opt/sophos-spl/base/mcs/event/
     Simulate Update Now
-    ${eventPath} =  Check Status and Events Are Created  waitTime=120 secs
+    Check Status and Events Are Created  waitTime=120 secs
+    ${eventPath} =  Get Oldest File In Directory  /opt/sophos-spl/base/mcs/event/
 
     Log File  /opt/sophos-spl/logs/base/suldownloader.log
 

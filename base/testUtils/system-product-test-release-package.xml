@@ -30,6 +30,10 @@
             <include src="." dest="sspl-thininstaller"/>
         </package>
 
+<!--        <package name="sspl-thininstaller" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output" dest="." buildtype="dev">-->
+<!--            <include src="."   dest="sspl-thininstaller" />-->
+<!--        </package>-->
+
         <!--        <package name="sspl-thininstaller" version="sspl-thininstaller/1-0-6-5/220942/output" dest="." buildtype="prod">-->
         <!--            <include src="." dest="sspl-thininstaller"/>-->
         <!--        </package>-->

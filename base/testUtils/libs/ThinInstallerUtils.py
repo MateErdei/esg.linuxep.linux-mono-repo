@@ -230,7 +230,7 @@ class ThinInstallerUtils(object):
                 self.dump_log()
                 raise AssertionError("Thin Installer failed with exit code: " + str(rc) + " but was expecting: " + str(expected_return_code))
 
-    def run_thininstaller(self, command, expected_return_code=0, mcsurl=None, mcs_ca=None, proxy=None, override_location="https://localhost:1233", override_path=None, certs_dir=None, real=False):
+    def run_thininstaller(self, command, expected_return_code=0, mcsurl=None, mcs_ca=None, proxy=None, override_location="https://localhost:1233", override_path=None, certs_dir=None, force_certs_dir=None, real=False):
         cwd = os.getcwd()
         if not certs_dir:
             sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
@@ -250,6 +250,8 @@ class ThinInstallerUtils(object):
             test_using_prod = os.environ.get('TEST_USING_PROD', None)
             if test_using_prod:
                 self.env["OVERRIDE_SOPHOS_CERTS"] = sophos_certs_dir
+            elif force_certs_dir:
+                self.env["OVERRIDE_SOPHOS_CERTS"] = force_certs_dir
             else:
                 try:
                     del self.env['OVERRIDE_SOPHOS_CERTS']
@@ -288,6 +290,7 @@ class ThinInstallerUtils(object):
                                   mcsurl=None,
                                   override_location="https://localhost:1233",
                                   certs_dir=None,
+                                  force_certs_dir=None,
                                   no_connection_address_override=False,
                                   proxy=None,
                                   installsh_path=None):
@@ -298,6 +301,7 @@ class ThinInstallerUtils(object):
         self.run_thininstaller([installsh_path],
                                expected_return_code,
                                mcsurl,
+                               force_certs_dir=force_certs_dir,
                                override_location=override_location,
                                certs_dir=certs_dir,
                                proxy=proxy)
@@ -317,11 +321,12 @@ class ThinInstallerUtils(object):
                                override_location=None,
                                certs_dir=certs_dir)
 
-    def run_thininstaller_with_non_standard_path(self, expected_return_code, override_path, mcsurl=None):
+    def run_thininstaller_with_non_standard_path(self, expected_return_code, override_path, mcsurl=None, force_certs_dir=None):
         self.run_thininstaller([self.default_installsh_path],
                                expected_return_code,
                                override_path=override_path,
-                               mcsurl=mcsurl)
+                               mcsurl=mcsurl,
+                               force_certs_dir=force_certs_dir)
 
     def create_fake_savscan_in_tmp(self):
         os.makedirs("/tmp/i/am/fake/bin/")

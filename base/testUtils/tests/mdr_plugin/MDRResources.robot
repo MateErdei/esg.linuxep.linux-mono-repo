@@ -35,7 +35,7 @@ Install MDR Directly
 
 Install MDR Directly with Fake SophosMTR
     ${MDR_SDDS_DIR} =  Get SSPL MDR Plugin SDDS
-    ${result} =    Run Process  ${MDR_SDDS_DIR}/install.sh
+    ${result} =    Run Process  bash  ${MDR_SDDS_DIR}/install.sh
     # installer will report version copy error since osquery is not present
     Should Be Equal As Integers    ${result.rc}    20
     Log  ${result.stdout}
@@ -357,7 +357,7 @@ Install Directly From Component Suite
     ${result} =  Run Process    rsync   -r   -v   ${MDR_COMPONENT_SUITE.mdr_suite.sdds}/  ${COMPONENT_TEMP_DIR}/
     Should Be Equal As Integers    ${result.rc}    0    Failed to copy ${MDR_COMPONENT_SUITE.mdr_suite.sdds} to ${COMPONENT_TEMP_DIR}
     LIST FILES IN DIRECTORY  ${COMPONENT_TEMP_DIR}
-    ${result} =  Run Process    ${COMPONENT_TEMP_DIR}/install.sh
+    ${result} =  Run Process    bash  ${COMPONENT_TEMP_DIR}/install.sh
     Should Be Equal As Integers  ${result.rc}  0    "MDR installer failed: stdout: ${result.stdout} stderr: ${result.stderr}"
 
 Insert MTR Policy

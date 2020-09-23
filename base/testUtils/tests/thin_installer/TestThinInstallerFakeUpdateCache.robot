@@ -62,7 +62,7 @@ Thin Installer can install via Update Cache
     Start Local Cloud Server
     Create Default Credentials File  update_caches=localhost:1236,2,1;localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  0  no_connection_address_override=${True}
+    Run Default Thininstaller  0  no_connection_address_override=${True}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains In Order
         ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1235/sophos/customer]
         ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1236/sophos/customer]
@@ -79,7 +79,7 @@ Thin Installer can install via Update Cache With Bad Proxy
     Start Local Cloud Server
     Create Default Credentials File  update_caches=localhost:1236,2,1;localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  0  no_connection_address_override=${True}
+    Run Default Thininstaller  0  no_connection_address_override=${True}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains In Order
         ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1235/sophos/customer]
         ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1236/sophos/customer]

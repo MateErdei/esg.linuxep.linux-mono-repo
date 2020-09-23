@@ -105,7 +105,7 @@ ${CUSTOM_DIR_BASE} =  /CustomPath
 Thin Installer can download test file from warehouse and execute it
     [Tags]  SMOKE  THIN_INSTALLER
     Setup Warehouse
-    Run Default Thininstaller    0    https://localhost:1233
+    Run Default Thininstaller    0    https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    INSTALLER EXECUTED
 
 Thin Installer fails to download test file from warehouse if certificate is not installed
@@ -222,21 +222,21 @@ Thin Installer Succeeds When System Has Glibc Greater Than Build Machine
     Setup Warehouse
     ${HighGlibcVersion} =  Set Variable  999.999
     ${PATH} =  Create Fake Ldd Executable With Version As Argument And Add It To Path  ${HighGlibcVersion}
-    Run Thininstaller With Non Standard Path  0  ${PATH}  https://localhost:1233
+    Run Thininstaller With Non Standard Path  0  ${PATH}  https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    INSTALLER EXECUTED
 
 Thin Installer Succeeds When System Has Glibc Same As Build Machine
     Setup Warehouse
     ${buildGlibcVersion} =  Get Glibc Version From Thin Installer
     ${PATH} =  Create Fake Ldd Executable With Version As Argument And Add It To Path  ${buildGlibcVersion}
-    Run Thininstaller With Non Standard Path  0  ${PATH}  https://localhost:1233
+    Run Thininstaller With Non Standard Path  0  ${PATH}  https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    INSTALLER EXECUTED
 
 Thin Installer Falls Back From Bad Env Proxy To Direct
     Setup Warehouse
     # NB we use the warehouse URL as the MCSUrl here as the thin installer just does a get over HTTPS that's all we need
     # the url to respond against
-    Run Default Thininstaller   expected_return_code=0  mcsurl=https://localhost:1233  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com
+    Run Default Thininstaller   expected_return_code=0  mcsurl=https://localhost:1233  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains  INSTALLER EXECUTED
     Check Thininstaller Log Contains  WARN: Could not connect using proxy
 
@@ -258,12 +258,12 @@ Thin Installer And SUL Library Will Successfully Connect With Server Running TLS
     [Tags]  SMOKE  THIN_INSTALLER
     Setup Warehouse   --tls1_2   --tls1_2
     Start Local Cloud Server   --tls   tlsv1_2
-    Run Default Thininstaller    0    https://localhost:4443
+    Run Default Thininstaller    0    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    INSTALLER EXECUTED
 
 Thin Installer With Space In Name Works
     Setup Warehouse
-    Run Default Thininstaller With Different Name    SophosSetup (1).sh    0    https://localhost:1233
+    Run Default Thininstaller With Different Name    SophosSetup (1).sh    0    https://localhost:1233   force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    INSTALLER EXECUTED
 
 Thin Installer Fails When No Path In Systemd File
