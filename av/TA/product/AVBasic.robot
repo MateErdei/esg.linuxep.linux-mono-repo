@@ -100,6 +100,8 @@ AV Plugin Scan Now Updates Telemetry Count
 
     Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   1
 
+    ${result} =   Terminate Process  ${handle}
+
 
 Scan Now Configuration Is Correct
     Use Fake AVScanner
