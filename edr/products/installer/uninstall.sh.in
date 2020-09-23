@@ -36,7 +36,8 @@ do
     shift
 done
 UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
-SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}"
+SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
+SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
@@ -49,8 +50,8 @@ then
 fi
 
 rm -rf "$UNINSTALLDIR"
-rm -r "$SYMLINK.sh"
-rm -r "$SYMLINK.ini"
+rm -r "$SYMLINK"
+rm -r "$SYMLINKVERSION"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
 
 if (( $DOWNGRADE == 0 ))
