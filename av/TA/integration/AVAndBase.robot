@@ -295,8 +295,15 @@ AV plugin Saves and Restores Scan Now Counter
 
     Stop AV Plugin
 
-    Log To Console   ${TELEMETRY_BACKUP_JSON}
-    Should Contain   ${TELEMETRY_BACKUP_JSON}    "scan-now-count":1
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_BACKUP_JSON}
+
+
+    Log To Console  telemetry backup:
+    Log To Console  ${TELEMETRY_BACKUP_JSON}
+    Should Contain  ${TELEMETRY_BACKUP_JSON}    "scan-now-count":1
 
 
 
