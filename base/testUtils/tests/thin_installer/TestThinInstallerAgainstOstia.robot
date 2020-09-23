@@ -301,6 +301,8 @@ Thin Installer Parses Update Caches Correctly
 
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
+    Log Console  waiting
+    Sleep   1200
 
 
 Thin Installer Force Works
