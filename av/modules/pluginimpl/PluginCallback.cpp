@@ -62,17 +62,17 @@ namespace Plugin
     {
         LOGSUPPORT("Received get telemetry request");
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        telemetry.set("ml-pe-model-hash", getMlModelHash());
+        telemetry.set("ml-lib-hash", getMlLibHash());
         telemetry.set("version", getPluginVersion());
 
         return telemetry.serialiseAndReset();
     }
 
-    std::string PluginCallback::getMlModelHash()
+    std::string PluginCallback::getMlLibHash()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
-        mlModel /= "chroot/susi/distribution_version/version1/mlmodel/model.dat";
+        mlModel /= "chroot/susi/distribution_version/version1/libmodel.so";
 
         std::ifstream ifs (mlModel, std::ifstream::in);
         std::string mlModelContents((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());

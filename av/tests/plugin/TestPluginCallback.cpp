@@ -43,14 +43,14 @@ namespace
             versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
             versionFileStream.close();
 
-            fs::path mlDirPath (BASE);
-            mlDirPath /= "chroot/susi/distribution_version/version1/mlmodel";
-            fs::create_directories(mlDirPath);
-            m_mlFilePath = mlDirPath;
-            m_mlFilePath /= "model.dat";
+            fs::path libDirPath (BASE);
+            libDirPath /= "chroot/susi/distribution_version/version1";
+            fs::create_directories(libDirPath);
+            m_mlLibFilePath = libDirPath;
+            m_mlLibFilePath /= "libmodel.so";
 
             std::ofstream mlFilePathStream;
-            mlFilePathStream.open(m_mlFilePath);
+            mlFilePathStream.open(m_mlLibFilePath);
             mlFilePathStream << "1"  << std::endl;
             mlFilePathStream.close();
 
@@ -61,9 +61,9 @@ namespace
 
         std::shared_ptr<Plugin::PluginCallback> m_pluginCallback;
         fs::path m_versionFile;
-        fs::path m_mlFilePath;
+        fs::path m_mlLibFilePath;
         std::string m_initialExpectedVersion = "1.2.3.456";
-        std::string m_initialExpectedMlHash = "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865";
+        std::string m_initialExpectedMlLibHash = "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865";
     };
 }
 
@@ -87,20 +87,20 @@ TEST_F(TestPluginCallback, getTelemetry_version) //NOLINT
     EXPECT_EQ(modifiedTelemetry["version"], modifiedVersion);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_mlData) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_mlLibHash) //NOLINT
 {
-    std::string modifiedExpectedMlHash = "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3";
+    std::string modifiedExpectedMlLibHash = "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3";
 
     json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
-    EXPECT_EQ(initialTelemetry["ml-pe-model-hash"], m_initialExpectedMlHash);
+    EXPECT_EQ(initialTelemetry["ml-lib-hash"], m_initialExpectedMlLibHash);
 
     std::ofstream mlFilePathStream;
-    mlFilePathStream.open(m_mlFilePath);
+    mlFilePathStream.open(m_mlLibFilePath);
     mlFilePathStream << "2"  << std::endl;
     mlFilePathStream.close();
 
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
-    EXPECT_EQ(modifiedTelemetry["ml-pe-model-hash"], modifiedExpectedMlHash);
+    EXPECT_EQ(modifiedTelemetry["ml-lib-hash"], modifiedExpectedMlLibHash);
 }
