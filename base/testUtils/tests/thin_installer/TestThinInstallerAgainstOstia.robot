@@ -301,7 +301,7 @@ Thin Installer Parses Update Caches Correctly
 
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
-    Log Console  waiting
+    Log To Console  waiting
     Sleep   1200
 
 
