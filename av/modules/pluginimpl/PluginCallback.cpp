@@ -13,7 +13,6 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/XmlUtilities/AttributesMap.h>
 
 #include <fstream>
 
@@ -63,92 +62,74 @@ namespace Plugin
     {
         LOGSUPPORT("Received get telemetry request");
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        telemetry.set("lr-data-hash", getLrDataHash());
-        telemetry.set("ml-lib-hash", getMlLibHash());
-        telemetry.set("vdl-version", getVirusDataVersion());
+        telemetry.set("ml-pe-model-hash", getMlModelHash());
+        telemetry.set("ml-pe-model-version", getMlModelVersion());
         telemetry.set("version", getPluginVersion());
 
         return telemetry.serialiseAndReset();
     }
 
-    std::string PluginCallback::getLrDataHash()
+    std::string PluginCallback::getMlModelVersion()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        fs::path filerep(appConfig.getData("PLUGIN_INSTALL"));
-        filerep /= "chroot/susi/distribution_version/version1/lrdata/filerep.dat";
-        fs::path signerrep(appConfig.getData("PLUGIN_INSTALL"));
-        signerrep /= "chroot/susi/distribution_version/version1/lrdata/signerrep.dat";
+        fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
+        mlModel /= "chroot/susi/distribution_version/version1/libmodel.so";
 
-        std::ifstream filerepFs(filerep, std::ifstream::in);
-        std::ifstream signerrepFs(signerrep, std::ifstream::in);
+        char c;
+        std::ifstream in( mlModel, std::ios::binary );
+        std::stringstream ss;
 
-        if (filerepFs.good() && signerrepFs.good())
+        if (in.good())
         {
-            std::stringstream lrDataContents;
-            lrDataContents << filerepFs.rdbuf() << signerrepFs.rdbuf();
-            return common::sha256_hash(lrDataContents.str());
+            for (int i = 31; i >= 28; i--)
+            {
+                in.seekg(i*sizeof(char));
+                in.get(c);
+                ss << std::hex << static_cast<unsigned int>(c);
+            }
         }
-        return "unknown";
+        in.close();
 
+        unsigned int x;
+        ss >> x;
 
+        return std::to_string(x);
     }
 
-    std::string PluginCallback::getMlLibHash()
+    std::string PluginCallback::getMlModelHash()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        fs::path mlLib(appConfig.getData("PLUGIN_INSTALL"));
-        mlLib /= "chroot/susi/distribution_version/version1/libmodel.so";
+        fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
+        mlModel /= "chroot/susi/distribution_version/version1/mlmodel/model.dat";
 
-        std::ifstream mlLibFs (mlLib, std::ifstream::in);
+        std::ifstream ifs (mlModel, std::ifstream::in);
+        std::string mlModelContents((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
-        if(mlLibFs.good())
-        {
-            std::stringstream mlLibContents;
-            mlLibContents << mlLibFs.rdbuf();
-            return common::sha256_hash(mlLibContents.str());
-        }
-        return "unknown";
-    }
-
-    std::string PluginCallback::getVirusDataVersion()
-    {
-        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        fs::path vvfFile(appConfig.getData("PLUGIN_INSTALL"));
-        vvfFile /= "chroot/susi/distribution_version/version1/vdb/vvf.xml";
-
-        std::ifstream vvfFileFs (vvfFile, std::ifstream::in);
-        std::string virusDataVersion = "unknown";
-        if (vvfFileFs.good())
-        {
-            std::stringstream vvfFileContents;
-            vvfFileContents << vvfFileFs.rdbuf();
-
-            auto attributeMap = Common::XmlUtilities::parseXml(vvfFileContents.str());
-            virusDataVersion = attributeMap.lookup("VVF/VirusData").value("Version");
-        }
-        return virusDataVersion;
+        return common::sha256_hash(mlModelContents);
     }
 
     std::string PluginCallback::getPluginVersion()
     {
+        std::string pluginVersion = "Not Found";
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path versionFile(appConfig.getData("PLUGIN_INSTALL"));
         versionFile /= "VERSION.ini";
 
-        std::string versionKeyword("PRODUCT_VERSION = ");
-        std::ifstream versionFileFs(versionFile);
-        if (versionFileFs.good())
+        if (fs::exists(versionFile))
         {
+            std::string versionKeyword("PRODUCT_VERSION = ");
+            std::ifstream versionFileHandle(versionFile);
             std::string line;
-            while (std::getline(versionFileFs, line))
+            while (std::getline(versionFileHandle, line))
             {
+
                 if (line.rfind(versionKeyword, 0) == 0)
                 {
-                    return line.substr(versionKeyword.size(), line.size());
+                    pluginVersion = line.substr(versionKeyword.size(), line.size());
                 }
             }
         }
-        return "unknown";
+        return pluginVersion;
     }
 
     std::string PluginCallback::generateSAVStatusXML()
