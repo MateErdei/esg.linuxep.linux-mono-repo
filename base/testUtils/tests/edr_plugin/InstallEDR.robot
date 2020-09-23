@@ -498,7 +498,7 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     ${base_version_contents} =  Get File  ${SOPHOS_INSTALL}/base/VERSION.ini
     Should contain   ${base_version_contents}   PRODUCT_VERSION = 99.9.9
