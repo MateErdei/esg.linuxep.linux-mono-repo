@@ -95,9 +95,10 @@ def download_url(url, dest):
 
 
 def unpack(zip_file, dest):
-    safe_mkdir(dest)
-    with zipfile.ZipFile(open(zip_file, "r")) as z:
-        z.extractall(dest)
+    print("Extracting: {}".format(ensure_unicode(zip_file)))
+    with zipfile.ZipFile(ensure_unicode(zip_file)) as z:
+        safe_mkdir(dest)
+        z.extractall(ensure_unicode(dest))
 
 
 DEST = ""
@@ -113,8 +114,8 @@ def process(baseurl, filename, dirname):
         return
 
     latest = get_latest(baseurl, filename)
-    if download_url(latest, zip_file):
-        unpack(zip_file, dest_dir)
+    download_url(latest, zip_file)
+    unpack(zip_file, dest_dir)
 
 
 def run(dest):
