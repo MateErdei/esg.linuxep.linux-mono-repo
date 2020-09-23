@@ -57,9 +57,9 @@ OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-mi
 # A version with mocked libraries (to test file removal on upgrade)
 OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-version-0-6-0-warehouse"
 # a version with edr 9.99.9 for downgrade tests
-OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-edr-999"
-OSTIA_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-mdr-999"
-OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-edr-999-mdr-999"
+OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-menaga-edr-999"
+OSTIA_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-menaga-mdr-999"
+OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-menaga-edr-999-mdr-999"
 # A warehouse containing 3 base versions for paused updating tests
 OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE = "OSTIA_PAUSED_OVERRIDE"
 OSTIA_PAUSED_ADDRESS_BRANCH = os.environ.get(OSTIA_PAUSED_ADDRESS_BRANCH_OVERRIDE, "feature-paused-updating")
