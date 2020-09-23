@@ -114,6 +114,13 @@ def response_dir():
     return os.path.join(mcs_path(), 'response')
 
 
+def datafeed_dir():
+    """
+    datafeed_dir
+    """
+    return os.path.join(mcs_path(), 'datafeed')
+
+
 def mcs_policy_file():
     """
     mcs_policy_file

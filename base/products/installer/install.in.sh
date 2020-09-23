@@ -385,6 +385,7 @@ fi
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/policy"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/response"
+makedir 770 "${SOPHOS_INSTALL}/base/mcs/datafeed"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/status"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/status/cache"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/event"

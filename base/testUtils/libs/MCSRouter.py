@@ -155,6 +155,23 @@ DUMMY_MCS_POLICY_WITH_DIRECT_DISABLED = """<?xml version="1.0"?>
     </configuration>
 </policy>"""
 
+# TODO replace this with correct example
+DUMMY_XDR_DATAFEED_RESULT = """{
+    "type": "sophos.mgt.response.RunLiveQuery",
+    "queryMetaData": {
+        "durationMillis": 32,
+        "sizeBytes": 0,
+        "rows": 0,
+        "errorCode": 0,
+        "errorMessage": "OK"
+    },
+    "columnMetaData": [
+        {"name": "pathname", "type": "TEXT"},
+        {"name": "sophosPID", "type": "TEXT"},
+        {"name": "start_time", "type": "BIGINT"}
+    ]
+}
+"""
 
 def _update_xml_revid(xmlcontent):
     # No attempt is made to verify that assumptions are valid
@@ -685,7 +702,18 @@ class MCSRouter(object):
 }
 """
         return self.__send_edr_response(app_id, correlation_id, edr_resonse_with_special_characters)
-        
+
+
+    def send_xdr_datafeed_result(self, datafeed_id, timestamp, content=DUMMY_XDR_DATAFEED_RESULT):
+        file_name = "{}-{}.json".format(datafeed_id, timestamp)
+        logger.info("Sending fake xdr datafeed result, filename: {}, content: {}".format(file_name, content))
+        datafeed_file = os.path.join(self.tmp_path, file_name)
+        with open(datafeed_file, "w") as f:
+            f.write(content)
+
+        shutil.move(datafeed_file, os.path.join(self.mcs_dir, "datafeed", file_name))
+        return content
+
     def send_alc_status(self, res):
         status_file = os.path.join(self.tmp_path, self.alc_status_file)
         with open(status_file, "w") as f:

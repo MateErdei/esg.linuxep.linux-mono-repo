@@ -22,6 +22,7 @@ from .adapters import agent_adapter
 from .adapters import app_proxy_adapter
 from .adapters import event_receiver
 from .adapters import response_receiver
+from .adapters import datafeed_receiver
 from .adapters import generic_adapter
 from .adapters import livequery_adapter
 from .adapters import liveresponse_adapter
@@ -30,6 +31,7 @@ from .mcsclient import config_exception
 from .mcsclient import events as events_module
 from .mcsclient import events_timer as events_timer_module
 from .mcsclient import responses as responses_module
+from .mcsclient import datafeeds as datafeeds_module
 from .mcsclient import mcs_commands
 from .mcsclient import mcs_connection
 from .mcsclient import mcs_exception
@@ -43,8 +45,6 @@ from .utils import default_values
 from .utils import plugin_registry
 from .utils import signal_handler
 from .utils import timestamp
-from .utils import write_json
-from .utils import flags
 
 from .utils.get_ids import get_gid, get_uid
 
@@ -415,17 +415,6 @@ class MCS:
         self.stop_push_client(push_client)
         self.__m_command_check_interval.set_on_error(error_count, transient)
 
-    def get_flags(self,last_time_checked):
-        flags_polling = self.__m_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", default_values.get_default_flags_poll())
-        if (time.time() > last_time_checked + flags_polling) \
-                or not os.path.isfile(path_manager.mcs_flags_file()):
-            LOGGER.info("Checking for updates to mcs flags")
-            mcs_flags_content = self.__m_comms.get_flags()
-            if mcs_flags_content:
-                write_json.write_mcs_flags(mcs_flags_content)
-            last_time_checked = time.time()
-        return last_time_checked
-
     def run(self):
         """
         run
@@ -471,6 +460,15 @@ class MCS:
             """
             responses.add_response(*response_args)
 
+        datafeeds = datafeeds_module.Datafeeds()
+
+        def add_datafeed_result(*datafeed_args):
+            """
+            Add datafeed result to the datafeeds container class, it can hold different datafeed types.
+            """
+            datafeeds.add_datafeed_result(*datafeed_args)
+
+
         def status_updated(reason=None):
             """
             status_updated
@@ -495,7 +493,6 @@ class MCS:
         push_notification_pipe_file_descriptor = push_client.notify_activity_pipe()
 
         last_command_time_check = 0
-        last_flag_time_check = 0
 
         running = True
         reregister = False
@@ -614,9 +611,10 @@ class MCS:
                         add_response(file_path, app_id, correlation_id, timestamp.timestamp(
                             response_time), response_body)
 
-                    # check for new flags
-                    last_flag_time_check = self.get_flags(last_flag_time_check)
-                    flags.combine_flags_files()
+                    # get all pending datafeeds
+                    for file_path, datafeed_id, datafeed_timestamp, response_body in datafeed_receiver.receive():
+                        LOGGER.info("Queuing datafeed result for %s", datafeed_id)
+                        add_datafeed_result(file_path, datafeed_id, datafeed_timestamp, response_body)
 
                     # send statuses, events and responses only if not in error state
                     if error_count == 0:
@@ -653,7 +651,7 @@ class MCS:
                                 events_timer.error_sending_events()
                                 raise
 
-
+                        # Send live query responses
                         if responses.has_responses():
                             LOGGER.debug("Sending responses")
                             try:
@@ -661,6 +659,16 @@ class MCS:
                                 responses.reset()
                             except Exception as exception:
                                 LOGGER.error("Failed to send responses: {}".format(str(exception)))
+
+                        # Send datafeed results
+                        if datafeeds.has_results():
+                            # LOGGER.debug("Sending datafeed results")
+                            LOGGER.info("Sending datafeed results")
+                            try:
+                                comms.send_datafeeds(datafeeds.get_datafeeds())
+                                datafeeds.reset()
+                            except Exception as exception:
+                                LOGGER.error("Failed to send datafeeds: {}".format(str(exception)))
 
                     # reset command poll
                 except socket.error as ex:

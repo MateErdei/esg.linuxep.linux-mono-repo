@@ -1024,7 +1024,60 @@ class MCSConnection:
             except Exception as exception:
                 log_exception_error(response.m_app_id, response.m_correlation_id, exception)
 
+    def send_datafeeds(self, datafeeds):
+        """
+        This method is used in mcs.py to trigger the processing and sending of datafeed results.
+        """
+        LOGGER.info("send_datafeeds")
+        datafeeds.prune_old_datafeed_files()
+        datafeeds.prune_too_large_datafeed_files()
 
+        for feed in datafeeds:
+            # Data feed sending protocol, this will apply to all datafeeds initially, this code can be expended
+            # later if we need to handle different sending protocols for different datafeeds.
+            # remove all empty datafeeds
+            if feed.m_json_body_size == 0:
+                # TODO add remove functoin to Datafeeds feed.remove
+
+            self.send_datafeed_result(feed)
+
+            # TODO I think here we could implement the sending protocol and also delete the feed files?
+            # try:
+            #     if feed.m_json_body_size != 0:
+            #         self.send_live_query_response_with_id(feed)
+            #     else:
+            #         LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(feed.m_correlation_id))
+            #     feed.remove_response_file()
+            # except Exception as exception:
+            #     log_exception_error(feed.m_app_id, feed.m_correlation_id, exception)
+
+
+    def send_datafeed_result(self, datafeed):
+
+        LOGGER.info("SENDING command path: " + datafeed.get_command_path(self.get_id()))
+        LOGGER.info("SENDING json: " + datafeed.m_json_body)
+
+        """
+        prepare a HTTP request to send to central containing a data feed result
+        :param datafeed: A Datafeed object (datafeeds.py) which contains data, e.g. a scheduled query.
+        :return: The gzipped body of the datafeed file
+        """
+        command_path = datafeed.get_command_path(self.get_id())
+
+        headers = {
+            "Authorization": self._get_basic_authorization_header(),
+            "Content-Type":  "application/json",
+            "ActualSize": datafeed.m_json_body_size
+        }
+
+        LOGGER.debug(
+            "MCS request url={} body size={}".format(
+                command_path,
+                datafeed.m_gzip_body_size))
+        (headers, body) = self.__request(command_path, headers, datafeed.m_gzip_body, "POST")
+
+        #TODO do we really need to return the body here?
+        return body
 
     def extract_commands_from_xml(self, commands_xml):
         assert commands_xml is not None

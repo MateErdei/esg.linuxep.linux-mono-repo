@@ -19,7 +19,8 @@ import time
 import datetime
 import xml.dom.minidom
 import xml.sax.saxutils
-
+import io
+import gzip
 import urllib.parse
 
 import logging
@@ -674,6 +675,17 @@ class Endpoint(object):
         with open(os.path.join(_get_log_dir(), "last_query_response.json"), 'w') as live_query_response_file:
             live_query_response_file.write(decompressed_body.decode())
 
+    def handle_datafeed_ep(self, datafeed_id, datafeed_body):
+        try:
+            fake_file = io.BytesIO(datafeed_body)
+            decompressed_fake_file = gzip.GzipFile(fileobj=fake_file, mode='rb')
+            decompressed_body = decompressed_fake_file.read()
+        except Exception as e:
+            logger.error("Failed to decompress datafeed body content: {}".format(e))
+            return
+        logger.info("{} datafeed = {}".format(datafeed_id, decompressed_body.decode()))
+        with open(os.path.join(_get_log_dir(), "last_datafeed_result.json"), 'w') as last_datafeed_file:
+            last_datafeed_file.write(decompressed_body.decode())
 
     def name(self):
         return self.__m_name
@@ -1490,6 +1502,25 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         endpoint.handle_response(app_id, correlation_id, response_body)
         return self.ret("")
 
+    def datafeed(self):
+        match_object = re.match(r"^/mcs/data_feed/endpoint/([^/]*)/feed_id/([^/]*)$", self.path)
+        if not match_object:
+            return self.ret("Bad response path", 400)
+
+        endpoint_id = match_object.group(1)
+        feed_id = match_object.group(2)
+
+        endpoint = GL_ENDPOINTS.getEndpointByID(endpoint_id)
+        if endpoint is None:
+            ## Create endpoint?
+            return self.ret("Response for unknown endpoint", 400)
+        if SERVER_500:
+            return self.ret("Internal Server Error", 500)
+
+        datafeed_body = self.getBody()
+        endpoint.handle_datafeed_ep(feed_id, datafeed_body)
+        return self.ret("")
+
 
     def do_POST_mcs(self):
         if self.path == "/mcs/register":
@@ -1507,6 +1538,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.mcs_event()
         elif self.path.startswith("/mcs/responses/endpoint"):
             return self.edr_response()
+        elif self.path.startswith("/mcs/data_feed/endpoint"):
+            return self.datafeed()
 
         logger.warn("unknown do_POST_mcs: %s", self.path)
         return self.ret("Unknown MCS command", code=500)
