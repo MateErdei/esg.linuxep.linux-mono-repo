@@ -1,3 +1,6 @@
+*** Settings ***
+Resource  ../installer/InstallerResources.robot
+
 *** Keywords ***
 
 Check Watchdog Starts Comms Component

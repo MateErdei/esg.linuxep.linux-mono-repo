@@ -468,16 +468,19 @@ class TelemetryUtils:
         shutil.copyfile(root_file, command_path)
         os.chmod(command_path, 0o744)
 
-    def create_test_telemetry_config_file(self, telemetry_config_file_path, certificate_path, username,
-                                          requestType="PUT", port=443):
-        fixedTelemetryCert="/opt/sophos-spl/base/mcs/certs/telemetry.crt"
+    def create_test_telemetry_config_file(self, telemetry_config_file_path, certificate_path="", username="sophos-spl-user",
+                                          requestType="PUT", port=443, server=None):
         logger.info(certificate_path)
-        if certificate_path != '""':
+        if certificate_path.strip('"\''):
+            fixedTelemetryCert="/opt/sophos-spl/base/mcs/certs/telemetry.crt"
             shutil.copyfile(certificate_path, fixedTelemetryCert)
+            os.chmod(fixedTelemetryCert, 0o644)
             self._default_telemetry_config["telemetryServerCertificatePath"] = fixedTelemetryCert
         else:
             self._default_telemetry_config["telemetryServerCertificatePath"] = ""
-        os.chmod(fixedTelemetryCert, 0o644)
+
+        if server:
+            self._default_telemetry_config["server"] = server
         self._default_telemetry_config["verb"] = requestType
         self._default_telemetry_config["port"] = int(port)
         with open(telemetry_config_file_path, 'w') as tcf:
