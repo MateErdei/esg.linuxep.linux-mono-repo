@@ -145,7 +145,7 @@ namespace UpdateSchedulerImpl
 
             auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
 
-            std::string connectionAddress("");
+            std::string connectionAddress;
 
             if (fileSystem()->isFile(applicationPathManager().getSophosAliasFilePath()))
             {

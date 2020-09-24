@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -212,8 +212,8 @@ namespace SulDownloader
              * be automatically uninstalled if not present in the warehouse. For sspl it is meant to target base.
              * @param productSubscription
              */
-            void setPrimarySubscription(const ProductSubscription& productSubscription);
-            /** Set the list of other products to be installed. In sspl it is meant to target Sensors, MDR, etc
+            void setPrimarySubscription( const ProductSubscription& productSubscription);
+            /** Set the list of other products to be installed. In sspl it is meant to target Sensors, plugins, etc
              */
             void setProductsSubscription(const std::vector<ProductSubscription>& productsSubscriptions);
 
@@ -265,16 +265,28 @@ namespace SulDownloader
             void setInstallArguments(const std::vector<std::string>& installArguments);
 
             /**
-             * Get the list of allowed manifest names for the products downloaded.
+             * Get the list of mandatory manifest (relative) file paths that must exist for all the products downloaded.
              * @return list of manifest names.
              */
             const std::vector<std::string>& getManifestNames() const;
 
             /**
-             * Set the list of manifest names that are allowed for packages.
+             * Set the list of mandatory manifest (relative) file paths that must exist for all packages.
              * @param manifestNames
              */
-            void setManifestNames(const std::vector<std::string>& manifestNames);
+            void setManifestNames(const std::vector<std::string>& optionalManifestNames);
+
+            /**
+             * Get the list of possible optional manifest f(relative) file paths for the products downloaded.
+             * @return list of optional manifest names.
+             */
+            const std::vector<std::string>& getOptionalManifestNames() const;
+
+            /**
+             * Set the list of optional manifest (relative) file paths that are may exist for packages.
+             * @param optionalManifestNames
+             */
+            void setOptionalManifestNames(const std::vector<std::string>& optionalManifestNames);
 
             /**
              * Set the list of features that the downloaded products should have.
@@ -289,6 +301,24 @@ namespace SulDownloader
              * @return
              */
             const std::vector<std::string>& getFeatures() const;
+
+            /**
+             * Set whether to download the slow version of some supplements or the normal (fast version).
+             *
+             * For Local Reputation data, there is the normal supplement, or a slower supplement only updated weekly.
+             *
+             * See https://jira.sophos.net/browse/LINUXDAR-2076
+             * See https://wiki.sophos.net/display/global/Requirements+for+publishing+to+the+slow+release+channel+for+DataSetA+and+LocalRep
+             *
+             * @param useSlowSupplements
+             */
+            void setUseSlowSupplements(bool useSlowSupplements);
+
+            /**
+             * Get whether to download slow supplements or not.
+             * @return
+             */
+            [[nodiscard]] bool getUseSlowSupplements() const;
 
             /**
              * Used to verify all required settings stored in the ConfigurationData object
@@ -361,6 +391,8 @@ namespace SulDownloader
             LogLevel m_logLevel;
             bool m_forceReinstallAllProducts;
             std::vector<std::string> m_manifestNames;
+            std::vector<std::string> m_optionalManifestNames;
+            bool m_useSlowSupplements = false;
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader
