@@ -16,8 +16,7 @@
                  version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
-        <package name="versig"
-                 version="2-0-0-72/219560/output" dest="input">
+        <package name="versig" version="2-0-0-80/221233/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
         <package name="curllinux11" version="7-71-1-2/220751/output" dest="input">
