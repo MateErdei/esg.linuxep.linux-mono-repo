@@ -12,10 +12,12 @@ warehouses:
                 features: [CORE]
                 platforms: []
                 release-tags:
-                    -   base-version: ""
-                        tag: RECOMMENDED
-                    -   base-version: ""
-                        tag: BETA
+                    - base-version: ""
+                      tag: RECOMMENDED
+                    - base-version: ""
+                      tag: BETA
+                supplements:
+                    - winepflags-supp
                 subcomponents:
                     sspl-base-component:
                     sspl-liveterminal:
@@ -62,6 +64,8 @@ warehouses:
                         tag: RECOMMENDED
                     -   base-version: ""
                         tag: BETA
+                supplements:
+                    - winepflags-supp
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"

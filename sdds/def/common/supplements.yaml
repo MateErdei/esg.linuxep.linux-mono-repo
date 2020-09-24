@@ -1,2 +1,17 @@
 %YAML 1.1
 ---
+winepflags-supp:
+  base-version: 1
+  canonical-name: WINEPFLAGS
+  decode-path: .
+  line-id: WINEPFLAGS
+  tag: LATEST
+  warehouse: winepflags
+
+sspl-flags-supp:
+  fileset: ..\redist\sspl_flags
+  canonical-name: SSPLFLAGS
+  decode-path: .
+  line-id: SSPLFLAGS
+  tag: LATEST
+  warehouse: sspl_flags
