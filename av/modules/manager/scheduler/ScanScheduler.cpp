@@ -94,7 +94,7 @@ void manager::scheduler::ScanScheduler::run()
             if (fd_isset(scanNowFD, &tempRead))
             {
                 LOGINFO("Starting Scan Now");
-                Common::Telemetry::TelemetryHelper::getInstance().increment("scan-now-count", (long) 1);
+                Common::Telemetry::TelemetryHelper::getInstance().increment("scan-now-count", 1ul);
                 runNextScan(m_config.scanNowScan());
                 while (m_scanNowPipe.notified())
                 {

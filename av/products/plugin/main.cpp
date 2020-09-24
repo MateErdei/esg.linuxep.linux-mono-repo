@@ -56,7 +56,7 @@ int main()
 
     PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
 
-    // this will also se the save file name
+    // If this is the first time restoring this will also set the telemetry backup file name
     Common::Telemetry::TelemetryHelper::getInstance().restore("av");
 
     try

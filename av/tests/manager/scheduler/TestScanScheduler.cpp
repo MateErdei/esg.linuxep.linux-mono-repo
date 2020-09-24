@@ -84,10 +84,11 @@ TEST_F(TestScanScheduler, scanNow) //NOLINT
     std::cerr.rdbuf(buffer.rdbuf());
 
     int count = 0;
-    do {
+    while(buffer.str().find("INFO Starting Scan Now") == std::string::npos && count < 200)
+    {
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
         count++;
-    } while(buffer.str().find("INFO Completed scan Scan Now") == std::string::npos && count < 200);
+    }
 
     EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Starting scan Scan Now"));
     EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Completed scan Scan Now"));
@@ -118,10 +119,11 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
     std::cerr.rdbuf(buffer.rdbuf());
 
     int count = 0;
-    do {
+    while(buffer.str().find("INFO Starting Scan Now") == std::string::npos && count < 200)
+    {
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
         count++;
-    } while(buffer.str().find("INFO Starting Scan Now") == std::string::npos && count < 200);
+    }
 
     scheduler.requestStop();
     scheduler.join();
