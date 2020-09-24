@@ -224,6 +224,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 AV Plugin Scan of Infected File Increases Threat Eicar Count
     [Teardown]  Delete Eicars From Tmp
 
+
     Create File      /tmp/eicar.com    ${EICAR_STRING}
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
@@ -236,6 +237,12 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
 
     ${telemetryString}=  Get Plugin Telemetry  av
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+
+    ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/Scan Now.log
+    ${scan_result} =  Get File    ${myscan_log}
+
+    Log To Console  ${telemetryJson}
+    Log To Console  ${scan_result}
 
     Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
 
