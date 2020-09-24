@@ -23,7 +23,9 @@ def main():
 
     try:
         # Create the TAP Robot result listener.
-        listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
+        # TODO LINUXDAR-2309 replace this when issue with listener is resolved
+        # listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
+        listener = None
     except json.decoder.JSONDecodeError:
         # When running locally you can not initialise the TAP Results Listener
         listener = None
