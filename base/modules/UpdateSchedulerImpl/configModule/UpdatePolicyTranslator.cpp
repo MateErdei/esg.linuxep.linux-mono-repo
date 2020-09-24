@@ -100,6 +100,19 @@ namespace
         }
         return s.str();
     }
+
+    /**
+     * Cover the possible false values for an attribute
+     * from SAU:src/Utilities/PugiXmlHelpers.h:pugi_get_attr_bool
+     * @param attr
+     * @return
+     */
+    static inline bool get_attr_bool(const std::string& attr)
+    {
+        if (attr == "false" || attr == "0" || attr == "no" || attr.empty())
+            return false;
+        return true;
+    }
 } // namespace
 
 namespace UpdateSchedulerImpl
@@ -346,6 +359,10 @@ namespace UpdateSchedulerImpl
 
             // To add optional manifest file names call here
             // config.setOptionalManifestNames({""})
+
+
+            auto delay_supplements = attributesMap.lookup("AUConfigurations/AUConfig/delay_supplements");
+            config.setUseSlowSupplements(get_attr_bool(delay_supplements.contents()));
 
             std::string period = attributesMap.lookup("AUConfigurations/AUConfig/schedule").value("Frequency");
             int periodInt = 60;
