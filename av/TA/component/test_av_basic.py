@@ -34,5 +34,6 @@ def test_av_can_send_telemetry(sspl_mock, av_plugin_instance):
     av_dict = json.loads(av_telemetry)
     assert "ml-pe-model-hash" in av_dict
     assert "ml-pe-model-version" in av_dict
+    assert "vdl-version" in av_dict
     assert "version" in av_dict
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)
