@@ -76,27 +76,19 @@ namespace Plugin
         mlModel /= "chroot/susi/distribution_version/version1/libmodel.so";
 
         std::ifstream in( mlModel, std::ios::binary );
-        std::stringstream ss;
+        std::string versionStr = "unknown";
 
         if (in.good())
         {
-            // The version number is 4 bytes long starting from an offset of 28 and is little-endian so we read it backwards
-            int readOffsetBytes = 28;
-            int readLength = 4;
-            char c;
-            for (int i = readOffsetBytes + readLength - 1; i >= readOffsetBytes; i--)
-            {
-                in.seekg(i*sizeof(char));
-                in.get(c);
-                ss << std::hex << static_cast<unsigned int>(c);
-            }
+            // The version number is 4 bytes long starting from an offset of 28 and is little-endian
+            std::uint32_t version;
+            in.seekg(28*sizeof(char));
+            in.read(reinterpret_cast<char*>(&version), sizeof(version));
+            versionStr = std::to_string(version);
         }
         in.close();
 
-        unsigned int x;
-        ss >> x;
-
-        return std::to_string(x);
+        return versionStr;
     }
 
     std::string PluginCallback::getMlModelHash()
