@@ -31,7 +31,6 @@ namespace
     public:
         void SetUp() override
         {
-            //creating initial version file
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData("PLUGIN_INSTALL", BASE);
             fs::create_directories(BASE);
@@ -45,19 +44,17 @@ namespace
             versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
             versionFileStream.close();
 
-            //creating initial ml library file
             fs::path libDirPath (BASE);
             libDirPath /= "chroot/susi/distribution_version/version1";
             fs::create_directories(libDirPath);
-            m_mlLibPath = libDirPath;
-            m_mlLibPath /= "libmodel.so";
+            m_mlLibFilePath = libDirPath;
+            m_mlLibFilePath /= "libmodel.so";
 
             std::ofstream mlFilePathStream;
-            mlFilePathStream.open(m_mlLibPath);
+            mlFilePathStream.open(m_mlLibFilePath);
             mlFilePathStream << "1"  << std::endl;
             mlFilePathStream.close();
 
-            //creating initial lr data files
             fs::path lrDirPath (BASE);
             lrDirPath /= "chroot/susi/distribution_version/version1/lrdata";
             fs::create_directories(lrDirPath);
@@ -76,25 +73,32 @@ namespace
             lrSignerrepStream << "1"  << std::endl;
             lrSignerrepStream.close();
 
-            //creating initial ml model file
-            std::string initialHexString = "7374617469635f5f5f5f646574656374696f6e00ed03000004000000723b3401ec25b100010000000000000000001000";
-            fs::path mlModelDirPath = BASE;
-            mlModelDirPath /= "chroot/susi/distribution_version/version1/mlmodel";
-            fs::create_directories(mlModelDirPath);
-            m_mlModelPath = mlModelDirPath / "model.dat";
-            writeHexStringToFile(initialHexString, m_mlModelPath);
-
             //creating file for vdl version
-            fs::path vdlDirPath (BASE);
-            vdlDirPath /= "chroot/susi/distribution_version/version1/vdb";
-            fs::create_directories(vdlDirPath);
-            m_vdlVersionFilePath = vdlDirPath;
+            m_vdlDirPath = BASE;
+            m_vdlDirPath /= "chroot/susi/distribution_version/version1/vdb";
+            fs::create_directories(m_vdlDirPath);
+            m_vdlVersionFilePath = m_vdlDirPath;
             m_vdlVersionFilePath /= "vvf.xml";
             createVvfFile(m_initialExpectedVdlVersion,m_vdlVersionFilePath);
+
+            //creating ide files
+            createIdes(m_initialExpectedVdlIdeCount, m_vdlDirPath);
 
             std::shared_ptr<Plugin::QueueTask> task = nullptr;
             m_pluginCallback = std::make_shared<Plugin::PluginCallback>(task);
         };
+
+        void createIdes(const unsigned long &count, const fs::path &dirPath)
+        {
+            for (unsigned long i=0; i<count; ++i)
+            {
+                std::stringstream fileName;
+                fileName << "test" << i << ".ide";
+                fs::path ideFilePath = dirPath / fileName.str();
+                std::ofstream ideFs(ideFilePath);
+                ideFs.close();
+            }
+        }
 
         void createVvfFile(const std::string &version, const std::string &filePath)
         {
@@ -116,37 +120,21 @@ namespace
             vdlVersionFileStream.close();
         }
 
-        void writeHexStringToFile(const std::string &hexString, const fs::path &filePath){
-            std::ofstream datafile(filePath, std::ios_base::binary | std::ios_base::out);
-
-            char buf[3];
-            buf[2] = 0;
-
-            std::stringstream input(hexString);
-            input.flags(std::ios_base::hex);
-            while (input)
-            {
-                input >> buf[0] >> buf[1];
-                long val = strtol(buf, nullptr, 16);
-                datafile << static_cast<unsigned char>(val & 0xff);
-            }
-        }
-
         std::shared_ptr<Plugin::PluginCallback> m_pluginCallback;
 
         fs::path m_lrFilerepPath;
         fs::path m_lrSignerrepPath;
-        fs::path m_mlLibPath;
-        fs::path m_mlModelPath;
+        fs::path m_mlLibFilePath;
+        fs::path m_vdlDirPath;
         fs::path m_vdlVersionFilePath;
         fs::path m_versionFile;
 
         std::string m_initialExpectedLrHash = "ad0fadf63cc7cd779ce475e345bf4063565b63a3c2efef1eebc89790aaa6acba";
         std::string m_initialExpectedMlLibHash = "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865";
-        std::string m_initialExpectedMlModelVersion = "20200306";
+        unsigned long m_initialExpectedVdlIdeCount = 3;
         std::string m_initialExpectedVdlVersion = "5.78";
         std::string m_initialExpectedVersion = "1.2.3.456";
-       };
+    };
 }
 
 TEST_F(TestPluginCallback, getTelemetry_version) //NOLINT
@@ -187,7 +175,7 @@ TEST_F(TestPluginCallback, getTelemetry_mlLibHash) //NOLINT
     EXPECT_EQ(initialTelemetry["ml-lib-hash"], m_initialExpectedMlLibHash);
 
     std::ofstream mlFilePathStream;
-    mlFilePathStream.open(m_mlLibPath);
+    mlFilePathStream.open(m_mlLibFilePath);
     mlFilePathStream << "2"  << std::endl;
     mlFilePathStream.close();
 
@@ -198,31 +186,12 @@ TEST_F(TestPluginCallback, getTelemetry_mlLibHash) //NOLINT
 
 TEST_F(TestPluginCallback, getTelemetry_mlLibHash_fileDoesNotExist) //NOLINT
 {
-    fs::remove(m_mlLibPath);
+    fs::remove(m_mlLibFilePath);
 
     json telemetry = json::parse(m_pluginCallback->getTelemetry());
 
     EXPECT_EQ(telemetry["ml-lib-hash"], "unknown");
 }
-
-TEST_F(TestPluginCallback, getTelemetry_mlModelVersion) //NOLINT
-{
-    std::string modifiedHexString = "7374617469635f5f5f5f646574656374696f6e00ed03000004000000733b3401ec25b100010000000000000000001000";
-    std::string modifiedExpectedMlModelVersion = "20200307";
-
-    std::string initJson = m_pluginCallback->getTelemetry();
-    json initialTelemetry = json::parse(initJson);
-
-    EXPECT_EQ(initialTelemetry["ml-pe-model-version"], m_initialExpectedMlModelVersion);
-
-    writeHexStringToFile(modifiedHexString, m_mlModelPath);
-
-    std::string modJson = m_pluginCallback->getTelemetry();
-    json modifiedTelemetry = json::parse(modJson);
-
-    EXPECT_EQ(modifiedTelemetry["ml-pe-model-version"], modifiedExpectedMlModelVersion);
-}
-
 
 TEST_F(TestPluginCallback, getTelemetry_lrData) //NOLINT
 {
@@ -260,6 +229,30 @@ TEST_F(TestPluginCallback, getTelemetry_lrData_fileDoesNotExist) //NOLINT
     telemetry = json::parse(m_pluginCallback->getTelemetry());
 
     EXPECT_EQ(telemetry["lr-data-hash"], "unknown");
+}
+
+TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount) //NOLINT
+{
+    unsigned long modifiedExpectedVdlIdeCount = 4;
+
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(initialTelemetry["vdl-ide-count"], m_initialExpectedVdlIdeCount);
+
+    createIdes(modifiedExpectedVdlIdeCount, m_vdlDirPath);
+
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(modifiedTelemetry["vdl-ide-count"], modifiedExpectedVdlIdeCount);
+}
+
+TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount_dirDoesNotExist) //NOLINT
+{
+    fs::remove_all(m_vdlDirPath);
+
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(initialTelemetry["vdl-ide-count"], 0);
 }
 
 TEST_F(TestPluginCallback, getTelemetry_vdlVersion) //NOLINT

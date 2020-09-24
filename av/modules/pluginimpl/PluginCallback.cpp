@@ -13,6 +13,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/XmlUtilities/AttributesMap.h>
 
 #include <fstream>
 
@@ -62,69 +63,113 @@ namespace Plugin
     {
         LOGSUPPORT("Received get telemetry request");
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        telemetry.set("ml-pe-model-hash", getMlModelHash());
-        telemetry.set("ml-pe-model-version", getMlModelVersion());
+        telemetry.set("lr-data-hash", getLrDataHash());
+        telemetry.set("ml-lib-hash", getMlLibHash());
+        telemetry.set("vdl-ide-count", getIdeCount());
+        telemetry.set("vdl-version", getVirusDataVersion());
         telemetry.set("version", getPluginVersion());
 
         return telemetry.serialiseAndReset();
     }
 
-    std::string PluginCallback::getMlModelVersion()
+    std::string PluginCallback::getLrDataHash()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
-        mlModel /= "chroot/susi/distribution_version/version1/libmodel.so";
+        fs::path filerep(appConfig.getData("PLUGIN_INSTALL"));
+        filerep /= "chroot/susi/distribution_version/version1/lrdata/filerep.dat";
+        fs::path signerrep(appConfig.getData("PLUGIN_INSTALL"));
+        signerrep /= "chroot/susi/distribution_version/version1/lrdata/signerrep.dat";
 
-        std::ifstream in( mlModel, std::ios::binary );
-        std::string versionStr = "unknown";
+        std::ifstream filerepFs(filerep, std::ifstream::in);
+        std::ifstream signerrepFs(signerrep, std::ifstream::in);
 
-        if (in.good())
+        if (filerepFs.good() && signerrepFs.good())
         {
-            // The version number is 4 bytes long starting from an offset of 28 and is little-endian
-            std::uint32_t version;
-            in.seekg(28*sizeof(char));
-            in.read(reinterpret_cast<char*>(&version), sizeof(version));
-            versionStr = std::to_string(version);
+            std::stringstream lrDataContents;
+            lrDataContents << filerepFs.rdbuf() << signerrepFs.rdbuf();
+            return common::sha256_hash(lrDataContents.str());
         }
-        in.close();
+        return "unknown";
 
-        return versionStr;
+
     }
 
-    std::string PluginCallback::getMlModelHash()
+    std::string PluginCallback::getMlLibHash()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
-        mlModel /= "chroot/susi/distribution_version/version1/mlmodel/model.dat";
+        fs::path mlLib(appConfig.getData("PLUGIN_INSTALL"));
+        mlLib /= "chroot/susi/distribution_version/version1/libmodel.so";
 
-        std::ifstream ifs (mlModel, std::ifstream::in);
-        std::string mlModelContents((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        std::ifstream mlLibFs (mlLib, std::ifstream::in);
 
-        return common::sha256_hash(mlModelContents);
+        if(mlLibFs.good())
+        {
+            std::stringstream mlLibContents;
+            mlLibContents << mlLibFs.rdbuf();
+            return common::sha256_hash(mlLibContents.str());
+        }
+        return "unknown";
+    }
+
+    unsigned long PluginCallback::getIdeCount()
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        fs::path vdbDir(appConfig.getData("PLUGIN_INSTALL"));
+        vdbDir /= "chroot/susi/distribution_version/version1/vdb";
+
+        unsigned long ideCount = 0;
+        if (fs::is_directory(vdbDir))
+        {
+            auto constexpr ide_filter = [](const fs::path& p) {
+              return p.extension() == ".ide";
+            };
+
+            ideCount = std::count_if(fs::directory_iterator(vdbDir), fs::directory_iterator{}, static_cast<bool(*)(const fs::path&)>(ide_filter) );
+        }
+
+        return ideCount;
+    }
+
+
+    std::string PluginCallback::getVirusDataVersion()
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        fs::path vvfFile(appConfig.getData("PLUGIN_INSTALL"));
+        vvfFile /= "chroot/susi/distribution_version/version1/vdb/vvf.xml";
+
+        std::ifstream vvfFileFs (vvfFile, std::ifstream::in);
+        std::string virusDataVersion = "unknown";
+        if (vvfFileFs.good())
+        {
+            std::stringstream vvfFileContents;
+            vvfFileContents << vvfFileFs.rdbuf();
+
+            auto attributeMap = Common::XmlUtilities::parseXml(vvfFileContents.str());
+            virusDataVersion = attributeMap.lookup("VVF/VirusData").value("Version");
+        }
+        return virusDataVersion;
     }
 
     std::string PluginCallback::getPluginVersion()
     {
-        std::string pluginVersion = "Not Found";
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path versionFile(appConfig.getData("PLUGIN_INSTALL"));
         versionFile /= "VERSION.ini";
 
-        if (fs::exists(versionFile))
+        std::string versionKeyword("PRODUCT_VERSION = ");
+        std::ifstream versionFileFs(versionFile);
+        if (versionFileFs.good())
         {
-            std::string versionKeyword("PRODUCT_VERSION = ");
-            std::ifstream versionFileHandle(versionFile);
             std::string line;
-            while (std::getline(versionFileHandle, line))
+            while (std::getline(versionFileFs, line))
             {
-
                 if (line.rfind(versionKeyword, 0) == 0)
                 {
-                    pluginVersion = line.substr(versionKeyword.size(), line.size());
+                    return line.substr(versionKeyword.size(), line.size());
                 }
             }
         }
-        return pluginVersion;
+        return "unknown";
     }
 
     std::string PluginCallback::generateSAVStatusXML()

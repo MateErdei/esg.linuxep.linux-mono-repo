@@ -30,8 +30,9 @@ namespace Plugin
 
     private:
         std::string generateSAVStatusXML();
-        std::string getMlModelHash();
-        std::string getMlModelVersion();
+        unsigned long getIdeCount();
+        std::string getLrDataHash();
+        std::string getMlLibHash();
         std::string getPluginVersion();
         std::string getVirusDataVersion();
 
