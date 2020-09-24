@@ -162,7 +162,7 @@ class CloudClient(object):
         self.__m_connector.clearAllAlerts()
 
     def __check_eicar_reported_in_central(self, location, start_time):
-        threatName = "EICAR"
+        threatName = "EICAR-AV-Test"
         start_time_str = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(start_time))
         expected_description = f"Manual cleanup required: '{threatName}' at '{location}'"
         for event in self.__m_connector.generateAlerts():
@@ -175,7 +175,7 @@ class CloudClient(object):
             # "Manual cleanup required: 'EICAR' at '/tmp/testeicar/eicar.com'"
             actual_description = event['description']
             if actual_description != expected_description:
-                logger.debug("Wrong description: "+actual_description)
+                logger.debug("Wrong description: expected: {}, actual: {}".format(expected_description, actual_description))
                 continue
 
             return True

@@ -36,9 +36,11 @@ namespace
             testing::internal::CaptureStderr();
 
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
-            fs::path pluginInstall = sophosInstall / "plugins" / "av";
+            appConfig.setData("SOPHOS_INSTALL", BASE);
+            fs::path pluginInstall = BASE;
+            pluginInstall /= "plugins/av";
             appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+            fs::create_directories(pluginInstall);
 
             m_queueTask = std::make_shared<QueueTask>();
             m_callback = std::make_shared<Plugin::PluginCallback>(m_queueTask);
@@ -48,7 +50,7 @@ namespace
 
         void TearDown() override
         {
-            fs::remove_all("/tmp/TestPluginAdapter/");
+            fs::remove_all(BASE);
         }
 
         std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2")
@@ -143,9 +145,21 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     std::string policy2revID = "12345678902";
     std::string policy1Xml = generatePolicyXML(policy1revID);
     std::string policy2Xml = generatePolicyXML(policy2revID);
+    std::string policy1Filename = "policy1.xml";
+    std::string policy2Filename = "policy2.xml";
 
-    Task policy1Task = {Task::TaskType::Policy, policy1Xml};
-    Task policy2Task = {Task::TaskType::Policy, policy2Xml};
+    fs::path policyDir = BASE;
+    policyDir /= "base/mcs/policy";
+    fs::create_directories(policyDir);
+    std::ofstream policy1Fs(policyDir / policy1Filename);
+    policy1Fs << policy1Xml;
+    policy1Fs.close();
+    std::ofstream policy2Fs(policyDir / policy2Filename);
+    policy2Fs << policy2Xml;
+    policy2Fs.close();
+
+    Task policy1Task = {Task::TaskType::Policy, policy1Filename};
+    Task policy2Task = {Task::TaskType::Policy, policy2Filename};
     m_queueTask->push(policy1Task);
     m_queueTask->push(policy2Task);
 
@@ -178,9 +192,21 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
     std::string policy2revID = "12345678902";
     std::string policy1Xml = generatePolicyXML(policy1revID, "1");
     std::string policy2Xml = generatePolicyXML(policy2revID);
+    std::string policy1Filename = "policy1.xml";
+    std::string policy2Filename = "policy2.xml";
 
-    Task policy1Task = {Task::TaskType::Policy, policy1Xml};
-    Task policy2Task = {Task::TaskType::Policy, policy2Xml};
+    fs::path policyDir = BASE;
+    policyDir /= "base/mcs/policy";
+    fs::create_directories(policyDir);
+    std::ofstream policy1Fs(policyDir / policy1Filename);
+    policy1Fs << policy1Xml;
+    policy1Fs.close();
+    std::ofstream policy2Fs(policyDir / policy2Filename);
+    policy2Fs << policy2Xml;
+    policy2Fs.close();
+
+    Task policy1Task = {Task::TaskType::Policy, policy1Filename};
+    Task policy2Task = {Task::TaskType::Policy, policy2Filename};
     m_queueTask->push(policy1Task);
     m_queueTask->push(policy2Task);
 
@@ -212,9 +238,16 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
 
     std::string actionXml =
             R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
+    std::string actionXmlFilename = "action.xml";
 
-    Task actionTask = {Task::TaskType::Action,
-                       actionXml};
+    fs::path actionDir = BASE;
+    actionDir /= "base/mcs/action";
+    fs::create_directories(actionDir);
+    std::ofstream actionFs(actionDir / actionXmlFilename);
+    actionFs << actionXml;
+    actionFs.close();
+
+    Task actionTask = {Task::TaskType::Action, actionXmlFilename};
     Task stopTask = {Task::TaskType::Stop, ""};
 
     m_queueTask->push(actionTask);
@@ -240,9 +273,16 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
 
     std::string actionXml =
             R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="NONE" id="" subtype="MALFORMED" replyRequired="0"/>)";
+    std::string actionXmlFilename = "action.xml";
 
-    Task actionTask = {Task::TaskType::Action,
-                       actionXml};
+    fs::path actionDir = BASE;
+    actionDir /= "base/mcs/action";
+    fs::create_directories(actionDir);
+    std::ofstream actionFs(actionDir / actionXmlFilename);
+    actionFs << actionXml;
+    actionFs.close();
+
+    Task actionTask = {Task::TaskType::Action, actionXmlFilename};
     Task stopTask = {Task::TaskType::Stop, ""};
 
     m_queueTask->push(actionTask);
