@@ -23,7 +23,6 @@ TEMPLATE_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "templates")
 GENERATED_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "GeneratedAlcPolicies")
 
 FILER_6_DIRECTORY = os.path.join("/", "mnt", "filer6", "bfr", "sspl-warehouse")
-# LOCAL_WAREHOUSES_ROOT = os.path.join(PRODUCT_TEST_ROOT_DIRECTORY, "local_warehouses")
 LOCAL_WAREHOUSES_ROOT = "/tmp/system-product-test-inputs/local_warehouses"
 LOCAL_WAREHOUSES = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse")
 WAREHOUSE_LOCAL_SERVER_PORT = 443
@@ -221,7 +220,7 @@ class TemplateConfig:
     def _define_valid_update_certs(self):
 
         if self.build_type == DEV_BUILD_CERTS:
-            self.root_ca = PROD_ROOT_CA
+            self.root_ca = DEV_ROOT_CA
         else:
             self.root_ca = PROD_ROOT_CA
 
@@ -302,26 +301,26 @@ class WarehouseUtils(object):
     ROBOT_LISTENER_API_VERSION = 2
 
     template_configuration_values = {
-        "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
-        "base_and_edr_999.xml": TemplateConfig("BASE_AND_EDR_999", "edr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
-        "base_edr_vut_and_mtr_999.xml": TemplateConfig("BASE_EDR_AND_MTR_999", "mtr_user_999", DEV_BUILD_CERTS, OSTIA_MTR_999_ADDRESS ),
-        "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "user_mtr_vut_edr_999", DEV_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
-        "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", DEV_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
-        "base_and_mtr_VUT.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-        "base_edr_and_mtr_VUT-1.xml": TemplateConfig("BASE_EDR_AND_MTR_VUT_PREV", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-        "base_and_edr_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_edr_and_mtr.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_0_6_0.xml": TemplateConfig("BASE_ONLY_0_6_0", "base_user_0_6_0", DEV_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
-        "base_only_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_VUT-1.xml": TemplateConfig("BASE_ONLY_VUT_PREV", "base_user_vut", DEV_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-        "base_VUT_and_fake_plugins.xml": TemplateConfig("BALLISTA_VUT", "fake_plugin_user", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_paused_update_VUT-1.xml": TemplateConfig("BASE_PAUSED_VUT_PREV", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
-        "base_paused_update_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
-        "base_paused_update_999.xml": TemplateConfig("BASE_PAUSED_999", "base_user_paused", DEV_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
-        "base_only_VUT_without_SDU_Feature.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_beta_only.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", DEV_BUILD_CERTS, OSTIA_BETA_ONLY_ADDRESS),
-        "base_edr_old_wh_format.xml": TemplateConfig("BASE_EDR_OLD_WH", "base_user_vut", DEV_BUILD_CERTS, OSTIA_BASE_EDR_OLD_WH_ADDRESS),
+        "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", PROD_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
+        "base_and_edr_999.xml": TemplateConfig("BASE_AND_EDR_999", "edr_user_999", PROD_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
+        "base_edr_vut_and_mtr_999.xml": TemplateConfig("BASE_EDR_AND_MTR_999", "mtr_user_999", PROD_BUILD_CERTS, OSTIA_MTR_999_ADDRESS ),
+        "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "user_mtr_vut_edr_999", PROD_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
+        "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
+        "base_and_mtr_VUT.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_and_mtr_VUT-1.xml": TemplateConfig("BASE_AND_MTR_VUT_PREV", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
+        "base_edr_and_mtr_VUT-1.xml": TemplateConfig("BASE_EDR_AND_MTR_VUT_PREV", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
+        "base_and_edr_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_edr_and_mtr.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_only_0_6_0.xml": TemplateConfig("BASE_ONLY_0_6_0", "base_user_0_6_0", PROD_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
+        "base_only_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_only_VUT-1.xml": TemplateConfig("BASE_ONLY_VUT_PREV", "base_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
+        "base_VUT_and_fake_plugins.xml": TemplateConfig("BALLISTA_VUT", "fake_plugin_user", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_paused_update_VUT-1.xml": TemplateConfig("BASE_PAUSED_VUT_PREV", "base_user_paused", PROD_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
+        "base_paused_update_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_paused", PROD_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
+        "base_paused_update_999.xml": TemplateConfig("BASE_PAUSED_999", "base_user_paused", PROD_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
+        "base_only_VUT_without_SDU_Feature.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_beta_only.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_BETA_ONLY_ADDRESS),
+        "base_edr_old_wh_format.xml": TemplateConfig("BASE_EDR_OLD_WH", "base_user_vut", PROD_BUILD_CERTS, OSTIA_BASE_EDR_OLD_WH_ADDRESS),
     }
 
 
