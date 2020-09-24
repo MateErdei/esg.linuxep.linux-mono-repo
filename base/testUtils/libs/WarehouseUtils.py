@@ -221,15 +221,12 @@ class TemplateConfig:
     def _define_valid_update_certs(self):
 
         if self.build_type == DEV_BUILD_CERTS:
-            # self.root_ca = DEV_ROOT_CA
             self.root_ca = PROD_ROOT_CA
         else:
             self.root_ca = PROD_ROOT_CA
 
         if self.remote_connection_address in OSTIA_ADDRESSES:
-            # self.ps_root_ca = DEV_PS_ROOT_CA
             self.ps_root_ca = PROD_PS_ROOT_CA
-            # self.thininstaller_cert = DEV_PS_ROOT_CA
             self.thininstaller_cert = PROD_PS_ROOT_CA
         else:
             # we take the dirname of this, which is why there is a slash
@@ -445,7 +442,6 @@ class WarehouseUtils(object):
             local_warehouse_branch = os.path.join(LOCAL_WAREHOUSES, branch_name)
             list_of_files = os.listdir(local_warehouse_branch)
             logger.info(list_of_files)
-            # assert len(list_of_files) == 2, "Error, couldn't get local warehouse timestamp for {}".format(address)
             timestamp = list_of_files[0]
             customer_directory = os.path.join(local_warehouse_branch, timestamp, "customer")
 
