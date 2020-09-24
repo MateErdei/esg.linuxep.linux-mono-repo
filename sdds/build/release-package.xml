@@ -29,6 +29,11 @@
     <development-version branch="develop"/>
     <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
   </build-asset>
+  <build-asset project="em" repo="esg">
+    <development-version branch="develop"/>
+<!--    <include artifact-path="scheduled-query-pack-sdds" dest-dir="inputs/scheduled-query-pack-sdds"/>-->
+    <include artifact-path="winepflags" dest-dir="redist/winepflags"/>
+  </build-asset>
 </inputs>
 
 <buildcommands>
