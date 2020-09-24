@@ -48,6 +48,7 @@ export ENABLE_STRIP=1
 VALGRIND=0
 UNIT_TESTS=1
 GOOGLETESTTAR=googletest-release-1.8.1
+DELETE_GCC=0
 
 while [[ $# -ge 1 ]]
 do
@@ -148,6 +149,12 @@ do
         --strace|--strace-support)
             STRACE_SUPPORT="ON"
             ;;
+        --setup)
+            python3 -m build_scripts.artisan_fetch build/release-package.xml
+            # delete gcc
+            DELETE_GCC=1
+            NO_BUILD=1
+            ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
             ;;
@@ -231,6 +238,11 @@ function build()
 
     if [[ -z "$NO_UNPACK" ]]
     then
+        if (( DELETE_GCC == 1 ))
+        then
+            rm -f ${INPUT}/gcc-*.tar.gz ${INPUT}/cmake-*.tar.gz
+        fi
+
         unpack_scaffold_gcc_make "$INPUT"
 
         mkdir -p $REDIST
@@ -285,7 +297,10 @@ function build()
         untar_input pycryptodome
         untar_input $GOOGLETESTTAR
         # below are unpacked for test use only
-        untar_input gcc-8.1.0-linux
+        if [[ -f ${INPUT}/gcc-*.tar.gz ]]
+        then
+          untar_input gcc-8.1.0-linux
+        fi
 
         mkdir -p ${REDIST}/certificates
         if [[ -f ${INPUT}/ps_rootca.crt ]]
