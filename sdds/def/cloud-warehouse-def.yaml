@@ -64,8 +64,6 @@ warehouses:
                         tag: RECOMMENDED
                     -   base-version: ""
                         tag: BETA
-                supplements:
-                    - winepflags-supp
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
