@@ -246,7 +246,7 @@ Verify Failure Event Is Sent on Update Failed
 
     # Remove certs so that update fails
     Remove File  ${SOPHOS_INSTALL}/base/update/certs/rootca.crt
-    Remove FILE  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
 
     Override LogConf File as Global Level  DEBUG
     Start System Watchdog

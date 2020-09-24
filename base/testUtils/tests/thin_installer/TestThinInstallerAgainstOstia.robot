@@ -35,7 +35,6 @@ ${PROXY_LOG}  ./tmp/proxy_server.log
 ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${CUSTOM_DIR_BASE}  /CustomPath
 ${BaseVUTPolicy}   ${GeneratedWarehousePolicies}/base_only_VUT.xml
-#${BaseVUTPolicy}   ${GeneratedWarehousePolicies}/base_and_edr_999.xml
 
 *** Keywords ***
 Local Suite Setup
