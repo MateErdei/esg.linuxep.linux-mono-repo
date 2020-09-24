@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/common/LogInitializedTests.h>
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include <gtest/gtest.h>
 #include <thirdparty/nlohmann-json/json.hpp>
@@ -197,7 +198,7 @@ TEST_F(TestPluginCallback, getTelemetry_mlLibHash) //NOLINT
 
 TEST_F(TestPluginCallback, getTelemetry_mlLibHash_fileDoesNotExist) //NOLINT
 {
-    fs::remove(m_mlLibFilePath);
+    fs::remove(m_mlLibPath);
 
     json telemetry = json::parse(m_pluginCallback->getTelemetry());
 
