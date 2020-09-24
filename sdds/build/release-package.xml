@@ -50,7 +50,7 @@
   <command>
     <program>cmd.exe</program>
     <!-- WARNING the component name in this command line must match the package name at the top of this file -->
-    <args>/c python GenerateWarehouse.py sspl-warehouse %SOURCE_CODE_BRANCH% %START_DATE_TIME%-%SOURCE_CODE_COMMIT_HASH% dict-en.xml ..\def\cloud-warehouse-def.yaml</args>
+    <args>/c python GenerateWarehouse.py sspl-warehouse %SOURCE_CODE_BRANCH% %START_DATE_TIME%-%SOURCE_CODE_COMMIT_HASH% dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def.yaml</args>
     <workingdir>warehouse\src</workingdir>
   </command>
 </buildcommands>
