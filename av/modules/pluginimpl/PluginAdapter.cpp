@@ -12,6 +12,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "modules/common/ThreadRunner.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 namespace fs = sophos_filesystem;
 
@@ -153,6 +154,6 @@ void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
 void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
 {
     LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
-
+    Common::Telemetry::TelemetryHelper::getInstance().increment("threat-count", 1ul);
     m_queueTask->push(Task{.taskType=Task::TaskType::ThreatDetected, threatDetectedXML});
 }
