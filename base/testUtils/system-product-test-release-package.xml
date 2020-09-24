@@ -3,20 +3,20 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-2037-new-downgrade-path"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-2037-change-sspl-downgrade-process-to-perform-an-un-install-reinstall"/>
             <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-2037-change-sspl-downgrade-process-to-perform-an-un-install-reinstall"/>
             <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-2037-change-sspl-downgrade-process-to-perform-an-un-install-reinstall"/>
             <include artifact-path="output" dest-dir="sspl-mdr-componentsuite"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
@@ -76,7 +76,7 @@
 <!--            <include src="."   dest="websocket_server" />-->
 <!--        </package>-->
         <build-asset project="winep" repo="liveterminal">
-            <development-version branch="develop" />
+            <development-version branch="feature/LINUXDAR-2037-change-sspl-downgrade-process-to-perform-an-un-install-reinstall" />
             <include artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
             <include artifact-path="websocket_server" dest-dir="websocket_server" />
         </build-asset>
