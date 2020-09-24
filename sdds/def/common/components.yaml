@@ -2,7 +2,7 @@
 ---
 sspl-base:
     build:
-        branch: feature-LINUXDAR-1939-flags-from-supplement-warehouse
+        branch: develop
         name: sspl-componentsuite
         output: output\SDDS-SSPL-COMPONENT-SUITE
     canonical-name: ServerProtectionLinux-Base
