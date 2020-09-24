@@ -300,3 +300,24 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
 
     EXPECT_THAT(logs, HasSubstr(expectedLog));
 }
+
+TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", "FakeThreatDetectedXML"));
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    pluginAdapter.processThreatReport("FakeThreatDetectedXML");
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_queueTask->push(stopTask);
+
+    pluginAdapter.mainLoop();
+
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    std::string ExpectedTelemetry{ R"sophos({"threat-count":1})sophos" };
+    EXPECT_EQ(telemetryResult, ExpectedTelemetry);
+}

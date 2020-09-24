@@ -551,3 +551,15 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
    ...  File Log Contains With Offset  ${LOG_FILE}   Scanning   offset=${offset}
 
    Terminate Process   handle=${HANDLE}
+
+
+CLS Scan of Infected File Increases Threat Count
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${telemetryString}=  Get Plugin Telemetry  av
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+
+    Dictionary Should Contain Item   ${telemetryJson}   threat-count   1
