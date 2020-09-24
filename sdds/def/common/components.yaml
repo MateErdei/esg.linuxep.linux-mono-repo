@@ -2,14 +2,14 @@
 ---
 sspl-base:
     build:
-        branch: feature-LINUXDAR-1939-suldownloader-retrieves-warehouse-flags-from-supplement-warehouse
+        branch: develop
         name: sspl-componentsuite
         output: output\SDDS-SSPL-COMPONENT-SUITE
     canonical-name: ServerProtectionLinux-Base
     line-id: ServerProtectionLinux-Base
 sspl-base-component:
     build:
-        branch: feature-LINUXDAR-1939-suldownloader-retrieves-warehouse-flags-from-supplement-warehouse
+        branch: develop
         name: sspl-base
         output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base-component
