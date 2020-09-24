@@ -362,7 +362,7 @@ namespace UpdateSchedulerImpl
 
 
             auto delay_supplements = attributesMap.lookup("AUConfigurations/AUConfig/delay_supplements");
-            config.setUseSlowSupplements(get_attr_bool(delay_supplements.contents()));
+            config.setUseSlowSupplements(get_attr_bool(delay_supplements.value("enabled", "false")));
 
             std::string period = attributesMap.lookup("AUConfigurations/AUConfig/schedule").value("Frequency");
             int periodInt = 60;

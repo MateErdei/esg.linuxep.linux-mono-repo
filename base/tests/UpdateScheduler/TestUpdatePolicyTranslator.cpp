@@ -1083,3 +1083,53 @@ TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated) // NOLINT(cert-err5
         UpdatePolicyTranslator::calculateSulObfuscated("regruser", "regrABC123pass"),
         "9539d7d1f36a71bbac1259db9e868231");
 }
+
+
+TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithSlowSupplements) // NOLINT
+{
+
+    const std::string policy = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
+  <AUConfig platform="Linux">
+    <primary_location>
+      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+    </primary_location>
+    <delay_supplements enabled="true"/>
+  </AUConfig>
+  <Features>
+  </Features>
+</AUConfigurations>
+)sophos" ;
+
+    UpdatePolicyTranslator translator;
+    auto settingsHolder = translator.translatePolicy(policy);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_TRUE(config.getUseSlowSupplements());
+}
+
+
+TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithNormalSupplements) // NOLINT
+{
+
+    const std::string policy = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
+  <AUConfig platform="Linux">
+    <primary_location>
+      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+    </primary_location>
+    <delay_supplements enabled="false"/>
+  </AUConfig>
+  <Features>
+  </Features>
+</AUConfigurations>
+)sophos" ;
+
+    UpdatePolicyTranslator translator;
+    auto settingsHolder = translator.translatePolicy(policy);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_FALSE(config.getUseSlowSupplements());
+}
