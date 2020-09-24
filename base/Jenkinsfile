@@ -1,7 +1,7 @@
 library "standardPipeline"
 
 project = 'sspl-base'
-version_key = '1.1.3'
+version_key = '1.1.5'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/everest-base.git'
 project_builddir = 'sspl-base-build'
 project_release_xml = 'build/release-package.xml'
@@ -12,7 +12,7 @@ properties([
     string(name: 'CommitHash', defaultValue: ''),
     string(name: 'PortalId', defaultValue: ''),
     string(name: 'PortalAddress', defaultValue: ''),
-    string(name: 'mode', defaultValue: 'oldci')
+    string(name: 'mode', defaultValue: 'release')
   ])
 ])
 
@@ -22,7 +22,6 @@ skipDefaultCheckout()
      PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
      git_branch = "${env.BRANCH_NAME}"
-     env.CI_REPO_RELATIVE = 'true' // builds are configured for Unified Pipeline
      if ( params.mode == 'coverage' || git_branch.endsWith('coverage') )
      {
          //run all three builds to ensure warehouse build is happy when looking for release build in output folder
@@ -77,6 +76,6 @@ skipDefaultCheckout()
      SuccessfulBuild(project_release_xml)
 
 } catch(e){
-    FailedBuild(e)
+    FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
     error("Build failed: " + e.toString())
 }
