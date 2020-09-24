@@ -307,11 +307,21 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", "FakeThreatDetectedXML"));
+    std::string threatDetectedXML = R"sophos(
+<notification description="Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar'" timestamp="20200924 123901" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
+  <user domain="local" userId="root"/>
+  <threat id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8" idSource="Tsha256(path,name)" name="UwU vewy bad file" scanType="203" status="200" type="1">
+    <item file="naugthy_eicar" path="/home/vagrant/this/is/a/directory/for/scanning/"/>
+    <action action="101"/>
+  </threat>
+</notification>
+            )sophos";
+
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
-    pluginAdapter.processThreatReport("FakeThreatDetectedXML");
+    pluginAdapter.processThreatReport(threatDetectedXML);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
 
@@ -319,5 +329,36 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
 
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     std::string ExpectedTelemetry{ R"sophos({"threat-count":1})sophos" };
+    EXPECT_EQ(telemetryResult, ExpectedTelemetry);
+}
+
+TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount) //NOLINT
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    std::string threatDetectedXML = R"sophos(
+<notification description="Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar'" timestamp="20200924 123901" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
+  <user domain="local" userId="root"/>
+  <threat id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8" idSource="Tsha256(path,name)" name="EICAR-AV-Test" scanType="203" status="200" type="1">
+    <item file="naugthy_eicar" path="/home/vagrant/this/is/a/directory/for/scanning/"/>
+    <action action="101"/>
+  </threat>
+</notification>
+            )sophos";
+
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    pluginAdapter.processThreatReport(threatDetectedXML);
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_queueTask->push(stopTask);
+
+    pluginAdapter.mainLoop();
+
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    std::string ExpectedTelemetry{ R"sophos({"threat-eicar-count":1})sophos" };
     EXPECT_EQ(telemetryResult, ExpectedTelemetry);
 }

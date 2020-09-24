@@ -95,7 +95,6 @@ CLS Can Scan Clean File
 
 
 CLS Does Not Ordinarily Output To Stderr
-
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file 1>/dev/null
 
@@ -104,6 +103,19 @@ CLS Does Not Ordinarily Output To Stderr
     Should Be Empty  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
+CLS Scan of Infected File Increases Threat Eicar Count
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${telemetryString}=  Get Plugin Telemetry  av
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+
+    Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
+    ${result} =   Terminate Process  ${handle}
 
 CLS Can Scan Infected File
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
@@ -551,15 +563,3 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
    ...  File Log Contains With Offset  ${LOG_FILE}   Scanning   offset=${offset}
 
    Terminate Process   handle=${HANDLE}
-
-
-CLS Scan of Infected File Increases Threat Count
-    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
-
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
-    ${telemetryString}=  Get Plugin Telemetry  av
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
-
-    Dictionary Should Contain Item   ${telemetryJson}   threat-count   1

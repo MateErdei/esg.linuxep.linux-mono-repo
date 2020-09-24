@@ -42,5 +42,6 @@ namespace Plugin
         void processAction(const std::string& actionXml);
         void innerLoop();
 
+        void incrementTelemetryThreatCount(const std::string &threatName);
     };
 } // namespace Plugin

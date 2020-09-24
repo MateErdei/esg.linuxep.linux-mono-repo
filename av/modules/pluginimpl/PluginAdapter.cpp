@@ -154,6 +154,19 @@ void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
 void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
 {
     LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
-    Common::Telemetry::TelemetryHelper::getInstance().increment("threat-count", 1ul);
+    auto attributeMap = Common::XmlUtilities::parseXml(threatDetectedXML);
+    incrementTelemetryThreatCount(attributeMap.lookupMultiple("notification/threat")[0].value("name"));
     m_queueTask->push(Task{.taskType=Task::TaskType::ThreatDetected, threatDetectedXML});
+}
+
+void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName)
+{
+    if(threatName == "EICAR-AV-Test")
+    {
+        Common::Telemetry::TelemetryHelper::getInstance().increment("threat-eicar-count", 1ul);
+    }
+    else
+    {
+        Common::Telemetry::TelemetryHelper::getInstance().increment("threat-count", 1ul);
+    }
 }
