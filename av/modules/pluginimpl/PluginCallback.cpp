@@ -75,13 +75,16 @@ namespace Plugin
         fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
         mlModel /= "chroot/susi/distribution_version/version1/libmodel.so";
 
-        char c;
         std::ifstream in( mlModel, std::ios::binary );
         std::stringstream ss;
 
         if (in.good())
         {
-            for (int i = 31; i >= 28; i--)
+            // The version number is 4 bytes long starting from an offset of 28 and is little-endian so we read it backwards
+            int readOffsetBytes = 28;
+            int readLength = 4;
+            char c;
+            for (int i = readOffsetBytes + readLength - 1; i >= readOffsetBytes; i--)
             {
                 in.seekg(i*sizeof(char));
                 in.get(c);
