@@ -276,10 +276,6 @@ namespace Common
                 path = Common::FileSystem::join(getLocalUninstallSymLinkPath(),component + ".ini");
             }
 
-            if (!Common::FileSystem::fileSystem()->isFile(path))
-            {
-                throw std::invalid_argument("Component " + component + " VERSION.ini not found.");
-            }
             return path;
         }
 

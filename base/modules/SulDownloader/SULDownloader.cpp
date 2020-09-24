@@ -144,35 +144,53 @@ namespace SulDownloader
             try
             {
                 std::string localVersionIni = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(rigidName);
-                std::string currentVersion = StringUtils::extractValueFromIniFile(localVersionIni, "PRODUCT_VERSION");
-                std::string newVersion("");
-                try
+                if (!Common::FileSystem::fileSystem()->isFile(localVersionIni))
                 {
-                    newVersion =
-                        StringUtils::extractValueFromIniFile(warehouseVersionIni, "PRODUCT_VERSION");
-                }
-                catch (std::runtime_error& ex)
-                {
-                    LOGINFO("Failed to read VERSION.ini from warehouse for: '" << rigidName << "', treating as downgrade");
-                    product.setProductWillBeDowngraded(true);
-                }
-
-                if (newVersion.empty())
-                {
-                    product.setProductWillBeDowngraded(true);
+                    // if version.ini doesn't exist check if plugin is installed
+                    std::string uninstallPath = Common::FileSystem::join(
+                            Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath(),
+                            rigidName + ".sh");
+                    if (Common::FileSystem::fileSystem()->isFile(localVersionIni))
+                    {
+                        throw std::runtime_error("VERSION.ini could not be found at path: " + localVersionIni);
+                    }
+                    LOGDEBUG("Plugin" << localVersionIni << " not installed, it does not need to be downgraded" );
                 }
                 else
                 {
-                    bool willBeDowngraded = StringUtils::isVersionOlder(currentVersion, newVersion);
-                    product.setProductWillBeDowngraded(willBeDowngraded);
+                    std::string currentVersion = StringUtils::extractValueFromIniFile(localVersionIni,
+                                                                                      "PRODUCT_VERSION");
+                    std::string newVersion("");
+                    try
+                    {
+                        newVersion = StringUtils::extractValueFromIniFile(warehouseVersionIni, "PRODUCT_VERSION");
+                    }
+                    catch (std::runtime_error &ex)
+                    {
+                        LOGINFO("Failed to read VERSION.ini from warehouse for: '" << rigidName
+                                                                                   << "', treating as downgrade");
+                        product.setProductWillBeDowngraded(true);
+                    }
+
+                    if (newVersion.empty())
+                    {
+                        product.setProductWillBeDowngraded(true);
+                    }
+                    else
+                    {
+                        bool willBeDowngraded = StringUtils::isVersionOlder(currentVersion, newVersion);
+                        product.setProductWillBeDowngraded(willBeDowngraded);
+                    }
                 }
             }
             catch (std::runtime_error& ex)
             {
-                LOGWARN("Failed to read VERSION.ini , Error: " << ex.what());
+                // run time error thrown if local version.ini file missing
+                LOGWARN(ex.what());
             }
             catch (std::invalid_argument& ex)
             {
+                // invalid argument thrown by isVersionOlder if Version string are not in the right format
                 LOGWARN("Failed to find VERSION.ini due to: " << ex.what());
             }
         }
