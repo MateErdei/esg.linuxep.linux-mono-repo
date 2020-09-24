@@ -227,6 +227,10 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
     Create File      /tmp/eicar.com    ${EICAR_STRING}
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+
+    # Run telemetry to reset counters to 0
+    ${telemetryString}=  Get Plugin Telemetry  av
+
     Run Scan Now Scan
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
 
