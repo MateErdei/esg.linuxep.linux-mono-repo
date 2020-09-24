@@ -356,9 +356,9 @@ Get Oldest File In Directory
     ${earliestModifiedFile} =   Get From List   ${files}    0
     ${time1} =  OperatingSystem.Get Modified Time       ${directory}/${earliestModifiedFile}    epoch
     FOR    ${file}    IN    @{files}
-    \    ${time}    Get Modified Time   ${directory}/${file}    epoch
-    \    ${earliestModifiedFile} =   Set Variable If    ${time1} > ${time}    ${directory}/${file}    ${earliestModifiedFile}
-    \    ${time1} =    Set Variable If    ${time1} > ${time}    ${time}    ${time1}
+        ${time}    Get Modified Time   ${directory}/${file}    epoch
+        ${earliestModifiedFile} =   Set Variable If    ${time1} > ${time}    ${directory}/${file}    ${earliestModifiedFile}
+        ${time1} =    Set Variable If    ${time1} > ${time}    ${time}    ${time1}
     END
     [Return]  ${directory}/${earliestModifiedFile}
 
