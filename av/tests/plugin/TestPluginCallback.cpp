@@ -103,11 +103,17 @@ namespace
         {
             for (unsigned long i=0; i<count; ++i)
             {
-                std::stringstream fileName;
-                fileName << "test" << i << ".ide";
-                fs::path ideFilePath = dirPath / fileName.str();
+                std::stringstream ideFileName;
+                ideFileName << "test" << i << ".ide";
+                fs::path ideFilePath = dirPath / ideFileName.str();
                 std::ofstream ideFs(ideFilePath);
                 ideFs.close();
+
+                std::stringstream vdbFileName;
+                vdbFileName << "test" << i << ".vdb";
+                fs::path vdbFilePath = dirPath / vdbFileName.str();
+                std::ofstream vdbFs(vdbFilePath);
+                vdbFs.close();
             }
         }
 
