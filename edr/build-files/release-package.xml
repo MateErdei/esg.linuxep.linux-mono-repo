@@ -7,18 +7,14 @@
     <inputs>
         <workingdir>.</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
-        <!-- Todo /LINUXDAR-2186 -->
-        <!-- Plugin Api: the way to pick up other branches changed for unified pipeline. It will only work after base is moved to unified pipeline-->
-        <!-- https://esg-ci-stag.eng.sophos/docs/docs/build-package-file#inputs-from-other-builds -->
         <build-asset project="linuxep" repo="everest-base">
             <!--release-version branch="release/2014.1" build-id="" /-->
-            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs" />
+            <development-version branch="develop" />
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
         <!--Plugin Api Production Build - Change values below to match the latest production build of base.
             On release, make sure you build a production build of base first before building any production builds of plugins-->
-        <!-- allow base prod build to be an input for edr prod build before the promotion system kicks in -->
         <package name="sspl-base" version="1-1-4-332/221210/output" dest="input" buildtype="prod">
             <include src="pluginapi.tar.gz" dest="."/>
              <include src="SDDS-COMPONENT"   dest="base-sdds" />
@@ -42,10 +38,6 @@
         <package name="osquerysdklinux11" version="1-0-0-52/220886/output" dest="input">
             <include src="osquerysdk.tar" dest="."/>
         </package>
-        <!-- Todo /LINUXDAR-2186  update to allow this as input in dev builds after the thirdparty is been turned into unified-->
-        <!--  <package name="osquerysdklinux11" version="sophos-linux-sdk-master/%LASTGOODCOMPONENTBUILD%/osquerysdklinux11/1.0.0/output" dest="input" buildtype="dev">-->
-        <!--  <include src="osquerysdk.tar" dest="."/>-->
-        <!--  </package>-->
         <package name="openssllinux11" version="1-1-1g-6/219531/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
