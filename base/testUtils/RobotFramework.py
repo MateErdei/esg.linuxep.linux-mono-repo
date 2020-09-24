@@ -8,8 +8,7 @@ from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 
 def main():
-    # tags = {'include': ['TAP_TESTS'], 'exclude': ["OSTIA", "CENTRAL", "AMAZON_LINUX", "AUDIT_PLUGIN", "EVENT_PLUGIN", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "MDR_REGRESSION_TESTS", "FAULTINJECTION"]}
-    tags = {'include': ['JAKE'], 'exclude': ["OSTIA", "CENTRAL", "AMAZON_LINUX", "AUDIT_PLUGIN", "EVENT_PLUGIN", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "MDR_REGRESSION_TESTS", "FAULTINJECTION"]}
+    tags = {'include': ['TAP_TESTS'], 'exclude': ["OSTIA", "CENTRAL", "AMAZON_LINUX", "AUDIT_PLUGIN", "EVENT_PLUGIN", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "MDR_REGRESSION_TESTS", "FAULTINJECTION"]}
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {
@@ -34,6 +33,7 @@ def main():
 
     try:
         # Create the TAP Robot result listener.
+        # TODO LINUXDAR-2309 replace this line when problem with listener resolved
         # listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
         listener = None
     except json.decoder.JSONDecodeError:
