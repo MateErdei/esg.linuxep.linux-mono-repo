@@ -8,15 +8,15 @@
             <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-            <development-version branch="feature/LINUXDAR-2037-change-sspl-downgrade-process-to-perform-an-un-install-reinstall"/>
+            <development-version branch="develop"/>
             <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
-            <development-version branch="feature/LINUXDAR-2037-change-sspl-downgrade-process-to-perform-an-un-install-reinstall"/>
+            <development-version branch="develop"/>
             <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
-            <development-version branch="feature/LINUXDAR-2037-change-sspl-downgrade-process-to-perform-an-un-install-reinstall"/>
+            <development-version branch="develop"/>
             <include artifact-path="output" dest-dir="sspl-mdr-componentsuite"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
