@@ -103,19 +103,6 @@ CLS Does Not Ordinarily Output To Stderr
     Should Be Empty  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
-CLS Scan of Infected File Increases Threat Eicar Count
-    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
-
-    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
-
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
-    ${telemetryString}=  Get Plugin Telemetry  av
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
-
-    Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
-    ${result} =   Terminate Process  ${handle}
 
 CLS Can Scan Infected File
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
@@ -125,6 +112,7 @@ CLS Can Scan Infected File
    Log To Console  output is ${output}
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${NORMAL_DIRECTORY}/naugthy_eicar"
+
 
 CLS Can Scan Archive File
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
@@ -540,7 +528,6 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
 CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
    ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
-   ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 
    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=${LOG_FILE}
    Wait Until Keyword Succeeds

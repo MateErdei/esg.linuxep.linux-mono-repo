@@ -35,5 +35,10 @@ In order to run them in Vagrant box:
 To run a single test:
     sudo python3.7 -m robot --test "<name>" .
 
+To run specific suites:
+    sudo python3.7 -m robot -s TA.Product.AVCommandLineScanner .
+    sudo python3.7 -m robot -s TA.Product.AvBasic .
+    sudo python3.7 -m robot -s TA.Integration.AvAndBase .
+
 To run a full set of tests similar to TAP:
     python3 -m robot --include "INTEGRATION OR PRODUCT" --exclude "OSTIA OR MANUAL OR STRESS" .

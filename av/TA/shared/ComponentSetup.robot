@@ -73,3 +73,6 @@ Undo Use Fake AVScanner
     Remove File  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
     Move File  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher_bkp  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
     Remove Directory  /tmp/config-files-test/  recursive=true
+
+Delete Eicars From Tmp
+    Remove File  /tmp/*eicar*

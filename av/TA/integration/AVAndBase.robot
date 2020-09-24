@@ -212,6 +212,8 @@ Avscanner runs as non-root
          ...  check threat event received by base  1  naugthyEicarThreatReportAsNobody
 
 AV Plugin Reports encoded eicars To Base
+   [Teardown]  Remove Directory  /tmp/encoded_eicars  true
+
    Check AV Plugin Installed With Base
 
    ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh  stderr=STDOUT
@@ -234,7 +236,7 @@ AV Plugin Reports encoded eicars To Base
    check_multiple_different_threat_events  ${expected_count}   encoded_eicars
 
    Empty Directory  ${MCS_PATH}/event/
-   Remove Directory  /tmp/encoded_eicars  true
+
 
 AV Plugin uninstalls
     Check avscanner in /usr/local/bin

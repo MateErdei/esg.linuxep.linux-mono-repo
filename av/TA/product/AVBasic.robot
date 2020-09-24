@@ -183,6 +183,7 @@ AV Plugin Can Disable Scanning Of Remote File Systems
 
 
 AV Plugin Can Exclude Filepaths From Scheduled Scans
+    [Teardown]  Delete Eicars From Tmp
     ${eicar_path1} =  Set Variable  /tmp/eicar.com
     ${eicar_path2} =  Set Variable  /tmp/eicar.1
     ${eicar_path3} =  Set Variable  /tmp/eicar.txt
@@ -218,6 +219,24 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test
 
     ${result} =   Terminate Process  ${handle}
+
+
+AV Plugin Scan of Infected File Increases Threat Eicar Count
+    [Teardown]  Delete Eicars From Tmp
+
+    Create File      /tmp/eicar.com    ${EICAR_STRING}
+
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Run Scan Now Scan
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
+
+    ${telemetryString}=  Get Plugin Telemetry  av
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+
+    Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
+
+    ${result} =   Terminate Process  ${handle}
+
 
 *** Keywords ***
 
