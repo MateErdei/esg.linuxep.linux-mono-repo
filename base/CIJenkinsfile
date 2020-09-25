@@ -2,6 +2,7 @@
 
 def params = [
     string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release|coverage]'),
+    booleanParam(name: 'INCLUDE_BUILD_IN_PIPELINE', defaultValue: true, description: 'Perform a build via the pipeline: unified builds'),
     string(name: 'test_type', defaultValue: 'regression', description: 'Test type [regression|faultinjection]'),
 ]
 

@@ -25,9 +25,6 @@
         <package name="sullinux11" version="1-0-0-63/221291/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
-<!--        <package name="sullinux11" version="feature-LINUXDAR-2076_slow_fast_lanes/%LASTGOODCOMPONENTBUILD%/sullinux11/1.0.0/output" dest="input" buildtype="dev">-->
-<!--            <include src="SUL.tar" dest="."/>-->
-<!--        </package>-->
         <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
@@ -96,7 +93,7 @@
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command  buildtype="prod"> -->
-        <command mode="release">
+        <command mode="release,oldci">
             <program>/bin/bash</program>
             <args>./build.sh --clean </args>
             <workingdir>.</workingdir>
@@ -151,9 +148,9 @@
         <destdir>sspl-base</destdir>
         <buildoutputs>
             <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="release"></output>
-            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl" mode="release"></output>
-            <output name="build_log" srcfolder="log" mode="release"></output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="release,oldci"/>
+            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl" mode="release,oldci"/>
+            <output name="build_log" srcfolder="log" mode="release,oldci"/>
 
             <!-- coverage(bullseye) -->
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"></output>

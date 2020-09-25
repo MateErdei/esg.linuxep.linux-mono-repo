@@ -86,17 +86,24 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     component = tap.Component(name='sspl-base', base_version='1.1.4')
 
     # export TAP_PARAMETER_MODE=release|analysis
-    mode = parameters.mode or 'release'
+    mode = parameters.get('MODE', 'release')
     base_build = None
-    with stage.parallel('build'):
-        base_build = stage.artisan_build(name=mode, component=component, image='JenkinsLinuxTemplate5',
-                                         mode=mode, release_package='./build/release-package.xml')
+    INCLUDE_BUILD_IN_PIPELINE = parameters.get('INCLUDE_BUILD_IN_PIPELINE', True)
+    if INCLUDE_BUILD_IN_PIPELINE:
+        with stage.parallel('build'):
+            base_build = stage.artisan_build(name=mode, component=component, image='JenkinsLinuxTemplate5',
+                                             mode=mode, release_package='./build/release-package.xml')
+    else:
+        base_build = context.artifact.build()
+
+
+    test_inputs = get_inputs(context, base_build, mode)
     machines = (
         ("ubuntu1804",
-         tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, base_build, mode),
+         tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
                      platform=tap.Platform.Linux)),
         ("centos77",
-         tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, base_build, mode), platform=tap.Platform.Linux))
+         tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
         # add other distros here
     )
     with stage.parallel('integration'):
