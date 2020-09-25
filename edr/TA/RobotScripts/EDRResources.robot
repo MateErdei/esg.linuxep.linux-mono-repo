@@ -165,4 +165,4 @@ Create Install Options File With Content
 Check Ownership
     [Arguments]  ${path}  ${owner}
     ${result} =  Run Process  ls  -l  ${path}
-    Should Contain  ${result}  ${owner}
+    Should Contain  ${result.stdout}  ${owner}
