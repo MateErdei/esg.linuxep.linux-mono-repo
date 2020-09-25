@@ -8,7 +8,7 @@ from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 
 def main():
-    tags = {'include': ['TAP_TESTS'], 'exclude': ["OSTIA", "CENTRAL", "AMAZON_LINUX", "AUDIT_PLUGIN", "EVENT_PLUGIN", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "MDR_REGRESSION_TESTS", "FAULTINJECTION"]}
+    tags = {'include': ['TAP_TESTS2'], 'exclude': ["OSTIA", "CENTRAL", "AMAZON_LINUX", "AUDIT_PLUGIN", "EVENT_PLUGIN", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "MDR_REGRESSION_TESTS", "FAULTINJECTION"]}
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {
@@ -31,13 +31,13 @@ def main():
     os.environ['CAPNP_INPUT'] = 'IGNORE'
     os.environ['WEBSOCKET_SERVER'] = '/opt/test/inputs/websocket_server'
 
-    try:
-        # Create the TAP Robot result listener.
-        listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
-    except json.decoder.JSONDecodeError:
-        # When running locally you can not initialise the TAP Results Listener
-        listener = None
-
+    # try:
+    #     # Create the TAP Robot result listener.
+    #     listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
+    # except json.decoder.JSONDecodeError:
+    #     # When running locally you can not initialise the TAP Results Listener
+    #     listener = None
+    listener = None
     if listener is not None:
         robot_args['listener'] = listener
 
