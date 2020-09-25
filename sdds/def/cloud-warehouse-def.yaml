@@ -16,12 +16,12 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                supplements:
-                    - winepflags-supp
+#                supplements:       this does not work
+#                    - winepflags-supp
                 subcomponents:
                     sspl-base-component:
-#                        supplements:
-#                            - winepflags-supp
+                        supplements:
+                            - winepflags-supp
                     sspl-liveterminal:
             sspl-edr:
                 import:
