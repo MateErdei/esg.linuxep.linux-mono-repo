@@ -175,6 +175,7 @@ int NamedScanRunner::run()
     // for each select included mount point call filewalker for that mount point
     for (auto & mp : includedMountpoints)
     {
+        LOGINFO("Attempting to scan: " << mp->mountPoint());
         std::string mountpointToScan = mp->mountPoint();
         try
         {
