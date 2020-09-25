@@ -229,9 +229,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     # Changing the policy here will result in an automatic update
     # Note when downgrading from a release with live response to a release without live response
-    # results in a second update.  Due to update certificates`being replaced by the first update
-    # the second update will fail.
-    # For now, mark error in the log, and force another update to ensure there are no issues.
+    # results in a second update.
+    # Force another update to ensure there are no issues.
     # Then check the number of update successes to prove everything is OK.
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Wait Until Keyword Succeeds
@@ -284,7 +283,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
 
 We Can Upgrade From A Release With EDR To Master With Live Response
