@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 import subprocess as sp
@@ -24,7 +24,7 @@ def find_vagrant_root(start_from_dir):
 
 def check_vagrant_up_and_running():
     output = sp.check_output(['/usr/bin/vagrant', 'status'])
-    if 'running' not in output:
+    if b'running' not in output:
         print ('starting up vagrant')
         sp.call(['/usr/bin/vagrant', 'up', 'ubuntu'])
 
@@ -132,14 +132,20 @@ check_vagrant_up_and_running()
 
 # create the temp file that will be executed inside the vagrant machine
 
-tempfileContent = """#!/bin/bash
-pushd "%s"
-export BASE_DIST=%s
-%s
+if os.environ.get("NO_GATHER"):
+    gather = ""
+else:
+    gather = "TEST_UTILS=/vagrant/everest-base/testUtils  sudo -E /vagrant/everest-base/testUtils/SupportFiles/jenkins/gatherTestInputs.sh"
+
+tempfileContent = f"""#!/bin/bash
+pushd {remotedir}
+export BASE_DIST={base_folder}
+{gather}
+{env_variables}
 export PYTHONPATH=/vagrant/everest-base/testUtils/libs/:/vagrant/everest-base/testUtils/SupportFiles/:$PYTHONPATH
-sudo -E /usr/bin/python3 -m robot %s
+sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
 popd
-""" % (remotedir, base_folder, env_variables,  ' '.join(quoted_args))
+"""
 
 hostfile = os.path.join(VAGRANTROOT, 'tmpscript.sh')
 remotefile = os.path.join('/vagrant', 'tmpscript.sh')
@@ -147,7 +153,7 @@ remotefile = os.path.join('/vagrant', 'tmpscript.sh')
 with open(hostfile, 'w') as f:
     f.write(tempfileContent)
 
-# run the command in the vagrant machine
+# run the command in the vgagrant machine
 vagrant_cmd = ['/usr/bin/vagrant', 'ssh', 'ubuntu', '-c', 'bash %s' % remotefile]
 
 sp.call(vagrant_cmd)
