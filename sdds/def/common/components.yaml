@@ -1,11 +1,17 @@
 %YAML 1.1
 ---
 sspl-base:
-    fileset: ..\redist\sspl-plugin-edr-componentsuite
+    build:
+        branch: feature-LINUXDAR-1939
+        name: sspl-componentsuite
+        output: output\SDDS-SSPL-COMPONENT-SUITE
     canonical-name: ServerProtectionLinux-Base
     line-id: ServerProtectionLinux-Base
 sspl-base-component:
-    fileset: ..\redist\sspl-base
+    build:
+        branch: feature-LINUXDAR-1939
+        name: sspl-base
+        output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base-component
     line-id: ServerProtectionLinux-Base-component
     mountpoint: ServerProtectionLinux-Base-component
