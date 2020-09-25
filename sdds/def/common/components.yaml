@@ -1,11 +1,17 @@
 %YAML 1.1
 ---
 sspl-base:
-    fileset: ..\redist\sspl-plugin-edr-componentsuite
+    build:
+        branch: develop
+        name: sspl-componentsuite
+        output: output\SDDS-SSPL-COMPONENT-SUITE
     canonical-name: ServerProtectionLinux-Base
     line-id: ServerProtectionLinux-Base
 sspl-base-component:
-    fileset: ..\redist\sspl-base
+    build:
+        branch: develop
+        name: sspl-base
+        output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinux-Base-component
     line-id: ServerProtectionLinux-Base-component
     mountpoint: ServerProtectionLinux-Base-component
@@ -19,6 +25,7 @@ winepflags:
     fileset: ..\redist\winepflags\union\LATEST
     canonical-name: WINEPFLAGS
     line-id: WINEPFLAGS
+#    mountpoint: .
 
 #sspl_features_warehouse_flags:
 #    fileset: ..\redist\sspl-flags
@@ -26,29 +33,47 @@ winepflags:
 #    line-id: SSPLFLAGS
 
 sspl-edr:
-    fileset: ..\redist\sspl-plugin-edr-component
+    build:
+        branch: develop
+        name: sspl-plugin-edr-component
+        output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-EDR
     line-id: ServerProtectionLinux-Plugin-EDR
 ssplmdr-suite:
-    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-MDR-COMPONENT-SUITE
+    build:
+        branch: develop
+        name: sspl-mdr-componentsuite
+        output: output\SDDS-SSPL-MDR-COMPONENT-SUITE
     canonical-name: ServerProtectionLinuxPlugin-MDR
     line-id: ServerProtectionLinux-Plugin-MDR
 ssplmdr-control-component:
-    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-MDR-COMPONENT
+    build:
+        branch: develop
+        name: sspl-mdr-componentsuite
+        output: output\SDDS-SSPL-MDR-COMPONENT
     canonical-name: ServerProtectionLinux-MDR-Control-Component
     line-id: ServerProtectionLinux-MDR-Control-Component
     mountpoint: .
 ssplmdr-dbos-component:
-    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-DBOS-COMPONENT
+    build:
+        branch: develop
+        name: sspl-mdr-componentsuite
+        output: output\SDDS-SSPL-DBOS-COMPONENT
     canonical-name: ServerProtectionLinux-MDR-DBOS-Component
     line-id: ServerProtectionLinux-MDR-DBOS-Component
     mountpoint: .
 ssplmdr-osquery-component:
-    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-OSQUERY-COMPONENT
+    build:
+        branch: develop
+        name: sspl-mdr-componentsuite
+        output: output\SDDS-SSPL-OSQUERY-COMPONENT
     canonical-name: ServerProtectionLinux-MDR-osquery-Component
     line-id: ServerProtectionLinux-MDR-osquery-Component
     mountpoint: .
 sspl-av:
-    fileset: ..\redist\sspl-plugin-anti-virus
+    build:
+        branch: master
+        name: sspl-plugin-anti-virus
+        output: output\SDDS-COMPONENT
     canonical-name: ServerProtectionLinuxPlugin-AV
     line-id: ServerProtectionLinux-Plugin-AV
