@@ -307,7 +307,10 @@ Install base and edr and mtr 999 then downgrade to current master
     ...  5 secs
     ...  EDR Plugin Is Running
 
-    Check MCS Envelope Contains Event Success On N Event Sent  1
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
