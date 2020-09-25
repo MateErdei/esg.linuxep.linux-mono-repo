@@ -45,7 +45,8 @@ def robot_task(machine: tap.Machine):
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
         install_requirements(machine)
-        machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py')
+        machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                    timeout=3600)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
