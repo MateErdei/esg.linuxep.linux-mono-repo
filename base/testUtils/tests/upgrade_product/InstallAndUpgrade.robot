@@ -245,8 +245,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+    Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Trigger Update Now
