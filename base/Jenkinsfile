@@ -77,6 +77,6 @@ skipDefaultCheckout()
      SuccessfulBuild(project_release_xml)
 
 } catch(e){
-    FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    FailedBuild(e)
     error("Build failed: " + e.toString())
 }
