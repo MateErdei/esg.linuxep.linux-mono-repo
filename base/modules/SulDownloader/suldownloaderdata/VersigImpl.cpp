@@ -21,8 +21,14 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
     auto fileSystem = Common::FileSystem::fileSystem();
 
     auto manifestPaths = configurationData.getManifestNames();
+
+    for (const auto& iterator: manifestPaths)
+    {
+        LOGINFO("DEBUG LOG list of manifests: " << iterator);
+    }
     if (manifestPaths.size() == 0)
     {
+        LOGINFO("DEBUG LOG using default name for manifest.dat");
         // a manifest.dat file should exits for each component.
         manifestPaths.emplace_back("manifest.dat");
     }
