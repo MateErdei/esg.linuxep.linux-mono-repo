@@ -200,9 +200,8 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
-#ToDo remove TESTFAILURE tag after LINUXDAR-2037 is submitted
 We Can Downgrade From Master To A Release Without Unexpected Errors
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  TESTFAILURE
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
     [Timeout]  600
     # Note, if updating test make sure that at least one compnent will be un-installed during downgrade
     # There should be no errors in management agent relating to registering components which have been uninstalled
@@ -224,7 +223,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
-
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
     # Products that should be uninstalled after downgrade
     Should Exist  ${InstalledLRPluginVersionFile}
 
@@ -247,9 +246,13 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...   200 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  Failed to connect to the warehouse
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
 
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Trigger Update Now
@@ -257,20 +260,12 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
-    ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  3
-
-    # If mtr is installed for the first time, this will appear
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
-    # We have a race condition when stopping and starting mtr plugin, so sometimes this appears
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr exited when not expected
-    # We fail to stop mtr because the old watchdog is unable to stop the VUT mtr with it's actionAppId pluginRegistry entry
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Failed to stop mtr: Error: Plugin not found
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Failed to stop edr: Error: Plugin not found
-    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
+    # because on a downgrade the install.sh think it is doing a clean install an update will be triggered before we have setup the ostia certs again
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  Failed to connect to the warehouse
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -285,10 +280,16 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
 
-    # check that at least one component was uninstalled during downgrade
-    Check SulDownloader Log Contains  Uninstalling
     # Ensure products which should have been removed are removed.
     Should Not Exist  ${InstalledLRPluginVersionFile}
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
+    Trigger Update Now
+    # waiting for 2nd because the 1st is a guaranteed failure
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  3
 
 
 We Can Upgrade From A Release With EDR To Master With Live Response
