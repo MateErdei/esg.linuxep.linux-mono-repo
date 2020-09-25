@@ -124,7 +124,7 @@ Scheduled Scan Configuration Is Correct
     ${result} =   Terminate Process  ${handle}
 
 AV Plugin Will Fail Scan Now If No Policy
-    [Teardown]  Remove File  ${MCS_ACTION_DIRECTORY}/SAV_action_*
+    [Teardown]  Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
