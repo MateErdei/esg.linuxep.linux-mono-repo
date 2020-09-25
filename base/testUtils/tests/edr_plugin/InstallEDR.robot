@@ -133,7 +133,7 @@ A broken edr installation will fail update
     Override LogConf File as Global Level   DEBUG
     Send ALC Policy And Prepare For Upgrade  ${BrokenEDRPolicy}
     Trigger Update Now
-    # waiting for 2nd because the 1st is a guaranteed failure
+
     Wait Until Keyword Succeeds
     ...   100 secs
     ...   10 secs

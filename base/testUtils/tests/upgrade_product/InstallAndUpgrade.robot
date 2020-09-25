@@ -102,7 +102,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
 
-    # waiting for 2nd because the 1st is a guaranteed failure
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -161,7 +161,6 @@ VersionCopy File in the Wrong Location Is Removed
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
 
-    # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -203,16 +202,13 @@ VersionCopy File in the Wrong Location Is Removed
 We Can Downgrade From Master To A Release Without Unexpected Errors
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
     [Timeout]  600
-    # Note, if updating test make sure that at least one compnent will be un-installed during downgrade
     # There should be no errors in management agent relating to registering components which have been uninstalled
     # during the downgrade
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}
 
-    Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
 
-    # waiting for 2nd because the 1st is a guaranteed failure
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -224,14 +220,13 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+
     # Products that should be uninstalled after downgrade
     Should Exist  ${InstalledLRPluginVersionFile}
 
     # Changing the policy here will result in an automatic update
     # Note when downgrading from a release with live response to a release without live response
     # results in a second update.
-    # Force another update to ensure there are no issues.
-    # Then check the number of update successes to prove everything is OK.
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -277,9 +272,11 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     # Ensure products which should have been removed are removed.
     Should Not Exist  ${InstalledLRPluginVersionFile}
 
+    # Upgrade back to master to check we can upgrade from a downgraded product
+    # Then check the number of update successes to prove everything is OK.
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
     Trigger Update Now
-    # waiting for 2nd because the 1st is a guaranteed failure
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -294,7 +291,7 @@ We Can Upgrade From A Release With EDR To Master With Live Response
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEDROldWHFormat}
 
-    # waiting for 2nd because the 1st is a guaranteed failure
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -355,7 +352,7 @@ Verify Upgrading Will Remove Files Which Are No Longer Required
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
 
-    # waiting for 2nd because the 1st is a guaranteed failure
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -445,7 +442,7 @@ Version Copy Versions All Changed Files When Upgrading
     ...  30 secs
     ...  Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
 
-    # waiting for 2nd because the 1st is a guaranteed failure
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   5 secs
@@ -526,7 +523,7 @@ Update Will Be Forced When Feature List Changes Without Unexpected Errors
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUT_Without_SDU_Policy}
 
 
-    # waiting for 2nd because the 1st is a guaranteed failure
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -561,7 +558,7 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
 
-    # waiting for 2nd because the 1st is a guaranteed failure
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
