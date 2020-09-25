@@ -6,9 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ALCPoliciesExample.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/TempDir.h>
 #include <modules/pluginimpl/PluginAdapter.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
@@ -34,6 +36,7 @@ public:
             std::unique_ptr<Common::PluginApi::IBaseServiceApi>(new DummyServiceApli()),
             std::make_shared<Plugin::PluginCallback>(queueTask))
     {
+
     }
     void processALCPolicy(const std::string& policy, bool firstTime)
     {
@@ -43,6 +46,11 @@ public:
     Plugin::OsqueryConfigurator& osqueryConfigurator()
     {
         return Plugin::PluginAdapter::osqueryConfigurator();
+    }
+
+    void ensureMCSCanReadOldResponses()
+    {
+        Plugin::PluginAdapter::ensureMCSCanReadOldResponses();
     }
 };
 class TestPluginAdapterWithLogger : public LogInitializedTests{};
@@ -232,4 +240,102 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillGiveUpWaiting
         queueTask.pop(extractTask, 1000);
         EXPECT_EQ(extractTask.m_content, std::to_string(i));
     }
+}
+
+class PluginAdapterWithMockFileSystem: public LogOffInitializedTests
+{
+public:
+    PluginAdapterWithMockFileSystem()
+    {
+        mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
+        mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
+        Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+    }
+    ~PluginAdapterWithMockFileSystem()
+    {
+        Tests::restoreFileSystem();
+    }
+    MockFileSystem * mockFileSystem;
+    MockFilePermissions * mockFilePermissions;
+};
+
+TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesChownsSingleFile)
+{ // NOLINT
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::vector<std::string> files;
+    std::string filename("/opt/sophos-spl/base/mcs/response/LiveQuery_correlation_response.json");
+    files.push_back(filename);
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(HasSubstr("base/mcs/response"))).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
+    EXPECT_CALL(*mockFilePermissions, chown(filename, "sophos-spl-local", "sophos-spl-group"));
+
+    pluginAdapter.ensureMCSCanReadOldResponses();
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNotChownIfExceptionThrown)
+{ // NOLINT
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::vector<std::string> files;
+    std::string filename("/opt/sophos-spl/base/mcs/response/LiveQuery_correlation_response.json");
+    files.push_back(filename);
+    Common::FileSystem::IFileSystemException e("test exception");
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(HasSubstr("base/mcs/response"))).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Throw(e));
+    EXPECT_CALL(*mockFilePermissions, chown(filename, "sophos-spl-local", "sophos-spl-group")).Times(0);
+
+    pluginAdapter.ensureMCSCanReadOldResponses();
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesChownsMultipleFiles)
+{ // NOLINT
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::vector<std::string> files;
+    std::string filename1("/opt/sophos-spl/base/mcs/response/LiveQuery_correlation1_response.json");
+    std::string filename2("/opt/sophos-spl/base/mcs/response/LiveQuery_correlation2_response.json");
+    std::string filename3("/opt/sophos-spl/base/mcs/response/LiveQuery_correlation3_response.json");
+    files.push_back(filename1);
+    files.push_back(filename2);
+    files.push_back(filename3);
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(HasSubstr("base/mcs/response"))).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
+    EXPECT_CALL(*mockFilePermissions, chown(filename1, "sophos-spl-local", "sophos-spl-group"));
+    EXPECT_CALL(*mockFilePermissions, chown(filename2, "sophos-spl-local", "sophos-spl-group"));
+    EXPECT_CALL(*mockFilePermissions, chown(filename3, "sophos-spl-local", "sophos-spl-group"));
+
+    pluginAdapter.ensureMCSCanReadOldResponses();
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNotChownIfNoDirectory)
+{ // NOLINT
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(HasSubstr("base/mcs/response"))).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).Times(0);
+    EXPECT_CALL(*mockFilePermissions, chown(_, "sophos-spl-local", "sophos-spl-group")).Times(0);
+
+    pluginAdapter.ensureMCSCanReadOldResponses();
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNothingIfDirectoryEmpty)
+{ // NOLINT
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    std::vector<std::string> files;
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(HasSubstr("base/mcs/response"))).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
+    EXPECT_CALL(*mockFilePermissions, chown(_, "sophos-spl-local", "sophos-spl-group")).Times(0);
+
+    pluginAdapter.ensureMCSCanReadOldResponses();
 }

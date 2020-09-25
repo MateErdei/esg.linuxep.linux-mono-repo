@@ -80,7 +80,7 @@ namespace Plugin
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
         void processALCPolicy(const std::string&, bool firstTime);
-
+        void ensureMCSCanReadOldResponses();
         OsqueryConfigurator& osqueryConfigurator();
 
     private:
@@ -100,7 +100,6 @@ namespace Plugin
         void stopOsquery();
         void cleanUpOldOsqueryFiles();
         void databasePurge();
-        void ensureMCSCanReadOldResponses();
         static bool pluginMemoryAboveThreshold();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
