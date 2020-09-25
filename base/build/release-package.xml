@@ -28,8 +28,6 @@
         <package name="sullinux11" version="feature-LINUXDAR-2076_slow_fast_lanes/%LASTGOODCOMPONENTBUILD%/sullinux11/1.0.0/output" dest="input" buildtype="dev">
             <include src="SUL.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-59/220764/output" dest="input" buildtype="dev">
-        </package>
         <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
