@@ -481,6 +481,7 @@ namespace SulDownloader
         // general settings
         std::string certificatePath = configurationData.getCertificatePath();
         std::string localWarehouseRepository = configurationData.getLocalWarehouseRepository();
+        bool useSlowSupplements = configurationData.getUseSlowSupplements();
 
         SU_setLoggingLevel(session(), logLevel(configurationData.getLogLevel()));
 
@@ -491,6 +492,16 @@ namespace SulDownloader
         LOGSUPPORT("WarehouseRepository local repository: " << localWarehouseRepository);
         SU_setLocalRepository(session(), localWarehouseRepository.c_str());
         SU_setUserAgent(session(), "SULDownloader");
+
+        LOGSUPPORT("Use Slow Supplements: " << useSlowSupplements);
+        if (useSlowSupplements)
+        {
+            SU_setUseDelayedSupplementsMode(session(), SU_DelayedSupplementsMode_Slow);
+        }
+        else
+        {
+            SU_setUseDelayedSupplementsMode(session(), SU_DelayedSupplementsMode_Normal);
+        }
 
         if (!SULUtils::isSuccess(SU_setUseHttps(session(), true)))
         {
