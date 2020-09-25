@@ -16,12 +16,12 @@ warehouses:
                     -   base-version: 1
                         tag: LATEST
 
-warehouses:
-    sspl-flags:
-        components:
-            winepflags:
-                release-tags:
-                    -   base-version: 1
-                        tag: LATEST
+#warehouses:
+#    sspl-flags:
+#        components:
+#            winepflags:
+#                release-tags:
+#                    -   base-version: 1
+#                        tag: LATEST
 
 customer-files: []
