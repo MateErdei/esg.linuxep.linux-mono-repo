@@ -13,30 +13,12 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
-#include <fstream>
-
 namespace fs = sophos_filesystem;
 
 using namespace Plugin;
 
 namespace
 {
-    fs::path sophosInstall()
-    {
-        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        return appConfig.getData("SOPHOS_INSTALL");
-    }
-
-    fs::path actionDir()
-    {
-        return sophosInstall() / "base/mcs/action";
-    }
-
-    fs::path policyDir()
-    {
-        return sophosInstall() / "base/mcs/policy";
-    }
-
     fs::path pluginInstall()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -132,16 +114,11 @@ void PluginAdapter::innerLoop()
     }
 }
 
-void PluginAdapter::processPolicy(const std::string& policyXmlFilename)
+void PluginAdapter::processPolicy(const std::string& policyXml)
 {
-    fs::path policyXmlFilepath = policyDir() / policyXmlFilename;
-    LOGDEBUG("Processing policy file: " << policyXmlFilepath);
+    LOGDEBUG("Process policy: " << policyXml);
 
-    std::ifstream policyXmlFs(policyXmlFilepath);
-    std::string policyXmlContents(std::istreambuf_iterator<char>{policyXmlFs}, {});
-    LOGDEBUG("Process policy: " << policyXmlContents);
-
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXmlContents);
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     std::string policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
     if ( policyType != "2")
     {
@@ -154,16 +131,12 @@ void PluginAdapter::processPolicy(const std::string& policyXmlFilename)
     m_callback->sendStatus(revID);
 }
 
-void PluginAdapter::processAction(const std::string& actionXmlFilename)
+void PluginAdapter::processAction(const std::string& actionXml)
 {
-    fs::path actionXmlFilepath = actionDir() / actionXmlFilename;
-    LOGDEBUG("Processing action file: " << actionXmlFilepath);
+    LOGDEBUG("Process action: " << actionXml);
 
-    std::ifstream actionXmlFs(actionXmlFilepath);
-    std::string actionXmlContents(std::istreambuf_iterator<char>{actionXmlFs}, {});
-    LOGDEBUG("Process action: " << actionXmlContents);
+    auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
 
-    auto attributeMap = Common::XmlUtilities::parseXml(actionXmlContents);
     if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
     {
         m_scanScheduler.scanNow();
