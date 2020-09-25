@@ -20,6 +20,8 @@ warehouses:
                     - winepflags-supp
                 subcomponents:
                     sspl-base-component:
+                        supplements:
+                            - winepflags-supp
                     sspl-liveterminal:
             sspl-edr:
                 import:
