@@ -40,7 +40,7 @@ PROD_BUILD_CERTS = "prod"
 DEV_BUILD_CERTS = "dev"
 
 # The version under test, usually master dev builds
-OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/menaga"
+OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/vut"
 # Warehouse without RECOMMENDED tag
 OSTIA_BETA_ONLY_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/only-beta"
 # Usually the previous release
@@ -50,9 +50,9 @@ OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-mi
 # A version with mocked libraries (to test file removal on upgrade)
 OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/0-6-0"
 # a version with edr 9.99.9 for downgrade tests
-OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/menaga-edr-999"
-OSTIA_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/menaga-mdr-999"
-OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/menaga-edr-999-mdr-999"
+OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/edr-999"
+OSTIA_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/mdr-999"
+OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/edr-mdr-999"
 # A warehouse containing 3 base versions for paused updating tests
 OSTIA_PAUSED_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/paused-updating"
 # A warehouse containing Base and EDR pre live response
