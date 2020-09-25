@@ -415,6 +415,7 @@ class MCS:
         self.stop_push_client(push_client)
         self.__m_command_check_interval.set_on_error(error_count, transient)
 
+
     def run(self):
         """
         run
@@ -431,6 +432,8 @@ class MCS:
             return 2
 
         comms = self.__m_comms
+
+
 
         events = events_module.Events()
         events_timer = events_timer_module.EventsTimer(
@@ -460,14 +463,32 @@ class MCS:
             """
             responses.add_response(*response_args)
 
-        datafeeds = datafeeds_module.Datafeeds()
+        # Container to hold Datafeed objects
+        #datafeeds_scheduled_queries = datafeeds_module.Datafeeds("scheduled_query")
+        all_datafeeds = [
+            # datafeeds_module.Datafeeds("scheduled_query", 60 * 60 * 24 * 14, 1000000000, 5, 10000000, 10000000)
+            datafeeds_module.Datafeeds("scheduled_query")
+        ]
 
-        def add_datafeed_result(*datafeed_args):
-            """
-            Add datafeed result to the datafeeds container class, it can hold different datafeed types.
-            """
-            datafeeds.add_datafeed_result(*datafeed_args)
+        def gather_datafeed_files():
+            for result_file_path, datafeed_id, datafeed_timestamp, datafeed_body in datafeed_receiver.receive():
+                LOGGER.info("Queuing datafeed result for %s", datafeed_id)
+                for df in all_datafeeds:
+                    if df.get_feed_id() == datafeed_id:
+                        df.add_datafeed_result(result_file_path, datafeed_id, datafeed_timestamp, datafeed_body)
+                    else:
+                        LOGGER.warning("There is no datafeed handler setup for the datafeed ID: {}".format(datafeed_id))
 
+        def send_datafeed_files():
+            for df in all_datafeeds:
+                if df.has_results():
+                    LOGGER.debug("Sending datafeed results for datafeed ID: {}".format(df.get_feed_id()))
+                    try:
+                        comms.send_datafeeds(df)
+                        # todo do we want this at all ?
+                        #df.reset()
+                    except Exception as df_exception:
+                        LOGGER.error("Failed to send datafeed results, datafeed ID: {}, error: {}".format(df.get_feed_id(), str(df_exception)))
 
         def status_updated(reason=None):
             """
@@ -612,9 +633,7 @@ class MCS:
                             response_time), response_body)
 
                     # get all pending datafeeds
-                    for file_path, datafeed_id, datafeed_timestamp, response_body in datafeed_receiver.receive():
-                        LOGGER.info("Queuing datafeed result for %s", datafeed_id)
-                        add_datafeed_result(file_path, datafeed_id, datafeed_timestamp, response_body)
+                    gather_datafeed_files()
 
                     # send statuses, events and responses only if not in error state
                     if error_count == 0:
@@ -661,14 +680,7 @@ class MCS:
                                 LOGGER.error("Failed to send responses: {}".format(str(exception)))
 
                         # Send datafeed results
-                        if datafeeds.has_results():
-                            # LOGGER.debug("Sending datafeed results")
-                            LOGGER.info("Sending datafeed results")
-                            try:
-                                comms.send_datafeeds(datafeeds.get_datafeeds())
-                                datafeeds.reset()
-                            except Exception as exception:
-                                LOGGER.error("Failed to send datafeeds: {}".format(str(exception)))
+                        send_datafeed_files()
 
                     # reset command poll
                 except socket.error as ex:

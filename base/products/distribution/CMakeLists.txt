@@ -19,7 +19,7 @@ set(DISTRIBUTION_TOOL_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/addSymbols.sh)
 set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
-set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py)
+set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py )
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
         COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
@@ -108,5 +108,5 @@ configure_file(VERSION.ini.in VERSION.ini @ONLY)
 install(FILES ../../build64/products/distribution/VERSION.ini
         DESTINATION files/base/)
 
-install(FILES ../../build64/products/distribution/VERSION.ini
-        DESTINATION .)
+install(FILES ../../build64/products/distribution/datafeed-config-scheduled_query.json
+        DESTINATION files/base/etc/)

@@ -1024,32 +1024,65 @@ class MCSConnection:
             except Exception as exception:
                 log_exception_error(response.m_app_id, response.m_correlation_id, exception)
 
-    def send_datafeeds(self, datafeeds):
+
+    # is it wort having this here for the type hinting?
+    from . import datafeeds
+
+    def send_datafeeds(self, datafeeds: datafeeds.Datafeeds):
         """
         This method is used in mcs.py to trigger the processing and sending of datafeed results.
         """
         LOGGER.info("send_datafeeds")
+
+        # Sending Protocol
+        #   Discard files too large (e.g. 10MB)
+        #   Discard files too old (e.g 2 weeks)
+        #   Discard empty files
+        #   Abide by back off
+        #     if this is called during the back off time then return
+        #     if this is called during the back off time AND we should discard then delete all files and return
+        #   Sort files, sending oldest to newest
+        #   Send files
+        #     Only upload up to sending limit size (e.g. 10MB)
+        #     Only upload up to maximum limit size (e.g. 1GB)
+        #     Only upload up to a max frequency (e.g. every 60 seconds)
+
+        #  // Feed ID, used to build URLs
+        #         std::wstring feedId;
+        #         // Retention time: the age of data thrown away (2 weeks)
+        #         std::chrono::steady_clock::duration const retention = std::chrono::hours(24 * 14);
+        #         // Max size of the raw data stored before we start to throw it away (1 GB)
+        #         uint64_t const maxSize = 1000000000UI64;
+        #         // Period of polling the folder for new data
+        #         std::chrono::steady_clock::duration const pollPeriod = std::chrono::minutes{ 1 };
+        #         // Delay timeout to collect subsequent file changes
+        #         std::chrono::steady_clock::duration const delayTimeout = std::chrono::seconds{ 5 };
+        #         // Max size of raw data to upload at once (per pollPeriod): 10 MB
+        #         uint64_t const maxUploadSize = 10000000UI64;
+        #         // Max size of any individual item to upload: 10 MB
+        #         uint64_t const maxItemSize = 10000000UI64;
+
         datafeeds.prune_old_datafeed_files()
         datafeeds.prune_too_large_datafeed_files()
+        datafeeds.prune_empty_datafeed_files()
+        datafeeds.prune_backlog_to_max_size()
+        datafeeds.sort_oldest_to_newest()
 
-        for feed in datafeeds:
-            # Data feed sending protocol, this will apply to all datafeeds initially, this code can be expended
-            # later if we need to handle different sending protocols for different datafeeds.
-            # remove all empty datafeeds
-            if feed.m_json_body_size == 0:
-                # TODO add remove functoin to Datafeeds feed.remove
-
-            self.send_datafeed_result(feed)
-
-            # TODO I think here we could implement the sending protocol and also delete the feed files?
-            # try:
-            #     if feed.m_json_body_size != 0:
-            #         self.send_live_query_response_with_id(feed)
-            #     else:
-            #         LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(feed.m_correlation_id))
-            #     feed.remove_response_file()
-            # except Exception as exception:
-            #     log_exception_error(feed.m_app_id, feed.m_correlation_id, exception)
+        max_upload_at_once = datafeeds.get_max_upload_at_once()
+        sent_so_far = 0
+        for datafeed_result in datafeeds.get_datafeeds():
+            if sent_so_far + datafeed_result.m_json_body_size < max_upload_at_once:
+                try:
+                    self.send_datafeed_result(datafeed_result)
+                    sent_so_far += datafeed_result.m_json_body_size
+                    datafeed_result.remove_datafeed_file()
+                except Exception as exception:
+                    # TODO add more detail to logger here
+                    LOGGER.error("Failed to send datafeed: {}".format(exception))
+                    break
+            else:
+                break
+        datafeeds.prune_results_with_no_files()
 
 
     def send_datafeed_result(self, datafeed):
