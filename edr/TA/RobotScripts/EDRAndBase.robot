@@ -22,6 +22,20 @@ LiveQuery is Distributed to EDR Plugin and Its Answer is available to MCSRouter
     ...  1 secs
     ...  File Should Exist    ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_123-4_response.json
 
+LiveQuery Response is Chowned to Sophos Spl Local on EDR Startup
+    Check EDR Plugin Installed With Base
+    Create File  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_567-8_response.json
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Ownership    ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_567-8_response.json  sophos-spl-local
+
 Incorrect LiveQuery is Distributed to EDR Plugin is handled correclty
     Check EDR Plugin Installed With Base
     Simulate Live Query  FailedRequestProcesses.json

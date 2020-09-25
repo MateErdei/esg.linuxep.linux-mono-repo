@@ -20,7 +20,7 @@ ${EDR_SDDS}         ${COMPONENT_SDDS}
 Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
-    Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\n stdout: \n ${result.stdout} \n. stderr: \n ${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\nstdout: \n${result.stdout} \n. stderr: \n${result.stderr}"
 
 Check EDR Plugin Running
     Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/edr   OnError=EDR not running
@@ -90,7 +90,7 @@ Uninstall All
     Log File   ${EDR_LOG_PATH}
     Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\n stdout: \n${result.stdout}\n. stderr: \n {result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
 
 Uninstall And Revert Setup
     Uninstall All
@@ -103,7 +103,7 @@ Install Base For Component Tests
 
 Install EDR Directly from SDDS
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\n stdout: \n${result.stdout}\n. stderr: \n {result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
 
 Check EDR Plugin Installed With Base
     File Should Exist   ${EDR_PLUGIN_PATH}/bin/edr
@@ -161,3 +161,8 @@ Create Install Options File With Content
     [Arguments]  ${installFlags}
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
     #TODO set permissions
+
+Check Ownership
+    [Arguments]  ${path}  ${owner}
+    ${result} =  Run Process  ls  -l  ${path}
+    Should Contain  ${result}  ${owner}

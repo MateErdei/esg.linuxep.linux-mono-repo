@@ -100,6 +100,7 @@ namespace Plugin
         void stopOsquery();
         void cleanUpOldOsqueryFiles();
         void databasePurge();
+        void ensureMCSCanReadOldResponses();
         static bool pluginMemoryAboveThreshold();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;

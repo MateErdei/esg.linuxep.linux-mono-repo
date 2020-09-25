@@ -26,3 +26,9 @@ std::string Plugin::getVersionIniFilePath()
 
 
 
+std::string Plugin::livequeryResponsePath()
+{
+    std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+    return Common::FileSystem::join(installPath, "base/mcs/response");
+}
+
