@@ -8,6 +8,14 @@ winepflags-supp:
   tag: LATEST
   warehouse: winepflags
 
+sspl-flags-supp:
+  base-version: 1
+  canonical-name: WINEPFLAGS
+  decode-path: .
+  line-id: WINEPFLAGS
+  tag: LATEST
+  warehouse: sspl-flags
+
 #sspl-flags-supp:
 #  fileset: ..\redist\sspl_flags
 #  canonical-name: SSPLFLAGS
