@@ -247,6 +247,17 @@ function build()
 
         mkdir -p $REDIST
 
+        # gcc is unpacked for test use only
+        local GCC_TAR=$(ls $INPUT/gcc-*.tar.gz)
+        if [[ -f ${GCC_TAR} ]]
+        then
+          untar_input gcc-8.1.0-linux
+        else
+          echo "**** NO GCC tar so not unpacking"
+          ls $INPUT/gcc-*.tar.gz || true
+          ls -l ${INPUT} || true
+        fi
+
         OPENSSL_TAR=${INPUT}/openssl.tar
         if [[ -f $OPENSSL_TAR ]]
         then
@@ -296,11 +307,6 @@ function build()
         untar_input python-urllib3
         untar_input pycryptodome
         untar_input $GOOGLETESTTAR
-        # below are unpacked for test use only
-        if [[ -f ${INPUT}/gcc-*.tar.gz ]]
-        then
-          untar_input gcc-8.1.0-linux
-        fi
 
         mkdir -p ${REDIST}/certificates
         if [[ -f ${INPUT}/ps_rootca.crt ]]
