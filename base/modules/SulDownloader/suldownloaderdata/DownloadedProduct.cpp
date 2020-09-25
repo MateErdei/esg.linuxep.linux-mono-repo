@@ -41,6 +41,7 @@ void DownloadedProduct::verify(const ConfigurationData& configurationData)
 
     if (iVersig->verify(configurationData, m_distributePath) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
     {
+        LOGINFO("**** Manifest Verification failed ****");
         WarehouseError error;
         error.Description = std::string("Product ") + getLine() + " failed signature verification";
         error.status = WarehouseStatus::INSTALLFAILED;

@@ -22,10 +22,6 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
 
     auto manifestPaths = configurationData.getManifestNames();
 
-    for (const auto& iterator: manifestPaths)
-    {
-        LOGINFO("DEBUG LOG list of manifests: " << iterator);
-    }
     if (manifestPaths.size() == 0)
     {
         LOGINFO("DEBUG LOG using default name for manifest.dat");
@@ -36,7 +32,10 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
     // optional manifest files to validate if they exists.
 
     auto optionalManifestPaths = configurationData.getOptionalManifestNames();
-
+    for (const auto& iterator: manifestPaths)
+    {
+        LOGINFO("DEBUG LOG list of optionalManifest: " << iterator);
+    }
     for(auto& relativeManifestPath : optionalManifestPaths)
     {
 
@@ -46,6 +45,7 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
 
         if (fileSystem->isFile(manifestPath))
         {
+            LOGINFO("DEBUG LOG list of relativeManifestPath: " << relativeManifestPath);
             manifestPaths.emplace_back(relativeManifestPath);
         }
     }
