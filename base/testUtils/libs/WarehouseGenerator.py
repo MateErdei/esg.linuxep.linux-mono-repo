@@ -7,7 +7,7 @@ import robot.api.logger
 import PathManager
 
 class ComponentConfig(object):
-    def __init__(self, rigidname, source_directory, target_directory, product_type):
+    def __init__(self, rigidname: str, source_directory: str, target_directory: str, product_type):
         self.rigidname = rigidname
         self.source_directory = source_directory
         self.target_directory = target_directory
@@ -64,7 +64,7 @@ class WarehouseGenerator(object):
                             config.get_target_directory(), config.get_product_type()))
 
     def get_product_type(self, component_suite=False):
-        if component_suite == True:
+        if component_suite:
             return "true"
         return "false"
 
