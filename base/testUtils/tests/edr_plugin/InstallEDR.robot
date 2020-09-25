@@ -122,42 +122,6 @@ Install EDR and handle Live Query
     Check Cloud Server Log Contains    "columnMetaData": [{"name":"name","type":"TEXT"}],  1
     Check Cloud Server Log Contains    "columnData": [["systemd"],  1
 
-#TODO LINUXDAR-2186 find a way to replicate this test without using this WH as it cannot be reproduced easily on UP
-A broken edr installation will fail update
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EXCLUDE_UBUNTU20  TESTFAILURE
-
-    Start Local Cloud Server  --initial-alc-policy  ${BrokenEDRPolicy}
-
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BrokenEDRPolicy}   real=True
-    Override LogConf File as Global Level   DEBUG
-    Send ALC Policy And Prepare For Upgrade  ${BrokenEDRPolicy}
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...   100 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Fail On N Event Sent  1
-    Check SulDownloader Log Contains in Order   Installation failed    Installer exit code: 20
-    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
-
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    Wait For EDR to be Installed
-    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
-
-
 EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not Running
     [Teardown]  EDR Uninstall Teardown
     Install EDR  ${BaseAndEdrVUTPolicy}
@@ -298,9 +262,22 @@ Install base and edr and mtr 999 then downgrade to current master
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+    ...  200 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -308,9 +285,9 @@ Install base and edr and mtr 999 then downgrade to current master
     ...  EDR Plugin Is Running
 
     Wait Until Keyword Succeeds
-    ...   60 secs
+    ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
@@ -318,6 +295,23 @@ Install base and edr and mtr 999 then downgrade to current master
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 99.99.99
+
+
+    # Ensure components were restarted during update.
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop edr
+    ...  wdctl <> start edr
+
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop mtr
+    ...  wdctl <> start mtr
+
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop liveresponse
+    ...  wdctl <> start liveresponse
 
 
 Install master of base and edr and mtr and upgrade to mtr 999
@@ -447,11 +441,11 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...  120 secs
     ...  2 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
-    # FIXME LINUXDAR-2186 UP build of liveterminal 999 doesn't display 99 version here, but does in version file
-#    Wait Until Keyword Succeeds
-#    ...  120 secs
-#    ...  2 secs
-#    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  2 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
 
     # check plugins are running.
     Wait Until Keyword Succeeds
@@ -479,22 +473,10 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ${live_response_version_contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${live_response_version_contents}   PRODUCT_VERSION = 99.99.99
 
- # Ensure components were restarted during update.
     Check Log Contains In Order
     ...  ${WDCTL_LOG_PATH}
     ...  wdctl <> stop edr
     ...  wdctl <> start edr
-
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop mtr
-    ...  wdctl <> start mtr
-
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop liveresponse
-    ...  wdctl <> start liveresponse
-
 
 
 Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut

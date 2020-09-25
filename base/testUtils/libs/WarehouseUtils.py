@@ -46,7 +46,6 @@ OSTIA_BETA_ONLY_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/only-b
 # Usually the previous release
 OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/latest-recommended"
 # The GA Release
-OSTIA_GA_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone"
 # A version with mocked libraries (to test file removal on upgrade)
 OSTIA_0_6_0_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/0-6-0"
 # a version with edr 9.99.9 for downgrade tests
