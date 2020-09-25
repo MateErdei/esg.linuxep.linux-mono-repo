@@ -11,12 +11,14 @@ Library         DateTime
 
 ${TEMP_SAV_POLICY_FILENAME} =  TempSAVpolicy.xml
 
-${EXE_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/telemetry/var/telemetry-exe.json
 ${CERT_PATH}   /tmp/cert.pem
-${MACHINE_ID_FILE}  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-${TELEMETRY_OUTPUT_JSON}    ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
-${TELEMETRY_EXECUTABLE_LOG}    ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
-${TELEMETRY_BACKUP_JSON}    ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
+${SSPL_BASE}                    ${SOPHOS_INSTALL}/base
+${MCS_ACTION_DIRECTORY}         ${SSPL_BASE}/mcs/action
+${MACHINE_ID_FILE}              ${SSPL_BASE}/etc/machine_id.txt
+${EXE_CONFIG_FILE}              ${SSPL_BASE}/telemetry/var/telemetry-exe.json
+${TELEMETRY_OUTPUT_JSON}        ${SSPL_BASE}/telemetry/var/telemetry.json
+${TELEMETRY_BACKUP_JSON}        ${SSPL_BASE}/telemetry/cache/av-telemetry.json
+${TELEMETRY_EXECUTABLE_LOG}     ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
 
 *** Keywords ***
 
@@ -71,7 +73,7 @@ Run Telemetry Executable
 
     Remove File  ${TELEMETRY_EXECUTABLE_LOG}
 
-    ${result} =  Run Process  sudo  -u  sophos-spl-user  ${SOPHOS_INSTALL}/base/bin/telemetry  ${telemetryConfigFilePath}
+    ${result} =  Run Process  sudo  -u  sophos-spl-user  ${SSPL_BASE}/bin/telemetry  ${telemetryConfigFilePath}
 
     Log  "stdout = ${result.stdout}"
     Log  "stderr = ${result.stderr}"
