@@ -74,9 +74,8 @@ static int recv_fd(int socket)
     int fd = -1;
 
     struct msghdr msg = {};
-    char buf[CMSG_SPACE(sizeof(int))];
+    char buf[CMSG_SPACE(sizeof(int))] {};
     char dup[256];
-    memset(buf, '\0', sizeof(buf));
     struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
 
     msg.msg_iov = &io;
@@ -85,14 +84,29 @@ static int recv_fd(int socket)
     msg.msg_controllen = sizeof(buf);
 
     errno = 0;
-    int ret = recvmsg (socket, &msg, 0); // ret = bytes received
+    ssize_t ret = recvmsg (socket, &msg, 0); // ret = bytes received
     if (ret < 0)
     {
-        perror("Failed to receive fd recvmsg");
+        perror("Failed to receive fd: recvmsg failed");
         return -1;
     }
 
     struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
+
+    if ( cmsg == nullptr )
+    {
+        LOGDEBUG("Failed to receive fd: CMSG_FIRSTHDR failed");
+        return -1;
+    }
+
+    if ( cmsg->cmsg_level != SOL_SOCKET
+        || cmsg->cmsg_type != SCM_RIGHTS
+        || cmsg->cmsg_len != CMSG_LEN(sizeof(int) )
+    )
+    {
+        LOGDEBUG("Failed to receive fd: cmsg is not a file descriptor");
+        return -1;
+    }
 
     memcpy (&fd, (int *) CMSG_DATA(cmsg), sizeof(int));
 

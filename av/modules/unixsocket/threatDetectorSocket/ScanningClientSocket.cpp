@@ -79,9 +79,8 @@ static
 void send_fd(int socket, int fd)  // send fd by socket
 {
     struct msghdr msg = {};
-    char buf[CMSG_SPACE(sizeof(fd))];
-    char dup[256];
-    memset(buf, '\0', sizeof(buf));
+    char buf[CMSG_SPACE(sizeof(fd))] {};
+    char dup[256] {};
     struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
 
     msg.msg_iov = &io;
@@ -96,7 +95,7 @@ void send_fd(int socket, int fd)  // send fd by socket
 
     memcpy (CMSG_DATA(cmsg), &fd, sizeof (fd));
 
-    if (sendmsg (socket, &msg, 0) < 0)
+    if (sendmsg (socket, &msg, MSG_NOSIGNAL) < 0)
     {
         std::stringstream errorMsg;
         errorMsg << "Failed to send message: " << std::strerror(errno);

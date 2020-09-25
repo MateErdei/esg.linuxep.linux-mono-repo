@@ -14,8 +14,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <memory>
 
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 
-void unixsocket::writeLength(int socketfd, unsigned length)
+void unixsocket::writeLength(int socket_fd, unsigned length)
 {
     if (length == 0)
     {
@@ -25,7 +27,7 @@ void unixsocket::writeLength(int socketfd, unsigned length)
     auto bytes = splitInto7Bits(length);
     auto buffer = addTopBitAndPutInBuffer(bytes);
     ssize_t bytes_written;
-    bytes_written = ::write(socketfd, buffer.get(), bytes.size());
+    bytes_written = ::send(socket_fd, buffer.get(), bytes.size(), MSG_NOSIGNAL);
     if (bytes_written != static_cast<ssize_t>(bytes.size()))
     {
         throw environmentInterruption();
@@ -36,7 +38,7 @@ bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
 {
     writeLength(socket_fd, buffer.size());
 
-    ssize_t bytes_written = ::write(socket_fd, buffer.c_str(), buffer.size());
+    ssize_t bytes_written = ::send(socket_fd, buffer.c_str(), buffer.size(), MSG_NOSIGNAL);
     if (static_cast<unsigned>(bytes_written) != buffer.size())
     {
         LOGWARN("Failed to write buffer to unix socket");
@@ -52,7 +54,7 @@ int unixsocket::readLength(int socket_fd)
     const uint8_t TOP_BIT = 0x80;
     while (true)
     {
-        int count = read(socket_fd, &byte, 1);
+        ssize_t count = read(socket_fd, &byte, 1);
         if (count == 1)
         {
             if ((byte & TOP_BIT) == 0)
