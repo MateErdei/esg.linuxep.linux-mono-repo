@@ -22,12 +22,12 @@
         <package name="curllinux11" version="7-71-1-2/220751/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-59/220764/output" dest="input" buildtype="prod">
+        <package name="sullinux11" version="1-0-0-63/221291/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="feature-LINUXDAR-2076_slow_fast_lanes/%LASTGOODCOMPONENTBUILD%/sullinux11/1.0.0/output" dest="input" buildtype="dev">
-            <include src="SUL.tar" dest="."/>
-        </package>
+<!--        <package name="sullinux11" version="feature-LINUXDAR-2076_slow_fast_lanes/%LASTGOODCOMPONENTBUILD%/sullinux11/1.0.0/output" dest="input" buildtype="dev">-->
+<!--            <include src="SUL.tar" dest="."/>-->
+<!--        </package>-->
         <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
