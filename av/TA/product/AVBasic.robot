@@ -226,6 +226,11 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 AV Plugin Scan of Infected File Increases Threat Eicar Count
     [Teardown]  Delete Eicars From Tmp
 
+    ${rc}   ${output} =    Run And Return Rc And Output   ls ${MCS_ACTION_DIRECTORY}
+    Log To Console  LS result: ${output}
+
+    ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/Scan Now.log
+    Remove File     ${myscan_log}
 
     Create File      /tmp/eicar.com    ${EICAR_STRING}
 
@@ -233,14 +238,18 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
 
     # Run telemetry to reset counters to 0
     ${telemetryString}=  Get Plugin Telemetry  av
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+    Log To Console  First telemetry: ${telemetryJson}
 
     Run Scan Now Scan
+    ${rc}   ${output} =    Run And Return Rc And Output   ls ${MCS_ACTION_DIRECTORY}
+    Log To Console  LS2 result: ${output}
+
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
 
     ${telemetryString}=  Get Plugin Telemetry  av
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
 
-    ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/Scan Now.log
     ${scan_result} =  Get File    ${myscan_log}
 
     Log To Console  ${telemetryJson}
