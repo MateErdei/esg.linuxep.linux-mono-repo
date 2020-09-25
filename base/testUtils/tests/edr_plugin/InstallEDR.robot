@@ -298,24 +298,6 @@ Install base and edr and mtr 999 then downgrade to current master
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version
-
-    Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Running
@@ -323,7 +305,7 @@ Install base and edr and mtr 999 then downgrade to current master
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9

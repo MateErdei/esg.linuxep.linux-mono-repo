@@ -245,14 +245,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-    Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
+    Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Trigger Update Now
@@ -263,9 +257,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
-    # because on a downgrade the install.sh think it is doing a clean install an update will be triggered before we have setup the ostia certs again
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  Failed to connect to the warehouse
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
