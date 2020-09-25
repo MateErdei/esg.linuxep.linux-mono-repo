@@ -34,8 +34,7 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                supplements:
-                    - sspl-flags-supp
+
     ssplmdr-wh:
         components:
             ssplmdr-suite:
