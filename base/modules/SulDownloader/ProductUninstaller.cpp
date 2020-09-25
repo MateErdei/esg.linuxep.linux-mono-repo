@@ -113,12 +113,9 @@ namespace SulDownloader
                 {
                     return true;
                 }
-                else
-                {
-                    errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript << "', code '" << exitCode
-                                 << "' with error, Process did not complete successfully.";
-                    LOGERROR(errorMessage.str());
-                }
+                errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript << "', code '" << exitCode
+                             << "' with error, Process did not complete successfully.";
+                LOGERROR(errorMessage.str());
             }
             catch (Common::Process::IProcessException& ex)
             {
