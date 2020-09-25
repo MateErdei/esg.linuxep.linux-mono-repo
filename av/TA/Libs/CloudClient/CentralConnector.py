@@ -61,7 +61,7 @@ def _getUsername(region):
     if region == DEV:
         return "ssplavtest@sophos.com"
     elif region == QA:
-        return "ssplavtest@sophos.com"
+        return "ssplav@mail.com"
     raise Exception("Unknown region: "+region)
 
 
