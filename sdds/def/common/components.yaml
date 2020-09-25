@@ -19,6 +19,7 @@ winepflags:
     fileset: ..\redist\winepflags\union\LATEST
     canonical-name: WINEPFLAGS
     line-id: WINEPFLAGS
+#    mountpoint: .
 
 #sspl_features_warehouse_flags:
 #    fileset: ..\redist\sspl-flags
