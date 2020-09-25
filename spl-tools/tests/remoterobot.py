@@ -153,7 +153,7 @@ remotefile = os.path.join('/vagrant', 'tmpscript.sh')
 with open(hostfile, 'w') as f:
     f.write(tempfileContent)
 
-# run the command in the vgagrant machine
+# run the command in the vagrant machine
 vagrant_cmd = ['/usr/bin/vagrant', 'ssh', 'ubuntu', '-c', 'bash %s' % remotefile]
 
 sp.call(vagrant_cmd)
