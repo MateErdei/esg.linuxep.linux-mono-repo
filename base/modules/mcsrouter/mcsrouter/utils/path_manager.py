@@ -91,9 +91,21 @@ def policy_dir():
 
 def mcs_flags_file():
     """
-    flags_file
+    mcs_flags_file
     """
     return os.path.join(sophos_etc_dir(), "flags-mcs.json")
+
+def warehouse_flags_file():
+    """
+    warehouse_flags_file
+    """
+    return os.path.join(sophos_etc_dir(), "features-warehouse.json")
+
+def combined_flags_file():
+    """
+    combined_flags_file
+    """
+    return os.path.join(policy_dir(), "flags.json")
 
 def response_dir():
     """

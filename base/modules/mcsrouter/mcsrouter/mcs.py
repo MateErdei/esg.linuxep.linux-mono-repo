@@ -44,6 +44,7 @@ from .utils import plugin_registry
 from .utils import signal_handler
 from .utils import timestamp
 from .utils import write_json
+from .utils import flags
 
 from .utils.get_ids import get_gid, get_uid
 
@@ -414,7 +415,7 @@ class MCS:
         self.stop_push_client(push_client)
         self.__m_command_check_interval.set_on_error(error_count, transient)
 
-    def get_flags(self,last_time_checked):
+    def get_flags(self, last_time_checked):
         flags_polling = self.__m_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", default_values.get_default_flags_poll())
         if (time.time() > last_time_checked + flags_polling) \
                 or not os.path.isfile(path_manager.mcs_flags_file()):
@@ -422,8 +423,6 @@ class MCS:
             mcs_flags_content = self.__m_comms.get_flags()
             if mcs_flags_content:
                 write_json.write_mcs_flags(mcs_flags_content)
-            last_time_checked = time.time()
-        return last_time_checked
 
     def run(self):
         """
@@ -496,7 +495,6 @@ class MCS:
         last_command_time_check = 0
         last_flag_time_check = 0
 
-
         running = True
         reregister = False
         error_count = 0
@@ -547,14 +545,11 @@ class MCS:
                         else:
                             LOGGER.debug("Got pending push_command: {}".format(push_command.msg))
                             try:
-                                doc = xml_helper.parseString(push_command.msg)
-                                command_nodes = doc.getElementsByTagName("command")
-                                for node in command_nodes:
-                                    command = mcs_commands.BasicCommand(self.__m_comms, node, push_command.msg)
-                                    commands_to_run.append(command)
-                            except xml.parsers.expat.ExpatError as ex:
-                                LOGGER.error("Failed to parse commands: {}. Error: {}".format(push_command.msg, ex))
+                                commands = comms.extract_commands_from_xml(push_command.msg)
+                                commands_to_run.extend(commands)
                             except Exception as exception:
+                                self.stop_push_client(push_client)
+                                force_mcs_server_command_processing = True
                                 LOGGER.error("Failed to process MCS Push commands: {}".format(exception))
 
                     if commands_to_run:
@@ -618,7 +613,9 @@ class MCS:
                             response_time), response_body)
 
                     # check for new flags
-                    last_flag_time_check = self.get_flags(last_flag_time_check)
+                    self.get_flags(last_flag_time_check)
+                    last_flag_time_check = time.time()
+                    flags.combine_flags_files()
 
                     # send statuses, events and responses only if not in error state
                     if error_count == 0:
