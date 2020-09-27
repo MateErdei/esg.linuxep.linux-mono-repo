@@ -38,10 +38,11 @@ void DownloadedProduct::verify(const ConfigurationData& configurationData)
     assert(m_state == State::Distributed);
     m_state = State::Verified;
     auto iVersig = createVersig();
-
-    if (iVersig->verify(configurationData, m_distributePath) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
+    auto verSigEResult = iVersig->verify(configurationData, m_distributePath);
+    if ( verSigEResult != IVersig::VerifySignature::SIGNATURE_VERIFIED)
     {
-        LOGINFO("**** Manifest Verification failed ****");
+        auto cause = (verSigEResult == IVersig::VerifySignature::SIGNATURE_FAILED) ? "SIGNATURE_FAILED" : "unknown";
+        LOGINFO("**** Manifest Verification failed : cause : " << cause <<"****");
         WarehouseError error;
         error.Description = std::string("Product ") + getLine() + " failed signature verification";
         error.status = WarehouseStatus::INSTALLFAILED;

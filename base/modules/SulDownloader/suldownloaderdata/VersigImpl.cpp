@@ -21,10 +21,8 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
     auto fileSystem = Common::FileSystem::fileSystem();
 
     auto manifestPaths = configurationData.getManifestNames();
-
     if (manifestPaths.size() == 0)
     {
-        LOGINFO("DEBUG LOG using default name for manifest.dat");
         // a manifest.dat file should exits for each component.
         manifestPaths.emplace_back("manifest.dat");
     }
@@ -32,6 +30,7 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
     // optional manifest files to validate if they exists.
 
     auto optionalManifestPaths = configurationData.getOptionalManifestNames();
+
     for(auto& relativeManifestPath : optionalManifestPaths)
     {
 
@@ -42,7 +41,6 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
         //todo Wellie 1939
         if (fileSystem->isFile(manifestPath))
         {
-            LOGINFO("DEBUG LOG list of relativeManifestPath: " << manifestPath);
             manifestPaths.emplace_back(relativeManifestPath);
         }
         else
@@ -52,11 +50,11 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
             auto optionalManifestDirs = fileSystem->listDirectories(productDirectoryPath);
             for(const auto& optManifestDir : optionalManifestDirs)
             {
-                LOGINFO("DEBUG LOG listed direcory: " << optManifestDir);
+                LOGINFO("DEBUG LOG listed directory: " << optManifestDir);
                 auto supplement_manifestPath = Common::FileSystem::join(optManifestDir, relativeManifestPath);
                 if (fileSystem->isFile(supplement_manifestPath))
                 {
-                    LOGINFO("DEBUG LOG supplement_manifestPath: " << supplement_manifestPath << "relative supplement" << Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
+                    LOGINFO("DEBUG LOG supplement_manifestPath: " << supplement_manifestPath << " relative supplement " << Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
                     manifestPaths.emplace_back(Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
                     break;
                 }
@@ -100,7 +98,6 @@ IVersig::VerifySignature VersigImpl::verify(
     int exitCode = -1;
     for (auto& relativeManifestPath : manifestPaths)
     {
-        LOGINFO( "DEBUG LOG manifest path found :" << relativeManifestPath);
         // Check each manifest is correct
         auto dir = Common::FileSystem::dirName(relativeManifestPath);
         auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
@@ -112,7 +109,7 @@ IVersig::VerifySignature VersigImpl::verify(
             return VerifySignature::INVALID_ARGUMENTS;
         }
 
-        LOGINFO( "DEBUG LOG verify args for directory :" << manifestDirectory << "manifest path : " << manifestPath);
+        LOGINFO( "DEBUG LOG verify args for directory :" << manifestDirectory << " manifest path : " << manifestPath);
         std::vector<std::string> versigArgs;
         versigArgs.emplace_back("-c" + certificate_path);
         versigArgs.emplace_back("-f" + manifestPath);
