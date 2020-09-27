@@ -11,7 +11,7 @@ def rearrange_files(flags_input_path):  # flags_input_path = ..\redist\flags
 
     shutil.move(os.path.join(flags_input_path, r"union\LATEST\mcsep"), sspl_flags_root)
     sspl_flags_dist = os.path.join(flags_input_path, r"sspl_flags\files\base\etc\sophosspl")
-    os.makedirs(os.path.dirname(sspl_flags_dist), exist_ok=True)
+    os.makedirs(os.path.dirname(sspl_flags_dist))
     shutil.move(os.path.join(sspl_flags_root, "flags"), sspl_flags_dist)
     #sb_manifest sign  sspl_flags_root
 
