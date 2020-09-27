@@ -16,9 +16,6 @@ def call(cmd):
 
 print "Build starting..."
 
-print "Make fake sspl-flags from winep flags"
-check_call(["python", "fake_ssplflags_from_winepflags.py"])
-print "success"
 
 print "Make sure any components already fetched are dev signed"
 check_call(["python", "update_all_manifests_and_imports.py", ".."])
