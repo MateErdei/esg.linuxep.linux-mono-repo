@@ -447,16 +447,21 @@ generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
 find "$DIST/files" -type f -print0 | xargs -0 "$DIST/files/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
-#install warehouse flags Todo LINUXDAR-1939
-#FLAGS_DIST="$DIST/mcsep/flags"
-#if [[ -d $FLAGS_DIST ]]
-#then
-#  cp "$FLAGS_DIST/"* "${SOPHOS_INSTALL}/base/etc/sophosspl/"
-#  chmod -R 400  "${SOPHOS_INSTALL}/base/etc/sophosspl/"
-#  chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/"
-#fi
+#Todo LINUXDAR-1939 remove this code when sspl-flags CI build becomes available
+FLAGS_DIST="$DIST/mcsep/flags"
+if [[ -d $FLAGS_DIST ]]
+then
+  cp "$FLAGS_DIST/union.json" "${SOPHOS_INSTALL}/base/etc/sophosspl/features_warehouse.json"
+fi
 
-versioncopy_supplement "sspl_flags"
+#Todo LINUXDAR-1939 uncomment this when sspl-flags repo is added to CI build
+#versioncopy_supplement "sspl_flags"
+FEATURES_WH_FLAGS="${SOPHOS_INSTALL}/base/etc/sophosspl/features_warehouse.json"
+if [[ -f "${FEATURES_WH_FLAGS}" ]]
+then
+  chmod 400  -f "${FEATURES_WH_FLAGS}"
+  chown "${LOCAL_USER_NAME}:${GROUP_NAME}" -f "${FEATURES_WH_FLAGS}"
+fi
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
