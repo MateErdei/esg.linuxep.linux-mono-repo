@@ -14,6 +14,28 @@ def call(cmd):
     print("calling", cmd)
     subprocess.call(cmd)
 
+print "Build starting..."
+
+print "Make fake sspl-flags from winep flags"
+check_call(["python", "fake_ssplflags_from_winepflags.py"])
+print "success"
+
+print "Make sure any components already fetched are dev signed"
+check_call(["python", "update_all_manifests_and_imports.py", ".."])
+print "success"
+
+print "Combining warehouse defintion with common component and supplement definitions..."
+check_call(["python", "definition-merger.py", "-o", r"..\output\def\def.yaml"] + sys.argv[5:])
+
+# From the ostia root (e.g. http://ostia.eng.sophos/dev) to the actual warehouse
+rel_ostia_link = "/".join([sys.argv[1], sys.argv[2].replace("/", "-")])
+
+print "Fetch components and generate warehouse definition..."
+check_call(["python", "warehouse-def.py", "-v", "-c",
+            rel_ostia_link, "-b", sys.argv[3], "-o", r"..\output\def\def.xml",
+            "--bom", r"..\logs\bom.json", r"..\output\def\def.yaml"])
+
+print "Components fetched and warehouse definition generated successfully!"
 
 print("Build starting...", sys.argv)
 
