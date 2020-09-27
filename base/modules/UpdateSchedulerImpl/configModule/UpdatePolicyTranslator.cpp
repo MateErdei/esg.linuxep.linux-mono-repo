@@ -358,7 +358,6 @@ namespace UpdateSchedulerImpl
             config.setManifestNames({ "manifest.dat" });
 
             // To add optional manifest file names call here
-            config.setOptionalManifestNames({"mcsep/flags_union_manifest.dat"});
             config.setOptionalManifestNames({"flags_union_manifest.dat"});
 
 

@@ -44,7 +44,6 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
         auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
 
         //todo Wellie 1939
-        //list directory, grab those below by 1, check for manifest
         if (fileSystem->isFile(manifestPath))
         {
             LOGINFO("DEBUG LOG list of relativeManifestPath: " << manifestPath);
@@ -52,6 +51,8 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
         }
         else
         {
+            //supplements will attached to a product and get downloaded under the product root look for their
+            //manifest one level below the product directory path
             auto optionalManifestDirs = fileSystem->listDirectories(productDirectoryPath);
             for(const auto& optManifestDir : optionalManifestDirs)
             {
@@ -59,7 +60,7 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
                 auto supplement_manifestPath = Common::FileSystem::join(optManifestDir, relativeManifestPath);
                 if (fileSystem->isFile(supplement_manifestPath))
                 {
-                    LOGINFO("DEBUG LOG supplement_manifestPath: " << supplement_manifestPath);
+                    LOGINFO("DEBUG LOG supplement_manifestPath: " << supplement_manifestPath << "relative supplement" << Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
                     manifestPaths.emplace_back(Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
                     break;
                 }
@@ -103,6 +104,7 @@ IVersig::VerifySignature VersigImpl::verify(
     int exitCode = -1;
     for (auto& relativeManifestPath : manifestPaths)
     {
+        LOGINFO( "DEBUG LOG manifest path found :" << relativeManifestPath);
         // Check each manifest is correct
         auto dir = Common::FileSystem::dirName(relativeManifestPath);
         auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
@@ -114,13 +116,13 @@ IVersig::VerifySignature VersigImpl::verify(
             return VerifySignature::INVALID_ARGUMENTS;
         }
 
+        LOGINFO( "DEBUG LOG verify args for directory :" << manifestDirectory << "manifest path : " << manifestPath);
         std::vector<std::string> versigArgs;
         versigArgs.emplace_back("-c" + certificate_path);
         versigArgs.emplace_back("-f" + manifestPath);
         versigArgs.emplace_back("-d" + manifestDirectory);
         versigArgs.emplace_back("--silent-off");
 
-        LOGINFO( "DEBUG LOG verify args for directory :" << manifestDirectory << "manifest path : " << manifestPath);
         auto process = ::Common::Process::createProcess();
         try
         {
