@@ -32,7 +32,7 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
     // optional manifest files to validate if they exists.
 
     auto optionalManifestPaths = configurationData.getOptionalManifestNames();
-    for (const auto& iterator: manifestPaths)
+    for (const auto& iterator: optionalManifestPaths)
     {
         LOGINFO("DEBUG LOG list of optionalManifest: " << iterator);
     }
