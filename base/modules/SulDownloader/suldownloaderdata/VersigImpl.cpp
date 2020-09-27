@@ -120,6 +120,7 @@ IVersig::VerifySignature VersigImpl::verify(
         versigArgs.emplace_back("-d" + manifestDirectory);
         versigArgs.emplace_back("--silent-off");
 
+        LOGINFO( "DEBUG LOG verify args for directory :" << manifestDirectory << "manifest path : " << manifestPath);
         auto process = ::Common::Process::createProcess();
         try
         {
