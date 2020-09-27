@@ -61,6 +61,7 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
                 {
                     LOGINFO("DEBUG LOG supplement_manifestPath: " << supplement_manifestPath);
                     manifestPaths.emplace_back(Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
+                    break;
                 }
             }
         }
