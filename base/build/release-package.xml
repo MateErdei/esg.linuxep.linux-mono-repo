@@ -99,7 +99,7 @@
         <!--<command  buildtype="prod"> -->
         <command mode="release">
             <program>/bin/bash</program>
-            <args>./build.sh --clean</args>
+            <args>./build.sh --clean --no-unittest</args>
             <workingdir>sspl-base-build</workingdir>
         </command>
 
