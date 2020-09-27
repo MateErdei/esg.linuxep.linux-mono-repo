@@ -43,6 +43,7 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
         auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
         auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
 
+        //todo Wellie 1939
         if (fileSystem->isFile(manifestPath))
         {
             LOGINFO("DEBUG LOG list of relativeManifestPath: " << relativeManifestPath);
