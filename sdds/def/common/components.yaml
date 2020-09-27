@@ -22,15 +22,10 @@ sspl-liveterminal:
     mountpoint: ServerProtectionLinux-Plugin-liveresponse
 
 winepflags:
-    fileset: ..\redist\flags\        #..\redist\flags\union\LATEST
+    fileset: ..\redist\flags\union\LATEST
     canonical-name: WINEPFLAGS
     line-id: WINEPFLAGS
-#    mountpoint: .
 
-#sspl_features_warehouse_flags:
-#    fileset: ..\redist\sspl-flags
-#    canonical-name: SSPLFLAGS
-#    line-id: SSPLFLAGS
 
 sspl-edr:
     build:
