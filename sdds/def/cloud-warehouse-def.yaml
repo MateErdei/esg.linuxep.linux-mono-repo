@@ -16,10 +16,9 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-#                supplements:       this does not work
-#                    - winepflags-supp
                 subcomponents:
                     sspl-base-component:
+                        ##To Do LINUXDAR-1939 replace winepflags-supp with sspl-flags-supp
                         supplements:
                             - winepflags-supp
                     sspl-liveterminal:

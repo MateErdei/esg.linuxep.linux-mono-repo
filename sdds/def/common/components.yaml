@@ -21,11 +21,16 @@ sspl-liveterminal:
     line-id: ServerProtectionLinux-Plugin-liveresponse
     mountpoint: ServerProtectionLinux-Plugin-liveresponse
 
+#To Do LINUXDAR-1939 Remove winepflags and replace with sspl_flags when the sspl-flags repo is added to CI builds
 winepflags:
     fileset: ..\redist\flags\union\LATEST
     canonical-name: WINEPFLAGS
     line-id: WINEPFLAGS
 
+#ssplpflags:
+#    fileset: ..\redist\flags\
+#    canonical-name: SSPLFLAGS
+#    line-id: SSPLFLAGS
 
 sspl-edr:
     fileset: ..\redist\sspl-plugin-edr-component
