@@ -248,7 +248,7 @@ function add_user()
       || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username"
 }
 
-function versioncopy_supplement()
+function versionedcopy_supplement()
 {
   local supplement_dir=$1
 
@@ -448,13 +448,13 @@ generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 find "$DIST/files" -type f -print0 | xargs -0 "$DIST/files/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
 #Todo LINUXDAR-1939 remove this code when sspl-flags CI build becomes available
-FLAGS_DIST="$DIST/mcsep/flags"
-if [[ -d $FLAGS_DIST ]]
-then
-  cp "$FLAGS_DIST/union.json" "${SOPHOS_INSTALL}/base/etc/sophosspl/features_warehouse.json"
-fi
+#FLAGS_DIST="$DIST/mcsep/flags"
+#if [[ -d $FLAGS_DIST ]]
+#then
+#  cp "$FLAGS_DIST/union.json" "${SOPHOS_INSTALL}/base/etc/sophosspl/features_warehouse.json"
+#fi
 #Todo LINUXDAR-1939 uncomment this when sspl-flags repo is added to CI build
-#versioncopy_supplement "sspl_flags"
+versionedcopy_supplement "sspl_flags"
 
 FEATURES_WH_FLAGS="${SOPHOS_INSTALL}/base/etc/sophosspl/features_warehouse.json"
 if [[ -f "${FEATURES_WH_FLAGS}" ]]

@@ -188,6 +188,8 @@ VersionCopy File in the Wrong Location Is Removed
     Mark Managementagent Log
 
     Trigger Update Now
+    Log To Console  waiting DEBUG
+    Sleep   300
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs

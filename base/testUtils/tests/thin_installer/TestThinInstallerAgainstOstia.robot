@@ -157,6 +157,8 @@ Thin Installer Installs Base And Services Start
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
+    Log To Console  waiting DEBUG
+    Sleep   300
 
 
 Thin Installer Attempts Install And Register Through Message Relays
