@@ -8,18 +8,4 @@ warehouses:
                    - base-version: 1
                      tag: RECOMMENDED
 
-#    sspltelemsupp:
-#        components:
-#            SSPLTELEMSUPP:
-#                release-tags:
-#                    -   base-version: 1
-#                        tag: RECOMMENDED
-
-#    winepflags:
-#        components:
-#            winepflags:
-#                release-tags:
-#                    -   base-version: 1
-#                        tag: LATEST
-
 customer-files: []
