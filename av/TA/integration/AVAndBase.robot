@@ -34,17 +34,34 @@ AV plugin runs scan now
     Configure and check scan now
 
 
-AV plugin runs scan now twice
+AV plugin runs scan now twice consecutively
     Check AV Plugin Installed With Base
     Configure and check scan now
     Mark AV Log
     Check scan now
 
+AV plugin attempts to run scan now twice simultaneously
+    Check AV Plugin Installed With Base
+    Mark AV Log
+    Configure scan now
+    Send Sav Action To Base  ScanNow_Action.xml
+    Send Sav Action To Base  ScanNow_Action.xml
+
+    ${content} =  Get File   ${AV_LOG_PATH}  encoding_errors=replace
+    ${lines} =  Get Lines Containing String     ${content}  Starting scan Scan Now
+
+    ${count} =  Get Line Count   ${lines}
+    Should Be Equal As Integers  ${1}  ${count}
+
+    AV Plugin Log Contains  Refusing to run a second Scan named: Scan Now
+    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
+    Wait Until AV Plugin Log Contains  Sending scan complete
+
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
     Send Sav Action To Base  ScanNow_Action.xml
     AV Plugin Log Does Not Contain  Starting scan scanNow
-    AV Plugin Log Contains  Starting Scan Now
+    AV Plugin Log Contains  Starting scan Scan Now
 
 AV plugin SAV Status contains revision ID of policy
     Check AV Plugin Installed With Base

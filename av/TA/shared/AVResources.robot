@@ -190,7 +190,7 @@ Install With Base SDDS
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
     Install Base For Component Tests
-    Set Log Level  SUPPORT
+    Set Log Level  DEBUG
     Install AV Directly from SDDS
 
 Uninstall All
