@@ -18,7 +18,6 @@ warehouses:
                       tag: BETA
                 subcomponents:
                     sspl-base-component:
-                        ##To Do LINUXDAR-1939 replace winepflags-supp with sspl-flags-supp
                         supplements:
                             - ssplflags-supp
                     sspl-liveterminal:
