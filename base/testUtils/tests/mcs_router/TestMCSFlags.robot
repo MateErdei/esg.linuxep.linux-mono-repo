@@ -29,7 +29,7 @@ MCS creates and updates flags file
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
     Should Contain  ${CONTENTS}  "endpoint.flag1.enabled" : true,
     Should Contain  ${CONTENTS}  "endpoint.flag2.enabled" : false,
-    Should Contain  ${CONTENTS}  "endpoint.flag3.enabled" : true
+    Should Contain  ${CONTENTS}  "endpoint.flag3.enabled" : false
 
     Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json

@@ -1182,7 +1182,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         FLAGS = r"""{
   "endpoint.flag1.enabled" : true,
   "endpoint.flag2.enabled" : false,
-  "endpoint.flag3.enabled" : true
+  "endpoint.flag3.enabled" : false
 }
 """
         return self.ret(FLAGS)
