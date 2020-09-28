@@ -9,10 +9,10 @@ winepflags-supp:
   tag: LATEST
   warehouse: winepflags
 
-#sspl-flags-supp:
-#  base-version: 1
-#  canonical-name: SSPLFLAGS
-#  decode-path: .
-#  line-id: SSPLFLAGS
-#  tag:
-#  warehouse: sspl-flags
+ssplflags-supp:
+  base-version: ""
+  canonical-name: SSPLFLAGS
+  decode-path: .
+  line-id: SSPLFLAGS
+  tag: BETA
+  warehouse: ssplflags-wh

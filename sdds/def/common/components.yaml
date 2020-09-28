@@ -27,10 +27,10 @@ winepflags:
     canonical-name: WINEPFLAGS
     line-id: WINEPFLAGS
 
-#ssplpflags:
-#    fileset: ..\redist\flags\
-#    canonical-name: SSPLFLAGS
-#    line-id: SSPLFLAGS
+ssplpflags:
+    fileset: ..\redist\flags2\
+    canonical-name: SSPLFLAGS
+    line-id: SSPLFLAGS
 
 sspl-edr:
     build:

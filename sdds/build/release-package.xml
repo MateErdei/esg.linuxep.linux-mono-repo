@@ -38,11 +38,16 @@
       <development-version branch="master"/>
       <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
     </build-asset>
+
     <!-- To Do LINUXDAR-1939 remove winepflags and replace with sspl-flags when is added to CI   -->
     <build-asset project="em" repo="esg">
       <development-version branch="develop"/>
       <!--    <include artifact-path="scheduled-query-pack-sdds" dest-dir="inputs/scheduled-query-pack-sdds"/>-->
       <include artifact-path="winepflags" dest-dir="redist/flags"/>
+    </build-asset>
+    <build-asset project="linuxep" repo="sspl-flags">
+      <development-version branch="develop"/>
+      <include artifact-path="sspl-flags/SDDS-SSPL-FLAGS" dest-dir="redist/flags2"/>
     </build-asset>
   </inputs>
 

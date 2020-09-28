@@ -15,14 +15,14 @@ warehouses:
                     -   base-version: 1
                         tag: LATEST
 
-#To Do LINUXDAR-1939 Remove winepflags and replace with sspl_flags when the sspl-flags repo is added to CI builds
-#    sspl-flags:
-#        components:
-#            ssplpflags:
-#                release-tags:
-#                    - base-version: ""
-#                      tag: RECOMMENDED
-#                    - base-version: ""
-#                      tag: BETA
+To Do LINUXDAR-1939 Remove winepflags and replace with sspl_flags when the sspl-flags repo is added to CI builds
+    ssplflags-wh:
+        components:
+            ssplpflags:
+                release-tags:
+                    - base-version: ""
+                      tag: RECOMMENDED
+                    - base-version: ""
+                      tag: BETA
 
 customer-files: []

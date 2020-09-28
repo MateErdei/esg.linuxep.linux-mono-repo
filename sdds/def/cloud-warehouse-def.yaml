@@ -20,7 +20,7 @@ warehouses:
                     sspl-base-component:
                         ##To Do LINUXDAR-1939 replace winepflags-supp with sspl-flags-supp
                         supplements:
-                            - winepflags-supp
+                            - ssplflags-supp
                     sspl-liveterminal:
             sspl-edr:
                 import:
