@@ -710,9 +710,8 @@ class MCSRouter(object):
         datafeed_file = os.path.join(self.tmp_path, file_name)
         with open(datafeed_file, "w") as f:
             f.write(content)
-
         shutil.move(datafeed_file, os.path.join(self.mcs_dir, "datafeed", file_name))
-        return content
+        #return content
 
     def send_alc_status(self, res):
         status_file = os.path.join(self.tmp_path, self.alc_status_file)

@@ -108,5 +108,5 @@ configure_file(VERSION.ini.in VERSION.ini @ONLY)
 install(FILES ../../build64/products/distribution/VERSION.ini
         DESTINATION files/base/)
 
-install(FILES ../../build64/products/distribution/datafeed-config-scheduled_query.json
+install(FILES datafeed-config-scheduled_query.json
         DESTINATION files/base/etc/)

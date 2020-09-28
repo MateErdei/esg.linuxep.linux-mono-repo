@@ -25,7 +25,9 @@ Basic XDR Datafeed Sent
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
-    Send Xdr Datafeed Result  1  20200101
+    # add test to expect mcsrouter.mcs <> There is no datafeed handler setup for the datafeed ID: 1
+    # Send Xdr Datafeed Result  1  20200101
+    send_xdr_datafeed_result  scheduled_query  1601298948
 
     log to console  sleeping
     sleep  1000

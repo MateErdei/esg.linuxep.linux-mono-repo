@@ -21,25 +21,43 @@ import PathManager
 # import mcsrouter.adapters.generic_adapter as generic_adapter
 # import mcsrouter.adapters.agent_adapter as agent_adapter
 # import mcsrouter.utils.target_system_manager
-import modules.mcsrouter.mcsrouter.mcsclient.datafeeds
+
+# Imports done like this so clion IDE can pick them up for analysis and autocomplete etc.
+try:
+    import modules.mcsrouter.mcsrouter.mcsclient.datafeeds
+except:
+    import mcsrouter.mcsclient.datafeeds
+
 class TestDatafeeds(unittest.TestCase):
-    def test_x(self):
-        feed_id = "feed_id_1"
+    def test_datafeed_results_can_added(self):
+        feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
-        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id, 10, 10, 10, 10, 10)
+        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1601033100", content)
+        datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1601033200", content)
+        datafeeds.add_datafeed_result("/tmp/filepath3", feed_id, "1601033300", content)
+        datafeed_results = datafeeds.get_datafeeds()
+        self.assertEqual(len(datafeed_results), 3)
+        self.assertEqual(datafeed_results[0].m_file_path, "/tmp/filepath1")
+        self.assertEqual(datafeed_results[0].m_creation_time, "1601033100")
+        self.assertEqual(datafeed_results[0].m_json_body, content)
+        self.assertEqual(datafeed_results[1].m_file_path, "/tmp/filepath2")
+        self.assertEqual(datafeed_results[1].m_creation_time, "1601033200")
+        self.assertEqual(datafeed_results[1].m_json_body, content)
+        self.assertEqual(datafeed_results[2].m_file_path, "/tmp/filepath3")
+        self.assertEqual(datafeed_results[2].m_creation_time, "1601033300")
+        self.assertEqual(datafeed_results[2].m_json_body, content)
+
+
+    def test_datafeed_results_can_be_sorted(self):
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1601033100", content)
         datafeeds.add_datafeed_result("/tmp/filepath3", feed_id, "1601033300", content)
         datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1601033200", content)
         datafeed_results = datafeeds.get_datafeeds()
         self.assertEqual(len(datafeed_results), 3)
-
-        #     self.m_file_path = file_path
-        # self.m_datafeed_id = datafeed_id_name
-        # self.m_creation_time = creation_time
-        # self.m_json_body = body
-        # self.m_gzip_body = self._get_compressed_json()
-        # self.m_json_body_size = self._get_decompressed_body_size()
-        # self.m_gzip_body_size = self._get_compressed_body_size()
 
         datafeeds.sort_oldest_to_newest()
         self.assertEqual(datafeed_results[0].m_file_path, "/tmp/filepath1")
@@ -60,17 +78,55 @@ class TestDatafeeds(unittest.TestCase):
         self.assertEqual(datafeed_results[2].m_file_path, "/tmp/filepath1")
         self.assertEqual(datafeed_results[2].m_creation_time, "1601033100")
 
+    def test_prune_old_datafeed_files(self):
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1501033100", content)
+        datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1501033200", content)
+        datafeeds.add_datafeed_result("/tmp/filepath3", feed_id, "2601033300", content)
+        datafeed_results = datafeeds.get_datafeeds()
+        self.assertEqual(len(datafeed_results), 3)
+        datafeeds.prune_old_datafeed_files()
+        # Take another reference to the datafeeds list
+        datafeed_results = datafeeds.get_datafeeds()
+        self.assertEqual(len(datafeed_results), 1)
 
-    # def test_multiple_responses_can_be_added_and_retrieved_through_responses_object(self, *mockargs):
-    #     responses = mcsrouter.mcsclient.responses.Responses()
-    #     responses.add_response(DUMMY_PATH, "LiveQuery", "correlation_id", "timestamp", EXAMPLE_BODY)
-    #     responses.add_response(DUMMY_PATH, "LiveQuery", "correlation_id2", "timestamp2", EXAMPLE_BODY)
-    #     responses.add_response(DUMMY_PATH, "LiveQuery", "correlation_id3", "timestamp3", EXAMPLE_BODY)
-    #     array_of_responses = responses.get_responses()
-    #     self.assertEqual(len(array_of_responses), 3)
-    #     response1 = array_of_responses[0]
-    #     response2 = array_of_responses[1]
-    #     response3 = array_of_responses[2]
-    #     self.validate_response_object(response1, "LiveQuery", "correlation_id", "timestamp")
-    #     self.validate_response_object(response2, "LiveQuery", "correlation_id2", "timestamp2")
-    #     self.validate_response_object(response3, "LiveQuery", "correlation_id3", "timestamp3")
+    def test_datafeed_result_is_alive(self):
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1501033100", content)
+        datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1501033200", content)
+        datafeeds.add_datafeed_result("/tmp/filepath3", feed_id, "2601033300", content)
+        datafeed_results = datafeeds.get_datafeeds()
+        self.assertEqual(len(datafeed_results), 3)
+        self.assertFalse(datafeeds._datafeed_result_is_alive(datafeed_results[0]))
+        self.assertFalse(datafeeds._datafeed_result_is_alive(datafeed_results[1]))
+        self.assertTrue(datafeeds._datafeed_result_is_alive(datafeed_results[2]))
+
+
+    def test_datafeed_load_config(self):
+        feed_id = "feed_id"
+        # content = '{key1: "value1", key2: "value2"}'
+        # mocked_open_write_function = mock.mock_open()
+        config = """
+        {
+            "retention_seconds": 1209600,
+            "max_backlog_bytes": 1000000000,
+            "max_send_freq_seconds": 5,
+            "max_upload_bytes": 10000000,
+            "max_item_size_bytes": 10000000
+        }"""
+        with mock.patch("builtins.open", mock.mock_open(read_data=config)) as mock_file:
+            datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+            mock_file.assert_called_with("/tmp/sophos-spl/base/etc/datafeed-config-feed_id.json", 'r')
+
+        self.assertEqual(datafeeds.get_time_to_live(), 1209600)
+        self.assertEqual(datafeeds.get_max_backlog(), 1000000000)
+        self.assertEqual(datafeeds.get_max_send_freq(), 5)
+        self.assertEqual(datafeeds.get_max_upload_at_once(), 10000000)
+        self.assertEqual(datafeeds.get_max_size_single_feed_result(), 10000000)
+
+
+

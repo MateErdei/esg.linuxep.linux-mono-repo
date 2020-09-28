@@ -9,6 +9,8 @@ import logging
 import gzip
 import time
 import os
+import json
+import datetime
 
 from mcsrouter.utils import timestamp
 from mcsrouter.utils import path_manager
@@ -64,19 +66,22 @@ class Datafeed(object):
 
 class Datafeeds(object):
     def __init__(self, feed_id: str):
-
-        self._load_config()
         self.__m_feed_id = feed_id
         self.__config_file_path = os.path.join(path_manager.etc_dir(), "datafeed-config-{}.json".format(feed_id))
+        self.__status_file_path = os.path.join(path_manager.var_dir(), "datafeed-status-{}.json".format(feed_id))
+        self.__m_datafeeds = []
+        # self.__m_amount_sent = 0
+        # self.__m_amount_sent_date = datetime.datetime.now().timestamp()
+        self.__m_backoff_until_time = 0
+        self._load_config()
+        # self._load_status()
         # self.__m_time_to_live = retention_seconds
         # self.__m_max_backlog = max_backlog_bytes
         # self.__m_max_send_freq = max_send_freq_seconds
         # self.__m_max_upload_at_once = max_upload_bytes
         # self.__m_max_size_single_feed_result = max_item_size_bytes
-        self.__m_datafeeds = []
 
     def _load_config(self):
-        import json
         try:
             with open(self.__config_file_path, 'r') as config_file:
                 config = json.loads(config_file.read())
@@ -93,6 +98,24 @@ class Datafeeds(object):
             self.__m_max_upload_at_once = 10000000
             self.__m_max_size_single_feed_result = 10000000
 
+    # def _load_status(self):
+    #     if os.path.exists(self.__status_file_path):
+    #         try:
+    #             with open(self.__status_file_path, 'r') as status_file:
+    #                 status = json.loads(status_file.read())
+    #                 self.__m_amount_sent = int(status["amount"])
+    #                 self.__m_amount_sent_date = float(status["date"])
+    #         except Exception as ex:
+    #             LOGGER.warning("Could not load status for datafeed, leaving default values. Error: {}".format(str(ex)))
+    #
+    # def save_status(self):
+    #     try:
+    #         with open(self.__status_file_path, 'w') as status_file:
+    #             status = {"amount": self.__m_amount_sent, "date": self.__m_amount_sent_date}
+    #             status_string = json.dumps(status)
+    #             status_file.write(status_string)
+    #     except Exception as ex:
+    #         LOGGER.warning("Could not save status for datafeed. Error: {}".format(str(ex)))
 
     # TODO may be able to remove df id here now it's added to main container
     def add_datafeed_result(self, file_path, datafeed_id, creation_time, body):
@@ -103,20 +126,54 @@ class Datafeeds(object):
                 creation_time,
                 body))
 
-    def reset(self):
+    def purge(self):
+        for datafeed in self.__m_datafeeds:
+            datafeed.remove_datafeed_file()
         self.__m_datafeeds = []
 
     def get_feed_id(self):
         return self.__m_feed_id
 
+    def get_time_to_live(self):
+        return self.__m_time_to_live
+
+    def get_max_backlog(self):
+        return self.__m_max_backlog
+
     def get_max_upload_at_once(self):
         return self.__m_max_upload_at_once
+
+    def get_max_size_single_feed_result(self):
+        return self.__m_max_size_single_feed_result
+
+    # def get_sent_so_far(self):
+    #     return self.__m_amount_sent
+
+    # def set_sent_so_far(self, bytes_sent: int):
+    #     self.__m_amount_sent = bytes_sent
+
+    # def get_start_date_of_batch(self):
+    #     return self.__m_amount_sent_date
+
+    # def set_start_date_of_batch(self, batch_start_date: str):
+    #     self.__m_amount_sent_date = batch_start_date
 
     def get_datafeeds(self):
         return self.__m_datafeeds
 
+    def get_backoff_until_time(self):
+        return self.__m_backoff_until_time
+
+    def set_backoff_until_time(self, back_off_until: float):
+        self.__m_backoff_until_time = back_off_until
+
+    def get_max_send_freq(self):
+        return self.__m_max_send_freq
+
     def _datafeed_result_is_alive(self, datafeed_result: Datafeed):
-        return datafeed_result.m_creation_time > timestamp.timestamp(time.time() - self.__m_time_to_live)
+        creation_time = float(datafeed_result.m_creation_time)
+        time_to_live_seconds_ago = time.time() - self.__m_time_to_live
+        return creation_time > time_to_live_seconds_ago
 
     def _datafeed_result_is_too_large(self, datafeed_result: Datafeed):
         return datafeed_result.m_gzip_body_size > self.__m_max_size_single_feed_result
@@ -127,6 +184,7 @@ class Datafeeds(object):
             if self._datafeed_result_is_alive(datafeed_result):
                 datafeed_results_to_keep.append(datafeed_result)
             else:
+                LOGGER.debug(f"Datafeed result file too old, deleting: {datafeed_result.m_file_path}")
                 datafeed_result.remove_datafeed_file()
         self.__m_datafeeds = datafeed_results_to_keep
 

@@ -482,7 +482,7 @@ class MCS:
         def send_datafeed_files():
             for df in all_datafeeds:
                 if df.has_results():
-                    LOGGER.debug("Sending datafeed results for datafeed ID: {}".format(df.get_feed_id()))
+                    LOGGER.debug("Datafeed results present for datafeed ID: {}".format(df.get_feed_id()))
                     try:
                         comms.send_datafeeds(df)
                         # todo do we want this at all ?
@@ -799,7 +799,12 @@ class MCS:
                 if signal_handler.sig_term_pipe[0] in ready_to_read:
                     LOGGER.info("Exiting MCS")
                     running = False
+
+                    LOGGER.debug("Storing datafeed statuses")
+                    for df in all_datafeeds:
+                        df.save_status()
                     break
+
                 elif notify_pipe_file_descriptor in ready_to_read:
                     LOGGER.debug("Got directory watch notification")
                     # flush the pipe
@@ -823,6 +828,7 @@ class MCS:
                         before,
                         after - before,
                         timeout)
+
 
         finally:
             if push_client:

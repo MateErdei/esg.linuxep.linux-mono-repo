@@ -6,6 +6,7 @@ mcs_connection Module
 """
 
 import base64
+import datetime
 import http.client
 import logging
 import os
@@ -13,6 +14,7 @@ import os
 import urllib.parse
 import xml.dom.minidom
 import xml.parsers.expat
+import json
 
 import mcsrouter.mcsclient.mcs_commands  # pylint: disable=no-name-in-module, import-error
 import mcsrouter.mcsclient.mcs_exception
@@ -137,6 +139,14 @@ class MCSHttpInternalServerErrorException(MCSHttpException):
 class MCSHttpUnauthorizedException(MCSHttpException):
     """
     MCSHttpUnauthorizedException
+    """
+    pass
+
+class MCSHttpTooManyRequestsException(MCSHttpException):
+    """
+    MCSHttpTooManyRequestsException
+    This was introduced in XDR for Central to indicate that the datafeed 'scheduled_query' needs to back off and
+    purge all remaining datafeed result files: https://wiki.sophos.net/display/SophosCloud/EMP%3A+data-feed
     """
     pass
 
@@ -635,23 +645,23 @@ class MCSConnection:
                 response.status,
                 response_headers.get('www-authenticate', "<Absent>")))
             LOGGER.debug("HEADERS={}".format(response_headers))
-            raise MCSHttpUnauthorizedException(
-                response.status, response_headers, body)
+            raise MCSHttpUnauthorizedException(response.status, response_headers, body)
         if response.status == http.client.SERVICE_UNAVAILABLE:
             LOGGER.warning("HTTP Service Unavailable (503): {} ({})".format(
                 response.reason, body))
-            raise MCSHttpServiceUnavailableException(
-                response.status, response_headers, body)
+            raise MCSHttpServiceUnavailableException(response.status, response_headers, body)
         if response.status == http.client.GATEWAY_TIMEOUT:
             LOGGER.warning("HTTP Gateway timeout (504): {} ({})".format(
                 response.reason, body))
-            raise MCSHttpGatewayTimeoutException(
-                response.status, response_headers, body)
+            raise MCSHttpGatewayTimeoutException(response.status, response_headers, body)
         if response.status == http.client.INTERNAL_SERVER_ERROR:
             LOGGER.warning("HTTP Internal Server Error (500): {} ({})".format(
                 response.reason, body))
-            raise MCSHttpInternalServerErrorException(
-                response.status, response_headers, body)
+            raise MCSHttpInternalServerErrorException(response.status, response_headers, body)
+        if response.status == http.client.TOO_MANY_REQUESTS:
+            LOGGER.warning("HTTP Too Many Requests (429): {} ({})".format(
+            response.reason, body))
+            raise MCSHttpTooManyRequestsException(response.status, response_headers, body)
         if response.status != http.client.OK:
             LOGGER.error("Bad response from server {}: {} ({})".format(
                 response.status, response.reason,
@@ -1032,7 +1042,7 @@ class MCSConnection:
         """
         This method is used in mcs.py to trigger the processing and sending of datafeed results.
         """
-        LOGGER.info("send_datafeeds")
+        # LOGGER.info("send_datafeeds")
 
         # Sending Protocol
         #   Discard files too large (e.g. 10MB)
@@ -1062,34 +1072,79 @@ class MCSConnection:
         #         // Max size of any individual item to upload: 10 MB
         #         uint64_t const maxItemSize = 10000000UI64;
 
-        datafeeds.prune_old_datafeed_files()
-        datafeeds.prune_too_large_datafeed_files()
+        LOGGER.debug(f"Pruning empty datafeed files, datafeed ID: {datafeeds.get_feed_id()}")
         datafeeds.prune_empty_datafeed_files()
+
+        LOGGER.debug(f"Pruning old datafeed files, datafeed ID: {datafeeds.get_feed_id()}")
+        datafeeds.prune_old_datafeed_files()
+
+        LOGGER.debug(f"Pruning datafeed files that are too large, datafeed ID: {datafeeds.get_feed_id()}")
+        datafeeds.prune_too_large_datafeed_files()
+
+        LOGGER.debug(f"Pruning backlog of datafeed files, datafeed ID: {datafeeds.get_feed_id()}")
         datafeeds.prune_backlog_to_max_size()
+
+        LOGGER.debug(
+            f"Sorting datafeed files oldest to newest ready for sending, datafeed ID: {datafeeds.get_feed_id()}")
         datafeeds.sort_oldest_to_newest()
 
         max_upload_at_once = datafeeds.get_max_upload_at_once()
+        LOGGER.debug(
+            f"Maximum single batch upload size is {max_upload_at_once} bytes, datafeed ID: {datafeeds.get_feed_id()}")
+
+        # sent_so_far = datafeeds.get_sent_so_far()
+        # LOGGER.debug(f"Bytes sent in current sending period: {sent_so_far}, datafeed ID: {datafeeds.get_feed_id()}")
+        ok_to_send_after = datafeeds.get_backoff_until_time()
+        now = datetime.datetime.now().timestamp()
+        if ok_to_send_after > now:
+            return
+
         sent_so_far = 0
         for datafeed_result in datafeeds.get_datafeeds():
-            if sent_so_far + datafeed_result.m_json_body_size < max_upload_at_once:
+            if sent_so_far + datafeed_result.m_json_body_size > max_upload_at_once:
+                LOGGER.debug("Can't send anymore datafeed results, at limit for now. Limit: {}".format(sent_so_far))
+                break
+            try:
+                self.send_datafeed_result(datafeed_result)
+                LOGGER.info(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}")
+                LOGGER.debug(
+                    f"Result content for datafeed ID: {datafeeds.get_feed_id()}, Content: {datafeed_result.m_json_body}")
+                sent_so_far += datafeed_result.m_json_body_size
+                datafeed_result.remove_datafeed_file()
+                # datafeeds.set_sent_so_far(sent_so_far)
+
+            # Handle HTTP 429 (too many requests) from central
+            except MCSHttpTooManyRequestsException as exception_429:
+
+                # Handle purging
+                purge = True
+
                 try:
-                    self.send_datafeed_result(datafeed_result)
-                    sent_so_far += datafeed_result.m_json_body_size
-                    datafeed_result.remove_datafeed_file()
-                except Exception as exception:
-                    # TODO add more detail to logger here
-                    LOGGER.error("Failed to send datafeed: {}".format(exception))
-                    break
-            else:
+                    data_feed_response = json.loads(exception_429.body())
+                    if data_feed_response:
+                        purge = data_feed_response["purge"]
+                except Exception:
+                    LOGGER.error("Failed to parse response from datafeed when handling {} code".format(exception_429.error_code()))
+                if purge:
+                    datafeeds.purge()
+
+                # Handle Retry-After
+                retry_after = 60
+                try:
+                    retry_after = float(exception_429.headers()["Retry-After"])
+                except Exception:
+                    LOGGER.error("Failed read Retry-After in response headers from datafeed when handling {} code".format(exception_429.error_code()))
+                datafeeds.set_backoff_until_time(datetime.datetime.now().timestamp() + retry_after)
+                break
+
+            except Exception as exception:
+                # TODO add more detail to logger here
+                LOGGER.error("Failed to send datafeed: {}".format(exception))
                 break
         datafeeds.prune_results_with_no_files()
-
+        datafeeds.set_backoff_until_time(datetime.datetime.now().timestamp() + datafeeds.get_max_send_freq())
 
     def send_datafeed_result(self, datafeed):
-
-        LOGGER.info("SENDING command path: " + datafeed.get_command_path(self.get_id()))
-        LOGGER.info("SENDING json: " + datafeed.m_json_body)
-
         """
         prepare a HTTP request to send to central containing a data feed result
         :param datafeed: A Datafeed object (datafeeds.py) which contains data, e.g. a scheduled query.

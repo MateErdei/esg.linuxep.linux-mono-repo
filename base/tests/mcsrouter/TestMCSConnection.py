@@ -12,6 +12,9 @@ from TestUtils import assert_message_in_logs
 from TestUtils import assert_message_not_in_logs
 
 import logging
+
+from modules.mcsrouter.mcsrouter.mcsclient.datafeeds import Datafeeds
+
 logger = logging.getLogger("TestMCSConnection")
 
 import mcsrouter.utils.config
@@ -309,7 +312,31 @@ class TestMCSConnection(unittest.TestCase):
         assert_message_in_logs("WARNING:mcsrouter.mcsclient.mcs_connection:Failed direct connection to localhost:443", logs.output, log_level="WARNING")
         assert_message_not_in_logs("Traceback", logs.output)
 
+    # @mock.patch(__name__ + ".dummy_function")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    def test_send_datafeeds_sends_result_when_body_valid(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        # df = SimpleNamespace(m_json_body_size=12, remove_response_file=dummy_function)
 
+        #responses = [response]
+        # self.assertEqual(len(datafeed), 1)
+        # try:
+        #     import modules.mcsrouter.mcsrouter.mcsclient.datafeeds
+        #     import modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds
+        #     # import modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds
+        # except:
+        #     import mcsrouter.mcsclient.datafeeds
+        #
+        # df = Datafeeds("a")
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = "2601033100"
+        datafeed_container = Datafeeds(feed_id)
+        datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
+        #dummy_function plays the roll of response.remove_response_file
+        # self.assertEqual(dummy_function.call_count, 1)
 
 if __name__ == '__main__':
     unittest.main()
