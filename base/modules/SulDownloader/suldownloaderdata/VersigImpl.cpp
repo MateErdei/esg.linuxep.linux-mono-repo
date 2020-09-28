@@ -38,7 +38,6 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
         auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
         auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
 
-        //todo Wellie 1939
         if (fileSystem->isFile(manifestPath))
         {
             manifestPaths.emplace_back(relativeManifestPath);
@@ -50,11 +49,10 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
             auto optionalManifestDirs = fileSystem->listDirectories(productDirectoryPath);
             for(const auto& optManifestDir : optionalManifestDirs)
             {
-                LOGINFO("DEBUG LOG listed directory: " << optManifestDir);
                 auto supplement_manifestPath = Common::FileSystem::join(optManifestDir, relativeManifestPath);
                 if (fileSystem->isFile(supplement_manifestPath))
                 {
-                    LOGINFO("DEBUG LOG supplement_manifestPath: " << supplement_manifestPath << " relative supplement " << Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
+                    LOGDEBUG("Supplement manifest at: " << supplement_manifestPath);
                     manifestPaths.emplace_back(Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
                     break;
                 }
@@ -109,7 +107,6 @@ IVersig::VerifySignature VersigImpl::verify(
             return VerifySignature::INVALID_ARGUMENTS;
         }
 
-        LOGINFO( "DEBUG LOG verify args for directory :" << manifestDirectory << " manifest path : " << manifestPath);
         std::vector<std::string> versigArgs;
         versigArgs.emplace_back("-c" + certificate_path);
         versigArgs.emplace_back("-f" + manifestPath);

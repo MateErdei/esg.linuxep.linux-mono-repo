@@ -453,9 +453,9 @@ if [[ -d $FLAGS_DIST ]]
 then
   cp "$FLAGS_DIST/union.json" "${SOPHOS_INSTALL}/base/etc/sophosspl/features_warehouse.json"
 fi
-
 #Todo LINUXDAR-1939 uncomment this when sspl-flags repo is added to CI build
 #versioncopy_supplement "sspl_flags"
+
 FEATURES_WH_FLAGS="${SOPHOS_INSTALL}/base/etc/sophosspl/features_warehouse.json"
 if [[ -f "${FEATURES_WH_FLAGS}" ]]
 then
