@@ -200,6 +200,17 @@ CLS Can Scan Infected And Clean File With The Same Name
 
     Log To Console  ${NORMAL_DIRECTORY}
 
+CLS Does Not Detect PUAs
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar_pua    ${EICAR_PUA_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar_pua
+
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    Log To Console  ${NORMAL_DIRECTORY}
+
 
 CLS Will Not Scan Non-Existent File
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/i_do_not_exist
