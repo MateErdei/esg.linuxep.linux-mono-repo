@@ -221,7 +221,7 @@ Avscanner runs as non-root
 
    Should Not Contain    ${output}    Failed to read the config file
    Should Not Contain    ${output}    All settings will be set to their default value
-   Should Contain   ${output}    Logger av configured for level: SUPPORT
+   Should Contain   ${output}    Logger av configured for level: DEBUG
 
    Wait Until Keyword Succeeds
          ...  60 secs

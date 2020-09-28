@@ -17,7 +17,7 @@ def test_scan_now(sspl_mock, av_plugin_instance):
     agent.send_plugin_policy('av', "123", policy_content)
     agent.send_plugin_action('av', 'sav', "123", action_content)
     av_plugin_instance.wait_log_contains("Received new Action")
-    av_plugin_instance.wait_log_contains("Starting Scan Now")
+    av_plugin_instance.wait_log_contains("Evaluating Scan Now")
     av_plugin_instance.wait_log_contains("Starting scan Scan Now")
     av_plugin_instance.wait_log_contains("Completed scan Scan Now")
     # TODO needs to check for reply from plugin
@@ -32,6 +32,6 @@ def test_scan_now_no_config(sspl_mock, av_plugin_instance):
                      r'subtype="ScanMyComputer" replyRequired="1"/>'
     agent.send_plugin_action('av', 'sav', "123", action_content)
     av_plugin_instance.wait_log_contains("Received new Action")
-    av_plugin_instance.wait_log_contains("Starting Scan Now")
+    av_plugin_instance.wait_log_contains("Evaluating Scan Now")
     av_plugin_instance.wait_log_contains("Refusing to run invalid scan: INVALID")
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)

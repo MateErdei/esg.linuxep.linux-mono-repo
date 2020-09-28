@@ -71,7 +71,7 @@ AV Plugin Can Process Scan Now
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180
     AV Plugin Log Contains  Received new Action
-    AV Plugin Log Contains  Starting Scan Now
+    AV Plugin Log Contains  Evaluating Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
     Check ScanNow Log Exists
 
@@ -88,7 +88,7 @@ AV Plugin Scan Now Updates Telemetry Count
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180
     AV Plugin Log Contains  Received new Action
-    AV Plugin Log Contains  Starting Scan Now
+    AV Plugin Log Contains  Evaluating Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
     Check ScanNow Log Exists
 
@@ -133,7 +133,7 @@ AV Plugin Will Fail Scan Now If No Policy
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains  Refusing to run invalid scan: INVALID
     AV Plugin Log Contains  Received new Action
-    AV Plugin Log Contains  Starting Scan Now
+    AV Plugin Log Contains  Evaluating Scan Now
 
     ${result} =   Terminate Process  ${handle}
 
