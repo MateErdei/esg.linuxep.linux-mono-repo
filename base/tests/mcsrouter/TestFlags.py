@@ -169,6 +169,36 @@ class TestFlags(unittest.TestCase):
         self.assertTrue(mcsrouter.utils.atomic_write.atomic_write.called)
         self.assertFalse(logging.Logger.error.called)
 
+    @mock.patch('os.path.isfile', return_value=True)
+    @mock.patch('mcsrouter.utils.flags.file_is_group_readable', return_value=True)
+    @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={"endpoint.flag1.enabled": True})
+    def test_flags_have_changed_returns_false_when_flags_have_not_changed(self, *mockargs):
+        ret = flags.flags_have_changed({"endpoint.flag1.enabled": True})
+        self.assertFalse(ret)
+
+    @mock.patch('os.path.isfile', return_value=True)
+    @mock.patch('mcsrouter.utils.flags.file_is_group_readable', return_value=False)
+    @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={"endpoint.flag1.enabled": True})
+    def test_flags_have_changed_returns_true_when_flags_have_not_changed_but_file_is_not_group_readable(self, *mockargs):
+        ret = flags.flags_have_changed({"endpoint.flag1.enabled": True})
+        self.assertTrue(ret)
+
+    @mock.patch('os.path.isfile', return_value=False)
+    @mock.patch('mcsrouter.utils.flags.file_is_group_readable', return_value=True)
+    @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={"endpoint.flag1.enabled": True})
+    def test_flags_have_changed_returns_true_when_flags_does_not_exist(self, *mockargs):
+        ret = flags.flags_have_changed({"endpoint.flag1.enabled": True})
+        self.assertTrue(ret)
+        self.assertFalse(mcsrouter.utils.flags.read_flags_file.called)
+
+    @mock.patch('os.path.isfile', return_value=True)
+    @mock.patch('mcsrouter.utils.flags.file_is_group_readable', return_value=True)
+    @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={"endpoint.flag1.enabled": False})
+    def test_flags_have_changed_returns_true_when_flags_have_changed(self, *mockargs):
+        ret = flags.flags_have_changed({"endpoint.flag1.enabled": True})
+        self.assertTrue(ret)
+        self.assertTrue(mcsrouter.utils.flags.read_flags_file.called)
+        self.assertFalse(mcsrouter.utils.flags.file_is_group_readable.called)
 
 if __name__ == '__main__':
     unittest.main()

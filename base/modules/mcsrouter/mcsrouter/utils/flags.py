@@ -93,6 +93,29 @@ def combine_flags(warehouse_flags, mcs_flags):
             combined_flags[i] = False
     return combined_flags
 
+def file_is_group_readable(file_path):
+    """
+    file_is_group_readable
+    :param file_path:
+    :return: Boolean
+    """
+    file_stat = os.stat(file_path)
+    return bool(file_stat.st_mode & stat.S_IRGRP)
+
+def flags_have_changed(new_flags):
+    """
+    flags_have_changed
+    :param new_flags: a dictionary
+    :return: Boolean
+    """
+    if not os.path.isfile(path_manager.combined_flags_file()):
+        return True
+    current_flags = read_flags_file(path_manager.combined_flags_file())
+    if current_flags == new_flags:
+        # If the file is no longer readable by group then we should re-write the file
+        return not file_is_group_readable(path_manager.combined_flags_file())
+    return True
+
 def combine_flags_files():
     """
     combine_flags_files
@@ -105,4 +128,7 @@ def combine_flags_files():
     mcs_flags, warehouse_flags = create_comparable_dicts(mcs_flags, warehouse_flags)
     combined_flags = combine_flags(warehouse_flags, mcs_flags)
     LOGGER.debug("Combined flags: {}".format(combined_flags))
-    write_combined_flags_file(combined_flags)
+    if flags_have_changed(combined_flags):
+        write_combined_flags_file(combined_flags)
+    else:
+        LOGGER.debug("Flags.json file already up-to-date")
