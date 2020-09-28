@@ -1,5 +1,6 @@
 %YAML 1.1
 ---
+#To Do LINUXDAR-1939 Remove winepflags and replace with sspl_flags when the sspl-flags repo is added to CI builds
 winepflags-supp:
   base-version: 1
   canonical-name: WINEPFLAGS
@@ -10,8 +11,8 @@ winepflags-supp:
 
 #sspl-flags-supp:
 #  base-version: 1
-#  canonical-name: WINEPFLAGS
+#  canonical-name: SSPLFLAGS
 #  decode-path: .
-#  line-id: WINEPFLAGS
-#  tag: LATEST
+#  line-id: SSPLFLAGS
+#  tag:
 #  warehouse: sspl-flags
