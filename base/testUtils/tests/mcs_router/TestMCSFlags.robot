@@ -27,15 +27,15 @@ MCS creates and updates flags file
       ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
 
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
-    Should Contain  ${CONTENTS}  "endpoint.flag1.enabled" : "true",
-    Should Contain  ${CONTENTS}  "endpoint.flag2.enabled" : "false",
-    Should Contain  ${CONTENTS}  "endpoint.flag3.enabled" : "force"
+    Should Contain  ${CONTENTS}  "endpoint.flag1.enabled" : true,
+    Should Contain  ${CONTENTS}  "endpoint.flag2.enabled" : false,
+    Should Contain  ${CONTENTS}  "endpoint.flag3.enabled" : true
 
     Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
 
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
-    Should Not Contain  ${CONTENTS}  "endpoint.flag1.enabled" : "true",
+    Should Not Contain  ${CONTENTS}  "endpoint.flag1.enabled" : true,
 
     Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/MCS_policy_Short_Flags_Polling.xml
     Wait Until Keyword Succeeds
@@ -44,4 +44,4 @@ MCS creates and updates flags file
       ...  Check Mcsrouter Log Contains In Order  Checking for updates to mcs flags  Checking for updates to mcs flags
 
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
-    Should Contain  ${CONTENTS}  "endpoint.flag1.enabled" : "true",
+    Should Contain  ${CONTENTS}  "endpoint.flag1.enabled" : true,

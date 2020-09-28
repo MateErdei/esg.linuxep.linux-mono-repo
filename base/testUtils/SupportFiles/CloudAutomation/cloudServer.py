@@ -1180,9 +1180,9 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
     def mcs_flags(self):
         FLAGS = r"""{
-  "endpoint.flag1.enabled" : "true",
-  "endpoint.flag2.enabled" : "false",
-  "endpoint.flag3.enabled" : "force"
+  "endpoint.flag1.enabled" : true,
+  "endpoint.flag2.enabled" : false,
+  "endpoint.flag3.enabled" : true
 }
 """
         return self.ret(FLAGS)

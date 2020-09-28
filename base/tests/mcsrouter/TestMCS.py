@@ -6,6 +6,7 @@ import unittest
 import mock
 
 import sys
+import time
 import json
 import builtins
 
@@ -24,7 +25,7 @@ import mcsrouter.mcsclient.mcs_commands as mcs_commands
 import mcsrouter.adapters.generic_adapter as generic_adapter
 import mcsrouter.mcs_push_client
 ORIGINAL_MCS_CONNECTION = mcsrouter.mcsclient.mcs_connection.MCSConnection
-
+FLAG_FILE = "/tmp/flags-mcs.json"
 import mcsrouter.utils.config
 
 class EscapeException(Exception):
@@ -74,6 +75,9 @@ class FakeMCSConnection(object):
     def send_status_event(self, status):
         raise EscapeException()
 
+    def get_flags(self):
+        return "{flag : true}"
+
     def close(self):
         pass
 
@@ -98,6 +102,8 @@ class TestMCS(unittest.TestCase):
 
     def tearDown(self):
         mcsrouter.mcsclient.mcs_connection.MCSConnection = ORIGINAL_MCS_CONNECTION
+        if os.path.exists(FLAG_FILE):
+            os.remove(FLAG_FILE)
 
     # @mock.patch('mcsrouter.utils.plugin_registry.get_app_ids_from_directory', return_value=(set(),{}))
     def testConstruction(self):
@@ -160,6 +166,66 @@ class TestMCS(unittest.TestCase):
         except EscapeException:
             pass
         self.assertEqual(FakeMCSConnection.m_token,"MCSTOKEN") ## Verifies register called
+
+    @mock.patch('mcsrouter.utils.path_manager.mcs_flags_file', return_value=FLAG_FILE)
+    @mock.patch('mcsrouter.utils.directory_watcher.DirectoryWatcher.add_watch', side_effect=pass_function)
+    @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
+    @mock.patch('os.listdir', return_value="dummyplugin.json")
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
+    def testgetFlags(self, *mockargs):
+        FakeMCSConnection.send401 = True
+        config = mcsrouter.utils.config.Config()
+        config.set("MCSToken","MCSTOKEN")
+        config.set("MCSID","FOO")
+        config.set("MCSPassword","BAR")
+        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","0")
+        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","0")
+        config.set("COMMAND_CHECK_BASE_RETRY_DELAY","0")
+        config.set("COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY","0")
+        m = self.createMCS(config)
+
+        try:
+            ret = m.startup()
+            ret = m.get_flags(time.time()-1)
+
+        except EscapeException:
+            pass
+        self.assertEqual(True, os.path.isfile(FLAG_FILE))
+        with open(FLAG_FILE, 'r') as outfile:
+            content = outfile.read()
+        self.assertEqual(content, "{flag : true}")
+
+    @mock.patch('mcsrouter.utils.path_manager.mcs_flags_file', return_value=FLAG_FILE)
+    @mock.patch('mcsrouter.utils.directory_watcher.DirectoryWatcher.add_watch', side_effect=pass_function)
+    @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
+    @mock.patch('os.listdir', return_value="dummyplugin.json")
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
+    def testgetFlagsOnlyUpdatesWhenTheFlagsPollingIntervalHasBeenReached(self, *mockargs):
+        FakeMCSConnection.send401 = True
+        config = mcsrouter.utils.config.Config()
+        config.set("MCSToken","MCSTOKEN")
+        config.set("MCSID","FOO")
+        config.set("MCSPassword","BAR")
+        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","0")
+        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","300")
+        config.set("COMMAND_CHECK_BASE_RETRY_DELAY","0")
+        config.set("COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY","0")
+        m = self.createMCS(config)
+
+        try:
+            ret = m.startup()
+            with open(FLAG_FILE, 'w') as outfile:
+                outfile.write("stuff")
+            # When this runs the last time check will be under the COMMAND_CHECK_INTERVAL_MAXIMUM
+            # so the file will not be updated with the flags
+            ret = m.get_flags(time.time())
+
+        except EscapeException:
+            pass
+        self.assertEqual(True, os.path.isfile(FLAG_FILE))
+        with open(FLAG_FILE, 'r') as outfile:
+            content = outfile.read()
+        self.assertEqual(content, "stuff")
 
 class TestCommandCheckInterval(unittest.TestCase):
     def testCreation(self):

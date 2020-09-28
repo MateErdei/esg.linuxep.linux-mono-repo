@@ -422,6 +422,8 @@ class MCS:
             mcs_flags_content = self.__m_comms.get_flags()
             if mcs_flags_content:
                 write_json.write_mcs_flags(mcs_flags_content)
+            last_time_checked = time.time()
+        return last_time_checked
 
     def run(self):
         """
@@ -616,8 +618,7 @@ class MCS:
                             response_time), response_body)
 
                     # check for new flags
-                    self.get_flags(last_flag_time_check)
-                    last_flag_time_check = time.time()
+                    last_flag_time_check = self.get_flags(last_flag_time_check)
 
                     # send statuses, events and responses only if not in error state
                     if error_count == 0:
