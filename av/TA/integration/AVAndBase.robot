@@ -212,7 +212,8 @@ Avscanner runs as non-root
          ...  check threat event received by base  1  naugthyEicarThreatReportAsNobody
 
 AV Plugin Reports encoded eicars To Base
-   [Teardown]  Remove Directory  /tmp/encoded_eicars  true
+   [Teardown]  Run Keywords      Remove Directory  /tmp/encoded_eicars  true
+   ...         AND               AV And Base Teardown
 
    Check AV Plugin Installed With Base
 

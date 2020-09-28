@@ -124,7 +124,8 @@ Scheduled Scan Configuration Is Correct
     ${result} =   Terminate Process  ${handle}
 
 AV Plugin Will Fail Scan Now If No Policy
-    [Teardown]  Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
+    [Teardown]  Run Keywords    Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
+    ...         AND             Product Test Teardown
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
@@ -185,7 +186,9 @@ AV Plugin Can Disable Scanning Of Remote File Systems
 
 
 AV Plugin Can Exclude Filepaths From Scheduled Scans
-    [Teardown]  Delete Eicars From Tmp
+    [Teardown]  Run Keywords    Delete Eicars From Tmp
+    ...                         Product Test Teardown
+
     ${eicar_path1} =  Set Variable  /tmp/eicar.com
     ${eicar_path2} =  Set Variable  /tmp/eicar.1
     ${eicar_path3} =  Set Variable  /tmp/eicar.txt
@@ -224,7 +227,8 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 
 
 AV Plugin Scan of Infected File Increases Threat Eicar Count
-    [Teardown]  Delete Eicars From Tmp
+    [Teardown]  Run Keywords    Delete Eicars From Tmp
+    ...                         Product Test Teardown
 
     Create File      /tmp/eicar.com    ${EICAR_STRING}
 

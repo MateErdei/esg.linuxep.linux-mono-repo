@@ -308,11 +308,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string threatDetectedXML = R"sophos(
-<notification description="Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar'" timestamp="20200924 123901" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
-  <user domain="local" userId="root"/>
-  <threat id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8" idSource="Tsha256(path,name)" name="Very bad file" scanType="203" status="200" type="1">
-    <item file="naugthy_eicar" path="/home/vagrant/this/is/a/directory/for/scanning/"/>
-    <action action="101"/>
+<notification>
+  <threat name="Very bad file">
   </threat>
 </notification>
             )sophos";
@@ -339,11 +336,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount) //N
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string threatDetectedXML = R"sophos(
-<notification description="Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar'" timestamp="20200924 123901" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
-  <user domain="local" userId="root"/>
-  <threat id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8" idSource="Tsha256(path,name)" name="EICAR-AV-Test" scanType="203" status="200" type="1">
-    <item file="naugthy_eicar" path="/home/vagrant/this/is/a/directory/for/scanning/"/>
-    <action action="101"/>
+<notification>
+  <threat name="EICAR-AV-Test">
   </threat>
 </notification>
             )sophos";
