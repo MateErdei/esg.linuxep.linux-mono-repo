@@ -132,7 +132,7 @@
         <Token>SSPLFLAGS</Token>
         <Language lang="en">
           <LongDesc>SSPL Endpoint Warehouse Flags</LongDesc>
-          <ShortDesc>SSPL Endpoint Warehouse Flags</ShortDesc>
+          <ShortDesc>SSPLFLAGS</ShortDesc>
         </Language>
       </Label>
     </Identity>
