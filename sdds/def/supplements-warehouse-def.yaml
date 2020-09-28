@@ -8,7 +8,6 @@ warehouses:
                     -   base-version: 1
                         tag: RECOMMENDED
 
-warehouses:
     winepflags:
         components:
             winepflags:
