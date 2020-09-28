@@ -46,7 +46,7 @@
       <include artifact-path="winepflags" dest-dir="redist/flags"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-flags">
-      <development-version branch="develop"/>
+      <development-version branch="feature/LINUXDAR-1939"/>
       <include artifact-path="sspl-flags/SDDS-SSPL-FLAGS" dest-dir="redist/flags2"/>
     </build-asset>
   </inputs>
