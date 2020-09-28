@@ -31,3 +31,4 @@ TA/resources/sophos_certs/local_certs/https/server*
 TA/resources/sophos_certs/local_certs/https/*.pem
 TA/local_warehouses/
 TA/tmp/
+tmp/
