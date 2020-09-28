@@ -7,18 +7,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "NamedScanRunner.h"
 
 #include "BaseFileWalkCallbacks.h"
-#include "Mounts.h"
 #include "PathUtils.h"
 #include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
-#include <filewalker/FileWalker.h>
+#include "avscanner/mountinfoimpl/Mounts.h"
 
 #include <capnp/message.h>
+#include <common/StringUtils.h>
+#include <filewalker/FileWalker.h>
 
 #include <fstream>
-#include <common/StringUtils.h>
-
+#include <set>
 
 using namespace avscanner::avscannerimpl;
 
@@ -43,7 +43,7 @@ namespace
                 ScanClient scanner,
                 std::vector<fs::path> mountExclusions,
                 NamedScanConfig& config,
-                std::vector<std::shared_ptr<IMountPoint>> allMountPoints
+                avscanner::mountinfo::IMountPointSharedVector allMountPoints
                 )
                 : BaseFileWalkCallbacks(std::move(scanner))
                 , m_mountExclusions(std::move(mountExclusions))
@@ -120,14 +120,15 @@ namespace
     private:
         std::vector<fs::path> m_mountExclusions;
         NamedScanConfig& m_config;
-        std::vector<std::shared_ptr<IMountPoint>> m_allMountPoints;
+        avscanner::mountinfo::IMountPointSharedVector m_allMountPoints;
     };
 }
 
-std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoints(const std::vector<std::shared_ptr<IMountPoint>>& allMountpoints)
+avscanner::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(
+    const avscanner::mountinfo::IMountPointSharedVector& allMountpoints)
 {
-    std::vector<std::shared_ptr<IMountPoint>> includedMountpoints;
-    for (auto & mp : allMountpoints)
+    avscanner::mountinfo::IMountPointSharedVector includedMountpoints;
+    for (const auto & mp : allMountpoints)
     {
         if ((mp->isHardDisc() && m_config.m_scanHardDisc) ||
             (mp->isNetwork() && m_config.m_scanNetwork) ||
@@ -151,10 +152,10 @@ std::vector<std::shared_ptr<IMountPoint>> NamedScanRunner::getIncludedMountpoint
 int NamedScanRunner::run()
 {
     // work out which filesystems are included based of config and mount information
-    std::shared_ptr<IMountInfo> mountInfo = getMountInfo();
-    std::vector<std::shared_ptr<IMountPoint>> allMountpoints = mountInfo->mountPoints();
+    auto mountInfo = getMountInfo();
+    auto allMountpoints = mountInfo->mountPoints();
     LOGDEBUG("Found "<< allMountpoints.size() << " mount points");
-    std::vector<std::shared_ptr<IMountPoint>> includedMountpoints = getIncludedMountpoints(allMountpoints);
+    auto includedMountpoints = getIncludedMountpoints(allMountpoints);
 
     std::vector<fs::path> excludedMountPoints;
     excludedMountPoints.reserve(allMountpoints.size());
@@ -172,13 +173,23 @@ int NamedScanRunner::run()
     ScanClient scanner(*getSocket(), scanCallbacks, m_config.m_scanArchives, E_SCAN_TYPE_SCHEDULED);
     CallbackImpl callbacks(std::move(scanner), excludedMountPoints, m_config, allMountpoints);
 
+    std::set<std::string> mountsScanned;
+
     // for each select included mount point call filewalker for that mount point
     for (auto & mp : includedMountpoints)
     {
-        LOGINFO("Attempting to scan: " << mp->mountPoint());
         std::string mountpointToScan = mp->mountPoint();
+
+        if(mountsScanned.find(mountpointToScan) != mountsScanned.end())
+        {
+            LOGINFO("Skipping duplicate mountpoint: " << mountpointToScan);
+            continue;
+        }
+
+        LOGINFO("Attempting to scan: " << mountpointToScan);
         try
         {
+            mountsScanned.insert(mountpointToScan);
             filewalker::walk(mountpointToScan, callbacks);
         }
         catch (sophos_filesystem::filesystem_error& e)

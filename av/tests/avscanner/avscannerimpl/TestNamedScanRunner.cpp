@@ -27,6 +27,13 @@ using ::testing::StrictMock;
 
 namespace fs = sophos_filesystem;
 
+namespace
+{
+    class TestCommandLineScanRunner : public CommandLineScannerMemoryAppenderUsingTests
+    {
+    };
+}
+
 class TestNamedScanRunner : public LogInitializedTests
 {
 public:
@@ -164,6 +171,35 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
     allMountpoints.push_back(opticalDevice);
     allMountpoints.push_back(removableDevice);
     allMountpoints.push_back(specialDevice);
+
+    Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
+            message,
+            m_expectedExclusions,
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
+
+    NamedScanRunner runner(scanConfigOut);
+
+    EXPECT_EQ(runner.getIncludedMountpoints(allMountpoints).size(), 4);
+}
+
+TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
+{
+    m_scanHardDisc = true;
+    m_scanNetwork = true;
+    m_scanOptical = true;
+    m_scanOptical = true;
+    m_scanRemovable = true;
+
+    std::shared_ptr<::testing::StrictMock<MockMountPoint>> localFixedDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
+    EXPECT_CALL(*localFixedDevice, isHardDisc()).WillOnce(Return(true));
+
+    ::capnp::MallocMessageBuilder message;
+    avscanner::mountinfo::IMountPointSharedVector allMountpoints;
+    allMountpoints.push_back(localFixedDevice);
+    allMountpoints.push_back(localFixedDevice);
 
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
             message,
