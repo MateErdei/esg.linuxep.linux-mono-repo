@@ -6,6 +6,7 @@ Library         Collections
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/AVScanner.py
+Library         ../Libs/OnFail.py
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
@@ -38,6 +39,7 @@ AVCommandLineScanner Test Setup
     Log  AVCommandLineScanner Test Setup
 
 AVCommandLineScanner Test TearDown
+    run teardown functions
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log  encoding_errors=replace
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
@@ -95,6 +97,7 @@ CLS Can Scan Clean File
 
 
 CLS Does Not Ordinarily Output To Stderr
+
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file 1>/dev/null
 
@@ -112,7 +115,6 @@ CLS Can Scan Infected File
    Log To Console  output is ${output}
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${NORMAL_DIRECTORY}/naugthy_eicar"
-
 
 CLS Can Scan Archive File
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
@@ -197,17 +199,6 @@ CLS Can Scan Infected And Clean File With The Same Name
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
-    Log To Console  ${NORMAL_DIRECTORY}
-
-CLS Does Not Detect PUAs
-    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar_pua    ${EICAR_PUA_STRING}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar_pua
-
-    Log To Console  return code is ${rc}
-    Log To Console  output is ${output}
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     Log To Console  ${NORMAL_DIRECTORY}
 
@@ -333,43 +324,6 @@ CLS Encoded Eicars
    END
 
    Remove Directory  /tmp/encoded_eicars  true
-
-
-CLS Handles Eicar With The Same Name As An Option
-    [Teardown]  Run Keywords    AVCommandLineScanner Test TearDown
-    ...         AND             Remove File     /-x
-    ...         AND             Remove File     /--exclude
-
-    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
-    Create File     ${NORMAL_DIRECTORY}/--exclude   ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/-x   ${EICAR_STRING}
-    Create File     /--exclude   ${EICAR_STRING}
-    Create File     /-x   ${EICAR_STRING}
-
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/--exclude
-    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/--exclude
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/-x
-    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/-x
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
-    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} ./--exclude
-    Should Contain       ${output}  Scanning /--exclude
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
-    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} ./-x
-    Should Contain       ${output}  Scanning /-x
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} -- -x
-    Should Contain       ${output}  Scanning /-x
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
-    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} -- --exclude
-    Should Contain       ${output}  Scanning /--exclude
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
 
 CLS Exclusions Filename
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
@@ -522,7 +476,7 @@ CLS Reports Error Once When Using Custom Log File
     ${lines} =  Get Lines Containing String     ${content}  file/folder does not exist
 
     ${count} =  Get Line Count   ${lines}
-    Should Be Equal As Integers  1  ${count}
+    Should Be Equal As Integers  ${1}  ${count}
 
 
 CLS Scans root with non-canonical path
@@ -544,45 +498,21 @@ CLS Scans Paths That Exist and Dont Exist
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/.clean_eicar_folder/eicar ${NORMAL_DIRECTORY}/.dont_exist/eicar ${NORMAL_DIRECTORY}/.doesnot_exist ${NORMAL_DIRECTORY}/clean_eicar
 
     Should Contain      ${output}  Scanning /home/vagrant/this/is/a/directory/for/scanning/.clean_eicar_folder/eicar
-    Should Contain      ${output}  Cannot scan "/home/vagrant/this/is/a/directory/for/scanning/.dont_exist/eicar": file/folder does not exist
-    Should Contain      ${output}  Cannot scan "/home/vagrant/this/is/a/directory/for/scanning/.doesnot_exist": file/folder does not exist
+    Should Contain      ${output}  Failed to scan "/home/vagrant/this/is/a/directory/for/scanning/.dont_exist/eicar": file/folder does not exist
+    Should Contain      ${output}  Failed to scan "/home/vagrant/this/is/a/directory/for/scanning/.doesnot_exist": file/folder does not exist
     Should Contain      ${output}  Scanning /home/vagrant/this/is/a/directory/for/scanning/clean_eicar
 
     Should Be Equal As Integers  ${rc}  ${FILE_NOT_FOUND_RESULT}
 
 
-CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
-   ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
-   ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
-
-   ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=${LOG_FILE}
-   # Rename the sophos threat detector launcher so that it cannot be restarted
-   Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
-   Wait Until Keyword Succeeds
-   ...  60 secs
-   ...  1 secs
-   ...  File Log Contains  ${LOG_FILE}  Scanning
-   ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
-   Run Process   /bin/kill   -SIGSEGV   ${output}
-   Wait Until Keyword Succeeds
-   ...  120 secs
-   ...  1 secs
-   ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
-
-   Wait For Process   handle=${HANDLE}
-
-   Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
-
-
 CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
    ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
-   ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=${LOG_FILE}
+   ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
    Wait Until Keyword Succeeds
    ...  60 secs
    ...  1 secs
    ...  File Log Contains  ${LOG_FILE}  Scanning
-   ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
    Stop AV
    Start AV
    Wait Until Keyword Succeeds
@@ -598,3 +528,27 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
    ...  File Log Contains With Offset  ${LOG_FILE}   Scanning   offset=${offset}
 
    Terminate Process   handle=${HANDLE}
+
+
+CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
+   ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
+   ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
+
+   ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
+   # Rename the sophos threat detector launcher so that it cannot be restarted
+   Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
+   register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
+
+   Wait Until Keyword Succeeds
+   ...  60 secs
+   ...  5 secs
+   ...  File Log Contains  ${LOG_FILE}  Scanning
+   ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+   Run Process   /bin/kill   -SIGSEGV   ${output}
+   sleep  60  Waiting for the socket to timeout
+   Wait Until Keyword Succeeds
+   ...  240 secs
+   ...  10 secs
+   ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+
+   Wait For Process   handle=${HANDLE}

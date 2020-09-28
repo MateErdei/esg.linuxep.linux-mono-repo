@@ -1,16 +1,38 @@
 from robot.libraries.BuiltIn import BuiltIn
 from robot.api import logger
 
+
 class OnFail(object):
     def __init__(self):
-        self.__m_actions = []
+        self.__m_fail_actions = []
+        self.__m_cleanup_actions = []
 
     def run_on_failure(self, keyword, args=None):
-        self.__m_actions.append((keyword, args))
+        self.__m_fail_actions.append((keyword, args))
+
+    def register_cleanup(self, keyword, *args):
+        self.__m_cleanup_actions.append((keyword, args))
+
+    def __run_actions(self, builtin, actions, if_failed=True):
+        for (keyword, args) in actions:
+            logger.info("Running %s" % keyword)
+            args = args or []
+            if if_failed:
+                builtin.run_keyword_if_test_failed(keyword, *args)
+            else:
+                builtin.run_keyword(keyword, *args)
+        actions.clear()
 
     def run_failure_functions_if_failed(self):
         builtin = BuiltIn()
-        for (keyword, args) in self.__m_actions:
-            logger.info("Running %s" % keyword)
-            args = args or []
-            builtin.run_keyword_if_test_failed(keyword, *args)
+        self.__run_actions(builtin, self.__m_fail_actions, True)
+
+    def run_cleanup_functions(self):
+        builtin = BuiltIn()
+        self.__run_actions(builtin, self.__m_cleanup_actions, False)
+
+    def run_teardown_functions(self):
+        builtin = BuiltIn()
+        self.__run_actions(builtin, self.__m_fail_actions, True)
+        self.__run_actions(builtin, self.__m_cleanup_actions, False)
+
