@@ -99,7 +99,7 @@ def warehouse_flags_file():
     """
     warehouse_flags_file
     """
-    return os.path.join(sophos_etc_dir(), "features-warehouse.json")
+    return os.path.join(sophos_etc_dir(), "flags-warehouse.json")
 
 def combined_flags_file():
     """

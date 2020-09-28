@@ -19,7 +19,7 @@ Setup MCS Tests
     Check For Existing MCSRouter
     Cleanup MCSRouter Directories
     Cleanup Local Cloud Server Logs
-    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/features-warehouse.json  {}
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  {}
 
 Clean McsRouter Log File
     ${result} =  Run Process   >   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   shell=True
@@ -62,6 +62,7 @@ MCSRouter Default Test Teardown
     Deregister From Central
 
     Cleanup MCSRouter Directories
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  {}
     Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
     Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     # ensure no other msc router is running even those not created by this test.

@@ -21,16 +21,11 @@ def write_combined_flags_file(body):
         target_path = path_manager.combined_flags_file()
         LOGGER.debug("Writing combined flags to {}".format(target_path))
         body = json.dumps(body)
-        atomic_write.atomic_write(target_path, path_tmp, body)
-        # Make sure that flags are group readable so that Management Agent (or plugins) can read the file.
-        os.chmod(target_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP )
-        LOGGER.info("Flags combined and written to disk")
+        atomic_write.atomic_write(target_path, path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP, body)
+        if os.path.isfile(target_path):
+            LOGGER.info("Flags combined and written to disk")
     except TypeError as error:
         LOGGER.error("Failed to encode json: {}".format(error))
-    except OSError as error:
-        # OSErrors can happen here due to insufficient permissions on an existing file.
-        # There is no point attempting to remove the file so just log the error.
-        LOGGER.error("Failed to change permission on json file \"{}\". Error: {}".format(target_path, str(error)))
 
 def read_flags_file(file_path):
     """

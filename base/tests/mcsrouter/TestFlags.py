@@ -168,14 +168,6 @@ class TestFlags(unittest.TestCase):
         flags.write_combined_flags_file({"endpoint.flag1.enabled": "false"})
         self.assertTrue(mcsrouter.utils.atomic_write.atomic_write.called)
         self.assertFalse(logging.Logger.error.called)
-        self.assertTrue(os.chmod.called)
-
-    @mock.patch('mcsrouter.utils.atomic_write.atomic_write')
-    @mock.patch("logging.Logger.error")
-    def test_write_combined_flags_file_catches_os_error(self, *mockargs):
-        flags.write_combined_flags_file({"endpoint.flag1.enabled": "false"})
-        self.assertTrue(mcsrouter.utils.atomic_write.atomic_write.called)
-        self.assertTrue(logging.Logger.error.called)
 
 
 if __name__ == '__main__':
