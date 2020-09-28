@@ -120,15 +120,6 @@
     </Identity>
     <Identity>
       <Label>
-        <Token>WINEPFLAGS</Token>
-        <Language lang="en">
-          <LongDesc>Windows Endpoint Flags</LongDesc>
-          <ShortDesc>WINEPFLAGS</ShortDesc>
-        </Language>
-      </Label>
-    </Identity>
-    <Identity>
-      <Label>
         <Token>SSPLFLAGS</Token>
         <Language lang="en">
           <LongDesc>SSPL Endpoint Warehouse Flags</LongDesc>

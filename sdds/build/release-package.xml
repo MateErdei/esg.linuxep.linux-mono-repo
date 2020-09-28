@@ -19,7 +19,7 @@
       <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
     </build-asset>
     <build-asset project="linuxep" repo="everest-base">
-      <development-version branch="develop"/>
+      <development-version branch="feature/LINUXDAR-1939-b"/>
       <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-edr-component">
@@ -37,13 +37,6 @@
     <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
       <development-version branch="master"/>
       <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
-    </build-asset>
-
-    <!-- To Do LINUXDAR-1939 remove winepflags and replace with sspl-flags when is added to CI   -->
-    <build-asset project="em" repo="esg">
-      <development-version branch="develop"/>
-      <!--    <include artifact-path="scheduled-query-pack-sdds" dest-dir="inputs/scheduled-query-pack-sdds"/>-->
-      <include artifact-path="winepflags" dest-dir="redist/flags"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-flags">
       <development-version branch="feature/LINUXDAR-1939"/>
