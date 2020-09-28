@@ -20,9 +20,9 @@ warehouses:
         components:
             ssplpflags:
                 release-tags:
-                    - base-version: ""
-                      tag: RECOMMENDED
-                    - base-version: ""
-                      tag: BETA
+                   - base-version: 1
+                     tag: RECOMMENDED
+                   - base-version: 1
+                     tag: BETA
 
 customer-files: []

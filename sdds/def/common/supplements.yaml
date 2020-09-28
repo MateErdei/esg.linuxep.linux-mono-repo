@@ -10,8 +10,9 @@ winepflags-supp:
   warehouse: winepflags
 
 ssplflags-supp:
+  base-version: 1
   canonical-name: SSPLFLAGS
   decode-path: .
   line-id: SSPLFLAGS
-  tag: LATEST
+  tag: RECOMMENDED
   warehouse: ssplflags-wh
