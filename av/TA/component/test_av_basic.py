@@ -21,7 +21,7 @@ def test_av_can_send_status(sspl_mock, av_plugin_instance):
     logger.debug("Starting %s", inspect.currentframe().f_code.co_name)
     av_plugin_instance.start_av()
     agent = sspl_mock.management
-    status = agent.get_plugin_status('av', 'sav')
+    status = agent.get_plugin_status('av', 'SAV')
     assert "RevID" in status
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)
 
