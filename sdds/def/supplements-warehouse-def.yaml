@@ -1,12 +1,12 @@
 %YAML 1.1
 ---
 warehouses:
-    sspltelemsupp:
-        components:
-            SSPLTELEMSUPP:
-                release-tags:
-                    -   base-version: 1
-                        tag: RECOMMENDED
+#    sspltelemsupp:
+#        components:
+#            SSPLTELEMSUPP:
+#                release-tags:
+#                    -   base-version: 1
+#                        tag: RECOMMENDED
 
     winepflags:
         components:
