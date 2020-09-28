@@ -256,6 +256,26 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
     ${result} =   Terminate Process  ${handle}
 
 
+AV Plugin Scan Now Does Not Detect PUA
+    [Teardown]  Run Keywords    Delete Eicars From Tmp
+    ...                         Product Test Teardown
+
+    Create File      /tmp/eicar_pua.com    ${EICAR_PUA_STRING}
+
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
+
+    Run Scan Now Scan
+
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
+
+    AV Plugin Log Does Not Contain  /tmp/eicar_pua.com
+
+    File Log Should Not Contain  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/tmp/eicar_pua.com" is infected
+
+    ${result} =   Terminate Process  ${handle}
+
+
 *** Keywords ***
 
 Product Test Teardown
