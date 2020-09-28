@@ -24,6 +24,7 @@ def write_combined_flags_file(body):
         atomic_write.atomic_write(target_path, path_tmp, body)
         # Make sure that flags are group readable so that Management Agent (or plugins) can read the file.
         os.chmod(target_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP )
+        LOGGER.info("Flags combined and written to disk")
     except TypeError as error:
         LOGGER.error("Failed to encode json: {}".format(error))
     except OSError as error:
@@ -111,4 +112,3 @@ def combine_flags_files():
     combined_flags = combine_flags(warehouse_flags, mcs_flags)
     LOGGER.debug("Combined flags: {}".format(combined_flags))
     write_combined_flags_file(combined_flags)
-    LOGGER.info("Flags combined and written to disk")

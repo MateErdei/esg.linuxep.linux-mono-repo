@@ -19,6 +19,7 @@ Setup MCS Tests
     Check For Existing MCSRouter
     Cleanup MCSRouter Directories
     Cleanup Local Cloud Server Logs
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/features-warehouse.json  {}
 
 Clean McsRouter Log File
     ${result} =  Run Process   >   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   shell=True
