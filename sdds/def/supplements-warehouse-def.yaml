@@ -15,7 +15,7 @@ warehouses:
                     -   base-version: 1
                         tag: LATEST
 
-To Do LINUXDAR-1939 Remove winepflags and replace with sspl_flags when the sspl-flags repo is added to CI builds
+#To Do LINUXDAR-1939 Remove winepflags and replace with sspl_flags when the sspl-flags repo is added to CI builds
     ssplflags-wh:
         components:
             ssplpflags:
