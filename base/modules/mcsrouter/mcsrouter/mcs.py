@@ -415,7 +415,7 @@ class MCS:
         self.stop_push_client(push_client)
         self.__m_command_check_interval.set_on_error(error_count, transient)
 
-    def get_flags(self, last_time_checked):
+    def get_flags(self,last_time_checked):
         flags_polling = self.__m_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", default_values.get_default_flags_poll())
         if (time.time() > last_time_checked + flags_polling) \
                 or not os.path.isfile(path_manager.mcs_flags_file()):
@@ -423,6 +423,8 @@ class MCS:
             mcs_flags_content = self.__m_comms.get_flags()
             if mcs_flags_content:
                 write_json.write_mcs_flags(mcs_flags_content)
+            last_time_checked = time.time()
+        return last_time_checked
 
     def run(self):
         """
@@ -613,8 +615,7 @@ class MCS:
                             response_time), response_body)
 
                     # check for new flags
-                    self.get_flags(last_flag_time_check)
-                    last_flag_time_check = time.time()
+                    last_flag_time_check = self.get_flags(last_flag_time_check)
                     flags.combine_flags_files()
 
                     # send statuses, events and responses only if not in error state

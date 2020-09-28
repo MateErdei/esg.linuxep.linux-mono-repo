@@ -24,25 +24,25 @@ EXAMPLE_WAREHOUSE_FLAGS = {
 }
 
 EXAMPLE_MCS_FLAGS = {
-    "endpoint.flag1.enabled": "true",
-    "endpoint.flag2.enabled": "false",
-    "endpoint.flag3.enabled": "false",
-    "endpoint.flag5.enabled": "false",
-    "endpoint.flag6.enabled": "true",
-    "endpoint.flag7.enabled": "true",
-    "endpoint.flag10.enabled": "true"
+    "endpoint.flag1.enabled": True,
+    "endpoint.flag2.enabled": False,
+    "endpoint.flag3.enabled": False,
+    "endpoint.flag5.enabled": False,
+    "endpoint.flag6.enabled": True,
+    "endpoint.flag7.enabled": True,
+    "endpoint.flag10.enabled": True
 }
 
 EXAMPLE_COMBINED_FLAGS = {
-    "endpoint.flag1.enabled": "true",
-    "endpoint.flag2.enabled": "false",
-    "endpoint.flag3.enabled": "false",
-    "endpoint.flag4.enabled": "true",
-    "endpoint.flag5.enabled": "true",
-    "endpoint.flag6.enabled": "false",
-    "endpoint.flag7.enabled": "false",
-    "endpoint.flag8.enabled": "false",
-    "endpoint.flag10.enabled": "true"
+    "endpoint.flag1.enabled": True,
+    "endpoint.flag2.enabled": False,
+    "endpoint.flag3.enabled": False,
+    "endpoint.flag4.enabled": True,
+    "endpoint.flag5.enabled": True,
+    "endpoint.flag6.enabled": False,
+    "endpoint.flag7.enabled": False,
+    "endpoint.flag8.enabled": False,
+    "endpoint.flag10.enabled": True
 }
 
 
@@ -59,15 +59,15 @@ EXAMPLE_FULL_WAREHOUSE_FLAGS = {
 }
 
 EXAMPLE_FULL_MCS_FLAGS = {
-    "endpoint.flag1.enabled": "true",
-    "endpoint.flag2.enabled": "false",
-    "endpoint.flag3.enabled": "false",
-    "endpoint.flag4.enabled": "false",
-    "endpoint.flag5.enabled": "false",
-    "endpoint.flag6.enabled": "true",
-    "endpoint.flag7.enabled": "true",
-    "endpoint.flag8.enabled": "false",
-    "endpoint.flag10.enabled": "true"
+    "endpoint.flag1.enabled": True,
+    "endpoint.flag2.enabled": False,
+    "endpoint.flag3.enabled": False,
+    "endpoint.flag4.enabled": False,
+    "endpoint.flag5.enabled": False,
+    "endpoint.flag6.enabled": True,
+    "endpoint.flag7.enabled": True,
+    "endpoint.flag8.enabled": False,
+    "endpoint.flag10.enabled": True
 }
 
 EXAMPLE_FULL_WAREHOUSE_FLAGS_FROM_EMPTY = {
@@ -81,22 +81,22 @@ EXAMPLE_FULL_WAREHOUSE_FLAGS_FROM_EMPTY = {
 }
 
 EXAMPLE_FULL_MCS_FLAGS_FROM_EMPTY = {
-    "endpoint.flag1.enabled": "false",
-    "endpoint.flag2.enabled": "false",
-    "endpoint.flag3.enabled": "false",
-    "endpoint.flag4.enabled": "false",
-    "endpoint.flag5.enabled": "false",
-    "endpoint.flag7.enabled": "false",
-    "endpoint.flag8.enabled": "false",
-    "endpoint.flag10.enabled": "false"
+    "endpoint.flag1.enabled": False,
+    "endpoint.flag2.enabled": False,
+    "endpoint.flag3.enabled": False,
+    "endpoint.flag4.enabled": False,
+    "endpoint.flag5.enabled": False,
+    "endpoint.flag7.enabled": False,
+    "endpoint.flag8.enabled": False,
+    "endpoint.flag10.enabled": False
 }
 
 class TestFlags(unittest.TestCase):
     def test_combine_flags_respects_force(self):
         warehouse_flags = {"endpoint.flag1.enabled": "force"}
-        mcs_flags = {"endpoint.flag1.enabled": "false"}
+        mcs_flags = {"endpoint.flag1.enabled": False}
         combined_flags = flags.combine_flags(warehouse_flags, mcs_flags)
-        expected_flags = {"endpoint.flag1.enabled": "true"}
+        expected_flags = {"endpoint.flag1.enabled": True}
         self.assertDictEqual(combined_flags, expected_flags)
 
     def test_combine_flags_returns_empty_dicts_if_no_flags(self):
@@ -111,35 +111,35 @@ class TestFlags(unittest.TestCase):
 
 
     def test_create_comparable_dicts_defaults_missing_keys_to_false(self):
-        warehouse_flags, mcs_flags = flags.create_comparable_dicts(EXAMPLE_WAREHOUSE_FLAGS, EXAMPLE_MCS_FLAGS)
+        mcs_flags, warehouse_flags = flags.create_comparable_dicts(EXAMPLE_MCS_FLAGS, EXAMPLE_WAREHOUSE_FLAGS)
         self.assertDictEqual(warehouse_flags, EXAMPLE_FULL_WAREHOUSE_FLAGS)
         self.assertDictEqual(mcs_flags, EXAMPLE_FULL_MCS_FLAGS)
 
     def test_create_comparable_dicts_handles_first_empty_dict(self):
-        warehouse_flags, mcs_flags = flags.create_comparable_dicts(EXAMPLE_WAREHOUSE_FLAGS, {})
+        mcs_flags, warehouse_flags = flags.create_comparable_dicts({}, EXAMPLE_WAREHOUSE_FLAGS)
         self.assertDictEqual(warehouse_flags, EXAMPLE_WAREHOUSE_FLAGS)
         self.assertDictEqual(mcs_flags, EXAMPLE_FULL_MCS_FLAGS_FROM_EMPTY)
 
     def test_create_comparable_dicts_handles_second_empty_dict(self):
-        warehouse_flags, mcs_flags = flags.create_comparable_dicts({}, EXAMPLE_MCS_FLAGS)
+        mcs_flags, warehouse_flags = flags.create_comparable_dicts(EXAMPLE_MCS_FLAGS, {})
         self.assertDictEqual(warehouse_flags, EXAMPLE_FULL_WAREHOUSE_FLAGS_FROM_EMPTY)
         self.assertDictEqual(mcs_flags, EXAMPLE_MCS_FLAGS)
 
 
-    @mock.patch('builtins.open', new_callable=mock_open, read_data=b'{"endpoint.flag1.enabled": "false"}')
+    @mock.patch('builtins.open', new_callable=mock_open, read_data='{"endpoint.flag1.enabled": false}')
     def test_read_flags_file_reads_valid_json(self, *mockargs):
         content = flags.read_flags_file("/tmp/mcs-flags.json")
-        self.assertDictEqual(content, {"endpoint.flag1.enabled": "false"})
+        self.assertDictEqual(content, {"endpoint.flag1.enabled": False})
 
     @mock.patch("logging.Logger.error")
-    @mock.patch('builtins.open', new_callable=mock_open, read_data=b'{"endpoint.flag1.enablethisisntvaliddfalse"}')
+    @mock.patch('builtins.open', new_callable=mock_open, read_data='{"endpoint.flag1.enablethisisntvaliddfalse"}')
     def test_read_flags_file_returns_empty_dict_when_json_invalid(self, *mockargs):
         content = flags.read_flags_file("/tmp/mcs-flags.json")
         self.assertDictEqual(content, {})
         self.assertTrue(logging.Logger.error.called)
 
     @mock.patch("logging.Logger.error")
-    @mock.patch('builtins.open', new_callable=mock_open, read_data=b'')
+    @mock.patch('builtins.open', new_callable=mock_open, read_data='')
     def test_read_flags_file_returns_empty_dict_when_file_empty(self, *mockargs):
         content = flags.read_flags_file("/tmp/mcs-flags.json")
         self.assertDictEqual(content, {})
@@ -156,7 +156,7 @@ class TestFlags(unittest.TestCase):
     @mock.patch('os.chmod')
     @mock.patch("logging.Logger.error")
     def test_write_combined_flags_file_catches_type_error(self, *mockargs):
-        flags.write_combined_flags_file({b'asd': "false"})
+        flags.write_combined_flags_file({b'asd': False})
         self.assertFalse(mcsrouter.utils.atomic_write.atomic_write.called)
         self.assertTrue(logging.Logger.error.called)
         self.assertFalse(os.chmod.called)
@@ -165,7 +165,7 @@ class TestFlags(unittest.TestCase):
     @mock.patch('os.chmod')
     @mock.patch("logging.Logger.error")
     def test_write_combined_flags_file_writes_file(self, *mockargs):
-        flags.write_combined_flags_file({"endpoint.flag1.enabled": "false"})
+        flags.write_combined_flags_file({"endpoint.flag1.enabled": False})
         self.assertTrue(mcsrouter.utils.atomic_write.atomic_write.called)
         self.assertFalse(logging.Logger.error.called)
 

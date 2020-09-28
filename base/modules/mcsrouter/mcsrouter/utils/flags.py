@@ -36,9 +36,8 @@ def read_flags_file(file_path):
     """
     LOGGER.debug("Reading content of {}".format(file_path))
     try:
-        with open(file_path, 'rb') as file_to_read:
+        with open(file_path, 'r', encoding='utf-8') as file_to_read:
             body = file_to_read.read()
-            body = body.decode("utf-8")
             return json.loads(body)
     except (json.JSONDecodeError, UnicodeDecodeError) as error:
         LOGGER.error("Failed to load json file \"{}\". Error: {}".format(file_path, str(error)))
@@ -69,7 +68,7 @@ def create_comparable_dicts(mcs_dict, warehouse_dict):
             all_flags_mcs[i] = mcs_dict[i]
         except KeyError:
             LOGGER.debug("Flag {} missing from MCS flags therefore defaulting to false".format(i))
-            all_flags_mcs[i] = "false"
+            all_flags_mcs[i] = False
         try:
             all_flags_warehouse[i] = warehouse_dict[i]
         except KeyError:
@@ -88,10 +87,10 @@ def combine_flags(warehouse_flags, mcs_flags):
     combined_flags = {}
     for i in warehouse_flags:
         if warehouse_flags[i] == "force" or \
-                (warehouse_flags[i] == "true" and mcs_flags[i] == "true"):
-            combined_flags[i] = "true"
+                (warehouse_flags[i] == "true" and mcs_flags[i] is True):
+            combined_flags[i] = True
         else:
-            combined_flags[i] = "false"
+            combined_flags[i] = False
     return combined_flags
 
 def combine_flags_files():
