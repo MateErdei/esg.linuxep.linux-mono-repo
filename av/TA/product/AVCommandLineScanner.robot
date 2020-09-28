@@ -325,6 +325,23 @@ CLS Encoded Eicars
 
    Remove Directory  /tmp/encoded_eicars  true
 
+CLS Handles Wild Card Eicars
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/*   ${CLEAN_STRING}
+    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/"*"
+
+    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/*
+    Should Not Contain   ${output}  Scanning ${NORMAL_DIRECTORY}/eicar.com
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/*
+
+    Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/*
+    Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/eicar.com
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
 CLS Exclusions Filename
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
