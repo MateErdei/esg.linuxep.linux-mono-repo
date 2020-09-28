@@ -478,7 +478,7 @@ function build()
     return 0
 }
 
-build 64 2>&1 | tee -a $LOG
+build 64 2>&1 | tee $LOG
 EXIT=$?
 mkdir -p $OUTPUT
 cp $LOG $OUTPUT/ || true
