@@ -19,7 +19,7 @@
       <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
     </build-asset>
     <build-asset project="linuxep" repo="everest-base">
-      <development-version branch="feature/LINUXDAR-1939-b"/>
+      <development-version branch="develop"/>
       <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-edr-component">
@@ -31,7 +31,7 @@
       <include artifact-path="output" dest-dir="redist/sspl-plugin-mdr-componentsuite"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
-      <development-version branch="feature/LINUXDAR-1939-b"/>
+      <development-version branch="develop"/>
       <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-edr-componentsuite"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
