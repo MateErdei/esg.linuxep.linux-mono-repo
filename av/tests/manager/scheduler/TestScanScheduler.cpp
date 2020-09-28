@@ -116,11 +116,14 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
     fs::path scanLauncherDir = pluginInstall / "sbin";
     fs::create_directories(scanLauncherDir);
 
+    fs::path log_file = pluginInstall / "scan.log";
+    ::unlink(log_file.c_str());
+
     fs::path scanLauncherPath = scanLauncherDir / "scheduled_file_walker_launcher";
     std::ofstream scanLauncherFs(scanLauncherPath);
-    scanLauncherFs << "#!/bin/bash" << std::endl;
-    scanLauncherFs << "sleep 1" << std::endl;
-    //scanLauncherFs << "while true; do echo Running; sleep 1; done" << std::endl;
+    scanLauncherFs << "#!/bin/bash\n";
+    scanLauncherFs << "sleep 1\n";
+    scanLauncherFs << "echo $$ >> " << log_file << '\n';
     scanLauncherFs.close();
     fs::permissions(scanLauncherPath, fs::perms::owner_all | fs::perms::group_all);
 
@@ -144,6 +147,17 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
     scheduler.join();
 
     EXPECT_EQ(scanCompletion.m_count, 1);
+
+    // Check the actual script only ran once
+    std::ifstream read_log_file(log_file);
+    ASSERT_TRUE(read_log_file.good());
+    int lines = 0;
+    std::string line;
+    while (std::getline(read_log_file, line))
+    {
+        lines++;
+    }
+    EXPECT_EQ(lines, 1);
 }
 
 TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
