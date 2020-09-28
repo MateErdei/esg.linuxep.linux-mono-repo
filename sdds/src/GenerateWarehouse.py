@@ -56,6 +56,7 @@ def sdds_import(path, name):
             subprocess.check_call(args, stdout=log, stderr=log)
     except subprocess.CalledProcessError as e:
         print(f'WARNING: SddsImport exited with {e.returncode}. Continuing.')
+        print(f'WARNING: SddsImport log_path: {log_path}')
     finally:
         with open(log_path, 'rb') as log:
             print(log.read().decode('latin-1'))
