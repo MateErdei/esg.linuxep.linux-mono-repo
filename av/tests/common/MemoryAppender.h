@@ -85,20 +85,21 @@ namespace
 
         [[maybe_unused]] void dumpLog() const;
 
-        void waitForLog(const std::string& expected) const
+        bool waitForLog(const std::string& expected, int wait_time_micro_seconds=500) const // NOLINT(modernize-use-nodiscard)
         {
             assert(m_memoryAppender != nullptr);
             struct timespec req{.tv_sec=0, .tv_nsec=10000};
-            int count = 50;
+            int count = wait_time_micro_seconds / 10;
             while (count > 0)
             {
                 count--;
                 if (appenderContains(expected))
                 {
-                    return;
+                    return true;
                 }
                 nanosleep(&req, nullptr);
             }
+            return false;
         }
     };
 

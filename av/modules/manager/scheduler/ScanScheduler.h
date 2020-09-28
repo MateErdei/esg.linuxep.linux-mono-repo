@@ -42,7 +42,8 @@ namespace manager::scheduler
         ScheduledScan m_nextScheduledScan;
         time_t m_nextScheduledScanTime;
         using ScanRunnerPtr = std::unique_ptr<ScanRunner>;
-        std::map<std::string, ScanRunnerPtr> m_runningScans;
+        using ScanRunnerMap = std::map<std::string, ScanRunnerPtr>;
+        ScanRunnerMap m_runningScans;
 
         /**
          * Start a thread to run a new scan.

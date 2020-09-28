@@ -93,7 +93,7 @@ void manager::scheduler::ScanScheduler::run()
             }
             if (fd_isset(scanNowFD, &tempRead))
             {
-                LOGINFO("Starting Scan Now");
+                LOGINFO("Evaluating Scan Now");
                 Common::Telemetry::TelemetryHelper::getInstance().increment("scan-now-count", 1ul);
                 runNextScan(m_config.scanNowScan());
                 while (m_scanNowPipe.notified())
@@ -125,11 +125,37 @@ void ScanScheduler::runNextScan(const ScheduledScan& nextScan)
 {
     if (!nextScan.valid())
     {
-        LOGDEBUG("Refusing to run invalid scan: " << nextScan.name());
+        LOGERROR("Refusing to run invalid scan: " << nextScan.name());
         return;
     }
-    // serialise next scan
+
     std::string name = nextScan.name();
+    bool already_running = false;
+    auto it = m_runningScans.begin();
+
+    while (it != m_runningScans.end())
+    {
+        if (it->second->scanCompleted())
+        {
+            // Scan completed
+            it = m_runningScans.erase(it);
+            continue;
+        }
+        else if (it->first == name)
+        {
+            // existing scan of the same name running
+            already_running = true;
+        }
+        ++it;
+    }
+
+    if (already_running)
+    {
+        LOGWARN("Refusing to run a second Scan named: " << name);
+        return;
+    }
+
+    // serialise next scan
     std::string serialisedNextScan = serialiseNextScan(nextScan);
 
     auto runner = std::make_unique<ScanRunner>(name, std::move(serialisedNextScan), m_completionNotifier);

@@ -4,16 +4,19 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
-
-#include "manager/scheduler/ScheduledScanConfiguration.h"
+#include "datatypes/sophos_filesystem.h"
 #include "manager/scheduler/ScanScheduler.h"
+#include "manager/scheduler/ScheduledScanConfiguration.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <tests/common/LogInitializedTests.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <tests/common/MemoryAppender.h>
 
+#include <fstream>
+
+namespace fs = sophos_filesystem;
 using namespace manager::scheduler;
 
 namespace
@@ -24,11 +27,14 @@ namespace
         void processScanComplete(std::string& scanCompletedXml) override
         {
             m_xml = scanCompletedXml;
+            m_count++;
         }
         std::string m_xml;
+        int m_count = 0;
     };
 
-    class TestScanScheduler : public LogInitializedTests
+    static constexpr char LOG_CATEGORY[] = "ScanScheduler";
+    class TestScanScheduler : public MemoryAppenderUsingTestsTemplate<LOG_CATEGORY>
     {
         public:
             Common::XmlUtilities::AttributesMap m_scheduledScanPolicy = Common::XmlUtilities::parseXml(
@@ -78,13 +84,13 @@ TEST_F(TestScanScheduler, scanNow) //NOLINT
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
 
-    // Redirect sderr to buffer
+    // Redirect stderr to buffer
     std::stringstream buffer;
     std::streambuf *sbuf = std::cerr.rdbuf();
     std::cerr.rdbuf(buffer.rdbuf());
 
     int count = 0;
-    while(buffer.str().find("INFO Starting Scan Now") == std::string::npos && count < 200)
+    while(buffer.str().find("INFO Evaluating Scan Now") == std::string::npos && count < 200)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
         count++;
@@ -98,6 +104,46 @@ TEST_F(TestScanScheduler, scanNow) //NOLINT
 
     // Reset stderr
     std::cerr.rdbuf(sbuf);
+}
+
+TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
+{
+    UsingMemoryAppender holder(*this);
+
+    fs::path pluginInstall = "/tmp/TestScanScheduler";
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+    fs::path scanLauncherDir = pluginInstall / "sbin";
+    fs::create_directories(scanLauncherDir);
+
+    fs::path scanLauncherPath = scanLauncherDir / "scheduled_file_walker_launcher";
+    std::ofstream scanLauncherFs(scanLauncherPath);
+    scanLauncherFs << "#!/bin/bash" << std::endl;
+    scanLauncherFs << "sleep 1" << std::endl;
+    //scanLauncherFs << "while true; do echo Running; sleep 1; done" << std::endl;
+    scanLauncherFs.close();
+    fs::permissions(scanLauncherPath, fs::perms::owner_all | fs::perms::group_all);
+
+    FakeScanCompletion scanCompletion;
+
+    ScanScheduler scheduler{scanCompletion};
+
+    ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
+
+    scheduler.start();
+
+    scheduler.updateConfig(scheduledScanConfiguration);
+    scheduler.scanNow();
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000));
+    scheduler.scanNow();
+
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 2000000));
+    EXPECT_TRUE(appenderContains("Refusing to run a second Scan named: Scan Now"));
+
+    scheduler.requestStop();
+    scheduler.join();
+
+    EXPECT_EQ(scanCompletion.m_count, 1);
 }
 
 TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
