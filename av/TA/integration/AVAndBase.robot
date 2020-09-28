@@ -47,15 +47,22 @@ AV plugin attempts to run scan now twice simultaneously
     Send Sav Action To Base  ScanNow_Action.xml
     Send Sav Action To Base  ScanNow_Action.xml
 
+    ## Wait for 1 scan to happen
+    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
+    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
+    Wait Until AV Plugin Log Contains  Sending scan complete
+
+    ## Check we refused to start the second scan
+    AV Plugin Log Contains  Refusing to run a second Scan named: Scan Now
+
+    ## Check we started only one scan
     ${content} =  Get File   ${AV_LOG_PATH}  encoding_errors=replace
     ${lines} =  Get Lines Containing String     ${content}  Starting scan Scan Now
 
     ${count} =  Get Line Count   ${lines}
     Should Be Equal As Integers  ${1}  ${count}
 
-    AV Plugin Log Contains  Refusing to run a second Scan named: Scan Now
-    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
-    Wait Until AV Plugin Log Contains  Sending scan complete
+
 
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
