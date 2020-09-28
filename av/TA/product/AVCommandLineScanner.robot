@@ -330,13 +330,13 @@ CLS Handles Wild Card Eicars
     Create File     ${NORMAL_DIRECTORY}/*   ${CLEAN_STRING}
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/"*"
+    ${rc}   ${output} =    Run And Return Rc And Output    cd ${NORMAL_DIRECTORY} && ${CLI_SCANNER_PATH} "*"
 
     Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/*
     Should Not Contain   ${output}  Scanning ${NORMAL_DIRECTORY}/eicar.com
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/*
+    ${rc}   ${output} =    Run And Return Rc And Output   cd ${NORMAL_DIRECTORY} && ${CLI_SCANNER_PATH} *
 
     Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/*
     Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/eicar.com
