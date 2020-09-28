@@ -153,6 +153,9 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     Check Update Reports Have Been Processed
 
+    #confirm that the warehouse flags supplement is installed when upgrading
+    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  sophos-spl-local  sophos-spl-group  -r--------
+
 VersionCopy File in the Wrong Location Is Removed
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
@@ -188,8 +191,6 @@ VersionCopy File in the Wrong Location Is Removed
     Mark Managementagent Log
 
     Trigger Update Now
-    Log To Console  waiting DEBUG
-    Sleep   300
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs

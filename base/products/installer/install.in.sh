@@ -456,7 +456,7 @@ find "$DIST/files" -type f -print0 | xargs -0 "$DIST/files/base/bin/versionedcop
 #Todo LINUXDAR-1939 uncomment this when sspl-flags repo is added to CI build
 versionedcopy_supplement "sspl_flags"
 
-FEATURES_WH_FLAGS="${SOPHOS_INSTALL}/base/etc/sophosspl/features_warehouse.json"
+FEATURES_WH_FLAGS="${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json"
 if [[ -f "${FEATURES_WH_FLAGS}" ]]
 then
   chmod 400  -f "${FEATURES_WH_FLAGS}"

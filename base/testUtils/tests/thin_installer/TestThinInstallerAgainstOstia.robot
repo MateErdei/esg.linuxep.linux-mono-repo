@@ -157,8 +157,9 @@ Thin Installer Installs Base And Services Start
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
-    Log To Console  waiting DEBUG
-    Sleep   300
+
+    #confirm that the warehouse flags supplement is installed with initial installation
+    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  sophos-spl-local  sophos-spl-group  -r--------
 
 
 Thin Installer Attempts Install And Register Through Message Relays
