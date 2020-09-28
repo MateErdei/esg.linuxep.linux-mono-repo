@@ -90,14 +90,14 @@ TEST_F(TestScanScheduler, scanNow) //NOLINT
     std::cerr.rdbuf(buffer.rdbuf());
 
     int count = 0;
-    while(buffer.str().find("INFO Evaluating Scan Now") == std::string::npos && count < 200)
+    while(buffer.str().find("Evaluating Scan Now") == std::string::npos && count < 200)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
         count++;
     }
 
-    EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Starting scan Scan Now"));
-    EXPECT_THAT(buffer.str(), testing::HasSubstr("INFO Completed scan Scan Now"));
+    EXPECT_THAT(buffer.str(), testing::HasSubstr("Starting scan Scan Now"));
+    EXPECT_THAT(buffer.str(), testing::HasSubstr("Completed scan Scan Now"));
 
     scheduler.requestStop();
     scheduler.join();
@@ -141,7 +141,7 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
     scheduler.scanNow();
 
     ASSERT_TRUE(waitForLog("Completed scan Scan Now", 2000000));
-    EXPECT_TRUE(appenderContains("Refusing to run a second Scan named: Scan Now"));
+    EXPECT_TRUE(waitForLog("Refusing to run a second Scan named: Scan Now", 2000000));
 
     scheduler.requestStop();
     scheduler.join();

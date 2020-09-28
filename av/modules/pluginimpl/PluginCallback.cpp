@@ -50,9 +50,12 @@ namespace Plugin
 
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& appId)
     {
-        LOGSUPPORT("Received get status request");
-        assert(appId == "SAV");
-        (void)appId;
+        if (appId != "SAV")
+        {
+            LOGERROR("Received status request for unexpected appId: "<< appId);
+            return { "", "", ""};
+        }
+        LOGSUPPORT("Received get status request for "<<appId);
 
         std::string status = generateSAVStatusXML();
         m_statusInfo = { status, status, "SAV" };
