@@ -323,6 +323,43 @@ CLS Encoded Eicars
 
    Remove Directory  /tmp/encoded_eicars  true
 
+
+CLS Handles Eicar With The Same Name As An Option
+    [Teardown]  Run Keywords    AVCommandLineScanner Test TearDown
+    ...         AND             Remove File     /-x
+    ...         AND             Remove File     /--exclude
+
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/--exclude   ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/-x   ${EICAR_STRING}
+    Create File     /--exclude   ${EICAR_STRING}
+    Create File     /-x   ${EICAR_STRING}
+
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/--exclude
+    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/--exclude
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/-x
+    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/-x
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} ./--exclude
+    Should Contain       ${output}  Scanning /--exclude
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} ./-x
+    Should Contain       ${output}  Scanning /-x
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} -- -x
+    Should Contain       ${output}  Scanning /-x
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} -- --exclude
+    Should Contain       ${output}  Scanning /--exclude
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+
 CLS Exclusions Filename
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
