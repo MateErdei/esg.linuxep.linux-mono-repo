@@ -127,6 +127,15 @@
         </Language>
       </Label>
     </Identity>
+    <Identity>
+      <Label>
+        <Token>SSPLFLAGS</Token>
+        <Language lang="en">
+          <LongDesc>SSPL Endpoint Warehouse Flags</LongDesc>
+          <ShortDesc>SSPL Endpoint Warehouse Flags</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
     <ReleaseTags>
       <Label>
         <Token>RECOMMENDED</Token>
