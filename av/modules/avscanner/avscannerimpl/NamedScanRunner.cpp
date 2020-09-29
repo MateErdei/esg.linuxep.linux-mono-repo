@@ -182,7 +182,7 @@ int NamedScanRunner::run()
 
         if(mountsScanned.find(mountpointToScan) != mountsScanned.end())
         {
-            LOGINFO("Skipping duplicate mountpoint: " << mountpointToScan);
+            LOGINFO("Skipping duplicate mount point: " << mountpointToScan);
             continue;
         }
 

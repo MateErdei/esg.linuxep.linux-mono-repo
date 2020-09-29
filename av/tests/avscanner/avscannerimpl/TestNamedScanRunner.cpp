@@ -8,10 +8,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "MockMountPoint.h"
 #include "RecordingMockSocket.h"
+#include "ScanRunnerMemoryAppenderUsingTests.h"
 
 #include "avscanner/avscannerimpl/NamedScanRunner.h"
 #include "datatypes/sophos_filesystem.h"
-#include "tests/common/LogInitializedTests.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
@@ -27,8 +27,7 @@ using ::testing::StrictMock;
 
 namespace fs = sophos_filesystem;
 
-
-class TestNamedScanRunner : public LogInitializedTests
+class TestNamedScanRunner : public ScanRunnerMemoryAppenderUsingTests
 {
 public:
     void SetUp() override
@@ -243,22 +242,24 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
         }
     };
 
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     m_scanHardDisc = true;
     m_scanNetwork = true;
     m_scanOptical = true;
     m_scanOptical = true;
     m_scanRemovable = true;
 
-    fs::create_directories("/tmp/mount/point/");
-    std::ofstream("/tmp/mount/point/file1.txt");
+    std::string testDir("/tmp/mount/point/");
+    fs::create_directories(testDir);
 
     std::shared_ptr<MockMountInfo> mountInfo;
     mountInfo.reset(new MockMountInfo());
     mountInfo->m_mountPoints.emplace_back(
-            std::make_shared<MockMountPoint>("/tmp/mount/point/")
+            std::make_shared<MockMountPoint>(testDir)
     );
     mountInfo->m_mountPoints.emplace_back(
-            std::make_shared<MockMountPoint>("/tmp/mount/point/")
+            std::make_shared<MockMountPoint>(testDir)
     );
 
     ::capnp::MallocMessageBuilder message;
@@ -277,7 +278,8 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
     runner.setSocket(socket);
     runner.run();
 
-    EXPECT_EQ(socket->m_paths.size(), 1);
+    ASSERT_TRUE(appenderContains("Skipping duplicate mount point: /tmp/mount/point/"));
+    fs::remove_all(testDir);
 }
 
 TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT

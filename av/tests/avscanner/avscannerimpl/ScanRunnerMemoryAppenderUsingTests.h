@@ -10,10 +10,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    class CommandLineScannerMemoryAppenderUsingTests : public MemoryAppenderUsingTests
+    class ScanRunnerMemoryAppenderUsingTests : public MemoryAppenderUsingTests
     {
     public:
-        CommandLineScannerMemoryAppenderUsingTests()
+        ScanRunnerMemoryAppenderUsingTests()
             : MemoryAppenderUsingTests("NamedScanRunner")
         {}
     };

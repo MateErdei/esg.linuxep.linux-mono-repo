@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include "RecordingMockSocket.h"
-#include "CommandLineScanRunnerMemoryAppenderUsingTests.h"
+#include "ScanRunnerMemoryAppenderUsingTests.h"
 
 #include "avscanner/avscannerimpl/BaseFileWalkCallbacks.h"
 #include "avscanner/avscannerimpl/CommandLineScanRunner.h"
@@ -21,7 +21,7 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class TestCommandLineScanRunner : public CommandLineScannerMemoryAppenderUsingTests
+    class TestCommandLineScanRunner : public ScanRunnerMemoryAppenderUsingTests
     {
     };
 }
