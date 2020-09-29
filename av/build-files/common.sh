@@ -119,7 +119,7 @@ function unpack_scaffold_gcc_make()
         echo "INFO: Building with OS binutils"
     fi
 
-    if [[ -x $(which yum) ]]
+    if [[ -x $(which yum) ]] && (( $(id -u) == 0 ))
     then
         echo "Before Edit:"
         cat /etc/yum.repos.d/CentOS-Base.repo
