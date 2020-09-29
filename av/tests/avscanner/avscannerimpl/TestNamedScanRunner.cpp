@@ -181,12 +181,6 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
 
 TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
 {
-    m_scanHardDisc = true;
-    m_scanNetwork = true;
-    m_scanOptical = true;
-    m_scanOptical = true;
-    m_scanRemovable = true;
-
     using namespace avscanner::avscannerimpl;
     using namespace avscanner::mountinfo;
     class MockMountPoint : public IMountPoint
@@ -249,17 +243,25 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
         }
     };
 
-    ::capnp::MallocMessageBuilder message;
+    m_scanHardDisc = true;
+    m_scanNetwork = true;
+    m_scanOptical = true;
+    m_scanOptical = true;
+    m_scanRemovable = true;
+
+    fs::create_directories("/tmp/mount/point/");
+    std::ofstream("/tmp/mount/point/file1.txt");
 
     std::shared_ptr<MockMountInfo> mountInfo;
     mountInfo.reset(new MockMountInfo());
     mountInfo->m_mountPoints.emplace_back(
-            std::make_shared<MockMountPoint>("/test/mount/point/")
+            std::make_shared<MockMountPoint>("/tmp/mount/point/")
     );
     mountInfo->m_mountPoints.emplace_back(
-            std::make_shared<MockMountPoint>("/test/mount/point/")
+            std::make_shared<MockMountPoint>("/tmp/mount/point/")
     );
 
+    ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
             message,
             m_expectedExclusions,
