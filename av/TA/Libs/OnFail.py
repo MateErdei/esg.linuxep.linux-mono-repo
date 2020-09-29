@@ -7,7 +7,7 @@ class OnFail(object):
         self.__m_fail_actions = []
         self.__m_cleanup_actions = []
 
-    def run_on_failure(self, keyword, args=None):
+    def run_on_failure(self, keyword, *args):
         self.__m_fail_actions.append((keyword, args))
 
     def register_cleanup(self, keyword, *args):

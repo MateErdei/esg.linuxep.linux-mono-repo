@@ -28,7 +28,7 @@ def get_variable(varName, defaultValue=None):
 
 def uninstall_sspl_if_installed():
     """
-    Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=20s
+    Calls /opt/sophos-spl/bin/uninstall.sh if present
 
 
     Fail if the uninstall returns an error.
@@ -42,6 +42,11 @@ def uninstall_sspl_if_installed():
         logger.info("{} exists but uninstaller doesn't - removing directory".format(SOPHOS_INSTALL))
         shutil.rmtree(SOPHOS_INSTALL)
         return 0
+
+    dot_sophos = os.path.join(SOPHOS_INSTALL, ".sophos")
+    if not os.path.isfile(dot_sophos):
+        logger.warning("/opt/sophos-spl/.sophos doesn't exist - uninstaller would break")
+        open(dot_sophos, "wb").close()
 
     subprocess.check_call(["bash", uninstaller, "--force"], timeout=20)
 
