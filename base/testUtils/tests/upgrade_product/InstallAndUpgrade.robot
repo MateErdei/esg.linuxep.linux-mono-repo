@@ -154,7 +154,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Check Update Reports Have Been Processed
 
     #confirm that the warehouse flags supplement is installed when upgrading
-    Should Exists  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
 
 VersionCopy File in the Wrong Location Is Removed
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
