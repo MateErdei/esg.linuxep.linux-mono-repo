@@ -27,5 +27,6 @@ ldd "$EXE" || {
 TOOL=
 # TOOL="gdb --args"
 # TOOL="valgrind --leak-check=full"
+TOOL="strace -f -s 128 -o /tmp/strace.log"
 echo $TOOL "$EXE" "$@"
 exec $TOOL "$EXE" "$@"

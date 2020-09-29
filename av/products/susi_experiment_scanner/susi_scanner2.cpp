@@ -47,11 +47,21 @@ static std::string getPluginInstall()
     return "/opt/sophos-spl/plugins/av";
 }
 
-static int scan(const char* filename)
+static int scan(const char* filename, const char* chroot)
 {
     PRINT("Scanning "<< filename);
     datatypes::AutoFd fd(::open(filename, O_RDONLY));
     assert(fd.get() >= 0);
+    if (chroot != nullptr)
+    {
+        PRINT("chroot: "<< chroot);
+        ::chroot(chroot);
+        ::chdir("/");
+    }
+    else
+    {
+        PRINT("NOT CHROOTing");
+    }
 
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
 
@@ -90,5 +100,6 @@ int main(int argc, char* argv[])
     {
         filename = argv[1];
     }
-    return scan(filename);
+    const char* chroot = (argc > 2) ? argv[2] : nullptr;
+    return scan(filename, chroot);
 }

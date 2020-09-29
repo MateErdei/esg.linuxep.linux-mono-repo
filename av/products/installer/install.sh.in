@@ -99,6 +99,15 @@ ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${SOPHOS_INSTALL}/p
 ## Temporary - will need to adapt to hot-updating in SuSI
 cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${CHROOT}/susi/distribution_version/version1/
 
+# Enable DNS resolve on Ubuntu
+mkdir -p ${CHROOT}/etc ${CHROOT}/susi/distribution_version
+cp /etc/nsswitch.conf ${CHROOT}/etc/
+cp /etc/resolv.conf ${CHROOT}/etc/
+cp /etc/ld.so.cache ${CHROOT}/etc/
+cp /etc/host.conf ${CHROOT}/etc/
+cp /lib/x86_64-linux-gnu/libnss_dns.so.2 ${CHROOT}/susi/distribution_version/
+cp /lib/x86_64-linux-gnu/libresolv.so.2 ${CHROOT}/susi/distribution_version/
+
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 if [[ ! -x $(which setcap) ]]
