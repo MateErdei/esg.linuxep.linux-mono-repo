@@ -22,8 +22,8 @@ def log(*x):
 def download_supplements(dest):
     # ensure manual dir is on sys.path
     downloadSupplements.LOGGER = LOGGER
-    ret = downloadSupplements.run(dest)
-    assert ret == 0
+    updated = downloadSupplements.run(dest)
+    return updated
 
 
 def susi_dir(install_set):
@@ -76,12 +76,12 @@ def create_install_set(install_set, sdds_component, base):
     vdl = os.path.join(base, b"vdl")
     ml_model = os.path.join(base, b"ml_model")
     lrdata = os.path.join(base, b"local_rep")
-    download_supplements(base)
     return setup_install_set(install_set, sdds_component, vdl, ml_model, lrdata)
 
 
 def create_install_set_if_required(install_set, sdds_component, base):
-    if verify_install_set(install_set, sdds_component):
+    updated = download_supplements(base)
+    if verify_install_set(install_set, sdds_component) and not updated:
         return 0
     return create_install_set(install_set, sdds_component, base)
 

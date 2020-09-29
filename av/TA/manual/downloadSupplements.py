@@ -111,11 +111,16 @@ def process(baseurl, filename, dirname):
     if os.path.isdir(dest_dir) and not os.path.isfile(zip_file):
         # If we don't have a zip file but do have the dir, assume we are running in TAP
         log("Assuming %s is already suitable" % dest_dir)
-        return
+        return False
 
     latest = get_latest(baseurl, filename)
-    download_url(latest, zip_file)
-    unpack(zip_file, dest_dir)
+    zip_updated = download_url(latest, zip_file)
+    if not os.path.isdir(dest_dir):
+        # Force unpack and regen if dest_dir doesn't exist
+        zip_updated = True
+    if zip_updated:
+        unpack(zip_file, dest_dir)
+    return zip_updated
 
 
 def run(dest):
@@ -123,14 +128,15 @@ def run(dest):
     DEST = dest
     safe_mkdir(DEST)
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
-    process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", b"vdl")
-    process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", b"ml_model")
-    process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", b"local_rep")
-    return 0
+    updated = process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", b"vdl")
+    updated = process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", b"ml_model") or updated
+    updated = process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", b"local_rep") or updated
+    return updated
 
 
 def main(argv):
-    return run(argv[1])
+    run(argv[1])
+    return 0
 
 
 if __name__ == "__main__":

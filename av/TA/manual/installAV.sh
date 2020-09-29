@@ -32,14 +32,17 @@ SDDS_BASE=${AV_ROOT}/base-sdds
 [[ -f $SDDS_BASE/install.sh ]] || failure 1 "Can't find SDDS_BASE/install.sh: $SDDS_BASE/install.sh"
 
 SDDS_AV=${AV_ROOT}/INSTALL-SET
-if [[ ! -f "$SDDS_AV/manifest.dat" ]]
-then
-    python3 $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.."
-fi
+python3 $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.."
 [[ -d $SDDS_AV ]] || failure 2 "Can't find SDDS_AV: $SDDS_AV"
 [[ -f $SDDS_AV/install.sh ]] || failure 3 "Can't find $SDDS_AV/install.sh"
 
 SOPHOS_INSTALL=/opt/sophos-spl
+
+# uninstall
+if [[ -d /opt/sophos-spl ]]
+then
+    /opt/sophos-spl/bin/uninstall.sh --force
+fi
 
 ## Install Base
 "${SDDS_BASE}/install.sh"
