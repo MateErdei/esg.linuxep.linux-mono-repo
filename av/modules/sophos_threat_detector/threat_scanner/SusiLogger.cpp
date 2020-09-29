@@ -10,10 +10,23 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <string>
 
+namespace
+{
+    const std::string WHITESPACE = " \n\r\t\f\v";
+
+    std::string rtrim(const std::string& s)
+    {
+        size_t end = s.find_last_not_of(WHITESPACE);
+        return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+    }
+}
+
 void threat_scanner::susiLogCallback(void* token, SusiLogLevel level, const char* message)
 {
     static_cast<void>(token);
     std::string m(message);
+    m = rtrim(m);
+
     if (!m.empty())
     {
         switch (level)
