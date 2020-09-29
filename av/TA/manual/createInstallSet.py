@@ -4,7 +4,6 @@ import filecmp
 import os
 import shutil
 import sys
-from distutils.core import setup
 
 import downloadSupplements
 ensure_binary = downloadSupplements.ensure_binary
