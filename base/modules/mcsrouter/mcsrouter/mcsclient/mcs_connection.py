@@ -1045,14 +1045,15 @@ class MCSConnection:
         # Sending Protocol
         #   Discard files too large (e.g. 10MB)
         #   Discard files too old (e.g 2 weeks)
+        #   Discard files oldest to newest to maintain a backlog less than limit (e.g. 1GB)
         #   Discard empty files
         #   Abide by back off
-        #     if this is called during the back off time then return
-        #     if this is called during the back off time AND we should discard then delete all files and return
+        #     If this is called during the back off time then return
+        #   If we should purge (HTTP 429) then delete all files and return
         #   Sort files, sending oldest to newest
         #   Send files
         #     Only upload up to sending limit size (e.g. 10MB)
-        #     Only upload up to maximum limit size (e.g. 1GB)
+        #     Only upload up to maximum limit size (e.g. 10MB)
         #     Only upload up to a max frequency (e.g. every 60 seconds)
 
         LOGGER.debug(f"Pruning old datafeed files, datafeed ID: {datafeeds.get_feed_id()}")
