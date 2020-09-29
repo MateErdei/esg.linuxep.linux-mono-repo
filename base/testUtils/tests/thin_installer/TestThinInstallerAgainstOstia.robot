@@ -158,7 +158,7 @@ Thin Installer Installs Base And Services Start
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
     #confirm that the warehouse flags supplement is installed with initial installation
-    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json.0  sophos-spl-local  sophos-spl-group  -r--------
+    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  sophos-spl-local  sophos-spl-group  -r--------
 
 
 Thin Installer Attempts Install And Register Through Message Relays
