@@ -49,6 +49,7 @@ static std::string getPluginInstall()
 
 static int scan(const char* filename)
 {
+    PRINT("Scanning "<< filename);
     datatypes::AutoFd fd(::open(filename, O_RDONLY));
     assert(fd.get() >= 0);
 
@@ -68,7 +69,7 @@ static int scan(const char* filename)
     auto scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND;
     auto result = scanner->scan(fd, filename, scanType, "root");
     bool clean = result.allClean();
-    PRINT("SCAN CLEAN:" << clean);
+    PRINT("SCAN of "<< filename << " CLEAN=" << clean);
 
     decltype(scannerFactory)::weak_type weak_scanner_factory = scannerFactory;
 
