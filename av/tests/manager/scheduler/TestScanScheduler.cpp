@@ -210,3 +210,81 @@ TEST_F(TestScanScheduler, findNextTime) //NOLINT
     ASSERT_EQ(spec.tv_nsec, 0);
     ASSERT_EQ(spec.tv_sec, 3600);
 }
+
+namespace
+{
+    class WeirdTimeScanScheduler : public ScanScheduler
+    {
+    public:
+        using ScanScheduler::ScanScheduler;
+
+    protected:
+        /**
+         * Get the 'current' time, allow to be overridden by unit tests
+         * @return
+         */
+        time_t get_current_time(bool findNextTime) override
+        {
+            if (findNextTime)
+            {
+                return 0;
+            }
+            return 60*60*24*7+1;
+        }
+
+        time_t calculate_delay(time_t, time_t) override
+        {
+            return 1;
+        }
+    };
+}
+
+TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
+{
+    UsingMemoryAppender holder(*this);
+
+    fs::path pluginInstall = "/tmp/TestScanScheduler";
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+    fs::path scanLauncherDir = pluginInstall / "sbin";
+    fs::create_directories(scanLauncherDir);
+
+    fs::path log_file = pluginInstall / "scan.log";
+    ::unlink(log_file.c_str());
+
+    fs::path scanLauncherPath = scanLauncherDir / "scheduled_file_walker_launcher";
+    std::ofstream scanLauncherFs(scanLauncherPath);
+    scanLauncherFs << "#!/bin/bash\n";
+    scanLauncherFs << "sleep 1\n";
+    scanLauncherFs << "echo $$ >> " << log_file << '\n';
+    scanLauncherFs.close();
+    fs::permissions(scanLauncherPath, fs::perms::owner_all | fs::perms::group_all);
+
+    FakeScanCompletion scanCompletion;
+
+    WeirdTimeScanScheduler scheduler{scanCompletion};
+
+    ScheduledScanConfiguration scheduledScanConfiguration(m_scheduledScanPolicy);
+
+    scheduler.start();
+
+    scheduler.updateConfig(scheduledScanConfiguration);
+    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 1000));
+    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 2000000));
+
+    scheduler.requestStop();
+    scheduler.join();
+
+    EXPECT_EQ(scanCompletion.m_count, 1);
+
+    // Check the actual script only ran once
+    std::ifstream read_log_file(log_file);
+    ASSERT_TRUE(read_log_file.good());
+    int lines = 0;
+    std::string line;
+    while (std::getline(read_log_file, line))
+    {
+        lines++;
+    }
+    EXPECT_EQ(lines, 1);
+}

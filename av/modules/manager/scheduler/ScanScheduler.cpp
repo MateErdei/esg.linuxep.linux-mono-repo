@@ -103,7 +103,7 @@ void manager::scheduler::ScanScheduler::run()
             }
         }
 
-        time_t now = ::time(nullptr);
+        time_t now = get_current_time(false);
         if (now >= m_nextScheduledScanTime && m_nextScheduledScanTime != INVALID_TIME)
         {
             // timeout - run scan
@@ -176,7 +176,7 @@ void ScanScheduler::scanNow()
 
 void ScanScheduler::findNextTime(timespec& timespec)
 {
-    time_t now = ::time(nullptr);
+    time_t now = get_current_time(true);
     auto next = INVALID_TIME;
     for (const auto& scan : m_config.scans())
     {
@@ -196,10 +196,16 @@ void ScanScheduler::findNextTime(timespec& timespec)
         }
     }
     m_nextScheduledScanTime = next;
-    time_t delay = (next - now);
+    timespec.tv_sec = calculate_delay(next, now);
+    timespec.tv_nsec = 0;
+}
+
+time_t ScanScheduler::calculate_delay(time_t next_scheduled_scan_time, time_t now)
+{
+    time_t delay = (next_scheduled_scan_time - now);
 
     // SAV halves the delay instead
-    if (next == INVALID_TIME || delay > 3600)
+    if (next_scheduled_scan_time == INVALID_TIME || delay > 3600)
     {
         delay = 3600; // Only wait 1 hour, so that we can handle machine sleep/hibernate better
     }
@@ -208,11 +214,15 @@ void ScanScheduler::findNextTime(timespec& timespec)
         // Always wait 1 second
         delay = 1;
     }
-    timespec.tv_sec = delay;
-    timespec.tv_nsec = 0;
+    return delay;
 }
+
 
 std::string ScanScheduler::serialiseNextScan(const ScheduledScan& nextScan)
 {
     return ScanSerialiser::serialiseScan(m_config, nextScan);
+}
+time_t ScanScheduler::get_current_time(bool)
+{
+    return ::time(nullptr);
 }

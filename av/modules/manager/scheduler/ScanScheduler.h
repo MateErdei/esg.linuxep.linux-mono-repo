@@ -34,6 +34,21 @@ namespace manager::scheduler
          */
         void findNextTime(timespec& timespec);
 
+    protected:
+        /**
+         * Get the 'current' time, allow to be overridden by unit tests
+         * @return
+         */
+        virtual time_t get_current_time(bool findNextTime);
+
+        /**
+         * Get how long to wait before checking, whether to run the next scheduled scan
+         * @param next_scheduled_scan_time
+         * @param now
+         * @return
+         */
+        virtual time_t calculate_delay(time_t next_scheduled_scan_time, time_t now);
+
     private:
         IScanComplete& m_completionNotifier;
         Common::Threads::NotifyPipe m_updateConfigurationPipe;
