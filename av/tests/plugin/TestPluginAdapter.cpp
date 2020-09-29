@@ -115,19 +115,7 @@ TEST_F(TestPluginAdapter, testConstruction) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
-}
-
-TEST_F(TestPluginAdapter, testConstructionWithNoPolicy) //NOLINT
-{
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1).WillOnce(Throw(Common::PluginApi::ApiException("error")));
-
-    ASSERT_NO_THROW(PluginAdapter(m_queueTask, std::move(mockBaseService), m_callback));
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
@@ -136,7 +124,6 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
     std::string policy1revID = "12345678901";
@@ -157,6 +144,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 
     EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
     std::string logs = testing::internal::GetCapturedStderr();
 
@@ -171,7 +159,6 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
     std::string policy1revID = "12345678901";
@@ -191,6 +178,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
 
     EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
     std::string logs = testing::internal::GetCapturedStderr();
 
@@ -206,8 +194,6 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
     std::string actionXml =
@@ -220,6 +206,7 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     m_queueTask->push(actionTask);
     m_queueTask->push(stopTask);
 
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
@@ -235,7 +222,6 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
 
     std::string actionXml =
@@ -248,6 +234,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     m_queueTask->push(actionTask);
     m_queueTask->push(stopTask);
 
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
@@ -286,13 +273,13 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
             )sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
     pluginAdapter.processThreatReport(threatDetectedXML);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
 
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending threat detection notification to central: ";
     expectedLog.append(threatDetectedXML);
@@ -315,13 +302,13 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
             )sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
     pluginAdapter.processThreatReport(threatDetectedXML);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
 
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
 
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
@@ -343,13 +330,13 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount) //N
             )sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
     pluginAdapter.processThreatReport(threatDetectedXML);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
 
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
 
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();

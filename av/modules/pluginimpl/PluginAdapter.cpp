@@ -66,19 +66,20 @@ PluginAdapter::PluginAdapter(
         m_sophosThreadDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             sophos_threat_detector_launcher()))
 {
+}
+
+void PluginAdapter::mainLoop()
+{
+    LOGSUPPORT("Starting the main program loop");
     try
     {
+        LOGSUPPORT("Requesting SAV Policy from base");
         m_baseService->requestPolicies("SAV");
     }
     catch (Common::PluginApi::ApiException& e)
     {
         LOGERROR("Failed to get SAV policy at startup");
     }
-}
-
-void PluginAdapter::mainLoop()
-{
-    LOGSUPPORT("Starting the main program loop");
     ThreadRunner scheduler(m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
     ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
     ThreadRunner sophos_thread_detector(*m_sophosThreadDetector, "threatDetector");
