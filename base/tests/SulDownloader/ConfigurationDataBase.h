@@ -50,7 +50,7 @@ public:
                                 }
                                },
                                "manifestNames" : ["manifest.dat"],
-                               "optionalManifestNames" : ["telem-manifest.dat", "flags_union_manifest.dat"],
+                               "optionalManifestNames" : ["flags_manifest.dat"],
                                "installationRootPath": "absInstallationPath",
                                "certificatePath": "absCertificatePath",
                                "systemSslPath": "absSystemSslPath",

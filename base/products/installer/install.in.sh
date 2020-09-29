@@ -248,22 +248,6 @@ function add_user()
       || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username"
 }
 
-function versionedcopy_supplement()
-{
-  local supplement_dir=$1
-
-  if [[ -d "$DIST/$supplement_dir" ]]
-  then
-    local copy_of_dist=$DIST
-    local version_copy="$DIST/files/base/bin/versionedcopy"
-
-    export DIST="$DIST/$supplement_dir"
-    find "$DIST/files" -type f -print0 | xargs -0 "$version_copy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
-
-    export DIST=${copy_of_dist}
-  fi
-}
-
 if build_version_less_than_system_version
 then
     failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
@@ -447,13 +431,14 @@ generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
 find "$DIST/files" -type f -print0 | xargs -0 "$DIST/files/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
-versionedcopy_supplement "sspl_flags"
-
-FEATURES_WH_FLAGS="${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json"
-if [[ -f "${FEATURES_WH_FLAGS}" ]]
+#copy flags-warehouse file into place
+FLAGS_SRC="${DIST}/sspl_flags/files/base/etc/sophosspl/flags-warehouse.json"
+if [[ -f "${FLAGS_SRC}" ]]
 then
-  chmod 400 "${FEATURES_WH_FLAGS}"*
-  chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${FEATURES_WH_FLAGS}"*
+  FLAGS_WAREHOUSE_INST="${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json"
+  cp "${FLAGS_SRC}" "${FLAGS_WAREHOUSE_INST}"
+  chmod 400 "${FLAGS_WAREHOUSE_INST}"
+  chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${FLAGS_WAREHOUSE_INST}"
 fi
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
