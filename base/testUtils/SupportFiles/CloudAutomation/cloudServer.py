@@ -1512,7 +1512,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
         endpoint = GL_ENDPOINTS.getEndpointByID(endpoint_id)
         if endpoint is None:
-            ## Create endpoint?
             return self.ret("Response for unknown endpoint", 400)
         if SERVER_500:
             return self.ret("Internal Server Error", 500)

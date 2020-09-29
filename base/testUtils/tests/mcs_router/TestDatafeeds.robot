@@ -93,9 +93,9 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
 
     # Wait until we're done sending everything up before checking product logs and fake cloud logs.
     Wait Until Keyword Succeeds
-        ...  30s
-        ...  1s
-        ...  Check MCS Router Log Contains  No datafeed result files
+    ...  30s
+    ...  1s
+    ...  Check MCS Router Log Contains  No datafeed result files
 
     Check Cloud Server Log For Scheduled Query   scheduled_query
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${ok_size_content_expected_to_be_sent}

@@ -12,9 +12,6 @@ from TestUtils import assert_message_in_logs
 from TestUtils import assert_message_not_in_logs
 
 import logging
-
-
-
 logger = logging.getLogger("TestMCSConnection")
 
 import mcsrouter.utils.config
@@ -313,7 +310,6 @@ class TestMCSConnection(unittest.TestCase):
         assert_message_in_logs("WARNING:mcsrouter.mcsclient.mcs_connection:Failed direct connection to localhost:443", logs.output, log_level="WARNING")
         assert_message_not_in_logs("Traceback", logs.output)
 
-    # @mock.patch(__name__ + ".dummy_function")
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
     def test_send_datafeeds_sends_result_when_body_valid(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()

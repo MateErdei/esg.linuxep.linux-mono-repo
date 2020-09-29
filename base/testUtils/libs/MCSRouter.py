@@ -155,22 +155,46 @@ DUMMY_MCS_POLICY_WITH_DIRECT_DISABLED = """<?xml version="1.0"?>
     </configuration>
 </policy>"""
 
-# TODO replace this with correct example
-DUMMY_XDR_DATAFEED_RESULT = """{
-    "type": "sophos.mgt.response.RunLiveQuery",
-    "queryMetaData": {
-        "durationMillis": 32,
-        "sizeBytes": 0,
-        "rows": 0,
-        "errorCode": 0,
-        "errorMessage": "OK"
-    },
-    "columnMetaData": [
-        {"name": "pathname", "type": "TEXT"},
-        {"name": "sophosPID", "type": "TEXT"},
-        {"name": "start_time", "type": "BIGINT"}
-    ]
+DUMMY_XDR_DATAFEED_RESULT = """
+[
+  {
+    "name":"running_processes_linux_events",
+    "hostIdentifier":"B1962444-92A9-48E9-92D5-2092855BF4BC",
+    "queryIdentifier":"d7c0e19b-6ad4-4733-8b99-45462284b072",
+    "calendarTime":"Thu Mar 5 12:49:20 2020 UTC",
+    "unixTime":1583412560,
+    "epoch":1583088054,
+    "counter":0,
+    "numerics":false,
+    "decorations":{
+    "boot_time":"1583777515",
+    "eid":"26a9c767-51bb-4563-991d-004ee50902ff",
+    "hostname":"WFICACH1THIRTLE",
+    "ip_address":"10.1.4.212",
+    "ip_mask":"255.255.255.255",
+    "mac_address":"02:50:41:00:00:01",
+    "os_name":"Microsoft Windows 10 Enterprise LTSC",
+    "os_platform":"windows",
+    "os_type":"client",
+    "os_version":"10.0.17763",
+    "username":"thirtle"
+  },
+"columns":{
+    "cmdline":"tail -f osqueryd.results.log",
+    "egid":"0",
+    "euid":"0",
+    "gid":"0",
+    "name":"tail",
+    "parents":"24385",
+    "path":"/usr/bin/tail",
+    "pids":"24460",
+    "sha1":"d2700a3cd4a48a26234990df28e0e4050e03671c",
+    "sha256":"8f042027dac518e78b06abd491272297d764ef6ce27859c1ed2ca5b438b0428c",
+    "uid":"0"
+  },
+"action":"added"
 }
+]
 """
 
 def _update_xml_revid(xmlcontent):

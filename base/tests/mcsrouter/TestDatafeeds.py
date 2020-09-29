@@ -1,26 +1,8 @@
-import os
 import unittest
 import mock
-import time
-
-import sys
-import json
-import builtins
-import datetime
 
 import logging
 logger = logging.getLogger("TestDatafeeds")
-
-import PathManager
-
-# import mcsrouter.mcs
-#
-# import mcsrouter.mcsclient.mcs_exception
-# import mcsrouter.mcsclient.mcs_connection
-# import mcsrouter.mcsclient.mcs_commands as mcs_commands
-# import mcsrouter.adapters.generic_adapter as generic_adapter
-# import mcsrouter.adapters.agent_adapter as agent_adapter
-# import mcsrouter.utils.target_system_manager
 
 # Imports done like this so clion IDE can pick them up for analysis and autocomplete etc.
 try:
