@@ -55,6 +55,12 @@ class Datafeed(object):
     def get_creation_time(self):
         return self.m_creation_time
 
+    def get_json_body_size(self):
+        return self.m_json_body_size
+
+    def get_gzip_body_size(self):
+        return self.m_gzip_body_size
+
     def _get_compressed_body_size(self):
         return len(self.m_gzip_body)
 
@@ -90,6 +96,7 @@ class Datafeeds(object):
                 self.__m_max_send_freq = config["max_send_freq_seconds"]
                 self.__m_max_upload_at_once = config["max_upload_bytes"]
                 self.__m_max_size_single_feed_result = config["max_item_size_bytes"]
+                LOGGER.debug("Loaded config for datafeed, from: {}".format(self.__config_file_path))
         except Exception as ex:
             LOGGER.warning("Could not load config for datafeed, using default values. Error: {}".format(str(ex)))
             self.__m_time_to_live = 1209600
@@ -119,12 +126,16 @@ class Datafeeds(object):
 
     # TODO may be able to remove df id here now it's added to main container
     def add_datafeed_result(self, file_path, datafeed_id, creation_time, body):
+        if any(x.m_file_path == file_path for x in self.__m_datafeeds):
+            return False
+
         self.__m_datafeeds.append(
             Datafeed(
                 file_path,
                 datafeed_id,
                 creation_time,
                 body))
+        return True
 
     def purge(self):
         for datafeed in self.__m_datafeeds:
@@ -176,7 +187,7 @@ class Datafeeds(object):
         return creation_time > time_to_live_seconds_ago
 
     def _datafeed_result_is_too_large(self, datafeed_result: Datafeed):
-        return datafeed_result.m_gzip_body_size > self.__m_max_size_single_feed_result
+        return datafeed_result.m_json_body_size > self.__m_max_size_single_feed_result
 
     def prune_old_datafeed_files(self):
         datafeed_results_to_keep = []
@@ -192,15 +203,7 @@ class Datafeeds(object):
         datafeed_results_to_keep = []
         for datafeed_result in self.__m_datafeeds:
             if self._datafeed_result_is_too_large(datafeed_result):
-                datafeed_result.remove_datafeed_file()
-            else:
-                datafeed_results_to_keep.append(datafeed_result)
-        self.__m_datafeeds = datafeed_results_to_keep
-
-    def prune_empty_datafeed_files(self):
-        datafeed_results_to_keep = []
-        for datafeed_result in self.__m_datafeeds:
-            if datafeed_result.m_json_body_size == 0:
+                LOGGER.debug(f"Datafeed result file too large, deleting: {datafeed_result.m_file_path}")
                 datafeed_result.remove_datafeed_file()
             else:
                 datafeed_results_to_keep.append(datafeed_result)
@@ -211,8 +214,9 @@ class Datafeeds(object):
         datafeed_results_to_keep = []
         self.sort_newest_to_oldest()
         for datafeed_result in self.__m_datafeeds:
-            current_backlog_size += datafeed_result.m_gzip_body_size
-            if current_backlog_size > self.__m_max_backlog:
+            current_backlog_size += datafeed_result.get_json_body_size()
+            if current_backlog_size > self.get_max_backlog():
+                LOGGER.debug(f"Current backlog size exceeded max {self.get_max_backlog()} bytes, deleting: {datafeed_result.m_file_path}")
                 datafeed_result.remove_datafeed_file()
             else:
                 datafeed_results_to_keep.append(datafeed_result)

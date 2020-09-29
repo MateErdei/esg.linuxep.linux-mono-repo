@@ -462,6 +462,8 @@ chmod 700 "${SOPHOS_INSTALL}/bin/version"*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
 chmod go+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
 
+chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/datafeed-config-scheduled_query.json"
+
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/mcsrouter"*

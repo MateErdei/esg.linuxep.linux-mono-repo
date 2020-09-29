@@ -1042,8 +1042,6 @@ class MCSConnection:
         """
         This method is used in mcs.py to trigger the processing and sending of datafeed results.
         """
-        # LOGGER.info("send_datafeeds")
-
         # Sending Protocol
         #   Discard files too large (e.g. 10MB)
         #   Discard files too old (e.g 2 weeks)
@@ -1056,24 +1054,6 @@ class MCSConnection:
         #     Only upload up to sending limit size (e.g. 10MB)
         #     Only upload up to maximum limit size (e.g. 1GB)
         #     Only upload up to a max frequency (e.g. every 60 seconds)
-
-        #  // Feed ID, used to build URLs
-        #         std::wstring feedId;
-        #         // Retention time: the age of data thrown away (2 weeks)
-        #         std::chrono::steady_clock::duration const retention = std::chrono::hours(24 * 14);
-        #         // Max size of the raw data stored before we start to throw it away (1 GB)
-        #         uint64_t const maxSize = 1000000000UI64;
-        #         // Period of polling the folder for new data
-        #         std::chrono::steady_clock::duration const pollPeriod = std::chrono::minutes{ 1 };
-        #         // Delay timeout to collect subsequent file changes
-        #         std::chrono::steady_clock::duration const delayTimeout = std::chrono::seconds{ 5 };
-        #         // Max size of raw data to upload at once (per pollPeriod): 10 MB
-        #         uint64_t const maxUploadSize = 10000000UI64;
-        #         // Max size of any individual item to upload: 10 MB
-        #         uint64_t const maxItemSize = 10000000UI64;
-
-        LOGGER.debug(f"Pruning empty datafeed files, datafeed ID: {datafeeds.get_feed_id()}")
-        datafeeds.prune_empty_datafeed_files()
 
         LOGGER.debug(f"Pruning old datafeed files, datafeed ID: {datafeeds.get_feed_id()}")
         datafeeds.prune_old_datafeed_files()
@@ -1102,16 +1082,15 @@ class MCSConnection:
         sent_so_far = 0
         for datafeed_result in datafeeds.get_datafeeds():
             if sent_so_far + datafeed_result.m_json_body_size > max_upload_at_once:
-                LOGGER.debug("Can't send anymore datafeed results, at limit for now. Limit: {}".format(sent_so_far))
+                LOGGER.debug("Can't send anymore datafeed results, at limit for now. Limit: {}".format(max_upload_at_once))
                 break
             try:
                 self.send_datafeed_result(datafeed_result)
-                LOGGER.info(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}")
+                LOGGER.info(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}, file: {datafeed_result.m_file_path}")
                 LOGGER.debug(
-                    f"Result content for datafeed ID: {datafeeds.get_feed_id()}, Content: {datafeed_result.m_json_body}")
+                    f"Result content for datafeed ID: {datafeeds.get_feed_id()}, content: {datafeed_result.m_json_body}")
                 sent_so_far += datafeed_result.m_json_body_size
                 datafeed_result.remove_datafeed_file()
-                # datafeeds.set_sent_so_far(sent_so_far)
 
             # Handle HTTP 429 (too many requests) from central
             except MCSHttpTooManyRequestsException as exception_429:

@@ -471,24 +471,28 @@ class MCS:
         ]
 
         def gather_datafeed_files():
-            for result_file_path, datafeed_id, datafeed_timestamp, datafeed_body in datafeed_receiver.receive():
-                LOGGER.info("Queuing datafeed result for %s", datafeed_id)
-                for df in all_datafeeds:
-                    if df.get_feed_id() == datafeed_id:
-                        df.add_datafeed_result(result_file_path, datafeed_id, datafeed_timestamp, datafeed_body)
-                    else:
-                        LOGGER.warning("There is no datafeed handler setup for the datafeed ID: {}".format(datafeed_id))
+            if datafeed_receiver.pending_files():
+                LOGGER.debug("Found datafeed result files")
+                for result_file_path, datafeed_id, datafeed_timestamp, datafeed_body in datafeed_receiver.receive():
+                    for datafeed in all_datafeeds:
+                        if datafeed.get_feed_id() == datafeed_id:
+                            if datafeed.add_datafeed_result(result_file_path, datafeed_id, datafeed_timestamp, datafeed_body):
+                                LOGGER.info(f"Queuing datafeed result for: {datafeed_id}, with timestamp: {datafeed_timestamp}")
+                            else:
+                                LOGGER.debug(f"Already queued datafeed result for: {datafeed_id}, with timestamp: {datafeed_timestamp}")
+                        else:
+                            LOGGER.warning("There is no datafeed handler setup for the datafeed ID: {}".format(datafeed_id))
+            else:
+                LOGGER.debug("No datafeed result files")
 
         def send_datafeed_files():
-            for df in all_datafeeds:
-                if df.has_results():
-                    LOGGER.debug("Datafeed results present for datafeed ID: {}".format(df.get_feed_id()))
+            for datafeed in all_datafeeds:
+                if datafeed.has_results():
+                    LOGGER.debug("Datafeed results present for datafeed ID: {}".format(datafeed.get_feed_id()))
                     try:
-                        comms.send_datafeeds(df)
-                        # todo do we want this at all ?
-                        #df.reset()
+                        comms.send_datafeeds(datafeed)
                     except Exception as df_exception:
-                        LOGGER.error("Failed to send datafeed results, datafeed ID: {}, error: {}".format(df.get_feed_id(), str(df_exception)))
+                        LOGGER.error("Failed to send datafeed results, datafeed ID: {}, error: {}".format(datafeed.get_feed_id(), str(df_exception)))
 
         def status_updated(reason=None):
             """
@@ -799,10 +803,6 @@ class MCS:
                 if signal_handler.sig_term_pipe[0] in ready_to_read:
                     LOGGER.info("Exiting MCS")
                     running = False
-
-                    LOGGER.debug("Storing datafeed statuses")
-                    for df in all_datafeeds:
-                        df.save_status()
                     break
 
                 elif notify_pipe_file_descriptor in ready_to_read:

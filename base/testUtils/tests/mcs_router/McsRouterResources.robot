@@ -122,6 +122,20 @@ Check Cloud Server Log For EDR Response Body
     ...  5 secs
     ...  Cloud Server Log Should Contain  ${app_id} response (${correlation_id}) = ${expected_body}
 
+Check Cloud Server Log For Scheduled Query
+    [Arguments]    ${feed_id}  ${occurrence}=1
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check Cloud Server Log Contains    POST - /mcs/data_feed/endpoint/ThisIsAnMCSID+1001/feed_id/${feed_id}    ${occurrence}
+
+Check Cloud Server Log For Scheduled Query Body
+    [Arguments]    ${feed_id}    ${expected_body}
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Cloud Server Log Should Contain  ${feed_id} datafeed = ${expected_body}
+
 Check Cloud Server Log for Command Poll
     [Arguments]    ${occurrence}=1
     Wait Until Keyword Succeeds

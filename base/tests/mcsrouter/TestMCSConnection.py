@@ -13,7 +13,7 @@ from TestUtils import assert_message_not_in_logs
 
 import logging
 
-from modules.mcsrouter.mcsrouter.mcsclient.datafeeds import Datafeeds
+
 
 logger = logging.getLogger("TestMCSConnection")
 
@@ -23,6 +23,7 @@ import mcsrouter.mcsclient.mcs_exception
 import mcsrouter.mcsclient.mcs_connection
 from mcsrouter.mcsclient.mcs_connection import EnvelopeHandler
 import mcsrouter.mcsclient.responses
+import mcsrouter.mcsclient.datafeeds
 
 # Stop the mcs router tests writing to disk
 class ConfigWithoutSave(mcsrouter.utils.config.Config):
@@ -316,27 +317,71 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
     def test_send_datafeeds_sends_result_when_body_valid(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
-        # df = SimpleNamespace(m_json_body_size=12, remove_response_file=dummy_function)
-
-        #responses = [response]
-        # self.assertEqual(len(datafeed), 1)
-        # try:
-        #     import modules.mcsrouter.mcsrouter.mcsclient.datafeeds
-        #     import modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds
-        #     # import modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds
-        # except:
-        #     import mcsrouter.mcsclient.datafeeds
-        #
-        # df = Datafeeds("a")
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
         some_time_in_the_future = "2601033100"
-        datafeed_container = Datafeeds(feed_id)
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
-        #dummy_function plays the roll of response.remove_response_file
-        # self.assertEqual(dummy_function.call_count, 1)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeeds._datafeed_result_is_alive", return_value=False)
+    def test_send_datafeeds_does_not_send_old_result_files(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = "2601033100"
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
+        datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertFalse(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeeds._datafeed_result_is_too_large", return_value=True)
+    def test_send_datafeeds_does_not_send_result_files_that_are_too_large(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = "2601033100"
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
+        datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertFalse(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
+
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeed.get_json_body_size", return_value=6)
+    @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeeds.get_max_backlog", return_value=20)
+    def test_send_datafeeds_prunes_backlog_before_sending(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = 2601033100
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
+        for i in range(4):
+            timestamp = str(some_time_in_the_future + i)
+            file_path = f"{feed_id}-{timestamp}.json"
+            self.assertTrue(datafeed_container.add_datafeed_result(file_path, feed_id, timestamp, content))
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.call_count, 3)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeed.get_json_body_size", return_value=6)
+    @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeeds.get_max_backlog", return_value=20)
+    def test_send_datafeeds_prunes_backlog_before_sending(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = 2601033100
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
+        for i in range(4):
+            timestamp = str(some_time_in_the_future + i)
+            file_path = f"{feed_id}-{timestamp}.json"
+            self.assertTrue(datafeed_container.add_datafeed_result(file_path, feed_id, timestamp, content))
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.call_count, 3)
+
 
 if __name__ == '__main__':
     unittest.main()

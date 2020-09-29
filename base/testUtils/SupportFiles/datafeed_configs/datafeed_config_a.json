@@ -1,0 +1,7 @@
+{
+  "retention_seconds": 1209600,
+  "max_backlog_bytes": 200,
+  "max_send_freq_seconds": 1,
+  "max_upload_bytes": 100,
+  "max_item_size_bytes": 20
+}

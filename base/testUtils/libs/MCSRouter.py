@@ -704,14 +704,14 @@ class MCSRouter(object):
         return self.__send_edr_response(app_id, correlation_id, edr_resonse_with_special_characters)
 
 
-    def send_xdr_datafeed_result(self, datafeed_id, timestamp, content=DUMMY_XDR_DATAFEED_RESULT):
+    def send_xdr_datafeed_result(self, datafeed_id, timestamp, content=""):
         file_name = "{}-{}.json".format(datafeed_id, timestamp)
         logger.info("Sending fake xdr datafeed result, filename: {}, content: {}".format(file_name, content))
         datafeed_file = os.path.join(self.tmp_path, file_name)
         with open(datafeed_file, "w") as f:
             f.write(content)
         shutil.move(datafeed_file, os.path.join(self.mcs_dir, "datafeed", file_name))
-        #return content
+        return content
 
     def send_alc_status(self, res):
         status_file = os.path.join(self.tmp_path, self.alc_status_file)

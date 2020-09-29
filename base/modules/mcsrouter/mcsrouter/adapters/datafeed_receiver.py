@@ -25,6 +25,11 @@ def remove_datafeed_file(file_path):
         except OSError as error:
             LOGGER.warning("Could not remove datafeed json file \"{}\". Error: {}".format(file_path, str(error)))
 
+def pending_files():
+    datafeed_dir = os.path.join(path_manager.datafeed_dir())
+    number_of_files = len(os.listdir(datafeed_dir))
+    return number_of_files > 0
+
 def receive():
     """
     This function is to be used as a generator in for loops to yield a tuple
@@ -47,7 +52,7 @@ def receive():
                     validate_string_as_json(body)
                     yield file_path, datafeed_id, timestamp, body
             except (json.JSONDecodeError, UnicodeDecodeError) as error:
-                LOGGER.error("Failed to load response json file \"{}\". Error: {}".format(file_path, str(error)))
+                LOGGER.error("Failed to load datafeed json file \"{}\". Error: {}".format(file_path, str(error)))
                 remove_datafeed_file(file_path)
             except OSError as error:
                 # OSErrors can happen here due to insufficient permissions or the file is no longer there.
