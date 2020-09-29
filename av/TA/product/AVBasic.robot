@@ -248,10 +248,7 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
 
     Log To Console  ${telemetryJson}
 
-    # There is a bug in Centos7 which means we're scanning root twice. Uncomment this when that's fixed
-    # Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
-    ${key_value} =  Get From Dictionary     ${telemetryJson}   threat-eicar-count
-    Should Not Be Equal As Integers     ${key_value}   0
+    Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
 
     ${result} =   Terminate Process  ${handle}
 
