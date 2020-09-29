@@ -33,6 +33,25 @@ AV plugin runs scan now
     Check AV Plugin Installed With Base
     Configure and check scan now
 
+
+AV plugin runs scan now while CLS is running
+    [Teardown]  Run Keywords    AV And Base Teardown
+    ...         AND             Remove Files /tmp/encoded_eicars/ /tmp/three_hundred_eicars/
+    Check AV Plugin Installed With Base
+
+    #create enough files in /tmp/ to keep avscanner busy
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
+    create encoded eicars
+
+    ${cls_handle} =     Start Process  /usr/local/bin/avscanner  /tmp/
+    Send Sav Action To Base  ScanNow_Action.xml
+
+    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
+    Process Should Be Running   ${cls_handle}
+    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
+    Wait Until AV Plugin Log Contains  Sending scan complete
+
+
 AV plugin runs scan now twice consecutively
     Check AV Plugin Installed With Base
     Configure and check scan now
@@ -61,24 +80,7 @@ AV plugin attempts to run scan now twice simultaneously
     ${count} =  Get Line Count   ${lines}
     Should Be Equal As Integers  ${1}  ${count}
 
-AV plugin runs scheduled scan
-    Check AV Plugin Installed With Base
-    Send Sav Policy With Imminent Scheduled Scan To Base
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated
-    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=90
-    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
 
-AV plugin runs scheduled scan after restart
-    Check AV Plugin Installed With Base
-    Send Sav Policy With Imminent Scheduled Scan To Base
-    Stop AV Plugin
-    Remove File    ${AV_LOG_PATH}
-    Start AV Plugin
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated
-    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=90
-    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
 
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
@@ -257,9 +259,7 @@ AV Plugin Reports encoded eicars To Base
 
    Check AV Plugin Installed With Base
 
-   ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh  stderr=STDOUT
-   Should Be Equal As Integers  ${result.rc}  0
-   Log  ${result.stdout}
+   Create Encoded Eicars
 
    ${expected_count} =  Count Eicars in Directory  /tmp/encoded_eicars/
    Should Be True  ${expected_count} > 0
@@ -301,13 +301,6 @@ AV Plugin Can Send Telemetry
 
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
-
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-
-    Dictionary Should Contain Key   ${avDict}   version
-    Dictionary Should Contain Key   ${avDict}   ml-pe-model-hash
 
 
 AV plugin Saves and Restores Scan Now Counter

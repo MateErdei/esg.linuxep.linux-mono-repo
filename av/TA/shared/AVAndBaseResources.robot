@@ -49,3 +49,8 @@ Validate latest Event
     ${parsedXml}=  parse xml  ${eventXml}
     Should Be Equal  ${parsedXml.tag}  event
     ELEMENT TEXT SHOULD MATCH  source=${parsedXml}  pattern=Scan Now  normalize_whitespace=True  xpath=scanComplete
+
+Create Encoded Eicars
+   ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh  stderr=STDOUT
+   Should Be Equal As Integers  ${result.rc}  0
+   Log  ${result.stdout}
