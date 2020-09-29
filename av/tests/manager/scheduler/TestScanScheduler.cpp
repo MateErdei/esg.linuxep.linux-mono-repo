@@ -69,6 +69,53 @@ namespace
                             </config>
                             )MULTILINE");
     };
+
+    int count_lines(std::ifstream& file)
+    {
+        if (file.bad())
+        {
+            return 0;
+        }
+        int lines = 0;
+        std::string line;
+        while (std::getline(file, line))
+        {
+            lines++;
+        }
+        return lines;
+    }
+
+    int count_lines(const std::string& filename)
+    {
+        std::ifstream file(filename);
+        EXPECT_TRUE(file.good());
+        return count_lines(file);
+    }
+
+    void create_fake_file_walker(const fs::path& scanLauncherPath, const fs::path& log_file)
+    {
+        std::ofstream scanLauncherFs(scanLauncherPath);
+        scanLauncherFs << "#!/bin/bash\n";
+        scanLauncherFs << "sleep 1\n";
+        scanLauncherFs << "echo $$ >> " << log_file << '\n';
+        scanLauncherFs.close();
+        fs::permissions(scanLauncherPath, fs::perms::owner_all | fs::perms::group_all);
+    }
+}
+
+TEST_F(TestScanScheduler, findNextTime) //NOLINT
+{
+    FakeScanCompletion scanCompletion;
+
+    ScanScheduler scheduler{scanCompletion};
+
+    ScheduledScanConfiguration scheduledScanConfiguration(m_scheduledScanPolicy);
+    scheduler.updateConfig(scheduledScanConfiguration);
+
+    struct timespec spec{};
+    ASSERT_NO_THROW(scheduler.findNextTime(spec));
+    ASSERT_EQ(spec.tv_nsec, 0);
+    ASSERT_EQ(spec.tv_sec, 3600);
 }
 
 TEST_F(TestScanScheduler, scanNow) //NOLINT
@@ -120,12 +167,7 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
     ::unlink(log_file.c_str());
 
     fs::path scanLauncherPath = scanLauncherDir / "scheduled_file_walker_launcher";
-    std::ofstream scanLauncherFs(scanLauncherPath);
-    scanLauncherFs << "#!/bin/bash\n";
-    scanLauncherFs << "sleep 1\n";
-    scanLauncherFs << "echo $$ >> " << log_file << '\n';
-    scanLauncherFs.close();
-    fs::permissions(scanLauncherPath, fs::perms::owner_all | fs::perms::group_all);
+    create_fake_file_walker(scanLauncherPath, log_file);
 
     FakeScanCompletion scanCompletion;
 
@@ -151,12 +193,7 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
     // Check the actual script only ran once
     std::ifstream read_log_file(log_file);
     ASSERT_TRUE(read_log_file.good());
-    int lines = 0;
-    std::string line;
-    while (std::getline(read_log_file, line))
-    {
-        lines++;
-    }
+    int lines = count_lines(read_log_file);
     EXPECT_EQ(lines, 1);
 }
 
@@ -196,21 +233,6 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
     std::cerr.rdbuf(sbuf);
 }
 
-TEST_F(TestScanScheduler, findNextTime) //NOLINT
-{
-    FakeScanCompletion scanCompletion;
-
-    ScanScheduler scheduler{scanCompletion};
-
-    ScheduledScanConfiguration scheduledScanConfiguration(m_scheduledScanPolicy);
-    scheduler.updateConfig(scheduledScanConfiguration);
-
-    struct timespec spec{};
-    ASSERT_NO_THROW(scheduler.findNextTime(spec));
-    ASSERT_EQ(spec.tv_nsec, 0);
-    ASSERT_EQ(spec.tv_sec, 3600);
-}
-
 namespace
 {
     class WeirdTimeScanScheduler : public ScanScheduler
@@ -237,6 +259,7 @@ namespace
             return 1;
         }
     };
+
 }
 
 TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
@@ -253,12 +276,7 @@ TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
     ::unlink(log_file.c_str());
 
     fs::path scanLauncherPath = scanLauncherDir / "scheduled_file_walker_launcher";
-    std::ofstream scanLauncherFs(scanLauncherPath);
-    scanLauncherFs << "#!/bin/bash\n";
-    scanLauncherFs << "sleep 1\n";
-    scanLauncherFs << "echo $$ >> " << log_file << '\n';
-    scanLauncherFs.close();
-    fs::permissions(scanLauncherPath, fs::perms::owner_all | fs::perms::group_all);
+    create_fake_file_walker(scanLauncherPath, log_file);
 
     FakeScanCompletion scanCompletion;
 
@@ -278,13 +296,46 @@ TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
     EXPECT_EQ(scanCompletion.m_count, 1);
 
     // Check the actual script only ran once
-    std::ifstream read_log_file(log_file);
-    ASSERT_TRUE(read_log_file.good());
-    int lines = 0;
-    std::string line;
-    while (std::getline(read_log_file, line))
-    {
-        lines++;
-    }
+    int lines = count_lines(log_file);
     EXPECT_EQ(lines, 1);
+}
+
+TEST_F(TestScanScheduler, runsScheduledScanAndScanNow) //NOLINT
+{
+    UsingMemoryAppender holder(*this);
+
+    fs::path pluginInstall = "/tmp/TestScanScheduler";
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+    fs::path scanLauncherDir = pluginInstall / "sbin";
+    fs::create_directories(scanLauncherDir);
+
+    fs::path log_file = pluginInstall / "scan.log";
+    ::unlink(log_file.c_str());
+
+    fs::path scanLauncherPath = scanLauncherDir / "scheduled_file_walker_launcher";
+    create_fake_file_walker(scanLauncherPath, log_file);
+
+    FakeScanCompletion scanCompletion;
+
+    WeirdTimeScanScheduler scheduler{scanCompletion};
+
+    ScheduledScanConfiguration scheduledScanConfiguration(m_scheduledScanPolicy);
+
+    scheduler.start();
+    scheduler.updateConfig(scheduledScanConfiguration);
+    scheduler.scanNow();
+    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 1000));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000));
+    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 2000000));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 2000000));
+
+    scheduler.requestStop();
+    scheduler.join();
+
+    EXPECT_EQ(scanCompletion.m_count, 2);
+
+    // Check the actual script only ran once
+    int lines = count_lines(log_file);
+    EXPECT_EQ(lines, 2);
 }
