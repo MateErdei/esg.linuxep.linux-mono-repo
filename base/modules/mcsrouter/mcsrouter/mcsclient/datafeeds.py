@@ -64,7 +64,6 @@ class Datafeeds(object):
     def __init__(self, feed_id: str):
         self.__m_feed_id = feed_id
         self.__config_file_path = os.path.join(path_manager.etc_dir(), "datafeed-config-{}.json".format(feed_id))
-        self.__status_file_path = os.path.join(path_manager.var_dir(), "datafeed-status-{}.json".format(feed_id))
         self.__m_datafeeds = []
         self.__m_backoff_until_time = 0
         self._load_config()
