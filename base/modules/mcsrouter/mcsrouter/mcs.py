@@ -415,7 +415,6 @@ class MCS:
         self.stop_push_client(push_client)
         self.__m_command_check_interval.set_on_error(error_count, transient)
 
-
     def run(self):
         """
         run
@@ -432,8 +431,6 @@ class MCS:
             return 2
 
         comms = self.__m_comms
-
-
 
         events = events_module.Events()
         events_timer = events_timer_module.EventsTimer(
@@ -463,10 +460,8 @@ class MCS:
             """
             responses.add_response(*response_args)
 
-        # Container to hold Datafeed objects
-        #datafeeds_scheduled_queries = datafeeds_module.Datafeeds("scheduled_query")
+        # Container to hold Datafeed objects, new datafeeds can be added to the product by including them here.
         all_datafeeds = [
-            # datafeeds_module.Datafeeds("scheduled_query", 60 * 60 * 24 * 14, 1000000000, 5, 10000000, 10000000)
             datafeeds_module.Datafeeds("scheduled_query")
         ]
 
@@ -804,7 +799,6 @@ class MCS:
                     LOGGER.info("Exiting MCS")
                     running = False
                     break
-
                 elif notify_pipe_file_descriptor in ready_to_read:
                     LOGGER.debug("Got directory watch notification")
                     # flush the pipe
@@ -828,7 +822,6 @@ class MCS:
                         before,
                         after - before,
                         timeout)
-
 
         finally:
             if push_client:

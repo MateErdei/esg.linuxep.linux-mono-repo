@@ -116,7 +116,7 @@ def response_dir():
 
 def datafeed_dir():
     """
-    datafeed_dir
+    The directory which plugins write datafeed result files into for MCS to pick up and send
     """
     return os.path.join(mcs_path(), 'datafeed')
 
