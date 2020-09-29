@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-# Copyright 2019 Sophos Plc, Oxford, England.
+# Copyright 2020 Sophos Plc, Oxford, England.
 
 """
-response_receiver Module
+datafeed_receiver Module
 """
 
 import logging
@@ -15,7 +15,7 @@ import mcsrouter.utils.path_manager as path_manager
 LOGGER = logging.getLogger(__name__)
 
 def validate_string_as_json(string):
-    # Will throw a ValueError if the string is not valid json
+    # Will throw a ValueError if the string is not valid json (this includes empty string)
     json.loads(string)
 
 def remove_datafeed_file(file_path):
@@ -33,7 +33,7 @@ def pending_files():
 def receive():
     """
     This function is to be used as a generator in for loops to yield a tuple
-    containing data about DataFeed response files.
+    containing data about DataFeed files.
     """
 
     datafeed_dir = os.path.join(path_manager.datafeed_dir())
@@ -57,7 +57,7 @@ def receive():
             except OSError as error:
                 # OSErrors can happen here due to insufficient permissions or the file is no longer there.
                 # In both situations there is no point attempting to remove the file so just log the error.
-                LOGGER.error("Failed to read response json file \"{}\". Error: {}".format(file_path, str(error)))
+                LOGGER.error("Failed to read datafeed json file \"{}\". Error: {}".format(file_path, str(error)))
         else:
-            LOGGER.warning("Malformed response file: %s", datafeed_file)
+            LOGGER.warning("Malformed datafeed file: %s", datafeed_file)
             remove_datafeed_file(file_path)
