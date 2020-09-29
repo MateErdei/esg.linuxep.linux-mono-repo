@@ -112,10 +112,9 @@ class TelemetryUtils:
         version = get_mtr_version()
         telemetry = {
             "sophosmtr-restarts": int(num_SophosMTR_restarts),
-            "version": version
+            "version": version,
+            "osquery-database-purges": int(num_database_purges)
         }
-        if int(num_database_purges) > 0:
-            telemetry["osquery-database-purges"] = int(num_database_purges)
         if int(num_osquery_restarts_cpu) > -1:
             telemetry["osquery-restarts-cpu"] = int(num_osquery_restarts_cpu)
         if int(num_osquery_restarts_memory) > -1:
