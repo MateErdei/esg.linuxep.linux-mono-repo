@@ -27,12 +27,6 @@ using ::testing::StrictMock;
 
 namespace fs = sophos_filesystem;
 
-namespace
-{
-    class TestCommandLineScanRunner : public CommandLineScannerMemoryAppenderUsingTests
-    {
-    };
-}
 
 class TestNamedScanRunner : public LogInitializedTests
 {
@@ -193,13 +187,78 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
     m_scanOptical = true;
     m_scanRemovable = true;
 
-    std::shared_ptr<::testing::StrictMock<MockMountPoint>> localFixedDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
-    EXPECT_CALL(*localFixedDevice, isHardDisc()).WillOnce(Return(true));
+    using namespace avscanner::avscannerimpl;
+    using namespace avscanner::mountinfo;
+    class MockMountPoint : public IMountPoint
+    {
+    public:
+        std::string m_mountPoint;
+
+        explicit MockMountPoint(const fs::path& fakeMount)
+                : m_mountPoint(fakeMount)
+        {}
+
+        [[nodiscard]] std::string device() const override
+        {
+            return std::__cxx11::string();
+        }
+
+        [[nodiscard]] std::string filesystemType() const override
+        {
+            return std::__cxx11::string();
+        }
+
+        [[nodiscard]] bool isHardDisc() const override
+        {
+            return true;
+        }
+
+        [[nodiscard]] bool isNetwork() const override
+        {
+            return false;
+        }
+
+        [[nodiscard]] bool isOptical() const override
+        {
+            return false;
+        }
+
+        [[nodiscard]] bool isRemovable() const override
+        {
+            return false;
+        }
+
+        [[nodiscard]] bool isSpecial() const override
+        {
+            return false;
+        }
+
+        [[nodiscard]] std::string mountPoint() const override
+        {
+            return m_mountPoint;
+        }
+    };
+
+    class MockMountInfo : public IMountInfo
+    {
+    public:
+        std::vector<std::shared_ptr<IMountPoint>> m_mountPoints;
+        std::vector<std::shared_ptr<IMountPoint>> mountPoints() override
+        {
+            return m_mountPoints;
+        }
+    };
 
     ::capnp::MallocMessageBuilder message;
-    avscanner::mountinfo::IMountPointSharedVector allMountpoints;
-    allMountpoints.push_back(localFixedDevice);
-    allMountpoints.push_back(localFixedDevice);
+
+    std::shared_ptr<MockMountInfo> mountInfo;
+    mountInfo.reset(new MockMountInfo());
+    mountInfo->m_mountPoints.emplace_back(
+            std::make_shared<MockMountPoint>("/test/mount/point/")
+    );
+    mountInfo->m_mountPoints.emplace_back(
+            std::make_shared<MockMountPoint>("/test/mount/point/")
+    );
 
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
             message,
@@ -209,9 +268,14 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
             m_scanOptical,
             m_scanRemovable);
 
+    auto socket = std::make_shared<RecordingMockSocket>();
     NamedScanRunner runner(scanConfigOut);
 
-    EXPECT_EQ(runner.getIncludedMountpoints(allMountpoints).size(), 4);
+    runner.setMountInfo(mountInfo);
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
 }
 
 TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
