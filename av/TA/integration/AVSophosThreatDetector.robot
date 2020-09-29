@@ -43,6 +43,7 @@ Kill sophos_threat_detector
 
 scan GR test file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe
+    run keyword if  ${rc} != ${0}  Log  ${output}
     BuiltIn.Should Be Equal As Integers  ${rc}  ${0}  Failed to scan gui.exe
 
 check sophos_threat_dector log for successful global rep lookup
