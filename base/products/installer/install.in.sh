@@ -459,8 +459,8 @@ versionedcopy_supplement "sspl_flags"
 FEATURES_WH_FLAGS="${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json"
 if [[ -f "${FEATURES_WH_FLAGS}" ]]
 then
-  chmod 400  -f "${FEATURES_WH_FLAGS}"
-  chown "${LOCAL_USER_NAME}:${GROUP_NAME}" -f "${FEATURES_WH_FLAGS}"
+  chmod 400  -f "${FEATURES_WH_FLAGS}"*
+  chown "${LOCAL_USER_NAME}:${GROUP_NAME}" -f "${FEATURES_WH_FLAGS}"*
 fi
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
