@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Common/Threads/AbstractThread.h"
 
+#include <atomic>
 
 namespace unixsocket
 {
@@ -18,6 +19,6 @@ namespace unixsocket
     protected:
         void setIsRunning(bool value);
     private:
-        bool m_isRunning = false;
+        std::atomic_bool m_isRunning = false;
     };
 }
