@@ -160,8 +160,16 @@ namespace Plugin
                         break;
                     }
                     case Task::TaskType::Policy:
-                        LOGDEBUG("Process task Policy");
-                        processALCPolicy(task.m_content, false);
+                        LOGDEBUG("Process task Policy: " << task.m_appId);
+                        LOGDEBUG("Policy Content: " << task.m_content);
+                        if (task.m_appId == "FLAGS")
+                        {
+                            processFlags(task.m_content);
+                        }
+                        else
+                        {
+                            processALCPolicy(task.m_content, false);
+                        }
                         break;
                     case Task::TaskType::Query:
                         LOGDEBUG("Process task Query");
@@ -369,6 +377,12 @@ namespace Plugin
         {
             LOGDEBUG("Option to enable audit collection remains "<< option);
         }
+    }
+
+    void PluginAdapter::processFlags(const std::string& flagsContent)
+    {
+        // TODO:LINUXDAR-2199
+        LOGINFO("Flags: " << flagsContent);
     }
 
     std::string PluginAdapter::waitForTheFirstALCPolicy(

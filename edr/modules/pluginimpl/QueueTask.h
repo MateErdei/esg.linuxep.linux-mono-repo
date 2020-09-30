@@ -27,6 +27,7 @@ namespace Plugin
         TaskType m_taskType;
         std::string m_content;
         std::string m_correlationId="";
+        std::string m_appId="";
     };
 
     class QueueTask

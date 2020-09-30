@@ -1,6 +1,6 @@
 {
   "policyAppIds": [
-    "LiveQuery", "ALC"
+    "LiveQuery", "ALC", "FLAGS"
   ],
   "actionAppIds": [
     "LiveQuery"
