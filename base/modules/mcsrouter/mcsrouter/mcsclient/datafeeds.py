@@ -28,8 +28,11 @@ class Datafeed(object):
 
     def remove_datafeed_file(self):
         if os.path.isfile(self.m_file_path):
-            os.remove(self.m_file_path)
-            LOGGER.debug("Removed {} datafeed file: {}".format(self.m_datafeed_id, self.m_file_path))
+            try:
+                os.remove(self.m_file_path)
+                LOGGER.debug("Removed {} datafeed file: {}".format(self.m_datafeed_id, self.m_file_path))
+            except Exception as ex:
+                LOGGER.error("Could not remove datafeed file: {}".format(self.m_file_path))
 
     def get_command_path(self, endpoint_id):
         """
