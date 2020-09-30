@@ -37,7 +37,8 @@ AV plugin runs scan now
 AV plugin runs scan now while CLS is running
     Check AV Plugin Installed With Base
 
-    ${cls_handle} =     Start Process  /usr/local/bin/avscanner     ${test_input_path} ${test_input_path} ${test_input_path}
+    #Scan something that should take a long time to scan
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /
     Send Sav Action To Base  ScanNow_Action.xml
 
     Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
@@ -48,15 +49,13 @@ AV plugin runs scan now while CLS is running
 
 AV plugin runs CLS while scan now is running
     [Teardown]  Run Keywords    AV And Base Teardown
-    ...         AND             Remove Directory    /tmp/encoded_eicars/    recursive=True
     ...         AND             Remove Directory    /tmp/three_hundred_eicars/  recursive=True
 
     Check AV Plugin Installed With Base
 
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
-    create encoded eicars
 
-    ${cls_handle} =     Start Process  /usr/local/bin/avscanner  /tmp/
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp/three_hundred_eicars/
     Send Sav Action To Base  ScanNow_Action.xml
 
     Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
@@ -140,7 +139,10 @@ AV plugin runs scheduled scan while CLS is running
     Check AV Plugin Installed With Base
 
     Send Sav Policy With Imminent Scheduled Scan To Base
-    ${cls_handle} =     Start Process  /usr/local/bin/avscanner     ${test_input_path} ${test_input_path} ${test_input_path}
+    Wait Until AV Plugin Log Contains   Configured number of Scheduled Scans: 1
+
+    #Scan something that should take ages to scan
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /
 
     Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=90
     Process Should Be Running   ${cls_handle}
@@ -149,17 +151,15 @@ AV plugin runs scheduled scan while CLS is running
 
 AV plugin runs CLS while scheduled scan is running
     [Teardown]  Run Keywords    AV And Base Teardown
-        ...         AND             Remove Directory    /tmp/encoded_eicars/    recursive=True
         ...         AND             Remove Directory    /tmp/three_hundred_eicars/  recursive=True
 
     Check AV Plugin Installed With Base
     Send Sav Policy With Imminent Scheduled Scan To Base
 
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
-    create encoded eicars
 
     Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=90
-    ${cls_handle} =     Start Process  /usr/local/bin/avscanner  /tmp/
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp/three_hundred_eicars/
 
     Process Should Be Running   ${cls_handle}
     Wait for Process    ${cls_handle}

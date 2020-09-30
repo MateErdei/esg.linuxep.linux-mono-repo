@@ -15,6 +15,7 @@ Resource    ComponentSetup.robot
 *** Variables ***
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
+${CLI_SCANNER_PATH}      ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 ${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 ${SCANNOW_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Scan Now.log
