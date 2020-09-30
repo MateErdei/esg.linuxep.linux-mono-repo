@@ -70,7 +70,7 @@ TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
-    datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
+    datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback);
     EXPECT_FALSE(connectionThread.isRunning());
