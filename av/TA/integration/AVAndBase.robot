@@ -36,7 +36,9 @@ AV plugin runs scan now
 
 AV plugin runs scan now while CLS is running
     [Teardown]  Run Keywords    AV And Base Teardown
-    ...         AND             Remove Files /tmp/encoded_eicars/ /tmp/three_hundred_eicars/
+    ...         AND             Remove Directory    /tmp/encoded_eicars/    recursive=True
+    ...         AND             Remove Directory    /tmp/three_hundred_eicars/  recursive=True
+
     Check AV Plugin Installed With Base
 
     #create enough files in /tmp/ to keep avscanner busy
