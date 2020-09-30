@@ -39,16 +39,16 @@ python3 $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_R
 SOPHOS_INSTALL=/opt/sophos-spl
 
 # uninstall
-if [[ -d /opt/sophos-spl ]]
+if [[ -d ${SOPHOS_INSTALL} ]]
 then
-    /opt/sophos-spl/bin/uninstall.sh --force
+    ${SOPHOS_INSTALL}/bin/uninstall.sh --force || rm -rf ${SOPHOS_INSTALL} || failure 4 "Unable to remove old SSPL: $?"
 fi
 
 ## Install Base
-"${SDDS_BASE}/install.sh"
+"${SDDS_BASE}/install.sh" || failure 5 "Unable to install base SSPL: $?"
 
 ## Install AV
-"${SDDS_AV}/install.sh"
+"${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
 
 ## Setup Dev region MCS
 OVERRIDE_FLAG_FILE="${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"

@@ -417,25 +417,13 @@ function build()
     then
         echo "Separate SDDS component"
         [[ -f $SDDS/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
-        cp -a "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
-
-        ## only copy INSTALLSET if it contains lrdata!
-        if [[ -f "$INSTALLSET/files/plugins/av/chroot/susi/distribution_version/version1/lrdata/filerep.dat" ]]
-        then
-            ## Only copy for dev builds - makes it clearer that Prod build have to go to a warehouse or have supplements injected
-            cp -a "$INSTALLSET" output/INSTALL-SET || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
-        else
-            echo "Not copying INSTALL-SET as it doesn't contain LR data"
-        fi
+        cp -r "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
     else
-        echo "Combined installset and SDDS component"
-        [[ -f $INSTALLSET/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
-        cp -a "$INSTALLSET" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
-        cp -a "$INSTALLSET" output/INSTALL-SET || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
+        exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to find SDDS component in build"
     fi
     if [[ -d "${INPUT}/base-sdds" ]]
     then
-        cp -a "${INPUT}/base-sdds"  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
+        cp -r "${INPUT}/base-sdds"  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
     fi
     if [[ -d build64/componenttests ]]
     then
@@ -447,6 +435,8 @@ function build()
         cp -a build64/tools/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy PrintMounts"
     fi
+    mkdir -p output/manualtests
+    cp TA/manual/*.sh TA/manual/*.py output/manualtests/
 
     python3 TA/process_capnp_files.py
 
