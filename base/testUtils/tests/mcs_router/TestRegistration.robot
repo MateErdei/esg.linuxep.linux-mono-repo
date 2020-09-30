@@ -28,7 +28,7 @@ Default Tags  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER
 *** Test Case ***
 Successful Register With Cloud And Correct Status Is Sent Up In Amazon
     [Documentation]  Derived from CLOUD.001_Register_in_cloud.sh
-    [Tags]  AMAZON_LINUX  CENTRAL  MCS
+    [Tags]  AMAZON_LINUX  MCS  MCS_ROUTER  FAKE_CLOUD
     Register With Local Cloud Server
     Check Register Central Log Contains In Order   <aws>  <region>  </region>  <accountId>  </accountId>  <instanceId>  </instanceId>  </aws>
 
