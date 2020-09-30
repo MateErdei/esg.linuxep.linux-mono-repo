@@ -18,7 +18,7 @@ using namespace ::testing;
 
 namespace
 {
-    class TestThreatReporterServerConectionThread : public UnixSocketMemoryAppenderUsingTests
+    class TestThreatReporterServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
     {
     };
 
@@ -29,7 +29,7 @@ namespace
     };
 }
 
-TEST_F(TestThreatReporterServerConectionThread, successful_construction) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, successful_construction) //NOLINT
 {
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -38,7 +38,7 @@ TEST_F(TestThreatReporterServerConectionThread, successful_construction) //NOLIN
     EXPECT_NO_THROW(unixsocket::ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback));
 }
 
-TEST_F(TestThreatReporterServerConectionThread, isRunning_false_after_construction) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, isRunning_false_after_construction) //NOLINT
 {
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -48,7 +48,7 @@ TEST_F(TestThreatReporterServerConectionThread, isRunning_false_after_constructi
     EXPECT_FALSE(connectionThread.isRunning());
 }
 
-TEST_F(TestThreatReporterServerConectionThread, fail_construction_with_bad_fd) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_bad_fd) //NOLINT
 {
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder;
@@ -56,7 +56,7 @@ TEST_F(TestThreatReporterServerConectionThread, fail_construction_with_bad_fd) /
     EXPECT_THROW(ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback), std::runtime_error);
 }
 
-TEST_F(TestThreatReporterServerConectionThread, fail_construction_with_null_factory) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_null_factory) //NOLINT
 {
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -64,7 +64,7 @@ TEST_F(TestThreatReporterServerConectionThread, fail_construction_with_null_fact
     EXPECT_THROW(ThreatReporterServerConnectionThread connectionThread(fdHolder, nullptr), std::runtime_error);
 }
 
-TEST_F(TestThreatReporterServerConectionThread, stop_while_running) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
 {
     const std::string expected = "Closing scanning socket thread";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -85,7 +85,7 @@ TEST_F(TestThreatReporterServerConectionThread, stop_while_running) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestThreatReporterServerConectionThread, eof_while_running) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, eof_while_running) //NOLINT
 {
     const std::string expected = "ThreatReporter Connection closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -103,7 +103,7 @@ TEST_F(TestThreatReporterServerConectionThread, eof_while_running) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestThreatReporterServerConectionThread, send_zero_length) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, send_zero_length) //NOLINT
 {
     const std::string expected = "Ignoring length of zero / No new messages";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -121,7 +121,7 @@ TEST_F(TestThreatReporterServerConectionThread, send_zero_length) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestThreatReporterServerConectionThread, closed_fd) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, closed_fd) //NOLINT
 {
     const std::string expected = "Closing socket, error: 9";
     UsingMemoryAppender memoryAppenderHolder(*this);
