@@ -19,8 +19,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
