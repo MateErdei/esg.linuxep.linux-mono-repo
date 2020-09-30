@@ -38,6 +38,62 @@ Uninstallation of base removes all plugins cleanly
 
     Directory Should Not Exist  ${SOPHOS_INSTALL}
 
+Test Liveresponse Plugin uninstalls cleanly
+    [Tags]  LIVERESPONSE_PLUGIN  UNINSTALL
+    Require Fresh Install
+
+    Install Live Response Directly
+    Check Live Response Plugin Installed
+
+    Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-liveresponse.sh
+    Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-liveresponse.ini
+
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-liveresponse.sh
+
+    Should Be Equal As Integers    ${result.rc}    0        uninstaller failed with ${result.rc}
+
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-liveresponse.sh
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-liveresponse.ini
+    Should Not Exist  ${SOPHOS_INSTALL}/plugins/liveresponse
+
+Test Edr Plugin uninstalls cleanly
+    [Tags]  EDR_PLUGIN   UNINSTALL
+    Require Fresh Install
+
+    Install EDR Directly
+    Wait For EDR to be Installed
+
+    Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
+    Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini
+
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
+
+    Should Be Equal As Integers    ${result.rc}    0        uninstaller failed with ${result.rc}
+
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini
+    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr
+
+Test Mtr Plugin uninstalls cleanly
+    [Tags]  MDR_PLUGIN  UNINSTALL
+    Require Fresh Install
+
+    Block Connection Between EndPoint And FleetManager
+    Install Directly From Component Suite
+    Insert MTR Policy
+    Check MDR component suite running
+
+    Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-MDR.sh
+    Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-MDR.ini
+
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-MDR.sh
+
+    Should Be Equal As Integers    ${result.rc}    0        uninstaller failed with ${result.rc}
+
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-MDR.sh
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-MDR.ini
+    Should Not Exist  ${SOPHOS_INSTALL}/plugins/mtr
+
 Test Uninstall Script Gives Return Code Zero
     [Tags]  UNINSTALL  TAP_TESTS  SMOKE
     Require Fresh Install
