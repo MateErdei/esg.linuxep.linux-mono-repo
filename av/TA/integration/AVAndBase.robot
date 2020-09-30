@@ -64,10 +64,10 @@ AV plugin attempts to run scan now twice simultaneously
 AV plugin runs scheduled scan
     Check AV Plugin Installed With Base
     Send Sav Policy With Imminent Scheduled Scan To Base
-    Wait Until Keyword Succeeds
-    ...  90 secs
-    ...  5 secs
-    ...  AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait until scheduled scan updated
+    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=60
+    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
 
 AV plugin runs scheduled scan after restart
     Check AV Plugin Installed With Base
@@ -75,10 +75,10 @@ AV plugin runs scheduled scan after restart
     Stop AV Plugin
     Remove File    ${AV_LOG_PATH}
     Start AV Plugin
-    Wait Until Keyword Succeeds
-    ...  90 secs
-    ...  5 secs
-    ...  AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait until scheduled scan updated
+    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=60
+    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
 
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
