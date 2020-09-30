@@ -33,7 +33,6 @@ AV plugin runs scan now
     Check AV Plugin Installed With Base
     Configure and check scan now
 
-
 AV plugin runs scan now twice consecutively
     Check AV Plugin Installed With Base
     Configure and check scan now
@@ -62,7 +61,24 @@ AV plugin attempts to run scan now twice simultaneously
     ${count} =  Get Line Count   ${lines}
     Should Be Equal As Integers  ${1}  ${count}
 
+AV plugin runs scheduled scan
+    Check AV Plugin Installed With Base
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    Wait Until Keyword Succeeds
+    ...  90 secs
+    ...  5 secs
+    ...  AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan
 
+AV plugin runs scheduled scan after restart
+    Check AV Plugin Installed With Base
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    Stop AV Plugin
+    Remove File    ${AV_LOG_PATH}
+    Start AV Plugin
+    Wait Until Keyword Succeeds
+    ...  90 secs
+    ...  5 secs
+    ...  AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan
 
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
