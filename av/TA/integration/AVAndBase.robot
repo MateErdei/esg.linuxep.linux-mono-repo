@@ -35,47 +35,16 @@ AV plugin runs scan now
 
 
 AV plugin runs scan now while CLS is running
-    [Teardown]  Run Keywords    AV And Base Teardown
-    ...         AND             Remove Directory    /tmp/encoded_eicars/    recursive=True
-    ...         AND             Remove Directory    /tmp/three_hundred_eicars/  recursive=True
-
     Check AV Plugin Installed With Base
 
-    #create enough files in /tmp/ to keep avscanner busy
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
-    create encoded eicars
-
-    ${cls_handle} =     Start Process  /usr/local/bin/avscanner  /tmp/
+    ${cls_handle} =     Start Process  /usr/local/bin/avscanner  ${test_input_path} ${test_input_path} ${test_input_path}
     Send Sav Action To Base  ScanNow_Action.xml
 
     Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
     Process Should Be Running   ${cls_handle}
-    Wait for Process    ${cls_handle}
     Wait Until AV Plugin Log Contains  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains  Sending scan complete
-    Process Should Be Stopped   ${cls_handle}
-
-AV plugin runs scan now while CLS is running
-    [Teardown]  Run Keywords    AV And Base Teardown
-    ...         AND             Remove Directory    /tmp/encoded_eicars/    recursive=True
-    ...         AND             Remove Directory    /tmp/three_hundred_eicars/  recursive=True
-
-    Check AV Plugin Installed With Base
-
-    #create enough files in /tmp/ to keep avscanner busy
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
-    create encoded eicars
-
-    Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
-
-    ${cls_handle} =     Start Process  /usr/local/bin/avscanner  /tmp/
-
-    Process Should Be Running   ${cls_handle}
-    Wait for Process    ${cls_handle}
-    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
-    Wait Until AV Plugin Log Contains  Sending scan complete
-    Process Should Be Stopped   ${cls_handle}
+    ${result} =   Terminate Process  ${cls_handle}
 
 AV plugin runs CLS while scan now is running
     [Teardown]  Run Keywords    AV And Base Teardown
@@ -166,6 +135,17 @@ AV Configures No Scheduled Scan Correctly
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans: 0
+
+AV plugin runs scheduled scan while CLS is running
+    Check AV Plugin Installed With Base
+
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    ${cls_handle} =     Start Process  /usr/local/bin/avscanner  ${test_input_path} ${test_input_path} ${test_input_path}
+
+    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=90
+    Process Should Be Running   ${cls_handle}
+    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
+    ${result} =   Terminate Process  ${cls_handle}
 
 AV plugin runs CLS while scheduled scan is running
     [Teardown]  Run Keywords    AV And Base Teardown
