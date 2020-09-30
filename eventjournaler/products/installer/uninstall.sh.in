@@ -33,9 +33,11 @@ do
 done
 UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
+SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 
 rm -rf "$UNINSTALLDIR"
 rm -r "$SYMLINK"
+rm -r "$SYMLINKVERSION"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
