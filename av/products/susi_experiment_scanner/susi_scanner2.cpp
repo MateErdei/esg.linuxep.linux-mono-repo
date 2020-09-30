@@ -88,7 +88,7 @@ static void attempt_dns()
         }
         assert (canon_name != nullptr);
         char addrstr[255];
-        void* ptr;
+        void* ptr = nullptr;
         switch (res->ai_family)
         {
             case AF_INET:
@@ -98,10 +98,12 @@ static void attempt_dns()
                 ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
                 break;
         }
-        inet_ntop(res->ai_family, ptr, addrstr, sizeof(addrstr));
+        if (ptr != nullptr)
+        {
+            inet_ntop(res->ai_family, ptr, addrstr, sizeof(addrstr));
 
-        printf("IPv%d address: %s (%s)\n", res->ai_family == PF_INET6 ? 6 : 4,
-                addrstr, canon_name);
+            printf("IPv%d address: %s (%s)\n", res->ai_family == PF_INET6 ? 6 : 4, addrstr, canon_name);
+        }
     }
 
     freeaddrinfo(result);
