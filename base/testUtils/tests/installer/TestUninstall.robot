@@ -47,6 +47,7 @@ Test Liveresponse Plugin uninstalls cleanly
 
     Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-liveresponse.sh
     Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-liveresponse.ini
+    Should Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/liveresponse.ipc
 
     ${result} =    Run Process    ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-liveresponse.sh
 
@@ -55,6 +56,8 @@ Test Liveresponse Plugin uninstalls cleanly
     Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-liveresponse.sh
     Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-liveresponse.ini
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/liveresponse
+    Should Not Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/liveresponse.ipc
+
 
 Test Edr Plugin uninstalls cleanly
     [Tags]  EDR_PLUGIN   UNINSTALL
@@ -65,6 +68,8 @@ Test Edr Plugin uninstalls cleanly
 
     Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
     Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini
+    Should Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
+
 
     ${result} =    Run Process    ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
 
@@ -73,6 +78,8 @@ Test Edr Plugin uninstalls cleanly
     Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
     Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr
+    Should Not Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
+
 
 Test Mtr Plugin uninstalls cleanly
     [Tags]  MDR_PLUGIN  UNINSTALL
@@ -85,6 +92,7 @@ Test Mtr Plugin uninstalls cleanly
 
     Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-MDR.sh
     Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-MDR.ini
+    Should Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/mtr.ipc
 
     ${result} =    Run Process    ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-MDR.sh
 
@@ -93,6 +101,7 @@ Test Mtr Plugin uninstalls cleanly
     Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-MDR.sh
     Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-MDR.ini
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/mtr
+    Should Not Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/mtr.ipc
 
 Test Uninstall Script Gives Return Code Zero
     [Tags]  UNINSTALL  TAP_TESTS  SMOKE
