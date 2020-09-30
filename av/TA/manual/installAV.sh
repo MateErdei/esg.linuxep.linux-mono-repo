@@ -32,7 +32,7 @@ SDDS_BASE=${AV_ROOT}/base-sdds
 [[ -f $SDDS_BASE/install.sh ]] || failure 1 "Can't find SDDS_BASE/install.sh: $SDDS_BASE/install.sh"
 
 SDDS_AV=${AV_ROOT}/INSTALL-SET
-python3 $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.."
+python3 $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.." || failure 2 "Failed to create install-set: $?"
 [[ -d $SDDS_AV ]] || failure 2 "Can't find SDDS_AV: $SDDS_AV"
 [[ -f $SDDS_AV/install.sh ]] || failure 3 "Can't find $SDDS_AV/install.sh"
 

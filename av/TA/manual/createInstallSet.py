@@ -46,7 +46,9 @@ def verify_install_set(install_set, sdds_component=None):
 
     dest = susi_dir(install_set)
     for x in b"vdb", b"mlmodel", b"lrdata":
-        if not os.path.isdir(os.path.join(dest, x)):
+        p = os.path.join(dest, x)
+        print("Checking if %s exists" % p, file=sys.stderr)
+        if not os.path.isdir(p):
             return False
 
     # Compare manifest.dat inside sdds_component
@@ -81,6 +83,7 @@ def create_install_set(install_set, sdds_component, base):
 
 def create_install_set_if_required(install_set, sdds_component, base):
     updated = download_supplements(base)
+    print("Finished downloading supplements:", updated)
     if verify_install_set(install_set, sdds_component) and not updated:
         return 0
     return create_install_set(install_set, sdds_component, base)
