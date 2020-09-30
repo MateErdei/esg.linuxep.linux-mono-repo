@@ -40,11 +40,11 @@ def read_flags_file(file_path):
             body = file_to_read.read()
             return json.loads(body)
     except (json.JSONDecodeError, UnicodeDecodeError) as error:
-        LOGGER.error("Failed to load json file \"{}\". Error: {}".format(file_path, str(error)))
+        LOGGER.warning("Failed to load json file \"{}\". Error: {}".format(file_path, str(error)))
     except OSError as error:
         # OSErrors can happen here due to insufficient permissions or the file is no longer there.
         # In both situations there is no point attempting to remove the file so just log the error.
-        LOGGER.error("Failed to read json file \"{}\". Error: {}".format(file_path, str(error)))
+        LOGGER.warning("Failed to read json file \"{}\". Error: {}".format(file_path, str(error)))
     return {}
 
 def create_comparable_dicts(mcs_dict, warehouse_dict):

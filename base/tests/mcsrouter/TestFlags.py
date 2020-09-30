@@ -131,26 +131,26 @@ class TestFlags(unittest.TestCase):
         content = flags.read_flags_file("/tmp/mcs-flags.json")
         self.assertDictEqual(content, {"endpoint.flag1.enabled": False})
 
-    @mock.patch("logging.Logger.error")
+    @mock.patch("logging.Logger.warning")
     @mock.patch('builtins.open', new_callable=mock_open, read_data='{"endpoint.flag1.enablethisisntvaliddfalse"}')
     def test_read_flags_file_returns_empty_dict_when_json_invalid(self, *mockargs):
         content = flags.read_flags_file("/tmp/mcs-flags.json")
         self.assertDictEqual(content, {})
-        self.assertTrue(logging.Logger.error.called)
+        self.assertTrue(logging.Logger.warning.called)
 
-    @mock.patch("logging.Logger.error")
+    @mock.patch("logging.Logger.warning")
     @mock.patch('builtins.open', new_callable=mock_open, read_data='')
     def test_read_flags_file_returns_empty_dict_when_file_empty(self, *mockargs):
         content = flags.read_flags_file("/tmp/mcs-flags.json")
         self.assertDictEqual(content, {})
         # An empty file with throw a UnicodeDecodeError when the code tries to json.load
-        self.assertTrue(logging.Logger.error.called)
+        self.assertTrue(logging.Logger.warning.called)
 
-    @mock.patch("logging.Logger.error")
+    @mock.patch("logging.Logger.warning")
     def test_read_flags_file_returns_empty_dict_when_file_does_not_exist(self, *mockargs):
         content = flags.read_flags_file("/tmp/nonexistentfile.json")
         self.assertDictEqual(content, {})
-        self.assertTrue(logging.Logger.error.called)
+        self.assertTrue(logging.Logger.warning.called)
 
     @mock.patch('mcsrouter.utils.atomic_write.atomic_write')
     @mock.patch('os.chmod')
