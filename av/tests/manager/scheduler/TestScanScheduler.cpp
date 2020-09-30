@@ -37,6 +37,9 @@ namespace
     class TestScanScheduler : public MemoryAppenderUsingTestsTemplate<LOG_CATEGORY>
     {
         public:
+            TestScanScheduler();
+
+
             Common::XmlUtilities::AttributesMap m_scheduledScanPolicy = Common::XmlUtilities::parseXml(
                 R"MULTILINE(<?xml version="1.0"?>
                             <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
@@ -68,7 +71,16 @@ namespace
                               <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
                             </config>
                             )MULTILINE");
+
+        fs::path m_pluginInstall;
     };
+    TestScanScheduler::TestScanScheduler()
+        : m_pluginInstall("/tmp/TestScanScheduler")
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        appConfig.setData("PLUGIN_INSTALL", m_pluginInstall);
+
+    }
 
     int count_lines(std::ifstream& file)
     {
@@ -101,6 +113,21 @@ namespace
         scanLauncherFs.close();
         fs::permissions(scanLauncherPath, fs::perms::owner_all | fs::perms::group_all);
     }
+
+    class WithFakeFileWalker
+    {
+    public:
+        fs::path m_scanLauncherPath;
+        WithFakeFileWalker(const fs::path& scanLauncherPath, const fs::path& log_file)
+            : m_scanLauncherPath(scanLauncherPath)
+        {
+            create_fake_file_walker(scanLauncherPath, log_file);
+        }
+        ~WithFakeFileWalker()
+        {
+            ::unlink(m_scanLauncherPath.c_str());
+        }
+    };
 }
 
 TEST_F(TestScanScheduler, findNextTime) //NOLINT
@@ -129,45 +156,31 @@ TEST_F(TestScanScheduler, scanNow) //NOLINT
     scheduler.start();
 
     scheduler.updateConfig(scheduledScanConfiguration);
+
+    UsingMemoryAppender holder(*this);
+
     scheduler.scanNow();
 
-    // Redirect stderr to buffer
-    std::stringstream buffer;
-    std::streambuf *sbuf = std::cerr.rdbuf();
-    std::cerr.rdbuf(buffer.rdbuf());
-
-    int count = 0;
-    while(buffer.str().find("Evaluating Scan Now") == std::string::npos && count < 200)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        count++;
-    }
-
-    EXPECT_THAT(buffer.str(), testing::HasSubstr("Starting scan Scan Now"));
-    EXPECT_THAT(buffer.str(), testing::HasSubstr("Completed scan Scan Now"));
+    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 1000000));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000000));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 1000000));
 
     scheduler.requestStop();
     scheduler.join();
-
-    // Reset stderr
-    std::cerr.rdbuf(sbuf);
 }
 
 TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
 {
     UsingMemoryAppender holder(*this);
 
-    fs::path pluginInstall = "/tmp/TestScanScheduler";
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("PLUGIN_INSTALL", pluginInstall);
-    fs::path scanLauncherDir = pluginInstall / "sbin";
+    fs::path scanLauncherDir = m_pluginInstall / "sbin";
     fs::create_directories(scanLauncherDir);
 
-    fs::path log_file = pluginInstall / "scan.log";
+    fs::path log_file = m_pluginInstall / "scan.log";
     ::unlink(log_file.c_str());
 
     fs::path scanLauncherPath = scanLauncherDir / "scheduled_file_walker_launcher";
-    create_fake_file_walker(scanLauncherPath, log_file);
+    WithFakeFileWalker fakeFileWalker(scanLauncherPath, log_file);
 
     FakeScanCompletion scanCompletion;
 
@@ -199,6 +212,9 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
 
 TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
 {
+    // Clear any pending telemetry
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+
     FakeScanCompletion scanCompletion;
 
     ScanScheduler scheduler{scanCompletion};
@@ -225,7 +241,7 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
     scheduler.requestStop();
     scheduler.join();
 
-    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     std::string ExpectedTelemetry{ R"sophos({"scan-now-count":1})sophos" };
     EXPECT_EQ(telemetryResult, ExpectedTelemetry);
 
