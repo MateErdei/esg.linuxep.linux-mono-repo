@@ -128,7 +128,7 @@ def generate_manifest_new_api(dist, file_objects=None):
     result = subprocess.run(
         ['sb_manifest_sign', '--folder', dist, '--output', manifest_path, '--exclusions', exclusions]
         , stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env,
-        timeout=15
+        timeout=30
     )
     result.check_returncode()
     new_contents = read(manifest_path)
