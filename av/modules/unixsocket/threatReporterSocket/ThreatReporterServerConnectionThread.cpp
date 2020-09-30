@@ -95,7 +95,7 @@ static scan_messages::ServerThreatDetected parseDetection(kj::Array<capnp::word>
 
 void ThreatReporterServerConnectionThread::run()
 {
-    m_isRunning = true;
+    setIsRunning(true);
     announceThreadStarted();
 
     datatypes::AutoFd socket_fd(std::move(m_fd));
@@ -197,5 +197,5 @@ void ThreatReporterServerConnectionThread::run()
         }
     }
 
-    m_isRunning = false;
+    setIsRunning(false);
 }

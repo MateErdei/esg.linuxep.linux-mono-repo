@@ -140,7 +140,7 @@ static unixsocket::ScanRequestObject parseRequest(kj::Array<capnp::word>& proto_
 
 void unixsocket::ScanningServerConnectionThread::run()
 {
-    m_isRunning = true;
+    setIsRunning(true);
     announceThreadStarted();
 
     try
@@ -171,7 +171,7 @@ void unixsocket::ScanningServerConnectionThread::run()
         // Fatal since this means we have thrown something that isn't a subclass of std::exception
         LOGFATAL("Terminated ScanningServerConnectionThread with unknown exception");
     }
-    m_isRunning = false;
+    setIsRunning(false);
 }
 
 void unixsocket::ScanningServerConnectionThread::inner_run()

@@ -14,9 +14,10 @@ namespace unixsocket
     class BaseServerConnectionThread : public Common::Threads::AbstractThread
     {
     public:
-        bool isRunning() { return m_isRunning; }
-
+        [[nodiscard]] bool isRunning() const;
     protected:
+        void setIsRunning(bool value);
+    private:
         bool m_isRunning = false;
     };
 }
