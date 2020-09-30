@@ -417,26 +417,26 @@ function build()
     then
         echo "Separate SDDS component"
         [[ -f $SDDS/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
-        cp -r "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
+        cp -rL "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
     else
         exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to find SDDS component in build"
     fi
     if [[ -d "${INPUT}/base-sdds" ]]
     then
-        cp -r "${INPUT}/base-sdds"  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
+        cp -rL "${INPUT}/base-sdds"  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
     fi
     if [[ -d build64/componenttests ]]
     then
-        cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
+        cp -rL build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
     if [[ -x build64/tools/avscanner/mountinfoimpl/PrintMounts ]]
     then
         mkdir -p output/componenttests
-        cp -a build64/tools/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
+        cp -rL build64/tools/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy PrintMounts"
     fi
     mkdir -p output/manualtests
-    cp TA/manual/*.sh TA/manual/*.py output/manualtests/
+    cp -L TA/manual/*.sh TA/manual/*.py output/manualtests/
 
     python3 TA/process_capnp_files.py
 
