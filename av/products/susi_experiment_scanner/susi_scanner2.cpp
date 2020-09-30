@@ -16,10 +16,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <vector>
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+#ifndef   NI_MAXHOST
+#define   NI_MAXHOST 1025
+#endif
 
 namespace fs = sophos_filesystem;
 
@@ -47,11 +55,47 @@ static std::string getPluginInstall()
     return "/opt/sophos-spl/plugins/av";
 }
 
+static void attempt_dns()
+{
+    struct addrinfo* result;
+    struct addrinfo* res;
+    int error;
+
+    /* resolve the domain name into a list of addresses */
+    error = getaddrinfo("4.sophosxl.net", NULL, NULL, &result);
+    if (error != 0) {
+        if (error == EAI_SYSTEM) {
+            perror("getaddrinfo");
+        } else {
+            fprintf(stderr, "error in getaddrinfo: %s\n", gai_strerror(error));
+        }
+        exit(EXIT_FAILURE);
+    }
+
+    /* loop over all returned results and do inverse lookup */
+    for (res = result; res != NULL; res = res->ai_next) {
+        char hostname[NI_MAXHOST];
+        error = getnameinfo(res->ai_addr, res->ai_addrlen, hostname, NI_MAXHOST, NULL, 0, 0);
+        if (error != 0) {
+            fprintf(stderr, "error in getnameinfo: %s\n", gai_strerror(error));
+            continue;
+        }
+        if (*hostname != '\0')
+            printf("hostname: %s\n", hostname);
+    }
+
+    freeaddrinfo(result);
+}
+
 static int scan(const char* filename, const char* chroot)
 {
     PRINT("Scanning "<< filename);
     datatypes::AutoFd fd(::open(filename, O_RDONLY));
     assert(fd.get() >= 0);
+
+    // Do DNS lookup for 4.sophosxl.net
+    attempt_dns();
+
     if (chroot != nullptr)
     {
         PRINT("chroot: "<< chroot);
