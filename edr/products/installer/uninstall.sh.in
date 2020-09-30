@@ -19,16 +19,12 @@ then
 fi
 
 SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_LOCATION" )" >/dev/null && pwd )"
-[[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
+
 BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/bin}"
 DOWNGRADE=0
-FORCE=0
 while [[ $# -ge 1 ]]
 do
     case $1 in
-        --force)
-            FORCE=1
-            ;;
         --downgrade)
             DOWNGRADE=1
             ;;
@@ -40,71 +36,8 @@ SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
-CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
-if (( $DOWNGRADE == 1 ))
-then
-  if [[ -f $CONFIG_FILE ]]
-  then
-    mkdir ${SOPHOS_INSTALL}/tmp/edr-downgrade/
-    cp $CONFIG_FILE ${SOPHOS_INSTALL}/tmp/edr-downgrade/
-  fi
-fi
 
 rm -rf "$UNINSTALLDIR"
 rm -r "$SYMLINK"
 rm -r "$SYMLINKVERSION"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
-
-if (( $DOWNGRADE == 1 ))
-then
-  if [[ -f ${SOPHOS_INSTALL}/tmp/edr-downgrade/plugin.conf ]]
-  then
-    mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc
-    mv ${SOPHOS_INSTALL}/tmp/edr-downgrade/plugin.conf ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/
-    rm -rf ${SOPHOS_INSTALL}/tmp/edr-downgrade/
-  fi
-fi
-
-STATUS_XML=${BASEDIR}/base/mcs/status/LiveQuery_status.xml
-[ -f ${STATUS_XML} ] && rm -f ${STATUS_XML}
-CACHED_STATUS_XML=${BASEDIR}/base/mcs/status/cache/LiveQuery.xml
-[ -f ${CACHED_STATUS_XML} ] && rm -f ${CACHED_STATUS_XML}
-
-# Check for any OSQuery processes running and attempt to kill them
-OSQUERY_PATH=${BASEDIR}/plugins/edr/osquery/bin/osquery
-for i in {0..2}
-do
-  PROCESS=$(pgrep -f ${OSQUERY_PATH})
-  if [[ -z ${PROCESS} ]]
-  then
-    break
-  else
-    kill ${PROCESS}
-    sleep 1
-  fi
-done
-pgrep -f ${OSQUERY_PATH} | xargs -i echo "Could not kill OSQuery process after 3 attempts: {}"
-
-# remove rsyslog configuration for osquery named pipe which allows rsyslog to send syslog event to osquery.
-if [[ -f /etc/rsyslog.d/rsyslog_sophos-spl.conf ]]
-then
-  rm -f /etc/rsyslog.d/rsyslog_sophos-spl.conf
-  systemctl restart rsyslog
-fi
-
-
-# check that everything has been uninstalled correctly
-function failure
-{
-    >&2 echo $1
-    exit 1
-}
-[ ! -f ${CACHED_STATUS_XML} ] &&  [ ! -f  ${STATUS_XML} ]  || failure "Failed to remove ${PLUGIN_NAME} related files."
-
-if (( $DOWNGRADE == 0 ))
-then
-  if [[ -d ${UNINSTALLDIR} ]]
-  then
-    failure "Failed to remove ${PLUGIN_NAME} related files."
-  fi
-fi
