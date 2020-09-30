@@ -89,39 +89,6 @@ namespace
         return 0;
     }
 
-    void myTest()
-    {
-        auto process = createProcess();
-        auto currPid = ::getpid();
-        std::cout << "Test started for tid: " << std::this_thread::get_id() << std::endl;
-        for (int i = 0; i < 3; i++)
-        {
-            std::cout << "sleep: " << std::this_thread::get_id() << " " << i << std::endl;
-            process->exec("/bin/sleep", { "0.1" });
-            ASSERT_NE(currPid, process->childPid());
-            auto v1 = ::time(nullptr);
-
-            while (process->wait(std::chrono::milliseconds{ 1 }, 0) != ProcessStatus::FINISHED)
-                ;
-
-            auto v2 = ::time(nullptr);
-
-            EXPECT_EQ(process->output(), "");
-            EXPECT_EQ(process->exitCode(), 0);
-
-            EXPECT_TRUE(v2 - v1 <= 1) << "time elapsed: " << v2 - v1;
-            std::cout << "Test: " << i << " finished: " << std::endl;
-        }
-    }
-
-    TEST_F(ProcessImplLog, TestDataRaceForProcessImpl)
-    {
-        auto f1 = std::async(std::launch::async, myTest);
-        auto f2 = std::async(std::launch::async, myTest);
-        f1.get();
-        f2.get();
-    }
-
     TEST_F(ProcessImplLog, BugTwoProcessesShouldNotDeadlock) // NOLINT
     {
         auto job1 = std::async(std::launch::async, asyncSleep);
