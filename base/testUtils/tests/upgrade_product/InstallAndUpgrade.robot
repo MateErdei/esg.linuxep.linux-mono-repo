@@ -128,6 +128,9 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
+    #confirm that the warehouse flags supplement is installed when upgrading
+    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
+
 #     If mtr is installed for the first time, this will appear
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "mtr" not in registry
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
@@ -152,9 +155,6 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
     Check Update Reports Have Been Processed
-
-    #confirm that the warehouse flags supplement is installed when upgrading
-    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
 
 VersionCopy File in the Wrong Location Is Removed
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
