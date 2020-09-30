@@ -39,7 +39,7 @@ namespace ManagementAgent
 
             LOGDEBUG("filename=" << filename);
 
-            if (filename.find("policy") != std::string::npos)
+            if (filename.find("policy") != std::string::npos || filename.find("flags") != std::string::npos)
             {
                 task.reset(new PolicyTask(m_pluginManager, filename));
             }

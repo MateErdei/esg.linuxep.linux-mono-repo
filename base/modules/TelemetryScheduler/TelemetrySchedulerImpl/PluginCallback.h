@@ -20,7 +20,7 @@ namespace TelemetrySchedulerImpl
     public:
         explicit PluginCallback(std::shared_ptr<ITaskQueue> taskQueue);
 
-        void applyNewPolicy(const std::string& policyXml) override;
+        void applyNewPolicy(const std::string& appId, const std::string& policyContent) override;
 
         void queueAction(const std::string& actionXml) override;
 

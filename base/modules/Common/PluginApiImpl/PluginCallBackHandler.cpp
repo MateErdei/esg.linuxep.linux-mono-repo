@@ -95,10 +95,10 @@ namespace Common
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY:
                         LOGSUPPORT("Received new policy");
 
-                        // Some actions are passed as content when not comming from MCS communication channel.
-                        // i.e. when comming directly from watchdog
+                        // Some actions are passed as content when not coming from MCS communication channel.
+                        // i.e. when coming directly from watchdog
 
-                        m_pluginCallback->applyNewPolicy(
+                        m_pluginCallback->applyNewPolicy(request.m_applicationId,
                             GetContentFromPayload(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
                                                   m_messageBuilder.requestExtractPolicy(request)));
 

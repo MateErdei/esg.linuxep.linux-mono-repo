@@ -135,23 +135,26 @@ EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not 
 
 EDR Removes Ipc And Status Files When Uninstalled
     Run Full Installer
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  {"endpoint.flags1.enabled: "true", "endpoint.flags2.enabled: "force"}
     Install EDR Directly
     Wait Until OSQuery Running
-    Stop Management Agent Via WDCTL
-    Start Management Agent Via WDCTL
-    Wait for EDR Status
-
-    # ${IPC_FILE} is a socket, and therefore is not picked up by "File Should Exist"
-    Should Exist            ${IPC_FILE}
-    File Should Exist       ${EDR_STATUS_XML}
-    File Should Exist       ${CACHED_STATUS_XML}
-
-    Uninstall EDR Plugin
-
-    # Similarly, "File Should Not Exist" will always pass on ${IPC_FILE}
-    Should Not Exist        ${IPC_FILE}
-    File Should Not Exist   ${EDR_STATUS_XML}
-    File Should Not Exist   ${CACHED_STATUS_XML}
+    Sleep  1
+    Fail
+#    Stop Management Agent Via WDCTL
+#    Start Management Agent Via WDCTL
+#    Wait for EDR Status
+#
+#    # ${IPC_FILE} is a socket, and therefore is not picked up by "File Should Exist"
+#    Should Exist            ${IPC_FILE}
+#    File Should Exist       ${EDR_STATUS_XML}
+#    File Should Exist       ${CACHED_STATUS_XML}
+#
+#    Uninstall EDR Plugin
+#
+#    # Similarly, "File Should Not Exist" will always pass on ${IPC_FILE}
+#    Should Not Exist        ${IPC_FILE}
+#    File Should Not Exist   ${EDR_STATUS_XML}
+#    File Should Not Exist   ${CACHED_STATUS_XML}
 
 EDR Uninstalled When Removed From ALC Policy
     Install EDR  ${BaseAndEdrVUTPolicy}

@@ -18,7 +18,7 @@ namespace TelemetrySchedulerImpl
         LOGDEBUG("Plugin callback started");
     }
 
-    void PluginCallback::applyNewPolicy(const std::string& /*policyXml*/)
+    void PluginCallback::applyNewPolicy([[maybe_unused]] const std::string& appId, [[maybe_unused]] const std::string& policyContent)
     {
         LOGSUPPORT("Not applying unexpected new policy");
     }

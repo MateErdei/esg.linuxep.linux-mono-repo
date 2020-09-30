@@ -22,7 +22,7 @@ namespace UpdateSchedulerImpl
     public:
         explicit SchedulerPluginCallback(std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> task);
 
-        void applyNewPolicy(const std::string& policyXml) override;
+        void applyNewPolicy(const std::string& appId, const std::string& policyContent) override;
 
         void queueAction(const std::string& actionXml) override;
 

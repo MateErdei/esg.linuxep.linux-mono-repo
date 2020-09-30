@@ -16,28 +16,31 @@ Default Tags   EDR_PLUGIN  FAKE_CLOUD
 *** Test Cases ***
 Install EDR And Get Historic Event Data
     Register With Fake Cloud
-
-    Wait Until Keyword Succeeds
-    ...  30
-    ...  1
-    ...  Check MCS Router Running
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  {"endpoint.flags1.enabled: "true", "endpoint.flags2.enabled: "force"}
     Wait Until OSQuery Running
-    # force process events to be generated
-    ${result}=  Run Process  python3  --version
-    sleep  1
-    ${result}=  Run Process  python3  --version
-    sleep  1
-    ${result}=  Run Process  python3  --version
-    sleep  1
-    ${result}=  Run Process  python3  --version
-    sleep  1
-    ${result}=  Run Process  python3  --version
-
-
-    Wait Until Keyword Succeeds
-    ...   7x
-    ...   10 secs
-    ...   Run Query Until It Gives Expected Results  select pid from process_events LIMIT 1  {"columnMetaData":[{"name":"pid","type":"BIGINT"}],"queryMetaData":{"errorCode":0,"errorMessage":"OK","rows":1}}
+    Sleep  5
+    Fail
+#    Wait Until Keyword Succeeds
+#    ...  30
+#    ...  1
+#    ...  Check MCS Router Running
+#    Wait Until OSQuery Running
+#    # force process events to be generated
+#    ${result}=  Run Process  python3  --version
+#    sleep  1
+#    ${result}=  Run Process  python3  --version
+#    sleep  1
+#    ${result}=  Run Process  python3  --version
+#    sleep  1
+#    ${result}=  Run Process  python3  --version
+#    sleep  1
+#    ${result}=  Run Process  python3  --version
+#
+#
+#    Wait Until Keyword Succeeds
+#    ...   7x
+#    ...   10 secs
+#    ...   Run Query Until It Gives Expected Results  select pid from process_events LIMIT 1  {"columnMetaData":[{"name":"pid","type":"BIGINT"}],"queryMetaData":{"errorCode":0,"errorMessage":"OK","rows":1}}
 
 *** Keywords ***
 EDR Test Setup

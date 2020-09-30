@@ -34,19 +34,17 @@ namespace Common
              * Require the plugin to apply a policy (Sent by Management Console).
              *
              * @attention the policy may be applied at a later time after the method returns.
-             * @param policyXml: either the policy xml content or its translation.
-             * @todo LINUXEP-5950: add information about 'translating xml'
+             * @param policyContent: the policy content; xml or json
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in applying new
              * policy.
              */
-            virtual void applyNewPolicy(const std::string& policyXml) = 0;
+            virtual void applyNewPolicy(const std::string& appId, const std::string& policyContent) = 0;
 
             /**
              * Require the plugin to perform an action ( Sent by Management Console ).
              *
              * @attention the action request is queued to be executed at a later time after the method returns.
-             * @param actionXml: either the action xml content or its translation.
-             * @todo LINUXEP-5950: add information about 'translating xml'
+             * @param actionXml: either the action xml content
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in the requested
              * action.
              */

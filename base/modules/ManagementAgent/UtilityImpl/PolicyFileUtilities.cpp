@@ -15,6 +15,10 @@ namespace ManagementAgent
     {
         std::string extractAppIdFromPolicyFile(const std::string& policyPath)
         {
+            if (policyPath.find("flags") != std::string::npos)
+            {
+                return "FLAGS";
+            }
             std::string policyFileName = Common::FileSystem::basename(policyPath);
             std::string PolicyPattern{ R"sophos(([\w]+)(-[\w]+)?_policy.xml)sophos" };
             return Common::UtilityImpl::returnFirstMatch(PolicyPattern, policyFileName);

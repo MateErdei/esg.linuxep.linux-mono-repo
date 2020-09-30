@@ -35,10 +35,10 @@ namespace UpdateSchedulerImpl
         LOGDEBUG("Plugin Callback Started");
     }
 
-    void SchedulerPluginCallback::applyNewPolicy(const std::string& policyXml)
+    void SchedulerPluginCallback::applyNewPolicy(const std::string& appId, const std::string& policyContent)
     {
-        LOGSUPPORT("Applying new policy");
-        m_task->push(SchedulerTask{ SchedulerTask::TaskType::Policy, policyXml });
+        LOGSUPPORT("Applying new policy: " << appId);
+        m_task->push(SchedulerTask{ SchedulerTask::TaskType::Policy, policyContent });
     }
 
     void SchedulerPluginCallback::queueAction(const std::string& actionXml)

@@ -53,7 +53,7 @@ namespace
 
         ~WDServiceCallBack() = default;
 
-        void applyNewPolicy(const std::string&) override { LOGWARN("NotSupported: Received apply new policy"); }
+        void applyNewPolicy([[maybe_unused]] const std::string& appId, [[maybe_unused]] const std::string& policyContent) override { LOGWARN("NotSupported: Received apply new policy"); }
 
         /**
          * Current action available is ontly TriggerUpdate which triggers the sophos-spl-update.

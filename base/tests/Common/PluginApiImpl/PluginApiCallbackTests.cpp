@@ -199,7 +199,7 @@ namespace
         expectedAnswer.m_payload.clear();
         expectedAnswer.m_acknowledge = true;
 
-        EXPECT_CALL(mock(), applyNewPolicy(_));
+        EXPECT_CALL(mock(), applyNewPolicy(_,_));
 
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
 
