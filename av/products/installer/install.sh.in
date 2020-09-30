@@ -102,31 +102,6 @@ cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${CHROOT}/susi/distribution_version/ve
 # Enable DNS resolve on Ubuntu
 mkdir -p ${CHROOT}/etc ${CHROOT}/susi/distribution_version
 
-function copy_etc()
-{
-    local F="$1"
-    [[ -f "$F" ]] || return
-    cp "$F" ${CHROOT}/etc/
-}
-
-copy_etc /etc/nsswitch.conf
-copy_etc /etc/resolv.conf
-copy_etc /etc/ld.so.cache
-copy_etc /etc/host.conf
-copy_etc /etc/hosts
-
-function copy_lib()
-{
-    local F="$1"
-    [[ -f "$F" ]] || return
-    cp "$F" ${CHROOT}/susi/distribution_version/
-}
-copy_lib /lib/x86_64-linux-gnu/libnss_dns.so.2
-copy_lib /lib64/libnss_files.so.2
-copy_lib /lib64/libnss_dns.so.2
-copy_lib /lib/x86_64-linux-gnu/libresolv.so.2
-copy_lib /lib64/libresolv.so.2
-
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 if [[ ! -x $(which setcap) ]]

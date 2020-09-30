@@ -24,6 +24,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
 #ifndef   NI_MAXHOST
 #define   NI_MAXHOST 1025
@@ -57,14 +58,19 @@ static std::string getPluginInstall()
 
 static void attempt_dns()
 {
-    struct addrinfo* result;
-    struct addrinfo* res;
-    int error;
+    struct addrinfo* result{nullptr};
+
+    struct addrinfo hints{};
+    hints.ai_family = PF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags |= AI_CANONNAME;
 
     /* resolve the domain name into a list of addresses */
-    error = getaddrinfo("4.sophosxl.net", NULL, NULL, &result);
-    if (error != 0) {
-        if (error == EAI_SYSTEM) {
+    int error = getaddrinfo("4.sophosxl.net", nullptr, &hints, &result);
+    if (error != 0)
+    {
+        if (error == EAI_SYSTEM)
+        {
             perror("getaddrinfo");
         } else {
             fprintf(stderr, "error in getaddrinfo: %s\n", gai_strerror(error));
@@ -72,16 +78,30 @@ static void attempt_dns()
         exit(EXIT_FAILURE);
     }
 
-    /* loop over all returned results and do inverse lookup */
-    for (res = result; res != NULL; res = res->ai_next) {
-        char hostname[NI_MAXHOST];
-        error = getnameinfo(res->ai_addr, res->ai_addrlen, hostname, NI_MAXHOST, NULL, 0, 0);
-        if (error != 0) {
-            fprintf(stderr, "error in getnameinfo: %s\n", gai_strerror(error));
-            continue;
+    char* canon_name = nullptr;
+
+    for (struct addrinfo* res = result; res != nullptr; res = res->ai_next)
+    {
+        if (canon_name == nullptr)
+        {
+            canon_name = res->ai_canonname;
         }
-        if (*hostname != '\0')
-            printf("hostname: %s\n", hostname);
+        assert (canon_name != nullptr);
+        char addrstr[255];
+        void* ptr;
+        switch (res->ai_family)
+        {
+            case AF_INET:
+                ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
+                break;
+            case AF_INET6:
+                ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
+                break;
+        }
+        inet_ntop(res->ai_family, ptr, addrstr, sizeof(addrstr));
+
+        printf("IPv%d address: %s (%s)\n", res->ai_family == PF_INET6 ? 6 : 4,
+                addrstr, canon_name);
     }
 
     freeaddrinfo(result);
