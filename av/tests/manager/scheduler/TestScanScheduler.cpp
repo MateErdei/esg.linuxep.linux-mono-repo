@@ -108,7 +108,7 @@ namespace
     {
         std::ofstream scanLauncherFs(scanLauncherPath);
         scanLauncherFs << "#!/bin/bash\n";
-        scanLauncherFs << "sleep 1\n";
+        scanLauncherFs << "sleep 0.6\n";
         scanLauncherFs << "echo $$ >> " << log_file << '\n';
         scanLauncherFs.close();
         fs::permissions(scanLauncherPath, fs::perms::owner_all | fs::perms::group_all);
@@ -192,7 +192,7 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
 
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
-    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 10000));
     scheduler.scanNow();
 
     ASSERT_TRUE(waitForLog("Completed scan Scan Now", 2000000));
@@ -212,6 +212,8 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
 
 TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
 {
+    UsingMemoryAppender holder(*this);
+
     // Clear any pending telemetry
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
 
@@ -226,17 +228,7 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
 
-    // Redirect sderr to buffer
-    std::stringstream buffer;
-    std::streambuf *sbuf = std::cerr.rdbuf();
-    std::cerr.rdbuf(buffer.rdbuf());
-
-    int count = 0;
-    while(buffer.str().find("INFO Starting Scan Now") == std::string::npos && count < 200)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        count++;
-    }
+    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 1000000));
 
     scheduler.requestStop();
     scheduler.join();
@@ -245,8 +237,6 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
     std::string ExpectedTelemetry{ R"sophos({"scan-now-count":1})sophos" };
     EXPECT_EQ(telemetryResult, ExpectedTelemetry);
 
-    // Reset stderr
-    std::cerr.rdbuf(sbuf);
 }
 
 namespace
@@ -292,7 +282,7 @@ TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
     ::unlink(log_file.c_str());
 
     fs::path scanLauncherPath = scanLauncherDir / "scheduled_file_walker_launcher";
-    create_fake_file_walker(scanLauncherPath, log_file);
+    WithFakeFileWalker fakeFileWalker(scanLauncherPath, log_file);
 
     FakeScanCompletion scanCompletion;
 
@@ -303,7 +293,7 @@ TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
     scheduler.start();
 
     scheduler.updateConfig(scheduledScanConfiguration);
-    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 10000));
+    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 100000));
     ASSERT_TRUE(waitForLog("Completed scan Another scan!", 2000000));
 
     scheduler.requestStop();
@@ -330,7 +320,7 @@ TEST_F(TestScanScheduler, runsScheduledScanAndScanNow) //NOLINT
     ::unlink(log_file.c_str());
 
     fs::path scanLauncherPath = scanLauncherDir / "scheduled_file_walker_launcher";
-    create_fake_file_walker(scanLauncherPath, log_file);
+    WithFakeFileWalker fakeFileWalker(scanLauncherPath, log_file);
 
     FakeScanCompletion scanCompletion;
 
