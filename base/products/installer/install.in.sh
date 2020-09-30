@@ -437,8 +437,8 @@ if [[ -f "${FLAGS_SRC}" ]]
 then
   FLAGS_WAREHOUSE_INST="${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json"
   cp "${FLAGS_SRC}" "${FLAGS_WAREHOUSE_INST}"
-  chmod 440 "${FLAGS_WAREHOUSE_INST}"
-  chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${FLAGS_WAREHOUSE_INST}"
+  chmod 640 "${FLAGS_WAREHOUSE_INST}"
+  chown "root:${GROUP_NAME}" "${FLAGS_WAREHOUSE_INST}"
 fi
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
