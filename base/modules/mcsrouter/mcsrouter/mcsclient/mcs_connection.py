@@ -25,6 +25,7 @@ from mcsrouter import ip_selection
 from mcsrouter import proxy_authorization
 from mcsrouter import sophos_https
 from mcsrouter.utils.byte2utf8 import to_utf8
+from . import datafeeds
 
 LOGGER = logging.getLogger(__name__)
 ENVELOPE_LOGGER = logging.getLogger("ENVELOPES")
@@ -659,8 +660,7 @@ class MCSConnection:
                 response.reason, body))
             raise MCSHttpInternalServerErrorException(response.status, response_headers, body)
         if response.status == http.client.TOO_MANY_REQUESTS:
-            LOGGER.warning("HTTP Too Many Requests (429): {} ({})".format(
-            response.reason, body))
+            LOGGER.warning("HTTP Too Many Requests (429): {} ({})".format(response.reason, body))
             raise MCSHttpTooManyRequestsException(response.status, response_headers, body)
         if response.status != http.client.OK:
             LOGGER.error("Bad response from server {}: {} ({})".format(
@@ -1034,10 +1034,6 @@ class MCSConnection:
             except Exception as exception:
                 log_exception_error(response.m_app_id, response.m_correlation_id, exception)
 
-
-    # is it wort having this here for the type hinting?
-    from . import datafeeds
-
     def send_datafeeds(self, datafeeds: datafeeds.Datafeeds):
         """
         This method is used in mcs.py to trigger the processing and sending of datafeed results.
@@ -1073,8 +1069,6 @@ class MCSConnection:
         LOGGER.debug(
             f"Maximum single batch upload size is {max_upload_at_once} bytes, datafeed ID: {datafeeds.get_feed_id()}")
 
-        # sent_so_far = datafeeds.get_sent_so_far()
-        # LOGGER.debug(f"Bytes sent in current sending period: {sent_so_far}, datafeed ID: {datafeeds.get_feed_id()}")
         ok_to_send_after = datafeeds.get_backoff_until_time()
         now = datetime.datetime.now().timestamp()
         if ok_to_send_after > now:
@@ -1106,23 +1100,29 @@ class MCSConnection:
                 except Exception:
                     LOGGER.error("Failed to parse response from datafeed when handling {} code".format(exception_429.error_code()))
                 if purge:
+                    LOGGER.warning("Purging all datafeed files due to 429 code from Sophos Central")
                     datafeeds.purge()
 
                 # Handle Retry-After
-                retry_after = 60
                 try:
-                    retry_after = float(exception_429.headers()["Retry-After"])
+                    retry_after = float(exception_429.headers().get("Retry-After", 60))
+                    datafeeds.set_backoff_until_time(datetime.datetime.now().timestamp() + retry_after)
                 except Exception:
-                    LOGGER.error("Failed read Retry-After in response headers from datafeed when handling {} code".format(exception_429.error_code()))
-                datafeeds.set_backoff_until_time(datetime.datetime.now().timestamp() + retry_after)
-                break
+                    LOGGER.warning("Failed read Retry-After in response headers from datafeed when handling {} code".format(exception_429.error_code()))
 
+                break
             except Exception as exception:
-                # TODO add more detail to logger here
                 LOGGER.error("Failed to send datafeed: {}".format(exception))
                 break
+
+        # Clean up any files that were sent and no longer need to be in the datafeeds container.
         datafeeds.prune_results_with_no_files()
-        datafeeds.set_backoff_until_time(datetime.datetime.now().timestamp() + datafeeds.get_max_send_freq())
+
+        # Set the next sending time, this may have already been set by the 429 exception handling above
+        # so we make sure here we set it to the furthest in the future out of the two, i.e. backoff vs normal send freq.
+        next_normal_send_at = datetime.datetime.now().timestamp() + datafeeds.get_max_send_freq()
+        if next_normal_send_at > datafeeds.get_backoff_until_time():
+            datafeeds.set_backoff_until_time(next_normal_send_at)
 
     def send_datafeed_result(self, datafeed):
         """
@@ -1143,8 +1143,6 @@ class MCSConnection:
                 command_path,
                 datafeed.m_gzip_body_size))
         (headers, body) = self.__request(command_path, headers, datafeed.m_gzip_body, "POST")
-
-        #TODO do we really need to return the body here?
         return body
 
     def extract_commands_from_xml(self, commands_xml):

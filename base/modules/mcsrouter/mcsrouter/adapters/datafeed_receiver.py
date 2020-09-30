@@ -23,12 +23,17 @@ def remove_datafeed_file(file_path):
         try:
             os.remove(file_path)
         except OSError as error:
-            LOGGER.warning("Could not remove datafeed json file \"{}\". Error: {}".format(file_path, str(error)))
+            LOGGER.warning(f"Could not remove datafeed json file \"{file_path}\". Error: {str(error)}")
 
 def pending_files():
     datafeed_dir = os.path.join(path_manager.datafeed_dir())
-    number_of_files = len(os.listdir(datafeed_dir))
-    return number_of_files > 0
+    try:
+        number_of_files = len(os.listdir(datafeed_dir))
+        return number_of_files > 0
+    except Exception as ex:
+        LOGGER.error(f"Failed to check number of pending datafeed files, error: {str(ex)}")
+        return False
+
 
 def receive():
     """
@@ -46,18 +51,17 @@ def receive():
             datafeed_id = match_object.group(1)
             timestamp = match_object.group(2)
             try:
-                with open(file_path, 'rb') as file_to_read:
+                with open(file_path, 'r', encoding="utf-8") as file_to_read:
                     body = file_to_read.read()
-                    body = body.decode("utf-8")
                     validate_string_as_json(body)
                     yield file_path, datafeed_id, timestamp, body
             except (json.JSONDecodeError, UnicodeDecodeError) as error:
-                LOGGER.error("Failed to load datafeed json file \"{}\". Error: {}".format(file_path, str(error)))
+                LOGGER.error(f"Failed to load datafeed json file \"{file_path}\". Error: {str(error)}")
                 remove_datafeed_file(file_path)
             except OSError as error:
                 # OSErrors can happen here due to insufficient permissions or the file is no longer there.
                 # In both situations there is no point attempting to remove the file so just log the error.
-                LOGGER.error("Failed to read datafeed json file \"{}\". Error: {}".format(file_path, str(error)))
+                LOGGER.error(f"Failed to read datafeed json file \"{file_path}\". Error: {str(error)}")
         else:
-            LOGGER.warning("Malformed datafeed file: %s", datafeed_file)
+            LOGGER.warning(f"Malformed datafeed file: {datafeed_file}")
             remove_datafeed_file(file_path)

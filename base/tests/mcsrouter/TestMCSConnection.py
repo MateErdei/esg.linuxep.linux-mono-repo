@@ -1,3 +1,4 @@
+import datetime
 import unittest
 import os
 import mock
@@ -377,6 +378,63 @@ class TestMCSConnection(unittest.TestCase):
             self.assertTrue(datafeed_container.add_datafeed_result(file_path, feed_id, timestamp, content))
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.call_count, 3)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result")
+    @mock.patch("os.remove")
+    def test_mcs_purges_datafeeds_after_receiving_429_from_central(self, *mockargs):
+        start_of_test = datetime.datetime.now().timestamp()
+        headers = {
+            "Retry-After": 100
+        }
+        side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpTooManyRequestsException(429, headers, '{"purge":true}')
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect = side_effects
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = "2601033100"
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
+
+        with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
+            datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertEqual(os.remove.call_count, 1)
+        self.assertGreaterEqual(datafeed_container.get_backoff_until_time(), start_of_test + 100)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result")
+    @mock.patch("os.remove")
+    def test_mcs_purges_datafeeds_after_receiving_429_from_central_no_purge_no_retry_header(self, *mockargs):
+        side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpTooManyRequestsException(429, "", "")
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect=side_effects
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = "2601033100"
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
+
+        with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
+            datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertEqual(os.remove.call_count, 1)
+
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result")
+    @mock.patch("os.remove")
+    def test_mcs_purges_datafeeds_after_receiving_429_from_central_purge_false_retry_header_set(self, *mockargs):
+        headers = {
+            "Retry-After": 100
+        }
+        side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpTooManyRequestsException(429, headers, '{"purge":false}')
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect=side_effects
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = "2601033100"
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
+
+        with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
+            datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertEqual(os.remove.call_count, 0)
 
 
 if __name__ == '__main__':

@@ -472,22 +472,23 @@ class MCS:
                     for datafeed in all_datafeeds:
                         if datafeed.get_feed_id() == datafeed_id:
                             if datafeed.add_datafeed_result(result_file_path, datafeed_id, datafeed_timestamp, datafeed_body):
-                                LOGGER.info(f"Queuing datafeed result for: {datafeed_id}, with timestamp: {datafeed_timestamp}")
+                                LOGGER.debug(f"Queuing datafeed result for: {datafeed_id}, with timestamp: {datafeed_timestamp}")
                             else:
                                 LOGGER.debug(f"Already queued datafeed result for: {datafeed_id}, with timestamp: {datafeed_timestamp}")
                         else:
-                            LOGGER.warning("There is no datafeed handler setup for the datafeed ID: {}".format(datafeed_id))
+                            LOGGER.warning(f"There is no datafeed handler setup for the datafeed ID: {datafeed_id}")
             else:
                 LOGGER.debug("No datafeed result files")
 
         def send_datafeed_files():
             for datafeed in all_datafeeds:
                 if datafeed.has_results():
-                    LOGGER.debug("Datafeed results present for datafeed ID: {}".format(datafeed.get_feed_id()))
+                    LOGGER.debug(f"Datafeed results present for datafeed ID: {datafeed.get_feed_id()}")
                     try:
                         comms.send_datafeeds(datafeed)
                     except Exception as df_exception:
-                        LOGGER.error("Failed to send datafeed results, datafeed ID: {}, error: {}".format(datafeed.get_feed_id(), str(df_exception)))
+                        LOGGER.error(
+                            f"Failed to send datafeed results, datafeed ID: {datafeed.get_feed_id()}, error: {str(df_exception)}")
 
         def status_updated(reason=None):
             """

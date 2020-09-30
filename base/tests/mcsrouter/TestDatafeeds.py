@@ -1,20 +1,17 @@
 import unittest
 import mock
-
 import logging
-logger = logging.getLogger("TestDatafeeds")
 
-# Imports done like this so clion IDE can pick them up for analysis and autocomplete etc.
-try:
-    import modules.mcsrouter.mcsrouter.mcsclient.datafeeds
-except:
-    import mcsrouter.mcsclient.datafeeds
+import PathManager
+import mcsrouter.mcsclient.datafeeds
+
+logger = logging.getLogger("TestDatafeeds")
 
 class TestDatafeeds(unittest.TestCase):
     def test_datafeed_results_can_added(self):
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
-        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1601033100", content)
         datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1601033200", content)
         datafeeds.add_datafeed_result("/tmp/filepath3", feed_id, "1601033300", content)
@@ -34,7 +31,7 @@ class TestDatafeeds(unittest.TestCase):
     def test_datafeed_results_can_be_sorted(self):
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
-        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1601033100", content)
         datafeeds.add_datafeed_result("/tmp/filepath3", feed_id, "1601033300", content)
         datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1601033200", content)
@@ -63,7 +60,7 @@ class TestDatafeeds(unittest.TestCase):
     def test_prune_old_datafeed_files_are_removed(self):
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
-        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1501033100", content)
         datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1501033200", content)
         # This timestamp (2601033300) is far in the future (2052) so will be not too old.
@@ -77,7 +74,7 @@ class TestDatafeeds(unittest.TestCase):
 
     def test_prune_old_datafeed_files_passes_if_no_files(self):
         feed_id = "feed_id"
-        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeed_results = datafeeds.get_datafeeds()
         self.assertEqual(len(datafeed_results), 0)
         datafeeds.prune_old_datafeed_files()
@@ -89,7 +86,7 @@ class TestDatafeeds(unittest.TestCase):
     def test_prune_old_datafeed_files_passes_if_no_old_files(self):
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
-        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
 
         # This timestamp (2601033300) is far in the future (2052) so will be not too old.
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "2601033100", content)
@@ -107,7 +104,7 @@ class TestDatafeeds(unittest.TestCase):
     def test_datafeed_result_is_alive_for_old_and_new_files(self):
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
-        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1501033100", content)
         datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1501033200", content)
         # This timestamp (2601033300) is far in the future (2052) so will be not too old.
@@ -130,7 +127,7 @@ class TestDatafeeds(unittest.TestCase):
             "max_item_size_bytes": 10000000
         }"""
         with mock.patch("builtins.open", mock.mock_open(read_data=config)) as mock_file:
-            datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+            datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
             mock_file.assert_called_with("/tmp/sophos-spl/base/etc/datafeed-config-feed_id.json", 'r')
 
         self.assertEqual(datafeeds.get_time_to_live(), 1209600)
@@ -141,7 +138,7 @@ class TestDatafeeds(unittest.TestCase):
 
     def test_datafeed_load_config_defaults_if_file_missing(self):
         feed_id = "feed_id"
-        datafeeds = modules.mcsrouter.mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         self.assertEqual(datafeeds.get_time_to_live(), 1209600)
         self.assertEqual(datafeeds.get_max_backlog(), 1000000000)
         self.assertEqual(datafeeds.get_max_send_freq(), 5)
