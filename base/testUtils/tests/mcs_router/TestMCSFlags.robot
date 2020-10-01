@@ -46,7 +46,7 @@ MCS creates and updates flags file
     Should Contain  ${CONTENTS}  "endpoint.flag1.enabled" : true,
 
 MCS Combines Flags Files
-    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"endpoint.flag1.enabled" : "true","endpoint.flag3.enabled" : "always","endpoint.flag4.enabled" : "true", "endpoint.flag5.enabled" : "force"}
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"endpoint.flag1.enabled" : "true","endpoint.flag3.enabled" : "always","endpoint.flag4.enabled" : "true", "endpoint.flag5.enabled" : "always"}
     Install Register And Wait First MCS Policy
     Wait Until Keyword Succeeds
           ...  10 secs
