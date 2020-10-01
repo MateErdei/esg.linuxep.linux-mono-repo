@@ -127,6 +127,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/var/installedproducts");
         }
 
+        std::string ApplicationPathManager::getLocalVersionSymLinkPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/var/installedproductversions");
+        }
+
         std::string ApplicationPathManager::getLocalBaseUninstallerPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "bin/uninstall.sh");
@@ -273,7 +278,7 @@ namespace Common
             }
             else
             {
-                path = Common::FileSystem::join(getLocalUninstallSymLinkPath(),component + ".ini");
+                path = Common::FileSystem::join(getLocalVersionSymLinkPath(),component + ".ini");
             }
 
             return path;

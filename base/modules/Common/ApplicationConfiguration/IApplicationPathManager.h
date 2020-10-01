@@ -56,6 +56,7 @@ namespace Common::ApplicationConfiguration
          * @return the full path of the directory
          */
         virtual std::string getLocalUninstallSymLinkPath() const = 0;
+        virtual std::string getLocalVersionSymLinkPath() const = 0;
         virtual std::string getLocalBaseUninstallerPath() const = 0;
 
         virtual std::string getUpdateCertificatesPath() const = 0;

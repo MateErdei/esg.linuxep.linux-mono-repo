@@ -318,9 +318,9 @@ public:
             .WillOnce(Return(true));
         EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/VERSION.ini"))
             .WillOnce(Return(newVersionContents));
-        EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.ini"))
+        EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
                 .WillRepeatedly(Return(true));
-        EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.ini"))
+        EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
             .WillOnce(Return(currentVersionContents));
     }
 
@@ -1304,7 +1304,7 @@ TEST_F( // NOLINT
           EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
           EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
           EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/erverProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
+          EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
       }
     });
