@@ -164,7 +164,7 @@ do
         --unit-test|--unittest|--test)
             UNITTEST=1
             ;;
-        --no-unit-test|--no-test)
+        --no-unit-test|--no-test|--no-unittest|--no-unittests)
             UNITTEST=0
             ;;
         --esg-ci-coverage)
