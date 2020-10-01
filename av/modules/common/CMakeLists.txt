@@ -14,7 +14,7 @@ find_package( Boost REQUIRED COMPONENTS locale system)
 target_link_libraries(common  PUBLIC
         scanmessages
         datatypes
-        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+        ${STD_FILESYSTEM_IF_REQUIRED}
         ${pluginapilib}
         ${CRYPTO_LIBRARY}
         ${Boost_LIBRARIES}

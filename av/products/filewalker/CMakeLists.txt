@@ -9,7 +9,7 @@ target_link_libraries(avscanner PRIVATE
         avscannerimpl
         filewalker
         unixsocket
-        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+        ${STD_FILESYSTEM_IF_REQUIRED}
         )
 
 SET_TARGET_PROPERTIES( avscanner

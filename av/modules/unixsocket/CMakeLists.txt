@@ -29,7 +29,7 @@ add_library(unixsocket SHARED
 target_link_libraries(unixsocket  PUBLIC
         datatypes
         scanmessages
-        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+        ${STD_FILESYSTEM_IF_REQUIRED}
         ${pluginapilib}
         ${CRYPTO_LIBRARY}
         )

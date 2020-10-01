@@ -29,7 +29,7 @@ target_link_libraries(threat_scanner PUBLIC
         datatypes
         scanmessages
         unixsocket
-        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+        ${STD_FILESYSTEM_IF_REQUIRED}
         ${SUSI_LIB}
         )
 

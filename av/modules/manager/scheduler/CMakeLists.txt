@@ -19,6 +19,6 @@ sophos_add_library(scanscheduler SHARED
         ScheduledScanConfiguration.h
         TimeSet.cpp
         TimeSet.h
-        EXTRA_LIBS $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>  scanmessages
+        EXTRA_LIBS ${STD_FILESYSTEM_IF_REQUIRED}  scanmessages
         EXTRA_INCLUDES "${CAPNPROTO_INCLUDE_DIR}" ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules
         )

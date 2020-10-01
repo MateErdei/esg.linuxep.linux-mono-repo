@@ -6,7 +6,7 @@ add_executable(file_walker_experiment
 target_include_directories(file_walker_experiment PRIVATE ${CMAKE_SOURCE_DIR}/modules)
 
 target_link_libraries(file_walker_experiment PRIVATE filewalker
-        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+        ${STD_FILESYSTEM_IF_REQUIRED}
         )
 
 SET_TARGET_PROPERTIES( file_walker_experiment
