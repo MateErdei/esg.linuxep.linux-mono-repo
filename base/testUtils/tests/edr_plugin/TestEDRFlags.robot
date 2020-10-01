@@ -25,11 +25,16 @@ Flags Are Only Sent To EDR and Not MTR
     Wait Until OSQuery Running
 
     Wait Until Keyword Succeeds
-        ...  10
-        ...  1
-        ...  Check EDR Log Contains  Applying new policy with APPID: FLAGS
+    ...  10
+    ...  1
+    ...  Check Managementagent Log Contains  Policy flags.json applied to 1 plugins
+
+    Wait Until Keyword Succeeds
+    ...  10
+    ...  1
+    ...  Check EDR Log Contains  Applying new policy with APPID: FLAGS
+
     Check MTR Log Does Not Contain  Applying new policy with APPID: FLAGS
-    Check Managementagent Log Contains  Policy flags.json applied to 1 plugins
 
 *** Keywords ***
 EDR Test Setup

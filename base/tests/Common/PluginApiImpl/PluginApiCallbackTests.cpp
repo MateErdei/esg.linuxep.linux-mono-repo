@@ -187,19 +187,19 @@ namespace
 
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicy) // NOLINT
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicyWithAppId) // NOLINT
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));
         EXPECT_CALL(*mockFileSystem, readFile("contentOfPolicy.xml")).WillRepeatedly(Return("contentOfPolicy"));
         Common::PluginProtocol::DataMessage dataMessage =
-            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy.xml");
+                createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy.xml");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         expectedAnswer.m_payload.clear();
         expectedAnswer.m_acknowledge = true;
 
-        EXPECT_CALL(mock(), applyNewPolicy(_,_));
+        EXPECT_CALL(mock(), applyNewPolicyWithAppId(_, _));
 
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
 

@@ -17,7 +17,8 @@ using namespace ::testing;
 class MockedPluginApiCallback : public Common::PluginApi::IPluginCallbackApi
 {
 public:
-    MOCK_METHOD2(applyNewPolicy, void(const std::string&, const std::string&));
+    MOCK_METHOD1(applyNewPolicy, void(const std::string&));
+    MOCK_METHOD2(applyNewPolicyWithAppId, void(const std::string&, const std::string&));
     MOCK_METHOD1(queueAction, void(const std::string&));
     MOCK_METHOD0(onShutdown, void(void));
 

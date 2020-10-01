@@ -98,8 +98,7 @@ namespace Common
                         // Some actions are passed as content when not coming from MCS communication channel.
                         // i.e. when coming directly from watchdog
 
-                        m_pluginCallback->applyNewPolicy(request.m_applicationId,
-                            GetContentFromPayload(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
+                        m_pluginCallback->applyNewPolicyWithAppId( request.m_applicationId, GetContentFromPayload(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
                                                   m_messageBuilder.requestExtractPolicy(request)));
 
                         return m_messageBuilder.replyAckMessage(request);

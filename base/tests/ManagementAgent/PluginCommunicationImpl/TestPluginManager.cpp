@@ -125,7 +125,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnRegisteredPlugin) // NOLINT
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile("/tmp/testpolicy.xml")).WillOnce(Return("testpolicy"));
-    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy(m_pluginOneName, "testpolicy")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(_,"testpolicy")).Times(1);
     std::thread applyPolicy(
         [this]() { EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicy.xml"), 1); });
     applyPolicy.join();
@@ -140,8 +140,8 @@ TEST_F(TestPluginManager, TestApplyPolicyOnTwoRegisteredPlugins) // NOLINT
         .WillRepeatedly(Return("{\n\"policyAppIds\": [\"plugin_two\"],\n\"actionAppIds\": [\"plugin_two\"],\n\"statusAppIds\": [\"plugin_two\"],\n\"pluginName\": \"plugin_two\"}"));
 
 
-    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy(m_pluginOneName, "testpolicyone")).Times(1);
-    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy(m_pluginTwoName, "testpolicytwo")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginOneName,"testpolicyone")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginTwoName,"testpolicytwo")).Times(1);
     std::thread applyPolicy([this]() {
       m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
       EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone.xml"), 1);
@@ -152,8 +152,8 @@ TEST_F(TestPluginManager, TestApplyPolicyOnTwoRegisteredPlugins) // NOLINT
 
 TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPluginList) // NOLINT
 {
-    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy(m_pluginOneName, "testpolicyone")).Times(1);
-    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy(m_pluginTwoName, "testpolicytwo")).Times(0);
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginOneName,"testpolicyone")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginTwoName,"testpolicytwo")).Times(0);
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
     EXPECT_CALL(fileSystemMock, readFile("/tmp/testpolicyone.xml")).WillOnce(Return("testpolicyone"));
@@ -184,8 +184,8 @@ TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPlugi
 
 TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromRegisteredPluginList) // NOLINT
 {
-    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy(m_pluginOneName, "testpolicyone")).Times(1);
-    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy(m_pluginTwoName, "testpolicytwo")).Times(0);
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginOneName,"testpolicyone")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginTwoName,"testpolicytwo")).Times(0);
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
     EXPECT_CALL(fileSystemMock, readFile("/tmp/testpolicyone.xml")).WillOnce(Return("testpolicyone"));
