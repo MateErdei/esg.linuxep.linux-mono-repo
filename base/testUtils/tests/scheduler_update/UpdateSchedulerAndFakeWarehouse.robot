@@ -38,10 +38,6 @@ UpdateScheduler Update Against Ostia
 
     File Should Exist    ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
 
-    #update without any change does not require fresh install
-    Check Log Contains String N Times   ${logpath}   SULDownloader Log   suldownloaderdata <> Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.  0
-    Simulate Send Policy And Run Update  ${BasePolicy}
-
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
