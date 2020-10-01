@@ -229,6 +229,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     # Changing the policy here will result in an automatic update
     # Note when downgrading from a release with live response to a release without live response
     # results in a second update.
+    Override LogConf File as Global Level  DEBUG
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
