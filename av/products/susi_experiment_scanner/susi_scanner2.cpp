@@ -121,8 +121,18 @@ static int scan(const char* filename, const char* chroot)
     if (chroot != nullptr)
     {
         PRINT("chroot: "<< chroot);
-        ::chroot(chroot);
-        ::chdir("/");
+        int ret = ::chroot(chroot);
+        if (ret != 0)
+        {
+            perror("Failed to chroot");
+            return 10;
+        }
+        ret = ::chdir("/");
+        if (ret != 0)
+        {
+            perror("Failed to cd /");
+            return 11;
+        }
     }
     else
     {
