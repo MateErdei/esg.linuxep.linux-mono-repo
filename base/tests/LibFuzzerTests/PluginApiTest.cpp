@@ -79,7 +79,7 @@ class DummyPlugin: public  Common::PluginApi::IPluginCallbackApi
    std::promise<void> m_promise;
 
 public:
-    void applyNewPolicy(const std::string& policyContent) override
+    void applyNewPolicy(const std::string& ) override
     {
         std::cout << "Apply policy" << std::endl;
     }
