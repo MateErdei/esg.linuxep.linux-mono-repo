@@ -27,10 +27,15 @@ namespace Plugin
         LOGDEBUG("Plugin Callback Started");
     }
 
-    void PluginCallback::applyNewPolicy(const std::string& appId, const std::string& policyContent)
+    void PluginCallback::applyNewPolicy(const std::string& /* policyXml */)
+    {
+        LOGERROR("This method should never be called.");
+    }
+
+    void PluginCallback::applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml)
     {
         LOGSUPPORT("Applying new policy with APPID: " << appId);
-        m_task->push(Task { Task::TaskType::Policy, policyContent, "", appId });
+        m_task->push(Task { Task::TaskType::Policy, policyXml, "", appId });
     }
 
     void PluginCallback::queueAction(const std::string& /* actionXml */)

@@ -161,7 +161,6 @@ namespace Plugin
                     }
                     case Task::TaskType::Policy:
                         LOGDEBUG("Process task Policy: " << task.m_appId);
-                        LOGDEBUG("Policy Content: " << task.m_content);
                         if (task.m_appId == "FLAGS")
                         {
                             processFlags(task.m_content);
