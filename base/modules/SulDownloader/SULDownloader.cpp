@@ -146,15 +146,8 @@ namespace SulDownloader
                 std::string localVersionIni = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(rigidName);
                 if (!Common::FileSystem::fileSystem()->isFile(localVersionIni))
                 {
-                    // if version.ini doesn't exist check if plugin is installed
-                    std::string uninstallPath = Common::FileSystem::join(
-                            Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath(),
-                            rigidName + ".sh");
-                    if (Common::FileSystem::fileSystem()->isFile(localVersionIni))
-                    {
-                        throw std::runtime_error("VERSION.ini could not be found at path: " + localVersionIni);
-                    }
-                    LOGDEBUG("Plugin" << localVersionIni << " not installed, it does not need to be downgraded" );
+                    // if local version.ini doesn't exist assume plugin is an older version than XDR EAP or not installed therefore no downgrade
+                    LOGDEBUG("Plugin " << rigidName << " in warehouse is newer than version on disk");
                 }
                 else
                 {
@@ -172,8 +165,11 @@ namespace SulDownloader
                         product.setProductWillBeDowngraded(true);
                     }
 
-                    if (newVersion.empty())
+                    if (newVersion.empty() || currentVersion.empty())
                     {
+                        // if newVersion is empty could be due the product not being able to read the file
+                        // if currentVersion is empty something went wrong with the install possibly
+                        // therefore we would like to do a downgrade to get as close to a fresh install as possible
                         product.setProductWillBeDowngraded(true);
                     }
                     else
@@ -191,7 +187,7 @@ namespace SulDownloader
             catch (std::invalid_argument& ex)
             {
                 // invalid argument thrown by isVersionOlder if Version string are not in the right format
-                LOGWARN("Failed to find VERSION.ini due to: " << ex.what());
+                LOGWARN("Failed to calculate version difference due to: " << ex.what());
             }
         }
 
@@ -256,11 +252,11 @@ namespace SulDownloader
                 // if base is not being downgraded, then need to run the uninstaller for each component.
                 if (productIndex == 0)
                 {
-                    LOGDEBUG("Preparing base for downgrade");
+                    LOGDEBUG("Preparing " << product.getLine() << " for downgrade");
                     std::string baseUninstallerPath =
                         Common::ApplicationConfiguration::applicationPathManager().getLocalBaseUninstallerPath();
                     uninstallManager.prepareProductForDowngrade(baseUninstallerPath);
-                    LOGDEBUG("Prepared base for downgrade");
+                    LOGINFO("Prepared " << product.getLine() << " for downgrade");
                     setForceInstallForAllProducts = true;
                 }
                 else
@@ -271,10 +267,12 @@ namespace SulDownloader
                     }
                     else
                     {
+                        LOGDEBUG("Preparing " << product.getLine() << " for downgrade");
                         std::string componentPath = Common::FileSystem::join(
                             Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath(),
                             product.getLine() + ".sh");
                         uninstallManager.prepareProductForDowngrade(componentPath);
+                        LOGINFO("Prepared " << product.getLine() << " for downgrade");
                         product.setForceProductReinstall(true);
                     }
                 }
