@@ -175,6 +175,14 @@ namespace SulDownloader
                     else
                     {
                         bool willBeDowngraded = StringUtils::isVersionOlder(currentVersion, newVersion);
+                        if (willBeDowngraded)
+                        {
+                            LOGDEBUG("Component " << rigidName << "is being downgraded");
+                        }
+                        else
+                        {
+                            LOGDEBUG("Component " << rigidName << "is being updated");
+                        }
                         product.setProductWillBeDowngraded(willBeDowngraded);
                     }
                 }

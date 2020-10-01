@@ -296,6 +296,7 @@ Install mtr 999 and downgrade to current mtr
 
     ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
     Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
+    Override LogConf File as Global Level  DEBUG
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
 
@@ -304,7 +305,9 @@ Install mtr 999 and downgrade to current mtr
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  5 secs
-    ...  Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-MTR for downgrade
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
+
+    Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-MTR for downgrade
 
     Wait Until Keyword Succeeds
     ...   200 secs

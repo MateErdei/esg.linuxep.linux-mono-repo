@@ -89,9 +89,9 @@
             The customer dest-dir matches up against constants set in WarehouseUtils.lib
 -->
         <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="develop" />
+            <development-version branch="develop-menaga" />
             <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/vut/warehouse/customer" />
-            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/develop-menaga/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/Base-EDR-Only-OldWarehouseStyle" />
@@ -104,14 +104,14 @@
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-edr-999/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="feature/edr-999-mdr-999" />
+            <development-version branch="menaga/edr-999-mdr-999" />
             <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/edr-mdr-999/warehouse/customer" />
-            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-edr-999-mdr-999/warehouse/warehouse" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/menaga-edr-999-mdr-999/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="feature/mdr-999" />
+            <development-version branch="menaga/mdr-999" />
             <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/mdr-999/warehouse/customer" />
-            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-mdr-999/warehouse/warehouse" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/menaga-mdr-999/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/latest-recommended-release" />
