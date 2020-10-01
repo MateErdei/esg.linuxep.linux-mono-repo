@@ -110,10 +110,6 @@ void manager::scheduler::ScanScheduler::run()
             // timeout - run scan
             runNextScan(m_nextScheduledScan);
         }
-        for (auto& item : m_runningScans)
-        {
-            assert(item.second);
-        }
     }
     for (auto& item : m_runningScans)
     {
