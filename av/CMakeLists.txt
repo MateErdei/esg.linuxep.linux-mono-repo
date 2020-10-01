@@ -10,6 +10,13 @@ set (STD_FILESYSTEM_IF_REQUIRED
 set(SANITISE_FLAGS "")
 set(WARNING_FLAGS "-Wall -Wextra -Werror -Wnon-virtual-dtor -fstack-protector")
 
+if (DEFINED ENV{USE_LIBFUZZER})
+    message("fuzz mode")
+    set(FUZZING_FLAGS -DUSING_LIBFUZZER=1 -g -O1 -fno-omit-frame-pointer -fsanitize=fuzzer,address,undefined,integer)
+    add_compile_options(${FUZZING_FLAGS})
+    add_link_options(${FUZZING_FLAGS})
+endif (DEFINED ENV{USE_LIBFUZZER})
+
 set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SANITISE_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${SANITISE_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")

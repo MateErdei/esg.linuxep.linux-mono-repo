@@ -25,6 +25,13 @@ add_executable(threatReporterServerExecutable
 target_link_libraries(threatReporterServerExecutable  PUBLIC unixsocket)
 target_include_directories(threatReporterServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
+add_executable(threatDetectorServerExecutable
+        ../unixsocket/ThreatDetectorTestExecutable/threatDetectorServer.cpp)
+target_link_libraries(threatDetectorServerExecutable  PUBLIC
+        unixsocket ${STD_FILESYSTEM_IF_REQUIRED})
+target_include_directories(threatDetectorServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(threatDetectorServerExecutable SYSTEM PRIVATE ${BOOSTPATH})
+
 SophosAddTest(TestThreatDetectorSocket
         ../common/LogInitializedTests.cpp
         TestScanningServerConnectionThread.cpp
