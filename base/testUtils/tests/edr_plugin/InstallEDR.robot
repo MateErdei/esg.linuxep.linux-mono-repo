@@ -307,7 +307,7 @@ Install mtr 999 and downgrade to current mtr
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
 
-    Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-MTR for downgrade
+    Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-MDR for downgrade
 
     Wait Until Keyword Succeeds
     ...   200 secs

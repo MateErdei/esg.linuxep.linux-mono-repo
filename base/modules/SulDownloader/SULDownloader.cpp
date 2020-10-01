@@ -252,7 +252,7 @@ namespace SulDownloader
         bool setForceInstallForAllProducts = false;
         for (auto& product : products)
         {
-            if(product.productWillBeDowngraded())
+            if (product.productWillBeDowngraded())
             {
                 // Base should always be the first product in the list.
                 // if base is being downgraded, then all products will be treated as a downgrade
@@ -269,11 +269,7 @@ namespace SulDownloader
                 }
                 else
                 {
-                    if (setForceInstallForAllProducts)
-                    {
-                        product.setForceProductReinstall(true);
-                    }
-                    else
+                    if (!setForceInstallForAllProducts)
                     {
                         LOGDEBUG("Preparing " << product.getLine() << " for downgrade");
                         std::string componentPath = Common::FileSystem::join(
@@ -284,6 +280,10 @@ namespace SulDownloader
                         product.setForceProductReinstall(true);
                     }
                 }
+            }
+            if (setForceInstallForAllProducts)
+            {
+                product.setForceProductReinstall(true);
             }
             productIndex++;
         }
