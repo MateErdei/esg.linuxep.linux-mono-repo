@@ -16,11 +16,11 @@ EXAMPLE_WAREHOUSE_FLAGS = {
     "endpoint.flag1.enabled": "true",
     "endpoint.flag2.enabled": "false",
     "endpoint.flag3.enabled": "true",
-    "endpoint.flag4.enabled": "force",
-    "endpoint.flag5.enabled": "force",
+    "endpoint.flag4.enabled": "always",
+    "endpoint.flag5.enabled": "always",
     "endpoint.flag7.enabled": "false",
     "endpoint.flag8.enabled": "true",
-    "endpoint.flag10.enabled": "force"
+    "endpoint.flag10.enabled": "always"
 }
 
 EXAMPLE_MCS_FLAGS = {
@@ -50,12 +50,12 @@ EXAMPLE_FULL_WAREHOUSE_FLAGS = {
     "endpoint.flag1.enabled": "true",
     "endpoint.flag2.enabled": "false",
     "endpoint.flag3.enabled": "true",
-    "endpoint.flag4.enabled": "force",
-    "endpoint.flag5.enabled": "force",
+    "endpoint.flag4.enabled": "always",
+    "endpoint.flag5.enabled": "always",
     "endpoint.flag6.enabled": "false",
     "endpoint.flag7.enabled": "false",
     "endpoint.flag8.enabled": "true",
-    "endpoint.flag10.enabled": "force"
+    "endpoint.flag10.enabled": "always"
 }
 
 EXAMPLE_FULL_MCS_FLAGS = {
@@ -93,7 +93,7 @@ EXAMPLE_FULL_MCS_FLAGS_FROM_EMPTY = {
 
 class TestFlags(unittest.TestCase):
     def test_combine_flags_respects_force(self):
-        warehouse_flags = {"endpoint.flag1.enabled": "force"}
+        warehouse_flags = {"endpoint.flag1.enabled": "always"}
         mcs_flags = {"endpoint.flag1.enabled": False}
         combined_flags = flags.combine_flags(warehouse_flags, mcs_flags)
         expected_flags = {"endpoint.flag1.enabled": True}

@@ -86,7 +86,7 @@ def combine_flags(warehouse_flags, mcs_flags):
     """
     combined_flags = {}
     for i in warehouse_flags:
-        if warehouse_flags[i] == "force" or \
+        if warehouse_flags[i] == "always" or \
                 (warehouse_flags[i] == "true" and mcs_flags[i] is True):
             combined_flags[i] = True
         else:
