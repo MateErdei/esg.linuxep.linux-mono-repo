@@ -17,6 +17,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/serialize.h>
 
 #include <string>
+#include <sstream>
 #include <cassert>
 #include <cstring>
 

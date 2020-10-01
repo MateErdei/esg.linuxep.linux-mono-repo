@@ -29,7 +29,8 @@ namespace unixsocket
         ScanningServerConnectionThread& operator=(const ScanningServerConnectionThread&) = delete;
         explicit ScanningServerConnectionThread(
                 datatypes::AutoFd& fd,
-                threat_scanner::IThreatScannerFactorySharedPtr scannerFactory);
+                threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
+                int maxIterations = -1);
         void run() override;
 
     private:
@@ -38,6 +39,7 @@ namespace unixsocket
 
         datatypes::AutoFd m_fd;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
+        int m_maxIterations;
     };
 
     struct ScanRequestObject

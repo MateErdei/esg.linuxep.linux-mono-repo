@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/serialize.h>
 
 #include <stdexcept>
+#include <cassert>
 #include <iostream>
 #include <utility>
 
@@ -20,9 +21,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::AutoFd& fd,
-        threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
+        threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
+        int maxIterations)
     : m_fd(std::move(fd))
     , m_scannerFactory(std::move(scannerFactory))
+    , m_maxIterations(maxIterations)
 {
     if (m_fd < 0)
     {
@@ -193,6 +196,15 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
     while (true)
     {
+        // if m_maxIterations < 0, iterate forever, otherwise count down and break.
+        if (m_maxIterations >= 0)
+        {
+            if (m_maxIterations-- == 0)
+            {
+                break;
+            }
+        }
+
         fd_set tempRead = readFDs;
 
         int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);

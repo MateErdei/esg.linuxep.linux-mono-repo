@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <stdexcept>
+#include <cassert>
 
 #include <sys/socket.h>
 #include <sys/un.h>

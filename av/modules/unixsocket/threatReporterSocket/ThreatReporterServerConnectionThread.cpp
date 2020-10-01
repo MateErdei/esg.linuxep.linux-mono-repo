@@ -16,6 +16,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/serialize.h>
 
 #include <stdexcept>
+#include <cassert>
 #include <utility>
 
 #include <sys/socket.h>
