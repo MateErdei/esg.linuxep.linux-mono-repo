@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SophosThreatDetectorMain.h"
 #include "Logger.h"
 
+#include <fstream>
 #include "common/Define.h"
 #ifdef USE_SUSI
 #include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
@@ -35,10 +36,17 @@ static int inner_main()
     // Copy logger config from base
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
     std::string loggerConfFile = "/base/etc/logger.conf";
+    std::string machineIDFile = "/base/etc/machine_id.txt";
+
     std::string sourceFile = sophosInstall.string() + loggerConfFile;
     std::string targetFile = chrootPath.string() + sophosInstall.string() + loggerConfFile;
     LOGINFO("Copying " << sourceFile << " to: " << targetFile);
     fs::copy_file(sourceFile, targetFile, fs::copy_options::overwrite_existing);
+
+    std::string machineIdSourceFile = sophosInstall.string() + machineIDFile;
+    std::string machineIdTargetFile = chrootPath.string() + sophosInstall.string() + machineIDFile;
+    LOGINFO("Copying " << machineIdSourceFile << " to: " << machineIdTargetFile);
+    fs::copy_file(machineIdSourceFile, machineIdTargetFile, fs::copy_options::overwrite_existing);
 
     int ret = ::chroot(chrootPath.c_str());
     if (ret != 0)
@@ -81,3 +89,4 @@ int sspl::sophosthreatdetectorimpl::sophos_threat_detector_main()
         return 100;
     }
 }
+

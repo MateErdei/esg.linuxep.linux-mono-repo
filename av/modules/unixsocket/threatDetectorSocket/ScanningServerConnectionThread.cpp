@@ -264,7 +264,6 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
             if (!scanner)
             {
-                //TODO: scanner = m_scannerFactory->createScanner(requestReader.scanArchives, machineID, customerID);
                 scanner = m_scannerFactory->createScanner(requestReader.scanArchives);
                 if (!scanner)
                 {
