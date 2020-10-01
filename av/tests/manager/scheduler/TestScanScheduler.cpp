@@ -33,7 +33,7 @@ namespace
         int m_count = 0;
     };
 
-    static constexpr char LOG_CATEGORY[] = "ScanScheduler";
+    constexpr char LOG_CATEGORY[] = "ScanScheduler";
     class TestScanScheduler : public MemoryAppenderUsingTestsTemplate<LOG_CATEGORY>
     {
         public:
@@ -161,9 +161,9 @@ TEST_F(TestScanScheduler, scanNow) //NOLINT
 
     scheduler.scanNow();
 
-    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 1000000));
-    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000000));
-    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 1000000));
+    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 1000));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 1000));
 
     scheduler.requestStop();
     scheduler.join();
@@ -195,8 +195,8 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
     ASSERT_TRUE(waitForLog("Starting scan Scan Now", 10000));
     scheduler.scanNow();
 
-    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 2000000));
-    EXPECT_TRUE(waitForLog("Refusing to run a second Scan named: Scan Now", 2000000));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 20000));
+    EXPECT_TRUE(waitForLog("Refusing to run a second Scan named: Scan Now", 20000));
 
     scheduler.requestStop();
     scheduler.join();
@@ -228,7 +228,7 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
 
-    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 1000000));
+    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 1000));
 
     scheduler.requestStop();
     scheduler.join();
@@ -293,8 +293,8 @@ TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
     scheduler.start();
 
     scheduler.updateConfig(scheduledScanConfiguration);
-    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 1000000));
-    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 2000000));
+    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 1000)); // ms
+    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 20000)); // ms
 
     scheduler.requestStop();
     scheduler.join();
@@ -331,10 +331,10 @@ TEST_F(TestScanScheduler, runsScheduledScanAndScanNow) //NOLINT
     scheduler.start();
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
-    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 1000000));
-    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000000));
-    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 2000000));
-    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 2000000));
+    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 1000));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000));
+    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 20000));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 20000));
 
     scheduler.requestStop();
     scheduler.join();

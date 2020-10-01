@@ -94,12 +94,13 @@ void manager::scheduler::ScanScheduler::run()
             if (fd_isset(scanNowFD, &tempRead))
             {
                 LOGINFO("Evaluating Scan Now");
-                Common::Telemetry::TelemetryHelper::getInstance().increment("scan-now-count", 1ul);
-                runNextScan(m_config.scanNowScan());
                 while (m_scanNowPipe.notified())
                 {
-                    // Clear scanNowPipe
+                    // Clear scanNowPipe before starting the scan, otherwise we might miss notifications arriving
+                    // after we've started the scan.
                 }
+                Common::Telemetry::TelemetryHelper::getInstance().increment("scan-now-count", 1ul);
+                runNextScan(m_config.scanNowScan());
             }
         }
 
@@ -109,14 +110,24 @@ void manager::scheduler::ScanScheduler::run()
             // timeout - run scan
             runNextScan(m_nextScheduledScan);
         }
+        for (auto& item : m_runningScans)
+        {
+            assert(item.second);
+        }
     }
     for (auto& item : m_runningScans)
     {
-        item.second->requestStop();
+        if (item.second)
+        {
+            item.second->requestStop();
+        }
     }
     for (auto& item : m_runningScans)
     {
-        item.second->join();
+        if (item.second)
+        {
+            item.second->join();
+        }
     }
     LOGSUPPORT("Exiting scan scheduler");
 }
@@ -135,7 +146,7 @@ void ScanScheduler::runNextScan(const ScheduledScan& nextScan)
 
     while (it != m_runningScans.end())
     {
-        if (it->second->scanCompleted())
+        if (!it->second || it->second->scanCompleted())
         {
             // Scan completed
             it = m_runningScans.erase(it);
@@ -159,6 +170,7 @@ void ScanScheduler::runNextScan(const ScheduledScan& nextScan)
     std::string serialisedNextScan = serialiseNextScan(nextScan);
 
     auto runner = std::make_unique<ScanRunner>(name, std::move(serialisedNextScan), m_completionNotifier);
+    assert(runner);
     runner->start();
     m_runningScans[name] = std::move(runner);
 }
