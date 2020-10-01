@@ -26,6 +26,30 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace sspl::sophosthreatdetectorimpl;
 namespace fs = sophos_filesystem;
 
+static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chrootPath)
+{
+    std::vector<std::string> fileVector;
+    fileVector.emplace_back("/base/etc/logger.conf");
+    fileVector.emplace_back("/base/etc/machine_id.txt");
+    fileVector.emplace_back("/base/mcs/policy/ALC-1_policy.xml");
+
+    for (const std::string& file : fileVector)
+    {
+        fs::path sourceFile = sophosInstall / file;
+        fs::path targetFile = chrootPath / sophosInstall / file;
+        LOGINFO("Copying " << sourceFile.string() << " to: " << targetFile.string());
+
+        try
+        {
+            fs::copy_file(sourceFile, targetFile, fs::copy_options::overwrite_existing);
+        }
+        catch (fs::filesystem_error& e)
+        {
+            LOGERROR("Failed to copy: " << file);
+        }
+    }
+}
+
 static int inner_main()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -35,18 +59,7 @@ static int inner_main()
 #ifdef USE_CHROOT
     // Copy logger config from base
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
-    std::string loggerConfFile = "/base/etc/logger.conf";
-    std::string machineIDFile = "/base/etc/machine_id.txt";
-
-    std::string sourceFile = sophosInstall.string() + loggerConfFile;
-    std::string targetFile = chrootPath.string() + sophosInstall.string() + loggerConfFile;
-    LOGINFO("Copying " << sourceFile << " to: " << targetFile);
-    fs::copy_file(sourceFile, targetFile, fs::copy_options::overwrite_existing);
-
-    std::string machineIdSourceFile = sophosInstall.string() + machineIDFile;
-    std::string machineIdTargetFile = chrootPath.string() + sophosInstall.string() + machineIDFile;
-    LOGINFO("Copying " << machineIdSourceFile << " to: " << machineIdTargetFile);
-    fs::copy_file(machineIdSourceFile, machineIdTargetFile, fs::copy_options::overwrite_existing);
+    copyRequiredFiles(sophosInstall, chrootPath);
 
     int ret = ::chroot(chrootPath.c_str());
     if (ret != 0)
