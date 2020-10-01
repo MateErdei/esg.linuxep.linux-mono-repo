@@ -192,11 +192,11 @@ TEST_F(TestScanScheduler, scanNow_refusesSecondScanNow) //NOLINT
 
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
-    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 10000));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 100000));
     scheduler.scanNow();
 
-    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 20000));
-    EXPECT_TRUE(waitForLog("Refusing to run a second Scan named: Scan Now", 20000));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 200000));
+    EXPECT_TRUE(waitForLog("Refusing to run a second Scan named: Scan Now", 200000));
 
     scheduler.requestStop();
     scheduler.join();
@@ -228,7 +228,7 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
 
-    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 1000));
+    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 10000));
 
     scheduler.requestStop();
     scheduler.join();
@@ -293,8 +293,8 @@ TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
     scheduler.start();
 
     scheduler.updateConfig(scheduledScanConfiguration);
-    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 1000)); // ms
-    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 20000)); // ms
+    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 10000)); // micro-seconds
+    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 200000)); // micro-seconds
 
     scheduler.requestStop();
     scheduler.join();
@@ -331,10 +331,10 @@ TEST_F(TestScanScheduler, runsScheduledScanAndScanNow) //NOLINT
     scheduler.start();
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
-    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 1000));
-    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000));
-    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 20000));
-    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 20000));
+    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 10000));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 10000));
+    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 200000));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 200000));
 
     scheduler.requestStop();
     scheduler.join();
