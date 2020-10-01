@@ -66,7 +66,7 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) 
                 "adobe": true,
                 "android": true,
                 "internet": true,
-                "webArchive": true,
+                "webArchive": false,
                 "webEncoding": true,
                 "media": true,
                 "macintosh": true

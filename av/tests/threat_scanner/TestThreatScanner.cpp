@@ -21,7 +21,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/UtilityImpl/StringUtils.h"
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
-#include <signal.h>
+#include <csignal>
 
 using namespace testing;
 
@@ -115,7 +115,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
                 "adobe": true,
                 "android": true,
                 "internet": true,
-                "webArchive": true,
+                "webArchive": false,
                 "webEncoding": true,
                 "media": true,
                 "macintosh": true

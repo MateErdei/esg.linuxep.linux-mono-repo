@@ -21,7 +21,7 @@ std::string threat_scanner::create_scanner_info(bool scanArchives)
                 "adobe": true,
                 "android": true,
                 "internet": true,
-                "webArchive": true,
+                "webArchive": @@WEB_ARCHIVES@@,
                 "webEncoding": true,
                 "media": true,
                 "macintosh": true
@@ -33,7 +33,10 @@ std::string threat_scanner::create_scanner_info(bool scanArchives)
                 "stopOnArchiveBombs": true
             }
         }
-    })sophos", {{"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"}});
+    })sophos", {
+                             {"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"},
+                             {"@@WEB_ARCHIVES@@",  scanArchives?"true":"false"},
+                         });
 
     return scannerInfo;
 }
