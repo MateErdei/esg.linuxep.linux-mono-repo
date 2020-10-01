@@ -68,18 +68,29 @@
             <include src="package/libsophtainer.tar" dest="libsophtainer" />
         </package>
 
-        <package name="susi" version="1-0-0-4589/221205" dest="input/susi_input" >
-            <include src="release/susi-centos7-x64-gcc810/lib" dest="susi/lib"/>
-            <include src="release/susi-centos7-x64-gcc810/include" dest="susi/include"/>
-        </package>
+        <!-- See https://esg-ci.eng.sophos/docs/docs/build-package-file#inputs-from-other-unified-pipelines-21 -->
+<!--        <package name="susi" version="1-0-0-4589/221205" dest="input/susi_input" >-->
+<!--            <include src="release/susi-centos7-x64-gcc810/lib" dest="susi/lib"/>-->
+<!--            <include src="release/susi-centos7-x64-gcc810/include" dest="susi/include"/>-->
+<!--        </package>-->
+<!--        <package name="susi" version="1-0-0-4498/221037" dest="input/susi_input" >-->
+<!--            <include src="rules/rules" dest="rules" />-->
+<!--        </package>-->
+        <build-asset project="ec" repo="susi">
+            <release-version branch="release/test" build-id="20201001100919-a814d4a9e702db94e86f7848f41c2d6e16c26fdb-ptVCKg"/>
+            <include artifact-path="release/centos7/libsusi" dest-dir="input/susi_input/susi/lib" />
+            <include artifact-path="release/centos7/include" dest-dir="input/susi_input/susi/include" />
+            <include artifact-path="release/rules" dest-dir="input/susi_input/rules" />
+        </build-asset>
 
-        <package name="susi" version="1-0-0-4498/221037" dest="input/susi_input" >
-            <include src="rules/rules" dest="rules" />
-        </package>
+<!--        <package name="httpsrequester" version="1-0-0-757/221146" dest="input/susi_input" >-->
+<!--            <include src="release/libglobalrep-centos7-x64-gcc810/lib" dest="gr/lib"/>-->
+<!--        </package>-->
 
-        <package name="httpsrequester" version="1-0-0-757/221146" dest="input/susi_input" >
-            <include src="release/libglobalrep-centos7-x64-gcc810/lib" dest="gr/lib"/>
-        </package>
+        <build-asset project="core" repo="httpsrequester">
+            <release-version branch="release/test" build-id="20200918094111-0d8d9dc53765f2049f83090bd18c1672589374c5-vwPQEK"/>
+            <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
+        </build-asset>
 
         <!-- external dependencies -->
         <package name="openssl" version="1-1-1d-6/219246" dest="input/susi_input" >
