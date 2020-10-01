@@ -86,6 +86,7 @@ CHROOT_LINK_DIR="${CHROOT}/${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 mkdir -p ${CHROOT_LINK_DIR}
 ln -snf / ${CHROOT_LINK_DIR}/chroot
 mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
+mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/mcs/policy/
 mkdir -p ${CHROOT}/tmp
 chmod 0711 "$CHROOT"
 
