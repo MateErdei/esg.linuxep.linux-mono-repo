@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/CommsComponent/SplitProcesses.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <tests/Common/Helpers/TestMacros.h>
+#include <tests/Common/Helpers/OutputToLog.h>
 
 using namespace CommsComponent;
 
@@ -226,6 +227,7 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
 TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
 {
     MAYSKIP;
+    Tests::OutputToLog::writeToUnitTestLog("TestSplitProcesses.ParentIsNotifiedIfChildAbort");
     testing::FLAGS_gtest_death_test_style = "threadsafe";
     ASSERT_EXIT(
             {
@@ -241,14 +243,20 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
                     }
                     catch (ChannelClosedException&)
                     {
+                        Tests::OutputToLog::writeToUnitTestLog("Got ChannelClosedException");
                         return 0;
                     }
+                    Tests::OutputToLog::writeToUnitTestLog("Did not get ChannelClosedException");
                     throw std::runtime_error("Did not receive closed channel exception");
                     return 0; 
                 };
                 auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
                                                 std::vector<ReadOnlyMount>());
                 int exitCode = splitProcessesReactors(parentProcess, childProcess, config);
+
+                std::stringstream message;
+                message << "Exitcode: " << exitCode;
+                Tests::OutputToLog::writeToUnitTestLog(message.str());
                 exit(exitCode);
             },
             ::testing::ExitedWithCode(0), ".*");

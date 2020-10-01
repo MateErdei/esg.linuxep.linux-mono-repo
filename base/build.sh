@@ -450,6 +450,7 @@ function build()
                 local EXITCODE=$?
                 echo "Unit tests failed with $EXITCODE"
                 cat Testing/Temporary/LastTest.log || true
+                cat /tmp/unitTest.log || true
                 exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
             }
         fi
