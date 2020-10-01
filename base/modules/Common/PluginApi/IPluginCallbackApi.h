@@ -34,11 +34,16 @@ namespace Common
              * Require the plugin to apply a policy (Sent by Management Console).
              *
              * @attention the policy may be applied at a later time after the method returns.
-             * @param policyContent: the policy content; xml or json
+             * @param policyXml: either the policy xml content
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in applying new
              * policy.
              */
-            virtual void applyNewPolicy(const std::string& appId, const std::string& policyContent) = 0;
+            virtual void applyNewPolicy(const std::string& policyXml) = 0;
+            virtual void applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml)
+            {
+                (void) appId;
+                applyNewPolicy(policyXml);
+            };
 
             /**
              * Require the plugin to perform an action ( Sent by Management Console ).
