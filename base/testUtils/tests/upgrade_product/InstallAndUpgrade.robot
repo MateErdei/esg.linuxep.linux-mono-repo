@@ -48,6 +48,7 @@ ${mtr_removed_files_manifest}               ${SOPHOS_INSTALL}/tmp/ServerProtecti
 ${base_files_to_delete}                     ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Base/filestodelete.dat
 ${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Plugin-MDR/filestodelete.dat
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 
 *** Test Cases ***
@@ -241,6 +242,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...   200 secs
     ...   10 secs
     ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+
+    Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
     ...   60 secs

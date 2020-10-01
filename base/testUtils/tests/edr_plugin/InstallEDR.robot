@@ -37,6 +37,7 @@ ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_
 ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
 ${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+${SULDownloaderLogDowngrade}        ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${WDCTL_LOG_PATH}                   ${SOPHOS_INSTALL}/logs/base/wdctl.log
 
 *** Test Cases ***
@@ -258,26 +259,17 @@ Install base and edr and mtr 999 then downgrade to current master
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
 
+    Override LogConf File as Global Level  DEBUG
+
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.0.0
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.0.0
+    ...   200 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version
+    Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -285,9 +277,9 @@ Install base and edr and mtr 999 then downgrade to current master
     ...  EDR Plugin Is Running
 
     Wait Until Keyword Succeeds
-    ...   200 secs
+    ...   60 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
@@ -297,21 +289,32 @@ Install base and edr and mtr 999 then downgrade to current master
     Should not contain   ${contents}   PRODUCT_VERSION = 99.99.99
 
 
-    # Ensure components were restarted during update.
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop edr
-    ...  wdctl <> start edr
+Install mtr 999 and downgrade to current mtr
+    Install EDR  ${BaseEdrAndMtr999Policy}
 
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop mtr
-    ...  wdctl <> start mtr
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
 
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop liveresponse
-    ...  wdctl <> start liveresponse
+    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
+
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-MTR for downgrade
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    Check MDR Plugin Installed
+
+    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should not contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
 
 
 Install master of base and edr and mtr and upgrade to mtr 999
@@ -473,10 +476,22 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ${live_response_version_contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${live_response_version_contents}   PRODUCT_VERSION = 99.99.99
 
+    # Ensure components were restarted during update.
     Check Log Contains In Order
     ...  ${WDCTL_LOG_PATH}
     ...  wdctl <> stop edr
     ...  wdctl <> start edr
+
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop mtr
+    ...  wdctl <> start mtr
+
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop liveresponse
+    ...  wdctl <> start liveresponse
+
 
 
 Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
