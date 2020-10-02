@@ -12,7 +12,11 @@ function exitFailure()
 }
 
 SRC_FILE=$1
-[[ -f "$SRC_FILE" ]] || exitFailure 2 "Unable to find src file for upload: $?"
+[[ -f "$SRC_FILE" ]] || {
+    echo  "ERROR: Unable to find src file $SRC_FILE for upload: $?" >&2
+    ## don't fail the build for this
+    exit 0
+}
 
 if [[ -n "$2" ]]
 then

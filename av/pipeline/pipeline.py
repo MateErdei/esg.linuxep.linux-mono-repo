@@ -168,7 +168,7 @@ def bullseye_coverage_task(machine: tap.Machine):
             'COVFILE': COVFILE_PYTEST,
             'COVSRCDIR': COVSRCDIR,
         })
-        pytest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-pytest')
+        pytest_htmldir = os.path.join(coverage_results_dir, 'sspl-plugin-av-pytest')
         machine.run('bash', UPLOAD_SCRIPT,
                     environment={
                         'COVFILE': COVFILE_PYTEST,
@@ -176,7 +176,6 @@ def bullseye_coverage_task(machine: tap.Machine):
                         'COV_HTML_BASE': 'sspl-plugin-av-pytest' + suffix,
                         'htmldir': pytest_htmldir,
                     })
-        machine.run('mv', pytest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_PYTEST, coverage_results_dir)
 
         machine.run('cp', COVFILE_UNITTEST, COVFILE_ROBOT)
@@ -200,7 +199,7 @@ def bullseye_coverage_task(machine: tap.Machine):
             exception = e
 
         machine.run('rm', '-f', '/tmp/BullseyeCoverageEnv.txt')
-        robot_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-robot')
+        robot_htmldir = os.path.join(coverage_results_dir, 'sspl-plugin-av-robot')
         machine.run('bash', UPLOAD_SCRIPT,
                     environment={
                         'COVFILE': COVFILE_ROBOT,
@@ -208,7 +207,6 @@ def bullseye_coverage_task(machine: tap.Machine):
                         'COV_HTML_BASE': 'sspl-plugin-av-robot' + suffix,
                         'htmldir': robot_htmldir,
                     })
-        machine.run('mv', robot_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_ROBOT, coverage_results_dir)
 
         # generate combined coverage html results and upload to allegro
@@ -217,7 +215,7 @@ def bullseye_coverage_task(machine: tap.Machine):
                     COVFILE_PYTEST,
                     COVFILE_ROBOT
                     )
-        combined_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage', 'sspl-plugin-av-combined')
+        combined_htmldir = os.path.join(coverage_results_dir, 'sspl-plugin-av-combined')
         machine.run('bash', UPLOAD_SCRIPT,
                     environment={
                         'COVFILE': COVFILE_COMBINED,
@@ -227,15 +225,14 @@ def bullseye_coverage_task(machine: tap.Machine):
                     })
 
         # publish combined html results and coverage file to artifactory
-        machine.run('mv', combined_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
 
         if exception is not None:
             raise exception
     finally:
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html", "robot-coverage-log"+suffix+".html")
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html", "robot-coverage-log"+suffix+".html")
 
 
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
