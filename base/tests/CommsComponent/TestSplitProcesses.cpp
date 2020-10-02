@@ -115,6 +115,8 @@ public:
             }
             if (message == "abort")
             {
+                Tests::OutputToLog::writeToUnitTestLog("Done abort");
+                std::cout << "aborting " << std::endl;
                 std::terminate();
             }
             if (message == "getuid")
