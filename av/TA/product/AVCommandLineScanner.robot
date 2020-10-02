@@ -135,6 +135,20 @@ CLS Can Scan Archive File
       Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
       Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
+CLS Doesnt Detect eicar in zip without archive option
+      ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+      Create Directory  ${ARCHIVE_DIR}
+      Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
+
+      Run Process     zip  ${NORMAL_DIRECTORY}/test.zip  ${ARCHIVE_DIR}
+      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.zip
+
+      Log  return code is ${rc}
+      Log  output is ${output}
+      Should Be Equal As Integers  ${rc}  ${0}
+      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.zip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+      Should Not Contain  ${output}  is infected with EICAR-AV-Test
+
 CLS Can Scan Multiple Archive Files
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
       ${SCAN_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/scan_dir
