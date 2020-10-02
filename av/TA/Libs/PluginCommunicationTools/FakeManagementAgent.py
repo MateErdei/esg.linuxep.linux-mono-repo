@@ -6,11 +6,12 @@
 
 
 from threading import Thread
+import sys
 import zmq
 
 from .common.socket_utils import try_get_socket, ZMQ_CONTEXT
 from .common.ProtobufSerialisation import *
-from .common.SetupLogger import setup_logging
+from .common.SetupLogger import setup_logging, get_log_dir
 from .common.PathsLocation import management_agent_socket_path
 
 class Agent(object):

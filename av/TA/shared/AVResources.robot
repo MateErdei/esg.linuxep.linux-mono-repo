@@ -6,6 +6,7 @@ Library         ../Libs/AVScanner.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
@@ -132,7 +133,8 @@ Plugin Log Contains
 
 FakeManagement Log Contains
     [Arguments]  ${input}
-    File Log Contains  ${FAKEMANAGEMENT_AGENT_LOG_PATH}   ${input}
+    ${log_path} =   FakeManagementLog.get_fake_management_log_path
+    File Log Contains  ${log_path}   ${input}
 
 Management Log Contains
     [Arguments]  ${input}

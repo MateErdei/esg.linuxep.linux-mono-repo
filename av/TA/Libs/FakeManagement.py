@@ -13,6 +13,7 @@ from Libs.PluginCommunicationTools import FakeManagementAgent
 from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
 from Libs.PluginCommunicationTools.common import PathsLocation
 from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
+from Libs import FakeManagementLog
 
 import time
 import traceback
@@ -139,14 +140,17 @@ class ManagementAgentPluginRequester(object):
         return f"{creation_time}_{ttl}"
 
 class FakeManagement(object):
-
     def __init__(self):
-        self.logger = FakeManagementAgent.setup_logging("fake_management_agent.log", "Fake Management Agent")
+        self.logger = None
         self.agent = None
+
+    def get_fakemanagement_agent_log_path(self):
+        return FakeManagementLog.get_fake_management_log_path()
 
     def start_fake_management(self):
         if self.agent:
             raise AssertionError("Agent already initialized")
+        self.logger = FakeManagementAgent.setup_logging(FakeManagementLog.get_fake_management_log_filename(), "Fake Management Agent")
         self.agent = FakeManagementAgent.Agent(self.logger)
         self.agent.start()
 
@@ -156,6 +160,7 @@ class FakeManagement(object):
             return
         self.agent.stop()
         self.agent = None
+        self.logger = None
 
     def send_plugin_policy(self, plugin_name, appid, content):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
@@ -193,7 +198,6 @@ class FakeManagement(object):
 
         self.logger.fatal("Plugin status didn't contain expected texts: %s", status)
         raise Exception("Plugin status didn't contain expected texts")
-
 
     def get_plugin_telemetry(self, plugin_name):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)

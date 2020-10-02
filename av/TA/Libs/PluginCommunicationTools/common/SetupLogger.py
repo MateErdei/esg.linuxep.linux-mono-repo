@@ -30,4 +30,4 @@ def get_logger(name):
 
 
 def get_log_dir():
-    return os.path.join(get_install_location(), "tmp")
+    return os.path.join(get_install_location())
