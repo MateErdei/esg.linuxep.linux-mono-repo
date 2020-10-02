@@ -188,14 +188,15 @@ do
             rm -rf ${BUILD_DIR}/input
             python3 -m build_scripts.artisan_fetch build-files/release-package.xml
             ;;
-        --get-input-new)
+        --get-input|--get-input-new)
             rm -rf ${BUILD_DIR}/input
             export TAP_PARAMETER_MODE=release
             tap fetch av_plugin.build.normal_build
             ;;
         --setup)
             rm -rf ${BUILD_DIR}/input
-            python3 -m build_scripts.artisan_fetch build-files/release-package.xml
+            export TAP_PARAMETER_MODE=release
+            tap fetch av_plugin.build.normal_build
             rm -f ${BUILD_DIR}/input/gcc-*-linux.tar.gz
             NO_BUILD=1
             LOCAL_GCC=1
