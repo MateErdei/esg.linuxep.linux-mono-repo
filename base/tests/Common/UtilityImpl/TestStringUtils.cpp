@@ -143,6 +143,10 @@ TEST(TestStringUtils, extractValueFromIniFileThrowsIfKeydoesntExist) // NOLINT
 TEST(TestStringUtils, isVersionOlderthrowsOnNonVersionData) // NOLINT
 {
     EXPECT_THROW(StringUtils::isVersionOlder("1.2","1.a"),std::invalid_argument);
+    EXPECT_THROW(StringUtils::isVersionOlder("1.a","1.2"),std::invalid_argument);
+    EXPECT_THROW(StringUtils::isVersionOlder("1.2","hello"),std::invalid_argument);
+    EXPECT_THROW(StringUtils::isVersionOlder("hello","1.2"),std::invalid_argument);
+    EXPECT_THROW(StringUtils::isVersionOlder("hello","stuff"),std::invalid_argument);
 
 }
 
@@ -173,5 +177,16 @@ TEST(TestStringUtils, isVersionOlder) // NOLINT
     EXPECT_EQ(StringUtils::isVersionOlder("1","0.0.0"),true);
     EXPECT_EQ(StringUtils::isVersionOlder("9...3.1","9.3.1"),false);
     EXPECT_EQ(StringUtils::isVersionOlder("9...3.1","9.2.1"),true);
+    EXPECT_EQ(StringUtils::isVersionOlder("1","1"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2.3","1.2.3"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2.3.4","1.2.3.4"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("9","1"),true);
+    EXPECT_EQ(StringUtils::isVersionOlder("1","9"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.9","1.2"),true);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2","1.9"), false);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2.9","1.2.3"),true);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2.3","1.2.9"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2.3.9","1.2.3.4"),true);
+    EXPECT_EQ(StringUtils::isVersionOlder("1.2.3.4","1.2.3.9"),false);
 
 }
