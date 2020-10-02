@@ -87,7 +87,6 @@ static void attempt_dns()
             canon_name = res->ai_canonname;
         }
         assert (canon_name != nullptr);
-        char addrstr[255];
         void* ptr = nullptr;
         switch (res->ai_family)
         {
@@ -100,6 +99,7 @@ static void attempt_dns()
         }
         if (ptr != nullptr)
         {
+            char addrstr[255];
             inet_ntop(res->ai_family, ptr, addrstr, sizeof(addrstr));
 
             printf("IPv%d address: %s (%s)\n", res->ai_family == PF_INET6 ? 6 : 4, addrstr, canon_name);
