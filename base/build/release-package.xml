@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="sspl-base" version="1.1.4">
     <versioning>
-        <workingdir>sspl-base-build/products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
