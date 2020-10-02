@@ -11,14 +11,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SusiWrapper.h"
 #include "Logger.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include "Common/UtilityImpl/StringUtils.h"
 #include <Common/XmlUtilities/AttributesMap.h>
 
 #include <fstream>
-
+#include <thirdparty/nlohmann-json/json.hpp>
 
 using namespace threat_scanner;
+using json = nlohmann::json;
 namespace fs = sophos_filesystem;
 
 std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
@@ -31,57 +32,58 @@ static fs::path susi_library_path()
     return pluginInstall() / "chroot/susi/distribution_version";
 }
 
-////make a method that reads /opt/sophos-spl/base/etc/machine_id.txt to get the Endpoint ID
 static std::string getEndpointId()
 {
-    std::string endpointId = "unknown";
-
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path machineIdPath = appConfig.getData("SOPHOS_INSTALL") + "/base/etc/machine_id.txt";
 
     std::ifstream fs(machineIdPath);
-    LOGINFO("Entered getEndpointId");
 
     if (fs.good())
     {
-        LOGINFO("Filestream is good");
-        std::stringstream endpointIdContents;
-        endpointIdContents << fs.rdbuf();
-        endpointId = endpointIdContents.str();
-        LOGINFO("Endpoint ID is: " << endpointId);
+        try
+        {
+            std::stringstream endpointIdContents;
+            endpointIdContents << fs.rdbuf();
+
+            return endpointIdContents.str();
+        }
+        catch (std::exception& e)
+        {
+            LOGERROR("Unexpected error when reading endpoint id for global rep setup: " << e.what());
+        }
     }
 
-    return endpointId;
+    return "66b8fd8b39754951b87269afdfcb285c";
 }
 
 static std::string getCustomerId()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    fs::path customerIdPath = appConfig.getData("SOPHOS_INSTALL") + "/base/mcs/policy/ALC-1_policy.xml";
+    fs::path customerIdPath = appConfig.getData("SOPHOS_INSTALL") + "/base/update/var/update_config.json";
 
     std::ifstream fs(customerIdPath, std::ifstream::in);
 
     if (fs.good())
     {
-        std::stringstream customerIdContents;
-        customerIdContents << fs.rdbuf();
-        LOGINFO("XML contents: " << customerIdContents.str());
-        auto attributeMap = Common::XmlUtilities::parseXml(customerIdContents.str());
         try
         {
-            auto attributes = attributeMap.lookupMultiple("AUConfigurations");
+            std::stringstream updateConfigContents;
+            updateConfigContents << fs.rdbuf();
 
-            LOGINFO("value is " << attributeMap.lookup("AUConfigurations/customer").value("id") << " textid is " << attributeMap.lookup("AUConfigurations/customer").TextId << " contents are " << attributeMap.lookup("AUConfigurations/customer").contents());
+            auto jsonContents = json::parse(updateConfigContents);
+            LOGINFO("json: " << jsonContents);
+            LOGINFO("creds: " << jsonContents["credential"]);
+            return jsonContents["credential"]["password"];
 
-            return attributeMap.lookup("AUConfigurations/customer").contents();
         }
         catch (std::exception& e)
         {
-            LOGERROR("Unexpected exception when reading customer id for global rep setup: " << e.what());
+            LOGERROR("Unexpected error when reading customer id for global rep setup: " << e.what());
         }
     }
 
-    return "unknown";
+    return "c1cfcf69a42311a6084bcefe8af02c8a";
 }
 
 

@@ -31,7 +31,7 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
     std::vector<std::string> fileVector;
     fileVector.emplace_back("/base/etc/logger.conf");
     fileVector.emplace_back("/base/etc/machine_id.txt");
-    fileVector.emplace_back("/base/mcs/policy/ALC-1_policy.xml");
+    fileVector.emplace_back("/base/update/var/update_config.json");
 
     for (const std::string& file : fileVector)
     {
