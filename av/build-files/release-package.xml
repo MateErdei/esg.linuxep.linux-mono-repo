@@ -153,6 +153,6 @@
             <!-- rename output for coverage builds -->
             <output name="output" srcfolder="output" artifactpath="output" mode="oldci"> </output>
         </buildoutputs>
-        <publishbranches>master,feature/LINUXDAR-2242_unified_pipeline</publishbranches>
+        <publishbranches>master,develop,bugfix/fix_coverage</publishbranches>
     </publish>
 </package>
