@@ -194,6 +194,10 @@ namespace Common
                     {
                         return true;
                     }
+                    if (std::stoi(version1[i]) < std::stoi(version2[i]))
+                    {
+                        return false;
+                    }
                 }
                 if (version1.size() > version2.size())
                 {
