@@ -165,5 +165,13 @@ TEST(TestStringUtils, isVersionOlder) // NOLINT
     EXPECT_EQ(StringUtils::isVersionOlder("0000000000000000000000000000000000007.99.9","9.0.2.16"),false);
     EXPECT_EQ(StringUtils::isVersionOlder("","9.0.2"),false);
     EXPECT_EQ(StringUtils::isVersionOlder("9.0.2",""),true);
+    EXPECT_EQ(StringUtils::isVersionOlder("..9.0","1"),true);
+    // multiple separator dots evaluate to 0
+    EXPECT_EQ(StringUtils::isVersionOlder(".....","........"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("........","....."),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("0.0.0","1"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("1","0.0.0"),true);
+    EXPECT_EQ(StringUtils::isVersionOlder("9...3.1","9.3.1"),false);
+    EXPECT_EQ(StringUtils::isVersionOlder("9...3.1","9.2.1"),true);
 
 }

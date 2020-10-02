@@ -352,6 +352,11 @@ Install master of base and edr and mtr and upgrade to mtr 999
 
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
+    # Ensure MTR was restarted during upgrade.
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop mtr
+    ...  wdctl <> start mtr
 
 
 Update Run that Does Not Change The Product Does not ReInstall The Product
