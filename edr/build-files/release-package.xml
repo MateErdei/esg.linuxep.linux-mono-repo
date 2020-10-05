@@ -11,7 +11,7 @@
             <release-version branch="release/2020-41" build-id="20201002110606-fcf1821d6b71a2656471bd0abe151a1f40663fe4-qrruwT"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
-            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/sspl_base/SDDS-COMPONENT"/>
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <package name="boostlinux11" version="1-72-0-24/218999//output" dest="input">
             <include src="boost.tar" dest="."/>
