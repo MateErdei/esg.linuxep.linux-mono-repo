@@ -10,11 +10,14 @@ void setupFilesForTestingGlobalRep()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("SOPHOS_INSTALL", BASE);
+
     fs::path fakeBaseInstallation = BASE;
     fs::path fakeChroot =  fakeBaseInstallation;
     fs::path fakeEtcDirectory  = fakeChroot.string() + "/base/etc/";
     fs::path fakeMcsDirectory = fakeChroot.string() + "/base/update/var/";
 
+    fs::create_directories("tmp/TestSusiWrapperFactory");
+    fs::create_directories(BASE);
     fs::create_directories(fakeEtcDirectory);
     fs::create_directories(fakeMcsDirectory);
 
