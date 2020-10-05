@@ -19,8 +19,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
+#include <fstream>
 #include <string>
-
 #include <netdb.h>
 #include <unistd.h>
 
