@@ -12,14 +12,14 @@ void setupFilesForTestingGlobalRep()
     appConfig.setData("SOPHOS_INSTALL", BASE);
     fs::path fakeBaseInstallation = BASE;
     fs::path fakeChroot =  fakeBaseInstallation;
-    fs::path fakeEtcDirectory  = fakeChroot / "base/etc/";
-    fs::path fakeMcsDirectory = fakeChroot / "base/update/var/";
+    fs::path fakeEtcDirectory  = fakeChroot.string() + "/base/etc/";
+    fs::path fakeMcsDirectory = fakeChroot.string() + "/base/update/var/";
 
     fs::create_directories(fakeEtcDirectory);
     fs::create_directories(fakeMcsDirectory);
 
     std::ofstream machineIdFile;
-    machineIdFile.open(fakeEtcDirectory / "machine_id.txt");
+    machineIdFile.open(fakeEtcDirectory.string() + "/machine_id.txt");
     ASSERT_TRUE(machineIdFile.good());
     machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4";
     machineIdFile.close();
@@ -99,7 +99,7 @@ void setupFilesForTestingGlobalRep()
 })sophos";
 
     std::ofstream customerIdFileStream;
-    customerIdFileStream.open(fakeMcsDirectory / "update_config.json");
+    customerIdFileStream.open(fakeMcsDirectory.string() + "/update_config.json");
     ASSERT_TRUE(customerIdFileStream.good());
     customerIdFileStream << alcContents;
     customerIdFileStream.close();
