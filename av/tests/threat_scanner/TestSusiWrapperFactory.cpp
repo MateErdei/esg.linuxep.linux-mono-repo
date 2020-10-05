@@ -120,5 +120,5 @@ TEST(TestSusiWrapperFactory, getEndpointIdReturnsId) // NOLINT
 TEST(TestSusiWrapperFactory, geCustomerIdReturnsId) // NOLINT
 {
     setupFilesForTestingGlobalRep();
-    EXPECT_EQ(getCustomerId(),"5af36d92f3773a9083bdea545230a507");
+    EXPECT_EQ(getCustomerId(),"d22829d94b76c016ec4e04b08baeffaa");
 }
