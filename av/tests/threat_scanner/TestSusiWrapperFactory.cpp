@@ -3,7 +3,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#define BASE "/tmp/TestPluginAdapter/chroot/"
+#define BASE "/tmp/TestSusiWrapperFactory/chroot/"
 using namespace threat_scanner;
 
 void setupFilesForTestingGlobalRep()
