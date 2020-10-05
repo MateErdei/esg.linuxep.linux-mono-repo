@@ -37,8 +37,8 @@ Check Registration Via Message Relay
     ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
+    ...  50 secs
+    ...  5 secs
     ...  Check Log Contains  wdctl <> start mtr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
 
 MCS Communicates With Nova Via Message Relay
@@ -50,19 +50,15 @@ MCS Communicates With Nova Via Message Relay
     Wait For Server In Cloud
     Check Marked Mcsrouter Log Contains   Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_1_HOSTNAME_LOWER}:${MESSAGE_RELAY_1_PORT}
 
-Message Relays in MCS Policy Are Written into MCS Config File
-    [Documentation]  Derived from CLOUD.MCS.007_mcs_handles_message_relay_policy.sh
-    Register With Real Update Cache and Message Relay Account
-    Wait For MCS Router To Be Running
-    Wait New MCS Policy Downloaded
-    Wait For Server In Cloud
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
-    ${fileContent}  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
-    Should Contain  ${fileContent}  message_relay_priority1=0  message_relay_port1=${MESSAGE_RELAY_1_PORT}  message_relay_address1=${MESSAGE_RELAY_1_HOSTNAME_LOWER}  message_relay_id1=${MESSAGE_RELAY_1_ID}
-    Should Contain  ${fileContent}  message_relay_priority2=0  message_relay_port2=${MESSAGE_RELAY_2_PORT}  message_relay_address2=${MESSAGE_RELAY_2_HOSTNAME_LOWER}  message_relay_id2=${MESSAGE_RELAY_2_ID}
-
-    ${fileContent}  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    Should Contain  ${fileContent}  current_relay_id=${MESSAGE_RELAY_1_ID}
+    Wait Until Keyword Succeeds
+    ...  50 secs
+    ...  5 secs
+    ...  Check Log Contains  wdctl <> start mtr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
 
 *** Keywords ***
 Real UCMR Test Teardown
@@ -74,4 +70,5 @@ Real UCMR Test Teardown
     Run Keyword If  ${requireDeRegister}   Deregister From Central
     Remove Environment Variable  MCS_CONFIG_SET
     Reload Cloud Options
+    Unmount All Comms Component Folders
     Reset Environment For Nova Tests
