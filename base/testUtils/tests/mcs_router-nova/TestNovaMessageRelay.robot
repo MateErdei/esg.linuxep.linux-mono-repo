@@ -39,7 +39,7 @@ Check Registration Via Message Relay
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
-    ...  Check Log Contains  wdctl <> start edr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
+    ...  Check Log Contains  wdctl <> start mtr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
 
 MCS Communicates With Nova Via Message Relay
     Register With Real Update Cache and Message Relay Account
