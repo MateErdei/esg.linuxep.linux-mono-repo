@@ -16,7 +16,7 @@ Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS  SLOW
 *** Variables ***
 ${InstalledBaseVersionFile}                 ${SOPHOS_INSTALL}/base/VERSION.ini
 ${InstalledMTRVersionFile}                 ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
-
+${SULDownloaderLogDowngrade}                    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 *** Test Cases ***
 Endpoint Updates Via Update Cache Without Errors
     [Timeout]  10 minutes
@@ -39,15 +39,16 @@ Endpoint Updates Via Update Cache Without Errors
     Wait Until Keyword Succeeds
     ...  300 secs
     ...  5 secs
-    ...  Check SulDownloader Run Installers for Base and MTR
-    Check Suldownloader Log Contains  Successfully connected to: Update cache at sspluc1:8191
+    ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+    Check Log Contains  Successfully connected to: Update cache at sspluc1:8191  ${SULDownloaderLogDowngrade}  backedup suldownloader log
+
 
     ${NewBaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
 
     Should Not Be Equal As Strings   ${BaseDevVersion}  ${NewBaseDevVersion}
     Log File  ${InstalledMTRVersionFile}
 
-    #This tests check updating via updace cache and effectively downgrades
+    #This tests check updating via update cache and effectively downgrades
     #Do a sanity test to ensure Sophos MTR is in a good state after downgrading
     Wait for MDR Executable To Be Running
     Stop MDR Plugin
