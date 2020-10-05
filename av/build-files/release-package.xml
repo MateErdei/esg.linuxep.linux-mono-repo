@@ -7,27 +7,13 @@
     <inputs>
         <workingdir>.</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
-        <!-- Todo /LINUXDAR-2186 -->
-        <!-- Plugin Api: the way to pick up other branches changed for unified pipeline. It will only work after base is moved to unified pipeline-->
-        <!-- https://esg-ci-stag.eng.sophos/docs/docs/build-package-file#inputs-from-other-builds -->
-        <!--
-        <build-asset project="linuxep" repo="everest-base">
-            <!-/-release-version branch="release/2014.1" build-id="" /-/->
-            <development-version branch="feature/LINUXDAR-2186-change-all-repos-taken-by-sspl-warehouse-as-inputs" />
-            <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
-            <include artifact-path="sspl-base/sdds" dest-dir="input/base-sdds" />
-        </build-asset>
-        -->
-
-        <!--Plugin Api Production Build - Change values below to match the latest production build of base.
-            On release, make sure you build a production build of base first before building any production builds of plugins
-            Probably eventually need to use a candidate build instead
-             buildtype="prod"
+        <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
-        <package name="sspl-base" version="1-1-4-332/221210/output" dest="input">
-            <include src="pluginapi.tar.gz" dest="."/>
-            <include src="SDDS-COMPONENT"   dest="base-sdds" />
-        </package>
+        <build-asset project="linuxep" repo="everest-base">
+            <release-version branch="release/2020-41" build-id="20201002110606-fcf1821d6b71a2656471bd0abe151a1f40663fe4-qrruwT" />
+            <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
+        </build-asset>
 
         <package name="boostlinux11" version="1-72-0-39/220673/output" dest="input">
             <include src="boost.tar" dest="."/>
