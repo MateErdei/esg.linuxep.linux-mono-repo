@@ -294,14 +294,14 @@ Create Local SMB Share
     ...   guest ok = yes\n
     Append To File  ${SAMBA_CONFIG}   ${share_config}
 
-    Run Shell Process   systemctl restart smbd            OnError=Failed to restart SMB server
+    Restart Samba
     Run Shell Process   mount -t cifs \\\\\\\\localhost\\\\testSamba ${destination} -o guest   OnError=Failed to mount local SMB share
 
 Remove Local SMB Share
     [Arguments]  ${source}  ${destination}
     Run Shell Process   umount ${destination}   OnError=Failed to unmount local SMB server
     Move File  ${SAMBA_CONFIG}_bkp  ${SAMBA_CONFIG}
-    Run Shell Process   systemctl restart smbd   OnError=Failed to restart SMB server
+    Restart Samba
     Remove Directory    ${source}  recursive=True
     
 Check Scan Now Configuration File is Correct
@@ -354,3 +354,10 @@ Create EICAR files
     [Arguments]  ${eicar_files_to_create}  ${dir_name}
      : FOR    ${INDEX}    IN RANGE    1    ${eicar_files_to_create}
         \    ${eicar_file}=    create file  ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
+
+Restart Samba
+    ${result} =  Run Process  which  yum
+    Run Keyword If  "${result.rc}" == "0"
+        ...   Run Shell Process   systemctl restart smb  OnError=Failed to restart SMB server
+        ...   ELSE
+        ...   Run Shell Process   systemctl restart smbd   OnError=Failed to restart SMB server
