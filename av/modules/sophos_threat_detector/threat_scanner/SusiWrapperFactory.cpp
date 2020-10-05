@@ -42,17 +42,17 @@ static std::string getEndpointId()
 
     if (fs.good())
     {
-        try
-        {
+//        try
+//        {
             std::stringstream endpointIdContents;
             endpointIdContents << fs.rdbuf();
 
             return endpointIdContents.str();
-        }
-        catch (std::exception& e)
-        {
-            LOGERROR("Unexpected error when reading endpoint id for global rep setup: " << e.what());
-        }
+//        }
+//        catch (std::exception& e)
+//        {
+//            LOGERROR("Unexpected error when reading endpoint id for global rep setup: " << e.what());
+//        }
     }
 
     return "66b8fd8b39754951b87269afdfcb285c";
@@ -67,19 +67,19 @@ static std::string getCustomerId()
 
     if (fs.good())
     {
-        try
-        {
+//        try
+//        {
             std::stringstream updateConfigContents;
             updateConfigContents << fs.rdbuf();
 
             auto jsonContents = json::parse(updateConfigContents);
             return common::md5_hash(jsonContents["credential"]["password"]);
 
-        }
-        catch (std::exception& e)
-        {
-            LOGERROR("Unexpected error when reading customer id for global rep setup: " << e.what());
-        }
+//        }
+//        catch (std::exception& e)
+//        {
+//            LOGERROR("Unexpected error when reading customer id for global rep setup: " << e.what());
+//        }
     }
 
     return "c1cfcf69a42311a6084bcefe8af02c8a";
