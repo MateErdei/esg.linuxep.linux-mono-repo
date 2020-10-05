@@ -24,7 +24,7 @@ void setupFilesForTestingGlobalRep()
     std::ofstream machineIdFile;
     machineIdFile.open(fakeEtcDirectory.string() + "/machine_id.txt");
     ASSERT_TRUE(machineIdFile.good());
-    machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4";
+    machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4" << std::endl;
     machineIdFile.close();
 
     std::string alcContents = R"sophos({
@@ -103,8 +103,10 @@ void setupFilesForTestingGlobalRep()
 
     std::ofstream customerIdFileStream;
     customerIdFileStream.open(fakeMcsDirectory.string() + "/update_config.json");
+    auto x = fakeMcsDirectory.string() + "/update_config.json";
+    LOGINFO("Directory is " << x);
     ASSERT_TRUE(customerIdFileStream.good());
-    customerIdFileStream << alcContents;
+    customerIdFileStream << alcContents << std::endl;
     customerIdFileStream.close();
 }
 
