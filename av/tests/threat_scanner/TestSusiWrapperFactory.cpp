@@ -20,6 +20,7 @@ void setupFilesForTestingGlobalRep()
 
     std::ofstream machineIdFile;
     machineIdFile.open(fakeEtcDirectory / "machine_id.txt");
+    ASSERT_TRUE(machineIdFile.good());
     machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4";
     machineIdFile.close();
 
@@ -99,6 +100,7 @@ void setupFilesForTestingGlobalRep()
 
     std::ofstream customerIdFileStream;
     customerIdFileStream.open(fakeMcsDirectory / "update_config.json");
+    ASSERT_TRUE(customerIdFileStream.good());
     customerIdFileStream << alcContents;
     customerIdFileStream.close();
 }
