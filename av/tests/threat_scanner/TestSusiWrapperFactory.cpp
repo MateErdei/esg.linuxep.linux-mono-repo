@@ -11,20 +11,23 @@ void setupFilesForTestingGlobalRep()
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("SOPHOS_INSTALL", BASE);
 
-    fs::path fakeBaseInstallation = BASE;
-    fs::path fakeChroot =  fakeBaseInstallation;
-    fs::path fakeEtcDirectory  = fakeChroot.string() + "/base/etc/";
-    fs::path fakeMcsDirectory = fakeChroot.string() + "/base/update/var/";
+    fs::path fakeEtcDirectory  = BASE;
+    fakeEtcDirectory  /= "base/etc";
+    fs::path fakeMcsDirectory = BASE;
+    fakeMcsDirectory /= "base/update/var";
+    fs::path machineIdFilePath = fakeEtcDirectory;
+    machineIdFilePath /= "machine_id.txt";
+    fs::path customerIdFilePath = fakeMcsDirectory;
+    customerIdFilePath /= "update_config.json";
 
     fs::create_directories("tmp/TestSusiWrapperFactory");
     fs::create_directories(BASE);
     fs::create_directories(fakeEtcDirectory);
     fs::create_directories(fakeMcsDirectory);
 
-    std::ofstream machineIdFile;
-    machineIdFile.open(fakeEtcDirectory.string() + "/machine_id.txt");
+    std::ofstream machineIdFile(machineIdFilePath);
     ASSERT_TRUE(machineIdFile.good());
-    machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4" << std::endl;
+    machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4";
     machineIdFile.close();
 
     std::string alcContents = R"sophos({
@@ -101,12 +104,9 @@ void setupFilesForTestingGlobalRep()
  ]
 })sophos";
 
-    std::ofstream customerIdFileStream;
-    customerIdFileStream.open(fakeMcsDirectory.string() + "/update_config.json");
-    auto x = fakeMcsDirectory.string() + "/update_config.json";
-    LOGINFO("Directory is " << x);
+    std::ofstream customerIdFileStream(customerIdFilePath);
     ASSERT_TRUE(customerIdFileStream.good());
-    customerIdFileStream << alcContents << std::endl;
+    customerIdFileStream << alcContents;
     customerIdFileStream.close();
 }
 
