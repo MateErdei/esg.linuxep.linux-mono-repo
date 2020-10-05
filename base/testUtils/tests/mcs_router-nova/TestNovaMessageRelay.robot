@@ -70,5 +70,4 @@ Real UCMR Test Teardown
     Run Keyword If  ${requireDeRegister}   Deregister From Central
     Remove Environment Variable  MCS_CONFIG_SET
     Reload Cloud Options
-    Unmount All Comms Component Folders
     Reset Environment For Nova Tests
