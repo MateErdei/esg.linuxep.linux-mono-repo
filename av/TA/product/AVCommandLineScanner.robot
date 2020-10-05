@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for SSPL-AV Command line scanner
-Default Tags    PRODUCT  AVSCANNER
+Force Tags      PRODUCT  AVSCANNER
 Library         Process
 Library         Collections
 Library         OperatingSystem

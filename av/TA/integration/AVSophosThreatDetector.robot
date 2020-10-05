@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Product tests of sophos_threat_detector
-Default Tags    PRODUCT  SOPHOS_THREAT_DETECTOR
+Force Tags       PRODUCT  SOPHOS_THREAT_DETECTOR
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot

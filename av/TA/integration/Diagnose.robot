@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests if SSPL-AV diagnose
-Default Tags  INTEGRATION  DIAGNOSE
+Force Tags      INTEGRATION  DIAGNOSE
 Library         OperatingSystem
 Library         Process
 Library         String

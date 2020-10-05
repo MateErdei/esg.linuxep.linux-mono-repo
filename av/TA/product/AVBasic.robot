@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for AVP
-Default Tags    PRODUCT  AV_BASIC
+Force Tags      PRODUCT  AV_BASIC
 Library         Collections
 Library         DateTime
 Library         Process

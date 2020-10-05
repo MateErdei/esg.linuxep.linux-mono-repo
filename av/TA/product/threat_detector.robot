@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for sophos_threat_detector
-Default Tags    PRODUCT
+Force Tags      PRODUCT
 
 Library         Process
 Library         OperatingSystem

@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Stress testing AVP Plugin
-Default Tags  STRESS
+Force Tags       STRESS
 
 Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
