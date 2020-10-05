@@ -31,6 +31,15 @@ Check Registration Via Message Relay
     Wait For Server In Cloud
     Check Register Central Log Contains In Order   Trying connection via message relay ${MESSAGE_RELAY_1_HOSTNAME}:${MESSAGE_RELAY_1_PORT}  Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_1_HOSTNAME}:${MESSAGE_RELAY_1_PORT}
     Check Register Central Log Contains In Order   <productType>sspl</productType>  <platform>linux</platform>  <isServer>1</isServer>
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check Log Contains  wdctl <> start edr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
 
 MCS Communicates With Nova Via Message Relay
     Register With Real Update Cache and Message Relay Account
