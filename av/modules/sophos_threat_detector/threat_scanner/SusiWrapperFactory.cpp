@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScannerInfo.h"
 #include "SusiWrapper.h"
 #include "Logger.h"
+#include "common/StringUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include "Common/UtilityImpl/StringUtils.h"
@@ -74,7 +75,7 @@ static std::string getCustomerId()
             auto jsonContents = json::parse(updateConfigContents);
             LOGINFO("json: " << jsonContents);
             LOGINFO("creds: " << jsonContents["credential"]);
-            return jsonContents["credential"]["password"];
+            return common::md5_hash(jsonContents["credential"]["password"]);
 
         }
         catch (std::exception& e)

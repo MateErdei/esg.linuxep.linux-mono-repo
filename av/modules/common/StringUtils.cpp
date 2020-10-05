@@ -5,13 +5,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#include <iomanip>
-#include <openssl/sha.h>
-#include <boost/locale.hpp>
 #include "Common/UtilityImpl/StringUtils.h"
 #include "ThreatDetected.capnp.h"
 #include "Logger.h"
 #include "StringUtils.h"
+
+#include <iomanip>
+#include <openssl/sha.h>
+#include <openssl/md5.h>
+#include <boost/locale.hpp>
 
 namespace common
 {
@@ -75,6 +77,19 @@ namespace common
         SHA256_Final(hash, &sha256);
         std::stringstream ss;
         for(const auto& ch : hash)
+        {
+            ss << std::hex << std::setw(2) << std::setfill('0') << (int)ch;
+        }
+        return ss.str();
+    }
+
+    std::string md5_hash(const std::string& str)
+    {
+        unsigned char hashArray[MD5_DIGEST_LENGTH];
+        MD5((unsigned char*) str.c_str(), str.size(), hashArray);
+
+        std::stringstream ss;
+        for(const auto& ch : hashArray)
         {
             ss << std::hex << std::setw(2) << std::setfill('0') << (int)ch;
         }

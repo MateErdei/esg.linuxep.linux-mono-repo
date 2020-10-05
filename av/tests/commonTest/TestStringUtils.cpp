@@ -36,3 +36,10 @@ TEST(TestStringUtils, TestToUtf8WeirdCharacters) // NOLINT
     std::string utf8Path = common::toUtf8(threatPath);
     EXPECT_EQ(utf8Path, threatPath);
 }
+
+TEST(TestStringUtils, TestMd5) // NOLINT
+{
+    std::string threatPath = "c1cfcf69a42311a6084bcefe8af02c8a";
+    //b8a6b7dcecd5325b163c16802c45e313 is the output of echo -n c1cfcf69a42311a6084bcefe8af02c8a | md5sum
+    EXPECT_EQ("b8a6b7dcecd5325b163c16802c45e313", common::md5_hash(threatPath));
+}
