@@ -18,7 +18,8 @@ void setupFilesForTestingGlobalRep()
     fs::create_directories(fakeEtcDirectory);
     fs::create_directories(fakeMcsDirectory);
 
-    std::ofstream machineIdFile(fakeEtcDirectory / "machine_id.txt");
+    std::ofstream machineIdFile;
+    machineIdFile.open(fakeEtcDirectory / "machine_id.txt");
     machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4";
     machineIdFile.close();
 
@@ -96,7 +97,8 @@ void setupFilesForTestingGlobalRep()
  ]
 })sophos";
 
-    std::ofstream customerIdFileStream(fakeMcsDirectory / "update_config.json");
+    std::ofstream customerIdFileStream;
+    customerIdFileStream.open(fakeMcsDirectory / "update_config.json");
     customerIdFileStream << alcContents;
     customerIdFileStream.close();
 }

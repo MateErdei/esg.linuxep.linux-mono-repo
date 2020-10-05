@@ -73,8 +73,6 @@ static std::string getCustomerId()
             updateConfigContents << fs.rdbuf();
 
             auto jsonContents = json::parse(updateConfigContents);
-            LOGINFO("json: " << jsonContents);
-            LOGINFO("creds: " << jsonContents["credential"]);
             return common::md5_hash(jsonContents["credential"]["password"]);
 
         }
