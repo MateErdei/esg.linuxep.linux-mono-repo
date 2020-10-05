@@ -560,6 +560,22 @@ CLS Scans Paths That Exist and Dont Exist
 
     Should Be Equal As Integers  ${rc}  ${FILE_NOT_FOUND_RESULT}
 
+CLS Scans file on NFS
+    [Tags]  NFS
+    ${source} =       Set Variable  /tmp/nfsshare
+    ${destination} =  Set Variable  /mnt/nfsshare
+    ${remoteFSscanningDisabled} =   Set Variable  remoteFSscanningDisabled
+    ${remoteFSscanningEnabled} =    Set Variable  remoteFSscanningEnabled
+    ${remoteFSscanningDisabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningDisabled}.log
+    ${remoteFSscanningEnabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningEnabled}.log
+    Create Directory  ${source}
+    Create File       ${source}/eicar.com    ${EICAR_STRING}
+    Create Directory  ${destination}
+    Create Local NFS Share   ${source}   ${destination}
+    [Teardown]    Remove Local NFS Share   ${source}   ${destination}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${source}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
    ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
