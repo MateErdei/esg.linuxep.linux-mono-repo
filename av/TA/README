@@ -24,7 +24,6 @@ In order to run them in Vagrant box:
     sudo mkdir -p /opt/test/inputs/av/
     sudo ln -s /vagrant/sspl-plugin-anti-virus/TA/ /opt/test/inputs/test_scripts
     sudo ln -s /vagrant/sspl-plugin-anti-virus/output/SDDS-COMPONENT /opt/test/inputs/av/SDDS-COMPONENT
-    sudo ln -s /vagrant/sspl-plugin-anti-virus/output/INSTALL-SET /opt/test/inputs/av/INSTALL-SET
     sudo ln -s /vagrant/sspl-plugin-anti-virus/output/test-resources /opt/test/inputs/av/test-resources
     sudo ln -s /vagrant/everest-base/output/SDDS-COMPONENT /opt/test/inputs/av/base-sdds
     sudo apt-get -y install python3.7 python3.7-dev python3-pip
