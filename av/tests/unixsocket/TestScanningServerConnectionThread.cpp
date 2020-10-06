@@ -293,7 +293,9 @@ TEST_F(TestScanningServerConnectionThread, send_fd) //NOLINT
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd, request.serialise());
-    ret = send_fd(clientFd, 0); // send a valid file descriptor
+    datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
+    send_fd(clientFd, devNull.get()); // send a valid file descriptor
+    devNull.close();
     ASSERT_GE(ret, 0);
     int length = unixsocket::readLength(clientFd);
     static_cast<void>(length);

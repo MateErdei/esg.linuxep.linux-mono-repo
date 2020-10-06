@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/SocketUtilsImpl.h"
 
+#include "UnixSocketMemoryAppenderUsingTests.h"
 #include <datatypes/AutoFd.h>
 #include <datatypes/Print.h>
 #include <gtest/gtest.h>
@@ -96,6 +97,9 @@ TEST(TestBuffer, TestSplitTwoBytes) // NOLINT
 
 namespace
 {
+    class TestFdTransfer : public UnixSocketMemoryAppenderUsingTests
+    {};
+
     class TestFile
     {
     public:
@@ -209,7 +213,7 @@ TEST(TestReadLength, TwoByteLength) // NOLINT
     EXPECT_EQ(ret, 0xFF);
 }
 
-TEST(TestFdTransfer, validFd) // NOLINT
+TEST_F(TestFdTransfer, validFd) // NOLINT
 {
     TestSocket socket_pair;
 
@@ -230,6 +234,94 @@ TEST(TestFdTransfer, validFd) // NOLINT
     int ret = ::read(server_fd.get(), buffer, sizeof(buffer) - 1);
     ASSERT_GT(ret, 0);
     ASSERT_STREQ(buffer, "foo");
+}
+
+static void send_fds(int socket, int* fds, int count)  // send fd by socket
+{
+    std::vector<char> buf(CMSG_SPACE(sizeof(int) * count ));
+    char dup[256] {};
+    struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
+
+    struct msghdr msg = {};
+    msg.msg_iov = &io;
+    msg.msg_iovlen = 1;
+    msg.msg_control = buf.data();
+    msg.msg_controllen = buf.size();
+
+    struct cmsghdr *cmsg;
+    cmsg = CMSG_FIRSTHDR(&msg);
+    cmsg->cmsg_level = SOL_SOCKET;
+    cmsg->cmsg_type = SCM_RIGHTS;
+    cmsg->cmsg_len = CMSG_LEN(sizeof(int) * count);
+
+    memcpy (CMSG_DATA(cmsg), fds, sizeof (int) * count);
+
+    int ret = sendmsg (socket, &msg, 0);
+    ASSERT_GE(ret, 0);
+}
+
+static int count_open_fds()
+{
+    int count = 0;
+    for (int fd=0; fd<=255; ++fd)
+    {
+        int dup_fd = dup(fd);
+        if (dup_fd >= 0)
+        {
+            ++count;
+            close(dup_fd);
+        }
+    }
+    return count;
+}
+
+TEST_F(TestFdTransfer, sendTwoFds) // NOLINT
+{
+    const std::string expected = "Control data was truncated when receiving fd";
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    TestSocket socket_pair;
+
+    int fd_count_before = count_open_fds();
+
+    datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
+    datatypes::AutoFd devZero(::open("/dev/zero", O_RDONLY));
+    int fds[] = { devNull.get(), devZero.get() };
+    send_fds(socket_pair.get_client_fd(), fds, 2); // send two file descriptors
+    devZero.close();
+    devNull.close();
+
+    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    ASSERT_EQ(new_fd, -1);
+
+    int fd_count_after = count_open_fds();
+    EXPECT_EQ(fd_count_before, fd_count_after);
+    EXPECT_FALSE(appenderContains(expected));
+}
+
+TEST_F(TestFdTransfer, sendThreeFds) // NOLINT
+{
+    const std::string expected = "Control data was truncated when receiving fd";
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    TestSocket socket_pair;
+
+    int fd_count_before = count_open_fds();
+
+    datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
+    datatypes::AutoFd devZero(::open("/dev/zero", O_RDONLY));
+    datatypes::AutoFd devFull(::open("/dev/full", O_RDONLY));
+    int fds[] = { devNull.get(), devZero.get(), devFull.get() };
+    send_fds(socket_pair.get_client_fd(), fds, 3); // send three file descriptors
+    devFull.close();
+    devZero.close();
+    devNull.close();
+
+    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    ASSERT_EQ(new_fd, -1);
+
+    int fd_count_after = count_open_fds();
+    EXPECT_EQ(fd_count_before, fd_count_after);
+    EXPECT_TRUE(appenderContains(expected));
 }
 
 TEST(TestSocketUtils, environmentInterruptionReportsWhat) // NOLINT

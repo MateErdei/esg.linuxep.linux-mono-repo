@@ -109,6 +109,16 @@ int unixsocket::recv_fd(int socket)
         return -1;
     }
 
+    if (msg.msg_flags & MSG_TRUNC)
+    {
+        LOGERROR("Message was truncated when receiving fd");
+    }
+
+    if (msg.msg_flags & MSG_CTRUNC)
+    {
+        LOGERROR("Control data was truncated when receiving fd");
+    }
+
     struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
 
     if ( cmsg == nullptr )
@@ -117,12 +127,25 @@ int unixsocket::recv_fd(int socket)
         return -1;
     }
 
-    if ( cmsg->cmsg_level != SOL_SOCKET
-         || cmsg->cmsg_type != SCM_RIGHTS
-         || cmsg->cmsg_len != CMSG_LEN(sizeof(int) )
-        )
+    if ( cmsg->cmsg_level != SOL_SOCKET || cmsg->cmsg_type != SCM_RIGHTS)
     {
         LOGDEBUG("Failed to receive fd: cmsg is not a file descriptor");
+        return -1;
+    }
+
+    if(cmsg->cmsg_len != CMSG_LEN(sizeof(int) ))
+    {
+        LOGERROR("Failed to receive fd: got wrong number of fds");
+        // close any fds we did receive, else we leak them
+        unsigned char *start = CMSG_DATA(cmsg);
+        unsigned char *end =  reinterpret_cast<unsigned char *>(cmsg) + cmsg->cmsg_len;
+        std::vector<int> fds((end - start) / sizeof(int));
+        memcpy(fds.data(), start, end - start);
+        for (int temp_fd: fds)
+        {
+            LOGDEBUG("Closing fd: " << temp_fd);
+            close(temp_fd);
+        }
         return -1;
     }
 
@@ -133,11 +156,11 @@ int unixsocket::recv_fd(int socket)
 
 int unixsocket::send_fd(int socket, int fd)  // send fd by socket
 {
-    struct msghdr msg = {};
     char buf[CMSG_SPACE(sizeof(fd))] {};
     char dup[256] {};
     struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
 
+    struct msghdr msg = {};
     msg.msg_iov = &io;
     msg.msg_iovlen = 1;
     msg.msg_control = buf;
