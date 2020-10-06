@@ -58,7 +58,7 @@ execute_process(
 
 execute_process(
         COMMAND python3 ${PLUGINAPIPATH}/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
-        message("Release package version: ${RELEASE_PACKAGE_VERSION}")
+        COMMAND python3 print "Release package version:", RELEASE_PACKAGE_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 
@@ -70,7 +70,7 @@ execute_process(
 
 execute_process(
         COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
-        message("Jenkinsfile version: ${PRODUCT_VERSION}")
+        COMMAND python3 print "Jenkinsfile version:", PRODUCT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
