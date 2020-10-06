@@ -23,8 +23,9 @@ class Logger
 {
 private:
     void setupFileLoggingWithPath(std::string logfilepath);
-    void applyCommandLineLevel(const Common::Logging::SophosLogLevel &CLSlogLevel);
+    void applyCommandLineLevel(const log4cplus::LogLevel& CLSlogLevel);
 public:
+    explicit Logger(const std::string& scanName, log4cplus::LogLevel logLevel, bool isCommandLine=false);
     explicit Logger(const std::string& scanName, bool isCommandLine=false);
     ~Logger();
 };

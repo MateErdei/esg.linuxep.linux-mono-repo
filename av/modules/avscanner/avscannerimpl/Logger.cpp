@@ -23,15 +23,27 @@ log4cplus::Logger& getNamedScanRunnerLogger()
     return STATIC_LOGGER;
 }
 
+Logger::Logger(const std::string& fileName, log4cplus::LogLevel logLevel, bool isCommandLine) : Logger(fileName, isCommandLine)
+{
+    if(logLevel != log4cplus::NOT_SET_LOG_LEVEL and isCommandLine)
+    {
+        applyCommandLineLevel(logLevel);
+    }
+    else
+    {
+        Common::Logging::applyGeneralConfig(PLUGIN_NAME);
+    }
+}
+
 Logger::Logger(const std::string& fileName, bool isCommandLine)
 {
-    std::string logfilepath = fileName;
+    std::string logFilePath = fileName;
     if (!isCommandLine)
     {
-        logfilepath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-        logfilepath += "/plugins/av/log/";
-        logfilepath += fileName;
-        logfilepath += ".log";
+        logFilePath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        logFilePath += "/plugins/av/log/";
+        logFilePath += fileName;
+        logFilePath += ".log";
     }
 
     log4cplus::initialize();
@@ -41,11 +53,10 @@ Logger::Logger(const std::string& fileName, bool isCommandLine)
     Common::Logging::LoggingSetup::applyPattern(stdout_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
     log4cplus::Logger::getRoot().addAppender(stdout_appender);
 
-    if (!logfilepath.empty())
+    if (!logFilePath.empty())
     {
-        setupFileLoggingWithPath(logfilepath);
+        setupFileLoggingWithPath(logFilePath);
     }
-    Common::Logging::applyGeneralConfig(PLUGIN_NAME);
 }
 
 Logger::~Logger()
@@ -85,7 +96,7 @@ std::string fromLogLevelToString(log4cplus::LogLevel& logLevel)
     return LogNames.at(std::distance(LogLevels.begin(), ind_it));
 }
 
-void Logger::applyCommandLineLevel(const Common::Logging::SophosLogLevel& CLSlogLevel)
+void Logger::applyCommandLineLevel(const log4cplus::LogLevel& CLSlogLevel)
 {
     log4cplus::LogLevel helpMessageTempLevel{  CLSlogLevel };
     log4cplus::Logger::getRoot().setLogLevel(log4cplus::INFO_LOG_LEVEL);

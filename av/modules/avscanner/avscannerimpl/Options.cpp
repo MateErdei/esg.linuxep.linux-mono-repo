@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace avscanner::avscannerimpl;
 namespace po = boost::program_options;
 
-static Common::Logging::SophosLogLevel verifyLogLevel(const std::string logLevel)
+static Common::Logging::SophosLogLevel verifyLogLevel(const std::string& logLevel)
 {
     std::string lowerCaseLogLevel(boost::to_lower_copy(logLevel));
 
@@ -57,7 +57,7 @@ void Options::constructOptions()
             ("scan-archives,s", "Scan inside archives")
             ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION...")->multitoken(),"Exclude these locations from being scanned")
             ("output,o", po::value<std::string>()->value_name("OUTPUT..."), "Write to log file")
-            ("log-level,l", po::value<std::string>()->value_name("log_level..."), "Log level for Command Line Scanner")
+            ("log-level,l", po::value<std::string>()->value_name("LOGLEVEL..."), "Log level for Command Line Scanner")
             ("files,f", po::value<std::vector<std::string>>()->value_name("file [file...]")->multitoken(), "Files to scan")
             ("config,c", po::value<std::string>()->value_name("config_file"), "Input configuration file for scheduled scans");
     }
@@ -124,11 +124,14 @@ std::string Options::getHelp()
     helpText << "  -h, --help                  Print this help message" << std::endl;
     helpText << "  -s, --scan-archives         Scan inside archives" << std::endl;
     helpText << "  -x, --exclude EXCLUSION...  Exclude these locations from being scanned" << std::endl;
-    helpText << "  -o, --output OUTPUT...      Write to log file" << std::endl << std::endl;
+    helpText << "  -o, --output OUTPUT...      Write to log file" << std::endl;
+    helpText << "  -l, --log-level LOGLEVEL... Set the logging level" << std::endl << std::endl;
+
     helpText << "Examples:" << std::endl;
     helpText << "  avscanner / --scan-archives            Scan the Root Directory (recursively including dot files/directories) including the contents of any archive files found" << std::endl;
     helpText << "  avscanner /usr --exclude /usr/local/   Scan the /usr directory excluding /usr/local" << std::endl;
     helpText << "  avscanner folder --exclude '*.log'     Scan the directory named 'folder' but exclude any filenames ending with .log" << std::endl;
     helpText << "  avscanner foo.exe -o scan.log          Scan the file 'foo.exe' and redirect the output to a log file named 'scan.log'" << std::endl;
+    helpText << "  avscanner / --log-level info           Scan the Root Directory with log level set to INFO" << std::endl;
     return helpText.str();
 }
