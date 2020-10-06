@@ -259,7 +259,6 @@ Product Test Teardown
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log  encoding_errors=replace
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed  run_failure_functions_if_failed
     Run Keyword If  '${usingFakeAVScanner}'=='true'  Undo Use Fake AVScanner
     run teardown functions
 
