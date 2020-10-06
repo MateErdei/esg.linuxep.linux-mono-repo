@@ -146,7 +146,8 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
     Create File       ${source}/eicar.com    ${EICAR_STRING}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    [Teardown]    Remove Local NFS Share   ${source}   ${destination}
+    [Teardown]  Run Keywords    Remove Local NFS Share   ${source}   ${destination}
+    ...         AND             Product Test Teardown
 
     Test Remote Share  ${destination}
 
@@ -159,7 +160,8 @@ AV Plugin Can Disable Scanning Of Mounted SMB Shares
     Create File       ${source}/eicar.com    ${EICAR_STRING}
     Create Directory  ${destination}
     Create Local SMB Share   ${source}   ${destination}
-    [Teardown]    Remove Local SMB Share   ${source}   ${destination}
+    [Teardown]  Run Keywords    Remove Local SMB Share   ${source}   ${destination}
+    ...         AND             Product Test Teardown
 
     Test Remote Share  ${destination}
 
