@@ -21,6 +21,7 @@ namespace avscanner::avscannerimpl
     public:
         Options(int argc, char* argv[]);
         Options(bool printHelp, std::vector<std::string> paths, std::vector<std::string> exclusions, bool archiveScanning);
+        static log4cplus::LogLevel verifyLogLevel(const std::string& logLevel);
 
         [[nodiscard]] std::string config() const
         {

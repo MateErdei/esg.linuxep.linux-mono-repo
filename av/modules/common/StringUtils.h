@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
+#include <log4cplus/logger.h>
 
 namespace common
 {
@@ -14,4 +15,5 @@ namespace common
     std::string sha256_hash(const std::string& str);
     std::string md5_hash(const std::string& str);
     std::string toUtf8(const std::string& str, bool appendConversion = true);
+    std::string fromLogLevelToString(const log4cplus::LogLevel& logLevel);
 }

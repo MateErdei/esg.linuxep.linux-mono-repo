@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include "../common/config.h"
+#include "common/StringUtils.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Logging/LoggerConfig.h"
@@ -78,30 +79,12 @@ void Logger::setupFileLoggingWithPath(std::string logfilepath)
     log4cplus::Logger::getRoot().addAppender(appender);
 }
 
-std::string fromLogLevelToString(log4cplus::LogLevel& logLevel)
-{
-    using sp = Common::Logging::SophosLogLevel;
-    static std::vector<std::string> LogNames{ { "OFF" },     { "DEBUG" }, { "INFO" },
-                                              { "SUPPORT" }, { "WARN" },  { "ERROR" } };
-
-    static std::vector<sp> LogLevels{ sp::OFF, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR };
-
-    auto ind_it = std::find(LogLevels.begin(), LogLevels.end(), logLevel);
-    if (ind_it == LogLevels.end())
-    {
-        return std::string("Unknown (") + std::to_string(logLevel) + ")";
-    }
-    assert(std::distance(LogLevels.begin(), ind_it) >= 0);
-    assert(std::distance(LogLevels.begin(), ind_it) < static_cast<int>(LogLevels.size()));
-    return LogNames.at(std::distance(LogLevels.begin(), ind_it));
-}
-
 void Logger::applyCommandLineLevel(const log4cplus::LogLevel& CLSlogLevel)
 {
     log4cplus::LogLevel helpMessageTempLevel{  CLSlogLevel };
     log4cplus::Logger::getRoot().setLogLevel(log4cplus::INFO_LOG_LEVEL);
     std::stringstream initMessage;
-    initMessage << "Setting logger to log level: " << fromLogLevelToString(helpMessageTempLevel) << std::endl;
+    initMessage << "Setting logger to log level: " << common::fromLogLevelToString(helpMessageTempLevel);
     log4cplus::Logger::getRoot().log(log4cplus::INFO_LOG_LEVEL, initMessage.str());
 
     log4cplus::Logger::getRoot().setLogLevel(CLSlogLevel);

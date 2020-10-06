@@ -11,24 +11,24 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace avscanner::avscannerimpl;
 namespace po = boost::program_options;
 
-static Common::Logging::SophosLogLevel verifyLogLevel(const std::string& logLevel)
+log4cplus::LogLevel Options::verifyLogLevel(const std::string& logLevel)
 {
     std::string lowerCaseLogLevel(boost::to_lower_copy(logLevel));
 
     if(lowerCaseLogLevel == "debug")
-        return Common::Logging::SophosLogLevel::DEBUG;
+        return log4cplus::DEBUG_LOG_LEVEL;
     if( lowerCaseLogLevel == "support")
-        return Common::Logging::SophosLogLevel::SUPPORT;
+        return log4cplus::SUPPORT_LOG_LEVEL;
     if(lowerCaseLogLevel == "info")
-        return Common::Logging::SophosLogLevel::INFO;
+        return log4cplus::INFO_LOG_LEVEL;
     if (lowerCaseLogLevel == "warn")
-        return Common::Logging::SophosLogLevel::WARN;
+        return log4cplus::WARN_LOG_LEVEL;
     if (lowerCaseLogLevel == "error")
-        return Common::Logging::SophosLogLevel::ERROR;
+        return log4cplus::ERROR_LOG_LEVEL;
     if (lowerCaseLogLevel == "off")
-        return Common::Logging::SophosLogLevel::OFF;
+        return log4cplus::OFF_LOG_LEVEL;
 
-    throw boost::program_options::error(std::string("Unrecognised Log Level"));
+    throw po::error(std::string("Unrecognised Log Level"));
 }
 
 po::variables_map Options::parseCommandLine(int argc, char** argv)

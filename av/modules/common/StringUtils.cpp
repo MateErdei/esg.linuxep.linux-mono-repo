@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
+#include "Common/Logging/LoggerConfig.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "ThreatDetected.capnp.h"
 #include "Logger.h"
@@ -12,7 +13,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <iomanip>
 #include <openssl/sha.h>
-#include <openssl/md5.h>
 #include <boost/locale.hpp>
 
 namespace common
@@ -83,19 +83,6 @@ namespace common
         return ss.str();
     }
 
-    std::string md5_hash(const std::string& str)
-    {
-        unsigned char hashArray[MD5_DIGEST_LENGTH];
-        MD5((unsigned char*) str.c_str(), str.size(), hashArray);
-
-        std::stringstream ss;
-        for(const auto& ch : hashArray)
-        {
-            ss << std::hex << std::setw(2) << std::setfill('0') << (int)ch;
-        }
-        return ss.str();
-    }
-
     std::string toUtf8(const std::string& str, bool appendConversion)
     {
         try
@@ -104,7 +91,7 @@ namespace common
         }
         catch(const boost::locale::conv::conversion_error& e)
         {
-            LOGERROR("Could not convert from: " << "UTF-8");
+            LOGDEBUG("Could not convert from: " << "UTF-8");
         }
 
         std::vector<std::string> encodings{"EUC-JP", "SJIS", "Latin1"};
@@ -127,12 +114,30 @@ namespace common
             }
             catch(const boost::locale::conv::conversion_error& e)
             {
-                LOGERROR("Could not convert from: " << encoding);
+                LOGDEBUG("Could not convert from: " << encoding);
                 continue;
             }
         }
 
         throw std::runtime_error(std::string("Failed to convert string to utf8: ") + str);
+    }
+
+    std::string fromLogLevelToString(const log4cplus::LogLevel& logLevel)
+    {
+        using sp = Common::Logging::SophosLogLevel;
+        static std::vector<std::string> LogNames{ { "OFF" },     { "DEBUG" }, { "INFO" },
+                                                  { "SUPPORT" }, { "WARN" },  { "ERROR" } };
+
+        static std::vector<sp> LogLevels{ sp::OFF, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR };
+
+        auto ind_it = std::find(LogLevels.begin(), LogLevels.end(), logLevel);
+        if (ind_it == LogLevels.end())
+        {
+            return std::string("Unknown (") + std::to_string(logLevel) + ")";
+        }
+        assert(std::distance(LogLevels.begin(), ind_it) >= 0);
+        assert(std::distance(LogLevels.begin(), ind_it) < static_cast<int>(LogLevels.size()));
+        return LogNames.at(std::distance(LogLevels.begin(), ind_it));
     }
 }
 

@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gtest/gtest.h>
+#include <pluginapi/include/Common/Logging/SophosLoggerMacros.h>
 
 #include "avscanner/avscannerimpl/Options.h"
 
@@ -138,10 +139,22 @@ TEST(Options, TestOutput) // NOLINT
     EXPECT_EQ(o.logFile(), expectedLogFile);
 }
 
+TEST(Options, TestLogLevel) // NOLINT
+{
+    std::string logLevel = "INFO";
+    const int argc = 3;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--log-level";
+    argv[2] = logLevel.c_str();
+    Options o(argc, const_cast<char**>(argv));
+    EXPECT_EQ(o.logLevel(), log4cplus::INFO_LOG_LEVEL);
+}
+
 TEST(Options, TestShortArguments) // NOLINT
 {
     std::string logFile = "scan.log";
-    const int argc = 13;
+    const int argc = 15;
     const char* argv[argc];
     argv[0] = "/usr/bin/avscanner";
     argv[1] = "-c";
@@ -154,8 +167,10 @@ TEST(Options, TestShortArguments) // NOLINT
     argv[8] = "/foo";
     argv[9] = "-o";
     argv[10] = logFile.c_str();
-    argv[11] = "--";
-    argv[12] = "/baz";
+    argv[11] = "-l";
+    argv[12] = "DEBUG";
+    argv[13] = "--";
+    argv[14] = "/baz";
     Options o(argc, const_cast<char**>(argv));
     EXPECT_EQ(o.config(), "/bar");
     EXPECT_TRUE(o.archiveScanning());
@@ -168,6 +183,7 @@ TEST(Options, TestShortArguments) // NOLINT
     EXPECT_EQ(paths.at(0), "/foo");
     EXPECT_EQ(paths.at(1), "/baz");
     EXPECT_EQ(o.logFile(), logFile);
+    EXPECT_EQ(o.logLevel(), log4cplus::DEBUG_LOG_LEVEL);
 }
 
 TEST(Options, TestGetHelp) // NOLINT
@@ -178,4 +194,14 @@ TEST(Options, TestGetHelp) // NOLINT
     argv[1] = "--help";
     Options o(argc, const_cast<char**>(argv));
     EXPECT_NE(Options::getHelp(), "");
+}
+
+TEST(Options, TestVerifyLogLevel) // NOLINT
+{
+    EXPECT_EQ(Options::verifyLogLevel("OFF"), log4cplus::OFF_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("DEBUG"), log4cplus::DEBUG_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("INFO"), log4cplus::INFO_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("SUPPORT"), log4cplus::SUPPORT_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("WARN"), log4cplus::WARN_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("ERROR"), log4cplus::ERROR_LOG_LEVEL);
 }
