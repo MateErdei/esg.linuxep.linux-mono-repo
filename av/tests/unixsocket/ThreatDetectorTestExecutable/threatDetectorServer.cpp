@@ -47,30 +47,6 @@ namespace
     };
 }
 
-static void send_fd(int socket, int fd)  // send fd by socket
-{
-    struct msghdr msg = {};
-    struct cmsghdr *cmsg;
-    char buf[CMSG_SPACE(sizeof(fd))] {};
-    char dup[256] {};
-    struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
-
-    msg.msg_iov = &io;
-    msg.msg_iovlen = 1;
-    msg.msg_control = buf;
-    msg.msg_controllen = sizeof(buf);
-
-    cmsg = CMSG_FIRSTHDR(&msg);
-    cmsg->cmsg_level = SOL_SOCKET;
-    cmsg->cmsg_type = SCM_RIGHTS;
-    cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
-
-    memcpy (CMSG_DATA(cmsg), &fd, sizeof (fd));
-
-    ssize_t ret = sendmsg (socket, &msg, MSG_NOSIGNAL);
-    static_cast<void>(ret); // we don't care if this fails
-}
-
 static inline bool fd_isset(int fd, fd_set* fds)
 {
     assert(fd >= 0);
@@ -111,7 +87,7 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 
     // send a file descriptor
     datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
-    send_fd(clientFd.get(), devNull.get()); // send our test fd
+    unixsocket::send_fd(clientFd.get(), devNull.get()); // send our test fd
 
     // TODO - could check for activity on our fake scanner here
 

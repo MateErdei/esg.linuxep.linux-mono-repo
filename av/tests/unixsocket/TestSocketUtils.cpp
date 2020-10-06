@@ -239,7 +239,7 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
 static void send_fds(int socket, int* fds, int count)  // send fd by socket
 {
     std::vector<char> buf(CMSG_SPACE(sizeof(int) * count ));
-    char dup[256] {};
+    int dup = 0;
     struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
 
     struct msghdr msg = {};

@@ -5,17 +5,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SocketUtils.h"
-#include "SocketUtilsImpl.h"
 
 #include "Logger.h"
+#include "SocketUtilsImpl.h"
 
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <vector>
 
-#include <unistd.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 void unixsocket::writeLength(int socket_fd, unsigned length)
 {
@@ -93,7 +94,7 @@ int unixsocket::recv_fd(int socket)
 
     struct msghdr msg = {};
     char buf[CMSG_SPACE(sizeof(int))] {};
-    char dup[256];
+    int dup = 0;
     struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
 
     msg.msg_iov = &io;
@@ -157,7 +158,7 @@ int unixsocket::recv_fd(int socket)
 int unixsocket::send_fd(int socket, int fd)  // send fd by socket
 {
     char buf[CMSG_SPACE(sizeof(fd))] {};
-    char dup[256] {};
+    int dup = 0;
     struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
 
     struct msghdr msg = {};
