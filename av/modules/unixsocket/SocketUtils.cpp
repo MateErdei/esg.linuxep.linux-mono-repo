@@ -81,3 +81,74 @@ int unixsocket::readLength(int socket_fd)
         }
     }
 }
+
+/**
+ * Receive a single file descriptor from a unix socket
+ * @param socket
+ * @return
+ */
+int unixsocket::recv_fd(int socket)
+{
+    int fd = -1;
+
+    struct msghdr msg = {};
+    char buf[CMSG_SPACE(sizeof(int))] {};
+    char dup[256];
+    struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
+
+    msg.msg_iov = &io;
+    msg.msg_iovlen = 1;
+    msg.msg_control = buf;
+    msg.msg_controllen = sizeof(buf);
+
+    errno = 0;
+    ssize_t ret = recvmsg (socket, &msg, 0); // ret = bytes received
+    if (ret < 0)
+    {
+        perror("Failed to receive fd: recvmsg failed");
+        return -1;
+    }
+
+    struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
+
+    if ( cmsg == nullptr )
+    {
+        LOGDEBUG("Failed to receive fd: CMSG_FIRSTHDR failed");
+        return -1;
+    }
+
+    if ( cmsg->cmsg_level != SOL_SOCKET
+         || cmsg->cmsg_type != SCM_RIGHTS
+         || cmsg->cmsg_len != CMSG_LEN(sizeof(int) )
+        )
+    {
+        LOGDEBUG("Failed to receive fd: cmsg is not a file descriptor");
+        return -1;
+    }
+
+    memcpy (&fd, (int *) CMSG_DATA(cmsg), sizeof(int));
+
+    return fd;
+}
+
+int unixsocket::send_fd(int socket, int fd)  // send fd by socket
+{
+    struct msghdr msg = {};
+    char buf[CMSG_SPACE(sizeof(fd))] {};
+    char dup[256] {};
+    struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
+
+    msg.msg_iov = &io;
+    msg.msg_iovlen = 1;
+    msg.msg_control = buf;
+    msg.msg_controllen = sizeof(buf);
+
+    struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
+    cmsg->cmsg_level = SOL_SOCKET;
+    cmsg->cmsg_type = SCM_RIGHTS;
+    cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
+
+    memcpy(CMSG_DATA(cmsg), &fd, sizeof(fd));
+
+    return sendmsg(socket, &msg, MSG_NOSIGNAL);
+}

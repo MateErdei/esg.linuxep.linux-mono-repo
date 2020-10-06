@@ -68,55 +68,6 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 }
 
 /**
- * Receive a single file descriptor from a unix socket
- * @param socket
- * @return
- */
-static int recv_fd(int socket)
-{
-    int fd = -1;
-
-    struct msghdr msg = {};
-    char buf[CMSG_SPACE(sizeof(int))] {};
-    char dup[256];
-    struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
-
-    msg.msg_iov = &io;
-    msg.msg_iovlen = 1;
-    msg.msg_control = buf;
-    msg.msg_controllen = sizeof(buf);
-
-    errno = 0;
-    ssize_t ret = recvmsg (socket, &msg, 0); // ret = bytes received
-    if (ret < 0)
-    {
-        perror("Failed to receive fd: recvmsg failed");
-        return -1;
-    }
-
-    struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
-
-    if ( cmsg == nullptr )
-    {
-        LOGDEBUG("Failed to receive fd: CMSG_FIRSTHDR failed");
-        return -1;
-    }
-
-    if ( cmsg->cmsg_level != SOL_SOCKET
-        || cmsg->cmsg_type != SCM_RIGHTS
-        || cmsg->cmsg_len != CMSG_LEN(sizeof(int) )
-    )
-    {
-        LOGDEBUG("Failed to receive fd: cmsg is not a file descriptor");
-        return -1;
-    }
-
-    memcpy (&fd, (int *) CMSG_DATA(cmsg), sizeof(int));
-
-    return fd;
-}
-
-/**
  * Parse a request.
  *
  * Placed in a function to ensure the MessageReader and view are deleted before the buffer might become invalid.
@@ -286,7 +237,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             LOGDEBUG("Scan requested of " << requestReader.pathname);
 
             // read fd
-            datatypes::AutoFd file_fd(recv_fd(socket_fd));
+            datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
             if (file_fd.get() < 0)
             {
                 LOGERROR("Aborting socket connection: failed to read fd");

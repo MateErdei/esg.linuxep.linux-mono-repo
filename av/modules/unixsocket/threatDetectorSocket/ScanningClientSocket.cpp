@@ -76,33 +76,7 @@ int unixsocket::ScanningClientSocket::attemptConnect()
     return ::connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
 }
 
-static
-void send_fd(int socket, int fd)  // send fd by socket
-{
-    struct msghdr msg = {};
-    char buf[CMSG_SPACE(sizeof(fd))] {};
-    char dup[256] {};
-    struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
 
-    msg.msg_iov = &io;
-    msg.msg_iovlen = 1;
-    msg.msg_control = buf;
-    msg.msg_controllen = sizeof(buf);
-
-    struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
-    cmsg->cmsg_level = SOL_SOCKET;
-    cmsg->cmsg_type = SCM_RIGHTS;
-    cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
-
-    memcpy (CMSG_DATA(cmsg), &fd, sizeof (fd));
-
-    if (sendmsg (socket, &msg, MSG_NOSIGNAL) < 0)
-    {
-        std::stringstream errorMsg;
-        errorMsg << "Failed to send message: " << std::strerror(errno);
-        throw AbortScanException(errorMsg.str());
-    }
-}
 
 scan_messages::ScanResponse
 unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request)
@@ -163,7 +137,13 @@ unixsocket::ScanningClientSocket::attemptScan(datatypes::AutoFd& fd, const scan_
         throw ReconnectScannerException(errorMsg.str());
     }
 
-    send_fd(m_socket_fd, fd.get());
+    int ret = unixsocket::send_fd(m_socket_fd, fd.get());
+    if (ret < 0)
+    {
+        std::stringstream errorMsg;
+        errorMsg << "Failed to send message: " << std::strerror(errno);
+        throw AbortScanException(errorMsg.str());
+    }
 
     int32_t length = unixsocket::readLength(m_socket_fd);
     if (length < 0)

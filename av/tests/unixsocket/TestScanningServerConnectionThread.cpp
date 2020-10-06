@@ -261,30 +261,6 @@ TEST_F(TestScanningServerConnectionThread, valid_request_no_fd) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-static void send_fd(int socket, int fd)  // send fd by socket
-{
-    struct msghdr msg = {};
-    struct cmsghdr *cmsg;
-    char buf[CMSG_SPACE(sizeof(fd))] {};
-    char dup[256] {};
-    struct iovec io = { .iov_base = &dup, .iov_len = sizeof(dup) };
-
-    msg.msg_iov = &io;
-    msg.msg_iovlen = 1;
-    msg.msg_control = buf;
-    msg.msg_controllen = sizeof(buf);
-
-    cmsg = CMSG_FIRSTHDR(&msg);
-    cmsg->cmsg_level = SOL_SOCKET;
-    cmsg->cmsg_type = SCM_RIGHTS;
-    cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
-
-    memcpy (CMSG_DATA(cmsg), &fd, sizeof (fd));
-
-    int ret = sendmsg (socket, &msg, 0);
-    ASSERT_GE(ret, 0);
-}
-
 TEST_F(TestScanningServerConnectionThread, send_fd) //NOLINT
 {
     const std::string expected = "Managed to get file descriptor: ";
@@ -317,7 +293,8 @@ TEST_F(TestScanningServerConnectionThread, send_fd) //NOLINT
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd, request.serialise());
-    send_fd(clientFd, 0); // send a valid file descriptor
+    ret = send_fd(clientFd, 0); // send a valid file descriptor
+    ASSERT_GE(ret, 0);
     int length = unixsocket::readLength(clientFd);
     static_cast<void>(length);
 

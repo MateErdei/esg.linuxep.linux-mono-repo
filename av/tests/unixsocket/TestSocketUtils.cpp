@@ -11,8 +11,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <datatypes/Print.h>
 #include <gtest/gtest.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <deque>
 #include <fcntl.h>
+
 
 using namespace unixsocket;
 
@@ -136,6 +139,34 @@ namespace
 
         std::string m_name;
     };
+
+    class TestSocket
+    {
+    public:
+        TestSocket()
+        : socket_fds {-1}
+        {
+            ::socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
+        }
+
+        ~TestSocket()
+        {
+            ::close(socket_fds[0]);
+            ::close(socket_fds[1]);
+        }
+
+        int get_client_fd()
+        {
+            return socket_fds[0];
+        }
+
+        int get_server_fd()
+        {
+            return socket_fds[1];
+        }
+    private:
+        int socket_fds[2];
+    };
 }
 
 TEST(TestReadLength, EOFReturnsMinus2) // NOLINT
@@ -164,6 +195,41 @@ TEST(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
 
     int ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -1);
+}
+
+TEST(TestReadLength, TwoByteLength) // NOLINT
+{
+    TestFile tf("TestReadLength_TwoByteLength");
+    tf.write("\x81\x7F");
+
+    datatypes::AutoFd fd(tf.readFD());
+    ASSERT_GE(fd.get(), 0);
+
+    int ret = unixsocket::readLength(fd.get());
+    EXPECT_EQ(ret, 0xFF);
+}
+
+TEST(TestFdTransfer, validFd) // NOLINT
+{
+    TestSocket socket_pair;
+
+    TestFile tf("TestSocketUtils_passFd");
+    tf.write("foo");
+
+    datatypes::AutoFd client_fd(tf.readFD());
+
+    unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
+
+    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    ASSERT_GE(new_fd, 0);
+    datatypes::AutoFd server_fd(new_fd);
+
+    ASSERT_NE(server_fd.get(), client_fd.get());
+
+    char buffer[10] {};
+    int ret = ::read(server_fd.get(), buffer, sizeof(buffer) - 1);
+    ASSERT_GT(ret, 0);
+    ASSERT_STREQ(buffer, "foo");
 }
 
 TEST(TestSocketUtils, environmentInterruptionReportsWhat) // NOLINT
