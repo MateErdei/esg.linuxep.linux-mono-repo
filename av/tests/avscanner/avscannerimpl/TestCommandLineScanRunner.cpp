@@ -225,6 +225,31 @@ TEST_F(TestCommandLineScanRunner, exclusionIsFileToScan) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
+TEST_F(TestCommandLineScanRunner, anEmptyExclusionProvided) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    fs::create_directories("/tmp/sandbox/a/b/d/e");
+    std::ofstream("/tmp/sandbox/a/b/file1.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("/tmp/sandbox/a/b/file1.txt");
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back("/tmp/sandbox/a/b/file1.txt");
+    exclusions.emplace_back("");
+    Options options(false, paths, exclusions, true);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    fs::remove_all("/tmp/sandbox");
+
+    ASSERT_TRUE(appenderContains("Excluding file: /tmp/sandbox/a/b/file1.txt"));
+    ASSERT_TRUE(appenderContains("Refusing to exclude empty path"));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
 TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -610,4 +635,31 @@ TEST_F(TestCommandLineScanRunner, noPathProvided) // NOLINT
     CommandLineScanRunner runner(options);
 
     EXPECT_EQ(runner.run(), E_GENERIC_FAILURE);
+}
+
+TEST_F(TestCommandLineScanRunner, anEmptyPathProvided) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    fs::create_directories("/tmp/sandbox/a/b/d/e");
+    std::ofstream("/tmp/sandbox/a/b/file1.txt");
+
+    fs::path startingpoint = fs::absolute("/tmp/sandbox");
+
+    std::vector<std::string> paths;
+    paths.emplace_back(startingpoint);
+    paths.emplace_back("");
+    std::vector<std::string> exclusions;
+    Options options(false, paths, exclusions, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    fs::remove_all("/tmp/sandbox");
+
+    ASSERT_EQ(socket->m_paths.size(), 1);
+    EXPECT_EQ(socket->m_paths.at(0), fs::absolute("/tmp/sandbox/a/b/file1.txt").string());
+
+    ASSERT_TRUE(appenderContains("Refusing to scan empty path"));
 }

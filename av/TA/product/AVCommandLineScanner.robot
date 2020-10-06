@@ -460,6 +460,20 @@ CLS Can Log To A File
 
    File Log Contains    ${LOG_FILE}    "${THREAT_FILE}" is infected with EICAR-AV-Test
 
+CLS Will Not Log To A Directory
+   ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
+
+   Create File     ${THREAT_FILE}    ${EICAR_STRING}
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${NORMAL_DIRECTORY}
+
+   Log To Console  return code is ${rc}
+   Log To Console  output is ${output}
+   Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
+
+   Should Contain    ${output}    Failed to log to ${NORMAL_DIRECTORY} as it is a directory
+   Should Contain    ${output}    Usage: avscanner PATH... [OPTION]...
+   Should Not Contain    ${output}    "${THREAT_FILE}" is infected with EICAR-AV-Test
+
 
 CLS Can Scan Infected File Via Symlink To Directory
    ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b

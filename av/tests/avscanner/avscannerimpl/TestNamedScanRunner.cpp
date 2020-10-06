@@ -125,6 +125,36 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
     EXPECT_EQ(config.m_scanRemovable, m_scanRemovable);
 }
 
+TEST_F(TestNamedScanRunner, TestNamedScanConfigDirectoryPassedAsFilename) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    try
+    {
+        NamedScanRunner runner("/tmp");
+        FAIL() << "Expected runtime exception";
+    }
+    catch (const std::runtime_error& e)
+    {
+        ASSERT_EQ(std::string(e.what()), "Aborting: Config path must not be directory");
+    }
+}
+
+TEST_F(TestNamedScanRunner, TestNamedScanConfigInvalidFormat) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    try
+    {
+        NamedScanRunner runner("/etc/passwd");
+        FAIL() << "Expected runtime exception";
+    }
+    catch (const std::runtime_error& e)
+    {
+        ASSERT_EQ(std::string(e.what()), "Aborting: Config file cannot be parsed");
+    }
+}
+
 TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
 {
     m_scanHardDisc = true;
