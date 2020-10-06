@@ -100,6 +100,9 @@ namespace
     class TestFdTransfer : public UnixSocketMemoryAppenderUsingTests
     {};
 
+    class TestReadLength : public UnixSocketMemoryAppenderUsingTests
+    {};
+
     class TestFile
     {
     public:
@@ -173,7 +176,7 @@ namespace
     };
 }
 
-TEST(TestReadLength, EOFReturnsMinus2) // NOLINT
+TEST_F(TestReadLength, EOFReturnsMinus2) // NOLINT
 {
     TestFile tf("TestReadLength_EOFReturnsMinus2_buffer");
     tf.create();
@@ -189,7 +192,25 @@ TEST(TestReadLength, EOFReturnsMinus2) // NOLINT
     EXPECT_EQ(ret, -2);
 }
 
-TEST(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
+TEST_F(TestReadLength, FailedRead) // NOLINT
+{
+    const std::string expected = "Reading socket returned error: ";
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    TestFile tf("TestReadLength_EOFReturnsMinus2_buffer");
+    tf.create();
+
+    datatypes::AutoFd fd(tf.readFD());
+
+    ::close(fd.get());
+
+    int ret = unixsocket::readLength(fd.get());
+    EXPECT_EQ(ret, -1);
+
+    EXPECT_TRUE(appenderContains(expected));
+}
+
+TEST_F(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
 {
     TestFile tf("TestReadLength_TooLargeLengthReturnsMinusOne_buffer");
     tf.write("\xFF\xFF\xFF\xFF\xFF");
@@ -201,7 +222,7 @@ TEST(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
     EXPECT_EQ(ret, -1);
 }
 
-TEST(TestReadLength, TwoByteLength) // NOLINT
+TEST_F(TestReadLength, TwoByteLength) // NOLINT
 {
     TestFile tf("TestReadLength_TwoByteLength");
     tf.write("\x81\x7F");
@@ -213,6 +234,62 @@ TEST(TestReadLength, TwoByteLength) // NOLINT
     EXPECT_EQ(ret, 0xFF);
 }
 
+TEST(TestWriteLength, TwoByteLength) // NOLINT
+{
+    TestSocket socket_pair;
+
+    unixsocket::writeLength(socket_pair.get_client_fd(), 0xFF);
+
+    char buffer[8] = { '\0' };
+    ssize_t readlen = ::read(socket_pair.get_server_fd(), buffer, sizeof(buffer));
+    ASSERT_EQ(readlen, 2);
+    EXPECT_STREQ(buffer, "\x81\x7F");
+}
+
+TEST(TestWriteLength, ZeroLength) // NOLINT
+{
+    TestSocket socket_pair;
+
+    try
+    {
+        unixsocket::writeLength(socket_pair.get_client_fd(), 0);
+    }
+    catch (std::runtime_error &e)
+    {
+        ASSERT_STREQ(e.what(), "Attempting to write length of zero");
+    }
+}
+
+TEST(TestWriteLength, WriteError) // NOLINT
+{
+    TestSocket socket_pair;
+
+    ::close(socket_pair.get_client_fd());
+
+    try
+    {
+        unixsocket::writeLength(socket_pair.get_client_fd(), 1);
+    }
+    catch (environmentInterruption &e)
+    {
+        ASSERT_STREQ(e.what(), "Environment interruption");
+    }
+}
+
+TEST(TestWriteLengthAndBuffer, SimpleWrite) // NOLINT
+{
+    std::string client_buffer = "hello";
+    TestSocket socket_pair;
+
+    unixsocket::writeLengthAndBuffer(socket_pair.get_client_fd(), client_buffer);
+
+    char server_buffer[16] = { '\0' };
+    ssize_t readlen = ::read(socket_pair.get_server_fd(), server_buffer, sizeof(server_buffer));
+    ASSERT_EQ(readlen, 6);
+    ASSERT_EQ(server_buffer[0], client_buffer.length());
+    EXPECT_STREQ(server_buffer+1, client_buffer.c_str());
+}
+
 TEST_F(TestFdTransfer, validFd) // NOLINT
 {
     TestSocket socket_pair;
@@ -222,7 +299,8 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
 
     datatypes::AutoFd client_fd(tf.readFD());
 
-    unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
+    int ret = unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
+    ASSERT_GT(ret, 0);
 
     int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
     ASSERT_GE(new_fd, 0);
@@ -231,9 +309,32 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
     ASSERT_NE(server_fd.get(), client_fd.get());
 
     char buffer[10] {};
-    int ret = ::read(server_fd.get(), buffer, sizeof(buffer) - 1);
+    ret = ::read(server_fd.get(), buffer, sizeof(buffer) - 1);
     ASSERT_GT(ret, 0);
     ASSERT_STREQ(buffer, "foo");
+}
+
+TEST_F(TestFdTransfer, writeError) // NOLINT
+{
+    TestSocket socket_pair;
+
+    TestFile tf("TestSocketUtils_passFd");
+    tf.write("foo");
+
+    datatypes::AutoFd client_fd(tf.readFD());
+
+    ::close(socket_pair.get_client_fd());
+    int ret = unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
+    ASSERT_EQ(ret, -1);
+}
+
+TEST_F(TestFdTransfer, readError) // NOLINT
+{
+    TestSocket socket_pair;
+
+    ::close(socket_pair.get_server_fd());
+    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    ASSERT_EQ(new_fd, -1);
 }
 
 static void send_fds(int socket, int* fds, int count)  // send fd by socket
