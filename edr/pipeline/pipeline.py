@@ -142,7 +142,7 @@ def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     mode = parameters.mode or 'release'
-    component = tap.Component(name='edr', base_version='1.0.2')
+    component = tap.Component(name='edr', base_version='1.1.0')
 
     #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     edr_build = None
