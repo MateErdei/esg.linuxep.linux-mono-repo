@@ -54,12 +54,11 @@ NamedScanConfig avscanner::avscannerimpl::configFromFile(const std::string& conf
         ::capnp::StreamFdMessageReader message(fd);
         messageReader = message.getRoot<Sophos::ssplav::NamedScan>();
         fd.close();
+        return NamedScanConfig(messageReader);
     }
     catch (const kj::Exception& e)
     {
         fd.close();
         throw std::runtime_error("Aborting: Config file cannot be parsed");
     }
-
-    return NamedScanConfig(messageReader);
 }

@@ -127,8 +127,6 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
 
 TEST_F(TestNamedScanRunner, TestNamedScanConfigDirectoryPassedAsFilename) // NOLINT
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     try
     {
         NamedScanRunner runner("/tmp");
@@ -142,8 +140,6 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigDirectoryPassedAsFilename) // NOL
 
 TEST_F(TestNamedScanRunner, TestNamedScanConfigInvalidFormat) // NOLINT
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     try
     {
         NamedScanRunner runner("/etc/passwd");
