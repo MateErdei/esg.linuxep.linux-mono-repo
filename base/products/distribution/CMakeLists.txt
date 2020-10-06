@@ -92,10 +92,10 @@ execute_process(
         OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-#execute_process(
-#        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
-#        OUTPUT_VARIABLE PRODUCT_VERSION
-#        OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(
+        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
+        OUTPUT_VARIABLE PRODUCT_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
         COMMAND date +%Y-%m-%d
