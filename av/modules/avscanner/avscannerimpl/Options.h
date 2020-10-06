@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <vector>
 
 #include <boost/program_options.hpp>
+#include <pluginapi/include/Common/Logging/LoggerConfig.h>
 
 namespace po = boost::program_options;
 
@@ -53,9 +54,15 @@ namespace avscanner::avscannerimpl
             return m_logFile;
         }
 
+        [[nodiscard]] Common::Logging::SophosLogLevel logLevel() const
+        {
+            return m_logLevel;
+        }
+
     private:
         std::string m_config;
         std::string m_logFile;
+        Common::Logging::SophosLogLevel m_logLevel;
 
         bool m_printHelp = false;
         std::vector <std::string> m_paths;

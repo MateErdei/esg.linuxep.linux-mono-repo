@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/SophosLoggerMacros.h>
 
 #include <string>
+#include <pluginapi/include/Common/Logging/LoggerConfig.h>
 
 log4cplus::Logger& getNamedScanRunnerLogger();
 
@@ -22,6 +23,7 @@ class Logger
 {
 private:
     void setupFileLoggingWithPath(std::string logfilepath);
+    void applyCommandLineLevel(const Common::Logging::SophosLogLevel &CLSlogLevel);
 public:
     explicit Logger(const std::string& scanName, bool isCommandLine=false);
     ~Logger();

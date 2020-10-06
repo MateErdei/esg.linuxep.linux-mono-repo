@@ -7,9 +7,29 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <stdexcept>
 #include "Options.h"
 #include "Logger.h"
-
+#include <boost/algorithm/string.hpp>
 using namespace avscanner::avscannerimpl;
 namespace po = boost::program_options;
+
+static Common::Logging::SophosLogLevel verifyLogLevel(const std::string logLevel)
+{
+    std::string lowerCaseLogLevel(boost::to_lower_copy(logLevel));
+
+    if(lowerCaseLogLevel == "debug")
+        return Common::Logging::SophosLogLevel::DEBUG;
+    if( lowerCaseLogLevel == "support")
+        return Common::Logging::SophosLogLevel::SUPPORT;
+    if(lowerCaseLogLevel == "info")
+        return Common::Logging::SophosLogLevel::INFO;
+    if (lowerCaseLogLevel == "warn")
+        return Common::Logging::SophosLogLevel::WARN;
+    if (lowerCaseLogLevel == "error")
+        return Common::Logging::SophosLogLevel::ERROR;
+    if (lowerCaseLogLevel == "off")
+        return Common::Logging::SophosLogLevel::OFF;
+
+    throw boost::program_options::error(std::string("Unrecognised Log Level"));
+}
 
 po::variables_map Options::parseCommandLine(int argc, char** argv)
 {
@@ -37,6 +57,7 @@ void Options::constructOptions()
             ("scan-archives,s", "Scan inside archives")
             ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION...")->multitoken(),"Exclude these locations from being scanned")
             ("output,o", po::value<std::string>()->value_name("OUTPUT..."), "Write to log file")
+            ("log-level,l", po::value<std::string>()->value_name("log_level..."), "Log level for Command Line Scanner")
             ("files,f", po::value<std::vector<std::string>>()->value_name("file [file...]")->multitoken(), "Files to scan")
             ("config,c", po::value<std::string>()->value_name("config_file"), "Input configuration file for scheduled scans");
     }
@@ -71,6 +92,11 @@ Options::Options(int argc, char** argv)
         if (variableMap.count("output"))
         {
             m_logFile = variableMap["output"].as<std::string>();
+        }
+
+        if (variableMap.count("log-level"))
+        {
+            m_logLevel = verifyLogLevel(variableMap["log-level"].as<std::string>());
         }
 
         if (variableMap.count("help"))
