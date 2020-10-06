@@ -176,6 +176,11 @@ int CommandLineScanRunner::run()
 
     for (auto& exclusion : m_exclusions)
     {
+        if (exclusion.empty())
+        {
+            LOGERROR("Refusing to exclude empty path");
+            continue;
+        }
         if( exclusion.at(0) == '.'
             or exclusion.find("/.") != std::string::npos)
         {
@@ -209,6 +214,11 @@ int CommandLineScanRunner::run()
     // for each select included mount point call filewalker for that mount point
     for (auto& path : m_paths)
     {
+        if (path.empty())
+        {
+            LOGERROR("Refusing to scan empty path");
+            continue;
+        }
         if ((path.at(0) == '.' or path.find("/.") != std::string::npos) and fs::exists(path))
         {
             path = fs::canonical(path);

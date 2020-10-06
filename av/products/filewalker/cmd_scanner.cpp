@@ -5,15 +5,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "avscanner/avscannerimpl/Options.h"
+
 #include <avscanner/avscannerimpl/CommandLineScanRunner.h>
 #include <avscanner/avscannerimpl/NamedScanRunner.h>
 #include <datatypes/Print.h>
+#include <datatypes/sophos_filesystem.h>
 
 #include <memory>
 
-
-
 using namespace avscanner::avscannerimpl;
+namespace fs = sophos_filesystem;
+
 
 int main(int argc, char* argv[])
 {
@@ -35,6 +37,13 @@ int main(int argc, char* argv[])
         {
             PRINT(Options::getHelp());
             return E_CLEAN_EXIT;
+        }
+
+        if (fs::is_directory(options.logFile()))
+        {
+            PRINT(Options::getHelp());
+            PRINT("Failed to log to " << options.logFile() << " as it is a directory");
+            return E_BAD_OPTION;
         }
 
         std::unique_ptr<IRunner> runner;
