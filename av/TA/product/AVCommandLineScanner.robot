@@ -407,6 +407,18 @@ CLS Exclusions Folder And File
     File Log Should Not Contain  ${AV_LOG_PATH}   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
+CLS Can Change Log Level
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --log-level=WARN
+    Should Contain       ${output}  Setting logger to log level: WARN
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}
+    Should Contain       ${output}  Logger av configured for level: DEBUG
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --log-level=ERROR
+    Should Contain       ${output}  Setting logger to log level: ERROR
+
+
+
 CLS Prints Help and Failure When Options Are Spaced Incorrectly
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --exclude= file
     Should Contain       ${output}   Failed to parse command line options: the argument for option '--exclude' should follow immediately after the equal sign

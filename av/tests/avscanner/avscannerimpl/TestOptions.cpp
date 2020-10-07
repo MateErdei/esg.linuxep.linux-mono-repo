@@ -196,7 +196,7 @@ TEST(Options, TestGetHelp) // NOLINT
     EXPECT_NE(Options::getHelp(), "");
 }
 
-TEST(Options, TestVerifyLogLevel) // NOLINT
+TEST(Options, TestVerifyLogLevelUppercase) // NOLINT
 {
     EXPECT_EQ(Options::verifyLogLevel("OFF"), log4cplus::OFF_LOG_LEVEL);
     EXPECT_EQ(Options::verifyLogLevel("DEBUG"), log4cplus::DEBUG_LOG_LEVEL);
@@ -205,3 +205,31 @@ TEST(Options, TestVerifyLogLevel) // NOLINT
     EXPECT_EQ(Options::verifyLogLevel("WARN"), log4cplus::WARN_LOG_LEVEL);
     EXPECT_EQ(Options::verifyLogLevel("ERROR"), log4cplus::ERROR_LOG_LEVEL);
 }
+
+TEST(Options, TestVerifyLogLevelLowercase) // NOLINT
+{
+    EXPECT_EQ(Options::verifyLogLevel("off"), log4cplus::OFF_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("debug"), log4cplus::DEBUG_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("info"), log4cplus::INFO_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("support"), log4cplus::SUPPORT_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("warn"), log4cplus::WARN_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("error"), log4cplus::ERROR_LOG_LEVEL);
+}
+
+TEST(Options, TestVerifyLogLevelCapitalised) // NOLINT
+{
+    EXPECT_EQ(Options::verifyLogLevel("Off"), log4cplus::OFF_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("Debug"), log4cplus::DEBUG_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("Info"), log4cplus::INFO_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("Support"), log4cplus::SUPPORT_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("Warn"), log4cplus::WARN_LOG_LEVEL);
+    EXPECT_EQ(Options::verifyLogLevel("Error"), log4cplus::ERROR_LOG_LEVEL);
+}
+
+TEST(Options, TestVerifyLogLevelThrowsException) // NOLINT
+{
+    EXPECT_THROW(Options::verifyLogLevel("this is going to throw"), po::error);
+}
+
+
+

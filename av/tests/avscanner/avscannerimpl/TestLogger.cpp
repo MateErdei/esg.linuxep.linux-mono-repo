@@ -3,19 +3,13 @@
 #include "avscanner/avscannerimpl/Logger.h"
 #include <log4cplus/logger.h>
 
-TEST(TestLogger, derivedConstructor) // NOLINT
+TEST(TestLogger, TestConstructor) // NOLINT
 {
     EXPECT_NO_THROW(Logger("/tmp/test_logger.txt", log4cplus::INFO_LOG_LEVEL, true));
-    EXPECT_NO_THROW(Logger("/tmp/test_logger.txt", log4cplus::INFO_LOG_LEVEL, false));
+    EXPECT_NO_THROW(Logger("/tmp/test_logger.txt"));
 }
 
-TEST(TestLogger, nonDerivedConstructor) // NOLINT
-{
-    EXPECT_NO_THROW(Logger("/tmp/test_logger.txt", true));
-    EXPECT_NO_THROW(Logger("/tmp/test_logger.txt", false));
-}
-
-TEST(TestLogger, applyCommandLineLevelTest) // NOLINT
+TEST(TestLogger, TestApplyCommandLineLevel) // NOLINT
 {
     Logger log("/tmp/test_logger.txt", true);
     EXPECT_NO_THROW(log.applyCommandLineLevel(log4cplus::DEBUG_LOG_LEVEL));

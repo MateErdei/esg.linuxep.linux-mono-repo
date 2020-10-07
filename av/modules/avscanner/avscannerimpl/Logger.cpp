@@ -24,19 +24,7 @@ log4cplus::Logger& getNamedScanRunnerLogger()
     return STATIC_LOGGER;
 }
 
-Logger::Logger(const std::string& fileName, log4cplus::LogLevel logLevel, bool isCommandLine) : Logger(fileName, isCommandLine)
-{
-    if(logLevel != log4cplus::NOT_SET_LOG_LEVEL and isCommandLine)
-    {
-        applyCommandLineLevel(logLevel);
-    }
-    else
-    {
-        Common::Logging::applyGeneralConfig(PLUGIN_NAME);
-    }
-}
-
-Logger::Logger(const std::string& fileName, bool isCommandLine)
+Logger::Logger(const std::string& fileName, log4cplus::LogLevel logLevel, bool isCommandLine)
 {
     std::string logFilePath = fileName;
     if (!isCommandLine)
@@ -57,6 +45,15 @@ Logger::Logger(const std::string& fileName, bool isCommandLine)
     if (!logFilePath.empty())
     {
         setupFileLoggingWithPath(logFilePath);
+    }
+
+    if(logLevel != log4cplus::NOT_SET_LOG_LEVEL and isCommandLine)
+    {
+        applyCommandLineLevel(logLevel);
+    }
+    else
+    {
+        Common::Logging::applyGeneralConfig(PLUGIN_NAME);
     }
 }
 
