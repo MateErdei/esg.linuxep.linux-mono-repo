@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests for AVP and Base
-Force Tags      INTEGRATION
+Default Tags  INTEGRATION
 Library         Collections
 Library         OperatingSystem
 Library         Process
@@ -92,6 +92,25 @@ AV plugin attempts to run scan now twice simultaneously
 
     ${count} =  Get Line Count   ${lines}
     Should Be Equal As Integers  ${1}  ${count}
+
+AV plugin runs scheduled scan
+    Check AV Plugin Installed With Base
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait until scheduled scan updated
+    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=150
+    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
+
+AV plugin runs scheduled scan after restart
+    Check AV Plugin Installed With Base
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    Stop AV Plugin
+    Remove File    ${AV_LOG_PATH}
+    Start AV Plugin
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait until scheduled scan updated
+    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=150
+    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
 
 AV plugin fails scan now if no policy
     Check AV Plugin Installed With Base
