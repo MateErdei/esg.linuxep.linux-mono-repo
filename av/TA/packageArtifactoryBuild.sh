@@ -32,6 +32,6 @@ rsync -va --copy-unsafe-links --delete "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPO
 rsync -va --copy-unsafe-links --delete "$OUTPUT/base-sdds/"      "$AV/base-sdds"
 rsync -va --copy-unsafe-links --delete "$OUTPUT/test-resources"  "$AV/"
 
-python3 ${BASE}/manual/createInstallSet.py "$OUTPUT/INSTALL-SET/" "$OUTPUT/SDDS-COMPONENT/" "$OUTPUT/base-sdds/"
+python3 ${BASE}/manual/createInstallSet.py "$AV/INSTALL-SET/" "$AV/SDDS-COMPONENT/" "$INPUTS"
 
 exec tar cjf /tmp/inputs.tar.bz2 -C ${DEST_BASE} ${TEST_DIR_NAME}
