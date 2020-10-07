@@ -19,7 +19,7 @@ if PY2:
     from urllib import urlretrieve as urllib_urlretrieve
 else:
     from urllib.request import urlopen as urllib_urlopen
-    from urllib.request  import urlretrieve as urllib_urlretrieve
+    from urllib.request import urlretrieve as urllib_urlretrieve
 
 LOGGER = None
 
