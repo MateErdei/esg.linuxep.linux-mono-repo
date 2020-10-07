@@ -221,6 +221,18 @@ TEST_F(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
     int ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -1);
 }
+TEST_F(TestReadLength, ZeroLength) // NOLINT
+{
+    TestFile tf("TestReadLength_ZeroLength");
+    char buffer[] = { '\x00' };
+    tf.write(buffer, sizeof(buffer));
+
+    datatypes::AutoFd fd(tf.readFD());
+    ASSERT_GE(fd.get(), 0);
+
+    int ret = unixsocket::readLength(fd.get());
+    EXPECT_EQ(ret, 0);
+}
 
 TEST_F(TestReadLength, TwoByteLength) // NOLINT
 {
@@ -232,6 +244,47 @@ TEST_F(TestReadLength, TwoByteLength) // NOLINT
 
     int ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, 0xFF);
+}
+
+TEST_F(TestReadLength, MaxLength) // NOLINT
+{
+    TestFile tf("TestReadLength_MaxLength");
+
+    // maximum is ( ( 128 * 1024 ) << 7 ) + 127 )
+    tf.write("\x88\x80\x80\x7f");
+
+    datatypes::AutoFd fd(tf.readFD());
+    ASSERT_GE(fd.get(), 0);
+
+    int ret = unixsocket::readLength(fd.get());
+    EXPECT_EQ(ret, 0x0100007F);
+}
+
+TEST_F(TestReadLength, OverMaxLength) // NOLINT
+{
+    TestFile tf("TestReadLength_OverMaxLength");
+
+    // maximum is ( ( 128 * 1024 ) << 7 ) + 127 )
+    tf.write("\x88\x80\x81\x00");
+
+    datatypes::AutoFd fd(tf.readFD());
+    ASSERT_GE(fd.get(), 0);
+
+    int ret = unixsocket::readLength(fd.get());
+    EXPECT_EQ(ret, -1);
+}
+
+TEST_F(TestReadLength, PaddedLength) // NOLINT
+{
+    TestFile tf("TestReadLength_PaddedLength");
+
+    tf.write("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01");
+
+    datatypes::AutoFd fd(tf.readFD());
+    ASSERT_GE(fd.get(), 0);
+
+    int ret = unixsocket::readLength(fd.get());
+    EXPECT_EQ(ret, 1);
 }
 
 TEST(TestWriteLength, TwoByteLength) // NOLINT
@@ -253,10 +306,11 @@ TEST(TestWriteLength, ZeroLength) // NOLINT
     try
     {
         unixsocket::writeLength(socket_pair.get_client_fd(), 0);
+        FAIL();
     }
     catch (std::runtime_error &e)
     {
-        ASSERT_STREQ(e.what(), "Attempting to write length of zero");
+        EXPECT_STREQ(e.what(), "Attempting to write length of zero");
     }
 }
 
@@ -269,6 +323,7 @@ TEST(TestWriteLength, WriteError) // NOLINT
     try
     {
         unixsocket::writeLength(socket_pair.get_client_fd(), 1);
+        FAIL();
     }
     catch (environmentInterruption &e)
     {
@@ -355,7 +410,7 @@ static void send_fds(int socket, int* fds, int count)  // send fd by socket
     cmsg->cmsg_type = SCM_RIGHTS;
     cmsg->cmsg_len = CMSG_LEN(sizeof(int) * count);
 
-    memcpy (CMSG_DATA(cmsg), fds, sizeof (int) * count);
+    memcpy (CMSG_DATA(cmsg), fds, sizeof(int) * count);
 
     int ret = sendmsg (socket, &msg, 0);
     ASSERT_GE(ret, 0);
@@ -422,6 +477,36 @@ TEST_F(TestFdTransfer, sendThreeFds) // NOLINT
 
     int fd_count_after = count_open_fds();
     EXPECT_EQ(fd_count_before, fd_count_after);
+    EXPECT_TRUE(appenderContains(expected));
+}
+
+TEST_F(TestFdTransfer, sendZeroFds) // NOLINT
+{
+    const std::string expected = "Failed to receive fd: ";
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    TestSocket socket_pair;
+
+    int fds[] = {};
+    send_fds(socket_pair.get_client_fd(), fds, 0);
+
+    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    ASSERT_EQ(new_fd, -1);
+
+    EXPECT_TRUE(appenderContains(expected));
+}
+
+TEST_F(TestFdTransfer, sendRegularMessage) // NOLINT
+{
+    const std::string expected = "Failed to receive fd: ";
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    TestSocket socket_pair;
+
+    std::string buffer = "junk";
+    ::send(socket_pair.get_client_fd(), buffer.c_str(), buffer.size(), MSG_NOSIGNAL);
+
+    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    ASSERT_EQ(new_fd, -1);
+
     EXPECT_TRUE(appenderContains(expected));
 }
 
