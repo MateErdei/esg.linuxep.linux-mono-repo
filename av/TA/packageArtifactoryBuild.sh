@@ -12,13 +12,13 @@ then
 	exit 1
 fi
 
-curl https://artifactory.sophos-ops.com/${REPO_PATH}/build/output.zip --output output.zip
-
 DEST_BASE=/tmp
 OUTPUT=${DEST_BASE}/output
+[ -d "$OUTPUT" ] && rm -rf $OUTPUT
 mkdir $OUTPUT
 
-unzip output.zip -d $OUTPUT
+curl https://artifactory.sophos-ops.com/${REPO_PATH}/build/output.zip --output ${DEST_BASE}/output.zip
+unzip ${DEST_BASE}/output.zip -d $OUTPUT
 
 TEST_DIR_NAME=test
 TEST_DIR=${DEST_BASE}/${TEST_DIR_NAME}
@@ -32,6 +32,6 @@ rsync -va --copy-unsafe-links --delete "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPO
 rsync -va --copy-unsafe-links --delete "$OUTPUT/base-sdds/"      "$AV/base-sdds"
 rsync -va --copy-unsafe-links --delete "$OUTPUT/test-resources"  "$AV/"
 
-./manual/createInstallSet.py "$OUTPUT/INSTALL-SET/" "$OUTPUT/SDDS-COMPONENT/" "$OUTPUT/base-sdds/"
+python3 ${BASE}/manual/createInstallSet.py "$OUTPUT/INSTALL-SET/" "$OUTPUT/SDDS-COMPONENT/" "$OUTPUT/base-sdds/"
 
 exec tar cjf /tmp/inputs.tar.bz2 -C ${DEST_BASE} ${TEST_DIR_NAME}
