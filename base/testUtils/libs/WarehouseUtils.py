@@ -164,8 +164,7 @@ class TemplateConfig:
         environment_config = os.environ.get(env_key, None)
         if environment_config:
             # assume ballista warehouse if override given
-            self.hashed_credentials = "326ad41d6aac4e7ea9492c23882a2126"
-            env_values = environment_config.split(":")
+            self.hashed_credentials = environment_config
             self.username = self.hashed_credentials
             self.password = self.hashed_credentials
             self.remote_connection_address = BALLISTA_ADDRESS
