@@ -163,7 +163,7 @@ AV plugin runs scheduled scan while CLS is running
     #Scan something that should take ages to scan
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /
 
-    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=90
+    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     Process Should Be Running   ${cls_handle}
     Wait Until AV Plugin Log Contains  Completed scan  timeout=180
     ${result} =   Terminate Process  ${cls_handle}
