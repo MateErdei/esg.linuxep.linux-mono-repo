@@ -27,21 +27,17 @@ ${MESSAGE_RELAY_2_PORT}  8190
 *** Test Cases ***
 Check Registration Via Message Relay
     [Documentation]  Derived from CLOUD.PROXY.006_Register_in_cloud_through_message_relay.sh
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  updatescheduler
+    Remove File  ${SOPHOS_INSTALL}/base/bin/UpdateScheduler
     Register With Real Update Cache and Message Relay Account  --messagerelay=${MESSAGE_RELAY_1_HOSTNAME}:${MESSAGE_RELAY_1_PORT},0,${MESSAGE_RELAY_1_ID}
     Wait For Server In Cloud
     Check Register Central Log Contains In Order   Trying connection via message relay ${MESSAGE_RELAY_1_HOSTNAME}:${MESSAGE_RELAY_1_PORT}  Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_1_HOSTNAME}:${MESSAGE_RELAY_1_PORT}
     Check Register Central Log Contains In Order   <productType>sspl</productType>  <platform>linux</platform>  <isServer>1</isServer>
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
-    ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
-    Wait Until Keyword Succeeds
-    ...  50 secs
-    ...  5 secs
-    ...  Check Log Contains  wdctl <> start mtr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
 
 MCS Communicates With Nova Via Message Relay
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  updatescheduler
+    Remove File  ${SOPHOS_INSTALL}/base/bin/UpdateScheduler
     Register With Real Update Cache and Message Relay Account
     Wait For MCS Router To Be Running
     Check MCSRouter Log Contains  Successfully directly connected to mcs.sandbox.sophos:443
@@ -50,15 +46,6 @@ MCS Communicates With Nova Via Message Relay
     Wait For Server In Cloud
     Check Marked Mcsrouter Log Contains   Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_1_HOSTNAME_LOWER}:${MESSAGE_RELAY_1_PORT}
 
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
-    ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
-
-    Wait Until Keyword Succeeds
-    ...  50 secs
-    ...  5 secs
-    ...  Check Log Contains  wdctl <> start mtr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
 
 *** Keywords ***
 Real UCMR Test Teardown
