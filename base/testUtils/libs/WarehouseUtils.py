@@ -29,6 +29,16 @@ WAREHOUSE_LOCAL_SERVER_PORT = 443
 # newline is important in the redirect below
 OSTIA_HOST_REDIRECT = """127.0.0.1  ostia.eng.sophos
 """
+INTERNAL_OSTIA_HOST_REDIRECT = """127.0.0.1  ostia.eng.sophos
+10.1.200.228    dci.sophosupd.com
+10.1.200.228    dci.sophosupd.net
+10.1.200.228    d1.sophosupd.com
+10.1.200.228    d1.sophosupd.net
+10.1.200.228    d2.sophosupd.com
+10.1.200.228    d2.sophosupd.net
+10.1.200.228    d3.sophosupd.com
+10.1.200.228    d3.sophosupd.net
+"""
 OSTIA_HOSTS_BACKUP_FILENAME="ostia_hosts.bk"
 
 USERNAME = "username"
@@ -149,27 +159,29 @@ class TemplateConfig:
         :param username: username for the warehouse this policy is made for
         :param build_type: build type (prod or dev) of the products in the warehouse (needed for cert disambiguation)
         """
+        self.local_connection_address = None
         self.env_key = env_key
         environment_config = os.environ.get(env_key, None)
         if environment_config:
             # assume ballista warehouse if override given
+            self.hashed_credentials = "326ad41d6aac4e7ea9492c23882a2126"
             env_values = environment_config.split(":")
-            self.username = env_values[0]
-            self.password = env_values[1]
+            self.username = self.hashed_credentials
+            self.password = self.hashed_credentials
             self.remote_connection_address = BALLISTA_ADDRESS
             self.build_type = PROD_BUILD_CERTS
             #allows the use of obfuscated creds instead of plaintext
-            self.algorithm = "AES256"
+            # self.algorithm = "AES256"
+            self.algorithm = "Clear"
         else:
             self.username = username
             self.password = PASSWORD
             self.remote_connection_address = ostia_adress
             self.build_type = build_type
             self.algorithm = "Clear"
+            self._define_hashed_creds()
+            self._set_local_connection_address_to_use_local_customer_address_if_using_local_ostia_warehouses()
         self._define_valid_update_certs()
-        self._define_hashed_creds()
-        self.local_connection_address = None
-        self._set_local_connection_address_to_use_local_customer_address_if_using_local_ostia_warehouses()
         self._set_customer_file_domain()
         self._set_warehouse_domain()
         self._validate_values()
@@ -430,7 +442,12 @@ class WarehouseUtils(object):
             self.update_server.restore_host_file(backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
 
     def modify_host_file_for_local_ostia_warehouses(self):
-        self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=OSTIA_HOST_REDIRECT, backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
+        logger.info("here JAKE")
+        if os.environ.get("INTERNAL_HOST_REDIRECT"):
+            logger.info("using internal redirect")
+            self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=INTERNAL_OSTIA_HOST_REDIRECT, backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
+        else:
+            self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=OSTIA_HOST_REDIRECT, backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
 
     def start_all_local_update_servers(self):
         self.update_server.stop_update_server()
@@ -453,8 +470,12 @@ class WarehouseUtils(object):
 
     def setup_local_warehouses_if_needed(self):
         if os.path.isdir(LOCAL_WAREHOUSES):
+            logger.info("starting local update servers")
             self.start_all_local_update_servers()
+            logger.info("finished starting local update servers")
+            logger.info("redirecting host file")
             self.modify_host_file_for_local_ostia_warehouses()
+            logger.info("done redirecting host file")
 
     def generate_local_ssl_certs_if_they_dont_exist(self):
         server_https_cert = os.path.join(SUPPORT_FILE_PATH, "https", "ca", "root-ca.crt.pem")
@@ -485,4 +506,7 @@ class WarehouseUtils(object):
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":
-    _make_local_copy_of_warehouse()
+    import sys
+    user = sys.argv[0]
+    password = sys.argv[1]
+    print(calculate_hashed_creds(user, password))

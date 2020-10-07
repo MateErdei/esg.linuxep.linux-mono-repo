@@ -82,6 +82,12 @@ Install Local SSL Server Cert To System
 Install Ostia SSL Certs To System
     Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/OstiaCA.crt
 
+Install Internal SSL Certs To System
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA.cer
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA1.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA2.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA3.crt
+
 Revert System CA Certs
     Cleanup System Ca Certs
 
@@ -89,6 +95,7 @@ Setup Ostia Warehouse Environment
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
     Install Ostia SSL Certs To System
+    Install Internal SSL Certs To System
     Setup Local Warehouses If Needed
 
 Teardown Ostia Warehouse Environment
