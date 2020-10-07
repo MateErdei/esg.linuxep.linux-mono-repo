@@ -177,7 +177,7 @@ AV plugin runs CLS while scheduled scan is running
 
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
 
-    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=90
+    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp/three_hundred_eicars/
 
     Process Should Be Running   ${cls_handle}
