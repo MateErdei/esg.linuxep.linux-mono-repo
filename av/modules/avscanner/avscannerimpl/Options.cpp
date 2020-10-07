@@ -17,15 +17,15 @@ log4cplus::LogLevel Options::verifyLogLevel(const std::string& logLevel)
 
     if(lowerCaseLogLevel == "debug")
         return log4cplus::DEBUG_LOG_LEVEL;
-    if( lowerCaseLogLevel == "support")
+    if(lowerCaseLogLevel == "support")
         return log4cplus::SUPPORT_LOG_LEVEL;
     if(lowerCaseLogLevel == "info")
         return log4cplus::INFO_LOG_LEVEL;
-    if (lowerCaseLogLevel == "warn")
+    if(lowerCaseLogLevel == "warn")
         return log4cplus::WARN_LOG_LEVEL;
-    if (lowerCaseLogLevel == "error")
+    if(lowerCaseLogLevel == "error")
         return log4cplus::ERROR_LOG_LEVEL;
-    if (lowerCaseLogLevel == "off")
+    if(lowerCaseLogLevel == "off")
         return log4cplus::OFF_LOG_LEVEL;
 
     throw po::error(std::string("Unrecognised Log Level"));
