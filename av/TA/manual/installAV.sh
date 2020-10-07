@@ -32,7 +32,6 @@ SDDS_BASE=${AV_ROOT}/base-sdds
 [[ -f $SDDS_BASE/install.sh ]] || failure 1 "Can't find SDDS_BASE/install.sh: $SDDS_BASE/install.sh"
 
 SDDS_AV=${AV_ROOT}/INSTALL-SET
-python3 $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.." || failure 2 "Failed to create install-set: $?"
 PYTHON=${PYTHON:-python3}
 ${PYTHON} $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.." || failure 2 "Failed to create install-set: $?"
 [[ -d $SDDS_AV ]] || failure 2 "Can't find SDDS_AV: $SDDS_AV"
@@ -47,11 +46,9 @@ then
 fi
 
 ## Install Base
-chmod 700 "${SDDS_BASE}/install.sh"
 "${SDDS_BASE}/install.sh" || failure 5 "Unable to install base SSPL: $?"
 
 ## Install AV
-chmod 700 "${SDDS_AV}/install.sh"
 "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
 
 ## Setup Dev region MCS
@@ -62,3 +59,7 @@ chmod 640 "${OVERRIDE_FLAG_FILE}"
 
 if [[ -n $MCS_URL ]]
 then
+    exec ${SOPHOS_INSTALL}/base/bin/registerCentral "${MCS_TOKEN}" "${MCS_URL}"
+else
+    echo "Not registering with Central as no token/url specified"
+fi
