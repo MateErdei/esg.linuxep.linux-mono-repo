@@ -418,7 +418,6 @@ CLS Can Change Log Level
     Should Contain       ${output}  Setting logger to log level: ERROR
 
 
-
 CLS Prints Help and Failure When Options Are Spaced Incorrectly
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --exclude= file
     Should Contain       ${output}   Failed to parse command line options: the argument for option '--exclude' should follow immediately after the equal sign
