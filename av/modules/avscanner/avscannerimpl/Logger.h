@@ -23,10 +23,10 @@ class Logger
 {
 private:
     void setupFileLoggingWithPath(std::string logfilepath);
+    void applyCommandLineLevel(const log4cplus::LogLevel& CLSlogLevel);
 
 public:
     explicit Logger(const std::string& scanName, log4cplus::LogLevel logLevel=log4cplus::NOT_SET_LOG_LEVEL, bool isCommandLine=false);
-    void applyCommandLineLevel(const log4cplus::LogLevel& CLSlogLevel);
 
     ~Logger();
 };
