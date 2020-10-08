@@ -26,11 +26,13 @@ INPUTS=${TEST_DIR}/inputs
 AV=$INPUTS/av
 mkdir -p $AV
 
-rsync -va --copy-unsafe-links --delete  "$BASE/../TA/"            "$INPUTS/test_scripts"
+mv "$BASE/../TA/"            "$INPUTS/test_scripts"
 ln -snf test_scripts "$INPUTS/TA"
-rsync -va --copy-unsafe-links --delete "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
-rsync -va --copy-unsafe-links --delete "$OUTPUT/base-sdds/"      "$AV/base-sdds"
-rsync -va --copy-unsafe-links --delete "$OUTPUT/test-resources"  "$AV/"
+mv "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
+chmod 700 "$AV/SDDS-COMPONENT/install.sh"
+mv "$OUTPUT/base-sdds/"      "$AV/base-sdds"
+chmod 700 "$AV/base-sdds/install.sh"
+mv "$OUTPUT/test-resources"  "$AV/"
 
 PYTHON=${PYTHON:-python3}
 ${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS"
