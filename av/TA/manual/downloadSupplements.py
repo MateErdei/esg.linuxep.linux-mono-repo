@@ -108,7 +108,7 @@ def unpack(zip_file, dest):
         z.extractall(ensure_unicode(dest))
 
 
-DEST = ""
+DEST = b""
 
 
 def process(baseurl, filename, dirname):
@@ -136,7 +136,7 @@ def process(baseurl, filename, dirname):
 
 def run(dest):
     global DEST
-    DEST = dest
+    DEST = ensure_binary(dest)
     safe_mkdir(DEST)
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
     updated = process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", b"vdl")
