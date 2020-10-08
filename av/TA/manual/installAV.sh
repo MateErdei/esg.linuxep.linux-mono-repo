@@ -46,9 +46,11 @@ then
 fi
 
 ## Install Base
+chmod 700 "${SDDS_BASE}/install.sh"
 "${SDDS_BASE}/install.sh" || failure 5 "Unable to install base SSPL: $?"
 
 ## Install AV
+chmod 700 "${SDDS_AV}/install.sh"
 "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
 
 ## Setup Dev region MCS
