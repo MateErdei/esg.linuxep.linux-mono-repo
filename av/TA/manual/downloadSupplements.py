@@ -120,6 +120,10 @@ def process(baseurl, filename, dirname):
         log("Assuming %s is already suitable" % dest_dir)
         return False
 
+    if os.environ.get("NO_DOWNLOAD", "0") == "1":
+        log("Refusing to download - hope the dir is ok")
+        return False
+
     latest = get_latest(baseurl, filename)
     zip_updated = download_url(latest, zip_file)
     if not os.path.isdir(dest_dir):
