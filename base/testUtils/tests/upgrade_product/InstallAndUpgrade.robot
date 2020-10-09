@@ -204,7 +204,7 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
     [Timeout]  600
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}

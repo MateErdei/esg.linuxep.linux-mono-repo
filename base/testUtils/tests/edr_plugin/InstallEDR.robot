@@ -242,6 +242,7 @@ Install Base And EDR Then Migrate To BASE
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
 Install base and edr and mtr 999 then downgrade to current master
+    [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
     Install EDR  ${BaseAndMTREdr999Policy}
     Wait Until EDR and MTR OSQuery Running  30
 
@@ -290,6 +291,7 @@ Install base and edr and mtr 999 then downgrade to current master
 
 
 Install mtr 999 and downgrade to current mtr
+    [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
     Install EDR  ${BaseEdrAndMtr999Policy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9

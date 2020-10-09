@@ -58,6 +58,7 @@ To refresh, run step 3b then 4
 The following tags can be used to select which tests can be run, using the include or exclude arguments.
 * AMAZON_LINUX - Test cases which will run on AWS only
 * AUDIT_PLUGIN - Test cases which test sspl-audit
+* BASE_DOWNGRADE - Test cases where base is downgraded
 * CENTRAL - Tests which run against Central or Nova
 * COMMS - Test cases which test the comms component
 * DATAFEED - Datafeed test cases
@@ -82,6 +83,7 @@ The following tags can be used to select which tests can be run, using the inclu
 * MDR_REGRESSION_TESTS - End to end tests related to MTR feature
 * MESSAGE_RELAY - Tests which include a Message Relay
 * PUB_SUB - Tests which use the protobuf pub sub pipeline
+* PLUGIN_DOWNGRADE - Test cases where a plugin is downgraded
 * OSTIA - Tests which use ostia
 * REGISTRATION - Tests that exercise the registration code
 * SAV - Tests which install SAV
