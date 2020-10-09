@@ -1128,7 +1128,7 @@ class MCSConnection:
         """
         prepare a HTTP request to send to central containing a data feed result
         :param datafeed: A Datafeed object (datafeeds.py) which contains data, e.g. a scheduled query.
-        :return: The gzipped body of the datafeed file
+        :return: The compressed body of the datafeed file
         """
         command_path = datafeed.get_command_path(self.get_id())
 
@@ -1141,8 +1141,8 @@ class MCSConnection:
         LOGGER.debug(
             "MCS request url={} body size={}".format(
                 command_path,
-                datafeed.m_gzip_body_size))
-        (headers, body) = self.__request(command_path, headers, datafeed.m_gzip_body, "POST")
+                datafeed.m_compressed_body_size))
+        (headers, body) = self.__request(command_path, headers, datafeed.m_compressed_body, "POST")
         return body
 
     def extract_commands_from_xml(self, commands_xml):

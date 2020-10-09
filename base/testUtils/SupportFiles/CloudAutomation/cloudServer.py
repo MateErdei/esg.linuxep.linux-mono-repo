@@ -20,7 +20,7 @@ import datetime
 import xml.dom.minidom
 import xml.sax.saxutils
 import io
-import gzip
+import zlib
 import urllib.parse
 
 import logging
@@ -677,9 +677,7 @@ class Endpoint(object):
 
     def handle_datafeed_ep(self, datafeed_id, datafeed_body):
         try:
-            fake_file = io.BytesIO(datafeed_body)
-            decompressed_fake_file = gzip.GzipFile(fileobj=fake_file, mode='rb')
-            decompressed_body = decompressed_fake_file.read()
+            decompressed_body = zlib.decompress(bytes(datafeed_body, 'utf-8'))
         except Exception as e:
             logger.error("Failed to decompress datafeed body content: {}".format(e))
             return

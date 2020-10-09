@@ -6,10 +6,10 @@ datafeeds Module
 """
 
 import logging
-import gzip
 import time
 import os
 import json
+import zlib
 
 from mcsrouter.utils import path_manager
 
@@ -22,9 +22,9 @@ class Datafeed(object):
         self.m_datafeed_id = datafeed_id_name
         self.m_creation_time = creation_time
         self.m_json_body = body
-        self.m_gzip_body = self._get_compressed_json()
+        self.m_compressed_body = self._get_compressed_json()
         self.m_json_body_size = self._get_decompressed_body_size()
-        self.m_gzip_body_size = self._get_compressed_body_size()
+        self.m_compressed_body_size = self._get_compressed_body_size()
 
     def remove_datafeed_file(self):
         if os.path.isfile(self.m_file_path):
@@ -51,17 +51,17 @@ class Datafeed(object):
     def get_json_body_size(self):
         return self.m_json_body_size
 
-    def get_gzip_body_size(self):
-        return self.m_gzip_body_size
+    def get_compressed_body_size(self):
+        return self.m_compressed_body_size
 
     def _get_compressed_body_size(self):
-        return len(self.m_gzip_body)
+        return len(self.m_compressed_body)
 
     def _get_decompressed_body_size(self):
         return len(self.m_json_body)
 
     def _get_compressed_json(self):
-        return gzip.compress(bytes(self.m_json_body, 'utf-8'))
+        return zlib.compress(bytes(self.m_json_body, 'utf-8'))
 
 class Datafeeds(object):
     def __init__(self, feed_id: str):

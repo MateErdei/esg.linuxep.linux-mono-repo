@@ -1,6 +1,7 @@
 import unittest
 import mock
 import logging
+import zlib
 
 import PathManager
 import mcsrouter.mcsclient.datafeeds
@@ -146,4 +147,16 @@ class TestDatafeeds(unittest.TestCase):
         self.assertEqual(datafeeds.get_max_size_single_feed_result(), 10000000)
 
 
-
+    def test_datafeed_compression_is_deflate(self):
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1601033100", content)
+        datafeed_results = datafeeds.get_datafeeds()
+        self.assertEqual(len(datafeed_results), 1)
+        self.assertEqual(datafeed_results[0].m_file_path, "/tmp/filepath1")
+        self.assertEqual(datafeed_results[0].m_creation_time, "1601033100")
+        self.assertEqual(datafeed_results[0].m_json_body, content)
+        expected_compressed = zlib.compress(bytes(content, "utf-8"))
+        self.assertEqual(expected_compressed, datafeed_results[0].m_compressed_body)
+        self.assertEqual(len(expected_compressed), datafeed_results[0].m_compressed_body_size)
