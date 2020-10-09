@@ -45,7 +45,7 @@ if (( $DOWNGRADE == 1 ))
 then
   if [[ -f $CONFIG_FILE ]]
   then
-    cp $CONFIG ${SOPHOS_INSTALL}/tmp
+    cp $CONFIG_FILE ${SOPHOS_INSTALL}/tmp
   fi
 fi
 
@@ -89,4 +89,9 @@ function failure
     >&2 echo $1
     exit 1
 }
-[ ! -f ${CACHED_STATUS_XML} ] &&  [ ! -f  ${STATUS_XML} ]  &&  [ ! -d ${UNINSTALLDIR} ] || failure "Failed to remove ${PLUGIN_NAME} related files."
+[ ! -f ${CACHED_STATUS_XML} ] &&  [ ! -f  ${STATUS_XML} ]  || failure "Failed to remove ${PLUGIN_NAME} related files."
+
+if (( $DOWNGRADE == 0 ))
+then
+  [ ! -d ${UNINSTALLDIR} ] || failure "Failed to remove ${PLUGIN_NAME} related files."
+fi
