@@ -307,7 +307,7 @@ class MCS:
             product_version_tmp = agent_adapter.get_version()
             if product_version_tmp != 0:
                 product_version = product_version_tmp
-        except EnvironmentError as ex:
+        except Exception as ex:
             LOGGER.error(f"Could not get base version while composing user agent string: {str(ex)}")
         token = self.__get_mcs_token()
 
