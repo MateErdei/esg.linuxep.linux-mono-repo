@@ -302,13 +302,13 @@ class MCS:
             if comms is None:
                 return
 
-        product_version_file = os.path.join(
-            path_manager.install_dir(), "engine", "savVersion")
+        product_version = "unknown"
         try:
-            product_version = open(product_version_file).read().strip()
-        except EnvironmentError:
-            product_version = "unknown"
-
+            product_version_tmp = agent_adapter.get_version()
+            if product_version_tmp != 0:
+                product_version = product_version_tmp
+        except EnvironmentError as ex:
+            LOGGER.error(f"Could not get base version while composing user agent string: {str(ex)}")
         token = self.__get_mcs_token()
 
         comms.set_user_agent(

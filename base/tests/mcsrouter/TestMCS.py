@@ -227,6 +227,20 @@ class TestMCS(unittest.TestCase):
             content = outfile.read()
         self.assertEqual(content, "stuff")
 
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.set_user_agent")
+    def test_user_agent_set_during_startup(self, *mockargs):
+        version_file_content = """
+        PRODUCT_NAME = Sophos Server Protection Linux - Base Component
+        PRODUCT_VERSION = 1.1.3.703
+        BUILD_DATE = 2020-08-14
+        """
+        m = self.createMCS()
+        with mock.patch('os.path.isfile', return_value=True):
+            with mock.patch("builtins.open", mock.mock_open(read_data=version_file_content)):
+                m.startup()
+                self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.set_user_agent.call_count, 1)
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.set_user_agent.assert_called_with('Sophos MCS Client/1.1.3.703 Linux sessions regToken')
+
 class TestCommandCheckInterval(unittest.TestCase):
     def testCreation(self):
         config = mcsrouter.utils.config.Config()
