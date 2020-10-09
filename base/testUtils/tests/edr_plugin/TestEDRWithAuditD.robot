@@ -46,6 +46,9 @@ EDR Disables Auditd After Install With Auditd Running Default Behaviour
 
     ${contents}=  Get File  ${EDR_DIR}/etc/osquery.flags
     Should contain  ${contents}  --disable_audit=false
+    Should contain  ${contents}  --audit_allow_process_events=true
+    Should contain  ${contents}  --audit_allow_sockets=true
+    Should contain  ${contents}  --audit_allow_user_events=true
 
 EDR Disables Auditd After Install With Auditd Running With Disable Flag
     Check AuditD Executable Running
