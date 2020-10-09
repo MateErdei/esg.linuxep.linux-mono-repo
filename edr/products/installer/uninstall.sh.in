@@ -45,7 +45,8 @@ if (( $DOWNGRADE == 1 ))
 then
   if [[ -f $CONFIG_FILE ]]
   then
-    cp $CONFIG_FILE ${SOPHOS_INSTALL}/tmp
+    mkdir ${SOPHOS_INSTALL}/tmp/edr-downgrade/
+    cp $CONFIG_FILE ${SOPHOS_INSTALL}/tmp/edr-downgrade/
   fi
 fi
 
@@ -56,10 +57,11 @@ rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
 
 if (( $DOWNGRADE == 1 ))
 then
-  if [[ -f ${SOPHOS_INSTALL}/tmp/plugin.conf ]]
+  if [[ -f ${SOPHOS_INSTALL}/tmp/edr-downgrade/plugin.conf ]]
   then
     mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc
-    mv ${SOPHOS_INSTALL}/tmp/plugin.conf ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/
+    mv ${SOPHOS_INSTALL}/tmp/edr-downgrade/plugin.conf ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/
+    rm -rf ${SOPHOS_INSTALL}/tmp/edr-downgrade/
   fi
 fi
 
