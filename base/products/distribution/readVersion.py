@@ -68,37 +68,6 @@ def readVersionIniFile(BASE=None):
 
     return version
 
-
-# def readVersionFromJenkinsFile(BASE=None):
-#     scriptPath = os.path.dirname(os.path.realpath(__file__))
-#     ## Try reading from Jenkinsfile
-#     productsDir = os.path.dirname(scriptPath)
-#     srcdir = os.path.dirname(productsDir)
-#     jenkinsfile = os.path.join(srcdir, "Jenkinsfile")
-#     if not os.path.isfile(jenkinsfile):
-#         ## if we are in a plugin then the script is in a sub-directory 1 deeper.
-#         srcdir = os.path.dirname(srcdir)
-#         jenkinsfile = os.path.join(srcdir, "Jenkinsfile")
-#     if BASE is not None and not os.path.isfile(jenkinsfile):
-#         ## Try base
-#         jenkinsfile = os.path.join(BASE, "Jenkinsfile")
-#
-#
-#     if os.path.isfile(jenkinsfile):
-#         lines = open(jenkinsfile).readlines()
-#         print("Reading version from {}".format(jenkinsfile))
-#         LINE_RE=re.compile(r"version_key = '([\d.]+)'$")
-#         for line in lines:
-#             line = line.strip()
-#             mo = LINE_RE.match(line)
-#             if mo:
-#                 return mo.group(1)
-#     else:
-#         print("Failed to find Jenkinsfile {} from {}".format(jenkinsfile, scriptPath))
-#
-#     return None
-
-
 def defaultVersion():
     defaultValue = "1.0.0"
     print ("Using default {}".format(defaultValue))

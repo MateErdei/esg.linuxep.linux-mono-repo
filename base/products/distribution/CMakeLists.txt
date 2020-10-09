@@ -90,15 +90,11 @@ add_custom_target(
 execute_process(
         COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
         OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
-        #message "THIS IS THE RELEASE PACKAGE VERSION"
-        #message RELEASE_PACKAGE_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
         COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} CIJenkinsfile
         OUTPUT_VARIABLE PRODUCT_VERSION
-        #message "THIS IS THE PRODUCT VERSION"
-        #message PRODUCT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
