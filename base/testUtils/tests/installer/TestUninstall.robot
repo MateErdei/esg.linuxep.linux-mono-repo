@@ -80,6 +80,49 @@ Test Edr Plugin uninstalls cleanly
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr
     Should Not Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 
+Test Edr Plugin downgrades properly with plugin conf
+    [Tags]  EDR_PLUGIN   UNINSTALL   PLUGIN_DOWNGRADE
+    Require Fresh Install
+
+    Install EDR Directly
+    Wait For EDR to be Installed
+
+    Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
+    Should Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini
+    Should Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
+    Create File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf   stuff=1
+
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh   --downgrade  --force
+
+    Should Be Equal As Integers    ${result.rc}    0        uninstaller failed with ${result.rc}
+
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini
+    Should Exist      ${SOPHOS_INSTALL}/plugins/edr
+    Should Not Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
+    ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
+    Should Contain  ${contents}   stuff=1
+
+Test Edr Plugin downgrades properly without plugin conf
+    [Tags]  EDR_PLUGIN   UNINSTALL   PLUGIN_DOWNGRADE
+    Require Fresh Install
+
+    Install EDR Directly
+    Wait For EDR to be Installed
+
+    Should Exist       ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
+    Should Exist       ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini
+    Should Exist       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
+    Should Not Exist   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
+
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh   --downgrade  --force
+
+    Should Be Equal As Integers    ${result.rc}    0        uninstaller failed with ${result.rc}
+
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh
+    Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini
+    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr
+    Should Not Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 
 Test Mtr Plugin uninstalls cleanly
     [Tags]  MDR_PLUGIN  UNINSTALL
