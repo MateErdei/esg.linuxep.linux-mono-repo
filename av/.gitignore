@@ -1,4 +1,5 @@
 .idea/
+cmake-build-clang-fuzzer/
 cmake-build-debug/
 cmake-build-gcc8/
 *.pyc
@@ -30,5 +31,6 @@ TA/resources/sophos_certs/local_certs/https/serial*
 TA/resources/sophos_certs/local_certs/https/server*
 TA/resources/sophos_certs/local_certs/https/*.pem
 TA/local_warehouses/
+TA/output.zip
 TA/tmp/
 tmp/

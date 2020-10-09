@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import absolute_import, print_function, division, unicode_literals
+# Download supplements from Artifactory, select latest for LocalRep, MLData and VDL.
 
 # https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/ssplav-vdl/released/
 # select latest
@@ -13,6 +15,14 @@ import os
 import sys
 import urllib.request
 import zipfile
+
+PY2 = sys.version_info[0] == 2
+if PY2:
+    from urllib import urlopen as urllib_urlopen
+    from urllib import urlretrieve as urllib_urlretrieve
+else:
+    from urllib.request import urlopen as urllib_urlopen
+    from urllib.request import urlretrieve as urllib_urlretrieve
 
 LOGGER = None
 
@@ -49,6 +59,7 @@ def safe_mkdir(d):
 
 def get_json(url):
     response = urllib.request.urlopen(url)
+    response = urllib_urlopen(url)
     output = response.read()
     data = json.loads(output)
     return data
@@ -90,6 +101,7 @@ def download_url(url, dest):
 
     log("Downloading from", url, "to", ensure_unicode(dest))
     urllib.request.urlretrieve(url, dest)
+    urllib_urlretrieve(url, dest)
     assert sha256hash(dest) == data['checksums']['sha256']
     return True
 
@@ -102,6 +114,7 @@ def unpack(zip_file, dest):
 
 
 DEST = ""
+DEST = b""
 
 
 def process(baseurl, filename, dirname):
@@ -111,6 +124,10 @@ def process(baseurl, filename, dirname):
     if os.path.isdir(dest_dir) and not os.path.isfile(zip_file):
         # If we don't have a zip file but do have the dir, assume we are running in TAP
         log("Assuming %s is already suitable" % dest_dir)
+        return False
+
+    if os.environ.get("NO_DOWNLOAD", "0") == "1":
+        log("Refusing to download - hope the dir is ok")
         return False
 
     latest = get_latest(baseurl, filename)
@@ -126,6 +143,7 @@ def process(baseurl, filename, dirname):
 def run(dest):
     global DEST
     DEST = dest
+    DEST = ensure_binary(dest)
     safe_mkdir(DEST)
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
     updated = process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", b"vdl")
@@ -136,8 +154,3 @@ def run(dest):
 
 def main(argv):
     run(argv[1])
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
