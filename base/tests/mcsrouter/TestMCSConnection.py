@@ -436,6 +436,20 @@ class TestMCSConnection(unittest.TestCase):
             mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(os.remove.call_count, 0)
 
+    def test_mcs_sends_correct_datafeed_headers(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = "2601033100"
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
+
+        with self.assertLogs(level="DEBUG") as logs:
+            with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
+                datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+                expected_header_string = "request headers={'Authorization': 'Basic Og==', 'Accept': 'application/json', 'Content-Length': 32, 'Content-Encoding': 'deflate', 'X-Uncompressed-Content-Length': 32, 'User-Agent': 'Sophos MCS Client"
+                assert_message_in_logs(expected_header_string, logs.output, log_level="DEBUG")
+
 
 if __name__ == '__main__':
     unittest.main()

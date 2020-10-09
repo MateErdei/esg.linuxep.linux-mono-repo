@@ -1134,8 +1134,10 @@ class MCSConnection:
 
         headers = {
             "Authorization": self._get_basic_authorization_header(),
-            "Content-Type":  "application/json",
-            "ActualSize": datafeed.m_json_body_size
+            "Accept": "application/json",
+            "Content-Length": datafeed.m_compressed_body_size,
+            "Content-Encoding": "deflate",
+            "X-Uncompressed-Content-Length": datafeed.m_json_body_size
         }
 
         LOGGER.debug(

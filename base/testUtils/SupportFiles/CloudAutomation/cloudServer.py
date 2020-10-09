@@ -677,7 +677,7 @@ class Endpoint(object):
 
     def handle_datafeed_ep(self, datafeed_id, datafeed_body):
         try:
-            decompressed_body = zlib.decompress(bytes(datafeed_body, 'utf-8'))
+            decompressed_body = zlib.decompress(datafeed_body)
         except Exception as e:
             logger.error("Failed to decompress datafeed body content: {}".format(e))
             return
