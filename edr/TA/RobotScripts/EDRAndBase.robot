@@ -51,22 +51,27 @@ EDR plugin Can Start Osquery
     ...  1 secs
     ...  Check Osquery Running
 
+Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
+    Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Osquery Running
 
-#Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
-#    #TODO Fix LINXDAR-2326
-#    Check EDR Plugin Installed With Base
-#    Wait Until Keyword Succeeds
-#    ...  15 secs
-#    ...  1 secs
-#    ...  Check Osquery Running
-#
-#    Copy File  ${TEST_INPUT_PATH}/componenttests/LiveQueryReport  ${COMPONENT_ROOT_PATH}/extensions/
-#    Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport
-#
-#    ${result} =  Run Process  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport  ${COMPONENT_ROOT_PATH}/var/osquery.sock  select '1\xfffd' as h;  shell=true
-#
-#    Log  ${result.stdout}
-#    Log  ${result.stderr}
-#    Should Be Equal As Integers  ${result.rc}  0
-#
-#    Should Contain  ${result.stdout}   "errorCode": 0
+    Copy File  ${TEST_INPUT_PATH}/componenttests/LiveQueryReport  ${COMPONENT_ROOT_PATH}/extensions/
+    Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  5 secs
+    ...  Run Non-UTF8 Query
+
+
+*** Keywords ***
+Run Non-UTF8 Query
+    ${result} =  Run Process  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport  ${COMPONENT_ROOT_PATH}/var/osquery.sock  select '1\xfffd' as h;  shell=true
+
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+    Should Contain  ${result.stdout}   "errorCode": 0
