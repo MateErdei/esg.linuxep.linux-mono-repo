@@ -8,7 +8,7 @@
         <workingdir>.</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="bugfix/LINUXDAR-2315-cleanup-classic-ci-build-pipeline-files" />
+            <development-version branch="develop" />
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
