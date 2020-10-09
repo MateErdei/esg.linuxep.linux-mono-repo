@@ -1,6 +1,6 @@
 #!/bin/bash
 # A script for the lazy ;) print out the CI URL for the build of your branch so you can just click it and
-# don't have to look for it. You can run this from within any git repo directory, not just sspl-tools
+# don't have to look for it. You can run this from within any git repo directory.
 # e.g from everest-base dir etc. you can run ../tools/my-build-url.sh
 repo=$(basename $(git rev-parse --show-toplevel))
 branch=$(git rev-parse --abbrev-ref HEAD)
