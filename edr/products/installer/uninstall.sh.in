@@ -41,7 +41,7 @@ SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
-if (( $DOWNGRADE == 0 ))
+if (( $DOWNGRADE == 1 ))
 then
   if [[ -f $CONFIG_FILE ]]
   then
@@ -54,7 +54,7 @@ rm -r "$SYMLINK"
 rm -r "$SYMLINKVERSION"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
 
-if (( $DOWNGRADE == 0 ))
+if (( $DOWNGRADE == 1 ))
 then
   if [[ -f ${SOPHOS_INSTALL}/tmp/plugin.conf ]]
   then
