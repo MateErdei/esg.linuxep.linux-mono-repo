@@ -95,5 +95,5 @@ function failure
 
 if (( $DOWNGRADE == 0 ))
 then
-  [ ! -d ${UNINSTALLDIR} ] || failure "Failed to remove ${PLUGIN_NAME} related files."
+  [ -d ${UNINSTALLDIR} ] && failure "Failed to remove ${PLUGIN_NAME} related files."
 fi
