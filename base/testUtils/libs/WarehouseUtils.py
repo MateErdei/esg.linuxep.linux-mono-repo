@@ -169,8 +169,6 @@ class TemplateConfig:
             self.password = self.hashed_credentials
             self.remote_connection_address = BALLISTA_ADDRESS
             self.build_type = PROD_BUILD_CERTS
-            #allows the use of obfuscated creds instead of plaintext
-            # self.algorithm = "AES256"
             self.algorithm = "Clear"
         else:
             self.username = username
@@ -441,7 +439,6 @@ class WarehouseUtils(object):
             self.update_server.restore_host_file(backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
 
     def modify_host_file_for_local_ostia_warehouses(self):
-        logger.info("here JAKE")
         if os.environ.get("INTERNAL_HOST_REDIRECT"):
             logger.info("using internal redirect")
             self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=INTERNAL_OSTIA_HOST_REDIRECT, backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
@@ -469,12 +466,8 @@ class WarehouseUtils(object):
 
     def setup_local_warehouses_if_needed(self):
         if os.path.isdir(LOCAL_WAREHOUSES):
-            logger.info("starting local update servers")
             self.start_all_local_update_servers()
-            logger.info("finished starting local update servers")
-            logger.info("redirecting host file")
             self.modify_host_file_for_local_ostia_warehouses()
-            logger.info("done redirecting host file")
 
     def generate_local_ssl_certs_if_they_dont_exist(self):
         server_https_cert = os.path.join(SUPPORT_FILE_PATH, "https", "ca", "root-ca.crt.pem")
@@ -505,7 +498,4 @@ class WarehouseUtils(object):
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":
-    import sys
-    user = sys.argv[0]
-    password = sys.argv[1]
-    print(calculate_hashed_creds(user, password))
+    _make_local_copy_of_warehouse()
