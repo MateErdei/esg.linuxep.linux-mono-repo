@@ -17,10 +17,7 @@
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
             <development-version branch="develop"/>
-            <include artifact-path="output/SDDS-SSPL-DBOS-COMPONENT" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT"/>
-            <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT"/>
-            <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
-            <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
+            <include artifact-path="output" dest-dir="sspl-mdr-componentsuite"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
             <development-version branch="develop"/>
@@ -93,19 +90,28 @@
 -->
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="develop" />
-            <include artifact-path="develop/customer" dest-dir="local_warehouses/dev/sspl-warehouse/vut/warehouse/customer" />
-            <include artifact-path="develop/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse" />
-            <include artifact-path="edr-999/customer" dest-dir="local_warehouses/dev/sspl-warehouse/edr-999/warehouse/customer" />
-            <include artifact-path="edr-999/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/edr-999/warehouse/warehouse" />
-            <include artifact-path="edr-mdr-999/customer" dest-dir="local_warehouses/dev/sspl-warehouse/edr-mdr-999/warehouse/customer" />
-            <include artifact-path="edr-mdr-999/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/edr-mdr-999/warehouse/warehouse" />
-            <include artifact-path="mdr-999/customer" dest-dir="local_warehouses/dev/sspl-warehouse/mdr-999/warehouse/customer" />
-            <include artifact-path="mdr-999/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/mdr-999/warehouse/warehouse" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/vut/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/Base-EDR-Only-OldWarehouseStyle" />
             <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/old-style/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-Base-EDR-Only-OldWarehouseStyle/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="test/jake-2020-41-edr-999-ballista" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/edr-999/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/test-jake-2020-41-edr-999-ballista/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="feature/edr-999-mdr-999" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/edr-mdr-999/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-edr-999-mdr-999/warehouse/warehouse" />
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="test/jake-2020-41-mdr-999-ballista" />
+            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/mdr-999/warehouse/customer" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/test-jake-2020-41-mdr-999-ballista/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/latest-recommended-release" />

@@ -14,10 +14,10 @@
         <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
         <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
         <bootstrap Location="" UsePrimaryServerAddress="true"/>
-        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/>
+        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         <cloud_subscriptions>
-            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/>
-            <subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="BETA"/>
+            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+            <subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
         <delay_supplements enabled="true"/>
     </AUConfig>
