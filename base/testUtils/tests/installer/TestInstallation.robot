@@ -12,6 +12,7 @@ Library    Collections
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
+Resource  ../mcs_router/McsRouterResources.robot
 
 Default Tags  INSTALLER
 
@@ -241,6 +242,18 @@ Version Copy Correctly Set Links
     ${lib123} =  Get File  /tmp/target/liba.so
     Should Be Equal  ${lib123}  123
 
+Installer Resets Bad Permissions On Current Proxy file
+    Require Installed
+    Run Process   systemctl stop sophos-spl   shell=yes
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  0.5 secs
+    ...  Check Watchdog Not Running
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy  {}
+    ${result} =  Run Process  chown root:root ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy    shell=True
+    Should Be Equal As Integers    ${result.rc}   0  Failed to set permission to file. Reason: ${result.stderr}
+    Run Full Installer
+    Check Current Proxy Is Created With Correct Content And Permissions  {}
 
 
 *** Keywords ***
