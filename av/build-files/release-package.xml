@@ -139,6 +139,6 @@
             <!-- rename output for coverage builds -->
             <output name="output" srcfolder="output" artifactpath="output" mode="oldci"> </output>
         </buildoutputs>
-        <publishbranches>master,develop,bugfix/fix_coverage</publishbranches>
+        <publishbranches>master,develop,bugfix/fix_coverage,bugfix/LINUXDAR-2323-current-sdds-component-has-many-copy-of-susi-libraries</publishbranches>
     </publish>
 </package>
