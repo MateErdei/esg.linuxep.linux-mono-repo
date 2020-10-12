@@ -147,7 +147,7 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.run('mkdir', coverage_results_dir)
 
         # upload unit test coverage html results to allegro
-        unitest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage_html')
+        unitest_htmldir = os.path.join(coverage_results_dir, 'coverage_html')
         machine.run('bash', UPLOAD_SCRIPT,
                     environment={
                         'COV_HTML_BASE': 'sspl-plugin-av-unittest' + suffix,
@@ -155,7 +155,6 @@ def bullseye_coverage_task(machine: tap.Machine):
                         'htmldir': unitest_htmldir,
                     })
         # publish unit test coverage file and results to artifactory results/coverage
-        machine.run('mv', unitest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
         machine.run('cp', COVFILE_UNITTEST, COVFILE_PYTEST)
