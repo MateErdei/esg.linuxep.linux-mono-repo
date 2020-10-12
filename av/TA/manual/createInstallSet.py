@@ -17,6 +17,7 @@ def log(*x):
     if LOGGER is None:
         print(*x)
     else:
+        # noinspection PyUnresolvedReferences
         LOGGER.info(" ".join(x))
 
 
