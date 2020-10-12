@@ -62,9 +62,9 @@ MDR In Subscription And In Feature List But Missing From Warehouse Should Log Er
     Block Connection Between EndPoint And FleetManager
     Check MDR Plugin uninstalled
     Check SSPL Installed
-    Simulate Send Policy And Run Update  ${BASE_VUT_POLICY}    add_features=MDR    add_subscriptions=ServerProtectionLinux-Plugin-MDR
+    Simulate Send Policy And Run Update  ${BASE_VUT_POLICY}    add_features=FDR    add_subscriptions=ServerProtectionLinux-Plugin-FDR
     Check MDR Plugin uninstalled
-    Check Report For Missing Package  ServerProtectionLinux-Plugin-MDR
+    Check Report For Missing Package  ServerProtectionLinux-Plugin-FDR
 
 No Base Or MDR Component In Warehouse Should Report Error And Fail Update
     [Documentation]  When no Base or MDR component in warehouse product should report error and fail update

@@ -35,8 +35,7 @@ ${PROXY_LOG}  ./tmp/proxy_server.log
 ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${CUSTOM_DIR_BASE}  /CustomPath
 ${BaseVUTPolicy}   ${GeneratedWarehousePolicies}/base_only_VUT.xml
-${EtcGroupFilePath}  /etc/group
-${EtcGroupFileBackupPath}  /etc/group.bak
+${BASE_VUT_POLICY_NEVER_BALLISTA}   ${GeneratedWarehousePolicies}/base_only_VUT_no_ballista_override.xml
 
 *** Keywords ***
 Local Suite Setup
@@ -75,19 +74,6 @@ Teardown
     Cleanup Temporary Folders
     Cleanup Systemd Files
 
-Setup With Large Group Creation
-    Copy File  ${EtcGroupFilePath}  ${EtcGroupFileBackupPath}
-    ${LongLine} =  Get File  ${SUPPORT_FILES}/misc/325CharEtcGroupLine
-    Append To File  ${EtcGroupFilePath}  ${LongLine}
-    Log File  ${EtcGroupFilePath}
-    SetupServers
-
-Teardown With Large Group Creation
-    Move File  ${EtcGroupFileBackupPath}  ${EtcGroupFilePath}
-    ${content} =  Get File  ${EtcGroupFilePath}
-    ${LongLine} =  Get File  ${SUPPORT_FILES}/misc/325CharEtcGroupLine
-    Should Not Contain  ${content}  ${LongLine}
-    Teardown
 
 Check Proxy Log Contains
     [Arguments]  ${pattern}  ${fail_message}
@@ -307,7 +293,7 @@ Thin Installer Basic Proxy
 
 Thin Installer Parses Update Caches Correctly
     # Expect installer to fail, we only care about log contents
-    Configure And Run Thininstaller Using Real Warehouse Policy  10  ${BaseVUTPolicy}  bad_url=${True}  update_caches=localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
+    Configure And Run Thininstaller Using Real Warehouse Policy  10  ${BASE_VUT_POLICY_NEVER_BALLISTA}  bad_url=${True}  update_caches=localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
     Check Thininstaller Log Contains    List of update caches to install from: localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
     Check Thininstaller Log Contains In Order
     ...  Listing warehouse with creds [c071bb1cc186531a72e200467a61b321] at [https://localhost:10000/sophos/customer]
@@ -337,16 +323,3 @@ Thin Installer Force Works
 
     remove_thininstaller_log
     Check Root Directory Permissions Are Not Changed
-
-Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
-    [Documentation]  Created for LINUXDAR-2249
-    [Setup]  Setup With Large Group Creation
-    [Teardown]  Teardown With Large Group Creation
-    Should Not Exist    ${SOPHOS_INSTALL}
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
-
-    Check Expected Base Processes Are Running
-
-    Check Thininstaller Log Does Not Contain  ERROR: Installer returned 16
-    Check Thininstaller Log Does Not Contain  Failed to create machine id. Error: Calling getGroupId on sophos-spl-group caused this error : Unknown group name

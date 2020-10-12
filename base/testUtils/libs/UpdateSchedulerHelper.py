@@ -26,10 +26,10 @@ BASE_BIN_PATH = 'base/bin'
 RIGIDNAMES_TO_ID = {
     "ServerProtectionLinux-Base": "Base",
     "ServerProtectionLinux-Plugin-MDR": "MDR",
+    "ServerProtectionLinux-Plugin-FDR": "FDR",
     "ServerProtectionLinux-Plugin-EventProcessor": "SENSORS",
     "ServerProtectionLinux-Plugin-AuditPlugin": "SENSORS"
 }
-
 class UpdateSchedulerHelper(object):
     def __init__(self):
         self.suldownloader_config_time = None
