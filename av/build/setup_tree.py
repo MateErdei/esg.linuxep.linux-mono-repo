@@ -316,6 +316,7 @@ libarchive.tgz cb29fb739db495f26b84cebc2407bf45809e318a8fc77593dfd71de880775bc8
     SUSI_SDDS_DIR = os.path.join(OUTPUT_DIR, "susi_sdds")
     print("Create SDDS ready fileset")
     copy_directory(SUSI_DIR, SUSI_SDDS_DIR)
+    delete_duplicated_libraries(SUSI_SDDS_DIR)
 
     print("Create build ready fileset")
     ## Setup symlinks

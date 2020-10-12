@@ -313,7 +313,7 @@ function build()
         setup_susi
         (( LOCAL_GCC == 0 )) && unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" "${PLUGIN_TAR}"
-        python3 "$BASE"/build-files/create_library_links.py $REDIST
+        python3 ${BASE}/build-files/create_library_links.py ${REDIST}/pluginapi
         (( LOCAL_CMAKE == 0 )) && untar_input cmake cmake-3.11.2-linux
         untar_input capnproto
         untar_input boost
