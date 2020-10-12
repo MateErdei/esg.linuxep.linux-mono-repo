@@ -108,7 +108,7 @@ namespace
         {
             for (const auto& exclusion : m_config.m_excludePaths)
             {
-                if (exclusion.appliesToPath(p) && exclusion.type() != FILENAME)
+                if (exclusion.appliesToPath(PathUtils::appendForwardSlashToPath(p), true))
                 {
                     LOGINFO("Excluding directory: " << PathUtils::appendForwardSlashToPath(p));
                     return true;
