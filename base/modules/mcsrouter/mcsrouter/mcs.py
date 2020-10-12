@@ -397,7 +397,7 @@ class MCS:
 
         # AppsProxy needs to report all AppIds apart from AGENT and APPSPROXY
         app_ids = [app for app in self.__m_computer.get_app_ids() if app not in [
-            apps_proxy, 'AGENT']]
+            apps_proxy, 'AGENT', 'FLAGS']]
         LOGGER.info(
             "Reconfiguring the APPSPROXY to handle: " +
             ' '.join(app_ids))
