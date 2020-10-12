@@ -293,8 +293,8 @@ TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
     scheduler.start();
 
     scheduler.updateConfig(scheduledScanConfiguration);
-    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 10000)); // micro-seconds
-    ASSERT_TRUE(waitForLog("Completed scan Another scan!", 200000)); // micro-seconds
+    EXPECT_TRUE(waitForLog("Starting scan Another scan!",  100000)); // micro-seconds
+    EXPECT_TRUE(waitForLog("Completed scan Another scan!", 200000)); // micro-seconds
 
     scheduler.requestStop();
     scheduler.join();
