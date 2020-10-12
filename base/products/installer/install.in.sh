@@ -454,6 +454,10 @@ then
   chown "root:${GROUP_NAME}" "${FLAGS_WAREHOUSE_INST}"
 fi
 
+# create a directory which will be used by 3rd party applications with execute permissions for all.
+mkdir ${SOPHOS_INSTALL}/shared
+chmod +x ${SOPHOS_INSTALL}/shared
+
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
 chown -h "root:${GROUP_NAME}" ${SOPHOS_INSTALL}/base/etc/telemetry-config.json*

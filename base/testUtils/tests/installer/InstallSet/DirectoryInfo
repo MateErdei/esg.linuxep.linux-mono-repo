@@ -8,6 +8,7 @@ o700, root, root, /opt/sophos-spl/base/update/ServerProtectionLinux-Base-compone
 o700, root, root, /opt/sophos-spl/base/update/var/installedproducts
 o700, root, root, /opt/sophos-spl/base/update/var/installedproductversions
 o700, root, root, /opt/sophos-spl/bin
+o700, root, root, /opt/sophos-spl/shared
 o700, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component
 o700, root, root, /opt/sophos-spl/var/lock
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/ipc
