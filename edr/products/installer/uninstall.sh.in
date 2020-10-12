@@ -85,6 +85,14 @@ do
 done
 pgrep -f ${OSQUERY_PATH} | xargs -i echo "Could not kill OSQuery process after 3 attempts: {}"
 
+# remove rsyslog configuration for osquery named pipe which allows rsyslog to send syslog event to osquery.
+if [[ -f /etc/rsyslog.d/rsyslog_sophos-spl.conf ]]
+then
+  rm -f /etc/rsyslog.d/rsyslog_sophos-spl.conf
+  systemctl restart rsyslog
+fi
+
+
 # check that everything has been uninstalled correctly
 function failure
 {

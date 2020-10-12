@@ -62,7 +62,9 @@ std::string Plugin::osqueryPidFile()
 
 std::string Plugin::syslogPipe()
 {
-    return fromRelative("var/syslog_pipe");
+    return Common::FileSystem::join(
+        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
+        "shared/syslog_pipe");
 }
 
 std::string Plugin::osQueryLogDirectoryPath()

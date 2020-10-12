@@ -75,3 +75,14 @@ Run Non-UTF8 Query
     Should Be Equal As Integers  ${result.rc}  0
 
     Should Contain  ${result.stdout}   "errorCode": 0
+
+EDR plugin Configures OSQuery To Enable SysLog Event Collection
+    Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Osquery Running
+
+    Should Exist  ${SOPHOS_INSTALL}/shared/syslog_pipe
+    Check Ownership  ${SOPHOS_INSTALL}/shared/syslog_pipe  root syslog
+    File Should Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf

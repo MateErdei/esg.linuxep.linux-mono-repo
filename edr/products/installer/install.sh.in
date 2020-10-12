@@ -148,6 +148,14 @@ function waitForProcess()
 waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/edr" || failure ${EXIT_FAIL_SERVICE} "EDR plugin not running"
 waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" || failure ${EXIT_FAIL_SERVICE} "EDR plugin not running"
 
+# copy syslog config into place and restart service if rsyslogd is installed after edr successfully running.
+# this will allow syslog events to be passed to edr osquery.
+if [[ -f /etc/rsyslog.conf ]]
+then
+  cp ${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf /etc/rsyslog.d/
+  systemctl restart rsyslog
+fi
+
 
 
 

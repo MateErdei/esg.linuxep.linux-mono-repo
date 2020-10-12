@@ -3,16 +3,12 @@ configure_file(install.sh.in ${PROJECT_BINARY_DIR}/install.sh @ONLY )
 configure_file(cleanuprealm.dat.in ${PROJECT_BINARY_DIR}/cleanuprealm.dat @ONLY )
 configure_file(plugin.json.in ${PROJECT_BINARY_DIR}/${PLUGIN_NAME}.json @ONLY )
 configure_file(uninstall.sh.in ${PROJECT_BINARY_DIR}/uninstall.sh @ONLY )
-configure_file(sophos-scheduled-query-pack.conf.in ${PROJECT_BINARY_DIR}/sophos-scheduled-query-pack.conf @ONLY )
+configure_file(syslog_configs/rsyslog_sophos-spl.conf ${PROJECT_BINARY_DIR}/syslog_configs/rsyslog_sophos-spl.conf @ONLY )
 
 install(FILES ${OSQUERY_BINARY}
         DESTINATION
         files/plugins/${PLUGIN_NAME}/bin/
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
-
-install(FILES ${PROJECT_BINARY_DIR}/sophos-scheduled-query-pack.conf
-        DESTINATION files/plugins/${PLUGIN_NAME}/etc/osquery.conf.d/
-        PERMISSIONS OWNER_READ)
 
 install(DIRECTORY ${OSQUERY_LENSES_DIR}
         DESTINATION files/plugins/${PLUGIN_NAME}/osquery/
@@ -50,3 +46,5 @@ install ( DIRECTORY ${GCC_INPUT}/lib64
         CONFIGURATIONS Debug
         FILES_MATCHING PATTERN libubsan.so.*
         )
+
+install(FILES  ${PROJECT_BINARY_DIR}/syslog_configs/rsyslog_sophos-spl.conf DESTINATION files/plugins/${PLUGIN_NAME}/etc/syslog_configs)
