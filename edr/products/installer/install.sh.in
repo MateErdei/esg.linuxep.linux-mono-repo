@@ -92,19 +92,31 @@ copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
 INSTALL_OPTIONS_FILE="${SOPHOS_INSTALL}/base/etc/install_options"
 
-if [[ ! -f "${CONFIG_FILE}" && -f "${INSTALL_OPTIONS_FILE}" ]]
+MODE="RUNNING_MODE=EDR"
+
+if [[ ! -f "${CONFIG_FILE}" ]]
 then
-    # Default to disabling auditd
-    AUDITD_OPTION="disable_auditd=1"
-    if grep -q "^--disable-auditd" "${INSTALL_OPTIONS_FILE}"
-    then
+      if [[ -f "${INSTALL_OPTIONS_FILE}" ]]
+      then
+        # Default to disabling auditd
         AUDITD_OPTION="disable_auditd=1"
-    elif grep -q "^--do-not-disable-auditd" "${INSTALL_OPTIONS_FILE}"
+        if grep -q "^--disable-auditd" "${INSTALL_OPTIONS_FILE}"
+        then
+            AUDITD_OPTION="disable_auditd=1"
+        elif grep -q "^--do-not-disable-auditd" "${INSTALL_OPTIONS_FILE}"
+        then
+            AUDITD_OPTION="disable_auditd=0"
+        fi
+        echo ${AUDITD_OPTION} >> "${CONFIG_FILE}"
+      fi
+      echo  ${MODE} >> "${CONFIG_FILE}"
+else
+  if ! grep -q "RUNNING_MODE" "${CONFIG_FILE}"
     then
-        AUDITD_OPTION="disable_auditd=0"
-    fi
-    echo ${AUDITD_OPTION} >> "${CONFIG_FILE}"
+      echo  ${MODE} >> "${CONFIG_FILE}"
+  fi
 fi
+
 
 #After install start the plugin
 "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
