@@ -145,11 +145,11 @@ function update_supplement()
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
     # reload sophos_threat_detector
-    local PID=$(ps -C sophos_threat_d -o pid= | awk '{print $1}')
+    local PID=$(ps -C sophos_threat_d -o pid=)
     if [[ -n "$PID" ]]
     then
         # This will terminate sophos_threat_detector until we have hot-reload functionality
-        kill -SIGUSR1 "$PID"
+        kill -SIGUSR1 $PID
     else
         echo "sophos_threat_detector not running"
     fi

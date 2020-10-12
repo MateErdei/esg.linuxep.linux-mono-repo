@@ -113,8 +113,14 @@ void unixsocket::BaseServerSocket::run()
 
         if (activity < 0)
         {
-            // handle error
-            LOGERROR("Failed socket, closing. Error: " << errno);
+            int error = errno;
+            if (error == EINTR)
+            {
+                LOGDEBUG("Ignoring EINTR from pselect");
+                continue;
+            }
+
+            LOGERROR("Failed socket, closing. Error: " << strerror(error)<< " (" << error << ')');
             break;
         }
 
