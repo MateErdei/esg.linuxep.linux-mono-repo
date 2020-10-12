@@ -325,6 +325,12 @@ then
     chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
 fi
 
+if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy" ]]
+then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy"
+    chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy"
+fi
+
 makedir 711 "${SOPHOS_INSTALL}/base"
 
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
