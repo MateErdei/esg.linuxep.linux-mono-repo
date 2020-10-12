@@ -62,6 +62,7 @@ public:
     }
 };
 #include "Telemetry.h"
+#include "PluginUtils.h"
 
 #include <livequery/ResponseDispatcher.h>
 
@@ -381,6 +382,8 @@ namespace Plugin
     void PluginAdapter::processFlags(const std::string& flagsContent)
     {
         // TODO:LINUXDAR-2199
+        bool isXDR = Plugin::PluginUtils::isRunningModeXDR(flagsContent);
+
         LOGINFO("Flags: " << flagsContent);
     }
 

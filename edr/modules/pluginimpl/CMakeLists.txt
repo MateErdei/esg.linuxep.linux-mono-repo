@@ -9,6 +9,8 @@ sophos_add_library(pluginimpl SHARED
         OsqueryDataManager.h
         PluginAdapter.cpp
         PluginAdapter.h
+        PluginUtils.cpp
+        PluginUtils.h
         StringReplace.cpp
         StringReplace.h
         Telemetry.cpp
