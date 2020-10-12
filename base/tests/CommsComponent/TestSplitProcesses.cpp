@@ -15,6 +15,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <tests/Common/Helpers/TestMacros.h>
 #include <tests/Common/Helpers/OutputToLog.h>
+#include <fstream>
+#include <iostream>
 
 using namespace CommsComponent;
 
@@ -115,7 +117,7 @@ public:
             }
             if (message == "abort")
             {
-                Tests::OutputToLog::writeToUnitTestLog("Done abort");
+
                 std::cout << "aborting " << std::endl;
                 std::terminate();
             }
@@ -229,7 +231,6 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedOnChildExit) // NOLINT
 TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
 {
     MAYSKIP;
-    Tests::OutputToLog::writeToUnitTestLog("TestSplitProcesses.ParentIsNotifiedIfChildAbort");
     testing::FLAGS_gtest_death_test_style = "threadsafe";
     ASSERT_EXIT(
             {
@@ -239,6 +240,7 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
                 auto parentProcess = [](std::shared_ptr<MessageChannel> channel, IOtherSideApi& childProxy) {
                     childProxy.pushMessage("abort");
                     std::string message;
+                    Tests::OutputToLog::writeToUnitTestLog("TestSplitProcesses.ParentIsNotifiedIfChildAbort");
                     try
                     {
                         channel->pop(message);
@@ -248,8 +250,13 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
                         Tests::OutputToLog::writeToUnitTestLog("Got ChannelClosedException");
                         return 0;
                     }
-                    Tests::OutputToLog::writeToUnitTestLog("Did not get ChannelClosedException");
-                    throw std::runtime_error("Did not receive closed channel exception");
+                    catch (std::exception& ex)
+                    {
+                        Tests::OutputToLog::writeToUnitTestLog(ex.what());
+                    }
+
+                    Tests::OutputToLog::writeToUnitTestLog("Did not receive closed channel exception, message: " + message);
+                    throw std::runtime_error("Did not receive closed channel exception, message: " + message);
                     return 0; 
                 };
                 auto config = CommsConfigurator(m_chrootSophosInstall, m_lowPrivChildUser, m_lowPrivParentUser,
