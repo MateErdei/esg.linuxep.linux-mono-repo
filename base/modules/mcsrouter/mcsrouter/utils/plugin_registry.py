@@ -19,13 +19,14 @@ def get_app_ids_from_plugin_json(file_path):
     """
     get_app_ids_from_plugin_json
     """
+    excluded_app_ids = {"FLAGS"}
     try:
         with open(file_path, 'r') as file_to_read:
             parsed_file = json.load(file_to_read)
             app_ids = set(parsed_file.get('policyAppIds', []))
             app_ids = app_ids.union(parsed_file.get('actionAppIds', []))
             app_ids = app_ids.union(parsed_file.get('statusAppIds', []))
-            return app_ids
+            return app_ids - excluded_app_ids
 
     except IOError as exception:
         LOGGER.error("Failed to load plugin file: {}".format(file_path))
