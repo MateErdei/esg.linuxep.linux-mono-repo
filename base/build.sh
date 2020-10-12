@@ -453,6 +453,7 @@ function build()
                 cat /tmp/unitTest.log || true
                 exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
             }
+            cat /tmp/unitTest.log || true
         fi
 
         # python would have been executed in unit tests creating pyc and or pyo files
