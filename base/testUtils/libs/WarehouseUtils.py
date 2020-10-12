@@ -170,7 +170,6 @@ class TemplateConfig:
             self.hashed_credentials = user_pass[2]
             self.remote_connection_address = BALLISTA_ADDRESS
             self.build_type = PROD_BUILD_CERTS
-            # self.algorithm = "Clear"
             self.algorithm = "AES256"
         else:
             self.username = username
