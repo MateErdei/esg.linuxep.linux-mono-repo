@@ -174,7 +174,3 @@ then
 else
     install_product
 fi
-
-<<<<<<< HEAD
-=======
->>>>>>> [LINUXDAR-1788] Alter install script to assume supplement update only if manifest file hasn't changed.
