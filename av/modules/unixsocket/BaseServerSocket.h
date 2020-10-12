@@ -34,14 +34,16 @@ namespace unixsocket
          * Constructor used by implementation classes
          * @param path
          * @param mode
+         * @param monitorable Optional object to monitor and trigger in pselect
          */
-        explicit BaseServerSocket(const sophos_filesystem::path& path, mode_t mode);
+        explicit BaseServerSocket(const sophos_filesystem::path& path, mode_t mode, IMonitorablePtr monitorable = nullptr);
 
     public:
         void run() override;
 
     private:
         std::string m_socketPath;
+        IMonitorablePtr m_monitorable;
 
     protected:
         /**

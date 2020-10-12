@@ -53,8 +53,8 @@ static int addFD(fd_set* fds, int fd, int currentMax)
     return std::max(fd, currentMax);
 }
 
-unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, const mode_t mode)
-    : m_socketPath(path)
+unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, const mode_t mode, IMonitorablePtr monitorable)
+    : m_socketPath(path), m_monitorable(std::move(monitorable))
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");
@@ -87,8 +87,16 @@ void unixsocket::BaseServerSocket::run()
     int max = -1;
     max = addFD(&readFDs, exitFD, max);
     max = addFD(&readFDs, m_socket_fd, max);
+    if (m_monitorable)
+    {
+        max = addFD(&readFDs, m_monitorable->monitorFd(), max);
+    }
 
-    listen(m_socket_fd, 2);
+    int ret = ::listen(m_socket_fd, 2);
+    if (ret != 0)
+    {
+        throw std::runtime_error("Unable to listen on socket_fd");
+    }
 
     bool terminate = false;
 
@@ -131,6 +139,11 @@ void unixsocket::BaseServerSocket::run()
             {
                 terminate = handleConnection(client_socket);
             }
+        }
+
+        if (m_monitorable && fd_isset(m_monitorable->monitorFd(), &tempRead))
+        {
+            m_monitorable->triggered(); // Responsible for clearing monitorFd...
         }
     }
 
