@@ -7,10 +7,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #define AUTO_FD_IMPLICIT_INT
+
+#include "IMessageCallback.h"
+#include "IMonitorable.h"
+
 #include "datatypes/AutoFd.h"
 #include "datatypes/sophos_filesystem.h"
+
 #include "Common/Threads/AbstractThread.h"
-#include "IMessageCallback.h"
 
 #include <string>
 #include <vector>
@@ -23,10 +27,17 @@ namespace unixsocket
     public:
         BaseServerSocket(const BaseServerSocket&) = delete;
         BaseServerSocket& operator=(const BaseServerSocket&) = delete;
-
-        explicit BaseServerSocket(const sophos_filesystem::path& path, const mode_t mode);
         ~BaseServerSocket() override;
 
+    protected:
+        /**
+         * Constructor used by implementation classes
+         * @param path
+         * @param mode
+         */
+        explicit BaseServerSocket(const sophos_filesystem::path& path, mode_t mode);
+
+    public:
         void run() override;
 
     private:
@@ -49,10 +60,11 @@ namespace unixsocket
     template <typename T>
     class ImplServerSocket : public BaseServerSocket
     {
-    public:
-        using BaseServerSocket::BaseServerSocket;
-
     protected:
+        /**
+         * Inherit constructors
+         */
+        using BaseServerSocket::BaseServerSocket;
         using TPtr = std::unique_ptr<T>;
 
         virtual TPtr makeThread(datatypes::AutoFd& fd) = 0;
