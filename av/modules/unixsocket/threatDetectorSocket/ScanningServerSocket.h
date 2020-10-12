@@ -18,10 +18,11 @@ namespace unixsocket
     {
     public:
         ScanningServerSocket(
-                const std::string& path, const mode_t mode,
+                const std::string& path, mode_t mode,
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
                 );
-        virtual ~ScanningServerSocket();
+        ~ScanningServerSocket() override;
+
     protected:
 
         TPtr makeThread(datatypes::AutoFd& fd) override
