@@ -19,6 +19,7 @@ Test Teardown   Installer Test TearDown
 
 IDE update doesnt restart av plugin
     # TODO: LINUXDAR-2365 fix for hot-updating - pid won't change
+    register on fail  Debug install set
     register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register cleanup  dump log  ${AV_LOG_PATH}
     ${PID} =  Record AV Plugin PID
@@ -36,8 +37,19 @@ IDE update doesnt restart av plugin
     ...  1 secs
     ...  Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
+IDE can be removed
+    register on fail  Debug install set
+    Add IDE to install set
+    Run installer from install set
+    Check IDE present in installation
+    Remove IDE from install set
+    Run installer from install set
+    Check IDE absent from installation
+
 *** Variables ***
-${IDE_NAME}  peend.ide
+${IDE_NAME}         peend.ide
+${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version/version1/vdb
+${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1/vdb
 
 *** Keywords ***
 Installer Suite Setup
@@ -64,7 +76,7 @@ Wait Until Sophos Threat Detector Log Contains With Offset
 
 Get Pid
     [Arguments]  ${EXEC}
-    ${result} =  run process  pidof  ${EXEC}  stdout=PIPE  stderr=STDOUT
+    ${result} =  run process  pidof  ${EXEC}  stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  ${0}
     Log  pid == ${result.stdout}
     [Return]   ${result.stdout}
@@ -77,22 +89,26 @@ Record Sophos Threat Detector PID
     ${PID} =  Get Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     [Return]   ${PID}
 
+Remove IDE from install set
+    Remove File  ${IDE_DIR}/${IDE_NAME}
+
 Add IDE to install set
     # COMPONENT_INSTALL_SET
     # TODO: LINUXDAR-2365 fix for hot-updating
-    ${IDE_DIR} =  Set Variable  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version/version1/vdb
     ${IDE} =  Set Variable  ${RESOURCES_PATH}/ides/${IDE_NAME}
     Copy file  ${IDE}  ${IDE_DIR}/${IDE_NAME}
-    register cleanup  Remove File  ${IDE_DIR}/${IDE_NAME}
+    register cleanup  Remove IDE from install set
 
 Run installer from install set
-    ${result} =  run process    bash  -x  ${COMPONENT_INSTALL_SET}/install.sh  stdout=PIPE  stderr=STDOUT
+    ${result} =  run process    bash  -x  ${COMPONENT_INSTALL_SET}/install.sh  stderr=STDOUT
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${0}
 
 Check IDE present in installation
-    ${IDE_DIR} =  Set Variable  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version/version1/vdb
-    file should exist  ${IDE_DIR}/${IDE_NAME}
+    file should exist  ${INSTALL_IDE_DIR}/${IDE_NAME}
+
+Check IDE absent from installation
+    file should not exist  ${INSTALL_IDE_DIR}/${IDE_NAME}
 
 Check AV Plugin has same PID
     [Arguments]  ${PID}
@@ -103,3 +119,9 @@ Check Sophos Threat Detector has different PID
     [Arguments]  ${PID}
     ${currentPID} =  Record Sophos Threat Detector PID
     Should Not Be Equal As Integers  ${PID}  ${currentPID}
+
+Debug install set
+    ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f   stderr=STDOUT
+    Log  INSTALL_SET= ${result.stdout}
+    ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/distribution_version     stderr=STDOUT
+    Log  INSTALLATION= ${result.stdout}

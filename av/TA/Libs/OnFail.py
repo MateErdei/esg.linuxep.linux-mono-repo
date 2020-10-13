@@ -10,6 +10,9 @@ class OnFail(object):
     def run_on_failure(self, keyword, *args):
         self.__m_fail_actions.append((keyword, args))
 
+    def register_on_fail(self, keyword, *args):
+        self.__m_fail_actions.append((keyword, args))
+
     def register_cleanup(self, keyword, *args):
         self.__m_cleanup_actions.append((keyword, args))
 
