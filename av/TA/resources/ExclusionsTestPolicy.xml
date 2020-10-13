@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+    <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+    <onDemandScan>
+        <posixExclusions>
+            <filePathSet>
+                <filePath>/bin/</filePath>
+                <filePath>/boot/</filePath>
+                <filePath>/dev/</filePath>
+                <filePath>/etc</filePath>
+                <filePath>/home/</filePath>
+                <filePath>/lib32/</filePath>
+                <filePath>/lib64/</filePath>
+                <filePath>/lib/</filePath>
+                <filePath>/lost+found/</filePath>
+                <filePath>/media/</filePath>
+                <filePath>/mnt/</filePath>
+                <filePath>/oldTarFiles/</filePath>
+                <filePath>/opt/</filePath>
+                <filePath>/proc/</filePath>
+                <filePath>/redist/</filePath>
+                <filePath>/root/</filePath>
+                <filePath>/run/</filePath>
+                <filePath>/sbin/</filePath>
+                <filePath>/snap/</filePath>
+                <filePath>/srv/</filePath>
+                <filePath>/sys/</filePath>
+                <filePath>/usr/</filePath>
+                <filePath>/vagrant/</filePath>
+                <filePath>/var/</filePath>
+                <filePath>/directory_excluded/</filePath>
+                <filePath>/file_excluded</filePath>
+                <filePath>/SophosPackages/</filePath>
+            </filePathSet>
+        </posixExclusions>
+    </onDemandScan>
+</config>

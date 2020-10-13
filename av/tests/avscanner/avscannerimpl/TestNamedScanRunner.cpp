@@ -588,3 +588,25 @@ TEST_F(TestNamedScanRunner, TestExcludeByFilename) // NOLINT
 
     fs::remove_all(testDir);
 }
+
+TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithFileNameExclusions) // NOLINT
+{
+    m_expectedExclusions.emplace_back("/tmp");
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
+            message,
+            m_expectedExclusions,
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
+
+    NamedScanRunner runner(scanConfigOut);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    ASSERT_GE(socket->m_paths.size(), 1);
+}
