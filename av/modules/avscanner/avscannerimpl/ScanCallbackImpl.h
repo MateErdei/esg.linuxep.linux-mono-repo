@@ -17,6 +17,7 @@ namespace avscanner::avscannerimpl
         void cleanFile(const path&) override;
         void infectedFile(const path& p, const std::string& threatName, bool isSymlink=false) override;
         void scanError(const std::string& errorMsg) override;
+        void logSummary() override;
 
         [[nodiscard]] int returnCode() const { return m_returnCode; }
 

@@ -21,6 +21,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <exception>
 #include <memory>
 #include <utility>
+#include <chrono>
 
 using namespace avscanner::avscannerimpl;
 namespace fs = sophos_filesystem;
@@ -147,6 +148,8 @@ int CommandLineScanRunner::run()
     ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
     CallbackImpl callbacks(std::move(scanner), excludedMountPoints, cmdExclusions);
 
+    scanCallbacks->scanStarted();
+
     // for each select included mount point call filewalker for that mount point
     for (auto& path : m_paths)
     {
@@ -185,6 +188,8 @@ int CommandLineScanRunner::run()
     {
         m_returnCode = callbacks.returnCode();
     }
+
+    scanCallbacks->logSummary();
 
     return m_returnCode;
 }

@@ -156,6 +156,8 @@ int NamedScanRunner::run()
         }
     }
 
+    scanCallbacks->logSummary();
+
     return m_returnCode;
 }
 
