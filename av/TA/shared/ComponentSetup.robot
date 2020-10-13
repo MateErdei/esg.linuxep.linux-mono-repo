@@ -62,6 +62,7 @@ Setup Component For Testing
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/   shell=True
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1   shell=True
+    Run Process   ln  -s  libsophtainer.so.1  libsophtainer.so   cwd=${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1   shell=True
     Copy File  ${BASE_SDDS}/files/base/lib64/libz.so.1.*  ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1/libz.so.1
 
 Use Fake AVScanner
