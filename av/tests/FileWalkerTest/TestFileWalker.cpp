@@ -34,7 +34,7 @@ namespace
             return !(filepath.filename() == "b");
         }
 
-        bool cmdExclusionCheck(const sophos_filesystem::path& filepath) override
+        bool userDefinedExclusionCheck(const sophos_filesystem::path &filepath) override
         {
             return (filepath.filename() == "b");
         }
@@ -55,7 +55,7 @@ namespace
             return true;
         }
 
-        bool cmdExclusionCheck(const sophos_filesystem::path&) override
+        bool userDefinedExclusionCheck(const sophos_filesystem::path &) override
         {
             return false;
         }

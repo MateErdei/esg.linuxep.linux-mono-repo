@@ -26,8 +26,10 @@ namespace avscanner::avscannerimpl
         virtual void logScanningLine(std::string escapedPath) = 0;
         virtual void genericFailure(const std::exception& e, std::string escapedPath) = 0;
         ScanClient m_scanner;
-        std::vector<Exclusion>   m_currentExclusions;
-        std::vector<Exclusion>  m_cmdExclusions;
+        std::vector<fs::path>   m_mountExclusions;
+        // m_currentExclusions are the exclusions that are going to be relevant to the specific scan currently running
+        std::vector<Exclusion>  m_currentExclusions;
+        std::vector<Exclusion>  m_userDefinedExclusions;
         int m_returnCode = E_CLEAN;
 
     public:
@@ -37,7 +39,7 @@ namespace avscanner::avscannerimpl
 
         void processFile(const fs::path &path, bool symlinkTarget) override;
         bool includeDirectory(const sophos_filesystem::path &path) override;
-        bool cmdExclusionCheck(const sophos_filesystem::path &path) override;
+        bool userDefinedExclusionCheck(const sophos_filesystem::path &path) override;
 
         [[nodiscard]] int returnCode() const
         {

@@ -36,10 +36,10 @@ namespace
                 std::vector<Exclusion> cmdExclusions
         )
                 : BaseFileWalkCallbacks(std::move(scanner))
-                , m_mountExclusions(std::move(mountExclusions))
         {
+            m_mountExclusions = std::move(mountExclusions);
             m_currentExclusions.reserve(m_mountExclusions.size());
-            m_cmdExclusions = std::move(cmdExclusions);
+            m_userDefinedExclusions = std::move(cmdExclusions);
         }
 
         void logScanningLine(std::string escapedPath) override
@@ -67,9 +67,6 @@ namespace
                 }
             }
         }
-
-    private:
-        std::vector<fs::path> m_mountExclusions;
     };
 }
 

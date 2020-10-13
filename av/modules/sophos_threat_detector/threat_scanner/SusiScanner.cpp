@@ -94,9 +94,9 @@ SusiScanner::scan(
     {
         try
         {
-            LOGTRACE("Scanning result details: " << scanResult->version << ", " << scanResult->scanResultJson);
+            LOGDEBUG("Scanning result details: " << scanResult->version << ", " << scanResult->scanResultJson);
             std::string scanResultUTF8 = common::toUtf8(scanResult->scanResultJson, false);
-            LOGTRACE("Converted to UTF8: " << scanResultUTF8);
+            LOGDEBUG("Converted to UTF8: " << scanResultUTF8);
             response.setFullScanResult(scanResultUTF8);
 
             json parsedScanResult = json::parse(scanResultUTF8);

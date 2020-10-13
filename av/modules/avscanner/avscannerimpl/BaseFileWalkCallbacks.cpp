@@ -24,11 +24,11 @@ void BaseFileWalkCallbacks::processFile(const fs::path &path, bool symlinkTarget
         {
             symlinkTargetPath = fs::read_symlink(path);
         }
-        for (const auto &e : m_currentExclusions)
+        for (const auto &e : m_mountExclusions)
         {
-            if (PathUtils::startswith(symlinkTargetPath, e.path()))
+            if (PathUtils::startswith(symlinkTargetPath, e))
             {
-                LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is on excluded mount point: " << e.path());
+                LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is on excluded mount point: " << e);
                 return;
             }
         }
@@ -37,7 +37,7 @@ void BaseFileWalkCallbacks::processFile(const fs::path &path, bool symlinkTarget
     std::string escapedPath(path);
     common::escapeControlCharacters(escapedPath);
 
-    for (const auto &exclusion: m_cmdExclusions)
+    for (const auto &exclusion: m_userDefinedExclusions)
     {
         if (exclusion.appliesToPath(path))
         {
@@ -67,17 +67,16 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path &path
             return false;
         }
     }
-    return !cmdExclusionCheck(path);
+    return !userDefinedExclusionCheck(path);
 }
 
-bool BaseFileWalkCallbacks::cmdExclusionCheck(const sophos_filesystem::path &path)
+bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::path &path)
 {
-    for (const auto &exclusion: m_cmdExclusions)
+    for (const auto &exclusion: m_userDefinedExclusions)
     {
         if (exclusion.appliesToPath(PathUtils::appendForwardSlashToPath(path), true))
         {
-            LOGINFO("Excluding directory: " << PathUtils::appendForwardSlashToPath(path)
-            );
+            LOGINFO("Excluding directory: " << PathUtils::appendForwardSlashToPath(path));
             return true;
         }
     }

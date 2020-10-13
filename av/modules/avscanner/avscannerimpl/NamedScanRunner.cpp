@@ -49,9 +49,11 @@ namespace
                 , m_config(config)
                 , m_allMountPoints(std::move(allMountPoints))
         {
-            m_cmdExclusions = m_config.m_excludePaths;
+            m_userDefinedExclusions = m_config.m_excludePaths;
 
-            for (const auto &mountExclusion: mountExclusions)
+            // These should always be the same because we scan all mount points on a Named Scan, but not on a Command Line Scan
+            m_mountExclusions = move(mountExclusions);
+            for (const auto &mountExclusion: m_mountExclusions)
             {
                 m_currentExclusions.emplace_back(mountExclusion);
             }

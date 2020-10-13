@@ -41,7 +41,7 @@ public:
         return true;
     }
 
-    bool cmdExclusionCheck(const sophos_filesystem::path&) override
+    bool userDefinedExclusionCheck(const sophos_filesystem::path &) override
     {
         return false;
     }
