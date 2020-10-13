@@ -67,6 +67,11 @@ Mark AV Log
     Set Test Variable   ${AV_LOG_MARK}  ${count}
     Log  "AV LOG MARK = ${AV_LOG_MARK}"
 
+Mark Sophos Threat Detector Log
+    ${count} =  Count File Log Lines  ${THREAT_DETECTOR_LOG_PATH}
+    Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
+    Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
+
 File Log Contains With Offset
     [Arguments]  ${path}  ${input}  ${offset}=0
     ${content} =  Get File   ${path}  encoding_errors=replace
