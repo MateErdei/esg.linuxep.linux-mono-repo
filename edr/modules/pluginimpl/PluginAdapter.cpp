@@ -10,6 +10,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "IOsqueryProcess.h"
 #include "Logger.h"
 #include "TelemetryConsts.h"
+#include "PluginUtils.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFilePermissions.h>
@@ -61,10 +62,7 @@ public:
         cancel();
     }
 };
-#include "Telemetry.h"
-#include "PluginUtils.h"
 
-#include <livequery/ResponseDispatcher.h>
 
 namespace Plugin
 {

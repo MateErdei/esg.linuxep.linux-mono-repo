@@ -24,9 +24,9 @@ namespace Plugin
         {
             nlohmann::json j = nlohmann::json::parse(flagContent);
 
-            if (j.find("xdr.enabled") != j.end())
+            if (j.find(m_xdrFlag) != j.end())
             {
-                if (j["xdr.enabled"] == "true")
+                if (j[m_xdrFlag] == "true")
                 {
                     isXDR = true;
                 }
@@ -41,6 +41,7 @@ namespace Plugin
 
         return isXDR;
     }
+
     bool PluginUtils::retrieveRunningModeFlagFromSettingsFile()
     {
         auto fileSystem = Common::FileSystem::fileSystem();
@@ -52,7 +53,7 @@ namespace Plugin
             {
                 boost::property_tree::ptree ptree;
                 boost::property_tree::read_ini(configpath, ptree);
-                bool isXDR = (ptree.get<std::string>(m_mode_identifier) == "0");
+                bool isXDR = (ptree.get<std::string>(m_modeIdentifier) == "0");
                 return isXDR;
             }
             catch (boost::property_tree::ptree_error& ex)
@@ -73,11 +74,11 @@ namespace Plugin
         std::string mode;
         if (isXDR)
         {
-            mode = m_mode_identifier + "=0";
+            mode = m_modeIdentifier + "=0";
         }
         else
         {
-            mode = m_mode_identifier + "=1";
+            mode = m_modeIdentifier + "=1";
         }
 
         try
@@ -91,7 +92,7 @@ namespace Plugin
                 for (const auto &line : content)
                 {
                     // if running mode already set replace it
-                    if (Common::UtilityImpl::StringUtils::isSubstring(line, m_mode_identifier))
+                    if (Common::UtilityImpl::StringUtils::isSubstring(line, m_modeIdentifier))
                     {
                         newContent = newContent + mode + "\n";
                         modeIsNotSet = false;
