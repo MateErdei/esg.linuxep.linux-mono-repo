@@ -31,7 +31,14 @@ static void signal_handler(int)
 {
     if (GL_USR1_MONITOR_PIPE >= 0)
     {
-        ::write(GL_USR1_MONITOR_PIPE, "\0", 1);
+        int ret = ::write(GL_USR1_MONITOR_PIPE, "\0", 1);
+        /*
+         * We are in a signal-context, so are very limited on what we can do.
+         * http://manpages.ubuntu.com/manpages/bionic/man7/signal-safety.7.html
+         * So we assert for debug builds and do nothing for release builds
+         */
+        static_cast<void>(ret);
+        assert(ret == 1);
     }
 }
 
