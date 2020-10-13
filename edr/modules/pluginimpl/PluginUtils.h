@@ -22,8 +22,8 @@ namespace Plugin
         static bool retrieveRunningModeFlagFromSettingsFile();
         static void setRunningModeFlagFromSettingsFile(const bool &isXDR);
 
-            private:
-                inline static const std::string m_mode_identifier = "running_mode";
+    private:
+        inline static const std::string m_mode_identifier = "running_mode";
 
    };
 }

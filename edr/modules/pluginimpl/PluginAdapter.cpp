@@ -381,8 +381,17 @@ namespace Plugin
 
     void PluginAdapter::processFlags(const std::string& flagsContent)
     {
-
+        LOGSUPPORT("Flags: " << flagsContent);
         bool isXDR = Plugin::PluginUtils::isRunningModeXDR(flagsContent);
+        if (isXDR)
+        {
+            LOGINFO("Flags running mode is XDR");
+        }
+        else
+        {
+            LOGINFO("Flags running mode is EDR");
+        }
+
         try
         {
             bool oldRunningMode = Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile();
@@ -397,7 +406,7 @@ namespace Plugin
             LOGINFO("Setting flag settings");
             Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(isXDR);
         }
-        LOGINFO("Flags: " << flagsContent);
+        LOGSUPPORT("Flags: " << flagsContent);
     }
 
     std::string PluginAdapter::waitForTheFirstALCPolicy(
