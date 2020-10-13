@@ -44,15 +44,15 @@ namespace Plugin
     bool PluginUtils::retrieveRunningModeFlagFromSettingsFile()
     {
         auto fileSystem = Common::FileSystem::fileSystem();
-        bool isXDR = false;
         std::string configpath = Plugin::edrConfigFilePath();
+
         if (fileSystem->isFile(configpath))
         {
             try
             {
                 boost::property_tree::ptree ptree;
                 boost::property_tree::read_ini(configpath, ptree);
-                isXDR = (ptree.get<std::string>(m_mode_identifier) == "1");
+                bool isXDR = (ptree.get<std::string>(m_mode_identifier) == "0");
                 return isXDR;
             }
             catch (boost::property_tree::ptree_error& ex)
