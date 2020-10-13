@@ -112,6 +112,7 @@ namespace Plugin
         processALCPolicy(alcPolicy, true);
         LOGSUPPORT("Cleanup Old Osquery Files");
         cleanUpOldOsqueryFiles();
+        m_isXDR = Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile();
         LOGSUPPORT("Start Osquery");
         setUpOsqueryMonitor();
 
@@ -396,16 +397,22 @@ namespace Plugin
             if (isXDR != oldRunningMode)
             {
                 LOGINFO("Updating flag settings");
-                Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(isXDR);
+                changeFlagSettings(isXDR);
             }
         }
         catch (const std::runtime_error& ex)
         {
             LOGINFO("Setting flag settings");
-            Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(isXDR);
+            changeFlagSettings(isXDR);
         }
     }
 
+    void PluginAdapter::changeFlagSettings(bool isXDR)
+    {
+        Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(isXDR);
+        m_isXDR = isXDR;
+        //TODO LINUXDAR-2293 restart edr/osquery
+    }
     std::string PluginAdapter::waitForTheFirstALCPolicy(
         QueueTask& queueTask,
         std::chrono::seconds timeoutInS,

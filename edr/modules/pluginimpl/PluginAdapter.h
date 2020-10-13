@@ -88,13 +88,14 @@ namespace Plugin
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 600;
+        bool m_isXDR = false;
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
 
         void processQuery(const std::string& query, const std::string& correlationId);
         void processFlags(const std::string& flagsContent);
-
+        void changeFlagSettings(bool isXDR);
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
         void setUpOsqueryMonitor();
