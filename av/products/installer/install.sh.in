@@ -16,6 +16,7 @@ EXIT_FAIL_WDCTL_FAILED_TO_START=17
 EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_INSTALL_PACKAGE=21
 EXIT_FAIL_COPY_MANIFEST=22
+EXIT_FAIL_DELETE_REMOVED_FILES=23
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -63,6 +64,14 @@ then
 fi
 PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 VAR="${PLUGIN_INSTALL}/var"
+
+function delete_removed_vdl()
+{
+    local src_dir="$DIST/files/plugins/av/chroot/susi/distribution_version/version1/vdb"
+    local dest_dir="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/version1/vdb"
+
+    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed files"
+}
 
 function install_product()
 {
@@ -132,6 +141,8 @@ function install_product()
 
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
 
+    delete_removed_vdl
+
     #After install start the plugin
     "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
 
@@ -143,6 +154,8 @@ function update_supplement()
     # Copy supplement updates
     find "$DIST/files/plugins/av/chroot/susi/distribution_version" -type f -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
+
+    delete_removed_vdl
 
     # reload sophos_threat_detector
     local PID=$(ps -C sophos_threat_d -o pid=)

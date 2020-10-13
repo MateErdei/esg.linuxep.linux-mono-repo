@@ -100,7 +100,7 @@ Add IDE to install set
     register cleanup  Remove IDE from install set
 
 Run installer from install set
-    ${result} =  run process    bash  -x  ${COMPONENT_INSTALL_SET}/install.sh  stderr=STDOUT
+    ${result} =  run process    bash  -x  ${COMPONENT_INSTALL_SET}/install.sh  stdout=/tmp/proc.out  stderr=STDOUT
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${0}
 
@@ -121,7 +121,7 @@ Check Sophos Threat Detector has different PID
     Should Not Be Equal As Integers  ${PID}  ${currentPID}
 
 Debug install set
-    ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f   stderr=STDOUT
+    ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
     Log  INSTALL_SET= ${result.stdout}
-    ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/distribution_version     stderr=STDOUT
+    ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/distribution_version   stdout=/tmp/proc.out    stderr=STDOUT
     Log  INSTALLATION= ${result.stdout}
