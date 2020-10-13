@@ -19,7 +19,11 @@ namespace Plugin
         * @return returns the address and password of proxy in a tuple
         */
         static bool isRunningModeXDR(const std::string &flagContent);
+        static bool retrieveRunningModeFlagFromSettingsFile();
+        static void setRunningModeFlagFromSettingsFile(const bool &isXDR);
 
+            private:
+                inline static const std::string m_mode_identifier = "running_mode";
 
    };
 }

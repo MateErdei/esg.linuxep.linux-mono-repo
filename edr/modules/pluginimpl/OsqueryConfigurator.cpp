@@ -133,12 +133,12 @@ namespace Plugin
         auto fileSystem = Common::FileSystem::fileSystem();
         bool disableAuditD = true;
         std::string configpath = Plugin::edrConfigFilePath();
-        if (fileSystem->isFile(Plugin::edrConfigFilePath()))
+        if (fileSystem->isFile(configpath))
         {
             try
             {
                 boost::property_tree::ptree ptree;
-                boost::property_tree::read_ini(Plugin::edrConfigFilePath(), ptree);
+                boost::property_tree::read_ini(configpath, ptree);
                 disableAuditD = (ptree.get<std::string>("disable_auditd") == "1");
             }
             catch (boost::property_tree::ptree_error& ex)
@@ -148,7 +148,7 @@ namespace Plugin
         }
         else
         {
-            LOGWARN("Could not find EDR Plugin config file: " << Plugin::edrConfigFilePath()
+            LOGWARN("Could not find EDR Plugin config file: " << configpath
                                                           << ", using disable_auditd default value");
         }
         return disableAuditD;

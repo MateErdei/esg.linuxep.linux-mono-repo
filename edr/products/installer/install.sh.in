@@ -92,7 +92,7 @@ copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
 INSTALL_OPTIONS_FILE="${SOPHOS_INSTALL}/base/etc/install_options"
 
-MODE="RUNNING_MODE=EDR"
+MODE="running_mode=1"
 
 if [[ ! -f "${CONFIG_FILE}" ]]
 then
@@ -111,7 +111,7 @@ then
       fi
       echo  ${MODE} >> "${CONFIG_FILE}"
 else
-  if ! grep -q "RUNNING_MODE" "${CONFIG_FILE}"
+  if ! grep -q "running_mode" "${CONFIG_FILE}"
     then
       echo  ${MODE} >> "${CONFIG_FILE}"
   fi

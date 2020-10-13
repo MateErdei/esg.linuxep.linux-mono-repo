@@ -381,9 +381,22 @@ namespace Plugin
 
     void PluginAdapter::processFlags(const std::string& flagsContent)
     {
-        // TODO:LINUXDAR-2199
-        bool isXDR = Plugin::PluginUtils::isRunningModeXDR(flagsContent);
 
+        bool isXDR = Plugin::PluginUtils::isRunningModeXDR(flagsContent);
+        try
+        {
+            bool oldRunningMode = Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile();
+            if (isXDR != oldRunningMode)
+            {
+                LOGINFO("Updating flag settings");
+                Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(isXDR);
+            }
+        }
+        catch (const std::runtime_error& ex)
+        {
+            LOGINFO("Setting flag settings");
+            Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(isXDR);
+        }
         LOGINFO("Flags: " << flagsContent);
     }
 
