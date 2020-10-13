@@ -38,7 +38,6 @@ TEST(TestSyncVersionedFiles, testReplaceStem) // NOLINT
     fs::path a("/a/b/c/d");
     fs::path s("/a/b/c");
     fs::path s2("/a/b/f");
-    EXPECT_EQ(replace_stem(a, s, s2), "/a/b/f/d");
+    fs::path replace = replace_stem(a, s, s2);
+    EXPECT_EQ(replace.string(), std::string("/a/b/f/d"));
 }
-
-
