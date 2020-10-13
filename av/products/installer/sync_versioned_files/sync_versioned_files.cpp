@@ -16,13 +16,13 @@ bool sync_versioned_files::startswith(const fs::path& p, const fs::path& current
     return p.string().find(current_stem.string()) == 0;
 }
 
-static fs::path suffix(const fs::path& p, const fs::path& current_stem)
+fs::path sync_versioned_files::suffix(const fs::path& p, const fs::path& current_stem)
 {
     assert(startswith(p, current_stem));
     return p.string().substr(current_stem.string().length());
 }
 
-static fs::path replace_stem(const fs::path& p, const fs::path& current_stem, const fs::path& required_stem)
+fs::path sync_versioned_files::replace_stem(const fs::path& p, const fs::path& current_stem, const fs::path& required_stem)
 {
     fs::path result = suffix(p, current_stem);
 

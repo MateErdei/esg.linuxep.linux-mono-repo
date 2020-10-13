@@ -24,3 +24,21 @@ TEST(TestSyncVersionedFiles, testStartsWith_false) // NOLINT
     fs::path s("/a/b/f");
     EXPECT_FALSE(startswith(a, s));
 }
+
+
+TEST(TestSyncVersionedFiles, testSuffix) // NOLINT
+{
+    fs::path a("/a/b/c/d");
+    fs::path s("/a/b/c");
+    EXPECT_EQ(suffix(a,s), "/d");
+}
+
+TEST(TestSyncVersionedFiles, testReplaceStem) // NOLINT
+{
+    fs::path a("/a/b/c/d");
+    fs::path s("/a/b/c");
+    fs::path s2("/a/b/f");
+    EXPECT_EQ(replace_stem(a, s, s2), "/a/b/f/d");
+}
+
+

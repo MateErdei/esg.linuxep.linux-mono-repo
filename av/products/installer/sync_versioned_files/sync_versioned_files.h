@@ -15,4 +15,8 @@ namespace sync_versioned_files
     int sync_versioned_files(const fs::path& src, const fs::path& dest);
 
     bool startswith(const fs::path& p, const fs::path& current_stem);
+
+    fs::path suffix(const fs::path& p, const fs::path& current_stem);
+
+    fs::path replace_stem(const fs::path& p, const fs::path& current_stem, const fs::path& required_stem);
 }
