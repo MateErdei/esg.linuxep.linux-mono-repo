@@ -120,7 +120,7 @@ def combine_flags_files():
     """
     combine_flags_files
     """
-    LOGGER.info("Combining MCS and Warehouse flags")
+    LOGGER.debug("Combining MCS and Warehouse flags")
     mcs_flags = read_flags_file(path_manager.mcs_flags_file())
     LOGGER.debug("MCS flags: {}".format(mcs_flags))
     warehouse_flags = read_flags_file(path_manager.warehouse_flags_file())
