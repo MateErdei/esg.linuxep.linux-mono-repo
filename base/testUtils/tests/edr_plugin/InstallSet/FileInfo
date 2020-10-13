@@ -246,6 +246,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/xymon.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/yaml.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/yum.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/VERSION.ini.0
+o644, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.0
 o644, root, root, /opt/sophos-spl/plugins/edr/var/osquery.pid
 o750, root, root, /opt/sophos-spl/plugins/edr/bin/edr.0
 o750, root, root, /opt/sophos-spl/plugins/edr/bin/osqueryd.0

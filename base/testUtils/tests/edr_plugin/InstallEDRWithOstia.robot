@@ -41,42 +41,6 @@ ${SULDownloaderLogDowngrade}        ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 ${WDCTL_LOG_PATH}                   ${SOPHOS_INSTALL}/logs/base/wdctl.log
 
 *** Test Cases ***
-Verify that the edr installer works correctly
-## -------------------------------------READ----ME------------------------------------------------------
-## Please note that these tests rely on the files in InstallSet being upto date. To regenerate these run
-## an install manually and run the generateFromInstallDir.sh from InstallSet directory.
-## WARNING
-## If you generate this from a local build please make sure that you have blatted the distribution
-## folder before remaking it. Otherwise old content can slip through to new builds and corrupt the
-## fileset.
-## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
-## -----------------------------------------------------------------------------------------------------
-    [Teardown]  EDR Tests Teardown With Installed File Replacement
-    Install EDR  ${BaseAndEdrVUTPolicy}
-
-    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get file info for installation  edr
-    Set Test Variable  ${FileInfo}
-    Set Test Variable  ${DirectoryInfo}
-    Set Test Variable  ${SymbolicLinkInfo}
-    ## Check Directory Structure
-    Log  ${DirectoryInfo}
-    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/DirectoryInfo
-    Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
-
-    ## Check File Info
-    # wait for /opt/sophos-spl/base/mcs/status/cache/ALC.xml to exist
-    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/FileInfo
-    Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
-
-    ## Check Symbolic Links
-    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SymbolicLinkInfo
-    Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
-
-    ## Check systemd files
-    ${SystemdInfo}=  get systemd file info
-    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SystemdInfo
-    Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
-
 Install EDR and handle Live Query
     Install EDR  ${BaseAndEdrVUTPolicy}
     Wait Until OSQuery Running
@@ -122,37 +86,6 @@ Install EDR and handle Live Query
 
     Check Cloud Server Log Contains    "columnMetaData": [{"name":"name","type":"TEXT"}],  1
     Check Cloud Server Log Contains    "columnData": [["systemd"],  1
-
-EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not Running
-    [Teardown]  EDR Uninstall Teardown
-    Install EDR  ${BaseAndEdrVUTPolicy}
-    Wait Until OSQuery Running
-    ${systemctlResult} =  Run Process   systemctl stop sophos-spl   shell=yes
-    Check Watchdog Not Running
-    Should Be Equal As Strings  ${systemctlResult.rc}  0
-
-    ${result} =  Uninstall EDR Plugin
-    Should Not Contain  ${result.stderr}  Failed to remove edr: Watchdog is not running
-
-EDR Removes Ipc And Status Files When Uninstalled
-    Run Full Installer
-    Install EDR Directly
-    Wait Until OSQuery Running
-    Stop Management Agent Via WDCTL
-    Start Management Agent Via WDCTL
-    Wait for EDR Status
-
-    # ${IPC_FILE} is a socket, and therefore is not picked up by "File Should Exist"
-    Should Exist            ${IPC_FILE}
-    File Should Exist       ${EDR_STATUS_XML}
-    File Should Exist       ${CACHED_STATUS_XML}
-
-    Uninstall EDR Plugin
-
-    # Similarly, "File Should Not Exist" will always pass on ${IPC_FILE}
-    Should Not Exist        ${IPC_FILE}
-    File Should Not Exist   ${EDR_STATUS_XML}
-    File Should Not Exist   ${CACHED_STATUS_XML}
 
 EDR Uninstalled When Removed From ALC Policy
     Install EDR  ${BaseAndEdrVUTPolicy}
@@ -730,30 +663,6 @@ Install Then Restart With master of base and edr and check EDR OSQuery Flags Fil
 
     ${OSQueryFlagsContentsAfterRestart} =  Get File  ${EDR_DIR}/etc/osquery.flags
     Should Contain  ${OSQueryFlagsContentsAfterRestart}  --disable_audit=false
-
-EDR Does Not Trigger Query On Update Now Action
-    [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT
-    Run Full Installer
-    Install EDR Directly
-    Wait Until OSQuery Running
-
-    ${edr_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-    ${edr_length_1} =  Get Length  ${edr_log}
-
-    create file  ${SOPHOS_INSTALL}/tmp/ALC_action_timestamp.xml  content="content"
-    move file  ${SOPHOS_INSTALL}/tmp/ALC_action_timestamp.xml  /opt/sophos-spl/base/mcs/action
-
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Check Management Agent Log Contains  Action ALC_action_timestamp.xml sent to 1 plugins
-
-    ${edr_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-    ${edr_length_2} =  Get Length  ${edr_log}
-
-    # Edr Should Not Have logged anything
-    Should Be Equal  ${edr_length_1}  ${edr_length_2}
-
 
 *** Keywords ***
 EDR Tests Teardown With Installed File Replacement

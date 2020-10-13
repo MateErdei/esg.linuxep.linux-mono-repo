@@ -1,6 +1,7 @@
 o700, root, root, /opt/sophos-spl/plugins/edr
 o700, root, root, /opt/sophos-spl/plugins/edr/bin
 o700, root, root, /opt/sophos-spl/plugins/edr/etc
+o700, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf.d
 o700, root, root, /opt/sophos-spl/plugins/edr/extensions
 o700, root, root, /opt/sophos-spl/plugins/edr/lib64
 o700, root, root, /opt/sophos-spl/plugins/edr/log
