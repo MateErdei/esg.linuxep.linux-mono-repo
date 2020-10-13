@@ -27,4 +27,5 @@ namespace Plugin
     std::string livequeryExecutable();
     std::string osQueryLensesPath();
     std::string livequeryResponsePath();
+    std::string tempPluginConf();
 } // namespace Plugin

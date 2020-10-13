@@ -12,6 +12,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <fstream>
 #include <redist/boost/include/boost/property_tree/ini_parser.hpp>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
 namespace Plugin
 {
@@ -79,36 +80,47 @@ namespace Plugin
             mode = m_mode_identifier + "=1";
         }
 
-        std::string configpath = Plugin::edrConfigFilePath();
-        if (fileSystem->isFile(configpath))
+        try
         {
-            bool modeIsNotSet = true;
-            std::vector<std::string> content = fileSystem->readLines(configpath);
-            std::vector<std::string> newContent;
-            for (const auto &line : content)
+            std::string configpath = Plugin::edrConfigFilePath();
+            if (fileSystem->isFile(configpath))
             {
-                // if running mode already set replace it
-                if (Common::UtilityImpl::StringUtils::isSubstring(m_mode_identifier,line))
+                bool modeIsNotSet = true;
+                std::vector<std::string> content = fileSystem->readLines(configpath);
+                std::string newContent;
+                for (const auto &line : content)
                 {
-                    newContent.push_back(mode);
-                    modeIsNotSet = false;
+                    // if running mode already set replace it
+                    if (Common::UtilityImpl::StringUtils::isSubstring(m_mode_identifier, line))
+                    {
+                        newContent = newContent + mode + "\n";
+                        modeIsNotSet = false;
+                    }
+                    else
+                        {
+                        newContent = newContent + line + "\n";
+                    }
                 }
-                else
-                {
-                    newContent.push_back(line);
-                }
-            }
 
-            // if running mode not already set append to end of content
-            if (modeIsNotSet)
-            {
-                newContent.push_back(mode);
+                // if running mode not already set append to end of content
+                if (modeIsNotSet)
+                {
+                    newContent = newContent + mode + "\n";
+                }
+
+                std::string tempPath = Plugin::tempPluginConf();
+                fileSystem->writeFile(tempPath, newContent);
+                fileSystem->moveFile(tempPath, configpath);
             }
-            // TODO write to file then replace
+            else
+            {
+                fileSystem->writeFile(configpath, mode);
+            }
+            LOGINFO("Updated plugin conf with new running mode");
         }
-        else
+        catch (Common::FileSystem::IFileSystemException& ex)
         {
-            fileSystem->writeFile(configpath,mode);
+            LOGWARN("Failed to update plugin conf with error: " << ex.what());
         }
     }
 
