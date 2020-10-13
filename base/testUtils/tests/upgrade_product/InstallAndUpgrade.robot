@@ -55,15 +55,6 @@ ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophossp
 ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
 *** Test Cases ***
-Test
-    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
 We Can Install From A Ballista Warehouse
     [Tags]  MANUAL
