@@ -23,6 +23,8 @@ namespace unixsocket
     class SigURS1Monitor : public IMonitorable
     {
     public:
+        SigURS1Monitor() = delete;
+        SigURS1Monitor(const SigURS1Monitor&) = delete;
         explicit SigURS1Monitor(IReloadablePtr reloadable);
         ~SigURS1Monitor() override;
 
