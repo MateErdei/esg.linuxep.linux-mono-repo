@@ -35,6 +35,7 @@ EDR Disables Auditd After Install With Auditd Running Default Behaviour
 
     ${EDR_CONFIG_CONTENT}=  Get File  ${EDR_DIR}/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   disable_auditd=1
+    Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
 
     Check AuditD Executable Not Running
     Check AuditD Service Disabled
