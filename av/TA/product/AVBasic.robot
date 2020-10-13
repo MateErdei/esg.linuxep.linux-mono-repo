@@ -131,6 +131,7 @@ Scan Now Excludes Files And Directories As Expected
     Create File  /eicar.com                     ${EICAR_STRING}
     Create File  /directory_excluded/eicar.com  ${EICAR_STRING}
     Create File  /file_excluded/eicar.com       ${EICAR_STRING}
+    Register Cleanup  Remove Files  /eicar.com  /directory_excluded/eicar.com  /file_excluded/eicar.com
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
