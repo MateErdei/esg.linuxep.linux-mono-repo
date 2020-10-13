@@ -8,8 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "datatypes/Print.h"
 
-using namespace sync_versioned_files;
-
 int main(int argc, char* argv[])
 {
     if (argc != 3)
@@ -17,5 +15,5 @@ int main(int argc, char* argv[])
         PRINT("Syntax: sync_versioned_files <src> <dest>");
         return 2;
     }
-    return sync_versioned_files(argv[1], argv[2]);
+    return sync_versioned_files::sync_versioned_files(argv[1], argv[2]);
 }

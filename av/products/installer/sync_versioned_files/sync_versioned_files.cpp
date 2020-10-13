@@ -59,16 +59,11 @@ int sync_versioned_files::sync_versioned_files(const fs::path& src, const fs::pa
         }
         fs::path expected_name = p.path();
         expected_name.replace_extension();
-        PRINT(expected_name);
         fs::path src_name = replace_stem(expected_name, dest, src);
         if (!fs::is_regular_file(src_name))
         {
             // delete p and all symlinks to p created by versioned copy
             delete_removed_file(p.path());
-        }
-        else
-        {
-            PRINT("Keep "<< p.path());
         }
     }
     return 0;
