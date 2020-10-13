@@ -19,7 +19,8 @@ bool sync_versioned_files::startswith(const fs::path& p, const fs::path& current
 fs::path sync_versioned_files::suffix(const fs::path& p, const fs::path& current_stem)
 {
     assert(startswith(p, current_stem));
-    return p.string().substr(current_stem.string().length());
+    assert(p.string().length() > current_stem.string().length() + 1);
+    return p.string().substr(current_stem.string().length() + 1);
 }
 
 fs::path sync_versioned_files::replace_stem(const fs::path& p, const fs::path& current_stem, const fs::path& required_stem)

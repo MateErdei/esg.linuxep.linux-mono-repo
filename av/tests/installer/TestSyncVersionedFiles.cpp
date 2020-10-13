@@ -30,7 +30,16 @@ TEST(TestSyncVersionedFiles, testSuffix) // NOLINT
 {
     fs::path a("/a/b/c/d");
     fs::path s("/a/b/c");
-    EXPECT_EQ(suffix(a,s), "/d");
+    fs::path actual_suffix = suffix(a, s);
+    EXPECT_EQ(actual_suffix.string(), "d");
+}
+
+TEST(TestSyncVersionedFiles, testPathSlash) // NOLINT
+{
+    fs::path a("d");
+    fs::path s2("/a/b/f");
+    fs::path combined = s2 / a;
+    EXPECT_EQ(combined.string(), "/a/b/f/d");
 }
 
 TEST(TestSyncVersionedFiles, testReplaceStem) // NOLINT
