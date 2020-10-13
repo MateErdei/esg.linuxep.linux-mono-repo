@@ -13,10 +13,9 @@ namespace Plugin
             {
     public:
         /**
-        * Read a json file to get the proxy info
-        * @param flagContent, path for where the file containing the proxy info is located
-        * @param fileSystem, to check if file exists
-        * @return returns the address and password of proxy in a tuple
+        * Reads content of flagspolicy to see is XDR is enabled or not
+        * @param flagContent, content of flags policy
+        * @return true if XDR is enabled false if it is disabled
         */
         static bool isRunningModeXDR(const std::string &flagContent);
         static bool retrieveRunningModeFlagFromSettingsFile();

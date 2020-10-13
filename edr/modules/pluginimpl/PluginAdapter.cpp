@@ -406,7 +406,6 @@ namespace Plugin
             LOGINFO("Setting flag settings");
             Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(isXDR);
         }
-        LOGSUPPORT("Flags: " << flagsContent);
     }
 
     std::string PluginAdapter::waitForTheFirstALCPolicy(

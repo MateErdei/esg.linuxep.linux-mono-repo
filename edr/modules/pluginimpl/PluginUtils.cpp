@@ -91,7 +91,7 @@ namespace Plugin
                 for (const auto &line : content)
                 {
                     // if running mode already set replace it
-                    if (Common::UtilityImpl::StringUtils::isSubstring(m_mode_identifier, line))
+                    if (Common::UtilityImpl::StringUtils::isSubstring(line, m_mode_identifier))
                     {
                         newContent = newContent + mode + "\n";
                         modeIsNotSet = false;
@@ -114,7 +114,7 @@ namespace Plugin
             }
             else
             {
-                fileSystem->writeFile(configpath, mode);
+                fileSystem->writeFile(configpath, mode+ "\n");
             }
             LOGINFO("Updated plugin conf with new running mode");
         }

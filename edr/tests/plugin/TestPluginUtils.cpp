@@ -95,3 +95,54 @@ TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileThrowsWhenSetting
     EXPECT_THROW(Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile(),std::runtime_error);
 }
 
+TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileWhenFileIsEmpty)
+{
+    Tests::TempDir tempDir("/tmp");
+
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "");
+    tempDir.makeDirs("base/tmp/");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+            Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
+
+    Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(true);
+    ASSERT_EQ("running_mode=0\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
+}
+
+TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileWhenSettingFileDoesNotExist)
+{
+    Tests::TempDir tempDir("/tmp");
+
+    tempDir.makeDirs("plugins/edr/etc/");
+
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+            Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
+
+    Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(true);
+    ASSERT_EQ("running_mode=0\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
+}
+
+TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileUpdatesFilefromEDRToXDR)
+{
+    Tests::TempDir tempDir("/tmp");
+
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "disable_auditd=0\nrunning_mode=1\n");
+    tempDir.makeDirs("base/tmp/");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+            Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
+
+    Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(true);
+    ASSERT_EQ("disable_auditd=0\nrunning_mode=0\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
+}
+
+TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileUpdatesFilefromXDRToEDR)
+{
+    Tests::TempDir tempDir("/tmp");
+
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "disable_auditd=0\nrunning_mode=0\n");
+    tempDir.makeDirs("base/tmp/");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+            Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
+
+    Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(false);
+    ASSERT_EQ("disable_auditd=0\nrunning_mode=1\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
+}
