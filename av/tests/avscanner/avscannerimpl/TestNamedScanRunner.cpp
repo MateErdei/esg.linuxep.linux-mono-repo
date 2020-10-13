@@ -610,3 +610,27 @@ TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithFileNameExclusions) // NOLINT
 
     ASSERT_GE(socket->m_paths.size(), 1);
 }
+
+TEST_F(TestNamedScanRunner, TestNamedScanRunnerStopsAtExcludedDirectory) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::vector<std::string> rootExclusion;
+    rootExclusion.emplace_back("/");
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
+            message,
+            rootExclusion,
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
+
+    NamedScanRunner runner(scanConfigOut);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    ASSERT_FALSE(appenderContains("Excluding directory: /tmp/"));
+}

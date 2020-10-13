@@ -164,7 +164,7 @@ int NamedScanRunner::run()
         if (mp->isSpecial())
         {
             excludedMountPoints.emplace_back(mp->mountPoint());
-            LOGINFO("Excluding: " << mp->mountPoint());
+            LOGINFO("Excluding mount point: " << mp->mountPoint());
         }
     }
 

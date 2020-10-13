@@ -30,6 +30,7 @@
                 <filePath>/var/</filePath>
                 <filePath>/directory_excluded/</filePath>
                 <filePath>/file_excluded</filePath>
+                <filePath>/eicar.com</filePath>
                 <filePath>/SophosPackages/</filePath>
             </filePathSet>
         </posixExclusions>

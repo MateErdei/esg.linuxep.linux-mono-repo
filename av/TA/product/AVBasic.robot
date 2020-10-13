@@ -124,20 +124,24 @@ Scheduled Scan Configuration Is Correct
     ${result} =   Terminate Process  ${handle}
 
 
-Scan Now Excludes Files As Expected
+Scan Now Excludes Files And Directories As Expected
     Create Directory  /directory_excluded/
     Create Directory  /file_excluded/
 
-    Create File  /directory_excluded/eicar.com    ${EICAR_STRING}
-    Create File  /file_excluded/eicar.com         ${EICAR_STRING}
+    Create File  /eicar.com                     ${EICAR_STRING}
+    Create File  /directory_excluded/eicar.com  ${EICAR_STRING}
+    Create File  /file_excluded/eicar.com       ${EICAR_STRING}
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
     Run Scan Now Scan For Excluded Files Test
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
 
+    File Log Contains             ${AV_PLUGIN_PATH}/log/Scan Now.log        Excluding file: /eicar.com
+    File Log Contains             ${AV_PLUGIN_PATH}/log/Scan Now.log        "/file_excluded/eicar.com" is infected with EICAR-AV-Test
+    File Log Contains             ${AV_PLUGIN_PATH}/log/Scan Now.log        Excluding directory: /directory_excluded/
     File Log Should Not Contain   ${AV_PLUGIN_PATH}/log/Scan Now.log        "/directory_excluded/eicar.com" is infected with EICAR-AV-Test
-    File Log Contains           ${AV_PLUGIN_PATH}/log/Scan Now.log        "/file_excluded/eicar.com" is infected with EICAR-AV-Test
+    File Log Should Not Contain   ${AV_PLUGIN_PATH}/log/Scan Now.log        Excluding file: /directory_excluded/eicar.com
 
     ${result} =   Terminate Process  ${handle}
 
