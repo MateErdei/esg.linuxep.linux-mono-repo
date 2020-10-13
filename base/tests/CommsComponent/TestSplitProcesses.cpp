@@ -232,6 +232,8 @@ TEST_F(TestSplitProcesses, ParentIsNotifiedIfChildAbort) // NOLINT
 {
     MAYSKIP;
     testing::FLAGS_gtest_death_test_style = "threadsafe";
+    //If this unit test has been fixed to become less flakey please remove the debug log lines
+    //Tests::OutputToLog::writeToUnitTestLog(<log message>);
     ASSERT_EXIT(
             {
                 setupAfterSkipIfNotRoot();
