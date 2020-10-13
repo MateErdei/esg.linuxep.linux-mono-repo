@@ -37,82 +37,23 @@ namespace
         )
                 : BaseFileWalkCallbacks(std::move(scanner))
                 , m_mountExclusions(std::move(mountExclusions))
-                , m_cmdExclusions(std::move(cmdExclusions))
         {
             m_currentExclusions.reserve(m_mountExclusions.size());
+            m_cmdExclusions = std::move(cmdExclusions);
         }
 
-        void processFile(const fs::path& p, bool symlinkTarget) override
+        void logScanningLine(std::string escapedPath) override
         {
-            if (symlinkTarget)
-            {
-                fs::path symlinkTargetPath = p;
-                if (fs::is_symlink(fs::symlink_status(p)))
-                {
-                    symlinkTargetPath = fs::read_symlink(p);
-                }
-                for (const auto& e : m_mountExclusions)
-                {
-
-                    if (PathUtils::startswith(symlinkTargetPath, e))
-                    {
-                        LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is on excluded mount point: " << e);
-                        return;
-                    }
-                }
-            }
-
-            std::string escapedPath(p);
-            common::escapeControlCharacters(escapedPath);
-
-            for (const auto& exclusion : m_cmdExclusions)
-            {
-                if (exclusion.appliesToPath(p))
-                {
-                    LOGINFO("Excluding file: " << escapedPath);
-                    return;
-                }
-            }
-
             LOGINFO("Scanning " << escapedPath);
-
-            try
-            {
-                m_scanner.scan(p, symlinkTarget);
-            }
-            catch (const std::exception& e)
-            {
-                m_returnCode = E_GENERIC_FAILURE;
-                throw AbortScanException(e.what());
-            }
         }
 
-        bool includeDirectory(const sophos_filesystem::path& p) override
+        void genericFailure(const std::exception& e, std::string escapedPath) override
         {
-            for (auto & exclusion : m_currentExclusions)
-            {
-                if (PathUtils::startswith(p, exclusion))
-                {
-                    return false;
-                }
-            }
-
-            return !cmdExclusionCheck(p);
+            LOGERROR("Failed to scan" << escapedPath << " [" << e.what() << "]");
+            m_returnCode = E_GENERIC_FAILURE;
+            throw AbortScanException(e.what());
         }
 
-        bool cmdExclusionCheck(const sophos_filesystem::path& p) override
-        {
-            for (const auto& exclusion : m_cmdExclusions)
-            {
-                if (exclusion.appliesToPath(PathUtils::appendForwardSlashToPath(p), true))
-                {
-                    LOGINFO("Excluding directory: " << PathUtils::appendForwardSlashToPath(p));
-                    return true;
-                }
-            }
-
-            return false;
-        }
 
         void setCurrentInclude(const fs::path& inclusionPath)
         {
@@ -129,8 +70,6 @@ namespace
 
     private:
         std::vector<fs::path> m_mountExclusions;
-        std::vector<fs::path> m_currentExclusions;
-        std::vector<Exclusion> m_cmdExclusions;
     };
 }
 

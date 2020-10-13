@@ -46,79 +46,29 @@ namespace
                 avscanner::mountinfo::IMountPointSharedVector allMountPoints
                 )
                 : BaseFileWalkCallbacks(std::move(scanner))
-                , m_mountExclusions(std::move(mountExclusions))
                 , m_config(config)
                 , m_allMountPoints(std::move(allMountPoints))
-        {}
-
-        void processFile(const sophos_filesystem::path& p, bool symlinkTarget) override
         {
-            if (symlinkTarget)
+            m_cmdExclusions = m_config.m_excludePaths;
+
+            for (const auto &mountExclusion: mountExclusions)
             {
-                for (const auto& e : m_mountExclusions)
-                {
-                    if (PathUtils::startswith(p, e))
-                    {
-                        LOGINFO("Skipping the scanning of symlink target (" << p << ") which is on excluded mount point: " << e);
-                        return;
-                    }
-                }
+                m_currentExclusions.emplace_back(mountExclusion);
             }
+        }
 
-            std::string escapedPath(p);
-            common::escapeControlCharacters(escapedPath);
-
-            for (const auto& exclusion : m_config.m_excludePaths)
-            {
-                if (exclusion.appliesToPath(p))
-                {
-                    LOGINFO("Excluding file: " << escapedPath);
-                    return;
-                }
-            }
-
+        void logScanningLine(std::string escapedPath) override
+        {
             LOGDEBUG("Scanning " << escapedPath);
-
-            try
-            {
-                m_scanner.scan(p, symlinkTarget);
-            }
-            catch (const std::exception& e)
-            {
-                LOGERROR("Failed to scan" << escapedPath << " [" << e.what() << "]");
-                m_returnCode = E_GENERIC_FAILURE;
-            }
         }
 
-        bool includeDirectory(const sophos_filesystem::path& p) override
+        void genericFailure(const std::exception& e, std::string escapedPath) override
         {
-            for (const auto& mp : m_allMountPoints)
-            {
-                if (!PathUtils::longer(p, mp->mountPoint()) &&
-                    PathUtils::startswith(p, mp->mountPoint()))
-                {
-                    return false;
-                }
-            }
-
-            return !cmdExclusionCheck(p);
-        }
-
-        bool cmdExclusionCheck(const sophos_filesystem::path& p) override
-        {
-            for (const auto& exclusion : m_config.m_excludePaths)
-            {
-                if (exclusion.appliesToPath(PathUtils::appendForwardSlashToPath(p), true))
-                {
-                    LOGINFO("Excluding directory: " << PathUtils::appendForwardSlashToPath(p));
-                    return true;
-                }
-            }
-            return false;
+            LOGERROR("Failed to scan" << escapedPath << " [" << e.what() << "]");
+            m_returnCode = E_GENERIC_FAILURE;
         }
 
     private:
-        std::vector<fs::path> m_mountExclusions;
         NamedScanConfig& m_config;
         avscanner::mountinfo::IMountPointSharedVector m_allMountPoints;
     };

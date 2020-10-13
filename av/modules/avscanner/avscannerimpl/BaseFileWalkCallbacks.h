@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <filewalker/IFileWalkCallbacks.h>
 #include "ScanClient.h"
+#include "PathUtils.h"
 
 namespace avscanner::avscannerimpl
 {
@@ -22,13 +23,21 @@ namespace avscanner::avscannerimpl
     {
     protected:
         explicit BaseFileWalkCallbacks(ScanClient scanner);
+        virtual void logScanningLine(std::string escapedPath) = 0;
+        virtual void genericFailure(const std::exception& e, std::string escapedPath) = 0;
         ScanClient m_scanner;
+        std::vector<Exclusion>   m_currentExclusions;
+        std::vector<Exclusion>  m_cmdExclusions;
         int m_returnCode = E_CLEAN;
 
     public:
         BaseFileWalkCallbacks(const BaseFileWalkCallbacks&) = delete;
         BaseFileWalkCallbacks(BaseFileWalkCallbacks&&) = delete;
         virtual ~BaseFileWalkCallbacks() = default;
+
+        void processFile(const fs::path &path, bool symlinkTarget) override;
+        bool includeDirectory(const sophos_filesystem::path &path) override;
+        bool cmdExclusionCheck(const sophos_filesystem::path &path) override;
 
         [[nodiscard]] int returnCode() const
         {
