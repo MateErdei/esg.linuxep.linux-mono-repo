@@ -17,7 +17,10 @@
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
             <development-version branch="develop"/>
-            <include artifact-path="output" dest-dir="sspl-mdr-componentsuite"/>
+            <include artifact-path="output/SDDS-SSPL-DBOS-COMPONENT" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT"/>
+            <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT"/>
+            <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
+            <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
             <development-version branch="develop"/>
