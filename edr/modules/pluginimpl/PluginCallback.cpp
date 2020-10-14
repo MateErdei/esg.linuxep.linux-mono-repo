@@ -9,6 +9,7 @@ Copyright 2018-2019 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "Telemetry.h"
 #include "TelemetryConsts.h"
+#include "PluginUtils.h"
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
@@ -77,6 +78,17 @@ namespace Plugin
         {
             telemetry.set(plugin::version, version.value());
         }
+        bool isXDR;
+        try
+        {
+            isXDR = Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile();
+        }
+        catch (const std::runtime_error& ex)
+        {
+            // not set in plugin.conf default to false
+            isXDR = false;
+        }
+        telemetry.set(plugin::telemetryIsXdrEnabled, isXDR);
 
         std::optional<unsigned long> osqueryDatabaseSize = plugin::getOsqueryDatabaseSize();
         if (osqueryDatabaseSize)
