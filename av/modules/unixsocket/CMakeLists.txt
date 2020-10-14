@@ -20,8 +20,8 @@ add_library(unixsocket SHARED
         threatDetectorSocket/ScanningServerConnectionThread.h
         threatDetectorSocket/ScanningServerSocket.cpp
         threatDetectorSocket/ScanningServerSocket.h
-        threatDetectorSocket/SigURS1Monitor.cpp
-        threatDetectorSocket/SigURS1Monitor.h
+        threatDetectorSocket/SigUSR1Monitor.cpp
+        threatDetectorSocket/SigUSR1Monitor.h
         threatReporterSocket/ThreatReporterServerSocket.cpp
         threatReporterSocket/ThreatReporterServerSocket.h
         threatReporterSocket/ThreatReporterServerConnectionThread.cpp

@@ -4,17 +4,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "SigURS1Monitor.h"
+#include "SigUSR1Monitor.h"
 
 #include "../Logger.h"
 
 #include <csignal>
 
-int unixsocket::SigURS1Monitor::monitorFd()
+int unixsocket::SigUSR1Monitor::monitorFd()
 {
     return m_pipe.readFd();
 }
-void unixsocket::SigURS1Monitor::triggered()
+void unixsocket::SigUSR1Monitor::triggered()
 {
     while (m_pipe.notified())
     {
@@ -42,7 +42,7 @@ static void signal_handler(int)
     }
 }
 
-unixsocket::SigURS1Monitor::SigURS1Monitor(unixsocket::IReloadablePtr reloadable)
+unixsocket::SigUSR1Monitor::SigUSR1Monitor(unixsocket::IReloadablePtr reloadable)
     : m_reloader(std::move(reloadable))
 {
     // Setup signal handler
@@ -57,7 +57,7 @@ unixsocket::SigURS1Monitor::SigURS1Monitor(unixsocket::IReloadablePtr reloadable
     GL_USR1_MONITOR_PIPE = m_pipe.writeFd();
 }
 
-unixsocket::SigURS1Monitor::~SigURS1Monitor()
+unixsocket::SigUSR1Monitor::~SigUSR1Monitor()
 {
     // clear signal handler
     GL_USR1_MONITOR_PIPE = -1;

@@ -20,13 +20,13 @@ namespace unixsocket
     };
     using IReloadablePtr = std::shared_ptr<IReloadable>;
 
-    class SigURS1Monitor : public IMonitorable
+    class SigUSR1Monitor : public IMonitorable
     {
     public:
-        SigURS1Monitor() = delete;
-        SigURS1Monitor(const SigURS1Monitor&) = delete;
-        explicit SigURS1Monitor(IReloadablePtr reloadable);
-        ~SigURS1Monitor() override;
+        SigUSR1Monitor() = delete;
+        SigUSR1Monitor(const SigUSR1Monitor&) = delete;
+        explicit SigUSR1Monitor(IReloadablePtr reloadable);
+        ~SigUSR1Monitor() override;
 
         int monitorFd() override;
         void triggered() override;

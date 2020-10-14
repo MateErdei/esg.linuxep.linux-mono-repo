@@ -6,12 +6,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
-#include "unixsocket/threatDetectorSocket/SigURS1Monitor.h"
+#include "unixsocket/threatDetectorSocket/SigUSR1Monitor.h"
 
 #include <gtest/gtest.h>
 
-#include <sys/types.h>
 #include <csignal>
+
+#include <sys/types.h>
 
 /* According to POSIX.1-2001, POSIX.1-2008 */
 #include <sys/select.h>
@@ -40,13 +41,13 @@ namespace
 TEST_F(TestSigUSR1Monitor, testConstruction) // NOLINT
 {
     auto reloadable = std::make_shared<FakeReloadable>();
-    unixsocket::SigURS1Monitor monitor(reloadable);
+    unixsocket::SigUSR1Monitor monitor(reloadable);
 }
 
 TEST_F(TestSigUSR1Monitor, testSignal) // NOLINT
 {
     auto reloadable = std::make_shared<FakeReloadable>();
-    unixsocket::SigURS1Monitor monitor(reloadable);
+    unixsocket::SigUSR1Monitor monitor(reloadable);
     ::kill(::getpid(), SIGUSR1);
     // notify pipe not exposed so need to check the fd
     int readFd = monitor.monitorFd();
@@ -68,7 +69,7 @@ TEST_F(TestSigUSR1Monitor, testSignal) // NOLINT
 TEST_F(TestSigUSR1Monitor, triggerCallsReload) // NOLINT
 {
     auto reloadable = std::make_shared<FakeReloadable>();
-    unixsocket::SigURS1Monitor monitor(reloadable);
+    unixsocket::SigUSR1Monitor monitor(reloadable);
     monitor.triggered();
     EXPECT_EQ(reloadable->m_reloadCount, 1);
 }
