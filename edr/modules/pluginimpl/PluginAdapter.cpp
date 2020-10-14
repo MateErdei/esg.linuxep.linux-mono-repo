@@ -425,8 +425,7 @@ namespace Plugin
     void PluginAdapter::changeFlagSettings(bool isXDR)
     {
         Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(isXDR);
-        m_isXDR = isXDR;
-        //TODO LINUXDAR-2293 restart edr/osquery
+        m_queueTask->pushStop();
     }
     std::string PluginAdapter::waitForTheFirstALCPolicy(
         QueueTask& queueTask,
