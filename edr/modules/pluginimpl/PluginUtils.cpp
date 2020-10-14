@@ -26,7 +26,7 @@ namespace Plugin
 
             if (j.find(m_xdrFlag) != j.end())
             {
-                if (j[m_xdrFlag] == "true")
+                if (j[m_xdrFlag] == true)
                 {
                     isXDR = true;
                 }

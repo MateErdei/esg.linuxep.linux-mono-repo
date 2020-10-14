@@ -112,7 +112,22 @@ namespace Plugin
         processALCPolicy(alcPolicy, true);
         LOGSUPPORT("Cleanup Old Osquery Files");
         cleanUpOldOsqueryFiles();
-        m_isXDR = Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile();
+        try
+        {
+            m_isXDR = Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile();
+        }
+        catch (const std::runtime_error& ex)
+        {
+            m_isXDR = false;
+        }
+        if (m_isXDR)
+        {
+            LOGINFO("Flags running mode is XDR");
+        }
+        else
+        {
+            LOGINFO("Flags running mode is EDR");
+        }
         LOGSUPPORT("Start Osquery");
         setUpOsqueryMonitor();
 
@@ -384,11 +399,11 @@ namespace Plugin
         bool isXDR = Plugin::PluginUtils::isRunningModeXDR(flagsContent);
         if (isXDR)
         {
-            LOGINFO("Flags running mode is XDR");
+            LOGSUPPORT("Flags running mode in policy is XDR");
         }
         else
         {
-            LOGINFO("Flags running mode is EDR");
+            LOGSUPPORT("Flags running mode in policy is EDR");
         }
 
         try

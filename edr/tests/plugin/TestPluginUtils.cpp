@@ -15,13 +15,13 @@ class TestPluginUtils: public LogOffInitializedTests{};
 
 TEST_F(TestPluginUtils, testgetRunningModeFromFlagContentwhenIsXDR)
 {
-    std::string content = R"({"xdr.enabled" : "true"})";
+    std::string content = R"({"xdr.enabled" : true})";
     ASSERT_EQ(true,Plugin::PluginUtils::isRunningModeXDR(content));
 }
 
 TEST_F(TestPluginUtils, testgetRunningModeFromFlagContentwhenIsNotXDR)
 {
-    std::string content = R"({"xdr.enabled" : "false"})";
+    std::string content = R"({"xdr.enabled" : false})";
     ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR(content));
 }
 
@@ -29,9 +29,9 @@ TEST_F(TestPluginUtils, testgetRunningModeFromFlagContentwhenInvalidJson)
 {
     ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR("{}"));
     ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR("}"));
-    std::string content = R"({xdr.enabled : "true"})";
+    std::string content = R"({xdr.enabled : true})";
     ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR(content));
-    std::string content1 = R"({"xdr.enabled" : true})";
+    std::string content1 = R"({"xdr.enabled" : "true"})";
     ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR(content1));
 }
 
