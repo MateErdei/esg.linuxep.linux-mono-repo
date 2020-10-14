@@ -46,7 +46,7 @@ GROUP_NAME=root
 
 function is_already_installed()
 {
-    [[ -d "$SOPHOS_INSTALL/plugins/${PLUGIN_NAME}/log" ]]
+    [[ -f "$SOPHOS_INSTALL/plugins/${PLUGIN_NAME}/bin/edr" ]]
 }
 
 [[ -d $SOPHOS_INSTALL ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
