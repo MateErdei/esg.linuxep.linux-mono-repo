@@ -260,7 +260,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
-
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "edr" not in registry
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
