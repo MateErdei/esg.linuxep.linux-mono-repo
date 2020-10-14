@@ -72,7 +72,8 @@ int main(int argc, char* argv[])
 
         return E_BAD_OPTION;
     }
-    catch (const std::exception& e) {
+    catch (const std::exception& e)
+    {
         PRINT("Command Line Scanner failed: " << e.what());
 
         return E_GENERAL_ERROR;

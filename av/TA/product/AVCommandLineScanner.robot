@@ -97,7 +97,6 @@ CLS Can Scan Clean File
 
 
 CLS Does Not Ordinarily Output To Stderr
-
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file 1>/dev/null
 
@@ -115,6 +114,18 @@ CLS Can Scan Infected File
    Log To Console  output is ${output}
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${NORMAL_DIRECTORY}/naugthy_eicar"
+
+
+CLS Summary is Correct
+   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+   Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar ${NORMAL_DIRECTORY}/clean_file
+
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+   Should Contain   ${output}  2 file(s) scanned in
+   Should Contain   ${output}  1 file(s) out of 2 was infected.
+   Should Contain   ${output}  1 threat(s) of type EICAR-AV-Test discovered.
+
 
 CLS Can Scan Archive File
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir

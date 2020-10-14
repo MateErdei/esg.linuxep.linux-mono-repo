@@ -36,6 +36,8 @@ namespace
         MOCK_METHOD1(cleanFile, void(const path&));
         MOCK_METHOD3(infectedFile, void(const path&, const std::string&, bool isSymlink));
         MOCK_METHOD1(scanError, void(const std::string&));
+        MOCK_METHOD0(scanStarted, void());
+        MOCK_METHOD0(logSummary, void());
     };
 }
 
@@ -61,7 +63,6 @@ TEST(TestScanClient, TestScanEtcPasswd) // NOLINT
 {
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.addDetection("/etc/passwd", "");
 
     EXPECT_CALL(mock_socket, scan(_,_))
         .Times(1)

@@ -12,13 +12,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 #include "scan_messages/ThreatDetected.h"
 
-#include <chrono>
-
 using namespace scan_messages;
 namespace avscanner::avscannerimpl
 {
     using path = sophos_filesystem::path;
-    using timestamp = std::chrono::time_point<std::chrono::system_clock>;
 
     class IScanCallbacks
     {
@@ -27,22 +24,8 @@ namespace avscanner::avscannerimpl
         virtual void cleanFile(const path&) = 0;
         virtual void infectedFile(const path&, const std::string& threatName, bool isSymlink) = 0;
         virtual void scanError(const std::string&) = 0;
-        void scanStarted() { m_startTime = std::chrono::system_clock::now(); }
+        virtual void scanStarted() = 0;
         virtual void logSummary() = 0;
-
-    protected:
-        [[nodiscard]] timestamp getStartTime() { return m_startTime; };
-        [[nodiscard]] int getNoOfInfectedFiles() { return m_noOfInfectedFiles; };
-        [[nodiscard]] int getNoOfCleanFiles() { return m_noOfCleanFiles; };
-        [[nodiscard]] int getNoOfScannedFiles() { return m_noOfCleanFiles + m_noOfInfectedFiles; };
-        void incrementInfectedCount() { m_noOfInfectedFiles++; };
-        void incrementCleanCount() { m_noOfCleanFiles++; };
-
-    private:
-        int m_noOfInfectedFiles = 0;
-        int m_noOfCleanFiles = 0;
-        timestamp m_startTime;
-
     };
 
     class ScanClient

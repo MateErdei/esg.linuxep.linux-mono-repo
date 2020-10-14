@@ -18,14 +18,14 @@ void ScanCallbackImpl::cleanFile(const path&)
     incrementCleanCount();
 }
 
-void ScanCallbackImpl::infectedFile(const path& p, const std::string& threatName, bool isSymlink)
+void ScanCallbackImpl::infectedFile(const path& path, const std::string& threatName, bool isSymlink)
 {
-    std::string escapedPath(p);
+    std::string escapedPath(path);
     common::escapeControlCharacters(escapedPath);
 
     if (isSymlink)
     {
-        std::string escapedTargetPath(fs::canonical(p));
+        std::string escapedTargetPath(fs::canonical(path));
         common::escapeControlCharacters(escapedTargetPath);
         LOGWARN("Detected \"" << escapedPath << "\" (symlinked to " << escapedTargetPath << ") is infected with " << threatName);
     }
@@ -34,6 +34,7 @@ void ScanCallbackImpl::infectedFile(const path& p, const std::string& threatName
         LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName);
     }
 
+    addThreat(threatName);
     incrementInfectedCount();
     m_returnCode = E_VIRUS_FOUND;
 }
@@ -45,15 +46,18 @@ void ScanCallbackImpl::scanError(const std::string& errorMsg)
 
 void ScanCallbackImpl::logSummary()
 {
-    auto endTime = std::chrono::system_clock::now();
-    std::chrono::duration<double> totalScanTime = endTime - getStartTime();
+    auto endTime = time(nullptr);
+    auto totalScanTime = endTime - getStartTime();
     std::ostringstream scanSummary;
 
-    scanSummary << std::endl;
-    scanSummary << getNoOfScannedFiles() << " file(s) scanned in " << totalScanTime.count()  << " seconds." << std::endl;
-    scanSummary << getNoOfInfectedFiles() << " threats discovered." << std::endl; //TODO count number of different threats?
+    scanSummary << "End of Scan Summary:" << std::endl;
+    scanSummary << getNoOfScannedFiles() << " file(s) scanned in " << static_cast<double>(totalScanTime) << " seconds." << std::endl;
     scanSummary << getNoOfInfectedFiles() << " file(s) out of " << getNoOfScannedFiles() << " was infected." << std::endl;
-    scanSummary << "End of Scan" << std::endl;
+
+    for (const auto& threatType : getThreatTypes())
+    {
+        scanSummary << threatType.second << " threat(s) of type " <<  threatType.first << " discovered." << std::endl;
+    }
 
     LOGINFO(scanSummary.str());
 }

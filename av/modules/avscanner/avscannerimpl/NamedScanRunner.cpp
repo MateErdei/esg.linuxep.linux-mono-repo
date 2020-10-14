@@ -19,6 +19,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <fstream>
 #include <set>
+#include <common/AbortScanException.h>
 
 using namespace avscanner::avscannerimpl;
 
@@ -127,6 +128,8 @@ int NamedScanRunner::run()
 
     std::set<std::string> mountsScanned;
 
+    scanCallbacks->scanStarted();
+
     // for each select included mount point call filewalker for that mount point
     for (auto & mp : includedMountpoints)
     {
@@ -146,6 +149,7 @@ int NamedScanRunner::run()
         }
         catch (sophos_filesystem::filesystem_error& e)
         {
+            LOGERROR("Failed to completely scan " << mountpointToScan << " due to an error: " << e.what());
             m_returnCode = e.code().value();
         }
 
@@ -154,6 +158,11 @@ int NamedScanRunner::run()
         {
             m_returnCode = E_VIRUS_FOUND;
         }
+    }
+
+    if (m_returnCode != E_CLEAN || m_returnCode != E_VIRUS_FOUND)
+    {
+        LOGERROR("Failed to scan one or more files due to an error");
     }
 
     scanCallbacks->logSummary();

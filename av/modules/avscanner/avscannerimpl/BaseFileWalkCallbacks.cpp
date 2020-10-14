@@ -51,7 +51,6 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
 
     try
     {
-        //TODO LINUXDAR-2214 add count
         m_scanner.scan(path, symlinkTarget);
     }
     catch (const std::exception& e)
