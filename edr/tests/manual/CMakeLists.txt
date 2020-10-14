@@ -105,4 +105,3 @@ install(TARGETS BinaryDataTable
         DESTINATION ../componenttests)
 
 
-
