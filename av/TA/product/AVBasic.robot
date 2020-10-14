@@ -145,8 +145,8 @@ Scan Now Excludes Files And Directories As Expected
     File Log Should Not Contain   ${SCANNOW_LOG_PATH}        Excluding file: /directory_excluded/eicar.com
 
     File Log Contains             ${SCANNOW_LOG_PATH}        End of Scan Summary:
-    File Log Contains             ${SCANNOW_LOG_PATH}        4 file(s) out of
-    File Log Contains             ${SCANNOW_LOG_PATH}        4 threat(s) of type EICAR-AV-Test discovered.
+    File Log Contains             ${SCANNOW_LOG_PATH}        1 file(s) out of
+    File Log Contains             ${SCANNOW_LOG_PATH}        1 threat(s) of type EICAR-AV-Test discovered.
 
     ${result} =   Terminate Process  ${handle}
 
