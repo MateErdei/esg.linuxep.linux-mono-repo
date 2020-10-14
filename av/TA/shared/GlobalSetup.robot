@@ -2,6 +2,8 @@
 
 Library         OperatingSystem
 Library         ../Libs/InstallSet.py
+Library         ../Libs/LogUtils.py
+Library         ../Libs/BaseUtils.py
 
 *** Variables ***
 ${COMPONENT}        av
@@ -33,13 +35,19 @@ Global Setup Tasks
     Set Global Variable  ${FAKEMANAGEMENT_AGENT_LOG_PATH}   ${SOPHOS_INSTALL}/fake_management_agent.log
     Set Global Variable  ${MANAGEMENT_AGENT_LOG_PATH}       ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Set Global Variable  ${MCS_PATH}                        ${SOPHOS_INSTALL}/base/mcs
+    Set Global Variable  ${AV_PLUGIN_PATH}                  ${COMPONENT_ROOT_PATH}
+    Set Global Variable  ${AV_LOG_PATH}                     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 
     Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}            UsingFakeAvScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false
 
     Create Install Set If Required
 
-
-
 Global Teardown Tasks
-    Run Keyword And Ignore Error  Remove Directory  ${SOPHOS_INSTALL}  recursive=True
+    Run Keyword And Ignore Error  Uninstall All
+
+Uninstall All
+    Run Keyword And Ignore Error  Log File    /tmp/installer.log
+    Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}
+    LogUtils.dump_watchdog_log
+    BaseUtils.uninstall_sspl_if_installed

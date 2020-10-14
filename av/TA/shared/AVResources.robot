@@ -202,12 +202,6 @@ Install With Base SDDS
     Set Log Level  DEBUG
     Install AV Directly from SDDS
 
-Uninstall All
-    Run Keyword And Ignore Error  Log File    /tmp/installer.log
-    Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}
-    LogUtils.dump_watchdog_log
-    BaseUtils.uninstall_sspl_if_installed
-
 Uninstall And Revert Setup
     Uninstall All
     Setup Base And Component

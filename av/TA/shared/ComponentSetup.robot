@@ -1,6 +1,7 @@
 *** Settings ***
 Library         Process
 Library         OperatingSystem
+Library         ../Libs/BaseUtils.py
 
 Resource    GlobalSetup.robot
 
@@ -26,9 +27,7 @@ Setup Base And Component
 
 
 Mock Base Installation
-    ${result} =  Run Process  bash  -x  ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
-    Log Many  stdout: ${result.stdout}	stderr: ${result.stderr}  rc: ${result.rc}
-    Remove Directory   ${SOPHOS_INSTALL}   recursive=True
+    Run Keyword And Ignore Error  BaseUtils.uninstall_sspl_if_installed
     Create Directory   ${SOPHOS_INSTALL}
     Create Directory   ${SOPHOS_INSTALL}/base/lib64
     Create Directory   ${SOPHOS_INSTALL}/base/mcs/action
