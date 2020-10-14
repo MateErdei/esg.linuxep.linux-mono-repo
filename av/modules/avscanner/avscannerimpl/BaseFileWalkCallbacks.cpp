@@ -12,10 +12,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace avscanner::avscannerimpl;
 
 BaseFileWalkCallbacks::BaseFileWalkCallbacks(ScanClient scanner)
-        : m_scanner(std::move(scanner)) {
+        : m_scanner(std::move(scanner))
+{
 }
 
-void BaseFileWalkCallbacks::processFile(const fs::path &path, bool symlinkTarget)
+void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget)
 {
     if (symlinkTarget)
     {
@@ -24,7 +25,7 @@ void BaseFileWalkCallbacks::processFile(const fs::path &path, bool symlinkTarget
         {
             symlinkTargetPath = fs::read_symlink(path);
         }
-        for (const auto &e : m_mountExclusions)
+        for (const auto& e : m_mountExclusions)
         {
             if (PathUtils::startswith(symlinkTargetPath, e))
             {
@@ -37,7 +38,7 @@ void BaseFileWalkCallbacks::processFile(const fs::path &path, bool symlinkTarget
     std::string escapedPath(path);
     common::escapeControlCharacters(escapedPath);
 
-    for (const auto &exclusion: m_userDefinedExclusions)
+    for (const auto& exclusion: m_userDefinedExclusions)
     {
         if (exclusion.appliesToPath(path))
         {
@@ -52,15 +53,15 @@ void BaseFileWalkCallbacks::processFile(const fs::path &path, bool symlinkTarget
     {
         m_scanner.scan(path, symlinkTarget);
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         genericFailure(e, escapedPath);
     }
 }
 
-bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path &path)
+bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path)
 {
-    for (const auto &exclusion: m_currentExclusions)
+    for (const auto& exclusion: m_currentExclusions)
     {
         if (PathUtils::startswith(path, exclusion.path()))
         {
@@ -70,9 +71,9 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path &path
     return !userDefinedExclusionCheck(path);
 }
 
-bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::path &path)
+bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::path& path)
 {
-    for (const auto &exclusion: m_userDefinedExclusions)
+    for (const auto& exclusion: m_userDefinedExclusions)
     {
         if (exclusion.appliesToPath(PathUtils::appendForwardSlashToPath(path), true))
         {

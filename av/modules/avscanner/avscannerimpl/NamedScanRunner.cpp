@@ -53,7 +53,7 @@ namespace
 
             // These should always be the same because we scan all mount points on a Named Scan, but not on a Command Line Scan
             m_mountExclusions = move(mountExclusions);
-            for (const auto &mountExclusion: m_mountExclusions)
+            for (const auto& mountExclusion: m_mountExclusions)
             {
                 m_currentExclusions.emplace_back(mountExclusion);
             }
@@ -80,7 +80,7 @@ avscanner::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountp
     const avscanner::mountinfo::IMountPointSharedVector& allMountpoints)
 {
     avscanner::mountinfo::IMountPointSharedVector includedMountpoints;
-    for (const auto & mp : allMountpoints)
+    for (const auto& mp : allMountpoints)
     {
         if ((mp->isHardDisc() && m_config.m_scanHardDisc) ||
             (mp->isNetwork() && m_config.m_scanNetwork) ||

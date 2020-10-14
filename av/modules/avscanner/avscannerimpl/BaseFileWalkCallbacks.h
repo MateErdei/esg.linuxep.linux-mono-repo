@@ -37,9 +37,9 @@ namespace avscanner::avscannerimpl
         BaseFileWalkCallbacks(BaseFileWalkCallbacks&&) = delete;
         virtual ~BaseFileWalkCallbacks() = default;
 
-        void processFile(const fs::path &path, bool symlinkTarget) override;
-        bool includeDirectory(const sophos_filesystem::path &path) override;
-        bool userDefinedExclusionCheck(const sophos_filesystem::path &path) override;
+        void processFile(const fs::path& path, bool symlinkTarget) override;
+        bool includeDirectory(const sophos_filesystem::path& path) override;
+        bool userDefinedExclusionCheck(const sophos_filesystem::path& path) override;
 
         [[nodiscard]] int returnCode() const
         {
