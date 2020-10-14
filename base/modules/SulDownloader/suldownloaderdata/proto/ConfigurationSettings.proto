@@ -57,6 +57,14 @@ message ConfigurationSettings
     repeated Subscription products = 15;
     repeated string features = 16;
 
+    /**
+        Configures SulDownloader to download from slow supplements, where such a choice is available.
+     */
     optional bool useSlowSupplements = 17 [default=false];
+
+    /**
+       Configures SulDownloader to download only changes to supplements
+     */
+    optional bool supplementOnly = 18 [default=false];
 
 }

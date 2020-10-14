@@ -320,6 +320,23 @@ namespace SulDownloader
              */
             [[nodiscard]] bool getUseSlowSupplements() const;
 
+
+            /**
+             * Set whether to download supplements only, or product updates as well as supplements.
+             *
+             * https://jira.sophos.net/browse/LINUXDAR-2093
+             * https://wiki.sophos.net/display/SL/Outside+in+-+Scheduled+and+Suspended
+             *
+             * @param supplementOnly
+             */
+            void setSupplementOnly(bool supplementOnly);
+
+            /**
+             * Get whether to download supplements only, or product updates as well as supplements.
+             * @return
+             */
+            [[nodiscard]] bool getSupplementOnly() const;
+
             /**
              * Used to verify all required settings stored in the ConfigurationData object
              * @test sophosUpdateUrls list is not empty
@@ -393,6 +410,7 @@ namespace SulDownloader
             std::vector<std::string> m_manifestNames;
             std::vector<std::string> m_optionalManifestNames;
             bool m_useSlowSupplements = false;
+            bool m_supplementOnly = false;
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader

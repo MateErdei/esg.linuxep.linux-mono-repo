@@ -465,6 +465,8 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     configurationData.setOptionalManifestNames(optionalManifestnames);
 
+    configurationData.setUseSlowSupplements(settings.useslowsupplements());
+
     return configurationData;
 }
 
@@ -592,12 +594,14 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
         settings.set_loglevel(::SulDownloaderProto::ConfigurationSettings_LogLevelOption_VERBOSE);
     }
 
-    for (auto& manifestName : configurationData.getManifestNames())
+    for (const auto& manifestName : configurationData.getManifestNames())
     {
         settings.add_manifestnames(manifestName);
     }
 
-    for (auto& optionalManifestName : configurationData.getOptionalManifestNames())
+    settings.set_useslowsupplements(configurationData.getUseSlowSupplements());
+
+    for (const auto& optionalManifestName : configurationData.getOptionalManifestNames())
     {
         settings.add_optionalmanifestnames(optionalManifestName);
     }
@@ -635,7 +639,7 @@ const std::vector<std::string>& ConfigurationData::getFeatures() const
     return m_features;
 }
 
-const std::string ProductSubscription::toString() const
+std::string ProductSubscription::toString() const
 {
     std::stringstream s;
     s << "name = " << m_rigidName << " baseversion = " << m_baseVersion << " tag = " << m_tag
@@ -679,4 +683,24 @@ std::optional<Proxy> ConfigurationData::proxyFromSavedProxyUrl(const std::string
     // not logging proxy here in-case it contains username and passwords.
     LOGWARN("Proxy URL not in expected format.");
     return std::nullopt;
+}
+
+void ConfigurationData::setUseSlowSupplements(bool useSlowSupplements)
+{
+    m_useSlowSupplements = useSlowSupplements;
+}
+
+bool ConfigurationData::getUseSlowSupplements() const
+{
+    return m_useSlowSupplements;
+}
+
+void ConfigurationData::setSupplementOnly(bool supplementOnly)
+{
+    m_supplementOnly = supplementOnly;
+}
+
+bool ConfigurationData::getSupplementOnly() const
+{
+    return m_supplementOnly;
 }

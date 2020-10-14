@@ -194,7 +194,18 @@ namespace SulDownloader
                 continue;
             }
 
-            if (!SULUtils::isSuccess(SU_readRemoteMetadata(warehouse->session())))
+            SU_Result ret = SU_Result_invalid;
+
+            if (configurationData.getSupplementOnly())
+            {
+                ret = SU_readLocalMetadata(warehouse->session());
+            }
+            else
+            {
+                ret = SU_readRemoteMetadata(warehouse->session());
+            }
+
+            if (!SULUtils::isSuccess(ret))
             {
                 SULUtils::displayLogs(warehouse->session(), sulLogs);
                 LOGINFO("Failed to connect to: " << warehouse->m_connectionSetup->toString());
@@ -214,6 +225,8 @@ namespace SulDownloader
 
             // store values from configuration data for later use.
             warehouse->setRootDistributionPath(configurationData.getLocalDistributionRepository());
+
+            warehouse->m_supplementOnly = configurationData.getSupplementOnly();
 
             return warehouse;
         }
@@ -313,7 +326,17 @@ namespace SulDownloader
             }
         }
 
-        if (!SULUtils::isSuccess(SU_synchronise(session())))
+        SU_Result ret = SU_Result_invalid;
+        if (m_supplementOnly)
+        {
+            ret = SU_synchroniseSupplements(session());
+        }
+        else
+        {
+            ret = SU_synchronise(session());
+        }
+
+        if (!SULUtils::isSuccess(ret))
         {
             LOGERROR("Failed to synchronise warehouse");
             setError("Failed to Sync warehouse");
@@ -532,7 +555,7 @@ namespace SulDownloader
             return;
         }
 
-        auto& updateLocation = connectionSetup.getUpdateLocationURL();
+        const auto& updateLocation = connectionSetup.getUpdateLocationURL();
         if (!SULUtils::isSuccess(SU_addSophosLocation(session(), updateLocation.c_str())))
         {
             LOGSUPPORT("Adding Sophos update location failed: " << updateLocation);

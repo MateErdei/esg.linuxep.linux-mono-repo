@@ -59,7 +59,7 @@ namespace SulDownloader
          * attempted Upon a successful connection, the metadata will be fetched from the remote Warehouse and a
          * configured WarehouseRepository will be returned.
          *
-         * If no connection can be stablished ( for all the possible options of connection) a pointer to the
+         * If no connection can be established ( for all the possible options of connection) a pointer to the
          * WarehouseRepository will be returned with ::hasError returning true. (This is to allow DownloadReport to be
          * created).
          *
@@ -166,6 +166,7 @@ namespace SulDownloader
         std::string m_rootDistributionPath;
         suldownloaderdata::CatalogueInfo m_catalogueInfo;
         std::vector<suldownloaderdata::SubscriptionInfo> m_selectedSubscriptions;
+        bool m_supplementOnly = false;
     };
 
 } // namespace SulDownloader
