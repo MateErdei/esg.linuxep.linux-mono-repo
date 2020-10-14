@@ -137,6 +137,17 @@ function waitForProcess()
     return 1
 }
 
+function waitForNamedPipeToBeCreated()
+{
+    for (( deadline = $SECONDS + 30; $SECONDS < $deadline; ))
+    do
+        [[ -p $1 ]] && return 0
+        sleep 1
+    done
+
+    return 1
+}
+
 # Check key files have been installed
 [[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/edr" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr executable failed to be installed"
 [[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr osquery executable failed to be installed"
@@ -148,13 +159,27 @@ function waitForProcess()
 waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/edr" || failure ${EXIT_FAIL_SERVICE} "EDR plugin not running"
 waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" || failure ${EXIT_FAIL_SERVICE} "EDR plugin not running"
 
-# copy syslog config into place and restart service if rsyslogd is installed after edr successfully running.
-# this will allow syslog events to be passed to edr osquery.
-if [[ -f /etc/rsyslog.conf ]]
+# Configure rsyslog to write into the named pipe created by osquery
+# Steps:
+# Wait for named pipe to be created
+# Copy rsyslog config which tells ryslog how to write into the named pipe
+# if SELinux is installed create rule to allow rsyslog to write into the named pipe
+# restart rsyslog to pick-up new configuration.
+
+waitForNamedPipeToBeCreated  "${SOPHOS_INSTALL}/shared/syslog_pipe"
+
+if [[ -d /etc/rsyslog.d/ ]]
 then
   cp ${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf /etc/rsyslog.d/
+
+  if [[ $(which getenforce) == 0 ]]
+  then
+    semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
+    restorecon -Fv /opt/sophos-spl/shared/syslog_pipe
+  fi
   systemctl restart rsyslog
 fi
+
 
 
 

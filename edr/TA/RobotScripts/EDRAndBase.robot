@@ -84,5 +84,13 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     ...  Check Osquery Running
 
     Should Exist  ${SOPHOS_INSTALL}/shared/syslog_pipe
-    Check Ownership  ${SOPHOS_INSTALL}/shared/syslog_pipe  root syslog
     File Should Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
+
+    # check rsyslog does not report error connecting to named pipe
+    ${result} =  Run Process  systemctl  status  rsyslog
+
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+
+    Should Contain  ${result.stdout}  active (running)
+    Should Not Contain  ${result.stdout}  Could not open output pipe '/opt/sophos-spl/shared/syslog_pipe'
