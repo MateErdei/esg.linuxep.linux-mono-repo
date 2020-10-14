@@ -91,6 +91,7 @@ Uninstall All
     Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
+    File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
 
 Uninstall And Revert Setup
     Uninstall All
