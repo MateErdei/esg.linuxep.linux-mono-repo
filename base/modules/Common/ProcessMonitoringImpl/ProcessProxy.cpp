@@ -164,7 +164,8 @@ namespace Common
                 else if (m_sharedState.m_enabled)
                 {
                     // Log if we weren't expecting the process to exit, even with a zero code
-                    LOGERROR(m_exe << " exited when not expected");
+                    // this can happen when the plugin stops itself eg when edr changes flags
+                    LOGINFO(m_exe << " exited");
                     // Process will be respawned automatically after a delay
                 }
 

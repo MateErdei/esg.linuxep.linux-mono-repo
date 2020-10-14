@@ -159,7 +159,7 @@ TEST_F(TestProcessProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     EXPECT_EQ(delay, std::chrono::seconds(10)); // Not starting for 10 seconds
 
     std::string errStd = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(errStd, ::testing::HasSubstr("/opt/sophos-spl/foobar exited when not expected"));
+    EXPECT_THAT(errStd, ::testing::HasSubstr("/opt/sophos-spl/foobar exited"));
 }
 
 TEST_F(TestProcessProxy, checkExpectedExitIsNotLogged) // NOLINT

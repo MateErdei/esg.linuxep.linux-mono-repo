@@ -92,9 +92,9 @@
             The customer dest-dir matches up against constants set in WarehouseUtils.lib
 -->
         <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="develop" />
+            <development-version branch="feature/menaga" />
             <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/vut/warehouse/customer" />
-            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse" />
+            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-menaga/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/Base-EDR-Only-OldWarehouseStyle" />

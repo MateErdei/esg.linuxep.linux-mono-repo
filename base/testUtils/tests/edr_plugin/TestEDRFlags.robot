@@ -43,8 +43,7 @@ Flags Are Only Sent To EDR and Not MTR
     Should Contain  ${contents}   running_mode=1
 
 EDR changes running mode when XDR enabled flags are sent
-
-    copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Should Be Equal As Strings  0  ${result.rc}
     Register With Fake Cloud
@@ -64,6 +63,25 @@ EDR changes running mode when XDR enabled flags are sent
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Should Contain  ${contents}   running_mode=0
     Should Not Contain  ${contents}   running_mode=1
+
+    Wait Until Keyword Succeeds
+    ...  10
+    ...  1
+    ...  Check EDR Log Contains  Plugin Finished.
+
+    Wait Until Keyword Succeeds
+    ...  25
+    ...  1
+    ...  Check Log Contains In Order
+            ...  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+            ...  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/edr/bin/edr exited
+            ...  ProcessMonitoringImpl <> Starting /opt/sophos-spl/plugins/edr/bin/edr
+
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   EDR Plugin Is Running
+
 *** Keywords ***
 EDR Test Setup
     Install EDR Directly
