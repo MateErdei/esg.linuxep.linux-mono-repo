@@ -65,17 +65,6 @@ Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
     ...  5 secs
     ...  Run Non-UTF8 Query
 
-
-*** Keywords ***
-Run Non-UTF8 Query
-    ${result} =  Run Process  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport  ${COMPONENT_ROOT_PATH}/var/osquery.sock  select '1\xfffd' as h;  shell=true
-
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
-
-    Should Contain  ${result.stdout}   "errorCode": 0
-
 EDR plugin Configures OSQuery To Enable SysLog Event Collection
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
@@ -94,3 +83,13 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
 
     Should Contain  ${result.stdout}  active (running)
     Should Not Contain  ${result.stdout}  Could not open output pipe '/opt/sophos-spl/shared/syslog_pipe'
+
+*** Keywords ***
+Run Non-UTF8 Query
+    ${result} =  Run Process  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport  ${COMPONENT_ROOT_PATH}/var/osquery.sock  select '1\xfffd' as h;  shell=true
+
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+    Should Contain  ${result.stdout}   "errorCode": 0
