@@ -79,6 +79,7 @@ Test Edr Plugin uninstalls cleanly
     Should Not Exist  ${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr
     Should Not Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
+    File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
 
 Test Edr Plugin downgrades properly with plugin conf
     [Tags]  EDR_PLUGIN   UNINSTALL   PLUGIN_DOWNGRADE
