@@ -202,7 +202,7 @@ TEST_F(TestProcessProxy, checkExpectedExitIsNotLogged) // NOLINT
     EXPECT_EQ(delay, std::chrono::hours(1)); // process has exited, so we
 
     std::string errStd = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(errStd, ::testing::Not(::testing::HasSubstr("/opt/sophos-spl/foobar exited when not expected")));
+    EXPECT_THAT(errStd, ::testing::Not(::testing::HasSubstr("/opt/sophos-spl/foobar exited")));
 }
 
 TEST_F(TestProcessProxy, checkDoesNotReportErrorWhenItIssuesKill) // NOLINT
@@ -248,7 +248,7 @@ TEST_F(TestProcessProxy, checkDoesNotReportErrorWhenItIssuesKill) // NOLINT
     EXPECT_EQ(delay, std::chrono::hours(1)); // process has exited, so we
 
     std::string errStd = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(errStd, ::testing::Not(::testing::HasSubstr("/opt/sophos-spl/foobar exited when not expected")));
+    EXPECT_THAT(errStd, ::testing::Not(::testing::HasSubstr("/opt/sophos-spl/foobar exited")));
     EXPECT_THAT(errStd, ::testing::Not(::testing::HasSubstr("died with")));
     EXPECT_THAT(errStd, ::testing::HasSubstr("killed after waiting for 3 seconds"));
 }

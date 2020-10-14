@@ -68,4 +68,4 @@ Check Watchdog Detect Broken Plugins
     # Check to ensure the broken plugin did not start
     Should Contain  ${WatchdogLog}  /opt/sophos-spl/testbrokenplugin.sh died
     # Additional Check to ensure the working test plugin started and run then exited.
-    Should Contain  ${WatchdogLog}  /opt/sophos-spl/testPlugin.sh exited when not expected
+    Should Contain  ${WatchdogLog}  /opt/sophos-spl/testPlugin.sh exited
