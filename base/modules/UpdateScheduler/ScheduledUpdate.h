@@ -6,6 +6,8 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "SulDownloader/suldownloaderdata/WeekDayAndTimeForDelay.h"
+
 #include <ctime>
 #include <string>
 
@@ -14,13 +16,8 @@ namespace UpdateScheduler
     class ScheduledUpdate
     {
     public:
-        struct WeekDayAndTimeForDelay
-        {
-            int weekDay;
-            int hour;
-            int minute;
-            // seconds is not used when setting up delayed updates
-        };
+        using WeekDayAndTimeForDelay = SulDownloader::suldownloaderdata::WeekDayAndTimeForDelay;
+
         ScheduledUpdate();
 
         // the offsetInMinutes must be a positive number as it simplifies the

@@ -38,7 +38,7 @@ add_library(suldownloaderdata SHARED
         VersigImpl.cpp
         VersigImpl.h
         CatalogueInfo.cpp
-        CatalogueInfo.h)
+        CatalogueInfo.h WeekDayAndTimeForDelay.h)
 
 target_link_libraries(suldownloaderdata PUBLIC filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl logging obfuscationimpl protobufutil)
 install(TARGETS suldownloaderdata
