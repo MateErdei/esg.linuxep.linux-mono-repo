@@ -455,8 +455,7 @@ then
 fi
 
 # create a directory which will be used by 3rd party applications with execute permissions for all.
-mkdir ${SOPHOS_INSTALL}/shared
-chmod +x ${SOPHOS_INSTALL}/shared
+makedir 711 ${SOPHOS_INSTALL}/shared
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
