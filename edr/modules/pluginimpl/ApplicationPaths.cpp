@@ -32,8 +32,8 @@ std::string Plugin::livequeryResponsePath()
     return Common::FileSystem::join(installPath, "base/mcs/response");
 }
 
-std::string Plugin::tempPluginConf()
+std::string Plugin::etcDir()
 {
-    return fromRelative("etc/plugin.conf.tmp");
+    return fromRelative("etc");
 }
 

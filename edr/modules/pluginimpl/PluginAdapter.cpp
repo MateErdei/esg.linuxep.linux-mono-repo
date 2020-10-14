@@ -118,7 +118,7 @@ namespace Plugin
         }
         catch (const std::runtime_error& ex)
         {
-            m_isXDR = false;
+            LOGWARN("Running mode not set in plugin.conf file. Using the default running mode EDR");
         }
         if (m_isXDR)
         {

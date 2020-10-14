@@ -24,9 +24,9 @@ namespace Plugin
         {
             nlohmann::json j = nlohmann::json::parse(flagContent);
 
-            if (j.find(m_xdrFlag) != j.end())
+            if (j.find(XDR_FLAG) != j.end())
             {
-                if (j[m_xdrFlag] == true)
+                if (j[XDR_FLAG] == true)
                 {
                     isXDR = true;
                 }
@@ -53,7 +53,7 @@ namespace Plugin
             {
                 boost::property_tree::ptree ptree;
                 boost::property_tree::read_ini(configpath, ptree);
-                bool isXDR = (ptree.get<std::string>(m_modeIdentifier) == "0");
+                bool isXDR = (ptree.get<std::string>(MODE_IDENTIFIER) == "0");
                 return isXDR;
             }
             catch (boost::property_tree::ptree_error& ex)
@@ -74,11 +74,11 @@ namespace Plugin
         std::string mode;
         if (isXDR)
         {
-            mode = m_modeIdentifier + "=0";
+            mode = MODE_IDENTIFIER + "=0";
         }
         else
         {
-            mode = m_modeIdentifier + "=1";
+            mode = MODE_IDENTIFIER + "=1";
         }
 
         try
@@ -92,7 +92,7 @@ namespace Plugin
                 for (const auto &line : content)
                 {
                     // if running mode already set replace it
-                    if (Common::UtilityImpl::StringUtils::isSubstring(line, m_modeIdentifier))
+                    if (Common::UtilityImpl::StringUtils::isSubstring(line, MODE_IDENTIFIER))
                     {
                         newContent = newContent + mode + "\n";
                         modeIsNotSet = false;
@@ -109,9 +109,8 @@ namespace Plugin
                     newContent = newContent + mode + "\n";
                 }
 
-                std::string tempPath = Plugin::tempPluginConf();
-                fileSystem->writeFile(tempPath, newContent);
-                fileSystem->moveFile(tempPath, configpath);
+
+                fileSystem->writeFileAtomically(configpath,newContent,Plugin::etcDir());
             }
             else
             {

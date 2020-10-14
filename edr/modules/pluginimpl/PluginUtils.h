@@ -32,8 +32,8 @@ namespace Plugin
         static void setRunningModeFlagFromSettingsFile(const bool &isXDR);
 
     private:
-        inline static const std::string m_modeIdentifier = "running_mode";
-        inline static const std::string m_xdrFlag = "xdr.enabled";
+        inline static const std::string MODE_IDENTIFIER = "running_mode";
+        inline static const std::string XDR_FLAG = "xdr.enabled";
 
    };
 }
