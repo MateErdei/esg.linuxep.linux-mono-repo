@@ -34,7 +34,6 @@ std::string Plugin::livequeryResponsePath()
 
 std::string Plugin::tempPluginConf()
 {
-    std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-    return Common::FileSystem::join(installPath, "base/tmp/plugin.conf");
+    return fromRelative("etc/plugin.conf.tmp");
 }
 

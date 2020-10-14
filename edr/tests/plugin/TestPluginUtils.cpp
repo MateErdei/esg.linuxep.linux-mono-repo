@@ -100,7 +100,7 @@ TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileWhenFileIsEmpty)
     Tests::TempDir tempDir("/tmp");
 
     tempDir.createFile("plugins/edr/etc/plugin.conf", "");
-    tempDir.makeDirs("base/tmp/");
+
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
@@ -126,7 +126,7 @@ TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileUpdatesFilefromEDRToXD
     Tests::TempDir tempDir("/tmp");
 
     tempDir.createFile("plugins/edr/etc/plugin.conf", "disable_auditd=0\nrunning_mode=1\n");
-    tempDir.makeDirs("base/tmp/");
+
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
@@ -139,7 +139,7 @@ TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileUpdatesFilefromXDRToED
     Tests::TempDir tempDir("/tmp");
 
     tempDir.createFile("plugins/edr/etc/plugin.conf", "disable_auditd=0\nrunning_mode=0\n");
-    tempDir.makeDirs("base/tmp/");
+
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
