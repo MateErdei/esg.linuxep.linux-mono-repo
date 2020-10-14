@@ -19,7 +19,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <fstream>
 #include <set>
-#include <common/AbortScanException.h>
 
 using namespace avscanner::avscannerimpl;
 

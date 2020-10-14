@@ -21,7 +21,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <exception>
 #include <memory>
 #include <utility>
-#include <chrono>
 
 using namespace avscanner::avscannerimpl;
 namespace fs = sophos_filesystem;
