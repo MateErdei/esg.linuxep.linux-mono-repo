@@ -77,8 +77,22 @@ namespace Common::SecurityUtils
             FatalSecuritySetupFailureException::onError(
                     "Process should fail to set effective group ids after dropping privilege.");
         }
-        //TODO LINUXDAR-2270 chnage to user and group names instead of id
-        out.push_back(std::make_pair("Dropped privilege to user_id: " + std::to_string(newuid) + " group_id: " + std::to_string(newgid), 2));
+        try
+        {
+            auto filePermissions = Common::FileSystem::filePermissions();
+            std::string username = std::to_string(filePermissions->getUserId(std::to_string(newuid)));
+            std::string groupname = std::to_string(filePermissions->getGroupId(std::to_string(newgid)));
+            out.push_back(std::make_pair("Dropped privilege to user: " + username + " group: " + groupname, 2));
+        }
+        catch(Common::FileSystem::IFileSystemException& ex)
+        {
+            std::stringstream error;
+            error << "Failed to convert userid and groupid to name due to error: " << ex.what();
+            out.push_back(std::make_pair(error.str(), 3));
+            out.push_back(std::make_pair("Dropped privilege to user_id: " + std::to_string(newuid) + " group_id: " + std::to_string(newgid), 2));
+        }
+
+
 
     }
 
