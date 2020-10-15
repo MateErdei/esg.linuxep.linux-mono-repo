@@ -6,8 +6,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ClientScanRequest.h"
 
-#include "ScanRequest.capnp.h"
-
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
@@ -44,6 +42,3 @@ std::string ClientScanRequest::serialise() const
     std::string dataAsString(bytes.begin(), bytes.end());
     return dataAsString;
 }
-
-
-

@@ -112,7 +112,8 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
 
     scan_messages::ScanResponse response;
     std::stringstream errorMsg;
-    errorMsg << "Failed to scan file after " << MAX_SCAN_RETRIES << " retries";
+
+    errorMsg << "Failed to scan file: " << request.getPath() << " after " << MAX_SCAN_RETRIES << " retries";
     response.setErrorMsg(errorMsg.str());
     return response;
 }

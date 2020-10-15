@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanType.h"
 
 #include <string>
+#include <ScanRequest.capnp.h>
 
 namespace scan_messages
 {
@@ -34,6 +35,7 @@ namespace scan_messages
         void setUserID(const std::string& userID);
 
         [[nodiscard]] std::string serialise() const;
+        [[nodiscard]] std::string getPath() const { return m_path; };
 
     protected:
         std::string m_path;
