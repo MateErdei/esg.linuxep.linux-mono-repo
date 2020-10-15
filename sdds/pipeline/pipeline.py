@@ -7,7 +7,7 @@ def sspl_warehouse(stage: tap.Root):
 
     with stage.parallel('build'):
         _build = stage.artisan_build(name='develop', component=component, image='Warehouse',
-                                         mode='release', release_package='./build/release-package.xml')
+                                     mode='release', release_package='./build/release-package.xml')
 
         _build = stage.artisan_build(name='edr-999', component=component, image='Warehouse',
                                      mode='release', release_package='./build/release-package-edr-999.xml')
