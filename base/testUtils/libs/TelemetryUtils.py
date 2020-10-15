@@ -123,12 +123,13 @@ class TelemetryUtils:
         return telemetry
 
     def generate_edr_telemetry_dict(self, num_osquery_restarts, num_database_purges, num_osquery_restarts_cpu,
-                                    num_osquery_restarts_memory, queries):
+                                    num_osquery_restarts_memory, xdr_is_enabled, queries):
         version = get_plugin_version("edr")
         telemetry = {
             "osquery-restarts": int(num_osquery_restarts),
             "version": version,
-            "osquery-database-purges": int(num_database_purges)
+            "osquery-database-purges": int(num_database_purges),
+            "xdr-is-enabled": xdr_is_enabled
         }
         if int(num_osquery_restarts_cpu) > -1:
             telemetry["osquery-restarts-cpu"] = int(num_osquery_restarts_cpu)
@@ -360,6 +361,7 @@ class TelemetryUtils:
                                             num_database_purges=0,
                                             num_osquery_restarts_cpu=0,
                                             num_osquery_restarts_memory=0,
+                                            xdr_is_enabled=False,
                                             ignore_cpu_restarts=False,
                                             ignore_memory_restarts=False,
                                             queries=None):
@@ -367,6 +369,7 @@ class TelemetryUtils:
                                                                        num_database_purges,
                                                                        num_osquery_restarts_cpu,
                                                                        num_osquery_restarts_memory,
+                                                                       xdr_is_enabled,
                                                                        queries)
         actual_edr_telemetry_dict = json.loads(json_string)["edr"]
 
