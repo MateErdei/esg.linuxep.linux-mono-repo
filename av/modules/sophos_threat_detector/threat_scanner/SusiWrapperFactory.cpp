@@ -94,7 +94,7 @@ static std::string create_runtime_config(const std::string& scannerInfo, const s
         "libraryPath": "@@LIBRARY_PATH@@",
         "tempPath": "/tmp",
         "product": {
-            "name": "SSPL AV Plugin",
+            "name": "SUSI_SPLAV",
             "context": "File",
             "version": "1.0.0"
         },
