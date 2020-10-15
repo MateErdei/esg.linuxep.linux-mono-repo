@@ -20,7 +20,7 @@ Test Teardown  EDR Telemetry Test Teardown
 Suite Setup   EDR Telemetry Suite Setup
 Suite Teardown   EDR Telemetry Suite Teardown
 
-Default Tags   EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
+Default Tags   EDR_PLUGIN  TELEMETRY
 
 *** Variables ***
 ${COMPONENT_TEMP_DIR}  /tmp/edr_component
@@ -31,6 +31,30 @@ ${SIMPLE_QUERY_4_ROW} =  SELECT * from users limit 4;
 
 
 *** Test Cases ***
+EDR Plugin Produces Telemetry When XDR is enabled
+    [Tags]  MCSROUTER  FAKE_CLOUD  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
+    [Setup]  EDR Telemetry Test Setup With Cloud
+    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Should Be Equal As Strings  0  ${result.rc}
+    Register With Fake Cloud
+    Wait Until Keyword Succeeds
+    ...  25
+    ...  1
+    ...  Check Log Contains In Order
+            ...  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+            ...  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/edr/bin/edr exited
+            ...  ProcessMonitoringImpl <> Starting /opt/sophos-spl/plugins/edr/bin/edr
+
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   EDR Plugin Is Running
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  True
+
 EDR Plugin Produces Telemetry With OSQueryD Output Log File Not Containing Restarts
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -118,7 +142,6 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  1  0  queries=@{queries}
 
 EDR Plugin Counts Osquery Database Purges
-    [Tags]   EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
     Prepare To Run Telemetry Executable
     Trigger EDR Osquery Database Purge
     Restart EDR Plugin
@@ -143,6 +166,12 @@ EDR Telemetry Test Setup
     Create Directory   ${COMPONENT_TEMP_DIR}
     Wait Until OSQuery Running  20
 
+EDR Telemetry Test Setup With Cloud
+    Start Local Cloud Server
+    EDR Telemetry Test Setup
+    Regenerate Certificates
+    Set Local CA Environment Variable
+
 EDR Telemetry Test Teardown
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
@@ -153,6 +182,7 @@ EDR Telemetry Test Teardown
     Remove Directory   ${COMPONENT_TEMP_DIR}  recursive=true
     Remove File  ${EXE_CONFIG_FILE}
     Uninstall EDR Plugin
+    Stop Local Cloud Server
 
 Trigger EDR Osquery Database Purge
     Should Exist  /opt/sophos-spl/plugins/edr/var/osquery.db
