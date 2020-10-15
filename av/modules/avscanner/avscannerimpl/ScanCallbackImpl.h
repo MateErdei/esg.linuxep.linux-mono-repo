@@ -32,16 +32,19 @@ namespace avscanner::avscannerimpl
         [[nodiscard]] int getNoOfThreats() { return m_threatCounter.size(); };
         [[nodiscard]] int getNoOfInfectedFiles() { return m_noOfInfectedFiles; };
         [[nodiscard]] int getNoOfCleanFiles() { return m_noOfCleanFiles; };
+        [[nodiscard]] int getNoOfScanErrors() { return m_noOfErrors; };
         [[nodiscard]] int getNoOfScannedFiles() { return m_noOfCleanFiles + m_noOfInfectedFiles; };
         [[nodiscard]] std::map<std::string, int> getThreatTypes() { return m_threatCounter; };
 
         void incrementInfectedCount() { m_noOfInfectedFiles++; };
         void incrementCleanCount() { m_noOfCleanFiles++; };
+        void incrementErrorCount() { m_noOfErrors++; };
         void addThreat(const std::string& threatName) { ++m_threatCounter[threatName]; };
 
     private:
         int m_noOfInfectedFiles = 0;
         int m_noOfCleanFiles = 0;
+        int m_noOfErrors = 0;
         time_t  m_startTime;
         int m_returnCode = E_CLEAN;
         std::map<std::string, int> m_threatCounter;

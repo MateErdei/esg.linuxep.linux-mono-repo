@@ -41,6 +41,7 @@ void ScanCallbackImpl::infectedFile(const path& path, const std::string& threatN
 
 void ScanCallbackImpl::scanError(const std::string& errorMsg)
 {
+    incrementErrorCount();
     LOGERROR(errorMsg);
 }
 
@@ -54,6 +55,10 @@ void ScanCallbackImpl::logSummary()
     scanSummary << getNoOfScannedFiles() << " file(s) scanned in " << static_cast<double>(totalScanTime) << " seconds." << std::endl;
     scanSummary << getNoOfInfectedFiles() << " file(s) out of " << getNoOfScannedFiles() << " was infected." << std::endl;
 
+    if (getNoOfScanErrors() > 0)
+    {
+        scanSummary << getNoOfScanErrors() << " scan Error(s) encountered" << std::endl;
+    }
     for (const auto& threatType : getThreatTypes())
     {
         scanSummary << threatType.second << " threat(s) of type " <<  threatType.first << " discovered." << std::endl;

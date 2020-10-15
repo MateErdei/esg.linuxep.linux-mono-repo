@@ -46,6 +46,7 @@ namespace avscanner::avscannerimpl
          * @return Scan response
          */
         scan_messages::ScanResponse scan(const path& fileToScanPath, bool isSymlink=false);
+        void scanError(const std::ostringstream& error) { m_callbacks->scanError(error.str()); } ;
 
     private:
         unixsocket::IScanningClientSocket& m_socket;

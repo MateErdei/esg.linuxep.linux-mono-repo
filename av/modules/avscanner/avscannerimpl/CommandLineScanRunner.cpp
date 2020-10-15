@@ -49,7 +49,10 @@ namespace
 
         void genericFailure(const std::exception& e, std::string escapedPath) override
         {
-            LOGERROR("Failed to scan" << escapedPath << " [" << e.what() << "]");
+            std::ostringstream errorString;
+            errorString << "Failed to scan" << escapedPath << " [" << e.what() << "]";
+
+            m_scanner.scanError(errorString);
             m_returnCode = E_GENERIC_FAILURE;
             throw AbortScanException(e.what());
         }
