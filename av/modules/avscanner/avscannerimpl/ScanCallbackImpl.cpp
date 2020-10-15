@@ -48,20 +48,25 @@ void ScanCallbackImpl::scanError(const std::string& errorMsg)
 void ScanCallbackImpl::logSummary()
 {
     auto endTime = time(nullptr);
-    auto totalScanTime = endTime - getStartTime();
+    auto totalScanTime = static_cast<double>(endTime - getStartTime());
     std::ostringstream scanSummary;
 
     scanSummary << "End of Scan Summary:" << std::endl;
-    scanSummary << getNoOfScannedFiles() << " file(s) scanned in " << static_cast<double>(totalScanTime) << " seconds." << std::endl;
-    scanSummary << getNoOfInfectedFiles() << " file(s) out of " << getNoOfScannedFiles() << " was infected." << std::endl;
+
+    scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfScannedFiles(), " file", " files") << " scanned in ";
+    scanSummary << totalScanTime << common::pluralize(totalScanTime, " second.", " seconds.") << std::endl;
+
+    scanSummary << getNoOfInfectedFiles() << common::pluralize(getNoOfInfectedFiles(), " file", " files") << " out of ";
+    scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfScannedFiles(), " was", " were") << " infected." << std::endl;
 
     if (getNoOfScanErrors() > 0)
     {
-        scanSummary << getNoOfScanErrors() << " scan Error(s) encountered" << std::endl;
+        scanSummary << getNoOfScanErrors() << " scan" << common::pluralize(getNoOfScanErrors(), " error", " errors") << " encountered." << std::endl;
     }
+
     for (const auto& threatType : getThreatTypes())
     {
-        scanSummary << threatType.second << " threat(s) of type " <<  threatType.first << " discovered." << std::endl;
+        scanSummary << threatType.second << " " << threatType.first << common::pluralize(threatType.second, " infection", " infections") << " discovered." << std::endl;
     }
 
     LOGINFO(scanSummary.str());

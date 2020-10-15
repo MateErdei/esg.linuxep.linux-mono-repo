@@ -139,5 +139,17 @@ namespace common
         assert(std::distance(LogLevels.begin(), ind_it) < static_cast<int>(LogLevels.size()));
         return LogNames.at(std::distance(LogLevels.begin(), ind_it));
     }
+
+    std::string pluralize(int number, std::string singularString, std::string pluralString)
+    {
+        if (number == 1)
+        {
+            return singularString;
+        }
+        else
+        {
+            return pluralString;
+        }
+    }
 }
 

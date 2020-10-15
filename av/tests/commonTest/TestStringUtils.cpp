@@ -56,3 +56,10 @@ TEST(TestStringUtils, TestfromLogLevelToStringReturnsExpectedString)
     EXPECT_EQ(fromLogLevelToString(log4cplus::WARN_LOG_LEVEL), "WARN");
     EXPECT_EQ(fromLogLevelToString(log4cplus::ERROR_LOG_LEVEL), "ERROR");
 }
+
+TEST(TestStringUtils, Testpluralize)
+{
+    EXPECT_EQ(common::pluralize(1, "single", "plural"), "single");
+    EXPECT_EQ(common::pluralize(2, "single", "plural"), "plural");
+    EXPECT_EQ(common::pluralize(0, "single", "plural"), "plural");
+}
