@@ -63,7 +63,7 @@
     <!-- a dodgy fix for issue where cannot use same comp twice in a warehouse-->
     <command>
       <program>cmd.exe</program>
-          <args>/c py -3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def-mdr-999.yaml ..\def\cloud-warehouse-def-mdr-999.yaml</args>
+          <args>/c py -3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-mdr-999.yaml</args>
       <workingdir>src</workingdir>
     </command>
   </buildcommands>
