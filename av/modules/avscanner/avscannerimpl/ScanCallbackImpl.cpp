@@ -57,7 +57,7 @@ void ScanCallbackImpl::logSummary()
     scanSummary << totalScanTime << common::pluralize(totalScanTime, " second.", " seconds.") << std::endl;
 
     scanSummary << getNoOfInfectedFiles() << common::pluralize(getNoOfInfectedFiles(), " file", " files") << " out of ";
-    scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfScannedFiles(), " was", " were") << " infected." << std::endl;
+    scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfInfectedFiles(), " was", " were") << " infected." << std::endl;
 
     if (getNoOfScanErrors() > 0)
     {

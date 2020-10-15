@@ -122,9 +122,9 @@ CLS Summary is Correct
    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar ${NORMAL_DIRECTORY}/clean_file
 
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-   Should Contain   ${output}  2 file(s) scanned in
-   Should Contain   ${output}  1 file(s) out of 2 was infected.
-   Should Contain   ${output}  1 threat(s) of type EICAR-AV-Test discovered.
+   Should Contain   ${output}  2 files scanned in
+   Should Contain   ${output}  1 file out of 2 was infected.
+   Should Contain   ${output}  1 EICAR-AV-Test infection discovered.
 
 
 CLS Can Scan Archive File
