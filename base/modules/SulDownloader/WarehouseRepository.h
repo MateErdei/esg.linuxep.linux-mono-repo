@@ -70,6 +70,12 @@ namespace SulDownloader
         static std::unique_ptr<WarehouseRepository> FetchConnectedWarehouse(
             const suldownloaderdata::ConfigurationData& configurationData);
 
+        static std::unique_ptr<WarehouseRepository> tryConnect(
+            suldownloaderdata::ConnectionSetup& connectionSetup,
+            bool supplementOnly,
+            std::vector<std::string>& sulLogs,
+            const suldownloaderdata::ConfigurationData& configurationData);
+
         WarehouseRepository() = delete;
         WarehouseRepository(const WarehouseRepository&) = delete;
         WarehouseRepository& operator=(const WarehouseRepository&) = delete;
