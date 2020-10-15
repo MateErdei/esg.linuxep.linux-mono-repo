@@ -24,6 +24,12 @@ Test Global Rep works in chroot
     scan GR test file
     check sophos_threat_dector log for successful global rep lookup
 
+Sophos Threat Detector Has No Unnecessary Capabilities
+    ${rc}   ${pid} =       Run And Return Rc And Output    pgrep sophos_threat
+    ${rc}   ${output} =    Run And Return Rc And Output    getpcaps ${pid}
+    Should Not Contain  ${output}  cap_sys_chroot
+    Should Match        ${output}  Capabilities for `${pid}': =
+
 *** Keywords ***
 
 set sophos_threat_detector log level

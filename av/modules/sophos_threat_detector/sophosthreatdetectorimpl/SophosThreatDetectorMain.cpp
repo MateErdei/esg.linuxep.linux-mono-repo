@@ -22,6 +22,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <fstream>
 #include <string>
 #include <netdb.h>
+
+#include <linux/securebits.h>
+#include <sys/capability.h>
+#include <sys/prctl.h>
 #include <unistd.h>
 
 using namespace sspl::sophosthreatdetectorimpl;
@@ -121,6 +125,48 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
     }
 }
 
+static int dropCapabilitiesAndLock()
+{
+    int ret = 0;
+    cap_t caps = cap_get_proc();
+    if (caps == NULL)
+    {
+        LOGERROR("Failed to get effective capabilities");
+        return ret;
+    }
+
+    ret = cap_clear(caps);
+    if (ret != 0)
+    {
+        LOGERROR("Failed to clear effective capabilities");
+    }
+
+    ret = cap_set_proc(caps);
+    if (ret != 0)
+    {
+        LOGERROR("Failed to set the dropped capabilities");
+    }
+
+    ret = prctl(PR_SET_SECUREBITS,
+        /* SECBIT_KEEP_CAPS off */
+          SECBIT_KEEP_CAPS_LOCKED |
+          SECBIT_NO_SETUID_FIXUP |
+          SECBIT_NO_SETUID_FIXUP_LOCKED |
+          SECBIT_NOROOT |
+          SECBIT_NOROOT_LOCKED);
+    if (ret != 0)
+    {
+        LOGERROR("Failed to lock capabilities");
+    }
+
+    ret = cap_free(caps);
+    if (ret != 0)
+    {
+        LOGERROR("Failed to free capabilities");
+    }
+    return ret;
+}
+
 static int inner_main()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -142,6 +188,13 @@ static int inner_main()
     if (ret != 0)
     {
         LOGERROR("Failed to chroot to " << chrootPath.c_str() << " (" << errno << "): Check permissions");
+        exit(EXIT_FAILURE);
+    }
+
+    ret = dropCapabilitiesAndLock();
+    if (ret != 0)
+    {
+        LOGERROR("Failed to drop capabilities after entering chroot (" << ret << ")");
         exit(EXIT_FAILURE);
     }
 
