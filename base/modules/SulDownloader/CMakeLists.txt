@@ -16,7 +16,7 @@ add_library(suldownloaderimpl SHARED
     ProductUninstaller.cpp
     ProductUninstaller.h
     Logger.cpp
-    Logger.h)
+    Logger.h UpdateSupplementDecider.cpp UpdateSupplementDecider.h)
 
 
 include_directories(suldownloaderimpl BEFORE ${SUL_INPUT}/include)

@@ -68,6 +68,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getSulDownloaderConfigFilePath() const = 0;
         virtual std::string getSulDownloaderReportGeneratedFilePath() const = 0;
         virtual std::string getSulDownloaderLockFilePath() const = 0;
+        virtual std::string getSulDownloaderLatestProductUpdateMarkerPath() const = 0;
 
         virtual std::string getSavedEnvironmentProxyFilePath() const = 0;
 
