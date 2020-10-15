@@ -118,7 +118,7 @@ namespace
     void displayProductTags(SU_PHandle product, const std::vector<std::string>& attributes)
     {
         LOGDEBUG("\nNew Product");
-        for (auto& attribute : attributes)
+        for (const auto& attribute : attributes)
         {
             std::stringstream all_attributes;
             for (int i = 0; i < 10; i++)
@@ -175,6 +175,7 @@ namespace SulDownloader
     {
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
+        bool supplementOnly = false;
 
         std::vector<std::string> sulLogs;
 
@@ -196,7 +197,7 @@ namespace SulDownloader
 
             SU_Result ret = SU_Result_invalid;
 
-            if (configurationData.getSupplementOnly())
+            if (supplementOnly)
             {
                 ret = SU_readLocalMetadata(warehouse->session());
             }
@@ -226,7 +227,7 @@ namespace SulDownloader
             // store values from configuration data for later use.
             warehouse->setRootDistributionPath(configurationData.getLocalDistributionRepository());
 
-            warehouse->m_supplementOnly = configurationData.getSupplementOnly();
+            warehouse->m_supplementOnly = supplementOnly;
 
             return warehouse;
         }

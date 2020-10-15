@@ -31,7 +31,7 @@ namespace UpdateSchedulerImpl
                 int scheduledUpdateOffsetInMinutes = 8,
                 DurationTime onDelayUpdateWaitTime = std::chrono::minutes(15));
 
-            ~CronSchedulerThread();
+            ~CronSchedulerThread() override;
 
             void start() override;
 
@@ -41,13 +41,10 @@ namespace UpdateSchedulerImpl
 
             void setPeriodTime(DurationTime repeatPeriod) override;
 
-            void setScheduledUpdate(UpdateScheduler::ScheduledUpdate scheduledUpdate) override;
-
             void setUpdateOnStartUp(bool updateOnStartUp) override;
             void join(); // for test
         private:
             void run() override;
-            void reportNextUpdateTime();
             enum class ActionOnInterrupt
             {
                 NOTHING,
@@ -59,7 +56,6 @@ namespace UpdateSchedulerImpl
             {
                 DurationTime m_periodTick;
                 bool m_updateOnStartUp;
-                UpdateScheduler::ScheduledUpdate m_scheduledUpdate;
                 bool m_changed;
             };
 

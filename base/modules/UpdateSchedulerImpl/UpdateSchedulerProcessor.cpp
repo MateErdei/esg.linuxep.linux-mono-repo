@@ -198,25 +198,9 @@ namespace UpdateSchedulerImpl
                 m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
             }
 
-            m_cronThread->setScheduledUpdate(settingsHolder.scheduledUpdate);
-            if (settingsHolder.scheduledUpdate.getEnabled())
-            {
-                char buffer[20];
-                auto weekAndTime = settingsHolder.scheduledUpdate.getScheduledTime();
-                std::tm scheduledTime{};
-                scheduledTime.tm_wday = weekAndTime.weekDay;
-                scheduledTime.tm_hour = weekAndTime.hour;
-                scheduledTime.tm_min = weekAndTime.minute;
-                if (strftime(buffer, sizeof(buffer), "%A %H:%M", &scheduledTime))
-                {
-                    LOGINFO("Scheduling updates for " << buffer);
-                }
-
-                m_cronThread->setPeriodTime(std::chrono::minutes(1));
-            }
-
             if (!Common::FileSystem::fileSystem()->isFile(m_configfilePath))
             {
+                // Update immediately if we haven't previously had a policy
                 m_pendingUpdate = true;
             }
 
@@ -244,19 +228,6 @@ namespace UpdateSchedulerImpl
                 // there is no new results to be processed.
                 std::string lastUpdate = processSulDownloaderFinished("update_report.json");
 
-                // If scheduled updating is enabled, check if we have missed an update, if we have, ensure we
-                // run an update on startup
-                if (!lastUpdate.empty() && settingsHolder.scheduledUpdate.getEnabled())
-                {
-                    if (settingsHolder.scheduledUpdate.missedUpdate(lastUpdate))
-                    {
-                        LOGINFO("Missed a scheduled update. Updating in 5-10 minutes.");
-                    }
-                    else
-                    {
-                        m_cronThread->setUpdateOnStartUp(false);
-                    }
-                }
             }
 
             if (m_pendingUpdate)
@@ -360,7 +331,7 @@ namespace UpdateSchedulerImpl
         const std::string& /*reportFileLocation*/,
         const bool processLatestReport)
     {
-        auto iFileSystem = Common::FileSystem::fileSystem();
+        auto* iFileSystem = Common::FileSystem::fileSystem();
         bool remainingReportToProcess{ false };
 
         if (detectedUpgradeWithBrokenLiveResponse())

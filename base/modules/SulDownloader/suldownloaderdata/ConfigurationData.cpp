@@ -540,12 +540,12 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     using SulDownloaderProto::ConfigurationSettings;
 
     ConfigurationSettings settings;
-    for (auto& url : configurationData.getSophosUpdateUrls())
+    for (const auto& url : configurationData.getSophosUpdateUrls())
     {
         settings.add_sophosurls()->assign(url);
     }
 
-    for (auto& cacheUrl : configurationData.getLocalUpdateCacheUrls())
+    for (const auto& cacheUrl : configurationData.getLocalUpdateCacheUrls())
     {
         settings.add_updatecache()->assign(cacheUrl);
     }
@@ -566,16 +566,16 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
 
     const auto& primarySubscription = configurationData.getPrimarySubscription();
     setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
-    for (auto& product : configurationData.getProductsSubscription())
+    for (const auto& product : configurationData.getProductsSubscription())
     {
         setProtobufEntries(product, settings.add_products());
     }
-    for (auto& feature : configurationData.getFeatures())
+    for (const auto& feature : configurationData.getFeatures())
     {
         settings.add_features(feature);
     }
 
-    for (auto& installarg : configurationData.getInstallArguments())
+    for (const auto& installarg : configurationData.getInstallArguments())
     {
         settings.add_installarguments()->assign(installarg);
     }
@@ -695,12 +695,12 @@ bool ConfigurationData::getUseSlowSupplements() const
     return m_useSlowSupplements;
 }
 
-void ConfigurationData::setSupplementOnly(bool supplementOnly)
+void ConfigurationData::setSchedule(WeekDayAndTimeForDelay schedule)
 {
-    m_supplementOnly = supplementOnly;
+    m_scheduledUpdate = schedule;
 }
 
-bool ConfigurationData::getSupplementOnly() const
+WeekDayAndTimeForDelay ConfigurationData::getSchedule() const
 {
-    return m_supplementOnly;
+    return m_scheduledUpdate;
 }

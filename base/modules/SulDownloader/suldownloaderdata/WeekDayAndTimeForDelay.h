@@ -9,9 +9,10 @@ namespace SulDownloader::suldownloaderdata
 {
     struct WeekDayAndTimeForDelay
     {
-        int weekDay;
-        int hour;
-        int minute;
+        bool enabled = false;
+        int weekDay = 0;
+        int hour = 0;
+        int minute = 0;
         // seconds is not used when setting up delayed updates
     };
 }

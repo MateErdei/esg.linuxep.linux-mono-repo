@@ -27,8 +27,6 @@ add_library(updateschedulerimpl SHARED
         ../UpdateScheduler/IMapHostCacheId.h
         ../UpdateScheduler/IAsyncSulDownloaderRunner.h
         ../UpdateScheduler/ICronSchedulerThread.h
-        ../UpdateScheduler/ScheduledUpdate.cpp
-        ../UpdateScheduler/ScheduledUpdate.h
         SchedulerPluginCallback.h
         SchedulerPluginCallback.cpp
         Logger.h

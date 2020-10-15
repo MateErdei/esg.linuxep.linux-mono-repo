@@ -30,11 +30,6 @@ public:
         return Common::UtilityImpl::ScopedReplaceITime(std::move(mockTimer));
     }
 
-    UpdateScheduler::ScheduledUpdate::WeekDayAndTimeForDelay getScheduledTime()
-    {
-        return { .weekDay = 3, .hour = 13, .minute = 0 };
-    }
-
     std::time_t calculateRequiredTestDateTime()
     {
         // Wednesday at 2019-05-01 13:00

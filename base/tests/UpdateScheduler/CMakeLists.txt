@@ -4,7 +4,6 @@ add_executable(UpdateSchedulerTests
         TestUpdatePolicyTranslator.cpp
         TestUpdateActionParser.cpp
         TestCronSchedulerThread.cpp
-        TestScheduledUpdate.cpp
         TestDownloadReportsAnalyser.cpp
         TestUpdateEvent.cpp
         DownloadReportTestBuilder.h

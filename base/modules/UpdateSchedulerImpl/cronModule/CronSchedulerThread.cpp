@@ -42,7 +42,6 @@ namespace UpdateSchedulerImpl
             m_scheduledUpdateOffsetInMinutes(abs(scheduledUpdateOffsetInMinutes)),
             m_crossThreadState{ .m_periodTick = { repeatPeriod },
                                 .m_updateOnStartUp = true,
-                                .m_scheduledUpdate = ScheduledUpdate{},
                                 .m_changed = true },
             m_inThreadState{}
         {
@@ -78,13 +77,6 @@ namespace UpdateSchedulerImpl
             m_crossThreadState.m_changed = true;
         }
 
-        void CronSchedulerThread::setScheduledUpdate(ScheduledUpdate scheduledUpdate)
-        {
-            std::lock_guard<std::mutex> lock(m_sharedState);
-            m_crossThreadState.m_scheduledUpdate = scheduledUpdate;
-            m_crossThreadState.m_changed = true;
-        }
-
         void CronSchedulerThread::setUpdateOnStartUp(bool updateOnStartUp)
         {
             std::lock_guard<std::mutex> lock(m_sharedState);
@@ -98,7 +90,6 @@ namespace UpdateSchedulerImpl
             bool firstUpdate = true;
 
             Common::UtilityImpl::UniformIntDistribution distribution(0, m_scheduledUpdateOffsetInMinutes);
-            int scheduledUpdateOffsetInMinutes = distribution.next();
 
             updateInThreadState();
             announceThreadStarted();
@@ -106,11 +97,6 @@ namespace UpdateSchedulerImpl
             auto poller = Common::ZeroMQWrapper::createPoller();
 
             auto pipePollerEntry = poller->addEntry(m_notifyPipe.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
-
-            if (m_inThreadState.m_scheduledUpdate.getEnabled())
-            {
-                reportNextUpdateTime();
-            }
 
             while (true)
             {
@@ -142,36 +128,13 @@ namespace UpdateSchedulerImpl
                         LOGINFO("First update triggered");
                         m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                         firstUpdate = false;
-
-                        if (m_inThreadState.m_scheduledUpdate.getEnabled())
-                        {
-                            m_inThreadState.m_scheduledUpdate.resetTimer();
-                            timeToWait = m_onDelayUpdateWaitTime;
-                            reportNextUpdateTime();
-                        }
                     }
-
-                    // timeout means a new tick. Hence, queue an update if scheduled updating is not enabled
-                    else if (!m_inThreadState.m_scheduledUpdate.getEnabled())
+                    else
                     {
                         LOGSUPPORT("Trigger new update"); // this one is the regular update does not need INFO level.
                         m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                     }
 
-                    // scheduled updating is enabled. Check if it is time to update
-                    else
-                    {
-                        if (m_inThreadState.m_scheduledUpdate.timeToUpdate(scheduledUpdateOffsetInMinutes))
-                        {
-                            LOGINFO("Trigger new scheduled update");
-                            m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
-                            m_inThreadState.m_scheduledUpdate.confirmUpdatedTime();
-                            reportNextUpdateTime();
-                            scheduledUpdateOffsetInMinutes = distribution.next();
-
-                            timeToWait = m_onDelayUpdateWaitTime;
-                        }
-                    }
                 }
                 else
                 {
@@ -218,11 +181,6 @@ namespace UpdateSchedulerImpl
         }
 
         void CronSchedulerThread::start() { AbstractThread::start(); }
-
-        void CronSchedulerThread::reportNextUpdateTime()
-        {
-            LOGINFO("Next Update scheduled to: " << m_inThreadState.m_scheduledUpdate.nextUpdateTime());
-        }
 
         void CronSchedulerThread::join() { AbstractThread::join(); }
 

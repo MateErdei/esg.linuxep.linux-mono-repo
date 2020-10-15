@@ -5,8 +5,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/OSUtilities/IDnsLookup.h>
-#include <Common/OSUtilities/IIPUtils.h>
 #include <Common/OSUtilitiesImpl/DnsLookupImpl.h>
 #include <Common/OSUtilitiesImpl/LocalIPImpl.h>
 #include <Common/XmlUtilities/AttributesMap.h>
@@ -409,6 +407,7 @@ class TestUpdatePolicyTranslator : public ::testing::Test
 {
 public:
     TestUpdatePolicyTranslator() : m_loggingSetup() {}
+private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
 };
@@ -422,7 +421,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     std::unique_ptr<FakeIDnsLookup> fake(new FakeIDnsLookup());
     Common::OSUtilitiesImpl::replaceDnsLookup(std::move(fake));
 
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -477,14 +476,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_TRUE(config.getPolicyProxy().empty());
 
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(50));
-    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), false);
+    EXPECT_EQ(config.getSchedule().enabled, false);
     Common::OSUtilitiesImpl::restoreDnsLookup();
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
 TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -501,7 +500,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -519,7 +518,7 @@ TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -572,12 +571,12 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     };
     EXPECT_EQ(config.getPolicyProxy(), expectedProxy);
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
-    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), false);
+    EXPECT_EQ(config.getSchedule().enabled, false);
 }
 
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -606,16 +605,16 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
                                                   "HBT",      "MTD", "NTP",  "SAV", "SDU",      "WEBCNTRL" };
     EXPECT_EQ(features, expectedFeatures);
 
-    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
-    auto scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(scheduledUpdateTime.weekDay, 3);
-    EXPECT_EQ(scheduledUpdateTime.hour, 17);
-    EXPECT_EQ(scheduledUpdateTime.minute, 0);
+    auto schedule = config.getSchedule();
+    EXPECT_EQ(schedule.enabled, true);
+    EXPECT_EQ(schedule.weekDay, 3);
+    EXPECT_EQ(schedule.hour, 17);
+    EXPECT_EQ(schedule.minute, 0);
 }
 
 TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStillGetsTheCorrectData) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
@@ -641,7 +640,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStill
 
 TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
@@ -657,7 +656,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndResetKeepsExpectedData) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
@@ -699,7 +698,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredCo
 
 TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -726,7 +725,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
 
     Common::OSUtilitiesImpl::replaceDnsLookup(std::move(fake));
 
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -762,7 +761,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
 
     Common::OSUtilitiesImpl::replaceDnsLookup(std::move(fake));
 
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -785,7 +784,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -832,16 +831,16 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
 
     EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
-    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
-    auto scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(scheduledUpdateTime.weekDay, 3);
-    EXPECT_EQ(scheduledUpdateTime.hour, 11);
-    EXPECT_EQ(scheduledUpdateTime.minute, 0);
+    auto schedule = config.getSchedule();
+    EXPECT_EQ(schedule.enabled, true);
+    EXPECT_EQ(schedule.weekDay, 3);
+    EXPECT_EQ(schedule.hour, 11);
+    EXPECT_EQ(schedule.minute, 0);
 }
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -891,16 +890,16 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
 
     EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
-    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
-    auto scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(scheduledUpdateTime.weekDay, 3);
-    EXPECT_EQ(scheduledUpdateTime.hour, 11);
-    EXPECT_EQ(scheduledUpdateTime.minute, 0);
+    auto schedule = config.getSchedule();
+    EXPECT_EQ(schedule.enabled, true);
+    EXPECT_EQ(schedule.weekDay, 3);
+    EXPECT_EQ(schedule.hour, 11);
+    EXPECT_EQ(schedule.minute, 0);
 }
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -936,7 +935,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreReportsErrorInLog) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -988,7 +987,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreRep
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsErrorInLog) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -1026,7 +1025,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsErrorInLog) // NOLINT
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -1077,7 +1076,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
 
 // updatePolicyWithAESCredential
 
-TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated) // NOLINT(cert-err58-cpp)
+TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated) // NOLINT
 {
     EXPECT_EQ(
         UpdatePolicyTranslator::calculateSulObfuscated("regruser", "regrABC123pass"),

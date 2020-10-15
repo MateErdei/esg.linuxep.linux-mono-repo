@@ -49,7 +49,7 @@ namespace UpdateSchedulerImpl
         // on start up UpdateScheduler must perform an upgrade between 5 and 10 minutes (300 seconds, 600 seconds)
         Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
 
-        std::unique_ptr<ICronSchedulerThread> cronThread =
+        auto cronThread =
             std::unique_ptr<ICronSchedulerThread>(new cronModule::CronSchedulerThread(
                 queueTask, std::chrono::seconds(distribution.next()), std::chrono::minutes(60)));
         std::string dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();

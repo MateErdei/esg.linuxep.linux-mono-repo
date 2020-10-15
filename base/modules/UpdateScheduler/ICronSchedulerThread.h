@@ -27,8 +27,6 @@ namespace UpdateScheduler
 
         virtual void setPeriodTime(DurationTime repeatPeriod) = 0;
 
-        virtual void setScheduledUpdate(ScheduledUpdate scheduledUpdate) = 0;
-
         virtual void setUpdateOnStartUp(bool updateOnStartUp) = 0;
     };
 } // namespace UpdateScheduler
