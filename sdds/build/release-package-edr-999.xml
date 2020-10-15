@@ -72,10 +72,10 @@
   </buildcommands>
 
   <publish>
-    <build-asset artifact-path="warehouse" source-dir="output\warehouse"/>
-    <build-asset artifact-path="customer" source-dir="output\customer"/>
-    <build-asset artifact-path="def" source-dir="output\def"/>
-    <build-asset artifact-path="logs" source-dir="logs"/>
+    <build-asset artifact-path="edr-999/warehouse" source-dir="output\warehouse"/>
+    <build-asset artifact-path="edr-999/customer" source-dir="output\customer"/>
+<!--    <build-asset artifact-path="def" source-dir="output\def"/>-->
+<!--    <build-asset artifact-path="logs" source-dir="logs"/>-->
   </publish>
   <signingexclusions>
 
