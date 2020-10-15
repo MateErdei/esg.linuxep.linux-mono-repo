@@ -8,6 +8,6 @@ CUSTOMER_FILES_WRITE = os.path.join(cwd, "..", "output", "customer")
 print("JAKE LOOK HERE")
 print(os.environ)
 print("JAKE LOOK HERE")
-branch = os.environ.get("SOURCE_CODE_BRANCH").replace("/","-")
+branch = os.environ.get("PIPELINE_NAME")
 WAREHOUSE_READ  = ["http://ostia.eng.sophos/dev/sspl-warehouse/{}/warehouse/warehouse".format(branch)]
 REPOSITORY_ID = "ES+C"
