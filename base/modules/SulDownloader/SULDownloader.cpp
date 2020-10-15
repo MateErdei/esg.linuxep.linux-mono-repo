@@ -106,6 +106,7 @@ namespace SulDownloader
         // connect and read metadata
         auto warehouseRepository =
             WarehouseRepositoryFactory::instance().fetchConnectedWarehouseRepository(configurationData);
+        assert(warehouseRepository);
 
         if (warehouseRepository->hasError())
         {

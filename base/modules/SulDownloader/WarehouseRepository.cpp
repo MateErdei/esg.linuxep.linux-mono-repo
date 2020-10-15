@@ -88,7 +88,7 @@ namespace
     {
         std::stringstream ss;
         bool isfirst = true;
-        for (auto& entry : entries)
+        for (const auto& entry : entries)
         {
             if (isfirst)
             {
@@ -172,7 +172,7 @@ namespace
 namespace SulDownloader
 {
     std::unique_ptr<WarehouseRepository> WarehouseRepository::tryConnect(
-            ConnectionSetup& connectionSetup,
+            const ConnectionSetup& connectionSetup,
             bool supplementOnly,
             std::vector<std::string>& sulLogs,
             const ConfigurationData& configurationData)
@@ -236,9 +236,9 @@ namespace SulDownloader
         UpdateSupplementDecider productUpdateSupplementDecider(configurationData.getSchedule());
         bool supplementOnly = !productUpdateSupplementDecider.updateProducts();
 
-        std::vector<std::string> sulLogs;
+        SulLogsVector sulLogs;
 
-        for (auto& connectionSetup : candidates)
+        for (const auto& connectionSetup : candidates)
         {
             auto warehouse = tryConnect(connectionSetup, supplementOnly, sulLogs, configurationData);
             if (warehouse)
@@ -246,6 +246,12 @@ namespace SulDownloader
                 return warehouse;
             }
         }
+        return createFailedWarehouse(sulLogs);
+    }
+
+    std::unique_ptr<WarehouseRepository> WarehouseRepository::createFailedWarehouse(
+        WarehouseRepository::SulLogsVector& sulLogs)
+    {
         LOGERROR("Failed to connect to the warehouse");
         auto warehouseEmpty = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(false));
         warehouseEmpty->setError("Failed to connect to warehouse");
@@ -259,7 +265,6 @@ namespace SulDownloader
         }
 
         LOGINFO("End of Sul Library log output.");
-
         return warehouseEmpty;
     }
 
@@ -483,7 +488,7 @@ namespace SulDownloader
     std::vector<DownloadedProduct> WarehouseRepository::getProducts() const
     {
         std::vector<DownloadedProduct> products;
-        for (auto& productPair : m_products)
+        for (const auto& productPair : m_products)
         {
             products.push_back(productPair.second);
         }

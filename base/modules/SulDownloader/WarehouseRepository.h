@@ -54,6 +54,7 @@ namespace SulDownloader
     class WarehouseRepository : public virtual suldownloaderdata::IWarehouseRepository
     {
     public:
+        using SulLogsVector = std::vector<std::string>;
         /**
          * Using the information in the configuration data object, connections to remote warehouse repositories will be
          * attempted Upon a successful connection, the metadata will be fetched from the remote Warehouse and a
@@ -70,11 +71,31 @@ namespace SulDownloader
         static std::unique_ptr<WarehouseRepository> FetchConnectedWarehouse(
             const suldownloaderdata::ConfigurationData& configurationData);
 
+        /**
+         * Attempt to connect to a provided connection setup information.
+         *
+         *
+         * @param connectionSetup
+         * @param supplementOnly  Only download supplements
+         * @param sulLogs  Append logs to this object
+         * @param configurationData
+         * @return
+         */
         static std::unique_ptr<WarehouseRepository> tryConnect(
-            suldownloaderdata::ConnectionSetup& connectionSetup,
+            const suldownloaderdata::ConnectionSetup& connectionSetup,
             bool supplementOnly,
-            std::vector<std::string>& sulLogs,
+            SulLogsVector& sulLogs,
             const suldownloaderdata::ConfigurationData& configurationData);
+
+        /**
+         * Create a failed warehouse object, logging sulLogs in the process
+         * @param sulLogs
+         * @return
+         */
+        static std::unique_ptr<WarehouseRepository> createFailedWarehouse(
+            SulLogsVector& sulLogs
+            );
+
 
         WarehouseRepository() = delete;
         WarehouseRepository(const WarehouseRepository&) = delete;
