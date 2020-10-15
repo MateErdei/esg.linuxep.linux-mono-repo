@@ -3,6 +3,7 @@ Library   OperatingSystem
 
 Resource  ../installer/InstallerResources.robot
 Resource  CommsComponentResources.robot
+Resource  ../watchdog/LogControlResources.robot
 Library   ${LIBS_DIRECTORY}/CommsComponentUtils.py
 Library   ${LIBS_DIRECTORY}/LogUtils.py
 Library   ${LIBS_DIRECTORY}/OSUtils.py
@@ -59,12 +60,48 @@ Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
         ...  2 secs
         ...  Check Comms Component Is Running
 
-
-Test Comms Component Backsup and Restore Logs
+Test Comms Component Loggings
     [Tags]   COMMS  TAP_TESTS
     Require Installed
 
-    Check Comms Component Is Running
+    #restart with systemctl
+    Stop Watchdog
+    Check Comms Component Not Running
+    Override LogConf File as Global Level  DEBUG
+    Start Watchdog
+
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  2 secs
+        ...  Check Comms Component Is Running
+
+    Check Log Contains In Order
+    ...  ${CommsNetworkLogsPath}
+    ...  DEBUG
+    ...  Unmount path: /opt/sophos-spl/var/sophos-spl-comms/lib
+    ...  DEBUG
+    ...  Unmount path: /opt/sophos-spl/var/sophos-spl-comms/usr/lib
+    Check Log Contains In Order
+    ...  ${CommsNetworkLogsPath}
+    ...  DEBUG
+    ...  Successfully read only mounted '/lib' to path: '/opt/sophos-spl/var/sophos-spl-comms/lib
+    ...  DEBUG
+    ...  Successfully read only mounted '/usr/lib' to path: '/opt/sophos-spl/var/sophos-spl-comms/usr/lib
+
+Test Comms Component Backsup and Restores Logs
+    [Tags]   COMMS  TAP_TESTS
+    Require Installed
+
+    #restart with systemctl
+    Stop Watchdog
+    Check Comms Component Not Running
+    Override LogConf File as Global Level  DEBUG
+    Start Watchdog
+
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  2 secs
+        ...  Check Comms Component Is Running
 
     Wait Until Keyword Succeeds
         ...  10 secs
@@ -98,8 +135,14 @@ Test Comms Component Recovers From Previous Logs Backsup Failures
     [Tags]   COMMS  TAP_TESTS
     Require Installed
 
-    Check Comms Component Is Running
-
+    Stop Watchdog
+    Check Comms Component Not Running
+    Override LogConf File as Global Level  DEBUG
+    Start Watchdog
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  2 secs
+        ...  Check Comms Component Is Running
     Wait Until Keyword Succeeds
         ...  10 secs
         ...  2 secs
