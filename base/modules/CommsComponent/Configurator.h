@@ -50,9 +50,9 @@ namespace CommsComponent
         void setupLoggingFiles();
 
         //use ostream to append logs to be passed to logger once initialised
-        void backupLogsAndRemoveChrootDir(std::ostream& out);
-        void backupLogs(std::ostream& out);
-        void restoreLogs(std::ostream& out);
+        void backupLogsAndRemoveChrootDir(std::vector<std::pair<std::string, int>>& out);
+        void backupLogs(std::vector<std::pair<std::string, int>>& out);
+        void restoreLogs(std::vector<std::pair<std::string, int>>& out);
 
     public:
         static void clearFilesOlderThan1Hour();
@@ -71,7 +71,7 @@ namespace CommsComponent
         };
 
         static MountOperation mountDependenciesReadOnly(const UserConf& userConf, const std::vector<ReadOnlyMount>&,
-                                                        const std::string& chrootDir, std::ostream&);
+                                                        const std::string& chrootDir, std::vector<std::pair<std::string, int>>& out);
 
         CommsConfigurator(std::string newRoot, UserConf childUser, UserConf parentUser,
                           std::vector<ReadOnlyMount> dependenciesToMount);

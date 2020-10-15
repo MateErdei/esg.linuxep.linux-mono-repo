@@ -13,7 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/TestMacros.h>
 
 #include <sys/mount.h>
-
+#include <vector>
 
 using namespace CommsComponent;
 
@@ -32,7 +32,7 @@ public:
     }
 
     void mountForTest(UserConf child, const std::string& chrootDir, std::vector<CommsComponent::ReadOnlyMount> listOfDependency
-    , std::ostream& output)
+    , std::vector<std::pair<std::string,int>> output)
     {
         if (CommsConfigurator::mountDependenciesReadOnly(child, listOfDependency, chrootDir, output)
             == CommsConfigurator::MountOperation::MountFailed)
@@ -53,8 +53,9 @@ TEST_F(TestConfigurator, MountDependenciesReadOnly) // NOLINT
    MAYSKIP;
 //
    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+    std::vector<std::pair<std::string,int>> output;
    ASSERT_EXIT({
-                   std::stringstream output;
+
                    Tests::TempDir tempDir("/tmp");
                    UserConf child;
                    child.userName = "lp";
@@ -91,9 +92,8 @@ TEST_F(TestConfigurator, applyChildSecurityPolicyPurgesAllFilesUnderChroot) // N
     MAYSKIP;
     //
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-    ASSERT_EXIT(
-            {
-                std::stringstream output;
+    ASSERT_EXIT({
+
                 Tests::TempDir tempDir("/tmp");
                 UserConf child;
                 child.userName = "lp";
@@ -124,9 +124,9 @@ TEST_F(TestConfigurator, applyChildSecurityPolicyMountedPathsAreProtectedFromDel
     MAYSKIP;
     //
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+    std::vector<std::pair<std::string,int>> output;
     ASSERT_EXIT(
     {
-    std::stringstream output;
     Tests::TempDir tempDir("/tmp");
     UserConf child;
     child.userName = "lp";

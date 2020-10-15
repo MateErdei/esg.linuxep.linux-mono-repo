@@ -37,7 +37,7 @@ namespace Common::SecurityUtils
         throw FatalSecuritySetupFailureException(err.str());
     }
 
-    void dropPrivileges(uid_t newuid, gid_t newgid, std::ostream& out)
+    void dropPrivileges(uid_t newuid, gid_t newgid, std::vector<std::pair<std::string, int>>& out)
     {
         gid_t oldgid = getegid();
         uid_t olduid = geteuid();
@@ -77,11 +77,12 @@ namespace Common::SecurityUtils
             FatalSecuritySetupFailureException::onError(
                     "Process should fail to set effective group ids after dropping privilege.");
         }
-        out << "Droped privilege to user_id: " << newuid << " group_id: " << newgid << std::endl;
+        //TODO LINUXDAR-2270 chnage to user and group names instead of id
+        out.push_back(std::make_pair("Dropped privilege to user_id: " + std::to_string(newuid) + " group_id: " + std::to_string(newgid), 2));
 
     }
 
-    void dropPrivileges(const std::string& userString, const std::string& groupString, std::ostream& out)
+    void dropPrivileges(const std::string& userString, const std::string& groupString, std::vector<std::pair<std::string, int>>& out)
     {
         auto runUser = getUserIdAndGroupId(userString, groupString, out);
         if (!runUser.has_value())
@@ -100,7 +101,7 @@ namespace Common::SecurityUtils
      * Ref: https://wiki.sophos.net/display/~MoritzGrimm/Validate+Transitive+Trust+in+Endpoints
      * Ref: http://www.unixwiz.net/techtips/chroot-practices.html
      */
-    void setupJailAndGoIn(const std::string& chrootDirPath, std::ostream& out)
+    void setupJailAndGoIn(const std::string& chrootDirPath, std::vector<std::pair<std::string, int>>& out)
     {
         if (chdir(chrootDirPath.c_str()) == -1)
         {
@@ -116,11 +117,11 @@ namespace Common::SecurityUtils
         {
             FatalSecuritySetupFailureException::onError("Failed to sync PWD environment variable.");
         }
-        out << "Chroot to " << chrootDirPath << std::endl;
+        out.push_back(std::make_pair("Chroot to " + chrootDirPath, 2));
     }
 
     std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string& groupName,
-                                                    std::ostream& out)
+                                                    std::vector<std::pair<std::string, int>>& out)
     {
         try
         {
@@ -132,14 +133,16 @@ namespace Common::SecurityUtils
         }
         catch (const Common::FileSystem::IFileSystemException& iFileSystemException)
         {
-            out << "Permission denied: " << iFileSystemException.what() << std::endl;
+            std::stringstream error;
+            error << "Permission denied: " << iFileSystemException.what();
+            out.push_back(std::make_pair(error.str(), 4));
             return std::nullopt;
         }
     }
 
 
     void chrootAndDropPrivileges(const std::string& userName, const std::string& groupName,
-                                 const std::string& chrootDirPath, std::ostream& out)
+                                 const std::string& chrootDirPath, std::vector<std::pair<std::string, int>>& out)
     {
         auto runAsUser = getUserIdAndGroupId(userName, groupName, out);
 
@@ -148,17 +151,19 @@ namespace Common::SecurityUtils
         {
             if (!runAsUser.has_value())
             {
-                out << "User not identified" << std::endl;
+                out.push_back(std::make_pair("User not identified : " + userName, 3));
             }
             else
             {
                 auto v = runAsUser.value();
-                out << "Identified user: " << v.m_userid << " and group: " << v.m_groupid << std::endl;
+                std::stringstream message;
+                message << "Identified user: " << v.m_userid << " and group: " << v.m_groupid;
+                out.push_back(std::make_pair(message.str(), 1));
             }
 
             if (getuid() != 0U)
             {
-                out << "Running not as root" << std::endl;
+                out.push_back(std::make_pair("Running not as root", 2));
             }
 
 
@@ -169,14 +174,14 @@ namespace Common::SecurityUtils
     }
 
 
-    bool bindMountReadOnly(const std::string& sourceFile, const std::string& targetMountLocation, std::ostream& out)
+    bool bindMountReadOnly(const std::string& sourceFile, const std::string& targetMountLocation, std::vector<std::pair<std::string, int>>& out)
     {
         auto fs = Common::FileSystem::fileSystem();
 
         if (isAlreadyMounted(targetMountLocation, out))
         {
-            out << "Source '" << sourceFile << "' is already mounted on '" << targetMountLocation << " Error: "
-                << std::strerror(errno) << std::endl;
+            out.push_back(std::make_pair("Source '" + sourceFile + "' is already mounted on '" + targetMountLocation + " Error: "
+                + std::strerror(errno), 3));
             return true;
         }
 
@@ -193,22 +198,22 @@ namespace Common::SecurityUtils
         if (mount(sourceFile.c_str(), targetMountLocation.c_str(), nullptr, MS_MGC_VAL | MS_RDONLY | MS_BIND, nullptr)
             == -1)
         {
-            out << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
-                << std::strerror(errno) << std::endl;
+            out.push_back(std::make_pair("Mount for '" + sourceFile + "' to path '" + targetMountLocation + " failed. Reason: "
+                + std::strerror(errno), 4));
             return false;
         }
 
         if (mount("none", targetMountLocation.c_str(), nullptr, MS_RDONLY | MS_REMOUNT | MS_BIND, nullptr) == -1)
         {
-            out << "Mount for '" << sourceFile << "' to path '" << targetMountLocation << " failed. Reason: "
-                << std::strerror(errno) << std::endl;
+            out.push_back(std::make_pair("Mount for '" + sourceFile + "' to path '" + targetMountLocation + " failed. Reason: "
+                + std::strerror(errno), 4));
             return false;
         }
-        out << "Successfully read only mounted '" << sourceFile << "' to path: '" << targetMountLocation << std::endl;
+        out.push_back(std::make_pair("Successfully read only mounted '" + sourceFile + "' to path: '" + targetMountLocation, 0));
         return true;
     }
 
-    bool isFreeMountLocation(const std::string& targetFile, std::ostream& out)
+    bool isFreeMountLocation(const std::string& targetFile, std::vector<std::pair<std::string, int>>& out)
     {
         //we will alway create a file to indicated mounted in our mount directories
         auto fs = Common::FileSystem::fileSystem();
@@ -228,33 +233,35 @@ namespace Common::SecurityUtils
             }
             catch (const Common::FileSystem::IFileSystemException& fileSystemException)
             {
-                out << "Failed to check if mounted. Reason: " << fileSystemException.what() << std::endl;
+                std::stringstream error;
+                error << "Failed to check if mounted. Reason: " << fileSystemException.what();
+                out.push_back(std::make_pair(error.str(), 4));
                 return false;
             }
         }
         return true;
     }
 
-    bool isAlreadyMounted(const std::string& targetMountLocation, std::ostream& out)
+    bool isAlreadyMounted(const std::string& targetMountLocation, std::vector<std::pair<std::string, int>>& out)
     {
         if (mount("none", targetMountLocation.c_str(), nullptr, MS_RDONLY | MS_REMOUNT | MS_BIND, nullptr) == -1)
         {
             auto expectedValue = (errno == EINVAL);
             if (!expectedValue)
             {
-                out << "Warning file is mounted test on: '" << targetMountLocation
-                    << "' unexpected errro. Error: " << std::strerror(errno) << std::endl;
+                out.push_back(std::make_pair("Warning file is mounted test on: '" + targetMountLocation
+                    + "' unexpected errro. Error: " + std::strerror(errno), 3));
             }
             return false;
         }
         return true;
     }
 
-    bool unMount(const std::string& targetDir, std::ostream& out)
+    bool unMount(const std::string& targetDir, std::vector<std::pair<std::string, int>>& out)
     {
         if (umount2(targetDir.c_str(), MNT_FORCE) == -1)
         {
-            out << "un-mount for '" << targetDir << "' failed. Reason: " << std::strerror(errno) << std::endl;
+            out.push_back(std::make_pair("un-mount for '" + targetDir + "' failed. Reason: " + std::strerror(errno), 4));
             return false;
         }
         return true;

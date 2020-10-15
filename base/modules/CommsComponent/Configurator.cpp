@@ -43,7 +43,7 @@ namespace
         return mountedPaths;
     }
 
-    bool isSafeToPurgeChroot(const std::vector<std::string>& listOfMountedPaths, std::ostream& out)
+    bool isSafeToPurgeChroot(const std::vector<std::string>& listOfMountedPaths, std::vector<std::pair<std::string, int>>& out)
     {
         for (auto& mountedPath : listOfMountedPaths)
         {
@@ -56,11 +56,11 @@ namespace
         return true;
     }
 
-    void cleanMountedPaths(const std::vector<std::string>& listOfMountedPaths, std::ostream& out)
+    void cleanMountedPaths(const std::vector<std::string>& listOfMountedPaths, std::vector<std::pair<std::string, int>>& out)
     {
         for (auto& mountedPath : listOfMountedPaths)
         {
-            out <<"Unmount path: " << mountedPath << std::endl;
+            out.push_back(std::make_pair("Unmount path: " + mountedPath, 0));
             Common::SecurityUtils::unMount(mountedPath, out);
         }
     }
@@ -80,7 +80,7 @@ namespace CommsComponent
 
     void CommsConfigurator::applyChildSecurityPolicy()
     {
-        std::stringstream output;
+        std::vector<std::pair<std::string,int>> output;
         try
         {
             backupLogsAndRemoveChrootDir(output);
@@ -103,13 +103,20 @@ namespace CommsComponent
         {
             //There is no logging at this point and
             // These lines aid when working with this code and unitests
-            std::cout << output.str() << std::endl;
+            for (const auto& pair: output )
+            {
+                std::cout << pair.first << std::endl;
+            }
+
             std::cerr << ex.what() << std::endl;
             exit(EXIT_FAILURE);
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
-            std::cout << output.str() << std::endl;
+            for (const auto& pair: output)
+            {
+                std::cout << pair.first << std::endl;
+            }
             std::cerr << ex.what() << std::endl;
             exit(EXIT_FAILURE);
         }
@@ -117,26 +124,75 @@ namespace CommsComponent
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/");
         Path logPath = Common::FileSystem::join("/logs", m_childUser.logName + ".log");
         m_logSetup.reset(new Common::Logging::FileLoggingSetup(logPath));
-        LOGINFO(output.str());
+        for (const auto& pair: output)
+        {
+            switch (pair.second)
+            {
+                case 0:
+                    LOGDEBUG(pair.first);
+                    break;
+                case 1:
+                    LOGSUPPORT(pair.first);
+                    break;
+                case 2:
+                    LOGINFO(pair.first);
+                    break;
+                case 3:
+                    LOGWARN(pair.first);
+                    break;
+                case 4:
+                    LOGERROR(pair.first);
+                    break;
+                default:
+                    LOGINFO(pair.first);
+                    break;
+            }
+        }
+
     }
 
 
     void CommsConfigurator::applyParentSecurityPolicy()
     {
-        std::stringstream output;
+        std::vector<std::pair<std::string,int>> output;
         try
         {
             Common::SecurityUtils::dropPrivileges(m_parentUser.userName, m_parentUser.userGroup, output);
         }
         catch (Common::SecurityUtils::FatalSecuritySetupFailureException& ex)
         {
-            std::cout << output.str() << std::endl;
+            for (const auto& pair: output)
+            {
+                std::cout << pair.first << std::endl;
+            }
+            std::cerr << ex.what() << std::endl;
             std::cerr << ex.what() << std::endl;
             exit(EXIT_FAILURE);
         }
 
         m_logSetup.reset(new Common::Logging::FileLoggingSetup(m_parentUser.logName, true));
-        LOGINFO(output.str());
+        for (const auto& pair: output) {
+            switch (pair.second) {
+                case 0:
+                    LOGDEBUG(pair.first);
+                    break;
+                case 1:
+                    LOGSUPPORT(pair.first);
+                    break;
+                case 2:
+                    LOGINFO(pair.first);
+                    break;
+                case 3:
+                    LOGWARN(pair.first);
+                    break;
+                case 4:
+                    LOGERROR(pair.first);
+                    break;
+                default:
+                    LOGINFO(pair.first);
+                    break;
+            }
+        }
     }
 
     CommsConfigurator::CommsConfigurator(std::string newRoot, UserConf childUser, UserConf parentUser,
@@ -177,7 +233,7 @@ namespace CommsComponent
 
     CommsConfigurator::MountOperation CommsConfigurator::mountDependenciesReadOnly(
             const CommsComponent::UserConf& userConf,
-            const std::vector<ReadOnlyMount>& listOfDependencyPairs, const std::string& chrootDir, std::ostream& out)
+            const std::vector<ReadOnlyMount>& listOfDependencyPairs, const std::string& chrootDir, std::vector<std::pair<std::string, int>>& out)
     {
         auto fs = Common::FileSystem::fileSystem();
         auto ifperms = Common::FileSystem::FilePermissionsImpl();
@@ -200,11 +256,11 @@ namespace CommsComponent
             {
                 if (Common::SecurityUtils::isAlreadyMounted(targetPath, out))
                 {
-                    out << "Configure source '" << sourcePath << "' is already mounted on '" << targetPath << "\n";
+                    out.push_back(std::make_pair("Configure source '" + sourcePath + "' is already mounted on '" + targetPath, 3));
                     continue;
                 }
                 //this could be anything do not mount ontop
-                out << "File without the expected content found in the mount location: " << targetPath << "\n";
+                out.push_back(std::make_pair("File without the expected content found in the mount location: " + targetPath, 3));
                 return MountOperation::MountFailed;
             }
 
@@ -275,10 +331,14 @@ namespace CommsComponent
 
     void CommsConfigurator::cleanDefaultMountedPaths(const std::string& chrootDir)
     {
-        std::stringstream out;
+        std::vector<std::pair<std::string, int>> out;
         auto listOfMountedPaths = getListOfMountedEntities(chrootDir);
         cleanMountedPaths(listOfMountedPaths, out);
-        LOGINFO(out.str());
+        for (const auto& pair: out)
+        {
+            LOGINFO(pair.first);
+        }
+
     }
 
     std::string CommsConfigurator::chrootPathForSSPL(const std::string& ssplRootDir)
@@ -286,7 +346,7 @@ namespace CommsComponent
         return Common::FileSystem::join(ssplRootDir, "var/sophos-spl-comms");
     }
 
-    void CommsConfigurator::backupLogsAndRemoveChrootDir(std::ostream& out)
+    void CommsConfigurator::backupLogsAndRemoveChrootDir(std::vector<std::pair<std::string, int>>& out)
     {
         if (Common::FileSystem::fileSystem()->exists(m_chrootDir))
         {
@@ -303,7 +363,7 @@ namespace CommsComponent
     }
 
     //Restore logs back into chroot path
-    void CommsConfigurator::restoreLogs(std::ostream &out)
+    void CommsConfigurator::restoreLogs(std::vector<std::pair<std::string, int>>& out)
     {
         auto fs = Common::FileSystem::fileSystem();
         auto logsDir = Common::FileSystem::join(m_chrootDir, "logs");
@@ -331,7 +391,7 @@ namespace CommsComponent
             }
             catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
             {
-                out << "Failed to restore logs from: '" << backup <<"'. " << iFileSystemException.what();
+                out.push_back(std::make_pair("Failed to restore logs from: '" + backup + "'. " + iFileSystemException.what(), 4));
             }
 
             //cleanup the backup away the backup
@@ -341,13 +401,13 @@ namespace CommsComponent
             }
             catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
             {
-                out << "Failed to cleanup logs backup from: '" << backup <<"'. " << iFileSystemException.what();
+                out.push_back(std::make_pair("Failed to cleanup logs backup from: '" + backup + "'. " + iFileSystemException.what(), 4));
             }
         }
     }
 
     //backup logs in sophos temp
-    void CommsConfigurator::backupLogs(std::ostream &out)
+    void CommsConfigurator::backupLogs(std::vector<std::pair<std::string, int>>& out)
     {
         auto logsDir = Common::FileSystem::join(m_chrootDir, "logs");
         try
@@ -361,12 +421,12 @@ namespace CommsComponent
                     fs->removeFileOrDirectory(logsBackUpPath);
                 }
                 fs->moveFile(logsDir, logsBackUpPath);
-                out << "Backup logs from: '" << logsDir <<"', to: '" << logsBackUpPath <<"'\n";
+                out.push_back(std::make_pair("Backup logs from: '" + logsDir + "', to: '" + logsBackUpPath, 2));
             }
         }
         catch (const Common::FileSystem::IFileSystemException &iFileSystemException)
         {
-           out << "Failed to backup logs from: '" << logsDir <<"'. " << iFileSystemException.what();
+            out.push_back(std::make_pair("Failed to backup logs from: '" + logsDir + "'. " + iFileSystemException.what(), 4));
         }
     }
-}   //namesapce
+}   //namespace

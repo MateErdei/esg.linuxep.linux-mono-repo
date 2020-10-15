@@ -16,7 +16,7 @@ using namespace Common::SecurityUtils;
 class TestSecurityUtils : public ::testing::Test
 {
     public:
-    std::stringstream m_out; 
+    std::vector<std::pair<std::string,int>> m_out;
 };
 
 TEST_F(TestSecurityUtils, TestDropPrivilegeToNobody) // NOLINT
@@ -210,7 +210,7 @@ public:
         unMount(m_targetFile, m_output);
     }
 
-    std::stringstream m_output; 
+    std::vector<std::pair<std::string,int>> m_output;
     std::string m_rootPath;
     Tests::TempDir m_tempDir;
     std::string m_sourceDir;
