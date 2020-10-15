@@ -26,6 +26,12 @@ namespace SulDownloader
     protected:
         virtual time_t getCurrentTime();
         virtual time_t getLastSuccessfulProductUpdate();
+
+        /**
+         * Get the time the update should have last been scheduled
+         * @return
+         */
+        time_t lastScheduledProductUpdate();
     private:
         WeekDayAndTimeForDelay m_schedule;
     };

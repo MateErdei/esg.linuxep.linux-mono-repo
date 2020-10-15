@@ -48,9 +48,15 @@ bool UpdateSupplementDecider::updateProducts()
         return true;
     }
 
-    time_t nowTime = getCurrentTime();
     time_t lastSuccessfulProductUpdate = getLastSuccessfulProductUpdate();
+    time_t lastScheduledProductUpdateTime = lastScheduledProductUpdate();
 
+    return lastScheduledProductUpdateTime > lastSuccessfulProductUpdate;
+}
+
+time_t UpdateSupplementDecider::lastScheduledProductUpdate()
+{
+    time_t nowTime = getCurrentTime();
     constexpr static int SecondsInMin = 60;
     constexpr static int SecondsInHour = 60 * SecondsInMin;
     constexpr static int SecondsInDay = 24 * SecondsInHour;
@@ -59,19 +65,19 @@ bool UpdateSupplementDecider::updateProducts()
     // Work out when the last check should have happened
     std::tm now = *std::localtime(&nowTime); // assume the schedule is supposed to be local time
 
-    int dayDiff = now.tm_wday - m_schedule.weekDay;
-    int hourDiff = now.tm_hour - m_schedule.hour;
-    int minDiff = now.tm_min - m_schedule.minute;
+    int dayDiff = now.tm_wday - m_schedule.weekDay; // How many days are we past the schedule
+    int hourDiff = now.tm_hour - m_schedule.hour; // How many hours are we past the schedule
+    int minDiff = now.tm_min - m_schedule.minute; // How many minutes are we past the schedule
 
+    // Total amount of seconds we are past the schedule
     time_t totalDiff = (dayDiff * SecondsInDay) + (hourDiff * SecondsInHour) + (minDiff * SecondsInMin) + now.tm_sec;
 
-    // If totalDiff is positive then it is in the future, and the actual time is a week ago.
-    if (totalDiff > 0)
+    // If the total is negative then the schedule is actually in the future for this week
+    // so add SecondsInWeek to the diff, so that the scheduled time is in the past
+    if (totalDiff < 0)
     {
-        totalDiff -= SecondsInWeek;
+        totalDiff += SecondsInWeek;
     }
 
-    time_t lastScheduledProductUpdate = nowTime - totalDiff;
-
-    return lastScheduledProductUpdate > lastSuccessfulProductUpdate;
+    return nowTime - totalDiff;
 }
