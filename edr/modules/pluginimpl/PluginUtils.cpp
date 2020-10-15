@@ -16,7 +16,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
-    bool PluginUtils::isRunningModeXDR(const std::string &flagContent)
+    bool PluginUtils::isRunningModeXDR(const std::string& flagContent)
     {
         bool isXDR = false;
 
@@ -32,7 +32,7 @@ namespace Plugin
                 }
             }
         }
-        catch (nlohmann::json::parse_error &ex)
+        catch (nlohmann::json::parse_error& ex)
         {
             std::stringstream errorMessage;
             errorMessage << "Could not parse json: " << flagContent << " with error: " << ex.what();
@@ -68,7 +68,7 @@ namespace Plugin
         throw std::runtime_error("running mode not set in plugin setting file");
     }
 
-    void PluginUtils::setRunningModeFlagFromSettingsFile(const bool &isXDR)
+    void PluginUtils::setRunningModeFlagFromSettingsFile(const bool& isXDR)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         std::string mode;
@@ -88,33 +88,33 @@ namespace Plugin
             {
                 bool modeIsNotSet = true;
                 std::vector<std::string> content = fileSystem->readLines(configpath);
-                std::string newContent;
+                std::stringstream newContent;
                 for (const auto &line : content)
                 {
                     // if running mode already set replace it
                     if (Common::UtilityImpl::StringUtils::isSubstring(line, MODE_IDENTIFIER))
                     {
-                        newContent = newContent + mode + "\n";
+                        newContent << mode << "\n";
                         modeIsNotSet = false;
                     }
                     else
                         {
-                        newContent = newContent + line + "\n";
+                        newContent << line << "\n";
                     }
                 }
 
                 // if running mode not already set append to end of content
                 if (modeIsNotSet)
                 {
-                    newContent = newContent + mode + "\n";
+                    newContent << mode << "\n";
                 }
 
 
-                fileSystem->writeFileAtomically(configpath,newContent,Plugin::etcDir());
+                fileSystem->writeFileAtomically(configpath, newContent.str(), Plugin::etcDir());
             }
             else
             {
-                fileSystem->writeFile(configpath, mode+ "\n");
+                fileSystem->writeFile(configpath, mode + "\n");
             }
             LOGINFO("Updated plugin conf with new running mode");
         }

@@ -17,7 +17,7 @@ namespace Plugin
         * @param flagContent, content of flags policy
         * @return true if XDR is enabled false if it is disabled
         */
-        static bool isRunningModeXDR(const std::string &flagContent);
+        static bool isRunningModeXDR(const std::string& flagContent);
 
         /**
         * Reads content of plugin.conf to see if XDR is enabled or not
@@ -29,7 +29,7 @@ namespace Plugin
         * sets value of running mode in plugin.conf
         * @param isXDR, defines whether or not the running mode should be XDR
         */
-        static void setRunningModeFlagFromSettingsFile(const bool &isXDR);
+        static void setRunningModeFlagFromSettingsFile(const bool& isXDR);
 
     private:
         inline static const std::string MODE_IDENTIFIER = "running_mode";
