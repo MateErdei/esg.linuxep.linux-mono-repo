@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
+#include <ScanRequest.capnp.h>
 
 using namespace scan_messages;
 
