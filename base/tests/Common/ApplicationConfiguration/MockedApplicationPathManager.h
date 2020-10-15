@@ -51,6 +51,7 @@ public:
     MOCK_CONST_METHOD0(getSulDownloaderConfigFilePath, std::string(void));
     MOCK_CONST_METHOD0(getSulDownloaderReportGeneratedFilePath, std::string(void));
     MOCK_CONST_METHOD0(getSulDownloaderLockFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getSulDownloaderLatestProductUpdateMarkerPath, std::string(void));
 
     MOCK_CONST_METHOD0(getSavedEnvironmentProxyFilePath, std::string(void));
 

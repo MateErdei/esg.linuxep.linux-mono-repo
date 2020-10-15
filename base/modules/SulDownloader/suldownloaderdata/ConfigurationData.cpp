@@ -429,12 +429,12 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     ProductSubscription primary = getSubscription(settings.primarysubscription());
     std::vector<ProductSubscription> products;
-    for (auto& ProtoSubscription : settings.products())
+    for (const auto& ProtoSubscription : settings.products())
     {
         products.emplace_back(getSubscription(ProtoSubscription));
     }
     std::vector<std::string> features;
-    for (auto& feature : settings.features())
+    for (const auto& feature : settings.features())
     {
         features.emplace_back(feature);
     }
@@ -466,6 +466,14 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setOptionalManifestNames(optionalManifestnames);
 
     configurationData.setUseSlowSupplements(settings.useslowsupplements());
+
+    WeekDayAndTimeForDelay schedule{
+        .enabled = settings.enabled_scheduling(),
+        .weekDay = settings.schedule_day(),
+        .hour = settings.schedule_hour(),
+        .minute = settings.schedule_minute()
+    };
+    configurationData.setSchedule(schedule);
 
     return configurationData;
 }
@@ -600,6 +608,11 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     }
 
     settings.set_useslowsupplements(configurationData.getUseSlowSupplements());
+    WeekDayAndTimeForDelay schedule = configurationData.getSchedule();
+    settings.set_enabled_scheduling(schedule.enabled);
+    settings.set_schedule_day(schedule.weekDay);
+    settings.set_schedule_hour(schedule.hour);
+    settings.set_schedule_minute(schedule.minute);
 
     for (const auto& optionalManifestName : configurationData.getOptionalManifestNames())
     {
