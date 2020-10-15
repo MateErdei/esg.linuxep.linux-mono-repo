@@ -19,6 +19,8 @@ namespace avscanner::avscannerimpl
     class ScanCallbackImpl : public IScanCallbacks
     {
     public:
+        ScanCallbackImpl() = default;
+
         void cleanFile(const path&) override;
         void infectedFile(const path& path, const std::string& threatName, bool isSymlink=false) override;
         void scanError(const std::string& errorMsg) override;
@@ -45,7 +47,7 @@ namespace avscanner::avscannerimpl
         int m_noOfInfectedFiles = 0;
         int m_noOfCleanFiles = 0;
         int m_noOfErrors = 0;
-        time_t  m_startTime;
+        time_t  m_startTime = 0;
         int m_returnCode = E_CLEAN;
         std::map<std::string, int> m_threatCounter;
     };
