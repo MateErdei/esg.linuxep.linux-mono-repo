@@ -69,7 +69,7 @@ Check SulDownloader Run Installers for Base and MTR
 
 ALC contains Update Cache
     ${alc} =  Get File  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-    Should Contain  ${alc}  ssplucmr
+    Should Contain  ${alc}  hostname="sspluc
 
 
 Check Installed Correctly
