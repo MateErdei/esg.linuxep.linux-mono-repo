@@ -7,11 +7,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "UpdateSupplementDecider.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 #include <memory>
 
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+
 #include <unistd.h>
 
 using namespace SulDownloader;
@@ -34,6 +36,12 @@ time_t UpdateSupplementDecider::getLastSuccessfulProductUpdate()
         return statbuf.st_mtime;
     }
     return 0;
+}
+
+void UpdateSupplementDecider::recordSuccessfulProductUpdate()
+{
+    std::string path = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLatestProductUpdateMarkerPath();
+    Common::FileSystem::fileSystem()->writeFile(path, "");
 }
 
 time_t UpdateSupplementDecider::getCurrentTime()

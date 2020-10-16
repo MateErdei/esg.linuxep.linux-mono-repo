@@ -146,6 +146,14 @@ namespace SulDownloader
         // connect and read metadata
         UpdateSupplementDecider productUpdateSupplementDecider(configurationData.getSchedule());
         bool supplementOnly = !productUpdateSupplementDecider.updateProducts();
+        if (supplementOnly)
+        {
+            LOGINFO("Doing supplement-only update");
+        }
+        else
+        {
+            LOGINFO("Doing product and supplement update");
+        }
 
         bool success = false;
 
@@ -353,6 +361,12 @@ namespace SulDownloader
             {
                 LOGINFO("Downloaded Product line: '" << product.getLine() << "' is up to date.");
             }
+        }
+
+        // Successfully completed update
+        if (!supplementOnly)
+        {
+            UpdateSupplementDecider::recordSuccessfulProductUpdate();
         }
 
         timeTracker.setFinishedTime(TimeUtils::getCurrTime());

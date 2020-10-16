@@ -23,6 +23,11 @@ namespace SulDownloader
          */
         bool updateProducts();
 
+        /**
+         * Record that we have successfully updated the product
+         */
+        static void recordSuccessfulProductUpdate();
+
     protected:
         virtual time_t getCurrentTime();
         virtual time_t getLastSuccessfulProductUpdate();

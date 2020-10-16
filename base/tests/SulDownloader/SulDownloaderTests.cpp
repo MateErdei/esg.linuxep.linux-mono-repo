@@ -282,6 +282,8 @@ public:
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, isFile("/installroot/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
 
+        setupExpectanceWriteProductUpdate(*filesystemMock);
+
         auto* pointer = filesystemMock;
         m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
@@ -322,6 +324,13 @@ public:
                 .WillRepeatedly(Return(true));
         EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
             .WillOnce(Return(currentVersionContents));
+    }
+
+    void setupExpectanceWriteProductUpdate(MockFileSystem& mockFileSystem)
+    {
+        EXPECT_CALL(
+            mockFileSystem, writeFile("/installroot/var/suldownloader_last_product_update.marker", "")
+        ).Times(::testing::AtMost(1));
     }
 
     void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains)
