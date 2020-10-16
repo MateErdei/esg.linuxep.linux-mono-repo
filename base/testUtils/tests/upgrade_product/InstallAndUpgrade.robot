@@ -230,6 +230,10 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     # Note when downgrading from a release with live response to a release without live response
     # results in a second update.
     Override LogConf File as Global Level  DEBUG
+    Create File  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -243,7 +247,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...   200 secs
     ...   10 secs
     ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
-
+    
+    Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
@@ -821,8 +826,7 @@ Check Update Reports Have Been Processed
    Log  ${filesInUpdateVar}
 
    ${ProcessedFileCount}=  Get length   ${files_in_processed_dir}
-   #TODO LINUXDAR-2285 change number of reports back to 1
-   Should Be Equal As Numbers  ${ProcessedFileCount}   2
+   Should Be Equal As Numbers  ${ProcessedFileCount}   1
    Should Contain  ${files_in_processed_dir}[0]  update_report
    Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
 

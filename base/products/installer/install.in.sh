@@ -374,6 +374,10 @@ if [[ -d "${SOPHOS_INSTALL}/base/mcs/action" ]]
 then
     chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/action"
     chmod -R 640 "${SOPHOS_INSTALL}/base/mcs/action"
+    if [ -n "$(ls -A "${SOPHOS_INSTALL}/base/mcs/action" 2>/dev/null)" ]
+    then
+      rm -rf "${SOPHOS_INSTALL}/base/mcs/action/"*
+    fi
 fi
 
 if [[ -d "${SOPHOS_INSTALL}/tmp/actions" ]]
