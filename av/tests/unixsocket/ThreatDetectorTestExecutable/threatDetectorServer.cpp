@@ -8,8 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
-
+#include "datatypes/sophos_filesystem.h"
 #include "datatypes/Print.h"
+
 #include <string>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -20,6 +21,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <unixsocket/SocketUtils.h>
 
+
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
 namespace
@@ -27,14 +29,16 @@ namespace
     class FakeScanner : public threat_scanner::IThreatScanner
     {
         scan_messages::ScanResponse scan(
-                datatypes::AutoFd& /* fd */,
-                const std::string& /*file_path*/,
-                int64_t /*scanType*/,
-                const std::string& /*userID*/) override
+                datatypes::AutoFd& fd,
+                const std::string& file_path,
+                int64_t scanType,
+                const std::string& userID) override
         {
-            // PRINT(file_path);
             scan_messages::ScanResponse response;
-            response.addDetection("/bin/bash", "");
+            std::stringstream fullResult;
+            fullResult << "fd=" << fd << ", scanType=" << scanType << ", userID=" << userID;
+            response.addDetection(file_path, "fuzz-test");
+            response.setFullScanResult(fullResult.str());
             return response;
         }
     };
@@ -141,51 +145,36 @@ static bool DoInitialization()
     return true;
 }
 
-int main(int argc, char* argv[])
+static int writeSampleFile(std::string filename)
 {
-    if( argc < 2 )
-    {
-        PRINT("missing arg");
-        exit(EXIT_FAILURE);
-    }
 
-    if(strcmp(argv[1], "--write-valid-request") == 0)
-    {
-        if( argc < 3 )
-        {
-            PRINT("missing filename");
-            exit(EXIT_FAILURE);
-        }
-        scan_messages::ClientScanRequest request;
-        request.setPath("/dir/file");
-        request.setScanInsideArchives(false);
-        request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
-        request.setUserID("root");
+    scan_messages::ClientScanRequest request;
+    request.setPath("/dir/file");
+    request.setScanInsideArchives(false);
+    request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    request.setUserID("root");
 
-        std::ofstream outfile(argv[2], std::ios::binary);
+    std::ofstream outfile(filename, std::ios::binary);
 
-        std::string request_str = request.serialise();
+    std::string request_str = request.serialise();
 
-        char size = request_str.size();
-        outfile.write(&size, sizeof(size));
+    char size = request_str.size();
+    outfile.write(&size, sizeof(size));
 
-        outfile.write(request_str.data(), request_str.size());
-        outfile.close();
-        exit(EXIT_SUCCESS);
+    outfile.write(request_str.data(), request_str.size());
+    outfile.close();
+    return EXIT_SUCCESS;
+}
 
-    }
-
-
-    static bool Initialized = DoInitialization();
-    static_cast<void>(Initialized);
-
-    std::ifstream file(argv[1], std::ios::binary | std::ios::ate);
+static int processFile(std::string filename)
+{
+    std::ifstream file(filename, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
 
-    if ( size < 0 )
+    if (size < 0)
     {
         PRINT("cannot open file");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     file.seekg(0, std::ios::beg);
@@ -194,9 +183,64 @@ int main(int argc, char* argv[])
     if (!file.read(buffer.data(), size))
     {
         PRINT("cannot read file");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
-    return DoSomethingWithData(reinterpret_cast<const uint8_t *>(buffer.data()), size);
+    return DoSomethingWithData(reinterpret_cast<const uint8_t*>(buffer.data()), size);
+}
+
+int main(int argc, char* argv[])
+{
+    if( argc < 2 )
+    {
+        PRINT("missing arg");
+        return EXIT_FAILURE;
+    }
+
+    if(strcmp(argv[1], "--write-valid-request") == 0)
+    {
+        if( argc < 3 )
+        {
+            PRINT("missing filename");
+            return EXIT_FAILURE;
+        }
+
+        return writeSampleFile(argv[2]);
+    }
+
+    static bool Initialized = DoInitialization();
+    static_cast<void>(Initialized);
+
+    if (sophos_filesystem::is_directory(argv[1]))
+    {
+        for (auto& p: sophos_filesystem::directory_iterator(argv[1]))
+        {
+            if (!sophos_filesystem::is_regular_file(p))
+            {
+                std::cout << "Skipping " << p.path() << '\n';
+                continue;
+            }
+
+            std::cout << "Processing " << p.path() << '\n';
+            int ret = processFile(p.path());
+            if (ret != EXIT_SUCCESS)
+            {
+                std::cerr << "Error while processing file " << p.path() << '\n';
+                return ret;
+            }
+        }
+    }
+    else if (sophos_filesystem::is_regular_file(argv[1]))
+    {
+        int ret = processFile(argv[1]);
+        return ret;
+    }
+    else
+    {
+        std::cerr << "Error: not a file or directory" << '\n';
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 #endif

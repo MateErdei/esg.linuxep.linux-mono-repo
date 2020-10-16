@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "../Logger.h"
 
+#include <cassert>
 #include <csignal>
 
 int unixsocket::SigUSR1Monitor::monitorFd()
