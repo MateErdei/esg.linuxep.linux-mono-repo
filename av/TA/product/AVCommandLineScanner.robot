@@ -97,6 +97,7 @@ CLS Can Scan Clean File
 
 
 CLS Does Not Ordinarily Output To Stderr
+
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file 1>/dev/null
 
@@ -115,17 +116,13 @@ CLS Can Scan Infected File
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${NORMAL_DIRECTORY}/naugthy_eicar"
 
+CLS Does not request TFTClassification from SUSI
+      Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
-CLS Summary is Correct
-   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-   Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar ${NORMAL_DIRECTORY}/clean_file
-
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-   Should Contain   ${output}  2 files scanned in
-   Should Contain   ${output}  1 file out of 2 was infected.
-   Should Contain   ${output}  1 EICAR-AV-Test infection discovered.
-
+      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+      File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in "${NORMAL_DIRECTORY}/naugthy_eicar"
+      Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  TFTClassifications
 
 CLS Can Scan Archive File
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
@@ -224,6 +221,17 @@ CLS Can Scan Infected And Clean File With The Same Name
     Log To Console  return code is ${rc}
     Log To Console  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Log To Console  ${NORMAL_DIRECTORY}
+
+CLS Does Not Detect PUAs
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar_pua    ${EICAR_PUA_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar_folder/eicar_pua
+
+    Log To Console  return code is ${rc}
+    Log To Console  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     Log To Console  ${NORMAL_DIRECTORY}
 
@@ -366,6 +374,43 @@ CLS Handles Wild Card Eicars
     Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/*
     Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/eicar.com
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+
+CLS Handles Eicar With The Same Name As An Option
+    [Teardown]  Run Keywords    AVCommandLineScanner Test TearDown
+    ...         AND             Remove File     /-x
+    ...         AND             Remove File     /--exclude
+
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/--exclude   ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/-x   ${EICAR_STRING}
+    Create File     /--exclude   ${EICAR_STRING}
+    Create File     /-x   ${EICAR_STRING}
+
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/--exclude
+    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/--exclude
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/-x
+    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/-x
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} ./--exclude
+    Should Contain       ${output}  Scanning /--exclude
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} ./-x
+    Should Contain       ${output}  Scanning /-x
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} -- -x
+    Should Contain       ${output}  Scanning /-x
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} -- --exclude
+    Should Contain       ${output}  Scanning /--exclude
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
 
 CLS Exclusions Filename
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
@@ -608,7 +653,6 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
    ...  File Log Contains With Offset  ${LOG_FILE}   Scanning   offset=${offset}
 
    Terminate Process   handle=${HANDLE}
-
 
 CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
    ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log

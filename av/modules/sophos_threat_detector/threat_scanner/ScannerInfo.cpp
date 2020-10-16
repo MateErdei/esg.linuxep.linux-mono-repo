@@ -27,7 +27,7 @@ std::string threat_scanner::create_scanner_info(bool scanArchives)
                 "macintosh": true
             },
             "scanControl": {
-                "trueFileTypeDetection": true,
+                "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true
