@@ -136,6 +136,7 @@ Scan Now Excludes Files And Directories As Expected
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
     Run Scan Now Scan For Excluded Files Test
+
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
 
     File Log Contains             ${SCANNOW_LOG_PATH}        Excluding file: /eicar.com
@@ -144,9 +145,28 @@ Scan Now Excludes Files And Directories As Expected
     File Log Should Not Contain   ${SCANNOW_LOG_PATH}        "/directory_excluded/eicar.com" is infected with EICAR-AV-Test
     File Log Should Not Contain   ${SCANNOW_LOG_PATH}        Excluding file: /directory_excluded/eicar.com
 
+    ${result} =   Terminate Process  ${handle}
+
+Scan Now Logs Should Be As Expected
+    Create Directory  /file_excluded/
+
+    Create File  /file_excluded/eicar.com       ${EICAR_STRING}
+    Register Cleanup  Remove Files  /file_excluded/eicar.com
+
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
+    Run Scan Now Scan For Excluded Files Test
+
+    AV Plugin Log Contains  Received new Action
+    AV Plugin Log Contains  Evaluating Scan Now
+    AV Plugin Log Contains  Starting scan Scan Now
+
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
+
     File Log Contains             ${SCANNOW_LOG_PATH}        End of Scan Summary:
     File Log Contains             ${SCANNOW_LOG_PATH}        1 file out of
     File Log Contains             ${SCANNOW_LOG_PATH}        1 EICAR-AV-Test infection discovered.
+    File Log Should Not Contain   ${AV_LOG_PATH}             Notify trimmed output
 
     ${result} =   Terminate Process  ${handle}
 
