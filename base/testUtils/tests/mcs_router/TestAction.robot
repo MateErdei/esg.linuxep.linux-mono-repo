@@ -27,6 +27,25 @@ Update Now Received And Action File Written
     ...  Check Action File Exists    ALC_action_FakeTime.xml
     Check Temp Folder Doesnt Contain Atomic Files
 
+Actions are removed when mcsrouter shutdown
+    Start Watchdog
+    Register With Fake Cloud
+    Check Cloud Server Log For Command Poll
+    Trigger Update Now
+    # Action will not be received until the next command poll
+    Check Cloud Server Log For Command Poll    2
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check Action File Exists    ALC_action_FakeTime.xml
+    Check Temp Folder Doesnt Contain Atomic Files
+    ${r} =  Run Process  /opt/sophos-spl/bin/wdctl  stop  mcsrouter
+    Should Be Equal As Strings  ${r.rc}  0
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/ALC_action_FakeTime.xml
+
 Action Applied After Policies
     [Teardown]  Test With Filesystem Watcher Teardown
 

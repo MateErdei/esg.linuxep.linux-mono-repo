@@ -830,5 +830,14 @@ class MCS:
             if self.__m_comms is not None:
                 self.__m_comms.close()
                 self.__m_comms = None
+            for filename in os.listdir(path_manager.action_dir()):
+                file_path = os.path.join(path_manager.action_dir(), filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                        LOGGER.debug("Removing file {} as part of mcs shutdown".format(file_path))
+
+                except Exception as ex:
+                    LOGGER.error('Failed to delete file {} due to error {}'.format(file_path, str(ex)))
 
         return 0
