@@ -74,8 +74,8 @@
   <publish>
     <build-asset artifact-path="develop/warehouse" source-dir="output\warehouse"/>
     <build-asset artifact-path="develop/customer" source-dir="output\customer"/>
-<!--    <build-asset artifact-path="def" source-dir="output\def"/>-->
-<!--    <build-asset artifact-path="logs" source-dir="logs"/>-->
+    <build-asset artifact-path="develop/def" source-dir="output\def"/>
+    <build-asset artifact-path="develop/logs" source-dir="logs"/>
   </publish>
   <signingexclusions>
 
