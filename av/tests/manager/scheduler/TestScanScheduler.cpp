@@ -331,8 +331,8 @@ TEST_F(TestScanScheduler, runsScheduledScanAndScanNow) //NOLINT
     scheduler.start();
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
-    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 10000));
-    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 10000));
+    ASSERT_TRUE(waitForLog("Starting scan Another scan!", 200000));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 200000));
     ASSERT_TRUE(waitForLog("Completed scan Another scan!", 200000));
     ASSERT_TRUE(waitForLog("Completed scan Scan Now", 200000));
 

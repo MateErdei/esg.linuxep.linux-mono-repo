@@ -63,7 +63,7 @@
 <!--            <include src="rules/rules" dest="rules" />-->
 <!--        </package>-->
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/test" build-id="20201001100919-a814d4a9e702db94e86f7848f41c2d6e16c26fdb-ptVCKg"/>
+            <release-version branch="release/CORE-2004" build-id="20201016072052-7b14b2fa387ee25683589e34705e2bf4e30ff357-8Jkzd5/"/>
             <include artifact-path="release/centos7/libsusi" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/include" dest-dir="input/susi_input/susi/include" />
             <include artifact-path="release/rules" dest-dir="input/susi_input/rules" />
