@@ -31,7 +31,8 @@ namespace SulDownloader
             const suldownloaderdata::CatalogueInfo& catalogueInfo)
         {
             std::vector<ProductMetadata> productsMetadata;
-            for (auto& downloadedProduct : downloadedProducts)
+            productsMetadata.reserve(downloadedProducts.size());
+            for (const auto& downloadedProduct : downloadedProducts)
             {
                 productsMetadata.push_back(downloadedProduct.getProductMetadata());
             }
@@ -48,5 +49,11 @@ namespace SulDownloader
             }
             return productsInfo;
         }
+
+        void CatalogueInfo::reset()
+        {
+            m_catalogue.clear();
+        }
+
     } // namespace suldownloaderdata
 } // namespace SulDownloader

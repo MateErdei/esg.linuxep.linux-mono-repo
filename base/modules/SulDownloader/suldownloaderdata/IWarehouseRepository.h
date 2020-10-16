@@ -86,6 +86,8 @@ namespace SulDownloader
 
             virtual void dumpLogs() const = 0;
 
+            virtual void reset() = 0;
+
         };
 
         using IWarehouseRepositoryPtr = std::unique_ptr<IWarehouseRepository>;

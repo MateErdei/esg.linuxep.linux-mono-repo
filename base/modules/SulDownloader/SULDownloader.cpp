@@ -100,6 +100,7 @@ namespace SulDownloader
         const suldownloaderdata::ConnectionSetup& connectionSetup,
         bool supplementOnly)
     {
+        warehouseRepository->reset();
         warehouseRepository->tryConnect(
             connectionSetup,
             supplementOnly,
@@ -145,8 +146,6 @@ namespace SulDownloader
         // connect and read metadata
         UpdateSupplementDecider productUpdateSupplementDecider(configurationData.getSchedule());
         bool supplementOnly = !productUpdateSupplementDecider.updateProducts();
-
-        IWarehouseRepository::SulLogsVector sulLogs;
 
         bool success = false;
 

@@ -176,14 +176,11 @@ namespace SulDownloader
         bool supplementOnly,
         const ConfigurationData& configurationData)
     {
+        assert(m_state == State::Initialized);
 
         if (!m_session)
         {
-            m_session.reset(new SULSession());
-            if (m_session->m_session == nullptr)
-            {
-                throw SulDownloaderException("Failed to Initialize Sul");
-            }
+            createSession();
         }
         if (hasError())
         {
@@ -239,36 +236,6 @@ namespace SulDownloader
         m_supplementOnly = supplementOnly;
 
         return true;
-    }
-
-    std::unique_ptr<WarehouseRepository> WarehouseRepository::tryConnect(
-            const ConnectionSetup& connectionSetup,
-            bool supplementOnly,
-            std::vector<std::string>& sulLogs,
-            const ConfigurationData& configurationData)
-    {
-        auto warehouse = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(true));
-        bool success = warehouse->tryConnect(connectionSetup, supplementOnly, configurationData);
-        auto logs = warehouse->getLogs();
-        sulLogs.insert(sulLogs.end(), logs.begin(), logs.end());
-
-        if (success)
-        {
-            return warehouse;
-        }
-        return nullptr;
-    }
-
-    std::unique_ptr<WarehouseRepository> WarehouseRepository::createFailedWarehouse(
-        WarehouseRepository::SulLogsVector& sulLogs)
-    {
-        auto warehouseEmpty = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(false));
-        warehouseEmpty->setError("Failed to connect to warehouse");
-        warehouseEmpty->m_error.status = WarehouseStatus::CONNECTIONERROR;
-
-        dumpLogs(sulLogs);
-
-        return warehouseEmpty;
     }
 
     void WarehouseRepository::dumpLogs(const WarehouseRepository::SulLogsVector& sulLogs)
@@ -664,17 +631,36 @@ namespace SulDownloader
         : WarehouseRepository(false)
     {}
 
-    WarehouseRepository::WarehouseRepository(bool createSession) :
+    void WarehouseRepository::reset()
+    {
+        m_state = State::Initialized;
+        m_session.reset();
+        m_products.clear();
+        m_error.reset();
+        m_connectionSetup.reset();
+        m_rootDistributionPath = "";
+        m_catalogueInfo.reset();
+        m_selectedSubscriptions.clear();
+        m_supplementOnly = false;
+        // m_sulLogs deliberately don't clear
+    }
+
+    WarehouseRepository::WarehouseRepository(bool immediatelyCreateSession) :
         m_state(State::Initialized),
         m_error()
     {
-        if (createSession)
+        if (immediatelyCreateSession)
         {
-            m_session.reset(new SULSession());
-            if (m_session->m_session == nullptr)
-            {
-                throw SulDownloaderException("Failed to Initialize Sul");
-            }
+            createSession();
+        }
+    }
+
+    void WarehouseRepository::createSession()
+    {
+        m_session.reset(new SULSession());
+        if (m_session->m_session == nullptr)
+        {
+            throw SulDownloaderException("Failed to Initialize Sul");
         }
     }
 

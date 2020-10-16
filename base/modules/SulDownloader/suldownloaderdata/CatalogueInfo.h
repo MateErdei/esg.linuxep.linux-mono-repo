@@ -22,6 +22,8 @@ namespace SulDownloader
             void addInfo(const std::string& line, const std::string& version, const std::string& productName);
             std::string productName(const std::string& productLine, const std::string& productVersion) const;
 
+            void reset();
+
         private:
             using Key = ProductKey;
             std::unordered_map<Key, std::string> m_catalogue;

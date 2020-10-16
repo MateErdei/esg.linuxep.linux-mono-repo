@@ -32,21 +32,21 @@ namespace SulDownloader
      * The class that encapsulate the functionalities provided by SULlib.
      *
      * The common procedure is to :
-     *   - FetchConnectedWarehouse which
-     *     - connect to the remote warehouse repository
-     *     - download the metadata
+     *   - tryConnect which
+     *     - connects to the remote warehouse repository
+     *     - downloads the metadata
      *   - synchronize:
-     *     - remove the unwanted products
+     *     - removes the unwanted products
      *     - sync
      *   - distribute:
-     *     - distribute and check status.
+     *     - distributes and check status.
      *
      * Design Decision: set internal error state (not throw). This is to allow the creation of DownloadReport
      * from all the information kept in the WarehouseRepository object. This imply that after the main methods:
-     * FetchConnectedWarehouse, synchronize and distribute is called, the ::hasError must be checked and no further
+     * tryConnect, synchronize and distribute is called, the ::hasError must be checked and no further
      * operation is allowed.
      *
-     * The order for the methods to be called: Fetch, Synchronize and Distribute is enforced internally with asserts.
+     * The order for the methods to be called: tryConnect, Synchronize and Distribute is enforced internally with asserts.
      * It also enforces that no main method is called after internal error is set.
      *
      *
@@ -54,32 +54,6 @@ namespace SulDownloader
     class WarehouseRepository : public virtual suldownloaderdata::IWarehouseRepository
     {
     public:
-        /**
-         * Attempt to connect to a provided connection setup information.
-         *
-         *
-         * @param connectionSetup
-         * @param supplementOnly  Only download supplements
-         * @param sulLogs  Append logs to this object
-         * @param configurationData
-         * @return
-         */
-        static std::unique_ptr<WarehouseRepository> tryConnect(
-            const suldownloaderdata::ConnectionSetup& connectionSetup,
-            bool supplementOnly,
-            SulLogsVector& sulLogs,
-            const suldownloaderdata::ConfigurationData& configurationData);
-
-        /**
-         * Create a failed warehouse object, logging sulLogs in the process
-         * @param sulLogs
-         * @return
-         */
-        static std::unique_ptr<WarehouseRepository> createFailedWarehouse(
-            SulLogsVector& sulLogs
-            );
-
-        static void dumpLogs(const SulLogsVector& sulLogs);
         void dumpLogs() const override;
 
         WarehouseRepository(const WarehouseRepository&) = delete;
@@ -102,7 +76,7 @@ namespace SulDownloader
             bool supplementOnly,
             const suldownloaderdata::ConfigurationData& configurationData) override;
 
-        SulLogsVector getLogs() const
+        SulLogsVector getLogs() const override
         {
             return m_sulLogs;
         }
@@ -162,7 +136,11 @@ namespace SulDownloader
         std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const override;
 
         WarehouseRepository();
+
+        void reset() override;
+
     private:
+        static void dumpLogs(const SulLogsVector& sulLogs);
         explicit WarehouseRepository(bool createSession);
 
         enum class State
@@ -189,6 +167,8 @@ namespace SulDownloader
 
         std::string getRootDistributionPath() const;
         void setRootDistributionPath(const std::string& rootDistributionPath);
+
+        void createSession();
 
         SU_Handle session() const;
         suldownloaderdata::WarehouseError m_error;

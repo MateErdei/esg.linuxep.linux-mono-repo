@@ -40,4 +40,6 @@ public:
                                  ));
     MOCK_CONST_METHOD0(getLogs, SulLogsVector(void));
     MOCK_CONST_METHOD0(dumpLogs, void(void));
+
+    MOCK_METHOD0(reset, void(void));
 };

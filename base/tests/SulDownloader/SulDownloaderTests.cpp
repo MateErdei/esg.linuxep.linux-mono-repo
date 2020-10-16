@@ -265,6 +265,7 @@ public:
                 return suldownloaderdata::IWarehouseRepositoryPtr(this->m_mockptr);
             });
         }
+        EXPECT_CALL(*m_mockptr, reset()); // All mock warehouses expect to call reset
         return *m_mockptr;
     }
 

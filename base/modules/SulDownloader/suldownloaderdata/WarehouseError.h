@@ -49,6 +49,13 @@ namespace SulDownloader
             std::string Description; /// Description of failure provided by SULDownloader
             std::string SulError;    /// Description of failure provided by SUL library.
             WarehouseStatus status;
+
+            void reset()
+            {
+                Description = "";
+                SulError = "";
+                status = WarehouseStatus::SUCCESS;
+            }
         };
     } // namespace suldownloaderdata
 
