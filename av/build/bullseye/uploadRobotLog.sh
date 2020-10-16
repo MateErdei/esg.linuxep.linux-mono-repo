@@ -32,6 +32,6 @@ PRIVATE_KEY=${SCRIPT_DIR}/private.key
 chmod 600 ${PRIVATE_KEY}
 rsync -az --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" \
     "$SRC_FILE" \
-    "upload@allegro.eng.sophos:public_html/robot/$DEST_FILE"  \
+    "upload@presto.eng.sophos:public_html/robot/$DEST_FILE"  \
     </dev/null \
     || exitFailure 4 "Failed to upload robot log: $?"

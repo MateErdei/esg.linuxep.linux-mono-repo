@@ -146,7 +146,7 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.run('rm', '-rf', coverage_results_dir)
         machine.run('mkdir', coverage_results_dir)
 
-        # upload unit test coverage html results to allegro
+        # upload unit test coverage html results to presto
         unitest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage_html')
         machine.run('bash', UPLOAD_SCRIPT,
                     environment={
@@ -209,7 +209,7 @@ def bullseye_coverage_task(machine: tap.Machine):
                     })
         machine.run('cp', COVFILE_ROBOT, coverage_results_dir)
 
-        # generate combined coverage html results and upload to allegro
+        # generate combined coverage html results and upload to presto
         machine.run('covmerge', '--create', '--file', COVFILE_COMBINED,
                     COVFILE_UNITTEST,
                     COVFILE_PYTEST,
