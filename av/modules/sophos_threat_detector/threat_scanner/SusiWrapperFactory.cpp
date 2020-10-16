@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SusiWrapper.h"
 #include "Logger.h"
 #include "common/StringUtils.h"
+#include "common/PluginUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include "Common/UtilityImpl/StringUtils.h"
@@ -85,10 +86,11 @@ static std::string getCustomerId()
     return "c1cfcf69a42311a6084bcefe8af02c8a";
 }
 
-
 static std::string create_runtime_config(const std::string& scannerInfo, const std::string& endpointId, const std::string& customerId)
 {
     fs::path libraryPath = susi_library_path();
+    auto versionNumber = common::getPluginVersion();
+
     std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
     "library": {
         "libraryPath": "@@LIBRARY_PATH@@",
@@ -96,7 +98,7 @@ static std::string create_runtime_config(const std::string& scannerInfo, const s
         "product": {
             "name": "SUSI_SPLAV",
             "context": "File",
-            "version": "1.0.0"
+            "version": "@@VERSION_NUMBER@@"
         },
         "globalReputation": {
             "customerID": "@@CUSTOMER_ID@@",
@@ -107,6 +109,7 @@ static std::string create_runtime_config(const std::string& scannerInfo, const s
     },
     @@SCANNER_CONFIG@@
 })sophos", {{"@@LIBRARY_PATH@@", libraryPath},
+            {"@@VERSION_NUMBER@@", versionNumber},
             {"@@CUSTOMER_ID@@", customerId},
             {"@@MACHINE_ID@@", endpointId},
             {"@@SCANNER_CONFIG@@", scannerInfo}

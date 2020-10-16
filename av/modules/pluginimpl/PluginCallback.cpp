@@ -8,6 +8,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "common/StringUtils.h"
+#include "common/PluginUtils.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -68,9 +69,10 @@ namespace Plugin
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
         telemetry.set("lr-data-hash", getLrDataHash());
         telemetry.set("ml-lib-hash", getMlLibHash());
+        telemetry.set("ml-pe-model-version", getMlModelVersion());
         telemetry.set("vdl-ide-count", getIdeCount());
         telemetry.set("vdl-version", getVirusDataVersion());
-        telemetry.set("version", getPluginVersion());
+        telemetry.set("version", common::getPluginVersion());
 
         return telemetry.serialiseAndReset();
     }
@@ -93,8 +95,6 @@ namespace Plugin
             return common::sha256_hash(lrDataContents.str());
         }
         return "unknown";
-
-
     }
 
     std::string PluginCallback::getMlLibHash()
@@ -153,26 +153,26 @@ namespace Plugin
         return virusDataVersion;
     }
 
-    std::string PluginCallback::getPluginVersion()
+    std::string PluginCallback::getMlModelVersion()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        fs::path versionFile(appConfig.getData("PLUGIN_INSTALL"));
-        versionFile /= "VERSION.ini";
+        fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
+        mlModel /= "chroot/susi/distribution_version/version1/mlmodel/model.dat";
 
-        std::string versionKeyword("PRODUCT_VERSION = ");
-        std::ifstream versionFileFs(versionFile);
-        if (versionFileFs.good())
+        std::ifstream in( mlModel, std::ios::binary );
+        std::string versionStr = "unknown";
+
+        if (in.good())
         {
-            std::string line;
-            while (std::getline(versionFileFs, line))
-            {
-                if (line.rfind(versionKeyword, 0) == 0)
-                {
-                    return line.substr(versionKeyword.size(), line.size());
-                }
-            }
+            // The version number is 4 bytes long starting from an offset of 28 and is little-endian
+            std::uint32_t version;
+            in.seekg(28*sizeof(char));
+            in.read(reinterpret_cast<char*>(&version), sizeof(version));
+            versionStr = std::to_string(version);
         }
-        return "unknown";
+        in.close();
+
+        return versionStr;
     }
 
     std::string PluginCallback::generateSAVStatusXML()
@@ -198,7 +198,7 @@ namespace Plugin
 </status>)sophos",{
                         {"@@POLICY_COMPLIANCE@@", m_revID.empty() ? "NoRef" : "Same"},
                         {"@@REV_ID@@", m_revID},
-                        {"@@PLUGIN_VERSION@@", getPluginVersion()}
+                        {"@@PLUGIN_VERSION@@", common::getPluginVersion()}
                 });
 
         LOGDEBUG("Generated status XML for revId:" << m_revID);

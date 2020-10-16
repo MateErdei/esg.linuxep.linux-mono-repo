@@ -3,7 +3,9 @@ add_library(common SHARED
         Logger.cpp
         Logger.h
         StringUtils.cpp
-        StringUtils.h)
+        StringUtils.h
+        PluginUtils.cpp
+        PluginUtils.h)
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)

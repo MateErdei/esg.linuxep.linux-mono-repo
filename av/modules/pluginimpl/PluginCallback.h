@@ -33,7 +33,7 @@ namespace Plugin
         unsigned long getIdeCount();
         std::string getLrDataHash();
         std::string getMlLibHash();
-        std::string getPluginVersion();
+        std::string getMlModelVersion();
         std::string getVirusDataVersion();
 
         std::shared_ptr<QueueTask> m_task;

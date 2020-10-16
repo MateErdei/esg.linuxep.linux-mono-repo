@@ -96,6 +96,31 @@ copy_etc /etc/hosts
     copy_etc_file_if_present(etcDest, "/etc/hosts");
 }
 
+static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chrootPath)
+{
+    std::vector<std::string> fileVector;
+    fileVector.emplace_back("/base/etc/logger.conf");
+    fileVector.emplace_back("/base/etc/machine_id.txt");
+    fileVector.emplace_back("/base/update/var/update_config.json");
+    fileVector.emplace_back("/plugins/av/VERSION.ini");
+
+    for (const std::string& file : fileVector)
+    {
+        fs::path sourceFile = sophosInstall / file;
+        fs::path targetFile = chrootPath / sophosInstall / file;
+        LOGINFO("Copying " << sourceFile.string() << " to: " << targetFile.string());
+
+        try
+        {
+            fs::copy_file(sourceFile, targetFile, fs::copy_options::overwrite_existing);
+        }
+        catch (fs::filesystem_error& e)
+        {
+            LOGERROR("Failed to copy: " << file);
+        }
+    }
+}
+
 static int inner_main()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -108,11 +133,7 @@ static int inner_main()
 
     // Copy logger config from base
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
-    std::string loggerConfFile = "/base/etc/logger.conf";
-    std::string sourceFile = sophosInstall.string() + loggerConfFile;
-    std::string targetFile = chrootPath.string() + sophosInstall.string() + loggerConfFile;
-    LOGINFO("Copying " << sourceFile << " to: " << targetFile);
-    fs::copy_file(sourceFile, targetFile, fs::copy_options::overwrite_existing);
+    copyRequiredFiles(sophosInstall, chrootPath);
 
     // Copy etc files for DNS
     copy_etc_files_for_dns(chrootPath);
@@ -158,3 +179,4 @@ int sspl::sophosthreatdetectorimpl::sophos_threat_detector_main()
         return 100;
     }
 }
+
