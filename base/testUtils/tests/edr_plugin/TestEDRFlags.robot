@@ -41,7 +41,6 @@ Flags Are Only Sent To EDR and Not MTR
     ...  Check EDR Log Contains  Flags running mode is EDR
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Should Contain  ${contents}   running_mode=1
-    Fail
 
 EDR changes running mode when XDR enabled flags are sent
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
