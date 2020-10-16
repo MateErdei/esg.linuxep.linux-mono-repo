@@ -103,7 +103,7 @@ namespace SulDownloader
         return result == SU_Result_OK || result == SU_Result_nullSuccess || result == SU_Result_notAttempted;
     }
 
-    void SULUtils::displayLogs(SU_Handle ses, std::vector<std::string>& sulLogs)
+    void SULUtils::displayLogs(SU_Handle ses, SulLogsVector& sulLogs)
     {
         if (!isSuccess(SU_getLastError(ses)))
         {
@@ -116,9 +116,9 @@ namespace SulDownloader
         }
     }
 
-    std::vector<std::string> SULUtils::SulLogs(SU_Handle ses)
+    SULUtils::SulLogsVector SULUtils::SulLogs(SU_Handle ses)
     {
-        std::vector<std::string> logs;
+        SulLogsVector logs;
         while (true)
         {
             std::string log = SulGetLogEntry(ses);

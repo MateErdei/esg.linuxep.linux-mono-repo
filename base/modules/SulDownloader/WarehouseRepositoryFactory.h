@@ -22,7 +22,7 @@ namespace SulDownloader
     }
 
     using WarehouseRespositoryCreaterFunc =
-        std::function<suldownloaderdata::IWarehouseRepositoryPtr(const suldownloaderdata::ConfigurationData&)>;
+        std::function<suldownloaderdata::IWarehouseRepositoryPtr()>;
 
     /**
      * This class exists to enable an indirection on creating the WarehouseRepository to allow Mocking it out on tests.
@@ -52,8 +52,7 @@ namespace SulDownloader
          *
          * @return
          */
-        suldownloaderdata::IWarehouseRepositoryPtr fetchConnectedWarehouseRepository(
-            const suldownloaderdata::ConfigurationData&);
+        suldownloaderdata::IWarehouseRepositoryPtr createWarehouseRepository();
 
     private:
         /**

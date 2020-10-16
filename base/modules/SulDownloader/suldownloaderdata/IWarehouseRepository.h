@@ -16,6 +16,8 @@ namespace SulDownloader
 {
     namespace suldownloaderdata
     {
+        class ConfigurationData;
+        class ConnectionSetup;
         class DownloadedProduct;
         class ProductSelection;
         struct WarehouseError;
@@ -40,24 +42,50 @@ namespace SulDownloader
         class IWarehouseRepository
         {
         public:
+            using SulLogsVector = std::vector<std::string>;
+
             virtual ~IWarehouseRepository() = default;
 
-            virtual bool hasError() const = 0;
+            [[nodiscard]] virtual bool hasError() const = 0;
 
-            virtual WarehouseError getError() const = 0;
+            [[nodiscard]] virtual WarehouseError getError() const = 0;
 
             virtual void synchronize(ProductSelection&) = 0;
 
             virtual void distribute() = 0;
 
-            virtual std::vector<suldownloaderdata::DownloadedProduct> getProducts() const = 0;
+            [[nodiscard]] virtual std::vector<suldownloaderdata::DownloadedProduct> getProducts() const = 0;
 
-            virtual std::string getSourceURL() const = 0;
+            [[nodiscard]] virtual std::string getSourceURL() const = 0;
 
-            virtual std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const = 0;
+            [[nodiscard]] virtual std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const = 0;
 
-            virtual std::vector<ProductInfo> listInstalledProducts() const = 0;
-            virtual std::vector<suldownloaderdata::SubscriptionInfo> listInstalledSubscriptions() const = 0;
+            [[nodiscard]] virtual std::vector<ProductInfo> listInstalledProducts() const = 0;
+            [[nodiscard]] virtual std::vector<suldownloaderdata::SubscriptionInfo> listInstalledSubscriptions() const = 0;
+
+
+            /**
+             * Attempt to connect to a provided connection setup information.
+             *
+             *
+             * @param connectionSetup
+             * @param supplementOnly  Only download supplements
+             * @param configurationData
+             * @return
+             */
+            virtual bool tryConnect(
+                const suldownloaderdata::ConnectionSetup& connectionSetup,
+                bool supplementOnly,
+                const suldownloaderdata::ConfigurationData& configurationData) = 0;
+
+            /**
+             * Get the logs for this SUL connection
+             * @return
+             */
+            virtual SulLogsVector getLogs() const = 0;
+
+            virtual void dumpLogs() const = 0;
+
         };
 
         using IWarehouseRepositoryPtr = std::unique_ptr<IWarehouseRepository>;

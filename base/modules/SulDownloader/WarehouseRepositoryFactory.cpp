@@ -18,25 +18,22 @@ namespace SulDownloader
         return factory;
     }
 
-    std::unique_ptr<IWarehouseRepository> WarehouseRepositoryFactory::fetchConnectedWarehouseRepository(
-        const ConfigurationData& configurationData)
+    std::unique_ptr<IWarehouseRepository> WarehouseRepositoryFactory::createWarehouseRepository()
     {
-        return m_creatorMethod(configurationData);
+        return m_creatorMethod();
     }
 
     WarehouseRepositoryFactory::WarehouseRepositoryFactory() { restoreCreator(); }
 
-    void WarehouseRepositoryFactory::replaceCreator(
-        std::function<std::unique_ptr<IWarehouseRepository>(const ConfigurationData&)> creatorMethod)
+    void WarehouseRepositoryFactory::replaceCreator(WarehouseRespositoryCreaterFunc creatorMethod)
     {
         m_creatorMethod = std::move(creatorMethod);
     }
 
     void WarehouseRepositoryFactory::restoreCreator()
     {
-        m_creatorMethod = [](const ConfigurationData& configurationData) {
-            auto wh = WarehouseRepository::FetchConnectedWarehouse(configurationData);
-            return std::unique_ptr<IWarehouseRepository>(wh.release());
+        m_creatorMethod = []() {
+            return std::make_unique<WarehouseRepository>();
         };
     }
 

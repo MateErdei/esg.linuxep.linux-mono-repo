@@ -6,6 +6,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include "ProductUninstaller.h"
 #include "SULRaii.h"
+#include "UpdateSupplementDecider.h"
 #include "WarehouseRepository.h"
 #include "WarehouseRepositoryFactory.h"
 
@@ -18,8 +19,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IPidLockFileUtils.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/UtilityImpl/ProjectNames.h>
-#include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
@@ -93,6 +94,42 @@ namespace SulDownloader
         return false;
     }
 
+    static bool internal_runSULDownloader(
+        IWarehouseRepositoryPtr& warehouseRepository,
+        const ConfigurationData& configurationData,
+        const suldownloaderdata::ConnectionSetup& connectionSetup,
+        bool supplementOnly)
+    {
+        warehouseRepository->tryConnect(
+            connectionSetup,
+            supplementOnly,
+            configurationData
+            );
+
+        if (warehouseRepository->hasError())
+        {
+            return false;
+        }
+
+        // apply product selection and download the needed products
+        auto productSelection = ProductSelection::CreateProductSelection(configurationData);
+        warehouseRepository->synchronize(productSelection);
+
+        if (warehouseRepository->hasError())
+        {
+            return false;
+        }
+
+        warehouseRepository->distribute();
+        if (warehouseRepository->hasError())
+        {
+            return false;
+        }
+
+        return true;
+
+    }
+
     DownloadReport runSULDownloader(
         const ConfigurationData& configurationData,
         const ConfigurationData& previousConfigurationData,
@@ -102,32 +139,48 @@ namespace SulDownloader
         assert(configurationData.isVerified());
         TimeTracker timeTracker;
         timeTracker.setStartTime(TimeUtils::getCurrTime());
-
-        // connect and read metadata
-        auto warehouseRepository =
-            WarehouseRepositoryFactory::instance().fetchConnectedWarehouseRepository(configurationData);
+        auto warehouseRepository = WarehouseRepositoryFactory::instance().createWarehouseRepository();
         assert(warehouseRepository);
 
-        if (warehouseRepository->hasError())
+        // connect and read metadata
+        UpdateSupplementDecider productUpdateSupplementDecider(configurationData.getSchedule());
+        bool supplementOnly = !productUpdateSupplementDecider.updateProducts();
+
+        IWarehouseRepository::SulLogsVector sulLogs;
+
+        bool success = false;
+
+        ConnectionSelector connectionSelector;
+        auto candidates = connectionSelector.getConnectionCandidates(configurationData);
+        for (const auto& connectionSetup : candidates)
         {
+            success = internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
+            if (success)
+            {
+                break;
+            }
+        }
+        if (supplementOnly && !success)
+        {
+            // retry with product update, in case the supplement config has changed
+            supplementOnly = false;
+            for (const auto& connectionSetup : candidates)
+            {
+                success = internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
+                if (success)
+                {
+                    break;
+                }
+            }
+        }
+        if (!success)
+        {
+            // Failed to download from SDDS
+            warehouseRepository->dumpLogs();
             return DownloadReport::Report(*warehouseRepository, timeTracker);
         }
 
-        // apply product selection and download the needed products
-        auto productSelection = ProductSelection::CreateProductSelection(configurationData);
-        warehouseRepository->synchronize(productSelection);
-
-        if (warehouseRepository->hasError())
-        {
-            return DownloadReport::Report(*warehouseRepository, timeTracker);
-        }
-
-        warehouseRepository->distribute();
-
-        if (warehouseRepository->hasError())
-        {
-            return DownloadReport::Report(*warehouseRepository, timeTracker);
-        }
+        assert(success);
 
         auto products = warehouseRepository->getProducts();
         std::string sourceURL = warehouseRepository->getSourceURL();

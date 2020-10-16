@@ -54,23 +54,6 @@ namespace SulDownloader
     class WarehouseRepository : public virtual suldownloaderdata::IWarehouseRepository
     {
     public:
-        using SulLogsVector = std::vector<std::string>;
-        /**
-         * Using the information in the configuration data object, connections to remote warehouse repositories will be
-         * attempted Upon a successful connection, the metadata will be fetched from the remote Warehouse and a
-         * configured WarehouseRepository will be returned.
-         *
-         * If no connection can be established ( for all the possible options of connection) a pointer to the
-         * WarehouseRepository will be returned with ::hasError returning true. (This is to allow DownloadReport to be
-         * created).
-         *
-         * @param configurationData containing required parameters for SUL to perform a download from a warehouse
-         * repository
-         * @return pointer to successfully connected WarehouseRepository
-         */
-        static std::unique_ptr<WarehouseRepository> FetchConnectedWarehouse(
-            const suldownloaderdata::ConfigurationData& configurationData);
-
         /**
          * Attempt to connect to a provided connection setup information.
          *
@@ -96,13 +79,33 @@ namespace SulDownloader
             SulLogsVector& sulLogs
             );
 
+        static void dumpLogs(const SulLogsVector& sulLogs);
+        void dumpLogs() const override;
 
-        WarehouseRepository() = delete;
         WarehouseRepository(const WarehouseRepository&) = delete;
         WarehouseRepository& operator=(const WarehouseRepository&) = delete;
         WarehouseRepository& operator=(WarehouseRepository&&) = default;
         WarehouseRepository(WarehouseRepository&&) = default;
         ~WarehouseRepository() override;
+
+        /**
+         * Attempt to connect to a provided connection setup information.
+         *
+         *
+         * @param connectionSetup
+         * @param supplementOnly  Only download supplements
+         * @param configurationData
+         * @return
+         */
+        bool tryConnect(
+            const suldownloaderdata::ConnectionSetup& connectionSetup,
+            bool supplementOnly,
+            const suldownloaderdata::ConfigurationData& configurationData) override;
+
+        SulLogsVector getLogs() const
+        {
+            return m_sulLogs;
+        }
 
         /**
          * Used to check if the WarehouseRepository reported an error
@@ -158,7 +161,10 @@ namespace SulDownloader
 
         std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const override;
 
+        WarehouseRepository();
     private:
+        explicit WarehouseRepository(bool createSession);
+
         enum class State
         {
             Initialized,
@@ -173,7 +179,6 @@ namespace SulDownloader
             const suldownloaderdata::ConnectionSetup& connectionSetup,
             const suldownloaderdata::ConfigurationData& configurationData);
         int logLevel(suldownloaderdata::ConfigurationData::LogLevel);
-        explicit WarehouseRepository(bool createSession);
 
         void distributeProduct(
             std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct>& productPair,
@@ -194,6 +199,7 @@ namespace SulDownloader
         suldownloaderdata::CatalogueInfo m_catalogueInfo;
         std::vector<suldownloaderdata::SubscriptionInfo> m_selectedSubscriptions;
         bool m_supplementOnly = false;
+        SulLogsVector m_sulLogs;
     };
 
 } // namespace SulDownloader

@@ -69,14 +69,14 @@ public:
         Test::SetUp();
 
         SulDownloader::suldownloaderdata::VersigFactory::instance().replaceCreator([]() {
-            auto versig = new NiceMock<MockVersig>();
+            auto* versig = new NiceMock<MockVersig>();
             ON_CALL(*versig, verify(_, _))
                 .WillByDefault(Return(SulDownloader::suldownloaderdata::IVersig::VerifySignature::SIGNATURE_VERIFIED));
             return std::unique_ptr<SulDownloader::suldownloaderdata::IVersig>(versig);
         });
         m_mockptr = nullptr;
 
-        auto mockPidLockFileUtilsPtr = new NiceMock<MockPidLockFileUtils>();
+        auto* mockPidLockFileUtilsPtr = new NiceMock<MockPidLockFileUtils>();
         ON_CALL(*mockPidLockFileUtilsPtr, write(_, _, _)).WillByDefault(Return(1));
         std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
             std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
@@ -90,12 +90,11 @@ public:
     {
         Common::FileSystemImpl::restorePidLockUtils();
         SulDownloader::suldownloaderdata::VersigFactory::instance().restoreCreator();
-        TestWarehouseHelper helper;
-        helper.restoreWarehouseFactory();
+        TestWarehouseHelper::restoreWarehouseFactory();
         Test::TearDown();
     }
 
-    ConfigurationSettings defaultSettings()
+    static ConfigurationSettings defaultSettings()
     {
         ConfigurationSettings settings;
         Credentials credentials;
@@ -107,7 +106,7 @@ public:
         settings.mutable_proxy()->set_url("noproxy:");
         settings.mutable_proxy()->mutable_credential()->set_username("");
         settings.mutable_proxy()->mutable_credential()->set_password("");
-        auto proto_subscription = settings.mutable_primarysubscription();
+        auto* proto_subscription = settings.mutable_primarysubscription();
         proto_subscription->set_rigidname("ServerProtectionLinux-Base-component");
         proto_subscription->set_baseversion("");
         proto_subscription->set_tag("RECOMMMENDED");
@@ -138,7 +137,7 @@ public:
     ConfigurationSettings newSubscriptionSettings()
     {
         ConfigurationSettings settings = defaultSettings();
-        auto proto_subscriptions = settings.mutable_products();
+        auto* proto_subscriptions = settings.mutable_products();
 
         SulDownloaderProto::ConfigurationSettings_Subscription proto_subscription;
 
@@ -262,8 +261,7 @@ public:
         if (m_mockptr == nullptr)
         {
             m_mockptr = new StrictMock<MockWarehouseRepository>();
-            TestWarehouseHelper helper;
-            helper.replaceWarehouseCreator([this](const suldownloaderdata::ConfigurationData&) {
+            TestWarehouseHelper::replaceWarehouseCreator([this]() {
                 return suldownloaderdata::IWarehouseRepositoryPtr(this->m_mockptr);
             });
         }
@@ -272,7 +270,7 @@ public:
 
     MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1)
     {
-        auto filesystemMock = new StrictMock<MockFileSystem>();
+        auto* filesystemMock = new StrictMock<MockFileSystem>();
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).Times(expectCallCount).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primarywarehouse"))
             .Times(expectCallCount)
@@ -281,8 +279,9 @@ public:
             .Times(expectCallCount)
             .WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
+        EXPECT_CALL(*filesystemMock, isFile("/installroot/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
 
-        auto pointer = filesystemMock;
+        auto* pointer = filesystemMock;
         m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
     }
@@ -459,6 +458,7 @@ TEST_F( // NOLINT
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
@@ -475,6 +475,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/etc/savedproxy.config")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(emptyFileList));
@@ -502,7 +503,7 @@ TEST_F( // NOLINT
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
         if (counter++ == 0)
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto* mockProcess = new StrictMock<MockProcess>();
             EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
             EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
@@ -511,7 +512,7 @@ TEST_F( // NOLINT
         }
         else
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto* mockProcess = new StrictMock<MockProcess>();
             EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
             EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
@@ -532,6 +533,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
@@ -588,6 +590,7 @@ TEST_F( // NOLINT
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
@@ -652,6 +655,7 @@ TEST_F( // NOLINT
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
@@ -721,6 +725,7 @@ TEST_F( // NOLINT
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
@@ -804,7 +809,7 @@ TEST_F( // NOLINT
     auto settings = defaultSettings();
     settings.clear_sophosurls(); // no sophos urls, the system can not connect to warehouses
     std::string settingsString = jsonSettings(settings);
-    std::string previousSettingString("");
+    std::string previousSettingString;
     std::string previousReportData;
 
     std::tie(exitCode, reportContent) =
@@ -836,10 +841,12 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(false)); // failed tryConnect call
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, dumpLogs());
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
@@ -870,12 +877,14 @@ TEST_F( // NOLINT
         .WillOnce(Return(false)) // connection
         .WillOnce(Return(true))  // synchronization
         .WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, dumpLogs());
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
@@ -922,6 +931,7 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
         .WillOnce(Return(false)) // synchronization
         .WillOnce(Return(true))  // distribute
         .WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
@@ -929,6 +939,7 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
 
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, dumpLogs());
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
 
@@ -959,6 +970,7 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
 
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
@@ -1045,6 +1057,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1133,6 +1146,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1225,6 +1239,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1315,6 +1330,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1426,6 +1442,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1536,6 +1553,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1626,6 +1644,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1722,6 +1741,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1818,6 +1838,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1910,6 +1931,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -2006,6 +2028,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -2098,6 +2121,7 @@ TEST_F( // NOLINT
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -2140,6 +2164,7 @@ TEST_F( // NOLINT
     }
 
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
 
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());

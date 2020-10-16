@@ -8,6 +8,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+#include <SulDownloader/WarehouseRepositoryFactory.h>
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -19,10 +21,8 @@ namespace SulDownloader
     class TestWarehouseHelper
     {
     public:
-        void replaceWarehouseCreator(
-            std::function<suldownloaderdata::IWarehouseRepositoryPtr(const suldownloaderdata::ConfigurationData&)>
-                creator);
-        void restoreWarehouseFactory();
+        static void replaceWarehouseCreator(SulDownloader::WarehouseRespositoryCreaterFunc creator);
+        static void restoreWarehouseFactory();
     };
     ::testing::AssertionResult productInfoIsEquivalent(
         const char* m_expr,

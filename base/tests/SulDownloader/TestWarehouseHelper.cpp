@@ -5,13 +5,11 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "TestWarehouseHelper.h"
 
-#include "SulDownloader/WarehouseRepositoryFactory.h"
+using namespace SulDownloader;
 
-void SulDownloader::TestWarehouseHelper::replaceWarehouseCreator(
-    std::function<
-        suldownloaderdata::IWarehouseRepositoryPtr(const SulDownloader::suldownloaderdata::ConfigurationData&)> creator)
+void TestWarehouseHelper::replaceWarehouseCreator(WarehouseRespositoryCreaterFunc creator)
 {
-    SulDownloader::WarehouseRepositoryFactory::instance().replaceCreator(std::move(creator));
+    WarehouseRepositoryFactory::instance().replaceCreator(std::move(creator));
 }
 
 void SulDownloader::TestWarehouseHelper::restoreWarehouseFactory()

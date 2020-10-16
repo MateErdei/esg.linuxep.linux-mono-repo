@@ -51,18 +51,17 @@ TEST_F(MockWarehouseRepositoryTest, DemonstrateMockWarehouse) // NOLINT
 
 TEST_F(MockWarehouseRepositoryTest, ReplaceWarehouseRepository) // NOLINT
 {
-    auto mockptr = new MockWarehouseRepository();
+    auto* mockptr = new MockWarehouseRepository();
     MockWarehouseRepository& mock = *mockptr;
 
-    TestWarehouseHelper helper;
-    helper.replaceWarehouseCreator([&mockptr](const suldownloaderdata::ConfigurationData&) {
+    TestWarehouseHelper::replaceWarehouseCreator([&mockptr]() {
         return suldownloaderdata::IWarehouseRepositoryPtr(mockptr);
     });
     EXPECT_CALL(mock, hasError()).WillOnce(Return(false)).WillOnce(Return(true));
 
     suldownloaderdata::ConfigurationData configurationData({ "https://sophos.com/warehouse" });
     auto warehouseFromFactory =
-        SulDownloader::WarehouseRepositoryFactory::instance().fetchConnectedWarehouseRepository(configurationData);
+        SulDownloader::WarehouseRepositoryFactory::instance().createWarehouseRepository();
     ASSERT_FALSE(warehouseFromFactory->hasError());
     ASSERT_TRUE(warehouseFromFactory->hasError());
 }

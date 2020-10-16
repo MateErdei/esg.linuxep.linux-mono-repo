@@ -171,6 +171,76 @@ namespace
 
 namespace SulDownloader
 {
+    bool WarehouseRepository::tryConnect(
+        const ConnectionSetup& connectionSetup,
+        bool supplementOnly,
+        const ConfigurationData& configurationData)
+    {
+
+        if (!m_session)
+        {
+            m_session.reset(new SULSession());
+            if (m_session->m_session == nullptr)
+            {
+                throw SulDownloaderException("Failed to Initialize Sul");
+            }
+        }
+        if (hasError())
+        {
+            m_session.reset();
+            return false;
+        }
+        LOGINFO("Try connection: " << connectionSetup.toString());
+        setConnectionSetup(connectionSetup, configurationData);
+
+        if (hasError())
+        {
+            SULUtils::displayLogs(session(), m_sulLogs);
+            m_session.reset();
+            return false;
+        }
+
+        SU_Result ret = SU_Result_invalid;
+
+        if (supplementOnly)
+        {
+            ret = SU_readLocalMetadata(session());
+        }
+        else
+        {
+            ret = SU_readRemoteMetadata(session());
+        }
+
+        if (!SULUtils::isSuccess(ret))
+        {
+            LOGERROR("Failed to connect to the warehouse");
+            SULUtils::displayLogs(session(), m_sulLogs);
+            LOGINFO("Failed to connect to: " << m_connectionSetup->toString());
+            setError("Failed to connect to warehouse");
+            m_error.status = WarehouseStatus::CONNECTIONERROR;
+            m_session.reset();
+            return false;
+        }
+
+        if (!SulDownloader::SulSetLanguage(session(), "en"))
+        {
+            SULUtils::displayLogs(session(), m_sulLogs);
+            LOGWARN("Failed to set language for warehouse session: " << m_connectionSetup->toString());
+        }
+
+        // for verbose it will list the entries in the warehouse
+        SULUtils::displayLogs(session(), m_sulLogs);
+        LOGINFO("Successfully connected to: " << m_connectionSetup->toString());
+        m_state = State::Connected;
+
+        // store values from configuration data for later use.
+        setRootDistributionPath(configurationData.getLocalDistributionRepository());
+
+        m_supplementOnly = supplementOnly;
+
+        return true;
+    }
+
     std::unique_ptr<WarehouseRepository> WarehouseRepository::tryConnect(
             const ConnectionSetup& connectionSetup,
             bool supplementOnly,
@@ -178,94 +248,42 @@ namespace SulDownloader
             const ConfigurationData& configurationData)
     {
         auto warehouse = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(true));
-        if (warehouse->hasError())
+        bool success = warehouse->tryConnect(connectionSetup, supplementOnly, configurationData);
+        auto logs = warehouse->getLogs();
+        sulLogs.insert(sulLogs.end(), logs.begin(), logs.end());
+
+        if (success)
         {
-            return nullptr;
+            return warehouse;
         }
-        LOGINFO("Try connection: " << connectionSetup.toString());
-        warehouse->setConnectionSetup(connectionSetup, configurationData);
-
-        if (warehouse->hasError())
-        {
-            SULUtils::displayLogs(warehouse->session(), sulLogs);
-            return nullptr;
-        }
-
-        SU_Result ret = SU_Result_invalid;
-
-        if (supplementOnly)
-        {
-            ret = SU_readLocalMetadata(warehouse->session());
-        }
-        else
-        {
-            ret = SU_readRemoteMetadata(warehouse->session());
-        }
-
-        if (!SULUtils::isSuccess(ret))
-        {
-            SULUtils::displayLogs(warehouse->session(), sulLogs);
-            LOGINFO("Failed to connect to: " << warehouse->m_connectionSetup->toString());
-            return nullptr;
-        }
-
-        if (!SulDownloader::SulSetLanguage(warehouse->session(), "en"))
-        {
-            SULUtils::displayLogs(warehouse->session(), sulLogs);
-            LOGWARN("Failed to set language for warehouse session: " << warehouse->m_connectionSetup->toString());
-        }
-
-        // for verbose it will list the entries in the warehouse
-        SULUtils::displayLogs(warehouse->session(), sulLogs);
-        LOGINFO("Successfully connected to: " << warehouse->m_connectionSetup->toString());
-        warehouse->m_state = State::Connected;
-
-        // store values from configuration data for later use.
-        warehouse->setRootDistributionPath(configurationData.getLocalDistributionRepository());
-
-        warehouse->m_supplementOnly = supplementOnly;
-
-        return warehouse;
-    }
-
-    std::unique_ptr<WarehouseRepository> WarehouseRepository::FetchConnectedWarehouse(
-        const ConfigurationData& configurationData)
-    {
-        ConnectionSelector connectionSelector;
-        auto candidates = connectionSelector.getConnectionCandidates(configurationData);
-        UpdateSupplementDecider productUpdateSupplementDecider(configurationData.getSchedule());
-        bool supplementOnly = !productUpdateSupplementDecider.updateProducts();
-
-        SulLogsVector sulLogs;
-
-        for (const auto& connectionSetup : candidates)
-        {
-            auto warehouse = tryConnect(connectionSetup, supplementOnly, sulLogs, configurationData);
-            if (warehouse)
-            {
-                return warehouse;
-            }
-        }
-        return createFailedWarehouse(sulLogs);
+        return nullptr;
     }
 
     std::unique_ptr<WarehouseRepository> WarehouseRepository::createFailedWarehouse(
         WarehouseRepository::SulLogsVector& sulLogs)
     {
-        LOGERROR("Failed to connect to the warehouse");
         auto warehouseEmpty = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(false));
         warehouseEmpty->setError("Failed to connect to warehouse");
         warehouseEmpty->m_error.status = WarehouseStatus::CONNECTIONERROR;
 
-        LOGINFO("Sul Library log output:");
+        dumpLogs(sulLogs);
 
-        for(auto& sulLog : sulLogs)
+        return warehouseEmpty;
+    }
+
+    void WarehouseRepository::dumpLogs(const WarehouseRepository::SulLogsVector& sulLogs)
+    {
+        LOGINFO("Sul Library log output:");
+        for(const auto& sulLog : sulLogs)
         {
             LOGINFO(sulLog);
         }
-
         LOGINFO("End of Sul Library log output.");
-        return warehouseEmpty;
+    }
+
+    void WarehouseRepository::dumpLogs() const
+    {
+        dumpLogs(m_sulLogs);
     }
 
     bool WarehouseRepository::hasError() const { return !m_error.Description.empty() || ::hasError(m_products); }
@@ -642,13 +660,14 @@ namespace SulDownloader
         }
     }
 
+    WarehouseRepository::WarehouseRepository()
+        : WarehouseRepository(false)
+    {}
+
     WarehouseRepository::WarehouseRepository(bool createSession) :
-        m_error(),
-        m_products(),
-        m_session(),
-        m_connectionSetup()
+        m_state(State::Initialized),
+        m_error()
     {
-        m_state = State::Initialized;
         if (createSession)
         {
             m_session.reset(new SULSession());
