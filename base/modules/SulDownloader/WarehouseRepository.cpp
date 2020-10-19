@@ -210,7 +210,7 @@ namespace SulDownloader
 
         if (!SULUtils::isSuccess(ret))
         {
-            LOGERROR("Failed to connect to the warehouse");
+            LOGERROR("Failed to connect to the warehouse: "<<ret);
             SULUtils::displayLogs(session(), m_sulLogs);
             LOGINFO("Failed to connect to: " << m_connectionSetup->toString());
             setError("Failed to connect to warehouse");
@@ -344,7 +344,8 @@ namespace SulDownloader
 
         if (!SULUtils::isSuccess(ret))
         {
-            LOGERROR("Failed to synchronise warehouse");
+            LOGERROR("Failed to synchronise warehouse: "<<ret);
+            SULUtils::displayLogs(session(), m_sulLogs);
             setError("Failed to Sync warehouse");
             m_error.status = WarehouseStatus::DOWNLOADFAILED;
             return;
@@ -391,6 +392,7 @@ namespace SulDownloader
         if (!syncSucceeded)
         {
             LOGERROR(failedProductErrorMessage.str());
+            SULUtils::displayLogs(session(), m_sulLogs);
             setError(failedProductErrorMessage.str());
             m_error.status = WarehouseStatus::DOWNLOADFAILED;
         }
@@ -411,6 +413,7 @@ namespace SulDownloader
         if (!SULUtils::isSuccess(SU_distribute(session(), SU_DistributionFlag_AlwaysDistribute)))
         {
             LOGERROR("Failed to distribute products");
+            SULUtils::displayLogs(session(), m_sulLogs);
             setError("Failed to distribute products");
             m_error.status = WarehouseStatus ::DOWNLOADFAILED;
         }
@@ -433,6 +436,7 @@ namespace SulDownloader
         if (!distSucceeded)
         {
             LOGERROR(failedProductErrorMessage.str());
+            SULUtils::displayLogs(session(), m_sulLogs);
             setError(failedProductErrorMessage.str());
             m_error.status = WarehouseStatus::DOWNLOADFAILED;
         }

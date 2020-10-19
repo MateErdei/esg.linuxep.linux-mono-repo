@@ -99,7 +99,12 @@ namespace SulDownloader
 
     bool SULUtils::isSuccess(SU_Result result)
     {
-        LOGDEBUG("SUL Last Result: " << result);
+        if (result != SU_Result_OK)
+        {
+            // Avoids over-verbose SUL Last Result: 0
+            // for all the set config operations
+            LOGDEBUG("SUL Last Result: " << result);
+        }
         return result == SU_Result_OK || result == SU_Result_nullSuccess || result == SU_Result_notAttempted;
     }
 
