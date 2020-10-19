@@ -125,45 +125,41 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
     }
 }
 
-static int dropCapabilitiesAndLock()
+template <typename T, typename D, D Deleter>
+struct stateless_deleter
+{
+    typedef T pointer;
+
+    void operator()(T x)
+    {
+        Deleter(x);
+    }
+};
+
+static int dropCapabilities()
 {
     int ret = 0;
-    cap_t caps = cap_get_proc();
-    if (caps == NULL)
+    std::unique_ptr<cap_t, stateless_deleter<cap_t, int(*)(void*), &cap_free>> capHandle(cap_get_proc());
+    if (capHandle == nullptr)
     {
         LOGERROR("Failed to get effective capabilities");
         return ret;
     }
 
-    ret = cap_clear(caps);
+    ret = cap_clear(capHandle.get());
     if (ret != 0)
     {
         LOGERROR("Failed to clear effective capabilities");
+        return ret;
     }
 
-    ret = cap_set_proc(caps);
+    ret = cap_set_proc(capHandle.get());
     if (ret != 0)
     {
         LOGERROR("Failed to set the dropped capabilities");
+        return ret;
     }
 
-    ret = prctl(PR_SET_SECUREBITS,
-        /* SECBIT_KEEP_CAPS off */
-          SECBIT_KEEP_CAPS_LOCKED |
-          SECBIT_NO_SETUID_FIXUP |
-          SECBIT_NO_SETUID_FIXUP_LOCKED |
-          SECBIT_NOROOT |
-          SECBIT_NOROOT_LOCKED);
-    if (ret != 0)
-    {
-        LOGERROR("Failed to lock capabilities");
-    }
-
-    ret = cap_free(caps);
-    if (ret != 0)
-    {
-        LOGERROR("Failed to free capabilities");
-    }
     return ret;
 }
 
@@ -191,7 +187,7 @@ static int inner_main()
         exit(EXIT_FAILURE);
     }
 
-    ret = dropCapabilitiesAndLock();
+    ret = dropCapabilities();
     if (ret != 0)
     {
         LOGERROR("Failed to drop capabilities after entering chroot (" << ret << ")");
