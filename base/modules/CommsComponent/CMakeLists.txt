@@ -43,10 +43,10 @@ target_link_libraries(commscomponentimpl PUBLIC
         protobufutil
         httpsenderimpl
         obfuscationimpl
+        directorywatcherimpl
         filesystemimpl
         directorywatcherimpl
-        procutilimpl)
-
+        processutils)
 
 SET_TARGET_PROPERTIES( commscomponentimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
@@ -55,6 +55,7 @@ target_include_directories(commscomponentimpl PUBLIC
         ..Common/SecurityUtils
         ../Common/utilityimpl
         ../Common
+        ../../thirdparty/nlohmann-json
         ${BOOST_INCLUDE_DIR}
         ${CURL_INCLUDE_DIR}
         ../../thirdparty/nlohmann-json

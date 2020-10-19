@@ -113,6 +113,14 @@ namespace Common
             virtual std::string readFile(const Path& path) const = 0;
 
             /**
+             * Reads a "file" of the type found under the /proc directory
+             *
+             * @param path, location of the file to read
+             * @return the content of the read file
+             */
+            virtual std::string readProcStyleFile(const Path& path) const = 0;
+
+            /**
              * Reads a given file content into string.
              * @param path, location of the file to read.
              * @param maxSize The maximum file size to read, throws exception if the file is larger than that

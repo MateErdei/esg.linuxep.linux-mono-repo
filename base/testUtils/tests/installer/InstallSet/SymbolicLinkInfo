@@ -434,7 +434,7 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpluginregistryimpl.s
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpolicyreceiverimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessmonitoringimpl.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocutilimpl.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so.20
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so.20.0

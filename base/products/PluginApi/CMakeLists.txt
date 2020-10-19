@@ -13,6 +13,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:telemetryhelperimplobject>
         $<TARGET_OBJECTS:processmonitoringimplobject>
         $<TARGET_OBJECTS:processimplobject>
+        $<TARGET_OBJECTS:processutilsobject>
         $<TARGET_OBJECTS:utilityimplobject>
         $<TARGET_OBJECTS:protobufutilobject>
         $<TARGET_OBJECTS:xmlutilitiesobject>
@@ -57,6 +58,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/PersistentValue
         COMMAND mkdir -p pluginapi/include/Common/Process
         COMMAND mkdir -p pluginapi/include/Common/ProcessMonitoring
+        COMMAND mkdir -p pluginapi/include/Common/ProcessUtils
         COMMAND mkdir -p pluginapi/include/Common/PluginApi
         COMMAND mkdir -p pluginapi/include/Common/Reactor
         COMMAND mkdir -p pluginapi/include/Common/TelemetryHelperImpl
@@ -118,6 +120,7 @@ add_copy_directory(Common/PluginApi)
 add_copy_directory(Common/PersistentValue)
 add_copy_directory(Common/Process)
 add_copy_directory(Common/ProcessMonitoring)
+add_copy_directory(Common/ProcessUtils)
 add_copy_directory(Common/Reactor)
 add_copy_directory(Common/TelemetryHelperImpl)
 add_copy_directory(Common/Threads)

@@ -6,6 +6,7 @@ Library           ${LIBS_DIRECTORY}/MCSRouter.py
 Library           ${LIBS_DIRECTORY}/SystemInfo.py
 Library           OperatingSystem
 Library           ${LIBS_DIRECTORY}/LogUtils.py
+Library           ${LIBS_DIRECTORY}/CommsComponentUtils.py
 
 Resource  TelemetryResources.robot
 Resource  ../GeneralTeardownResource.robot
@@ -53,6 +54,13 @@ Telemetry Test Setup
     Remove File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Start Watchdog
 
+Telemetry Test Setup With Broken Put Requests
+    Prepare To Run Telemetry Executable With Broken Put Requests
+    Drop MCS Config Into Place
+    Stop Watchdog
+    Remove File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Start Watchdog
+
 Telemetry Test Teardown
     Reset MachineID Permissions
     General Test Teardown
@@ -63,6 +71,24 @@ Telemetry Test Teardown
     Reset MachineID Permissions
     Remove File   ${SOPHOS_INSTALL}/base/update/var/update_config.json
     Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    Remove Environment Variable  BREAK_PUT_REQUEST
+
+Test Teardown With Telemetry Kill
+    Reset MachineID Permissions
+    General Test Teardown
+    Remove file  ${TELEMETRY_OUTPUT_JSON}
+    Restore System Commands
+    Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
+    Cleanup Telemetry Server
+    Reset MachineID Permissions
+    Remove File   ${SOPHOS_INSTALL}/base/update/var/update_config.json
+    Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    Remove Environment Variable  BREAK_PUT_REQUEST
+
+    ${r1} =  Run Process  pgrep  -f  /opt/sophos-spl/base/bin/telemetry
+    Should be equal as strings  ${r1.rc}  0
+    ${r2} =  Run Process  kill -9 ${r1.stdout.replace("\n", " ")}  shell=True
+    Should be equal as strings  ${r2.rc}  0
 
 Teardown With Proxy Clear
     Remove File   /opt/sophos-spl/base/etc/sophosspl/current_proxy
@@ -84,6 +110,34 @@ Telemetry Executable Generates System Telemetry
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     log  ${telemetryFileContents}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
+
+Telemetry Causing Comms To Hang Does Not Stop Comms Restarting
+    [Tags]   TELEMETRY   COMMS
+    [Documentation]    Telemetry Executable Generates System Telemetry
+    [Setup]  Telemetry Test Setup With Broken Put Requests
+    [Teardown]  Test Teardown With Telemetry Kill
+
+    Run Telemetry Executable That Hangs     ${EXE_CONFIG_FILE}
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  check log contains  Sleeping  /tmp/https_server.log   https server log
+    ${local_pid} =  get_pid_of_comms  local
+    ${network_pid} =  get_pid_of_comms  network
+    ${r} =  Run Process  kill  -9  ${local_pid}
+    Should Be Equal As Strings  ${r.rc}  0
+
+    Wait Until Keyword Succeeds
+    ...  30s
+    ...  3s
+    ...  Check Comms Component Is Running
+
+    Check Comms Component Startup Log Contains  Stopping process (CommsComponent) pid: ${network_pid}
+
+    ${local_pid2} =  get_pid_of_comms  local
+    Should Not Be Equal As Strings  ${local_pid}  ${local_pid2}
+    ${network_pid2} =  get_pid_of_comms  network
+    Should Not Be Equal As Strings  ${network_pid}  ${network_pid2}
 
 Telemetry Executable Generates Watchdog Telemetry
     [Tags]  SMOKE  TAP_TESTS   TELEMETRY   WATCHDOG

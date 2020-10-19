@@ -7,15 +7,17 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include <Common/UtilityImpl/StringUtils.h>
+
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/TempDir.h>
 
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
 #include <chrono>
 #include <fstream>
-#include <thread>
 #include <unistd.h>
 
 using namespace Common::FileSystem;
@@ -44,7 +46,7 @@ namespace
     class FileSystemImplTest : public ::testing::Test
     {
     public:
-        ~FileSystemImplTest() {}
+        ~FileSystemImplTest() { }
         std::unique_ptr<IFileSystem> m_fileSystem;
         void SetUp() override { m_fileSystem.reset(new FileSystemImpl()); }
 
@@ -526,7 +528,7 @@ namespace
         Path B = tempdir.absPath("B");
         const int SIZE = 100000; // file size
         std::ostringstream large_string_stream;
-        for (int i = 0; i < SIZE / 10; ++i)
+        for (int i=0; i < SIZE / 10; ++i)
         {
             large_string_stream << "0123456789";
         }
@@ -608,8 +610,7 @@ namespace
 
         EXPECT_FALSE(m_fileSystem->exists(B));
         EXPECT_NE(newFilePermissions, filePermissions->getFilePermissions(A));
-        EXPECT_NO_THROW(
-            m_fileSystem->copyFileAndSetPermissions(A, B, newFilePermissions, ownerName, groupName)); // NOLINT
+        EXPECT_NO_THROW(m_fileSystem->copyFileAndSetPermissions(A, B, newFilePermissions, ownerName, groupName)); // NOLINT
         EXPECT_TRUE(m_fileSystem->exists(B));
 
         std::string content = m_fileSystem->readFile(B);
@@ -739,7 +740,6 @@ namespace
     TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnDirectories) // NOLINT
     {
         std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::this_thread::sleep_for(std::chrono::seconds(1));
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root/subdir");
         std::time_t time_created = m_fileSystem->lastModifiedTime(tempDir.absPath("Root/subdir"));
@@ -750,9 +750,8 @@ namespace
     TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnFiles) // NOLINT
     {
         std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::this_thread::sleep_for(std::chrono::seconds(1));
         Tests::TempDir tempDir;
-        tempDir.createFile("emptyFile", "");
+        tempDir.createFile("emptyFile","");
         std::time_t time_created = m_fileSystem->lastModifiedTime(tempDir.absPath("emptyFile"));
         ASSERT_GE(time_created, curTime);
     }
@@ -760,9 +759,8 @@ namespace
     TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnSymlinks) // NOLINT
     {
         std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::this_thread::sleep_for(std::chrono::seconds(1));
         Tests::TempDir tempDir;
-        tempDir.createFile("emptyFile", "");
+        tempDir.createFile("emptyFile","");
         int success = symlink(tempDir.absPath("emptyFile").c_str(), tempDir.absPath("symlink").c_str());
         ASSERT_EQ(success, 0);
         std::time_t time_created = m_fileSystem->lastModifiedTime(tempDir.absPath("symlink"));
@@ -771,29 +769,27 @@ namespace
 
     TEST_F(FileSystemImplTest, removeFilesInDirectoryRemovesFilesInDirectory) // NOLINT
     {
-        std::vector<Path> filesInDirectory{ "file1", "file2", "file3" };
+
+        std::vector<Path> filesInDirectory{"file1", "file2", "file3"};
 
         Tests::TempDir tempDir;
         Path directoryPath = tempDir.dirPath();
-        for (auto& filePath : filesInDirectory)
+        for(auto& filePath : filesInDirectory)
         {
-            tempDir.createFile(filePath, "");
+            tempDir.createFile(filePath,"");
         }
 
         m_fileSystem->removeFilesInDirectory(directoryPath);
 
-        ASSERT_FALSE(
-            Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[0])));
-        ASSERT_FALSE(
-            Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[1])));
-        ASSERT_FALSE(
-            Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[2])));
+        ASSERT_FALSE(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[0])));
+        ASSERT_FALSE(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[1])));
+        ASSERT_FALSE(Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[2])));
     }
 
     TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenDirectoryDoesNotExist) // NOLINT
     {
         Tests::TempDir tempDir;
-        Path directoryPath = Common::FileSystem::join(tempDir.dirPath(), "missing_dir");
+        Path directoryPath =  Common::FileSystem::join(tempDir.dirPath(), "missing_dir");
 
         EXPECT_NO_THROW(m_fileSystem->removeFilesInDirectory(directoryPath));
     }
@@ -801,56 +797,25 @@ namespace
     TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenFilesDoNotExistDoesNotThrow) // NOLINT
     {
         Tests::TempDir tempDir;
-        Path directoryPath = tempDir.dirPath();
+        Path directoryPath =  tempDir.dirPath();
 
         EXPECT_EQ(m_fileSystem->listFiles(directoryPath).size(), 0);
         EXPECT_NO_THROW(m_fileSystem->removeFilesInDirectory(directoryPath));
     }
 
-    TEST_F(FileSystemImplTest, waitForExistingFileReturnsTrue) // NOLINT
+    TEST_F(FileSystemImplTest, readProcStyleFileThatExistsShouldNotThrow) // NOLINT
     {
-        Tests::TempDir tempDir;
-        Path directoryPath =  tempDir.dirPath();
-        std::string filename = "existing-file";
-        tempDir.createFile(filename,"");
-        Path filePath = Common::FileSystem::join(directoryPath, filename);
-        EXPECT_TRUE(m_fileSystem->waitForFile(filePath, 10));
+        std::string currentPid = std::to_string(getpid());
+
+        std::string filePath = Common::FileSystem::join("/proc", currentPid, "stat");
+        std::string statContents = m_fileSystem->readProcStyleFile(filePath);
+        EXPECT_TRUE(Common::UtilityImpl::StringUtils::startswith(statContents, currentPid)); // NOLINT
     }
 
-    TEST_F(FileSystemImplTest, waitForNonExistentFileReturnsFalse) // NOLINT
+    TEST_F(FileSystemImplTest, readProcStyleFileThatDoesNotExistShouldThrow) // NOLINT
     {
-        Tests::TempDir tempDir;
-        Path directoryPath =  tempDir.dirPath();
-        std::string filename = "existing-file";
-        Path filePath = Common::FileSystem::join(directoryPath, filename);
-        EXPECT_FALSE(m_fileSystem->waitForFile(filePath, 10));
+        int currentPid = getpid();
+        std::string filePath = Common::FileSystem::join("proc", std::to_string(currentPid), "doesNotExist");
+        EXPECT_THROW(m_fileSystem->readProcStyleFile(filePath), IFileSystemException); // NOLINT
     }
-
-    TEST_F(FileSystemImplTest, appendToFileCreatesAndAppendsToFile) // NOLINT
-    {
-        Tests::TempDir tempDir;
-        Path directoryPath =  tempDir.dirPath();
-        std::string filename = "appendTestFileName";
-        Path filePath = Common::FileSystem::join(directoryPath, filename);
-        m_fileSystem->appendFile(filePath, "a");
-        m_fileSystem->appendFile(filePath, "b");
-        m_fileSystem->appendFile(filePath, "c");
-        EXPECT_EQ(m_fileSystem->readFile(filePath), R"(abc)");
-    }
-
-    TEST_F(FileSystemImplTest, appendToFileAppendsToExistingFile) // NOLINT
-    {
-        Tests::TempDir tempDir;
-        Path directoryPath =  tempDir.dirPath();
-        std::string filename = "appendTestExistingFileName";
-        Path filePath = Common::FileSystem::join(directoryPath, filename);
-        tempDir.createFile(filename,"123");
-        m_fileSystem->appendFile(filePath, "a");
-        m_fileSystem->appendFile(filePath, "b");
-        m_fileSystem->appendFile(filePath, "c");
-        EXPECT_EQ(m_fileSystem->readFile(filePath), R"(123abc)");
-    }
-
-
-
 } // namespace

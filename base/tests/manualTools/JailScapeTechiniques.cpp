@@ -200,7 +200,7 @@ void verifyJailedProcessCanNotMountProc()
     bool allStepsPassed=true; 
     std::stringstream report; 
     report << "\n\n------------------------------\n";
-    report << "Test Can Mount Proc\n\n"; 
+    report << "Test Can Mount Proc\n\n";
 
     if ( mkdir("/proc", -1) == -1 )
     {

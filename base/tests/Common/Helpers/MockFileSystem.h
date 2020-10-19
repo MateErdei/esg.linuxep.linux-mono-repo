@@ -36,6 +36,7 @@ public:
     MOCK_CONST_METHOD2(moveFile, void(const Path& sourcePath, const Path& destPath));
     MOCK_CONST_METHOD1(readFile, std::string(const Path& path));
     MOCK_CONST_METHOD2(readFile, std::string(const Path& path, unsigned long maxSize));
+    MOCK_CONST_METHOD1(readProcStyleFile, std::string(const Path& path));
     MOCK_CONST_METHOD1(readLines, std::vector<std::string>(const Path& path));
     MOCK_CONST_METHOD2(readLines, std::vector<std::string>(const Path& path, unsigned long maxSize));
     MOCK_CONST_METHOD2(writeFile, void(const Path& path, const std::string& content));

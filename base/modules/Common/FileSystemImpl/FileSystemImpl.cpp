@@ -15,13 +15,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 
 #include <cassert>
+#include <cstring>
 #include <dirent.h>
-#include <fcntl.h>
 #include <fstream>
 #include <grp.h>
 #include <iostream>
+#include <pwd.h>
 #include <sstream>
 #include <unistd.h>
+#include <fcntl.h>
+
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
@@ -555,25 +558,15 @@ namespace Common
             return files;
         }
 
-        void FileSystemImpl::removeFile(const Path& path, bool ignoreAbsent) const
+        void FileSystemImpl::removeFile(const Path& path) const
         {
             if (::remove(path.c_str()) != 0)
             {
                 int error = errno;
-                if (ignoreAbsent && error == ENOENT)
-                {
-                    return;
-                }
-
                 std::string error_cause = StrError(error);
                 throw Common::FileSystem::IFileSystemException(
                     "Failed to delete file: " + path + ". Cause: " + error_cause);
             }
-        }
-
-        void FileSystemImpl::removeFile(const Path& path) const
-        {
-            removeFile(path, false);
         }
 
         void FileSystemImpl::removeFileOrDirectory(const Path& dir) const
@@ -701,27 +694,32 @@ namespace Common
             }
         }
 
-        std::optional<std::string> FileSystemImpl::readProcFile(int pid, const std::string& filename) const
+        std::string FileSystemImpl::readProcStyleFile(const Path &path) const
         {
-            // Do not put any logging in this function because
-            // this will be at least called from the comms component at a time when the logging has not been setup
             std::array<char, 4096> buffer {};
-            std::string path = Common::FileSystem::join("/proc", std::to_string(pid), filename);
             int fd = ::open(path.c_str(), O_RDONLY);
             if (fd < 0)
             {
-                return std::optional<std::string> {};
+                std::stringstream errorMsg;
+                errorMsg << "Could not open: " << path;
+                throw IFileSystemException(errorMsg.str());
             }
             int nbytes = ::read(fd, buffer.data(), buffer.size());
             ::close(fd);
 
             if (nbytes == -1)
             {
-                return std::optional<std::string> {};
+                std::stringstream errorMsg;
+                errorMsg << "Failed to read the content of: " << path;
+                throw IFileSystemException(errorMsg.str());
             }
-            assert(nbytes <= static_cast<int>(buffer.size()));
-            return std::string { buffer.begin(), buffer.begin() + nbytes };
-        }
+            if(nbytes > static_cast<int>(buffer.size()))
+            {
+                std::stringstream errorMsg;
+                errorMsg << "contents of: " << path << ", is larger than buffer: " << buffer.size();
+                throw IFileSystemException(errorMsg.str());
+            }
+            return std::string { buffer.begin(), buffer.begin() + nbytes };        }
 
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()
         {

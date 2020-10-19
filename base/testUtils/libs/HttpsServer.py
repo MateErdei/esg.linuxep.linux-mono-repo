@@ -7,6 +7,8 @@
 import ssl
 import subprocess
 import threading
+import time
+import os
 
 import http.server
 
@@ -41,12 +43,20 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b"<html><head><title>Response</title></head><body>Response From HttpsServer</body></html>")
 
+    def handle_put_request_with_hang(self):
+        self.log_message("Sleeping for 10s")
+        time.sleep(10)
+        self.log_message("Done sleeping")
+
     def do_POST(self):
         self.handle_request("POST")
 
     def do_PUT(self):
-        self.handle_request("PUT")
-    
+        if os.environ.get("BREAK_PUT_REQUEST"):
+            self.handle_put_request_with_hang()
+        else:
+            self.handle_request("PUT")
+
     def do_GET(self):
         self.handle_get_request()
 

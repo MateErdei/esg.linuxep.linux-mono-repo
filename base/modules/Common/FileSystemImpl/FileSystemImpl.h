@@ -67,6 +67,8 @@ namespace Common
 
             std::string readFile(const Path& path, unsigned long maxSize) const override;
 
+            std::string readProcStyleFile(const Path& path) const override;
+
             std::vector<std::string> readLines(const Path& path) const override;
 
             std::vector<std::string> readLines(const Path& path, unsigned long maxSize) const override;

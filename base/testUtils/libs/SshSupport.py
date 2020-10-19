@@ -67,7 +67,7 @@ Z6Ht8LpYzO/EZFL8IA2N69A1X8Eci1fcT9AbB5PCxTFfwygD5J1WU6Fh+xyn
 
 # password linux
 private_key_with_password=b"""-----BEGIN RSA PRIVATE KEY-----
-Proc-Type: 4,ENCRYPTED
+ProcessUtils-Type: 4,ENCRYPTED
 DEK-Info: AES-128-CBC,ED92BFAD86E6100E3708A967DF755FEB
 
 qJ6OVb+qda0szxXPkUxi0THdbHSVdSPVaad/xayX9OLiuTAjqA4raadnO80S37VW

@@ -1,5 +1,7 @@
 o440, sophos-spl-group, root, /opt/sophos-spl/base/etc/telemetry-config.json.0
+o600, root, root, /opt/sophos-spl/base/etc/backupfileslist.dat.0
 o600, root, root, /opt/sophos-spl/base/etc/DiagnosePaths.conf.0
+o600, root, root, /opt/sophos-spl/base/etc/downgradepaths.dat.0
 o600, root, root, /opt/sophos-spl/base/etc/licenses.txt.0
 o600, root, root, /opt/sophos-spl/base/update/certs/ps_rootca.crt.0
 o600, root, root, /opt/sophos-spl/base/update/certs/rootca.crt.0
@@ -66,7 +68,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpluginregistryimpl.s
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpolicyreceiverimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessmonitoringimpl.so.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocutilimpl.so.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so.20.0.1.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobufutil.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libreactorimpl.so.0

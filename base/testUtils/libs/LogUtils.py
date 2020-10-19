@@ -246,6 +246,13 @@ class LogUtils(object):
         contents = get_log_contents(log_location)
         return self.get_number_of_occurences_of_substring_in_string(contents, substring)
 
+    def should_contain_n_times(self, string_to_check, string_to_check_for, n):
+        n = int(n)
+        occurances = self.get_number_of_occurences_of_substring_in_string(string_to_check, string_to_check_for)
+        if occurances != n:
+            logger.error(f"expected '{string_to_check}' to contain '{string_to_check_for}' {n} times, found {occurances}")
+            raise AssertionError()
+
     def get_number_of_occurences_of_substring_in_string(self, string, substring, use_regex=False):
         if use_regex:
             return self.get_number_of_occurences_of_regex_in_string(string, substring)
@@ -337,8 +344,8 @@ class LogUtils(object):
     def comms_component_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "comms_component.log")
 
-    def comms_component_network_log(self):
-        return os.path.join(self.base_logs_dir, "sophos-spl-comms", "comms_network.log")
+    def comms_component_startup_log(self):
+        return os.path.join(self.base_logs_dir, "comms_startup.log")
 
     def dump_mcsrouter_log(self):
         mcsrouter_log = self.mcs_router_log()
@@ -708,21 +715,13 @@ class LogUtils(object):
 
     def check_comms_component_log_contains(self, string_to_contain):
         log = self.comms_component_log()
-        self.check_log_contains(string_to_contain, log, "Comms Component Log")
+        self.check_log_contains(string_to_contain, log, "Comms Component")
         logger.info(log)
 
-    def check_comms_component_network_log_contains(self, string_to_contain):
-        log = self.comms_component_network_log()
-        self.check_log_contains(string_to_contain, log, "Comms Component Network Log")
+    def check_comms_component_startup_log_contains(self, string_to_contain):
+        log = self.comms_component_startup_log()
+        self.check_log_contains(string_to_contain, log, "Comms Component Startup Log")
         logger.info(log)
-
-    def check_comms_component_network_log_does_not_contain(self, string_to_not_contain):
-        log = self.comms_component_network_log()
-        self.check_log_does_not_contain(string_to_not_contain, log, "Comms Component Network Log")
-
-    def check_updatescheduler_log_does_not_contain(self, string_to_not_contain):
-        log = self.update_scheduler_log
-        self.check_log_does_not_contain(string_to_not_contain, log, "Updatescheduler")
 
     def check_comms_component_log_does_not_contain_error(self):
         log = self.comms_component_log()

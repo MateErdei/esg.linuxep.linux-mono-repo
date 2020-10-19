@@ -1,0 +1,8 @@
+include(GoogleTest)
+add_executable(ProcessUtilsTests TestProcUtilities.cpp)
+target_include_directories(ProcessUtilsTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
+target_include_directories(ProcessUtilsTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
+target_include_directories(ProcessUtilsTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" ${CMAKE_SOURCE_DIR})
+target_link_libraries(ProcessUtilsTests gtest gtest_main)
+target_link_libraries(ProcessUtilsTests processutils ${Protobuf_LIBRARIES} applicationconfigurationimpl gtest gtest_main testhelpers)
+gtest_discover_tests(ProcessUtilsTests)

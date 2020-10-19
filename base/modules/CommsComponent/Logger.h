@@ -8,6 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/SophosLoggerMacros.h>
 
 log4cplus::Logger& getCommsComponentLogger();
+log4cplus::Logger& getCommsComponentStartupLogger();
+void shutDownCommsComponentStartupLogger();
 
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(getCommsComponentLogger(), x)     // NOLINT
 #define LOGINFO(x) LOG4CPLUS_INFO(getCommsComponentLogger(), x)       // NOLINT
@@ -15,3 +17,10 @@ log4cplus::Logger& getCommsComponentLogger();
 #define LOGWARN(x) LOG4CPLUS_WARN(getCommsComponentLogger(), x)       // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getCommsComponentLogger(), x)     // NOLINT
 #define LOGFATAL(x) LOG4CPLUS_FATAL(getCommsComponentLogger(), x)     // NOLINT
+
+#define LOGDEBUG_STARTUP(x) LOG4CPLUS_DEBUG(getCommsComponentStartupLogger(), x)     // NOLINT
+#define LOGINFO_STARTUP(x) LOG4CPLUS_INFO(getCommsComponentStartupLogger(), x)       // NOLINT
+#define LOGSUPPORT_STARTUP(x) LOG4CPLUS_SUPPORT(getCommsComponentStartupLogger(), x) // NOLINT
+#define LOGWARN_STARTUP(x) LOG4CPLUS_WARN(getCommsComponentStartupLogger(), x)       // NOLINT
+#define LOGERROR_STARTUP(x) LOG4CPLUS_ERROR(getCommsComponentStartupLogger(), x)     // NOLINT
+#define LOGFATAL_STARTUP(x) LOG4CPLUS_FATAL(getCommsComponentStartupLogger(), x)     // NOLINT

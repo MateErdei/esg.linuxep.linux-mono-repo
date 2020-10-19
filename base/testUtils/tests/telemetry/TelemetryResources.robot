@@ -66,11 +66,21 @@ Create Fake Telemetry Executable that exits with error
 Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol
 
+Prepare To Run Telemetry Executable With Broken Put Requests
+    Set Environment Variable  BREAK_PUT_REQUEST  TRUE
+    Prepare To Run Telemetry Executable With HTTPS Protocol
+
 Prepare To Run Telemetry Executable With HTTPS Protocol
     [Arguments]  ${port}=443  ${TLSProtocol}=tlsv1_2
     HttpsServer.Start Https Server  ${CERT_PATH}  ${port}  ${TLSProtocol}
     Wait Until Keyword Succeeds  10 seconds  1.0 seconds  File Should Exist  ${MACHINE_ID_FILE}
     Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}  ${USERNAME}  port=${port}
+
+Prepare To Run Telemetry Executable That Hangs
+    [Arguments]  ${port}=443  ${TLSProtocol}=tlsv1_2
+    HttpsServer.Start Https Server  ${CERT_PATH}  ${port}  ${TLSProtocol}
+    Wait Until Keyword Succeeds  10 seconds  1.0 seconds  File Should Exist  ${MACHINE_ID_FILE}
+    Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}  ${USERNAME}  port=${port} server=
 
 Check Telemetry Log Contains
     [Arguments]  ${CONTENT}
@@ -97,6 +107,12 @@ Run Telemetry Executable
 
     Run Keyword If   ${checkResult}==1  Check Telemetry Content
 
+Run Telemetry Executable That Hangs
+    [Arguments]  ${telemetryConfigFilePath}
+
+    Remove File  ${TELEMETRY_EXECUTABLE_LOG}
+
+    ${result} =  Start Process  sudo  -u  ${USERNAME}  ${SOPHOS_INSTALL}/base/bin/telemetry  ${telemetryConfigFilePath}
 
 
 Wait For Telemetry Executable To Have Run

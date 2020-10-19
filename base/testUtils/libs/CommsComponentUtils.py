@@ -1,6 +1,7 @@
 import os
 import json
 import base64
+import psutil
 
 from robot.api import logger
 
@@ -24,6 +25,26 @@ class CommsComponentUtils:
             if COMMS_COMPONENT_EXECUTABLE_NAME in cmdline:
                 pids.append(int(pid))
         return pids
+
+    def get_pid_of_comms(self, network_or_local=None):
+        if network_or_local not in ["network","local"]:
+            raise AssertionError("need to pick either network or local")
+        pids = self._pid_of_comms_component()
+        assert len(pids) == 2, "Expected two pids"
+        #sort ascending
+        pids.sort()
+        logger.debug(f"pids: {pids}")
+        network_pid = pids[1]
+        logger.info(f"Got network PID as {network_pid}")
+        local_pid = pids[0]
+        logger.info(f"Got local PID as {local_pid}")
+        p = psutil.Process(network_pid)
+        parent = p.ppid()
+        assert parent == local_pid, f"expected {local_pid} to be parent of {network_pid}"
+        if network_or_local == "local":
+            return local_pid
+        if network_or_local == "network":
+            return network_pid
 
     def check_comms_component_running(self, require_running=True):
         if require_running in ['True', 'False']:
