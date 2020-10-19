@@ -5,7 +5,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "ScheduledUpdate.h"
 #include "SchedulerTaskQueue.h"
 
 #include <chrono>

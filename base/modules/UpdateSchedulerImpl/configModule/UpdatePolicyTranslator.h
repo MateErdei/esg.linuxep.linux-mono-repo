@@ -8,7 +8,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Exceptions/IException.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <UpdateScheduler/IMapHostCacheId.h>
-#include <UpdateScheduler/ScheduledUpdate.h>
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <chrono>

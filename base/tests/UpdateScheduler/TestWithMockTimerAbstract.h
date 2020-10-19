@@ -5,7 +5,6 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <UpdateScheduler/ScheduledUpdate.h>
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/FakeTimeUtils.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>

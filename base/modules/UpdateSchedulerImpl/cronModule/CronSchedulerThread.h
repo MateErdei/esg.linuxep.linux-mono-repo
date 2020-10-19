@@ -7,7 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/Threads/AbstractThread.h>
 #include <UpdateScheduler/ICronSchedulerThread.h>
-#include <UpdateScheduler/ScheduledUpdate.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 
 #include <memory>

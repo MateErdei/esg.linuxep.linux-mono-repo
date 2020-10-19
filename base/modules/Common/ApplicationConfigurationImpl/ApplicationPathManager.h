@@ -13,9 +13,6 @@ namespace Common::ApplicationConfigurationImpl
     class ApplicationPathManager : public virtual Common::ApplicationConfiguration::IApplicationPathManager
     {
     public:
-        std::string getSulDownloaderLatestProductUpdateMarkerPath() const override;
-
-    public:
         std::string getPluginSocketAddress(const std::string& pluginName) const override;
         std::string getManagementAgentSocketAddress() const override;
         std::string getWatchdogSocketAddress() const override;
@@ -54,6 +51,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getSulDownloaderConfigFilePath() const override;
         std::string getSulDownloaderReportGeneratedFilePath() const override;
         std::string getSulDownloaderLockFilePath() const override;
+        [[nodiscard]] std::string getSulDownloaderLatestProductUpdateMarkerPath() const override;
 
         std::string getSavedEnvironmentProxyFilePath() const override;
 
