@@ -121,7 +121,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
                 "macintosh": true
             },
             "scanControl": {
-                "trueFileTypeDetection": true,
+                "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true
@@ -162,7 +162,7 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
                 "macintosh": true
             },
             "scanControl": {
-                "trueFileTypeDetection": true,
+                "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true
