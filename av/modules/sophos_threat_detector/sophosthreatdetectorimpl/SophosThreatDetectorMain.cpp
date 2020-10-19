@@ -138,7 +138,7 @@ struct stateless_deleter
 
 static int dropCapabilities()
 {
-    int ret = 0;
+    int ret = -1;
     std::unique_ptr<cap_t, stateless_deleter<cap_t, int(*)(void*), &cap_free>> capHandle(cap_get_proc());
     if (!capHandle)
     {
