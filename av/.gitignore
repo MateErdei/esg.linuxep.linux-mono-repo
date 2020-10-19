@@ -6,6 +6,7 @@ cmake-build-gcc8/
 input/
 output/
 build64/
+products/distribution/include/AutoVersioningHeaders/
 redist/
 tests/googletest/
 log/
