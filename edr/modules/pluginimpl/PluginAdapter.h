@@ -95,7 +95,6 @@ namespace Plugin
 
         void processQuery(const std::string& query, const std::string& correlationId);
         void processFlags(const std::string& flagsContent);
-        void changeFlagSettings(bool isXDR);
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
         void setUpOsqueryMonitor();

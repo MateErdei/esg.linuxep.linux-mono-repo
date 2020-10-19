@@ -123,7 +123,7 @@ namespace Plugin
         cleanUpOldOsqueryFiles();
         try
         {
-            m_isXDR = Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile();
+            m_isXDR = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
         }
         catch (const std::runtime_error& ex)
         {
@@ -408,7 +408,10 @@ namespace Plugin
     void PluginAdapter::processFlags(const std::string& flagsContent)
     {
         LOGSUPPORT("Flags: " << flagsContent);
+        bool flagsHaveChanged = false;
         bool isXDR = Plugin::PluginUtils::isRunningModeXDR(flagsContent);
+        bool networkTablesAvailable = Plugin::PluginUtils::areNetworkTablesAvailable(flagsContent);
+
         if (isXDR)
         {
             LOGSUPPORT("Flags running mode in policy is XDR");
@@ -420,25 +423,45 @@ namespace Plugin
 
         try
         {
-            bool oldRunningMode = Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile();
+            bool oldRunningMode = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
             if (isXDR != oldRunningMode)
             {
-                LOGINFO("Updating flag settings");
-                changeFlagSettings(isXDR);
+                LOGINFO("Updating XDR flag settings");
+                Plugin::PluginUtils::setGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER, isXDR);
+                flagsHaveChanged = true;
             }
         }
         catch (const std::runtime_error& ex)
         {
-            LOGINFO("Setting flag settings");
-            changeFlagSettings(isXDR);
+            LOGINFO("Setting XDR flag settings");
+            Plugin::PluginUtils::setGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER, isXDR);
+            flagsHaveChanged = true;
+        }
+
+        try
+        {
+            bool oldNetworkTablesSetting = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::NETWORK_TABLES_AVAILABLE);
+            if (networkTablesAvailable != oldNetworkTablesSetting)
+            {
+                LOGINFO("Updating network tables flag settings");
+                Plugin::PluginUtils::setGivenFlagFromSettingsFile(PluginUtils::NETWORK_TABLES_AVAILABLE, networkTablesAvailable);
+                flagsHaveChanged = true;
+            }
+        }
+        catch (const std::runtime_error& ex)
+        {
+            LOGINFO("Setting network tables flag settings");
+            Plugin::PluginUtils::setGivenFlagFromSettingsFile(PluginUtils::NETWORK_TABLES_AVAILABLE, networkTablesAvailable);
+            flagsHaveChanged = true;
+        }
+
+        if (flagsHaveChanged)
+        {
+            LOGINFO("Flags have changed so restarting EDR");
+            m_queueTask->pushStop();
         }
     }
 
-    void PluginAdapter::changeFlagSettings(bool isXDR)
-    {
-        Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(isXDR);
-        m_queueTask->pushStop();
-    }
     std::string PluginAdapter::waitForTheFirstALCPolicy(
         QueueTask& queueTask,
         std::chrono::seconds timeoutInS,

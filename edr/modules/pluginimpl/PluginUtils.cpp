@@ -42,57 +42,83 @@ namespace Plugin
         return isXDR;
     }
 
-    bool PluginUtils::retrieveRunningModeFlagFromSettingsFile()
+    bool PluginUtils::areNetworkTablesAvailable(const std::string& flagContent)
+    {
+        bool networkTables = false;
+
+        try
+        {
+            nlohmann::json j = nlohmann::json::parse(flagContent);
+
+            if (j.find(NETWORK_TABLES_FLAG) != j.end())
+            {
+                if (j[NETWORK_TABLES_FLAG] == true)
+                {
+                    networkTables = true;
+                }
+            }
+        }
+        catch (nlohmann::json::parse_error& ex)
+        {
+            std::stringstream errorMessage;
+            errorMessage << "Could not parse json: " << flagContent << " with error: " << ex.what();
+            LOGWARN(errorMessage.str());
+        }
+
+        return networkTables;
+    }
+
+    bool PluginUtils::retrieveGivenFlagFromSettingsFile(const std::string& flag)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
-        std::string configpath = Plugin::edrConfigFilePath();
+        std::string configPath = Plugin::edrConfigFilePath();
 
-        if (fileSystem->isFile(configpath))
+        if (fileSystem->isFile(configPath))
         {
             try
             {
                 boost::property_tree::ptree ptree;
-                boost::property_tree::read_ini(configpath, ptree);
-                bool isXDR = (ptree.get<std::string>(MODE_IDENTIFIER) == "0");
+                boost::property_tree::read_ini(configPath, ptree);
+                bool isXDR = (ptree.get<std::string>(flag) == "0");
                 return isXDR;
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                LOGWARN("Failed to read running mode configuration from config file");
+                LOGWARN("Failed to read " << flag << " configuration from config file");
             }
         }
         else
         {
-            LOGWARN("Could not find EDR Plugin config file: " << configpath);
+            LOGWARN("Could not find EDR Plugin config file: " << configPath);
         }
-        throw std::runtime_error("running mode not set in plugin setting file");
+        throw std::runtime_error(flag + " not set in plugin setting file");
     }
 
-    void PluginUtils::setRunningModeFlagFromSettingsFile(const bool& isXDR)
+    void PluginUtils::setGivenFlagFromSettingsFile(const std::string& flag, const bool& isXDR)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         std::string mode;
         if (isXDR)
         {
-            mode = MODE_IDENTIFIER + "=0";
+            mode = flag + "=0";
         }
         else
         {
-            mode = MODE_IDENTIFIER + "=1";
+            mode = flag + "=1";
         }
 
         try
         {
-            std::string configpath = Plugin::edrConfigFilePath();
-            if (fileSystem->isFile(configpath))
+            std::string configPath = Plugin::edrConfigFilePath();
+            if (fileSystem->isFile(configPath))
             {
                 bool modeIsNotSet = true;
-                std::vector<std::string> content = fileSystem->readLines(configpath);
+                std::vector<std::string> content = fileSystem->readLines(configPath);
                 std::stringstream newContent;
                 for (const auto &line : content)
                 {
                     // if running mode already set replace it
-                    if (Common::UtilityImpl::StringUtils::isSubstring(line, MODE_IDENTIFIER))
+                    if (Common::UtilityImpl::StringUtils::isSubstring(line, flag))
                     {
                         newContent << mode << "\n";
                         modeIsNotSet = false;
@@ -109,14 +135,13 @@ namespace Plugin
                     newContent << mode << "\n";
                 }
 
-
-                fileSystem->writeFileAtomically(configpath, newContent.str(), Plugin::etcDir());
+                fileSystem->writeFileAtomically(configPath, newContent.str(), Plugin::etcDir());
             }
             else
             {
-                fileSystem->writeFile(configpath, mode + "\n");
+                fileSystem->writeFile(configPath, mode + "\n");
             }
-            LOGINFO("Updated plugin conf with new running mode");
+            LOGINFO("Updated plugin conf with new " + flag);
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {

@@ -7,6 +7,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include "ApplicationPaths.h"
 #include "Logger.h"
+#include "PluginUtils.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/XmlUtilities/AttributesMap.h>
@@ -97,6 +98,21 @@ namespace Plugin
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false",
                                          "--events_max=250000" };
+
+        bool networkTables;
+        try
+        {
+            networkTables = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::NETWORK_TABLES_AVAILABLE);
+        }
+        catch (const std::runtime_error& ex)
+        {
+            networkTables = false;
+        }
+
+        if (!networkTables)
+        {
+            flags.push_back("--disable_tables=curl,curl_certificate");
+        }
 
         flags.push_back("--syslog_pipe_path=" + Plugin::syslogPipe());
         flags.push_back("--pidfile=" + Plugin::osqueryPidFile());

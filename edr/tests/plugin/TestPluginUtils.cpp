@@ -35,7 +35,7 @@ TEST_F(TestPluginUtils, testgetRunningModeFromFlagContentwhenInvalidJson)
     ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR(content1));
 }
 
-TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileWhenItIsEDR)
+TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileWhenItIsEDR)
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -43,10 +43,10 @@ TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileWhenItIsEDR)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    ASSERT_EQ(false,Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile());
+    ASSERT_EQ(false,Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"));
 }
 
-TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileWhenItIsXDR)
+TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileWhenItIsXDR)
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -54,15 +54,15 @@ TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileWhenItIsXDR)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    ASSERT_EQ(true,Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile());
+    ASSERT_EQ(true,Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"));
 }
 
-TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileThrowsWhenFileDoesNotExist)
+TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenFileDoesNotExist)
 {
-    EXPECT_THROW(Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile(),std::runtime_error);
+    EXPECT_THROW(Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"),std::runtime_error);
 }
 
-TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileThrowsWhenRunningModeNotSet)
+TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenRunningModeNotSet)
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -70,10 +70,10 @@ TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileThrowsWhenRunning
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    EXPECT_THROW(Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile(),std::runtime_error);
+    EXPECT_THROW(Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"),std::runtime_error);
 }
 
-TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileThrowsWhenSettingFileHasInvalidContent)
+TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenSettingFileHasInvalidContent)
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -81,10 +81,10 @@ TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileThrowsWhenSetting
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    EXPECT_THROW(Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile(),std::runtime_error);
+    EXPECT_THROW(Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"),std::runtime_error);
 }
 
-TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileThrowsWhenSettingFileIsEmpty)
+TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenSettingFileIsEmpty)
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -92,10 +92,10 @@ TEST_F(TestPluginUtils, retrieveRunningModeFlagFromSettingsFileThrowsWhenSetting
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    EXPECT_THROW(Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile(),std::runtime_error);
+    EXPECT_THROW(Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"),std::runtime_error);
 }
 
-TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileWhenFileIsEmpty)
+TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileWhenFileIsEmpty)
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -104,11 +104,11 @@ TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileWhenFileIsEmpty)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(true);
+    Plugin::PluginUtils::setGivenFlagFromSettingsFile("running_mode", true);
     ASSERT_EQ("running_mode=0\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
 }
 
-TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileWhenSettingFileDoesNotExist)
+TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileWhenSettingFileDoesNotExist)
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -117,11 +117,11 @@ TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileWhenSettingFileDoesNot
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(true);
+    Plugin::PluginUtils::setGivenFlagFromSettingsFile("running_mode", true);
     ASSERT_EQ("running_mode=0\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
 }
 
-TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileUpdatesFilefromEDRToXDR)
+TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileUpdatesFilefromEDRToXDR)
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -130,11 +130,11 @@ TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileUpdatesFilefromEDRToXD
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(true);
+    Plugin::PluginUtils::setGivenFlagFromSettingsFile("running_mode", true);
     ASSERT_EQ("disable_auditd=0\nrunning_mode=0\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
 }
 
-TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileUpdatesFilefromXDRToEDR)
+TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileUpdatesFilefromXDRToEDR)
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -143,6 +143,6 @@ TEST_F(TestPluginUtils, setRunningModeFlagFromSettingsFileUpdatesFilefromXDRToED
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    Plugin::PluginUtils::setRunningModeFlagFromSettingsFile(false);
+    Plugin::PluginUtils::setGivenFlagFromSettingsFile("running_mode", false);
     ASSERT_EQ("disable_auditd=0\nrunning_mode=1\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
 }

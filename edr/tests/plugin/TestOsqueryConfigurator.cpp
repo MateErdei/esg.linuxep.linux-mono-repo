@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/LogInitializedTests.h>
+#include <Common/Helpers/TempDir.h>
 #include <modules/pluginimpl/OsqueryConfigurator.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
@@ -38,6 +39,7 @@ public:
         const std::string filepath = "anyfile";
         std::string fileContent;
         auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
+        EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, isFile(filepath)).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(true));
@@ -164,6 +166,11 @@ TEST_F(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConf
 
 TEST_F(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataCollection) // NOLINT
 {
+    Tests::TempDir tempDir("/tmp");
+
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "network_tables=1\n");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+        Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
     TestableOsqueryConfigurator enabledOption(true);
 
     std::string osqueryFlags = enabledOption.regenerateOSQueryFlagsFile(true);
