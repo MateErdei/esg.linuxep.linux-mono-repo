@@ -81,7 +81,7 @@ namespace Plugin
         bool isXDR;
         try
         {
-            isXDR = Plugin::PluginUtils::retrieveRunningModeFlagFromSettingsFile();
+            isXDR = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
         }
         catch (const std::runtime_error& ex)
         {
