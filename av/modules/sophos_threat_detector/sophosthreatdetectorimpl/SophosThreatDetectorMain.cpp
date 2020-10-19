@@ -140,7 +140,7 @@ static int dropCapabilities()
 {
     int ret = 0;
     std::unique_ptr<cap_t, stateless_deleter<cap_t, int(*)(void*), &cap_free>> capHandle(cap_get_proc());
-    if (capHandle == nullptr)
+    if (!capHandle)
     {
         LOGERROR("Failed to get effective capabilities");
         return ret;
@@ -160,6 +160,16 @@ static int dropCapabilities()
         return ret;
     }
 
+    return ret;
+}
+
+static int lockCapabilities()
+{
+    int ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+    if (ret != 0)
+    {
+        LOGERROR("Failed to lock capabilities: " << strerror(errno));
+    }
     return ret;
 }
 
@@ -191,6 +201,13 @@ static int inner_main()
     if (ret != 0)
     {
         LOGERROR("Failed to drop capabilities after entering chroot (" << ret << ")");
+        exit(EXIT_FAILURE);
+    }
+
+    ret = lockCapabilities();
+    if (ret != 0)
+    {
+        LOGERROR("Failed to lock capabilities after entering chroot (" << ret << ")");
         exit(EXIT_FAILURE);
     }
 
