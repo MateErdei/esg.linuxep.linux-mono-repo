@@ -109,6 +109,9 @@ configure_file(VERSION.ini.in VERSION.ini @ONLY)
 install(FILES ../../build64/products/distribution/VERSION.ini
         DESTINATION files/plugins/${PLUGIN_NAME}/)
 
+install(FILES ../../build64/products/distribution/VERSION.ini
+        DESTINATION .)
+
 set(SUSI_INSTALL_DIR files/plugins/${PLUGIN_NAME}/chroot/susi)
 install(DIRECTORY ${SUSI_SDDS_PATH}/ DESTINATION ${SUSI_INSTALL_DIR}/distribution_version/)
 

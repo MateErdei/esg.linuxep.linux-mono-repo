@@ -24,6 +24,30 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_LOCATION" )" >/dev/null && pwd )"
 BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/sbin}"
 UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
+SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversion/${PRODUCT_LINE_ID}.ini"
+
+FORCE=0
+DOWNGRADE=0
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+        --force)
+            FORCE=1
+            ;;
+        --downgrade)
+            DOWNGRADE=1
+            ;;
+    esac
+    shift
+done
+
+if (( DOWNGRADE == 1 ))
+then
+    # save logs
+    SAVE_DIR=${SOPHOS_INSTALL}/logs/plugins/${PRODUCT_LINE_ID}
+    mkdir -p ${SAVE_DIR}
+    cp -v $UNINSTALLDIR/log/av.log* ${$UNINSTALLDIR}/chroot/log/sophos_threat_detector.log* "${SAVE_DIR}"
+fi
 
 rm -f /usr/local/bin/avscanner
 
@@ -31,4 +55,5 @@ rm -f /usr/local/bin/avscanner
 
 rm -rf "$UNINSTALLDIR"
 rm -r "$SYMLINK"
+rm -r "$SYMLINKVERSION"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
