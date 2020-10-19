@@ -26,7 +26,7 @@ MCS creates and updates flags file
       ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
 
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
-    Should Contain  ${CONTENTS}  "endpoint.flag1.enabled" : true,
+    Should Contain  ${CONTENTS}  "livequery.network-tables.available" : true,
     Should Contain  ${CONTENTS}  "endpoint.flag2.enabled" : false,
     Should Contain  ${CONTENTS}  "endpoint.flag3.enabled" : false
 
@@ -34,7 +34,7 @@ MCS creates and updates flags file
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
 
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
-    Should Not Contain  ${CONTENTS}  "endpoint.flag1.enabled" : true,
+    Should Not Contain  ${CONTENTS}  "livequery.network-tables.available" : true,
 
     Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/MCS_policy_Short_Flags_Polling.xml
     Wait Until Keyword Succeeds
@@ -43,17 +43,17 @@ MCS creates and updates flags file
       ...  Check Mcsrouter Log Contains In Order  Checking for updates to mcs flags  Checking for updates to mcs flags
 
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
-    Should Contain  ${CONTENTS}  "endpoint.flag1.enabled" : true,
+    Should Contain  ${CONTENTS}  "livequery.network-tables.available" : true,
 
 MCS Combines Flags Files
-    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"endpoint.flag1.enabled" : "true","endpoint.flag3.enabled" : "always","endpoint.flag4.enabled" : "true", "endpoint.flag5.enabled" : "always"}
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"livequery.network-tables.available" : "true","endpoint.flag3.enabled" : "always","endpoint.flag4.enabled" : "true", "endpoint.flag5.enabled" : "always"}
     Install Register And Wait First MCS Policy
     Wait Until Keyword Succeeds
           ...  10 secs
           ...  1 secs
           ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
-    Should Contain  ${CONTENTS}  "endpoint.flag1.enabled": true
+    Should Contain  ${CONTENTS}  "livequery.network-tables.available": true
     Should Contain  ${CONTENTS}  "endpoint.flag2.enabled": false
     Should Contain  ${CONTENTS}  "endpoint.flag3.enabled": true
     Should Contain  ${CONTENTS}  "endpoint.flag4.enabled": false

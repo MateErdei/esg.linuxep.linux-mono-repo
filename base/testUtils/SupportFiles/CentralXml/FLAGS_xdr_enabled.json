@@ -1,1 +1,4 @@
-{"xdr.enabled" : "always"}
+{
+  "xdr.enabled" : "always",
+  "livequery.network-tables.available": "true"
+}

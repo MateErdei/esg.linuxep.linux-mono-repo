@@ -47,8 +47,8 @@ EDR Plugin Produces Telemetry When XDR is enabled
             ...  ProcessMonitoringImpl <> Starting /opt/sophos-spl/plugins/edr/bin/edr
 
     Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   2 secs
+    ...   30 secs
+    ...   5 secs
     ...   EDR Plugin Is Running
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
