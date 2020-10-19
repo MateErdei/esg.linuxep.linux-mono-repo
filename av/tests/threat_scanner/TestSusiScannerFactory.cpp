@@ -108,7 +108,7 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue) /
                 "macintosh": true
             },
             "scanControl": {
-                "trueFileTypeDetection": true,
+                "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true
