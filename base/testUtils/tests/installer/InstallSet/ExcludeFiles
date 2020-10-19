@@ -12,3 +12,4 @@ ALC_status.xml
 ALC.xml
 sophos-spl-comms/
 telemetry/cache
+comms_startup.log

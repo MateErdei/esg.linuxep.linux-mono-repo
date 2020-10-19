@@ -68,7 +68,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpluginregistryimpl.s
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpolicyreceiverimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessmonitoringimpl.so.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocimpl.so.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessutils.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so.20.0.1.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobufutil.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libreactorimpl.so.0
