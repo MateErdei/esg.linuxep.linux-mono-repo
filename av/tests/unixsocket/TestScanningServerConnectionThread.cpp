@@ -11,7 +11,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/SocketUtils.h"
 
 #include "tests/common/MemoryAppender.h"
-#include "tests/common/TestFile.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -23,16 +22,19 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 
 using namespace unixsocket;
-using namespace ::testing;
 
 namespace
 {
+    class TestScanningServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
+    {};
 
     class MockScanner : public threat_scanner::IThreatScanner
     {
     public:
         MOCK_METHOD4(scan, scan_messages::ScanResponse(datatypes::AutoFd&, const std::string&, int64_t,
-            const std::string& userID));
+                const std::string& userID));
+
+        MOCK_METHOD0(update, bool());
     };
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {
@@ -40,54 +42,9 @@ namespace
         MOCK_METHOD1(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives));
     };
 
-    class TestScanningServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
-    {
-    protected:
-        TestScanningServerConnectionThread()
-            : memoryAppenderHolder(*this)
-        {
-            request.setPath("/file/to/scan");
-            request.setScanInsideArchives(false);
-            request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
-            request.setUserID("root");
-        }
-
-        UsingMemoryAppender memoryAppenderHolder;
-        scan_messages::ClientScanRequest request;
-    };
-
-    class TestScanningServerConnectionThreadWithSocketPair : public TestScanningServerConnectionThread
-    {
-    protected:
-        void SetUp() override
-        {
-            int socket_fds[2];
-            int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
-            ASSERT_EQ(ret, 0);
-            m_serverFd.reset(socket_fds[0]);
-            m_clientFd.reset(socket_fds[1]);
-            ASSERT_GE(m_serverFd.get(), 0);
-            ASSERT_GE(m_clientFd.get(), 0);
-        }
-
-        datatypes::AutoFd m_serverFd;
-        datatypes::AutoFd m_clientFd;
-    };
-
-    class TestScanningServerConnectionThreadWithSocketConnection : public TestScanningServerConnectionThreadWithSocketPair
-    {
-    protected:
-        void SetUp() override
-        {
-            TestScanningServerConnectionThreadWithSocketPair::SetUp();
-
-            auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-            m_connectionThread = std::make_shared<ScanningServerConnectionThread>(m_serverFd, scannerFactory);
-        }
-
-        std::shared_ptr<ScanningServerConnectionThread> m_connectionThread;
-    };
 }
+
+using namespace ::testing;
 
 TEST_F(TestScanningServerConnectionThread, successful_construction) //NOLINT
 {
@@ -99,6 +56,7 @@ TEST_F(TestScanningServerConnectionThread, successful_construction) //NOLINT
 
 TEST_F(TestScanningServerConnectionThread, fail_construction_with_bad_fd) //NOLINT
 {
+    using namespace unixsocket;
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder;
     ASSERT_EQ(fdHolder.get(), -1);
@@ -107,6 +65,7 @@ TEST_F(TestScanningServerConnectionThread, fail_construction_with_bad_fd) //NOLI
 
 TEST_F(TestScanningServerConnectionThread, fail_construction_with_null_factory) //NOLINT
 {
+    using namespace unixsocket;
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     ASSERT_THROW(ScanningServerConnectionThread(fdHolder, nullptr), std::runtime_error);
@@ -115,6 +74,7 @@ TEST_F(TestScanningServerConnectionThread, fail_construction_with_null_factory) 
 TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
 {
     const std::string expected = "Closing scanning socket thread";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -135,7 +95,7 @@ TEST_F(TestScanningServerConnectionThread, stop_while_running) //NOLINT
 TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
 {
     const std::string expected = "Scanning Server Connection closed: EOF";
-
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -153,11 +113,12 @@ TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
 TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
 {
     const std::string expected = "Ignoring length of zero / No new messages";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory, 1);
+    ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
     waitForLog(expected);
     connectionThread.requestStop();
@@ -170,6 +131,7 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
 TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
 {
     const std::string expected = "Closing socket because pselect failed: 9";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -189,6 +151,7 @@ TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
 TEST_F(TestScanningServerConnectionThread, over_max_length) //NOLINT
 {
     const std::string expected = "Aborting Scanning Server Connection Thread: failed to read length";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     int socket_fds[2];
@@ -213,6 +176,7 @@ TEST_F(TestScanningServerConnectionThread, over_max_length) //NOLINT
 TEST_F(TestScanningServerConnectionThread, max_length) //NOLINT
 {
     const std::string expected = "Aborting socket connection: failed to read entire message";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     int socket_fds[2];
@@ -239,6 +203,7 @@ TEST_F(TestScanningServerConnectionThread, max_length) //NOLINT
 TEST_F(TestScanningServerConnectionThread, corrupt_request) //NOLINT
 {
     const std::string expected = "Terminated ScanningServerConnectionThread with serialisation exception: ";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     const std::string request = { 0x01, 0x00 };
 
@@ -262,25 +227,52 @@ TEST_F(TestScanningServerConnectionThread, corrupt_request) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestScanningServerConnectionThreadWithSocketConnection, valid_request_no_fd) //NOLINT
+TEST_F(TestScanningServerConnectionThread, valid_request_no_fd) //NOLINT
 {
     const std::string expected = "Aborting socket connection: failed to read fd";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    m_connectionThread->start();
-    EXPECT_TRUE(m_connectionThread->isRunning());
-    unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
-    ::close(m_clientFd);
+    scan_messages::ClientScanRequest request;
+    request.setPath("/file/to/scan");
+    request.setScanInsideArchives(false);
+    request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    request.setUserID("root");
+
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    auto scanner = std::make_unique<StrictMock<MockScanner>>();
+    testing::Mock::AllowLeak(scanner.get());
+    EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
+
+    int socket_fds[2];
+    int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
+    ASSERT_EQ(ret, 0);
+    datatypes::AutoFd serverFd(socket_fds[0]);
+    datatypes::AutoFd clientFd(socket_fds[1]);
+    ASSERT_GE(serverFd.get(), 0);
+    ASSERT_GE(clientFd.get(), 0);
+    ScanningServerConnectionThread connectionThread(serverFd, scannerFactory);
+    connectionThread.start();
+    EXPECT_TRUE(connectionThread.isRunning());
+    unixsocket::writeLengthAndBuffer(clientFd, request.serialise());
+    ::close(clientFd);
     waitForLog(expected);
-    m_connectionThread->requestStop();
-    m_connectionThread->join();
+    connectionThread.requestStop();
+    connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
+TEST_F(TestScanningServerConnectionThread, send_fd) //NOLINT
 {
     const std::string expected = "Managed to get file descriptor: ";
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    scan_messages::ClientScanRequest request;
+    request.setPath("/file/to/scan");
+    request.setScanInsideArchives(false);
+    request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    request.setUserID("root");
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
@@ -292,103 +284,27 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
     EXPECT_CALL(*scanner, scan(_, "/file/to/scan", _, _)).WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
 
-    ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory);
+    int socket_fds[2];
+    int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
+    ASSERT_EQ(ret, 0);
+    datatypes::AutoFd serverFd(socket_fds[0]);
+    datatypes::AutoFd clientFd(socket_fds[1]);
+    ASSERT_GE(serverFd.get(), 0);
+    ASSERT_GE(clientFd.get(), 0);
+    ScanningServerConnectionThread connectionThread(serverFd, scannerFactory);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
-    unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
-
-    TestFile testFile("testfile");
-    datatypes::AutoFd fd(testFile.open());
-    int ret = send_fd(m_clientFd, fd.get()); // send a valid file descriptor
+    unixsocket::writeLengthAndBuffer(clientFd, request.serialise());
+    datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
+    send_fd(clientFd, devNull.get()); // send a valid file descriptor
+    devNull.close();
     ASSERT_GE(ret, 0);
-
-    int length = unixsocket::readLength(m_clientFd);
+    int length = unixsocket::readLength(clientFd);
     static_cast<void>(length);
 
     waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
-
-    EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appenderContains(expected));
-}
-
-TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_not_readable) //NOLINT
-{
-    const std::string expected = "Aborting socket connection: fd is not open for read";
-
-    m_connectionThread->start();
-    EXPECT_TRUE(m_connectionThread->isRunning());
-    unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
-    TestFile testFile("testfile");
-    datatypes::AutoFd fd(testFile.open(O_WRONLY));
-    int ret = send_fd(m_clientFd, fd.get());
-    ASSERT_GE(ret, 0);
-
-    waitForLog(expected);
-    m_connectionThread->requestStop();
-    m_connectionThread->join();
-
-    EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appenderContains(expected));
-}
-
-TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_device) //NOLINT
-{
-    const std::string expected = "Aborting socket connection: fd is not a regular file";
-
-    m_connectionThread->start();
-    EXPECT_TRUE(m_connectionThread->isRunning());
-    unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
-    datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
-    ASSERT_GE(devNull.get(), 0);
-    int ret = send_fd(m_clientFd, devNull.get());
-    devNull.close();
-    ASSERT_GE(ret, 0);
-
-    waitForLog(expected);
-    m_connectionThread->requestStop();
-    m_connectionThread->join();
-
-    EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appenderContains(expected));
-}
-
-TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_socket) //NOLINT
-{
-    const std::string expected = "Aborting socket connection: fd is not a regular file";
-
-    m_connectionThread->start();
-    EXPECT_TRUE(m_connectionThread->isRunning());
-    unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
-    int ret = send_fd(m_clientFd, m_clientFd.get());
-    ASSERT_GE(ret, 0);
-
-    waitForLog(expected);
-    m_connectionThread->requestStop();
-    m_connectionThread->join();
-
-    EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appenderContains(expected));
-}
-
-TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_path) //NOLINT
-{
-    const std::string expected = "Aborting socket connection: fd is not open for read";
-
-    m_connectionThread->start();
-    EXPECT_TRUE(m_connectionThread->isRunning());
-    unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
-    TestFile testFile("testfile");
-    datatypes::AutoFd fd(testFile.open(O_PATH));
-    ASSERT_GE(fd.get(), 0);
-    int ret = send_fd(m_clientFd, fd.get());
-    fd.close();
-    ASSERT_GE(ret, 0);
-
-    waitForLog(expected);
-    m_connectionThread->requestStop();
-    m_connectionThread->join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(appenderContains(expected));

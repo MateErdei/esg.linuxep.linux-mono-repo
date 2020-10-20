@@ -33,6 +33,11 @@ namespace
             response.addDetection("/bin/bash", "");
             return response;
         }
+
+        bool update() override
+        {
+            return true;
+        }
     };
     class FakeScannerFactory : public threat_scanner::IThreatScannerFactory
     {

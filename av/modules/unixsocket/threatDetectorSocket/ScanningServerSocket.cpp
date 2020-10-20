@@ -20,9 +20,11 @@ namespace
         {}
         void reload() override
         {
-            // TODO: LINUXDAR-2365 Implement SUSI hot-reloading
-            LOGFATAL("Forcing SUSI Reload: TODO hot-reloading");
-            exit(0); // Actually reachable except during fuzzing...
+            threat_scanner::IThreatScannerPtr susiScanner = m_scannerFactory->createScanner(true);
+            if (!susiScanner->update())
+            {
+                LOGERROR("Failed to update threat scanner");
+            }
         }
     private:
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;

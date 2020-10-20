@@ -28,6 +28,8 @@ namespace threat_scanner
 
         void freeResult(SusiScanResult* scanResult) override;
 
+        bool update(const std::string& path) override;
+
     private:
         SusiGlobalHandlerSharePtr m_globalHandler;
         SusiScannerHandle m_handle;

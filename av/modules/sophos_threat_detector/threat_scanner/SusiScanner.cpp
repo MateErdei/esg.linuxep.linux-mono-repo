@@ -145,3 +145,8 @@ SusiScanner::scan(
 
     return response;
 }
+
+bool SusiScanner::update()
+{
+    return m_susi->update(pluginInstall() / "chroot/susi/distribution_version/version1");
+}

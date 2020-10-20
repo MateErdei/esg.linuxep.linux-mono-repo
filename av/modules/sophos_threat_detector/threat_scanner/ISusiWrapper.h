@@ -25,6 +25,8 @@ namespace threat_scanner
 
         virtual void freeResult(SusiScanResult* scanResult) = 0;
 
+        virtual bool update(const std::string& path) = 0;
+
         virtual ~ISusiWrapper() = default;
     };
     using ISusiWrapperSharedPtr = std::shared_ptr<ISusiWrapper>;

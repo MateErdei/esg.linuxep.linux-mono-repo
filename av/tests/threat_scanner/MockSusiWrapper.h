@@ -32,5 +32,7 @@ public:
 
     MOCK_METHOD1(freeResult, void(SusiScanResult* scanResult));
 
+    MOCK_METHOD1(update, bool(const std::string&));
+
     std::string m_scannerConfig;
 };

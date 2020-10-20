@@ -18,24 +18,29 @@ Test Teardown   Installer Test TearDown
 *** Test Cases ***
 
 IDE update doesnt restart av plugin
-    # TODO: LINUXDAR-2365 fix for hot-updating - pid won't change
     register on fail  Debug install set
     register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register cleanup  dump log  ${AV_LOG_PATH}
-    ${PID} =  Record AV Plugin PID
+    ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Add IDE to install set
     Mark AV Log
     Mark Sophos Threat Detector Log
     Run installer from install set
     Check IDE present in installation
-    Check AV Plugin has same PID  ${PID}
-    Wait Until AV Plugin Log Contains With Offset  Starting "${AV_PLUGIN_PATH}/sbin/sophos_threat_detector_launcher"
+    Check AV Plugin has same PID  ${AVPLUGIN_PID}
+    Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI update finished successfully
+
+    # Check we can detect EICAR following update
+    ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/eicar.com
+    Log To Console  ${output}
+    Should Be Equal As Integers  ${rc}  69
+    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
+
 
 IDE can be removed
     register on fail  Debug install set
@@ -113,6 +118,11 @@ Check IDE absent from installation
 Check AV Plugin has same PID
     [Arguments]  ${PID}
     ${currentPID} =  Record AV Plugin PID
+    Should Be Equal As Integers  ${PID}  ${currentPID}
+
+Check Sophos Threat Detector has same PID
+    [Arguments]  ${PID}
+    ${currentPID} =  Record Sophos Threat Detector PID
     Should Be Equal As Integers  ${PID}  ${currentPID}
 
 Check Sophos Threat Detector has different PID

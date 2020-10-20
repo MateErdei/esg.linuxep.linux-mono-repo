@@ -27,6 +27,8 @@ namespace threat_scanner
             int64_t scanType,
             const std::string& userID) override;
 
+        bool update() override;
+
     private:
         void sendThreatReport(
             const std::string& threatPath,
