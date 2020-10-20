@@ -17,7 +17,7 @@ try:
     logger.warning = logger.warn
 except ImportError:
     import logging
-    logger = logging.getLogger("UpdateServer")
+    logger = logging.getLogger("BaseUtils")
 
 def get_variable(varName, defaultValue=None):
     try:

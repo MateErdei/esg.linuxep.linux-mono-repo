@@ -18,8 +18,12 @@ import urllib.parse
 
 urlencode = urllib.parse.urlencode
 
-import logging
-logger = logging.getLogger(__name__)
+try:
+    from robot.api import logger
+    logger.warning = logger.warn
+except ImportError:
+    import logging
+    logger = logging.getLogger(__name__)
 
 string_type = str
 
