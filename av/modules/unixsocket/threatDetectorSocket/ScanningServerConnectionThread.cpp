@@ -5,18 +5,21 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanningServerConnectionThread.h"
+
+#include "ScanRequest.capnp.h"
+
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
-#include "ScanRequest.capnp.h"
+
 #include <capnp/serialize.h>
 
-#include <stdexcept>
 #include <cassert>
 #include <iostream>
+#include <stdexcept>
 #include <utility>
 
-#include <sys/socket.h>
-#include <sys/un.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
 
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
@@ -225,15 +228,6 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
             ScanRequestObject requestReader = parseRequest(proto_buffer, bytes_read);
 
-            if (!scanner)
-            {
-                scanner = m_scannerFactory->createScanner(requestReader.scanArchives);
-                if (!scanner)
-                {
-                    throw std::runtime_error("Failed to create scanner");
-                }
-            }
-
             LOGDEBUG("Scan requested of " << requestReader.pathname);
 
             // read fd
@@ -245,6 +239,42 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
 
+            // is it a file?
+            struct ::stat st {};
+            int ret = ::fstat(file_fd.get(), &st);
+            if (ret == -1)
+            {
+                LOGERROR("Aborting socket connection: failed to get file status");
+                break;
+            }
+            if (!S_ISREG(st.st_mode))
+            {
+                LOGERROR("Aborting socket connection: fd is not a regular file");
+                break;
+            }
+
+            // is it open for read?
+            int status = ::fcntl(file_fd.get(), F_GETFL);
+            if (status == -1)
+            {
+                LOGERROR("Aborting socket connection: failed to get file status flags");
+                break;
+            }
+            unsigned int mode = status & O_ACCMODE;
+            if (!(mode == O_RDONLY || mode == O_RDWR ) || status & O_PATH )
+            {
+                LOGERROR("Aborting socket connection: fd is not open for read");
+                break;
+            }
+
+            if (!scanner)
+            {
+                scanner = m_scannerFactory->createScanner(requestReader.scanArchives);
+                if (!scanner)
+                {
+                    throw std::runtime_error("Failed to create scanner");
+                }
+            }
 
             auto result = scanner->scan(file_fd, requestReader.pathname, requestReader.scanType, requestReader.userID);
             file_fd.reset();
@@ -256,6 +286,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 if (!writeLengthAndBuffer(socket_fd, serialised_result))
                 {
                     LOGERROR("Failed to write result to unix socket");
+                    break;
                 }
             }
             catch (unixsocket::environmentInterruption& e)
