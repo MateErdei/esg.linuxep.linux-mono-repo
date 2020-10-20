@@ -69,9 +69,19 @@ namespace Common
         {
             struct group groupbuf;
             struct group* replygroup;
-            std::array<char, 256> buffer; // placeholder, event if it is not sufficient
+            int err = ERANGE;
+            const int multiplier = 2;
+            const int bufferStartSize = 1024;
+            // max size is 131072
+            const double bufferMaxSize = bufferStartSize*pow(multiplier, 7);
+            size_t bufferSize = bufferStartSize;
+            while (err == ERANGE && bufferSize <= bufferMaxSize)
+            {
+                auto bufferPtr = std::make_unique<char[]>(bufferSize);
+                err = getgrnam_r(groupString.c_str(), &groupbuf, bufferPtr.get(), bufferSize, &replygroup);
+                bufferSize *= multiplier;
+            }
 
-            int err = getgrnam_r(groupString.c_str(), &groupbuf, buffer.data(), buffer.size(), &replygroup);
             if (replygroup == nullptr) // no matching found
             {
                 std::stringstream errorMessage;
@@ -79,7 +89,7 @@ namespace Common
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
 
-            if (err == 0 || err == ERANGE) // no error
+            if (err == 0) // no error
             {
                 return groupbuf.gr_gid;
             }
