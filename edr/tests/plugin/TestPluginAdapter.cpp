@@ -115,7 +115,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyReturnTheFirstPol
 { // NOLINT
     Plugin::QueueTask queueTask;
     std::string policyContent { "test" };
-    queueTask.pushPolicy(policyContent);
+    queueTask.pushPolicy("ALC", policyContent);
     std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);
     EXPECT_EQ(policyValue, policyContent);
 }
@@ -128,7 +128,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyReturnTheFirstPol
     query2.m_content = "b";
     queueTask.push(query);
     queueTask.push(query2);
-    queueTask.pushPolicy(policyContent);
+    queueTask.pushPolicy("ALC", policyContent);
     std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);
     EXPECT_EQ(policyValue, policyContent);
     Plugin::Task extractTask;
@@ -151,7 +151,7 @@ TEST_F(
     afterPolicyTask.m_content = "c";
     queueTask.push(query);
     queueTask.push(query2);
-    queueTask.pushPolicy(policyContent);
+    queueTask.pushPolicy("ALC", policyContent);
     queueTask.push(afterPolicyTask);
     std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);
     EXPECT_EQ(policyValue, policyContent);
@@ -196,7 +196,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillDetectPolicyP
 
     auto f = std::async(std::launch::async, [&queueTask]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        queueTask.pushPolicy("policyIntroducedAfterSomeTime");
+        queueTask.pushPolicy("ALC", "policyIntroducedAfterSomeTime");
     });
 
     std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);

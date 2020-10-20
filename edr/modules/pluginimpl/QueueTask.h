@@ -43,7 +43,7 @@ namespace Plugin
         void pushOsqueryProcessDelayRestart();
         void pushOsqueryProcessFinished();
         void pushRestartOsquery();
-        void pushPolicy(std::string policyXMl);
+        void pushPolicy(const std::string& appId, const std::string& policyXMl);
     };
 
 } // namespace Plugin

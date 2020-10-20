@@ -87,7 +87,16 @@ namespace Plugin
         }
         catch (const Common::PluginApi::NoPolicyAvailableException&)
         {
-            LOGINFO("No policy available right now for app: " << "ALC");
+            LOGINFO("No policy available right now for app: ALC");
+            // Ignore no Policy Available errors
+        }
+        try
+        {
+            m_baseService->requestPolicies("FLAGS");
+        }
+        catch (const Common::PluginApi::NoPolicyAvailableException&)
+        {
+            LOGINFO("No policy available right now for app: FLAGS");
             // Ignore no Policy Available errors
         }
 
@@ -180,9 +189,12 @@ namespace Plugin
                         {
                             processFlags(task.m_content);
                         }
-                        else
+                        else if (task.m_appId == "ALC")
                         {
                             processALCPolicy(task.m_content, false);
+                        }
+                        else{
+                            LOGWARN("Received " << task.m_appId << " policy unexpectedly");
                         }
                         break;
                     case Task::TaskType::Query:
@@ -442,10 +454,10 @@ namespace Plugin
                 LOGINFO("Policy has not been sent to the plugin");
                 break;
             }
-            if (task.m_taskType == Plugin::Task::TaskType::Policy)
+            if (task.m_taskType == Plugin::Task::TaskType::Policy && task.m_appId == "ALC")
             {
                 policyContent = task.m_content;
-                LOGINFO("First Policy received.");
+                LOGINFO("First ALC Policy received.");
                 break;
             }
             LOGSUPPORT("Keep task: " << static_cast<int>(task.m_taskType));
