@@ -37,6 +37,29 @@ namespace
         MOCK_METHOD1(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives));
     };
 
+    class TestFile
+    {
+    public:
+        TestFile(const char* name)
+            : m_name(name)
+        {
+            ::unlink(m_name.c_str());
+            datatypes::AutoFd fd(::open(m_name.c_str(), O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR));
+        }
+
+        ~TestFile()
+        {
+            ::unlink(m_name.c_str());
+        }
+
+        int open(int oflag = O_RDONLY)
+        {
+            datatypes::AutoFd fd(::open(m_name.c_str(), oflag));
+            return fd.release();
+        }
+
+        std::string m_name;
+    };
 }
 
 TEST_F(TestThreatDetectorSocket, test_construction) //NOLINT
@@ -92,9 +115,9 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
     // Create client connection
     {
         unixsocket::ScanningClientSocket client_socket(path);
-        datatypes::AutoFd tmpFile(::open(".", O_TMPFILE | O_RDWR, 00700));
-        ASSERT_GE(tmpFile.get(), 0);
-        auto response = scan(client_socket, tmpFile, THREAT_PATH);
+        TestFile testFile("testfile");
+        datatypes::AutoFd fd(testFile.open());
+        auto response = scan(client_socket, fd, THREAT_PATH);
 
         EXPECT_FALSE(response.allClean());
         EXPECT_EQ(response.getDetections()[0].second, "THREAT");
@@ -130,9 +153,9 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     // Create client connection
     {
         unixsocket::ScanningClientSocket client_socket(path);
-        datatypes::AutoFd tmpFile(::open(".", O_TMPFILE | O_RDWR, 00700));
-        ASSERT_GE(tmpFile.get(), 0);
-        auto response = scan(client_socket, tmpFile, THREAT_PATH);
+        TestFile testFile("testfile");
+        datatypes::AutoFd fd(testFile.open());
+        auto response = scan(client_socket, fd, THREAT_PATH);
 
         EXPECT_TRUE(response.allClean());
     }
@@ -167,13 +190,13 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
     // Create client connection
     {
         unixsocket::ScanningClientSocket client_socket(path);
-        datatypes::AutoFd tmpFile(::open(".", O_TMPFILE | O_RDWR, 00700));
-        ASSERT_GE(tmpFile.get(), 0);
-        auto response = scan(client_socket, tmpFile, THREAT_PATH);
+        TestFile testFile("testfile");
+        datatypes::AutoFd fd(testFile.open());
+        auto response = scan(client_socket, fd, THREAT_PATH);
         EXPECT_TRUE(response.allClean());
 
-        tmpFile.reset(::open(".", O_TMPFILE | O_RDWR, 00700));
-        response = scan(client_socket, tmpFile, THREAT_PATH);
+        fd.reset(testFile.open());
+        response = scan(client_socket, fd, THREAT_PATH);
         EXPECT_TRUE(response.allClean());
     }
 
@@ -206,9 +229,9 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
     // Create client connection
     {
         unixsocket::ScanningClientSocket client_socket(path, {0, 10000000});
-        datatypes::AutoFd tmpFile(::open(".", O_TMPFILE | O_RDWR, 00700));
-        ASSERT_GE(tmpFile.get(), 0);
-        auto response = scan(client_socket, tmpFile, THREAT_PATH);
+        TestFile testFile("testfile");
+        datatypes::AutoFd fd(testFile.open());
+        auto response = scan(client_socket, fd, THREAT_PATH);
         EXPECT_NE(response.getErrorMsg(), "");
     }
 

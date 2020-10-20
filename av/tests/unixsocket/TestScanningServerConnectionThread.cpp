@@ -40,6 +40,29 @@ namespace
         MOCK_METHOD1(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives));
     };
 
+    class TestFile
+    {
+    public:
+        TestFile(const char* name)
+            : m_name(name)
+        {
+            ::unlink(m_name.c_str());
+            datatypes::AutoFd fd(::open(m_name.c_str(), O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR));
+        }
+
+        ~TestFile()
+        {
+            ::unlink(m_name.c_str());
+        }
+
+        int open(int oflag = O_RDONLY)
+        {
+            datatypes::AutoFd fd(::open(m_name.c_str(), oflag));
+            return fd.release();
+        }
+
+        std::string m_name;
+    };
 }
 
 using namespace ::testing;
@@ -290,11 +313,12 @@ TEST_F(TestScanningServerConnectionThread, send_fd) //NOLINT
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd, request.serialise());
-    datatypes::AutoFd tmpFile(::open(".", O_TMPFILE | O_RDWR, 00700));
-    ASSERT_GE(tmpFile.get(), 0);
-    ret = send_fd(clientFd, tmpFile.get()); // send a valid file descriptor
-    tmpFile.close();
+
+    TestFile testFile("testfile");
+    datatypes::AutoFd fd(testFile.open());
+    ret = send_fd(clientFd, fd.get()); // send a valid file descriptor
     ASSERT_GE(ret, 0);
+
     int length = unixsocket::readLength(clientFd);
     static_cast<void>(length);
 
@@ -330,10 +354,9 @@ TEST_F(TestScanningServerConnectionThread, fd_not_readable) //NOLINT
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd, request.serialise());
-    datatypes::AutoFd tmpFile(::open(".", O_TMPFILE | O_WRONLY, 00700));
-    ASSERT_GE(tmpFile.get(), 0);
-    ret = send_fd(clientFd, tmpFile.get());
-    tmpFile.close();
+    TestFile testFile("testfile");
+    datatypes::AutoFd fd(testFile.open(O_WRONLY));
+    ret = send_fd(clientFd, fd.get());
     ASSERT_GE(ret, 0);
 
     waitForLog(expected);
