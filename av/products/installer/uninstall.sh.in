@@ -24,7 +24,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_LOCATION" )" >/dev/null && pwd )"
 BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/sbin}"
 UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
-SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversion/${PRODUCT_LINE_ID}.ini"
+SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
 FORCE=0
 DOWNGRADE=0
@@ -54,6 +54,6 @@ rm -f /usr/local/bin/avscanner
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 
 rm -rf "$UNINSTALLDIR"
-rm -r "$SYMLINK"
-rm -r "$SYMLINKVERSION"
+rm -f "$SYMLINK"
+rm -f "$SYMLINKVERSION"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
