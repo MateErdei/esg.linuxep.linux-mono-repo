@@ -35,6 +35,9 @@ ${PROXY_LOG}  ./tmp/proxy_server.log
 ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${CUSTOM_DIR_BASE}  /CustomPath
 ${BaseVUTPolicy}   ${GeneratedWarehousePolicies}/base_only_VUT.xml
+${EtcGroupFilePath}  /etc/group
+${EtcGroupFileBackupPath}  /etc/group.bak
+${LONG_GROUP_FILE_LINE}  fakegroup:x:0:testuserbutevenlongerthanthat1:testuserbutevenlongerthanthat2:testuserbutevenlongerthanthat3:testuserbutevenlongerthanthat4:testuserbutevenlongerthanthat5:testuserbutevenlongerthanthat6:testuserbutevenlongerthanthat7:testuserbutevenlongerthanthat8:testuserbutevenlongerthanthat9:testuserbutevenlongerthanthat10:
 
 *** Keywords ***
 Local Suite Setup
@@ -73,6 +76,17 @@ Teardown
     Cleanup Temporary Folders
     Cleanup Systemd Files
 
+Setup With Large Group Creation
+    Copy File  ${EtcGroupFilePath}  ${EtcGroupFileBackupPath}
+    Append To File  ${EtcGroupFilePath}  ${LONG_GROUP_FILE_LINE}
+    Log File  ${EtcGroupFilePath}
+    SetupServers
+
+Teardown With Large Group Creation
+    Move File  ${EtcGroupFileBackupPath}  ${EtcGroupFilePath}
+    ${content} =  Get File  ${EtcGroupFilePath}
+    Should Not Contain  ${content}  ${LONG_GROUP_FILE_LINE}
+    Teardown
 
 Check Proxy Log Contains
     [Arguments]  ${pattern}  ${fail_message}
@@ -322,3 +336,16 @@ Thin Installer Force Works
 
     remove_thininstaller_log
     Check Root Directory Permissions Are Not Changed
+
+Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
+    [Documentation]  Created for LINUXDAR-2249
+    [Setup]  Setup With Large Group Creation
+    [Teardown]  Teardown With Large Group Creation
+    Should Not Exist    ${SOPHOS_INSTALL}
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
+
+    Check Expected Base Processes Are Running
+
+    Check Thininstaller Log Does Not Contain  ERROR: Installer returned 16
+    Check Thininstaller Log Does Not Contain  Failed to create machine id. Error: Calling getGroupId on sophos-spl-group caused this error : Unknown group name

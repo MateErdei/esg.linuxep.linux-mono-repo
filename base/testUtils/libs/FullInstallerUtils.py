@@ -291,14 +291,23 @@ def run_full_installer_expecting_code(expected_code, *args):
     else:
         installer = get_full_installer()
     logger.info("Installer path: " + str(installer))
-    return run_full_installer_from_location_expecting_code(installer, expected_code, *args)
+    return run_full_installer_from_location_expecting_code(installer, expected_code, debug=True, *args)
 
+def run_full_installer_without_x_set():
+    if get_variable("PUB_SUB_LOGGING"):
+        installer = os.path.join(PUB_SUB_LOGGING_DIST_LOCATION, "install.sh")
+    else:
+        installer = get_full_installer()
+    logger.info("Installer path: " + str(installer))
+    return run_full_installer_from_location_expecting_code(installer, 0, debug=False)
 
-def run_full_installer_from_location_expecting_code(install_script_location, expected_code, *args):
+def run_full_installer_from_location_expecting_code(install_script_location, expected_code, debug, *args):
     # Robot passes in strings.
     expected_code = int(expected_code)
-
-    arg_list = ["bash", "-x", install_script_location]
+    if debug:
+        arg_list = ["bash", "-x", install_script_location]
+    else:
+        arg_list = ["bash", install_script_location]
     arg_list += list(args)
     logger.debug("Env Variables: {}".format(os.environ))
     logger.info("Run installer: {}".format(arg_list))
