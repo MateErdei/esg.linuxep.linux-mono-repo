@@ -13,26 +13,26 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 class TestPluginUtils: public LogOffInitializedTests{};
 
-TEST_F(TestPluginUtils, testgetRunningModeFromFlagContentwhenIsXDR)
+TEST_F(TestPluginUtils, testisFlagSetToTrueReturnsTruewhenFlagIsXDR)
 {
     std::string content = R"({"xdr.enabled" : true})";
-    ASSERT_EQ(true,Plugin::PluginUtils::isRunningModeXDR(content));
+    ASSERT_EQ(true,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, content));
 }
 
-TEST_F(TestPluginUtils, testgetRunningModeFromFlagContentwhenIsNotXDR)
+TEST_F(TestPluginUtils, testisFlagSetToTrueReturnsFalseWhenFlagIsNotXDR)
 {
     std::string content = R"({"xdr.enabled" : false})";
-    ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR(content));
+    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, content));
 }
 
-TEST_F(TestPluginUtils, testgetRunningModeFromFlagContentwhenInvalidJson)
+TEST_F(TestPluginUtils, testisFlagSetToTrueReturnsFalseWhenInvalidJson)
 {
-    ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR("{}"));
-    ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR("}"));
+    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, "{}"));
+    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, "}"));
     std::string content = R"({xdr.enabled : true})";
-    ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR(content));
+    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, content));
     std::string content1 = R"({"xdr.enabled" : "true"})";
-    ASSERT_EQ(false,Plugin::PluginUtils::isRunningModeXDR(content1));
+    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, content1));
 }
 
 TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileWhenItIsEDR)

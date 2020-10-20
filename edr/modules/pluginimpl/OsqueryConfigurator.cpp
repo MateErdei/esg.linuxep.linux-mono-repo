@@ -106,6 +106,7 @@ namespace Plugin
         }
         catch (const std::runtime_error& ex)
         {
+            LOGWARN("Unable to retrieve network table setting from config due to: " << ex.what());
             networkTables = false;
         }
 

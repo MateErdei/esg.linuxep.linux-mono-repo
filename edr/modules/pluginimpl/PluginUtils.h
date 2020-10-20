@@ -13,18 +13,11 @@ namespace Plugin
             {
     public:
         /**
-        * Reads content of flags policy to see if XDR is enabled or not
+        * Reads content of flags policy to see if flag is enabled or not
         * @param flagContent, content of flags policy
-        * @return true if XDR is enabled, false if it is disabled
+        * @return true if flag is enabled, false if it is disabled
         */
-        static bool isRunningModeXDR(const std::string& flagContent);
-
-        /**
-        * Reads content of flags policy to see if network tables are enabled or not
-        * @param flagContent, content of flags policy
-        * @return true if network tables are enabled, false if it is disabled
-        */
-        static bool areNetworkTablesAvailable(const std::string& flagContent);
+        static bool isFlagSetToTrue(const std::string& flag, const std::string& flagContent);
 
         /**
         * Reads content of plugin.conf to see if a given field is enabled or not
@@ -42,8 +35,6 @@ namespace Plugin
 
         inline static const std::string MODE_IDENTIFIER = "running_mode";
         inline static const std::string NETWORK_TABLES_AVAILABLE = "network_tables";
-
-    private:
         inline static const std::string XDR_FLAG = "xdr.enabled";
         inline static const std::string NETWORK_TABLES_FLAG = "livequery.network-tables.available";
 

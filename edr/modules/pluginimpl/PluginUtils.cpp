@@ -16,19 +16,19 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
-    bool PluginUtils::isRunningModeXDR(const std::string& flagContent)
+    bool PluginUtils::isFlagSetToTrue(const std::string& flag, const std::string& flagContent)
     {
-        bool isXDR = false;
+        bool flagValue = false;
 
         try
         {
             nlohmann::json j = nlohmann::json::parse(flagContent);
 
-            if (j.find(XDR_FLAG) != j.end())
+            if (j.find(flag) != j.end())
             {
-                if (j[XDR_FLAG] == true)
+                if (j[flag] == true)
                 {
-                    isXDR = true;
+                    flagValue = true;
                 }
             }
         }
@@ -39,33 +39,7 @@ namespace Plugin
             LOGWARN(errorMessage.str());
         }
 
-        return isXDR;
-    }
-
-    bool PluginUtils::areNetworkTablesAvailable(const std::string& flagContent)
-    {
-        bool networkTables = false;
-
-        try
-        {
-            nlohmann::json j = nlohmann::json::parse(flagContent);
-
-            if (j.find(NETWORK_TABLES_FLAG) != j.end())
-            {
-                if (j[NETWORK_TABLES_FLAG] == true)
-                {
-                    networkTables = true;
-                }
-            }
-        }
-        catch (nlohmann::json::parse_error& ex)
-        {
-            std::stringstream errorMessage;
-            errorMessage << "Could not parse json: " << flagContent << " with error: " << ex.what();
-            LOGWARN(errorMessage.str());
-        }
-
-        return networkTables;
+        return flagValue;
     }
 
     bool PluginUtils::retrieveGivenFlagFromSettingsFile(const std::string& flag)
