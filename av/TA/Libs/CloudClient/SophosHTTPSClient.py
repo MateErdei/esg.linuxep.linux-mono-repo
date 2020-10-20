@@ -4,8 +4,37 @@
 # All rights reserved.
 from __future__ import absolute_import, print_function, division, unicode_literals
 
-import sys
 import six
+from six.moves.http_cookiejar import LWPCookieJar
+
+import sys
+import os
+import json
+import ssl
+import socket
+import logging
+
+
+try:
+    from . import SophosRobotSupport
+except ImportError:
+    import SophosRobotSupport
+
+try:
+    # for Python 3
+    import urllib.parse as urlparse
+except ImportError:
+    # for Python 2
+    import urlparse
+
+
+try:
+    from robot.api import logger
+    logger.warning = logger.warn
+except ImportError:
+    logger = logging.getLogger(__name__)
+
+log = logging.getLogger('Patch')
 
 PY2 = sys.version_info[0] == 2
 
@@ -24,30 +53,8 @@ DEFAULT_CIPHERS = (
     'RSA+3DES:ECDH+RC4:DH+RC4:RSA+RC4:-aNULL:-eNULL:-EXP:-MD5:RSA+RC4+MD5'
 )
 
-import os
-import json
-import ssl
-import socket
-
-try:
-    from . import SophosRobotSupport
-except ImportError:
-    import SophosRobotSupport
-
-try:
-    # for Python 3
-    import urllib.parse as urlparse
-except ImportError:
-    # for Python 2
-    import urlparse
-
-import logging
-logger = logging.getLogger(__name__)
-log = logging.getLogger('Patch')
 
 socket.setdefaulttimeout(60)
-
-from six.moves.http_cookiejar import LWPCookieJar
 
 if PY3:
     import urllib

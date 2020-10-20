@@ -34,6 +34,7 @@ except ImportError:
     import SophosHTTPSClient
     import SophosRobotSupport
 
+# SophosHTTPSClient.VERBOSE = True
 wrap_ssl_socket = SophosHTTPSClient.wrap_ssl_socket
 set_ssl_context = SophosHTTPSClient.set_ssl_context
 set_proxy = SophosHTTPSClient.set_proxy
@@ -214,16 +215,17 @@ class CentralConnector(object):
 
         # POST request to get the Hammer token.
         token = email.strip() + ':' + password
-        credential = base64.b64encode(token.encode("UTF-8"))
+        credential = base64.b64encode(token.encode("UTF-8")).decode("UTF-8")
 
         logger.debug("Logging in as %s at %s" % (email, self.host))
 
         self.default_headers.pop('X-Hammer-Token', None)
         self.default_headers.pop('X-CSRF-Token', None)
 
+        SophosHTTPSClient.GL_COOKIE_JAR.clear()  # Don't keep any cookies if we are doing login
         zero_request = urllib.request.Request(self.host + '/api/sessions', headers=self.default_headers)
         zero_request.get_method = lambda: 'POST'
-        zero_request.add_header('Authorization', b'Hammer ' + credential)
+        zero_request.add_header('Authorization', 'Hammer ' + credential)
 
         try:
             zero_response = request_url(zero_request)
@@ -265,7 +267,7 @@ class CentralConnector(object):
         ## save the pertinent session data for reuse by subsequent cloudClient calls
         session_data = {
             'host': self.host,
-            'credential': credential.decode("UTF-8"),
+            'credential': credential,
             'hammer_token': hammer_token,
             'csrf_token': csrf_token,
             'upe_url': self.upe_api,
@@ -288,7 +290,7 @@ class CentralConnector(object):
 
     def getCloudVersion(self):
         dashboard_request = urllib.request.Request(self.host)
-        dashboard_response = request_url(dashboard_request)
+        dashboard_response = self.__retry_request_url(dashboard_request)
         version = re.findall(r'<!-- Sophos Central Version: ([0-9.]*) -->', dashboard_response)[0]
         if not version:
             raise Exception("Sophos Central Version not found in markup at /dashboard")
