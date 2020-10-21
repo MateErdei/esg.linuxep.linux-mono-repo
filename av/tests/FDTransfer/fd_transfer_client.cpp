@@ -18,7 +18,7 @@ static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket
     request.setPath(filename);
     request.setScanInsideArchives(false);
     request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
-    request.setUserID(0);
+    request.setUserID("root");
     return socket.scan(fd, request);
 }
 
