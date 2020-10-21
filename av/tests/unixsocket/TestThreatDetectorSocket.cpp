@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 #include <unixsocket/SocketUtils.h>
 
+#include "tests/common/TestFile.h"
 #include "tests/common/WaitForEvent.h"
 
 #include <gmock/gmock.h>
@@ -35,30 +36,6 @@ namespace
     {
     public:
         MOCK_METHOD1(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives));
-    };
-
-    class TestFile
-    {
-    public:
-        TestFile(const char* name)
-            : m_name(name)
-        {
-            ::unlink(m_name.c_str());
-            datatypes::AutoFd fd(::open(m_name.c_str(), O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR));
-        }
-
-        ~TestFile()
-        {
-            ::unlink(m_name.c_str());
-        }
-
-        int open(int oflag = O_RDONLY)
-        {
-            datatypes::AutoFd fd(::open(m_name.c_str(), oflag));
-            return fd.release();
-        }
-
-        std::string m_name;
     };
 }
 
