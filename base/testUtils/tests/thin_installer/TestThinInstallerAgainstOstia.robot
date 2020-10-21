@@ -37,7 +37,6 @@ ${CUSTOM_DIR_BASE}  /CustomPath
 ${BaseVUTPolicy}   ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${EtcGroupFilePath}  /etc/group
 ${EtcGroupFileBackupPath}  /etc/group.bak
-${LONG_GROUP_FILE_LINE}  fakegroup:x:0:testuserbutevenlongerthanthat1:testuserbutevenlongerthanthat2:testuserbutevenlongerthanthat3:testuserbutevenlongerthanthat4:testuserbutevenlongerthanthat5:testuserbutevenlongerthanthat6:testuserbutevenlongerthanthat7:testuserbutevenlongerthanthat8:testuserbutevenlongerthanthat9:testuserbutevenlongerthanthat10:
 
 *** Keywords ***
 Local Suite Setup
@@ -78,14 +77,16 @@ Teardown
 
 Setup With Large Group Creation
     Copy File  ${EtcGroupFilePath}  ${EtcGroupFileBackupPath}
-    Append To File  ${EtcGroupFilePath}  ${LONG_GROUP_FILE_LINE}
+    ${LongLine} =  Get File  ${SUPPORT_FILES}/misc/325CharEtcGroupLine
+    Append To File  ${EtcGroupFilePath}  ${LongLine}
     Log File  ${EtcGroupFilePath}
     SetupServers
 
 Teardown With Large Group Creation
     Move File  ${EtcGroupFileBackupPath}  ${EtcGroupFilePath}
     ${content} =  Get File  ${EtcGroupFilePath}
-    Should Not Contain  ${content}  ${LONG_GROUP_FILE_LINE}
+    ${LongLine} =  Get File  ${SUPPORT_FILES}/misc/325CharEtcGroupLine
+    Should Not Contain  ${content}  ${LongLine}
     Teardown
 
 Check Proxy Log Contains
