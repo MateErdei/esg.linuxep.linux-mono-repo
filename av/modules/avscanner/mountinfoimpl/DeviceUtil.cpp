@@ -57,15 +57,13 @@ bool DeviceUtil::isFloppy(
 
     if (fd != -1)
     {
-        // something is there.  Determine whether this is a
-        // floppy drive
-        char buffer[16];
+        // something is there.  Determine whether this is a floppy drive
+        floppy_drive_name name {};
 
-
-        if (m_systemCallWrapper->_ioctl(fd, FDGETDRVTYP, buffer) != -1) // NOLINT(hicpp-signed-bitwise)
+        if (m_systemCallWrapper->_ioctl(fd, FDGETDRVTYP, name) != -1) // NOLINT(hicpp-signed-bitwise)
         {
             // this is a floppy drive.
-            if (strcmp("(null)", buffer) != 0)
+            if (strncmp("(null)", name, sizeof(name)) != 0)
             {
                 // and there really is actual floppy hardware present
                 result = true;
