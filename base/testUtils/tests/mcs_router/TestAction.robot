@@ -29,7 +29,7 @@ Update Now Received And Action File Written
 
 Actions are removed when mcsrouter shutdown
     [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS
-    Start Watchdog
+    Override LogConf File as Global Level  DEBUG
     Register With Fake Cloud
     Check Cloud Server Log For Command Poll
     Trigger Update Now
@@ -40,12 +40,14 @@ Actions are removed when mcsrouter shutdown
     ...  5 secs
     ...  Check Action File Exists    ALC_action_FakeTime.xml
     Check Temp Folder Doesnt Contain Atomic Files
-    ${r} =  Run Process  /opt/sophos-spl/bin/wdctl  stop  mcsrouter
-    Should Be Equal As Strings  ${r.rc}  0
+    ${r} =  Run Process  ps  -f  -C  python3  |  grep  /opt/sophos-spl/base/bin/python3  |  awk  '{print$2}'   shell=true
+    ${result} =  Run Process  kill  ${r.stdout}
+    Should Be Equal As Strings  ${result.rc}  0
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
     ...  Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/ALC_action_FakeTime.xml
+    Check Mcsrouter Log Contains   Removing file /opt/sophos-spl/base/mcs/action/ALC_action_FakeTime.xml as part of mcs shutdown
 
 Action Applied After Policies
     [Teardown]  Test With Filesystem Watcher Teardown
