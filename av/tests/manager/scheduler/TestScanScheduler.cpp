@@ -161,9 +161,9 @@ TEST_F(TestScanScheduler, scanNow) //NOLINT
 
     scheduler.scanNow();
 
-    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 1000));
-    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 1000));
-    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 1000));
+    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 100'000));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 100'000));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 100'000));
 
     scheduler.requestStop();
     scheduler.join();
@@ -228,7 +228,7 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
     scheduler.updateConfig(scheduledScanConfiguration);
     scheduler.scanNow();
 
-    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 10000));
+    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 100'000));
 
     scheduler.requestStop();
     scheduler.join();
