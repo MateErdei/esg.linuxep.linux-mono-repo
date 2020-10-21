@@ -13,26 +13,26 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 class TestPluginUtils: public LogOffInitializedTests{};
 
-TEST_F(TestPluginUtils, testisFlagSetToTrueReturnsTruewhenFlagIsXDR)
+TEST_F(TestPluginUtils, testisFlagSetReturnsTruewhenFlagIsXDR)
 {
     std::string content = R"({"xdr.enabled" : true})";
-    ASSERT_EQ(true,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, content));
+    ASSERT_EQ(true, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, content));
 }
 
-TEST_F(TestPluginUtils, testisFlagSetToTrueReturnsFalseWhenFlagIsNotXDR)
+TEST_F(TestPluginUtils, testisFlagSetReturnsFalseWhenFlagIsNotXDR)
 {
     std::string content = R"({"xdr.enabled" : false})";
-    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, content));
+    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, content));
 }
 
-TEST_F(TestPluginUtils, testisFlagSetToTrueReturnsFalseWhenInvalidJson)
+TEST_F(TestPluginUtils, testisFlagSetReturnsFalseWhenInvalidJson)
 {
-    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, "{}"));
-    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, "}"));
+    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, "{}"));
+    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, "}"));
     std::string content = R"({xdr.enabled : true})";
-    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, content));
+    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, content));
     std::string content1 = R"({"xdr.enabled" : "true"})";
-    ASSERT_EQ(false,Plugin::PluginUtils::isFlagSetToTrue(Plugin::PluginUtils::XDR_FLAG, content1));
+    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, content1));
 }
 
 TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileWhenItIsEDR)

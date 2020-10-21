@@ -15,9 +15,9 @@ namespace Plugin
         /**
         * Reads content of flags policy to see if flag is enabled or not
         * @param flagContent, content of flags policy
-        * @return true if flag is enabled, false if it is disabled
+        * @return true if flag is enabled, false otherwise (default)
         */
-        static bool isFlagSetToTrue(const std::string& flag, const std::string& flagContent);
+        static bool isFlagSet(const std::string& flag, const std::string& flagContent);
 
         /**
         * Reads content of plugin.conf to see if a given field is enabled or not

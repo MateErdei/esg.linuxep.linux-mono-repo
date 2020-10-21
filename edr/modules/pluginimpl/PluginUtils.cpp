@@ -16,7 +16,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
-    bool PluginUtils::isFlagSetToTrue(const std::string& flag, const std::string& flagContent)
+    bool PluginUtils::isFlagSet(const std::string& flag, const std::string& flagContent)
     {
         bool flagValue = false;
 

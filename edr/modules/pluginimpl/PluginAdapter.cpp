@@ -409,8 +409,8 @@ namespace Plugin
     {
         LOGSUPPORT("Flags: " << flagsContent);
         bool flagsHaveChanged = false;
-        bool isXDR = Plugin::PluginUtils::isFlagSetToTrue(PluginUtils::XDR_FLAG, flagsContent);
-        bool networkTablesAvailable = Plugin::PluginUtils::isFlagSetToTrue(PluginUtils::NETWORK_TABLES_FLAG, flagsContent);
+        bool isXDR = Plugin::PluginUtils::isFlagSet(PluginUtils::XDR_FLAG, flagsContent);
+        bool networkTablesAvailable = Plugin::PluginUtils::isFlagSet(PluginUtils::NETWORK_TABLES_FLAG, flagsContent);
 
         if (isXDR)
         {
