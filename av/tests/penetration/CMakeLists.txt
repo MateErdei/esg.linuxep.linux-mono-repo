@@ -8,3 +8,5 @@ SET_TARGET_PROPERTIES( attack_client
         BUILD_RPATH "$ORIGIN:${CMAKE_BUILD_RPATH}:/opt/sophos-spl/plugins/av/lib64"
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:${CMAKE_INSTALL_RPATH}:/opt/sophos-spl/plugins/av/lib64"
         )
+
+add_subdirectory(odirect_investigation)
