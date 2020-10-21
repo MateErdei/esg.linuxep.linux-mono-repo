@@ -18,9 +18,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <fstream>
 
-
-#define BASE "/tmp/TestPluginCallback"
-
 namespace fs = sophos_filesystem;
 using json = nlohmann::json;
 
@@ -31,11 +28,18 @@ namespace
     public:
         void SetUp() override
         {
+            const ::testing::TestInfo* const test_info =
+                ::testing::UnitTest::GetInstance()->current_test_info();
+            m_basePath = fs::temp_directory_path();
+            m_basePath /= test_info->test_case_name();
+            m_basePath /= test_info->name();
+            fs::remove_all(m_basePath);
+            fs::create_directories(m_basePath);
+
             //creating initial version file
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            appConfig.setData("PLUGIN_INSTALL", BASE);
-            fs::create_directories(BASE);
-            m_versionFile = BASE;
+            appConfig.setData("PLUGIN_INSTALL", m_basePath);
+            m_versionFile = m_basePath;
             m_versionFile /= "VERSION.ini";
 
             std::ofstream versionFileStream;
@@ -46,7 +50,7 @@ namespace
             versionFileStream.close();
 
             //creating initial ml library file
-            fs::path libDirPath (BASE);
+            fs::path libDirPath (m_basePath);
             libDirPath /= "chroot/susi/distribution_version/version1";
             fs::create_directories(libDirPath);
             m_mlLibPath = libDirPath;
@@ -58,7 +62,7 @@ namespace
             mlFilePathStream.close();
 
             //creating initial lr data files
-            fs::path lrDirPath (BASE);
+            fs::path lrDirPath (m_basePath);
             lrDirPath /= "chroot/susi/distribution_version/version1/lrdata";
             fs::create_directories(lrDirPath);
             m_lrFilerepPath = lrDirPath;
@@ -78,14 +82,14 @@ namespace
 
             //creating initial ml model file
             std::string initialHexString = "7374617469635f5f5f5f646574656374696f6e00ed03000004000000723b3401ec25b100010000000000000000001000";
-            fs::path mlModelDirPath = BASE;
+            fs::path mlModelDirPath = m_basePath;
             mlModelDirPath /= "chroot/susi/distribution_version/version1/mlmodel";
             fs::create_directories(mlModelDirPath);
             m_mlModelPath = mlModelDirPath / "model.dat";
             writeHexStringToFile(initialHexString, m_mlModelPath);
 
             //creating file for vdl version
-            m_vdlDirPath = BASE;
+            m_vdlDirPath = m_basePath;
             m_vdlDirPath /= "chroot/susi/distribution_version/version1/vdb";
             fs::create_directories(m_vdlDirPath);
             m_vdlVersionFilePath = m_vdlDirPath;
@@ -98,6 +102,11 @@ namespace
             std::shared_ptr<Plugin::QueueTask> task = nullptr;
             m_pluginCallback = std::make_shared<Plugin::PluginCallback>(task);
         };
+
+        void TearDown() override
+        {
+            fs::remove_all(m_basePath);
+        }
 
         void createIdes(const unsigned long &count, const fs::path &dirPath)
         {
@@ -155,6 +164,7 @@ namespace
 
         std::shared_ptr<Plugin::PluginCallback> m_pluginCallback;
 
+        fs::path m_basePath;
         fs::path m_lrFilerepPath;
         fs::path m_lrSignerrepPath;
         fs::path m_mlLibPath;
