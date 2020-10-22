@@ -371,7 +371,19 @@ namespace SulDownloader
         // Successfully completed update
         if (!supplementOnly)
         {
-            UpdateSupplementDecider::recordSuccessfulProductUpdate();
+            bool all_succeeded = !products.empty(); // no products == failure
+            for (auto& product : products)
+            {
+                if (product.hasError())
+                {
+                    all_succeeded = false;
+                    break;
+                }
+            }
+            if (all_succeeded)
+            {
+                UpdateSupplementDecider::recordSuccessfulProductUpdate();
+            }
         }
 
         timeTracker.setFinishedTime(TimeUtils::getCurrTime());
