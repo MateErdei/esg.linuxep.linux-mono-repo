@@ -40,6 +40,11 @@ EDR Disables Auditd After Install With Auditd Running Default Behaviour
     Check AuditD Service Disabled
     Check EDR Log Shows AuditD Has Been Disabled
 
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   2 secs
+    ...   Check EDR Osquery Executable Running
+
     ${edr_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
     ${result} =  Run Process   auditctl -s   shell=True
     Should contain  ${result.stdout}  ${edr_pid.stdout}
