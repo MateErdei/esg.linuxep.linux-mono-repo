@@ -133,7 +133,7 @@ Wait Until OSQuery Running
     ...  Check Osquery Executable Running
 
 Wait Until EDR Running
-    [Arguments]  ${WaitInSecs}=10
+    [Arguments]  ${WaitInSecs}=20
     Wait Until Keyword Succeeds
     ...  ${WaitInSecs} secs
     ...  1 secs
