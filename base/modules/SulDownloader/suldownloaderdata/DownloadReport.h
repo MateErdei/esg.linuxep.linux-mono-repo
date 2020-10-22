@@ -115,6 +115,11 @@ namespace SulDownloader
 
             void setProcessedReport(bool isProcessed);
 
+            [[nodiscard]] bool isSupplementOnlyUpdate() const
+            {
+                return m_supplementOnly;
+            }
+
         private:
             WarehouseStatus m_status= WarehouseStatus::UNSPECIFIED;
             std::string m_description;

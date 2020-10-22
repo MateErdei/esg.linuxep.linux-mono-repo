@@ -256,7 +256,7 @@ public:
         return ProductReportVector{ base, plugin };
     }
 
-    MockWarehouseRepository& warehouseMocked()
+    MockWarehouseRepository& warehouseMocked(int resetCount = 1)
     {
         if (m_mockptr == nullptr)
         {
@@ -265,7 +265,7 @@ public:
                 return suldownloaderdata::IWarehouseRepositoryPtr(this->m_mockptr);
             });
         }
-        EXPECT_CALL(*m_mockptr, reset()); // All mock warehouses expect to call reset
+        EXPECT_CALL(*m_mockptr, reset()).Times(resetCount); // All mock warehouses expect to call reset
         return *m_mockptr;
     }
 
@@ -870,10 +870,58 @@ TEST_F( // NOLINT
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
+    DownloadReport actualDownloadReport = SulDownloader::runSULDownloader(
+            configurationData, previousConfigurationData, previousDownloadReport,
+            false);
+
+    ASSERT_FALSE(actualDownloadReport.isSupplementOnlyUpdate());
+
     EXPECT_PRED_FORMAT2(
         downloadReportSimilar,
         expectedDownloadReport,
-        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
+        actualDownloadReport);
+}
+
+// runSULDownloader
+TEST_F( // NOLINT
+    SULDownloaderTest,
+    runSULDownloader_supplement_only_WarehouseConnectionFailureShouldCreateValidConnectionFailureReport)
+{
+    setupFileSystemAndGetMock();
+    MockWarehouseRepository& mock = warehouseMocked(2);  // reset called another time
+    SulDownloader::suldownloaderdata::WarehouseError wError;
+    wError.Description = "Error description";
+    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
+    std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
+    DownloadedProductVector emptyProducts;
+
+    EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
+    EXPECT_CALL(mock, tryConnect(_, true, _)).WillOnce(Return(false)); // failed tryConnect call
+    EXPECT_CALL(mock, tryConnect(_, false, _)).WillOnce(Return(false)); // failed tryConnect call
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
+
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, dumpLogs());
+
+    SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    DownloadReport actualDownloadReport = SulDownloader::runSULDownloader(
+        configurationData, previousConfigurationData, previousDownloadReport,
+        true);
+
+    ASSERT_FALSE(actualDownloadReport.isSupplementOnlyUpdate());
+
+    EXPECT_PRED_FORMAT2(
+        downloadReportSimilar,
+        expectedDownloadReport,
+        actualDownloadReport);
 }
 
 TEST_F( // NOLINT
