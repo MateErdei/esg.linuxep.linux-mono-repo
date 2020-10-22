@@ -25,7 +25,7 @@ Wait For EDR to be Installed
     ...   EDR Plugin Is Running
 
     Wait Until Keyword Succeeds
-    ...   10 secs
+    ...   20 secs
     ...   2 secs
     ...   Check EDR Osquery Executable Running
 
