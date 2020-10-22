@@ -136,6 +136,11 @@ namespace SulDownloader
         const ConfigurationData& previousConfigurationData,
         const DownloadReport& previousDownloadReport)
     {
+        // Mark which products need to be forced to re/install.
+        bool forceReinstallAllProducts =
+            SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+                configurationData, previousConfigurationData, false);
+
         SULInit init;
         assert(configurationData.isVerified());
         TimeTracker timeTracker;
@@ -146,6 +151,11 @@ namespace SulDownloader
         // connect and read metadata
         UpdateSupplementDecider productUpdateSupplementDecider(configurationData.getSchedule());
         bool supplementOnly = !productUpdateSupplementDecider.updateProducts();
+        if (forceReinstallAllProducts)
+        {
+            // If we need to reinstall products, then we can't do a supplement-only update
+            supplementOnly = false;
+        }
         if (supplementOnly)
         {
             LOGINFO("Doing supplement-only update");
@@ -191,11 +201,6 @@ namespace SulDownloader
 
         auto products = warehouseRepository->getProducts();
         std::string sourceURL = warehouseRepository->getSourceURL();
-
-        // Mark which products need to be forced to re/install.
-        bool forceReinstallAllProducts =
-            SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
-                configurationData, previousConfigurationData, false);
 
         for (auto& product : products)
         {
