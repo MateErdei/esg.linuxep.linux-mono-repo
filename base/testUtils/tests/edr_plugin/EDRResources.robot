@@ -26,7 +26,7 @@ Wait For EDR to be Installed
 
     Wait Until Keyword Succeeds
     ...   20 secs
-    ...   2 secs
+    ...   1 secs
     ...   Check EDR Osquery Executable Running
 
 
