@@ -15,10 +15,6 @@
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileSystem.h>
-namespace osquery
-{
-    FLAG(bool, decorations_top_level, false, "test");
-}
 
 namespace osquery
 {
@@ -80,19 +76,19 @@ namespace osquery
     REGISTER_EXTERNAL(SophosServerTablePlugin, "table", "sophos_server_information");
 }
 
-// Note 3: Use REGISTER_EXTERNAL to define your plugin or table.
-using namespace osquery;
-int main(int argc, char* argv[]) {
-    osquery::Initializer runner(argc, argv, ToolType::EXTENSION);
-
-    auto status = startExtension("sophos_server_information", "1.0.0");
-    if (!status.ok())
-    {
-        LOG(ERROR) << status.getMessage();
-        runner.requestShutdown(status.getCode());
-    }
-
-    // Finally wait for a signal / interrupt to shutdown.
-    runner.waitThenShutdown();
-    return 0;
-}
+//// Note 3: Use REGISTER_EXTERNAL to define your plugin or table.
+//using namespace osquery;
+//int main(int argc, char* argv[]) {
+//    osquery::Initializer runner(argc, argv, ToolType::EXTENSION);
+//
+//    auto status = startExtension("sophos_server_information", "1.0.0");
+//    if (!status.ok())
+//    {
+//        LOG(ERROR) << status.getMessage();
+//        runner.requestShutdown(status.getCode());
+//    }
+//
+//    // Finally wait for a signal / interrupt to shutdown.
+//    runner.waitThenShutdown();
+//    return 0;
+//}
