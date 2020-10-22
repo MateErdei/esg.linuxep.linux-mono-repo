@@ -122,8 +122,8 @@ namespace CommsComponent
         }
         Common::ApplicationConfiguration::applicationConfiguration().setData(
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/");
-        Path logPath = Common::FileSystem::join("/logs", m_childUser.logName + ".log");
-        m_logSetup.reset(new Common::Logging::FileLoggingSetup(logPath));
+        // /logs in this case is from the comms jail post chroot
+        m_logSetup.reset(new Common::Logging::FileLoggingSetup("/logs", m_childUser.logName));
         for (const auto& pair: output)
         {
             switch (pair.second)
