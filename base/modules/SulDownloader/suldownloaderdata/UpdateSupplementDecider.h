@@ -6,11 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "suldownloaderdata/WeekDayAndTimeForDelay.h"
+#include "WeekDayAndTimeForDelay.h"
 
 #include <ctime>
 
-namespace SulDownloader
+namespace SulDownloader::suldownloaderdata
 {
     class UpdateSupplementDecider
     {

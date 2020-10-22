@@ -6,10 +6,10 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include "ProductUninstaller.h"
 #include "SULRaii.h"
-#include "UpdateSupplementDecider.h"
 #include "WarehouseRepository.h"
 #include "WarehouseRepositoryFactory.h"
 
+#include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
 #include "suldownloaderdata/Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>

@@ -8,8 +8,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include "SULRaii.h"
 #include "SULUtils.h"
-#include "UpdateSupplementDecider.h"
 
+#include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
 #include "suldownloaderdata/Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>

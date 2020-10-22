@@ -6,9 +6,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ConfigurationDataBase.h"
 
-#include <SulDownloader/UpdateSupplementDecider.h>
+#include <modules/SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
 
 using namespace SulDownloader;
+using namespace SulDownloader::suldownloaderdata;
 
 namespace
 {
