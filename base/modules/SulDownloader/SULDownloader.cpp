@@ -134,7 +134,8 @@ namespace SulDownloader
     DownloadReport runSULDownloader(
         const ConfigurationData& configurationData,
         const ConfigurationData& previousConfigurationData,
-        const DownloadReport& previousDownloadReport)
+        const DownloadReport& previousDownloadReport,
+        bool supplementOnly)
     {
         // Mark which products need to be forced to re/install.
         bool forceReinstallAllProducts =
@@ -149,8 +150,6 @@ namespace SulDownloader
         assert(warehouseRepository);
 
         // connect and read metadata
-        UpdateSupplementDecider productUpdateSupplementDecider(configurationData.getSchedule());
-        bool supplementOnly = !productUpdateSupplementDecider.updateProducts();
         if (forceReinstallAllProducts)
         {
             // If we need to reinstall products, then we can't do a supplement-only update
@@ -297,7 +296,8 @@ namespace SulDownloader
                 {},
                 warehouseRepository->listInstalledSubscriptions(),
                 &timeTracker,
-                DownloadReport::VerifyState::VerifyFailed);
+                DownloadReport::VerifyState::VerifyFailed,
+                false);
         }
 
         // Note: Should only get here if Download has been successful, if no products are downloaded then
@@ -396,13 +396,15 @@ namespace SulDownloader
             warehouseRepository->listInstalledProducts(),
             warehouseRepository->listInstalledSubscriptions(),
             &timeTracker,
-            DownloadReport::VerifyState::VerifyCorrect);
+            DownloadReport::VerifyState::VerifyCorrect,
+            supplementOnly);
     }
 
     std::tuple<int, std::string> configAndRunDownloader(
         const std::string& settingsString,
         const std::string& previousSettingString,
-        const std::string& previousReportData)
+        const std::string& previousReportData,
+        bool supplementOnly)
     {
         try
         {
@@ -442,7 +444,7 @@ namespace SulDownloader
                 LOGSUPPORT(ex.what());
             }
 
-            auto report = runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+            auto report = runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
 
             return DownloadReport::CodeAndSerialize(report);
         }
@@ -480,9 +482,12 @@ namespace SulDownloader
         return previousDownloadReport;
     }
 
-    int fileEntriesAndRunDownloader(const std::string& inputFilePath, const std::string& outputFilePath)
+    int fileEntriesAndRunDownloader(
+        const std::string& inputFilePath,
+        const std::string& outputFilePath,
+        const std::string& supplementOnlyMarkerFilePath)
     {
-        auto fileSystem = Common::FileSystem::fileSystem();
+        auto* fileSystem = Common::FileSystem::fileSystem();
 
         // previous setting data will be based on location of inputFilePath.
         Path previousSettingFilePath = Common::FileSystem::join(
@@ -491,8 +496,13 @@ namespace SulDownloader
 
         std::string settingsString = fileSystem->readFile(inputFilePath);
 
-        std::string previousSettingsString("");
+        bool supplementOnly = false;
+        if (!supplementOnlyMarkerFilePath.empty() && fileSystem->isFile(supplementOnlyMarkerFilePath))
+        {
+            supplementOnly = true;
+        }
 
+        std::string previousSettingsString;
         if (fileSystem->isFile(previousSettingFilePath))
         {
             try
@@ -520,10 +530,10 @@ namespace SulDownloader
         }
 
         std::string previousReportData = getPreviousDownloadReportData(outputParentPath);
-        int exitCode;
+        int exitCode = -1;
         std::string jsonReport;
         std::tie(exitCode, jsonReport) =
-            configAndRunDownloader(settingsString, previousSettingsString, previousReportData);
+            configAndRunDownloader(settingsString, previousSettingsString, previousReportData, supplementOnly);
 
         if (exitCode == 0)
         {
@@ -569,9 +579,12 @@ namespace SulDownloader
         std::string inputPath = argv[1];
         std::string outputPath = argv[2];
 
+        std::string supplementOnlyMarkerPath = Common::FileSystem::dirName(inputPath);
+        supplementOnlyMarkerPath = Common::FileSystem::join(supplementOnlyMarkerPath, "supplement_only.marker");
+
         try
         {
-            return fileEntriesAndRunDownloader(inputPath, outputPath);
+            return fileEntriesAndRunDownloader(inputPath, outputPath, supplementOnlyMarkerPath);
         } // failed or unable to either read or to write files
         catch (std::exception& ex)
         {

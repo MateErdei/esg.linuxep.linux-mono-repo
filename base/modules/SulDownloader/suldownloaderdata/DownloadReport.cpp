@@ -92,6 +92,7 @@ namespace SulDownloader
     {
         DownloadReport report;
         report.setTimings(timeTracker);
+        report.m_supplementOnly = false;
         if (warehouse.hasError())
         {
             report.setError(warehouse.getError());
@@ -113,7 +114,8 @@ namespace SulDownloader
         const std::vector<suldownloaderdata::ProductInfo>& warehouseComponents,
         const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
         TimeTracker* timeTracker,
-        VerifyState verifyState)
+        VerifyState verifyState,
+        bool supplementOnly)
     {
         assert(timeTracker != nullptr);
 
@@ -122,6 +124,7 @@ namespace SulDownloader
         report.m_status = WarehouseStatus::SUCCESS;
         report.m_description = "";
         report.m_urlSource = sourceURL;
+        report.m_supplementOnly = supplementOnly;
 
         if (products.empty())
         {
@@ -357,8 +360,9 @@ namespace SulDownloader
         protoReport.set_errordescription(report.getDescription());
         protoReport.set_sulerror(report.getSulError());
         protoReport.set_urlsource(report.getSourceURL());
+        protoReport.set_supplementonlyupdate(report.m_supplementOnly);
 
-        for (auto& product : report.getProducts())
+        for (const auto& product : report.getProducts())
         {
             SulDownloaderProto::ProductStatusReport* productReport = protoReport.add_products();
             productReport->set_productname(product.name);
@@ -369,7 +373,7 @@ namespace SulDownloader
             productReport->set_productstatus(convert(product.productStatus));
         }
 
-        for (auto& warehouseComponent : report.getWarehouseComponents())
+        for (const auto& warehouseComponent : report.getWarehouseComponents())
         {
             SulDownloaderProto::WarehouseComponent* warehouseComponentProto = protoReport.add_warehousecomponents();
             warehouseComponentProto->set_productname(warehouseComponent.m_productName);

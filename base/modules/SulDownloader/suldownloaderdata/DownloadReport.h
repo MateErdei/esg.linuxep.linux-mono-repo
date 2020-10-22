@@ -78,7 +78,8 @@ namespace SulDownloader
                 const std::vector<suldownloaderdata::ProductInfo>& componentsToALCStatus,
                 const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
                 TimeTracker* timeTracker,
-                VerifyState verify);
+                VerifyState verify,
+                bool supplementOnly=false);
 
             static DownloadReport Report(const std::string& errorDescription);
 
@@ -127,6 +128,7 @@ namespace SulDownloader
             std::vector<ProductInfo> m_warehouseComponents;
 
             bool m_processedReport = false;
+            bool m_supplementOnly = false;
 
             void setError(const WarehouseError& error);
 

@@ -22,7 +22,6 @@ message ProductStatusReport
        UNINSTALLED = 6;
     }
     optional ProductStatus productStatus = 9 [default=UPTODATE];
-    optional bool supplementOnlyUpdate = 10 [default=false];
 }
 
 message WarehouseComponent
@@ -45,4 +44,5 @@ message DownloadStatusReport
    optional string urlSource = 7;
    repeated ProductStatusReport products = 8;
    repeated WarehouseComponent warehouseComponents = 9;
+   optional bool supplementOnlyUpdate = 10 [default=false];
 }

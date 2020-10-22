@@ -362,7 +362,8 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalled
         {},
         subscriptionsFromProduct(products),
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::VerifyState::VerifyCorrect,
+        false);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -471,7 +472,8 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
         {},
         subscriptionsFromProduct(products),
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::VerifyState::VerifyCorrect,
+        false);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());

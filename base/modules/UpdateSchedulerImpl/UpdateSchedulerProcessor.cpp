@@ -364,8 +364,8 @@ namespace UpdateSchedulerImpl
 
         // removed previous processed reports files, only need to store process reports files for the this run (last/
         // current run).
-        Path processedReportPath =
-            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
+//        Path processedReportPath =
+//            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
         iFileSystem->removeFilesInDirectory(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath());
 
@@ -528,7 +528,7 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const
     {
-        auto iFileSystem = Common::FileSystem::fileSystem();
+        auto* iFileSystem = Common::FileSystem::fileSystem();
         std::string dirPath = Common::FileSystem::dirName(originalJsonFilePath);
         std::string fileName = Common::FileSystem::basename(originalJsonFilePath);
         assert(Common::UtilityImpl::StringUtils::endswith(fileName, ".json"));
@@ -562,7 +562,7 @@ namespace UpdateSchedulerImpl
     {
         std::string pathOfSulDownloader = Common::FileSystem::join(
             Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), "base/bin/SulDownloader");
-        auto iFileSystem = Common::FileSystem::fileSystem();
+        auto* iFileSystem = Common::FileSystem::fileSystem();
 
         std::string pidOfCommand;
         for (std::string candidate : { "/bin/pidof", "/usr/sbin/pidof" })

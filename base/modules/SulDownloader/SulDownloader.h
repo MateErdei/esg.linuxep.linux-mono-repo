@@ -32,6 +32,7 @@ namespace SulDownloader
      * @param configurationData which contains the full settings to SULDownloader to execute its jobs.
      * @param previousConfigurationData which may contain the full previous settings for SULDownloader to check for product additions.
      * @param previousDownloadReport if one exists (if not it will be null or empty
+     * @param supplementOnly Should SulDownloader do a supplement-only update?
      * @return DownloadReport which in case of failure will conatain description of the problem,
      *         and usually also contain the list of products installed with relevant information for each product.
      * @pre Require that configurationData is already verified configurationData::verifySettingsAreValid
@@ -40,7 +41,8 @@ namespace SulDownloader
     suldownloaderdata::DownloadReport runSULDownloader(
         const suldownloaderdata::ConfigurationData& configurationData,
         const suldownloaderdata::ConfigurationData& previousConfigurationData,
-        const suldownloaderdata::DownloadReport& previousDownloadReport);
+        const suldownloaderdata::DownloadReport& previousDownloadReport,
+        bool supplementOnly=false);
 
     /**
      * Run ::runSULDownloader whilst handling serialization of ::DownloadReport and ::ConfigurationData.
@@ -48,6 +50,7 @@ namespace SulDownloader
      * @param settingsString serialized (json) version of SulDownloaderProto::ConfigurationSettings.
      * @param previousSettingString serialized (json) version of SulDownloaderProto::ConfigurationSettings.
      * @param previousReportData serialized (json) version of SulDownloaderProto::DownloadReport.
+     * @param supplementOnly Should SulDownloader do a supplement-only update?
      * @return Pair containing the exit code and the serialized (json) version of
      * SulDownloaderProto::DownloadStatusReport The exit code follows the convention of 0 for success, otherwise failure
      * @pre settingsString is a valid serialized version of SulDownloaderProto::ConfigurationSettings.
@@ -57,7 +60,8 @@ namespace SulDownloader
     std::tuple<int, std::string> configAndRunDownloader(
         const std::string& settingsString,
         const std::string& previousSettingString,
-        const std::string& previousReportData);
+        const std::string& previousReportData,
+        bool supplementOnly=false);
 
     /**
      * Run configAndRunDownloader whilst handling files for input and output.
@@ -67,10 +71,11 @@ namespace SulDownloader
      *
      * @param inputFilePath Json file of the input settings.
      * @param outputFilePath File where the report of SulDownloader will be written to.
+     * @param supplementOnlyMarkerFilePath File, if present, will cause SulDownloader to attempt a supplement-only update
      * @return The exit code.
      * @throws If it cannot read or write the files safely it will throw exception.
      */
-    int fileEntriesAndRunDownloader(const std::string& inputFilePath, const std::string& outputFilePath);
+    int fileEntriesAndRunDownloader(const std::string& inputFilePath, const std::string& outputFilePath, const std::string& supplementOnlyMarkerFilePath);
 
     std::string getPreviousDownloadReportData(const std::string& outputParentPath);
 

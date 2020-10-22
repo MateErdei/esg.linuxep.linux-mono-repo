@@ -485,6 +485,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/etc/savedproxy.config")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
@@ -568,6 +569,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
 
@@ -627,6 +629,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
 
@@ -695,6 +698,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, removeFileOrDirectory(_)).Times(1);
@@ -763,6 +767,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
 
@@ -804,7 +809,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
 
     EXPECT_THROW( // NOLINT
-        SulDownloader::fileEntriesAndRunDownloader("/dir/input.json", "/dir/path/that/cannot/be/created/output.json"),
+        SulDownloader::fileEntriesAndRunDownloader("/dir/input.json", "/dir/path/that/cannot/be/created/output.json", ""),
         SulDownloader::suldownloaderdata::SulDownloaderException);
 }
 
