@@ -13,10 +13,9 @@
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
-        <package name="osquerysdklinux11" version="1-0-0-54/221263/output" dest="input"/>
         <build-asset project="winep" repo="livequery">
             <development-version branch="feature/LINUXDAR-1937-make-windows-team-logger-plugin-work-for-linux"/>
-            <include artifact-path="sspl-osquery-components" dest-dir="input"/>
+            <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <package name="boostlinux11" version="1-72-0-24/218999//output" dest="input">
             <include src="boost.tar" dest="."/>
@@ -38,6 +37,15 @@
         </package>
         <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
             <include src="protobuf.tar" dest="."/>
+        </package>
+        <package name="gflagslinux11" version="2-2-2-10/218072/output" dest="input">
+            <include src="gflags.tar" dest="."/>
+        </package>
+        <package name="gloglinux11" version="0-4-0-14/219062/output" dest="input">
+            <include src="glog.tar" dest="."/>
+        </package>
+        <package name="thriftlinux11" version="0-13-0-11/219558/output" dest="input">
+            <include src="thrift.tar" dest="."/>
         </package>
 
     </inputs>

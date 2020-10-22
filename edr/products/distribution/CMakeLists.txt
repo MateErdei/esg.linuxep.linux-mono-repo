@@ -40,9 +40,9 @@ foreach (LIB boost_chrono boost_date_time boost_filesystem boost_system boost_th
     add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
 endforeach(LIB)
 
-add_third_party_library(thrift ${OSQUERYSDK}/lib64)
-add_third_party_library(glog ${OSQUERYSDK}/lib64)
-add_third_party_library(gflags ${OSQUERYSDK}/lib64)
+add_third_party_library(thrift ${INPUT}/thrift/install64/lib)
+add_third_party_library(glog ${INPUT}/glog/install64/lib)
+add_third_party_library(gflags ${INPUT}/gflags/install64/lib)
 add_third_party_library(crypto ${INPUT}/openssl/lib64)
 add_third_party_library(ssl ${INPUT}/openssl/lib64)
 add_third_party_library(jsoncpp ${INPUT}/jsoncpp/lib64)

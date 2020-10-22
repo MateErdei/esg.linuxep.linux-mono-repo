@@ -136,7 +136,7 @@ endif()
 MESSAGE(${SSPLOSQUERYCOMPONENTSPATH})
 
 if (NOT DEFINED OSQUERYSDK)
-    SET( OSQUERYSDK ${INPUT}/osquerysdk)
+    SET( OSQUERYSDK ${INPUT}/sspl-osquery-components)
 endif()
 
 if (NOT DEFINED NEW_OSQUERYSDK)
@@ -176,14 +176,14 @@ find_library(NEW_OSQUERY_LIBRARY
         )
 
 find_library(OSQUERY_LIBRARY
-        NAMES osquerysdk
+        NAMES OsquerySDK
         PATHS ${OSQUERYSDK}/lib64
         NO_DEFAULT_PATH
         )
 
 find_library(GLOG_LIBRARY
         NAMES glog
-        PATHS ${OSQUERYSDK}/lib64
+        PATHS ${INPUT}/glog/install64/lib
         NO_DEFAULT_PATH
         )
 
@@ -200,13 +200,13 @@ find_library(JSON_CPP_LIBRARY
 
 find_library(THRIFT_LIBRARY
         NAMES thrift
-        PATHS ${OSQUERYSDK}/lib64
+        PATHS ${INPUT}/thrift/install64/lib
         NO_DEFAULT_PATH
         )
 
 find_library(GFLAG_LIBRARY
         NAMES gflags
-        PATHS ${OSQUERYSDK}/lib64
+        PATHS ${INPUT}/gflags/install64/lib
         NO_DEFAULT_PATH
         )
 

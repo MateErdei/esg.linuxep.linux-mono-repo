@@ -252,35 +252,15 @@ function build()
         untar_input cmake cmake-3.11.2-linux
         untar_input $GOOGLETESTTAR
         untar_input boost
-        untar_input osquerysdk
+        untar_input glog
+        untar_input gflags
+        untar_input thrift
+
         untar_input openssl
         untar_input protobuf
-#        untar_input xdrsharedcomponents
-        untar_input thrift
-        untar_input jsoncpp
-
-        # sqlite build output currently has an awkward name so renaming here.
-        unzip -o $(ls ${INPUT}/sqlite-*.zip) -d "$REDIST" || exitFailure 1 "No sqlite zip"
-        rm -rf "${REDIST}/sqlite"
-        mv "${REDIST}/sqlite-amalgamation-3310100" "${REDIST}/sqlite"
-
+        cp -r "$INPUT"/sspl-osquery-components "$REDIST"/
         mkdir -p "$REDIST"/osquery
         tar xzf ${INPUT}/osquery-4.5.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
-        cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
-
-        # TODO can we do this in a better way?
-        # Fix up jsoncpp dual versioning scheme.
-
-        if [[ -f $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  ]]
-        then
-            pushd $REDIST/jsoncpp/lib64/
-            echo "Detected that libjsoncpp dual versioning scheme in place, removing .so.1.8.4 and leaving .so.19"
-            rm -f libjsoncpp.so.19
-            rm -f libjsoncpp.so
-            mv libjsoncpp.so.1.8.4  libjsoncpp.so.19
-            ln -sfn libjsoncpp.so.19 libjsoncpp.so
-            popd
-        fi
 
     fi
 
@@ -390,9 +370,6 @@ function build()
 
     if [[ ${BULLSEYE} == 1 ]]
     then
-      #move the coverage build produced and replace sdds with previous last good build
-      mv output/SDDS-COMPONENT output/SDDS-COMPONENT-COVERAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to move coverage SDDS component to output"
-      cp -a ${INPUT}/edr-sdds  output/SDDS-COMPONENT  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to replace base SDDS component with previous good build in output"
       if [[ ${UNITTEST} == 1 ]]
       then
             ## Process bullseye output

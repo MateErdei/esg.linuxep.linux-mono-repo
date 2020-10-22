@@ -5,7 +5,7 @@
 #include <osquery/sql/dynamic_table_row.h>
 #include <osquery/flagalias.h>
 #include <osquery/flags.h>
-#include <extensions/interface.h>
+#include <OsquerySDK/OsquerySDK.h>
 #include <osquery/flags.h>
 #include <osquery/sdk/sdk.h>
 #include <osquery/system.h>
