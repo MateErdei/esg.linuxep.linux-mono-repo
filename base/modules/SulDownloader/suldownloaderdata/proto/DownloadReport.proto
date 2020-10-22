@@ -22,6 +22,7 @@ message ProductStatusReport
        UNINSTALLED = 6;
     }
     optional ProductStatus productStatus = 9 [default=UPTODATE];
+    optional bool supplementOnlyUpdate = 10 [default=false];
 }
 
 message WarehouseComponent
