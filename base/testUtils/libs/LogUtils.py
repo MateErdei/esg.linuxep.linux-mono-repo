@@ -337,6 +337,9 @@ class LogUtils(object):
     def comms_component_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "comms_component.log")
 
+    def comms_component_network_log(self):
+        return os.path.join(self.base_logs_dir, "sophos-spl-comms", "comms_network.log")
+
     def dump_mcsrouter_log(self):
         mcsrouter_log = self.mcs_router_log()
         self.dump_log(mcsrouter_log)
@@ -705,8 +708,21 @@ class LogUtils(object):
 
     def check_comms_component_log_contains(self, string_to_contain):
         log = self.comms_component_log()
-        self.check_log_contains(string_to_contain, log, "Comms Component")
+        self.check_log_contains(string_to_contain, log, "Comms Component Log")
         logger.info(log)
+
+    def check_comms_component_network_log_contains(self, string_to_contain):
+        log = self.comms_component_network_log()
+        self.check_log_contains(string_to_contain, log, "Comms Component Network Log")
+        logger.info(log)
+
+    def check_comms_component_network_log_does_not_contain(self, string_to_not_contain):
+        log = self.comms_component_network_log()
+        self.check_log_does_not_contain(string_to_not_contain, log, "Comms Component Network Log")
+
+    def check_updatescheduler_log_does_not_contain(self, string_to_not_contain):
+        log = self.update_scheduler_log
+        self.check_log_does_not_contain(string_to_not_contain, log, "Updatescheduler")
 
     def check_comms_component_log_does_not_contain_error(self):
         log = self.comms_component_log()

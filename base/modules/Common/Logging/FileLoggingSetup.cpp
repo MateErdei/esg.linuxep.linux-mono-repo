@@ -23,10 +23,11 @@ Common::Logging::FileLoggingSetup::FileLoggingSetup(const std::string& logbase, 
     applyGeneralConfig(logbase);
 }
 
-Common::Logging::FileLoggingSetup::FileLoggingSetup(const Path& logpath)
+Common::Logging::FileLoggingSetup::FileLoggingSetup(const Path& logdir, const std::string& logbase)
 {
-    setupFileLoggingWithPath(logpath);
-    applyGeneralConfig(logpath);
+    Path logPath = Common::FileSystem::join(logdir, logbase + ".log");
+    setupFileLoggingWithPath(logPath);
+    applyGeneralConfig(logbase);
 }
 
 Common::Logging::FileLoggingSetup::~FileLoggingSetup()

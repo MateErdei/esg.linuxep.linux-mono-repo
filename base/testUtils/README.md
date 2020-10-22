@@ -75,6 +75,7 @@ The following tags can be used to select which tests can be run, using the inclu
 * FUZZ - Tests that are related to fuzzer
 * INSTALLER - Tests which exercise the main installer 
 * LIVERESPONSE_PLUGIN - Tests which exercise the live response plugin
+* LOGGING - Tests which exercise the products logging
 * MANAGEMENT_AGENT - Tests which exercise the Management Agent component
 * MANUAL - Tests which are ony run manually and not as part of a test run on Jenkins
 * MCS - Tests which use the MCS pipeline

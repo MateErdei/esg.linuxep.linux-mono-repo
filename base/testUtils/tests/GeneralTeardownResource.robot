@@ -31,7 +31,7 @@ Dump All Logs
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/base/update/var/update_config.json
 
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/etc/logger.conf
+    Dump Teardown Log    ${SOPHOS_INSTALL}/base/etc/logger.conf
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/etc/DiagnosePaths.conf
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/edr.log

@@ -16,7 +16,7 @@ namespace Common
         {
         public:
             explicit FileLoggingSetup(const std::string& logbase, bool lowpriv);
-            explicit FileLoggingSetup(const Path& logbase);
+            explicit FileLoggingSetup(const Path& logdir, const std::string& logbase);
             ~FileLoggingSetup();
             static void setupFileLogging(const std::string& logbase, bool lowpriv = false);
             static void setupFileLoggingWithPath(const std::string& logfilepath);
