@@ -67,6 +67,7 @@ namespace UpdateSchedulerImpl
         Common::UtilityImpl::FormattedTime m_formattedTime;
         bool m_policyReceived;
         bool m_pendingUpdate;
+        SulDownloader::suldownloaderdata::WeekDayAndTimeForDelay m_scheduledUpdateConfig;
 
 
     };

@@ -39,7 +39,7 @@ namespace
         std::vector<MessageInsert>* messages,
         const SulDownloader::suldownloaderdata::DownloadReport& report)
     {
-        for (auto& product : report.getProducts())
+        for (const auto& product : report.getProducts())
         {
             if (!product.errorDescription.empty())
             {
@@ -146,8 +146,9 @@ namespace
         status.LastStartTime = report.getStartTime();
         status.LastFinishdTime = report.getFinishedTime();
         status.LastResult = event.MessageNumber;
+        status.LastUpdateWasSupplementOnly = report.isSupplementOnlyUpdate();
 
-        for (auto& product : report.getProducts())
+        for (const auto& product : report.getProducts())
         {
             if (product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
             {
@@ -155,7 +156,7 @@ namespace
             }
         }
 
-        for (auto& whComponent : report.getWarehouseComponents())
+        for (const auto& whComponent : report.getWarehouseComponents())
         {
             status.Products.emplace_back(whComponent.m_rigidName, whComponent.m_productName, whComponent.m_version);
         }

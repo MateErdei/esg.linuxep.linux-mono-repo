@@ -24,6 +24,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
+#include <SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 #include <UpdateSchedulerImpl/runnerModule/AsyncSulDownloaderRunner.h>
 #include <UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h>
@@ -39,7 +40,7 @@ namespace
     // FIXME: remove after LINUXDAR-1942
     bool detectedUpgradeWithBrokenLiveResponse()
     {      
-        auto fs = Common::FileSystem::fileSystem();
+        auto* fs = Common::FileSystem::fileSystem();
         std::string fileMarkOfUpgrade{"/opt/sophos-spl/tmp/.upgradeToNewWarehouse"}; 
         if (fs->exists(fileMarkOfUpgrade))
         {
@@ -205,6 +206,7 @@ namespace UpdateSchedulerImpl
             }
 
             writeConfigurationData(settingsHolder.configurationData);
+            m_scheduledUpdateConfig = settingsHolder.configurationData.getSchedule();
 
             std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData =
                 getPreviousConfigurationData();
@@ -303,13 +305,34 @@ namespace UpdateSchedulerImpl
 
         std::string configPath =
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
-        if (!Common::FileSystem::fileSystem()->isFile(configPath))
+        auto* fileSystem = Common::FileSystem::fileSystem();
+        if (!fileSystem->isFile(configPath))
         {
             LOGWARN("No update_config.json file available. Requesting policy again");
             m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
             m_pendingUpdate = true;
             return;
         }
+
+        // Check if we should do a supplement-only update or not
+        std::string supplementOnlyMarkerFilePath =
+            Common::FileSystem::join(
+                Common::FileSystem::dirName(configPath),
+                "supplement_only.marker"
+            );
+        SulDownloader::suldownloaderdata::UpdateSupplementDecider decider(m_scheduledUpdateConfig);
+        if (decider.updateProducts())
+        {
+            LOGSUPPORT("Triggering product update check");
+            fileSystem->removeFile(supplementOnlyMarkerFilePath);
+        }
+        else
+        {
+            // supplement only update
+            LOGSUPPORT("Triggering supplement-only update check");
+            fileSystem->writeFile(supplementOnlyMarkerFilePath, "");
+        }
+
         LOGSUPPORT("Triggering SulDownloader");
         LOGINFO("Attempting to update from warehouse");
         m_sulDownloaderRunner->triggerSulDownloader();
@@ -444,6 +467,14 @@ namespace UpdateSchedulerImpl
                 LOGWARN(
                     "Failed to create previous configuration file at : " << m_previousConfigFilePath << ", with error, "
                                                                          << ex.what());
+            }
+
+            // In order to work out if we should do a supplement-only update we need to record the
+            // last successful product update
+            if (!reportAndFiles.reportCollectionResult.SchedulerStatus.LastUpdateWasSupplementOnly)
+            {
+                // Record we did a product update
+                SulDownloader::suldownloaderdata::UpdateSupplementDecider::recordSuccessfulProductUpdate();
             }
 
             return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;

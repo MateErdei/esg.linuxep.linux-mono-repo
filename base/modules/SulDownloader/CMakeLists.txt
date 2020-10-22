@@ -17,8 +17,6 @@ add_library(suldownloaderimpl SHARED
     ProductUninstaller.h
     Logger.cpp
     Logger.h
-        suldownloaderdata/UpdateSupplementDecider.cpp
-        suldownloaderdata/UpdateSupplementDecider.h
         )
 
 

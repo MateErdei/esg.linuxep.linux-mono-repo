@@ -40,6 +40,8 @@ add_library(suldownloaderdata SHARED
         CatalogueInfo.cpp
         CatalogueInfo.h
         WeekDayAndTimeForDelay.h
+        UpdateSupplementDecider.cpp
+        UpdateSupplementDecider.h
         )
 
 target_link_libraries(suldownloaderdata PUBLIC filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl logging obfuscationimpl protobufutil)

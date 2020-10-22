@@ -30,15 +30,16 @@ namespace UpdateSchedulerImpl
 
         struct UpdateStatus
         {
-            UpdateStatus() : LastResult(0) {}
+            UpdateStatus() = default;
 
             std::string LastBootTime;
             std::string LastStartTime;
             std::string LastSyncTime;
             std::string LastInstallStartedTime;
             std::string LastFinishdTime;
-            int LastResult;
+            int LastResult = 0;
             std::string FirstFailedTime;
+            bool LastUpdateWasSupplementOnly = false;
 
             std::vector<ProductStatus> Subscriptions;
             std::vector<ProductStatus> Products;
