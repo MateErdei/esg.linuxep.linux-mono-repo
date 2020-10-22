@@ -503,8 +503,8 @@ Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR
 
     Wait Until Keyword Succeeds
-    ...   20 secs
-    ...   1 secs
+    ...   120 secs
+    ...   5 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Wait For EDR to be Installed

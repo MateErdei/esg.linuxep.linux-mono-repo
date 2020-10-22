@@ -126,7 +126,7 @@ Wait Until EDR and MTR OSQuery Running
     ...  Check EDR And MTR Osquery Executable Running
 
 Wait Until OSQuery Running
-    [Arguments]  ${WaitInSecs}=10
+    [Arguments]  ${WaitInSecs}=30
     Wait Until Keyword Succeeds
     ...  ${WaitInSecs} secs
     ...  1 secs
