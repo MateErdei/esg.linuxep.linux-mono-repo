@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/Threads/AbstractThread.h>
 #include <capnp/message.h>
+#include <common/AbortScanException.h>
 #include <datatypes/Print.h>
 
 #include <cstddef>
@@ -88,10 +89,8 @@ namespace
                                        "    ]\n"
                                        "}";
 
-    static void DoSomethingWithData(uint8_t* Data, size_t Size)
+    static int DoSomethingWithData(uint8_t* Data, size_t Size)
     {
-        Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
-
         auto socketPath = "/tmp/unix_socket";
 
         FakeDetectionServer::FakeServerSocket socketServer("/tmp/unix_socket",0666, Data, Size);
@@ -101,67 +100,133 @@ namespace
         auto scanCallbacks = std::make_shared<FakeCallbacks>();
 
         avscanner::avscannerimpl::ScanClient scanner(*clientSocket, scanCallbacks, false, E_SCAN_TYPE_ON_DEMAND);
-        scanner.scan("/tmp/build.log", false);
+
+        try
+        {
+            scanner.scan("/tmp/build.log", false);
+        }
+        catch(AbortScanException& e)
+        {
+            PRINT("Scan aborted, error expected & handled: " << e.what());
+        }
+
+        socketServer.requestStop();
+        socketServer.join();
+        return 0;
     }
-
-
-};
+}
 
 #ifdef USING_LIBFUZZER
 
 extern "C" int LLVMFuzzerTestOneInput(uint8_t* Data, size_t Size)
 {
-    DoSomethingWithData(Data, Size);
-    return 0;
+    return DoSomethingWithData(Data, Size);
 }
 
 #else
+static bool DoInitialization()
+{
+    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
 
-static void createObject()
+    return true;
+}
+
+static int writeSampleFile(std::string path)
+{
+    ::capnp::MallocMessageBuilder message;
+    scan_messages::ScanResponse scanResponse;
+
+    scanResponse.addDetection("IT-IS-A-FILE", "A-THREAT");
+    //scanResponse.setFullScanResult(m_scanResult);
+
+    std::ofstream outfile(path, std::ios::binary);
+
+    std::string request_str = scanResponse.serialise();
+
+    char size = request_str.size();
+    outfile.write(&size, sizeof(size));
+
+    outfile.write(request_str.data(), request_str.size());
+    outfile.close();
+    return EXIT_SUCCESS;
+}
+
+static int processFile(std::string path)
+{
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    std::streamsize size = file.tellg();
+
+    if (size < 0)
     {
-        ::capnp::MallocMessageBuilder message;
-        scan_messages::ScanResponse scanResponse;
-
-        scanResponse.addDetection("IT-IS-A-FILE", "A-THREAT");
-        //scanResponse.setFullScanResult(m_scanResult);
-
-        std::ofstream outfile("/tmp/filename", std::ios::binary);
-
-        std::string request_str = scanResponse.serialise();
-
-        char size = request_str.size();
-        outfile.write(&size, sizeof(size));
-
-        outfile.write(request_str.data(), request_str.size());
-        outfile.close();
+        PRINT("cannot open file");
+        return EXIT_FAILURE;
     }
 
-static void processFile()
-    {
-        std::ifstream file("/tmp/filename", std::ios::binary | std::ios::ate);
-        std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
 
-        if (size < 0)
+    std::vector<char> buffer(size);
+    if (!file.read(buffer.data(), size))
+    {
+        PRINT("cannot read file");
+        return EXIT_FAILURE;
+    }
+    auto x = reinterpret_cast<uint8_t*>(buffer.data());
+    return DoSomethingWithData(x, size);
+}
+
+int main(int argc, char** argv)
+{
+    if( argc < 2 )
+    {
+        PRINT("missing arg");
+        return EXIT_FAILURE;
+    }
+
+    if(strcmp(argv[1], "--write-valid-request") == 0)
+    {
+        if( argc < 3 )
         {
-            PRINT("cannot open file");
-            return;
+            PRINT("missing filename");
+            return EXIT_FAILURE;
         }
 
-        file.seekg(0, std::ios::beg);
-
-        std::vector<char> buffer(size);
-        if (!file.read(buffer.data(), size))
-        {
-            PRINT("cannot read file");
-            return;
-        }
-        auto x = reinterpret_cast<uint8_t*>(buffer.data());
-        DoSomethingWithData(x, size, std::string(buffer.begin(), buffer.end()));
+        return writeSampleFile(argv[2]);
     }
 
-    int main(int /*argc*/, char** /*argv*/)
+    static bool Initialized = DoInitialization();
+    static_cast<void>(Initialized);
+
+    if (sophos_filesystem::is_directory(argv[1]))
     {
-        createObject();
-        processFile();
+        for (auto& p: sophos_filesystem::directory_iterator(argv[1]))
+        {
+            if (!sophos_filesystem::is_regular_file(p))
+            {
+                std::cout << "Skipping " << p.path() << '\n';
+                continue;
+            }
+
+            std::cout << "Processing " << p.path() << '\n';
+            int ret = processFile(p.path());
+            if (ret != EXIT_SUCCESS)
+            {
+                std::cerr << "Error while processing file " << p.path() << '\n';
+                return ret;
+            }
+        }
     }
+    else if (sophos_filesystem::is_regular_file(argv[1]))
+    {
+        int ret = processFile(argv[1]);
+        return ret;
+    }
+    else
+    {
+        std::cerr << "Error: not a file or directory" << '\n';
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+
+}
 #endif

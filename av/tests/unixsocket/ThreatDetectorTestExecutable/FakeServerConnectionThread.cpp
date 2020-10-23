@@ -117,8 +117,9 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
             }
 
             ::read(socket_fd.get(), proto_buffer.begin(), length);
-
             ::send(socket_fd.get(), m_Data, m_Size, 0);
+
+            break;
         }
     }
 }

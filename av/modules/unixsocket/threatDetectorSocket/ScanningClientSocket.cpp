@@ -166,12 +166,22 @@ unixsocket::ScanningClientSocket::attemptScan(datatypes::AutoFd& fd, const scan_
     }
 
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
+    scan_messages::ScanResponse response;
 
-    capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::FileScanResponse::Reader responseReader =
+    try
+    {
+        capnp::FlatArrayMessageReader messageInput(view);
+        Sophos::ssplav::FileScanResponse::Reader responseReader =
             messageInput.getRoot<Sophos::ssplav::FileScanResponse>();
 
-    scan_messages::ScanResponse response(responseReader);
+        response = scan_messages::ScanResponse(responseReader);
+    }
+    catch(kj::Exception& e)
+    {
+        std::stringstream errorMsg;
+        errorMsg << "Malformed response from Sophos Threat Detector (" << e.getDescription().cStr() << ")";
+        throw AbortScanException(errorMsg.str());
+    }
 
     return response;
 }

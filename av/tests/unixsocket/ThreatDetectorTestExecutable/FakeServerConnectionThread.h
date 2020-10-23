@@ -26,7 +26,6 @@ namespace FakeDetectionServer
         datatypes::AutoFd m_socketFd;
         uint8_t* m_Data;
         size_t m_Size;
-        std::string m_stringData;
     };
 }
 
