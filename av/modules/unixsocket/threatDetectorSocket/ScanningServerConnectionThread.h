@@ -37,7 +37,7 @@ namespace unixsocket
 
         void inner_run();
 
-        datatypes::AutoFd m_fd;
+        datatypes::AutoFd m_socketFd;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
         int m_maxIterations;
     };

@@ -129,7 +129,7 @@ unixsocket::ScanningClientSocket::attemptScan(datatypes::AutoFd& fd, const scan_
 
     try
     {
-        if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
+        if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
             throw ReconnectScannerException("Failed to send scan request to Sophos Threat Detector");
         }
@@ -159,6 +159,7 @@ unixsocket::ScanningClientSocket::attemptScan(datatypes::AutoFd& fd, const scan_
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
     ssize_t bytes_read = ::read(m_socket_fd, proto_buffer.begin(), length);
+
     if (bytes_read != length)
     {
         throw ReconnectScannerException("Failed to read message from Sophos Threat Detector");

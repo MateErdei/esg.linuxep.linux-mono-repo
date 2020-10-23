@@ -27,11 +27,12 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::AutoFd& fd,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
         int maxIterations)
-    : m_fd(std::move(fd))
+    :
+    m_socketFd(std::move(fd))
     , m_scannerFactory(std::move(scannerFactory))
     , m_maxIterations(maxIterations)
 {
-    if (m_fd < 0)
+    if (m_socketFd < 0)
     {
         throw std::runtime_error("Attempting to construct ScanningServerConnectionThread with invalid socket fd");
     }
@@ -134,7 +135,7 @@ void unixsocket::ScanningServerConnectionThread::run()
 
 void unixsocket::ScanningServerConnectionThread::inner_run()
 {
-    datatypes::AutoFd socket_fd(std::move(m_fd));
+    datatypes::AutoFd socket_fd(std::move(m_socketFd));
     LOGDEBUG("Got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
@@ -166,7 +167,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
         if (activity < 0)
         {
-            LOGFATAL("Closing socket because pselect failed: " << errno);
+            LOGERROR("Closing socket because pselect failed: " << errno);
             break;
         }
         // We don't set a timeout so something should have happened
