@@ -82,42 +82,24 @@ namespace livequery
         return true;
     }
 
-    std::string ResponseData::AcceptedTypesToString(livequery::ResponseData::AcceptedTypes acceptedType)
+    std::string ResponseData::AcceptedTypesToString(OsquerySDK::ColumnType acceptedType)
     {
         switch (acceptedType)
         {
-            case livequery::ResponseData::AcceptedTypes::BIGINT:
+            case OsquerySDK::ColumnType::BIGINT_TYPE:
                 return "BIGINT";
-            case livequery::ResponseData::AcceptedTypes::DATE:
-                return "DATE";
-            case livequery::ResponseData::AcceptedTypes::DATETIME:
-                return "DATETIME";
-            case livequery::ResponseData::AcceptedTypes::INTEGER:
+            case OsquerySDK::ColumnType::INTEGER_TYPE:
                 return "INTEGER";
-            case livequery::ResponseData::AcceptedTypes::UNSIGNED_BIGINT:
+            case OsquerySDK::ColumnType::UNSIGNED_BIGINT_TYPE:
                 return "UNSIGNED BIGINT";
+            case OsquerySDK::ColumnType::BLOB_TYPE:
+                return "BLOB";
+            case OsquerySDK::ColumnType::DOUBLE_TYPE:
+                return "DOUBLE";
             default:
-            case livequery::ResponseData::AcceptedTypes::STRING:
+            case OsquerySDK::ColumnType::TEXT_TYPE:
                 return "TEXT";
         }
     }
 
-    ResponseData::AcceptedTypes ResponseData::AcceptedTypesFromString(const std::string& acceptedTypeStr)
-    {
-        static std::unordered_map<std::string, ResponseData::AcceptedTypes > mapString2Type{
-                {"TEXT", ResponseData::AcceptedTypes::STRING},
-                { "BIGINT", ResponseData::AcceptedTypes::BIGINT},
-                {"INTEGER", ResponseData::AcceptedTypes::INTEGER},
-                {"UNSIGNED LONG", ResponseData::AcceptedTypes::UNSIGNED_BIGINT},
-                {"DATE", ResponseData::AcceptedTypes::DATE},
-                {"DATETIME", ResponseData::AcceptedTypes::DATETIME}
-        };
-
-        auto found = mapString2Type.find(acceptedTypeStr);
-        if (found == mapString2Type.end())
-        {
-            return ResponseData::AcceptedTypes::STRING;
-        }
-        return found->second;
-    }
 } // namespace livequery

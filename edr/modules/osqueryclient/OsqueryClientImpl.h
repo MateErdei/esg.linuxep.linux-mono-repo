@@ -16,10 +16,10 @@ namespace osqueryclient
         ~OsqueryClientImpl() = default;
 
         void connect(const std::string& socketPath) override;
-        osquery::Status query(const std::string& sql, osquery::QueryData& qd) override;
-        osquery::Status getQueryColumns(const std::string& sql, osquery::QueryData& qd) override;
+        OsquerySDK::Status query(const std::string& sql, OsquerySDK::QueryData& qd) override;
+        OsquerySDK::Status getQueryColumns(const std::string& sql, OsquerySDK::QueryColumns& qc) override;
 
     private:
-        std::unique_ptr<osquery::ExtensionManagerAPI> m_client;
+        std::unique_ptr<OsquerySDK::OsqueryClientInterface>  m_client;
     };
 } // namespace osqueryclient

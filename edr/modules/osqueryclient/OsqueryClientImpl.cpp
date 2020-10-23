@@ -8,20 +8,24 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include <osquery/flags.h>
+#include <OsquerySDK/OsquerySDK.h>
 #include <thrift/transport/TTransportException.h>
+
+#include<thread>
 
 namespace osquery
 {
-    std::unique_ptr<osquery::ExtensionManagerAPI> makeClient(const std::string& socket)
+    std::unique_ptr<OsquerySDK::OsqueryClientInterface> makeClient(const std::string& socket)
     {
+
         for (int i = 0; i < 15; i++)
         {
             try
             {
                 // set a maximum time that a query can be take. Set to 90 minutes.
                 constexpr int Timeout=90*60;
-                return std::make_unique<osquery::ExtensionManagerClient>(socket, Timeout);
+                std::chrono::seconds timeout = std::chrono::seconds(Timeout);
+                return OsquerySDK::CreateOsqueryClient(socket, timeout);
             }
             catch (apache::thrift::transport::TTransportException& ex)
             {
@@ -40,16 +44,16 @@ namespace osqueryclient
         m_client = osquery::makeClient(socketPath);
     }
 
-    osquery::Status OsqueryClientImpl::query(const std::string& sql, osquery::QueryData& qd)
+    OsquerySDK::Status OsqueryClientImpl::query(const std::string& sql, OsquerySDK::QueryData& qd)
     {
         assert(m_client);
-        return m_client->query(sql, qd);
+        return m_client->Query(sql, qd);
     }
 
-    osquery::Status OsqueryClientImpl::getQueryColumns(const std::string& sql, osquery::QueryData& qd)
+    OsquerySDK::Status OsqueryClientImpl::getQueryColumns(const std::string& sql, OsquerySDK::QueryColumns & qc)
     {
         assert(m_client);
-        return m_client->getQueryColumns(sql, qd);
+        return m_client->GetQueryColumns(sql, qc);
     }
 } // namespace osqueryclient
 

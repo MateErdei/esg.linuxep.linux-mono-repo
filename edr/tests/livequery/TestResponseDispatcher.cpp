@@ -20,9 +20,9 @@ using namespace livequery;
 ResponseData::ColumnHeaders headerExample()
 {
     ResponseData::ColumnHeaders  headers;
-    headers.emplace_back("pathname", ResponseData::AcceptedTypes::STRING);
-    headers.emplace_back("sophosPID", ResponseData::AcceptedTypes::STRING);
-    headers.emplace_back("start_time", ResponseData::AcceptedTypes::BIGINT);
+    headers.emplace_back("pathname", OsquerySDK::ColumnType::TEXT_TYPE);
+    headers.emplace_back("sophosPID",OsquerySDK::ColumnType::TEXT_TYPE);
+    headers.emplace_back("start_time", OsquerySDK::ColumnType::BIGINT_TYPE);
     return headers;
 }
 
@@ -175,12 +175,12 @@ TEST_F(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJso
      */
 
     ResponseData::ColumnHeaders  headers;
-    headers.emplace_back("time", ResponseData::AcceptedTypes::BIGINT);
-    headers.emplace_back("pid", ResponseData::AcceptedTypes::INTEGER);
-    headers.emplace_back("mode", ResponseData::AcceptedTypes::UNSIGNED_BIGINT);
-    headers.emplace_back("path", ResponseData::AcceptedTypes::STRING);
-    headers.emplace_back("uid", ResponseData::AcceptedTypes::INTEGER);
-    headers.emplace_back("lastAccess", ResponseData::AcceptedTypes::DATETIME);
+    headers.emplace_back("time", OsquerySDK::ColumnType::BIGINT_TYPE);
+    headers.emplace_back("pid", OsquerySDK::ColumnType::INTEGER_TYPE);
+    headers.emplace_back("mode", OsquerySDK::ColumnType::UNSIGNED_BIGINT_TYPE);
+    headers.emplace_back("path", OsquerySDK::ColumnType::TEXT_TYPE);
+    headers.emplace_back("uid", OsquerySDK::ColumnType::INTEGER_TYPE);
+    headers.emplace_back("lastAccess", OsquerySDK::ColumnType::TEXT_TYPE);
 
 
     ResponseData::ColumnData columnData;

@@ -10,7 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 #include <modules/livequery/Logger.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
-#include <osquery/flagalias.h>
+
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 #include <gtest/gtest.h>
@@ -23,10 +23,6 @@ using namespace ::testing;
 #ifndef OSQUERYBIN
 #    define OSOSQUERYBIN ""
 #endif
-namespace osquery
-{
-    FLAG(bool, decorations_top_level, false, "test");
-}
 
 class TestOSQueryProcessor : public  LogOffInitializedTests
 {
@@ -193,8 +189,8 @@ TEST_F(TestOSQueryProcessor, SimpleSelectShouldReturn) // NOLINT
     livequery::ResponseData::ColumnData columnData;
     columnData.push_back({ { "name", "ephemeral" }, { "value", "true" } });
     auto expectedResponse = success(
-        { { "name", livequery::ResponseData::AcceptedTypes::STRING },
-          { "value", livequery::ResponseData::AcceptedTypes::STRING } },
+        { { "name", OsquerySDK::ColumnType::TEXT_TYPE },
+          { "value", OsquerySDK::ColumnType::TEXT_TYPE } },
         columnData);
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
@@ -293,8 +289,8 @@ TEST_F(TestOSQueryProcessor, VerifyOSQueryResponseHasExpectedTypesForINTEGERandB
     osqueryclient::OsqueryProcessor osqueryProcessor(m_testFakeSocketPath);
     auto response = osqueryProcessor.query("select core,user from cpu_time Limit 1");
     livequery::ResponseData::ColumnHeaders expectedHeaders;
-    expectedHeaders.push_back({ "core", livequery::ResponseData::AcceptedTypes::INTEGER });
-    expectedHeaders.push_back({ "user", livequery::ResponseData::AcceptedTypes::BIGINT });
+    expectedHeaders.push_back({ "core", OsquerySDK::ColumnType::INTEGER_TYPE });
+    expectedHeaders.push_back({ "user", OsquerySDK::ColumnType::BIGINT_TYPE});
     EXPECT_EQ(expectedHeaders, response.data().columnHeaders());
 }
 
@@ -314,8 +310,8 @@ TEST_F(TestOSQueryProcessor, HeaderWillBeDeducedIfNotCompletellyGivenByOsQueryAn
     columnData.push_back({ { "user", responseColumnData.at(0).at("user") } });
     columnData.push_back({ { "core", responseColumnData.at(1).at("core") } });
     livequery::ResponseData::ColumnHeaders headers {
-        { "user", livequery::ResponseData::AcceptedTypes::BIGINT },
-        { "core", livequery::ResponseData::AcceptedTypes::STRING }, // core was deduced from the columnData
+        { "user", OsquerySDK::ColumnType::BIGINT_TYPE },
+        { "core", OsquerySDK::ColumnType::TEXT_TYPE }, // core was deduced from the columnData
     };
     auto expectedResponse = success(headers, columnData);
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);

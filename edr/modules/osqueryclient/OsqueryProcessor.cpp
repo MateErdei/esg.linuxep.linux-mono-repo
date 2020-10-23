@@ -32,19 +32,15 @@ namespace
      * column based on the data provided by osquery.
      * */
     livequery::ResponseData::ColumnHeaders updateColumnDataFromValues(
-        osquery::QueryData& queryColumnsInfo,
-        const osquery::QueryData& queryData)
+        OsquerySDK::QueryColumns& queryColumnsInfo,
+        const OsquerySDK::QueryData& queryData)
     {
         livequery::ResponseData::ColumnHeaders headers;
         std::unordered_set<std::string> columnsReported;
         for (const auto& row : queryColumnsInfo)
         {
-            const std::string& columnName = row.begin()->first;
-            const std::string& columnTypeStr = row.begin()->second;
-            livequery::ResponseData::AcceptedTypes columnType =
-                livequery::ResponseData::AcceptedTypesFromString(columnTypeStr);
-            headers.emplace_back(columnName, columnType);
-            columnsReported.insert(columnName);
+            headers.emplace_back(row.name, row.type);
+            columnsReported.insert(row.name);
         }
 
         for (auto& row : queryData)
@@ -55,7 +51,7 @@ namespace
                 if (columnsReported.find(columnName) == columnsReported.end())
                 {
                     columnsReported.insert(columnName);
-                    headers.emplace_back(columnName, livequery::ResponseData::AcceptedTypes::STRING);
+                    headers.emplace_back(columnName, OsquerySDK::ColumnType::TEXT_TYPE);
                 }
             }
         }
@@ -86,7 +82,7 @@ namespace osqueryclient
     {
         try
         {
-            osquery::QueryData queryData;
+            OsquerySDK::QueryData queryData;
             auto client = osqueryclient::factory().create();
             client->connect(m_socketPath);
 
@@ -94,17 +90,17 @@ namespace osqueryclient
             long start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 
             auto osqueryStatus = client->query(query, queryData);
-            if (!osqueryStatus.ok())
+            if (osqueryStatus.code != 0)
             {
-                return failureQueryResponse(livequery::ErrorCode::OSQUERYERROR, osqueryStatus.getMessage());
+                return failureQueryResponse(livequery::ErrorCode::OSQUERYERROR, osqueryStatus.message);
             }
 
-            osquery::QueryData queryColumnsInfo;
+            OsquerySDK::QueryColumns queryColumnsInfo;
 
             osqueryStatus = client->getQueryColumns(query, queryColumnsInfo);
-            if (!osqueryStatus.ok())
+            if (osqueryStatus.code != 0)
             {
-                return failureQueryResponse(livequery::ErrorCode::OSQUERYERROR, osqueryStatus.getMessage());
+                return failureQueryResponse(livequery::ErrorCode::OSQUERYERROR, osqueryStatus.message);
             }
 
             livequery::ResponseData::ColumnHeaders headers = updateColumnDataFromValues(queryColumnsInfo, queryData);

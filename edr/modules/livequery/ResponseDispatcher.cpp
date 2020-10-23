@@ -51,10 +51,10 @@ namespace
             }
 
             const std::string& value = valueIterator->second;
-            if (m_valueType.second == livequery::ResponseData::AcceptedTypes::STRING ||
-                m_valueType.second == livequery::ResponseData::AcceptedTypes::DATE ||
-                m_valueType.second == livequery::ResponseData::AcceptedTypes::DATETIME ||
-                m_valueType.second == livequery::ResponseData::AcceptedTypes::UNSIGNED_BIGINT)
+            if (m_valueType.second == OsquerySDK::ColumnType::TEXT_TYPE ||
+                m_valueType.second == OsquerySDK::ColumnType::UNSIGNED_BIGINT_TYPE  ||
+                m_valueType.second == OsquerySDK::ColumnType::BLOB_TYPE
+                )
             {
                 jsonArray.push_back(value);
             }
@@ -66,13 +66,17 @@ namespace
                     return;
                 }
 
-                if (m_valueType.second == livequery::ResponseData::AcceptedTypes::BIGINT)
+                if (m_valueType.second == OsquerySDK::ColumnType::BIGINT_TYPE)
                 {
                     jsonArray.push_back(extractNonTextValues<long long>(value));
                 }
-                else if (m_valueType.second == livequery::ResponseData::AcceptedTypes::INTEGER)
+                else if (m_valueType.second == OsquerySDK::ColumnType::INTEGER_TYPE)
                 {
                     jsonArray.push_back(extractNonTextValues<long>(value));
+                }
+                else if (m_valueType.second == OsquerySDK::ColumnType::DOUBLE_TYPE)
+                {
+                    jsonArray.push_back(extractNonTextValues<double>(value));
                 }
             }
         }

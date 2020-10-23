@@ -4,7 +4,7 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
-
+#include <OsquerySDK/OsquerySDK.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -32,16 +32,8 @@ namespace livequery
          * @return
          */
         static ResponseData emptyResponse();
-        enum class AcceptedTypes
-        {
-            BIGINT,
-            DATE,
-            DATETIME,
-            INTEGER,
-            STRING,
-            UNSIGNED_BIGINT
-        };
-        using ValueType = std::pair<std::string, AcceptedTypes>;
+
+        using ValueType = std::pair<std::string, OsquerySDK::ColumnType>;
         using RowData = std::map<std::string, std::string>;
         using ColumnData = std::vector<RowData>;
         using ColumnHeaders = std::vector<ValueType>;
@@ -62,8 +54,7 @@ namespace livequery
 
         const ColumnData& columnData() const;
         const ColumnHeaders& columnHeaders() const;
-        static std::string AcceptedTypesToString(AcceptedTypes acceptedType);
-        static AcceptedTypes AcceptedTypesFromString(const std::string& acceptedTypeStr);
+        static std::string AcceptedTypesToString(OsquerySDK::ColumnType acceptedType);
 
     private:
         static bool isValidHeaderAndData(const ColumnHeaders& headers, const ColumnData& data);

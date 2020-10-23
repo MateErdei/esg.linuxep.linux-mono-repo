@@ -15,6 +15,7 @@ sophos_add_library(osqueryclient SHARED
                 ${OSQUERYSDK}/include
                 ${GOOGLETESTINCLUDE}
                 ${BOOST_INCLUDE_DIR}
+                ${THRIFT_INCLUDE_DIR}
         EXTRA_LIBS
             ${GLOG_LIBRARY}
             ${GFLAG_LIBRARY}

@@ -13,9 +13,9 @@ using namespace ::testing;
 livequery::ResponseData::ColumnHeaders headerStrIntStr()
 {
     livequery::ResponseData::ColumnHeaders  headers;
-    headers.emplace_back("first", livequery::ResponseData::AcceptedTypes::STRING);
-    headers.emplace_back("second", livequery::ResponseData::AcceptedTypes::BIGINT);
-    headers.emplace_back("third", livequery::ResponseData::AcceptedTypes::STRING);
+    headers.emplace_back("first", OsquerySDK::ColumnType::TEXT_TYPE);
+    headers.emplace_back("second", OsquerySDK::ColumnType::BIGINT_TYPE);
+    headers.emplace_back("third", OsquerySDK::ColumnType::TEXT_TYPE);
     return headers;
 }
 
