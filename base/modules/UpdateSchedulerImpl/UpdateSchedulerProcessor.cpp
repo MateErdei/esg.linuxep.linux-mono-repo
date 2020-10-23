@@ -417,7 +417,7 @@ namespace UpdateSchedulerImpl
                 catch (Common::FileSystem::IFileSystemException& ex)
                 {
                     LOGWARN(
-                        "Failed to copy '" << reportAndFiles.sortedFilePaths[i] << "' to '" << destinationPath << "'");
+                        "Failed to mark '" << reportAndFiles.sortedFilePaths[i] << "' at '" << destinationPath << "'");
                 }
             }
         }
