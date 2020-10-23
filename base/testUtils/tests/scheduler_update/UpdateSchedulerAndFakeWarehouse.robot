@@ -41,7 +41,7 @@ UpdateScheduler Update Against Ostia
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  Check Log Contains String N Times   ${logpath}   SULDownloader Log   suldownloaderdata <> Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.  1
+    ...  Check Log Contains String N Times   ${logpath}   SULDownloader Log   suldownloaderdata <> Installing product: ServerProtectionLinux-Base-component version: is up to date.  1
 
 UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
     Register Current Sul Downloader Config Time

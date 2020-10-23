@@ -826,7 +826,7 @@ Check Update Reports Have Been Processed
    Log  ${filesInUpdateVar}
 
    ${ProcessedFileCount}=  Get length   ${files_in_processed_dir}
-   Should Be Equal As Numbers  ${ProcessedFileCount}   1
+   Should Be Equal As Numbers  ${ProcessedFileCount}   2
    Should Contain  ${files_in_processed_dir}[0]  update_report
    Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
 
