@@ -73,6 +73,16 @@ namespace UpdateSchedulerImpl
             static time_t getLastProductUpdateCheck();
 
         private:
+
+            struct FileAndDownloadReport
+            {
+                std::string filepath;
+                SulDownloader::suldownloaderdata::DownloadReport report;
+                std::string sortKey;
+            };
+            using FileAndDownloadReportVector = std::vector<FileAndDownloadReport>;
+            static FileAndDownloadReportVector readSortedReports();
+
             static ReportCollectionResult handleSuccessReports(const DownloadReportVector& reportCollection);
 
             static ReportCollectionResult handleFailureReports(const DownloadReportVector& reportCollection);
@@ -84,6 +94,7 @@ namespace UpdateSchedulerImpl
             static DownloadReportVectorDifferenceType lastUpgrade(const DownloadReportVector&);
 
             static DownloadReportVectorDifferenceType lastGoodSync(const DownloadReportVector&);
+            static time_t convertStringTimeToTimet(const std::string& basicString);
         };
 
     } // namespace configModule

@@ -221,17 +221,10 @@ namespace UpdateSchedulerImpl
             return collectionResult;
         }
 
-        ReportAndFiles DownloadReportsAnalyser::processReports()
+        DownloadReportsAnalyser::FileAndDownloadReportVector DownloadReportsAnalyser::readSortedReports()
         {
             auto listOfReportFiles = DownloadReport::listOfAllPreviousReports(
                 Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
-
-            struct FileAndDownloadReport
-            {
-                std::string filepath;
-                SulDownloader::suldownloaderdata::DownloadReport report;
-                std::string sortKey;
-            };
 
             std::vector<FileAndDownloadReport> reportCollection;
             reportCollection.reserve(listOfReportFiles.size());
@@ -249,7 +242,7 @@ namespace UpdateSchedulerImpl
 
                     // check to see if report has been processed
                     if (Common::FileSystem::fileSystem()->isFile(
-                            Common::FileSystem::join(processedReportPath, Common::FileSystem::basename(filepath))))
+                        Common::FileSystem::join(processedReportPath, Common::FileSystem::basename(filepath))))
                     {
                         fileReport.setProcessedReport(true);
                     }
@@ -267,8 +260,15 @@ namespace UpdateSchedulerImpl
                 reportCollection.begin(),
                 reportCollection.end(),
                 [](const FileAndDownloadReport& lhs, const FileAndDownloadReport& rhs) {
-                    return lhs.sortKey < rhs.sortKey;
+                  return lhs.sortKey < rhs.sortKey;
                 });
+
+            return reportCollection;
+        }
+
+        ReportAndFiles DownloadReportsAnalyser::processReports()
+        {
+            auto reportCollection = readSortedReports();
 
             LOGSUPPORT("Process " << reportCollection.size() << " suldownloader reports");
             for (auto& entry : reportCollection)
@@ -370,7 +370,8 @@ namespace UpdateSchedulerImpl
 
             // is the event relevant?
             // there is at least two elements.
-            int previousIndex = lastIndex - 1;
+            assert(lastIndex > 0);
+            DownloadReportVectorSizeType previousIndex = lastIndex - 1;
             // if previous one was an error, send event, otherwise do not send.
             collectionResult.SchedulerEvent.IsRelevantToSend |=
                 reportCollection.at(previousIndex).getStatus() !=
@@ -406,10 +407,10 @@ namespace UpdateSchedulerImpl
         }
 
         ReportCollectionResult DownloadReportsAnalyser::handleFailureReports(
-            const std::vector<SulDownloader::suldownloaderdata::DownloadReport>& reportCollection)
+            const DownloadReportVector& reportCollection)
         {
             assert(!reportCollection.empty());
-            size_t lastIndex = reportCollection.size() - 1;
+            DownloadReportVectorSizeType lastIndex = reportCollection.size() - 1;
 
             DownloadReportVectorDifferenceType indexOfLastGoodSync = lastGoodSync(reportCollection);
             DownloadReportVectorDifferenceType indexOfLastUpgrade = lastUpgrade(reportCollection);
@@ -542,7 +543,29 @@ namespace UpdateSchedulerImpl
         }
         time_t DownloadReportsAnalyser::getLastProductUpdateCheck()
         {
+            auto reportCollection = readSortedReports();
+
+            if (reportCollection.empty())
+            {
+                return 0;
+            }
+            std::reverse(reportCollection.begin(), reportCollection.end());
+
+            for (const auto& reportHolder :  reportCollection )
+            {
+                if (!reportHolder.report.isSupplementOnlyUpdate())
+                {
+                    return convertStringTimeToTimet(reportHolder.report.getStartTime());
+                }
+            }
+
             return 0; // oldest possible time
         }
+
+        time_t DownloadReportsAnalyser::convertStringTimeToTimet(const std::string& timeStr)
+        {
+            return Common::UtilityImpl::TimeUtils::toTime(timeStr);
+        }
+
     } // namespace configModule
 } // namespace UpdateSchedulerImpl
