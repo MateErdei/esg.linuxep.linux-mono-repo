@@ -162,7 +162,7 @@ int NamedScanRunner::run()
         }
     }
 
-    if (m_returnCode != E_CLEAN || m_returnCode != E_VIRUS_FOUND)
+    if (m_returnCode != E_CLEAN && m_returnCode != E_VIRUS_FOUND)
     {
         LOGERROR("Failed to scan one or more files due to an error");
     }
