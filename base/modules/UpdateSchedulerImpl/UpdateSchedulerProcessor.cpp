@@ -389,8 +389,6 @@ namespace UpdateSchedulerImpl
 
         // removed previous processed reports files, only need to store process reports files for the this run (last/
         // current run).
-//        Path processedReportPath =
-//            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
         iFileSystem->removeFilesInDirectory(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath());
 
