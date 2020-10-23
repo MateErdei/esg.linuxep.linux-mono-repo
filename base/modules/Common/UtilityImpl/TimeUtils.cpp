@@ -65,6 +65,21 @@ namespace Common
             return formattedTime;
         }
 
+        std::time_t TimeUtils::toTime(const std::string& s, const char* format)
+        {
+            std::tm timebuffer{};
+            time_t now{};
+            std::time(&now);
+            (void)::localtime_r(&now, &timebuffer); // pre-fill local timezone info
+
+            char* ret = strptime(s.c_str(), format, &timebuffer);
+            if (ret == nullptr)
+            {
+                return 0;
+            }
+            return mktime(&timebuffer); // should be local time
+        }
+
         std::string TimeUtils::fromTime(std::time_t time_)
         {
             return fromTime(time_, "%Y%m%d %H%M%S");
@@ -73,6 +88,11 @@ namespace Common
         std::string TimeUtils::fromTime(std::tm time_tm)
         {
             return fromTime(time_tm, "%Y%m%d %H%M%S");
+        }
+
+        std::time_t TimeUtils::toTime(const std::string& str)
+        {
+            return toTime(str, "%Y%m%d %H%M%S");
         }
 
         std::string FormattedTime::currentTime() const { return TimeUtils::fromTime(TimeUtils::getCurrTime(), "%Y%m%d %H%M%S"); }

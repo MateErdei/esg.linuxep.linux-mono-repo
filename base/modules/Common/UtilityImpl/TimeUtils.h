@@ -66,6 +66,9 @@ namespace Common
             static std::string fromTime(std::tm, const char *format);
             static std::string fromTime(std::time_t);
             static std::string fromTime(std::tm);
+
+            static std::time_t toTime(const std::string&);
+            static std::time_t toTime(const std::string&, const char *format);
         };
 
         class FormattedTime : public virtual IFormattedTime

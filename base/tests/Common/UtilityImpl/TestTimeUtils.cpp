@@ -47,3 +47,15 @@ TEST(TimeUtils, bootTimeShouldBeBeforeNow) // NOLINT
     std::time_t bootTime = TimeUtils::getBootTimeAsTimet();
     EXPECT_LT(bootTime, currentTime);
 }
+
+TEST(TimeUtils, toTimeInvertible) // NOLINT
+{
+    std::time_t currentTime = TimeUtils::getCurrTime();
+    std::tm currentTimeTm{};
+    ::localtime_r(&currentTime, &currentTimeTm);
+    std::string reportedString = TimeUtils::fromTime(currentTime);
+
+    std::time_t actualTime = TimeUtils::toTime(reportedString);
+
+    EXPECT_EQ(currentTime, actualTime);
+}
