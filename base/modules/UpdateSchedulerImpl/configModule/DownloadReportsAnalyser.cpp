@@ -163,6 +163,18 @@ namespace
         return status;
     }
 
+    using UpdateSchedulerImpl::configModule::DownloadReportsAnalyser;
+
+    DownloadReportsAnalyser::DownloadReportVectorDifferenceType lastProductUpdateCheck(
+        const DownloadReportsAnalyser::DownloadReportVector& reports)
+    {
+        auto rind = std::find_if(
+            reports.rbegin(), reports.rend(), [](const DownloadReportsAnalyser::DownloadReport& report) {
+              return !report.isSupplementOnlyUpdate();
+            });
+        return std::distance(reports.begin(), rind.base()) - 1;
+    }
+
 } // namespace
 
 namespace UpdateSchedulerImpl
@@ -344,6 +356,15 @@ namespace UpdateSchedulerImpl
                 collectionResult.IndicesOfSignificantReports.at(indexOfLastUpgrade) =
                     ReportCollectionResult::SignificantReportMark::MustKeepReport;
             }
+
+            // Find the last product update, and mark that one to keep
+            int indexOfProductUpdateCheck = lastProductUpdateCheck(reportCollection);
+            if (indexOfProductUpdateCheck != -1)
+            {
+                collectionResult.IndicesOfSignificantReports.at(indexOfProductUpdateCheck) =
+                    ReportCollectionResult::SignificantReportMark::MustKeepReport;
+            }
+
 
             // is the event relevant?
             // there is at least two elements.
