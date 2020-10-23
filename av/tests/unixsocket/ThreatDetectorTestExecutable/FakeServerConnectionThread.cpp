@@ -46,12 +46,10 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 FakeDetectionServer::FakeServerConnectionThread::FakeServerConnectionThread(
     datatypes::AutoFd socketFd,
     uint8_t* Data,
-    size_t Size,
-    std::string stringData)
+    size_t Size)
     :  m_socketFd(std::move(socketFd))
     , m_Data(Data)
     , m_Size(Size)
-    , m_stringData(stringData)
 {
 }
 

@@ -88,7 +88,36 @@ namespace
                                        "    ]\n"
                                        "}";
 
-    static void createObject()
+    static void DoSomethingWithData(uint8_t* Data, size_t Size)
+    {
+        Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
+
+        auto socketPath = "/tmp/unix_socket";
+
+        FakeDetectionServer::FakeServerSocket socketServer("/tmp/unix_socket",0666, Data, Size);
+        socketServer.start();
+
+        auto clientSocket = std::make_shared<unixsocket::ScanningClientSocket>(socketPath);
+        auto scanCallbacks = std::make_shared<FakeCallbacks>();
+
+        avscanner::avscannerimpl::ScanClient scanner(*clientSocket, scanCallbacks, false, E_SCAN_TYPE_ON_DEMAND);
+        scanner.scan("/tmp/build.log", false);
+    }
+
+
+};
+
+#ifdef USING_LIBFUZZER
+
+extern "C" int LLVMFuzzerTestOneInput(uint8_t* Data, size_t Size)
+{
+    DoSomethingWithData(Data, Size);
+    return 0;
+}
+
+#else
+
+static void createObject()
     {
         ::capnp::MallocMessageBuilder message;
         scan_messages::ScanResponse scanResponse;
@@ -107,23 +136,7 @@ namespace
         outfile.close();
     }
 
-    static void DoSomethingWithData(uint8_t* Data, size_t Size, std::string dataString)
-    {
-        Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
-
-        auto socketPath = "/tmp/unix_socket";
-
-        FakeDetectionServer::FakeServerSocket socketServer("/tmp/unix_socket",0666, Data, Size, dataString);
-        socketServer.start();
-
-        auto clientSocket = std::make_shared<unixsocket::ScanningClientSocket>(socketPath);
-        auto scanCallbacks = std::make_shared<FakeCallbacks>();
-
-        avscanner::avscannerimpl::ScanClient scanner(*clientSocket, scanCallbacks, false, E_SCAN_TYPE_ON_DEMAND);
-        scanner.scan("/tmp/build.log", false);
-    }
-
-    static void processFile()
+static void processFile()
     {
         std::ifstream file("/tmp/filename", std::ios::binary | std::ios::ate);
         std::streamsize size = file.tellg();
@@ -145,35 +158,10 @@ namespace
         auto x = reinterpret_cast<uint8_t*>(buffer.data());
         DoSomethingWithData(x, size, std::string(buffer.begin(), buffer.end()));
     }
-};
 
-#ifdef USING_LIBFUZZER
-static int runFuzzing(const uint8_t* Data, size_t Size)
-{
-    // sends a scan request
-    // writes to a socket
-    // waits for reply
-    // does stuff
-    fakeServerSocket("/tmp/unix_socket",0666);
-
-    //init ScanClient
-    //init fakeDetectorServer: that returns (fuzzed) Data and Size when a request is written on the socket it listens
-    //ScanClient sends request
-    //fakeDetectorServer reads and discards client request
-    //fakeDetectorServer writes on socket for ScanningClientSocket->ScanClient to read using Data and Size
-    //?? profit ??
-
-    return 0;
-}
-
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* Data, size_t Size)
-{
-    return runFuzzing(Data, Size);
-}
-#else
-int main(int /*argc*/, char** /*argv*/)
-{
-    createObject();
-    processFile();
-}
+    int main(int /*argc*/, char** /*argv*/)
+    {
+        createObject();
+        processFile();
+    }
 #endif

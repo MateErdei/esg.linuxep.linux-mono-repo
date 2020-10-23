@@ -12,7 +12,7 @@ namespace FakeDetectionServer
     class FakeServerConnectionThread : public unixsocket::BaseServerConnectionThread
     {
     public:
-        FakeServerConnectionThread(datatypes::AutoFd socketFd, uint8_t* Data, size_t Size, std::string stringData);
+        FakeServerConnectionThread(datatypes::AutoFd socketFd, uint8_t* Data, size_t Size);
 
         void run() override
         {

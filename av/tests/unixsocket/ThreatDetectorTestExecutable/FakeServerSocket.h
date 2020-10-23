@@ -13,11 +13,10 @@ namespace FakeDetectionServer
     class FakeServerSocket : public FakeServerSocketBase
     {
     public:
-        FakeServerSocket(const std::string& path, mode_t mode, uint8_t* Data, size_t Size, std::string stringData);
+        FakeServerSocket(const std::string& path, mode_t mode, uint8_t* Data, size_t Size);
         datatypes::AutoFd m_socketFd;
         uint8_t* m_Data;
         size_t m_Size;
-        std::string m_stringData;
         ~FakeServerSocket() override
         {
             // Need to do this before our members are destroyed
@@ -28,7 +27,7 @@ namespace FakeDetectionServer
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            return std::make_unique<FakeServerConnectionThread>(std::move(fd), m_Data, m_Size, m_stringData);
+            return std::make_unique<FakeServerConnectionThread>(std::move(fd), m_Data, m_Size);
         }
     };
 }
