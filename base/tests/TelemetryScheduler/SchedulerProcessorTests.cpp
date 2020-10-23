@@ -347,7 +347,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFile) // NOLINT
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryStatusFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
         .WillOnce(Return(R"({"scheduled-time":"invalid"})"));
-    EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath, _));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
         .WillOnce(Return(m_validTelemetryConfigJson));
@@ -570,7 +570,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
         .WillOnce(Return(R"({"interval":86400})"));
-    EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath))
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath, _))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
 
@@ -597,7 +597,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileBigNumber) /
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
             .WillOnce(Return(R"({"interval":86400})"));
-    EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath))
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath, _))
             .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
 
@@ -624,7 +624,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileNegativeNumb
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
             .WillOnce(Return(R"({"interval":86400})"));
-    EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath))
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath, _))
             .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
 

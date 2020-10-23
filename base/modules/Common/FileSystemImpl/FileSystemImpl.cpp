@@ -555,11 +555,16 @@ namespace Common
             return files;
         }
 
-        void FileSystemImpl::removeFile(const Path& path) const
+        void FileSystemImpl::removeFile(const Path& path, bool ignoreAbsent) const
         {
             if (::remove(path.c_str()) != 0)
             {
                 int error = errno;
+                if (ignoreAbsent && error == ENOENT)
+                {
+                    return;
+                }
+
                 std::string error_cause = StrError(error);
                 throw Common::FileSystem::IFileSystemException(
                     "Failed to delete file: " + path + ". Cause: " + error_cause);

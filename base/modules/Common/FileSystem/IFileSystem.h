@@ -228,8 +228,9 @@ namespace Common
             /**
              * Remove file from filesystem
              * @param path, full path to the file which is to be deleted
+             * @param ignoreAbsent  ignore ENOENT error from unlink
              */
-            virtual void removeFile(const Path& path) const = 0;
+            virtual void removeFile(const Path& path, bool ignoreAbsent=false) const = 0;
 
             /**
              * Recursively delete a directory or file.

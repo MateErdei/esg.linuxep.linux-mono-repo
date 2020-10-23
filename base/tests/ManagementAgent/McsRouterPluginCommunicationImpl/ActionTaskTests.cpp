@@ -283,8 +283,8 @@ TEST_F(ActionTaskTests, TooLongAndTooShortLiveResponseFilenamesNotProcessedAsGen
     EXPECT_CALL(*filesystemMock, readFile(_)).Times(0);
     std::string file_path1 = "LiveTerminal_correlation-id_action_123456.xml";
     std::string file_path2 = "LiveTerminal_extra-argument_correlation-id_action_FakeTime_123456.xml";
-    EXPECT_CALL(*filesystemMock, removeFile(file_path1)).Times(0);
-    EXPECT_CALL(*filesystemMock, removeFile(file_path2)).Times(0);
+    EXPECT_CALL(*filesystemMock, removeFile(file_path1, _)).Times(0);
+    EXPECT_CALL(*filesystemMock, removeFile(file_path2, _)).Times(0);
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     bool stop{ false };
@@ -314,8 +314,8 @@ TEST_F(ActionTaskTests, TooLongAndTooShortLiveQueryFilenamesNotProcessedAsGeneri
     EXPECT_CALL(*filesystemMock, readFile(_)).Times(0);
     std::string file_path1 = "LiveQuery_correlation-id_request_123456.xml";
     std::string file_path2 = "LiveQuery_extra-argument_correlation-id_request_FakeTime_123456.xml";
-    EXPECT_CALL(*filesystemMock, removeFile(file_path1)).Times(0);
-    EXPECT_CALL(*filesystemMock, removeFile(file_path2)).Times(0);
+    EXPECT_CALL(*filesystemMock, removeFile(file_path1, _)).Times(0);
+    EXPECT_CALL(*filesystemMock, removeFile(file_path2, _)).Times(0);
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     bool stop{ false };

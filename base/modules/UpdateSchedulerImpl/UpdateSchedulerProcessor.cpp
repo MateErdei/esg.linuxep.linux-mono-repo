@@ -324,7 +324,7 @@ namespace UpdateSchedulerImpl
         if (decider.updateProducts())
         {
             LOGSUPPORT("Triggering product update check");
-            fileSystem->removeFile(supplementOnlyMarkerFilePath);
+            fileSystem->removeFile(supplementOnlyMarkerFilePath, true);
         }
         else
         {
