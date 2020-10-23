@@ -15,8 +15,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <unixsocket/threatReporterSocket/ThreatReporterClient.h>
 
-#define BASE "/tmp/TestPluginAdapter"
-
 using namespace scan_messages;
 using namespace testing;
 namespace fs = sophos_filesystem;
@@ -29,7 +27,7 @@ namespace
         void SetUp() override
         {
             setupFakeSophosThreatDetectorConfig();
-            m_socketPath = "/tmp/TestPluginAdapter/chroot/threat_report_socket";
+            m_socketPath = pluginInstall() / "chroot/threat_report_socket";
             m_userID = std::getenv("USER");
             m_threatName = "unit-test-eicar";
             m_threatPath = "/path/to/unit-test-eicar";
@@ -37,7 +35,7 @@ namespace
 
         void TearDown() override
         {
-            fs::remove_all("/tmp/TestPluginAdapter/");
+            fs::remove_all(tmpdir());
         }
 
         std::string m_threatPath;

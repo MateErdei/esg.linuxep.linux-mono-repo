@@ -132,10 +132,19 @@ TEST_F(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
     fs::create_directories("TestHugePathFileWalker");
     fs::current_path("TestHugePathFileWalker");
 
-    for (int depth = 0; depth < 100; ++depth)
+    int depth;
+    try
     {
-        fs::create_directories("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-        fs::current_path("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
+        for (depth = 0; depth < 100; ++depth)
+        {
+            fs::create_directories("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
+            fs::current_path("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
+        }
+    }
+    catch (fs::filesystem_error& e)
+    {
+        // depending on starting path, we may not be able to create 100 subdirs
+        ASSERT_GT(depth, 90);
     }
 
     fs::current_path(startingPath);
@@ -164,10 +173,19 @@ TEST_F(TestFileWalker, hugeStartingFilePath) // NOLINT
     fs::create_directories("TestHugePathFileWalker");
     fs::current_path("TestHugePathFileWalker");
 
-    for (int depth = 0; depth < 100; ++depth)
+    int depth;
+    try
     {
-        fs::create_directories("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-        fs::current_path("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
+        for (depth = 0; depth < 100; ++depth)
+        {
+            fs::create_directories("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
+            fs::current_path("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
+        }
+    }
+    catch (fs::filesystem_error& e)
+    {
+        // depending on starting path, we may not be able to create 100 subdirs
+        ASSERT_GT(depth, 90);
     }
 
     const fs::path& pathToScan = fs::current_path();

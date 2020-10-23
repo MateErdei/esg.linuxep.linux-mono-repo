@@ -12,8 +12,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "tests/common/Common.h"
 
-#define BASE "/tmp/TestPluginAdapter"
-
 using namespace avscanner::avscannerimpl;
 using ::testing::_;
 using ::testing::Eq;

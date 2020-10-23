@@ -85,7 +85,7 @@ namespace
 
         [[maybe_unused]] void dumpLog() const;
 
-        bool waitForLog(const std::string& expected, int wait_time_micro_seconds=500) const // NOLINT(modernize-use-nodiscard)
+        bool waitForLog(const std::string& expected, int wait_time_micro_seconds=5000) const // NOLINT(modernize-use-nodiscard)
         {
             assert(m_memoryAppender != nullptr);
             struct timespec req{.tv_sec=0, .tv_nsec=10000};

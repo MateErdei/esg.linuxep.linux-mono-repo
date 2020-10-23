@@ -4,51 +4,42 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "PluginMemoryAppenderUsingTests.h"
+
 #include <pluginimpl/PluginAdapter.h>
 #include <pluginimpl/PluginAdapter.cpp>
 #include "datatypes/sophos_filesystem.h"
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/PluginApi/ApiException.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include <tests/common/Common.h>
-#include <tests/common/LogInitializedTests.h>
 
 using namespace testing;
 using namespace Plugin;
 
 namespace fs = sophos_filesystem;
 
-#define BASE "/tmp/TestPluginAdapter"
-
 namespace
 {
-    class TestPluginAdapter : public LogInitializedTests
+    class TestPluginAdapter : public PluginMemoryAppenderUsingTests
     {
-    public:
+    protected:
         void SetUp() override
         {
-            testing::internal::CaptureStderr();
-
-            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
-            fs::path pluginInstall = sophosInstall / "plugins" / "av";
-            appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+            setupFakeSophosThreatDetectorConfig();
 
             m_queueTask = std::make_shared<QueueTask>();
             m_callback = std::make_shared<Plugin::PluginCallback>(m_queueTask);
-
-            setupFakeSophosThreatDetectorConfig();
         }
 
         void TearDown() override
         {
-            fs::remove_all("/tmp/TestPluginAdapter/");
+            fs::remove_all(tmpdir());
         }
 
         std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2")
@@ -120,6 +111,8 @@ TEST_F(TestPluginAdapter, testConstruction) //NOLINT
 
 TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
@@ -146,15 +139,16 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
-    std::string logs = testing::internal::GetCapturedStderr();
 
-    EXPECT_THAT(logs, HasSubstr("Process policy: " + policy1Xml));
-    EXPECT_THAT(logs, HasSubstr("Process policy: " + policy2Xml));
-    EXPECT_THAT(logs, HasSubstr("Received new policy with revision ID: 123"));
+    EXPECT_TRUE(appenderContains("Process policy: " + policy1Xml));
+    EXPECT_TRUE(appenderContains("Process policy: " + policy2Xml));
+    EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
@@ -180,16 +174,19 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
-    std::string logs = testing::internal::GetCapturedStderr();
 
-    EXPECT_THAT(logs, HasSubstr("Process policy: " + policy1Xml));
-    EXPECT_THAT(logs, HasSubstr("Process policy: " + policy2Xml));
-    EXPECT_THAT(logs, HasSubstr("Ignoring policy of incorrect type"));
-    EXPECT_THAT(logs, HasSubstr("Received new policy with revision ID: 123"));
+    EXPECT_TRUE(appenderContains("Process policy: " + policy1Xml));
+    EXPECT_TRUE(appenderContains("Process policy: " + policy2Xml));
+    EXPECT_TRUE(appenderContains("Ignoring policy of incorrect type"));
+    EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
 }
 
 TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
+    scanLogger.addAppender(m_sharedAppender);
+
     auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
@@ -210,14 +207,19 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     pluginAdapter.mainLoop();
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
-    std::string logs = testing::internal::GetCapturedStderr();
 
-    EXPECT_THAT(logs, HasSubstr(expectedLog));
-    EXPECT_THAT(logs, HasSubstr("Evaluating Scan Now"));
+    EXPECT_TRUE(appenderContains(expectedLog));
+    EXPECT_TRUE(appenderContains("Evaluating Scan Now"));
+
+    scanLogger.removeAppender(m_sharedAppender);
 }
 
 TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
+    scanLogger.addAppender(m_sharedAppender);
+
     auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
@@ -238,14 +240,17 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     pluginAdapter.mainLoop();
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
-    std::string logs = testing::internal::GetCapturedStderr();
 
-    EXPECT_THAT(logs, HasSubstr(expectedLog));
-    EXPECT_THAT(logs, Not(HasSubstr("Starting Scan Now")));
+    EXPECT_TRUE(appenderContains(expectedLog));
+    EXPECT_FALSE(appenderContains("Starting Scan Now"));
+
+    scanLogger.removeAppender(m_sharedAppender);
 }
 
 TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
@@ -283,14 +288,13 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending threat detection notification to central: ";
     expectedLog.append(threatDetectedXML);
-    std::string logs = testing::internal::GetCapturedStderr();
 
-    EXPECT_THAT(logs, HasSubstr(expectedLog));
+    EXPECT_TRUE(appenderContains(expectedLog));
 }
 
 TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
+    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
@@ -302,6 +306,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
             )sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
+
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
     pluginAdapter.processThreatReport(threatDetectedXML);
@@ -330,6 +336,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount) //N
             )sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
+
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
     pluginAdapter.processThreatReport(threatDetectedXML);

@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
 #include "MockMountPoint.h"
 #include "RecordingMockSocket.h"
@@ -22,35 +23,58 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 using namespace avscanner::mountinfo;
-using ::testing::Return;
-using ::testing::StrictMock;
+using namespace testing;
 
 namespace fs = sophos_filesystem;
 
 class TestNamedScanRunner : public ScanRunnerMemoryAppenderUsingTests
 {
-public:
+protected:
     void SetUp() override
     {
-        for(const auto& p: getAllOtherDirs("/tmp"))
+        const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+        m_testDir = fs::temp_directory_path();
+        m_testDir /= test_info->test_case_name();
+        m_testDir /= test_info->name();
+        fs::remove_all(m_testDir);
+        fs::create_directories(m_testDir);
+
+        for(const auto& p: getAllOtherDirs(m_testDir))
         {
             m_expectedExclusions.push_back(p);
         }
 
-        Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, fs::current_path() );
+        Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
+    }
+
+    void TearDown() override
+    {
+        fs::remove_all(m_testDir);
     }
 
     static std::vector<std::string> getAllOtherDirs(const std::string& includedDir)
     {
+        fs::path currentDir = includedDir;
         std::vector<std::string> allOtherDirs;
-        for(const auto& p: fs::directory_iterator("/"))
+        do
         {
-            if (p != includedDir)
+            currentDir = currentDir.parent_path();
+            for (const auto& p : fs::directory_iterator(currentDir))
             {
-                allOtherDirs.push_back(p.path().string() + "/");
 
+                if (includedDir.rfind(p.path(), 0) != 0)
+                {
+                    if (p.status().type() == fs::file_type::directory)
+                    {
+                        allOtherDirs.push_back(p.path().string() + "/");
+                    }
+                    else
+                    {
+                        allOtherDirs.push_back(p.path().string());
+                    }
+                }
             }
-        }
+        } while (currentDir != "/");
         return allOtherDirs;
     }
 
@@ -79,6 +103,7 @@ public:
         return scanConfigOut;
     }
 
+    fs::path m_testDir;
     std::string m_expectedScanName = "testScan";
     std::vector<std::string> m_expectedExclusions;
     bool m_scanHardDisc = true;
@@ -107,18 +132,14 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
 
     NamedScanConfig config = runner.getConfig();
     EXPECT_EQ(config.m_scanName, m_expectedScanName);
-    for (const auto& excl : config.m_excludePaths)
+
+    std::vector<std::string> excludePaths;
+    for(const auto& excl : config.m_excludePaths)
     {
-        bool matchingExclusion = false;
-        for (const auto& expectedExcl : m_expectedExclusions)
-        {
-            if (excl.path() == expectedExcl)
-            {
-                matchingExclusion = true;
-            }
-        }
-        EXPECT_TRUE(matchingExclusion);
+        excludePaths.push_back(excl.path());
     }
+    EXPECT_THAT(excludePaths, ContainerEq(m_expectedExclusions));
+
     EXPECT_EQ(config.m_scanHardDisc, m_scanHardDisc);
     EXPECT_EQ(config.m_scanNetwork, m_scanNetwork);
     EXPECT_EQ(config.m_scanOptical, m_scanOptical);
@@ -276,7 +297,7 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
     m_scanOptical = true;
     m_scanRemovable = true;
 
-    std::string testDir("/tmp/mount/point/");
+    fs::path testDir = m_testDir / "mount/point/";
     fs::create_directories(testDir);
 
     std::shared_ptr<MockMountInfo> mountInfo;
@@ -304,13 +325,17 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
     runner.setSocket(socket);
     runner.run();
 
-    ASSERT_TRUE(appenderContains("Skipping duplicate mount point: /tmp/mount/point/"));
+    ASSERT_TRUE(appenderContains("Skipping duplicate mount point: " + testDir.string()));
     fs::remove_all(testDir);
 }
 
 TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
 {
-    std::string stemExclusion = "/tmp/";
+    fs::path testfile = m_testDir / "file1.txt";
+    std::ofstream testfileStream(testfile.string());
+    testfileStream << "this file will be included, then excluded by stem";
+
+    std::string stemExclusion = m_testDir.parent_path() / "/";
 
     ::capnp::MallocMessageBuilder message;
     m_expectedScanName = "TestExcludeByStemScan1";
@@ -328,7 +353,7 @@ TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
     runner.setSocket(socket);
     runner.run();
 
-    int origNumPaths = socket->m_paths.size();
+    EXPECT_THAT(socket->m_paths, Contains(testfile));
 
     m_expectedExclusions.push_back(stemExclusion);
     Sophos::ssplav::NamedScan::Reader scanConfigOut2 = createNamedScanConfig(
@@ -345,17 +370,15 @@ TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
     runner2.setSocket(socket2);
     runner2.run();
 
-    int newNumPaths = socket2->m_paths.size();
-    EXPECT_LT(newNumPaths, origNumPaths);
+    EXPECT_THAT(socket2->m_paths, Not(Contains(testfile)));
 }
 
 TEST_F(TestNamedScanRunner, TestExcludeByFullPath) // NOLINT
 {
-    fs::path testDir = "/tmp/TestExcludeByFullPath";
+    fs::path testDir = m_testDir;
     fs::path fullPathExcludedFile = testDir / "foo";
     fs::path fullPathIncludedFile = testDir / "foobar";
 
-    fs::create_directory(testDir);
     std::ofstream excludedFile(fullPathExcludedFile);
     excludedFile << "This file will be excluded from the scan.";
     std::ofstream includedFile(fullPathIncludedFile);
@@ -376,21 +399,8 @@ TEST_F(TestNamedScanRunner, TestExcludeByFullPath) // NOLINT
     runner.setSocket(socket);
     runner.run();
 
-    bool excludedFileFoundBeforeExcluding = false;
-    bool includedFileFoundBeforeExcluding = false;
-    for (const auto& p : socket->m_paths)
-    {
-        if (p == fullPathExcludedFile)
-        {
-            excludedFileFoundBeforeExcluding = true;
-        }
-        if (p == fullPathIncludedFile)
-        {
-            includedFileFoundBeforeExcluding = true;
-        }
-    }
-    EXPECT_TRUE(excludedFileFoundBeforeExcluding);
-    EXPECT_TRUE(includedFileFoundBeforeExcluding);
+    EXPECT_THAT(socket->m_paths, Contains(fullPathExcludedFile));
+    EXPECT_THAT(socket->m_paths, Contains(fullPathIncludedFile));
 
     m_expectedExclusions.push_back(fullPathExcludedFile);
     Sophos::ssplav::NamedScan::Reader scanConfigOut2 = createNamedScanConfig(
@@ -407,34 +417,18 @@ TEST_F(TestNamedScanRunner, TestExcludeByFullPath) // NOLINT
     runner2.setSocket(socket2);
     runner2.run();
 
-    bool excludedFileFoundAfterExcluding = false;
-    bool includedFileFoundAfterExcluding = false;
-    for (const auto& p : socket2->m_paths)
-    {
-        if (p == fullPathExcludedFile)
-        {
-            excludedFileFoundAfterExcluding = true;
-        }
-        if (p == fullPathIncludedFile)
-        {
-            includedFileFoundAfterExcluding = true;
-        }
-    }
-    EXPECT_FALSE(excludedFileFoundAfterExcluding);
-    EXPECT_TRUE(includedFileFoundAfterExcluding);
-
-    fs::remove_all(testDir);
+    EXPECT_THAT(socket2->m_paths, Not(Contains(fullPathExcludedFile)));
+    EXPECT_THAT(socket2->m_paths, Contains(fullPathIncludedFile));
 }
 
 TEST_F(TestNamedScanRunner, TestExcludeByGlob) // NOLINT
 {
-    fs::path testDir = "/tmp/TestExcludeByGlob";
+    fs::path testDir = m_testDir;
     fs::path globExcludedFile = testDir / "foo.txt";
     fs::path globIncludedFile = testDir / "foo.log";
     fs::path globExcludedFile2 = testDir / "foo.1";
     fs::path globIncludedFile2 = testDir / "foo.";
 
-    fs::create_directory(testDir);
     std::ofstream excludedFile(globExcludedFile);
     excludedFile << "This file will be excluded from the scan.";
     std::ofstream includedFile(globIncludedFile);
@@ -459,21 +453,8 @@ TEST_F(TestNamedScanRunner, TestExcludeByGlob) // NOLINT
     runner.setSocket(socket);
     runner.run();
 
-    bool excludedFileFoundBeforeExcluding = false;
-    bool includedFileFoundBeforeExcluding = false;
-    for (const auto& p : socket->m_paths)
-    {
-        if (p == globExcludedFile || p == globExcludedFile2)
-        {
-            excludedFileFoundBeforeExcluding = true;
-        }
-        if (p == globIncludedFile || p == globIncludedFile2)
-        {
-            includedFileFoundBeforeExcluding = true;
-        }
-    }
-    EXPECT_TRUE(excludedFileFoundBeforeExcluding);
-    EXPECT_TRUE(includedFileFoundBeforeExcluding);
+    EXPECT_THAT(socket->m_paths, AnyOf(Contains(globExcludedFile), Contains(globExcludedFile2)));
+    EXPECT_THAT(socket->m_paths, AnyOf(Contains(globIncludedFile), Contains(globIncludedFile2)));
 
     m_expectedExclusions.push_back(testDir / "*.txt");
     m_expectedExclusions.push_back(testDir / "foo.?");
@@ -491,32 +472,17 @@ TEST_F(TestNamedScanRunner, TestExcludeByGlob) // NOLINT
     runner2.setSocket(socket2);
     runner2.run();
 
-    bool excludedFileFoundAfterExcluding = false;
-    bool includedFileFoundAfterExcluding = false;
-    for (const auto& p : socket2->m_paths)
-    {
-        if (p == globExcludedFile || p == globExcludedFile2)
-        {
-            excludedFileFoundAfterExcluding = true;
-        }
-        if (p == globIncludedFile || p == globIncludedFile2)
-        {
-            includedFileFoundAfterExcluding = true;
-        }
-    }
-    EXPECT_FALSE(excludedFileFoundAfterExcluding);
-    EXPECT_TRUE(includedFileFoundAfterExcluding);
+    EXPECT_THAT(socket2->m_paths, Not(AnyOf(Contains(globExcludedFile), Contains(globExcludedFile2))));
+    EXPECT_THAT(socket2->m_paths, AnyOf(Contains(globIncludedFile), Contains(globIncludedFile2)));
 
-    fs::remove_all(testDir);
 }
 
 TEST_F(TestNamedScanRunner, TestExcludeByFilename) // NOLINT
 {
-    fs::path testDir = "/tmp/TestExcludeByFilename";
+    fs::path testDir = m_testDir;
     fs::path filenameExcludedFile = testDir / "bar" / "foo";
     fs::path filenameIncludedFile = testDir / "foo" / "bar";
 
-    fs::create_directory(testDir);
     fs::create_directory(testDir / "foo");
     fs::create_directory(testDir / "bar");
     std::ofstream excludedFile(filenameExcludedFile);
@@ -539,21 +505,8 @@ TEST_F(TestNamedScanRunner, TestExcludeByFilename) // NOLINT
     runner.setSocket(socket);
     runner.run();
 
-    bool excludedFileFoundBeforeExcluding = false;
-    bool includedFileFoundBeforeExcluding = false;
-    for (const auto& p : socket->m_paths)
-    {
-        if (p == filenameExcludedFile)
-        {
-            excludedFileFoundBeforeExcluding = true;
-        }
-        if (p == filenameIncludedFile)
-        {
-            includedFileFoundBeforeExcluding = true;
-        }
-    }
-    EXPECT_TRUE(excludedFileFoundBeforeExcluding);
-    EXPECT_TRUE(includedFileFoundBeforeExcluding);
+    EXPECT_THAT(socket->m_paths, Contains(filenameExcludedFile));
+    EXPECT_THAT(socket->m_paths, Contains(filenameIncludedFile));
 
     m_expectedExclusions.emplace_back("foo");
     Sophos::ssplav::NamedScan::Reader scanConfigOut2 = createNamedScanConfig(
@@ -570,28 +523,18 @@ TEST_F(TestNamedScanRunner, TestExcludeByFilename) // NOLINT
     runner2.setSocket(socket2);
     runner2.run();
 
-    bool excludedFileFoundAfterExcluding = false;
-    bool includedFileFoundAfterExcluding = false;
-    for (const auto& p : socket2->m_paths)
-    {
-        if (p == filenameExcludedFile)
-        {
-            excludedFileFoundAfterExcluding = true;
-        }
-        if (p == filenameIncludedFile)
-        {
-            includedFileFoundAfterExcluding = true;
-        }
-    }
-    EXPECT_FALSE(excludedFileFoundAfterExcluding);
-    EXPECT_TRUE(includedFileFoundAfterExcluding);
+    EXPECT_THAT(socket2->m_paths, Not(Contains(filenameExcludedFile)));
+    EXPECT_THAT(socket2->m_paths, Contains(filenameIncludedFile));
 
-    fs::remove_all(testDir);
 }
 
 TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithFileNameExclusions) // NOLINT
 {
-    m_expectedExclusions.emplace_back("/tmp");
+    fs::path testfile = m_testDir / "file1.txt";
+    std::ofstream testfileStream(testfile.string());
+    testfileStream << "this file will included";
+
+    m_expectedExclusions.emplace_back(m_testDir.parent_path());
 
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
@@ -608,19 +551,24 @@ TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithFileNameExclusions) // NOLINT
     runner.setSocket(socket);
     runner.run();
 
-    ASSERT_GE(socket->m_paths.size(), 1);
+    EXPECT_THAT(socket->m_paths, Contains(testfile));
 }
 
 TEST_F(TestNamedScanRunner, TestNamedScanRunnerStopsAtExcludedDirectory) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    std::vector<std::string> rootExclusion;
-    rootExclusion.emplace_back("/");
+    fs::path testfile = m_testDir / "file1.txt";
+    std::ofstream testfileStream(testfile.string());
+    testfileStream << "this file will included";
+
+    fs::path testdir = m_testDir / "dir1";
+    fs::create_directory(testdir);
+
+    m_expectedExclusions.emplace_back(m_testDir);
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
-            message,
-            rootExclusion,
+            message, m_expectedExclusions,
             m_scanHardDisc,
             m_scanNetwork,
             m_scanOptical,
@@ -632,5 +580,6 @@ TEST_F(TestNamedScanRunner, TestNamedScanRunnerStopsAtExcludedDirectory) // NOLI
     runner.setSocket(socket);
     runner.run();
 
-    ASSERT_FALSE(appenderContains("Excluding directory: /tmp/"));
+    ASSERT_FALSE(appenderContains("Excluding file: " + testfile.string()));
+    ASSERT_FALSE(appenderContains("Excluding directory: " + testdir.string()));
 }

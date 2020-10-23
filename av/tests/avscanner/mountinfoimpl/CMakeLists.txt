@@ -6,7 +6,7 @@ SophosAddTest(TestMountInfoImpl
         TestMounts.cpp
         TestSystemPaths.cpp
         PROJECTS mountinfoimpl
-        LIBS ${pluginapilib}
+        LIBS ${pluginapilib} ${STD_FILESYSTEM_IF_REQUIRED}
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
         )
