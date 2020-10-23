@@ -24,8 +24,6 @@ namespace threat_scanner
                 int64_t scanType,
                 const std::string& userID) = 0;
             virtual ~IThreatScanner() = default;
-
-            virtual bool update() = 0;
     };
 
     using IThreatScannerPtr = std::unique_ptr<IThreatScanner>;

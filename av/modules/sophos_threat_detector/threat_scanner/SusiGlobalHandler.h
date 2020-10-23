@@ -16,6 +16,8 @@ namespace threat_scanner
     public:
         explicit SusiGlobalHandler(const std::string& json_config);
         ~SusiGlobalHandler();
+
+        bool update(const std::string& path);
     };
     using SusiGlobalHandlerSharePtr = std::shared_ptr<SusiGlobalHandler>;
 }

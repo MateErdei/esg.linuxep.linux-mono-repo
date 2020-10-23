@@ -124,3 +124,8 @@ SusiWrapperFactory::SusiWrapperFactory()
     std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId());
     m_globalHandler = std::make_shared<SusiGlobalHandler>(runtimeConfig);
 }
+
+bool SusiWrapperFactory::update()
+{
+    return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source");
+}

@@ -31,15 +31,21 @@ IDE update doesnt restart av plugin
     Check AV Plugin has same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1
-    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI update finished successfully
+    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI update finished successfully  timeout=120
 
     # Check we can detect EICAR following update
     ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/eicar.com
-    Log To Console  ${output}
     Should Be Equal As Integers  ${rc}  69
     Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
+
+    # Check we can detect PEEND following update
+    Copy File   ${RESOURCES_PATH}/file_samples/peend.exe  ${SCAN_DIRECTORY}
+    ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/peend.exe
+    Log To Console  ${output}
+    Should Be Equal As Integers  ${rc}  69
+    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/peend.exe" is infected with PE/ENDTEST
 
 
 IDE can be removed
@@ -53,8 +59,8 @@ IDE can be removed
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
-${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version/version1/vdb
-${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1/vdb
+${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl
+${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
 
 *** Keywords ***
 Installer Suite Setup
@@ -102,6 +108,7 @@ Add IDE to install set
     # TODO: LINUXDAR-2365 fix for hot-updating
     ${IDE} =  Set Variable  ${RESOURCES_PATH}/ides/${IDE_NAME}
     Copy file  ${IDE}  ${IDE_DIR}/${IDE_NAME}
+    Run  chown sophos-spl-user:sophos-spl-group ${IDE_DIR}/${IDE_NAME}
     register cleanup  Remove IDE from install set
 
 Run installer from install set

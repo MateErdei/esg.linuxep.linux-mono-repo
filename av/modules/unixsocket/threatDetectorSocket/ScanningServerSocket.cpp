@@ -20,8 +20,7 @@ namespace
         {}
         void reload() override
         {
-            threat_scanner::IThreatScannerPtr susiScanner = m_scannerFactory->createScanner(true);
-            if (!susiScanner->update())
+            if (!m_scannerFactory->update())
             {
                 LOGERROR("Failed to update threat scanner");
             }

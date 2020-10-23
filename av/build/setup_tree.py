@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+from checksumdir import dirhash
 import glob
 import os
 import re
@@ -75,6 +76,8 @@ def copy_from_base(base, src, dest):
 
 def unpack_tar_from(src, dest, extraction_filter=None):
     pwd = os.getcwd()
+    if not os.path.exists(dest):
+        os.mkdir(dest)
     os.chdir(dest)
 
     if not os.path.isfile(src):
@@ -182,6 +185,8 @@ def unpack_zip_from_input_to_version_dir(rel_src, rel_dest, extraction_filter=No
 def unpack_tar_from_input_to_version_dir(rel_src, rel_dest, extraction_filter=None):
     global INPUT_DIR
     dest = get_abs_dest_relative_to_version_dir(rel_dest)
+    if not os.path.exists(dest):
+        os.mkdir(dest)
     src = os.path.join(INPUT_DIR, rel_src)
     return unpack_tar_from(src, dest, extraction_filter)
 
@@ -273,7 +278,7 @@ def main(argv):
     copy_from_input("icu/lib/libicu*", VERSION_NAME)
 
     ## boost
-    unpack_tar_from_input_to_version_dir("boost/boost.tar.bz2", ".", ['--wildcards', 
+    unpack_tar_from_input_to_version_dir("boost/boost.tar.bz2", ".", ['--wildcards',
         'lib/libboost_chrono.so.*', 
         'lib/libboost_locale.so.*', 
         'lib/libboost_system.so.*',
@@ -295,23 +300,90 @@ def main(argv):
     ## ml-lib
     unpack_tar_from_input_to_version_dir("mllib/linux-x64-model-gcc4.8.1.tar", None)
 
-    # TODO: Work out what's required here
-    write_file(os.path.join(VERSION_NAME, "package_manifest.txt"), """20190715120000
-ide.zip d04566aba1936ccc6750534565f564e2dc27bfac8c490cd061e77321d05c2cef
-reputation.zip 6ad35588138b533639f1c10254742967141397b64cdb192f53e251892a9e0e84
-model.zip f93993953d0294a4029cb903b401de0ef7478367f8a60008127e299c4dee9bb1
-vdl.zip afb44576d7ed06f69274a04d304fc22e75b29495fb08aeee50c3598952697a5b
-lua.zip a385a5c82acca024973a0e4ef3d947f960a9a130fd9eeedcdb69bb4d2435edda
-susicore.tgz 1d1fae3df540395b1db4afafb6cc2d5848a66d537d4ab1a8f76185632e3a325b
-lrlib.tar b90356514f7bc004177379f3d19f62766520dae30ffd503e94baec8ca5ce6e9b
-mllib.tar c0250989363d1163801a01a519cf79b6e640594ff700dc289af76a59fbe207ce
-libsophtainer.tar 643c733533fa71ad1737d8d5aabafa1b1164376186c95cfda83ed2122008169d
-libsavi.tar ab1132ebef8779015579626af8bfc5169d4a6b689024a2487aa301804194bce8
-libarchive.tgz cb29fb739db495f26b84cebc2407bf45809e318a8fc77593dfd71de880775bc8
-""")
-
     ## Actually should just contain 'version1'
     write_file("version_manifest.txt", VERSION_NAME)
+
+    ## Create initial update cache
+    UPDATE_CACHE_DIR = os.path.join(OUTPUT_DIR, "susi_update_source")
+    os.mkdir(UPDATE_CACHE_DIR)
+
+    SUSICORE_DIR = os.path.join(UPDATE_CACHE_DIR, "susicore")
+    LRLIB_DIR = os.path.join(UPDATE_CACHE_DIR, "lrlib")
+    MLLIB_DIR = os.path.join(UPDATE_CACHE_DIR, "mllib")
+    SOPHTAINER_DIR = os.path.join(UPDATE_CACHE_DIR, "libsophtainer")
+    SAVI_DIR = os.path.join(UPDATE_CACHE_DIR, "libsavi")
+    GRLIB_DIR = os.path.join(UPDATE_CACHE_DIR, "libglobalrep")
+    RULES_DIR = os.path.join(UPDATE_CACHE_DIR, "rules")
+    UPDATER_DIR = os.path.join(UPDATE_CACHE_DIR, "libupdater")
+
+    copy_from_input("susi/lib/libsusicore.so*", SUSICORE_DIR)
+    copy_from_input("susi/lib/libsusi.so*", UPDATE_CACHE_DIR)
+
+    ## libupdater
+    copy_from_input("susi/lib/libupdater.so*", UPDATER_DIR)
+
+    ## rules
+    copy_from_input("rules", RULES_DIR)
+
+    ## libsavi
+    copy_from_input("libsavi/libsavi.so.3.2.*", SAVI_DIR)
+
+    ## libluajit
+    copy_from_input("luajit/lib/libluajit*.so.2.*", SUSICORE_DIR)
+
+    ## icu
+    copy_from_input("icu/lib/libicu*", SUSICORE_DIR)
+
+    ## boost
+    unpack_tar_from(os.path.join(INPUT_DIR, "boost/boost.tar.bz2"), SUSICORE_DIR, ['--wildcards',
+                                                                                 'lib/libboost_chrono.so.*',
+                                                                                 'lib/libboost_locale.so.*',
+                                                                                 'lib/libboost_system.so.*',
+                                                                                 'lib/libboost_thread.so.*',
+                                                                                 '--strip=1'])
+
+    ## libarchive
+    copy_from_input("libarchive/lib/*", SUSICORE_DIR)
+
+    ## httpsrequester / globalrep?
+    copy_from_input("gr/lib/*", GRLIB_DIR)
+
+    ## libsophtainer
+    unpack_tar_from(os.path.join(INPUT_DIR, "libsophtainer/libsophtainer.tar"), SOPHTAINER_DIR)
+
+    ## local-rep
+    copy_from_input("lrlib/liblocalrep.so", LRLIB_DIR)
+
+    ## ml-lib
+    unpack_tar_from(os.path.join(INPUT_DIR, "mllib/linux-x64-model-gcc4.8.1.tar"), MLLIB_DIR)
+
+    ## Calculate hashes
+    susicore_checksum = dirhash(SUSICORE_DIR)
+    lrlib_checksum = dirhash(LRLIB_DIR)
+    mllib_checksum = dirhash(MLLIB_DIR)
+    libsophtainer_checksum = dirhash(SOPHTAINER_DIR)
+    libsavi_checksum = dirhash(SAVI_DIR)
+    libglobalrep_checksum = dirhash(GRLIB_DIR)
+    rules_checksum = dirhash(RULES_DIR)
+
+    manifest = """susicore {}
+lrlib {}
+mllib {}
+libsophtainer {}
+libsavi {}
+libglobalrep {}
+rules {}
+""".format(
+        susicore_checksum,
+        lrlib_checksum,
+        mllib_checksum,
+        libsophtainer_checksum,
+        libsavi_checksum,
+        libglobalrep_checksum,
+        rules_checksum)
+
+    write_file(os.path.join(UPDATE_CACHE_DIR, "nonsupplement_manifest.txt"), manifest)
+    write_file(os.path.join(VERSION_DIR, "nonsupplement_manifest.txt"), manifest)
 
     SUSI_SDDS_DIR = os.path.join(OUTPUT_DIR, "susi_sdds")
     print("Create SDDS ready fileset")

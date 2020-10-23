@@ -64,13 +64,43 @@ then
 fi
 PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 VAR="${PLUGIN_INSTALL}/var"
+SUSI_V1DIR="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/version1/"
+SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
 
 function delete_removed_vdl()
 {
-    local src_dir="$DIST/files/plugins/av/chroot/susi/distribution_version/version1/vdb"
-    local dest_dir="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/version1/vdb"
+    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/vdl"
+    local dest_dir="${SUSI_UPDATE_SRC}vdl"
 
     $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed files"
+}
+
+function generate_susi_package_manifest()
+{
+    local nonsupplement_manifest="${SUSI_UPDATE_SRC}nonsupplement_manifest.txt"
+    local temp_manifest="${SUSI_UPDATE_SRC}temp_manifest.txt"
+    local package_manifest="${SUSI_UPDATE_SRC}package_manifest.txt"
+    cp ${nonsupplement_manifest} ${temp_manifest}
+
+    vdl_version=$(grep "Version=" ${SUSI_UPDATE_SRC}vdl/vvf.xml | awk -F'"' '{print $2}')
+    ide_count=$(ls ${SUSI_UPDATE_SRC}vdl/*.ide | wc -l)
+    vdl_hash=$(echo -n "${ide_count}${vdl_version}" | sha256sum | awk '{print $1}')
+    echo "vdl ${vdl_hash}" >> ${temp_manifest}
+
+    model_hash=$(sha256sum ${SUSI_UPDATE_SRC}mlmodel/model.dat | awk '{print $1}')
+    echo "model ${vdl_hash}" >> ${temp_manifest}
+
+    lrdata_hash=$(cat ${SUSI_UPDATE_SRC}lrdata/filerep.dat ${SUSI_UPDATE_SRC}lrdata/signerrep.dat | sha256sum | awk '{print $1}')
+    echo "reputation ${lrdata_hash}" >> ${temp_manifest}
+
+    manifest_hash=$(sha256sum ${temp_manifest} | awk '{print $1}')
+    echo $manifest_hash > $package_manifest
+    cat $temp_manifest >> $package_manifest
+
+    chown -R ${USER_NAME}:${GROUP_NAME} "${package_manifest}"
+    cp -p ${package_manifest} ${SUSI_V1DIR}package_manifest.txt
+
+    chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
 }
 
 function install_product()
@@ -143,6 +173,7 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
 
     delete_removed_vdl
+    generate_susi_package_manifest
 
     #After install start the plugin
     "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
@@ -153,10 +184,11 @@ function install_product()
 function update_supplement()
 {
     # Copy supplement updates
-    find "$DIST/files/plugins/av/chroot/susi/distribution_version" -type f -print0 \
+    find "$DIST/files/plugins/av/chroot/susi/update_source" -type f -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
     delete_removed_vdl
+    generate_susi_package_manifest
 
     # reload sophos_threat_detector
     local PID=$(ps -C sophos_threat_d -o pid=)

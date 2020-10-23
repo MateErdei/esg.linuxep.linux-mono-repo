@@ -82,3 +82,23 @@ SusiGlobalHandler::~SusiGlobalHandler()
     res = SUSI_SetLogCallback(&GL_fallback_log_callback);
     assert(res == SUSI_S_OK);
 }
+
+bool SusiGlobalHandler::update(const std::string& path)
+{
+    SusiResult res = SUSI_Update(path.c_str());
+    if (res == SUSI_I_UPTODATE)
+    {
+        LOGDEBUG("Threat scanner is already up to date");
+    }
+    else if (res == SUSI_S_OK)
+    {
+        LOGINFO("Threat scanner successfully updated");
+    }
+    else
+    {
+        std::ostringstream ost;
+        ost << "Failed to update SUSI: 0x" << std::hex << res << std::dec;
+        LOGERROR(ost.str());
+    }
+    return res == SUSI_S_OK || res == SUSI_I_UPTODATE;
+}

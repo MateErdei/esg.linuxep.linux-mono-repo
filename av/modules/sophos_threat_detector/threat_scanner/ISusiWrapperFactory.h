@@ -15,6 +15,8 @@ namespace threat_scanner
     public:
         virtual ISusiWrapperSharedPtr createSusiWrapper(const std::string& scannerConfig) = 0;
         virtual ~ISusiWrapperFactory() = default;
+
+        virtual bool update() = 0;
     };
 
     using ISusiWrapperFactorySharedPtr = std::shared_ptr<ISusiWrapperFactory>;

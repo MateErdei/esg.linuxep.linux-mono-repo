@@ -18,6 +18,8 @@ namespace threat_scanner
         SusiScannerFactory();
         explicit SusiScannerFactory(ISusiWrapperFactorySharedPtr wrapperFactory);
         IThreatScannerPtr createScanner(bool scanArchives) override;
+
+        bool update() override;
     private:
         ISusiWrapperFactorySharedPtr m_wrapperFactory;
     };

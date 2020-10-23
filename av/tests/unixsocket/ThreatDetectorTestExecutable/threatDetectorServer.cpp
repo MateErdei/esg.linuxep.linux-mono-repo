@@ -41,17 +41,17 @@ namespace
             response.setFullScanResult(fullResult.str());
             return response;
         }
-
-        bool update() override
-        {
-            return true;
-        }
     };
     class FakeScannerFactory : public threat_scanner::IThreatScannerFactory
     {
         threat_scanner::IThreatScannerPtr createScanner(bool) override
         {
             return std::make_unique<FakeScanner>();
+        }
+
+        bool update() override
+        {
+            return true;
         }
     };
 }

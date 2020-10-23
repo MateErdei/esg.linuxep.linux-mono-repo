@@ -122,6 +122,7 @@ if(NOT EXISTS ${susi_include})
     message( FATAL_ERROR ${ERRORMESSAGE})
 endif()
 SET(SUSI_SDDS_PATH ${INPUT}/susi_sdds)
+SET(SUSI_SDDS_PATH ${INPUT}/susi_update_source)
 
 INCLUDE(CAPN)
 

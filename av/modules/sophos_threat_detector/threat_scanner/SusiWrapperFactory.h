@@ -18,6 +18,8 @@ namespace threat_scanner
         std::shared_ptr<ISusiWrapper> createSusiWrapper(
             const std::string& scannerConfig) override;
 
+        bool update();
+
     private:
         SusiGlobalHandlerSharePtr m_globalHandler;
     };

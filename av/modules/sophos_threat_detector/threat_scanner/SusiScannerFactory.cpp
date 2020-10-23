@@ -26,3 +26,7 @@ SusiScannerFactory::SusiScannerFactory()
 {
 }
 
+bool SusiScannerFactory::update()
+{
+    return m_wrapperFactory->update();
+}
