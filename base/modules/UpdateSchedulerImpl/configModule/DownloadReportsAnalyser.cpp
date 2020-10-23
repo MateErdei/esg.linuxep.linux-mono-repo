@@ -182,7 +182,7 @@ namespace UpdateSchedulerImpl
     namespace configModule
     {
         ReportCollectionResult DownloadReportsAnalyser::processReports(
-            const std::vector<SulDownloader::suldownloaderdata::DownloadReport>& reportCollection)
+            const DownloadReportVector& reportCollection)
         {
             if (reportCollection.empty())
             {
@@ -234,8 +234,12 @@ namespace UpdateSchedulerImpl
             };
 
             std::vector<FileAndDownloadReport> reportCollection;
+            reportCollection.reserve(listOfReportFiles.size());
 
-            for (auto& filepath : listOfReportFiles)
+            const std::string processedReportPath = Common::ApplicationConfiguration::applicationPathManager()
+                .getSulDownloaderProcessedReportPath();
+
+            for (const auto& filepath : listOfReportFiles)
             {
                 try
                 {
@@ -244,8 +248,6 @@ namespace UpdateSchedulerImpl
                         SulDownloader::suldownloaderdata::DownloadReport::toReport(content);
 
                     // check to see if report has been processed
-                    std::string processedReportPath = Common::ApplicationConfiguration::applicationPathManager()
-                                                          .getSulDownloaderProcessedReportPath();
                     if (Common::FileSystem::fileSystem()->isFile(
                             Common::FileSystem::join(processedReportPath, Common::FileSystem::basename(filepath))))
                     {
@@ -255,13 +257,12 @@ namespace UpdateSchedulerImpl
                     reportCollection.push_back(
                         FileAndDownloadReport{ filepath, fileReport, fileReport.getStartTime() });
                 }
-                catch (std::exception& ex)
+                catch (const std::exception& ex)
                 {
                     LOGERROR("Failed to process file: " << filepath);
                     LOGERROR(ex.what());
                 }
             }
-            LOGSUPPORT("Process " << reportCollection.size() << " suldownloader reports");
             std::sort(
                 reportCollection.begin(),
                 reportCollection.end(),
@@ -269,6 +270,7 @@ namespace UpdateSchedulerImpl
                     return lhs.sortKey < rhs.sortKey;
                 });
 
+            LOGSUPPORT("Process " << reportCollection.size() << " suldownloader reports");
             for (auto& entry : reportCollection)
             {
                 LOGSUPPORT("Sorted Listed files: " << entry.filepath << " key: " << entry.sortKey);
@@ -307,11 +309,11 @@ namespace UpdateSchedulerImpl
          * @return
          */
         ReportCollectionResult DownloadReportsAnalyser::handleSuccessReports(
-            const std::vector<SulDownloader::suldownloaderdata::DownloadReport>& reportCollection)
+            const DownloadReportVector& reportCollection)
         {
-            int lastIndex = reportCollection.size() - 1;
-            assert(lastIndex >= 0);
-            int indexOfLastUpgrade = lastUpgrade(reportCollection);
+            assert(!reportCollection.empty());
+            DownloadReportVectorSizeType lastIndex = reportCollection.size() - 1;
+            int indexOfLastUpgrade = lastUpgrade(reportCollection); // must be signed as might be -1
             ReportCollectionResult collectionResult;
 
             const SulDownloader::suldownloaderdata::DownloadReport& lastReport = reportCollection.at(lastIndex);
@@ -342,8 +344,16 @@ namespace UpdateSchedulerImpl
                     reportCollection.at(indexOfLastUpgrade).getStartTime();
             }
 
+            // Find the last product update, and mark that one to keep
+            int indexOfProductUpdateCheck = lastProductUpdateCheck(reportCollection); // must be signed to allow -1
+            if (indexOfProductUpdateCheck != -1)
+            {
+                collectionResult.IndicesOfSignificantReports.at(indexOfProductUpdateCheck) =
+                    ReportCollectionResult::SignificantReportMark::MustKeepReport;
+            }
+
             // cover the following cases: only one element, the last element has upgrade.
-            if (lastIndex == 0 || indexOfLastUpgrade == lastIndex)
+            if (lastIndex == 0 || indexOfLastUpgrade == static_cast<int>(lastIndex))
             {
                 collectionResult.SchedulerEvent.IsRelevantToSend = true;
                 return collectionResult;
@@ -354,14 +364,6 @@ namespace UpdateSchedulerImpl
                     reportCollection.at(indexOfLastUpgrade).getStartTime();
 
                 collectionResult.IndicesOfSignificantReports.at(indexOfLastUpgrade) =
-                    ReportCollectionResult::SignificantReportMark::MustKeepReport;
-            }
-
-            // Find the last product update, and mark that one to keep
-            int indexOfProductUpdateCheck = lastProductUpdateCheck(reportCollection);
-            if (indexOfProductUpdateCheck != -1)
-            {
-                collectionResult.IndicesOfSignificantReports.at(indexOfProductUpdateCheck) =
                     ReportCollectionResult::SignificantReportMark::MustKeepReport;
             }
 
@@ -483,7 +485,7 @@ namespace UpdateSchedulerImpl
         {
             if (report.getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)
             {
-                for (auto& product : report.getProducts())
+                for (const auto& product : report.getProducts())
                 {
                     if (product.productStatus ==
                         SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded)
@@ -537,6 +539,10 @@ namespace UpdateSchedulerImpl
                 }
             }
             return false;
+        }
+        time_t DownloadReportsAnalyser::getLastProductUpdateCheck()
+        {
+            return 0; // oldest possible time
         }
     } // namespace configModule
 } // namespace UpdateSchedulerImpl

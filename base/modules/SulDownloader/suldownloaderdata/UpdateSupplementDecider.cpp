@@ -51,16 +51,27 @@ time_t UpdateSupplementDecider::getCurrentTime()
 
 bool UpdateSupplementDecider::updateProducts()
 {
+    return updateProducts(0);
+}
+
+bool UpdateSupplementDecider::updateProducts(time_t lastProductUpdateCheck)
+{
     if (!m_schedule.enabled)
     {
         return true;
     }
 
-    time_t lastSuccessfulProductUpdate = getLastSuccessfulProductUpdate();
+    if (lastProductUpdateCheck == 0)
+    {
+        lastProductUpdateCheck = getLastSuccessfulProductUpdate();
+    }
+
+    time_t lastSuccessfulProductUpdate = lastProductUpdateCheck;
     time_t lastScheduledProductUpdateTime = lastScheduledProductUpdate();
 
     return lastScheduledProductUpdateTime > lastSuccessfulProductUpdate;
 }
+
 
 time_t UpdateSupplementDecider::lastScheduledProductUpdate()
 {

@@ -40,6 +40,7 @@ namespace UpdateSchedulerImpl
         public:
             using DownloadReport = SulDownloader::suldownloaderdata::DownloadReport;
             using DownloadReportVector = std::vector<DownloadReport>;
+            using DownloadReportVectorSizeType = DownloadReportVector::size_type;
             using DownloadReportVectorDifferenceType = DownloadReportVector::difference_type;
             /**
              * Produces a ReportCollectionResult from the list of DownloadReports.
@@ -64,6 +65,12 @@ namespace UpdateSchedulerImpl
              * @return ReportAndFiles
              */
             static ReportAndFiles processReports();
+
+            /**
+             * Get the time of the last product update check, by looking at saved reports
+             * @return
+             */
+            static time_t getLastProductUpdateCheck();
 
         private:
             static ReportCollectionResult handleSuccessReports(const DownloadReportVector& reportCollection);

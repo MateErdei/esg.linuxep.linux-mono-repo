@@ -320,8 +320,10 @@ namespace UpdateSchedulerImpl
                 Common::FileSystem::dirName(configPath),
                 "supplement_only.marker"
             );
+        time_t lastProductUpdateCheck = configModule::DownloadReportsAnalyser::getLastProductUpdateCheck();
         SulDownloader::suldownloaderdata::UpdateSupplementDecider decider(m_scheduledUpdateConfig);
-        if (decider.updateProducts())
+        bool updateProducts = decider.updateProducts(lastProductUpdateCheck);
+        if (updateProducts)
         {
             LOGSUPPORT("Triggering product update check");
             fileSystem->removeFile(supplementOnlyMarkerFilePath, true);
