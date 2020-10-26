@@ -50,10 +50,6 @@ namespace Plugin
                 "socket_events": {
                     "query": "select count(*) as socket_events_count from socket_events;",
                     "interval": 86400
-                },
-                "syslog_events": {
-                    "query": "select count(*) as syslog_events_count from syslog_events;",
-                    "interval": 86400
                 }
             }
         })";
@@ -76,6 +72,7 @@ namespace Plugin
         std::vector<std::string> flags { "--host_identifier=uuid",
                                          "--log_result_events=true",
                                          "--utc",
+                                         "--disable_extensions=false",
                                          "--logger_stderr=false",
                                          "--logger_mode=420",
                                          "--logger_min_stderr=1",
@@ -100,26 +97,7 @@ namespace Plugin
                                          "--force=true",
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false",
-                                         "--events_max=250000"};
-
-        bool isXdr;
-        try
-        {
-            isXdr = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
-        }
-        catch (const std::runtime_error& ex)
-        {
-            LOGWARN("Unable to retrieve xdr setting from config due to: " << ex.what());
-            isXdr = false;
-        }
-
-        if (isXdr)
-        {
-            LOGDEBUG("Adding XDR flags to osquery flags file.");
-            flags.push_back("--extensions_timeout=10");
-            flags.push_back("--extensions_require=SophosLoggerPlugin");
-            flags.push_back("--logger_plugin=SophosLoggerPlugin");
-        }
+                                         "--events_max=50000" };
 
         bool networkTables;
         try
@@ -134,7 +112,6 @@ namespace Plugin
 
         if (!networkTables)
         {
-            LOGDEBUG("Adding disable tables flag to osquery flags file.");
             flags.push_back("--disable_tables=curl,curl_certificate");
         }
 
