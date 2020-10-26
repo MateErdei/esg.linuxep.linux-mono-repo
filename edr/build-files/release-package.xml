@@ -9,7 +9,7 @@
         <!-- DIFF SEPARATION COMMENT -->
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2020-41" build-id="20201002110606-fcf1821d6b71a2656471bd0abe151a1f40663fe4-qrruwT"/>
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-2201-integrate-logger-extension-with-edr-plugin-and-osquery"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
