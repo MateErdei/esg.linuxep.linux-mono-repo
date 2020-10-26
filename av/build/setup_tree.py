@@ -340,9 +340,6 @@ def main(argv):
     ## ml-lib
     unpack_tar_from_input_to_version_dir("mllib/linux-x64-model-gcc4.8.1.tar", None)
 
-    ## Actually should just contain 'version1'
-    write_file("version_manifest.txt", VERSION_NAME)
-
     ## Create initial update cache
     UPDATE_CACHE_DIR = os.path.join(OUTPUT_DIR, "susi_update_source")
     os.mkdir(UPDATE_CACHE_DIR)
@@ -425,9 +422,12 @@ rules {}
     write_file(os.path.join(UPDATE_CACHE_DIR, "nonsupplement_manifest.txt"), manifest)
     write_file(os.path.join(VERSION_DIR, "nonsupplement_manifest.txt"), manifest)
 
+    write_file(os.path.join(SUSI_DIR, "version_manifest.txt"), VERSION_NAME)
+
     SUSI_SDDS_DIR = os.path.join(OUTPUT_DIR, "susi_sdds")
     print("Create SDDS ready fileset")
-    copy_directory(SUSI_DIR, SUSI_SDDS_DIR)
+    copy_directory(SUSI_DIR, os.path.join(SUSI_SDDS_DIR, "distribution_version"))
+    copy_directory(UPDATE_CACHE_DIR, os.path.join(SUSI_SDDS_DIR, "update_source"))
     delete_duplicated_libraries(SUSI_SDDS_DIR)
 
     print("Create build ready fileset")
