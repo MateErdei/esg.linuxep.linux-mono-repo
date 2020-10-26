@@ -217,7 +217,7 @@ TEST_F(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJso
       {"name": "mode", "type": "UNSIGNED BIGINT"},
       {"name": "path", "type": "TEXT"},
       {"name": "uid", "type": "INTEGER"},
-     {"name": "lastAccess", "type": "DATETIME"}
+     {"name": "lastAccess", "type": "TEXT"}
     ],
     "columnData": [
         [1518221620, 21306, "01000755", "/usr/bin/someexe", 500, "Tue Jan 14 15:53:13 2020 UTC"],

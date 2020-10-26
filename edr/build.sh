@@ -256,6 +256,10 @@ function build()
         untar_input gflags
         untar_input thrift
         untar_input jsoncpp
+        rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so.19
+        rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so
+        mv $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  $REDIST/jsoncpp/lib64/libjsoncpp.so.19
+        ln -sfn libjsoncpp.so.19 $REDIST/jsoncpp/lib64/libjsoncpp.so
 
         untar_input openssl
         untar_input protobuf
