@@ -287,7 +287,6 @@ function unzip_lrdata()
 
 function setup_susi()
 {
-    python3 -m pip install checksumdir
     python3 $BASE/build/setup_tree.py
 }
 
