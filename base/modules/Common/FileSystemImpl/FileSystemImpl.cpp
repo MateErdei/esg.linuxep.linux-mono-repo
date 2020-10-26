@@ -301,6 +301,23 @@ namespace Common
             }
         }
 
+        void FileSystemImpl::appendFile(const Path& path, const std::string& content) const
+        {
+            std::ofstream outFileStream(path.c_str(), std::ios::app);
+
+            if (!outFileStream.good())
+            {
+                int error = errno;
+                std::string errdesc = StrError(error);
+
+                throw IFileSystemException("Error, Failed to append file: '" + path + "', " + errdesc);
+            }
+
+            outFileStream << content;
+
+            outFileStream.close();
+        }
+
         void FileSystemImpl::writeFile(const Path& path, const std::string& content) const
         {
             std::ofstream outFileStream(path.c_str(), std::ios::out);
@@ -690,6 +707,19 @@ namespace Common
                 LOGSUPPORT("Removed File: " << file);
                 removeFile(file);
             }
+        }
+
+        bool FileSystemImpl::waitForFile(const Path &path, unsigned int timeout) const {
+            bool fileExists;
+            unsigned int waited = 0;
+            unsigned int waitPeriod = 1000; // 1ms for use with usleep
+            unsigned int target = timeout * 1000;
+            while (!(fileExists = exists(path)) && waited < target)
+            {
+                usleep(waitPeriod);
+                waited += waitPeriod;
+            }
+            return fileExists;
         }
 
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()

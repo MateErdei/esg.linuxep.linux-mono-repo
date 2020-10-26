@@ -51,6 +51,8 @@ namespace Common
 
             std::string readFile(const Path& path) const override;
 
+            void appendFile(const Path& path, const std::string& content) const override;
+
             void writeFile(const Path& path, const std::string& content) const override;
 
             void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir, mode_t mode) const override;
@@ -80,6 +82,8 @@ namespace Common
             std::time_t lastModifiedTime(const Path& path) const override;
 
             void removeFilesInDirectory(const Path& path) const override;
+
+            bool waitForFile(const Path& path, unsigned int timeout) const override;
         };
 
         std::unique_ptr<IFileSystem>& fileSystemStaticPointer();

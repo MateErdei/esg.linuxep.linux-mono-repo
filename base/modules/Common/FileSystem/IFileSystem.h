@@ -157,6 +157,13 @@ namespace Common
             virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir) const = 0;
 
             /**
+             * Appends the given string content to the given file.
+             * @param path, location of the file to create
+             * @param content, the string value to write into the given file.
+             */
+            virtual void appendFile(const Path& path, const std::string& content) const = 0;
+
+            /**
              * Provide the fullPath of the files under the directoryPath given.
              *
              * @note Only regular files and symlinks are listed, directories or special file system entries will not be listed.
@@ -275,6 +282,14 @@ namespace Common
              * @return
              */
             virtual std::time_t lastModifiedTime(const Path& path) const = 0;
+
+            /**
+            * Wait for the given file to exist.
+            * @param path, location of the file to wait for
+            * @param timeout, maximum time in milliseconds to wait for the file to exist before returning
+             *@return true if file exists within given time, false if the file did not exist within the given time
+            */
+            virtual bool waitForFile(const Path& path, unsigned int timeout) const = 0;
         };
 
         /**

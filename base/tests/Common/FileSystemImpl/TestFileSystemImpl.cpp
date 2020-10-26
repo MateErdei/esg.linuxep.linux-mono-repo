@@ -802,4 +802,26 @@ namespace
         EXPECT_NO_THROW(m_fileSystem->removeFilesInDirectory(directoryPath));
     }
 
+    TEST_F(FileSystemImplTest, waitForExistingFileReturnsTrue) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        Path directoryPath =  tempDir.dirPath();
+        std::string filename = "existing-file";
+        tempDir.createFile(filename,"");
+        Path filePath = Common::FileSystem::join(directoryPath, filename);
+        EXPECT_TRUE(m_fileSystem->waitForFile(filePath, 10));
+    }
+
+    TEST_F(FileSystemImplTest, waitForNonExistentFileReturnsFalse) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        Path directoryPath =  tempDir.dirPath();
+        std::string filename = "existing-file";
+        Path filePath = Common::FileSystem::join(directoryPath, filename);
+        EXPECT_FALSE(m_fileSystem->waitForFile(filePath, 10));
+    }
+
+
+
+
 } // namespace
