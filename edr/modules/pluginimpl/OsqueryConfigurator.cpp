@@ -50,6 +50,10 @@ namespace Plugin
                 "socket_events": {
                     "query": "select count(*) as socket_events_count from socket_events;",
                     "interval": 86400
+                },
+                "syslog_events": {
+                    "query": "select count(*) as syslog_events_count from syslog_events;",
+                    "interval": 86400
                 }
             }
         })";
