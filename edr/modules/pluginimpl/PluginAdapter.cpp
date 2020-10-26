@@ -129,7 +129,6 @@ namespace Plugin
         {
             LOGWARN("Running mode not set in plugin.conf file. Using the default running mode EDR");
         }
-
         if (m_isXDR)
         {
             LOGINFO("Flags running mode is XDR");
@@ -315,6 +314,12 @@ namespace Plugin
             try
             {
                 osqueryProcess->keepOsqueryRunning(osqueryStarted);
+                // TODO replace with call from base
+                auto fs = Common::FileSystem::fileSystem();
+                while(!fs->exists(Plugin::osquerySocket()))
+                {
+                    usleep(1000000);
+                }
             }
             catch (Plugin::IOsqueryCrashed&)
             {
@@ -332,44 +337,22 @@ namespace Plugin
             }
             queue->pushOsqueryProcessFinished();
         });
+
         // block here till osquery new instance is started.
         osqueryStarted.wait_started();
-
-        if (m_isXDR)
-        {
-            registerAndStartLoggerPlugin();
-        }
-    }
-
-    void PluginAdapter::registerAndStartLoggerPlugin()
-    {
-        try
-        {
-            auto fs = Common::FileSystem::fileSystem();
-            if (!fs->waitForFile(Plugin::osquerySocket(), 10000))
-            {
-                LOGERROR("OSQuery socket does not exist after waiting 10 seconds. Restarting EDR");
-                m_queueTask->pushStop();
-                return;
-            }
-            m_loggerExtension.Start(Plugin::osquerySocket(),
-                                    false,
-                                    DEFAULT_MAX_BATCH_SIZE_BYTES,
-                                    DEFAULT_MAX_BATCH_TIME_SECONDS);
-        }
-        catch (const std::exception& ex)
-        {
-            LOGERROR("Failed to start logger extension, loggerExtension.Start threw: " << ex.what());
-        }
     }
 
     void PluginAdapter::stopOsquery()
     {
         try
         {
-            // Call stop on logger extension, this is ok to call whether running or not.
-            m_loggerExtension.Stop();
-
+            // clean up socket file so when easily check when osquery is ready for queries
+            auto fs = Common::FileSystem::fileSystem();
+            if (fs->exists(Plugin::osquerySocket()))
+            {
+                fs->removeFile(Plugin::osquerySocket());
+                LOGDEBUG("Cleaned up osquery socket");
+            }
             while (m_osqueryProcess && m_monitor.valid())
             {
                 LOGINFO("Issue request to stop to osquery.");

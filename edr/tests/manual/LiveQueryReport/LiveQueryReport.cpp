@@ -3,20 +3,17 @@
 Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <Common/Logging/ConsoleLoggingSetup.h>
+
 #include <livequery/IQueryProcessor.h>
-#include <osquery/flagalias.h>
-#include <osquery/flags.h>
 #include <osqueryclient/OsqueryProcessor.h>
+
+#include <Common/Logging/ConsoleLoggingSetup.h>
+
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <iostream>
 #include <string>
 
-namespace osquery
-{
-    FLAG(bool, decorations_top_level, false, "test");
-}
 
 /**
  * Usage:
