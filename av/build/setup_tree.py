@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from checksumdir import dirhash
+import hashlib
 import glob
 import os
 import re
@@ -226,6 +226,46 @@ def delete_duplicated_libraries(d):
                 if safe_delete(p):
                     print("Deleted %s" % p)
                 f = mo.group(1)
+
+
+def dirhash(dirname):
+    hash_func = hashlib.md5
+
+    if not os.path.isdir(dirname):
+        raise TypeError("{} is not a directory.".format(dirname))
+
+    hashvalues = []
+    for root, dirs, files in os.walk(dirname):
+        dirs.sort()
+        files.sort()
+
+        for fname in files:
+            hashvalues.append(_filehash(os.path.join(root, fname), hash_func))
+
+    return _reduce_hash(hashvalues, hash_func)
+
+
+def _filehash(filepath, hashfunc):
+    hasher = hashfunc()
+    blocksize = 64 * 1024
+
+    if not os.path.exists(filepath):
+        return hasher.hexdigest()
+
+    with open(filepath, "rb") as fp:
+        while True:
+            data = fp.read(blocksize)
+            if not data:
+                break
+            hasher.update(data)
+    return hasher.hexdigest()
+
+
+def _reduce_hash(hashlist, hashfunc):
+    hasher = hashfunc()
+    for hashvalue in sorted(hashlist):
+        hasher.update(hashvalue.encode("utf-8"))
+    return hasher.hexdigest()
 
 
 def main(argv):
