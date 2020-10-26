@@ -97,7 +97,10 @@ namespace Plugin
                                          "--force=true",
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false",
-                                         "--events_max=250000" };
+                                         "--events_max=250000",
+                                         "--extensions_timeout=30",
+                                         "--extensions_require=SophosLoggerPlugin",
+                                         "--logger_plugin=SophosLoggerPlugin"};
 
         bool networkTables;
         try

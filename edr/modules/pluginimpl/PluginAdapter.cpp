@@ -17,6 +17,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/Proc/ProcUtilities.h>
+#include <modules/osqueryextension/LoggerExtension.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
 
 #include <cmath>
@@ -331,9 +332,35 @@ namespace Plugin
             }
             queue->pushOsqueryProcessFinished();
         });
-
         // block here till osquery new instance is started.
         osqueryStarted.wait_started();
+        if (m_isXDR)
+        {
+            registerAndStartLoggerPlugin();
+        }
+    }
+
+    void PluginAdapter::registerAndStartLoggerPlugin()
+    {
+        LoggerExtension loggerExtension;
+
+        try
+        {
+            auto fs = Common::FileSystem::fileSystem();
+            bool socketRunning;
+            socketRunning = fs->waitForFile(Plugin::osquerySocket(), 10000);
+            if (!socketRunning)
+            {
+                LOGERROR("OSQuery socket is not running after waiting 10 seconds. Restarting EDR");
+                // TODO LINUXDAR-2201 Throw the toys out the pram in a proportional and responsible manner
+                return;
+            }
+            loggerExtension.Start(Plugin::osquerySocket(), true, 1000, 10);
+        }
+        catch (const std::exception& ex)
+        {
+            LOGERROR("loggerExtension.Start threw: " << ex.what());
+        }
     }
 
     void PluginAdapter::stopOsquery()

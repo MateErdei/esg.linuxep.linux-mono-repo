@@ -8,6 +8,8 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include "ApplicationPaths.h"
 #include "Logger.h"
 #include "OsqueryLogIngest.h"
+#include "PluginAdapter.h"
+#include "PluginUtils.h"
 #include "TelemetryConsts.h"
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -21,15 +23,15 @@ namespace
 {
     constexpr int OUTPUT_BUFFER_LIMIT_BYTES = 4096;
 
-    class AnounceStartedOnEndOfScope
+    class AnnounceStartedOnEndOfScope
     {
         Plugin::OsqueryStarted& m_osqueryStarted;
 
     public:
-        explicit AnounceStartedOnEndOfScope(Plugin::OsqueryStarted& osqueryStarted) : m_osqueryStarted(osqueryStarted)
+        explicit AnnounceStartedOnEndOfScope(Plugin::OsqueryStarted& osqueryStarted) : m_osqueryStarted(osqueryStarted)
         {
         }
-        ~AnounceStartedOnEndOfScope()
+        ~AnnounceStartedOnEndOfScope()
         {
             m_osqueryStarted.announce_started();
         }
@@ -86,7 +88,7 @@ namespace Plugin
     {
         std::string osqueryPath;
         {
-            AnounceStartedOnEndOfScope anounceStartedOnEndOfScope(osqueryStarted);
+            AnnounceStartedOnEndOfScope announceStartedOnEndOfScope(osqueryStarted);
             auto fileSystem = Common::FileSystem::fileSystem();
             osqueryPath = Plugin::osqueryPath();
             killAnyOtherOsquery();
@@ -103,7 +105,25 @@ namespace Plugin
                 fileSystem->removeFileOrDirectory(osquerySocket);
             }
 
-            std::vector<std::string> arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
+            bool isXDR;
+            try
+            {
+                isXDR = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
+            }
+            catch (const std::runtime_error& ex)
+            {
+                LOGWARN("Unable to retrieve XDR mode from config due to: " << ex.what());
+                isXDR = false;
+            }
+
+            std::string configFilePath = Plugin::osqueryConfigFilePath();
+            if (isXDR)
+            {
+                LOGINFO("Redirecting OSQuery to use XDR config file");
+                configFilePath = Plugin::osqueryXDRConfigFilePath();
+            }
+
+            std::vector<std::string> arguments = { "--config_path=" + configFilePath,
                                                    "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
             if (getPluginLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))

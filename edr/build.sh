@@ -255,9 +255,25 @@ function build()
         untar_input osquerysdk
         untar_input openssl
         untar_input protobuf
+#        untar_input xdrsharedcomponents
+        untar_input thrift
+        untar_input jsoncpp
+
+        # sqlite build output currently has an awkward name so renaming here.
+        unzip -o $(ls ${INPUT}/sqlite-*.zip) -d "$REDIST" || exitFailure 1 "No sqlite zip"
+        rm -rf "${REDIST}/sqlite"
+        mv "${REDIST}/sqlite-amalgamation-3310100" "${REDIST}/sqlite"
 
         mkdir -p "$REDIST"/osquery
         tar xzf ${INPUT}/osquery-4.5.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
+        cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
+
+            # TODO can we do this in a better way?
+        # Fix up jsoncpp dual versioning scheme.
+        rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so.19
+        rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so
+        mv $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  $REDIST/jsoncpp/lib64/libjsoncpp.so.19
+        ln -sfn libjsoncpp.so.19 $REDIST/jsoncpp/lib64/libjsoncpp.so
 
     fi
 

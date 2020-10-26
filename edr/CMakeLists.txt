@@ -130,12 +130,22 @@ if(NOT DEFINED PLUGINAPIPATH)
     SET( PLUGINAPIPATH ${INPUT}/pluginapi)
 endif()
 
+if(NOT DEFINED SSPLOSQUERYCOMPONENTSPATH)
+    SET( SSPLOSQUERYCOMPONENTSPATH ${INPUT}/sspl-osquery-components)
+endif()
+MESSAGE(${SSPLOSQUERYCOMPONENTSPATH})
+
 if (NOT DEFINED OSQUERYSDK)
     SET( OSQUERYSDK ${INPUT}/osquerysdk)
 endif()
 
+if (NOT DEFINED NEW_OSQUERYSDK)
+    SET(NEW_OSQUERYSDK ${INPUT}/sspl-osquery-components)
+endif()
+
 set( BOOST_INPUT ${INPUT}/boost )
 set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
+set( SQLITE_INCLUDE_DIR ${INPUT}/sqlite )
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
@@ -153,6 +163,17 @@ file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so.*)
 file(GLOB zlib ${PLUGINAPIPATH}/lib64/libz.so.*)
 
+find_library(LOGGER_PLUGIN_LIBRARY
+        NAMES LoggerPlugin
+        PATHS ${SSPLOSQUERYCOMPONENTSPATH}/lib64
+        NO_DEFAULT_PATH
+        )
+
+find_library(NEW_OSQUERY_LIBRARY
+        NAMES OsquerySDK
+        PATHS ${SSPLOSQUERYCOMPONENTSPATH}/lib64
+        NO_DEFAULT_PATH
+        )
 
 find_library(OSQUERY_LIBRARY
         NAMES osquerysdk
@@ -166,6 +187,17 @@ find_library(GLOG_LIBRARY
         NO_DEFAULT_PATH
         )
 
+find_library(THRIFT_GEN_LIBRARY
+        NAMES gen-cpp-linux
+        PATHS ${SSPLOSQUERYCOMPONENTSPATH}/lib64
+        NO_DEFAULT_PATH
+        )
+
+find_library(JSON_CPP_LIBRARY
+        NAMES jsoncpp
+        PATHS ${INPUT}/jsoncpp/lib64
+        NO_DEFAULT_PATH)
+
 find_library(THRIFT_LIBRARY
         NAMES thrift
         PATHS ${OSQUERYSDK}/lib64
@@ -177,6 +209,7 @@ find_library(GFLAG_LIBRARY
         PATHS ${OSQUERYSDK}/lib64
         NO_DEFAULT_PATH
         )
+
 find_library(BOOST_CHRONO_LIBRARY
         NAMES boost_chrono
         PATHS ${INPUT}/boost/lib64
