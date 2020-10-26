@@ -29,7 +29,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #define TOTAL_MAX_RECONNECTS 100
 #define MAX_CONN_RETRIES 5
-#define MAX_SCAN_RETRIES 10
+#ifdef USING_LIBFUZZER
+    #define MAX_SCAN_RETRIES 1
+#else
+    #define MAX_SCAN_RETRIES 10
+#endif
 
 unixsocket::ScanningClientSocket::ScanningClientSocket(std::string socket_path, const struct timespec& sleepTime)
     : m_reconnectAttempts(0)

@@ -19,6 +19,7 @@ namespace FakeDetectionServer
             setIsRunning(true);
             announceThreadStarted();
             inner_run();
+            setIsRunning(false);
         }
 
     private:

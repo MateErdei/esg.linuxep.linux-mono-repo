@@ -17,8 +17,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <common/AbortScanException.h>
 #include <datatypes/Print.h>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #include <cstddef>
 #include <fstream>
+#include <chrono>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 #define BASE "/tmp/TestPluginAdapter"
@@ -42,6 +47,11 @@ private:
 
 namespace
 {
+    static std::string m_socketPathBase = "/tmp/socket_";
+    static std::string m_socketPath;
+
+    static std::unique_ptr<FakeDetectionServer::FakeServerSocket> socketServer;
+
     static std::string m_scanResult  = "{\n"
                                        "    \"results\":\n"
                                        "    [\n"
@@ -89,29 +99,39 @@ namespace
                                        "    ]\n"
                                        "}";
 
-    static int DoSomethingWithData(uint8_t* Data, size_t Size)
+
+    static void DoInitialization(uint8_t* Data, size_t Size)
     {
-        auto socketPath = "/tmp/unix_socket";
+        if (!socketServer || !socketServer->m_isRunning)
+        {
+            std::ostringstream ss;
+            boost::uuids::uuid uuid = boost::uuids::random_generator()();
+            ss << m_socketPathBase << uuid;
+            m_socketPath = ss.str();
 
-        FakeDetectionServer::FakeServerSocket socketServer("/tmp/unix_socket",0666, Data, Size);
-        socketServer.start();
+            socketServer = std::make_unique<FakeDetectionServer::FakeServerSocket>(m_socketPath, 0666);
+            socketServer->start();
+        }
 
-        auto clientSocket = std::make_shared<unixsocket::ScanningClientSocket>(socketPath);
+        socketServer->initializeData(Data, Size);
+    }
+
+    static int runFuzzing()
+    {
+        auto clientSocket = std::make_shared<unixsocket::ScanningClientSocket>(m_socketPath, timespec{0,1});
         auto scanCallbacks = std::make_shared<FakeCallbacks>();
 
         avscanner::avscannerimpl::ScanClient scanner(*clientSocket, scanCallbacks, false, E_SCAN_TYPE_ON_DEMAND);
 
         try
         {
-            scanner.scan("/tmp/build.log", false);
+            scanner.scan("/etc/passwd", false);
         }
         catch(AbortScanException& e)
         {
             PRINT("Scan aborted, error expected & handled: " << e.what());
         }
 
-        socketServer.requestStop();
-        socketServer.join();
         return 0;
     }
 }
@@ -120,7 +140,8 @@ namespace
 
 extern "C" int LLVMFuzzerTestOneInput(uint8_t* Data, size_t Size)
 {
-    return DoSomethingWithData(Data, Size);
+        DoInitialization(Data, Size);
+        return runFuzzing();
 }
 
 #else
@@ -137,7 +158,7 @@ static int writeSampleFile(std::string path)
     scan_messages::ScanResponse scanResponse;
 
     scanResponse.addDetection("IT-IS-A-FILE", "A-THREAT");
-    //scanResponse.setFullScanResult(m_scanResult);
+    scanResponse.setFullScanResult(m_scanResult);
 
     std::ofstream outfile(path, std::ios::binary);
 
@@ -151,7 +172,7 @@ static int writeSampleFile(std::string path)
     return EXIT_SUCCESS;
 }
 
-static int processFile(std::string path)
+static int processFile(const std::string& path)
 {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
@@ -170,8 +191,11 @@ static int processFile(std::string path)
         PRINT("cannot read file");
         return EXIT_FAILURE;
     }
+    file.close();
     auto x = reinterpret_cast<uint8_t*>(buffer.data());
-    return DoSomethingWithData(x, size);
+    DoInitialization(x, size);
+    runFuzzing();
+    return 0;
 }
 
 int main(int argc, char** argv)

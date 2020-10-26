@@ -96,7 +96,7 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd.get());
             if (length == -2)
             {
-                PRINT("Scanning Server Connection closed: EOF");
+                PRINT("Scanning Server Connection Thread closed: EOF");
                 break;
             }
             else if (length < 0)
