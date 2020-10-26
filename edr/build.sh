@@ -255,10 +255,12 @@ function build()
         untar_input glog
         untar_input gflags
         untar_input thrift
+        untar_input jsoncpp
 
         untar_input openssl
         untar_input protobuf
         cp -r "$INPUT"/sspl-osquery-components "$REDIST"/
+        unzip -u "$INPUT"/sqlite-amalgamation-3310100.zip -d "$REDIST"/
         mkdir -p "$REDIST"/osquery
         tar xzf ${INPUT}/osquery-4.5.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
 

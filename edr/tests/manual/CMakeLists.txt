@@ -7,6 +7,7 @@ target_link_libraries(LiveQueryReport PUBLIC osqueryclient
         ${GLOG_LIBRARY}
         ${GFLAG_LIBRARY}
         ${OSQUERY_LIBRARY}
+        ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}
         ${BOOST_CHRONO_LIBRARY}
         ${BOOST_SYSTEM_LIBRARY}
@@ -44,6 +45,7 @@ target_link_libraries(DelayControlledTable PUBLIC
         ${GLOG_LIBRARY}
         ${GFLAG_LIBRARY}
         ${OSQUERY_LIBRARY}
+        ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}
         ${BOOST_CHRONO_LIBRARY}
         ${BOOST_SYSTEM_LIBRARY}
@@ -78,6 +80,7 @@ target_link_libraries(BinaryDataTable PUBLIC
         ${GLOG_LIBRARY}
         ${GFLAG_LIBRARY}
         ${OSQUERY_LIBRARY}
+        ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}
         ${BOOST_CHRONO_LIBRARY}
         ${BOOST_SYSTEM_LIBRARY}
@@ -93,6 +96,8 @@ target_include_directories(BinaryDataTable PUBLIC
         ${OSQUERYSDK}/include
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
+        ${SQLITE_INCLUDE_DIR}
+
         )
 
 SET_TARGET_PROPERTIES(BinaryDataTable

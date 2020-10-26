@@ -137,7 +137,9 @@ endif()
 set( BOOST_INPUT ${INPUT}/boost )
 set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
 set( THRIFT_INPUT ${INPUT}/thrift )
+set( JSONCCP_INPUT ${INPUT}/jsoncpp )
 set( THRIFT_INCLUDE_DIR ${THRIFT_INPUT}/install64/include )
+set( SQLITE_INCLUDE_DIR ${INPUT}/sqlite-amalgamation-3310100 )
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
@@ -159,6 +161,16 @@ file(GLOB zlib ${PLUGINAPIPATH}/lib64/libz.so.*)
 find_library(OSQUERY_LIBRARY
         NAMES OsquerySDK
         PATHS ${OSQUERYSDK}/lib64
+        NO_DEFAULT_PATH
+        )
+find_library(OSQUERY_GEN_LIBRARY
+        NAMES gen-cpp-linux
+        PATHS ${OSQUERYSDK}/lib64
+        NO_DEFAULT_PATH
+        )
+find_library(JSONCPP_LIBRARY
+        NAMES jsoncpp
+        PATHS ${INPUT}/jsoncpp/lib64
         NO_DEFAULT_PATH
         )
 

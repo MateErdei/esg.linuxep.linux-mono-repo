@@ -2,7 +2,7 @@ add_executable(sophos_livequery main.cpp)
 
 target_link_libraries(sophos_livequery PUBLIC livemain)
 
-SET_TARGET_PROPERTIES(sophos_livequery 
+SET_TARGET_PROPERTIES(sophos_livequery
     PROPERTIES 
     INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
     )
