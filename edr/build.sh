@@ -270,10 +270,14 @@ function build()
 
             # TODO can we do this in a better way?
         # Fix up jsoncpp dual versioning scheme.
-        rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so.19
-        rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so
-        mv $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  $REDIST/jsoncpp/lib64/libjsoncpp.so.19
-        ln -sfn libjsoncpp.so.19 $REDIST/jsoncpp/lib64/libjsoncpp.so
+        if [[ -f $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  ]]
+        then
+            echo "Detected that libjsoncpp dual versioning scheme in place, removing .so.1.8.4 and leaving .so.19"
+            rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so.19
+            rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so
+            mv $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  $REDIST/jsoncpp/lib64/libjsoncpp.so.19
+            ln -sfn libjsoncpp.so.19 $REDIST/jsoncpp/lib64/libjsoncpp.so
+        fi
 
     fi
 
