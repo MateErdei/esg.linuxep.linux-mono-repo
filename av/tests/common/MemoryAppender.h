@@ -10,8 +10,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "datatypes/Print.h"
 
+#include <chrono>
+#include <thread>
+
+
 namespace
 {
+    using namespace std::chrono_literals;
+
     using EventVector = std::vector<std::string>;
 
     class MemoryAppender : public log4cplus::Appender
@@ -47,14 +53,8 @@ namespace
     }
     bool MemoryAppender::contains(const std::string& expected) const
     {
-        for (const auto& e : m_events)
-        {
-            if (e.find(expected) != std::string::npos)
-            {
-                return true;
-            }
-        }
-        return false;
+        auto contains_expected = [&](const std::string& e){ return e.find(expected) != std::string::npos; };
+        return std::any_of(m_events.begin(), m_events.end(), contains_expected);
     }
 
 
@@ -67,7 +67,8 @@ namespace
         log4cplus::SharedAppenderPtr m_sharedAppender;
 
         void setupMemoryAppender();
-        void clearMemoryAppender();
+        void teardownMemoryAppender();
+        void clearMemoryAppender() const;
 
         [[nodiscard]] log4cplus::Logger getLogger() const;
 
@@ -85,21 +86,13 @@ namespace
 
         [[maybe_unused]] void dumpLog() const;
 
-        bool waitForLog(const std::string& expected, int wait_time_micro_seconds=5000) const // NOLINT(modernize-use-nodiscard)
+        typedef std::chrono::steady_clock clock;
+
+        bool waitForLog(const std::string& expected, clock::duration wait_time = 100ms) const; // NOLINT(modernize-use-nodiscard)
+
+        [[maybe_unused]] bool waitForLog(const std::string& expected, int wait_time_micro_seconds) const // NOLINT(modernize-use-nodiscard)
         {
-            assert(m_memoryAppender != nullptr);
-            struct timespec req{.tv_sec=0, .tv_nsec=10000};
-            int count = wait_time_micro_seconds / 10;
-            while (count > 0)
-            {
-                count--;
-                if (appenderContains(expected))
-                {
-                    return true;
-                }
-                nanosleep(&req, nullptr);
-            }
-            return false;
+            return waitForLog(expected, std::chrono::microseconds(wait_time_micro_seconds));
         }
     };
 
@@ -118,7 +111,7 @@ namespace
         }
     }
 
-    void MemoryAppenderUsingTests::clearMemoryAppender()
+    void MemoryAppenderUsingTests::teardownMemoryAppender()
     {
         if (m_sharedAppender)
         {
@@ -126,8 +119,14 @@ namespace
             logger.removeAppender(m_sharedAppender);
             m_memoryAppender->clear();
             m_memoryAppender = nullptr;
-            m_sharedAppender = log4cplus::SharedAppenderPtr();
+            m_sharedAppender = log4cplus::SharedAppenderPtr(); // deletes m_memoryAppender
         }
+    }
+
+    [[maybe_unused]] void MemoryAppenderUsingTests::clearMemoryAppender() const
+    {
+        assert(m_memoryAppender != nullptr);
+        m_memoryAppender->clear();
     }
 
     log4cplus::Logger MemoryAppenderUsingTests::getLogger() const
@@ -135,13 +134,29 @@ namespace
         return Common::Logging::getInstance(m_loggerInstanceName);
     }
 
-    void MemoryAppenderUsingTests::dumpLog() const
+    [[maybe_unused]] void MemoryAppenderUsingTests::dumpLog() const
     {
+        assert(m_memoryAppender != nullptr);
         PRINT("Memory appender contains " << appenderSize() << " items");
         for (const auto& item : m_memoryAppender->m_events)
         {
             PRINT("ITEM: " << item);
         }
+    }
+
+    bool MemoryAppenderUsingTests::waitForLog(const std::string& expected, clock::duration wait_time) const // NOLINT(modernize-use-nodiscard)
+    {
+        assert(m_memoryAppender != nullptr);
+        auto deadline = clock::now() + wait_time;
+        do
+        {
+            if (appenderContains(expected))
+            {
+                return true;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        } while (clock::now() < deadline);
+        return false;
     }
 
     template<const char* loggerInstanceName>
@@ -165,7 +180,7 @@ namespace
         }
         ~UsingMemoryAppender()
         {
-            m_testClass.clearMemoryAppender();
+            m_testClass.teardownMemoryAppender();
         }
     };
 }

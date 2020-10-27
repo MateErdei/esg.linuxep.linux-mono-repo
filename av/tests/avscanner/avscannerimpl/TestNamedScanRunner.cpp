@@ -44,7 +44,8 @@ protected:
             m_expectedExclusions.push_back(p);
         }
 
-        Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
     }
 
     void TearDown() override

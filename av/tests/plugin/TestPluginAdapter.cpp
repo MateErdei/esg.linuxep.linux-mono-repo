@@ -191,25 +191,29 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting scanScheduler", 500ms));
 
     std::string actionXml =
-            R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
-
-    Task actionTask = {Task::TaskType::Action,
-                       actionXml};
-    Task stopTask = {Task::TaskType::Stop, ""};
-
+        R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
+    Task actionTask = {Task::TaskType::Action, actionXml};
     m_queueTask->push(actionTask);
-    m_queueTask->push(stopTask);
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    pluginAdapter.mainLoop();
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
 
-    EXPECT_TRUE(appenderContains(expectedLog));
-    EXPECT_TRUE(appenderContains("Evaluating Scan Now"));
+    EXPECT_TRUE(waitForLog(expectedLog, 500ms));
+    EXPECT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
+
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_queueTask->push(stopTask);
+
+    pluginThread.join();
 
     scanLogger.removeAppender(m_sharedAppender);
 }
@@ -224,25 +228,29 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting scanScheduler", 500ms));
 
     std::string actionXml =
-            R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="NONE" id="" subtype="MALFORMED" replyRequired="0"/>)";
-
-    Task actionTask = {Task::TaskType::Action,
-                       actionXml};
-    Task stopTask = {Task::TaskType::Stop, ""};
-
+        R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="NONE" id="" subtype="MALFORMED" replyRequired="0"/>)";
+    Task actionTask = {Task::TaskType::Action, actionXml};
     m_queueTask->push(actionTask);
-    m_queueTask->push(stopTask);
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    pluginAdapter.mainLoop();
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
 
-    EXPECT_TRUE(appenderContains(expectedLog));
-    EXPECT_FALSE(appenderContains("Starting Scan Now"));
+    EXPECT_TRUE(waitForLog(expectedLog, 500ms));
+    EXPECT_FALSE(waitForLog("Evaluating Scan Now", 500ms));
+
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_queueTask->push(stopTask);
+
+    pluginThread.join();
 
     scanLogger.removeAppender(m_sharedAppender);
 }

@@ -79,6 +79,7 @@ void ScanRunner::run()
     m_completionNotifier.processScanComplete(scanCompletedXml);
 
     m_scanCompleted = true;
+    LOGDEBUG("Exiting scan thread");
 }
 
 std::string manager::scheduler::generateScanCompleteXml(const std::string& name)

@@ -77,9 +77,9 @@ TEST_F(TestScanProcessMonitor, testRunner) // NOLINT
     try
     {
         ThreadRunner sophos_thread_detector(*m, "scanProcessMonitor");
-        waitForLog("Starting /bin/bash");
+        EXPECT_TRUE(waitForLog("Starting \"/bin/bash\"", 500ms));
         sophos_thread_detector.killThreads();
-        waitForLog("Exiting sophos_thread_detector monitor");
+        EXPECT_TRUE(waitForLog("Exiting sophos_threat_detector monitor", 500ms));
     }
     catch (std::exception& e)
     {
@@ -98,7 +98,7 @@ TEST_F(TestScanProcessMonitor, testRunnerCallTerminateImmediately) // NOLINT
     {
         ThreadRunner sophos_thread_detector(*m, "scanProcessMonitor");
         sophos_thread_detector.killThreads();
-        waitForLog("Exiting sophos_thread_detector monitor");
+        EXPECT_TRUE(waitForLog("Exiting sophos_threat_detector monitor", 500ms));
     }
     catch (std::exception& e)
     {

@@ -10,7 +10,7 @@ SophosAddTest(TestScheduledScan
         TestScheduledScan.cpp
         TestScheduledScanConfiguration.cpp
         TestTimeSet.cpp
-        PROJECTS scanscheduler
+        PROJECTS scanscheduler common
         LIBS ${pluginapilib} ${testhelperslib} rt
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
             ${CMAKE_SOURCE_DIR}/modules

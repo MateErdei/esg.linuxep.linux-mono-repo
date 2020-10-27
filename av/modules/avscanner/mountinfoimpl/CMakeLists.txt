@@ -25,7 +25,7 @@ target_include_directories(mountinfoimpl PUBLIC
         )
 
 target_link_libraries(mountinfoimpl
-        ${log4cpluslib})
+        common)
 
 install(TARGETS mountinfoimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
