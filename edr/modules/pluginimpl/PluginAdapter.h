@@ -14,6 +14,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/Process/IProcess.h>
+#include <modules/osqueryextension/LoggerExtension.h>
 #include <queryrunner/IQueryRunner.h>
 #include <queryrunner/ParallelQueryProcessor.h>
 
@@ -89,6 +90,7 @@ namespace Plugin
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 600;
         bool m_isXDR = false;
+        LoggerExtension m_loggerExtension;
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
