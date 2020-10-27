@@ -1,13 +1,13 @@
-add_executable(sophos_serverinfo.ext main.cpp)
+add_executable(sophos_serverinfo main.cpp)
 
-target_link_libraries(sophos_serverinfo.ext PUBLIC livemain)
+target_link_libraries(sophos_serverinfo PUBLIC livemain)
 
-SET_TARGET_PROPERTIES(sophos_serverinfo.ext 
+SET_TARGET_PROPERTIES(sophos_serverinfo
     PROPERTIES 
     INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
     )
 
-install(TARGETS sophos_serverinfo.ext 
+install(TARGETS sophos_serverinfo
         DESTINATION files/plugins/${PLUGIN_NAME}/extensions
         PERMISSIONS OWNER_READ OWNER_EXECUTE OWNER_WRITE  GROUP_READ GROUP_EXECUTE)
 

@@ -5,28 +5,31 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/UtilityImpl/Main.h>
-#include <modules/osqueryextensions/SophosServerTable.cpp>
-#include <osquery/flagalias.h>
-namespace osquery
-{
+#include <modules/osqueryextensions/SophosServerTable.h>
 
-    FLAG(bool, decorations_top_level, false, "test");
-}
-using namespace osquery;
+using namespace OsquerySDK;
 static int extension_runner_main(int argc, char* argv[])
 {
-    osquery::Initializer runner(argc, argv, ToolType::EXTENSION);
 
-    auto status = startExtension("sophos_server_information", "1.0.0");
-    if (!status.ok())
+    try
     {
-        LOG(ERROR) << status.getMessage();
-        runner.requestShutdown(status.getCode());
+        auto flags = OsquerySDK::ParseFlags(&argc, &argv);
+
+        auto extension = OsquerySDK::CreateExtension(flags, "SophosExtension", "1.0.0");
+        // add new extension table here
+        extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosServerTable>());
+
+        extension->Start();
+        extension->Wait();
+        return extension->GetReturnCode();
+    }
+    catch (const std::exception& err)
+    {
+        std::cout << "An error occurred while the extension logger was unavailable: " << err.what() << std::endl;
+
+        return 1;
     }
 
-    // Finally wait for a signal / interrupt to shutdown.
-    runner.waitThenShutdown();
-    return 0;
 }
 
 MAIN(extension_runner_main(argc, argv))

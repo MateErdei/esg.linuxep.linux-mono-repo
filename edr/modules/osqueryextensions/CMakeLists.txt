@@ -2,6 +2,8 @@ set( GOOGLETESTINCLUDE ${CMAKE_SOURCE_DIR}/tests/googletest/googletest/include )
 
 sophos_add_library(serverinfotable SHARED
         SophosServerTable.cpp
+        SophosServerTable.h
+        ${SQLITE_INCLUDE_DIR}/sqlite3.c
         EXTRA_INCLUDES ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR}
         )
 
@@ -17,7 +19,10 @@ target_link_libraries(serverinfotable PUBLIC
         ${BOOST_CONTEXT_LIBRARY}
         ${OPENSSLCRYPTO_LIBRARY}
         ${OPENSSL_LIBRARY}
-
+        ${JSONCPP_LIBRARY}
+        pthread
+        ${CMAKE_DL_LIBS}
+        ${SQLITE_INCLUDE_DIR}
         )
 
 target_include_directories(serverinfotable PUBLIC
@@ -25,6 +30,7 @@ target_include_directories(serverinfotable PUBLIC
         ${OSQUERYSDK}/include
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
+        ${SQLITE_INCLUDE_DIR}
         )
 
 
