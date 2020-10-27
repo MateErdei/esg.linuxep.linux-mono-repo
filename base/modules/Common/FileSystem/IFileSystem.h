@@ -158,8 +158,8 @@ namespace Common
 
             /**
              * Appends the given string content to the given file.
-             * @param path, location of the file to create
-             * @param content, the string value to write into the given file.
+             * @param path, location of the file to append to (the file will be created if it doesn't exist)
+             * @param content, the string value to append into the given file, new lines are not added implicitly
              */
             virtual void appendFile(const Path& path, const std::string& content) const = 0;
 
