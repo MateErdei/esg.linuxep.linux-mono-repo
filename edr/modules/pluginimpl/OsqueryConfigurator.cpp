@@ -97,10 +97,25 @@ namespace Plugin
                                          "--force=true",
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false",
-                                         "--events_max=250000",
-                                         "--extensions_timeout=30",
-                                         "--extensions_require=SophosLoggerPlugin",
-                                         "--logger_plugin=SophosLoggerPlugin"};
+                                         "--events_max=250000"};
+
+        bool isXdr;
+        try
+        {
+            isXdr = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
+        }
+        catch (const std::runtime_error& ex)
+        {
+            LOGWARN("Unable to retrieve xdr setting from config due to: " << ex.what());
+            isXdr = false;
+        }
+
+        if (!isXdr)
+        {
+            flags.push_back("--extensions_timeout=30");
+            flags.push_back("--extensions_require=SophosLoggerPlugin");
+            flags.push_back("--logger_plugin=SophosLoggerPlugin");
+        }
 
         bool networkTables;
         try

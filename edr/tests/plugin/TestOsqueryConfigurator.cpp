@@ -39,7 +39,7 @@ public:
         const std::string filepath = "anyfile";
         std::string fileContent;
         auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
-        EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(true));
+        EXPECT_CALL(*mockFileSystem, isFile(_)).Times(2).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, isFile(filepath)).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(true));

@@ -36,6 +36,28 @@ def _file_content(path):
         return f.read()
 
 
+def _try_file_content(file_path):
+    try:
+        with open(file_path, 'r') as file_handler:
+            return file_handler.read()
+    except IOError:
+        # reading proc entry can fail related to the time to read
+        # ignore those errors
+        return ""
+
+
+class ProcEntry:
+    def __init__(self, pid):
+        self.pid = int(pid)
+        self._name = _try_file_content(os.path.join('/proc', str(pid), 'comm')).strip()
+
+    def name(self):
+        return self._name
+
+    def __repr__(self):
+        return "pid: {}, name:{}".format(self.pid, self._name)
+
+
 class EDRPlugin:
     def __init__(self):
         self._proc = None
@@ -64,6 +86,7 @@ class EDRPlugin:
     def start_edr(self):
         self.prepare_for_test()
         self._proc = subprocess.Popen([_edr_exec_path()])
+        self.wait_for_osquery_to_run()
 
     def stop_edr(self):
         """
@@ -87,6 +110,37 @@ class EDRPlugin:
             self._proc.kill()
             self._proc.wait()
             self._proc = None
+
+    def process_iter(self):
+        for pid in os.listdir('/proc'):
+            if '0' <= pid[0] <= '9':
+                yield ProcEntry(pid)
+
+    def wait_for_osquery_to_run(self):
+        times_run = 0
+        while times_run < 60:
+            times_run += 1
+            for p in self.process_iter():
+                if p.name() == "osqueryd":
+                    return p.pid
+            time.sleep(1)
+        raise AssertionError("osqueryd not found in process list: {}".format([p for p in process_iter()]))
+
+    def wait_for_osquery_to_stop(self, pid):
+        times_run = 0
+        while times_run < 60:
+            times_run += 1
+            pids = []
+            for p in self.process_iter():
+                pids.append(p.pid)
+
+            if pid in pids:
+                time.sleep(1)
+                continue
+            return
+        with open('/proc/{}/status'.format(pid)) as handler:
+            content = handler.read()
+        raise AssertionError("osqueryd failed to stop. Information {}".format(content))
 
     # Will return empty string if log doesn't exist
     def log(self):
