@@ -152,7 +152,7 @@ EDR And Base Teardown
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains      edr <> Plugin Finished
+    ...  Check EDR Executable Not Running
     Run Keyword If Test Failed   Log File   ${EDR_LOG_PATH}
     Run Keyword If Test Failed   Log File   ${LIVEQUERY_LOG_PATH}
     Remove File    ${EDR_LOG_PATH}
@@ -167,3 +167,12 @@ Check Ownership
     [Arguments]  ${path}  ${owner}
     ${result} =  Run Process  ls  -l  ${path}
     Should Contain  ${result.stdout}  ${owner}
+
+Check EDR Executable Running
+    ${result} =    Run Process  pgrep edr | wc -w  shell=true
+    Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+Check EDR Executable Not Running
+    ${result} =    Run Process  pgrep  -a  edr
+    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"

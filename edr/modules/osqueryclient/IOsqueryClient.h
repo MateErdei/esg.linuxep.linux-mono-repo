@@ -23,7 +23,7 @@ namespace osqueryclient
 
         virtual void connect(const std::string& socketPath) = 0;
         virtual OsquerySDK::Status query(const std::string& sql, OsquerySDK::QueryData& qd) = 0;
-        virtual OsquerySDK::Status getQueryColumns(const std::string& sql, OsquerySDK::QueryColumns & qc) = 0;
+        virtual OsquerySDK::Status getQueryColumns(const std::string& sql, OsquerySDK::QueryColumns& qc) = 0;
     };
 
     Common::UtilityImpl::Factory<IOsqueryClient>& factory();

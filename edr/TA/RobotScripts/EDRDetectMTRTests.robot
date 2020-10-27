@@ -26,7 +26,6 @@ EDR By Default Will Configure Audit Option
 
 EDR Does Not Configure Audit If MTR Is Supposed To Be Installed
     Check MTR in ALC Policy Forces Disable Audit Data Collection
-    sleep  2
 
 EDR configures osquery to collect audit data if MTR is removed
     Check MTR in ALC Policy Forces Disable Audit Data Collection

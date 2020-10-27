@@ -50,7 +50,7 @@ namespace osqueryclient
         return m_client->Query(sql, qd);
     }
 
-    OsquerySDK::Status OsqueryClientImpl::getQueryColumns(const std::string& sql, OsquerySDK::QueryColumns & qc)
+    OsquerySDK::Status OsqueryClientImpl::getQueryColumns(const std::string& sql, OsquerySDK::QueryColumns& qc)
     {
         assert(m_client);
         return m_client->GetQueryColumns(sql, qc);

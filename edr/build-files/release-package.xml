@@ -14,7 +14,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="livequery">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-1937-make-windows-team-logger-plugin-work-for-linux"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <package name="boostlinux11" version="1-72-0-24/218999//output" dest="input">
