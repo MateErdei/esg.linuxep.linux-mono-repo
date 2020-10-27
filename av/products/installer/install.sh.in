@@ -105,6 +105,7 @@ function bootstrap_susi_from_update_source()
 {
     local src_dir=${SUSI_UPDATE_SRC}
     local dest_dir=${SUSI_V1DIR}
+    mkdir -p ${SUSI_V1DIR}
 
     cp -d ${SUSI_UPDATE_SRC}libsusi.so* ${SUSI_V1DIR}
     cp -d ${SUSI_UPDATE_SRC}package_manifest.txt* ${SUSI_V1DIR}
@@ -122,6 +123,8 @@ function bootstrap_susi_from_update_source()
     cp -rd ${SUSI_UPDATE_SRC}vdl ${SUSI_V1DIR}vdb
 
     cp -rd ${SUSI_UPDATE_SRC}rules ${SUSI_V1DIR}rules
+
+    cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${SUSI_V1DIR}
 
     chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
@@ -175,14 +178,10 @@ function install_product()
     ln -snf "/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector"
     ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
 
-    ## Temporary - will need to adapt to hot-updating in SuSI
-    cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${CHROOT}/susi/distribution_version/version1/
-
     # Enable DNS resolve on Ubuntu
-    mkdir -p ${CHROOT}/etc ${CHROOT}/susi/distribution_version
+    mkdir -p ${CHROOT}/etc
 
     chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}"
-
 
     pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
     THREAT_DETECTOR="sophos_threat_detector_launcher"

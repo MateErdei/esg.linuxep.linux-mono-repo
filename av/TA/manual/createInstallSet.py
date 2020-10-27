@@ -28,11 +28,6 @@ def download_supplements(dest):
     return updated
 
 
-def susi_dir(install_set):
-    install_set = ensure_binary(install_set)
-    return os.path.join(install_set,
-                        b"files", b"plugins", b"av", b"chroot", b"susi", b"distribution_version", b"version1")
-
 def susi_update_source_dir(install_set):
     install_set = ensure_binary(install_set)
     return os.path.join(install_set,
@@ -58,12 +53,6 @@ def verify_install_set(install_set, sdds_component=None):
         if not os.path.isdir(p):
             return False
 
-    dest_version = susi_dir(install_set)
-    for x in b"vdb", b"mlmodel", b"lrdata":
-        p = os.path.join(dest_version, x)
-        print("Checking if %s exists" % p, file=sys.stderr)
-        if not os.path.isdir(p):
-            return False
 
     # Compare manifest.dat inside sdds_component
     if sdds_component is not None:
@@ -86,10 +75,6 @@ def setup_install_set(install_set, sdds_component, vdl, ml_model, local_rep):
     shutil.copytree(ml_model, os.path.join(update_source, b"model"))
     shutil.copytree(local_rep, os.path.join(update_source, b"reputation"))
 
-    dest_version = susi_dir(install_set)
-    shutil.copytree(vdl, os.path.join(dest_version, b"vdb"))
-    shutil.copytree(ml_model, os.path.join(dest_version, b"mlmodel"))
-    shutil.copytree(local_rep, os.path.join(dest_version, b"lrdata"))
     return 0
 
 
