@@ -132,7 +132,6 @@ def write_file(dest, contents):
 INPUT_DIR   = None
 OUTPUT_DIR  = None
 SUSI_DIR    = None
-VERSION_DIR = None
 
 
 def copy_from_input(relative_glob, dest):
@@ -161,34 +160,10 @@ def get_abs_dest_relative_to_base_dir(base, rel_dest=None):
         return os.path.join(base, rel_dest)
 
 
-def get_abs_dest_relative_to_version_dir(rel_dest=None):
-    global VERSION_DIR
-    return get_abs_dest_relative_to_base_dir(VERSION_DIR, rel_dest)
-
-
-def copy_from_input_to_version_dir(relative_glob, dest=None):
-    dest = get_abs_dest_relative_to_version_dir(dest)
-    return copy_from_input(relative_glob, dest)
-
-
 def copy_from_input_to_susi_dir(relative_glob, dest=None):
     global SUSI_DIR
     dest = get_abs_dest_relative_to_base_dir(SUSI_DIR, dest)
     return copy_from_input(relative_glob, dest)
-
-
-def unpack_zip_from_input_to_version_dir(rel_src, rel_dest, extraction_filter=None):
-    dest = get_abs_dest_relative_to_version_dir(rel_dest)
-    return unpack_zip_from(INPUT_DIR, rel_src, dest, extraction_filter=extraction_filter)
-
-
-def unpack_tar_from_input_to_version_dir(rel_src, rel_dest, extraction_filter=None):
-    global INPUT_DIR
-    dest = get_abs_dest_relative_to_version_dir(rel_dest)
-    if not os.path.exists(dest):
-        os.mkdir(dest)
-    src = os.path.join(INPUT_DIR, rel_src)
-    return unpack_tar_from(src, dest, extraction_filter)
 
 
 LIBRARY_RE = re.compile(r"^(.*\.so.*)\.(\d+)$")
@@ -291,54 +266,9 @@ def main(argv):
     global SUSI_DIR
     SUSI_DIR = os.path.join(OUTPUT_DIR, "susi_build")
     safe_mkdir(SUSI_DIR)
-    os.chdir(SUSI_DIR)
-
-    VERSION_NAME = "version1"
-    global VERSION_DIR
-    VERSION_DIR = os.path.join(SUSI_DIR, VERSION_NAME)
 
     ## Get SUSI - has to be first, since it deletes dest
-    copy_from_input("susi/lib", VERSION_DIR)
-    move_glob(os.path.join(VERSION_DIR, "libsusi.so*"), SUSI_DIR)
-    ## Delete duplicated library
-    delete_duplicated_libraries(SUSI_DIR)
-
-    ## rules
-    copy_from_input_to_version_dir("rules", "rules")
-
-    ## openssl - maybe not required?
-
-    ## libsavi
-    copy_from_input("libsavi/libsavi.so.3.2.*", VERSION_NAME)
-
-    ## libluajit
-    copy_from_input("luajit/lib/libluajit*.so.2.*", VERSION_NAME)
-    
-    ## icu
-    copy_from_input("icu/lib/libicu*", VERSION_NAME)
-
-    ## boost
-    unpack_tar_from_input_to_version_dir("boost/boost.tar.bz2", ".", ['--wildcards',
-        'lib/libboost_chrono.so.*', 
-        'lib/libboost_locale.so.*', 
-        'lib/libboost_system.so.*',
-        'lib/libboost_thread.so.*',
-        '--strip=1'])
-        
-    ## libarchive
-    copy_from_input_to_version_dir("libarchive/lib/*")
-
-    ## httpsrequester / globalrep?
-    copy_from_input_to_version_dir("gr/lib/*")
-
-    ## libsophtainer
-    unpack_tar_from_input_to_version_dir("libsophtainer/libsophtainer.tar", None)
-
-    ## local-rep
-    copy_from_input("lrlib/liblocalrep.so", VERSION_NAME)
-
-    ## ml-lib
-    unpack_tar_from_input_to_version_dir("mllib/linux-x64-model-gcc4.8.1.tar", None)
+    copy_from_input("susi/lib", SUSI_DIR)
 
     ## Create initial update cache
     UPDATE_CACHE_DIR = os.path.join(OUTPUT_DIR, "susi_update_source")
@@ -420,22 +350,12 @@ rules {}
         rules_checksum)
 
     write_file(os.path.join(UPDATE_CACHE_DIR, "nonsupplement_manifest.txt"), manifest)
-    write_file(os.path.join(VERSION_DIR, "nonsupplement_manifest.txt"), manifest)
-
-    write_file(os.path.join(SUSI_DIR, "version_manifest.txt"), VERSION_NAME)
+    write_file(os.path.join(UPDATE_CACHE_DIR, "version_manifest.txt"), "version1")
 
     SUSI_SDDS_DIR = os.path.join(OUTPUT_DIR, "susi_sdds")
     print("Create SDDS ready fileset")
-    copy_directory(SUSI_DIR, os.path.join(SUSI_SDDS_DIR, "distribution_version"))
     copy_directory(UPDATE_CACHE_DIR, os.path.join(SUSI_SDDS_DIR, "update_source"))
     delete_duplicated_libraries(SUSI_SDDS_DIR)
-
-    print("Create build ready fileset")
-    ## Setup symlinks
-    # safe_symlink(
-    # os.path.join("..", VERSION_NAME, "libssp.so.0"),
-    # "lib/libssp.so.0"
-    # )
 
     ## Setup SUSI include dir
     susi_include_dir = os.path.join(SUSI_DIR, "include")
