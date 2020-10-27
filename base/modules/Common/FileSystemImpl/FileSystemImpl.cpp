@@ -709,8 +709,9 @@ namespace Common
             }
         }
 
-        bool FileSystemImpl::waitForFile(const Path &path, unsigned int timeout) const {
-            bool fileExists;
+        bool FileSystemImpl::waitForFile(const Path &path, unsigned int timeout) const
+        {
+            bool fileExists = false;
             unsigned int waited = 0;
             unsigned int waitPeriod = 1000; // 1ms for use with usleep
             unsigned int target = timeout * 1000;
