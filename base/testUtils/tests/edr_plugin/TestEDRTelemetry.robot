@@ -63,12 +63,15 @@ EDR Plugin Produces Telemetry With OSQueryD Output Log File Not Containing Resta
 
 EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Wait Until OSQuery Running  20
+
+    Wait Until Osquery Socket Exists
     Kill OSQuery
     Wait Until OSQuery Running  20
 
     Restart EDR Plugin              #Check telemetry persists after restart
     Wait Until OSQuery Running  20
 
+    Wait Until Osquery Socket Exists
     Kill OSQuery
     Wait Until OSQuery Running  20
 
@@ -196,3 +199,9 @@ Wait For EDR Osquery To Purge Database
     ...  120s
     ...  10s
     ...  Check EDR Log Contains   Purging Database
+
+Wait Until Osquery Socket Exists
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/osquery.sock
