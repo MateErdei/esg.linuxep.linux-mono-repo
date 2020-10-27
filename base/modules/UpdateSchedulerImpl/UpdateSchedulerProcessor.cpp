@@ -207,17 +207,14 @@ namespace UpdateSchedulerImpl
 
             writeConfigurationData(settingsHolder.configurationData);
             m_scheduledUpdateConfig = settingsHolder.configurationData.getSchedule();
-            if (m_scheduledUpdateConfig.enabled)
+            char buffer[20];
+            std::tm scheduledTime{};
+            scheduledTime.tm_wday = m_scheduledUpdateConfig.weekDay;
+            scheduledTime.tm_hour = m_scheduledUpdateConfig.hour;
+            scheduledTime.tm_min = m_scheduledUpdateConfig.minute;
+            if (strftime(buffer, sizeof(buffer), "%A %H:%M", &scheduledTime))
             {
-                char buffer[20];
-                std::tm scheduledTime{};
-                scheduledTime.tm_wday = m_scheduledUpdateConfig.weekDay;
-                scheduledTime.tm_hour = m_scheduledUpdateConfig.hour;
-                scheduledTime.tm_min = m_scheduledUpdateConfig.minute;
-                if (strftime(buffer, sizeof(buffer), "%A %H:%M", &scheduledTime))
-                {
-                    LOGINFO("Scheduling updates for " << buffer);
-                }
+                LOGINFO("Scheduling updates for " << buffer);
             }
 
             std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData =

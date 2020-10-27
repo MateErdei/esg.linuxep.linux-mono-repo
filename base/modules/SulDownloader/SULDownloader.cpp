@@ -109,6 +109,7 @@ namespace SulDownloader
 
         if (warehouseRepository->hasError())
         {
+            LOGDEBUG("Failed to connect to warehouse: " << warehouseRepository->getError().Description);
             return false;
         }
 
@@ -118,12 +119,14 @@ namespace SulDownloader
 
         if (warehouseRepository->hasError())
         {
+            LOGDEBUG("Failed to synchronise warehouse: " << warehouseRepository->getError().Description);
             return false;
         }
 
         warehouseRepository->distribute();
         if (warehouseRepository->hasError())
         {
+            LOGDEBUG("Failed to distribute warehouse: " << warehouseRepository->getError().Description);
             return false;
         }
 
@@ -173,11 +176,13 @@ namespace SulDownloader
             success = internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
             if (success)
             {
+                LOGDEBUG("Successfully ran SUL Downloader");
                 break;
             }
         }
         if (supplementOnly && !success)
         {
+            LOGDEBUG("Retry with product update, in case the supplement config has changed");
             // retry with product update, in case the supplement config has changed
             supplementOnly = false;
             for (const auto& connectionSetup : candidates)
@@ -185,6 +190,7 @@ namespace SulDownloader
                 success = internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
                 if (success)
                 {
+                    LOGDEBUG("Successfully ran SUL Downloader");
                     break;
                 }
             }
@@ -205,6 +211,7 @@ namespace SulDownloader
         {
             std::string rigidName = product.getProductMetadata().getLine();
             std::string warehouseVersionIni = Common::FileSystem::join(product.distributePath(), "VERSION.ini");
+            LOGDEBUG("Checking if " << rigidName << " needs to downgraded");
 
             try
             {
@@ -388,6 +395,7 @@ namespace SulDownloader
         const std::string& previousReportData,
         bool supplementOnly)
     {
+        LOGDEBUG("Configure and run downloader: " << settingsString);
         try
         {
             ConfigurationData configurationData = ConfigurationData::fromJsonSettings(settingsString);
