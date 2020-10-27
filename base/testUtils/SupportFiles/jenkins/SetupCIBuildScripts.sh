@@ -12,6 +12,7 @@ mkdir -p ~/.config/pip/
 pushd ~/.config/pip/
 echo [global] > pip.conf
 echo index-url = https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple >> pip.conf
+echo trusted-host = tap-artifactory1.eng.sophos >> pip.conf
 echo cert = $SCRIPTDIR/sophos_certs.pem >> pip.conf
 
 python3 -m pip install wheel
