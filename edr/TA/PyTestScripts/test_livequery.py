@@ -100,20 +100,6 @@ def send_and_receive_query_and_verify(query_to_send, mock_management_agent, edr_
     check_responses_are_equivalent(file_content, expected_answer)
 
 
-def test_google_component_tests(sspl_mock, edr_plugin_instance, caplog):
-    caplog.set_level(logging.INFO)
-    proc_path = os.path.join(sspl_mock.google_test_dir, "TestOsqueryProcessor")
-    copyenv = os.environ.copy()
-    copyenv["OVERRIDE_OSQUERY_BIN"] = os.path.join(sspl_mock.sspl, "plugins/edr/bin/osqueryd")
-    copyenv["RUN_GOOGLE_COMPONENT_TESTS"] = "1"
-    copyenv["LD_LIBRARY_PATH"] = os.path.join(sspl_mock.sspl, "plugins/edr/lib64/")
-    popen = subprocess.Popen(proc_path, env=copyenv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    results = popen.communicate()
-    popen.wait()
-    logger.info("{}".format(results[0].decode()))
-    if popen.returncode != 0:
-        raise AssertionError("Google tests failed. Also providing the stderr: \n{}".format(results[1].decode()))
-
 
 @detect_failure
 def test_edr_plugin_expected_responses_to_livequery(sspl_mock, edr_plugin_instance):
