@@ -314,12 +314,7 @@ namespace Plugin
             try
             {
                 osqueryProcess->keepOsqueryRunning(osqueryStarted);
-                // TODO replace with call from base
-                auto fs = Common::FileSystem::fileSystem();
-                while(!fs->exists(Plugin::osquerySocket()))
-                {
-                    usleep(1000000);
-                }
+
             }
             catch (Plugin::IOsqueryCrashed&)
             {
@@ -346,13 +341,6 @@ namespace Plugin
     {
         try
         {
-            // clean up socket file so when easily check when osquery is ready for queries
-            auto fs = Common::FileSystem::fileSystem();
-            if (fs->exists(Plugin::osquerySocket()))
-            {
-                fs->removeFile(Plugin::osquerySocket());
-                LOGDEBUG("Cleaned up osquery socket");
-            }
             while (m_osqueryProcess && m_monitor.valid())
             {
                 LOGINFO("Issue request to stop to osquery.");

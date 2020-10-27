@@ -18,6 +18,7 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include <modules/Proc/ProcUtilities.h>
 
 #include <iterator>
+#include <unistd.h>
 
 namespace
 {
@@ -134,6 +135,12 @@ namespace Plugin
             startProcess(osqueryPath, arguments);
             // only allow commands to be processed after this point.
             // this will trigger osquery_started
+
+            auto fs = Common::FileSystem::fileSystem();
+            while(!fs->exists(Plugin::osquerySocket()))
+            {
+                usleep(1000000);
+            }
         }
 
         m_processMonitorPtr->waitUntilProcessEnds();
@@ -186,7 +193,9 @@ namespace Plugin
         std::lock_guard<std::mutex> lock { m_processMonitorSharedResource };
         if (m_processMonitorPtr)
         {
-            m_processMonitorPtr->kill();
+            bool ret = m_processMonitorPtr->kill();
+            if (ret){LOGWARN("had to send sigkill");}
+            else{LOGWARN("sigterm worked");}
         }
     }
 
