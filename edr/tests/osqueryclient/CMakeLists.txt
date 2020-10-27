@@ -25,5 +25,3 @@ install(FILES ${INPUT}/pluginapi/tests/lib64/libsharedtesthelpers.so
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
-install(TARGETS TestOsqueryProcessor
-        DESTINATION ../componenttests)

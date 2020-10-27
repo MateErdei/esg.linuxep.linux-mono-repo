@@ -193,9 +193,7 @@ namespace Plugin
         std::lock_guard<std::mutex> lock { m_processMonitorSharedResource };
         if (m_processMonitorPtr)
         {
-            bool ret = m_processMonitorPtr->kill();
-            if (ret){LOGWARN("had to send sigkill");}
-            else{LOGWARN("sigterm worked");}
+            m_processMonitorPtr->kill();
         }
     }
 
