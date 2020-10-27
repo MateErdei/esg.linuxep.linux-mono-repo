@@ -33,5 +33,5 @@ sophos_add_library(pluginimpl SHARED
         OsqueryLogIngest.cpp
         EXTRA_PROJECTS queryrunnerimpl procimpl
         EXTRA_INCLUDES ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR}
-        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} ${expatlib} ${zlib} ${JSONCPP_LIBRARY} ${GFLAG_LIBRARY} ${THRIFT_LIBRARY}
+        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} ${expatlib} ${zlib} ${JSONCPP_LIBRARY} ${GFLAG_LIBRARY} ${OPENSSL_LIBRARY} ${THRIFT_LIBRARY}
 )
