@@ -821,6 +821,30 @@ namespace
         EXPECT_FALSE(m_fileSystem->waitForFile(filePath, 10));
     }
 
+    TEST_F(FileSystemImplTest, appendToFileCreatesAndAppendsToFile) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        Path directoryPath =  tempDir.dirPath();
+        std::string filename = "appendTestFileName";
+        Path filePath = Common::FileSystem::join(directoryPath, filename);
+        m_fileSystem->appendFile(filePath, "a");
+        m_fileSystem->appendFile(filePath, "b");
+        m_fileSystem->appendFile(filePath, "c");
+        EXPECT_EQ(m_fileSystem->readFile(filePath), R"(abc)");
+    }
+
+    TEST_F(FileSystemImplTest, appendToFileAppendsToExistingFile) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        Path directoryPath =  tempDir.dirPath();
+        std::string filename = "appendTestExistingFileName";
+        Path filePath = Common::FileSystem::join(directoryPath, filename);
+        tempDir.createFile(filename,"123");
+        m_fileSystem->appendFile(filePath, "a");
+        m_fileSystem->appendFile(filePath, "b");
+        m_fileSystem->appendFile(filePath, "c");
+        EXPECT_EQ(m_fileSystem->readFile(filePath), R"(123abc)");
+    }
 
 
 
