@@ -855,7 +855,7 @@ TEST_F( // NOLINT
     DownloadedProductVector emptyProducts;
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
-    EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
+    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(false)); // failed tryConnect call
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
@@ -896,7 +896,7 @@ TEST_F( // NOLINT
     DownloadedProductVector emptyProducts;
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
-    EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
+    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
     EXPECT_CALL(mock, tryConnect(_, true, _)).WillOnce(Return(false)); // failed tryConnect call
     EXPECT_CALL(mock, tryConnect(_, false, _)).WillOnce(Return(false)); // failed tryConnect call
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
@@ -942,7 +942,7 @@ TEST_F( // NOLINT
         .WillRepeatedly(Return(true));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
-    EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
+    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
@@ -997,7 +997,7 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
+    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
 
