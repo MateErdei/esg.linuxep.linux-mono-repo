@@ -81,6 +81,8 @@ namespace Common
 
             std::time_t lastModifiedTime(const Path& path) const override;
 
+            std::optional<std::string> readProcFile(int pid, const std::string& filename) const override;
+
             void removeFilesInDirectory(const Path& path) const override;
 
             bool waitForFile(const Path& path, unsigned int timeout) const override;

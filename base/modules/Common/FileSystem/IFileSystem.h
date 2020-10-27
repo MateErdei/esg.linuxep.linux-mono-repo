@@ -8,6 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <ctime>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -157,13 +158,6 @@ namespace Common
             virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir) const = 0;
 
             /**
-             * Appends the given string content to the given file.
-             * @param path, location of the file to append to (the file will be created if it doesn't exist)
-             * @param content, the string value to append into the given file, new lines are not added implicitly
-             */
-            virtual void appendFile(const Path& path, const std::string& content) const = 0;
-
-            /**
              * Provide the fullPath of the files under the directoryPath given.
              *
              * @note Only regular files and symlinks are listed, directories or special file system entries will not be listed.
@@ -283,13 +277,18 @@ namespace Common
              */
             virtual std::time_t lastModifiedTime(const Path& path) const = 0;
 
-            /**
-            * Wait for the given file to exist.
-            * @param path, location of the file to wait for
-            * @param timeout, maximum time in milliseconds to wait for the file to exist before returning
-             *@return true if file exists within given time, false if the file did not exist within the given time
+            /** Return the content of
+            * /proc/<pid>/<filename>
+            * Given the nature of proc files being ephemeral, it returns optional which means that if the value is not
+            * available or it fail to read the content, it will return an empty optional value.
+            *
+            * Look that fileSystem()->readContent can not be used as it tries to hold the size of the file which is not valid
+            * for /proc files.
+            * @param pid
+            * @param filename
+            * @return
             */
-            virtual bool waitForFile(const Path& path, unsigned int timeout) const = 0;
+            virtual std::optional<std::string> readProcFile(int pid, const std::string& filename) const = 0;
         };
 
         /**

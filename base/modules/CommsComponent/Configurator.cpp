@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <CommsComponent/CommsComponentUtils.h>
+#include <Common/ProcUtilImpl/ProcUtilities.h>
 
 #include <sstream>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
@@ -58,6 +59,11 @@ namespace
 
     void cleanMountedPaths(const std::vector<std::string>& listOfMountedPaths, std::vector<std::pair<std::string, int>>& out)
     {
+        //killing all processes ran by comms-network user
+        std::string username("sophos-spl-network");
+        std::vector<int> pids = Proc::listProcWithUserName(username);
+        Proc::killAllProcessesInProcList(pids);
+
         for (auto& mountedPath : listOfMountedPaths)
         {
             out.push_back(std::make_pair("Unmount path: " + mountedPath, 0));

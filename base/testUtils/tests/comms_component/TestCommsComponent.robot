@@ -31,6 +31,72 @@ Test Comms Component Starts
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log  sophos-spl-network  sophos-spl-network  -rw-------
 
 
+Test Comms Component Starts With Process Running Inside And OutSide The Chroot From A Mounted Directory
+    [Tags]   COMMS  TAP_TESTS
+    Require Installed
+
+    Check Comms Component Is Running
+
+    # Create simple execuable script to run within chroot mount and outside chroot mount.
+    ${script} =     Catenate    SEPARATOR=\n
+    ...    \#!/bin/bash
+    ...   sleep 300
+    ...    \
+    Create File    ${SOPHOS_INSTALL}/base/mcs/certs/sleep.sh   content=${script}
+    Run Process  chmod  +x  ${SOPHOS_INSTALL}/base/mcs/certs/sleep.sh
+
+    # Start the test sleep process from within a mount
+    Start Process  sudo -H -u sophos-spl-network bash -c '${SOPHOS_INSTALL}/var/sophos-spl-comms/base/mcs/certs/sleep.sh'  shell=yes
+
+    Stop Watchdog
+    Check Comms Component Not Running
+
+    Start Watchdog
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Check Comms Component Is Running
+
+    # Start the test sleep process from outside the chroot but from a direct which gets mounted
+    Start Process  sudo -H -u sophos-spl-network bash -c '${SOPHOS_INSTALL}/base/mcs/certs/sleep.sh'  shell=yes
+
+    Stop Watchdog
+    Check Comms Component Not Running
+
+    Start Watchdog
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Check Comms Component Is Running
+
+
+
+Test Comms Component Starts With Process Running Inside Chroot Not From A Mounted Directory
+    [Tags]   COMMS  TAP_TESTS
+    Require Installed
+
+    Check Comms Component Is Running
+
+    # Create simple execuable script to run inside the chroot not from a mounted directory
+    ${script} =     Catenate    SEPARATOR=\n
+    ...    \#!/bin/bash
+    ...   sleep 300
+    ...    \
+    Create File    ${SOPHOS_INSTALL}/var/sophos-spl-comms/sleep.sh   content=${script}
+    Run Process  chmod  +x  ${SOPHOS_INSTALL}/var/sophos-spl-comms/sleep.sh
+
+    # Start the test sleep process from within a mount
+    Start Process  sudo -H -u sophos-spl-network bash -c '${SOPHOS_INSTALL}/var/sophos-spl-comms/sleep.sh'  shell=yes
+
+    Stop Watchdog
+    Check Comms Component Not Running
+
+    Start Watchdog
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Check Comms Component Is Running
+
 Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
     [Tags]   COMMS  TAP_TESTS
     Require Installed

@@ -44,7 +44,8 @@ target_link_libraries(commscomponentimpl PUBLIC
         httpsenderimpl
         obfuscationimpl
         filesystemimpl
-        directorywatcherimpl)
+        directorywatcherimpl
+        procutilimpl)
 
 
 SET_TARGET_PROPERTIES( commscomponentimpl

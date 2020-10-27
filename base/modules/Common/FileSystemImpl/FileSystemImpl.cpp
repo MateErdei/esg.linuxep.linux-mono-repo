@@ -15,12 +15,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 
 #include <cassert>
-#include <cstring>
 #include <dirent.h>
+#include <fcntl.h>
 #include <fstream>
 #include <grp.h>
 #include <iostream>
-#include <pwd.h>
 #include <sstream>
 #include <unistd.h>
 
@@ -299,23 +298,6 @@ namespace Common
                 LOGSUPPORT(ex.what());
                 throw IFileSystemException("Error, Failed to read from file '" + path + "'");
             }
-        }
-
-        void FileSystemImpl::appendFile(const Path& path, const std::string& content) const
-        {
-            std::ofstream outFileStream(path.c_str(), std::ios::app);
-
-            if (!outFileStream.good())
-            {
-                int error = errno;
-                std::string errdesc = StrError(error);
-
-                throw IFileSystemException("Error, Failed to append file: '" + path + "', " + errdesc);
-            }
-
-            outFileStream << content;
-
-            outFileStream.close();
         }
 
         void FileSystemImpl::writeFile(const Path& path, const std::string& content) const
@@ -709,18 +691,26 @@ namespace Common
             }
         }
 
-        bool FileSystemImpl::waitForFile(const Path &path, unsigned int timeout) const
+        std::optional<std::string> FileSystemImpl::readProcFile(int pid, const std::string& filename) const
         {
-            bool fileExists = false;
-            unsigned int waited = 0;
-            unsigned int waitPeriod = 1000; // 1ms for use with usleep
-            unsigned int target = timeout * 1000;
-            while (!(fileExists = exists(path)) && waited < target)
+            std::array<char, 4096> buffer {};
+            std::string path = Common::FileSystem::join("/proc", std::to_string(pid), filename);
+            int fd = ::open(path.c_str(), O_RDONLY);
+            if (fd < 0)
             {
-                usleep(waitPeriod);
-                waited += waitPeriod;
+                LOGSUPPORT("ReadProcFile could not open file: " << path);
+                return std::optional<std::string> {};
             }
-            return fileExists;
+            int nbytes = ::read(fd, buffer.data(), buffer.size());
+            ::close(fd);
+
+            if (nbytes == -1)
+            {
+                LOGSUPPORT("ReadProcFile failed to read the content of file: " << path);
+                return std::optional<std::string> {};
+            }
+            assert(nbytes <= static_cast<int>(buffer.size()));
+            return std::string { buffer.begin(), buffer.begin() + nbytes };
         }
 
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()
