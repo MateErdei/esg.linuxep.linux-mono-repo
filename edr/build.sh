@@ -268,15 +268,18 @@ function build()
         tar xzf ${INPUT}/osquery-4.5.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
         cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
 
-            # TODO can we do this in a better way?
+        # TODO can we do this in a better way?
         # Fix up jsoncpp dual versioning scheme.
+
         if [[ -f $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  ]]
         then
+            pushd $REDIST/jsoncpp/lib64/
             echo "Detected that libjsoncpp dual versioning scheme in place, removing .so.1.8.4 and leaving .so.19"
-            rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so.19
-            rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so
-            mv $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  $REDIST/jsoncpp/lib64/libjsoncpp.so.19
-            ln -sfn libjsoncpp.so.19 $REDIST/jsoncpp/lib64/libjsoncpp.so
+            rm -f libjsoncpp.so.19
+            rm -f libjsoncpp.so
+            mv libjsoncpp.so.1.8.4  libjsoncpp.so.19
+            ln -sfn libjsoncpp.so.19 libjsoncpp.so
+            popd
         fi
 
     fi
