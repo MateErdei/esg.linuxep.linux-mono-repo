@@ -139,7 +139,7 @@ namespace Plugin
             auto fs = Common::FileSystem::fileSystem();
             while(!fs->exists(Plugin::osquerySocket()))
             {
-                usleep(1000000);
+                usleep(100000);
             }
         }
 

@@ -55,7 +55,7 @@ namespace OsquerySDK
                 iterator += 1;
             }
             r["data"] = data;
-            r["size"] = countv;
+            r["size"] = std::to_string(countv);
             results.push_back(std::move(r));
             return results;
         }

@@ -46,9 +46,9 @@ namespace OsquerySDK
         std::this_thread::sleep_for(std::chrono::seconds(delayv));
         size_t stop = time(NULL);
         TableRow r;
-        r["start"] = start;
-        r["stop"] = stop;
-        r["delay"] = delayv;
+        r["start"] = std::to_string(start);
+        r["stop"] = std::to_string(stop);
+        r["delay"] = std::to_string(delayv);
         results.push_back(std::move(r));
         return results;
 
