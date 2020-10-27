@@ -9,7 +9,7 @@ SophosAddTest(TestPlugin
         ALCPoliciesExample.cpp
         OsqueryTelemetryTests.cpp
         PROJECTS pluginimpl OsqueryExtensions
-        LIBS ${pluginapilib} ${testhelperslib} rt
+        LIBS ${pluginapilib} ${testhelperslib} rt dl ${OPENSSL_LIBRARY}
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
 )
 
