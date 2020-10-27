@@ -344,20 +344,19 @@ namespace Plugin
         try
         {
             auto fs = Common::FileSystem::fileSystem();
-            bool socketRunning;
-            socketRunning = fs->waitForFile(Plugin::osquerySocket(), 10000);
-            if (!socketRunning)
+            bool socketExists;
+            socketExists = fs->waitForFile(Plugin::osquerySocket(), 10000);
+            if (!socketExists)
             {
-                LOGERROR("OSQuery socket is not running after waiting 10 seconds. Restarting EDR");
-                // TODO LINUXDAR-2201 Throw the toys out the pram in a proportional and responsible manner
+                LOGERROR("OSQuery socket does not exist after waiting 10 seconds. Restarting EDR");
+                m_queueTask->pushStop();
                 return;
             }
-            //TODO set verbose false when done with dev
-            m_loggerExtension.Start(Plugin::osquerySocket(), true, 1000, 10);
+            m_loggerExtension.Start(Plugin::osquerySocket(), false, 1000, 10);
         }
         catch (const std::exception& ex)
         {
-            LOGERROR("loggerExtension.Start threw: " << ex.what());
+            LOGERROR("Failed to start logger extension, loggerExtension.Start threw: " << ex.what());
         }
     }
 
@@ -365,6 +364,9 @@ namespace Plugin
     {
         try
         {
+            // Call stop on logger extension, this is ok to call whether running or not.
+            m_loggerExtension.Stop();
+
             while (m_osqueryProcess && m_monitor.valid())
             {
                 LOGINFO("Issue request to stop to osquery.");

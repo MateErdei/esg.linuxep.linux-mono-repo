@@ -40,9 +40,9 @@ void LoggerExtension::Start(
 
 void LoggerExtension::Stop()
 {
-    LOGINFO("LoggerExtension::Stop");
     if (!m_stopped)
     {
+        LOGINFO("LoggerExtension::Stop");
         m_stopped = true;
         m_extension->Stop();
         if (m_runnerThread)
