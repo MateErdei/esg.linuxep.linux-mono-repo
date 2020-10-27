@@ -20,7 +20,6 @@ void FakeDetectionServer::FakeServerSocket::start()
 
 void FakeDetectionServer::FakeServerSocket::initializeData(uint8_t* Data, size_t Size)
 {
-    m_hasSentData = false;
     m_Data = Data;
     m_Size = Size;
 }

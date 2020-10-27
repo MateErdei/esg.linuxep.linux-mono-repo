@@ -13,17 +13,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <Common/Threads/AbstractThread.h>
-#include <capnp/message.h>
-#include <common/AbortScanException.h>
-#include <datatypes/Print.h>
-
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <capnp/message.h>
+#include <capnp/serialize.h>
+#include <common/AbortScanException.h>
+#include <datatypes/Print.h>
+#include <unixsocket/SocketUtilsImpl.h>
 
+#include <chrono>
 #include <cstddef>
 #include <fstream>
-#include <chrono>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 #define BASE "/tmp/TestPluginAdapter"
@@ -52,53 +53,8 @@ namespace
 
     static std::unique_ptr<FakeDetectionServer::FakeServerSocket> socketServer;
 
-    static std::string m_scanResult  = "{\n"
-                                       "    \"results\":\n"
-                                       "    [\n"
-                                       "        {\n"
-                                       "            \"detections\": [\n"
-                                       "               {\n"
-                                       "                   \"threatName\": \"MAL/malware-A\",\n"
-                                       "                   \"threatType\": \"malware/trojan/PUA/...\",\n"
-                                       "                   \"threatPath\": \"...\",\n"
-                                       "                   \"longName\": \"...\",\n"
-                                       "                   \"identityType\": 0,\n"
-                                       "                   \"identitySubtype\": 0\n"
-                                       "               }\n"
-                                       "            ],\n"
-                                       "            \"Local\": {\n"
-                                       "                \"LookupType\": 1,\n"
-                                       "                \"Score\": 20,\n"
-                                       "                \"SignerStrength\": 30\n"
-                                       "            },\n"
-                                       "            \"Global\": {\n"
-                                       "                \"LookupType\": 1,\n"
-                                       "                \"Score\": 40\n"
-                                       "            },\n"
-                                       "            \"ML\": {\n"
-                                       "                \"ml-pe\": 50\n"
-                                       "            },\n"
-                                       "            \"properties\": {\n"
-                                       "                \"GENES/SUPPRESSML\": 1\n"
-                                       "            },\n"
-                                       "            \"telemetry\": [\n"
-                                       "                {\n"
-                                       "                    \"identityName\": \"xxx\",\n"
-                                       "                    \"dataHex\": \"6865646765686f67\"\n"
-                                       "                }\n"
-                                       "            ],\n"
-                                       "            \"mlscores\": [\n"
-                                       "                {\n"
-                                       "                    \"score\": 12,\n"
-                                       "                    \"secScore\": 34,\n"
-                                       "                    \"featuresHex\": \"6865646765686f67\",\n"
-                                       "                    \"mlDataVersion\": 56\n"
-                                       "                }\n"
-                                       "            ]\n"
-                                       "        }\n"
-                                       "    ]\n"
-                                       "}";
-
+    static std::string m_scanResult  = //R"("results":[{"detections":[],"path":"/etc/passwd"],"time":"2020-10-27T10:14:03Z"})";
+        R"({"results":[{"detections":[{"threatName":"EICAR-AV-Test","threatType":"virus"}],"path":"/home/vagrant/eicar1","sha256":"131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"}],"time":"2020-10-27T10:14:03Z"})";
 
     static void DoInitialization(uint8_t* Data, size_t Size)
     {
@@ -152,23 +108,72 @@ static bool DoInitialization()
     return true;
 }
 
+static void testSampleFile(std::string path)
+{
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    std::streamsize size = file.tellg();
+
+    if (size < 0)
+    {
+        PRINT("cannot open file");
+
+    }
+
+    file.seekg(0, std::ios::beg);
+
+    std::vector<char> buffer(size);
+    if (!file.read(buffer.data(), size))
+    {
+        PRINT("cannot read file");
+    }
+    file.close();
+
+    std::string dataAsString = std::string(buffer.begin() + 1, buffer.end());
+
+    const kj::ArrayPtr<const capnp::word> view(
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    try
+    {
+        capnp::FlatArrayMessageReader messageInput(view);
+        Sophos::ssplav::FileScanResponse::Reader responseReader =
+            messageInput.getRoot<Sophos::ssplav::FileScanResponse>();
+
+        auto response = scan_messages::ScanResponse(responseReader);
+
+        PRINT(response.serialise());
+    }
+    catch(kj::Exception& e)
+    {
+        std::stringstream errorMsg;
+        errorMsg << "failed to read response from disk (" << e.getDescription().cStr() << ")";
+        throw AbortScanException(errorMsg.str());
+    }
+}
+
 static int writeSampleFile(std::string path)
 {
     ::capnp::MallocMessageBuilder message;
     scan_messages::ScanResponse scanResponse;
 
-    scanResponse.addDetection("IT-IS-A-FILE", "A-THREAT");
+    scanResponse.addDetection("/home/vagrant/eicar1", "EICAR-AV-Test");
     scanResponse.setFullScanResult(m_scanResult);
 
     std::ofstream outfile(path, std::ios::binary);
 
-    std::string request_str = scanResponse.serialise();
+    std::string responseString = scanResponse.serialise();
 
-    char size = request_str.size();
-    outfile.write(&size, sizeof(size));
+    int size = responseString.size();
 
-    outfile.write(request_str.data(), request_str.size());
+    auto bytes = unixsocket::splitInto7Bits(size);
+    auto lengthBytes = unixsocket::addTopBitAndPutInBuffer(bytes);
+
+    outfile.write(reinterpret_cast<const char*>(lengthBytes.get()), bytes.size());
+
+    outfile.write(responseString.data(), responseString.size());
     outfile.close();
+
     return EXIT_SUCCESS;
 }
 
@@ -215,6 +220,17 @@ int main(int argc, char** argv)
         }
 
         return writeSampleFile(argv[2]);
+    }
+
+    if(strcmp(argv[1], "--test-request") == 0)
+    {
+        if( argc < 3 )
+        {
+            PRINT("missing filename");
+            return EXIT_FAILURE;
+        }
+
+        return testSampleFile(argv[2]);
     }
 
     static bool Initialized = DoInitialization();
