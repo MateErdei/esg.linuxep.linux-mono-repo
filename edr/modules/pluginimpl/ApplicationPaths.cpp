@@ -50,23 +50,6 @@ std::string Plugin::osqueryConfigFilePath()
     return fromRelative("etc/osquery.conf");
 }
 
-std::string Plugin::osqueryXDRConfigFilePath()
-{
-    return fromRelative("etc/osquery.conf.d/sophos-scheduled-query-pack.conf");
-}
-
-std::string Plugin::osqueryXDRResultSenderIntermediaryFilePath()
-{
-    return fromRelative("var/xdr_intermediary");
-}
-
-std::string Plugin::osqueryXDROutputDatafeedFilePath()
-{
-    return Common::FileSystem::join(
-        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
-        "base/mcs/datafeed");
-}
-
 std::string Plugin::osqueryPidFile()
 {
     return fromRelative("var/osquery.pid");
@@ -74,9 +57,7 @@ std::string Plugin::osqueryPidFile()
 
 std::string Plugin::syslogPipe()
 {
-    return Common::FileSystem::join(
-        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
-        "shared/syslog_pipe");
+    return fromRelative("var/syslog_pipe");
 }
 
 std::string Plugin::osQueryLogDirectoryPath()
@@ -107,16 +88,12 @@ std::string Plugin::servicePath()
     return "/sbin/service";
 }
 
-std::string Plugin::osQueryExtensionsDirectory()
-{
+std::string Plugin::osQueryExtensionsPath() {
     return fromRelative("extensions");
 }
-
-std::string Plugin::osQueryExtensionsPath()
-{
-    return Common::FileSystem::join(osQueryExtensionsDirectory(), "extensions.load");
+std::string Plugin::sophosServerInfoExtension() {
+    return fromRelative("extensions/sophos_serverinfo");
 }
-
 std::string Plugin::livequeryExecutable()
 {
     return fromRelative("bin/sophos_livequery");
@@ -138,7 +115,3 @@ std::string Plugin::etcDir()
     return fromRelative("etc");
 }
 
-std::string Plugin::varDir()
-{
-    return fromRelative("var");
-}

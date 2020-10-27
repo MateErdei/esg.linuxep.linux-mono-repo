@@ -12,16 +12,13 @@ namespace Plugin
     std::string osqueryPath();
     std::string osqueryFlagsFilePath();
     std::string osqueryConfigFilePath();
-    std::string osqueryXDRConfigFilePath();
-    std::string osqueryXDRResultSenderIntermediaryFilePath();
-    std::string osqueryXDROutputDatafeedFilePath();
     std::string osquerySocket();
     std::string lockFilePath();
     std::string osqueryPidFile();
     std::string syslogPipe();
     std::string osQueryLogDirectoryPath();
     std::string osQueryExtensionsPath();
-    std::string osQueryExtensionsDirectory();
+    std::string sophosServerInfoExtension();
     std::string osQueryResultsLogPath();
     std::string osQueryDataBasePath();
     std::string edrConfigFilePath();
@@ -32,5 +29,4 @@ namespace Plugin
     std::string osQueryLensesPath();
     std::string livequeryResponsePath();
     std::string etcDir();
-    std::string varDir();
 } // namespace Plugin
