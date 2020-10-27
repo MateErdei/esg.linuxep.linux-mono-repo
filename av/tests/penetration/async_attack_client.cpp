@@ -74,14 +74,14 @@ int main(int argc, char* argv[])
         }
     }
 
-    const std::string socketPath = "/opt/sophos-spl/plugins/av/chroot/scanning_socket";
+    const char* socketPath = "/opt/sophos-spl/plugins/av/chroot/scanning_socket";
 
     datatypes::AutoFd socket_fd(socket(AF_UNIX, SOCK_STREAM, 0));
     assert(socket_fd >= 0);
 
     struct sockaddr_un addr = { };
     addr.sun_family = AF_UNIX;
-    ::strncpy(addr.sun_path, socketPath.c_str(), sizeof(addr.sun_path));
+    ::strncpy(addr.sun_path, socketPath, sizeof(addr.sun_path) - 1);
 
     int ret = ::connect(socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
     if (ret != 0)
@@ -132,6 +132,7 @@ int main(int argc, char* argv[])
     std::vector<char> response;
     response.resize(length);
     int bytes_received = ::recv(socket_fd, response.data(), length, MSG_NOSIGNAL);
+    static_cast<void>(bytes_received);
     assert(bytes_received == length);
 
     socket_fd.close();
