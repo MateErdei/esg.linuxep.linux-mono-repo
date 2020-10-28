@@ -6,6 +6,7 @@ Test Teardown    EDR Test Teardown
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
 Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../GeneralTeardownResource.robot
@@ -80,6 +81,24 @@ EDR Does Not Trigger Query On Update Now Action
 
     # Edr Should Not Have logged anything
     Should Be Equal  ${edr_length_1}  ${edr_length_2}
+
+EDR runs sophos extension query
+    Run Full Installer
+    Override LogConf File as Global Level  DEBUG
+    Install EDR Directly
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config    MCSID=id-here
+    Wait Until OSQuery Running
+    sleep  60
+#    Wait Until Keyword Succeeds
+#    ...  100 secs
+#    ...  2 secs
+#    ...  Check EDR Log Contains   "log message that the extension has been started"
+    Run Live Query  ${SOPHOS_INFO_QUERY}  sophos_info
+    Wait Until Keyword Succeeds
+    ...  50 secs
+    ...  2 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: sophos_info  1
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log   "columnData": [["id-here"]]  1
 
 *** Keywords ***
 EDR Tests Teardown With Installed File Replacement
