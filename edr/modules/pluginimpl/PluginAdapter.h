@@ -14,7 +14,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/Process/IProcess.h>
-#include <modules/osqueryextension/LoggerExtension.h>
+#include <modules/osqueryextensions/LoggerExtension.h>
 #include <queryrunner/IQueryRunner.h>
 #include <queryrunner/ParallelQueryProcessor.h>
 

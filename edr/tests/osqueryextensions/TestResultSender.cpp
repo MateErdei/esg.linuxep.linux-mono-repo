@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <modules/livequery/ResponseData.h>
-#include <modules/osqueryextension/ResultsSender.h>
+#include <modules/osqueryextensions/ResultsSender.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 
 #include <gtest/gtest.h>

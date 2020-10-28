@@ -12,7 +12,6 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libgcc_s_path)
 string(STRIP "${libgcc_s_path}" libgcc_s_path )
 
-
 set(third_party_libs
         ${libstdcpp_path}
         ${libgcc_s_path}
@@ -22,7 +21,9 @@ set(third_party_libs
         ${zlib}
         ${log4cpluslib}
         ${protobuflib}
-        ${OSQUERY_LIBRARY}
+        ${OSQUERYSDK_LIBRARY}
+        ${LOGGER_PLUGIN_LIBRARY}
+        ${JSON_CPP_LIBRARY}
         ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}
         )

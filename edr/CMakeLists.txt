@@ -139,7 +139,7 @@ set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
 set( THRIFT_INPUT ${INPUT}/thrift )
 set( JSONCCP_INPUT ${INPUT}/jsoncpp )
 set( THRIFT_INCLUDE_DIR ${THRIFT_INPUT}/install64/include )
-set( SQLITE_INCLUDE_DIR ${INPUT}/sqlite-amalgamation-3310100 )
+set( SQLITE_INCLUDE_DIR ${INPUT}/sqlite )
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
@@ -157,8 +157,13 @@ file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so.*)
 file(GLOB zlib ${PLUGINAPIPATH}/lib64/libz.so.*)
 
+find_library(LOGGER_PLUGIN_LIBRARY
+        NAMES LoggerPlugin
+        PATHS ${OSQUERYSDK}/lib64
+        NO_DEFAULT_PATH
+        )
 
-find_library(OSQUERY_LIBRARY
+find_library(OSQUERYSDK_LIBRARY
         NAMES OsquerySDK
         PATHS ${OSQUERYSDK}/lib64
         NO_DEFAULT_PATH
@@ -182,7 +187,7 @@ find_library(GLOG_LIBRARY
 
 find_library(THRIFT_LIBRARY
         NAMES thrift
-        PATHS ${INPUT}/thrift/install64/lib
+        PATHS ${THRIFT_INPUT}/install64/lib
         NO_DEFAULT_PATH
         )
 
@@ -191,6 +196,7 @@ find_library(GFLAG_LIBRARY
         PATHS ${INPUT}/gflags/install64/lib
         NO_DEFAULT_PATH
         )
+
 find_library(BOOST_CHRONO_LIBRARY
         NAMES boost_chrono
         PATHS ${INPUT}/boost/lib64

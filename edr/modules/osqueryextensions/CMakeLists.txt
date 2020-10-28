@@ -10,12 +10,13 @@ sophos_add_library(OsqueryExtensions SHARED
         EXTRA_LIBS
             ${log4cpluslib}
             ${protobuflib}
-            ${NEW_OSQUERY_LIBRARY}
+            ${OSQUERYSDK_LIBRARY}
+            ${OSQUERY_GEN_LIBRARY}
             ${LOGGER_PLUGIN_LIBRARY}
             ${THRIFT_LIBRARY}
             ${JSON_CPP_LIBRARY}
             ${GFLAG_LIBRARY}
             ${GLOG_LIBRARY}
             ${THRIFT_GEN_LIBRARY}
-        EXTRA_INCLUDES ${SSPLOSQUERYCOMPONENTSPATH}/include ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include
+        EXTRA_INCLUDES ${OSQUERYSDK}/include ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include
         )
