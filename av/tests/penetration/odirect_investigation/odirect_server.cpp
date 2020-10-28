@@ -58,6 +58,11 @@ namespace
         {
             return std::make_unique<FakeScanner>();
         }
+
+        bool update() override
+        {
+            return true;
+        }
     };
 }
 
