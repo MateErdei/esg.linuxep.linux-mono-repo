@@ -148,6 +148,11 @@ function waitForNamedPipeToBeCreated()
     return 1
 }
 
+function is_rsyslog_installed()
+{
+    systemctl list-unit-files | grep -q rsyslog
+}
+
 # Check key files have been installed
 [[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/edr" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr executable failed to be installed"
 [[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr osquery executable failed to be installed"
@@ -168,16 +173,19 @@ waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" || failure ${EXIT_FA
 
 waitForNamedPipeToBeCreated  "${SOPHOS_INSTALL}/shared/syslog_pipe"
 
-if [[ -d /etc/rsyslog.d/ ]]
+if [[ is_rsyslog_installed ]]
 then
-  cp ${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf /etc/rsyslog.d/
-
-  if [[ $(which getenforce) == 0 ]]
+  if [[ -d /etc/rsyslog.d/ ]]
   then
-    semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
-    restorecon -Fv /opt/sophos-spl/shared/syslog_pipe
+    cp ${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf /etc/rsyslog.d/
+
+    if [[ $(which getenforce) == 0 ]]
+    then
+      semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
+      restorecon -Fv /opt/sophos-spl/shared/syslog_pipe
+    fi
+    systemctl restart rsyslog
   fi
-  systemctl restart rsyslog
 fi
 
 

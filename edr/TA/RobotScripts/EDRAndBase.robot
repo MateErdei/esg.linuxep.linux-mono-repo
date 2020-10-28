@@ -66,6 +66,7 @@ Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
     ...  Run Non-UTF8 Query
 
 EDR plugin Configures OSQuery To Enable SysLog Event Collection
+
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -76,13 +77,15 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     File Should Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
 
     # check rsyslog does not report error connecting to named pipe
-    ${result} =  Run Process  systemctl  status  rsyslog
 
-    Log  ${result.stdout}
-    Log  ${result.stderr}
+    ${result} =  Run Process  which  unminimize
+    # unminimize is a command that should only exist on ubuntu minimal, if this command does not exist
+    # Then the check for rsyslog running without issue can be made.
+    # for some reason ubuntu minimum does not have rsyslog installed as a service.
+    # but is installed on all other platforms we support.
+    Run Keyword If   ${result.rc}==1
+    ...   Check Rsyslog Started Without Error
 
-    Should Contain  ${result.stdout}  active (running)
-    Should Not Contain  ${result.stdout}  Could not open output pipe '/opt/sophos-spl/shared/syslog_pipe'
 
 *** Keywords ***
 Run Non-UTF8 Query
@@ -93,3 +96,10 @@ Run Non-UTF8 Query
     Should Be Equal As Integers  ${result.rc}  0
 
     Should Contain  ${result.stdout}   "errorCode": 0
+
+Check Rsyslog Started Without Error
+    ${result} =  Run Process  systemctl  status  rsyslog
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Contain  ${result.stdout}  active (running)
+    Should Not Contain  ${result.stdout}  Could not open output pipe '/opt/sophos-spl/shared/syslog_pipe'
