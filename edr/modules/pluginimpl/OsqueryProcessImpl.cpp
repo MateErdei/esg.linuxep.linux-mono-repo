@@ -123,6 +123,7 @@ namespace Plugin
             {
                 usleep(100000);
             }
+            startProcess(Plugin::sophosServerInfoExtension(), {Plugin::osquerySocket()});
         }
 
         m_processMonitorPtr->waitUntilProcessEnds();

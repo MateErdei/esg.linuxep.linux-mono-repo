@@ -35,6 +35,7 @@ std::string Plugin::getVersionIniFilePath()
 {
     return fromRelative("VERSION.ini");
 }
+
 std::string Plugin::osqueryFlagsFilePath()
 {
     return fromRelative("etc/osquery.flags");
@@ -79,10 +80,12 @@ std::string Plugin::edrConfigFilePath()
 {
     return fromRelative("etc/plugin.conf");
 }
+
 std::string Plugin::systemctlPath()
 {
     return "/bin/systemctl";
 }
+
 std::string Plugin::servicePath()
 {
     return "/sbin/service";
@@ -92,8 +95,10 @@ std::string Plugin::osQueryExtensionsPath()
 {
     return fromRelative("extensions");
 }
-std::string Plugin::sophosServerInfoExtension() {
-    return fromRelative("extensions/sophos_serverinfo");
+
+std::string Plugin::sophosServerInfoExtension()
+{
+    return Common::FileSystem::join(osQueryExtensionsPath(),"sophos_extension");
 }
 std::string Plugin::livequeryExecutable()
 {
