@@ -20,5 +20,6 @@ sophos_add_library(OsqueryExtensions SHARED
             ${GFLAG_LIBRARY}
             ${GLOG_LIBRARY}
             ${THRIFT_GEN_LIBRARY}
+            pthread
         EXTRA_INCLUDES ${OSQUERYSDK}/include ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR}
         )
