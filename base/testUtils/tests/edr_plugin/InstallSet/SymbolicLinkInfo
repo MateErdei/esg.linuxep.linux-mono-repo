@@ -3,6 +3,7 @@ o777, root, root, /opt/sophos-spl/plugins/edr/bin/osqueryd
 o777, root, root, /opt/sophos-spl/plugins/edr/bin/sophos_livequery
 o777, root, root, /opt/sophos-spl/plugins/edr/bin/uninstall.sh
 o777, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+o777, root, root, /opt/sophos-spl/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_chrono.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_chrono.so.1
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_chrono.so.1.72

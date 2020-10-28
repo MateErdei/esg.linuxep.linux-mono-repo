@@ -2,6 +2,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.0
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.flags
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/plugin.conf
+o600, root, root, /opt/sophos-spl/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_chrono.so.1.72.0.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_context.so.1.72.0.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_date_time.so.1.72.0.0
