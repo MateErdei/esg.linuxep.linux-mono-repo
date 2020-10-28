@@ -1,6 +1,6 @@
 add_executable(sophos_serverinfo main.cpp)
 
-target_link_libraries(sophos_serverinfo PUBLIC livemain)
+target_link_libraries(sophos_serverinfo PUBLIC serverinfotable)
 
 SET_TARGET_PROPERTIES(sophos_serverinfo
     PROPERTIES 
