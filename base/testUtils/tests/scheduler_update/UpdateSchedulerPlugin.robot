@@ -256,7 +256,7 @@ UpdateScheduler Performs Update After Receiving Policy For The First Time
 
 UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     [Tags]  SLOW  UPDATE_SCHEDULER
-    [Timeout]    25 minutes
+    [Timeout]    40 minutes
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
     ${Date} =  Get Current Date
