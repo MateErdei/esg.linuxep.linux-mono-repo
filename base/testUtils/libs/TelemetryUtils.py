@@ -364,7 +364,8 @@ class TelemetryUtils:
                                             xdr_is_enabled=False,
                                             ignore_cpu_restarts=False,
                                             ignore_memory_restarts=False,
-                                            queries=None):
+                                            queries=None,
+                                            ignore_xdr=True):
         expected_edr_telemetry_dict = self.generate_edr_telemetry_dict(num_osquery_restarts,
                                                                        num_database_purges,
                                                                        num_osquery_restarts_cpu,
@@ -396,6 +397,11 @@ class TelemetryUtils:
                     queryData.pop("duration-avg")
                     queryData.pop("duration-min")
                     queryData.pop("duration-max")
+
+        if ignore_xdr:
+            xdr_key = "xdr-is-enabled"
+            expected_edr_telemetry_dict.pop(xdr_key, None)
+            actual_edr_telemetry_dict.pop(xdr_key, None)
 
         if actual_edr_telemetry_dict != expected_edr_telemetry_dict:
             raise AssertionError(
