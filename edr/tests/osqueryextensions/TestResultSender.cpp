@@ -120,38 +120,34 @@ class TestResultSender : public LogOffInitializedTests{};
 
 ///////////////////////////////////
 
-//TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
+TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    std::string config = "{}";
+    std::string intermediaryPath = "intermeiary";
+    std::string datafeedPath = "datafeed";
+    std::string querypackPath = "querypack";
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    // Force false here so that when send is called in the constructor we skip sending, but then to check the reset
+    // is working we expect true so that the file can be removed
+    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath))
+        .WillOnce(Return(false))
+        .WillOnce(Return(true))
+        .WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(querypackPath)).WillOnce(Return(config));
+    ResultsSender resultsSender(intermediaryPath, datafeedPath, querypackPath);
+    EXPECT_CALL(*mockFileSystem, removeFile(intermediaryPath)).Times(1);
+    EXPECT_CALL(*mockFileSystem, appendFile(intermediaryPath, "[")).Times(1);
+    resultsSender.Reset();
+
+}
+//
+//TEST_F(TestResultSender, ResetPropogatesException)
 //{
-//    auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
-////    EXPECT_CALL(*mockFileSystem, isFile(_)).Times(2).WillOnce(Return(true));
-////    EXPECT_CALL(*mockFileSystem, isFile(filepath)).WillOnce(Return(false));
-////    EXPECT_CALL(*mockFileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
-////    EXPECT_CALL(*mockFileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(true));
-////    EXPECT_CALL(*mockFileSystem, writeFile(filepath,
-////                                           HasSubstr("--tls_server_certs=/etc/pki/tls/certs/ca-bundle.crt"))).WillOnce(
-////        Invoke([&fileContent](const std::string&, const std::string& content) { fileContent = content; }));
+//    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
 //    std::string config = "{}";
 //    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-//    EXPECT_CALL(*mockFileSystem, exists("/opt/sophos-spl/plugins/edr/var/tmp_file")).WillOnce(Return(false));
-//    EXPECT_CALL(*mockFileSystem, readFile("/opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf")).WillOnce(Return(config));
-//    ResultsSender resultsSender;
-////        ResultsSender resultsSender(
-////        L"Path1",
-////        L"Path2",
-////        L"Path3",
-////        mockFileHelper_,
-////        mockMetricsFile_,
-////        mockQueryPackMapper_,
-////        mockDataUsageFileManager_);
-//    EXPECT_CALL(*mockFileSystem, removeFile("/opt/sophos-spl/plugins/edr/var/tmp_file")).Times(1);
-//    EXPECT_CALL(*mockFileSystem, appendFile("/opt/sophos-spl/plugins/edr/var/tmp_file", "[")).Times(1);
-//    resultsSender.Reset();
-//    EXPECT_CALL(*mockFileSystem, exists("/opt/sophos-spl/plugins/edr/var/tmp_file")).WillOnce(Return(false));
-//}
-//
-//TEST_F(ResultsSenderTests, ResetPropogatesException)
-//{
-//    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
+//    EXPECT_CALL(*mockFileSystem, exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //    ResultsSender resultsSender(
 //        L"Path1",
 //        L"Path2",

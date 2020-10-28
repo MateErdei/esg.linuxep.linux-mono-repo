@@ -55,6 +55,18 @@ std::string Plugin::osqueryXDRConfigFilePath()
     return fromRelative("etc/osquery.conf.d/sophos-scheduled-query-pack.conf");
 }
 
+std::string Plugin::osqueryXDRResultSenderIntermediaryFilePath()
+{
+    return fromRelative("var/tmp_file");
+}
+
+std::string Plugin::osqueryXDROutputDatafeedFilePath()
+{
+    return Common::FileSystem::join(
+        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
+        "base/mcs/datafeed");
+}
+
 std::string Plugin::osqueryPidFile()
 {
     return fromRelative("var/osquery.pid");

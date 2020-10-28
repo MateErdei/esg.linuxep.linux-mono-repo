@@ -11,9 +11,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <json/json.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
+
 #include <iostream>
 
-ResultsSender::ResultsSender()
+ResultsSender::ResultsSender(
+    const std::string& intermediaryPath,
+    const std::string& datafeedPath,
+    const std::string& osqueryXDRConfigFilePath) :
+    m_intermediaryPath(intermediaryPath),
+    m_datafeedPath(datafeedPath),
+    m_osqueryXDRConfigFilePath(osqueryXDRConfigFilePath)
+
 {
     LOGDEBUG("Created results sender");
     try
@@ -33,7 +41,6 @@ ResultsSender::ResultsSender()
     {
         LOGERROR("Failed to load scheduled query tags on start up. " << e.what());
     }
-
 }
 
 ResultsSender::~ResultsSender()
@@ -93,12 +100,12 @@ void ResultsSender::Add(const std::string& result)
     std::string stringToAppend;
     if (!m_firstEntry)
     {
-        stringToAppend =",";
+        stringToAppend = ",";
     }
 
     stringToAppend.append(taggedResult);
     auto filesystem = Common::FileSystem::fileSystem();
-    filesystem->appendFile(INTERMEDIARY_PATH, stringToAppend);
+    filesystem->appendFile(m_intermediaryPath, stringToAppend);
     m_firstEntry = false;
 }
 
@@ -106,21 +113,21 @@ void ResultsSender::Send()
 {
     LOGDEBUG("Send XDR Results");
     auto filesystem = Common::FileSystem::fileSystem();
-    if (filesystem->exists(INTERMEDIARY_PATH))
+    if (filesystem->exists(m_intermediaryPath))
     {
-        filesystem->appendFile(INTERMEDIARY_PATH, "]");
+        filesystem->appendFile(m_intermediaryPath, "]");
         auto filepermissions = Common::FileSystem::filePermissions();
-        filepermissions->chown(INTERMEDIARY_PATH, "sophos-spl-local", "sophos-spl-group");
-        filepermissions->chmod(INTERMEDIARY_PATH, 0640);
+        filepermissions->chown(m_intermediaryPath, "sophos-spl-local", "sophos-spl-group");
+        filepermissions->chmod(m_intermediaryPath, 0640);
         Common::UtilityImpl::FormattedTime time;
         std::string now = time.currentEpochTimeInSeconds();
         std::stringstream fileName;
         fileName << std::string("scheduled_query-") << now << ".json";
-        Path outputFilePath = Common::FileSystem::join(DATAFEED_PATH, fileName.str());
+        Path outputFilePath = Common::FileSystem::join(m_datafeedPath, fileName.str());
 
         LOGINFO("Sending batched XDR scheduled query results - " << outputFilePath);
 
-        filesystem->moveFile(INTERMEDIARY_PATH, outputFilePath);
+        filesystem->moveFile(m_intermediaryPath, outputFilePath);
     }
 }
 
@@ -128,11 +135,11 @@ void ResultsSender::Reset()
 {
     LOGDEBUG("Reset");
     auto filesystem = Common::FileSystem::fileSystem();
-    if (filesystem->exists(INTERMEDIARY_PATH))
+    if (filesystem->exists(m_intermediaryPath))
     {
-        filesystem->removeFile(INTERMEDIARY_PATH);
+        filesystem->removeFile(m_intermediaryPath);
     }
-    filesystem->appendFile(INTERMEDIARY_PATH, "[");
+    filesystem->appendFile(m_intermediaryPath, "[");
     m_firstEntry = true;
 }
 
@@ -140,14 +147,13 @@ uintmax_t ResultsSender::GetFileSize()
 {
     uintmax_t size = 0;
     auto filesystem = Common::FileSystem::fileSystem();
-    if (filesystem->exists(INTERMEDIARY_PATH))
+    if (filesystem->exists(m_intermediaryPath))
     {
         // Add 2 (wide characters) here for the , and ] that gets added
-        size = filesystem->fileSize(INTERMEDIARY_PATH) + 2;
+        size = filesystem->fileSize(m_intermediaryPath) + 2;
     }
     return size;
 }
-
 
 Json::Value ResultsSender::readJsonFile(const std::string& path)
 {
@@ -178,28 +184,24 @@ void ResultsSender::loadScheduledQueryTags()
          scheduledItr++)
     {
         auto query = *scheduledItr;
-        scheduledQueries.push_back(ScheduledQuery{
-            scheduledItr.key().asString(),
-            scheduledItr.key().asString(),
-            query["tag"].asString() });
+        scheduledQueries.push_back(
+            ScheduledQuery { scheduledItr.key().asString(), scheduledItr.key().asString(), query["tag"].asString() });
     }
     auto otherQueryPacks = confJsonRoot["packs"];
-    for (Json::Value::const_iterator packItr = otherQueryPacks.begin(); packItr != otherQueryPacks.end();
-         packItr++)
+    for (Json::Value::const_iterator packItr = otherQueryPacks.begin(); packItr != otherQueryPacks.end(); packItr++)
     {
         auto packName = packItr.key().asString();
         auto packNode = *packItr;
         auto packQueries = packNode["queries"];
-        for (Json::Value::const_iterator packQueriesItr = packQueries.begin();
-             packQueriesItr != packQueries.end();
+        for (Json::Value::const_iterator packQueriesItr = packQueries.begin(); packQueriesItr != packQueries.end();
              packQueriesItr++)
         {
             auto query = *packQueriesItr;
             std::string packAppendedName = "pack_" + packName + "_" + packQueriesItr.key().asString();
-            scheduledQueries.push_back(ScheduledQuery{ packAppendedName, packQueriesItr.key().asString(), query["tag"].asString() });
+            scheduledQueries.push_back(
+                ScheduledQuery { packAppendedName, packQueriesItr.key().asString(), query["tag"].asString() });
         }
     }
 
     m_scheduledQueryTags = scheduledQueries;
 }
-

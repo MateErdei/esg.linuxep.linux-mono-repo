@@ -10,6 +10,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <functional>
 
+LoggerExtension::LoggerExtension(
+    const std::string& intermediaryPath,
+    const std::string& datafeedPath,
+    const std::string& osqueryXDRConfigFilePath)
+:m_resultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath)
+{
+}
+
 LoggerExtension::~LoggerExtension()
 {
     Stop();
@@ -76,3 +84,4 @@ void LoggerExtension::Run()
         Start(m_flags.socket, m_flags.verbose, m_maxBatchBytes, m_maxBatchSeconds);
     }
 }
+

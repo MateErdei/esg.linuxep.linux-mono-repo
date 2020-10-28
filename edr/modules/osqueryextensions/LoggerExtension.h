@@ -14,6 +14,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 class LoggerExtension : public IServiceExtension
 {
 public:
+    LoggerExtension( const std::string& intermediaryPath,
+                     const std::string& datafeedPath,
+                     const std::string& osqueryXDRConfigFilePath);
     ~LoggerExtension();
     void Start(const std::string& socket, bool verbose, uintmax_t maxBatchBytes, unsigned int maxBatchSeconds) override;
     void Stop() override;

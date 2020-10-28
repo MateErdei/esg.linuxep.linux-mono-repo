@@ -74,6 +74,9 @@ namespace Plugin
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_parallelQueryProcessor{queryrunner::createQueryRunner(Plugin::osquerySocket(), Plugin::livequeryExecutable())},
+        m_loggerExtension(Plugin::osqueryXDRResultSenderIntermediaryFilePath(),
+                          Plugin::osqueryXDROutputDatafeedFilePath(),
+                          Plugin::osqueryXDRConfigFilePath()),
         m_timesOsqueryProcessFailedToStart(0),
         m_osqueryConfigurator()
     {
