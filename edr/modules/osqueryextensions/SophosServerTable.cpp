@@ -22,7 +22,7 @@ namespace OsquerySDK
                 };
     }
 
-    std::string SophosServerTable::GetName() { return "binary_data"; }
+    std::string SophosServerTable::GetName() { return "sophos_endpoint_info"; }
 
     TableRows SophosServerTable::Generate(QueryContextInterface& /*request*/)
     {

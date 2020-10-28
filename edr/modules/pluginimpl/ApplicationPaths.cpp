@@ -88,7 +88,8 @@ std::string Plugin::servicePath()
     return "/sbin/service";
 }
 
-std::string Plugin::osQueryExtensionsPath() {
+std::string Plugin::osQueryExtensionsPath()
+{
     return fromRelative("extensions");
 }
 std::string Plugin::sophosServerInfoExtension() {

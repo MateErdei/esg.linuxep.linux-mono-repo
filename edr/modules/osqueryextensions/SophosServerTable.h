@@ -15,9 +15,10 @@ namespace OsquerySDK
     public:
         SophosServerTable() = default;
 
-        std::vector<TableColumn> GetColumns() override;
+
         std::string GetName() override;
-        OsquerySDK::TableRows Generate(OsquerySDK::QueryContextInterface& request) override;
+        std::vector<TableColumn> GetColumns() override;
+        OsquerySDK::TableRows Generate(OsquerySDK::QueryContextInterface& context) override;
 
     };
 }
