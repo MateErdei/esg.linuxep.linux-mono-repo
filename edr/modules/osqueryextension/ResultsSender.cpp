@@ -172,7 +172,7 @@ Json::Value ResultsSender::readJsonFile(const std::string& path)
 void ResultsSender::loadScheduledQueryTags()
 {
     std::vector<ScheduledQuery> scheduledQueries;
-    auto confJsonRoot = readJsonFile(Plugin::osqueryXDRConfigFilePath());
+    auto confJsonRoot = readJsonFile(m_osqueryXDRConfigFilePath);
     auto scheduleRoot = confJsonRoot["schedule"];
     for (Json::Value::const_iterator scheduledItr = scheduleRoot.begin(); scheduledItr != scheduleRoot.end();
          scheduledItr++)
