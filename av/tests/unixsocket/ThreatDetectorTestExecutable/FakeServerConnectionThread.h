@@ -27,7 +27,7 @@ namespace FakeDetectionServer
     private:
         void inner_run();
         datatypes::AutoFd m_socketFd;
-        std::shared_ptr<std::vector<uint8_t>> m_Data;
+        std::shared_ptr<std::vector<uint8_t>> m_data;
     };
 }
 

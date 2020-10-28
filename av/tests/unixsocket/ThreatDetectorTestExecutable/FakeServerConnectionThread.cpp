@@ -5,24 +5,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "FakeServerConnectionThread.h"
-
 #include "ScanRequest.capnp.h"
 
-#include "datatypes/Print.h"
 #include "unixsocket/SocketUtils.h"
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
-
-#include <capnp/message.h>
-#include <capnp/serialize.h>
-#include <unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h>
-
 #include <cassert>
-#include <cstddef>
-#include <cstring>
-#include <sstream>
 #include <utility>
-
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -48,7 +36,7 @@ FakeDetectionServer::FakeServerConnectionThread::FakeServerConnectionThread(
     datatypes::AutoFd socketFd,
     std::shared_ptr<std::vector<uint8_t>> Data)
     :  m_socketFd(std::move(socketFd))
-    , m_Data(std::move(Data))
+    , m_data(std::move(Data))
 {
 }
 
@@ -76,20 +64,17 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
         {
             break;
         }
-        // We don't set a timeout so something should have happened
+
         assert(activity != 0);
 
         if (fd_isset(exitFD, &tempRead))
         {
             break;
         }
-        else // if(fd_isset(socket_fd, &tempRead))
+        else
         {
-            // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
-            // exitFD will cause break
-            // therefore "else" must be fd_isset(socket_fd, &tempRead)
             assert(fd_isset(socket_fd.get(), &tempRead));
-            // read length
+
             int32_t length = unixsocket::readLength(socket_fd.get());
             if (length == -2)
             {
@@ -104,7 +89,6 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
                 continue;
             }
 
-            // read capn proto
             if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
             {
                 buffer_size = 1 + length / sizeof(capnp::word);
@@ -118,7 +102,7 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
                 break;
             }
 
-            ::send(socket_fd.get(), m_Data->data(), m_Data->size(), 0);
+            ::send(socket_fd.get(), m_data->data(), m_data->size(), 0);
 
             break;
         }

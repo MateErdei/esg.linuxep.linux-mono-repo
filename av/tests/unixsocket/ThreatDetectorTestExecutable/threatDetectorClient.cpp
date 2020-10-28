@@ -12,12 +12,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
-#include <Common/Threads/AbstractThread.h>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <capnp/message.h>
-#include <capnp/serialize.h>
 #include <common/AbortScanException.h>
 #include <datatypes/Print.h>
 #include <unixsocket/SocketUtilsImpl.h>
@@ -46,7 +44,7 @@ private:
     void logSummary() override {}
 };
 
-namespace
+namespace Fuzzing
 {
     static std::string m_socketPathBase = "/tmp/socket_";
     static std::string m_socketPath;
@@ -54,8 +52,8 @@ namespace
     static std::unique_ptr<FakeDetectionServer::FakeServerSocket> socketServer;
 
     static std::string m_scanResult  = R"({"results":[{"detections":[{"threatName":"EICAR-AV-Test","threatType":"virus"}],"path":"/home/vagrant/eicar1","sha256":"131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"}],"time":"2020-10-27T10:14:03Z"})";
-                                        //R"("results":[{"detections":[],"path":"/etc/passwd"],"time":"2020-10-27T10:14:03Z"})";
-    static void DoInitialization(uint8_t* Data, size_t Size)
+
+    static void doInitialization(uint8_t* data, size_t size)
     {
         if (!socketServer || !socketServer->m_isRunning)
         {
@@ -67,10 +65,12 @@ namespace
             socketServer = std::make_unique<FakeDetectionServer::FakeServerSocket>(m_socketPath, 0666);
             socketServer->start();
         }
+
         std::shared_ptr<std::vector<uint8_t>> data_vector;
         data_vector = std::make_shared<std::vector<uint8_t>>();
-        data_vector->resize(Size);
-        memcpy(data_vector->data(), Data, Size);
+        data_vector->resize(size);
+        memcpy(data_vector->data(), data, size);
+
         socketServer->initializeData(data_vector);
     }
 
@@ -87,6 +87,8 @@ namespace
         }
         catch(AbortScanException& e)
         {
+            // ScanClient throws these exceptions when it receives a malformed capnp message.
+            // We don't want to stop the fuzzing when that happens.
         }
 
         return 0;
@@ -97,60 +99,14 @@ namespace
 
 extern "C" int LLVMFuzzerTestOneInput(uint8_t* Data, size_t Size)
 {
-    DoInitialization(Data, Size);
-    return runFuzzing();
+    Fuzzing::doInitialization(Data, Size);
+    return Fuzzing::runFuzzing();
 }
 
 #else
-static bool DoInitialization()
+static void initializeLogging()
 {
     Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
-
-    return true;
-}
-
-static void testSampleFile(std::string path)
-{
-    std::ifstream file(path, std::ios::binary | std::ios::ate);
-    std::streamsize size = file.tellg();
-
-    if (size < 0)
-    {
-        PRINT("cannot open file");
-
-    }
-
-    file.seekg(0, std::ios::beg);
-
-    std::vector<char> buffer(size);
-    if (!file.read(buffer.data(), size))
-    {
-        PRINT("cannot read file");
-    }
-    file.close();
-
-    std::string dataAsString = std::string(buffer.begin() + 1, buffer.end());
-
-    const kj::ArrayPtr<const capnp::word> view(
-        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
-        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
-
-    try
-    {
-        capnp::FlatArrayMessageReader messageInput(view);
-        Sophos::ssplav::FileScanResponse::Reader responseReader =
-            messageInput.getRoot<Sophos::ssplav::FileScanResponse>();
-
-        auto response = scan_messages::ScanResponse(responseReader);
-
-        PRINT(response.serialise());
-    }
-    catch(kj::Exception& e)
-    {
-        std::stringstream errorMsg;
-        errorMsg << "failed to read response from disk (" << e.getDescription().cStr() << ")";
-        throw AbortScanException(errorMsg.str());
-    }
 }
 
 static int writeSampleFile(std::string path)
@@ -159,7 +115,7 @@ static int writeSampleFile(std::string path)
     scan_messages::ScanResponse scanResponse;
 
     scanResponse.addDetection("/home/vagrant/eicar1", "EICAR-AV-Test");
-    scanResponse.setFullScanResult(m_scanResult);
+    scanResponse.setFullScanResult(Fuzzing::m_scanResult);
 
     std::ofstream outfile(path, std::ios::binary);
 
@@ -199,8 +155,8 @@ static int processFile(const std::string& path)
     }
     file.close();
     auto x = reinterpret_cast<uint8_t*>(buffer.data());
-    DoInitialization(x, size);
-    runFuzzing();
+    Fuzzing::doInitialization(x, size);
+    Fuzzing::runFuzzing();
     return 0;
 }
 
@@ -223,20 +179,7 @@ int main(int argc, char** argv)
         return writeSampleFile(argv[2]);
     }
 
-    if(strcmp(argv[1], "--test-request") == 0)
-    {
-        if( argc < 3 )
-        {
-            PRINT("missing filename");
-            return EXIT_FAILURE;
-        }
-
-        testSampleFile(argv[2]);
-        return 0;
-    }
-
-    static bool Initialized = DoInitialization();
-    static_cast<void>(Initialized);
+    initializeLogging();
 
     if (sophos_filesystem::is_directory(argv[1]))
     {
@@ -269,6 +212,5 @@ int main(int argc, char** argv)
     }
 
     return EXIT_SUCCESS;
-
 }
 #endif

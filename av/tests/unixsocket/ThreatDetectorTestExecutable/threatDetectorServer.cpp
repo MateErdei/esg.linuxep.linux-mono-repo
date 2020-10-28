@@ -143,11 +143,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
     return DoSomethingWithData(Data, Size);
 }
 #else
-static bool DoInitialization()
+static void initializeLogging()
 {
     Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
-
-    return true;
 }
 
 static int writeSampleFile(std::string filename)
@@ -213,8 +211,7 @@ int main(int argc, char* argv[])
         return writeSampleFile(argv[2]);
     }
 
-    static bool Initialized = DoInitialization();
-    static_cast<void>(Initialized);
+    initializeLogging();
 
     if (sophos_filesystem::is_directory(argv[1]))
     {

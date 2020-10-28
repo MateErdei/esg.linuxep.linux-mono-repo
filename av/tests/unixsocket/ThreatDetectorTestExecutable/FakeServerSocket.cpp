@@ -12,13 +12,14 @@ FakeDetectionServer::FakeServerSocket::FakeServerSocket(const std::string& path,
     FakeServerSocketBase(path, mode)
 {
 }
+
 void FakeDetectionServer::FakeServerSocket::start()
 {
     AbstractThread::start();
     m_isRunning = true;
 }
 
-void FakeDetectionServer::FakeServerSocket::initializeData(std::shared_ptr<std::vector<uint8_t>> Data)
+void FakeDetectionServer::FakeServerSocket::initializeData(std::shared_ptr<std::vector<uint8_t>> data)
 {
-    m_Data = std::move(Data);
+    m_data = std::move(data);
 }

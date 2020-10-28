@@ -3,6 +3,7 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
 #include "FakeServerConnectionThread.h"
 #include <unixsocket/BaseServerSocket.h>
 
@@ -22,17 +23,16 @@ namespace FakeDetectionServer
         }
 
         void start();
-        void initializeData(std::shared_ptr<std::vector<uint8_t>> Data);
-
-        datatypes::AutoFd m_socketFd;
-        std::shared_ptr<std::vector<uint8_t>> m_Data;
+        void initializeData(std::shared_ptr<std::vector<uint8_t>> data);
         bool m_isRunning = false;
 
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            return std::make_unique<FakeServerConnectionThread>(std::move(fd), m_Data);
+            return std::make_unique<FakeServerConnectionThread>(std::move(fd), m_data);
         }
 
+        datatypes::AutoFd m_socketFd;
+        std::shared_ptr<std::vector<uint8_t>> m_data;
     };
 }
