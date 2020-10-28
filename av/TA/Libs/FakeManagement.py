@@ -156,7 +156,10 @@ class FakeManagement(object):
 
     def stop_fake_management(self):
         if not self.agent:
-            self.logger.info("Agent already stopped")
+            if self.logger:
+                self.logger.info("Agent already stopped")
+            else:
+                print("Agent already stopped")
             return
         self.agent.stop()
         self.agent = None
