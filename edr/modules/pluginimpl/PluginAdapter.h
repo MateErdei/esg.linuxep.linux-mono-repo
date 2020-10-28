@@ -95,6 +95,10 @@ namespace Plugin
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
 
+        // XDR consts
+        static const int DEFAULT_MAX_BATCH_SIZE_BYTES = 2000000;
+        static const int DEFAULT_MAX_BATCH_TIME_SECONDS = 15;
+
         void processQuery(const std::string& query, const std::string& correlationId);
         void processFlags(const std::string& flagsContent);
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up

@@ -23,13 +23,17 @@ void LoggerExtension::Start(
 {
     LOGINFO("LoggerExtension::Start");
 
+    // store these locally in case the run thread crashes and we want to call this start again from within Run.
+    m_maxBatchBytes = maxBatchBytes;
+    m_maxBatchSeconds = maxBatchSeconds;
+
     if (m_stopped)
     {
         m_flags.socket = socket;
         m_flags.verbose = verbose;
         m_extension = OsquerySDK::CreateExtension(m_flags, "SophosLoggerPlugin", "1.1.0.1");
         m_extension->AddLoggerPlugin(
-            std::make_unique<SophosLoggerPlugin>(m_resultsSender, maxBatchBytes, maxBatchSeconds));
+            std::make_unique<SophosLoggerPlugin>(m_resultsSender, m_maxBatchBytes, m_maxBatchSeconds));
         LOGDEBUG("Logger Plugin Added");
         m_extension->Start();
         m_stopped = false;
@@ -59,6 +63,14 @@ void LoggerExtension::Run()
     m_extension->Wait();
     if (!m_stopped)
     {
-        //Handle crash
+        const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
+        if (!healthCheckMessage.empty())
+        {
+            LOGWARN(healthCheckMessage);
+        }
+
+        LOGWARN(L"Service extension stopped unexpectedly. Calling reset.");
+        Stop();
+        Start(m_flags.socket, m_flags.verbose, m_maxBatchBytes, m_maxBatchSeconds);
     }
 }

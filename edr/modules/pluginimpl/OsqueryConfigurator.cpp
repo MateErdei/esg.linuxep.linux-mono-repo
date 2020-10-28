@@ -72,7 +72,6 @@ namespace Plugin
         std::vector<std::string> flags { "--host_identifier=uuid",
                                          "--log_result_events=true",
                                          "--utc",
-                                         "--disable_extensions=false",
                                          "--logger_stderr=false",
                                          "--logger_mode=420",
                                          "--logger_min_stderr=1",
@@ -110,9 +109,10 @@ namespace Plugin
             isXdr = false;
         }
 
-        if (!isXdr)
+        if (isXdr)
         {
-            flags.push_back("--extensions_timeout=30");
+            LOGDEBUG("Adding XDR flags to osquery flags file.");
+            flags.push_back("--extensions_timeout=10");
             flags.push_back("--extensions_require=SophosLoggerPlugin");
             flags.push_back("--logger_plugin=SophosLoggerPlugin");
         }
@@ -130,6 +130,7 @@ namespace Plugin
 
         if (!networkTables)
         {
+            LOGDEBUG("Adding disable tables flag to osquery flags file.");
             flags.push_back("--disable_tables=curl,curl_certificate");
         }
 

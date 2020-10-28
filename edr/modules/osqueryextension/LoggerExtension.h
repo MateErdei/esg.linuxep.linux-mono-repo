@@ -25,5 +25,8 @@ private:
     std::unique_ptr<std::thread> m_runnerThread;
     OsquerySDK::Flags m_flags;
     std::unique_ptr<OsquerySDK::ExtensionInterface> m_extension;
+    uintmax_t m_maxBatchBytes = 10000000;
+    unsigned int m_maxBatchSeconds = 15;
+
 
 };
