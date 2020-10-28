@@ -53,9 +53,8 @@ namespace
 
     static std::unique_ptr<FakeDetectionServer::FakeServerSocket> socketServer;
 
-    static std::string m_scanResult  = //R"("results":[{"detections":[],"path":"/etc/passwd"],"time":"2020-10-27T10:14:03Z"})";
-        R"({"results":[{"detections":[{"threatName":"EICAR-AV-Test","threatType":"virus"}],"path":"/home/vagrant/eicar1","sha256":"131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"}],"time":"2020-10-27T10:14:03Z"})";
-
+    static std::string m_scanResult  = R"({"results":[{"detections":[{"threatName":"EICAR-AV-Test","threatType":"virus"}],"path":"/home/vagrant/eicar1","sha256":"131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"}],"time":"2020-10-27T10:14:03Z"})";
+                                        //R"("results":[{"detections":[],"path":"/etc/passwd"],"time":"2020-10-27T10:14:03Z"})";
     static void DoInitialization(uint8_t* Data, size_t Size)
     {
         if (!socketServer || !socketServer->m_isRunning)
@@ -96,8 +95,8 @@ namespace
 
 extern "C" int LLVMFuzzerTestOneInput(uint8_t* Data, size_t Size)
 {
-        DoInitialization(Data, Size);
-        return runFuzzing();
+    DoInitialization(Data, Size);
+    return runFuzzing();
 }
 
 #else
@@ -230,7 +229,8 @@ int main(int argc, char** argv)
             return EXIT_FAILURE;
         }
 
-        return testSampleFile(argv[2]);
+        testSampleFile(argv[2]);
+        return 0;
     }
 
     static bool Initialized = DoInitialization();
