@@ -67,8 +67,11 @@ namespace
             socketServer = std::make_unique<FakeDetectionServer::FakeServerSocket>(m_socketPath, 0666);
             socketServer->start();
         }
-
-        socketServer->initializeData(Data, Size);
+        std::shared_ptr<std::vector<uint8_t>> data_vector;
+        data_vector = std::make_shared<std::vector<uint8_t>>();
+        data_vector->resize(Size);
+        memcpy(data_vector->data(), Data, Size);
+        socketServer->initializeData(data_vector);
     }
 
     static int runFuzzing()
@@ -84,7 +87,6 @@ namespace
         }
         catch(AbortScanException& e)
         {
-            PRINT("Scan aborted, error expected & handled: " << e.what());
         }
 
         return 0;

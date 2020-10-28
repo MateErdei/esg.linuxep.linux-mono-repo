@@ -18,8 +18,7 @@ void FakeDetectionServer::FakeServerSocket::start()
     m_isRunning = true;
 }
 
-void FakeDetectionServer::FakeServerSocket::initializeData(uint8_t* Data, size_t Size)
+void FakeDetectionServer::FakeServerSocket::initializeData(std::shared_ptr<std::vector<uint8_t>> Data)
 {
-    m_Data = Data;
-    m_Size = Size;
+    m_Data = std::move(Data);
 }

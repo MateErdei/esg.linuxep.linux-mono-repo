@@ -21,6 +21,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cstddef>
 #include <cstring>
 #include <sstream>
+#include <utility>
 
 #include <sys/socket.h>
 #include <unistd.h>
@@ -45,11 +46,9 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 
 FakeDetectionServer::FakeServerConnectionThread::FakeServerConnectionThread(
     datatypes::AutoFd socketFd,
-    uint8_t* Data,
-    size_t Size)
+    std::shared_ptr<std::vector<uint8_t>> Data)
     :  m_socketFd(std::move(socketFd))
-    , m_Data(Data)
-    , m_Size(Size)
+    , m_Data(std::move(Data))
 {
 }
 
@@ -75,7 +74,6 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
 
         if (activity < 0)
         {
-            PRINT("Closing socket because pselect failed: " << errno);
             break;
         }
         // We don't set a timeout so something should have happened
@@ -83,7 +81,6 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
 
         if (fd_isset(exitFD, &tempRead))
         {
-            PRINT("Closing scanning socket thread");
             break;
         }
         else // if(fd_isset(socket_fd, &tempRead))
@@ -96,12 +93,10 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd.get());
             if (length == -2)
             {
-                PRINT("Scanning Server Connection Thread closed: EOF");
                 break;
             }
             else if (length < 0)
             {
-                PRINT("Aborting Scanning Server Connection Thread: failed to read length");
                 break;
             }
             else if (length == 0)
@@ -116,8 +111,14 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
                 proto_buffer = kj::heapArray<capnp::word>(buffer_size);
             }
 
-            ::read(socket_fd.get(), proto_buffer.begin(), length);
-            ::send(socket_fd.get(), m_Data, m_Size, 0);
+            auto lengthRead = ::read(socket_fd.get(), proto_buffer.begin(), length);
+
+            if(lengthRead != length)
+            {
+                break;
+            }
+
+            ::send(socket_fd.get(), m_Data->data(), m_Data->size(), 0);
 
             break;
         }

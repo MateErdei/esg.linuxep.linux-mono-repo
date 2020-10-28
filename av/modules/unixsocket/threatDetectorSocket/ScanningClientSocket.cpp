@@ -180,10 +180,23 @@ unixsocket::ScanningClientSocket::attemptScan(datatypes::AutoFd& fd, const scan_
 
         response = scan_messages::ScanResponse(responseReader);
     }
-    catch(kj::Exception& e)
+    catch(kj::Exception& ex)
     {
+        if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
+        {
+            // Fatal since this means we have a coding error that calls something unimplemented in kj.
+            LOGFATAL("Terminated ScanningClientSocket with serialisation unimplemented exception: "
+                         << ex.getDescription().cStr());
+        }
+        else
+        {
+            LOGERROR(
+                "Terminated ScanningClientSocket with serialisation exception: "
+                    << ex.getDescription().cStr());
+        }
+
         std::stringstream errorMsg;
-        errorMsg << "Malformed response from Sophos Threat Detector (" << e.getDescription().cStr() << ")";
+        errorMsg << "Malformed response from Sophos Threat Detector (" << ex.getDescription().cStr() << ")";
         throw AbortScanException(errorMsg.str());
     }
 

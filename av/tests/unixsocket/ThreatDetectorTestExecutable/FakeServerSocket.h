@@ -22,17 +22,16 @@ namespace FakeDetectionServer
         }
 
         void start();
-        void initializeData(uint8_t* Data, size_t Size);
+        void initializeData(std::shared_ptr<std::vector<uint8_t>> Data);
 
         datatypes::AutoFd m_socketFd;
-        uint8_t* m_Data;
-        size_t m_Size;
+        std::shared_ptr<std::vector<uint8_t>> m_Data;
         bool m_isRunning = false;
 
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            return std::make_unique<FakeServerConnectionThread>(std::move(fd), m_Data, m_Size);
+            return std::make_unique<FakeServerConnectionThread>(std::move(fd), m_Data);
         }
 
     };
