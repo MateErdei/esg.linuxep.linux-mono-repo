@@ -33,7 +33,6 @@ def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
 
 
 def get_exclusion_list_for_everything_else(inclusion):
-
     inclusion = inclusion.rstrip('/')
     exclusions = []
     for dir_path, dirs, files in os.walk('/'):
@@ -71,9 +70,10 @@ def get_exclusion_list_for_everything_else(inclusion):
     exclusions.sort()
     return exclusions
 
+
 def exclusions_for_everything_else(inclusion):
     exclusions = get_exclusion_list_for_everything_else(inclusion)
-    exclusions = [ '<filePath>{}</filePath>'.format(f) for f in exclusions ]
+    exclusions = ['<filePath>{}</filePath>'.format(f) for f in exclusions]
     return ''.join(exclusions)
 
 
@@ -87,7 +87,7 @@ def increase_threat_detector_log_to_max_size_by_path(log_path):
     :param log_path:
     :return:
     """
-    max_size = 10*1024*1024 - 1
+    max_size = 10 * 1024 * 1024 - 1
     statbuf = os.stat(log_path)
     current_size = statbuf.st_size
     additional_required = max_size - current_size
@@ -120,3 +120,29 @@ def count_eicars_in_directory(d):
     for _, _, files in os.walk(d):
         count += len(files)
     return count
+
+
+def find_score(word):
+
+    with open("/opt/sophos-spl/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log", "r") as fr:
+        for line in fr:
+            if word in line:
+                score = line.split(" ")
+
+    if len(score) == 0:
+        return 0
+
+    return score[len(score) - 1]
+
+
+def check_initial_scores(primary, secondary):
+    # change 15 to 20 when scores are corrected
+    if int(primary) > 30 and int(secondary) > 15:
+        return 1
+    return 0
+
+
+def check_second_score(primary):
+    if int(primary) < 30:
+        return 1
+    return 0

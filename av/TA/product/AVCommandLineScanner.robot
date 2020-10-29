@@ -128,29 +128,28 @@ CLS Can Scan MlExecutable File
       Copy File  ${RESOURCES_PATH}/file_samples/MLengHighScore.exe  ${NORMAL_DIRECTORY}
       Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
 
-      Mark Sophos Threat Detector Log
-
       ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
       Log To Console  return code is ${rc}
       Log To Console  output is ${output}
       Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
       Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with Generic ML PUA
-      Log to console  before value
-      ${value} =  Threat Detector Log Contains For High Ml Scores  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
-        Log to console  after value
-#      Should Be Equal As Integers  ${value}  1
-#
-#      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
-#
-#      Log To Console  return code is ${rc}
-#      Log To Console  output is ${output}
-#      Should Be Equal As Integers  ${rc}  0
-#      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
 
-#      Mark Sophos Threat Detector Log
-#      ${value} =  Threat Detector Log Contains For Low Ml Score  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
-#      Should Be Equal As Integers  ${value}  1
+      ${primary_score} =  Find Score  Primary score:
+      ${secondary_score} =  Find Score  Secondary score:
+      ${value} =  Check Initial Scores  ${primary_score}  ${secondary_score}
+      Should Be Equal As Integers  ${value}  1
+
+      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
+
+      Log To Console  return code is ${rc}
+      Log To Console  output is ${output}
+      Should Be Equal As Integers  ${rc}  0
+      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
+
+      ${primary_score} =  Find Score  Primary score:
+      ${value} =  Check Second Score  ${primary_score}
+      Should Be Equal As Integers  ${value}  1
 
 
 CLS Can Scan Archive File
