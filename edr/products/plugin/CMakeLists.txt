@@ -1,5 +1,5 @@
 add_executable(${plugin_name}
-        main.cpp)
+        main.cpp ../../modules/osqueryextensions/SophosExtension.cpp ../../modules/osqueryextensions/SophosExtension.h)
 target_link_libraries(${plugin_name} PUBLIC pluginimpl dl ${OPENSSL_LIBRARY})
 
 SET_TARGET_PROPERTIES( ${plugin_name}

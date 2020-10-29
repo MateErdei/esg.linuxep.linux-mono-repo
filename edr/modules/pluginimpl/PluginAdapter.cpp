@@ -356,6 +356,7 @@ namespace Plugin
         if (m_isXDR)
         {
             registerAndStartLoggerPlugin();
+            registerAndStartSophosExtension();
         }
     }
 
@@ -380,13 +381,31 @@ namespace Plugin
             LOGERROR("Failed to start logger extension, loggerExtension.Start threw: " << ex.what());
         }
     }
-
+    void PluginAdapter::registerAndStartSophosExtension()
+    {
+        try
+        {
+            auto fs = Common::FileSystem::fileSystem();
+            if (!fs->waitForFile(Plugin::osquerySocket(), 10000))
+            {
+                LOGERROR("OSQuery socket does not exist after waiting 10 seconds. Restarting EDR");
+                m_queueTask->pushStop();
+                return;
+            }
+            m_sophosExtension.Start(Plugin::osquerySocket(),false);
+        }
+        catch (const std::exception& ex)
+        {
+            LOGERROR("Failed to start logger extension, loggerExtension.Start threw: " << ex.what());
+        }
+    }
     void PluginAdapter::stopOsquery()
     {
         try
         {
             // Call stop on logger extension, this is ok to call whether running or not.
             m_loggerExtension.Stop();
+            m_sophosExtension.Stop();
 
             while (m_osqueryProcess && m_monitor.valid())
             {

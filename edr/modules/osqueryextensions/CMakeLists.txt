@@ -6,8 +6,10 @@ sophos_add_library(OsqueryExtensions SHARED
         Logger.cpp
         ResultsSender.h
         ResultsSender.cpp
-        SophosServerTable.cpp
         SophosServerTable.h
+        SophosServerTable.cpp
+        SophosExtension.h
+        SophosExtension.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c
         EXTRA_LIBS
             ${log4cpluslib}
