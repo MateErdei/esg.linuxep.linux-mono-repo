@@ -71,12 +71,7 @@ void ResultsSender::Add(const std::string& result)
         throw;
     }
 
-    std::map<std::string, std::pair<std::string, std::string>> queryTagMap;
-    for (const auto& query : m_scheduledQueryTags)
-    {
-        queryTagMap.insert(std::make_pair(query.queryNameWithPack, std::make_pair(query.queryName, query.tag)));
-    }
-
+    std::map<std::string, std::pair<std::string, std::string>> queryTagMap = getQueryTagMap();
     auto queryName = logLine["name"].asString();
     if (!queryName.empty())
     {
@@ -204,4 +199,13 @@ void ResultsSender::loadScheduledQueryTags()
     }
 
     m_scheduledQueryTags = scheduledQueries;
+}
+std::map<std::string, std::pair<std::string, std::string>> ResultsSender::getQueryTagMap()
+{
+    std::map<std::string, std::pair<std::string, std::string>> queryTagMap;
+    for (const auto& query : m_scheduledQueryTags)
+    {
+        queryTagMap.insert(std::make_pair(query.queryNameWithPack, std::make_pair(query.queryName, query.tag)));
+    }
+    return queryTagMap;
 }

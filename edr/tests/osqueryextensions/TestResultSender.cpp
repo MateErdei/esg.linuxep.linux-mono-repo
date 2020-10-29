@@ -13,121 +13,131 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 using namespace ::testing;
-//
-//livequery::ResponseData::ColumnHeaders headerStrIntStr()
-//{
-//    livequery::ResponseData::ColumnHeaders  headers;
-//    headers.emplace_back("first", livequery::ResponseData::AcceptedTypes::STRING);
-//    headers.emplace_back("second", livequery::ResponseData::AcceptedTypes::BIGINT);
-//    headers.emplace_back("third", livequery::ResponseData::AcceptedTypes::STRING);
-//    return headers;
-//}
-//
-//livequery::ResponseData::RowData singleRowStrIntStr(int row)
-//{
-//    livequery::ResponseData::RowData rowData;
-//    rowData["first"] = "firstvalue" + std::to_string(row);
-//    rowData["second"] = std::to_string(row);
-//    rowData["third"] = "thirdvalue" + std::to_string(row);
-//    return rowData;
-//}
+
+std::string exampleQueryPack =  R"({
+    "schedule": {
+        "deb_packages": {
+            "query": "SELECT name, version, arch, revision FROM deb_packages;",
+            "interval": 14400,
+            "removed": false,
+            "blacklist": true,
+            "platform": "linux",
+            "description": "Gets all the installed DEB packages in the target Linux system.",
+            "tag": "DataLake"
+        }
+    },
+    "packs": {
+        "mtr": {
+            "queries": {
+                "osquery_rocksdb_size_linux": {
+                    "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 50;",
+                    "interval": 86400,
+                    "removed": false,
+                    "blacklist": false,
+                    "platform": "linux",
+                    "description": "Retrieves the size of Osquery RocksDB on Linux.",
+                    "tag": "stream"
+                }
+            },
+            "discovery": [
+                "SELECT\n    name\nFROM\n    osquery_extensions\nWHERE\n    name = 'sophosmdrextension'"
+            ]
+        }
+    },
+    "decorators": {
+        "interval": {
+            "3600": [
+                "SELECT endpoint_id AS eid from sophos_endpoint_info",
+                "SELECT\n    interface_details.mac AS mac_address,\n    interface_addresses.mask AS ip_mask,\n    interface_addresses.address AS ip_address\nFROM\n    interface_addresses\n    JOIN interface_details ON interface_addresses.interface = interface_details.interface\nWHERE\n    ip_address NOT LIKE '127.%'\n    AND ip_address NOT LIKE '%:%'\n    AND ip_address NOT LIKE '169.254.%'\n    AND ip_address NOT LIKE '%.1'\nORDER BY\n    interface_details.last_change\nLIMIT\n    1",
+                "SELECT\n    user AS username\nFROM\n    logged_in_users\nWHERE\n    (\n        type = 'user'\n        OR type = 'active'\n    )\nORDER BY\n    time DESC\nLIMIT\n    1"
+            ]
+        },
+        "load": [
+            "SELECT (unix_time - (select total_seconds from uptime)) AS boot_time FROM time",
+            "SELECT\n    CASE\n        WHEN computer_name == '' THEN hostname\n        ELSE computer_name\n    END AS hostname\nFROM\n    system_info",
+            "SELECT\n    name AS os_name,\n    version AS os_version,\n    platform AS os_platform\nFROM\n    os_version\nLIMIT\n    1",
+            "SELECT\n    CASE \n        WHEN upper(platform) == 'WINDOWS' AND upper(name) LIKE '%SERVER%' THEN 'server' \n        WHEN upper(platform) == 'WINDOWS' AND upper(name) NOT LIKE '%SERVER%' THEN 'client' \n        WHEN upper(platform) == 'DARWIN' THEN 'client' \n        WHEN (SELECT count(*) FROM system_info WHERE cpu_brand LIKE '%Xeon%') == 1 THEN 'server' \n        WHEN (SELECT count(*) FROM system_info WHERE hardware_vendor LIKE '%VMWare%') == 1 THEN 'server' \n        WHEN (SELECT count(*) FROM system_info WHERE hardware_vendor LIKE '%QEMU%') == 1 THEN 'server' \n        WHEN (\n            (SELECT obytes FROM interface_details ORDER by obytes DESC LIMIT 1) > (SELECT ibytes FROM interface_details ORDER by ibytes DESC LIMIT 1)\n            ) == 1 THEN 'server'\n        ELSE 'client'\n    END AS 'os_type'\nFROM 'os_version';",
+            "SELECT endpoint_id AS eid from sophos_endpoint_info",
+            "SELECT\n    interface_details.mac AS mac_address,\n    interface_addresses.mask AS ip_mask,\n    interface_addresses.address AS ip_address\nFROM\n    interface_addresses\n    JOIN interface_details ON interface_addresses.interface = interface_details.interface\nWHERE\n    ip_address NOT LIKE '127.%'\n    AND ip_address NOT LIKE '%:%'\n    AND ip_address NOT LIKE '169.254.%'\n    AND ip_address NOT LIKE '%.1'\nORDER BY\n    interface_details.last_change\nLIMIT\n    1",
+            "SELECT\n    user AS username\nFROM\n    logged_in_users\nWHERE\n    (\n        type = 'user'\n        OR type = 'active'\n    )\nORDER BY\n    time DESC\nLIMIT\n    1",
+            "SELECT '1.1.19' query_pack_version"
+        ]
+    }
+})";
+
 
 class TestResultSender : public LogOffInitializedTests{};
 
-//TEST_F(TestResultSender, emptyResponseDataShouldNotThrow) // NOLINT
-//{
-//    livequery::ResponseData emptyData{livequery::ResponseData::emptyResponse()};
-//    EXPECT_FALSE(emptyData.hasDataExceededLimit());
-//    EXPECT_FALSE(emptyData.hasHeaders());
-//}
+class ResultSenderForUnitTests : public ResultsSender
+{
+public:
+    ResultSenderForUnitTests(const std::string& intermediaryPath,
+                             const std::string& datafeedPath,
+                             const std::string& osqueryXDRConfigFilePath) :
+        ResultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath)
+    {}
 
-//
-//TEST_F(TestResponseData, exceedDataLimit) // NOLINT
-//{
-//    livequery::ResponseData exceeded{headerStrIntStr(), livequery::ResponseData::MarkDataExceeded::DataExceedLimit};
-//    EXPECT_TRUE(exceeded.hasDataExceededLimit());
-//    EXPECT_TRUE(exceeded.hasHeaders());
-//}
-//
-//TEST_F(TestResponseData, validDataShouldBeConstructedNormally) // NOLINT
-//{
-//    livequery::ResponseData::ColumnData columnData;
-//    columnData.push_back( singleRowStrIntStr(1));
-//    columnData.push_back(singleRowStrIntStr(2));
-//
-//    livequery::ResponseData::ColumnData  copyColumnData{columnData};
-//
-//    livequery::ResponseData responseData{headerStrIntStr(), columnData};
-//    EXPECT_FALSE(responseData.hasDataExceededLimit());
-//    EXPECT_TRUE(responseData.hasHeaders());
-//    EXPECT_EQ( copyColumnData, responseData.columnData());
-//    EXPECT_EQ( headerStrIntStr(), responseData.columnHeaders());
-//}
-//
-//TEST_F(TestResponseData, valuesInsideTheCellsWillNotBeCheckedByResponseDataOnlyTheStructure) // NOLINT
-//{
-//    livequery::ResponseData::ColumnData columnData;
-//    columnData.push_back( singleRowStrIntStr(1));
-//    auto second = singleRowStrIntStr(2);
-//    // although the value is not integer, this will not be checked directly by
-//    // ResponseData, it will be dealt with on the generation of the Json file.
-//    second["second"] = "notInteger";
-//    columnData.push_back(second);
-//
-//    livequery::ResponseData::ColumnData  copyColumnData{columnData};
-//
-//    livequery::ResponseData responseData{headerStrIntStr(), columnData};
-//    EXPECT_FALSE(responseData.hasDataExceededLimit());
-//    EXPECT_TRUE(responseData.hasHeaders());
-//    EXPECT_EQ( copyColumnData, responseData.columnData());
-//    EXPECT_EQ( headerStrIntStr(), responseData.columnHeaders());
-//}
-//
-//TEST_F(TestResponseData, rowsWithExtraElementsWillThrowException) // NOLINT
-//{
-//    livequery::ResponseData::ColumnData columnData;
-//    columnData.push_back( singleRowStrIntStr(1));
-//    auto second = singleRowStrIntStr(2);
-//    second["forth"] = "anything";
-//    columnData.push_back(second);
-//
-//    EXPECT_THROW(livequery::ResponseData(headerStrIntStr(), columnData), livequery::InvalidReponseData);
-//}
-//
-//TEST_F(TestResponseData, rowsAreAllowedToHaveMissingElements) // NOLINT
-//{
-//    livequery::ResponseData::ColumnData columnData;
-//    columnData.push_back( singleRowStrIntStr(1));
-//    auto second = singleRowStrIntStr(2);
-//    second.erase("second");
-//    columnData.push_back(second);
-//
-//    EXPECT_NO_THROW(livequery::ResponseData(headerStrIntStr(), columnData));
-//}
-//
-//TEST_F(TestResponseData, rowsWithDifferentElementsWillThrowException) // NOLINT
-//{
-//    livequery::ResponseData::ColumnData columnData;
-//    columnData.push_back( singleRowStrIntStr(1));
-//    auto second = singleRowStrIntStr(2);
-//    second.erase("second");
-//    second["forth"] = "anyvalue";
-//    columnData.push_back(second);
-//
-//    EXPECT_THROW(livequery::ResponseData(headerStrIntStr(), columnData), livequery::InvalidReponseData);
-//}
+    std::vector<ScheduledQuery> getQueryTags()
+    {
+        return m_scheduledQueryTags;
+    }
+
+    std::map<std::string, std::pair<std::string, std::string>> getQueryTagMapOveridden()
+    {
+        return getQueryTagMap();
+    }
 
 
-///////////////////////////////////
+};
 
-TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
+TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    std::string config = "{}";
-    std::string intermediaryPath = "intermeiary";
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    std::string intermediaryPath = "intermediary";
     std::string datafeedPath = "datafeed";
     std::string querypackPath = "querypack";
+
+    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(querypackPath)).WillOnce(Return(exampleQueryPack));
+    ResultSenderForUnitTests resultsSender(intermediaryPath, datafeedPath, querypackPath);
+
+    auto actualQueries = resultsSender.getQueryTags();
+    auto actualQueryTagMap = resultsSender.getQueryTagMapOveridden();
+
+    std::vector<ScheduledQuery> expectedQueries;
+    expectedQueries.push_back({"deb_packages", "deb_packages", "DataLake"});
+    expectedQueries.push_back({"pack_mtr_osquery_rocksdb_size_linux", "osquery_rocksdb_size_linux", "stream"});
+
+    std::map<std::string, std::pair<std::string, std::string>> tagMap;
+    tagMap.insert(std::make_pair("deb_packages", std::make_pair("deb_packages", "DataLake")));
+    tagMap.insert(std::make_pair("pack_mtr_osquery_rocksdb_size_linux", std::make_pair("osquery_rocksdb_size_linux", "stream")));
+
+    ASSERT_EQ(actualQueries[0].queryNameWithPack, expectedQueries[0].queryNameWithPack);
+    ASSERT_EQ(actualQueries[0].queryName, expectedQueries[0].queryName);
+    ASSERT_EQ(actualQueries[0].tag, expectedQueries[0].tag);
+
+    ASSERT_EQ(actualQueries[1].queryNameWithPack, expectedQueries[1].queryNameWithPack);
+    ASSERT_EQ(actualQueries[1].queryName, expectedQueries[1].queryName);
+    ASSERT_EQ(actualQueries[1].tag, expectedQueries[1].tag);
+
+    ASSERT_EQ(actualQueryTagMap["deb_packages"].first, tagMap["deb_packages"].first);
+    ASSERT_EQ(actualQueryTagMap["deb_packages"].second, tagMap["deb_packages"].second);
+
+    ASSERT_EQ(actualQueryTagMap["pack_mtr_osquery_rocksdb_size_linux"].first, tagMap["pack_mtr_osquery_rocksdb_size_linux"].first);
+    ASSERT_EQ(actualQueryTagMap["pack_mtr_osquery_rocksdb_size_linux"].second, tagMap["pack_mtr_osquery_rocksdb_size_linux"].second);
+}
+
+
+TEST_F(TestResultSender, resetRemovesExistingBatchFile) // NOLINT
+{
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    std::string config = "{}";
+    std::string intermediaryPath = "intermediary";
+    std::string datafeedPath = "datafeed";
+    std::string querypackPath = "querypack";
     // Force false here so that when send is called in the constructor we skip sending, but then to check the reset
     // is working we expect true so that the file can be removed
     EXPECT_CALL(*mockFileSystem, exists(intermediaryPath))
@@ -161,55 +171,51 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, AddWritesToFile)
-//{
-//    EXPECT_CALL(mockQueryPackMapper_, GetQueryTagMap()).Times(1);
-//    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
-//    std::string testResult = "{\"name\":\"\",\"test\":\"value\"}";
-//    EXPECT_CALL(mockDataUsageFileManager_, UpdateDataDailyUsage(testResult.size())).Times(1);
-//    ResultsSender resultsSender(
-//        L"Path1",
-//        L"Path2",
-//        L"Path3",
-//        mockFileHelper_,
-//        mockMetricsFile_,
-//        mockQueryPackMapper_,
-//        mockDataUsageFileManager_);
-//    EXPECT_CALL(mockFileHelper_, Append(StrEq(L"Path1"), StrEq(testResult))).Times(1);
-//    EXPECT_CALL(mockMetricsFile_, Add("", testResult.size()));
-//
-//    resultsSender.Add(testResult);
-//
-//    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
-//}
-//
-//TEST_F(ResultsSenderTests, AddAppendsToFileExistinEntries)
-//{
+TEST_F(TestResultSender, addWritesToFile) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    std::string intermediaryPath = "intermediary";
+    std::string datafeedPath = "datafeed";
+    std::string querypackPath = "querypack";
+    std::string config = "{}";
+    std::string testResult = R"({"name":"","test":"value"})";
+    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(querypackPath)).WillOnce(Return(config));
+    ResultsSender resultsSender(intermediaryPath, datafeedPath, querypackPath);
+    EXPECT_CALL(*mockFileSystem, appendFile(intermediaryPath, testResult)).Times(1);
+    resultsSender.Add(testResult);
+    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false));
+}
+
+TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    std::string intermediaryPath = "intermediary";
+    std::string datafeedPath = "datafeed";
+    std::string querypackPath = "querypack";
+    std::string config = "{}";
+
 //    EXPECT_CALL(mockQueryPackMapper_, GetQueryTagMap()).Times(2);
-//    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
-//    ResultsSender resultsSender(
-//        L"Path1",
-//        L"Path2",
-//        L"Path3",
-//        mockFileHelper_,
-//        mockMetricsFile_,
-//        mockQueryPackMapper_,
-//        mockDataUsageFileManager_);
-//    std::string testResultString1 = "{\"name\":\"\",\"test\":\"value\"}";
-//    std::string testResultString2 = "{\"name\":\"\",\"test2\":\"value2\"}";
+    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(querypackPath)).WillOnce(Return(config));
+    ResultsSender resultsSender(intermediaryPath, datafeedPath, querypackPath);
+    std::string testResultString1 = R"({"name":"","test":"value"})";
+    std::string testResultString2 = R"({"name":"","test2":"value2"})";
 //    EXPECT_CALL(mockDataUsageFileManager_, UpdateDataDailyUsage(testResultString1.size())).Times(1);
-//    EXPECT_CALL(mockFileHelper_, Append(StrEq(L"Path1"), StrEq(testResultString1))).Times(1);
+    EXPECT_CALL(*mockFileSystem, appendFile(intermediaryPath, StrEq(testResultString1))).Times(1);
 //    EXPECT_CALL(mockDataUsageFileManager_, UpdateDataDailyUsage(testResultString2.size())).Times(1);
-//    EXPECT_CALL(mockFileHelper_, Append(StrEq(L"Path1"), StrEq("," + testResultString2))).Times(1);
+    EXPECT_CALL(*mockFileSystem, appendFile(intermediaryPath, "," + testResultString2)).Times(1);
 //    EXPECT_CALL(mockMetricsFile_, Add("", testResultString1.size()));
 //    EXPECT_CALL(mockMetricsFile_, Add("", testResultString2.size()));
-//
-//    resultsSender.Add(testResultString1);
-//    resultsSender.Add(testResultString2);
-//    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
-//}
-//
-//TEST_F(ResultsSenderTests, AddThrowsInvalidJsonLog)
+
+    resultsSender.Add(testResultString1);
+    resultsSender.Add(testResultString2);
+    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false));
+}
+
+//TEST_F(ResultsSenderTests, addThrowsInvalidJsonLog) // NOLINT
 //{
 //    MockLogger mockLogger;
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
@@ -229,7 +235,7 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, AddThrowsWhenAppendThrows)
+//TEST_F(ResultsSenderTests, AddThrowsWhenAppendThrows) // NOLINT
 //{
 //    EXPECT_CALL(mockQueryPackMapper_, GetQueryTagMap()).Times(1);
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
@@ -247,7 +253,7 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, AddThrowsWhenUpdateDailyUsageThrows)
+//TEST_F(ResultsSenderTests, AddThrowsWhenUpdateDailyUsageThrows) // NOLINT
 //{
 //    EXPECT_CALL(mockQueryPackMapper_, GetQueryTagMap()).Times(1);
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
@@ -271,7 +277,7 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, GetFileSizeQueriesFile)
+//TEST_F(ResultsSenderTests, GetFileSizeQueriesFile) // NOLINT
 //{
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false)).WillOnce(Return(true));
 //    ResultsSender resultsSender(
@@ -287,7 +293,7 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, GetFileSizeZeroWhenFileDoesNotExist)
+//TEST_F(ResultsSenderTests, GetFileSizeZeroWhenFileDoesNotExist) // NOLINT
 //{
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //    ResultsSender resultsSender(
@@ -306,7 +312,7 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, GetFileSizePropagatesException)
+//TEST_F(ResultsSenderTests, GetFileSizePropagatesException) // NOLINT
 //{
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false)).WillOnce(Return(true));
 //    ResultsSender resultsSender(
@@ -322,7 +328,7 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, SendMovesBatchFile)
+//TEST_F(ResultsSenderTests, SendMovesBatchFile) // NOLINT
 //{
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //    ResultsSender resultsSender(
@@ -345,7 +351,7 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, SendWithTrailsCopiesAndMovesBatchFile)
+//TEST_F(ResultsSenderTests, SendWithTrailsCopiesAndMovesBatchFile) // NOLINT
 //{
 //    EXPECT_CALL(mockFileHelper_, CreateFolder(StrEq(L"Trail")));
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
@@ -371,7 +377,7 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, SendWithTrailsCopiesFailureStillMovesBatchFile)
+//TEST_F(ResultsSenderTests, SendWithTrailsCopiesFailureStillMovesBatchFile) // NOLINT
 //{
 //    EXPECT_CALL(mockFileHelper_, CreateFolder(StrEq(L"Trail")));
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
@@ -398,7 +404,7 @@ TEST_F(TestResultSender, ResetRemovesExistingBatchFile) // NOLINT
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //}
 //
-//TEST_F(ResultsSenderTests, SendDoesNotMoveNoBatchFile)
+//TEST_F(ResultsSenderTests, SendDoesNotMoveNoBatchFile) // NOLINT
 //{
 //    EXPECT_CALL(mockFileHelper_, Exists(StrEq(L"Path1"))).WillOnce(Return(false));
 //    ResultsSender resultsSender(

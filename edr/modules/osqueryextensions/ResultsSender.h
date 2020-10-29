@@ -27,15 +27,18 @@ public:
     void Reset() override;
     uintmax_t GetFileSize() override;
 
+    // Protected so we can unit test things
+protected:
+    std::vector<ScheduledQuery> m_scheduledQueryTags;
+
+    std::map<std::string, std::pair<std::string, std::string>> getQueryTagMap();
+
 private:
     bool m_firstEntry = true;
-
     std::string m_intermediaryPath;
     std::string m_datafeedPath;
     std::string m_osqueryXDRConfigFilePath;
 
-
-    std::vector<ScheduledQuery> m_scheduledQueryTags;
     Json::Value readJsonFile(const std::string& path);
     void loadScheduledQueryTags();
 };
