@@ -1,7 +1,7 @@
 {
     "schedule": {
         "arp_cache": {
-            "query": "SELECT\n    address,\n    mac,\n    interface\nFROM\n    arp_cache;",
+            "query": "SELECT address,mac,interface FROM arp_cache;",
             "interval": 3600,
             "removed": false,
             "blacklist": true,
@@ -9,7 +9,7 @@
             "tag": "DataLake"
         },
         "browser_plugins": {
-            "query": "SELECT\n    DISTINCT bp.uid,\n    bp.name,\n    bp.identifier,\n    bp.version,\n    bp.description,\n    bp.path\nFROM\n    browser_plugins AS bp\n    JOIN logged_in_users AS liu ON liu.user = u.username\n    JOIN users AS u ON u.uid = bp.uid;",
+            "query": "SELECT DISTINCT bp.uid, bp.name, bp.identifier, bp.version, bp.description, bp.path FROM browser_plugins AS bp JOIN logged_in_users AS liu ON liu.user=u.username JOIN users AS u ON u.uid=bp.uid;",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -18,7 +18,7 @@
             "tag": "DataLake"
         },
         "changed_files_windows_sophos": {
-            "query": "WITH changed_binary_files(\n  filename,\n  path,\n  ctime,\n  sha1,\n  sha256,\n  fileSize,\n  mlScore,\n  mlScoreData,\n  puaScore,\n  globalRep,\n  globalRepData,\n  localRep,\n  localRepData,\n  coreFileInfo\n) AS (\n  SELECT\n    replace(\n      sfj.pathname,\n      rtrim(sfj.pathname, replace(sfj.pathname, '\\', '')),\n      ''\n    ) AS filename,\n    sfj.pathname AS path,\n    sfj.time AS ctime,\n    sfp.sha1,\n    sfp.sha256,\n    sfp.fileSize,\n    sfp.mlScore,\n    sfp.mlScoreData,\n    sfp.puaScore,\n    sfp.globalRep,\n    sfp.globalRepData,\n    sfp.localRep,\n    sfp.localRepData,\n    sfp.coreFileInfo\n  FROM\n    sophos_file_journal AS sfj\n    JOIN sophos_file_properties AS sfp ON sfp.sha256 = sfj.sha256\n  WHERE\n    sfj.time > STRFTIME('%s', 'NOW') - 625\n    AND subject IN ('FileBinaryChanges', 'FileDataChanges')\n    AND (\n      sfj.pathname LIKE '%:\\Users\\%\\Desktop\\%%'\n      OR sfj.pathname LIKE '%:\\Users\\%\\Appdata\\Roaming\\%%'\n      OR sfj.pathname LIKE '%:\\Users\\%\\Appdata\\Local\\Temp\\%%'\n      OR sfj.pathname LIKE '%:\\Windows\\Temp\\%%'\n    )\n    AND (\n      sfj.pathname LIKE '%%.exe'\n      OR sfj.pathname LIKE '%%.dll'\n      OR sfj.pathname LIKE '%%.tmp'\n    )\n    AND sfj.sha256 != ''\n  GROUP BY\n    sfj.pathname,\n    sfp.sha256\n),\nchanged_ps1_files(\n  filename,\n  path,\n  ctime,\n  sha1,\n  sha256,\n  fileSize,\n  mlScore,\n  mlScoreData,\n  puaScore,\n  globalRep,\n  globalRepData,\n  localRep,\n  localRepData,\n  coreFileInfo\n) AS (\n  SELECT\n    replace(\n      sfj.pathname,\n      rtrim(sfj.pathname, replace(sfj.pathname, '\\', '')),\n      ''\n    ) AS filename,\n    sfj.pathname AS path,\n    sfj.time AS ctime,\n    sfp.sha1,\n    sfp.sha256,\n    sfp.fileSize,\n    sfp.mlScore,\n    sfp.mlScoreData,\n    sfp.puaScore,\n    sfp.globalRep,\n    sfp.globalRepData,\n    sfp.localRep,\n    sfp.localRepData,\n    sfp.coreFileInfo\n  FROM\n    sophos_file_journal AS sfj\n    JOIN sophos_file_properties AS sfp ON sfp.pathname = sfj.pathname\n  WHERE\n    sfj.time > STRFTIME('%s', 'NOW') - 625\n    AND subject IN ('FileOtherChanges')\n    AND sfj.filesize < 52428800\n    AND (\n      sfj.pathname LIKE '%:\\Users\\%\\Desktop\\%%'\n      OR sfj.pathname LIKE '%:\\Users\\%\\Appdata\\Roaming\\%%'\n      OR sfj.pathname LIKE '%:\\Users\\%\\Appdata\\Local\\Temp\\%%'\n      OR sfj.pathname LIKE '%:\\Windows\\Temp\\%%'\n    )\n    AND (sfj.pathname LIKE '%%.ps1')\n  GROUP BY\n    sfj.pathname,\n    sfp.sha256\n)\nSELECT\n  *\nFROM\n  changed_binary_files\nUNION\nSELECT\n  *\nFROM\n  changed_ps1_files;",
+            "query": "WITH\nchanged_binary_files(\n  filename,\n  path,\n  ctime,\n  sha1,\n  sha256,\n  fileSize,\n  mlScore,\n  mlScoreData,\n  puaScore,\n  globalRep,\n  globalRepData,\n  localRep,\n  localRepData,\n  coreFileInfo\n) AS (\n  SELECT\n    replace(sfj.pathname, rtrim(sfj.pathname, replace(sfj.pathname, '\\', '')), '') AS filename,\n    sfj.pathname AS path,\n    sfj.time AS ctime,\n    sfp.sha1,\n    sfp.sha256,\n    sfp.fileSize,\n    sfp.mlScore,\n    sfp.mlScoreData,\n    sfp.puaScore,\n    sfp.globalRep,\n    sfp.globalRepData,\n    sfp.localRep,\n    sfp.localRepData,\n    sfp.coreFileInfo\n  FROM sophos_file_journal AS sfj\n  JOIN sophos_file_properties AS sfp ON sfp.sha256 = sfj.sha256\n  WHERE sfj.time > STRFTIME('%s', 'NOW') - 625\n  AND subject IN ('FileBinaryChanges', 'FileDataChanges')\n  AND (\n    sfj.pathname LIKE '%:\\Users\\%\\Desktop\\%%' OR\n    sfj.pathname LIKE '%:\\Users\\%\\Appdata\\Roaming\\%%' OR\n    sfj.pathname LIKE '%:\\Users\\%\\Appdata\\Local\\Temp\\%%' OR\n    sfj.pathname LIKE '%:\\Windows\\Temp\\%%'\n  ) AND (\n    sfj.pathname LIKE '%%.exe' OR\n    sfj.pathname LIKE '%%.dll' OR\n    sfj.pathname LIKE '%%.tmp'\n  )\n  AND sfj.sha256 != ''\n  GROUP BY sfj.pathname, sfp.sha256\n),\nchanged_ps1_files(\n  filename,\n  path,\n  ctime,\n  sha1,\n  sha256,\n  fileSize,\n  mlScore,\n  mlScoreData,\n  puaScore,\n  globalRep,\n  globalRepData,\n  localRep,\n  localRepData,\n  coreFileInfo\n) AS (\n  SELECT\n    replace(sfj.pathname, rtrim(sfj.pathname, replace(sfj.pathname, '\\', '')), '') AS filename,\n    sfj.pathname AS path,\n    sfj.time AS ctime,\n    sfp.sha1,\n    sfp.sha256,\n    sfp.fileSize,\n    sfp.mlScore,\n    sfp.mlScoreData,\n    sfp.puaScore,\n    sfp.globalRep,\n    sfp.globalRepData,\n    sfp.localRep,\n    sfp.localRepData,\n    sfp.coreFileInfo\n  FROM sophos_file_journal AS sfj\n  JOIN sophos_file_properties AS sfp ON sfp.pathname = sfj.pathname\n  WHERE sfj.time > STRFTIME('%s', 'NOW') - 625\n  AND subject IN ('FileOtherChanges')\n  AND sfj.filesize < 52428800\n  AND (\n    sfj.pathname LIKE '%:\\Users\\%\\Desktop\\%%' OR\n    sfj.pathname LIKE '%:\\Users\\%\\Appdata\\Roaming\\%%' OR\n    sfj.pathname LIKE '%:\\Users\\%\\Appdata\\Local\\Temp\\%%' OR\n    sfj.pathname LIKE '%:\\Windows\\Temp\\%%'\n  ) AND (\n    sfj.pathname LIKE '%%.ps1'\n  )\n  GROUP BY sfj.pathname, sfp.sha256\n)\nSELECT * FROM changed_binary_files\nUNION\nSELECT * FROM changed_ps1_files;",
             "interval": 300,
             "removed": false,
             "blacklist": true,
@@ -27,7 +27,7 @@
             "tag": "DataLake"
         },
         "chrome_extensions": {
-            "query": "SELECT\n    DISTINCT ce.uid,\n    ce.name,\n    ce.identifier,\n    ce.version,\n    ce.author,\n    ce.path,\n    ce.update_url\nFROM\n    chrome_extensions AS ce\n    JOIN logged_in_users AS liu ON liu.user = u.username\n    JOIN users AS u ON u.uid = ce.uid;",
+            "query": "SELECT DISTINCT ce.uid, ce.name, ce.identifier, ce.version, ce.author, ce.path, ce.update_url FROM chrome_extensions AS ce JOIN logged_in_users AS liu ON liu.user=u.username JOIN users AS u ON u.uid=ce.uid;",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -35,7 +35,7 @@
             "tag": "DataLake"
         },
         "deb_packages": {
-            "query": "SELECT\n    name,\n    version,\n    arch,\n    revision\nFROM\n    deb_packages;",
+            "query": "SELECT name, version, arch, revision FROM deb_packages;",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -44,7 +44,7 @@
             "tag": "DataLake"
         },
         "firefox_addons": {
-            "query": "SELECT\n    uid,\n    name,\n    identifier,\n    version,\n    description,\n    path,\n    source_url,\n    creator\nFROM\n    firefox_addons;",
+            "query": "SELECT uid, name, identifier, version, description, path, source_url, creator FROM firefox_addons;",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -53,7 +53,7 @@
             "tag": "DataLake"
         },
         "homebrew_packages": {
-            "query": "SELECT\n    name,\n    path,\n    version\nFROM\n    homebrew_packages;",
+            "query": "SELECT name, path, version FROM homebrew_packages;",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -61,8 +61,16 @@
             "description": "Gets the list of brew packages installed in the target macOS system.",
             "tag": "DataLake"
         },
+        "host_sensor_heartbeat_check": {
+            "query": "SELECT\n    timestamp,\n    datetime,\n    local_time,\n    unix_time,\n    local_timezone\nFROM time;",
+            "description": "Gets the current host time information,checking whether queries are running.",
+            "blacklist": true,
+            "interval": 3600,
+            "removed": false,
+            "tag": "stream"
+        },
         "ie_extensions": {
-            "query": "SELECT\n    name,\n    version,\n    path\nFROM\n    ie_extensions;",
+            "query": "SELECT name, version, path FROM ie_extensions;",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -71,7 +79,7 @@
             "tag": "DataLake"
         },
         "installed_applications": {
-            "query": "SELECT\n    name,\n    path,\n    bundle_executable,\n    bundle_identifier,\n    bundle_name,\n    bundle_version,\n    bundle_short_version,\n    display_name,\n    copyright,\n    category,\n    info_string\nFROM\n    apps;",
+            "query": "SELECT name, path, bundle_executable, bundle_identifier, bundle_name, bundle_version, bundle_short_version, display_name, copyright, category, info_string FROM apps;",
             "interval": 120,
             "removed": false,
             "blacklist": true,
@@ -80,7 +88,7 @@
             "tag": "DataLake"
         },
         "ioc_windows_registry_malware_sdbot": {
-            "query": "SELECT\n  DISTINCT srj.time AS event_time,\n  srj.keyName,\n  srj.value,\n  srj.eventType,\n  srj.sophosPID,\n  srj.valueName,\n  'REG_BINARY' AS valueType,\n  'SDBbot Remote Access Trojan stores the RAT component in the registry and establishes persistence for the loader component.' AS description\nFROM\n  sophos_registry_journal AS srj\nWHERE\n  srj.keyName LIKE \"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\___\"\n  AND srj.time > STRFTIME(\"%s\", \"NOW\") - 925\n  AND lower(srj.valueName) = srj.valueName\n  AND LENGTH(srj.valueName) = 1\n  -- valueType=3 is Binary\n  AND srj.valueType = 3\n  -- eventType=5 is valueSet\n  AND srj.eventType = 5;",
+            "query": "SELECT DISTINCT\n  srj.time AS event_timestamp,\n  srj.keyName,\n  srj.value,\n  srj.eventType,\n  srj.sophosPID,\n  srj.valueName,\n  'REG_BINARY' AS valueType,\n  'SDBbot Remote Access Trojan stores the RAT component in the registry and establishes persistence for the loader component.' AS description\nFROM sophos_registry_journal AS srj\nWHERE srj.keyName LIKE \"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\___\"\nAND srj.time > STRFTIME(\"%s\", \"NOW\") - 925\nAND lower(srj.valueName) = srj.valueName\nAND LENGTH(srj.valueName) = 1\n-- valueType=3 is Binary\nAND srj.valueType = 3\n-- eventType=5 is valueSet\nAND srj.eventType = 5;",
             "interval": 600,
             "removed": false,
             "blacklist": false,
@@ -89,7 +97,7 @@
             "tag": "DataLake"
         },
         "launchd_md5": {
-            "query": "SELECT\n    process_type,\n    run_at_load,\n    name,\n    label,\n    program_arguments,\n    launchd.path,\n    program,\n    on_demand,\n    keep_alive,\n    hash.sha1,\n    hash.sha256\nFROM\n    launchd\n    JOIN hash\nWHERE\n    hash.path == launchd.path\n    AND launchd.program != ''\n    AND run_at_load = '1'\n    AND name NOT LIKE 'com.apple.%';",
+            "query": "SELECT process_type, run_at_load, name, label, program_arguments, launchd.path, program, on_demand, keep_alive, hash.sha1, hash.sha256 FROM launchd JOIN hash WHERE hash.path == launchd.path AND launchd.program != '' AND run_at_load = '1' AND name NOT LIKE 'com.apple.%';",
             "removed": false,
             "blacklist": true,
             "interval": 14400,
@@ -98,7 +106,7 @@
             "tag": "DataLake"
         },
         "listening_ports": {
-            "query": "SELECT\n    DISTINCT processes.name,\n    listening_ports.address,\n    listening_ports.port,\n    processes.pid,\n    processes.path\nFROM\n    listening_ports\n    JOIN processes USING (pid)\nWHERE\n    listening_ports.address NOT LIKE '127%'\n    AND listening_ports.protocol = 6;",
+            "query": "SELECT DISTINCT processes.name, listening_ports.address, listening_ports.port, processes.pid, processes.path FROM listening_ports JOIN processes USING (pid) WHERE listening_ports.address NOT LIKE '127%' AND listening_ports.protocol = 6;",
             "interval": 3600,
             "removed": false,
             "blacklist": true,
@@ -106,7 +114,7 @@
             "tag": "DataLake"
         },
         "network_interfaces": {
-            "query": "SELECT\n    interface_details.mtu,\n    interface_details.interface,\n    interface_details.mac,\n    interface_addresses.mask,\n    interface_addresses.address,\n    interface_addresses.broadcast,\n    interface_details.ibytes,\n    interface_details.obytes\nFROM\n    interface_addresses\n    JOIN interface_details ON interface_addresses.interface = interface_details.interface;",
+            "query": "SELECT interface_details.mtu, interface_details.interface, interface_details.mac, interface_addresses.mask, interface_addresses.address, interface_addresses.broadcast, interface_details.ibytes, interface_details.obytes FROM interface_addresses JOIN interface_details ON interface_addresses.interface = interface_details.interface;",
             "interval": 43200,
             "removed": false,
             "blacklist": true,
@@ -114,7 +122,7 @@
             "tag": "DataLake"
         },
         "open_sockets": {
-            "query": "SELECT\n    DISTINCT p.name,\n    SUBSTR(p.cmdline, 1, 32766) AS cmdline,\n    p.pid,\n    p.parent,\n    p.path,\n    po.remote_address,\n    po.remote_port,\n    po.local_address\nFROM\n    process_open_sockets AS po\n    JOIN processes AS p USING (pid)\nWHERE\n    remote_port != 0\n    and p.path <> ''\n    and remote_address <> ''\n    and remote_address not like '127%'\n    and remote_address not like '169.254%'\n    and remote_address <> local_address;",
+            "query": "SELECT DISTINCT p.name, SUBSTR(p.cmdline, 1, 32766) AS cmdline, p.pid, p.parent, p.path, po.remote_address, po.remote_port, po.local_address FROM process_open_sockets AS po JOIN processes AS p USING (pid) WHERE remote_port != 0 and p.path <> '' and remote_address <> '' and remote_address not like '127%' and remote_address not like '169.254%' and remote_address <> local_address;",
             "interval": 30,
             "removed": false,
             "blacklist": true,
@@ -122,7 +130,7 @@
             "tag": "DataLake"
         },
         "opera_extensions": {
-            "query": "SELECT\n    DISTINCT oe.uid,\n    oe.name,\n    oe.identifier,\n    oe.version,\n    oe.description,\n    oe.update_url,\n    oe.author,\n    oe.path\nFROM\n    opera_extensions AS oe\n    JOIN logged_in_users AS liu ON liu.user = u.username\n    JOIN users AS u ON u.uid = oe.uid;",
+            "query": "SELECT DISTINCT oe.uid, oe.name, oe.identifier, oe.version, oe.description, oe.update_url, oe.author, oe.path FROM opera_extensions AS oe JOIN logged_in_users AS liu ON liu.user=u.username JOIN users AS u ON u.uid=oe.uid;",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -131,7 +139,7 @@
             "tag": "DataLake"
         },
         "osx_updates_patch": {
-            "query": "SELECT\n    package_id,\n    time,\n    name,\n    version,\n    source,\n    content_type\nFROM\n    package_install_history\nWHERE\n    content_type != 'config-data'\n    AND source = 'softwareupdated'\nLIMIT\n    1;",
+            "query": "SELECT package_id, time, name, version, source, content_type FROM package_install_history where content_type != 'config-data' and source = 'softwareupdated' limit 1;",
             "interval": 43200,
             "removed": false,
             "blacklist": true,
@@ -140,7 +148,7 @@
             "tag": "DataLake"
         },
         "rpm_packages": {
-            "query": "SELECT\n    name,\n    version,\n    release,\n    source,\n    arch\nFROM\n    rpm_packages;",
+            "query": "SELECT name, version, release, source, arch FROM rpm_packages;",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -149,7 +157,7 @@
             "tag": "DataLake"
         },
         "running_processes_linux_events": {
-            "query": "SELECT\n  GROUP_CONCAT(process_events.pid) AS pids,\n  REPLACE(\n    process_events.path,\n    (\n      SELECT\n        REGEX_SPLIT(process_events.path, \"[^\\/]+$\", 0)\n    ),\n    ''\n  ) AS name,\n  SUBSTR(process_events.cmdline, 1, 32766) AS cmdline,\n  GROUP_CONCAT(process_events.parent) AS parents,\n  process_events.path,\n  process_events.gid,\n  process_events.uid,\n  process_events.euid,\n  process_events.egid,\n  hash.sha1,\n  hash.sha256,\n  process_events.time\nFROM\n  process_events\n  JOIN hash AS hash\nWHERE\n  hash.path = process_events.path\nGROUP BY\n  process_events.cmdline,\n  hash.sha1;",
+            "query": "SELECT\n  GROUP_CONCAT(process_events.pid) AS pids,\n  REPLACE(process_events.path,\n    (SELECT REGEX_SPLIT(process_events.path, \"[^\\/]+$\", 0)), '' ) AS name,\n  SUBSTR(process_events.cmdline, 1, 32766) AS cmdline,\n  GROUP_CONCAT(process_events.parent) AS parents,\n  process_events.path,\n  process_events.gid,\n  process_events.uid,\n  process_events.euid,\n  process_events.egid,\n  hash.sha1,\n  hash.sha256,\n  process_events.time\nFROM process_events\nJOIN hash AS hash\nWHERE hash.path = process_events.path\nGROUP BY process_events.cmdline, hash.sha1;",
             "interval": 10,
             "removed": false,
             "blacklist": false,
@@ -158,7 +166,7 @@
             "tag": "DataLake"
         },
         "running_processes_osx_events": {
-            "query": "SELECT\n  DISTINCT pid,\n  REPLACE(\n    process_events.path,\n    (\n      SELECT\n        REGEX_SPLIT(process_events.path, \"[^\\/]+$\", 0)\n    ),\n    ''\n  ) AS name,\n  SUBSTR(process_events.cmdline, 1, 32766) AS cmdline,\n  process_events.path,\n  process_events.parent,\n  process_events.gid,\n  process_events.uid,\n  process_events.euid,\n  process_events.egid,\n  hash.sha1,\n  hash.sha256,\n  process_events.time\nFROM\n  process_events\n  JOIN hash AS hash\nWHERE\n  hash.path = process_events.path;",
+            "query": "SELECT\n  DISTINCT pid,\n  REPLACE(process_events.path,\n    (SELECT REGEX_SPLIT(process_events.path, \"[^\\/]+$\", 0)), '' ) AS name,\n  SUBSTR(process_events.cmdline, 1, 32766) AS cmdline,\n  process_events.path,\n  process_events.parent,\n  process_events.gid,\n  process_events.uid,\n  process_events.euid,\n  process_events.egid,\n  hash.sha1,\n  hash.sha256,\n  process_events.time\nFROM process_events\nJOIN hash AS hash\nWHERE hash.path = process_events.path;",
             "interval": 10,
             "removed": false,
             "blacklist": false,
@@ -167,7 +175,7 @@
             "tag": "DataLake"
         },
         "running_processes_windows_sophos": {
-            "query": "WITH new_processes(\n  cmdline,\n  pid,\n  parent,\n  path,\n  name,\n  sha1,\n  sha256,\n  time,\n  sophosPID,\n  parentSophosPID,\n  fileSize,\n  mlScore,\n  mlScoreData,\n  puaScore,\n  globalRep,\n  globalRepData,\n  localRep,\n  localRepData,\n  eventType,\n  sid\n) AS (\n  SELECT\n    spj.cmdLine AS cmdline,\n    spj.PID AS pid,\n    spj.parentPID AS parent,\n    spj.pathname AS path,\n    REPLACE(\n      spj.pathname,\n      (\n        SELECT\n          REGEX_SPLIT(spj.pathname, \"[^\\\\]+$\", 0)\n      ),\n      ''\n    ) AS name,\n    spj.sha1,\n    spj.sha256,\n    spj.processStartTime AS time,\n    spj.sophosPID,\n    spj.parentSophosPID,\n    spj.fileSize,\n    spp.mlScore,\n    spp.mlScoreData,\n    spp.puaScore,\n    spp.globalRep,\n    spp.globalRepData,\n    spp.localRep,\n    spp.localRepData,\n    spj.eventType,\n    spj.sid\n  FROM\n    sophos_process_journal AS spj\n    JOIN sophos_process_properties AS spp ON spp.sophosPID = spj.sophosPID\n  WHERE\n    eventType = 0\n    AND cmdline != 'cmd /c tasklist.exe /NH /FI \"IMAGENAME eq wapptunneld.exe\"'\n    AND cmdline != 'tasklist.exe  /NH /FI \"IMAGENAME eq wapptunneld.exe\"'\n    AND spj.time > STRFTIME('%s', 'NOW') - 325\n    AND name != \"conhost.exe\"\n)\nSELECT\n  DISTINCT SUBSTR(np.cmdline, 1, 32766) AS cmdline,\n  np.pid,\n  np.parent,\n  REPLACE(\n    parents.pathname,\n    (\n      SELECT\n        REGEX_SPLIT(parents.pathname, \"[^\\\\]+$\", 0)\n    ),\n    ''\n  ) AS parent_name,\n  parents.pathname AS parent_path,\n  np.path,\n  np.name,\n  np.sha1,\n  np.sha256,\n  np.time,\n  np.sophosPID,\n  np.parentSophosPID,\n  np.fileSize,\n  np.mlScore,\n  np.mlScoreData,\n  np.puaScore,\n  np.globalRep,\n  np.globalRepData,\n  np.localRep,\n  np.localRepData,\n  u.username,\n  u.uid,\n  u.gid\nFROM\n  new_processes AS np\n  LEFT JOIN sophos_process_journal AS parents ON REPLACE(\n    np.parentSophosPID,\n    rtrim(\n      np.parentSophosPID,\n      REPLACE(np.parentSophosPID, ':', '')\n    ),\n    ''\n  ) / 10000000 -11644473600 = parents.time\n  AND np.parentSophosPID = parents.sophosPID\n  LEFT JOIN users AS u ON np.sid = u.uuid;",
+            "query": "WITH new_processes(\n  cmdline,\n  pid,\n  parent,\n  path,\n  name,\n  sha1,\n  sha256,\n  time,\n  sophosPID,\n  parentSophosPID,\n  fileSize,\n  mlScore,\n  mlScoreData,\n  puaScore,\n  globalRep,\n  globalRepData,\n  localRep,\n  localRepData,\n  eventType,\n  sid\n) AS (\n  SELECT\n    spj.cmdLine AS cmdline,\n    spj.PID AS pid,\n    spj.parentPID AS parent,\n    spj.pathname AS path,\n    REPLACE(spj.pathname, (SELECT REGEX_SPLIT(spj.pathname, \"[^\\\\]+$\", 0)), '') AS name,\n    spj.sha1,\n    spj.sha256,\n    spj.processStartTime AS time,\n    spj.sophosPID,\n    spj.parentSophosPID,\n    spj.fileSize,\n    spp.mlScore,\n    spp.mlScoreData,\n    spp.puaScore,\n    spp.globalRep,\n    spp.globalRepData,\n    spp.localRep,\n    spp.localRepData,\n    spj.eventType,\n    spj.sid\n  FROM sophos_process_journal AS spj\n  JOIN sophos_process_properties AS spp ON spp.sophosPID = spj.sophosPID\n  WHERE\n    eventType = 0\n    AND cmdline != 'cmd /c tasklist.exe /NH /FI \"IMAGENAME eq wapptunneld.exe\"'\n    AND cmdline != 'tasklist.exe  /NH /FI \"IMAGENAME eq wapptunneld.exe\"'\n  AND\n    spj.time > STRFTIME('%s', 'NOW') - 325\n    AND name != \"conhost.exe\"\n)\nSELECT DISTINCT\n  SUBSTR(np.cmdline, 1, 32766) AS cmdline,\n  np.pid,\n  np.parent,\n  REPLACE(parents.pathname, (SELECT REGEX_SPLIT(parents.pathname, \"[^\\\\]+$\", 0)), '') AS parent_name,\n  parents.pathname AS parent_path,\n  np.path,\n  np.name,\n  np.sha1,\n  np.sha256,\n  np.time,\n  np.sophosPID,\n  np.parentSophosPID,\n  np.fileSize,\n  np.mlScore,\n  np.mlScoreData,\n  np.puaScore,\n  np.globalRep,\n  np.globalRepData,\n  np.localRep,\n  np.localRepData,\n  u.username,\n  u.uid,\n  u.gid\n FROM new_processes AS np\n LEFT JOIN sophos_process_journal AS parents ON replace(np.parentSophosPID, rtrim(np.parentSophosPID, replace(np.parentSophosPID  , ':', '')), '')/10000000-11644473600 = parents.time\n  AND np.parentSophosPID = parents.sophosPID\n LEFT JOIN users AS u ON np.sid = u.uuid;",
             "interval": 20,
             "removed": false,
             "blacklist": false,
@@ -176,7 +184,7 @@
             "tag": "DataLake"
         },
         "sophos_events_darwin": {
-            "query": "SELECT\n  eventId AS event_id,\n  eventTime AS event_time,\n  \"[\" ||\n    GROUP_CONCAT(\n      JSON_OBJECT(\n        'event_timestamp', eventTime,\n        'event_type', eventType,\n        'event_type_name',\n        CASE\n          WHEN eventType = 1 THEN 'Malware and PUA'\n          WHEN eventType = 2 THEN 'Web Filtering'\n          WHEN eventType = 5 THEN 'Network Threats'\n          WHEN eventType = 6 THEN 'Ransomware'\n          ELSE ''\n        END,\n        'user_name', userName,\n        'severity', severity,\n        'rca_time', rcaTime,\n        'rca_status', rcaStatus,\n        'rca_status_name',\n        CASE\n         WHEN rcaStatus = 0 THEN 'none'\n         WHEN rcaStatus = 1 THEN 'uploaded'\n         WHEN rcaStatus = 2 THEN 'errorCreate'\n         WHEN rcaStatus = 3 THEN 'errorUpload'\n         WHEN rcaStatus = 8 THEN 'limitExceeded'\n         ELSE ''\n        END,\n        'event_name', eventName,\n        'event_status', eventStatus,\n        'event_status_name',\n        CASE\n          WHEN eventType = 1 AND eventStatus = 0 THEN 'open'\n          WHEN eventType = 1 AND eventStatus = 1 THEN 'actionRequired'\n          WHEN eventType = 1 AND eventStatus = 2 THEN 'failedToClean'\n          WHEN eventType = 1 AND eventStatus = 3 THEN 'resolved'\n          WHEN eventType = 5 AND eventStatus = 0 THEN 'running'\n          WHEN eventType = 5 AND eventStatus = 1 THEN 'present'\n          WHEN eventType = 5 AND eventStatus = 2 THEN 'resolved'\n          WHEN eventType = 5 AND eventStatus = 3 THEN 'ignored'\n          WHEN eventType = 6 AND eventStatus = 0 THEN 'running'\n          WHEN eventType = 6 AND eventStatus = 1 THEN 'present'\n          WHEN eventType = 6 AND eventStatus = 2 THEN 'resolved'\n          WHEN eventType = 6 AND eventStatus = 3 THEN 'ignored'\n          ELSE ''\n        END,\n        'long_name', longName,\n        'threat_type', threatType,\n        'threat_type_name',\n        CASE\n          WHEN threatType = 0 THEN 'malware'\n          WHEN threatType = 1 THEN 'PUA'\n          ELSE ''\n        END,\n        'app_type', appType,\n        'app_type_name',\n        CASE\n          WHEN appType = 0 THEN 'Adware'\n          WHEN appType = 1 THEN 'Dialer'\n          WHEN appType = 2 THEN 'Hacking tool'\n          WHEN appType = 3 THEN 'System monitor'\n          WHEN appType = 4 THEN 'Remote administration tool'\n          WHEN appType = 5 THEN 'Other'\n          WHEN appType = 8 THEN 'File sharing'\n          ELSE ''\n        END,\n        'first_detection', firstDetection,\n        'last_detection', lastDetection,\n        'scan_required', scanRequired,\n        'reboot_required', rebootRequired,\n        'manual_cleanup_required', manualCleanupRequired,\n        'resolved', resolved,\n        'resolved_name',\n        CASE\n          WHEN eventType = 1 AND resolved = 0 THEN 'unknown'\n          WHEN eventType = 1 AND resolved = 1 THEN 'cleanup'\n          WHEN eventType = 1 AND resolved = 2 THEN 'cleanupFullscan'\n          WHEN eventType = 1 AND resolved = 3 THEN 'cleanupReboot'\n          WHEN eventType = 1 AND resolved = 4 THEN 'noLongerExist'\n          WHEN eventType = 1 AND resolved = 5 THEN 'authorized'\n          WHEN eventType = 1 AND resolved = 6 THEN 'partiallyCleaned'\n          WHEN eventType = 1 AND resolved = 7 THEN 'executionBlocked'\n          WHEN eventType = 1 AND resolved = 8 THEN 'manuallyRemoved'\n          WHEN eventType = 2 AND resolved = 0 THEN 'always blocked'\n          ELSE ''\n        END,\n        'resolved_description',\n        CASE\n          WHEN eventType = 1 AND resolved = 0 THEN 'the resolved action is unknown'\n          WHEN eventType = 1 AND resolved = 1 THEN 'the threat was cleaned up'\n          WHEN eventType = 1 AND resolved = 2 THEN 'the threat was cleaned up after full scan was preceded'\n          WHEN eventType = 1 AND resolved = 3 THEN 'the threat was cleaned up after the endpoint was rebooted'\n          WHEN eventType = 1 AND resolved = 4 THEN 'the threat no longer exists on disc'\n          WHEN eventType = 1 AND resolved = 5 THEN 'the PUA was authorized to run'\n          WHEN eventType = 1 AND resolved = 6 THEN 'the scanning engine marks the threat as partially cleaned'\n          WHEN eventType = 1 AND resolved = 7 THEN 'the PUA or controlled application has been blocked'\n          WHEN eventType = 1 AND resolved = 8 THEN 'the threat was ignored by the user'\n          WHEN eventType = 2 AND resolved = 0 THEN ''\n          ELSE ''\n        END,\n        'resolved_time', resolvedTime,\n        'threat_detection_time', threatDetectionTime,\n        'detection_source', detectionSource,\n        'detection_source_name',\n        CASE\n          WHEN eventType = 1 AND detectionSource = 0 THEN 'on-access'\n          WHEN eventType = 1 AND detectionSource = 1 THEN 'on-demand'\n          ELSE ''\n        END,\n        'detection_path', detectionPath,\n        'detection_user', detectionUser,\n        'detection_file_present', detectionFilePresent,\n        'url', url,\n        'process_time', processTime,\n        'process_status', processStatus,\n        'process_status_name',\n        CASE\n          WHEN processStatus = 0 THEN 'running'\n          WHEN processStatus = 1 THEN 'present'\n          ELSE ''\n        END,\n        'process_path', processPath,\n        'process_pid', processPid,\n        'destination', destination\n      )\n    )\n  || \"]\"  AS details_json,\n  severity AS severity,\n  eventName AS event_name,\n  eventType AS event_type,\n  resolved AS resolved,\n  userName AS user_name\nFROM sophos_mac_event_store\n-- sophos_mac_event_store doesn't require a 300 second buffer as the events appear immediately\nWHERE eventTime > STRFTIME(\"%s\", \"NOW\") - 625\nGROUP BY eventId;",
+            "query": "SELECT\n  eventId AS event_id,\n  eventTime AS event_timestamp,\n  \"[\" ||\n    GROUP_CONCAT(\n      JSON_OBJECT(\n        'event_timestamp', eventTime,\n        'event_type', eventType,\n        'event_type_name',\n        CASE\n          WHEN eventType = 1 THEN 'Malware and PUA'\n          WHEN eventType = 2 THEN 'Web Filtering'\n          WHEN eventType = 5 THEN 'Network Threats'\n          WHEN eventType = 6 THEN 'Ransomware'\n          ELSE ''\n        END,\n        'user_name', userName,\n        'severity', severity,\n        'rca_time', rcaTime,\n        'rca_status', rcaStatus,\n        'rca_status_name',\n        CASE\n         WHEN rcaStatus = 0 THEN 'none'\n         WHEN rcaStatus = 1 THEN 'uploaded'\n         WHEN rcaStatus = 2 THEN 'errorCreate'\n         WHEN rcaStatus = 3 THEN 'errorUpload'\n         WHEN rcaStatus = 8 THEN 'limitExceeded'\n         ELSE ''\n        END,\n        'event_name', eventName,\n        'event_status', eventStatus,\n        'event_status_name',\n        CASE\n          WHEN eventType = 1 AND eventStatus = 0 THEN 'open'\n          WHEN eventType = 1 AND eventStatus = 1 THEN 'actionRequired'\n          WHEN eventType = 1 AND eventStatus = 2 THEN 'failedToClean'\n          WHEN eventType = 1 AND eventStatus = 3 THEN 'resolved'\n          WHEN eventType = 5 AND eventStatus = 0 THEN 'running'\n          WHEN eventType = 5 AND eventStatus = 1 THEN 'present'\n          WHEN eventType = 5 AND eventStatus = 2 THEN 'resolved'\n          WHEN eventType = 5 AND eventStatus = 3 THEN 'ignored'\n          WHEN eventType = 6 AND eventStatus = 0 THEN 'running'\n          WHEN eventType = 6 AND eventStatus = 1 THEN 'present'\n          WHEN eventType = 6 AND eventStatus = 2 THEN 'resolved'\n          WHEN eventType = 6 AND eventStatus = 3 THEN 'ignored'\n          ELSE ''\n        END,\n        'long_name', longName,\n        'threat_type', threatType,\n        'threat_type_name',\n        CASE\n          WHEN threatType = 0 THEN 'malware'\n          WHEN threatType = 1 THEN 'PUA'\n          ELSE ''\n        END,\n        'app_type', appType,\n        'app_type_name',\n        CASE\n          WHEN appType = 0 THEN 'Adware'\n          WHEN appType = 1 THEN 'Dialer'\n          WHEN appType = 2 THEN 'Hacking tool'\n          WHEN appType = 3 THEN 'System monitor'\n          WHEN appType = 4 THEN 'Remote administration tool'\n          WHEN appType = 5 THEN 'Other'\n          WHEN appType = 8 THEN 'File sharing'\n          ELSE ''\n        END,\n        'first_detection', firstDetection,\n        'last_detection', lastDetection,\n        'scan_required', scanRequired,\n        'reboot_required', rebootRequired,\n        'manual_cleanup_required', manualCleanupRequired,\n        'resolved', resolved,\n        'resolved_name',\n        CASE\n          WHEN eventType = 1 AND resolved = 0 THEN 'unknown'\n          WHEN eventType = 1 AND resolved = 1 THEN 'cleanup'\n          WHEN eventType = 1 AND resolved = 2 THEN 'cleanupFullscan'\n          WHEN eventType = 1 AND resolved = 3 THEN 'cleanupReboot'\n          WHEN eventType = 1 AND resolved = 4 THEN 'noLongerExist'\n          WHEN eventType = 1 AND resolved = 5 THEN 'authorized'\n          WHEN eventType = 1 AND resolved = 6 THEN 'partiallyCleaned'\n          WHEN eventType = 1 AND resolved = 7 THEN 'executionBlocked'\n          WHEN eventType = 1 AND resolved = 8 THEN 'manuallyRemoved'\n          WHEN eventType = 2 AND resolved = 0 THEN 'always blocked'\n          ELSE ''\n        END,\n        'resolved_description',\n        CASE\n          WHEN eventType = 1 AND resolved = 0 THEN 'the resolved action is unknown'\n          WHEN eventType = 1 AND resolved = 1 THEN 'the threat was cleaned up'\n          WHEN eventType = 1 AND resolved = 2 THEN 'the threat was cleaned up after full scan was preceded'\n          WHEN eventType = 1 AND resolved = 3 THEN 'the threat was cleaned up after the endpoint was rebooted'\n          WHEN eventType = 1 AND resolved = 4 THEN 'the threat no longer exists on disc'\n          WHEN eventType = 1 AND resolved = 5 THEN 'the PUA was authorized to run'\n          WHEN eventType = 1 AND resolved = 6 THEN 'the scanning engine marks the threat as partially cleaned'\n          WHEN eventType = 1 AND resolved = 7 THEN 'the PUA or controlled application has been blocked'\n          WHEN eventType = 1 AND resolved = 8 THEN 'the threat was ignored by the user'\n          WHEN eventType = 2 AND resolved = 0 THEN ''\n          ELSE ''\n        END,\n        'resolved_time', resolvedTime,\n        'threat_detection_time', threatDetectionTime,\n        'detection_source', detectionSource,\n        'detection_source_name',\n        CASE\n          WHEN eventType = 1 AND detectionSource = 0 THEN 'on-access'\n          WHEN eventType = 1 AND detectionSource = 1 THEN 'on-demand'\n          ELSE ''\n        END,\n        'detection_path', detectionPath,\n        'detection_user', detectionUser,\n        'detection_file_present', detectionFilePresent,\n        'url', url,\n        'process_time', processTime,\n        'process_status', processStatus,\n        'process_status_name',\n        CASE\n          WHEN processStatus = 0 THEN 'running'\n          WHEN processStatus = 1 THEN 'present'\n          ELSE ''\n        END,\n        'process_path', processPath,\n        'process_pid', processPid,\n        'destination', destination\n      )\n    )\n  || \"]\"  AS details_json,\n  severity AS severity,\n  eventName AS event_name,\n  eventType AS event_type,\n  resolved AS resolved,\n  userName AS user_name\nFROM sophos_mac_event_store\n-- sophos_mac_event_store doesn't require a 300 second buffer as the events appear immediately\nWHERE eventTime > STRFTIME(\"%s\", \"NOW\") - 625\nGROUP BY eventId;",
             "interval": 600,
             "removed": false,
             "blacklist": false,
@@ -185,7 +193,7 @@
             "tag": "stream"
         },
         "sophos_events_windows": {
-            "query": "SELECT\n  s.familyId AS family_id,\n  s.timeStamp AS event_timestamp,\n  s.raw AS summary_json,\n  \"[\" || GROUP_CONCAT(d.raw) || \"]\" AS details_json,\n  JSON_EXTRACT(s.raw, '$.severity') AS severity,\n  JSON_EXTRACT(s.raw, '$.app') AS app,\n  JSON_EXTRACT(s.raw, '$.resourceId') AS resource_id,\n  JSON_EXTRACT(s.raw, '$.componentName') AS component_id,\n  JSON_EXTRACT(s.raw, '$.hmpaType') AS hmpa_type,\n  JSON_EXTRACT(s.raw, '$.threatName') AS threat_name,\n  JSON_EXTRACT(s.raw, '$.threatType') AS threat_type,\n  JSON_EXTRACT(s.raw, '$.userName') AS user_name,\n  JSON_EXTRACT(s.raw, '$.userSid') AS user_sid\nFROM\n  sophos_events_summary s\n  JOIN sophos_events_details d ON s.familyId = d.familyId\nWHERE\n  CAST(STRFTIME('%s', event_timestamp) AS int) < CAST(STRFTIME('%s', 'now') -120 AS int)\n  AND CAST(STRFTIME('%s', event_timestamp) AS int) > CAST(STRFTIME('%s', 'now') -820 AS int)\n  AND resource_id NOT LIKE 'health.%'\n  AND resource_id NOT LIKE 'event.sau.%'\nGROUP BY\n  s.familyId;",
+            "query": "WITH grouped_sophos_windows_events(\n\tfamily_id,\n\tevent_timestamp,\n\tsummary_json,\n\traw_data,\n\tgroupNum,\n\tseverity,\n\tapp,\n\tresource_id,\n\tcomponent_id,\n\thmpa_type,\n\tthreat_name,\n\tthreat_type,\n\tuser_name,\n\tuser_sid\n) AS (\n  SELECT\n    s.familyId AS family_id,\n    s.timeStamp AS event_timestamp,\n    s.raw AS summary_json,\n    d.raw AS raw_data,\n    (ROW_NUMBER() OVER(PARTITION BY s.familyId))/25 AS groupNum,\n    JSON_EXTRACT(s.raw, '$.severity') AS severity,\n    JSON_EXTRACT(s.raw, '$.app') AS app,\n    JSON_EXTRACT(s.raw, '$.resourceId') AS resource_id,\n    JSON_EXTRACT(s.raw, '$.componentName') AS component_id,\n    JSON_EXTRACT(s.raw, '$.hmpaType') AS hmpa_type,\n    JSON_EXTRACT(s.raw, '$.threatName') AS threat_name,\n    JSON_EXTRACT(s.raw, '$.threatType') AS threat_type,\n    JSON_EXTRACT(s.raw, '$.userName') AS user_name,\n    JSON_EXTRACT(s.raw, '$.userSid') AS user_sid\n  FROM sophos_events_summary s\n  JOIN sophos_events_details d ON s.familyId = d.familyId\n  WHERE\n    CAST(STRFTIME('%s', event_timestamp) AS int) < CAST(STRFTIME('%s','now')-120 AS int)\n  AND\n    CAST(STRFTIME('%s', event_timestamp) AS int) > CAST(STRFTIME('%s','now')-820 AS int)\n  AND\n    resource_id NOT LIKE 'health.%' AND resource_id NOT LIKE 'event.sau.%'\n)\nSELECT\n  family_id,\n  event_timestamp,\n  summary_json,\n  \"[\" || GROUP_CONCAT(raw_data) || \"]\" AS details_json,\n  severity,\n  app,\n  resource_id,\n  component_id,\n  hmpa_type,\n  threat_name,\n  threat_type,\n  user_name,\n  user_sid\nFROM grouped_sophos_windows_events\nGROUP BY family_id,groupNum;",
             "interval": 600,
             "removed": false,
             "blacklist": false,
@@ -194,7 +202,7 @@
             "tag": "stream"
         },
         "sophos_ips_windows": {
-            "query": "WITH split(dns_host, rest) AS (\n  SELECT\n    '',\n    dns_server_search_order || ','\n  FROM\n    interface_details\n  UNION\n  ALL\n  SELECT\n    substr(rest, 0, instr(rest, ',')),\n    substr(rest, instr(rest, ',') + 1)\n  FROM\n    split\n  WHERE\n    rest <> ''\n),\ndns_ips(ip) AS (\n  SELECT\n    TRIM(dns_host) AS dns_ip\n  FROM\n    split\n  WHERE\n    dns_host <> ''\n    AND dns_host LIKE '%.%.%.%'\n  ORDER BY\n    dns_host\n)\nSELECT\n  GROUP_CONCAT(DISTINCT PID) AS pids,\n  GROUP_CONCAT(DISTINCT sophosPID) AS sophosPIDs,\n  source AS sourceIp,\n  destination AS destinationIp,\n  destinationPort,\n  protocol,\n  GROUP_CONCAT(DISTINCT time) AS timestamps\nFROM\n  sophos_ip_journal\nWHERE\n  -- Include only IPv4\n  (\n    sourceIp LIKE '%.%.%.%'\n    AND destinationIp LIKE '%.%.%.%'\n  )\n  AND -- Exclude localhost\n  NOT (\n    sourceIp LIKE '127.%.%.%'\n    OR destinationIp LIKE '127.%.%.%'\n  )\n  AND -- Exclude RFC1918 IPs\n  NOT (\n    destinationIP LIKE '10.%.%.%'\n    OR destinationIP LIKE '172.16.%.%'\n    OR destinationIP LIKE '192.168.%.%'\n  )\n  AND -- Exclude Multicast IPs\n  NOT (\n    destinationIp LIKE '224.0.%.%'\n    OR destinationIp LIKE '224.3.%.%'\n    OR destinationIp LIKE '224.4.%.%'\n    OR destinationIp LIKE '232.%.%.%'\n    OR destinationIp LIKE '233.%.%.%'\n    OR destinationIp LIKE '234.%.%.%'\n    OR destinationIp LIKE '239.%.%.%'\n  )\n  AND -- Exclude Broadcast IP\n  NOT (destinationIp = '255.255.255.255')\n  AND -- Exclude self-assigned IPs\n  NOT (destinationIp LIKE '169.254.%.%')\n  AND -- Exclude locally configured DNS ips\n  NOT (\n    destinationIp IN (\n      SELECT\n        ip\n      FROM\n        dns_ips\n    )\n    AND destinationPort IN (53, 443)\n  ) -- Unique by time, pid and ip\n  AND -- Exclude Google public DNS ips\n  NOT (\n    destinationIp IN ('8.8.8.8', '8.8.4.4')\n    AND destinationPort IN (53, 443)\n  )\n  AND -- Exclude OpenDNS public DNS ips\n  NOT (\n    destinationIp IN ('208.67.222.222', '208.67.222.220')\n    AND destinationPort IN (53, 443)\n  )\n  AND -- Exclude CloudFlare public DNS ips\n  NOT (\n    destinationIp IN ('1.1.1.1', '1.0.0.1')\n    AND destinationPort IN (53, 443)\n  )\n  AND time > STRFTIME('%s', 'NOW') - 625\nGROUP BY\n  destinationIp,\n  destinationPort\nORDER BY\n  time DESC;",
+            "query": "WITH\n  split(dns_host, rest) AS (\n    SELECT\n      '',\n      dns_server_search_order || ','\n    FROM interface_details\n    UNION ALL\n    SELECT\n      substr(rest, 0, instr(rest, ',')),\n      substr(rest, instr(rest, ',')+1)\n    FROM split\n    WHERE rest <> ''\n  ),\n  dns_ips(ip) AS (\n    SELECT\n      TRIM(dns_host) as dns_ip\n    FROM split\n    WHERE\n      dns_host <> ''\n    AND\n      dns_host LIKE '%.%.%.%'\n    ORDER BY dns_host\n  )\nSELECT\n  GROUP_CONCAT(DISTINCT PID) as pids,\n  GROUP_CONCAT(DISTINCT sophosPID) AS sophosPIDs,\n  source as sourceIp,\n  destination as destinationIp,\n  destinationPort,\n  protocol,\n  GROUP_CONCAT(DISTINCT time) as timestamps\nFROM sophos_ip_journal\nWHERE\n  -- Include only IPv4\n  (sourceIp LIKE '%.%.%.%' AND destinationIp LIKE '%.%.%.%')\nAND\n  -- Exclude localhost\n  NOT (sourceIp LIKE '127.%.%.%'\n  OR destinationIp LIKE '127.%.%.%')\nAND\n  -- Exclude RFC1918 IPs\n  NOT (destinationIP LIKE '10.%.%.%'\n  OR destinationIP LIKE '172.16.%.%'\n  OR destinationIP LIKE '192.168.%.%')\nAND\n  -- Exclude Multicast IPs\n  NOT (destinationIp LIKE '224.0.%.%'\n  OR destinationIp LIKE '224.3.%.%'\n  OR destinationIp LIKE '224.4.%.%'\n  OR destinationIp LIKE '232.%.%.%'\n  OR destinationIp LIKE '233.%.%.%'\n  OR destinationIp LIKE '234.%.%.%'\n  OR destinationIp LIKE '239.%.%.%')\nAND\n  -- Exclude Broadcast IP\n  NOT (destinationIp = '255.255.255.255')\nAND\n  -- Exclude self-assigned IPs\n  NOT (destinationIp LIKE '169.254.%.%')\nAND\n  -- Exclude locally configured DNS ips\n  NOT (destinationIp IN (SELECT ip FROM dns_ips) AND destinationPort IN (53, 443))\n  -- Unique by time, pid and ip\nAND\n  -- Exclude Google public DNS ips\n  NOT (destinationIp IN ('8.8.8.8', '8.8.4.4') AND destinationPort IN (53, 443))\nAND\n  -- Exclude OpenDNS public DNS ips\n  NOT (destinationIp IN ('208.67.222.222', '208.67.222.220') AND destinationPort IN (53, 443))\nAND\n  -- Exclude CloudFlare public DNS ips\n  NOT (destinationIp IN ('1.1.1.1', '1.0.0.1') AND destinationPort IN (53, 443))\nAND\n  time > STRFTIME('%s', 'NOW') - 625\nGROUP BY destinationIp, destinationPort\nORDER BY time DESC;",
             "interval": 600,
             "removed": false,
             "blacklist": false,
@@ -203,7 +211,7 @@
             "tag": "DataLake"
         },
         "sophos_urls_windows": {
-            "query": "WITH raw_urls(\n  pid,\n  sophosPID,\n  domain,\n  cleanUrl,\n  sourceIp,\n  destinationIp,\n  time\n) AS (\n  SELECT\n    DISTINCT PID AS pid,\n    sophosPID AS sophosPID,\n    -- This SUBSTR mess gets the domain.\n    -- Once osquery is on 4.0.1 (or later), we can switch to a REGEX_MATCH\n    SUBSTR(\n      SUBSTR(url, INSTR(url, '//') + 2),\n      0,\n      INSTR(SUBSTR(url, INSTR(url, '//') + 2), '/')\n    ) AS domain,\n    REGEX_SPLIT(url, '\\?', 0) AS cleanUrl,\n    source AS sourceIp,\n    destination AS destinationIp,\n    time\n  FROM\n    sophos_http_journal\n  WHERE\n    -- Exclude localhost\n    NOT (\n      source LIKE '127.%.%.%'\n      OR destination LIKE '127.%.%.%'\n    )\n    AND NOT (\n      source = '0.0.0.0'\n      AND destination = '0.0.0.0'\n    )\n    AND -- Exclude RFC1918 IPs\n    NOT (\n      destination LIKE '10.%.%.%'\n      OR destination LIKE '172.16.%.%'\n      OR destination LIKE '192.168.%.%'\n    )\n    AND -- Exclude self-assigned IPs\n    NOT (destination LIKE '169.254.%.%')\n    AND -- Exclude IPv6 addresses - it appears that IPv6 addresses are surrounded by square brackets: [fe80::]\n    NOT (domain LIKE '[%')\n    AND -- It takes up to 5 minutes for the journal to be populated\n    -- Our time range is the interval + 5 minutes + a fudge factor\n    time > STRFTIME('%s', 'NOW') - 925\n  UNION\n  SELECT\n    DISTINCT PID AS pid,\n    sophosPID AS sophosPID,\n    SUBSTR(\n      SUBSTR(url, INSTR(url, '//') + 2),\n      0,\n      INSTR(SUBSTR(url, INSTR(url, '//') + 2), '/')\n    ) AS domain,\n    REGEX_SPLIT(url, '\\?', 0) AS cleanUrl,\n    NULL AS sourceIp,\n    NULL AS destinationIp,\n    time\n  FROM\n    sophos_url_journal\n  WHERE\n    time > STRFTIME('%s', 'NOW') - 925\n    AND -- Exclude IPv6 addresses - it appears that IPv6 addresses are surrounded by square brackets: [fe80::]\n    NOT (domain LIKE '[%')\n),\nnumbered_urls(\n  groupNum,\n  pid,\n  sophosPID,\n  domain,\n  cleanUrl,\n  sourceIp,\n  destinationIp,\n  time\n) AS (\n  SELECT\n    -- Generate a grouping number in for use in aggregation - Currently 100 urls per domain\n    -- or 32766 / 100 = 327 bytes per url\n    (ROW_NUMBER() OVER (PARTITION BY raw_urls.domain)) / 100 AS groupNum,\n    pid,\n    sophosPID,\n    domain,\n    cleanUrl,\n    sourceIp,\n    destinationIp,\n    time\n  FROM\n    raw_urls\n  GROUP BY\n    cleanUrl\n)\nSELECT\n  -- Just in case each row overflows the 32766-byte limit, we truncate it\n  SUBSTR(GROUP_CONCAT(pid), 1, 32766) AS pids,\n  SUBSTR(GROUP_CONCAT(sophosPID), 1, 32766) AS sophosPIDs,\n  domain,\n  -- Using ' ' as a delimiter, as ',' is used unencoded by some sites, like bing\n  SUBSTR(\n    GROUP_CONCAT(REGEX_SPLIT(cleanUrl, domain, 1), ' '),\n    1,\n    32766\n  ) AS cleanUrls,\n  SUBSTR(GROUP_CONCAT(sourceIp), 1, 32766) AS sourceIps,\n  SUBSTR(GROUP_CONCAT(destinationIp), 1, 32766) AS destinationIps,\n  SUBSTR(GROUP_CONCAT(time), 1, 32766) AS timestamps\nFROM\n  numbered_urls\nGROUP BY\n  domain,\n  groupNum;",
+            "query": "WITH\n  raw_urls(pid, sophosPID, domain, cleanUrl, sourceIp, destinationIp, time) AS (\n    SELECT DISTINCT\n      PID as pid,\n      sophosPID as sophosPID,\n      -- This SUBSTR mess gets the domain.\n      -- Once osquery is on 4.0.1 (or later), we can switch to a REGEX_MATCH\n      SUBSTR(SUBSTR(url, INSTR(url, '//') + 2), 0, INSTR(SUBSTR(url, INSTR(url, '//') + 2), '/')) AS domain,\n      REGEX_SPLIT(url, '\\?', 0) as cleanUrl,\n      source AS sourceIp,\n      destination AS destinationIp,\n      time\n    FROM sophos_http_journal\n    WHERE\n      -- Exclude localhost\n      NOT (source LIKE '127.%.%.%' OR destination LIKE '127.%.%.%')\n    AND\n      NOT (source = '0.0.0.0' AND destination = '0.0.0.0')\n    AND\n      -- Exclude RFC1918 IPs\n      NOT (destination LIKE '10.%.%.%'\n      OR destination LIKE '172.16.%.%'\n      OR destination LIKE '192.168.%.%')\n    AND\n      -- Exclude self-assigned IPs\n      NOT (destination LIKE '169.254.%.%')\n    AND\n      -- Exclude IPv6 addresses - it appears that IPv6 addresses are surrounded by square brackets: [fe80::]\n      NOT (domain LIKE '[%')\n    AND\n      -- It takes up to 5 minutes for the journal to be populated\n      -- Our time range is the interval + 5 minutes + a fudge factor\n      time > STRFTIME('%s', 'NOW') - 925\n\n    UNION\n\n    SELECT DISTINCT\n      PID as pid,\n      sophosPID as sophosPID,\n      SUBSTR(SUBSTR(url, INSTR(url, '//') + 2), 0, INSTR(SUBSTR(url, INSTR(url, '//') + 2), '/')) AS domain,\n      REGEX_SPLIT(url, '\\?', 0) as cleanUrl,\n      NULL as sourceIp,\n      NULL as destinationIp,\n      time\n    FROM sophos_url_journal\n    WHERE\n      time > STRFTIME('%s', 'NOW') - 925\n    AND\n      -- Exclude IPv6 addresses - it appears that IPv6 addresses are surrounded by square brackets: [fe80::]\n      NOT (domain LIKE '[%')\n  ),\nnumbered_urls(groupNum, pid, sophosPID, domain, cleanUrl, sourceIp, destinationIp, time) AS (\n  SELECT\n    -- Generate a grouping number in for use in aggregation - Currently 100 urls per domain\n    -- or 32766 / 100 = 327 bytes per url\n    (ROW_NUMBER() OVER (PARTITION BY raw_urls.domain)) / 100 AS groupNum,\n    pid,\n    sophosPID,\n    domain,\n    cleanUrl,\n    sourceIp,\n    destinationIp,\n    time\n  FROM raw_urls\n  GROUP BY cleanUrl\n)\nSELECT\n  -- Just in case each row overflows the 32766-byte limit, we truncate it\n  SUBSTR(GROUP_CONCAT(pid), 1, 32766) AS pids,\n  SUBSTR(GROUP_CONCAT(sophosPID), 1, 32766) AS sophosPIDs,\n  domain,\n  -- Using ' ' as a delimiter, as ',' is used unencoded by some sites, like bing\n  SUBSTR(GROUP_CONCAT(REGEX_SPLIT(cleanUrl, domain, 1), ' '), 1, 32766) AS cleanUrls,\n  SUBSTR(GROUP_CONCAT(sourceIp), 1, 32766) AS sourceIps,\n  SUBSTR(GROUP_CONCAT(destinationIp), 1, 32766) AS destinationIps,\n  SUBSTR(GROUP_CONCAT(time), 1, 32766) AS timestamps\nFROM numbered_urls\nGROUP BY domain, groupNum;",
             "interval": 600,
             "removed": false,
             "blacklist": false,
@@ -212,7 +220,7 @@
             "tag": "DataLake"
         },
         "stopped_processes_windows_sophos": {
-            "query": "SELECT\n  spj.sophosPID,\n  spj.endTime\nFROM\n  sophos_process_journal AS spj WHERE spj.eventType=1\n  AND cmdline != 'cmd /c tasklist.exe /NH /FI \"IMAGENAME eq wapptunneld.exe\"'\n  AND cmdline != 'tasklist.exe  /NH /FI \"IMAGENAME eq wapptunneld.exe\"'\n  AND spj.time > STRFTIME(\"%s\",\"now\")-325;\n",
+            "query": "SELECT\n  spj.sophosPID,\n  spj.endTime\nFROM\n  sophos_process_journal AS spj WHERE spj.eventType=1\n  AND cmdline != 'cmd /c tasklist.exe /NH /FI \"IMAGENAME eq wapptunneld.exe\"'\n  AND cmdline != 'tasklist.exe  /NH /FI \"IMAGENAME eq wapptunneld.exe\"'\n  AND spj.time > STRFTIME(\"%s\",\"now\")-325;",
             "interval": 20,
             "removed": false,
             "blacklist": false,
@@ -221,7 +229,7 @@
             "tag": "stream"
         },
         "threat_osx_hidden_users": {
-            "query": "SELECT\n    username,\n    uid,\n    shell\nFROM\n    users\nWHERE\n    shell NOT LIKE '/usr/bin/false'\n    AND uid < 500\n    AND username != 'root'\n    AND username NOT LIKE '_%';",
+            "query": "select username,uid,shell from users where shell not like '/usr/bin/false' and uid < 500 and username != 'root' and username not like '_%';",
             "interval": 43200,
             "removed": false,
             "blacklist": false,
@@ -230,7 +238,7 @@
             "tag": "DataLake"
         },
         "threat_pass_the_hash": {
-            "query": "SELECT\n  eventid,\n  CAST(\n    JSON_EXTRACT(data, '$.EventData.LogonType') AS integer\n  ) AS logon_type,\n  REPLACE(\n    JSON_EXTRACT(data, '$.EventData.LogonProcessName'),\n    ' ',\n    ''\n  ) AS logon_process,\n  JSON_EXTRACT(data, '$.EventData.IpAddress') AS remote_address,\n  JSON_EXTRACT(data, '$.EventData.IpPort') AS remote_port,\n  JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserSid') AS target_sid,\n  CAST(\n    JSON_EXTRACT(data, '$.EventData.KeyLength') AS integer\n  ) AS key_length,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\nsource = 'Security'\n  AND ((eventid = 4624\n    AND logon_type = 3\n    AND logon_process = 'NtLmSsp'\n    AND key_length = 0\n    AND target_sid != 'S-1-5-7')\n    OR (eventid = 4648\n    AND remote_address NOT LIKE '127.%.%.%'\n    AND remote_address NOT IN ('0.0.0.0','::','-','::1')\n    AND remote_port NOT IN (0)\n    AND name NOT LIKE 'C:\\\\Windows\\\\System32\\\\%'\n    AND name != ''\n    AND target_domain != subject_domain\n    AND target_domain != ''))\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  CAST(JSON_EXTRACT(data, '$.EventData.LogonType') as integer) as logon_type,\n  REPLACE(JSON_EXTRACT(data, '$.EventData.LogonProcessName'), ' ', '') as logon_process,\n  JSON_EXTRACT(data, '$.EventData.IpAddress') AS remote_address,\n  JSON_EXTRACT(data, '$.EventData.IpPort') AS remote_port,\n  JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserSid') AS target_sid,\n  CAST(JSON_EXTRACT(data, '$.EventData.KeyLength') as integer) AS key_length,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE source = 'Security'\nAND ((\n  eventid = 4624\n  AND logon_type = 3\n  AND logon_process = 'NtLmSsp'\n  AND key_length = 0\n  AND target_sid != 'S-1-5-7'\n) OR (\n  eventid = 4648\n  AND remote_address NOT LIKE '127.%.%.%'\n  AND remote_address NOT IN ('0.0.0.0','::','-','::1')\n  AND remote_port NOT IN (0)\n  AND name NOT LIKE 'C:\\Windows\\System32\\%'\n  AND name != ''\n  AND target_domain != subject_domain\n  AND target_domain != ''\n))\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -239,17 +247,17 @@
             "tag": "DataLake"
         },
         "threat_promisc_interfaces_linux": {
-            "query": "SELECT\n    interface,\n    mac,\n    flags,\n    flags & (1 < < 8) AS promisc,\n    flags & (1 < < 3) AS loopback\nFROM\n    interface_details\nWHERE\n    promisc != 0;",
+            "query": "SELECT interface, mac, flags, flags & (1<<8) AS promisc, flags & (1<<3) AS loopback FROM interface_details WHERE promisc != 0;",
             "interval": 43200,
             "removed": false,
-            "blacklist": false,
+            "blacklist": true,
             "description": "Return all promiscuous network interfaces on Linux.",
             "value": "General security posture.",
             "platform": "linux",
             "tag": "DataLake"
         },
         "threat_space_after_filename": {
-            "query": "SELECT\n    target_path AS path,\n    ACTION,\n    uid,\n    gid,\n    MODE,\n    size,\n    atime,\n    mtime,\n    ctime,\n    sha1,\n    sha256\nFROM\n    file_events\nWHERE\n    path LIKE '% '\n    AND ACTION != 'DELETED';",
+            "query": "SELECT target_path as path, action, uid, gid, mode, size, atime, mtime, ctime, sha1, sha256 from file_events where path like '% ' and action != 'DELETED';",
             "interval": 43200,
             "removed": false,
             "blacklist": false,
@@ -258,7 +266,7 @@
             "tag": "stream"
         },
         "threat_stickykeys_registry_backdoor": {
-            "query": "SELECT\n    *\nFROM\n    registry\nWHERE\n    key LIKE 'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%%'\n    AND name = 'Debugger';",
+            "query": "SELECT * FROM registry WHERE key LIKE 'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%%' and name='Debugger';",
             "interval": 43200,
             "removed": false,
             "blacklist": false,
@@ -267,7 +275,7 @@
             "tag": "DataLake"
         },
         "user_accounts": {
-            "query": "SELECT\n  uid,\n  gid,\n  username,\n  description,\n  directory,\n  shell,\n  type,\n  uuid\nFROM\n  users;",
+            "query": "SELECT\n  uid,\n  gid,\n  username,\n  description,\n  directory,\n  shell,\n  type,\n  uuid\n  FROM users;",
             "interval": 43200,
             "removed": false,
             "blacklist": false,
@@ -275,7 +283,7 @@
             "tag": "DataLake"
         },
         "user_events_linux": {
-            "query": "SELECT\n    uid,\n    pid,\n    message,\n    type AS audit_type,\n    path,\n    address,\n    terminal,\n    time\nFROM\n    user_events\nWHERE\n    terminal != \"cron\"\n    AND pid != 1;",
+            "query": "SELECT uid, pid, message, type, path, address, terminal, time FROM user_events WHERE terminal != \"cron\" AND pid != 1;",
             "interval": 43200,
             "removed": false,
             "blacklist": false,
@@ -284,7 +292,7 @@
             "tag": "DataLake"
         },
         "vulnerability_applocker_ruleset_enforcement_mode": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  0 AS data,\n  mtime,\n  JSON_OBJECT('applocker_disabled', 1) AS analysis\nFROM\n  registry\nWHERE\n  path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\SrpV2\\%'\n  AND path NOT IN (\n    SELECT\n      key AS path\n    FROM\n      registry\n    WHERE\n      key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\SrpV2\\%'\n      AND name = 'EnforcementMode'\n  );",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  0 AS data,\n  mtime,\n  JSON_OBJECT(\n  'applocker_disabled', 1\n  ) AS analysis\nFROM registry\nWHERE path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\SrpV2\\%'\nAND path NOT IN (\n  SELECT\n    key AS path\n    FROM registry\n    WHERE key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\SrpV2\\%'\n    AND name = 'EnforcementMode'\n);",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -293,7 +301,7 @@
             "tag": "DataLake"
         },
         "vulnerability_app_compatibility": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('os_compatibility_target', data) AS analysis\nFROM\n  registry\nWHERE\n  (\n    key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers'\n    OR key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers'\n  );",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'os_compatibility_target', data\n  ) AS analysis\nFROM registry\nWHERE (key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers'\nOR key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers');",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -302,7 +310,7 @@
             "tag": "DataLake"
         },
         "vulnerability_app_disabled_exception_chain_validation": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'exception_chain_validation_disabled',\n    data != 0\n  ) AS analysis\nFROM\n  registry\nWHERE\n  (\n    key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%'\n    OR key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%'\n  )\n  AND name = 'DisableExceptionChainValidation'\n  AND data != 0;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'exception_chain_validation_disabled', data != 0\n  ) AS analysis\nFROM registry\nWHERE (key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%'\nOR key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%')\nAND name = 'DisableExceptionChainValidation'\nAND data != 0;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -320,7 +328,7 @@
             "tag": "DataLake"
         },
         "vulnerability_audit_special_groups": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('audit_special_group', 1) AS analysis\nFROM\n  registry\nWHERE\n  key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\Audit'\n  AND name NOT IN ('AuditPolicy', 'PerUserAuditing');",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'audit_special_group', 1\n  ) AS analysis\nFROM registry\nWHERE key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\Audit'\nAND name NOT IN ('AuditPolicy', 'PerUserAuditing');",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -329,7 +337,7 @@
             "tag": "DataLake"
         },
         "vulnerability_certificate_padding": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('certificate_padding_disabled', data != 1) AS analysis\nFROM\n  registry\nWHERE\n  (\n    key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography\\WinTrust\\Config'\n    OR key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Cryptography\\WinTrust\\Config'\n  )\n  AND name = 'EnableCertPaddingCheck'\n  AND data != 1;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'certificate_padding_disabled', data != 1\n  ) AS analysis\nFROM registry\nWHERE (key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography\\WinTrust\\Config'\nOR key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Cryptography\\WinTrust\\Config')\nAND name = 'EnableCertPaddingCheck'\nAND data != 1;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -338,7 +346,7 @@
             "tag": "DataLake"
         },
         "vulnerability_dep": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'dep_opt_out', data LIKE '%NOEXECUTE=OPTOUT%',\n    'dep_alwayson', data LIKE '%NOEXECUTE=ALWAYSON%',\n    'dep_opt_in', data LIKE '%NOEXECUTE=OPTIN%'\n  ) AS analysis\nFROM\n  registry\nWHERE\n  key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control'\n  AND name = 'SystemStartOptions'\n  AND data NOT LIKE '%NOEXECUTE=ALWAYSON%'\n  AND data NOT LIKE '%NOEXECUTE=OPTOUT%';",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'dep_opt_out', data LIKE '%NOEXECUTE=OPTOUT%',\n    'dep_alwayson', data LIKE '%NOEXECUTE=ALWAYSON%',\n    'dep_opt_in', data LIKE '%NOEXECUTE=OPTIN%'\n  ) AS analysis\nFROM registry\nWHERE key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control'\nAND name = 'SystemStartOptions'\nAND data NOT LIKE '%NOEXECUTE=ALWAYSON%'\nAND data NOT LIKE '%NOEXECUTE=OPTOUT%';",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -347,7 +355,7 @@
             "tag": "DataLake"
         },
         "vulnerability_developer_mode": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('developer_mode_enabled', data = 1) AS analysis\nFROM\n  registry\nWHERE\n  key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock'\n  AND name = 'AllowDevelopmentWithoutDevLicense'\n  AND data = 1;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'developer_mode_enabled', data = 1\n  ) AS analysis\nFROM registry\nWHERE key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock'\nAND name = 'AllowDevelopmentWithoutDevLicense'\nAND data = 1;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -356,7 +364,7 @@
             "tag": "DataLake"
         },
         "vulnerability_disallowed_paths": {
-            "query": "WITH missing_keys (count) AS (\n  SELECT\n    COUNT(*) AS count\n  FROM\n    registry\n  WHERE\n    key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0\\Paths'\n)\nSELECT\n  'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0' AS key,\n  'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0\\Paths' AS path,\n  'Paths' AS name,\n  'subkey' AS type,\n  0 AS data,\n  STRFTIME('%s') AS mtime,\n  JSON_OBJECT('srp_path_rules_missing', 1) AS analysis\nFROM\n  missing_keys\nWHERE\n  count = 0;",
+            "query": "WITH missing_keys (\n    count\n   ) AS (\n   SELECT\n     COUNT(*) AS count\n   FROM registry\n   WHERE key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0\\Paths'\n)\nSELECT\n 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0' AS key,\n 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0\\Paths' AS path,\n 'Paths' AS name,\n 'subkey' AS type,\n 0 AS data,\n STRFTIME('%s') AS mtime,\n JSON_OBJECT(\n   'srp_path_rules_missing', 1\n ) AS analysis\nFROM missing_keys\nWHERE count = 0;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -365,7 +373,7 @@
             "tag": "DataLake"
         },
         "vulnerability_disallowed_paths_item_data": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  0 AS data,\n  mtime,\n  JSON_OBJECT('srp_path_blacklist_rules_missing', 1) AS analysis\nFROM\n  registry\nWHERE\n  path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0\\Paths\\%'\n  AND path NOT IN (\n    SELECT\n      key AS path\n    FROM\n      registry\n    WHERE\n      key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0\\Paths\\%'\n      AND name = 'ItemData'\n  );",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  0 AS data,\n  mtime,\n  JSON_OBJECT(\n  'srp_path_blacklist_rules_missing', 1\n  ) AS analysis\nFROM registry\nWHERE path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0\\Paths\\%'\nAND path NOT IN (\n  SELECT\n    key AS path\n    FROM registry\n    WHERE key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0\\Paths\\%'\n    AND name = 'ItemData'\n);",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -374,7 +382,7 @@
             "tag": "DataLake"
         },
         "vulnerability_fontblocking": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('font_blocking_enabled', data = 1000000000000) AS analysis\nFROM\n  registry\nWHERE\n  key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\MitigationOptions'\n  AND name = 'MitigationOptions_FontBlocking'\n  AND data != 1000000000000;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'font_blocking_enabled', data = 1000000000000\n  ) AS analysis\nFROM registry\nWHERE key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\MitigationOptions'\nAND name = 'MitigationOptions_FontBlocking'\nAND data != 1000000000000;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -383,7 +391,7 @@
             "tag": "DataLake"
         },
         "vulnerability_kernel_null_page_access": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('kernel_null_page_access_allowed', data = 1) AS analysis\nFROM\n  registry\nWHERE\n  key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management'\n  AND name = 'EnableLowVaAccess'\n  AND data = 1;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'kernel_null_page_access_allowed', data = 1\n  ) AS analysis\nFROM registry\nWHERE key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management'\nAND name = 'EnableLowVaAccess'\nAND data = 1;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -392,7 +400,7 @@
             "tag": "DataLake"
         },
         "vulnerability_opentype_font": {
-            "query": "SELECT\n    *\nFROM\n    registry\nWHERE\n    path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Windows\\%'\n    AND name = 'DisableATMFD'\n    AND data != '1';",
+            "query": "SELECT * FROM registry WHERE path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Windows\\%' AND name = 'DisableATMFD' AND data != '1';",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -401,7 +409,7 @@
             "tag": "DataLake"
         },
         "vulnerability_outlook_flags": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'outlook_security_key', name,\n    'outlook_security_value', data = 1\n  ) AS analysis\nFROM registry\nWHERE\n  key IN (SELECT path || '\\Outlook\\Security' FROM registry WHERE path LIKE 'HKEY_USERS\\%\\SOFTWARE\\Microsoft\\Office\\%')\n  AND name IN ('EnableRoamingFolderHomepages', 'NonDefaultStoreScript', 'EnableUnsafeClientMailRules')\n  AND (\n      (name = 'EnableRoamingFolderHomepages' AND data = 1) OR\n      (name = 'NonDefaultStoreScript' AND data = 1) OR\n      (name = 'EnableUnsafeClientMailRules' AND data = 1)\n  );",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'outlook_security_key', name,\n    'outlook_security_value', data = 1\n  ) AS analysis\nFROM registry\nWHERE\n  -- Due to osquery globbing limitations, we need to split the path query into two parts.\n  -- Ideally we could use something like: key LIKE `HKEY_USERS\\%\\SOFTWARE\\Microsoft\\Office\\%\\Outlook\\Security\\%`\n  -- The inner query grabs everything up to the Office version `...\\Office\\16.0` and appends '\\Outlook\\Security'\n  -- The outer query pulls in the rest of the path\n  -- IMPORTANT NOTE: https://github.com/osquery/osquery/pull/6448 will potentially impact this functionality. Need to keep an eye out for whenever this patch makes it to a release\n  key IN (SELECT path || '\\Outlook\\Security' FROM registry WHERE path LIKE 'HKEY_USERS\\%\\SOFTWARE\\Microsoft\\Office\\%')\n  AND name IN ('EnableRoamingFolderHomepages', 'NonDefaultStoreScript', 'EnableUnsafeClientMailRules')\n  AND (\n      (name = 'EnableRoamingFolderHomepages' AND data = 1) OR\n      (name = 'NonDefaultStoreScript' AND data = 1) OR\n      (name = 'EnableUnsafeClientMailRules' AND data = 1)\n  );",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -410,7 +418,7 @@
             "tag": "DataLake"
         },
         "vulnerability_safer_flags_missing": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  0 AS data,\n  mtime,\n  JSON_OBJECT('safer_flags_key_missing', 1) AS analysis\nFROM\n  registry\nWHERE\n  path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\%\\%\\%'\n  AND path NOT IN (\n    SELECT\n      key AS path\n    FROM\n      registry\n    WHERE\n      key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\%\\%\\%'\n      AND name = 'SaferFlags'\n  );",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  0 AS data,\n  mtime,\n  JSON_OBJECT(\n  'safer_flags_key_missing', 1\n  ) AS analysis\nFROM registry\nWHERE path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\%\\%\\%'\nAND path NOT IN (\n  SELECT\n    key AS path\n    FROM registry\n    WHERE key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\%\\%\\%'\n    AND name = 'SaferFlags'\n);",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -419,7 +427,7 @@
             "tag": "DataLake"
         },
         "vulnerability_safer_flags_not_enforcing": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('safer_flags_not_enforcing', data != 0) AS analysis\nFROM\n  registry\nWHERE\n  key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\%\\%\\%'\n  AND name = 'SaferFlags'\n  AND data != 0;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n  'safer_flags_not_enforcing', data != 0\n  ) AS analysis\nFROM registry\nWHERE key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\%\\%\\%'\nAND name = 'SaferFlags'\nAND data != 0;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -428,7 +436,7 @@
             "tag": "DataLake"
         },
         "vulnerability_secureboot": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('secure_boot_enabled', data = 1) AS analysis\nFROM\n  registry\nWHERE\n  key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\SecureBoot\\State'\n  AND name = 'UEFISecureBootEnabled'\n  AND data != 1;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'secure_boot_enabled', data = 1\n  ) AS analysis\nFROM registry\nWHERE key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\SecureBoot\\State'\nAND name = 'UEFISecureBootEnabled'\nAND data != 1;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -437,7 +445,7 @@
             "tag": "DataLake"
         },
         "vulnerability_sehop": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('sehop_disabled', data != 1) AS analysis\nFROM\n  registry\nWHERE\n  key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel'\n  AND name = 'KernelSEHOPEnabled'\n  AND data != 1;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'sehop_disabled', data != 1\n  ) AS analysis\nFROM registry\nWHERE key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel'\nAND name = 'KernelSEHOPEnabled'\nAND data != 1;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -446,7 +454,7 @@
             "tag": "DataLake"
         },
         "vulnerability_sehop_validation": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT('sehop_disabled', data != 0) AS analysis\nFROM\n  registry\nWHERE\n  key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel'\n  AND name = 'DisableExceptionChainValidation'\n  AND data != 0;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'sehop_disabled', data != 0\n  ) AS analysis\nFROM registry\nWHERE key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel'\nAND name = 'DisableExceptionChainValidation'\nAND data != 0;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -455,7 +463,7 @@
             "tag": "DataLake"
         },
         "vulnerability_spectre_meltdown": {
-            "query": "SELECT\n    COUNT(*) AS count\nFROM\n    patches\nWHERE\n    hotfix_id = 'KB4056892'\nGROUP BY\n    hotfix_id\nHAVING\n    count = 0;",
+            "query": "SELECT COUNT(*) AS count FROM patches WHERE hotfix_id = 'KB4056892' GROUP BY hotfix_id HAVING count = 0;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -464,7 +472,7 @@
             "tag": "DataLake"
         },
         "vulnerability_srp_default_level": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'software_restriction_policy_default_unrestricted',\n    data = 262144\n  ) AS analysis\nFROM\n  registry\nWHERE\n  (\n    key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers'\n    OR key LIKE 'HKEY_USERS\\%\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers'\n  )\n  AND name = 'DefaultLevel'\n  AND data = 262144;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'software_restriction_policy_default_unrestricted', data = 262144\n  ) AS analysis\nFROM registry\nWHERE (key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers'\nOR key LIKE 'HKEY_USERS\\%\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers')\nAND name = 'DefaultLevel'\nAND data = 262144;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -473,7 +481,7 @@
             "tag": "DataLake"
         },
         "vulnerability_srp_exclude_local_admin": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'software_restriction_policy_enforcement_exclude_local_admin',\n    data != 0\n  ) AS analysis\nFROM\n  registry\nWHERE\n  (\n    key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers'\n    OR key LIKE 'HKEY_USERS\\%\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers'\n  )\n  AND name = 'PolicyScope'\n  AND data != 0;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'software_restriction_policy_enforcement_exclude_local_admin', data != 0\n  ) AS analysis\nFROM registry\nWHERE (key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers'\nOR key LIKE 'HKEY_USERS\\%\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers')\nAND name = 'PolicyScope'\nAND data != 0;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -482,7 +490,7 @@
             "tag": "DataLake"
         },
         "vulnerability_srp_transparent": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'software_restriction_policy_enforcement_transparent_off',\n    data = 0\n  ) AS analysis\nFROM\n  registry\nWHERE\n  (\n    key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers'\n    OR key LIKE 'HKEY_USERS\\%\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers'\n  )\n  AND name = 'TransparentEnabled'\n  AND data = 0;",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  data,\n  mtime,\n  JSON_OBJECT(\n    'software_restriction_policy_enforcement_transparent_off', data = 0\n  ) AS analysis\nFROM registry\nWHERE (key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers'\nOR key LIKE 'HKEY_USERS\\%\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers')\nAND name = 'TransparentEnabled'\nAND data = 0;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -491,7 +499,7 @@
             "tag": "DataLake"
         },
         "vulnerability_uac_disabled": {
-            "query": "SELECT\n    *\nFROM\n    registry\nWHERE\n    path = 'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableLUA'\n    AND data = '0';",
+            "query": "SELECT * FROM registry WHERE path='HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableLUA' AND data = '0';",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -500,7 +508,7 @@
             "tag": "DataLake"
         },
         "vulnerability_unrestricted_paths": {
-            "query": "WITH missing_keys (count) AS (\n  SELECT\n    COUNT(*) AS count\n  FROM\n    registry\n  WHERE\n    key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144\\Paths'\n)\nSELECT\n  'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144' AS key,\n  'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144\\Paths' AS path,\n  'Paths' AS name,\n  'subkey' AS type,\n  0 AS data,\n  STRFTIME('%s') AS mtime,\n  JSON_OBJECT('srp_path_rules_missing', 1) AS analysis\nFROM\n  missing_keys\nWHERE\n  count = 0;",
+            "query": "WITH missing_keys (\n   count\n  ) AS (\n  SELECT\n    COUNT(*) AS count\n  FROM registry\n  WHERE key = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144\\Paths'\n)\nSELECT\n  'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144' AS key,\n  'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144\\Paths' AS path,\n  'Paths' AS name,\n  'subkey' AS type,\n  0 AS data,\n  STRFTIME('%s') AS mtime,\n  JSON_OBJECT(\n    'srp_path_rules_missing', 1\n  ) AS analysis\nFROM missing_keys\nWHERE count = 0;",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -509,7 +517,7 @@
             "tag": "DataLake"
         },
         "vulnerability_unrestricted_paths_item_data": {
-            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  0 AS data,\n  mtime,\n  JSON_OBJECT('srp_path_whitelist_rules_missing', 1) AS analysis\nFROM\n  registry\nWHERE\n  path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144\\Paths\\%'\n  AND path NOT IN (\n    SELECT\n      key AS path\n    FROM\n      registry\n    WHERE\n      key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144\\Paths\\%'\n      AND name = 'ItemData'\n  );",
+            "query": "SELECT\n  key,\n  path,\n  name,\n  type,\n  0 AS data,\n  mtime,\n  JSON_OBJECT(\n  'srp_path_whitelist_rules_missing', 1\n  ) AS analysis\n  FROM registry\n  WHERE path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144\\Paths\\%'\n  AND path NOT IN (\n    SELECT\n      key AS path\n      FROM registry\n      WHERE key LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\262144\\Paths\\%'\n      AND name = 'ItemData'\n  );",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -518,7 +526,7 @@
             "tag": "DataLake"
         },
         "vulnerability_weak_algorithms": {
-            "query": "SELECT\n    *\nFROM\n    registry\nWHERE\n    path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography\\OID\\EncodingType 0\\CertDllCreateCertificateChainEngine\\Config\\Default\\%'\n    AND name IN (\n        'WeakSha1ThirdPartyFlags',\n        'WeakMd5ThirdPartyFlags'\n    )\n    AND type = 'REG_DWORD'\n    AND data NOT LIKE '-2%';",
+            "query": "SELECT * FROM registry WHERE path LIKE 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography\\OID\\EncodingType 0\\CertDllCreateCertificateChainEngine\\Config\\Default\\%' AND name IN ('WeakSha1ThirdPartyFlags','WeakMd5ThirdPartyFlags') AND type = 'REG_DWORD' AND data NOT LIKE '-2%';",
             "interval": 3600,
             "platform": "windows",
             "removed": false,
@@ -527,7 +535,7 @@
             "tag": "DataLake"
         },
         "windows_accessibility_md5": {
-            "query": "SELECT\n    path,\n    directory,\n    sha1,\n    sha256\nFROM\n    hash\nWHERE\n    (\n        path = 'c:\\windows\\system32\\utilman.exe'\n        OR path = 'c:\\windows\\system32\\magnify.exe'\n        OR path = 'c:\\windows\\system32\\narrator.exe'\n        OR path = 'c:\\windows\\system32\\displayswitch.exe'\n        OR path = 'c:\\windows\\system32\\osk.exe'\n        OR path = 'c:\\windows\\system32\\sethc.exe'\n    );",
+            "query": "SELECT path, directory, sha1, sha256 FROM hash WHERE (path='c:\\windows\\system32\\utilman.exe' OR path='c:\\windows\\system32\\magnify.exe' OR  path='c:\\windows\\system32\\narrator.exe' OR path='c:\\windows\\system32\\displayswitch.exe' OR path='c:\\windows\\system32\\osk.exe' OR path='c:\\windows\\system32\\sethc.exe');",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -536,7 +544,7 @@
             "tag": "stream"
         },
         "windows_disk_md5": {
-            "query": "SELECT\n  file.filename,\n  file.ctime,\n  file.path,\n  sfp.sha1,\n  sfp.sha256,\n  sfp.fileSize,\n  sfp.mlScore,\n  sfp.mlScoreData,\n  sfp.puaScore,\n  sfp.globalRep,\n  sfp.globalRepData,\n  sfp.localRep,\n  sfp.localRepData,\n  sfp.coreFileInfo\nFROM\n  file\n  LEFT JOIN sophos_file_properties AS sfp ON file.path = sfp.pathname\nWHERE\n  (\n    file.path LIKE 'C:\\Users\\%\\Downloads\\%%'\n    OR file.path LIKE 'C:\\Users\\%\\Desktop\\%%'\n    OR file.path LIKE 'C:\\Users\\%\\Appdata\\Roaming\\%%'\n    OR file.path LIKE 'C:\\Users\\%\\Appdata\\Local\\Temp\\%%'\n    OR file.path LIKE 'C:\\Windows\\Temp\\%%'\n  )\n  AND (\n    file.filename LIKE '%.exe'\n    OR file.filename LIKE '%.dll'\n    OR file.filename LIKE '%.ps1'\n  );",
+            "query": "SELECT\n  file.filename,\n  file.ctime,\n  file.path,\n  sfp.sha1,\n  sfp.sha256,\n  sfp.fileSize,\n  sfp.mlScore,\n  sfp.mlScoreData,\n  sfp.puaScore,\n  sfp.globalRep,\n  sfp.globalRepData,\n  sfp.localRep,\n  sfp.localRepData,\n  sfp.coreFileInfo\nFROM file\nLEFT JOIN sophos_file_properties AS sfp ON file.path = sfp.pathname\nWHERE (\n  file.path LIKE 'C:\\Users\\%\\Downloads\\%%' OR\n  file.path LIKE 'C:\\Users\\%\\Desktop\\%%' OR\n  file.path LIKE 'C:\\Users\\%\\Appdata\\Roaming\\%%' OR\n  file.path LIKE 'C:\\Users\\%\\Appdata\\Local\\Temp\\%%' OR\n  file.path LIKE 'C:\\Windows\\Temp\\%%'\n) AND (\n  file.filename LIKE '%.exe' OR\n  file.filename LIKE '%.dll' OR\n  file.filename LIKE '%.ps1'\n);",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -545,7 +553,7 @@
             "tag": "stream"
         },
         "windows_event_audit_log_cleared": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.UserData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.UserData.SubjectDomainName') AS subject_domain,\n  'The audit log was cleared.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid IN (1102, 517)\n  AND source = 'Security'\n  AND provider_name != 'AD FS Auditing'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.UserData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.UserData.SubjectDomainName') AS subject_domain,\n  'The audit log was cleared.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid IN (1102, 517)\nAND source = 'Security'\nAND provider_name != 'AD FS Auditing'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -554,7 +562,7 @@
             "tag": "DataLake"
         },
         "windows_event_audit_policy_changed": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.CategoryId') AS category,\n  JSON_EXTRACT(data, '$.EventData.SubcategoryId') AS subcategory,\n  JSON_EXTRACT(data, '$.EventData.AuditPolicyChanges') AS audit_policy_changes,\n  'System audit policy was changed.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 4719\n  AND source = 'Security'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.CategoryId') AS category,\n  JSON_EXTRACT(data, '$.EventData.SubcategoryId') AS subcategory,\n  JSON_EXTRACT(data, '$.EventData.AuditPolicyChanges') AS audit_policy_changes,\n  'System audit policy was changed.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 4719\nAND source = 'Security'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -563,7 +571,7 @@
             "tag": "DataLake"
         },
         "windows_event_disallowed_credentials": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.Package') AS package,\n  JSON_EXTRACT(data, '$.EventData.UserUPN') AS user_upn,\n  JSON_EXTRACT(data, '$.EventData.TargetServer') AS target_server,\n  JSON_EXTRACT(data, '$.EventData.CredType') AS cred_type,\n  'The requested credentials delegation was disallowed by policy.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 5378\n  AND source = 'Security'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.Package') AS package,\n  JSON_EXTRACT(data, '$.EventData.UserUPN') AS user_upn,\n  JSON_EXTRACT(data, '$.EventData.TargetServer') AS target_server,\n  JSON_EXTRACT(data, '$.EventData.CredType') AS cred_type,\n  'The requested credentials delegation was disallowed by policy.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 5378\nAND source = 'Security'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -572,7 +580,7 @@
             "tag": "DataLake"
         },
         "windows_event_dos_attack_detected": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.Type') AS type,\n  'The Windows Filtering Platform has detected a DoS attack and entered a defensive mode.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 5148\n  AND source = 'Security'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.Type') AS type,\n  'The Windows Filtering Platform has detected a DoS attack and entered a defensive mode.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 5148\nAND source = 'Security'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -581,7 +589,7 @@
             "tag": "DataLake"
         },
         "windows_event_invalid_logon": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.Status') AS status,\n  JSON_EXTRACT(data, '$.EventData.FailureReason') AS failure_reason,\n  JSON_EXTRACT(data, '$.EventData.SubStatus') AS sub_status,\n  CAST(\n    JSON_EXTRACT(data, '$.EventData.LogonType') AS integer\n  ) AS logon_type,\n  JSON_EXTRACT(data, '$.EventData.LogonProcessName') AS logon_process,\n  JSON_EXTRACT(data, '$.EventData.AuthenticationPackageName') AS authentication_package,\n  JSON_EXTRACT(data, '$.EventData.TransmittedServices') AS transmitted_services,\n  CAST(\n    JSON_EXTRACT(data, '$.EventData.KeyLength') AS integer\n  ) AS key_length,\n  JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n  JSON_EXTRACT(data, '$.EventData.IpAddress') AS remote_address,\n  JSON_EXTRACT(data, '$.EventData.IpPort') AS remote_port,\n  'An account failed to log on.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 4625\n  AND source = 'Security'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.Status') AS status,\n  JSON_EXTRACT(data, '$.EventData.FailureReason') AS failure_reason,\n  JSON_EXTRACT(data, '$.EventData.SubStatus') AS sub_status,\n  JSON_EXTRACT(data, '$.EventData.LogonType') AS logon_type,\n  JSON_EXTRACT(data, '$.EventData.LogonProcessName') AS logon_process,\n  JSON_EXTRACT(data, '$.EventData.AuthenticationPackageName') AS authentication_package,\n  JSON_EXTRACT(data, '$.EventData.TransmittedServices') AS transmitted_services,\n  JSON_EXTRACT(data, '$.EventData.KeyLength') AS key_length,\n  JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n  JSON_EXTRACT(data, '$.EventData.IpAddress') AS remote_address,\n  JSON_EXTRACT(data, '$.EventData.IpPort') AS remote_port,\n  'An account failed to log on.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 4625\nAND source = 'Security'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -590,7 +598,7 @@
             "tag": "DataLake"
         },
         "windows_event_invalid_logon_brute_force": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.Status') AS status,\n  JSON_EXTRACT(data, '$.EventData.FailureReason') AS failure_reason,\n  JSON_EXTRACT(data, '$.EventData.SubStatus') AS sub_status,\n  CAST(\n    JSON_EXTRACT(data, '$.EventData.LogonType') AS integer\n  ) AS logon_type,\n  JSON_EXTRACT(data, '$.EventData.LogonProcessName') AS logon_process,\n  JSON_EXTRACT(data, '$.EventData.AuthenticationPackageName') AS authentication_package,\n  JSON_EXTRACT(data, '$.EventData.TransmittedServices') AS transmitted_services,\n  CAST(\n    JSON_EXTRACT(data, '$.EventData.KeyLength') AS integer\n  ) AS key_length,\n  JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n  JSON_EXTRACT(data, '$.EventData.IpAddress') AS remote_address,\n  JSON_EXTRACT(data, '$.EventData.IpPort') AS remote_port,\n  'Source IP is shuffling through 20 or more different usernames, appears to be a brute force attack' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 4625\n  AND source = 'Security'\n  AND remote_address IS NOT NULL\n  AND remote_address NOT LIKE '127.%.%.%'\n  AND remote_address NOT IN ('0.0.0.0', '::', '-', '::1')\n  AND time > STRFTIME('%s', 'NOW') - 3925\nGROUP BY\n  remote_address\nHAVING\n  COUNT(DISTINCT target_username) >= 20;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.Status') AS status,\n  JSON_EXTRACT(data, '$.EventData.FailureReason') AS failure_reason,\n  JSON_EXTRACT(data, '$.EventData.SubStatus') AS sub_status,\n  JSON_EXTRACT(data, '$.EventData.LogonType') AS logon_type,\n  JSON_EXTRACT(data, '$.EventData.LogonProcessName') AS logon_process,\n  JSON_EXTRACT(data, '$.EventData.AuthenticationPackageName') AS authentication_package,\n  JSON_EXTRACT(data, '$.EventData.TransmittedServices') AS transmitted_services,\n  JSON_EXTRACT(data, '$.EventData.KeyLength') AS key_length,\n  JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n  JSON_EXTRACT(data, '$.EventData.IpAddress') AS remote_address,\n  JSON_EXTRACT(data, '$.EventData.IpPort') AS remote_port,\n  'Source IP is shuffling through 20 or more different usernames, appears to be a brute force attack' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 4625\nAND source = 'Security'\nAND remote_address IS NOT NULL\nAND remote_address NOT LIKE '127.%.%.%'\nAND remote_address NOT IN ('0.0.0.0','::','-','::1')\nAND time > STRFTIME('%s', 'NOW') - 3925\nGROUP BY remote_address HAVING COUNT(DISTINCT target_username) >= 20;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -599,7 +607,7 @@
             "tag": "DataLake"
         },
         "windows_event_replay_attack": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.RequestType') AS request_type,\n  JSON_EXTRACT(data, '$.EventData.LogonProcessName') AS logon_process,\n  JSON_EXTRACT(data, '$.EventData.AuthenticationPackage') AS authentication_package,\n  JSON_EXTRACT(data, '$.EventData.TransmittedServices') AS transmitted_services,\n  JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n  'A replay attack was detected.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 4649\n  AND source = 'Security'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.RequestType') AS request_type,\n  JSON_EXTRACT(data, '$.EventData.LogonProcessName') AS logon_process,\n  JSON_EXTRACT(data, '$.EventData.AuthenticationPackage') AS authentication_package,\n  JSON_EXTRACT(data, '$.EventData.TransmittedServices') AS transmitted_services,\n  JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n  'A replay attack was detected.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 4649\nAND source = 'Security'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -608,7 +616,7 @@
             "tag": "DataLake"
         },
         "windows_event_scheduled_task_created": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TaskName') AS task_name,\n  JSON_EXTRACT(data, '$.EventData.TaskContent') AS task_content,\n  'A scheduled task was created.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 4698\n  AND source = 'Security'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TaskName') AS task_name,\n  JSON_EXTRACT(data, '$.EventData.TaskContent') AS task_content,\n  'A scheduled task was created.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 4698\nAND source = 'Security'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -617,7 +625,7 @@
             "tag": "DataLake"
         },
         "windows_event_successful_logon": {
-            "query": "WITH grouped_successful_logins(\n  time,\n  eventid,\n  subject_username,\n  subject_domain,\n  target_username,\n  target_domain,\n  target_logon_id,\n  subject_logon_id,\n  logon_type,\n  logon_process,\n  authentication_package,\n  transmitted_services,\n  key_length,\n  name,\n  remote_address,\n  remote_port,\n  provider_name,\n  source,\n  groupNum\n) AS (\n  SELECT\n    DISTINCT time,\n    eventid,\n    JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n    JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n    JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n    JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n    JSON_EXTRACT(data, '$.EventData.TargetLogonId') AS target_logon_id,\n    JSON_EXTRACT(data, '$.EventData.SubjectLogonId') AS subject_logon_id,\n    CAST(\n      JSON_EXTRACT(data, '$.EventData.LogonType') AS integer\n    ) AS logon_type,\n    JSON_EXTRACT(data, '$.EventData.LogonProcessName') AS logon_process,\n    JSON_EXTRACT(data, '$.EventData.AuthenticationPackageName') AS authentication_package,\n    JSON_EXTRACT(data, '$.EventData.TransmittedServices') AS transmitted_services,\n    CAST(\n      JSON_EXTRACT(data, '$.EventData.KeyLength') AS integer\n    ) AS key_length,\n    JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n    JSON_EXTRACT(data, '$.EventData.IpAddress') AS remote_address,\n    JSON_EXTRACT(data, '$.EventData.IpPort') AS remote_port,\n    provider_name,\n    source,\n    (\n      ROW_NUMBER() OVER (\n        ORDER BY\n          time\n      )\n    ) / 15 AS groupNum\n  FROM\n    sophos_windows_events\n  WHERE\n    eventid = 4624\n    AND source = 'Security'\n    AND time > STRFTIME('%s', 'NOW') - 3925\n)\nSELECT\n  SUBSTR(GROUP_CONCAT(time), 1, 164) AS event_timestamps,\n  eventid,\n  subject_username,\n  subject_domain,\n  target_username,\n  target_domain,\n  target_logon_id,\n  subject_logon_id,\n  logon_type,\n  logon_process,\n  authentication_package,\n  transmitted_services,\n  key_length,\n  name,\n  remote_address,\n  remote_port,\n  'A user account was successfully logged on' AS description,\n  provider_name,\n  source\nFROM\n  grouped_successful_logins\nGROUP BY\n  groupNum,\n  subject_username,\n  target_username,\n  target_logon_id,\n  subject_logon_id;",
+            "query": "WITH grouped_successful_logins(\n    time,\n    eventid,\n    subject_username,\n    subject_domain,\n    target_username,\n    target_domain,\n    target_logon_id,\n    subject_logon_id,\n    logon_type,\n    logon_process,\n    authentication_package,\n    transmitted_services,\n    key_length,\n    name,\n    remote_address,\n    remote_port,\n    provider_name,\n    source,\n    groupNum\n    ) AS (\n      SELECT DISTINCT time, eventid,\n        JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n        JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n        JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n        JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n        JSON_EXTRACT(data, '$.EventData.TargetLogonId') AS target_logon_id,\n        JSON_EXTRACT(data, '$.EventData.SubjectLogonId') AS subject_logon_id,\n        JSON_EXTRACT(data, '$.EventData.LogonType') AS logon_type,\n        JSON_EXTRACT(data, '$.EventData.LogonProcessName') AS logon_process,\n        JSON_EXTRACT(data, '$.EventData.AuthenticationPackageName') AS authentication_package,\n        JSON_EXTRACT(data, '$.EventData.TransmittedServices') AS transmitted_services,\n        JSON_EXTRACT(data, '$.EventData.KeyLength') AS key_length,\n        JSON_EXTRACT(data, '$.EventData.ProcessName') AS name,\n        JSON_EXTRACT(data, '$.EventData.IpAddress') AS remote_address,\n        JSON_EXTRACT(data, '$.EventData.IpPort') AS remote_port,\n        provider_name,\n        source,\n        (ROW_NUMBER() OVER (ORDER BY time))/15 AS groupNum\n      FROM sophos_windows_events\n      WHERE eventid = 4624\n      AND source = 'Security'\n      AND time > STRFTIME('%s', 'NOW') - 3925\n    )\n    SELECT\n      SUBSTR(GROUP_CONCAT(time),1,164) AS event_timestamps,\n      eventid,\n      subject_username,\n      subject_domain,\n      target_username,\n      target_domain,\n      target_logon_id,\n      subject_logon_id,\n      logon_type,\n      logon_process,\n      authentication_package,\n      transmitted_services,\n      key_length,\n      name,\n      remote_address,\n      remote_port,\n      'A user account was successfully logged on' AS description,\n      provider_name,\n      source\n    FROM grouped_successful_logins\n    GROUP BY groupNum, subject_username, target_username, target_logon_id, subject_logon_id;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -626,7 +634,7 @@
             "tag": "DataLake"
         },
         "windows_event_uac_bypass_journal": {
-            "query": "SELECT\n  DISTINCT time AS event_time,\n  keyName,\n  value,\n  eventType,\n  sophosPID,\n  CASE\n    WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\ms-settings\\shell\\Open\\Command\" THEN \"UAC Bypass fodhelper.exe or ComputerDefaults.exe detected\"\n    WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\mscfile\\shell\\Open\\Command\" THEN \"UAC Bypass eventvwr.msc detected\"\n    WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\exefile\\shell\\Runas\\Command\\isolatedCommand\" THEN \"UAC Bypass sdclt detected\"\n    WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\control.exe\" THEN \"UAC Bypass Application Path detected\"\n    WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\shell\\Open\\Command\" THEN \"UAC Bypass WSReset.exe Detected\"\n    ELSE \"UAC Bypass detected\"\n  END AS description\nFROM\n  sophos_registry_journal\nWHERE\n  (\n    keyName LIKE \"\\REGISTRY\\USER\\%\\ms-settings\\shell\\Open\\Command\"\n    OR keyName LIKE \"\\REGISTRY\\USER\\%\\mscfile\\shell\\Open\\Command\"\n    OR keyName LIKE \"\\REGISTRY\\USER\\%\\exefile\\shell\\Runas\\Command\\isolatedCommand\"\n    OR keyName LIKE \"\\REGISTRY\\USER\\%\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\control.exe\"\n    OR keyName LIKE \"\\REGISTRY\\USER\\%\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\Shell\\Open\\Command\"\n  )\n  AND time > STRFTIME(\"%s\", \"now\") -805\n  AND eventType = 5\n  AND valueName != \"DelegateExecute\";",
+            "query": "SELECT DISTINCT\n  time AS event_timestamp,\n  keyName,\n  value,\n  eventType,\n  sophosPID,\n    CASE\n      WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\ms-settings\\shell\\Open\\Command\" THEN \"UAC Bypass fodhelper.exe or ComputerDefaults.exe detected\"\n      WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\mscfile\\shell\\Open\\Command\" THEN \"UAC Bypass eventvwr.msc detected\"\n      WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\exefile\\shell\\Runas\\Command\\isolatedCommand\" THEN \"UAC Bypass sdclt detected\"\n      WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\control.exe\" THEN \"UAC Bypass Application Path detected\"\n      WHEN keyName LIKE \"\\REGISTRY\\USER\\%\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\shell\\Open\\Command\" THEN \"UAC Bypass WSReset.exe Detected\"\n      ELSE \"UAC Bypass detected\"\n    END\n  AS description\nFROM sophos_registry_journal\nWHERE (keyName LIKE \"\\REGISTRY\\USER\\%\\ms-settings\\shell\\Open\\Command\"\nOR keyName LIKE \"\\REGISTRY\\USER\\%\\mscfile\\shell\\Open\\Command\"\nOR keyName LIKE \"\\REGISTRY\\USER\\%\\exefile\\shell\\Runas\\Command\\isolatedCommand\"\nOR keyName LIKE \"\\REGISTRY\\USER\\%\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\control.exe\"\nOR keyName LIKE \"\\REGISTRY\\USER\\%\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\Shell\\Open\\Command\")\nAND time > STRFTIME(\"%s\",\"now\")-805 AND eventType=5 AND valueName!=\"DelegateExecute\";",
             "interval": 480,
             "removed": false,
             "blacklist": false,
@@ -635,7 +643,7 @@
             "tag": "DataLake"
         },
         "windows_event_uac_bypass_registry": {
-            "query": "SELECT\n  mtime AS event_time,\n  REPLACE(key, \"HKEY_USERS\\\", \"\\REGISTRY\\USERS\\\") AS keyName,\n  data AS value,\n  CASE\n    WHEN key LIKE \"HKEY_USERS\\%_classes\\ms-settings\\shell\\open\\command\" THEN \"UAC Bypass fodhelper.exe or ComputerDefaults.exe detected\"\n    WHEN key LIKE \"HKEY_USERS\\%_classes\\mscfile\\shell\\open\\command\" THEN \"UAC Bypass eventvwr.msc detected\"\n    WHEN key LIKE \"HKEY_USERS\\%_classes\\exefile\\shell\\Runas\\Command\\isolatedCommand\" THEN \"UAC Bypass sdclt detected\"\n    WHEN key LIKE \"HKEY_USERS\\%\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\control.exe\" THEN \"UAC Bypass Application Path detected\"\n    WHEN key LIKE \"HKEY_USERS\\%_classes\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\shell\\Open\\Command\" THEN \"UAC Bypass WSReset.exe Detected\"\n    ELSE \"UAC Bypass detected\"\n  END AS description\nFROM\n  registry\nWHERE\n  (\n    key LIKE \"HKEY_USERS\\%_classes\\ms-settings\\shell\\open\\command\"\n    OR key LIKE \"HKEY_USERS\\%_classes\\mscfile\\shell\\open\\command\"\n    OR key LIKE \"HKEY_USERS\\%_classes\\exefile\\shell\\Runas\\Command\\isolatedCommand\"\n    OR key LIKE \"HKEY_USERS\\%\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\control.exe\"\n    OR key LIKE \"HKEY_USERS\\%_classes\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\shell\\Open\\Command\"\n  )\n  AND name != \"DelegateExecute\"\n  AND mtime > STRFTIME(\"%s\", \"now\") -3600;",
+            "query": "SELECT\n  mtime AS event_timestamp,\n  REPLACE(key,\"HKEY_USERS\\\",\"\\REGISTRY\\USERS\\\") AS keyName,\n  data AS value,\n    CASE\n      WHEN key LIKE \"HKEY_USERS\\%_classes\\ms-settings\\shell\\open\\command\" THEN \"UAC Bypass fodhelper.exe or ComputerDefaults.exe detected\"\n      WHEN key LIKE \"HKEY_USERS\\%_classes\\mscfile\\shell\\open\\command\" THEN \"UAC Bypass eventvwr.msc detected\"\n      WHEN key LIKE \"HKEY_USERS\\%_classes\\exefile\\shell\\Runas\\Command\\isolatedCommand\" THEN \"UAC Bypass sdclt detected\"\n      WHEN key LIKE \"HKEY_USERS\\%\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\control.exe\" THEN \"UAC Bypass Application Path detected\"\n      WHEN key LIKE \"HKEY_USERS\\%_classes\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\shell\\Open\\Command\" THEN \"UAC Bypass WSReset.exe Detected\"\n      ELSE \"UAC Bypass detected\"\n    END\n  AS description\nFROM registry\nWHERE (key LIKE \"HKEY_USERS\\%_classes\\ms-settings\\shell\\open\\command\"\nOR key LIKE \"HKEY_USERS\\%_classes\\mscfile\\shell\\open\\command\"\nOR key LIKE \"HKEY_USERS\\%_classes\\exefile\\shell\\Runas\\Command\\isolatedCommand\"\nOR key LIKE \"HKEY_USERS\\%\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\control.exe\"\nOR key LIKE \"HKEY_USERS\\%_classes\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\shell\\Open\\Command\")\nAND name!=\"DelegateExecute\" AND mtime > STRFTIME(\"%s\",\"now\")-3600;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -653,7 +661,7 @@
             "tag": "DataLake"
         },
         "windows_event_user_account_created": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.PrivilegeList') AS privilege_list,\n  JSON_EXTRACT(data, '$.EventData.SamAccountName') AS sam_account_name,\n  JSON_EXTRACT(data, '$.EventData.DisplayName') AS display_name,\n  JSON_EXTRACT(data, '$.EventData.UserPrincipalName') AS user_principal_name,\n  JSON_EXTRACT(data, '$.EventData.HomeDirectory') AS home_directory,\n  JSON_EXTRACT(data, '$.EventData.HomePath') AS home_path,\n  JSON_EXTRACT(data, '$.EventData.ScriptPath') AS script_path,\n  JSON_EXTRACT(data, '$.EventData.ProfilePath') AS profile_path,\n  JSON_EXTRACT(data, '$.EventData.UserWorkstations') AS user_workstations,\n  JSON_EXTRACT(data, '$.EventData.AccountExpires') AS account_expires,\n  JSON_EXTRACT(data, '$.EventData.AllowedToDelegateTo') AS allowed_to_delegate_to,\n  JSON_EXTRACT(data, '$.EventData.UserAccountControl') AS uac,\n  JSON_EXTRACT(data, '$.EventData.UserParameters') AS user_parameters,\n  'A user account was created.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 4720\n  AND source = 'Security'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.PrivilegeList') AS privilege_list,\n  JSON_EXTRACT(data, '$.EventData.SamAccountName') AS sam_account_name,\n  JSON_EXTRACT(data, '$.EventData.DisplayName') AS display_name,\n  JSON_EXTRACT(data, '$.EventData.UserPrincipalName') AS user_principal_name,\n  JSON_EXTRACT(data, '$.EventData.HomeDirectory') AS home_directory,\n  JSON_EXTRACT(data, '$.EventData.HomePath') AS home_path,\n  JSON_EXTRACT(data, '$.EventData.ScriptPath') AS script_path,\n  JSON_EXTRACT(data, '$.EventData.ProfilePath') AS profile_path,\n  JSON_EXTRACT(data, '$.EventData.UserWorkstations') AS user_workstations,\n  JSON_EXTRACT(data, '$.EventData.AccountExpires') AS account_expires,\n  JSON_EXTRACT(data, '$.EventData.AllowedToDelegateTo') AS allowed_to_delegate_to,\n  JSON_EXTRACT(data, '$.EventData.UserAccountControl') AS uac,\n  JSON_EXTRACT(data, '$.EventData.UserParameters') AS user_parameters,\n  'A user account was created.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 4720\nAND source = 'Security'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -662,7 +670,7 @@
             "tag": "DataLake"
         },
         "windows_event_user_account_deleted": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.PrivilegeList') AS privilege_list,\n  'A user account was deleted.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 4726\n  AND source = 'Security'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  JSON_EXTRACT(data, '$.EventData.PrivilegeList') AS privilege_list,\n  'A user account was deleted.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 4726\nAND source = 'Security'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -671,7 +679,7 @@
             "tag": "DataLake"
         },
         "windows_event_user_account_locked_out": {
-            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  'A user account was locked out.' AS description,\n  provider_name,\n  source\nFROM\n  sophos_windows_events\nWHERE\n  eventid = 4740\n  AND source = 'Security'\n  AND time > STRFTIME('%s', 'NOW') - 3925;",
+            "query": "SELECT\n  eventid,\n  JSON_EXTRACT(data, '$.EventData.SubjectUserName') AS subject_username,\n  JSON_EXTRACT(data, '$.EventData.SubjectDomainName') AS subject_domain,\n  JSON_EXTRACT(data, '$.EventData.TargetUserName') AS target_username,\n  JSON_EXTRACT(data, '$.EventData.TargetDomainName') AS target_domain,\n  'A user account was locked out.' AS description,\n  provider_name,\n  source\nFROM sophos_windows_events\nWHERE eventid = 4740\nAND source = 'Security'\nAND time > STRFTIME('%s', 'NOW') - 3925;",
             "interval": 3600,
             "removed": false,
             "blacklist": false,
@@ -680,7 +688,7 @@
             "tag": "DataLake"
         },
         "windows_powershell_script_blocks": {
-            "query": "SELECT\n  spe.time,\n  spe.script_block_id,\n  spe.script_block_count,\n  SUBSTR(spe.script_text, 1, 32766) AS script_text,\n  CASE\n    WHEN length(spe.script_text) >= 32765 THEN 1\n    ELSE 0\n  END script_text_truncated,\n  spe.script_name,\n  spe.script_path\nFROM\n  sophos_powershell_events AS spe\nWHERE\n  spe.script_text != 'prompt' \n  -- sophos_powershell_events doesn't require a 300 second buffer as the events appear immediately\n  AND spe.time > STRFTIME('%s', 'NOW') - 625;",
+            "query": "SELECT\n  spe.time,\n  spe.script_block_id,\n  spe.script_block_count,\n  SUBSTR(spe.script_text, 1, 32766) AS script_text,\n  CASE\n    WHEN length(spe.script_text) >= 32765 THEN 1\n    ELSE 0\n  END script_text_truncated,\n  spe.script_name,\n  spe.script_path\nFROM sophos_powershell_events AS spe\nWHERE spe.script_text != 'prompt'\n-- sophos_powershell_events doesn't require a 300 second buffer as the events appear immediately\nAND spe.time > STRFTIME('%s', 'NOW') - 625;",
             "interval": 600,
             "removed": false,
             "blacklist": false,
@@ -689,7 +697,7 @@
             "tag": "DataLake"
         },
         "windows_programs": {
-            "query": "SELECT\n    name,\n    version,\n    language,\n    install_source,\n    publisher,\n    identifying_number,\n    install_date\nFROM\n    programs;",
+            "query": "SELECT name, version, language, install_source, publisher, identifying_number, install_date FROM programs;",
             "interval": 14400,
             "removed": false,
             "blacklist": true,
@@ -698,7 +706,7 @@
             "tag": "DataLake"
         },
         "windows_services_md5": {
-            "query": "SELECT\n    name,\n    display_name,\n    REGEX_SPLIT(description, \"[^\\x00-\\x7f]\", 0) AS description,\n    start_type,\n    services.path,\n    sha1,\n    sha256\nFROM\n    services\n    JOIN hash\nWHERE\n    hash.path = services.path\n    AND start_type = 'AUTO_START'\n    AND services.path NOT LIKE '%Windows%';",
+            "query": "SELECT name, display_name, REGEX_SPLIT(description, \"[^\\x00-\\x7f]\", 0) AS description, start_type, services.path, sha1, sha256 FROM services JOIN hash WHERE hash.path = services.path AND start_type='AUTO_START' AND services.path NOT LIKE '%Windows%';",
             "removed": false,
             "blacklist": true,
             "interval": 14400,
@@ -707,7 +715,7 @@
             "tag": "DataLake"
         },
         "windows_shell_md5": {
-            "query": "SELECT\n    path,\n    directory,\n    sha1,\n    sha256\nFROM\n    hash\nWHERE\n    (\n        path = 'c:\\windows\\system32\\cmd.exe'\n        OR path = 'c:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe'\n    );",
+            "query": "SELECT path, directory, sha1, sha256 FROM hash WHERE (path='c:\\windows\\system32\\cmd.exe' OR path='c:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe');",
             "interval": 86400,
             "removed": false,
             "blacklist": true,
@@ -716,21 +724,21 @@
             "tag": "stream"
         },
         "windows_startup_items": {
-            "query": "WITH unique_autoexec ( source, cmdline, path, NAME, status ) \n     AS (SELECT ax.source, \n                path   AS cmdline, \n                path, \n                NAME, \n                'none' AS status \n         FROM   autoexec ax) \nSELECT sources.source, \n       sources.cmdline, \n       sources.path, \n       sources.NAME, \n       sources.status, \n       ac.result, \n       h.sha256 \nFROM   (SELECT DISTINCT path, \n                        source, \n                        cmdline, \n                        NAME, \n                        status \n        FROM   unique_autoexec) AS sources \n       JOIN authenticode ac \n         ON ac.path = sources.path \n       JOIN hash h \n         ON ac.path = h.path; ",
+            "query": "WITH unique_autoexec (\n  source,\n  cmdline,\n  path,\n  name,\n  status\n) AS (\n  SELECT\n    ax.source as source,\n    ax.path as path,\n    svc.path as cmdline,\n    ax.name,\n    'none' as status\n  FROM autoexec ax\n  JOIN services svc on svc.name = ax.name\n  WHERE\n    1=1\n    AND ax.path NOT LIKE ('c:\\windows\\system32\\%.dll')\n),\nunique_signed (\n  source,\n  cmdline,\n  path,\n  name,\n  status,\n  result,\n  issuer_name,\n  subject_name,\n  sha256\n) AS (\n  SELECT\n    sources.source,\n    sources.cmdline,\n    sources.path,\n    sources.name,\n    sources.status,\n    ac.result,\n    ac.issuer_name,\n    ac.subject_name,\n    h.sha256\n  FROM (\n    SELECT DISTINCT\n      path,\n      source,\n      cmdline,\n      name,\n      status\n    FROM unique_autoexec\n  ) AS sources\n  JOIN authenticode ac on ac.path = sources.path\n  JOIN hash h on ac.path = h.path\n  WHERE\n    1=1\n    AND ac.subject_name NOT IN ('Microsoft Windows', 'Microsoft Windows Publisher')\n)\nSELECT\n  ua.source,\n  ua.cmdline,\n  ua.path,\n  ua.name,\n  ua.status,\n  us.result,\n  us.issuer_name,\n  us.subject_name,\n  us.sha256\nFROM unique_autoexec AS ua\nLEFT JOIN unique_signed AS us on ua.path = us.path;",
             "interval": 14400,
             "platform": "windows",
             "description": "Shows descriptions of startup items.",
             "tag": "DataLake"
         },
         "windows_startup_programs_md5": {
-            "query": "SELECT\n  PRINTF(\n    '%s.exe',\n    REGEX_SPLIT(startup_items.path, '.exe', 0)\n  ) AS mod_path,\n  name,\n  hash.path,\n  type,\n  status,\n  username,\n  sfp.sha1,\n  hash.sha256,\n  sfp.fileSize,\n  sfp.mlScore,\n  sfp.mlScoreData,\n  sfp.puaScore,\n  sfp.globalRep,\n  sfp.globalRepData,\n  sfp.localRep,\n  sfp.localRepData,\n  sfp.coreFileInfo\nFROM\n  startup_items\n  JOIN hash ON startup_items.path = hash.path\n  JOIN sophos_file_properties AS sfp ON sfp.sha256 = hash.sha256\nWHERE\n  hash.path = mod_path\n  AND mod_path LIKE '%.exe%'\n  AND mod_path NOT LIKE '%Windows%';",
+            "query": "SELECT\n  PRINTF('%s.exe', REGEX_SPLIT(startup_items.path, '.exe', 0)) AS mod_path,\n  name,\n  hash.path,\n  type,\n  status,\n  username,\n  sfp.sha1,\n  hash.sha256,\n  sfp.fileSize,\n  sfp.mlScore,\n  sfp.mlScoreData,\n  sfp.puaScore,\n  sfp.globalRep,\n  sfp.globalRepData,\n  sfp.localRep,\n  sfp.localRepData,\n  sfp.coreFileInfo\nFROM startup_items\nJOIN hash ON startup_items.path = hash.path\nJOIN sophos_file_properties AS sfp ON sfp.sha256 = hash.sha256\nWHERE hash.path = mod_path\nAND mod_path LIKE '%.exe%'\nAND mod_path NOT LIKE '%Windows%';",
             "interval": 14400,
             "platform": "windows",
             "description": "Lists hashes of binaries running at startup.",
             "tag": "DataLake"
         },
         "windows_updates_patch": {
-            "query": "SELECT\n    hotfix_id,\n    caption,\n    description,\n    installed_by,\n    installed_on\nFROM\n    patches;",
+            "query": "SELECT hotfix_id,caption,description,installed_by,installed_on FROM patches;",
             "interval": 43200,
             "removed": false,
             "blacklist": true,
@@ -752,8 +760,8 @@
         "mtr": {
             "queries": {
                 "host_sensor_version_darwin": {
-                    "query": "SELECT\n  TRIM(JSON_EXTRACT(line, '$.version'), \"'\") AS host_sensor_version,\n  TRIM(JSON_EXTRACT(line, '$.Commit'), \"'\") AS commit_hash,\n  datetime(JSON_EXTRACT(line, '$.timestamp')) AS event_timestamp\nFROM\n  grep\nWHERE\n  path = '/Library/Logs/Sophos/Managed Detection and Response/dbos.log'\n  AND pattern = 'Commit'\nORDER BY\n  line DESC\nLIMIT\n  1;",
-                    "interval": 86400,
+                    "query": "WITH\n  v1_version(host_sensor_version, query_version) AS (\n    SELECT TRIM(JSON_EXTRACT(line, '$.version'), \"'\") AS v1_hs_version, 1\n    FROM grep\n    WHERE path = '/Library/Logs/Sophos/Managed Detection and Response/dbos.log' AND pattern = 'Commit'\n    ORDER BY line DESC\n    LIMIT 1\n  ),\n  v2_version(host_sensor_version, query_version) AS (\n    SELECT version AS v2_hs_version, 2\n    FROM osquery_extensions\n    WHERE name = \"sophosmdrextension\" AND v2_hs_version != ''\n  )\nSELECT host_sensor_version, query_version\nFROM v2_version UNION SELECT * FROM v1_version -- Need to use this UNION SELECT * syntax to circumvent an `unable to use UNION after ORDER BY error`\nORDER BY query_version DESC\nLIMIT 1;",
+                    "interval": 14400,
                     "removed": false,
                     "blacklist": false,
                     "platform": "darwin",
@@ -761,8 +769,8 @@
                     "tag": "stream"
                 },
                 "host_sensor_version_linux": {
-                    "query": "SELECT\n  TRIM(JSON_EXTRACT(line, '$.version'), \"'\") AS host_sensor_version,\n  TRIM(JSON_EXTRACT(line, '$.Commit'), \"'\") AS commit_hash,\n  datetime(JSON_EXTRACT(line, '$.timestamp')) AS event_timestamp\nFROM\n  grep\nWHERE\n  path = '/opt/sophos-spl/plugins/mtr/dbos/data/logs/dbos.log'\n  AND pattern = 'Commit'\nORDER BY\n  line DESC\nLIMIT\n  1;",
-                    "interval": 86400,
+                    "query": "WITH\n  v1_version(host_sensor_version, query_version) AS (\n    SELECT TRIM(JSON_EXTRACT(line, '$.version'), \"'\") AS v1_hs_version, 1\n    FROM grep\n    WHERE path = '/opt/sophos-spl/plugins/mtr/dbos/data/logs/dbos.log' AND pattern = 'Commit'\n    ORDER BY line DESC\n    LIMIT 1\n  ),\n  v2_version(host_sensor_version, query_version) AS (\n    SELECT version AS v2_hs_version, 2\n    FROM osquery_extensions\n    WHERE name = \"sophosmdrextension\" AND v2_hs_version != ''\n  )\nSELECT host_sensor_version, query_version\nFROM v2_version UNION SELECT * FROM v1_version -- Need to use this UNION SELECT * syntax to circumvent an `unable to use UNION after ORDER BY error`\nORDER BY query_version DESC\nLIMIT 1;",
+                    "interval": 14400,
                     "removed": false,
                     "blacklist": false,
                     "platform": "linux",
@@ -770,8 +778,8 @@
                     "tag": "stream"
                 },
                 "host_sensor_version_windows": {
-                    "query": "SELECT\n  TRIM(JSON_EXTRACT(line, '$.version'), \"'\") AS host_sensor_version,\n  TRIM(JSON_EXTRACT(line, '$.Commit'), \"'\") AS commit_hash,\n  datetime(JSON_EXTRACT(line, '$.timestamp')) AS event_timestamp\nFROM\n  grep\nWHERE\n  path = 'C:\\ProgramData\\Sophos\\Managed Threat Response\\Logs\\dbos.log'\n  AND pattern = 'Commit'\nORDER BY\n  line DESC\nLIMIT\n  1;",
-                    "interval": 86400,
+                    "query": "WITH\n  v1_version(host_sensor_version, query_version) AS (\n    SELECT TRIM(JSON_EXTRACT(line, '$.version'), \"'\") AS v1_hs_version, 1\n    FROM grep\n    WHERE path = 'C:\\ProgramData\\Sophos\\Managed Threat Response\\Logs\\dbos.log' AND pattern = 'Commit'\n    ORDER BY line DESC\n    LIMIT 1\n  ),\n  v2_version(host_sensor_version, query_version) AS (\n    SELECT version AS v2_hs_version, 2\n    FROM osquery_extensions\n    WHERE name = \"sophosmdrextension\" AND v2_hs_version != ''\n  )\nSELECT host_sensor_version, query_version\nFROM v2_version UNION SELECT * FROM v1_version -- Need to use this UNION SELECT * syntax to circumvent an `unable to use UNION after ORDER BY error`\nORDER BY query_version DESC\nLIMIT 1;",
+                    "interval": 14400,
                     "removed": false,
                     "blacklist": false,
                     "platform": "windows",
@@ -779,7 +787,7 @@
                     "tag": "stream"
                 },
                 "osquery_process": {
-                    "query": "SELECT\n    pid,\n    name,\n    percent_processor_time,\n    handle_count,\n    elapsed_time,\n    start_time,\n    disk_bytes_read,\n    disk_bytes_written,\n    user_time,\n    system_time,\n    total_size,\n    CAST(user_time + system_time AS FLOAT) / (\n        SELECT\n            sum(user_time + system_time)\n        FROM\n            processes\n    ) AS cpu_percent\nFROM\n    processes\nWHERE\n    name IN (\n        'SophosMDR.exe',\n        'SophosOsquery.exe',\n        'SophosOsqueryExtension.exe',\n        'SophosOSQuery',\n        'SophosMDR',\n        'SophosMTR',\n        'osquery',\n        'osquery.0'\n    );",
+                    "query": "SELECT pid, name, percent_processor_time,\nhandle_count, elapsed_time, start_time,\ndisk_bytes_read, disk_bytes_written,\nuser_time, system_time, total_size,\nCAST(user_time+system_time AS FLOAT) / (SELECT sum(user_time+system_time) FROM processes) AS cpu_percent\nFROM processes\nWHERE name IN ('SophosMDR.exe', 'SophosOsquery.exe', 'SophosOsqueryExtension.exe', 'SophosOSQuery', 'SophosMDR', 'SophosMTR', 'osquery', 'osquery.0');",
                     "interval": 14400,
                     "removed": false,
                     "blacklist": false,
@@ -787,7 +795,7 @@
                     "tag": "stream"
                 },
                 "osquery_query_schedule": {
-                    "query": "SELECT\n    name,\n    interval,\n    executions,\n    blacklisted,\n    output_size,\n    wall_time,\n    user_time,\n    system_time,\n    average_memory,\n    (user_time + system_time) / executions as average_time\nFROM\n    osquery_schedule;",
+                    "query": "SELECT name, interval, executions,\nblacklisted, output_size, wall_time,\nuser_time, system_time, average_memory,\n(user_time + system_time)/executions as average_time\nFROM osquery_schedule;",
                     "interval": 14400,
                     "removed": false,
                     "blacklist": false,
@@ -795,7 +803,7 @@
                     "tag": "stream"
                 },
                 "osquery_rocksdb_error_osx": {
-                    "query": "SELECT\n    *\nFROM\n    grep\nWHERE\n    path = \"/Library/Logs/Sophos/Managed Detection and Response/osqueryd.output.log\"\n    AND pattern = \"RocksDB:\"\n    AND (line LIKE \"I%Stalling writes because we have%\")\nLIMIT\n    10;",
+                    "query": "SELECT * FROM grep\nWHERE path=\"/Library/Logs/Sophos/Managed Detection and Response/osqueryd.output.log\"\nAND pattern=\"RocksDB:\"\nAND (line LIKE \"I%Stalling writes because we have%\")\nLIMIT 10;",
                     "interval": 86400,
                     "removed": false,
                     "blacklist": false,
@@ -804,7 +812,7 @@
                     "tag": "stream"
                 },
                 "osquery_rocksdb_size_linux": {
-                    "query": "WITH files (number_of_files, total_size, mb) AS (\n  SELECT\n    count(*) AS number_of_files,\n    SUM(size) AS total_size,\n    SUM(size) / 1024 / 1024 AS mb\n  FROM\n    file\n  WHERE\n    path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM\n  files\nWHERE\n  mb > 50;",
+                    "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 50;",
                     "interval": 86400,
                     "removed": false,
                     "blacklist": false,
@@ -813,7 +821,7 @@
                     "tag": "stream"
                 },
                 "osquery_rocksdb_size_osx": {
-                    "query": "WITH files (number_of_files, total_size, mb) AS (\n  SELECT\n    count(*) AS number_of_files,\n    SUM(size) AS total_size,\n    SUM(size) / 1024 / 1024 AS mb\n  FROM\n    file\n  WHERE\n    path LIKE '/Library/Application Support/Sophos Managed Detection and Response/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM\n  files\nWHERE\n  mb > 20;",
+                    "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE '/Library/Application Support/Sophos Managed Detection and Response/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 20;",
                     "interval": 86400,
                     "removed": false,
                     "blacklist": false,
@@ -822,7 +830,7 @@
                     "tag": "stream"
                 },
                 "osquery_rocksdb_size_windows": {
-                    "query": "WITH files (number_of_files, total_size, mb) AS (\n  SELECT\n    count(*) AS number_of_files,\n    SUM(size) AS total_size,\n    SUM(size) / 1024 / 1024 AS mb\n  FROM\n    file\n  WHERE\n    path LIKE 'C:\\ProgramData\\Sophos\\Managed Detection and Response\\Data\\osquery.db\\%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM\n  files\nWHERE\n  mb > 20;",
+                    "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE 'C:\\ProgramData\\Sophos\\Managed Detection and Response\\Data\\osquery.db\\%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 20;",
                     "interval": 86400,
                     "removed": false,
                     "blacklist": false,
@@ -831,7 +839,7 @@
                     "tag": "stream"
                 },
                 "osquery_watchdog_logs_windows": {
-                    "query": "SELECT\n    *\nFROM\n    grep\nWHERE\n    path = \"C:\\ProgramData\\Sophos\\Managed Detection and Response\\Logs\\osqueryd.output.log\"\n    AND pattern = \"exceeded:\"\n    AND (\n        line LIKE \"W%stopping: Memory limits %\"\n        OR line LIKE \"W%Maximum sustainable CPU utilization limit%\"\n    );",
+                    "query": "SELECT * FROM grep\nWHERE path=\"C:\\ProgramData\\Sophos\\Managed Detection and Response\\Logs\\osqueryd.output.log\"\nAND pattern=\"exceeded:\"\nAND (line LIKE \"W%stopping: Memory limits %\" OR line LIKE \"W%Maximum sustainable CPU utilization limit%\");",
                     "interval": 86400,
                     "removed": false,
                     "blacklist": false,
@@ -840,7 +848,7 @@
                     "tag": "stream"
                 },
                 "pending_osx_updates_patch": {
-                    "query": "SELECT\n    title,\n    package_id,\n    restart,\n    recommended,\n    size,\n    version,\n(package_id || version) AS uid\nFROM\n    software_updates;",
+                    "query": "SELECT title,package_id,restart,recommended,size,version,(package_id||version) AS uid FROM software_updates;",
                     "interval": 43200,
                     "removed": false,
                     "blacklist": true,
@@ -849,7 +857,7 @@
                     "tag": "DataLake"
                 },
                 "pending_windows_updates_patch": {
-                    "query": "SELECT\n    title,\n    support_url,\n    msrc_severity,\n    installed,\n    mandatory,\n    size,\n    kbarticle AS hotfix_id\nFROM\n    win_update\nWHERE\n    installed = 'false';",
+                    "query": "SELECT title,support_url,msrc_severity,installed,mandatory,size,kbarticle AS hotfix_id FROM win_update WHERE installed = 'false';",
                     "interval": 43200,
                     "removed": false,
                     "blacklist": true,
@@ -879,7 +887,7 @@
             "SELECT endpoint_id AS eid from sophos_endpoint_info",
             "SELECT\n    interface_details.mac AS mac_address,\n    interface_addresses.mask AS ip_mask,\n    interface_addresses.address AS ip_address\nFROM\n    interface_addresses\n    JOIN interface_details ON interface_addresses.interface = interface_details.interface\nWHERE\n    ip_address NOT LIKE '127.%'\n    AND ip_address NOT LIKE '%:%'\n    AND ip_address NOT LIKE '169.254.%'\n    AND ip_address NOT LIKE '%.1'\nORDER BY\n    interface_details.last_change\nLIMIT\n    1",
             "SELECT\n    user AS username\nFROM\n    logged_in_users\nWHERE\n    (\n        type = 'user'\n        OR type = 'active'\n    )\nORDER BY\n    time DESC\nLIMIT\n    1",
-            "SELECT '1.1.12' query_pack_version"
+            "SELECT '1.1.19' query_pack_version"
         ]
     }
 }
