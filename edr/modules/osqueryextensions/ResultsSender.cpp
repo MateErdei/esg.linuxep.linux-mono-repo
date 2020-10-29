@@ -144,7 +144,7 @@ uintmax_t ResultsSender::GetFileSize()
     auto filesystem = Common::FileSystem::fileSystem();
     if (filesystem->exists(m_intermediaryPath))
     {
-        // Add 2 (wide characters) here for the , and ] that gets added
+        // Add 2 here for the , and ] that gets added
         size = filesystem->fileSize(m_intermediaryPath) + 2;
     }
     return size;

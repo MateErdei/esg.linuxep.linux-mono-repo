@@ -4,17 +4,23 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/LogInitializedTests.h>
+#include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <modules/livequery/ResponseData.h>
 #include <modules/osqueryextensions/ResultsSender.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
 
 #include <gtest/gtest.h>
 
 using namespace ::testing;
 
-std::string exampleQueryPack =  R"({
+const std::string INTERMEDIARY_PATH = "intermediary";
+const std::string DATAFEED_PATH = "datafeed";
+const std::string QUERY_PACK_PATH = "querypack";
+const std::string EMPTY_QUERY_PACK = "{}";
+
+const std::string EXAMPLE_QUERY_PACK =  R"({
     "schedule": {
         "deb_packages": {
             "query": "SELECT name, version, arch, revision FROM deb_packages;",
@@ -86,21 +92,15 @@ public:
     {
         return getQueryTagMap();
     }
-
-
 };
 
 TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    std::string intermediaryPath = "intermediary";
-    std::string datafeedPath = "datafeed";
-    std::string querypackPath = "querypack";
-
-    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false)).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, readFile(querypackPath)).WillOnce(Return(exampleQueryPack));
-    ResultSenderForUnitTests resultsSender(intermediaryPath, datafeedPath, querypackPath);
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
+    ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
 
     auto actualQueries = resultsSender.getQueryTags();
     auto actualQueryTagMap = resultsSender.getQueryTagMapOveridden();
@@ -128,64 +128,230 @@ TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
     ASSERT_EQ(actualQueryTagMap["pack_mtr_osquery_rocksdb_size_linux"].second, tagMap["pack_mtr_osquery_rocksdb_size_linux"].second);
 }
 
-
 TEST_F(TestResultSender, resetRemovesExistingBatchFile) // NOLINT
 {
-
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    std::string config = "{}";
-    std::string intermediaryPath = "intermediary";
-    std::string datafeedPath = "datafeed";
-    std::string querypackPath = "querypack";
+
     // Force false here so that when send is called in the constructor we skip sending, but then to check the reset
     // is working we expect true so that the file can be removed
-    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath))
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH))
         .WillOnce(Return(false))
         .WillOnce(Return(true))
         .WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, readFile(querypackPath)).WillOnce(Return(config));
-    ResultsSender resultsSender(intermediaryPath, datafeedPath, querypackPath);
-    EXPECT_CALL(*mockFileSystem, removeFile(intermediaryPath)).Times(1);
-    EXPECT_CALL(*mockFileSystem, appendFile(intermediaryPath, "[")).Times(1);
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, removeFile(INTERMEDIARY_PATH)).Times(1);
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "[")).Times(1);
     resultsSender.Reset();
-
 }
 
 TEST_F(TestResultSender, addWritesToFile) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    std::string intermediaryPath = "intermediary";
-    std::string datafeedPath = "datafeed";
-    std::string querypackPath = "querypack";
-    std::string config = "{}";
     std::string testResult = R"({"name":"","test":"value"})";
-    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, readFile(querypackPath)).WillOnce(Return(config));
-    ResultsSender resultsSender(intermediaryPath, datafeedPath, querypackPath);
-    EXPECT_CALL(*mockFileSystem, appendFile(intermediaryPath, testResult)).Times(1);
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, testResult)).Times(1);
     resultsSender.Add(testResult);
-    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
 }
 
 TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    std::string intermediaryPath = "intermediary";
-    std::string datafeedPath = "datafeed";
-    std::string querypackPath = "querypack";
-    std::string config = "{}";
-
-    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, readFile(querypackPath)).WillOnce(Return(config));
-    ResultsSender resultsSender(intermediaryPath, datafeedPath, querypackPath);
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
     std::string testResultString1 = R"({"name":"","test":"value"})";
     std::string testResultString2 = R"({"name":"","test2":"value2"})";
-    EXPECT_CALL(*mockFileSystem, appendFile(intermediaryPath, StrEq(testResultString1))).Times(1);
-    EXPECT_CALL(*mockFileSystem, appendFile(intermediaryPath, "," + testResultString2)).Times(1);
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, testResultString1)).Times(1);
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "," + testResultString2)).Times(1);
     resultsSender.Add(testResultString1);
     resultsSender.Add(testResultString2);
-    EXPECT_CALL(*mockFileSystem, exists(intermediaryPath)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
+}
+
+TEST_F(TestResultSender, addThrowsInvalidJsonLog) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, appendFile(_, _)).Times(0);
+    EXPECT_THROW(resultsSender.Add(R"(not json)"), std::exception);
+}
+
+TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, appendFile(_, _)).WillOnce(Throw(std::runtime_error("TEST")));
+    EXPECT_THROW(resultsSender.Add("{\"test\":\"value\"}"), std::runtime_error);
+}
+
+TEST_F(TestResultSender, getFileSizeQueriesFile) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    // First false to skip send in constructor, then true so that size is calculated (returns 0 if no file) and lastly false again so that the send in the destructor is skipped too.
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, fileSize(INTERMEDIARY_PATH)).WillOnce(Return(1));
+
+    // 3 is due to the 2 added in GetFileSize() (for the , and ] that gets added) and the 1 from the above line mock here
+    ASSERT_EQ(resultsSender.GetFileSize(), 3);
+}
+
+TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    // First false to skip send in constructor, then false so that size is not calculated (returns 0 if no file) and lastly false again so that the send in the destructor is skipped too.
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    ASSERT_EQ(resultsSender.GetFileSize(), 0);
+}
+
+TEST_F(TestResultSender, getFileSizePropagatesException) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, fileSize(INTERMEDIARY_PATH)).WillOnce(Throw(std::runtime_error("TEST")));
+    EXPECT_THROW(resultsSender.GetFileSize(), std::runtime_error);
+}
+
+TEST_F(TestResultSender, sendMovesBatchFile) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    auto mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
+    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+    EXPECT_CALL(*mockFilePermissions, chown(INTERMEDIARY_PATH, "sophos-spl-local", "sophos-spl-group"));
+
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
+    EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query"))).Times(1);
+    resultsSender.Send();
+}
+
+TEST_F(TestResultSender, SendDoesNotMoveNoBatchFileIfItDoesNotExist) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, moveFile(_, _)).Times(0);
+
+    resultsSender.Send();
+}
+
+TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    auto mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
+    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+    EXPECT_CALL(*mockFilePermissions, chown(INTERMEDIARY_PATH, "sophos-spl-local", "sophos-spl-group"));
+
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
+    EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query")))
+        .WillOnce(Throw(std::runtime_error("TEST")));
+
+    EXPECT_THROW(resultsSender.Send(), std::runtime_error);
+}
+
+TEST_F(TestResultSender, sendIfFileExistsAtStart) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    auto mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
+    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+    EXPECT_CALL(*mockFilePermissions, chown(INTERMEDIARY_PATH, "sophos-spl-local", "sophos-spl-group"));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
+    EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query"))).Times(1);
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+
+}
+
+TEST_F(TestResultSender, sendIfFileExistsAtShutdown) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
+    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+    EXPECT_CALL(*mockFilePermissions, chown(INTERMEDIARY_PATH, "sophos-spl-local", "sophos-spl-group"));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
+    EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query"))).Times(1);
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+}
+
+TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+
+    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    std::string testJsonResult = R"({"name":"","test":"value"})";
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, testJsonResult))
+        .Times(2)
+        .WillOnce(Throw(std::runtime_error("TEST")))
+        .WillOnce(Return());
+    EXPECT_THROW(resultsSender.Add(testJsonResult), std::runtime_error);
+    resultsSender.Add(testJsonResult);
+}
+
+TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
+    ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    std::string testResult = R"({"name":"pack_mtr_osquery_rocksdb_size_linux"})";
+    std::string correctedNameResult = "{\"name\":\"osquery_rocksdb_size_linux\",\"tag\":\"stream\"}";
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult)).Times(1);
+    resultsSender.Add(testResult);
+}
+
+TEST_F(TestResultSender, initialExistsThrowsExceptionContinuesConstructor)  // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH))
+        .WillOnce(Throw(std::runtime_error("TEST")))
+        .WillOnce(Return(false));
+  ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
 }
