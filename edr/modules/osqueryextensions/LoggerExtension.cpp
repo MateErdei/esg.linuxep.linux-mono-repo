@@ -16,6 +16,8 @@ LoggerExtension::LoggerExtension(
     const std::string& osqueryXDRConfigFilePath)
 :m_resultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath)
 {
+    m_flags.interval = 10;
+    m_flags.timeout = 30;
 }
 
 LoggerExtension::~LoggerExtension()
@@ -39,8 +41,6 @@ void LoggerExtension::Start(
     {
         m_flags.socket = socket;
         m_flags.verbose = verbose;
-        m_flags.interval = 1;
-        m_flags.timeout = 1;
         m_extension = OsquerySDK::CreateExtension(m_flags, "SophosLoggerPlugin", "1.1.0.1");
         m_extension->AddLoggerPlugin(
             std::make_unique<SophosLoggerPlugin>(m_resultsSender, m_maxBatchBytes, m_maxBatchSeconds));

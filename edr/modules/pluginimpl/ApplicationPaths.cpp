@@ -57,7 +57,7 @@ std::string Plugin::osqueryXDRConfigFilePath()
 
 std::string Plugin::osqueryXDRResultSenderIntermediaryFilePath()
 {
-    return fromRelative("var/tmp_file");
+    return fromRelative("var/xdr_intermediary");
 }
 
 std::string Plugin::osqueryXDROutputDatafeedFilePath()

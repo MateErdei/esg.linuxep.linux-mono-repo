@@ -263,10 +263,26 @@ function build()
 
         untar_input openssl
         untar_input protobuf
-        cp -r "$INPUT"/sspl-osquery-components "$REDIST"/
-        unzip -u "$INPUT"/sqlite-amalgamation-3310100.zip -d "$REDIST"/
+        # sqlite build output currently has an awkward name so renaming here.
+        unzip -o $(ls ${INPUT}/sqlite-*.zip) -d "$REDIST" || exitFailure 1 "No sqlite zip"
+        rm -rf "${REDIST}/sqlite"
+        mv "${REDIST}/sqlite-amalgamation-3310100" "${REDIST}/sqlite"
+
         mkdir -p "$REDIST"/osquery
         tar xzf ${INPUT}/osquery-4.5.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
+        cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
+
+        # Fix up jsoncpp dual versioning scheme.
+        if [[ -f $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  ]]
+        then
+            pushd $REDIST/jsoncpp/lib64/
+            echo "Detected that libjsoncpp dual versioning scheme in place, removing .so.1.8.4 and leaving .so.19"
+            rm -f libjsoncpp.so.19
+            rm -f libjsoncpp.so
+            mv libjsoncpp.so.1.8.4  libjsoncpp.so.19
+            ln -sfn libjsoncpp.so.19 libjsoncpp.so
+            popd
+        fi
 
     fi
 

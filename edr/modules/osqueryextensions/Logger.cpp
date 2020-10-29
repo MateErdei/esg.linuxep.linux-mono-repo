@@ -9,6 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 log4cplus::Logger& getLoggerPluginLogger()
 {
-    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("LoggerPlugin");
+    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("Extensions");
     return STATIC_LOGGER;
 }
