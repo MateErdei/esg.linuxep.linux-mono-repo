@@ -149,7 +149,7 @@ unixsocket::ScanningClientSocket::attemptScan(datatypes::AutoFd& fd, const scan_
     int32_t length = unixsocket::readLength(m_socket_fd);
     if (length < 0)
     {
-        throw ReconnectScannerException("Failed to read length");
+        throw ReconnectScannerException("Failed to read length from socket");
     }
 
     uint32_t buffer_size = 1 + length / sizeof(capnp::word);
