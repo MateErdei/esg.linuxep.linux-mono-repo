@@ -104,7 +104,7 @@ SusiScanner::scan(
             {
                 for (auto detection : result["detections"])
                 {
-                    LOGWARN("Detected " << detection["threatName"] << " in " << common::toUtf8(result["path"]));
+                    LOGWARN("Detected " << detection["threatName"] << " in " << common::toUtf8(result["path"], false, false));
                     response.addDetection(result["path"], detection["threatName"]);
                 }
             }

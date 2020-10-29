@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <iomanip>
 #include <openssl/sha.h>
+#include <openssl/md5.h>
 #include <boost/locale.hpp>
 
 namespace common
@@ -83,7 +84,20 @@ namespace common
         return ss.str();
     }
 
-    std::string toUtf8(const std::string& str, bool appendConversion)
+    std::string md5_hash(const std::string& str)
+    {
+        unsigned char hashArray[MD5_DIGEST_LENGTH];
+        MD5((unsigned char*) str.c_str(), str.size(), hashArray);
+
+        std::stringstream ss;
+        for(const auto& ch : hashArray)
+        {
+            ss << std::hex << std::setw(2) << std::setfill('0') << (int)ch;
+        }
+        return ss.str();
+    }
+
+    std::string toUtf8(const std::string& str, bool appendConversion, bool throws)
     {
         try
         {
@@ -119,7 +133,13 @@ namespace common
             }
         }
 
-        throw std::runtime_error(std::string("Failed to convert string to utf8: ") + str);
+        if(throws)
+        {
+            throw std::runtime_error(std::string("Failed to convert string to utf8: ") + str);
+        }
+
+        LOGDEBUG("Failed to convert string: "<< str << "to utf8 returning original");
+        return str;
     }
 
     std::string fromLogLevelToString(const log4cplus::LogLevel& logLevel)

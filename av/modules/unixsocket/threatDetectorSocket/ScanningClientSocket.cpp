@@ -113,8 +113,10 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
 
     scan_messages::ScanResponse response;
     std::stringstream errorMsg;
+    std::string escapedPath(common::toUtf8(request.getPath(), true, false));
+    common::escapeControlCharacters(escapedPath);
 
-    errorMsg << "Failed to scan file: " << common::toUtf8(request.getPath()) << " after " << MAX_SCAN_RETRIES << " retries";
+    errorMsg << "Failed to scan file: " << escapedPath << " after " << MAX_SCAN_RETRIES << " retries";
     response.setErrorMsg(errorMsg.str());
     return response;
 }

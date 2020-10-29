@@ -229,7 +229,10 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
             ScanRequestObject requestReader = parseRequest(proto_buffer, bytes_read);
 
-            LOGDEBUG("Scan requested of " << common::toUtf8(requestReader.pathname));
+            std::string escapedPath(requestReader.pathname);
+            common::escapeControlCharacters(escapedPath);
+
+            LOGDEBUG("Scan requested of " << escapedPath);
 
             // read fd
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
