@@ -3,14 +3,17 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#
-#include <Common/UtilityImpl/ProjectNames.h>
+
+
 #include "SplitProcesses.h"
 #include "ReactorAdapter.h"
 #include "NetworkSide.h"
 #include "CommsDistributor.h"
 #include "Configurator.h"
+
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/ProjectNames.h>
+#include <Common/ProcUtilImpl/ProcUtilities.h>
 
 namespace CommsComponent {
 
@@ -35,7 +38,12 @@ namespace CommsComponent {
         parentUser.logName = "comms_component"; 
         parentUser.userName = sophos::localUser(); 
         parentUser.userGroup = sophos::localGroup(); 
-     
+
+        //killing all processes ran by comms-network user
+        std::string username(sophos::networkUser());
+        std::vector<int> pids = Proc::listProcWithUserName(username);
+        Proc::killAllProcessesInProcList(pids);
+
         CommsConfigurator configurator{CommsConfigurator::chrootPathForSSPL(sophosInstall), childUser, parentUser, CommsConfigurator::getListOfDependenciesToMount()};
         return splitProcessesReactors(commsProcess, std::move(commsNetwork), configurator );
     }
