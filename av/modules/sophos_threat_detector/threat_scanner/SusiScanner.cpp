@@ -102,9 +102,11 @@ SusiScanner::scan(
             json parsedScanResult = json::parse(scanResultUTF8);
             for (auto result : parsedScanResult["results"])
             {
+                std::string escapedPath (common::toUtf8(result["path"], false, false));
+                common::escapeControlCharacters(escapedPath);
                 for (auto detection : result["detections"])
                 {
-                    LOGWARN("Detected " << detection["threatName"] << " in " << common::toUtf8(result["path"], false, false));
+                    LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
                     response.addDetection(result["path"], detection["threatName"]);
                 }
             }
