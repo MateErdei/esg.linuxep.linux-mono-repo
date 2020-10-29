@@ -7,6 +7,7 @@ Test Teardown    EDR Test Teardown
 
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
 Resource    ../GeneralTeardownResource.robot
@@ -81,6 +82,25 @@ EDR changes running mode when XDR enabled flags are sent
     ...   30 secs
     ...   5 secs
     ...   EDR Plugin Is Running
+
+EDR runs sophos extension when XDR is enabled
+    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Should Be Equal As Strings  0  ${result.rc}
+    Register With Fake Cloud
+
+    Wait Until Keyword Succeeds
+    ...  45
+    ...  5
+    ...  Check EDR Log Contains  SophosExtension::Start
+
+    Run Live Query  ${SOPHOS_INFO_QUERY}  sophos_info
+    Wait Until Keyword Succeeds
+    ...  50 secs
+    ...  2 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: sophos_info  1
+
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log   "columnData": [["ThisIsAnMCSID+1001"]]  1
 
 EDR disables curl tables when network available flag becomes false
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
