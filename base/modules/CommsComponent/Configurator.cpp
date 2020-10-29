@@ -60,9 +60,9 @@ namespace
     void cleanMountedPaths(const std::vector<std::string>& listOfMountedPaths, std::vector<std::pair<std::string, int>>& out)
     {
         //killing all processes ran by comms-network user
-        std::string username("sophos-spl-network");
-        std::vector<int> pids = Proc::listProcWithUserName(username);
-        Proc::killAllProcessesInProcList(pids);
+//        std::string username("sophos-spl-network");
+//        std::vector<int> pids = Proc::listProcWithUserName(username);
+//        Proc::killAllProcessesInProcList(pids);
 
         for (auto& mountedPath : listOfMountedPaths)
         {
