@@ -173,7 +173,7 @@ waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" || failure ${EXIT_FA
 
 waitForNamedPipeToBeCreated  "${SOPHOS_INSTALL}/shared/syslog_pipe"
 
-if [[ is_rsyslog_installed ]]
+if is_rsyslog_installed
 then
   if [[ -d /etc/rsyslog.d/ ]]
   then
