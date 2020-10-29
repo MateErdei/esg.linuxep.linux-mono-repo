@@ -46,30 +46,30 @@ Set Log Level
 Bootstrap SUSI From Update Source
     ${SUSI_UPDATE_SRC} =  Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/
     ${SUSI_DIST_VERS} =   Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/
-    ${SUSI_V1DIR} =       Set Variable   ${SUSI_DIST_VERS}version1/
+    ${SUSI_V1DIR} =       Set Variable   ${SUSI_DIST_VERS}/version1/
 
-    Copy Files  ${SUSI_UPDATE_SRC}libsusi.so*                  ${SUSI_DIST_VERS}
-    ${nonsupp_manifest} =  Get File   ${SUSI_UPDATE_SRC}nonsupplement_manifest.txt
-    Create File     ${SUSI_V1DIR}package_manifest.txt   version1\n
-    Append To File  ${SUSI_V1DIR}package_manifest.txt   ${nonsupp_manifest}
-    Append To File  ${SUSI_V1DIR}package_manifest.txt   vdl 1\n
-    Append To File  ${SUSI_V1DIR}package_manifest.txt   model 1\n
-    Append To File  ${SUSI_V1DIR}package_manifest.txt   reputation 1\n
+    Copy Files  ${SUSI_UPDATE_SRC}/libsusi.so*                  ${SUSI_DIST_VERS}
+    ${nonsupp_manifest} =  Get File   ${SUSI_UPDATE_SRC}/nonsupplement_manifest.txt
+    Create File     ${SUSI_V1DIR}/package_manifest.txt   version1\n
+    Append To File  ${SUSI_V1DIR}/package_manifest.txt   ${nonsupp_manifest}
+    Append To File  ${SUSI_V1DIR}/package_manifest.txt   vdl 1\n
+    Append To File  ${SUSI_V1DIR}/package_manifest.txt   model 1\n
+    Append To File  ${SUSI_V1DIR}/package_manifest.txt   reputation 1\n
 
-    Copy Files  ${SUSI_UPDATE_SRC}version_manifest.txt*  ${SUSI_DIST_VERS}
+    Copy Files  ${SUSI_UPDATE_SRC}/version_manifest.txt*  ${SUSI_DIST_VERS}
 
-    Copy Files  ${SUSI_UPDATE_SRC}libglobalrep/*   ${SUSI_V1DIR}
-    Copy Files  ${SUSI_UPDATE_SRC}libsavi/*        ${SUSI_V1DIR}
-    Copy Files  ${SUSI_UPDATE_SRC}libsophtainer/*  ${SUSI_V1DIR}
-    Copy Files  ${SUSI_UPDATE_SRC}libupdater/*     ${SUSI_V1DIR}
-    Copy Files  ${SUSI_UPDATE_SRC}lrlib/*          ${SUSI_V1DIR}
-    Copy Files  ${SUSI_UPDATE_SRC}mllib/*          ${SUSI_V1DIR}
-    Copy Files  ${SUSI_UPDATE_SRC}susicore/*       ${SUSI_V1DIR}
+    Copy Files  ${SUSI_UPDATE_SRC}/libglobalrep/*   ${SUSI_V1DIR}
+    Copy Files  ${SUSI_UPDATE_SRC}/libsavi/*        ${SUSI_V1DIR}
+    Copy Files  ${SUSI_UPDATE_SRC}/libsophtainer/*  ${SUSI_V1DIR}
+    Copy Files  ${SUSI_UPDATE_SRC}/libupdater/*     ${SUSI_V1DIR}
+    Copy Files  ${SUSI_UPDATE_SRC}/lrlib/*          ${SUSI_V1DIR}
+    Copy Files  ${SUSI_UPDATE_SRC}/mllib/*          ${SUSI_V1DIR}
+    Copy Files  ${SUSI_UPDATE_SRC}/susicore/*       ${SUSI_V1DIR}
 
-    Copy Files  ${SUSI_UPDATE_SRC}reputation/*     ${SUSI_V1DIR}lrdata
-    Copy Files  ${SUSI_UPDATE_SRC}model/*          ${SUSI_V1DIR}mlmodel
-    Copy Files  ${SUSI_UPDATE_SRC}vdl/*            ${SUSI_V1DIR}vdb
-    Copy Files  ${SUSI_UPDATE_SRC}rules/*          ${SUSI_V1DIR}rules
+    Copy Files  ${SUSI_UPDATE_SRC}/reputation/*     ${SUSI_V1DIR}/lrdata
+    Copy Files  ${SUSI_UPDATE_SRC}/model/*          ${SUSI_V1DIR}/mlmodel
+    Copy Files  ${SUSI_UPDATE_SRC}/vdl/*            ${SUSI_V1DIR}/vdb
+    Copy Files  ${SUSI_UPDATE_SRC}/rules/*          ${SUSI_V1DIR}/rules
 
     Copy Files  ${BASE_SDDS}/files/base/lib64/libz.so.1.*   ${SUSI_V1DIR}
     Create File  ${SOPHOS_INSTALL}/base/etc/machine_id.txt  ab7b6758a3ab11ba8a51d25aa06d1cf4

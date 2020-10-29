@@ -22,7 +22,7 @@ namespace
         {
             if (!m_scannerFactory->update())
             {
-                LOGERROR("Failed to update threat scanner");
+                throw std::runtime_error("Failed to update threat scanner");
             }
         }
     private:

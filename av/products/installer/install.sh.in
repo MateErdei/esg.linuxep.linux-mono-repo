@@ -71,27 +71,27 @@ SUSI_V1DIR="${SUSI_DIST_VERS}version1/"
 function delete_removed_vdl()
 {
     local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/vdl"
-    local dest_dir="${SUSI_UPDATE_SRC}vdl"
+    local dest_dir="${SUSI_UPDATE_SRC}/vdl"
 
     $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed files"
 }
 
 function generate_susi_package_manifest()
 {
-    local nonsupplement_manifest="${SUSI_UPDATE_SRC}nonsupplement_manifest.txt"
-    local temp_manifest="${SUSI_UPDATE_SRC}temp_manifest.txt"
-    local package_manifest="${SUSI_UPDATE_SRC}package_manifest.txt"
+    local nonsupplement_manifest="${SUSI_UPDATE_SRC}/nonsupplement_manifest.txt"
+    local temp_manifest="${SUSI_UPDATE_SRC}/temp_manifest.txt"
+    local package_manifest="${SUSI_UPDATE_SRC}/package_manifest.txt"
     cp ${nonsupplement_manifest} ${temp_manifest}
 
-    vdl_version=$(grep "Version=" ${SUSI_UPDATE_SRC}vdl/vvf.xml | awk -F'"' '{print $2}')
-    ide_count=$(ls ${SUSI_UPDATE_SRC}vdl/*.ide | wc -l)
+    vdl_version=$(grep "Version=" ${SUSI_UPDATE_SRC}/vdl/vvf.xml | awk -F'"' '{print $2}')
+    ide_count=$(ls ${SUSI_UPDATE_SRC}/vdl/*.ide | wc -l)
     vdl_hash=$(echo -n "${ide_count}${vdl_version}" | sha256sum | awk '{print $1}')
     echo "vdl ${vdl_hash}" >> ${temp_manifest}
 
-    model_hash=$(sha256sum ${SUSI_UPDATE_SRC}model/model.dat | awk '{print $1}')
+    model_hash=$(sha256sum ${SUSI_UPDATE_SRC}/model/model.dat | awk '{print $1}')
     echo "model ${vdl_hash}" >> ${temp_manifest}
 
-    lrdata_hash=$(cat ${SUSI_UPDATE_SRC}reputation/filerep.dat ${SUSI_UPDATE_SRC}reputation/signerrep.dat | sha256sum | awk '{print $1}')
+    lrdata_hash=$(cat ${SUSI_UPDATE_SRC}/reputation/filerep.dat ${SUSI_UPDATE_SRC}/reputation/signerrep.dat | sha256sum | awk '{print $1}')
     echo "reputation ${lrdata_hash}" >> ${temp_manifest}
 
     manifest_hash=$(sha256sum ${temp_manifest} | awk '{print $1}')
@@ -107,22 +107,22 @@ function bootstrap_susi_from_update_source()
     local dest_dir=${SUSI_V1DIR}
     mkdir -p ${SUSI_V1DIR}
 
-    cp -d ${SUSI_UPDATE_SRC}libsusi.so* ${SUSI_V1DIR}
-    cp -d ${SUSI_UPDATE_SRC}package_manifest.txt* ${SUSI_V1DIR}
-    cp -d ${SUSI_UPDATE_SRC}version_manifest.txt* ${SUSI_DIST_VERS}
+    cp -d ${SUSI_UPDATE_SRC}/libsusi.so* ${SUSI_V1DIR}
+    cp -d ${SUSI_UPDATE_SRC}/package_manifest.txt* ${SUSI_V1DIR}
+    cp -d ${SUSI_UPDATE_SRC}/version_manifest.txt* ${SUSI_DIST_VERS}
 
     # Flatten directory structure
     for dir in libglobalrep libsavi libsophtainer libupdater lrlib mllib susicore
     do
-        cp -rd ${SUSI_UPDATE_SRC}${dir}/* ${SUSI_V1DIR}
+        cp -rd ${SUSI_UPDATE_SRC}/${dir}/* ${SUSI_V1DIR}
     done
 
     # Copy the supplements
-    cp -rd ${SUSI_UPDATE_SRC}reputation ${SUSI_V1DIR}lrdata
-    cp -rd ${SUSI_UPDATE_SRC}model ${SUSI_V1DIR}mlmodel
-    cp -rd ${SUSI_UPDATE_SRC}vdl ${SUSI_V1DIR}vdb
+    cp -rd ${SUSI_UPDATE_SRC}/reputation ${SUSI_V1DIR}/lrdata
+    cp -rd ${SUSI_UPDATE_SRC}/model ${SUSI_V1DIR}/mlmodel
+    cp -rd ${SUSI_UPDATE_SRC}/vdl ${SUSI_V1DIR}/vdb
 
-    cp -rd ${SUSI_UPDATE_SRC}rules ${SUSI_V1DIR}rules
+    cp -rd ${SUSI_UPDATE_SRC}/rules ${SUSI_V1DIR}/rules
 
     cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${SUSI_V1DIR}
 
