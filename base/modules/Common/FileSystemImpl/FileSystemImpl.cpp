@@ -693,12 +693,12 @@ namespace Common
 
         std::optional<std::string> FileSystemImpl::readProcFile(int pid, const std::string& filename) const
         {
+            // Do not put any logging in this function because there are places which the logging will result in issues.
             std::array<char, 4096> buffer {};
             std::string path = Common::FileSystem::join("/proc", std::to_string(pid), filename);
             int fd = ::open(path.c_str(), O_RDONLY);
             if (fd < 0)
             {
-                LOGSUPPORT("ReadProcFile could not open file: " << path);
                 return std::optional<std::string> {};
             }
             int nbytes = ::read(fd, buffer.data(), buffer.size());
@@ -706,7 +706,6 @@ namespace Common
 
             if (nbytes == -1)
             {
-                LOGSUPPORT("ReadProcFile failed to read the content of file: " << path);
                 return std::optional<std::string> {};
             }
             assert(nbytes <= static_cast<int>(buffer.size()));

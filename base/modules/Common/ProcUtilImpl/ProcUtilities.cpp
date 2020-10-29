@@ -5,8 +5,6 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "ProcUtilities.h"
 
-#include "Logger.h"
-
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Process/IProcess.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
@@ -101,7 +99,6 @@ void Proc::killProcess(int pid)
     }
     if (count == 10)
     {
-        LOGINFO("Terminate kill will be send to pid: " << pid << " as it did not shutdown on SIGTERM");
         ::kill(pid, SIGKILL);
     }
     count = 0;
@@ -120,6 +117,12 @@ int Proc::getUserIdFromStatus(const long pid)
     std::string pathString = Common::FileSystem::join(pathRoot, std::to_string(pid), "status");
 
     std::optional<std::string> content = Common::FileSystem::fileSystem()->readProcFile(pid, pathString);
+
+    if(content == std::nullopt)
+    {
+        return -1;
+    }
+
 
     std::stringstream contentStream;
     contentStream << content.value();  //Convert to stream so that we can call getline on the content.
@@ -184,11 +187,10 @@ void Proc::killAllProcessesInProcList(std::vector<int>& procList)
         try
         {
             Proc::killProcess(procPid);
-
         }
         catch (std::runtime_error& ex)
         {
-            LOGINFO( ex.what() );
+            // Continue
         }
 
     }
