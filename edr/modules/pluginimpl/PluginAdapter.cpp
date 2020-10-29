@@ -381,6 +381,7 @@ namespace Plugin
             LOGERROR("Failed to start logger extension, loggerExtension.Start threw: " << ex.what());
         }
     }
+
     void PluginAdapter::registerAndStartSophosExtension()
     {
         try
@@ -396,7 +397,7 @@ namespace Plugin
         }
         catch (const std::exception& ex)
         {
-            LOGERROR("Failed to start logger extension, loggerExtension.Start threw: " << ex.what());
+            LOGERROR("Failed to start sophos extension, sophosExtension.Start threw: " << ex.what());
         }
     }
     void PluginAdapter::stopOsquery()
