@@ -27,8 +27,7 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::AutoFd& fd,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
         int maxIterations)
-    :
-    m_socketFd(std::move(fd))
+    : m_socketFd(std::move(fd))
     , m_scannerFactory(std::move(scannerFactory))
     , m_maxIterations(maxIterations)
 {
