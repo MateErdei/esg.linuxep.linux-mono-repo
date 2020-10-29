@@ -25,14 +25,14 @@ In order to run them in Vagrant box:
     sudo ln -s /vagrant/sspl-plugin-anti-virus/TA/ /opt/test/inputs/test_scripts
     sudo ln -s /vagrant/sspl-plugin-anti-virus/output/SDDS-COMPONENT /opt/test/inputs/av/SDDS-COMPONENT
     sudo ln -s /vagrant/sspl-plugin-anti-virus/output/test-resources /opt/test/inputs/av/test-resources
-    sudo ln -s /vagrant/everest-base/output/SDDS-COMPONENT /opt/test/inputs/av/base-sdds
-    sudo apt-get -y install python3.7 python3.7-dev python3-pip
+    sudo ln -s /vagrant/sspl-plugin-anti-virus/output/base-sdds /opt/test/inputs/av/base-sdds
+    sudo apt-get -y install python3.7 python3.7-dev python3-pip zip
     sudo -H python3.7 -m pip install pyzmq protobuf pytest-html robotframework Cython pycapnp
     cd /vagrant/sspl-plugin-anti-virus/TA
     sudo python3.7 -m robot .
 
 To run a single test:
-    sudo python3.7 -m robot --test "<name>" --removekeywords WUKS  .
+    sudo python3.7 -m robot --test "<name>" --removekeywords WUKS  .lib
 
 To run specific suites:
     sudo python3.7 -m robot -s TA.Product.AVCommandLineScanner .

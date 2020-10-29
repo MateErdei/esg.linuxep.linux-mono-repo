@@ -15,6 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <ScanResponse.capnp.h>
 
 #include <capnp/serialize.h>
+#include <common/StringUtils.h>
 
 #include <string>
 #include <sstream>
@@ -113,7 +114,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
     scan_messages::ScanResponse response;
     std::stringstream errorMsg;
 
-    errorMsg << "Failed to scan file: " << request.getPath() << " after " << MAX_SCAN_RETRIES << " retries";
+    errorMsg << "Failed to scan file: " << common::toUtf8(request.getPath()) << " after " << MAX_SCAN_RETRIES << " retries";
     response.setErrorMsg(errorMsg.str());
     return response;
 }

@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <common/StringUtils.h>
 
 #include <iostream>
 #include <fcntl.h>
@@ -35,7 +36,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     datatypes::AutoFd file_fd(::open(fileToScanPath.c_str(), O_RDONLY));
     if (!file_fd.valid())
     {
-        LOGERROR("Failed to open: "<< fileToScanPath);
+        LOGERROR("Failed to open: "<< common::toUtf8(fileToScanPath));
         return scan_messages::ScanResponse();
     }
 

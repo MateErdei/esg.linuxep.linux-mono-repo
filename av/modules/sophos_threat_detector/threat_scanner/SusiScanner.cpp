@@ -42,10 +42,10 @@ SusiScanner::SusiScanner(const std::shared_ptr<ISusiWrapperFactory>& susiWrapper
 }
 
 void SusiScanner::sendThreatReport(
-    const std::string& threatPath,
-    const std::string& threatName,
-    int64_t scanType,
-    const std::string& userID)
+        const std::string& threatPath,
+        const std::string& threatName,
+        int64_t scanType,
+        const std::string& userID)
 {
     if (threatPath.empty())
     {
@@ -73,10 +73,10 @@ void SusiScanner::sendThreatReport(
 
 scan_messages::ScanResponse
 SusiScanner::scan(
-    datatypes::AutoFd& fd,
-    const std::string& file_path,
-    int64_t scanType,
-    const std::string& userID)
+        datatypes::AutoFd& fd,
+        const std::string& file_path,
+        int64_t scanType,
+        const std::string& userID)
 {
     scan_messages::ScanResponse response;
 
@@ -104,7 +104,7 @@ SusiScanner::scan(
             {
                 for (auto detection : result["detections"])
                 {
-                    LOGWARN("Detected " << detection["threatName"] << " in " << result["path"]);
+                    LOGWARN("Detected " << detection["threatName"] << " in " << common::toUtf8(result["path"]));
                     response.addDetection(result["path"], detection["threatName"]);
                 }
             }
@@ -139,7 +139,7 @@ SusiScanner::scan(
     {
         // Return codes that cover zip bombs, corrupted files and password-protected files
         std::stringstream errorMsg;
-        errorMsg << "Scanning of " << file_path << " was aborted";
+        errorMsg << "Scanning of " << common::toUtf8(file_path) << " was aborted";
         response.setErrorMsg(errorMsg.str());
     }
 

@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanRequest.capnp.h"
 
+#include "common/StringUtils.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
@@ -228,7 +229,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
             ScanRequestObject requestReader = parseRequest(proto_buffer, bytes_read);
 
-            LOGDEBUG("Scan requested of " << requestReader.pathname);
+            LOGDEBUG("Scan requested of " << common::toUtf8(requestReader.pathname));
 
             // read fd
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));

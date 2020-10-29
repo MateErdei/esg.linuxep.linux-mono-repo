@@ -35,7 +35,7 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
         }
     }
 
-    std::string escapedPath(path);
+    std::string escapedPath(common::toUtf8(path));
     common::escapeControlCharacters(escapedPath);
 
     for (const auto& exclusion: m_userDefinedExclusions)
