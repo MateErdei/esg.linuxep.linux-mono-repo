@@ -96,10 +96,6 @@ std::string Plugin::osQueryExtensionsPath()
     return fromRelative("extensions");
 }
 
-std::string Plugin::sophosServerInfoExtension()
-{
-    return Common::FileSystem::join(osQueryExtensionsPath(),"sophos_extension");
-}
 std::string Plugin::livequeryExecutable()
 {
     return fromRelative("bin/sophos_livequery");

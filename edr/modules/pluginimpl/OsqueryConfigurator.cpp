@@ -130,6 +130,7 @@ namespace Plugin
 
         flags.push_back("--syslog_pipe_path=" + Plugin::syslogPipe());
         flags.push_back("--pidfile=" + Plugin::osqueryPidFile());
+        flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
         flags.push_back("--logger_path=" + Plugin::osQueryLogDirectoryPath());
 
