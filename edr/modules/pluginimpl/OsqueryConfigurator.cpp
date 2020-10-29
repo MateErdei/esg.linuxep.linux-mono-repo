@@ -133,7 +133,7 @@ namespace Plugin
         flags.push_back("--extensions_socket=" + Plugin::osquerySocket());
         flags.push_back("--database_path=" + Plugin::osQueryDataBasePath());
         flags.push_back("--logger_path=" + Plugin::osQueryLogDirectoryPath());
-        flags.push_back("--extensions_autoload=" + Plugin::osQueryExtensionsPath()+"/load");
+        flags.push_back("--extensions_autoload=" + Plugin::osQueryExtensionsPath());
 
 
         std::string disableAuditFlagValue = enableAuditEventCollection ? "false" : "true";

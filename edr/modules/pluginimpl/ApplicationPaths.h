@@ -18,6 +18,7 @@ namespace Plugin
     std::string syslogPipe();
     std::string osQueryLogDirectoryPath();
     std::string osQueryExtensionsPath();
+    std::string osQueryExtensionsDirectory();
     std::string osQueryResultsLogPath();
     std::string osQueryDataBasePath();
     std::string edrConfigFilePath();

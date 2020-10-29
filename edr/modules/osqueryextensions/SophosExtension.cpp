@@ -17,7 +17,7 @@ SophosExtension::~SophosExtension()
 
 void SophosExtension::Start(const std::string& socket, bool verbose)
 {
-    LOGINFO("SophosExtension::Start");
+    LOGINFO("Starting SophosExtension");
 
 
     if (m_stopped)
@@ -41,7 +41,7 @@ void SophosExtension::Stop()
 {
     if (!m_stopped)
     {
-        LOGINFO("SophosExtension::Stop");
+        LOGINFO("Stopping SophosExtension");
         m_stopped = true;
         m_extension->Stop();
         if (m_runnerThread)
@@ -54,7 +54,7 @@ void SophosExtension::Stop()
 
 void SophosExtension::Run()
 {
-    LOGINFO("SophosExtension::Run");
+    LOGDEBUG("SophosExtension running");
     m_extension->Wait();
     if (!m_stopped)
     {

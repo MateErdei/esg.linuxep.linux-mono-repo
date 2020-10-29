@@ -8,13 +8,12 @@
         <workingdir>.</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2020-44" build-id="20201028164050-6834f4d7ef5c487edab928c40b18fe71650f77ce-Zca8yI"/>
+            <release-version branch="release/2020-41" build-id="20201002110606-fcf1821d6b71a2656471bd0abe151a1f40663fe4-qrruwT"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2020-44-linux" build-id="20201029124003-8477070a030b3915d003b74a6c4e8a061272e06b-Jy7Ts2"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
@@ -51,7 +50,6 @@
         <package name="sqlite-amalgamation" version="3-31-1-1/218635/sqlite-amalgamation" dest="input">
             <include src="sqlite-amalgamation-3310100.zip" dest="."/>
         </package>
-        <!-- jsoncpp -->
         <package name="jsoncpplinux11" version="1-8-4-17/220379/output" dest="input">
             <include src="jsoncpp.tar" dest="."/>
         </package>

@@ -91,9 +91,14 @@ std::string Plugin::servicePath()
     return "/sbin/service";
 }
 
-std::string Plugin::osQueryExtensionsPath()
+std::string Plugin::osQueryExtensionsDirectory()
 {
     return fromRelative("extensions");
+}
+
+std::string Plugin::osQueryExtensionsPath()
+{
+    return Common::FileSystem::join(osQueryExtensionsDirectory(), "extensions.load");
 }
 
 std::string Plugin::livequeryExecutable()
