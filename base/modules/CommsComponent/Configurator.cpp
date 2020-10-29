@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <CommsComponent/CommsComponentUtils.h>
+#include <Common/ProcUtilImpl/ProcUtilities.h>
 
 
 #include <sstream>
@@ -83,6 +84,10 @@ namespace CommsComponent
         std::vector<std::pair<std::string,int>> output;
         try
         {
+            //killing all processes ran by comms-network user
+            std::vector<int> pids = Proc::listProcWithUserName(m_childUser.userName);
+            Proc::killAllProcessesInProcList(pids);
+
             backupLogsAndRemoveChrootDir(output);
             //create fresh chroot dir
             Common::FileSystem::fileSystem()->makedirs(m_chrootDir);
