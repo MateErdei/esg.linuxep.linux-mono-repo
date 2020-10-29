@@ -5,6 +5,8 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SophosServerTable.h"
+#include "Logger.h"
+
 #include <iostream>
 #include <redist/boost/include/boost/property_tree/ini_parser.hpp>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
@@ -47,7 +49,7 @@ namespace OsquerySDK
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                std::cerr << "Failed to read MCSID configuration from config file: " << mcsConfigPath << " with error: " << ex.what();
+                LOGWARN("Failed to read MCSID configuration from config file: " << mcsConfigPath << " with error: " << ex.what());
             }
         }
 
@@ -62,7 +64,7 @@ namespace OsquerySDK
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                std::cerr << "Failed to read MCSID configuration from config file: " << mcsPolicyConfigPath << " with error: " << ex.what();
+                LOGWARN("Failed to read MCSID configuration from config file: " << mcsPolicyConfigPath << " with error: " << ex.what());
             }
         }
         results.push_back(std::move(r));
