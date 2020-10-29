@@ -48,7 +48,7 @@ void LoggerExtension::Start(
         m_extension->Start();
         m_stopped = false;
         m_runnerThread = std::make_unique<std::thread>(std::thread([this] { Run(); }));
-        LOGDEBUG("Run Logger Plugin thread");
+        LOGDEBUG("Logger Plugin running in thread");
     }
 }
 

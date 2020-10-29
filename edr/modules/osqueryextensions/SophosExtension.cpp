@@ -33,7 +33,7 @@ void SophosExtension::Start(const std::string& socket, bool verbose)
         m_extension->Start();
         m_stopped = false;
         m_runnerThread = std::make_unique<std::thread>(std::thread([this] { Run(); }));
-        LOGDEBUG("Run Sophos Extension thread");
+        LOGDEBUG("Sophos Extension running in thread");
     }
 }
 
