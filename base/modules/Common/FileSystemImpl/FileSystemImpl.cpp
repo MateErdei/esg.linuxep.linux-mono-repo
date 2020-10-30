@@ -693,7 +693,8 @@ namespace Common
 
         std::optional<std::string> FileSystemImpl::readProcFile(int pid, const std::string& filename) const
         {
-            // Do not put any logging in this function because there are places which the logging will result in issues.
+            // Do not put any logging in this function because
+            // this will be at least called from the comms component at a time when the logging has not been setup
             std::array<char, 4096> buffer {};
             std::string path = Common::FileSystem::join("/proc", std::to_string(pid), filename);
             int fd = ::open(path.c_str(), O_RDONLY);

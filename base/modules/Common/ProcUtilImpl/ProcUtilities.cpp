@@ -6,19 +6,19 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "ProcUtilities.h"
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/Process/IProcess.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 
 #include <signal.h>
 #include <sstream>
 #include <thread>
-#include <unistd.h>
-
 
 namespace
 {
     std::optional<long int> convertTolong(const std::string& number)
     {
+        // Do not put any logging in this function because
+        // this will be at least called from the comms component at a time when the logging has not been setup
+
         std::stringstream numbStr(number);
         long int longInt;
         numbStr >> longInt;
@@ -45,6 +45,9 @@ namespace
 
 std::optional<Proc::ProcStat> Proc::parseProcStat(const std::string& contentOfProcStat)
 {
+    // Do not put any logging in this function because
+    // this will be at least called from the comms component at a time when the logging has not been setup
+
     static std::string finishedStates = "xXZ";
 
     std::stringstream sstream;
@@ -74,6 +77,9 @@ std::optional<Proc::ProcStat> Proc::parseProcStat(const std::string& contentOfPr
 
 void Proc::killProcess(int pid)
 {
+    // Do not put any logging in this function because
+    // this will be at least called from the comms component at a time when the logging has not been setup
+
     int count = 0;
     if (pid == -1 || pid == 1)
     {
@@ -110,6 +116,9 @@ void Proc::killProcess(int pid)
 
 int Proc::getUserIdFromStatus(const long pid)
 {
+    // Do not put any logging in this function because
+    // this will be at least called from the comms component at a time when the logging has not been setup
+
     int uid = -1;
 
     std::string pathRoot("/proc/");
@@ -158,6 +167,9 @@ int Proc::getUserIdFromStatus(const long pid)
 
 std::vector<int> Proc::listProcWithUserName(std::string& userName)
 {
+    // Do not put any logging in this function because
+    // this will be at least called from the comms component at a time when the logging has not been setup
+
     std::vector<int> procList;
     std::vector<std::string> entries = Common::FileSystem::fileSystem()->listFilesAndDirectories("/proc");
     auto filePermissions = Common::FileSystem::filePermissions();
@@ -182,15 +194,21 @@ std::vector<int> Proc::listProcWithUserName(std::string& userName)
 
 void Proc::killAllProcessesInProcList(std::vector<int>& procList)
 {
+    // Do not put any logging in this function because
+    // this will be at least called from the comms component at a time when the logging has not been setup
+
     for (const auto& procPid : procList)
     {
         try
         {
             Proc::killProcess(procPid);
         }
-        catch (std::runtime_error& ex)
+        catch (...)
         {
-            // Continue
+            // Continue, if we fail, we fail
+            // This is function currently only being invoked by the comms component to ensure clean-up of the chroot
+            // is possible when processes are stuck running from the mount points.
+            // Logging should be provided in other places to state comms component failed to start up.
         }
 
     }
