@@ -383,6 +383,11 @@ CLS Encoded Eicars
         Wait Until AV Plugin Log Contains  ${item}
    END
 
+   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+
    Remove Directory  /tmp/encoded_eicars  true
 
 CLS Handles Wild Card Eicars
