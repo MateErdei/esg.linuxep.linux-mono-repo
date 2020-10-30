@@ -83,19 +83,6 @@ void manager::scheduler::ScanScheduler::run()
                     LOGINFO(scan.str());
                 }
                 LOGINFO("Configured number of Exclusions: " << m_config.exclusions().size());
-
-                for (const auto& exclusion : m_config.exclusions())
-                {
-                    if (exclusion.at(exclusion.size()-1) == '/')
-                    {
-                        LOGDEBUG("Folder exclusion: " << exclusion);
-                    }
-                    else
-                    {
-                        LOGDEBUG("File exclusion: " << exclusion);
-                    }
-                }
-
                 LOGINFO("Configured number of Sophos Defined Extension Exclusions: " << m_config.sophosExtensionExclusions().size());
                 LOGINFO("Configured number of User Defined Extension Exclusions: " << m_config.userDefinedExtensionInclusions().size());
 
