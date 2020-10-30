@@ -32,7 +32,7 @@ In order to run them in Vagrant box:
     sudo python3.7 -m robot .
 
 To run a single test:
-    sudo python3.7 -m robot --test "<name>" --removekeywords WUKS  .lib
+    sudo python3.7 -m robot --test "<name>" --removekeywords WUKS  .
 
 To run specific suites:
     sudo python3.7 -m robot -s TA.Product.AVCommandLineScanner .
