@@ -19,7 +19,9 @@ o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libjsoncpp.so.19.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/liblivemain.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/liblivequeryimpl.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/liblog4cplus-2.0.so.3.4.5.0
+o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libLoggerPlugin.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libosqueryclient.so.0
+o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libOsqueryExtensions.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libOsquerySDK.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libpluginapi.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libpluginimpl.so.0

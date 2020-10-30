@@ -54,7 +54,9 @@ o777, root, root, /opt/sophos-spl/plugins/edr/lib64/liblog4cplus-2.0.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/liblog4cplus-2.0.so.3
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/liblog4cplus-2.0.so.3.4
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/liblog4cplus-2.0.so.3.4.5
+o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libLoggerPlugin.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libosqueryclient.so
+o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libOsqueryExtensions.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libOsquerySDK.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libpluginapi.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libpluginimpl.so
