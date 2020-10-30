@@ -217,7 +217,6 @@ function update_supplement()
     local PID=$(ps -C sophos_threat_d -o pid=)
     if [[ -n "$PID" ]]
     then
-        # This will terminate sophos_threat_detector until we have hot-reload functionality
         kill -SIGUSR1 $PID
     else
         echo "sophos_threat_detector not running"

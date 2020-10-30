@@ -108,7 +108,6 @@ Add IDE to install set
     # TODO: LINUXDAR-2365 fix for hot-updating
     ${IDE} =  Set Variable  ${RESOURCES_PATH}/ides/${IDE_NAME}
     Copy file  ${IDE}  ${IDE_DIR}/${IDE_NAME}
-    Run  chown sophos-spl-user:sophos-spl-group ${IDE_DIR}/${IDE_NAME}
     register cleanup  Remove IDE from install set
 
 Run installer from install set
