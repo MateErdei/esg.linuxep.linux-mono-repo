@@ -102,7 +102,7 @@ SusiScanner::scan(
             json parsedScanResult = json::parse(scanResultUTF8);
             for (auto result : parsedScanResult["results"])
             {
-                std::string escapedPath (common::toUtf8(result["path"], false, false));
+                std::string escapedPath(result["path"]);
                 common::escapeControlCharacters(escapedPath);
                 for (auto detection : result["detections"])
                 {

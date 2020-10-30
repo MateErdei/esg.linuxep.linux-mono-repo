@@ -18,7 +18,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace common
 {
-    void escapeControlCharacters(std::string& text)
+    void escapeControlCharacters(std::string& text, bool escapeXML)
     {
         std::string buffer;
         buffer.reserve(text.size());
@@ -40,11 +40,41 @@ namespace common
                 case '\r': buffer.append("\\r");           break;
                 case '\\': buffer.append("\\\\");          break;
                 // xml special characters
-                case '&':  buffer.append("&amp;");         break;
-                case '\"': buffer.append("&quot;");        break;
-                case '\'': buffer.append("&apos;");        break;
-                case '<':  buffer.append("&lt;");          break;
-                case '>':  buffer.append("&gt;");          break;
+                case '&':
+                    if(escapeXML)
+                    {
+                        buffer.append("&amp;");
+                        break;
+                    }
+                    [[fallthrough]];
+                case '\"':
+                    if(escapeXML)
+                    {
+                        buffer.append("&quot;");
+                        break;
+                    }
+                    [[fallthrough]];
+                case '\'':
+                    if(escapeXML)
+                    {
+                        buffer.append("&apos;");
+                        break;
+                    }
+                    [[fallthrough]];
+                case '<':
+                    if(escapeXML)
+                    {
+                        buffer.append("&lt;");
+                     break;
+                    }
+                    [[fallthrough]];
+                case '>':
+                    if(escapeXML)
+                    {
+                        buffer.append("&gt;");
+                        break;
+                    }
+                    [[fallthrough]];
                 default:
                     auto character = static_cast<unsigned>(text[pos]);
                     if (character <= 31 || character == 127)

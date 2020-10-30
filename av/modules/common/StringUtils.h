@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace common
 {
-    void escapeControlCharacters(std::string& text);
+    void escapeControlCharacters(std::string& text, bool escapeXML=false);
     std::string sha256_hash(const std::string& str);
     std::string md5_hash(const std::string& str);
     std::string toUtf8(const std::string& str, bool appendConversion = true, bool throws = true);

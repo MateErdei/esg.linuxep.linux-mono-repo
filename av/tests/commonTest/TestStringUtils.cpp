@@ -29,9 +29,17 @@ TEST(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharacters) // NOLINT
 TEST(TestStringUtils, TestXMLEscapeEscapesSpecialXMLCharacters) // NOLINT
 {
     std::string threatPath = "abc & < > \' \" abc";
-    escapeControlCharacters(threatPath);
+    escapeControlCharacters(threatPath, true);
     EXPECT_EQ(threatPath, "abc &amp; &lt; &gt; &apos; &quot; abc");
 }
+
+TEST(TestStringUtils, TestEscapeControlCharactersWithoutXLMEscaping) // NOLINT
+{
+    std::string threatPath = "abc & < > \' \" abc \1 \2 \3 \4 \5 \6";
+    escapeControlCharacters(threatPath);
+    EXPECT_EQ(threatPath, "abc & < > \' \" abc \\1 \\2 \\3 \\4 \\5 \\6");
+}
+
 
 TEST(TestStringUtils, TestToUtf8) // NOLINT
 {
