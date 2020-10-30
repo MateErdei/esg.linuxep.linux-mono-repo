@@ -33,11 +33,11 @@ target_include_directories(threatDetectorServerExecutable PUBLIC ${CMAKE_SOURCE_
 target_include_directories(threatDetectorServerExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
 add_executable(threatDetectorClientExecutable
-        ../unixsocket/ThreatDetectorTestExecutable/threatDetectorClient.cpp
-        ../unixsocket/ThreatDetectorTestExecutable/FakeServerConnectionThread.cpp
-        ../unixsocket/ThreatDetectorTestExecutable/FakeServerConnectionThread.h
-        ../unixsocket/ThreatDetectorTestExecutable/FakeServerSocket.cpp
-        ../unixsocket/ThreatDetectorTestExecutable/FakeServerSocket.h)
+        ThreatDetectorTestExecutable/threatDetectorClient.cpp
+        ThreatDetectorTestExecutable/FakeServerConnectionThread.cpp
+        ThreatDetectorTestExecutable/FakeServerConnectionThread.h
+        ThreatDetectorTestExecutable/FakeServerSocket.cpp
+        ThreatDetectorTestExecutable/FakeServerSocket.h)
 target_link_libraries(threatDetectorClientExecutable  PUBLIC
         unixsocket avscannerimpl ${STD_FILESYSTEM_IF_REQUIRED})
 target_include_directories(threatDetectorClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
