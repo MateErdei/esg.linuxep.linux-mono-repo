@@ -30,6 +30,7 @@ Basic XDR Datafeed Sent
     Cloud Server Log Should Not Contain  Failed to decompress response body content
 
 Retrieve JWT Tokens from Central
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true"}
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -42,6 +43,7 @@ Retrieve JWT Tokens from Central
     Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: PLACEHOLDER  1
 
 Retrieve JWT Tokens from Central only once per connection
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true"}
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved

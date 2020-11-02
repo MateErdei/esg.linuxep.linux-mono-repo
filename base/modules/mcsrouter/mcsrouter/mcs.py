@@ -493,12 +493,12 @@ class MCS:
             else:
                 LOGGER.debug("No datafeed result files")
 
-        def send_datafeed_files():
+        def send_datafeed_files(v2_datafeed_available):
             for datafeed in all_datafeeds:
                 if datafeed.has_results():
                     LOGGER.debug(f"Datafeed results present for datafeed ID: {datafeed.get_feed_id()}")
                     try:
-                        comms.send_datafeeds(datafeed)
+                        comms.send_datafeeds(datafeed, v2_datafeed_available)
                     except Exception as df_exception:
                         LOGGER.error(
                             f"Failed to send datafeed results, datafeed ID: {datafeed.get_feed_id()}, error: {str(df_exception)}")
@@ -651,7 +651,9 @@ class MCS:
                     last_flag_time_check = self.get_flags(last_flag_time_check)
                     flags.combine_flags_files()
 
-                    if self.__m_comms:
+                    jwt_tokens_available, v2_datafeed_available = flags.get_mcs_relevant_flags()
+
+                    if self.__m_comms and jwt_tokens_available:
                         if not self.__m_comms.m_jwt_token \
                                 or not self.__m_comms.m_device_id \
                                 or not self.__m_comms.m_tenant_id:
@@ -705,7 +707,7 @@ class MCS:
                                 LOGGER.error("Failed to send responses: {}".format(str(exception)))
 
                         # Send datafeed results
-                        send_datafeed_files()
+                        send_datafeed_files(v2_datafeed_available)
 
                     # reset command poll
                 except socket.error as ex:

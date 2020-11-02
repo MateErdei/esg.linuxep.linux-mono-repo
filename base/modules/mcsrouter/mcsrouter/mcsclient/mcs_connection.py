@@ -1044,7 +1044,7 @@ class MCSConnection:
             except Exception as exception:
                 log_exception_error(response.m_app_id, response.m_correlation_id, exception)
 
-    def send_datafeeds(self, datafeeds: datafeeds.Datafeeds):
+    def send_datafeeds(self, datafeeds: datafeeds.Datafeeds, v2_datafeed_available=False):
         """
         This method is used in mcs.py to trigger the processing and sending of datafeed results.
         """
@@ -1090,7 +1090,12 @@ class MCSConnection:
                 LOGGER.debug("Can't send anymore datafeed results, at limit for now. Limit: {}".format(max_upload_at_once))
                 break
             try:
-                self.send_datafeed_result_v1(datafeed_result)
+                if v2_datafeed_available:
+                    LOGGER.debug("Attempting use of V2 datafeed method")
+                    # TODO LINUXDAR-2380: Replace this function with a copy of it that uses the v2 method and remove log line
+                    self.send_datafeed_result_v1(datafeed_result)
+                else:
+                    self.send_datafeed_result_v1(datafeed_result)
                 LOGGER.info(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}, file: {datafeed_result.m_file_path}")
                 LOGGER.debug(
                     f"Result content for datafeed ID: {datafeeds.get_feed_id()}, content: {datafeed_result.m_json_body}")

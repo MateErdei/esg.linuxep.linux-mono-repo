@@ -1192,7 +1192,9 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         FLAGS = r"""{
   "livequery.network-tables.available" : true,
   "endpoint.flag2.enabled" : false,
-  "endpoint.flag3.enabled" : false
+  "endpoint.flag3.enabled" : false,
+  "jwt-token.available" : true,
+  "mcs.v2.data_feed.available": true
 }
 """
         return self.ret(FLAGS)
