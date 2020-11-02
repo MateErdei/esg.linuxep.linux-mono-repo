@@ -269,6 +269,10 @@ class MCS:
         # & status regulation?)
         self.__m_command_check_interval = CommandCheckInterval(config)
 
+        self.__m_jwt_token = None
+        self.__m_device_id = None
+        self.__m_tenant_id = None
+
     def startup(self):
         """
         Connect and register if required
@@ -286,8 +290,6 @@ class MCS:
         capabilities = comms.capabilities()
         LOGGER.info("Capabilities=%s", capabilities)
         # TODO parse and verify if we need something beyond baseline
-
-        comms.set_jwt_token_settings()
 
         self.__m_comms = comms
 
@@ -649,12 +651,13 @@ class MCS:
                         add_response(file_path, app_id, correlation_id, timestamp.timestamp(
                             response_time), response_body)
 
-                    # jwt_token = self.__m_comms.get_jwt_token()
-                    # LOGGER.debug(f"JWT Token: {jwt_token}")
-
                     # check for new flags
                     last_flag_time_check = self.get_flags(last_flag_time_check)
                     flags.combine_flags_files()
+
+                    if not self.__m_jwt_token or not self.__m_device_id or not self.__m_tenant_id:
+                        self.__m_jwt_token, self.__m_device_id, self.__m_tenant_id = \
+                            self.__m_comms.set_jwt_token_settings()
 
                     # get all pending datafeeds
                     gather_datafeed_files()

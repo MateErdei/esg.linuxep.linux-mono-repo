@@ -223,10 +223,6 @@ class MCSConnection:
         self.__m_proxy_authenticators = {}
         self.__m_last_seen_http_error = None
 
-        self.__m_jwt_token = None
-        self.__m_device_id = None
-        self.__m_tenant_id = None
-
     def ca_cert(self):
         return self.__m_ca_file
 
@@ -1245,24 +1241,30 @@ class MCSConnection:
         """
         set_jwt_token_settings
         """
+        jwt_token = None
+        device_id = None
+        tenant_id = None
+
         if not self.get_id():
             LOGGER.warning("No Endpoint ID so cannot retrieve JWT tokens")
-            return
+            return None, None, None
 
         full_token_response = self.get_jwt_token()
         try:
             token_dict = json.loads(full_token_response)
         except ValueError as error:
             LOGGER.error(f"Invalid JWT Token received: {full_token_response} with error: {error}")
-            return
+            return None, None, None
 
         if "access_token" in token_dict:
             LOGGER.debug(f"""Setting JWT Token: {token_dict["access_token"]}""")
-            self.__m_jwt_token = token_dict["access_token"]
+            jwt_token = token_dict["access_token"]
         if "device_id" in token_dict:
             LOGGER.debug(f"""Setting Device ID: {token_dict["device_id"]}""")
-            self.__m_device_id = token_dict["device_id"]
+            device_id = token_dict["device_id"]
         if "tenant_id" in token_dict:
             LOGGER.debug(f"""Setting Tenant ID: {token_dict["tenant_id"]}""")
-            self.__m_tenant_id = token_dict["tenant_id"]
+            tenant_id = token_dict["tenant_id"]
+
+        return jwt_token, device_id, tenant_id
 

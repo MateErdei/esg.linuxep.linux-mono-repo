@@ -450,6 +450,15 @@ class TestMCSConnection(unittest.TestCase):
                 expected_header_string = "request headers={'Authorization': 'Basic Og==', 'Accept': 'application/json', 'Content-Length': 32, 'Content-Encoding': 'deflate', 'X-Uncompressed-Content-Length': 32, 'User-Agent': 'Sophos MCS Client"
                 assert_message_in_logs(expected_header_string, logs.output, log_level="DEBUG")
 
+    def test_set_jwt_token_settings_returns_none_when_no_endpoint_id(self, *mockargs):
+        with self.assertLogs(level="WARNING") as logs:
+            mcs_connection = TestMCSResponse.dummyMCSConnection()
+            jwt_token, device_id, tenant_id = \
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
+            self.assertEqual(jwt_token, None)
+            self.assertEqual(device_id, None)
+            self.assertEqual(tenant_id, None)
+            assert_message_in_logs("No Endpoint ID so cannot retrieve JWT tokens", logs.output, log_level="WARNING")
 
 if __name__ == '__main__':
     unittest.main()
