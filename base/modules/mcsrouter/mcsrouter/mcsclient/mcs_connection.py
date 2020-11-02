@@ -223,6 +223,10 @@ class MCSConnection:
         self.__m_proxy_authenticators = {}
         self.__m_last_seen_http_error = None
 
+        self.__m_jwt_token = None
+        self.__m_device_id = None
+        self.__m_tenant_id = None
+
     def ca_cert(self):
         return self.__m_ca_file
 
@@ -579,6 +583,8 @@ class MCSConnection:
             self.__m_config.set("current_relay_id", proxy.relay_id())
             mcsrouter.utils.write_json.write_current_proxy_info(proxy)
             self.__m_config.save()
+
+        #self.set_jwt_token_settings()
 
         return connection
 
@@ -970,6 +976,12 @@ class MCSConnection:
         """
         return self.send_message(command_path + self.get_id(), body, method)
 
+    def send_message_with_id_and_role(self, command_path, body="", method="GET"):
+        """
+        send_message_with_id_and_role
+        """
+        return self.send_message(command_path + self.get_id() + "/role/endpoint", body, method)
+
     def send_live_query_response_with_id(self, response):
         """
         prepare a HTTP request to send to central containing a LiveQuery response
@@ -1210,6 +1222,15 @@ class MCSConnection:
         LOGGER.debug("Request flags from {}".format(base_path + path))
         return self.send_message_with_id(path)
 
+    def get_jwt_token(self):
+        """
+        Get JWT token from MCS
+        """
+        path = "/authenticate/endpoint/"
+        base_path = self.__m_current_path
+        LOGGER.debug("Request JWT token from {}".format(base_path + path))
+        return self.send_message_with_id_and_role(path, method="POST")
+
     def get_policy_fragment(self, app_id, fragment_id):
         """
         get_policy_fragment
@@ -1219,3 +1240,29 @@ class MCSConnection:
         base_path = self.__m_current_path
         LOGGER.debug("Request policy fragment from {}".format(base_path + path))
         return self.send_message(path)
+
+    def set_jwt_token_settings(self):
+        """
+        set_jwt_token_settings
+        """
+        if not self.get_id():
+            LOGGER.warning("No Endpoint ID so cannot retrieve JWT tokens")
+            return
+
+        full_token_response = self.get_jwt_token()
+        try:
+            token_dict = json.loads(full_token_response)
+        except ValueError as error:
+            LOGGER.error(f"Invalid JWT Token received: {full_token_response} with error: {error}")
+            return
+
+        if "access_token" in token_dict:
+            LOGGER.debug(f"""Setting JWT Token: {token_dict["access_token"]}""")
+            self.__m_jwt_token = token_dict["access_token"]
+        if "device_id" in token_dict:
+            LOGGER.debug(f"""Setting Device ID: {token_dict["device_id"]}""")
+            self.__m_device_id = token_dict["device_id"]
+        if "tenant_id" in token_dict:
+            LOGGER.debug(f"""Setting Tenant ID: {token_dict["tenant_id"]}""")
+            self.__m_tenant_id = token_dict["tenant_id"]
+

@@ -29,6 +29,38 @@ Basic XDR Datafeed Sent
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
 
+Retrieve JWT Tokens from Central
+    Override LogConf File as Global Level  DEBUG
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    Wait Until Keyword Succeeds
+    ...  30s
+    ...  1s
+    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
+    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Device ID: example-device-id  1
+    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: PLACEHOLDER  1
+
+Retrieve JWT Tokens from Central only once per connection
+    Override LogConf File as Global Level  DEBUG
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    Wait Until Keyword Succeeds
+    ...  30s
+    ...  1s
+    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
+    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Device ID: example-device-id  1
+    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: PLACEHOLDER  1
+
+    Wait Until Keyword Succeeds
+    ...  30s
+    ...  2s
+    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Re-entered main loop   3
+
+    # Checking the JWT token hasn't been re-requested after several loops
+    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
+
 
 Ensure correct sending protocol handles all possible datafeed states at same time
     Override LogConf File as Global Level  DEBUG

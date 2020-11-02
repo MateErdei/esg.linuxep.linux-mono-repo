@@ -1197,6 +1197,17 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 """
         return self.ret(FLAGS)
 
+    def mcs_jwt_token(self):
+        JWT = r"""{
+    "access_token":"PLACEHOLDER",
+    "token_type":"Bearer",
+    "expires_in":84600,
+    "role":"endpoint",
+    "device_id":"example-device-id",
+    "tenant_id":"example-tenant-id"
+}"""
+        return self.ret(JWT)
+
     def mcs_policy(self):
         mo = re.match(r"/mcs/policy/application/([^/]+)/([^/]+)", self.path)
         logger.info("Requesting policy - %s   %s", mo.group(1), mo.group(2))
@@ -1537,6 +1548,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.edr_response()
         elif self.path.startswith("/mcs/data_feed/endpoint"):
             return self.datafeed()
+        elif self.path.startswith("/mcs/authenticate/endpoint/"):
+            return self.mcs_jwt_token()
 
         logger.warn("unknown do_POST_mcs: %s", self.path)
         return self.ret("Unknown MCS command", code=500)

@@ -59,6 +59,9 @@ class dummyMCSConnection(mcsrouter.mcsclient.mcs_connection.MCSConnection):
         config = createTestConfig("http://dummy.mcs.url:8080/")
         super(dummyMCSConnection, self).__init__(config)
         self.__m_kwargs = kwargs
+        self.__m_jwt_token = None
+        self.__m_device_id = None
+        self.__m_tenant_id = None
 
     def _MCSConnection__create_connection_and_get_response(self, requestData):
         print "in good one"

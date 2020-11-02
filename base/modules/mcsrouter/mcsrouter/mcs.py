@@ -45,6 +45,8 @@ from .utils import default_values
 from .utils import plugin_registry
 from .utils import signal_handler
 from .utils import timestamp
+from .utils import write_json
+from .utils import flags
 
 from .utils.get_ids import get_gid, get_uid
 
@@ -285,6 +287,8 @@ class MCS:
         LOGGER.info("Capabilities=%s", capabilities)
         # TODO parse and verify if we need something beyond baseline
 
+        comms.set_jwt_token_settings()
+
         self.__m_comms = comms
 
     def __get_mcs_token(self):
@@ -415,6 +419,17 @@ class MCS:
         self.stop_push_client(push_client)
         self.__m_command_check_interval.set_on_error(error_count, transient)
 
+    def get_flags(self, last_time_checked):
+        flags_polling = self.__m_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", default_values.get_default_flags_poll())
+        if (time.time() > last_time_checked + flags_polling) \
+                or not os.path.isfile(path_manager.mcs_flags_file()):
+            LOGGER.info("Checking for updates to mcs flags")
+            mcs_flags_content = self.__m_comms.get_flags()
+            if mcs_flags_content:
+                write_json.write_mcs_flags(mcs_flags_content)
+            last_time_checked = time.time()
+        return last_time_checked
+
     def run(self):
         """
         run
@@ -514,6 +529,8 @@ class MCS:
         push_notification_pipe_file_descriptor = push_client.notify_activity_pipe()
 
         last_command_time_check = 0
+        last_flag_time_check = 0
+
 
         running = True
         reregister = False
@@ -631,6 +648,13 @@ class MCS:
                         LOGGER.info("queuing response for %s", app_id)
                         add_response(file_path, app_id, correlation_id, timestamp.timestamp(
                             response_time), response_body)
+
+                    # jwt_token = self.__m_comms.get_jwt_token()
+                    # LOGGER.debug(f"JWT Token: {jwt_token}")
+
+                    # check for new flags
+                    last_flag_time_check = self.get_flags(last_flag_time_check)
+                    flags.combine_flags_files()
 
                     # get all pending datafeeds
                     gather_datafeed_files()
