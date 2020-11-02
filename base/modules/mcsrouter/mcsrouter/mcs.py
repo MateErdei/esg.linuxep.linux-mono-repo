@@ -269,10 +269,6 @@ class MCS:
         # & status regulation?)
         self.__m_command_check_interval = CommandCheckInterval(config)
 
-        self.__m_jwt_token = None
-        self.__m_device_id = None
-        self.__m_tenant_id = None
-
     def startup(self):
         """
         Connect and register if required
