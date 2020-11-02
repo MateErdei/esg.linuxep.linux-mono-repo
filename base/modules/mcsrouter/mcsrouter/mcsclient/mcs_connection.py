@@ -580,8 +580,6 @@ class MCSConnection:
             mcsrouter.utils.write_json.write_current_proxy_info(proxy)
             self.__m_config.save()
 
-        #self.set_jwt_token_settings()
-
         return connection
 
     def __get_response(self, request_data):
