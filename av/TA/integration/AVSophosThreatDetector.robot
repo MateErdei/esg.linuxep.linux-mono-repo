@@ -28,7 +28,8 @@ Sophos Threat Detector Has No Unnecessary Capabilities
     ${rc}   ${pid} =       Run And Return Rc And Output    pgrep sophos_threat
     ${rc}   ${output} =    Run And Return Rc And Output    getpcaps ${pid}
     Should Not Contain  ${output}  cap_sys_chroot
-    Should Match        ${output}  Capabilities for `${pid}': =
+    # Handle different format of the output from getpcaps on Ubuntu 20.04
+    Run Keyword Unless  "${output}" == "Capabilities for `${pid}\': =" or "${output}" == "${pid}: ="  FAIL  msg=Enexpected capabilities: ${output}
 
 *** Keywords ***
 
@@ -69,4 +70,5 @@ AVSophosThreatDetector Test Setup
 
 AVSophosThreatDetector Test TearDown
     Log  AVSophosThreatDetector Test TearDown
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
     run teardown functions
