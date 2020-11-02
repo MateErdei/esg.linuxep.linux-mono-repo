@@ -81,7 +81,7 @@ class FakeMCSConnection(object):
     def close(self):
         pass
 
-    def set_jwt_token_settings(self):
+    def get_jwt_token_settings(self):
         pass
 
 

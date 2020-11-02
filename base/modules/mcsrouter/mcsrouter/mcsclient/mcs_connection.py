@@ -1235,9 +1235,9 @@ class MCSConnection:
         LOGGER.debug("Request policy fragment from {}".format(base_path + path))
         return self.send_message(path)
 
-    def set_jwt_token_settings(self):
+    def get_jwt_token_settings(self):
         """
-        set_jwt_token_settings
+        get_jwt_token_settings
         """
         jwt_token = None
         device_id = None

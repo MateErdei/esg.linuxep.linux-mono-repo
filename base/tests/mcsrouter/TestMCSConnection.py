@@ -450,15 +450,61 @@ class TestMCSConnection(unittest.TestCase):
                 expected_header_string = "request headers={'Authorization': 'Basic Og==', 'Accept': 'application/json', 'Content-Length': 32, 'Content-Encoding': 'deflate', 'X-Uncompressed-Content-Length': 32, 'User-Agent': 'Sophos MCS Client"
                 assert_message_in_logs(expected_header_string, logs.output, log_level="DEBUG")
 
-    def test_set_jwt_token_settings_returns_none_when_no_endpoint_id(self, *mockargs):
+    def test_get_jwt_token_settings_returns_none_when_no_endpoint_id(self, *mockargs):
         with self.assertLogs(level="WARNING") as logs:
             mcs_connection = TestMCSResponse.dummyMCSConnection()
             jwt_token, device_id, tenant_id = \
-                mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
             self.assertEqual(jwt_token, None)
             self.assertEqual(device_id, None)
             self.assertEqual(tenant_id, None)
             assert_message_in_logs("No Endpoint ID so cannot retrieve JWT tokens", logs.output, log_level="WARNING")
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id"}')
+    def test_get_jwt_token_settings_returns_values_when_valid(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        jwt_token, device_id, tenant_id = \
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
+        self.assertEqual(jwt_token, "jwt-token")
+        self.assertEqual(device_id, "device-id")
+        self.assertEqual(tenant_id, "tenant-id")
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","tenant_id":"tenant-id"}')
+    def test_get_jwt_token_settings_returns_values_when_valid_but_one_missing(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        jwt_token, device_id, tenant_id = \
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
+        self.assertEqual(jwt_token, "jwt-token")
+        self.assertEqual(device_id, None)
+        self.assertEqual(tenant_id, "tenant-id")
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"not-relevant":"jwt-token","example-field":"tenant-id"}')
+    def test_get_jwt_token_settings_returns_none_when_valid_json_but_fields_missing(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        jwt_token, device_id, tenant_id = \
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
+        self.assertEqual(jwt_token, None)
+        self.assertEqual(device_id, None)
+        self.assertEqual(tenant_id, None)
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id"')
+    def test_get_jwt_token_settings_returns_none_when_response_is_invalid_json(self, *mockargs):
+        with self.assertLogs(level="ERROR") as logs:
+            mcs_connection = TestMCSResponse.dummyMCSConnection()
+            jwt_token, device_id, tenant_id = \
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
+            self.assertEqual(jwt_token, None)
+            self.assertEqual(device_id, None)
+            self.assertEqual(tenant_id, None)
+            self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
+            assert_message_in_logs("Invalid JWT Token received", logs.output, log_level="ERROR")
 
 if __name__ == '__main__':
     unittest.main()
