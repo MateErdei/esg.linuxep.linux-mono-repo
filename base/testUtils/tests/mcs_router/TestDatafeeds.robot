@@ -223,6 +223,26 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-2900000015.json
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-3000000001.json
 
+MCS Reads Flags Policy And Has Correct
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
+    Override LogConf File as Global Level  DEBUG
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check MCS Router Log Contains  V2 Datafeed is available
+    Check MCS Router Log Contains  JWT Tokens are available
+
+    ${json_to_send} =   Set Variable  {"abc":"def123"}
+    send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
+    Check Cloud Server Log For Scheduled Query   scheduled_query
+    Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send}
+    Cloud Server Log Should Not Contain  Failed to decompress response body content
+    # TODO LINUXDAR-2380 Adapt this test for 2380 and remove the check for this log message
+    Check MCS Router Log Contains  Attempting use of V2 datafeed method
+
 *** Keywords ***
 Test Teardown
     MCSRouter Default Test Teardown
